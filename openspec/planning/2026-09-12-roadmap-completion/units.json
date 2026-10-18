@@ -8533,7 +8533,18 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-review-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-source-fable-review-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-owner-ruling-6256147045.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-jest.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-migration.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-migration-result.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-run-proof-cjs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-existing-db-proof-ts.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-44bd8bb91-older-open-ts.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8549,10 +8560,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+      "mergeSha": "44bd8bb9191f2c945324f483e4f524841b098ddf",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-1db-admission-20261018.json"
@@ -8563,9 +8574,27 @@
         "local": {
           "path": "evidence/lsc-1db-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-1db-admission-review-20261018.json",
+          "head": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+          "reviewedHead": "18319cc5cfd65d329b9e2dd25daa4140f7af4cf9",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "22f488154f0e4299281209a60f4695eab0b098f59bb7acf2c62eb894438a0782",
+          "verdict": "APPROVE WITH IN-PR FIXES"
+        },
+        "merge": {
+          "path": "evidence/lsc-1db-merge-20261018.json",
+          "pr": 2290,
+          "head": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+          "mergeSha": "44bd8bb9191f2c945324f483e4f524841b098ddf"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-1db-mainproof-20261018.json",
+          "mergeCommit": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 3 passed (persistence 25 suites, 200/200 tests; typecheck exit 0; real operator database COPY up/no-op/real older build/down/re-up PASS; original source hash unchanged; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8614,7 +8643,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -19199,6 +19228,44 @@
         "commentId": 6254759051,
         "author": "SwiggitySwerve",
         "bodySha256": "35b9d3e6719d1b6c73e1497afcfbc44097a3ac6598a14ca3f46c1a7b0529c4be"
+      }
+    },
+    {
+      "id": "PK-lsc-1db-ruling",
+      "blocks": [
+        "LSC-1DB"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the LSC-1DB migration at d1fef6cb after the independent sensitive review and the F1-F6 in-PR amendment, with exact-head 32/32 CI?",
+      "options": [
+        {
+          "label": "rule the exact amended schema head",
+          "consequence": "Permit guarded merge, then exact-main proof and closure releasing only LSC-1S. Route CF-LSC1DB-1..6 as ruled.",
+          "effort": "Independent sensitive review plus Root amendment check and exact-head CI"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge pending fixes, fresh evidence and owner ruling.",
+          "effort": "Bounded by concrete objections"
+        }
+      ],
+      "agentRecommendation": "Accept only the reviewed and amended exact head under the posted owner ruling; runtime behavior remains with downstream units.",
+      "revertCost": "Revert additive migration code; existing databases require the documented manual down SQL.",
+      "decision": {
+        "option": "rule the exact amended schema head",
+        "at": "2026-10-18T22:49:59Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2290#issuecomment-6256147045"
+      },
+      "ruling": {
+        "ruledHead": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+        "pr": 2290,
+        "commentId": 6256147045,
+        "author": "SwiggitySwerve",
+        "bodySha256": "1a40e49e21598174f6a4c8450bf2606f874bf297fe42672b474a6971e71bc06a"
       }
     },
     {

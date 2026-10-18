@@ -1,3 +1,27 @@
+## 2026-10-18 LSC-1DB verified on main; LSC-1S released; closure metadata proposed
+
+LSC-1DB advances from implementing to main-verified for PR #2290, head d1fef6cb76f64e6b1987eb705d0432df0c59c4fc, merge 44bd8bb9191f2c945324f483e4f524841b098ddf.
+The independent Fable 5.1 report reviewed 18319cc5cfd65d329b9e2dd25daa4140f7af4cf9: APPROVE WITH IN-PR FIXES. Root checked the three-file amendment and ruled ACCEPT at the exact merged head; no second independent full-head review is claimed.
+The review is byte-preserved (21388 bytes, sha256 22f488154f0e4299281209a60f4695eab0b098f59bb7acf2c62eb894438a0782), as is the posted owner ruling (2883 bytes, sha256 1a40e49e21598174f6a4c8450bf2606f874bf297fe42672b474a6971e71bc06a). Both use base64 envelopes to prevent line-ending normalization. PK-lsc-1db-ruling records comment 6256147045, posted 2026-10-18T22:49:59Z, before merge 2026-10-18T22:50:07Z.
+
+The [review receipt](evidence/lsc-1db-admission-review-20261018.json) fills the reserved slot and routes carry-forwards. The [merge receipt](evidence/lsc-1db-merge-20261018.json) records clean tree integration, unchanged controls and product/test bytes, 10/15 manifest files and 92/500 counted lines, and 32/32 exact-head check names.
+The [main proof](evidence/lsc-1db-mainproof-20261018.json) records fresh npm ci and runs at exactly 44bd8bb9191f2c945324f483e4f524841b098ddf: 25 persistence/vault suites, 200/200 tests; typecheck PASS; real operator database COPY up/no-op/actual afcbd62 older build/down/re-up PASS. Original database bytes unchanged. All heavy runs used the lsc jest ticket queue. Raw logs, runner scripts and migration result are byte-preserved.
+
+Carry-forwards (owner ruling text, verbatim):
+
+- CF-LSC1DB-1: integer binds, CAS by changes===1, and the revoke-keeps / re-provision-clears test -> LSC-1S.
+- CF-LSC1DB-2: the one-op-per-generation race test -> LSC-1S. The schema part is done.
+- CF-LSC1DB-3: revocation means revoked_at IS NOT NULL; the clock source for locked_until_ms -> LSC-1S.
+- CF-LSC1DB-4: the CF-LSC0-6 remainder (request-scoped key, no-secret logging) -> LSC-1S/1.
+- CF-LSC1DB-5: CF-LSC0-16 window semantics -> LSC-1S/1.
+- CF-LSC1DB-6: record manual down SQL -> future schema units.
+
+LSC-1S also carries CF-LSC0-8, -15, -16 and -17: no secrets in logs or errors; revoke keeps the lock; re-provision clears it; request-scoped key lifetime, counter expiry and window consumption semantics remain runtime obligations. The schema part of CF-LSC1DB-2 is done; its race test remains open.
+
+Successor release is separate from admission: only LSC-1S moves blocked -> planned because LSC-1DB has genuine exact-main PASS. All other units are unchanged. No tasks.md checkbox changes; tick remains null. This closure still requires its own CI, independent verification and merge.
+
+---
+
 ## 2026-10-18 B14-0 source verified on main; B14-HEAD and MP-RECOVERY-UNITS-1 released; closure metadata proposed
 
 B14-0 advances from implementing to main-verified for source PR #2281,

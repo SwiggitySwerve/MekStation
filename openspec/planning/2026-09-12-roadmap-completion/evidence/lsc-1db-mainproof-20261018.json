@@ -1,0 +1,236 @@
+{
+  "unit": "LSC-1DB",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T22:57:02.453Z",
+  "mergeCommit": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/lsc-1db-mainproof-sol-20261018",
+  "runtime": {
+    "playwright": "Source/Main checks: 3 passed (persistence 25 suites, 200/200 tests; typecheck exit 0; real operator database COPY up/no-op/real older build/down/re-up PASS; original source hash unchanged; 0 failed)",
+    "kind": "Persistence schema migration: Jest, TypeScript, real-DB-copy migration lifecycle",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci in the dedicated exact-merge worktree",
+    "summary": "Source/Main checks: 3 passed (persistence 25 suites, 200/200 tests; typecheck exit 0; real operator database COPY up/no-op/real older build/down/re-up PASS; original source hash unchanged; 0 failed)"
+  },
+  "heavyRun": {
+    "command": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane lsc --class jest --cwd <proof-worktree> -- node <logs>/run-proof.cjs <proof-worktree>",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792363953140-lsc.json"
+  },
+  "logs": [
+    {
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1db-closure-sol-logs/jest-cache",
+        "--runTestsByPath",
+        "src/services/persistence/__tests__/sqliteConstraintErrors.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.artifactManifestKinds.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.branchPin.fidelity.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.branchPin.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.campaignOutcomeInbox.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.contract.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.eventJournal.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.matchAuthorityBaseline.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.participantCursors.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.sessionParticipants.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.sessionState.migration.test.ts",
+        "src/services/vault/__tests__/IdentityRepository.test.ts"
+      ],
+      "startedAt": "2026-10-18T22:55:37.645Z",
+      "endedAt": "2026-10-18T22:56:34.235Z",
+      "exitCode": 0,
+      "sha256": "1c4245305767ea99975f3b9aaf71386e1a5aa7d430bcadb70b6a92de1285ee88",
+      "bytes": 4590,
+      "path": "evidence/mainproof-44bd8bb91-jest.bytes.json"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "--silent",
+        "typecheck"
+      ],
+      "startedAt": "2026-10-18T22:56:34.237Z",
+      "endedAt": "2026-10-18T22:56:39.488Z",
+      "exitCode": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "path": "evidence/mainproof-44bd8bb91-typecheck.bytes.json"
+    },
+    {
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/tsx/dist/cli.mjs",
+        "--tsconfig",
+        "tsconfig.json",
+        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1db-closure-sol-logs/existing-db-proof.ts",
+        "E:/Projects/Personal/MekStation-wt/lsc-1db-mainproof-sol-20261018",
+        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1db-closure-sol-logs/db/proof.json"
+      ],
+      "startedAt": "2026-10-18T22:56:39.489Z",
+      "endedAt": "2026-10-18T22:56:40.956Z",
+      "exitCode": 0,
+      "sha256": "eebefaf39b2ec113b831ae9651b818e3fdd059c0f657cb32b9b824210d2493e3",
+      "bytes": 998,
+      "path": "evidence/mainproof-44bd8bb91-migration.bytes.json"
+    }
+  ],
+  "harnesses": [
+    {
+      "path": "evidence/mainproof-44bd8bb91-run-proof-cjs.bytes.json",
+      "sha256": "78917351956bc202eb803a4b92e69e622664a7428bfcd12c4419a54030f900a8",
+      "bytes": 2118
+    },
+    {
+      "path": "evidence/mainproof-44bd8bb91-existing-db-proof-ts.bytes.json",
+      "sha256": "08a5e3d519a9ac87fe7bc3cb60c7526abba91aeb27f6487b681349f85ee1c818",
+      "bytes": 7655
+    },
+    {
+      "path": "evidence/mainproof-44bd8bb91-older-open-ts.bytes.json",
+      "sha256": "8a7c46c18ef59fd58943d93c72256137d5a058ac2f455c8f8dac8792315432e5",
+      "bytes": 802
+    }
+  ],
+  "suites": [
+    "src/services/persistence/__tests__/sqliteConstraintErrors.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.artifactManifestKinds.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.branchPin.fidelity.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.branchPin.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.campaignOutcomeInbox.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.contract.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.eventJournal.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.matchAuthorityBaseline.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.participantCursors.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.sessionParticipants.migration.test.ts",
+    "src/services/persistence/__tests__/SQLiteService.sessionState.migration.test.ts",
+    "src/services/vault/__tests__/IdentityRepository.test.ts"
+  ],
+  "migration": {
+    "source": {
+      "path": "E:/Projects/Personal/MekStation/data/mekstation.db",
+      "bytes": 9728000,
+      "sha256": "516c9abb72f9ab52085e41e069d850ac8f8bfbc06af9dff8278250f94c6ff101",
+      "note": "read-only source; only byte copies under E:\\Projects\\Personal\\MekStation-wt\\_lsc-1db-closure-sol-logs/db are opened for writing; no row content is recorded, only counts and hashes"
+    },
+    "catalogHead": 33,
+    "original": {
+      "version": 31,
+      "tables": 47,
+      "hasLocalSeatTables": false
+    },
+    "up": {
+      "preLscHead": 32,
+      "head": 33,
+      "addedObjects": [
+        "index:local_seat_credential_operations_seat_generation",
+        "table:local_seat_credential_operations",
+        "table:local_seat_credentials"
+      ],
+      "removedObjects": [],
+      "everyPreExistingObjectAndRowIdentical": true,
+      "localSeatRows": {
+        "credentials": 0,
+        "operations": 0
+      }
+    },
+    "noOp": {
+      "identical": true,
+      "version": 33
+    },
+    "cappedRunner": {
+      "note": "same code, maxMigrationVersion = head - 1; NOT an older build",
+      "opens": true,
+      "error": "",
+      "unchanged": true
+    },
+    "olderBuild": {
+      "tree": "E:/Projects/Personal/MekStation-wt/lsc-1db-older-sol-20261018",
+      "commit": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+      "catalogHead": 32,
+      "opens": true,
+      "error": null,
+      "unchanged": true
+    },
+    "down": {
+      "restoresPreLscSchemaAndRows": true,
+      "version": 32,
+      "reUp": {
+        "version": 33,
+        "equalsHeadUpgrade": true
+      }
+    },
+    "sourceUnchanged": true,
+    "manualDownSql": "BEGIN; DROP TABLE local_seat_credential_operations; DROP TABLE local_seat_credentials; DELETE FROM migrations WHERE version = 33; COMMIT;",
+    "pass": true,
+    "artifact": {
+      "path": "evidence/mainproof-44bd8bb91-migration-result.bytes.json",
+      "sha256": "c202ae2647bd2d5c78657c10cb9de47331df10abd4662feb67d63327f61c7619",
+      "bytes": 1696
+    }
+  },
+  "leavesAtMerge": [
+    {
+      "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "localReceiptSha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "headSha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "mergeSha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "localReceiptSha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673",
+      "headSha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673",
+      "mergeSha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "localReceiptSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563",
+      "headSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563",
+      "mergeSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "localReceiptSha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34",
+      "headSha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34",
+      "mergeSha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "localReceiptSha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2",
+      "headSha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2",
+      "mergeSha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2"
+    }
+  ],
+  "scope": "Fresh runs at exactly 44bd8bb91 before closure edits; original DB only read as bytes, all SQLite writes target scratch copies. Actual afcbd62 older build used; capped same-build result is separately labelled.",
+  "closure": "No task keys; tick remains null. Only LSC-1S is released to planned."
+}

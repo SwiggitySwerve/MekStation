@@ -1,0 +1,422 @@
+{
+  "unit": "LSC-1DB",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T22:57:02.453Z",
+  "pr": 2290,
+  "title": "LSC-1DB: local seat credential schema (migration 33)",
+  "head": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+  "reviewedHead": "18319cc5cfd65d329b9e2dd25daa4140f7af4cf9",
+  "mergeSha": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+  "mergedAt": "2026-10-18T22:50:07Z",
+  "mergedBy": "SwiggitySwerve",
+  "treeIntegration": {
+    "parents": [
+      "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
+      "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc"
+    ],
+    "actualTree": "30fbf66b3d8423d369f58534ade981e7c8109585",
+    "expectedTree": "30fbf66b3d8423d369f58534ade981e7c8109585",
+    "matches": true,
+    "headTree": "7fee77884d517f6f62ef8e9871330c7ae74928ec",
+    "headTreeEqualsMergeTree": false
+  },
+  "baseline": "afcbd62bba50621ebcf37c2c11adf58ecc3bfc5f",
+  "census": {
+    "changedFiles": 9,
+    "reservedUnwrittenAtMerge": 1,
+    "manifestFiles": 10,
+    "countedLines": 92,
+    "caps": {
+      "files": {
+        "changed": 9,
+        "reservedUnwritten": 1,
+        "manifest": 10,
+        "cap": 15
+      },
+      "countedLines": {
+        "added": 92,
+        "cap": 500,
+        "byFile": {
+          "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts": {
+            "added": 74,
+            "deleted": 0
+          },
+          "src/services/persistence/SQLiteService.migrations.ts": {
+            "added": 2,
+            "deleted": 0
+          },
+          "openspec/planning/2026-09-12-roadmap-completion/units.json": {
+            "added": 16,
+            "deleted": 6
+          }
+        },
+        "convention": "git diff --numstat --no-renames baseline..HEAD over the migration module, catalog and units.json, added lines only, no deletion credit; test leaves and receipts line-exempt but file-counted. Includes this commit's local-stage units.json edit."
+      }
+    },
+    "byFile": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-admission-20261018.json",
+        "added": 196,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-local-20261018.json",
+        "added": 489,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1db-red-20261018.json",
+        "added": 73,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6
+      },
+      {
+        "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+        "added": 74,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/persistence/SQLiteService.migrations.ts",
+        "added": 2,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+        "added": 438,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+        "added": 1,
+        "deleted": 1
+      },
+      {
+        "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+        "added": 1,
+        "deleted": 1
+      }
+    ]
+  },
+  "leavesAtMerge": [
+    {
+      "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "localReceiptSha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "headSha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "mergeSha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "localReceiptSha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673",
+      "headSha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673",
+      "mergeSha256": "28d2780f838ec445ede32ae4abce7eefc84f83720822b85d0a428ba968370673"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "localReceiptSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563",
+      "headSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563",
+      "mergeSha256": "655ed59233973ac5d5697314cbd243c92d40c29eac37accff6198249b958a563"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.migrations.test.ts",
+      "localReceiptSha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34",
+      "headSha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34",
+      "mergeSha256": "9203b93806a3d745b545735b67c7ae03f8befe2dd97408e303e89fbf115cba34"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "localReceiptSha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2",
+      "headSha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2",
+      "mergeSha256": "e12de912d58955f09b4125c71f1394bd9db8211c2dcfba6c386fa1613cc111b2"
+    }
+  ],
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/services/persistence/SQLiteService.ts",
+      "admissionSha256": "13b09094392ac13633812d0c542cd81f2bf377cb7bba99e944d98d6d35adca67",
+      "mergeSha256": "13b09094392ac13633812d0c542cd81f2bf377cb7bba99e944d98d6d35adca67"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.publicAppliedViews.migration.ts",
+      "admissionSha256": "c30d5dd40eb4623e7ecc2bc282486ae7c6b079a7f1b5c666dc45c126d223be26",
+      "mergeSha256": "c30d5dd40eb4623e7ecc2bc282486ae7c6b079a7f1b5c666dc45c126d223be26"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.contract.migration.test.ts",
+      "admissionSha256": "da9f932786aebf6938496169ced3a5787c79e17beeb78d7ed8d34938c2e9dfe3",
+      "mergeSha256": "da9f932786aebf6938496169ced3a5787c79e17beeb78d7ed8d34938c2e9dfe3"
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "admissionSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+      "mergeSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48"
+    }
+  ],
+  "checks": {
+    "head": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+    "observedAt": "2026-10-18T22:57:02.453Z",
+    "total": 32,
+    "successful": 32,
+    "namesEqualExpected32": true,
+    "missing": [],
+    "unexpected": [],
+    "expectedFrom": "evidence/p2cg1s-local-20261018.json carryForwards[\"CF-H12/CF-E10\"].expectedNames",
+    "jobs": [
+      {
+        "name": "Detect Changes",
+        "id": 117809311669,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 117809311845,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 117809311909,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117809353503,
+        "conclusion": "success"
+      },
+      {
+        "name": "Type Check",
+        "id": 117809431393,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format Check",
+        "id": 117809431417,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint",
+        "id": 117809431432,
+        "conclusion": "success"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 117809431456,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 117809431501,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 117809431504,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 117809431508,
+        "conclusion": "success"
+      },
+      {
+        "name": "A11y Tests",
+        "id": 117809431511,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 117809431517,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 117809431521,
+        "conclusion": "success"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 117809431530,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 117809431541,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 117809431548,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 117809431557,
+        "conclusion": "success"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 117809431581,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 117809431585,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 117809431587,
+        "conclusion": "success"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 117809431626,
+        "conclusion": "success"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 117809431630,
+        "conclusion": "success"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 117809431631,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 117809431658,
+        "conclusion": "success"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 117809431666,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 117809431679,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 117809431689,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 117809827899,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 117809827920,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 117809828606,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint and Test",
+        "id": 117810530245,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "requiredChecks": {
+    "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks",
+    "strict": false,
+    "contexts": [
+      "Lint and Test"
+    ],
+    "contexts_url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks/contexts",
+    "checks": [
+      {
+        "context": "Lint and Test",
+        "app_id": 15368
+      }
+    ]
+  },
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-18T22:57:02.453Z",
+    "jobs": [
+      {
+        "name": "Live Tier Signal",
+        "id": 117812934221,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Push Docker image",
+        "id": 117812738379,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "id": 117812737967,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "release",
+        "id": 117812737921,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "id": 117812737758,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117812737717,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Determine release tag",
+        "id": 117812690303,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (ubuntu-latest)",
+        "id": 117812632332,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (windows-latest)",
+        "id": 117812632090,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "version-and-release",
+        "id": 117812631790,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "ownerRuling": {
+    "ruledHead": "d1fef6cb76f64e6b1987eb705d0432df0c59c4fc",
+    "pr": 2290,
+    "commentId": 6256147045,
+    "author": "SwiggitySwerve",
+    "bodySha256": "1a40e49e21598174f6a4c8450bf2606f874bf297fe42672b474a6971e71bc06a",
+    "bodyBytes": 2883,
+    "at": "2026-10-18T22:49:59Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2290#issuecomment-6256147045",
+    "bodyPath": "evidence/lsc-1db-owner-ruling-6256147045.bytes.json",
+    "encoding": "base64 envelope of exact posted UTF-8 comment body; byte-identical to _receipts/pr2290-owner-ruling.md"
+  },
+  "chronology": "Owner ruling 2026-10-18T22:49:59Z preceded merge 2026-10-18T22:50:07Z."
+}
