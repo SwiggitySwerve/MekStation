@@ -39,6 +39,7 @@ import {
 } from '../fogMatchAdmission';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { addSpectatorSeat } from '../lobby/spectatorSeats';
+import { MATCH_WIRE_PUBLICATION_BOUNDARY } from '../projection/ViewerPublicationBoundary';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
 /**
@@ -493,7 +494,10 @@ describe('B14-0 fog containment', () => {
         }
       }
     };
-    walk(path.join(repo, 'src'), false);
+    // Every Jest root (jest.config.js roots), not only src (review F8/R4).
+    for (const root of ['src', 'scripts', 'openspec']) {
+      walk(path.join(repo, root), false);
+    }
     for (const file of B14_SEAM_ALLOWLIST) {
       const text = tests.get(file) ?? '';
       expect([file, text.split(CANONICAL_SEAM).length - 1]).toEqual([file, 1]);
@@ -654,7 +658,7 @@ describe('B14-0 fog containment', () => {
     }
   });
   it('refuses fog-on join and replay before any event read', async () => {
-    for (const mode of ['join', 'replay', 'legacy'] as const) {
+    for (const mode of ['join', 'replay', 'raw'] as const) {
       const { host, store } = await makeHostWithSpectator(true);
       const reads = jest.spyOn(store, 'getEvents');
       const socket = makeSocket();
@@ -664,7 +668,7 @@ describe('B14-0 fog containment', () => {
         await host.sendReplay(
           socket,
           0,
-          mode === 'legacy' ? undefined : 'pid_host',
+          mode === 'raw' ? undefined : 'pid_host',
         );
       expect(socket.sent.map((row) => row.parsed.kind)).toEqual(['Close']);
       expect([mode, reads.mock.calls.length]).toEqual([mode, 0]);
@@ -684,7 +688,52 @@ describe('B14-0 fog containment', () => {
       ),
     ).toBe(true);
   });
-  it.each(['join', 'replay', 'legacy'])(
+  it.each(['join', 'replay'])(
+    '%s refuses a non-member generically before fog policy',
+    async (mode) => {
+      // Membership precedes policy on the join/replay entrance (review F1/R10).
+      const { host } = await makeHostWithSpectator(true);
+      const sock = makeSocket();
+      if (mode === 'join') await host.handleSessionJoin(sock, 'stranger');
+      else await host.sendReplay(sock, 0, 'stranger');
+      expect(sock.sent.map((s) => s.parsed.kind)).toEqual(['Close']);
+      expect(
+        (sock.sent[0].parsed as unknown as { reason: string }).reason,
+      ).toBe('not an active member of this match');
+      expect(sock.closes).toEqual([
+        [1008, 'not an active member of this match'],
+      ]);
+      expect(JSON.stringify(sock.sent)).not.toMatch(/fog-projection/);
+    },
+  );
+  it('closes a join publication-guard failure terminally: one Close, 1011, detached', async () => {
+    // sendJoinGuardError: typed Close INTERNAL_ERROR + WS 1011 (review F2/R2).
+    const { host } = await makeHostWithSpectator(false);
+    const guard = jest
+      .spyOn(MATCH_WIRE_PUBLICATION_BOUNDARY, 'guardReplayFrames')
+      .mockReturnValue({
+        kind: 'failure',
+        error: { message: 'guard-internal-detail' },
+      } as never);
+    try {
+      const sock = makeSocket();
+      host.attachSocket(sock, 'pid_host');
+      await host.handleSessionJoin(sock, 'pid_host');
+      expect(sock.sent.map((s) => s.parsed.kind)).toEqual(['Close']);
+      expect(sock.sent[0].parsed).toMatchObject({
+        code: 'INTERNAL_ERROR',
+        reason: 'viewer projection unavailable',
+      });
+      expect(sock.closes).toEqual([[1011, 'viewer projection unavailable']]);
+      expect(JSON.stringify(sock.sent)).not.toContain('guard-internal-detail');
+      await broadcast(host, publicPhaseEvent(58));
+      expect(sock.sent).toHaveLength(1);
+    } finally {
+      guard.mockRestore();
+    }
+  });
+  // 'raw' = the historical no-playerId sendReplay hook (CF-S-9, review F4).
+  it.each(['join', 'replay', 'raw'])(
     'blocks fog %s including attached socket',
     async (mode) => {
       const { host } = await makeHostWithSpectator(true);
@@ -692,11 +741,7 @@ describe('B14-0 fog containment', () => {
       host.attachSocket(sock, 'pid_host');
       if (mode === 'join') await host.handleSessionJoin(sock, 'pid_host');
       else
-        await host.sendReplay(
-          sock,
-          0,
-          mode === 'legacy' ? undefined : 'pid_host',
-        );
+        await host.sendReplay(sock, 0, mode === 'raw' ? undefined : 'pid_host');
       expect(sock.sent.map((s) => s.parsed.kind)).toEqual(['Close']);
       expect(sock.closes).toEqual([[1008, 'fog-projection-unavailable']]);
     },
@@ -748,7 +793,10 @@ describe('B14-0 fog containment', () => {
       } as never,
     );
     expect(channel.broadcastReplayStream).not.toHaveBeenCalled();
-    expect(channel.broadcastReconnectReject).toHaveBeenCalled();
+    // A durable current member gets the fixed fog reason (review F3/R1).
+    expect(channel.broadcastReconnectReject.mock.calls).toEqual([
+      [{ matchId: 'match-spectator', reason: 'fog-projection-unavailable' }],
+    ]);
   });
   it('closes join membership infrastructure failure with 1011 and no fog details', async () => {
     const { host, store } = await makeHostWithSpectator(true);
@@ -768,11 +816,14 @@ describe('B14-0 fog containment', () => {
     const { host, store, matchId } = await makeHostWithSpectator(false);
     await store.updateMatchMeta(matchId, { seats: undefined });
     const sock = makeSocket();
-    await host.admitSocket(sock, 'pid_host');
+    expect(await host.admitSocket(sock, 'pid_host')).not.toBeNull();
     await host.handleSessionJoin(sock, 'pid_host');
     expect(JSON.stringify(sock.sent)).not.toContain(
       'fog-projection-unavailable',
     );
+    // Otherwise-authorized reads stay functional (review F9).
+    expect(sock.sent.some((s) => s.parsed.kind === 'ReplayEnd')).toBe(true);
+    expect(sock.closes).toEqual([]);
   });
   it('preserves fog-off admission/replay for players and non-playing GM', async () => {
     const { host, store, matchId } = await makeHostWithSpectator(false);
