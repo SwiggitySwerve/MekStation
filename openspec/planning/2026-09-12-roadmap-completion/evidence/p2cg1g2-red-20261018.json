@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G2",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
+  "admissionCommit": "b72d68030c72144d5b299393301406e289362435",
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit --watchAll=false --maxWorkers=2 --cacheDirectory <private> --verbose <the five G2 suites>",
+    "idle": "node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid <shell pid> -> MACHINE_IDLE immediately before the typecheck and Jest runs (idle-red.log)"
+  },
+  "productUnchanged": {
+    "note": "The four existing product leaves are byte-identical to the baseline (git diff --quiet exit 0) and the new seat module does not exist",
+    "files": [
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "sha256": "c763c4d57b2a"
+      },
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "sha256": "2b5a1096512f"
+      },
+      {
+        "path": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+        "sha256": "d64b4b277868"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+        "sha256": "781d33b29df4"
+      }
+    ],
+    "shaNote": "12-hex prefixes of the full sha256 values frozen in the admission receipt (identical at 36dacb34 and f32626fb)",
+    "absent": [
+      "src/lib/campaign/coop/campaignSyncTransportSeat.ts"
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "added": 292,
+      "deleted": 1,
+      "sha256": "8fd5a315c84c5e89fcee7e590a602a92768700c2ee7832952a5a22ad526b853d",
+      "bytes": 52539
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "added": 371,
+      "deleted": 5,
+      "sha256": "b59114df04ea5a0812c62f203e315a06d1cf5be0bd431d439ef95ec534770ae3",
+      "bytes": 21612
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+      "added": 29,
+      "deleted": 7,
+      "sha256": "3818fcd58c231c11cc60e8f323288a7a0382777b5318ff842a29bd96207ac97c",
+      "bytes": 18484
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+      "added": 205,
+      "deleted": 0,
+      "sha256": "1a8c26741309fb3ebefe8db648ee9d3f4a85d76dc6b5118b24914fb50b08bf62",
+      "bytes": 29476
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx",
+      "added": 279,
+      "deleted": 0,
+      "sha256": "6d606935ac646ba3bfb27214941bf64ae1b6a92c6ee1170982d705cfd14ecaa3",
+      "bytes": 8446,
+      "new": true
+    }
+  ],
+  "typecheckAtRed": {
+    "command": "npm run typecheck",
+    "result": "exit 0",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/typecheck-red.log",
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "bytes": 358
+    }
+  },
+  "result": {
+    "summary": "Test Suites: 5 failed, 5 total; Tests: 34 failed, 95 passed, 129 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/red.log",
+      "sha256": "6562abee6bb4b1054cad503e880a4bec7f32429cecfbdb3712c80c9e5c7f5c5d",
+      "bytes": 132114
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/idle-red.log",
+      "sha256": "315ceb46326ccdda8b3d7a4913043d09a4b22eb2dbc65560259861fe0f202a2d",
+      "bytes": 17
+    }
+  },
+  "behaviourRows": {
+    "count": 25,
+    "shape": "Plain Jest/RTL assertion failures (toBe, toEqual, toHaveLength, toHaveBeenCalledWith, not.toHaveBeenCalled, toBeDisabled/not.toBeDisabled); no compile, TypeError or missing-API failure",
+    "rows": [
+      {
+        "suite": "creatorBinding (new)",
+        "row": "S1h binds the host creator to the mounted campaign, not the match",
+        "failure": "active transport campaignId undefined (unbound)"
+      },
+      {
+        "suite": "creatorBinding",
+        "row": "S1g binds the guest creator to the mounted campaign, not the match",
+        "failure": "campaignId undefined"
+      },
+      {
+        "suite": "creatorBinding",
+        "row": "S3h never adopts a host transport bound to another campaign on the same match (CF-H16)",
+        "failure": "stored connect returned the foreign transport"
+      },
+      {
+        "suite": "creatorBinding",
+        "row": "S3g never adopts a guest transport bound to another campaign on the same match (CF-H16)",
+        "failure": "stored connect returned the foreign transport"
+      },
+      {
+        "suite": "creatorBinding",
+        "row": "CF-H6 keeps one healthy socket across a remount against a legacy server",
+        "failure": "bound precondition: campaignId undefined (the pin is about a bound transport)"
+      },
+      {
+        "suite": "mission-launch",
+        "row": "L1 binds both launch creators to the campaign, not the match",
+        "failure": "campaignId undefined"
+      },
+      {
+        "suite": "mission-launch",
+        "row": "L2 hears the first participation frame on a replacement B with no rerender",
+        "failure": "launch button stays disabled (listener on A only)"
+      },
+      {
+        "suite": "mission-launch",
+        "row": "L3 tells a replacement B the current choice exactly once",
+        "failure": "0 participation frames on B"
+      },
+      {
+        "suite": "mission-launch",
+        "row": "L4 publishes nothing from the replaced A, even while its socket is open",
+        "failure": "A's listener published; button enabled"
+      },
+      {
+        "suite": "mission-launch",
+        "row": "L5 sends nothing to, and never closes, a transport bound to another campaign",
+        "failure": "participation sent to the foreign transport"
+      },
+      {
+        "suite": "index.coop",
+        "row": "I1 Join modal authenticates, resolves the room code, hydrates a snapshot, and mints a guest mirror campaign",
+        "failure": "old summary URL without bearer/no-store; no expectedCampaignId"
+      },
+      {
+        "suite": "entry",
+        "row": "E1 resolves campaign identity with the minted bearer, never match metadata",
+        "failure": "old summary URL"
+      },
+      {
+        "suite": "entry",
+        "row": "E2 binds the guest creator to the resolved campaign and adopts its snapshot",
+        "failure": "no expectedCampaignId"
+      },
+      {
+        "suite": "entry",
+        "row": "E3a-d opens no socket for an identity with a missing / empty / non-string campaignId / unknown status (4 rows)",
+        "failure": "a socket was opened"
+      },
+      {
+        "suite": "entry",
+        "row": "E10a-c treats a 400 / 401 / 404 identity refusal as final: no socket and no anonymous fallback (CF-G2A-5; 3 rows)",
+        "failure": "the only invites request is the anonymous summary URL"
+      },
+      {
+        "suite": "entry",
+        "row": "E4a-b adopts nothing from a snapshot whose event / state names another campaign (2 rows)",
+        "failure": "adopted"
+      },
+      {
+        "suite": "entry",
+        "row": "E5 completes the join on a bound replacement B with no further render",
+        "failure": "never completes (waits on A)"
+      },
+      {
+        "suite": "entry",
+        "row": "E9 adopts nothing when the seat is replaced between its snapshot and adoption",
+        "failure": "adopted"
+      },
+      {
+        "suite": "entry",
+        "row": "E7 adopts nothing after the panel unmounts mid-join",
+        "failure": "adopted after unmount"
+      }
+    ]
+  },
+  "newApiRows": {
+    "count": 9,
+    "disclosure": "Transport-suite rows for the G2-RESEAT-1 registry observer and the new seat module. They read the new seams lazily (so the suite compiles and its other rows run at RED) and fail at runtime with 'subscribeActiveCampaignSyncTransport is not exported' (4) or \"Cannot find module '../campaignSyncTransportSeat'\" (5). They are disclosed separately and NOT claimed as behaviour RED; their behaviour is proven by the GREEN run and the MT/MS mutants",
+    "rows": [
+      "notifies after the registry write on connect, replacement and close, and a stale close drops nothing",
+      "guards a stale unregister and ignores same-object re-registration",
+      "isolates a throwing observer and snapshots observers across reentrant changes",
+      "drops observers on the test reset",
+      "follows a seat from A to B, detaching A first, and never attaches or closes a foreign transport",
+      "waits for the snapshot on the transport currently bound to the seat",
+      "rejects a snapshot whose event names another campaign",
+      "rejects a snapshot whose state names another campaign",
+      "settles once on abort or the fixed timeout and stops listening"
+    ]
+  },
+  "controlsGreenAtRed": [
+    "transport: keeps bound and unbound join and numeric ACK bytes identical before any offer (positive lastSeq; no appliedView; binding alone does not latch receipt mode)",
+    "entry: E6 never adopts or closes a foreign replacement; E8 a stale timeout closes only its own transport, never a bound B",
+    "launch: L6 detaches on unmount without closing the shared socket",
+    "every pre-existing row of the four existing suites except I1 (entry 7, index.coop 6, mission-launch 12, transport 66); 91 pre-existing + 4 new controls = 95 passed"
+  ],
+  "existingTestEdits": {
+    "note": "Disclosed; no existing assertion removed or weakened",
+    "entry": "Transport module mock now wraps the real module (records options, injects in-file sockets); the Player mock spreads the actual module and keeps the decodeTokenFromWire stub; createGuestMirrorCampaign is a hoisted mock",
+    "indexCoop": "Fake transport carries campaignId from the options; the module mock adds getActiveCampaignSyncTransport and subscribeActiveCampaignSyncTransport; the 404 row matches the URL by prefix. Row I1 replaces toHaveBeenCalledWith('/api/multiplayer/invites/PQR789'), which is exactly the behaviour G2 changes, with the identity URL plus Authorization/no-store and adds expectedCampaignId 'campaign-host-snapshot' (!= 'match-XYZ'): stricter, not weaker (G1 C3 precedent)",
+    "transport": "One import line restructured (type import gains ICampaignSyncTransport; namespace import and registerCampaignSyncTransport/logger imports added)"
+  },
+  "routedElsewhere": "CF-G2A-4 (MR1 lowercase bearer, MR4 empty campaignId) is observable only through the G2A route handler and its own suite; re-routed to B15 auth hardening (G2A-ROUTE-1). No row or file added for it",
+  "discardedRun": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/red-discarded-rules-of-hooks.log",
+    "note": "An earlier RED commit (local only, never pushed) carried creatorBinding.test.tsx with useCampaignStore() called inside the non-hook helper mount(); lint-units flagged it (react-hooks/rules-of-hooks, src-tests 17784 > ceiling 17783). The helper now reads the module StoreApi through a non-hook alias. The RED commit was amended before any push and RED re-run with the same 34 failed / 95 passed / 129; the earlier log is kept and not cited"
+  },
+  "rebase": {
+    "note": "RED re-run on the f32626fb-based branch with byte-identical test leaves (same sha256 as on 36dacb34) and the same result, 34 failed / 95 passed / 129. The earlier 36dacb34 runs are kept under run-36dacb34/ and not cited",
+    "previousRunDir": "E:/Projects/Personal/MekStation-wt/p2cg1g2-proof-20261018/run-36dacb34"
+  }
+}

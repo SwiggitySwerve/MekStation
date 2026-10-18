@@ -55,10 +55,18 @@ jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => ({
 }));
 
 const mockTransportClose = jest.fn();
-const mockConnectCampaignSyncTransport = jest.fn((_options: unknown) => ({
+// The fake the guest creator returns is also the registry's active entry, so
+// the panel's seat follower finds it bound to the campaignId it was given.
+let mockActiveTransport: unknown = null;
+const mockConnectCampaignSyncTransport = jest.fn((options: unknown) => {
+  mockActiveTransport = mockFakeTransport(options);
+  return mockActiveTransport;
+});
+const mockFakeTransport = (options: unknown) => ({
   matchId: 'match-XYZ',
   playerId: 'pid_host',
   role: 'guest',
+  campaignId: (options as { expectedCampaignId?: string }).expectedCampaignId,
   sendProposal: jest.fn(),
   sendDecision: jest.fn(),
   sendHostIntent: jest.fn(),
@@ -102,11 +110,13 @@ const mockConnectCampaignSyncTransport = jest.fn((_options: unknown) => ({
   onError: () => () => undefined,
   close: mockTransportClose,
   lastSeq: () => 0,
-}));
+});
 jest.mock('@/lib/campaign/coop/campaignSyncTransport', () => {
   return {
     connectCampaignSyncTransport: (options: unknown) =>
       mockConnectCampaignSyncTransport(options),
+    getActiveCampaignSyncTransport: () => mockActiveTransport,
+    subscribeActiveCampaignSyncTransport: () => () => undefined,
     campaignSnapshotFromMessage: (message: {
       kind?: string;
       event?: { type?: string };
@@ -389,7 +399,7 @@ describe('CampaignsListPage — co-op entry points', () => {
   it('Join modal authenticates, resolves the room code, hydrates a snapshot, and mints a guest mirror campaign', async () => {
     await mountAndHydrate();
 
-    const fetchSpy = jest.fn(async (url: string) => {
+    const fetchSpy = jest.fn(async (url: string, _init?: unknown) => {
       if (url === '/api/multiplayer/auth/token') {
         return {
           ok: true,
@@ -401,11 +411,16 @@ describe('CampaignsListPage — co-op entry points', () => {
           }),
         };
       }
-      if (url === '/api/multiplayer/invites/PQR789') {
+      if (url === '/api/multiplayer/invites/PQR789?campaignIdentity=1') {
         return {
           ok: true,
           status: 200,
-          json: async () => ({ matchId: 'match-XYZ', status: 'lobby' }),
+          json: async () => ({
+            matchId: 'match-XYZ',
+            status: 'lobby',
+            layout: '1v1',
+            campaignId: 'campaign-host-snapshot',
+          }),
         };
       }
       throw new Error(`unexpected fetch ${url}`);
@@ -428,9 +443,16 @@ describe('CampaignsListPage — co-op entry points', () => {
       '/api/multiplayer/auth/token',
       expect.objectContaining({ method: 'POST' }),
     );
-    expect(fetchSpy).toHaveBeenCalledWith('/api/multiplayer/invites/PQR789');
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/invites/PQR789?campaignIdentity=1',
+      {
+        headers: { Authorization: 'Bearer guest-wire-token' },
+        cache: 'no-store',
+      },
+    );
     expect(mockConnectCampaignSyncTransport).toHaveBeenCalledWith(
       expect.objectContaining({
+        expectedCampaignId: 'campaign-host-snapshot',
         matchId: 'match-XYZ',
         role: 'guest',
         playerId: 'pid_host',
@@ -475,7 +497,7 @@ describe('CampaignsListPage — co-op entry points', () => {
           }),
         };
       }
-      if (url === '/api/multiplayer/invites/ZZZZZZ') {
+      if (url.startsWith('/api/multiplayer/invites/ZZZZZZ')) {
         return {
           ok: false,
           status: 404,

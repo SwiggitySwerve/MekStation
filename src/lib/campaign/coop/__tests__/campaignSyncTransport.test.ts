@@ -13,9 +13,14 @@ import { generateKeyPair } from '@/services/vault/IdentityService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 import { HEARTBEAT_INTERVAL_MS } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
-import type { ICampaignSyncWebSocket } from '../campaignSyncTransport';
+import type {
+  ICampaignSyncTransport,
+  ICampaignSyncWebSocket,
+} from '../campaignSyncTransport';
 
+import * as transportModule from '../campaignSyncTransport';
 import {
   APPLICATION_CONFIRMATION_TIMEOUT_MS,
   campaignSnapshotFromMessage,
@@ -24,6 +29,7 @@ import {
   connectStoredCampaignSyncTransport,
   getActiveCampaignSyncTransport,
   MAX_HEAD_DRIFT_RESENDS,
+  registerCampaignSyncTransport,
 } from '../campaignSyncTransport';
 
 interface IMockSocket extends ICampaignSyncWebSocket {
@@ -1255,5 +1261,290 @@ describe('campaignSyncTransport', () => {
       campaignId: 'campaign-1',
       revision: 4,
     });
+  });
+});
+
+// =============================================================================
+// G2-RESEAT-1 (P2CG1G2): registry invalidation and seat following
+// =============================================================================
+
+// The new seams are read lazily so this suite still compiles and its other
+// rows still run against a product without them (RED).
+interface ISeat {
+  readonly matchId: string;
+  readonly campaignId: string;
+  readonly playerId: string;
+  readonly role: 'host' | 'guest';
+}
+interface ISeatModule {
+  boundCampaignSyncTransport(seat: ISeat): ICampaignSyncTransport | null;
+  followCampaignSyncSeat(
+    seat: ISeat,
+    attach: (
+      transport: ICampaignSyncTransport,
+      replaced: boolean,
+    ) => () => void,
+  ): () => void;
+  waitForSeatCampaignSnapshot(
+    seat: ISeat,
+    signal: AbortSignal,
+    timeoutMs: number,
+  ): Promise<ICampaignEvent<'CampaignSnapshotPublished'>>;
+}
+function seatModule(): ISeatModule {
+  return jest.requireActual('../campaignSyncTransportSeat') as ISeatModule;
+}
+function subscribeActive(matchId: string, onChange: () => void): () => void {
+  const subscribe = (transportModule as unknown as Record<string, unknown>)
+    .subscribeActiveCampaignSyncTransport;
+  if (typeof subscribe !== 'function') {
+    throw new Error('subscribeActiveCampaignSyncTransport is not exported');
+  }
+  return (subscribe as (m: string, f: () => void) => () => void)(
+    matchId,
+    onChange,
+  );
+}
+
+describe('G2-RESEAT-1 registry invalidation and seat following', () => {
+  const MATCH = 'match-seat-4';
+  const CAMPAIGN = 'campaign-seat-9';
+  const TS = '2026-10-18T00:00:00.000Z';
+  const seat: ISeat = {
+    matchId: MATCH,
+    campaignId: CAMPAIGN,
+    playerId: 'pid_guest',
+    role: 'guest',
+  };
+  const sockets: IMockSocket[] = [];
+
+  function connect(
+    patch: Partial<ISeat> & { lastSeq?: number; bound?: boolean } = {},
+  ): ICampaignSyncTransport {
+    const factory = makeSocketFactory();
+    const transport = connectCampaignSyncTransport({
+      matchId: patch.matchId ?? MATCH,
+      playerId: patch.playerId ?? seat.playerId,
+      role: patch.role ?? seat.role,
+      wireToken: 'token',
+      expectedCampaignId:
+        patch.bound === false ? undefined : (patch.campaignId ?? CAMPAIGN),
+      lastSeq: patch.lastSeq,
+      socketFactory: factory.factory,
+    });
+    sockets.push(factory.lastSocket());
+    return transport;
+  }
+
+  function snapshotFrame(campaignId = CAMPAIGN, stateCampaignId = campaignId) {
+    return {
+      kind: 'CampaignSnapshot',
+      matchId: MATCH,
+      ts: TS,
+      event: {
+        type: 'CampaignSnapshotPublished',
+        campaignId,
+        sequence: -1,
+        ts: TS,
+        authorPlayerId: 'pid_host',
+        scope: 'campaign',
+        payload: {
+          matchId: MATCH,
+          revision: 0,
+          state: createEmptyCampaignState(stateCampaignId),
+        },
+      },
+    };
+  }
+
+  beforeEach(() => {
+    sockets.length = 0;
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+    _resetCampaignSyncTransportsForTest();
+  });
+
+  it('notifies after the registry write on connect, replacement and close, and a stale close drops nothing', () => {
+    const seen: (ICampaignSyncTransport | null)[] = [];
+    subscribeActive(MATCH, () =>
+      seen.push(getActiveCampaignSyncTransport(MATCH)),
+    );
+    const a = connect();
+    const b = connect();
+    a.close();
+    expect(getActiveCampaignSyncTransport(MATCH)).toBe(b);
+    b.close();
+    expect(seen).toEqual([a, b, null]);
+  });
+
+  it('guards a stale unregister and ignores same-object re-registration', () => {
+    const fake = (id: string) =>
+      ({
+        ...connect({ matchId: `scratch-${id}` }),
+        matchId: MATCH,
+      }) as ICampaignSyncTransport;
+    const a = fake('a');
+    const b = fake('b');
+    const seen: (ICampaignSyncTransport | null)[] = [];
+    subscribeActive(MATCH, () =>
+      seen.push(getActiveCampaignSyncTransport(MATCH)),
+    );
+    const releaseA = registerCampaignSyncTransport(a);
+    registerCampaignSyncTransport(a);
+    const releaseB = registerCampaignSyncTransport(b);
+    releaseA();
+    expect(getActiveCampaignSyncTransport(MATCH)).toBe(b);
+    releaseB();
+    expect(seen).toEqual([a, b, null]);
+  });
+
+  it('isolates a throwing observer and snapshots observers across reentrant changes', () => {
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const calls: string[] = [];
+    subscribeActive(MATCH, () => {
+      calls.push('throws');
+      throw new Error('observer failed');
+    });
+    const offSelf = subscribeActive(MATCH, () => {
+      calls.push('reentrant');
+      offSelf();
+      subscribeActive(MATCH, () => calls.push('late'));
+    });
+    subscribeActive(MATCH, () => calls.push('steady'));
+    connect();
+    expect(calls).toEqual(['throws', 'reentrant', 'steady']);
+    expect(warn).toHaveBeenCalledTimes(1);
+    connect();
+    expect(calls.slice(3)).toEqual(['throws', 'steady', 'late']);
+  });
+
+  it('drops observers on the test reset', () => {
+    const calls: string[] = [];
+    subscribeActive(MATCH, () => calls.push('observed'));
+    _resetCampaignSyncTransportsForTest();
+    connect();
+    expect(calls).toEqual([]);
+  });
+
+  it('follows a seat from A to B, detaching A first, and never attaches or closes a foreign transport', () => {
+    const { followCampaignSyncSeat, boundCampaignSyncTransport } = seatModule();
+    const log: [string, ICampaignSyncTransport, boolean?][] = [];
+    const a = connect();
+    const stop = followCampaignSyncSeat(seat, (transport, replaced) => {
+      log.push(['attach', transport, replaced]);
+      return () => log.push(['detach', transport]);
+    });
+    const b = connect();
+    connect({ campaignId: 'campaign-other' });
+    connect({ playerId: 'pid_other' });
+    expect(boundCampaignSyncTransport(seat)).toBeNull();
+    const c = connect();
+    stop();
+    expect(log).toEqual([
+      ['attach', a, false],
+      ['detach', a],
+      ['attach', b, true],
+      ['detach', b],
+      ['attach', c, true],
+      ['detach', c],
+    ]);
+    expect(sockets[2].readyState).toBe(1);
+    expect(sockets[3].readyState).toBe(1);
+  });
+
+  it('waits for the snapshot on the transport currently bound to the seat', async () => {
+    const { waitForSeatCampaignSnapshot } = seatModule();
+    connect();
+    const controller = new AbortController();
+    const waiting = waitForSeatCampaignSnapshot(
+      seat,
+      controller.signal,
+      10_000,
+    );
+    connect();
+    sockets[0].inject(snapshotFrame());
+    sockets[1].inject(snapshotFrame());
+    await expect(waiting).resolves.toMatchObject({
+      type: 'CampaignSnapshotPublished',
+      campaignId: CAMPAIGN,
+    });
+  });
+
+  it.each<[string, string, string]>([
+    ['event', 'campaign-other', CAMPAIGN],
+    ['state', CAMPAIGN, 'campaign-other'],
+  ])(
+    'rejects a snapshot whose %s names another campaign',
+    async (_label, eventCampaign, stateCampaign) => {
+      const { waitForSeatCampaignSnapshot } = seatModule();
+      connect();
+      const waiting = waitForSeatCampaignSnapshot(
+        seat,
+        new AbortController().signal,
+        10_000,
+      );
+      sockets[0].inject(snapshotFrame(eventCampaign, stateCampaign));
+      await expect(waiting).rejects.toThrow('another campaign');
+    },
+  );
+
+  it('settles once on abort or the fixed timeout and stops listening', async () => {
+    jest.useFakeTimers();
+    const { waitForSeatCampaignSnapshot } = seatModule();
+    connect();
+    const controller = new AbortController();
+    const aborted = waitForSeatCampaignSnapshot(
+      seat,
+      controller.signal,
+      10_000,
+    );
+    controller.abort();
+    await expect(aborted).rejects.toThrow('cancelled');
+    const timed = waitForSeatCampaignSnapshot(
+      seat,
+      new AbortController().signal,
+      10_000,
+    );
+    jest.advanceTimersByTime(10_000);
+    await expect(timed).rejects.toThrow('Timed out');
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
+  it('keeps bound and unbound join and numeric ACK bytes identical before any offer', () => {
+    jest.useFakeTimers().setSystemTime(new Date(TS));
+    const legacy = {
+      kind: 'CampaignEvent',
+      matchId: MATCH,
+      ts: TS,
+      event: {
+        type: 'FundsChanged',
+        sequence: 8,
+        campaignId: CAMPAIGN,
+        ts: TS,
+        authorPlayerId: 'pid_host',
+        scope: 'campaign',
+        payload: {},
+      },
+    };
+    const run = (bound: boolean): string[] => {
+      const transport = connect({ bound, lastSeq: 7 });
+      const socket = sockets[sockets.length - 1];
+      socket.fireOpen();
+      socket.inject(legacy);
+      transport.close();
+      return socket.sentRaw.slice();
+    };
+    const unbound = run(false);
+    const bound = run(true);
+    expect(bound).toEqual(unbound);
+    expect(JSON.parse(bound[0])).toMatchObject({
+      kind: 'CampaignJoin',
+      lastSeq: 7,
+    });
+    const ack = JSON.parse(bound[bound.length - 1]);
+    expect(ack).toMatchObject({ kind: 'CampaignAck', revision: 8 });
+    expect(ack.appliedView).toBeUndefined();
   });
 });
