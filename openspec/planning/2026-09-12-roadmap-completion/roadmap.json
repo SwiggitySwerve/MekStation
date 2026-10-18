@@ -3113,7 +3113,9 @@
         "src/__tests__/api",
         "src/pages-modules/gameplay/campaigns",
         "e2e",
-        "docs/releases"
+        "docs/releases",
+        "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+        "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3606,11 +3608,7 @@
             "src/lib/multiplayer/server/ServerMatchHost.ts",
             "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
             "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
-            "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
-            "src/pages/api/multiplayer/matches/[id].ts",
             "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
-            "src/__tests__/api/securityBoundary.test.ts",
-            "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
             "openspec/specs/fog-of-war/spec.md",
             "openspec/planning/2026-09-12-roadmap-completion/units.json",
             "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json",
@@ -3619,9 +3617,9 @@
             "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-review.json"
           ]
         },
-        "knownSourceTestLifecycleSubtotal": 11,
-        "totalProspectiveFiles": 15,
-        "rule": "Literal prospective manifest only; two new source/test files and four evidence filenames freeze at admission. Existing aliases satisfy validator path-existence rules, not broad permission. Exact metadata route and fog spec aliases added to this node; all other node contracts/holders and prior restrictions unchanged. Re-census G2A securityBoundary.test.ts and S/U26 Events/Replay overlaps before admission. Split if required proof/closure cannot fit 15 files / 500 counted additions."
+        "knownSourceTestLifecycleSubtotal": 7,
+        "totalProspectiveFiles": 11,
+        "rule": "Literal 11-file prospective WebSocket/spec manifest supersedes the earlier 15-file allocation under b14SplitRegistration20261018. HTTP/predicate/export and their proof move to B14-0A; legacy-filter seams are split between B14-0A and B14-0B. Freeze final names and measured scope at admission; four spare slots grant no unnamed leaves. Preserve S/U26 overlap census, 15/500 caps and separate G-OWN closure freeze. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
       },
       "ownershipPathsAmended20261018B14Head": {
         "unit": "B14-HEAD",
@@ -3641,7 +3639,7 @@
         },
         "knownSourceTestLifecycleSubtotal": 3,
         "totalProspectiveFiles": 7,
-        "rule": "Literal prospective manifest only. Existing src/pages-modules/api alias satisfies node ownership; it grants no directory-wide permission. B14-0's existing 15-file restriction is unchanged. Freeze final evidence names and actual measured fit at admission. Re-census U26 history-route/test overlap and preserve the landed shared fogMatchAdmission decision read-only; required extra leaves need separate registration. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+        "rule": "Literal prospective manifest only. Existing src/pages-modules/api alias satisfies node ownership; it grants no directory-wide permission. B14-0's amended 11-file restriction is recorded in ownershipPathsAmended20261018B14; B14-0A introduces the shared predicate. Freeze final evidence names and actual measured fit at admission. Re-census U26 history-route/test overlap and preserve the landed shared fogMatchAdmission decision read-only; required extra leaves need separate registration. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
       },
       "ownershipPathsAmended20261018LocalSeats": {
         "units": [
@@ -3729,6 +3727,56 @@
         ],
         "additionalP2CG2Leaf": "src/lib/multiplayer/server/campaignApplicationConnection.ts",
         "rule": "P2CG2 adds only durable application-settlement notification and receipt attachment invalidation; seven source/test leaves plus lifecycle and four draft artifacts are 12/15. P2J owns only the existing journey test plus own lifecycle and four draft artifacts, 6/15. No new wire fields, schema, numeric readiness, product grant for P2J, cap change or source admission. Full manifests and limits are in the matching units.json notes. Required extra scope needs a separately registered successor."
+      },
+      "ownershipPathsAmended20261018B14Split": {
+        "units": [
+          "B14-0A",
+          "B14-0B"
+        ],
+        "status": "planned-gated",
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-prep2-20261018.txt",
+        "sourceSha256": "1b3b2c2d6c860ad9ef1f9eafff56406e136fd1dce01e15fa5859bd21d83ed507",
+        "restrictions": {
+          "B14-0A": [
+            "src/lib/multiplayer/server/fogMatchAdmission.ts",
+            "src/pages/api/multiplayer/matches/[id].ts",
+            "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+            "src/__tests__/api/securityBoundary.test.ts",
+            "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+            "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+            "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+            "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+            "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-review-20261018.json"
+          ],
+          "B14-0B": [
+            "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+            "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+            "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+            "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+            "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+            "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+            "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-admission-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-red-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-local-20261018.json",
+            "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-review-20261018.json"
+          ]
+        },
+        "totalProspectiveFiles": {
+          "B14-0A": 15,
+          "B14-0B": 15
+        },
+        "rule": "Blocked documentary registration only; no source admission or runtime acceptance. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Preserve G2/R/S gates and one product-writing lane including closure. Rebase and re-census all existing/prospective source/test/helper/lifecycle/evidence leaves, aliases, exceptions and planned/blocked holders on fresh Main before admission. Freeze the complete literal manifest and truthful final evidence names; aliases are navigation only, never directory-wide permission. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. Estimates are not measured cap fit. Extra leaves or overflow require a separately registered narrower successor; never suppress proof or use spare slots without a freeze. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. No fabricated receipts. New ownership is limited to the literal multiplayerMatchMeta.test.ts and clientAgainstFogServer.integration.test.ts leaves, never their parent directories. B14-0B receives ServerMatchHost.spectator.test.ts only after S closes. securityBoundary.test.ts also has B15-PRIV reservation and LSC-1 alias: re-census at admission."
       }
     },
     {
@@ -18468,5 +18516,30 @@
       "N6": "P2CG1H keeps P2CG1HP in admissionRequires alongside LSC-2 and all existing prerequisites; add LSC-2P exact-main PASS, fetched-main ancestry and closure."
     },
     "rule": "Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve all G2/R/S/B14/HP gates and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; CampaignCoopEntryPanel.tsx and campaign co-op paths overlap G2/HP ownership, which must be closed first. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance."
+  },
+  "b14SplitRegistration20261018": {
+    "baseline": "fb5d7c343a5419eeead75bbd91b78a26c52a5da5",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "status": "planned-gated",
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-prep2-20261018.txt",
+    "sourceSha256": "1b3b2c2d6c860ad9ef1f9eafff56406e136fd1dce01e15fa5859bd21d83ed507",
+    "authority": "Parent adopts Option A under owner standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\" and owner 2026-10-18 \"I think the recommended actions make sense for the ones that have them\". This is a documentary parent ruling, not future implementation OWNER-RULING or runtime acceptance.",
+    "node": "R2.authority-live",
+    "layer": "L1",
+    "order": "P2CG1S -> B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> P2CG1HP",
+    "reason": "Prep found 15 existing passing suites broken by refusal: 14 WebSocket suites plus multiplayerMatchMeta.test.ts. Updating the aggregate B14-0 requires about 30 files, beyond 15. Option A keeps each PR green and preserves the existing fog-filter privacy pins beneath the refusal.",
+    "allocation": {
+      "B14-0A": "15 files: predicate, HTTP metadata/export/private-preview refusal, HTTP/digest proof, four legacy-filter availability seams and five lifecycle/evidence files.",
+      "B14-0B": "15 files: remaining ten test-only seams and five lifecycle/evidence files; sensitive review retained. RED N/A, before/after passes required.",
+      "B14-0": "11 files: WebSocket refusals, unmocked default-refusal test, fog-of-war spec, five lifecycle/evidence files.",
+      "B14-HEAD": "Unchanged seven-file manifest; consumes B14-0A predicate/digest census, follows B14-0."
+    },
+    "seam": "Each named legacy-filter suite gets a commented jest.mock module factory for @/lib/multiplayer/server/fogMatchAdmission, spreading jest.requireActual and overriding noPerViewerRevealProjection and matchLacksRevealProjection to report an available projection. The comment states that the suite pins the existing per-viewer fog filter beneath refusal; production has no projection and refuses. No global mock, weakened assertions or removal of S sealed-choice privacy pins. The real default remains pinned without this seam by B14-0 b14FogContainment.test.ts and its refusal mutants.",
+    "closePolicy": "Limited to the audited combat admission/revocation/rejoin terminal-refusal paths in ServerMatchHost.ts and ServerMatchHostReplay.ts plus B14 fog refusal: fixed secret-free typed reason, WS 1008 for membership/policy refusal, 1011 for infrastructure failure, server-side detach and physical close on terminal refusal. Pre-upgrade invalid authentication remains HTTP 401, not a received WS close. Withholding an ordinary hidden event does not close a healthy socket. No campaign transport rewrite or P2CG2 removal ownership change. Parent ruling 2026-10-18: unreadable fog configuration during live delivery is an infrastructure failure -> WS 1011, not 1008; fog-policy refusal stays 1008. Distinguish read failure from readable but unknown configuration without permitting delivery. Export/private-preview refusal stays the existing HTTP 500 mapping with fixed fog-projection-unavailable reason (B14-0A).",
+    "acceptance": "Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
+    "ownershipCensus": "Blocked documentary registration only; no source admission or runtime acceptance. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Preserve G2/R/S gates and one product-writing lane including closure. Rebase and re-census all existing/prospective source/test/helper/lifecycle/evidence leaves, aliases, exceptions and planned/blocked holders on fresh Main before admission. Freeze the complete literal manifest and truthful final evidence names; aliases are navigation only, never directory-wide permission. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. Estimates are not measured cap fit. Extra leaves or overflow require a separately registered narrower successor; never suppress proof or use spare slots without a freeze. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. No fabricated receipts. New ownership is limited to the literal multiplayerMatchMeta.test.ts and clientAgainstFogServer.integration.test.ts leaves, never their parent directories. B14-0B receives ServerMatchHost.spectator.test.ts only after S closes. securityBoundary.test.ts also has B15-PRIV reservation and LSC-1 alias: re-census at admission.",
+    "enforcement": "Blocked documentary registration only; no source admission or runtime acceptance. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Preserve G2/R/S gates and one product-writing lane including closure. Rebase and re-census all existing/prospective source/test/helper/lifecycle/evidence leaves, aliases, exceptions and planned/blocked holders on fresh Main before admission. Freeze the complete literal manifest and truthful final evidence names; aliases are navigation only, never directory-wide permission. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. Estimates are not measured cap fit. Extra leaves or overflow require a separately registered narrower successor; never suppress proof or use spare slots without a freeze. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. No fabricated receipts.",
+    "historicalRecords": "Earlier dated B14/HEAD/HP/local-seat order and file-count records are historical. This amendment and the current L1 units/order/checklist supersede their order, B14 allocation and two-unit acceptance wording; no other unit contract, lifecycle, cap, holder or packet changes."
   }
 }

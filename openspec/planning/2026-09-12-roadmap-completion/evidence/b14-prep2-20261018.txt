@@ -1,0 +1,259 @@
+# B14-PREP2: B14-0 / B14-HEAD early prep on current Main (2026-10-18)
+
+This is Phase 1 research. It is not an admission, a commit, a push, a review, an OWNER-RULING or proof on Main. Nothing tracked was changed in any checkout.
+
+## Verdict
+
+- **B14-0 does not fit as registered.** Porting the prototype with the council-3 capability-predicate wording works: 59/59 GREEN, 23 RED rows on unchanged Main product, and 15/15 mutants caught. But a wider regression census shows that the fog-on refusal breaks **15 existing test suites outside the 15-file manifest**: 14 WebSocket suites plus one HTTP suite (`multiplayerMatchMeta.test.ts`). They all pass on Main. Updating them in the same PR makes B14-0 about **30 files**, against a cap of 15. Under the current rules no file-count-preserving edit avoids this, so a **split is required** (proposal below). The earlier prototype measured only six suites and missed it.
+- **B14-HEAD fits as registered.** It changes two source/test leaves plus five lifecycle/evidence files, 7/15. It measures 9 counted route additions and 75 test additions. RED 2 / GREEN 16/16, and 12/12 mutants caught.
+- Order still holds: R (merged as #2260 = fb5d7c343) -> S -> B14 split units -> B14-HEAD.
+
+## Baseline and isolation
+
+- Worktrees: `b14-impl-20261018` is detached at origin/main **fb5d7c343** (#2260, R merged), with no tracked changes. This file and two `*-candidate.patch` copies are untracked there. `b14-scratch-20261018` is detached at **c4d0eae46** and holds the uncommitted candidate, `.b14prep/` (runners, logs, Jest JSON) and a private `.jest-private` cache. R's merge touches none of the B14 leaves (`git diff c4d0eae46 fb5d7c343` covers only campaign sync/CampaignMatchHost/bindCampaignSyncConnection). Prototype patches from f32626fbd applied cleanly to c4d0eae46, and no B14 leaf changed in between.
+- The root checkout's `node_modules` was stale: its lockfile differs from Main and the folder dates from 2026-09-16. I ran `npm ci` in the impl worktree, gated. Scratch uses an ignored junction to it. Husky `prepare` left the shared `core.hooksPath=.husky/_` unchanged.
+- Every Jest/tsc/npm job was gated on `node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164`: 90 gates, all MACHINE_IDLE, logged in `.b14prep/idle-gates.log`. Every Jest run used `--runInBand --cacheDirectory <scratch>/.jest-private`. No timeout was raised and no foreign process was touched. One exception: an ungated `tsc` I started by mistake. I stopped it myself (my PIDs 22004/59752) and reran it gated.
+- Contracts read: units.json B14-0 (`registration20261018B14`, acceptance, closePolicy), B14-HEAD (`registration20261018B14Head`), `b14Registration20261018`, `b14HeadRegistration20261018`, `fogRestorationRegistration20261018` (council-3, FOG-S..X), and roadmap.json `ownershipPathsAmended20261018B14` / `...B14Head`. Input hashes on fb5d7c343: units.json `64e8b2f37c4ae8749b10153dcf9c2c48dcca37cd92ebe14e1027a90247911e4e`, roadmap.json `091a41abc8bab509d07d73274106f631bf6b69475d84430ee584b465e5a8650a`. The prior prep `B14HP-PREP.md` is `a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787`, which equals the registered `b14hp-prep-20261018.txt` source hash.
+
+## Council-3 wording applied
+
+`src/lib/multiplayer/server/fogMatchAdmission.ts` now contains one capability predicate. Callers use it instead of scattered config checks.
+
+- `noPerViewerRevealProjection(config)` is documented as "no per-viewer reveal projection available for this match". It returns true when config is unknown (`undefined`) or `fogOfWar === true`. A known config that omits the flag counts as fog-off.
+- `matchLacksRevealProjection(store, matchId)` reads authoritative config. An unreadable config counts as unknown and returns true.
+- `FOG_REFUSAL = 'fog-projection-unavailable'` and `refuseFogSocket` send the existing `Close`/`AUTH_REJECTED` vocabulary and physically close with 1008. The close happens even if the send throws. No protocol enum was added.
+- Every surface calls the predicate: admission (`ServerMatchHost.admitSocket`), live publish (`ServerMatchHostEvents`), replay/join/direct/no-player replay and the legacy reconnect callback (`ServerMatchHostReplay`), metadata GET (`[id].ts`), export/private-preview (`FogAwareMatchProjectionService`), and in B14-HEAD the `/head` route.
+- The spec delta is now `### Requirement: Fog-On Private Reads Require a Per-Viewer Projection` and contains the mandated sentence verbatim: "Fog-on private reads SHALL be served only through a per-viewer projection; when none is available, refuse with fog-projection-unavailable." It has three scenarios: member fog-on/unknown -> refuse + 1008 + detach; known-off without projection metadata -> no fog refusal; non-member -> generic refusal only. The prototype used the wrong heading levels; this corrects them. `openspec validate fog-of-war --strict` passes.
+- No test pins GameCreated as a public full-roster event. The deleted Main export test, which asserted that `createdUnits` were public, is not re-added. The digest census reads the stored envelope only.
+
+### Changes from the prototype besides the wording
+
+1. **Fog-off legacy reconnect preserved.** The prototype verified durable membership for every metadata peer in both fog states. That broke the fog-off test `ServerMatchHost.test.ts` "answers original guest reconnect-request". Now membership is checked only on the path that would refuse for fog. A current member gets `fog-projection-unavailable`; a stale peer gets the generic `Match in progress`. Fog-off goes to `answerReconnectRequest` unchanged. The clumsy aliased double import is gone.
+2. **Export service keeps fog-off byte-identical to its parent.** The prototype added a new seat lookup to fog-off match reads. Now config is read first, which Main already did for every match stream. Only when the predicate refuses does the service run `requireCurrentSeat`: scope check, then durable seat. A missing seat gives `wrong-session` "Authorization refused"; a seat-lookup failure gives the constant `projection-failed`. Neither carries fog detail.
+3. Tests: the copied spectator header and mojibake were fixed (ASCII only, no BOM) and the describe was renamed from "scratch". New cases cover fog-on same-side players, unknown config at live publish, and join/replay server-side detach while the transport still reports OPEN. Metadata now has a fog-on **stranger -> 404, no fog** row. Export has **no seat / seat failure -> no fog**. Imports misplaced above file headers were restored, and an unused import was removed.
+4. The census test is retitled "mirrored journal event digest changes with hidden payload or post-state digest alone". It stays in B14-0's `matchHistoryFog.test.ts` as the characterization that backs both export and head refusal. B14-HEAD's red proof cites it.
+
+## B14-0 measurements (aggregate candidate, all surfaces)
+
+Numstat, additions only, no deletion credit:
+
+| Leaf | + | - |
+|---|---:|---:|
+| fogMatchAdmission.ts (new) | 57 | 0 |
+| ServerMatchHost.ts | 15 | 4 |
+| ServerMatchHostReplay.ts | 45 | 9 |
+| ServerMatchHostEvents.ts | 9 | 0 |
+| projection/FogAwareMatchProjection.ts | 39 | 89 |
+| pages/api/multiplayer/matches/[id].ts | 8 | 0 |
+| fog-of-war/spec.md | 20 | 0 |
+| **counted** | **193** | |
+| b14FogContainment.test.ts (new, exempt) | 383 | 0 |
+| securityBoundary.test.ts (exempt) | 41 | 0 |
+| matchHistoryFog.test.ts (exempt) | 130 | 172 |
+
+`tsc --noEmit` exit 0. `oxfmt --check` is clean. `oxlint` shows 0 errors and 2 warnings, both inherited max-lines (ServerMatchHost.ts, ServerMatchHostReplay.ts). `git diff --check` is clean.
+
+**RED** (Main product restored, final tests): 36 pass / 23 fail. **GREEN**: 59/59. Not every RED row is a leak on Main. Real Main leaks: fog-on admission/join/replay/legacy/live bytes, metadata, and export. Shape or reason pins only: Main closed the socket without 1008/1011 codes, Main returned generic `projection-failed` rather than `wrong-session` for a missing seat (no leak), and Main returned a generic reason for unknown config.
+
+**Mutants: 15/15 caught** (`.b14prep/b14-0/results.json`): M01 admission bypass, M02 live bypass, M03 replay bypass, M04 legacy bypass, M05 close 1000, M06 metadata bypass, M07 export bypass, M08 unknown allowed, M09 live no-detach, M10 export policy before membership, M11 legacy without membership, M12 Close-frame reason drift, M13 replay no-detach, M14 join no-detach, M15 fog-off refused.
+
+### The census that breaks the fit
+
+I ran every test file that references the changed modules or `fogOfWar`: 109 suites, `.b14prep/regression-list2.txt`. On Main product all 109 pass, except the new B14 rows that are expected to be RED. On the candidate, **15 suites fail (117 assertions)**:
+
+| Suite | Fail | Surface |
+|---|---:|---|
+| server/__tests__/CoopOpponentDriver.test.ts (fixture is fog **on** co-op) | 84 | admission, live, replay |
+| server/__tests__/viewerFrameRawNegativeSweep.test.ts | 6 | live, replay |
+| multiplayer/__tests__/clientAgainstFogServer.integration.test.ts | 5 | live, replay |
+| unit/api/multiplayerMatchMeta.test.ts (fixture fog on) | 5 | HTTP meta |
+| server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts | 4 | live, replay |
+| server/__tests__/viewerDeliverySequence.test.ts | 3 | live |
+| server/__tests__/viewerSequenceConcealmentLeak.test.ts | 2 | live |
+| server/__tests__/ServerMatchHost.spectator.test.ts (S-owned; **14** after S lands) | 1 | live |
+| server/__tests__/viewerFrameAuthorityFieldLeak.test.ts | 1 | live |
+| server/__tests__/fogViewerSequenceSparsity.test.ts | 1 | live |
+| server/__tests__/ServerMatchHostCommandResults.test.ts | 1 | live, replay |
+| server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts | 1 | replay |
+| server/__tests__/customCombatRecovery.recoveryDelivery.test.ts | 1 | admission, replay |
+| server/__tests__/customConstructionTransport.test.ts | 1 | admission, live, replay |
+| server/__tests__/matchmaking.integration.test.ts | 1 | replay |
+
+I measured the blast radius per surface by disabling all other refusals (`.b14prep/blast-radius.json`):
+
+- Admission alone breaks 3 existing suites.
+- Live alone breaks 11.
+- Replay/join alone breaks 9.
+- Legacy alone breaks 0.
+- Metadata alone breaks 1.
+- Export alone breaks 0.
+
+The union of the WebSocket surfaces is 14 suites. Live alone needs 11 existing suites + 1 product file + the new test + 5 lifecycle/evidence = 18 > 15. So **no split by surface fits** without a seam, and these suites assert fog-on delivery, so they cannot be pre-converted while delivery is still live.
+
+**Post-S probe.** I applied S's current scratch diff (`p2cg1s-scratch-20261018`) on top of the candidate and reverted it afterward. It merges cleanly. Fog-off rows and `sealedChoiceDelivery` stay green. **S's 13 new fog=true rows in `ServerMatchHost.spectator.test.ts` all fail under B14** (14 rows in total there), as does the existing D6 fog-on spectator row. B14 must touch that S-owned leaf after S closes.
+
+**Seam feasibility probe.** I added this documented test-only block to the 15 failing suites:
+
+```ts
+// B14: this suite pins the legacy per-viewer fog filter that would serve once a
+// per-viewer reveal projection is available; production has none and refuses.
+jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({
+  ...jest.requireActual('@/lib/multiplayer/server/fogMatchAdmission'),
+  noPerViewerRevealProjection: () => false,
+  matchLacksRevealProjection: async () => false,
+}));
+```
+
+With it, all 15 suites pass on the full candidate: **152/152** (`.b14prep/seam-probe-summary.json`). The block is inert before the WebSocket flip, because WS code does not import the module yet, so it can land ahead of the flip. It keeps the legacy-filter privacy pins running, including S's fog-on sealed-choice rows, beneath the real refusal. `b14FogContainment.test.ts` and the 15 mutants pin the real default. Note that `jest.spyOn` on this module's ESM exports throws "Cannot redefine property", so a module factory (`jest.mock`) is the only test seam that works.
+
+## Split proposal (needs a documentary registration amendment; nothing applied)
+
+### Recommended, A: capability-seam split into three B14-0 units, then B14-HEAD unchanged
+
+Order: **S -> B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> HP**. Each unit keeps the 15-file / 500-line caps, sensitive review classes (privacy/authority/replay), an exact-head OWNER-RULING, exact-main proof and closure. Full B14 acceptance is discharged only when all four units have closed.
+
+**B14-0A: capability predicate + HTTP private reads (15/15).** Counted: about 80 product lines plus lifecycle. The predicate part of the helper (without `refuseFogSocket`) plus `[id].ts` 8 plus FogAware 39 is about 115/500 with a 35-line lifecycle reserve.
+
+```text
+src/lib/multiplayer/server/fogMatchAdmission.ts
+src/pages/api/multiplayer/matches/[id].ts
+src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts
+src/__tests__/api/securityBoundary.test.ts
+src/pages-modules/api/__tests__/matchHistoryFog.test.ts
+src/__tests__/unit/api/multiplayerMatchMeta.test.ts
+src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts
+src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts
+src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts
+src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0a-review-20261018.json
+```
+
+`multiplayerMatchMeta.test.ts` gets real refusal rows: fog-on seated player/GM -> 403 fixed reason, with full-metadata rows moved to known-off. It is not mocked. The four seam suites are test-only and behavior-neutral in this unit.
+
+**B14-0B: seam declaration for the remaining legacy-filter suites (15/15).** This unit is test-only: counted lines are lifecycle only, about 35/500. RED is honestly N/A because nothing changes behavior. Proof: each suite passes before and after, and `b14FogContainment` (in B14-0) pins the real default.
+
+```text
+src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts
+src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts
+src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts
+src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts
+src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts
+src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts
+src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts
+src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts
+src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts
+src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-admission-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-red-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-local-20261018.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-review-20261018.json
+```
+
+**B14-0: WebSocket containment flip + spec + close policy (11/15, 4 spare).** Counted: `refuseFogSocket` helper addition about 24, Host 15, Replay 45, Events 9, spec 20 = about 113, or about 148/500 with the reserve. The four spare slots absorb any extra breakage found at rebase. They grant no permission until frozen.
+
+```text
+src/lib/multiplayer/server/fogMatchAdmission.ts
+src/lib/multiplayer/server/ServerMatchHost.ts
+src/lib/multiplayer/server/ServerMatchHostReplay.ts
+src/lib/multiplayer/server/ServerMatchHostEvents.ts
+src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts
+openspec/specs/fog-of-war/spec.md
+openspec/planning/2026-09-12-roadmap-completion/units.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-admission.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-red.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-local.json
+openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0-review.json
+```
+
+The amendment must also:
+
+- Add ownership aliases `src/__tests__/unit/api` (for multiplayerMatchMeta) and `src/lib/multiplayer/__tests__` (for clientAgainstFogServer). Neither is in B14-0's current aliases, and no live unit holds them.
+- Grant B14-0B the S-owned `ServerMatchHost.spectator.test.ts` after S closes.
+- Move the HTTP acceptance rows to B14-0A.
+- State that B14-HEAD consumes 0A's predicate.
+
+B14-HEAD needs only its predecessor changed to B14-0.
+
+Why A: it is the only shape that meets the 15/500 caps while landing every PR green. It also keeps the existing fog-filter privacy pins, including S's fog-on sealed-choice rows, as running specifications for FOG-K/B/L/R instead of deleting them. It is consistent with "FOG-X modifies rather than removes" the capability. Reviewer question to settle at registration: whether a test-only module mock of the capability counts as "suppressing proof". My view is no, because the default is pinned by b14FogContainment plus 15 mutants and each mock carries a comment. If the reviewer disagrees, use B.
+
+### Alternative B: one atomic B14-0 under an explicit file-cap amendment
+
+The unit would be 6 product + spec + 3 B14 tests + 15 existing suites (seam or rewrite) + 5 lifecycle = **30 files**, about 228/500 counted. This gives one sensitive review and an atomic flip, but it needs a deliberate owner/root exception to the 15-file cap, which the current contract does not provide.
+
+### Not recommended, C: rewrite the 15 suites to refusal or fog-off
+
+This discards the legacy-filter privacy coverage, which FOG chain would have to rebuild. It also makes test lines larger. It does not reduce the file count, so it still needs A's unit structure or B's waiver.
+
+## B14-HEAD (fits as registered)
+
+The route edit comes after the existing host-as-GM authorization and before the SQLite head read:
+
+```ts
+// Host/GM privilege is no fog exemption: the digest is hidden-dependent.
+if (noPerViewerRevealProjection(meta.config)) {
+  res.status(403).json({ error: FOG_REFUSAL });
+  return;
+}
+```
+
+- **Counted:** 9 route additions. **Tests:** +75 exempt, in a new `describe('B14-HEAD fog containment')` inside the existing route test.
+- **Test cases:**
+  - fog-on and unknown-config host -> 403 with the strict body `{error:'fog-projection-unavailable'}`. The body contains neither ACTIVE nor ROOT digest nor the branch id, and the test asserts the shared predicate was called with the config.
+  - fog-on player/stranger -> unchanged `Authorization refused`; anonymous -> 401 with no fog.
+  - explicit known-off host -> unchanged head/digest.
+- **How the predicate call is pinned:** `jest.mock` wraps the real predicate in `jest.fn`, because spyOn cannot redefine the export.
+- **RED** (route restored to Main): 14 pass / 2 fail; the fog-on and unknown-config host each receive 200 with the digest. **GREEN:** 16/16. The hidden dependence of that digest is proved by B14-0's landed census test.
+- **Mutants 12/12 caught** (`.b14prep/b14-head/results.json`): bypass, flag-only check not using the shared predicate, status 200, reason drift, policy before authorization, missing return, refusal disclosing config, always refuse, inverted, non-host oracle, wrong 404 vocabulary, helper unknown-allowed.
+- **Manifest (7 files):** `src/pages-modules/api/matchHeadRoute.ts`, `src/pages-modules/api/__tests__/matchHeadRoute.test.ts`, units.json, and `b14-head-{admission,red,local,admission-review}-20261018.json`. That is about 44/500 with the reserve.
+- No other test calls `/head` with fog on. The e2e rewind/authority fixtures all use `fogOfWar: false`.
+
+## Real server.js WebSocket probe plan (evidence only, to be recorded in `evidence/b14-0-local.json` or the split's WS unit equivalent)
+
+Do not edit server.js and do not keep a harness file. If an edit turns out to be necessary, that needs a split/registration.
+
+1. After admission, on the rebased candidate, gate the build and each probe step on the machine-idle command above. Keep timeouts as they are.
+2. Seed a private probe database through the real DurableMatchStore and journal APIs, using unique match/player ids:
+   - one fog-on match with hidden bootstrap (unitRef, gunnery, startHex) and a mirrored journal event;
+   - one known-off two-deploying-players-plus-non-playing-GM co-op match.
+   Start this worktree's `node server.js` with `MULTIPLAYER_STORE=durable`, a worktree-local `MULTIPLAYER_DB_PATH`, `HOSTNAME=127.0.0.1` and an unused `PORT`. Record the command, PID, HEAD sha and readiness.
+3. Open real upgrades to `/api/multiplayer/socket?matchId=...`. Send the credential in Sec-WebSocket-Protocol with match-scoped signed tokens. Cover host, opponent, same-side player, spectator and non-playing GM. Capture raw inbound frames and the received close code/reason.
+   - Fog-on members must receive exactly one `Close`/`fog-projection-unavailable` frame, then close 1008, with no baseline/Event/Replay frames.
+   - Repeat with SessionJoin, a rejoin with a delivery cursor, and the legacy reconnect request.
+   - An invalid credential must give HTTP 401 before the upgrade, not a WebSocket close.
+4. Stranger, revoked member and stale peer must receive only the generic refusal (1008 "not an active member..." or "Match in progress"), with no fog string. A membership infrastructure fault must give 1011.
+5. Use the same identities against `GET /api/multiplayer/matches/:id`, `/api/matches/:id/export`, `/private-preview` and `/api/matches/:id/head`. The serialized output must contain no hidden ref, skill, location, construction or digest. The known-off controls must stay at 200.
+6. Run the fog-off co-op control end to end (join, command, replay). S's sealed-choice and G2 creator-binding expectations must hold. The persisted match, event and head rows must be unchanged after the refusals.
+7. Stop only the server PID started for the probe. Archive bounded, credential-free observations.
+
+## Ownership census (fb5d7c343)
+
+- **S (P2CG1S, next):** shares `ServerMatchHostEvents.ts` and `ServerMatchHostReplay.ts`. Its 1-line hunks (`meta?.seats` threaded into the audience context) merge cleanly with B14's hunks. `MatchWireSealedChoices.ts` and `sealedChoiceDelivery.test.ts` are S's and are untouched by B14; sealedChoiceDelivery stays green post-S. `ServerMatchHost.spectator.test.ts` is S's, but B14 must edit it after S closes (seam). Under B14 refusal, S's fog-on assertions survive only through the seam (option A) or an explicit waiver (option B).
+- **securityBoundary.test.ts:** literal holder **B15-PRIV** (blocked), alias **LSC-1** (`src/__tests__/api`). G2A's tests in that file are kept. Sequence and re-census at admission.
+- **src/__tests__/unit/api/multiplayerMatchMeta.test.ts** and **src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts:** no live unit alias covers them, and they are outside B14-0's aliases, so they need registration.
+- **U26 / U46 / U48 / U104 (planned):** hold `src/lib/multiplayer/server` plus `src/pages-modules/api` aliases. B14 changes no raw-replay/rewind/branch-activation behavior. `/head` stays U26's neighbourhood: re-census at HEAD admission.
+- **FOG-S/K/B/L/R/H/X (blocked, head of P5):** FOG-S holds the spec and FOG-X holds spec plus server. The spec delta is written so FOG-X can relax the capability. FOG-H lifts B14-HEAD. The retained `fogMatchHistoryProjection` helper becomes an unused export reserved for FOG.
+- **P2CG1R** shows `implementing` in units.json although #2260 is merged, so its closure is pending. This does not matter to B14 leaves.
+- **Pre-existing break outside B14:** `e2e/multiplayer-live-vault-auth.spec.ts` (@smoke, not in pr-checks) still checks the fog checkbox and expects `fogOfWar: true`, but #2253 disabled that option. B14 would also refuse its metadata GET and WebSocket. Flag it to Root as a separate fix.
+
+## Open review questions (for admission and review)
+
+1. An unreadable config at live publish closes healthy fog-off sockets with 1008 `fog-projection-unavailable`. The contract's unknown-config rule requires refusing, but closePolicy suggests 1011 for infrastructure failures. I kept the single predicate's 1008, and the reviewer should rule.
+2. Export and private-preview refusal is HTTP 500 with the fixed reason (existing `projection-failed` mapping). Metadata and head refusal are 403. The mapping is existing vocabulary, not new.
+3. The fog-on co-op AI driver (CoopOpponentDriver fixtures) becomes unreachable in production under B14. This is consistent with the owner's v2.2.0 fog-off scope.
+
+## Artifacts
+
+- Candidate patches, untracked in `b14-impl-20261018`:
+  - `B14-0-candidate.patch`: aggregate B14-0, SHA-256 `0da92836ea4c10ab823fdf10bbf216deffda9041c0276328564569e05f0562e9`, 49869 bytes.
+  - `B14-HEAD-candidate.patch`: SHA-256 `abb4d161bf87d364011911dd7d81f49b4dea108eec5b3c2218bf2dc9096124b8`, 5559 bytes. It applies on top of the B14-0 candidate.
+- Scratch `.b14prep/`:
+  - `runner.cjs`, `runner-head.cjs`, `reg.cjs`, `blast.cjs`, `seam.cjs`;
+  - results in `b14-0/` (final) and `b14-0-run1/` (before the legacy reorder);
+  - `b14-head/`, `regression-*-summary.json`, `blast-radius.json`, `seam-probe-summary.json`, `post-s-candidate-summary.json`, `s-prototype.patch`, `idle-gates.log`, `tsc2.log`.
+
+Phase 2 waits for Root's GATE OPEN and the split decision. I will not admit, commit, push or open PRs before then.
