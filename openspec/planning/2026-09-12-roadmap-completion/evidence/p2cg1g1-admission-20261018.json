@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G1",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+  "authority": "Root GATE OPEN message: P2CG1F main-verified (closure #2235 merged bc7abfc4) and P2CG1G1 released to planned; the CF-G3 consumer-leaf literal-path amendment and F-DOC-1 merged as #2236 at 54764673 (Fable APPROVE-WITH-NOTES, report sha256 dfc24912f5f2249bf84c775fa16241a0061ee15ccb1c86c6076d4225a0c7c8f1). Admission on 54764673, the commit actually checked out",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1G1 implementation sub-agent"
+  },
+  "predecessors": {
+    "P2CG1F": "main-verified on fetched origin/main 54764673: prHead 66240745, mergeSha fd9891e161ee13ab8e3a62c56a5f9029bc5fa127, review evidence/p2cg1f-review-20261018.json (APPROVE-WITH-NOTES), merge evidence/p2cg1f-merge-20261018.json, mainProof evidence/p2cg1f-mainproof-20261018.json verdict PASS (679/679), closure #2235 merge bc7abfc4. fd9891e1 and bc7abfc4 are ancestors of the baseline (git merge-base --is-ancestor exit 0 for both)"
+  },
+  "overlap": "No unit in units.json is in an active state at the baseline (complete 96, blocked 49, main-verified 27, planned 36). git diff --name-only fd9891e1..54764673 lists only roadmap ledger/evidence/PROGRESS files, so every G1 source/test leaf is byte-identical to the P2CG1F merge. G2 (blocked) also lists CampaignCoopRouteSurfaceConnected.tsx; it is not in flight",
+  "restriction": {
+    "container": "R2.authority-live.ownershipPathsAmended20261009P2C.restrictions.P2CG1G1",
+    "leaves": 8,
+    "knownSourceTestLifecycleSubtotal": 9,
+    "amendment": "evidence/p2cg1g1-literal-path-amendment-20261018.json (#2236): useCampaignApplicationConsumer.ts appended as [7] for CF-G3"
+  },
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 13,
+    "spare": 2,
+    "reservedUnchanged": 1,
+    "note": "8 restriction leaves (4 product: 2 existing, 2 new; 4 test) + units.json (own lifecycle fields only) + admission/red/local receipts + reserved admission-review slot = 13/15. Spare slots grant no path"
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the four product leaves and units.json. Moved helper lines count again. __tests__/ leaves and evidence/ contents are line-exempt; every changed file counts toward 15",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/census.md",
+    "sha256": "380c61ca760242338b7d30733e1355e67822ed1187eabe713e398c97bf979f56",
+    "bytes": 1793,
+    "frozenBefore": "any source, test, lifecycle or evidence edit in this branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "exists": true,
+      "sha256": "80cb4d849a1827bfd69b58f93ee87fd3fc012c44e70e3ebff6567ce959a31e97",
+      "bytes": 18690,
+      "physicalLines": 512
+    },
+    {
+      "path": "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignHostFoldStore.ts",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "exists": true,
+      "sha256": "452c1b31b12546000dcf97cde4e685fe3efa800ac87920d93f364a1aac97f154",
+      "bytes": 9539,
+      "physicalLines": 273
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "exists": true,
+      "sha256": "731471a645a699847277b2f8e20c203ce02c2e207aaada72e453c6c021dc200d",
+      "bytes": 38338,
+      "physicalLines": 1230
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+      "exists": true,
+      "sha256": "337cb6073d20ca3acf475ed99982fe2c526776e6f62f9d87d185d8e4a7d9a524",
+      "bytes": 16849,
+      "physicalLines": 509
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+      "exists": true,
+      "sha256": "570b935bb0b65936239397201817b26ed7f283c0a19a9daf8a4edb890212b68a",
+      "bytes": 11690,
+      "physicalLines": 372
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+      "exists": true,
+      "sha256": "cdc9fda2a55ea15d4c68c1c02b034a792a5347a542e6e5cfea8e4bb65f72eb7a",
+      "bytes": 16548,
+      "physicalLines": 483
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "660648099d0681f46eb961b829227bd9832d7bfe90804ac9f6902804b0f01876",
+      "bytes": 1609788,
+      "physicalLines": 21397
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-admission-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-red-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-local-20261018.json",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g1-admission-review-20261018.md",
+      "exists": false,
+      "sha256": null,
+      "bytes": null,
+      "physicalLines": null
+    }
+  ],
+  "carryForwards": {
+    "source": "evidence/p2cg1f-review-20261018.json successorNotes.P2CG1G1 (CF-G1..CF-G11) and the reviewer report section 7; #2236 review notes for G1",
+    "CF-G1": "Directed at G1; absorbed. Fake-timer pin in hostProjection: bound transport, baseline offer applied and confirmed, advance 2 x APPLICATION_CONFIRMATION_TIMEOUT_MS -> one connect, socket open, and disposing the binding clears no window timer (the dispose delta isolates the window from React, heartbeat and confirmation-wait timers)",
+    "CF-G2": "Directed at G1; absorbed. Fake-timer pin in hostProjection: Heartbeat, CampaignProposal and a non-application Error with no campaign frame -> no rejoin at T-1, rejoin at T",
+    "CF-G3": "Directed at G1; absorbed under the #2236 amendment. RED row: the m8 P1 continuation run across a quiet window under fake timers. Fix in useCampaignApplicationConsumer.ts: a rebind arms no pre-receipt window on a transport whose every dispatched sequenced campaign frame was consumed by an active binding (see heardSemantics)",
+    "CF-G4": "Directed at the next owner of useCampaignApplicationConsumer.ts. Carried unchanged to that owner at or before P2CG1H, as the #2236 amendment states; G1 owns the consumer only for CF-G3 and does not change the quiet-window cycle (every rejoin builds a new, unheard transport). Recorded again in the local receipt",
+    "CF-G5": "Directed at the next owner of bindCampaignSyncConnection.test.ts or P2CG1H; not a G1 leaf; not absorbed",
+    "CF-G6": "Directed at the next owner of useCampaignPersistenceStore.ts; not a G1 leaf; not absorbed",
+    "CF-G7": "Directed at the next owner of hostRecordRefresh.test.tsx; not a G1 leaf; not absorbed (that suite stays byte-identical)",
+    "CF-G8": "Directed at the next owner of hostRecordRefresh.test.tsx (optional); Root asked G1 to fold it in. Pinned in hostProjection (a G1 leaf) instead: timer count unchanged across a rejoin with exactly one window armed after it, and no window on an unbound transport",
+    "CF-G9": "Directed at G1; baseline measured here (lint 87/0; surface and consumer do not warn; madge from the two existing G1 product leaves 1131 files / 172 chains). Before/after in the local receipt",
+    "CF-G10": "Directed at G1; all required check names verified by name on the exact G1 head before handoff",
+    "CF-G11": "Directed at G1; decided. The three fixture fakes carry the mounted campaignId and no confirmApplied, so the consumer stays inactive and arms no window; the suites stay on real timers with no injected frame or early dispose. Pinned in hostProjection on fake timers (no close, no second connect across 2T, dispose clears no window)",
+    "#2236-note-2": "Pin the exact heard semantics (see heardSemantics) with explicit rows for a first frame during an unmount gap and for a sequenced frame during the gap",
+    "#2236-note-3": "CF-G4 recorded as carried, here and in the local receipt"
+  },
+  "heardSemantics": "Refines the stop-report prototype (a WeakSet marked by any frame an active binding consumed). A transport counts as heard only while every sequenced campaign frame it has dispatched was consumed by an active binding of this consumer: the consumer records transport.lastSeq() after each campaign frame an active binding consumes (WeakMap keyed by transport identity), and a rebind arms the window unless a record exists and equals transport.lastSeq(). A first frame that arrives while no binding is mounted is not remembered (no record), and a sequenced frame that arrives during an unmount gap moves lastSeq past the record, so both re-arm the window exactly as P2CG1F always did: the continued lineage never folded that frame, so recovery through the window is the conservative behaviour. The prototype WeakSet would have skipped the window in the second case",
+  "prep": "G1-PREP: before the gate, the RED tests and implementation were prototyped in a scratch worktree on PR #2234 head 66240745 and then on fd9891e1 (G1 leaves byte-identical to this baseline), as off-repo patches with no commit, receipt, lifecycle field or PR. The stop report (amendment #2236) cites those dry-runs. They are not evidence for this head; every result is re-run after this admission commit",
+  "scopeFitProbe": "Pre-gate TS7 probe: typescript7 7.0.2 npm run typecheck exit 0 on post-F main and on the prototype; the prototype touched only the eight restriction leaves (product added lines: surface 57, helpers 171, store 73, consumer 14). No further path is needed",
+  "estimate": "Registration (amended) about 331-340 counted additions with lifecycle; final figures at the local stage",
+  "baselineMeasurements": {
+    "lint": {
+      "command": "npx oxlint (npm run lint)",
+      "result": "87 warnings, 0 errors",
+      "leafWarnings": "CampaignCoopRouteSurfaceConnected.tsx and useCampaignApplicationConsumer.ts do not warn (surface 396 counted code lines against max 400)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/lint-base.log",
+        "sha256": "1be5785041db856f5d8d8b44487a0036b9eaf121ca7995c94a2a252d35eadba1",
+        "bytes": 81286
+      }
+    },
+    "cycles": {
+      "command": "npx -y madge@8.0.0 --circular --extensions ts,tsx --ts-config tsconfig.json <surface> <consumer>",
+      "result": "Processed 1131 files, 172 circular chains",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/madge-base.log",
+        "sha256": "4de13a25b70d1e68f5f8c30e7fc555ba625a51cbdf60a087676350f4c2854c00",
+        "bytes": 257266
+      }
+    }
+  },
+  "plan": {
+    "red": "Commit 2 changes only the four test leaves (plus units.json red path and the red receipt); the four product leaves stay byte-identical to the baseline and the new ones absent. Expected RED: R1 next linked launch onto the retained fold after a remount, R2 re-projection at remount bind, W1 continuation across a quiet window (CF-G3). Controls expected green at RED: replacement transport from EMPTY, campaign A->B isolation, held refresh across a remount, CF-G1, CF-G2, CF-G8 (x2), CF-G11, heard-semantics gap rows (x2), three fixture compatibility assertions, and every existing row",
+    "implementation": "Commit 3 changes only the four product leaves (plus units.json local path and the local receipt). No test byte changes after RED; any post-RED test change goes in its own labelled commit",
+    "noCreatorBinding": "No creator binds expectedCampaignId; wire bytes unchanged (host CampaignJoin still omits lastSeq)"
+  }
+}
