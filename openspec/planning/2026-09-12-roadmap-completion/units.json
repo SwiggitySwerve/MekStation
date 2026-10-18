@@ -7705,7 +7705,31 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-source-sonnet-review-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-owner-ruling-6252742470.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-b14.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-b14a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-regression.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-s.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-six.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-r.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-g2.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-g2a.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-related.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-p2cg1g1.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-p2cg1f.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-4d9eb721-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-0b-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7718,10 +7742,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "e6d1553ce90ca9c56705a349155c4030e7901857",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+      "mergeSha": "4d9eb7213449962d9285402f48416b9608868642",
       "stageReceipts": {
         "admission": {
           "path": "evidence/b14-0b-admission-20261018.json"
@@ -7732,9 +7756,27 @@
         "local": {
           "path": "evidence/b14-0b-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/b14-0b-review-20261018.json",
+          "head": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+          "reviewedHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+          "reviewerModel": "claude-sonnet-5-5",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "6a3f095054c4d6113ddb8ca1cebd46b8a5e40161975e97aaf071d1b5c3fd666c",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/b14-0b-merge-20261018.json",
+          "pr": 2270,
+          "head": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+          "mergeSha": "4d9eb7213449962d9285402f48416b9608868642"
+        },
+        "mainProof": {
+          "path": "evidence/b14-0b-mainproof-20261018.json",
+          "mergeCommit": "4d9eb7213449962d9285402f48416b9608868642",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1606 passed, 1606 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7782,7 +7824,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -18059,6 +18101,44 @@
         "commentId": 6251586209,
         "author": "SwiggitySwerve",
         "bodySha256": "ab4d7587fcc9c74a218e6c2f3ebad9425ddf22dfeb8a895831a2c7d2abb8c326"
+      }
+    },
+    {
+      "id": "PK-b14-0b-ruling",
+      "blocks": [
+        "B14-0B"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its sensitive classes and required green CI, should the owner rule the bounded, test-only B14-0B head (the identical commented ten-line jest.mock availability seam for @/lib/multiplayer/server/fogMatchAdmission, spreading jest.requireActual and overriding noPerViewerRevealProjection: () => false and matchLacksRevealProjection: async () => false, added after the imports of exactly the ten registered legacy fog-filter suites as one +10/-0 hunk each; no assertion added, removed or weakened, S fog-on sealed-choice rows in ServerMatchHost.spectator.test.ts retained; no product, helper, spec, guard or config byte; the B14-0A allowlist guard in matchHistoryFog.test.ts passing with all 14 seams; RED honestly not-applicable with before/after and simulated-refusal runs) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded B14-0B merge and exact-main proof only; B14-0 may be released to planned only after that proof, with the review carry-forwards routed as ruled (CF-B14B-1 to B14-0, folding in CF-B14A-2; CF-B14B-2 to FOG-*; CF-B14B-3 to FOG-*/B14-HEAD; CF-B14B-4 to B14-HEAD) and the exact-main built-server socket smoke still owed before H or any build shipping spectating.",
+          "effort": "One independent exact-head sensitive review across privacy, authority and replay with reproduced simulated-refusal baselines and mutants, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete privacy, authority, replay or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green head that meets all of these: each of the ten suites changes by exactly the canonical seam block and nothing else under src changes; the seam overrides only the two capability predicates and keeps every other real export; the suites still kill real fog, sealed-choice, frame-projection, delivery-numbering and replay mutants under a simulated B14-0 refusal, and fail without the seam there; the S sealed-choice rows still bind the real spectator rule; the allowlist guard accepts exactly the 14 registered suites; RED is recorded as not-applicable with genuine runs and no fabricated failure; the eighteen admission controls stay byte-identical. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the ten test leaves; B14-0B changes no product, wire format, Protocol type, store or WebSocket path, so a revert only removes the availability declaration and leaves the ten suites as they were (they would then fail once B14-0 activates its refusal).",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T17:11:55Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2270#issuecomment-6252742470"
+      },
+      "ruling": {
+        "ruledHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+        "pr": 2270,
+        "commentId": 6252742470,
+        "author": "SwiggitySwerve",
+        "bodySha256": "a37ca8dd92a961135ac96e10424042eb767a5404e3cce08024e9b86d2f896b27"
       }
     },
     {

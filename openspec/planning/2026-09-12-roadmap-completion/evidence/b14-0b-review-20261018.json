@@ -1,0 +1,1636 @@
+{
+  "unit": "B14-0B",
+  "stage": "review",
+  "recordedAt": "2026-10-18T17:32:56Z",
+  "head": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+  "reviewedHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+  "headNote": "head is the merged, ruled and CI-checked PR head 90d2bae2a48868dff619cf740fa212dfba8a6968; the independent review read the same head (reviewedHead, recorded explicitly as CF-B14A-4 asked for B14-0A). No commit landed between the reviewed head and the merged head.",
+  "reviewerModel": "claude-sonnet-5-5",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE",
+  "verdictScope": "APPROVE of 90d2bae2a48868dff619cf740fa212dfba8a6968 with no blocking findings and four non-blocking carry-forwards (reviewer verdict line). The owner ruling accepted this exact head on that basis.",
+  "outputPath": "evidence/b14-0b-source-sonnet-review-20261018.bytes.json",
+  "outputSha256": "6a3f095054c4d6113ddb8ca1cebd46b8a5e40161975e97aaf071d1b5c3fd666c",
+  "outputBytes": 10257,
+  "outputEncoding": "ASCII (UTF-8) without a byte-order mark; 76 line feeds, exactly one of them (ending the last line) preceded by a carriage return. Stored byte for byte as a base64 envelope ({encoding, payloadSha256, payloadBytes, data}) because the repository .gitattributes would normalize the CRLF in a text copy (B14B-ENC-1); payloadSha256 equals outputSha256. Backticks are plain (196 occurrences, none escaped). Verbatim checks run on the decoded text with line endings split on CRLF or LF.",
+  "originalPath": "docs/audits/2026-10-18-b14-0b-review.md",
+  "originalCheckout": "E:/Projects/Personal/MekStation-wt/review-2270-20261018",
+  "reviewerSubstitution": "One independent sensitive review round by a Claude review sub-agent. The report header names it \"Claude (review sub-agent, read-only; nothing pushed, commented, labelled or merged)\"; the owner ruling names the model: \"Independent review (Sonnet 5.5, the reviewer for test-only units)\". It is recorded here as claude-sonnet-5-5. The reviewer is not the author (Claude Opus 5.5, local receipt contributor).",
+  "reviewTitle": "# B14-0B independent review (PR #2270)",
+  "reviewHeader": [
+    "Reviewer: Claude (review sub-agent, read-only; nothing pushed, commented, labelled or merged).",
+    "Head reviewed: `90d2bae2a48868dff619cf740fa212dfba8a6968` (base `e6d1553ce`). Worktree: `E:/Projects/Personal/MekStation-wt/review-2270-20261018` (`npm ci`, Node v22.22.0 prepended). Root checkout not touched.",
+    "Classification: sensitive (privacy/authority/replay). `units.json` carries `registration20261018B14Split.reviewClassificationReason` (\"no routine downgrade\"), so this review is the required sensitive review. Sensitive packet and OWNER-RULING are outside this review."
+  ],
+  "verdictText": "## Verdict: APPROVE (no blocking findings; four non-blocking carry-forwards)",
+  "sections": [
+    {
+      "title": "1. Seams are test-only, canonical, assertion-preserving - PASS",
+      "lines": [
+        "- `git diff --numstat e6d1553ce HEAD -- src` is `10 0` for each of the ten suites and nothing else under `src/`. Each file has exactly one hunk, `@@ -N,0 +N+1,10 @@`, and no deletions even under `-w`. No mode or rename changes, no CRs, and `git diff --check` is clean.",
+        "- Ignoring the hunk header line numbers, the added text is the same 10 lines in all ten files: comment, `jest.mock('@/lib/multiplayer/server/fogMatchAdmission', () => ({ ...jest.requireActual<typeof import(...)>(...), noPerViewerRevealProjection: () => false, matchLacksRevealProjection: async () => false, }));` and a blank line. Each block sits after the import block, before the first declaration.",
+        "- All ten files are under `__tests__/`. `jest.mock` only exists inside the Jest runtime, so production cannot reach it. The `requireActual` spread keeps `FOG_REFUSAL` and every other real export, and only the two predicates are overridden.",
+        "- `matchLacksRevealProjection` does not exist in production `fogMatchAdmission.ts` on this base. It is supplied only by the override until B14-0 adds it, so the extra key is harmless today. The simulation candidate's async `false|policy|unavailable` form is compatible (71/71, below)."
+      ]
+    },
+    {
+      "title": "2. Seamed suites still exercise the real fog filter - PASS",
+      "lines": [
+        "Driver: `E:/Projects/Personal/MekStation-wt/review-2270-scratch/drv.cjs`. Each run restores HEAD afterwards. `git status` was clean after every batch.",
+        "Simulated B14-0 refusal = the author's `b14-0-simulation.json`. Its sha256 matches the red receipt (`3d8d921f...c66e`). It is applied uncommitted and never committed.",
+        "Command shape: `node node_modules/jest/bin/jest.js --runTestsByPath <suites> --runInBand --cacheDirectory <private> --json`, gated on `machine-idle.mjs --own-pid 47516 --own-pid 55164` (MACHINE_IDLE before every run).",
+        "Baselines reproduced independently:",
+        "| Run | Result |",
+        "|---|---|",
+        "| PR head: ten suites + matchHistoryFog | 85/85 (71 + 14), 11 suites |",
+        "| Simulated refusal + seams | 71/71 |",
+        "| Simulated refusal, seams stripped (base text) | 35 failed / 71, 10/10 suites fail. Per-suite counts equal the red receipt (spectator 14, sweep 6, client 5, delivery 3, concealment 2, one each elsewhere). |",
+        "The sha256 of the red/sim json files recorded in the receipt match the files on disk (`red-sim-unseamed`, `red-sim-seamed`, `red-before-main`).",
+        "Author mutants re-run (4 of 13), all under the simulated refusal + seams, all caught:",
+        "| Mutant | Result | Killed in |",
+        "|---|---|---|",
+        "| F1 player fog filter bypassed | 6 failed | RawNegativeSweep 2, Sparsity 1, Concealment 1, Delivery 2 |",
+        "| F3 spectator exclusion removed from sealed-choice ownership | 21 failed | spectator (S rows) |",
+        "| F5 delivery numbering = authority sequence | 9 failed | Concealment, client, sweep, Sparsity, Delivery |",
+        "| F7 replay fog branch disabled | 2 failed | RawNegativeSweep |",
+        "My own mutants, same setup (X1, X4, X5, X7, X8 caught; X2, X6 survive in the ten):",
+        "| Mutant | Result |",
+        "|---|---|",
+        "| X1 `actor-only` events returned to every viewer | CAUGHT, 6 failed (sweep 2, Concealment 1, Delivery 2, Sparsity 1) |",
+        "| X4 `filterEventForSpectator` `canSeeUnit: () => true` | CAUGHT, 2 failed (spectator 1, matchmaking 1) |",
+        "| X5 `observer-visible` events returned unfiltered | CAUGHT, 2 failed (spectator 1, matchmaking 1) |",
+        "| X7 seam deleted from `clientAgainstFogServer` only, under simulated refusal | CAUGHT, 5 failed. The seam is load-bearing per suite. |",
+        "| X8 `viewerDeliverySequence` seam flipped to `() => true` (refuse), under simulated refusal | CAUGHT, 3 failed |",
+        "| X2 `target-visible` events returned unfiltered | SURVIVES in the ten suites (71/71) |",
+        "| X6 `UnitDestroyed` redaction (`payload: { unitId }`) removed | SURVIVES in the ten suites (71/71) |",
+        "X2 and X6 also survive on the unseamed base tree with no simulation (`X2b`/`X6b`, 71/71). The two branches are therefore not covered by these ten suites at all, with or without the seams, so B14-0B did not introduce the gap. They are killed by `fogOfWar.test.ts` plus `ServerMatchHost.fogOfWarIntegration.test.ts` (X2f 2 failed, X6f 1 failed). This is informational (CF-B14B-2). In all, 4 of 13 author mutants re-run plus 5 caught own mutants cover the ten suites."
+      ]
+    },
+    {
+      "title": "3. Allowlist guard - PASS (accepts exactly 14, rejects others), with a gap",
+      "lines": [
+        "`matchHistoryFog.test.ts` is unchanged by this PR (frozen control). Its `B14_SEAM_ALLOWLIST` already lists 4 B14-0A + 10 B14-0B and the real tree matches it exactly (14 files; the 4 B14-0A ones are `CoopOpponentDriver`, `customCombatRecovery.recoveryDelivery`, `customConstructionTransport`, `ServerMatchHost.fogOfWarIntegration`).",
+        "- G15: a 15th suite (`sealedChoiceDelivery.test.ts`) with a bare `jest.mock(...fogMatchAdmission...)`: guard FAILS (13/14).",
+        "- G15b: the 15th suite with the full canonical block copied verbatim: guard FAILS. The allowlist is path-based, not text-based.",
+        "- G15c: a 15th suite using `jest.doMock(\"...fogMatchAdmission\", ...)` (double quotes): guard FAILS, so the regex covers doMock and either quote style.",
+        "- G0Adrop: seam removed from a B14-0A suite: guard FAILS (presence is enforced for B14-0A).",
+        "- G14drop: seam removed from a B14-0B suite (`viewerDeliverySequence`): guard PASSES (14/14). Presence is enforced only for B14-0A entries; the test comment says \"B14-0 pins equality\". This is a known, declared gap, owned by B14-0 (CF-B14B-1). Without simulation these suites stay green; once B14-0 lands, a missing seam fails the suite itself (35 failures above)."
+      ]
+    },
+    {
+      "title": "4. RED handling for a test-only unit - PASS",
+      "lines": [
+        "The red receipt records `status: \"not-applicable\"` with the registration's acceptance text (RED is honestly N/A; record passing before/after; no fabricated failure) and four real runs, plus the simulated-refusal necessity run labelled as supplementary, not a RED. No failing-product proof is claimed. I reproduced the numbers (section 2).",
+        "Tooling acceptance: `validate-roadmap.mjs` only requires `stageReceipts.<stage>` to be null or an object with an existing path (`validate-roadmap.mjs` lines ~457-473). Result at head: `ROADMAP VALIDATION PASSED: 82 nodes, 13 packages, 381 tasks, 40 triage rows`. `foldStages` in `roadmap-ledger-lib.mjs` copies `{path, at, summary}` without reading failure counts. `lint-units.mjs` PASS (17896/17899, ceilings unchanged). `validate-roadmap.mjs --next` now returns `U25` (B14-0B left `planned`, as expected). The `{path}`-only receipt shape matches the B14-0A precedent on Main."
+      ]
+    },
+    {
+      "title": "5. S spectator rows byte-for-byte - PASS",
+      "lines": [
+        "`ServerMatchHost.spectator.test.ts`: diff is one `+10/-0` hunk after the imports and nothing else. All 34 tests pass at head; under the simulated refusal + seams they pass 34/34. F3 (spectator-exclusion removal) fails 21 of them, so the S sealed-choice rows still bind the real rule. The unseamed simulated run fails 14, matching the receipt."
+      ]
+    },
+    {
+      "title": "6. Ledger discipline - PASS",
+      "lines": [
+        "Changed files (14 + 1 reserved review slot = 15/15): the 10 suites, `units.json`, and `evidence/b14-0b-{admission,red,local}-20261018.json`. The reserved `b14-0b-review-20261018.json` is absent, as expected. `units.json` diff (22 +/- lines) only touches the B14-0B record: `state planned->implementing`, `baseline`, the three stage receipt paths, and four evidence entries appended to the unit's own `ownershipExceptions`. No other unit, packet or holder changed. `prHead`, `mergeSha`, `review`, `merge`, `mainProof` and `tick` stay null. The `ownershipExceptions` append is the same pattern B14-0A used. Counted lines are 16/500 (`units.json` only). No product, helper, spec, guard or config byte changed, and the host modules and `MatchWireSealedChoices` are unchanged, so CF-S-3 is preserved."
+      ]
+    }
+  ],
+  "baselineReproduction": {
+    "header": "| Run | Result |",
+    "rows": [
+      "| PR head: ten suites + matchHistoryFog | 85/85 (71 + 14), 11 suites |",
+      "| Simulated refusal + seams | 71/71 |",
+      "| Simulated refusal, seams stripped (base text) | 35 failed / 71, 10/10 suites fail. Per-suite counts equal the red receipt (spectator 14, sweep 6, client 5, delivery 3, concealment 2, one each elsewhere). |"
+    ]
+  },
+  "authorMutantsRerun": {
+    "header": "| Mutant | Result | Killed in |",
+    "rows": [
+      "| F1 player fog filter bypassed | 6 failed | RawNegativeSweep 2, Sparsity 1, Concealment 1, Delivery 2 |",
+      "| F3 spectator exclusion removed from sealed-choice ownership | 21 failed | spectator (S rows) |",
+      "| F5 delivery numbering = authority sequence | 9 failed | Concealment, client, sweep, Sparsity, Delivery |",
+      "| F7 replay fog branch disabled | 2 failed | RawNegativeSweep |"
+    ]
+  },
+  "reviewerMutants": {
+    "header": "| Mutant | Result |",
+    "rows": [
+      "| X1 `actor-only` events returned to every viewer | CAUGHT, 6 failed (sweep 2, Concealment 1, Delivery 2, Sparsity 1) |",
+      "| X4 `filterEventForSpectator` `canSeeUnit: () => true` | CAUGHT, 2 failed (spectator 1, matchmaking 1) |",
+      "| X5 `observer-visible` events returned unfiltered | CAUGHT, 2 failed (spectator 1, matchmaking 1) |",
+      "| X7 seam deleted from `clientAgainstFogServer` only, under simulated refusal | CAUGHT, 5 failed. The seam is load-bearing per suite. |",
+      "| X8 `viewerDeliverySequence` seam flipped to `() => true` (refuse), under simulated refusal | CAUGHT, 3 failed |",
+      "| X2 `target-visible` events returned unfiltered | SURVIVES in the ten suites (71/71) |",
+      "| X6 `UnitDestroyed` redaction (`payload: { unitId }`) removed | SURVIVES in the ten suites (71/71) |"
+    ],
+    "caught": [
+      "X1",
+      "X4",
+      "X5",
+      "X7",
+      "X8"
+    ],
+    "survived": [
+      "X2",
+      "X6"
+    ],
+    "survivorsNote": "X2 and X6 survive in the ten suites on the unseamed base as well as at head, so B14-0B did not introduce the gap; fogOfWar.test.ts and ServerMatchHost.fogOfWarIntegration.test.ts kill them (review section 2). Routed as CF-B14B-2."
+  },
+  "guardProbes": [
+    "G15: a 15th suite (`sealedChoiceDelivery.test.ts`) with a bare `jest.mock(...fogMatchAdmission...)`: guard FAILS (13/14).",
+    "G15b: the 15th suite with the full canonical block copied verbatim: guard FAILS. The allowlist is path-based, not text-based.",
+    "G15c: a 15th suite using `jest.doMock(\"...fogMatchAdmission\", ...)` (double quotes): guard FAILS, so the regex covers doMock and either quote style.",
+    "G0Adrop: seam removed from a B14-0A suite: guard FAILS (presence is enforced for B14-0A).",
+    "G14drop: seam removed from a B14-0B suite (`viewerDeliverySequence`): guard PASSES (14/14). Presence is enforced only for B14-0A entries; the test comment says \"B14-0 pins equality\". This is a known, declared gap, owned by B14-0 (CF-B14B-1). Without simulation these suites stay green; once B14-0 lands, a missing seam fails the suite itself (35 failures above)."
+  ],
+  "nonBlockingObservations": [
+    "`units.json` shows `state: implementing` with local receipt path set. This is the same sequence B14-0A used; the fold step to `local-verified` belongs to the loop, not to this PR.",
+    "The receipts cite proof artefacts outside the repo (`E:/Projects/Personal/MekStation-wt/b14-0b-proof-20261018/...`). I verified the hashes I sampled, but they are not reproducible from the PR alone. This follows existing practice."
+  ],
+  "reviewClasses": [
+    "privacy",
+    "authority",
+    "replay"
+  ],
+  "reviewClassEvidence": {
+    "note": "The unit's three sensitive review classes. The report is organised by six checks rather than by class; each verdict is the closure's reading of the cited sections, and every quoted line is reviewer text.",
+    "privacy": {
+      "verdict": "PASS (seams test-only; the real per-viewer fog, sealed-choice, frame-projection and delivery-numbering paths stay exercised; S spectator rows retained)",
+      "sections": [
+        "1. Seams are test-only, canonical, assertion-preserving - PASS",
+        "2. Seamed suites still exercise the real fog filter - PASS",
+        "5. S spectator rows byte-for-byte - PASS"
+      ]
+    },
+    "authority": {
+      "verdict": "PASS (no product, helper, spec, guard or config byte; host modules unchanged; guard confines the mock to 14 allowlisted suites, gap routed to B14-0)",
+      "sections": [
+        "3. Allowlist guard - PASS (accepts exactly 14, rejects others), with a gap",
+        "6. Ledger discipline - PASS"
+      ]
+    },
+    "replay": {
+      "verdict": "PASS (author mutant F7, replay fog branch disabled, caught in the ten suites under the simulated refusal)",
+      "sections": [
+        "2. Seamed suites still exercise the real fog filter - PASS"
+      ]
+    }
+  },
+  "localMutants": {
+    "total": 13,
+    "caught": 13,
+    "survived": [],
+    "note": "Author mutants recorded in the local receipt (5 guard, 8 real-path); the reviewer re-ran F1, F3, F5 and F7."
+  },
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-B14B-1",
+        "origin": "review section 3 (guard probe G14drop: a B14-0B seam can be deleted without the guard noticing) and its carry-forward bullet",
+        "status": "open",
+        "directedTo": "B14-0, as the owner ruling writes (\"CF-B14B-1 -> B14-0: make the guard check for the exact canonical block and for all 14 seams. Assert the capability module is unmocked in b14FogContainment.test.ts. This folds in CF-B14A-2.\"): the guard in matchHistoryFog.test.ts requires all 14 allowlisted suites to carry the byte-exact canonical block (not three toContain substrings), b14FogContainment.test.ts asserts fogMatchAdmission is unmocked, and the matchLacksRevealProjection override type stays in step with the real export. CF-B14A-2 (exact-match tightening against a concatenated jest.doMock path, jest.spyOn, moduleNameMapper or consumer-module mocks) is folded into this item by the same ruling. Recorded under successorNotes.B14-0; B14-0 is not edited.",
+        "reviewer": "CF-B14B-1 (owner B14-0): tighten the guard to exact equality - require all 14 allowlisted suites present with the byte-exact canonical block (not three `toContain` substrings), and assert `fogMatchAdmission` is unmocked in `b14FogContainment.test.ts`. G14drop shows a B14-0B seam can currently be deleted without the guard noticing. Keep the `matchLacksRevealProjection` override type in step with the real export (the guard checks text only)."
+      },
+      {
+        "id": "CF-B14B-2",
+        "origin": "review section 2 (own mutants X2 target-visible passthrough and X6 UnitDestroyed redaction survive in the ten suites, on the unseamed base and at head)",
+        "status": "open",
+        "directedTo": "The FOG chain (FOG-S, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X), as the owner ruling writes (\"CF-B14B-2 -> FOG-*: keep the dedicated target-visible and UnitDestroyed tests.\"): only fogOfWar.test.ts and ServerMatchHost.fogOfWarIntegration.test.ts kill X2 and X6; any FOG work on those branches of fogOfWar.ts keeps that dedicated coverage. Informational: B14-0B did not introduce the gap. Recorded under successorNotes.FOGChain; no FOG unit is edited.",
+        "reviewer": "CF-B14B-2 (owner FOG-*): the ten suites do not exercise the `target-visible` and `UnitDestroyed`-redaction branches of `fogOfWar.ts` (X2/X6 survive, base and head); only `fogOfWar.test.ts` and the B14-0A integration suite do. Any FOG-* work on those branches must keep that dedicated coverage."
+      },
+      {
+        "id": "CF-B14B-3",
+        "origin": "review carry-forward bullet (seam lifetime)",
+        "status": "open",
+        "directedTo": "The FOG chain and B14-HEAD, as the owner ruling writes (\"CF-B14B-3 -> FOG-*/B14-HEAD: when a real per-viewer reveal projection lands, retarget or remove the 14 seams and shrink the allowlist.\"): when a real per-viewer reveal projection lands, the 14 seams (4 B14-0A, 10 B14-0B) are removed or retargeted and B14_SEAM_ALLOWLIST shrinks, so the suites test the production path again; the refusal-by-default proof stays solely in B14-0 b14FogContainment.test.ts. Recorded under successorNotes.FOGChain and successorNotes.B14-HEADAndU38; no unit is edited.",
+        "reviewer": "CF-B14B-3 (owner FOG-*, with B14-HEAD): when a real per-viewer reveal projection lands, remove or retarget these 14 seams and shrink `B14_SEAM_ALLOWLIST`. Otherwise the suites keep pinning the legacy filter beneath a mock and stop testing the production path. The refusal-by-default proof stays solely in B14-0 `b14FogContainment.test.ts`."
+      },
+      {
+        "id": "CF-B14B-4",
+        "origin": "review carry-forward bullet (seam necessity against real code)",
+        "status": "open",
+        "directedTo": "B14-HEAD, as the owner ruling writes (\"CF-B14B-4 -> B14-HEAD: re-run the seam-necessity check against the real B14-0 code.\"): the 35-failure unseamed-simulation reproduction (or an equivalent) is re-run against the real B14-0 code rather than the uncommitted B14-PREP2 patch. This closure does not run it: the real B14-0 code does not exist at 4d9eb721, and the exact-main proof here runs the merged tree only (B14B-NEC-1). Recorded under successorNotes.B14-HEADAndU38; B14-HEAD is not edited.",
+        "reviewer": "CF-B14B-4 (owner B14-HEAD): the HEAD/exact-main proof for B14-0B should include the 35-failure unseamed-simulation reproduction (or an equivalent) so the seams' necessity is re-checked against the real B14-0 code, not only the prep patch. Full B14 privacy acceptance still needs all four of B14-0A, B14-0B, B14-0, B14-HEAD."
+      }
+    ],
+    "newFromThisUnit": [
+      "CF-B14B-1",
+      "CF-B14B-2",
+      "CF-B14B-3",
+      "CF-B14B-4"
+    ],
+    "closedByThisUnit": [],
+    "fromB14_0A": [
+      {
+        "id": "CF-B14A-1",
+        "origin": "review findings F1 (Medium, test gap) and F2 (Low); reviewer mutants R1, R2",
+        "status": "discharged in PR by the post-review follow-up 8509a3e3 (not independently re-reviewed; Root-diffed; owner-ruled)",
+        "directedTo": "Taken in-PR, as the review row allows (\"B14-0A (in-PR if taken)\"): the follow-up adds the row \"B14 refuses fog-on reads with zero journal reads for every audience\" (a spy on the real SQLiteEventJournal.readStream; host, opponent and spectator refused with the fixed reason and zero reads; fog-off control reads) and an inactive-seat case in the membership-precedes-policy row; the local receipt records R1 and R2 caught. Nothing is routed to B14-0 for it. See B14A-FU-1.",
+        "reviewer": "| CF-B14A-1 | B14-0A (in-PR if taken) else B14-0 (b14FogContainment.test.ts) | Pin \"no journal read before refusal\" with a journal spy under fog-on (F1); pin the inactive-seat branch (F2). |",
+        "statusAtThisClosure": "discharged at the B14-0A closure; unchanged"
+      },
+      {
+        "id": "CF-B14A-2",
+        "origin": "review finding F5 (Low); reviewer probe R9",
+        "status": "open",
+        "directedTo": "B14-0, as the owner ruling writes (\"seam guard bypassable via concatenated jest.doMock path -> B14-0 tightens to exact match\"): b14FogContainment.test.ts asserts the capability module is unmocked (identity with jest.requireActual, jest.isMockFunction false) in addition to the matchHistoryFog.test.ts allowlist tripwire, and the guard is tightened to an exact match so a concatenated or non-literal jest.doMock path (R9), jest.spyOn, a moduleNameMapper entry or a consumer-module mock cannot evade it. Recorded under successorNotes.B14-0; B14-0 is not edited. B14-0B adds its ten seams under the existing guard and must keep it passing.",
+        "reviewer": "| CF-B14A-2 | B14-0 | `b14FogContainment.test.ts` asserts the capability module is unmocked (identity with `jest.requireActual`, `jest.isMockFunction` false) in addition to the allowlist tripwire (F5); optionally extend the guard regex to `jest.spyOn(...fogMatchAdmission` and non-literal paths. |",
+        "statusAtThisClosure": "open; folded into CF-B14B-1 (B14-0) by the B14-0B owner ruling (\"This folds in CF-B14A-2.\"). B14-0B added its ten seams under the existing guard, which passes with all 14 (review section 3; local receipt seamGuard)."
+      },
+      {
+        "id": "CF-B14A-3",
+        "origin": "review findings F3 and F4 (Low); reviewer mutants R3, R8",
+        "status": "discharged in PR by the post-review follow-up 8509a3e3 (not independently re-reviewed; Root-diffed; owner-ruled)",
+        "directedTo": "Taken in-PR: F3 by a FogAwareMatchProjection.ts change (the parent brand-then-scope check with the parent codes and messages now runs before the config read; an unbranded viewer gets not-a-viewer under fog-on as under fog-off), which the owner ruling records (\"F3 service-level parity now fixed\"); F4 by the row \"B14 passes a non-match stream on a fog-on match id to the parent\". The local receipt records R3 (adapted) and R8 caught. Nothing remains for B14-0 / FOG-* from this row; whoever next edits FogAwareMatchProjection.ts keeps both rows. See B14A-FU-1.",
+        "reviewer": "| CF-B14A-3 | B14-0 / FOG-* | Service-level parity: brand failure should answer `not-a-viewer` and the parent checks should precede the config read (F3); pin non-match stream pass-through (F4). Whoever next edits `FogAwareMatchProjection.ts`. |",
+        "statusAtThisClosure": "discharged at the B14-0A closure; unchanged"
+      },
+      {
+        "id": "CF-B14A-4",
+        "origin": "review finding F6 (Low, ledger accuracy)",
+        "status": "discharged (local receipt corrected at 8509a3e3; reviewed head recorded explicitly by this closure)",
+        "directedTo": "This review receipt records the reviewed head explicitly (reviewedHead d66ef43662b9012495124a6bcd373ff95db34d47) beside the merged head (head 8509a3e3188d7e860d060080861fb269259ccfc3) and does not inherit results.*.head from the local receipt; the follow-up corrected results.green.head and results.regression.head to d66ef4366 and kept the original value as recordedHead.",
+        "reviewer": "| CF-B14A-4 | B14-0A closure receipt / review receipt | Record the reviewed head (d66ef4366) explicitly; local receipt `results.*.head` cites the RED SHA (F6). |",
+        "statusAtThisClosure": "discharged at the B14-0A closure; unchanged"
+      },
+      {
+        "id": "CF-B14A-5",
+        "origin": "review judged item (d) and the admission CF-S-2 forward",
+        "status": "open",
+        "directedTo": "B14-0: matchLacksRevealProjection must be implemented as a Promise-returning function and awaited at every call site (the four seams pin async () => false, so a truthy un-awaited Promise would refuse loudly); B14-0 also decides and pins CF-S-2 (publishEvent meta-read failure: terminal 1011 versus silent withholding), which the owner ruling routes to B14-0. Recorded under successorNotes.B14-0; B14-0 is not edited.",
+        "reviewer": "| CF-B14A-5 | B14-0 | `matchLacksRevealProjection` must be async (Promise) and awaited everywhere; the four seams pin `async () => false`. Decide and pin CF-S-2 (publishEvent meta-read failure -> terminal 1011 vs silent withholding) as the admission receipt forwards it. |",
+        "statusAtThisClosure": "open, unchanged by B14-0B; the ten B14-0B seams also pin matchLacksRevealProjection: async () => false, so B14-0 must keep it Promise-returning and awaited"
+      },
+      {
+        "id": "CF-B14A-6",
+        "origin": "review findings F7 and F8 (Low)",
+        "status": "open",
+        "directedTo": "FOG-H (reactivation), as the owner ruling writes (\"dead fogMatchHistoryProjection, unused deps, stale comments -> FOG-H\"): fogMatchHistoryProjection is exported but dead and unpinned after B14-0A; the retired fog-on HTTP rows (stale-spectator side assignment, authority-only field stripping, mid-stream refusal, unreadable envelope, mirror precondition) must be re-proven with fresh parity before any HTTP fog projection is served; remove or use the heads dependency and fix the stale class and chain comments. Recorded under successorNotes.FOG-H; FOG-H is not edited.",
+        "reviewer": "| CF-B14A-6 | FOG-H (reactivation) | `fogMatchHistoryProjection` is dead and unpinned after this PR; the retired rows (stale-spectator side assignment, authority-only field stripping, mid-stream refusal, unreadable envelope) must be re-proven with fresh parity before any HTTP fog projection is served; remove or use the `heads` dependency and fix the stale class/chain comments (F7, F8). Owner fog direction (incremental reveal allowances from GM state) must be designed there; B14 refusal does not conflict. |",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-B14A-7",
+        "origin": "review finding F9 (Info) and judged item (e)",
+        "status": "open",
+        "directedTo": "The FOG chain for the /timeline count/timing side channel under fog-on (owner ruling: \"F9 timeline count/timing channel -> FOG\"; the units are FOG-S, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X, none named more narrowly) and B14-HEAD for the /head digest (owner ruling: \"/head -> B14-HEAD\"). Recorded under successorNotes.FOGChain and successorNotes.B14-HEADAndU38; no unit is edited.",
+        "reviewer": "| CF-B14A-7 | FOG-* (timeline) / B14-HEAD for the digest | `/timeline` count/timing side channel under fog-on (F9); `/head` digest remains open until B14-HEAD lands. |",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-B14A-8",
+        "origin": "review judged item (e) (lobby and invite summaries)",
+        "status": "open",
+        "directedTo": "B15-PRIV / FOG, as the owner ruling writes (\"lobby summaries publish fogOfWar for open lobbies -> B15-PRIV/FOG\"; the review row says \"B15 / Root backlog\"): lobby and invite summaries publish fogOfWar for joinable lobbies to any authenticated caller; reconcile with the \"non-member learns nothing of fog\" wording, which holds for active and completed matches only. Recorded under successorNotes.B15 and successorNotes.FOGChain; no unit is edited.",
+        "reviewer": "| CF-B14A-8 | B15 / Root backlog | Lobby and invite summaries publish `fogOfWar` for joinable lobbies to any authenticated caller; reconcile with the \"non-member learns nothing of fog\" wording (it holds for active/completed matches only). |",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-B14A-9",
+        "origin": "admission ruling B14-0A-R3 and review judged item (e)",
+        "status": "open",
+        "directedTo": "U26, as the owner ruling writes (\"rewind -> U26\"): the rewind-preview and rewind-commit routes refuse fogOfWar === true with their own reason and answer an undefined config through the generic 500; migrating them to the shared predicate is U26's call. The row's HP note stands: no FogAware dependency change for P2CG1HP, and CF-S-1 stays with B14-0 / HP. Recorded under successorNotes.U26; U26 is not edited.",
+        "reviewer": "| CF-B14A-9 | U26 | Rewind routes refuse `fogOfWar === true` with their own reason and answer an undefined config via the generic 500; migrating them to the shared predicate is U26's call. HP: no FogAware dependency change; CF-S-1 (fog-off root-branch read) remains with B14-0/HP. |",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      }
+    ],
+    "fromP2CG1S": [
+      {
+        "id": "CF-S-1",
+        "origin": "review finding F2 (pre-existing, outside S)",
+        "status": "open",
+        "directedTo": "B14-0 / P2CG1HP, as the review tabulates and the owner ruling writes (\"B14-0/HP\"): fog-off HTTP history/export has no sealed-choice hold (ViewerProjectionService.isVisibleToViewer returns true for sealed-to-actor-until-revealed; latent only because the root-branch read returns nothing for mirrored matches). Either route fog-off matches through the fog projection's sealed branch or teach the parent service the sealed decision before fog-off moves onto the effective head. Recorded under successorNotes.B14-0 and successorNotes.P2CG1HP; neither unit is edited.",
+        "reviewer": "| CF-S-1 | B14-0 / HP | Fog-off HTTP history/export sealed-choice hold (F2): either route fog-off matches through \\`fogMatchHistoryProjection\\`'s sealed branch or teach the parent service the sealed decision before fog-off is ever moved onto the effective head. |",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A (ViewerProjectionService.ts and the fog-off parent path are admission controls, byte-identical at the merge)",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-S-2",
+        "origin": "review finding F3 (pre-existing, outside S)",
+        "status": "open",
+        "directedTo": "B14-0 (rerouted from B14-0A by the B14-0A owner ruling: \"CF-S-2 (meta-read failure withholds actor's own declaration) -> B14-0\"; the B14-0A admission receipt had already recorded it forward to B14-0 because ServerMatchHostEvents.ts is outside B14-0A's frozen files): a getMatchMeta failure in publishEvent leaves the audience context undefined, so every sealed declaration is omitted for everyone, including the actor (fail-closed, recoverable by replay; not a leak). Decide whether the actor's own declaration should be retried, logged or answered by a terminal 1011 rather than silently withheld until replay (CF-B14A-5). Recorded under successorNotes.B14-0; B14-0 is not edited.",
+        "reviewer": "| CF-S-2 | B14-0A | \\`publishEvent\\` meta-read failure omits sealed declarations for the actor too (F3); decide whether the actor's own declaration should be retried/logged rather than silently withheld until replay. |",
+        "directedToAtP2CG1SClosure": "B14-0A (released to planned in this change set; no other B14-0A field is edited): a getMatchMeta failure in publishEvent leaves the audience context undefined, so every sealed declaration is omitted for everyone, including the actor (fail-closed, recoverable by replay; not a leak). Decide whether the actor's own declaration should be retried or logged rather than silently withheld until replay. Recorded under successorNotes.B14-0A.",
+        "statusAtB14_0AClosure": "open, rerouted to B14-0",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-S-3",
+        "origin": "review finding F4 (pre-existing design)",
+        "status": "open",
+        "directedTo": "B14-0: sealed types bypass the fog classifier, so a revealed declaration of a fog-invisible unit reaches fog-on spectators and opponents in full; fold into B14's fog-scope decision together with the GameCreated roster leak. The reviewer's row adds that B14-0A and B14-0 must preserve both seat arguments and the seat-before-gm order when they touch ServerMatchHostEvents.ts / ServerMatchHostReplay.ts (also the admission receipt overlap note). Recorded under successorNotes.B14-0 and, for the preservation constraint, successorNotes.B14-0A.",
+        "reviewer": "| CF-S-3 | B14-0 | Revealed sealed declarations bypass fog for invisible units (F4); fold into B14's fog-scope decision together with the GameCreated roster leak. B14-0A/B14-0 must preserve both seat arguments and the seat-before-gm order when they touch ServerMatchHostEvents.ts / ServerMatchHostReplay.ts. |",
+        "statusAtB14_0AClosure": "open; the preservation constraint held through B14-0A (ServerMatchHostEvents.ts, ServerMatchHostReplay.ts and MatchWireSealedChoices.ts are admission controls, byte-identical from the P2CG1S merge to this merge) and binds B14-0B and B14-0 next",
+        "statusAtThisClosure": "open; the preservation constraint held through B14-0B (ServerMatchHostEvents.ts, ServerMatchHostReplay.ts and MatchWireSealedChoices.ts are admission controls, byte-identical from the P2CG1S merge to this merge; ServerMatchHost.spectator.test.ts differs from the B14-0B baseline only by the ten-line seam, keeps every S fog-on sealed-choice row and passes at the merge, and the review saw F3 break 21 of its rows) and binds B14-0 next"
+      },
+      {
+        "id": "CF-S-4",
+        "origin": "review finding F6 (pre-existing) and reviewer mutant R7",
+        "status": "open",
+        "directedTo": "B14-HEAD / U38: a frame admitted and assigned and then refused by admitForSend backpressure is not re-offered by the reveal republish (its delivery number exists), only by rejoin resume; confirm the rejoin-resume path is the intended and only recovery and add a row for it. Recorded under successorNotes.B14-HEADAndU38; neither unit is edited.",
+        "reviewer": "| CF-S-4 | B14-HEAD / U38 | Backpressure-refused owed frames are not re-offered by the reveal republish (F6); confirm the rejoin-resume path is the intended and only recovery, and add a row for it. |",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-S-5",
+        "origin": "review finding F8 (doc drift)",
+        "status": "open",
+        "directedTo": "P2CG1H: refresh the stale ROLE HONESTY header in e2e/gm-two-player-privacy.pack.spec.ts (it says the membership source never mints gm; stale since deriveMembershipRole and the campaign-session gm row) when H next edits the GM packs; consider one tactical-wire row for a gm-branded spectator now that the brand exists. Recorded under successorNotes.P2CG1H; P2CG1H is not edited.",
+        "reviewer": "| CF-S-5 | H | Refresh the stale ROLE HONESTY header in \\`gm-two-player-privacy.pack.spec.ts\\` (F8) when H next edits the GM packs; consider one tactical-wire row for a gm-branded spectator now that the brand exists. |",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-S-6",
+        "origin": "review finding F9 (test design; ruling S-PREP-P2)",
+        "status": "open",
+        "directedTo": "P2CG2 / P2CH: a real attack-phase and physical-phase intent drive for the spectator sealed case when a unit next owns a combat-setup test leaf (S drove movement by real intents and used real attack/physical payload shapes through the real broadcastEvent seam and real replay). Recorded under successorNotes.P2CG2AndP2CH; neither unit is edited.",
+        "reviewer": "| CF-S-6 | P2CG2 / P2CH | A real attack-phase and physical-phase intent drive for the spectator sealed case (F9) when a unit next owns a combat-setup test leaf. |",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-S-7",
+        "origin": "review finding F7 and the runs note (baseline debt)",
+        "status": "open",
+        "directedTo": "Root maintenance backlog (no unit; the review names Root, outside the listed owners): npm run verify:qc:roadmap fails at the head in maintain:scan:gate (type-safety high: 6 > 0) on six files S does not touch (CompendiumAdapter, requestLaunchAuthority, CampaignReplicaSyncClient, FogAwareMatchProjection x2, the replica-sync route); not a required CI check. The reviewer adds that whoever next edits FogAwareMatchProjection.ts (an S read-only control; B14-0 / HP) should clear its two. Recorded under successorNotes.rootMaintenanceBacklog.",
+        "reviewer": "| CF-S-7 | Root (outside the listed owners) | \\`maintain:scan:gate\\` type-safety regressions on main (F7): six \\`as unknown as\\` highs; two in FogAwareMatchProjection.ts, which is an S read-only control, so whoever next edits that file (B14-0 / HP) should clear them. |",
+        "statusAtB14_0AClosure": "open; B14-0A, the next editor of FogAwareMatchProjection.ts, cleared that file's two as-unknown-as highs (local receipt: maintain:scan type-safety high 6 at the baseline -> 4 on the candidate, unchanged at the follow-up; not re-measured by this closure); the four on files B14-0A does not touch stay with the Root maintenance backlog",
+        "statusAtThisClosure": "open, unchanged by B14-0B (a test-only unit; no product file touched); the four highs on files B14-0A and B14-0B do not touch stay with the Root maintenance backlog"
+      },
+      {
+        "id": "CF-S-8",
+        "origin": "review concurrency analysis and finding F5",
+        "status": "open",
+        "directedTo": "The local seat credential units (LSC-0, LSC-1DB, LSC-1, LSC-2, LSC-2P) / P2CG1I1-P2CG1I4, as the owner ruling writes (\"LSC*/I1-I4\"): reseat-to-spectator mid-match has no product path today (the spectate route only appends; addSpectatorSeat rejects a playing conflict). If local seat credentials or a later unit add one, the live row \"reseated to spectator loses ownership between deliveries\" and reviewer mutants R1/R4 are the regression anchors; the viewer cache invalidates by membership epoch. Recorded under successorNotes.LSCAndI1toI4; no unit is edited.",
+        "reviewer": "| CF-S-8 | LSC* / I1-I4 | Reseat-to-spectator mid-match has no product path today (spectate route appends only); if local seat credentials or a later unit add one, the live row \"reseated to spectator loses ownership between deliveries\" and my R1/R4 are the regression anchors; the viewer cache invalidates by membership epoch, so no extra invalidation is needed. |",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-S-9",
+        "origin": "review privacy analysis (raw no-playerId replay; pre-existing)",
+        "status": "open (standing)",
+        "directedTo": "U26 (standing): the raw no-playerId sendReplay and the P2P reconnect callback remain unguarded, unchanged by S; the production binder always passes the verified identity. Recorded under successorNotes.U26; U26 is not edited.",
+        "reviewer": "| CF-S-9 | U26 (standing) | Raw no-\\`playerId\\` \\`sendReplay\\` and the P2P reconnect callback remain unguarded; unchanged by S; the production binder always passes identity. |",
+        "statusAtB14_0AClosure": "open (standing), unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      }
+    ],
+    "note": "reviewer is the review's carry-forward bullet verbatim. status and directedTo are closure text and follow the owner ruling: CF-B14B-1 -> B14-0 (folds in CF-B14A-2); CF-B14B-2 -> FOG-*; CF-B14B-3 -> FOG-*/B14-HEAD; CF-B14B-4 -> B14-HEAD. The owner ruling routes the four review carry-forwards by id, one clause each, with the same owners as the review bullets except that CF-B14B-3 is written \"FOG-*/B14-HEAD\" for the review's \"FOG-*, with B14-HEAD\". CF-B14B-1 folds in CF-B14A-2 (B14-0A closure, routed to B14-0): both now travel as one B14-0 guard-tightening item, and CF-B14A-2 keeps its own row with statusAtThisClosure naming the fold. CF-B14B-4 is routed to B14-HEAD, so this closure records that the necessity re-check is owed rather than claiming it (B14B-NEC-1). No review finding is discharged by this closure; the review records no blocking finding. fromB14_0A and fromP2CG1S carry the items recorded by evidence/b14-0a-review-20261018.json with statusAtThisClosure replaced (the B14-0A value kept as statusAtB14_0AClosure)."
+  },
+  "carryForwardLedger": {
+    "stillOpenFromP2CG1R": [
+      {
+        "id": "CF-H8/CF-G5",
+        "origin": "evidence/p2cg1g1-review-20261018.json (CF-H8; CF-G5 in evidence/p2cg1f-review-20261018.json)",
+        "status": "discharged for the GM/host arm only; member arm open with P2CG1HP",
+        "directedTo": "Owner ruling (adopting the reviewer's recommendation): P2CG1R discharges CF-H8/CF-G5 for the GM/host join arm only. P2CG1HP keeps src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts in its manifest (it stays nine files) and widens the R row \"P2CG1R CF-H8/CF-G5: an installed bound membership join only ever offers (confirmed|held|failed send callback); joinMember is never invoked\" to it.each over {host, member}; the newcomer arm is cross-checked by the existing P2CE2 row in coopMissionAnnouncement.reconnect.test.ts (reviewer RV10). The conditional 9 -> 8 reduction in P2CG1HP.admissionRequires is NOT taken. P2CG1HP is not edited here; its admission records this receipt, head e3f2535e and the three host-arm assertions.",
+        "reviewer": "**CF-H8 / CF-G5 - discharged for the GM seat; partially for guests.** Read against the exact definition in `p2cg1f-review-20261018.json` line 405 (\"with the port installed, a bound join's first campaign frame carries `appliedView`, and `joinMember` is never invoked for that socket\"; cites all three application arms) and the G1 reviews (carried unchanged). R pins the host arm for confirmed/held/failed send callbacks with a `joinMember` spy. The member and newcomer arms are held by other rows (RV8, RV10) but not by an explicit never-invoked assertion. **HP ruling:** HP may drop the binder test from its manifest (9 -> 8 files) **only** if the owner accepts the indirect guest-arm coverage; otherwise HP keeps the file and widens the R row to `it.each` over {host, member} (a two-line change, same socket harness) - I recommend the latter as the honest completion of CF-G5.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-3",
+        "origin": "evidence/p2cg1g2-review-20261018.json (reviewer owner \"H / R\")",
+        "status": "open",
+        "directedTo": "P2CG1H. P2CG1R did not absorb it (the client leaves CampaignCoopEntryPanel.tsx and campaignSyncTransportSeat.ts are admission controls, byte-identical at the merge); the owner ruling routes it to H. Recorded under successorNotes.P2CG1H; no P2CG1H field is edited.",
+        "reviewer": "**CF-G2-3 - correctly not absorbed;** client leaves byte-identical. Stays with H.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-R-1",
+        "origin": "P2CG1R local receipt (new) and review finding N5",
+        "status": "open",
+        "directedTo": "P2CG1H, as the next owner of src/lib/multiplayer/server/CampaignGmArbiter.ts: on an append throw the arbiter consume() at CampaignGmArbiter.ts:559 drops the pending approval before resultOfDoor rethrows; the reviewer suggests using R's hook as the evidence for a known-rolled-back classification and keeping commit-uncertain only for the outer-COMMIT failure. Recorded under successorNotes.P2CG1H.",
+        "reviewer": "**CF-R-1 -> H** (next owner of `CampaignGmArbiter.ts`). Reviewer addition: use R's hook as the evidence for a `known-rolled-back` classification so a pending approval is not dropped on a certain rollback; keep commit-uncertain for the outer-COMMIT failure only.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-R-2",
+        "origin": "P2CG1R local receipt (new; author mutant RM9 survived) and the reviewer's RM9 assessment",
+        "status": "open",
+        "directedTo": "The next owner of src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts (the reviewer names HP if it touches the adapter suite, else H; P2CG1S does not own it): add the one-row probe in the review (stub the store-level getCommandReceipt to miss once; expect committed, no guard, hook or notification, one saved-record rewrite), which kills RM9, RV3 and RV4. Recorded under successorNotes.nextOwnerJournalCampaignEventStoreTest.",
+        "reviewer": "**CF-R-2 -> next owner of `JournalCampaignEventStore.test.ts`** (HP if it touches the adapter suite, else H; S does not own it). Non-equivalent survivor confirmed; one probe row (template above) closes RM9, RV3 and RV4.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-R-3",
+        "origin": "P2CG1R local receipt (new, test hazard)",
+        "status": "open (standing practice)",
+        "directedTo": "All P2CG1 test owners (P2CG1S, P2CG1HP, P2CG1H, P2CG1I1-P2CG1I4, P2CG2): assert SQLite rejections by message (toMatchObject), not rejects.toThrow(Class), when suites can share a worker. Recorded under successorNotes.allTestOwners.",
+        "reviewer": "**CF-R-3 (test hazard) -> all P2CG1 test owners (S, HP, H, I1-I4, P2CG2).** Confirmed sensible: assert SQLite rejections by message, not `rejects.toThrow(Class)`, when suites share a worker.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-R-4",
+        "origin": "review (new); P2CG1R local receipt boundary",
+        "status": "open",
+        "directedTo": "P2CG1H, or a separate writer registration before H if H requires the guarantee: the outer-COMMIT failure after the extension returned committed is not observable by the adapter; only the reservation microtask releases M and the H-OPEN-1 nesting window reopens on that path. Closing it is a SQLiteEventJournalWriter.appendWithExtension change (a commit-failure callback around .immediate()), outside every current manifest. Recorded under successorNotes.P2CG1H.",
+        "reviewer": "**CF-R-4 (new, reviewer) -> H or a separate writer registration before H if H requires it.** Outer-COMMIT failure after the extension returned `committed` is not observable by the adapter; the reservation microtask is the only release and the H-OPEN-1 nesting window reopens on that path. Closing it is a `SQLiteEventJournalWriter.appendWithExtension` change (commit-failure callback around `.immediate()`), explicitly out of R's manifest.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-R-5",
+        "origin": "review (new; findings N1 and N2)",
+        "status": "open",
+        "directedTo": "The next owner of src/lib/campaign/sync/JournalCampaignEventStore.ts: move signalNotCommitted above the JSDoc block it orphaned (JournalCampaignEventStore.ts:306-331) and add a logger.warn (src/utils/logger.ts) when the hook throws. Recorded under successorNotes.nextOwnerJournalCampaignEventStore.",
+        "reviewer": "**CF-R-5 (new, reviewer, Low) -> next adapter owner.** N1 (JSDoc re-attachment) and N2 (silent swallow in `signalNotCommitted`).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-R-6",
+        "origin": "review (new; finding N4)",
+        "status": "recorded (info)",
+        "directedTo": "Recorded, as the owner ruling writes; the reviewer names the next adapter owner. Hook-only controls inside an outer transaction get no signal when the outer owner rolls back; unreachable from the binder. No change requested. Recorded under successorNotes.nextOwnerJournalCampaignEventStore.",
+        "reviewer": "**CF-R-6 (new, reviewer, Info) -> next adapter owner.** N4 nested-savepoint asymmetry for hook-only controls.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      }
+    ],
+    "stillOpenFromP2CG1G2": [
+      {
+        "id": "CF-G2-1",
+        "reviewerOwner": "H (next owner of campaignSyncTransportSeat.ts)",
+        "item": "N1: handle an already-aborted signal in waitForSeatCampaignSnapshot; pin \"unmount during identity resolution opens no socket\" in the entry suite.",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1H, as the next owner of src/lib/campaign/coop/campaignSyncTransportSeat.ts: handle an already-aborted signal in waitForSeatCampaignSnapshot and pin \"unmount during identity resolution opens no socket\" in the entry suite (N1; reviewer mutant RV7 survived). Recorded under successorNotes.P2CG1H; no P2CG1H field is edited.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-2",
+        "reviewerOwner": "H",
+        "item": "N2: pin the role check (same match/campaign/player, other role -> not bound).",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1H: pin the role check in boundCampaignSyncTransport (same match, campaign and player, other role -> not bound) (N2; RV1 survived). Recorded under successorNotes.P2CG1H.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-4",
+        "reviewerOwner": "H",
+        "item": "N4: pin the replacement resend with a changed choice (command-hq) so RV10 dies.",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1H: pin the launch-page replacement resend with a changed choice (pick command-hq, reseat, expect command-hq) so RV10 dies (N4). Recorded under successorNotes.P2CG1H.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-5",
+        "reviewerOwner": "H",
+        "item": "N6: pin listener lifetime after dispose (late post-unmount frame publishes nothing; one listener per join on the transport).",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1H: pin listener lifetime after dispose (a late post-unmount frame publishes nothing; one listener per join on the transport) (N6; RV3 and RV11 survived). Recorded under successorNotes.P2CG1H.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-6",
+        "reviewerOwner": "H (consumer owner)",
+        "item": "N7: recovery/UX for the surface when the stored transport on the same match is bound to another campaign (CF-H16 refusal leaves it offline).",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1H, the consumer owner: recovery/UX for the surface when the stored transport on the same match is bound to another campaign, which the delivered CF-H16 refusal leaves offline (N7). Recorded under successorNotes.P2CG1H.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-7",
+        "reviewerOwner": "H",
+        "item": "N5: connectStoredCampaignSyncTransport refuses by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport.",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1H: connectStoredCampaignSyncTransport refuses a stored transport by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport (N5, pre-existing since P2CG1G1). Recorded under successorNotes.P2CG1H.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-8",
+        "reviewerOwner": "I1-I4 / P2CG2",
+        "item": "ML6 defence-in-depth: a cross-match participation frame must never publish under a foreign key; pin once a multi-match page exists.",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "P2CG1I1-P2CG1I4 / P2CG2, as tabulated: once a multi-match page exists, pin that a cross-match participation frame never publishes under a foreign key (ML6 defence in depth, N8). Recorded under successorNotes.P2CG1I1toI4AndP2CG2; none of those units is edited.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-9",
+        "reviewerOwner": "S (engine/e2e)",
+        "item": "Seam Anchors :425 same-seed marker inequality is a recurring flake (also 2026-10-15 on a docs-only commit); not a G2 defect.",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "As tabulated, \"S (engine/e2e)\": the engine/e2e owner of e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425 (same-seed run-to-run marker inequality, aliveBySide.player 2 vs 1 from turn 3 heat), a recurring flake (failed then passed on rerun for the units.json-only 293ae722b in run 38810066031 on 2026-10-15, and for this head in run 39109741978 attempt 1). Recorded under successorNotes.P2CG1S as routed; the registered P2CG1S (live-wire spectator sealed-choice privacy) does not own that spec or the battle-resolution path, so the item binds whichever unit next owns the seam spec or that engine path (Root note G2-SEAM-1). Not a P2CG1G2 defect; no unit is edited.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2-10",
+        "reviewerOwner": "B15",
+        "item": "Unchanged from G2A: PRIV-1 campaignId correlation, MR1/MR4 route rows, CF-G2A-1/2/3/6.",
+        "status": "open, unchanged by P2CG1R",
+        "directedTo": "B15, unchanged from P2CG1G2A: the PRIV-1 campaignId correlation (the R-PRIV-1 hold on B15-6), the MR1/MR4 route rows (CF-G2A-4, re-routed by G2A-ROUTE-1) and CF-G2A-1, 2, 3 and 6, as recorded in evidence/p2cg1g2a-review-20261018.json. Reduced P2CG1G2 neither widened nor narrowed PRIV-1 (review section 3, Privacy). Recorded under successorNotes.B15; no B15 unit is edited.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      }
+    ],
+    "stillOpenFromP2CG1G1": [
+      {
+        "id": "CF-H2",
+        "concern": "single-slot lineage versus per-transport heard mark",
+        "statusAfterG1Round2": "open",
+        "round2Owner": "next owner of campaignHostFoldStore.ts; the surface is a G2 leaf",
+        "directedTo": "next owner of campaignHostFoldStore.ts (a P2CG1G1 leaf; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves); the surface it names is a reduced-P2CG1G2 leaf, so it is cross-referenced under successorNotes.P2CG1G2",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/campaign/coop/campaignHostFoldStore.ts"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/lib/campaign/coop/campaignHostFoldStore.ts).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H5",
+        "concern": "one activity predicate",
+        "statusAfterG1Round2": "open",
+        "round2Owner": "store + consumer owner",
+        "directedTo": "next owner of campaignHostFoldStore.ts and useCampaignApplicationConsumer.ts (P2CG1G1 leaves; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves, and reduced P2CG1G2 makes no consumer edit)",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/campaign/coop/campaignHostFoldStore.ts",
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/lib/campaign/coop/campaignHostFoldStore.ts, src/components/campaign/coop/useCampaignApplicationConsumer.ts).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H7",
+        "concern": "quiet-window cycle bound",
+        "statusAfterG1Round2": "open",
+        "round2Owner": "consumer owner, at or before P2CG1H",
+        "directedTo": "next owner of useCampaignApplicationConsumer.ts, at or before P2CG1H (CF-G4 carried; reduced P2CG1G2 makes no consumer edit and its behaviour text keeps CF-G4 with that owner); deadline cross-referenced under successorNotes.P2CG1H",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/components/campaign/coop/useCampaignApplicationConsumer.ts). P2CG1HP names CF-H7/CF-G4 in its behaviour text and is not edited here.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H9",
+        "concern": "adoption versus a newer guarded row",
+        "statusAfterG1Round2": "open (unchanged)",
+        "round2Owner": "useCampaignPersistenceStore.ts owner",
+        "directedTo": "next owner of useCampaignPersistenceStore.ts (a P2CG1F leaf; CF-G6 carried)",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/stores/campaign/useCampaignPersistenceStore.ts"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/stores/campaign/useCampaignPersistenceStore.ts).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H10",
+        "concern": "RED shape of the CF-F3 quiet case",
+        "statusAfterG1Round2": "open (unchanged)",
+        "round2Owner": "hostRecordRefresh.test.tsx owner",
+        "directedTo": "next owner of CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx (a P2CG1F leaf; CF-G7 carried)",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H13",
+        "concern": "store holds one transport strongly",
+        "statusAfterG1Round2": "open (optional)",
+        "round2Owner": null,
+        "directedTo": "optional; next owner of campaignHostFoldStore.ts (neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves)",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/lib/campaign/coop/campaignHostFoldStore.ts"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/lib/campaign/coop/campaignHostFoldStore.ts).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H14",
+        "concern": "new; spurious cut after a confirmed settle, latent",
+        "statusAfterG1Round2": "new",
+        "round2Owner": "next owner of useCampaignApplicationConsumer.ts; before any mount that gates on projected state, and in any case at or before P2CG1H",
+        "directedTo": "next owner of useCampaignApplicationConsumer.ts, before any mount that gates on projected state and in any case at or before P2CG1H; deadline cross-referenced under successorNotes.P2CG1H and flagged for reduced P2CG1G2 should it add such a mount",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/components/campaign/coop/useCampaignApplicationConsumer.ts). P2CG1HP names CF-H14 in its behaviour text and is not edited here.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H15",
+        "concern": "new; same-tick dispose pin",
+        "statusAfterG1Round2": "new",
+        "round2Owner": "next owner of hostProjection.test.tsx",
+        "directedTo": "next owner of CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (a P2CG1G1 leaf; neither P2CG1G2A nor reduced P2CG1G2 lists it among its literal leaves; reduced P2CG1G2 keeps the G1 and F suites unchanged)",
+        "ownerFilesUnchangedBaseToMerge": [
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
+        ],
+        "note": "P2CG1R changed none of its owner files (src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx). P2CG1HP names CF-H15 in its behaviour text and is not edited here.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-H17",
+        "concern": "new, optional; re-projection at a cut remount",
+        "statusAfterG1Round2": "new (optional)",
+        "round2Owner": "surface/store owner",
+        "directedTo": "optional; surface/store owner (record, do not chase, as the review says)",
+        "ownerFilesUnchangedBaseToMerge": [],
+        "note": "P2CG1R changed none of its owner files (none named).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      }
+    ],
+    "stillOpenFromP2CG1G2A": [
+      {
+        "id": "CF-G2A-1",
+        "status": "open",
+        "directedTo": "B15 (remote hosting): an abuse budget / rate limiter on the invite route in both modes before any non-loopback hosting claim (F9). Routed as the owner ruling writes (\"B15 (rate limiter ...)\"). Recorded under successorNotes.B15; no B15 unit is edited here.",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2A-2",
+        "status": "open",
+        "directedTo": "B15: the R-PRIV-1 remote/tunnel readiness obligation recorded on B15-6 by #2245 (fix in joinableLobbies.ts / session creation) must also close the co-op-ness bit (review section 7 item 1) and the campaignId correlation, then re-verify that a non-member with a listed code gets 404/401 in identity mode. Routed as the owner ruling writes (\"PRIV-1 fix including the co-op bit\").",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2A-3",
+        "status": "open",
+        "directedTo": "B15 auth hardening: strict base64 in decodeTokenFromWire (src/types/multiplayer/Player.ts, a leaf of neither P2CG1G2A nor reduced P2CG1G2) (F4). Routed as the owner ruling writes (\"strict wire decode\").",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2A-4",
+        "status": "open (re-routed by parent ruling)",
+        "directedTo": "B15 auth hardening, NOT reduced P2CG1G2 (Root routing note G2A-ROUTE-1, parent ruling 2026-10-18): the lowercase-scheme and empty-string-campaignId rows that kill MR1 and MR4 belong to whoever next owns src/__tests__/api/securityBoundary.test.ts and the invite route under B15 auth hardening (F1, F2).",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      },
+      {
+        "id": "CF-G2A-6",
+        "status": "open",
+        "directedTo": "B15: consider logging the verified playerId (logger.ts, not console) on identity-mode success so the gate provides accountability. Routed as the owner ruling writes (\"accountability logging\").",
+        "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+        "statusAtThisClosure": "open, unchanged by B14-0B"
+      }
+    ],
+    "practiceItems": "CF-H12 / CF-E10 (all required checks by name on each exact head), CF-E9 / CF-H11 (lint and madge on the touched leaves) and CF-R-3 (assert SQLite rejections by message) remain the practice for each later unit. B14-0B recorded CF-H12 on the exact head (comment 6252601181) and lint (86 warnings, 0 errors, equal to the baseline) and lint:units in its local receipt; its ten test leaves add no SQLite rejection assertion (no SQLITE_ or SqliteError in the diff), so CF-R-3 had nothing to convert. The B14-0A recommendation (register behaviour-free helpers in the admission commit) did not arise: B14-0B adds no helper (admission receipt helpers: \"None\").",
+    "priorNotes": "CF-E5 and CF-E6 remain recorded in evidence/p2cg1d-review-20261017.json and CF-F9 in evidence/p2cg1e-review-20261018.json, as evidence/p2cg1g1-review-20261018.json successorNotes.P2CG1H.priorNotes and evidence/p2cg1r-review-20261018.json carryForwardLedger.priorNotes list them; this closure neither restates nor changes them. The P2CG1R closure discharged H-OPEN-1 / CF-E1, pinned CF-E7 and discharged CF-H8/CF-G5 for the host arm only (R-HP-1: P2CG1HP keeps its binder test, nine files, and widens the row to {host, member}); evidence/p2cg1r-review-20261018.json records them and this closure changes none of them. The P2CG1S closure (evidence/p2cg1s-review-20261018.json) carried these unchanged; this closure changes none of them either. The B14-0B closure carries these unchanged as well.",
+    "note": "Carried forward unchanged from evidence/b14-0a-review-20261018.json carryForwardLedger (each entry keeps its recorded fields; statusAtThisClosure is replaced and the B14-0A value kept as statusAtB14_0AClosure). B14-0B changed only its ten test leaves, none of which is an owner file of these items (the G1 owner files, CampaignGmArbiter.ts, JournalCampaignEventStore.ts and its suite, the binder suite, campaignSyncTransportSeat.ts, CampaignCoopEntryPanel.tsx and the seam spec are byte-identical from the B14-0A merge to this merge)."
+  },
+  "reviewerProofLogs": {
+    "note": "The reviewer's disposable proof directory outside any repository (the driver drv.cjs and its per-run jest json/log outputs, named in review section 2), referenced by path, sha256 and size at closure time (top-level files only; the private jest cache is omitted). P0.json holds the head baseline (11 suites, 85/85), P1.json the simulated refusal with seams (71/71) and P1b.json the simulated refusal without seams (35 failed of 71), as the baseline table states; idle-gates.log holds only MACHINE_IDLE readings. Not re-run by this closure.",
+    "files": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F1.json",
+        "sha256": "e83bcb6e6619b6570601ecf1cee173bd75e3630f50e10dacfab768f34e5ffaa3",
+        "bytes": 50395
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F1.log",
+        "sha256": "71984a8dddf00a27d72501c7e4f34744e6e23cbca4a9267ca2a969832ea08ce5",
+        "bytes": 26507
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F3.json",
+        "sha256": "fd6ffecde6758645bd5015430ff7926d060552be28c7d944408902c0acc816f0",
+        "bytes": 134429
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F3.log",
+        "sha256": "e55cbe3a8dde9f9d65badb4335a914122c4aca245f02dcce95b4d54c46041279",
+        "bytes": 55353
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F5.json",
+        "sha256": "48ff1167d514bbd1edc56c4428eee068e99dc50f7369ca0d8394d2aadd41123f",
+        "bytes": 43655
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F5.log",
+        "sha256": "77c7575c9224a120fef6a99437dd54dd6389c80e19e5d6b74cc8d40feab2a726",
+        "bytes": 26635
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F7.json",
+        "sha256": "8f8c02c51e7b03c8fc9ab8960a53723c67746a9e591b0c7b4b81ab244ab8e940",
+        "bytes": 35183
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/F7.log",
+        "sha256": "09bbc7c43f14ca860212a399ec1307cbf5e86618879e2d620fabb1074b1f88de",
+        "bytes": 21659
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G0Adrop.json",
+        "sha256": "8dc7fb78626b1b64c399952490b47032189c34fd3382d7b0089a41adc2126dd8",
+        "bytes": 9758
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G0Adrop.log",
+        "sha256": "a501e298db1e7a7f32ef2e4327854bc53ec41bae4a4a4360485539e5e0ac3494",
+        "bytes": 2284
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G14drop.json",
+        "sha256": "66e39d86088a88e031508cda9728671d9c0c40bd6b6cfad309e4915971ca5d1b",
+        "bytes": 6804
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G14drop.log",
+        "sha256": "6e1e9e36fa4ae150757899ee31e9d3be3fcc6f646cb4f90284049d197f4e1786",
+        "bytes": 1654
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G15.json",
+        "sha256": "4d2e57cdb24e9b4f7f1ce6e2e4456d994b553dd12daaf0efd012fd81a9dec742",
+        "bytes": 10057
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G15.log",
+        "sha256": "f3dd99b4d5d8f108dece468c4a9d8d5002d95e8f7293ccb16513ad3a1c351e09",
+        "bytes": 2573
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G15b.json",
+        "sha256": "1ae924786d0b71cc83903a290f1b923d18c74cafd29c13f9a6c540243a76db10",
+        "bytes": 10057
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G15b.log",
+        "sha256": "63141fbbc194da99ccce29b53a288469a3c60be887d05902aca23a7459b0573f",
+        "bytes": 2559
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G15c.json",
+        "sha256": "f9d2f4bbeef8e7f2186584be471365151b6ccb0bc740973dda53ab699bb4be26",
+        "bytes": 10059
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/G15c.log",
+        "sha256": "615a6dc4cccdc47ec2b3b21e15b05aeeb81c465f5985402e4203ae34456eaced",
+        "bytes": 2561
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/P0.json",
+        "sha256": "86dac080c58c071f2c731a58cd05606b9c1d4c1d7510762ee8a088d02427d934",
+        "bytes": 39123
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/P0.log",
+        "sha256": "63ed75ea67ac790f25ae2b9b193e94971cb4e647e7cd6715936ace4f7cb0ff0a",
+        "bytes": 20248
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/P1.json",
+        "sha256": "16b3b52ba3562529c773949b09100ba599ffd9e1752521792e70254fda3bf4cd",
+        "bytes": 32871
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/P1.log",
+        "sha256": "a8dc6dd71bcf202af99f4d2deee74514efe6a2cf7f5b6a3c9708c1954abb5bdf",
+        "bytes": 20123
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/P1b.json",
+        "sha256": "d14f7f655621d804db56289058fa9ed5a14cc191f11ef259e6eb99996c280c91",
+        "bytes": 83364
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/P1b.log",
+        "sha256": "9c31a5535f182685d8ea92cb6e016fc2fcd9b20c93000393d7a090567efbc0bc",
+        "bytes": 48777
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X1.json",
+        "sha256": "9002b5fe505e756c5a5e3d9dfc72424816872e0acabe6eb41555873e362f97db",
+        "bytes": 50397
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X1.log",
+        "sha256": "8de8ec0dbeb8af8ec9ef6e07711009553a653d56edba6e83d3d8abd30d888748",
+        "bytes": 26490
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X2.json",
+        "sha256": "99e215fa0e91c129229197ea19661c3edb3debb969aed77c0c6cd98295f0a98b",
+        "bytes": 32872
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X2.log",
+        "sha256": "d0925f13c4f5716d3293f78e9c5ea762ed6157fc87fa7f756c59f4bcde9b7c6e",
+        "bytes": 20123
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X2b.json",
+        "sha256": "111b542c2f9222565dbefd696b9fb1571a67082905f0819d494f89ee509fd73d",
+        "bytes": 32877
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X2b.log",
+        "sha256": "0a1c4c3382e73915a731842f3b75b4ea7e1eab5d093300e102ff4a63f9a1db7d",
+        "bytes": 20124
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X2f.json",
+        "sha256": "7c02b002e71c09e169a2e405a54cebc2f5a4a49723ebe99b5e08e45e4e153834",
+        "bytes": 15107
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X2f.log",
+        "sha256": "d293db7914d8f5a6a521cd5426707a4177d1215d54a793a170c836ab68e343a8",
+        "bytes": 2605
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X4.json",
+        "sha256": "afbd6035f7e8eb13adf8b9dab2b28830b678181e0d8fc2901589584e033f455f",
+        "bytes": 38551
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X4.log",
+        "sha256": "e4f2d65f319aeab142ca3e286636c04c06956c9f5ace326b54eb320dc06c4c33",
+        "bytes": 22355
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X5.json",
+        "sha256": "34d9e17e6a7688c2e5d756f7bf14c91a71a36646555e5afb04010a4605a4128c",
+        "bytes": 38552
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X5.log",
+        "sha256": "15661ebb141350f84bb23474c409b4d29f5a9516d88aaa8d35364148e232f020",
+        "bytes": 22340
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X6.json",
+        "sha256": "aaa9eeb8a16aadb38bc8be929d728858bd622afd07b0ad30feb70233f53210be",
+        "bytes": 32875
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X6.log",
+        "sha256": "31dfc869b7699cad8883a0b9c0c96cbc720345fcd0c65be34738bff7201c41e4",
+        "bytes": 20123
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X6b.json",
+        "sha256": "4ff681c14012bca221bd07445a141fe7f613e27fb8e1ccc821a244e65c2b7cc1",
+        "bytes": 32874
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X6b.log",
+        "sha256": "8eb379fcf8e1b879f33a5db16576802b0816b061a9afef5e98842b6b5b10b9ce",
+        "bytes": 20139
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X6f.json",
+        "sha256": "11cf37fd5de4c8a5ebef83750b0bcccc940a24a86a2ab119e2625270fc7f205f",
+        "bytes": 11457
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X6f.log",
+        "sha256": "967fed9b7c5d82545bc720c782a3ce9fc54d9335f2f9d947cb790fb93f3ed4d0",
+        "bytes": 1365
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X7.json",
+        "sha256": "da2aa9d38107e03648da05bc823e85eac7fe168127f76ef517c9b115e8fbb1bc",
+        "bytes": 38231
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X7.log",
+        "sha256": "eeb215b937e75aa289ea7421bef40234849bb51e083c18b5f513631344e0cbe1",
+        "bytes": 23419
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X8.json",
+        "sha256": "668d81f3dc734755fbfd32863ff3643cafef091977d729b54b3b8a4018bde79f",
+        "bytes": 36153
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/X8.log",
+        "sha256": "2c7795700c0abdd61f2a54b9b30621831e9be8333aab7938c599599563cfc020",
+        "bytes": 22161
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/drv.cjs",
+        "sha256": "af45dd436f635cc970e98d4e6bff3a079a7cc38bb3915c2ca4f1ce4f6d3479ea",
+        "bytes": 6717
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/idle-gates.log",
+        "sha256": "e1d1035bc7f254e57a322496408f046753b3ff298fe263c5dd38884b719778c8",
+        "bytes": 963
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/lint.out",
+        "sha256": "c149f97a5868f55158bf478703dc9b7f4d9e70b9189bc745486a5129c8eb0f44",
+        "bytes": 294
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/next.out",
+        "sha256": "b0b896ffbe54660baef433a3b71bd0f8036573f2253fda5e77211fe5402156ad",
+        "bytes": 4
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/run1.out",
+        "sha256": "0a957db78a7e986b564d57446e6720355186132a81a9b307cfcbc11d756ba89a",
+        "bytes": 1615
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/run2.out",
+        "sha256": "beb0f9a564d5045f16fa94c84d742a8708b591c8793cd07e1cacdf5b63434a58",
+        "bytes": 12692
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/run3.out",
+        "sha256": "7bd6af04fbe6ee70f2d58ae74bebd9208f65265b7ffc04b5b389e800e2ad7cef",
+        "bytes": 2744
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2270-scratch/val.out",
+        "sha256": "d6711f2f9656c3d2ff098bf70b8d06c12102fe0badd6c0d1fe6d4b5283a14fd3",
+        "bytes": 84
+      }
+    ]
+  },
+  "successorNotes": {
+    "B14-0": {
+      "state": "B14-0 moves from blocked to planned in this change set (successorRelease). No other field is edited.",
+      "carryForwards": [
+        {
+          "id": "CF-B14B-1",
+          "origin": "review section 3 (guard probe G14drop: a B14-0B seam can be deleted without the guard noticing) and its carry-forward bullet",
+          "status": "open",
+          "directedTo": "B14-0, as the owner ruling writes (\"CF-B14B-1 -> B14-0: make the guard check for the exact canonical block and for all 14 seams. Assert the capability module is unmocked in b14FogContainment.test.ts. This folds in CF-B14A-2.\"): the guard in matchHistoryFog.test.ts requires all 14 allowlisted suites to carry the byte-exact canonical block (not three toContain substrings), b14FogContainment.test.ts asserts fogMatchAdmission is unmocked, and the matchLacksRevealProjection override type stays in step with the real export. CF-B14A-2 (exact-match tightening against a concatenated jest.doMock path, jest.spyOn, moduleNameMapper or consumer-module mocks) is folded into this item by the same ruling. Recorded under successorNotes.B14-0; B14-0 is not edited.",
+          "reviewer": "CF-B14B-1 (owner B14-0): tighten the guard to exact equality - require all 14 allowlisted suites present with the byte-exact canonical block (not three `toContain` substrings), and assert `fogMatchAdmission` is unmocked in `b14FogContainment.test.ts`. G14drop shows a B14-0B seam can currently be deleted without the guard noticing. Keep the `matchLacksRevealProjection` override type in step with the real export (the guard checks text only)."
+        },
+        {
+          "id": "CF-B14A-2",
+          "origin": "review finding F5 (Low); reviewer probe R9",
+          "status": "open",
+          "directedTo": "B14-0, as the owner ruling writes (\"seam guard bypassable via concatenated jest.doMock path -> B14-0 tightens to exact match\"): b14FogContainment.test.ts asserts the capability module is unmocked (identity with jest.requireActual, jest.isMockFunction false) in addition to the matchHistoryFog.test.ts allowlist tripwire, and the guard is tightened to an exact match so a concatenated or non-literal jest.doMock path (R9), jest.spyOn, a moduleNameMapper entry or a consumer-module mock cannot evade it. Recorded under successorNotes.B14-0; B14-0 is not edited. B14-0B adds its ten seams under the existing guard and must keep it passing.",
+          "reviewer": "| CF-B14A-2 | B14-0 | `b14FogContainment.test.ts` asserts the capability module is unmocked (identity with `jest.requireActual`, `jest.isMockFunction` false) in addition to the allowlist tripwire (F5); optionally extend the guard regex to `jest.spyOn(...fogMatchAdmission` and non-literal paths. |",
+          "statusAtThisClosure": "open; folded into CF-B14B-1 (B14-0) by the B14-0B owner ruling (\"This folds in CF-B14A-2.\"). B14-0B added its ten seams under the existing guard, which passes with all 14 (review section 3; local receipt seamGuard)."
+        },
+        {
+          "id": "CF-B14A-5",
+          "origin": "review judged item (d) and the admission CF-S-2 forward",
+          "status": "open",
+          "directedTo": "B14-0: matchLacksRevealProjection must be implemented as a Promise-returning function and awaited at every call site (the four seams pin async () => false, so a truthy un-awaited Promise would refuse loudly); B14-0 also decides and pins CF-S-2 (publishEvent meta-read failure: terminal 1011 versus silent withholding), which the owner ruling routes to B14-0. Recorded under successorNotes.B14-0; B14-0 is not edited.",
+          "reviewer": "| CF-B14A-5 | B14-0 | `matchLacksRevealProjection` must be async (Promise) and awaited everywhere; the four seams pin `async () => false`. Decide and pin CF-S-2 (publishEvent meta-read failure -> terminal 1011 vs silent withholding) as the admission receipt forwards it. |",
+          "statusAtThisClosure": "open, unchanged by B14-0B; the ten B14-0B seams also pin matchLacksRevealProjection: async () => false, so B14-0 must keep it Promise-returning and awaited"
+        },
+        {
+          "id": "CF-S-1",
+          "origin": "review finding F2 (pre-existing, outside S)",
+          "status": "open",
+          "directedTo": "B14-0 / P2CG1HP, as the review tabulates and the owner ruling writes (\"B14-0/HP\"): fog-off HTTP history/export has no sealed-choice hold (ViewerProjectionService.isVisibleToViewer returns true for sealed-to-actor-until-revealed; latent only because the root-branch read returns nothing for mirrored matches). Either route fog-off matches through the fog projection's sealed branch or teach the parent service the sealed decision before fog-off moves onto the effective head. Recorded under successorNotes.B14-0 and successorNotes.P2CG1HP; neither unit is edited.",
+          "reviewer": "| CF-S-1 | B14-0 / HP | Fog-off HTTP history/export sealed-choice hold (F2): either route fog-off matches through \\`fogMatchHistoryProjection\\`'s sealed branch or teach the parent service the sealed decision before fog-off is ever moved onto the effective head. |",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A (ViewerProjectionService.ts and the fog-off parent path are admission controls, byte-identical at the merge)",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-S-2",
+          "origin": "review finding F3 (pre-existing, outside S)",
+          "status": "open",
+          "directedTo": "B14-0 (rerouted from B14-0A by the B14-0A owner ruling: \"CF-S-2 (meta-read failure withholds actor's own declaration) -> B14-0\"; the B14-0A admission receipt had already recorded it forward to B14-0 because ServerMatchHostEvents.ts is outside B14-0A's frozen files): a getMatchMeta failure in publishEvent leaves the audience context undefined, so every sealed declaration is omitted for everyone, including the actor (fail-closed, recoverable by replay; not a leak). Decide whether the actor's own declaration should be retried, logged or answered by a terminal 1011 rather than silently withheld until replay (CF-B14A-5). Recorded under successorNotes.B14-0; B14-0 is not edited.",
+          "reviewer": "| CF-S-2 | B14-0A | \\`publishEvent\\` meta-read failure omits sealed declarations for the actor too (F3); decide whether the actor's own declaration should be retried/logged rather than silently withheld until replay. |",
+          "directedToAtP2CG1SClosure": "B14-0A (released to planned in this change set; no other B14-0A field is edited): a getMatchMeta failure in publishEvent leaves the audience context undefined, so every sealed declaration is omitted for everyone, including the actor (fail-closed, recoverable by replay; not a leak). Decide whether the actor's own declaration should be retried or logged rather than silently withheld until replay. Recorded under successorNotes.B14-0A.",
+          "statusAtB14_0AClosure": "open, rerouted to B14-0",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-S-3",
+          "origin": "review finding F4 (pre-existing design)",
+          "status": "open",
+          "directedTo": "B14-0: sealed types bypass the fog classifier, so a revealed declaration of a fog-invisible unit reaches fog-on spectators and opponents in full; fold into B14's fog-scope decision together with the GameCreated roster leak. The reviewer's row adds that B14-0A and B14-0 must preserve both seat arguments and the seat-before-gm order when they touch ServerMatchHostEvents.ts / ServerMatchHostReplay.ts (also the admission receipt overlap note). Recorded under successorNotes.B14-0 and, for the preservation constraint, successorNotes.B14-0A.",
+          "reviewer": "| CF-S-3 | B14-0 | Revealed sealed declarations bypass fog for invisible units (F4); fold into B14's fog-scope decision together with the GameCreated roster leak. B14-0A/B14-0 must preserve both seat arguments and the seat-before-gm order when they touch ServerMatchHostEvents.ts / ServerMatchHostReplay.ts. |",
+          "statusAtB14_0AClosure": "open; the preservation constraint held through B14-0A (ServerMatchHostEvents.ts, ServerMatchHostReplay.ts and MatchWireSealedChoices.ts are admission controls, byte-identical from the P2CG1S merge to this merge) and binds B14-0B and B14-0 next",
+          "statusAtThisClosure": "open; the preservation constraint held through B14-0B (ServerMatchHostEvents.ts, ServerMatchHostReplay.ts and MatchWireSealedChoices.ts are admission controls, byte-identical from the P2CG1S merge to this merge; ServerMatchHost.spectator.test.ts differs from the B14-0B baseline only by the ten-line seam, keeps every S fog-on sealed-choice row and passes at the merge, and the review saw F3 break 21 of its rows) and binds B14-0 next"
+        },
+        {
+          "id": "CF-S-7",
+          "origin": "review finding F7 and the runs note (baseline debt)",
+          "status": "open",
+          "directedTo": "Root maintenance backlog (no unit; the review names Root, outside the listed owners): npm run verify:qc:roadmap fails at the head in maintain:scan:gate (type-safety high: 6 > 0) on six files S does not touch (CompendiumAdapter, requestLaunchAuthority, CampaignReplicaSyncClient, FogAwareMatchProjection x2, the replica-sync route); not a required CI check. The reviewer adds that whoever next edits FogAwareMatchProjection.ts (an S read-only control; B14-0 / HP) should clear its two. Recorded under successorNotes.rootMaintenanceBacklog.",
+          "reviewer": "| CF-S-7 | Root (outside the listed owners) | \\`maintain:scan:gate\\` type-safety regressions on main (F7): six \\`as unknown as\\` highs; two in FogAwareMatchProjection.ts, which is an S read-only control, so whoever next edits that file (B14-0 / HP) should clear them. |",
+          "statusAtB14_0AClosure": "open; B14-0A, the next editor of FogAwareMatchProjection.ts, cleared that file's two as-unknown-as highs (local receipt: maintain:scan type-safety high 6 at the baseline -> 4 on the candidate, unchanged at the follow-up; not re-measured by this closure); the four on files B14-0A does not touch stay with the Root maintenance backlog",
+          "statusAtThisClosure": "open, unchanged by B14-0B (a test-only unit; no product file touched); the four highs on files B14-0A and B14-0B do not touch stay with the Root maintenance backlog"
+        }
+      ],
+      "note": "CF-B14B-1 folds in CF-B14A-2: the guard must require the byte-exact canonical block in all 14 seamed suites and b14FogContainment.test.ts must assert the capability module unmocked. CF-B14A-5: matchLacksRevealProjection stays Promise-returning and awaited (the 14 seams pin async () => false). CF-S-1 is shared with P2CG1HP; CF-S-7 is listed only because its row names B14-0 as a possible next editor of FogAwareMatchProjection.ts."
+    },
+    "P2CG1HP": {
+      "carryForwards": [
+        {
+          "id": "CF-S-1",
+          "origin": "review finding F2 (pre-existing, outside S)",
+          "status": "open",
+          "directedTo": "B14-0 / P2CG1HP, as the review tabulates and the owner ruling writes (\"B14-0/HP\"): fog-off HTTP history/export has no sealed-choice hold (ViewerProjectionService.isVisibleToViewer returns true for sealed-to-actor-until-revealed; latent only because the root-branch read returns nothing for mirrored matches). Either route fog-off matches through the fog projection's sealed branch or teach the parent service the sealed decision before fog-off moves onto the effective head. Recorded under successorNotes.B14-0 and successorNotes.P2CG1HP; neither unit is edited.",
+          "reviewer": "| CF-S-1 | B14-0 / HP | Fog-off HTTP history/export sealed-choice hold (F2): either route fog-off matches through \\`fogMatchHistoryProjection\\`'s sealed branch or teach the parent service the sealed decision before fog-off is ever moved onto the effective head. |",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A (ViewerProjectionService.ts and the fog-off parent path are admission controls, byte-identical at the merge)",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-H8/CF-G5",
+          "origin": "evidence/p2cg1g1-review-20261018.json (CF-H8; CF-G5 in evidence/p2cg1f-review-20261018.json)",
+          "status": "discharged for the GM/host arm only; member arm open with P2CG1HP",
+          "directedTo": "Owner ruling (adopting the reviewer's recommendation): P2CG1R discharges CF-H8/CF-G5 for the GM/host join arm only. P2CG1HP keeps src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts in its manifest (it stays nine files) and widens the R row \"P2CG1R CF-H8/CF-G5: an installed bound membership join only ever offers (confirmed|held|failed send callback); joinMember is never invoked\" to it.each over {host, member}; the newcomer arm is cross-checked by the existing P2CE2 row in coopMissionAnnouncement.reconnect.test.ts (reviewer RV10). The conditional 9 -> 8 reduction in P2CG1HP.admissionRequires is NOT taken. P2CG1HP is not edited here; its admission records this receipt, head e3f2535e and the three host-arm assertions.",
+          "reviewer": "**CF-H8 / CF-G5 - discharged for the GM seat; partially for guests.** Read against the exact definition in `p2cg1f-review-20261018.json` line 405 (\"with the port installed, a bound join's first campaign frame carries `appliedView`, and `joinMember` is never invoked for that socket\"; cites all three application arms) and the G1 reviews (carried unchanged). R pins the host arm for confirmed/held/failed send callbacks with a `joinMember` spy. The member and newcomer arms are held by other rows (RV8, RV10) but not by an explicit never-invoked assertion. **HP ruling:** HP may drop the binder test from its manifest (9 -> 8 files) **only** if the owner accepts the indirect guest-arm coverage; otherwise HP keeps the file and widens the R row to `it.each` over {host, member} (a two-line change, same socket harness) - I recommend the latter as the honest completion of CF-G5.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-R-3",
+          "origin": "P2CG1R local receipt (new, test hazard)",
+          "status": "open (standing practice)",
+          "directedTo": "All P2CG1 test owners (P2CG1S, P2CG1HP, P2CG1H, P2CG1I1-P2CG1I4, P2CG2): assert SQLite rejections by message (toMatchObject), not rejects.toThrow(Class), when suites can share a worker. Recorded under successorNotes.allTestOwners.",
+          "reviewer": "**CF-R-3 (test hazard) -> all P2CG1 test owners (S, HP, H, I1-I4, P2CG2).** Confirmed sensible: assert SQLite rejections by message, not `rejects.toThrow(Class)`, when suites share a worker.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "P2CG1HP stays blocked and is not edited."
+    },
+    "B14-HEADAndU38": {
+      "carryForwards": [
+        {
+          "id": "CF-S-4",
+          "origin": "review finding F6 (pre-existing) and reviewer mutant R7",
+          "status": "open",
+          "directedTo": "B14-HEAD / U38: a frame admitted and assigned and then refused by admitForSend backpressure is not re-offered by the reveal republish (its delivery number exists), only by rejoin resume; confirm the rejoin-resume path is the intended and only recovery and add a row for it. Recorded under successorNotes.B14-HEADAndU38; neither unit is edited.",
+          "reviewer": "| CF-S-4 | B14-HEAD / U38 | Backpressure-refused owed frames are not re-offered by the reveal republish (F6); confirm the rejoin-resume path is the intended and only recovery, and add a row for it. |",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-B14A-7",
+          "origin": "review finding F9 (Info) and judged item (e)",
+          "status": "open",
+          "directedTo": "The FOG chain for the /timeline count/timing side channel under fog-on (owner ruling: \"F9 timeline count/timing channel -> FOG\"; the units are FOG-S, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X, none named more narrowly) and B14-HEAD for the /head digest (owner ruling: \"/head -> B14-HEAD\"). Recorded under successorNotes.FOGChain and successorNotes.B14-HEADAndU38; no unit is edited.",
+          "reviewer": "| CF-B14A-7 | FOG-* (timeline) / B14-HEAD for the digest | `/timeline` count/timing side channel under fog-on (F9); `/head` digest remains open until B14-HEAD lands. |",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-B14B-3",
+          "origin": "review carry-forward bullet (seam lifetime)",
+          "status": "open",
+          "directedTo": "The FOG chain and B14-HEAD, as the owner ruling writes (\"CF-B14B-3 -> FOG-*/B14-HEAD: when a real per-viewer reveal projection lands, retarget or remove the 14 seams and shrink the allowlist.\"): when a real per-viewer reveal projection lands, the 14 seams (4 B14-0A, 10 B14-0B) are removed or retargeted and B14_SEAM_ALLOWLIST shrinks, so the suites test the production path again; the refusal-by-default proof stays solely in B14-0 b14FogContainment.test.ts. Recorded under successorNotes.FOGChain and successorNotes.B14-HEADAndU38; no unit is edited.",
+          "reviewer": "CF-B14B-3 (owner FOG-*, with B14-HEAD): when a real per-viewer reveal projection lands, remove or retarget these 14 seams and shrink `B14_SEAM_ALLOWLIST`. Otherwise the suites keep pinning the legacy filter beneath a mock and stop testing the production path. The refusal-by-default proof stays solely in B14-0 `b14FogContainment.test.ts`."
+        },
+        {
+          "id": "CF-B14B-4",
+          "origin": "review carry-forward bullet (seam necessity against real code)",
+          "status": "open",
+          "directedTo": "B14-HEAD, as the owner ruling writes (\"CF-B14B-4 -> B14-HEAD: re-run the seam-necessity check against the real B14-0 code.\"): the 35-failure unseamed-simulation reproduction (or an equivalent) is re-run against the real B14-0 code rather than the uncommitted B14-PREP2 patch. This closure does not run it: the real B14-0 code does not exist at 4d9eb721, and the exact-main proof here runs the merged tree only (B14B-NEC-1). Recorded under successorNotes.B14-HEADAndU38; B14-HEAD is not edited.",
+          "reviewer": "CF-B14B-4 (owner B14-HEAD): the HEAD/exact-main proof for B14-0B should include the 35-failure unseamed-simulation reproduction (or an equivalent) so the seams' necessity is re-checked against the real B14-0 code, not only the prep patch. Full B14 privacy acceptance still needs all four of B14-0A, B14-0B, B14-0, B14-HEAD."
+        }
+      ],
+      "note": "B14-HEAD and U38 stay blocked and are not edited. B14-HEAD owns the /head digest (CF-B14A-7), shares the seam retirement with the FOG chain (CF-B14B-3) and re-checks seam necessity against the real B14-0 code (CF-B14B-4, B14B-NEC-1). Full B14 privacy acceptance still needs all four of B14-0A, B14-0B, B14-0 and B14-HEAD."
+    },
+    "FOG-H": {
+      "carryForwards": [
+        {
+          "id": "CF-B14A-6",
+          "origin": "review findings F7 and F8 (Low)",
+          "status": "open",
+          "directedTo": "FOG-H (reactivation), as the owner ruling writes (\"dead fogMatchHistoryProjection, unused deps, stale comments -> FOG-H\"): fogMatchHistoryProjection is exported but dead and unpinned after B14-0A; the retired fog-on HTTP rows (stale-spectator side assignment, authority-only field stripping, mid-stream refusal, unreadable envelope, mirror precondition) must be re-proven with fresh parity before any HTTP fog projection is served; remove or use the heads dependency and fix the stale class and chain comments. Recorded under successorNotes.FOG-H; FOG-H is not edited.",
+          "reviewer": "| CF-B14A-6 | FOG-H (reactivation) | `fogMatchHistoryProjection` is dead and unpinned after this PR; the retired rows (stale-spectator side assignment, authority-only field stripping, mid-stream refusal, unreadable envelope) must be re-proven with fresh parity before any HTTP fog projection is served; remove or use the `heads` dependency and fix the stale class/chain comments (F7, F8). Owner fog direction (incremental reveal allowances from GM state) must be designed there; B14 refusal does not conflict. |",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "FOG-H stays blocked and is not edited."
+    },
+    "FOGChain": {
+      "carryForwards": [
+        {
+          "id": "CF-B14A-7",
+          "origin": "review finding F9 (Info) and judged item (e)",
+          "status": "open",
+          "directedTo": "The FOG chain for the /timeline count/timing side channel under fog-on (owner ruling: \"F9 timeline count/timing channel -> FOG\"; the units are FOG-S, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X, none named more narrowly) and B14-HEAD for the /head digest (owner ruling: \"/head -> B14-HEAD\"). Recorded under successorNotes.FOGChain and successorNotes.B14-HEADAndU38; no unit is edited.",
+          "reviewer": "| CF-B14A-7 | FOG-* (timeline) / B14-HEAD for the digest | `/timeline` count/timing side channel under fog-on (F9); `/head` digest remains open until B14-HEAD lands. |",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-B14A-8",
+          "origin": "review judged item (e) (lobby and invite summaries)",
+          "status": "open",
+          "directedTo": "B15-PRIV / FOG, as the owner ruling writes (\"lobby summaries publish fogOfWar for open lobbies -> B15-PRIV/FOG\"; the review row says \"B15 / Root backlog\"): lobby and invite summaries publish fogOfWar for joinable lobbies to any authenticated caller; reconcile with the \"non-member learns nothing of fog\" wording, which holds for active and completed matches only. Recorded under successorNotes.B15 and successorNotes.FOGChain; no unit is edited.",
+          "reviewer": "| CF-B14A-8 | B15 / Root backlog | Lobby and invite summaries publish `fogOfWar` for joinable lobbies to any authenticated caller; reconcile with the \"non-member learns nothing of fog\" wording (it holds for active/completed matches only). |",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-B14B-2",
+          "origin": "review section 2 (own mutants X2 target-visible passthrough and X6 UnitDestroyed redaction survive in the ten suites, on the unseamed base and at head)",
+          "status": "open",
+          "directedTo": "The FOG chain (FOG-S, FOG-K, FOG-B, FOG-L, FOG-R, FOG-H, FOG-X), as the owner ruling writes (\"CF-B14B-2 -> FOG-*: keep the dedicated target-visible and UnitDestroyed tests.\"): only fogOfWar.test.ts and ServerMatchHost.fogOfWarIntegration.test.ts kill X2 and X6; any FOG work on those branches of fogOfWar.ts keeps that dedicated coverage. Informational: B14-0B did not introduce the gap. Recorded under successorNotes.FOGChain; no FOG unit is edited.",
+          "reviewer": "CF-B14B-2 (owner FOG-*): the ten suites do not exercise the `target-visible` and `UnitDestroyed`-redaction branches of `fogOfWar.ts` (X2/X6 survive, base and head); only `fogOfWar.test.ts` and the B14-0A integration suite do. Any FOG-* work on those branches must keep that dedicated coverage."
+        },
+        {
+          "id": "CF-B14B-3",
+          "origin": "review carry-forward bullet (seam lifetime)",
+          "status": "open",
+          "directedTo": "The FOG chain and B14-HEAD, as the owner ruling writes (\"CF-B14B-3 -> FOG-*/B14-HEAD: when a real per-viewer reveal projection lands, retarget or remove the 14 seams and shrink the allowlist.\"): when a real per-viewer reveal projection lands, the 14 seams (4 B14-0A, 10 B14-0B) are removed or retargeted and B14_SEAM_ALLOWLIST shrinks, so the suites test the production path again; the refusal-by-default proof stays solely in B14-0 b14FogContainment.test.ts. Recorded under successorNotes.FOGChain and successorNotes.B14-HEADAndU38; no unit is edited.",
+          "reviewer": "CF-B14B-3 (owner FOG-*, with B14-HEAD): when a real per-viewer reveal projection lands, remove or retarget these 14 seams and shrink `B14_SEAM_ALLOWLIST`. Otherwise the suites keep pinning the legacy filter beneath a mock and stop testing the production path. The refusal-by-default proof stays solely in B14-0 `b14FogContainment.test.ts`."
+        }
+      ],
+      "units": [
+        "FOG-S",
+        "FOG-K",
+        "FOG-B",
+        "FOG-L",
+        "FOG-R",
+        "FOG-H",
+        "FOG-X"
+      ],
+      "note": "The owner ruling names \"FOG-*\" for CF-B14B-2 and \"FOG-*/B14-HEAD\" for CF-B14B-3; no FOG unit is edited."
+    },
+    "P2CG1H": {
+      "carryForwards": [
+        {
+          "id": "CF-S-5",
+          "origin": "review finding F8 (doc drift)",
+          "status": "open",
+          "directedTo": "P2CG1H: refresh the stale ROLE HONESTY header in e2e/gm-two-player-privacy.pack.spec.ts (it says the membership source never mints gm; stale since deriveMembershipRole and the campaign-session gm row) when H next edits the GM packs; consider one tactical-wire row for a gm-branded spectator now that the brand exists. Recorded under successorNotes.P2CG1H; P2CG1H is not edited.",
+          "reviewer": "| CF-S-5 | H | Refresh the stale ROLE HONESTY header in \\`gm-two-player-privacy.pack.spec.ts\\` (F8) when H next edits the GM packs; consider one tactical-wire row for a gm-branded spectator now that the brand exists. |",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-3",
+          "origin": "evidence/p2cg1g2-review-20261018.json (reviewer owner \"H / R\")",
+          "status": "open",
+          "directedTo": "P2CG1H. P2CG1R did not absorb it (the client leaves CampaignCoopEntryPanel.tsx and campaignSyncTransportSeat.ts are admission controls, byte-identical at the merge); the owner ruling routes it to H. Recorded under successorNotes.P2CG1H; no P2CG1H field is edited.",
+          "reviewer": "**CF-G2-3 - correctly not absorbed;** client leaves byte-identical. Stays with H.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-R-1",
+          "origin": "P2CG1R local receipt (new) and review finding N5",
+          "status": "open",
+          "directedTo": "P2CG1H, as the next owner of src/lib/multiplayer/server/CampaignGmArbiter.ts: on an append throw the arbiter consume() at CampaignGmArbiter.ts:559 drops the pending approval before resultOfDoor rethrows; the reviewer suggests using R's hook as the evidence for a known-rolled-back classification and keeping commit-uncertain only for the outer-COMMIT failure. Recorded under successorNotes.P2CG1H.",
+          "reviewer": "**CF-R-1 -> H** (next owner of `CampaignGmArbiter.ts`). Reviewer addition: use R's hook as the evidence for a `known-rolled-back` classification so a pending approval is not dropped on a certain rollback; keep commit-uncertain for the outer-COMMIT failure only.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-R-4",
+          "origin": "review (new); P2CG1R local receipt boundary",
+          "status": "open",
+          "directedTo": "P2CG1H, or a separate writer registration before H if H requires the guarantee: the outer-COMMIT failure after the extension returned committed is not observable by the adapter; only the reservation microtask releases M and the H-OPEN-1 nesting window reopens on that path. Closing it is a SQLiteEventJournalWriter.appendWithExtension change (a commit-failure callback around .immediate()), outside every current manifest. Recorded under successorNotes.P2CG1H.",
+          "reviewer": "**CF-R-4 (new, reviewer) -> H or a separate writer registration before H if H requires it.** Outer-COMMIT failure after the extension returned `committed` is not observable by the adapter; the reservation microtask is the only release and the H-OPEN-1 nesting window reopens on that path. Closing it is a `SQLiteEventJournalWriter.appendWithExtension` change (commit-failure callback around `.immediate()`), explicitly out of R's manifest.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-1",
+          "reviewerOwner": "H (next owner of campaignSyncTransportSeat.ts)",
+          "item": "N1: handle an already-aborted signal in waitForSeatCampaignSnapshot; pin \"unmount during identity resolution opens no socket\" in the entry suite.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1H, as the next owner of src/lib/campaign/coop/campaignSyncTransportSeat.ts: handle an already-aborted signal in waitForSeatCampaignSnapshot and pin \"unmount during identity resolution opens no socket\" in the entry suite (N1; reviewer mutant RV7 survived). Recorded under successorNotes.P2CG1H; no P2CG1H field is edited.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-2",
+          "reviewerOwner": "H",
+          "item": "N2: pin the role check (same match/campaign/player, other role -> not bound).",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1H: pin the role check in boundCampaignSyncTransport (same match, campaign and player, other role -> not bound) (N2; RV1 survived). Recorded under successorNotes.P2CG1H.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-4",
+          "reviewerOwner": "H",
+          "item": "N4: pin the replacement resend with a changed choice (command-hq) so RV10 dies.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1H: pin the launch-page replacement resend with a changed choice (pick command-hq, reseat, expect command-hq) so RV10 dies (N4). Recorded under successorNotes.P2CG1H.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-5",
+          "reviewerOwner": "H",
+          "item": "N6: pin listener lifetime after dispose (late post-unmount frame publishes nothing; one listener per join on the transport).",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1H: pin listener lifetime after dispose (a late post-unmount frame publishes nothing; one listener per join on the transport) (N6; RV3 and RV11 survived). Recorded under successorNotes.P2CG1H.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-6",
+          "reviewerOwner": "H (consumer owner)",
+          "item": "N7: recovery/UX for the surface when the stored transport on the same match is bound to another campaign (CF-H16 refusal leaves it offline).",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1H, the consumer owner: recovery/UX for the surface when the stored transport on the same match is bound to another campaign, which the delivered CF-H16 refusal leaves offline (N7). Recorded under successorNotes.P2CG1H.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-7",
+          "reviewerOwner": "H",
+          "item": "N5: connectStoredCampaignSyncTransport refuses by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1H: connectStoredCampaignSyncTransport refuses a stored transport by campaignId only; consider role/playerId in the stored refusal or route the surface through boundCampaignSyncTransport (N5, pre-existing since P2CG1G1). Recorded under successorNotes.P2CG1H.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-R-3",
+          "origin": "P2CG1R local receipt (new, test hazard)",
+          "status": "open (standing practice)",
+          "directedTo": "All P2CG1 test owners (P2CG1S, P2CG1HP, P2CG1H, P2CG1I1-P2CG1I4, P2CG2): assert SQLite rejections by message (toMatchObject), not rejects.toThrow(Class), when suites can share a worker. Recorded under successorNotes.allTestOwners.",
+          "reviewer": "**CF-R-3 (test hazard) -> all P2CG1 test owners (S, HP, H, I1-I4, P2CG2).** Confirmed sensible: assert SQLite rejections by message, not `rejects.toThrow(Class)`, when suites share a worker.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "stillOpenDueAtOrBeforeH": [
+        "CF-H7",
+        "CF-H14"
+      ],
+      "owedBeforeH": "Still owed, unchanged by B14-0B: The exact-main built-server socket smoke (P2CG1S registration20261017HPrereqs proof 4: \"exact-main built-server socket smoke before H or any spectator-bearing shipment.\") remains owed, as the owner ruling writes (\"The built-server socket smoke test required before H or any build shipping spectating remains owed\") and as the admission and local receipts recorded it (a post-merge obligation). This closure's main proof is jest, typecheck and validator only; it does not discharge the smoke. It binds before P2CG1H and before any build that ships spectating. B14-0A changed HTTP refusal only (no WebSocket, spectator or server.js byte; server.js is an admission control) and this closure's main proof is jest, typecheck and validator only, so it neither discharges nor narrows the smoke. B14-0B is test-only (no product, WebSocket or server.js byte; server.js is an admission control) and this closure's main proof is jest, typecheck and validator only, so it neither discharges nor narrows the smoke.",
+      "note": "P2CG1H stays blocked and is not edited. Every item is unchanged from the B14-0A closure."
+    },
+    "P2CG2AndP2CH": {
+      "carryForwards": [
+        {
+          "id": "CF-S-6",
+          "origin": "review finding F9 (test design; ruling S-PREP-P2)",
+          "status": "open",
+          "directedTo": "P2CG2 / P2CH: a real attack-phase and physical-phase intent drive for the spectator sealed case when a unit next owns a combat-setup test leaf (S drove movement by real intents and used real attack/physical payload shapes through the real broadcastEvent seam and real replay). Recorded under successorNotes.P2CG2AndP2CH; neither unit is edited.",
+          "reviewer": "| CF-S-6 | P2CG2 / P2CH | A real attack-phase and physical-phase intent drive for the spectator sealed case (F9) when a unit next owns a combat-setup test leaf. |",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-8",
+          "reviewerOwner": "I1-I4 / P2CG2",
+          "item": "ML6 defence-in-depth: a cross-match participation frame must never publish under a foreign key; pin once a multi-match page exists.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1I1-P2CG1I4 / P2CG2, as tabulated: once a multi-match page exists, pin that a cross-match participation frame never publishes under a foreign key (ML6 defence in depth, N8). Recorded under successorNotes.P2CG1I1toI4AndP2CG2; none of those units is edited.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-R-3",
+          "origin": "P2CG1R local receipt (new, test hazard)",
+          "status": "open (standing practice)",
+          "directedTo": "All P2CG1 test owners (P2CG1S, P2CG1HP, P2CG1H, P2CG1I1-P2CG1I4, P2CG2): assert SQLite rejections by message (toMatchObject), not rejects.toThrow(Class), when suites can share a worker. Recorded under successorNotes.allTestOwners.",
+          "reviewer": "**CF-R-3 (test hazard) -> all P2CG1 test owners (S, HP, H, I1-I4, P2CG2).** Confirmed sensible: assert SQLite rejections by message, not `rejects.toThrow(Class)`, when suites share a worker.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "P2CG2 and P2CH stay blocked and are not edited."
+    },
+    "rootMaintenanceBacklog": {
+      "carryForwards": [
+        {
+          "id": "CF-S-7",
+          "origin": "review finding F7 and the runs note (baseline debt)",
+          "status": "open",
+          "directedTo": "Root maintenance backlog (no unit; the review names Root, outside the listed owners): npm run verify:qc:roadmap fails at the head in maintain:scan:gate (type-safety high: 6 > 0) on six files S does not touch (CompendiumAdapter, requestLaunchAuthority, CampaignReplicaSyncClient, FogAwareMatchProjection x2, the replica-sync route); not a required CI check. The reviewer adds that whoever next edits FogAwareMatchProjection.ts (an S read-only control; B14-0 / HP) should clear its two. Recorded under successorNotes.rootMaintenanceBacklog.",
+          "reviewer": "| CF-S-7 | Root (outside the listed owners) | \\`maintain:scan:gate\\` type-safety regressions on main (F7): six \\`as unknown as\\` highs; two in FogAwareMatchProjection.ts, which is an S read-only control, so whoever next edits that file (B14-0 / HP) should clear them. |",
+          "statusAtB14_0AClosure": "open; B14-0A, the next editor of FogAwareMatchProjection.ts, cleared that file's two as-unknown-as highs (local receipt: maintain:scan type-safety high 6 at the baseline -> 4 on the candidate, unchanged at the follow-up; not re-measured by this closure); the four on files B14-0A does not touch stay with the Root maintenance backlog",
+          "statusAtThisClosure": "open, unchanged by B14-0B (a test-only unit; no product file touched); the four highs on files B14-0A and B14-0B do not touch stay with the Root maintenance backlog"
+        }
+      ],
+      "note": "No unit owns this; Root keeps it on the maintenance backlog."
+    },
+    "LSCAndI1toI4": {
+      "carryForwards": [
+        {
+          "id": "CF-S-8",
+          "origin": "review concurrency analysis and finding F5",
+          "status": "open",
+          "directedTo": "The local seat credential units (LSC-0, LSC-1DB, LSC-1, LSC-2, LSC-2P) / P2CG1I1-P2CG1I4, as the owner ruling writes (\"LSC*/I1-I4\"): reseat-to-spectator mid-match has no product path today (the spectate route only appends; addSpectatorSeat rejects a playing conflict). If local seat credentials or a later unit add one, the live row \"reseated to spectator loses ownership between deliveries\" and reviewer mutants R1/R4 are the regression anchors; the viewer cache invalidates by membership epoch. Recorded under successorNotes.LSCAndI1toI4; no unit is edited.",
+          "reviewer": "| CF-S-8 | LSC* / I1-I4 | Reseat-to-spectator mid-match has no product path today (spectate route appends only); if local seat credentials or a later unit add one, the live row \"reseated to spectator loses ownership between deliveries\" and my R1/R4 are the regression anchors; the viewer cache invalidates by membership epoch, so no extra invalidation is needed. |",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2-8",
+          "reviewerOwner": "I1-I4 / P2CG2",
+          "item": "ML6 defence-in-depth: a cross-match participation frame must never publish under a foreign key; pin once a multi-match page exists.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "P2CG1I1-P2CG1I4 / P2CG2, as tabulated: once a multi-match page exists, pin that a cross-match participation frame never publishes under a foreign key (ML6 defence in depth, N8). Recorded under successorNotes.P2CG1I1toI4AndP2CG2; none of those units is edited.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "units": [
+        "LSC-0",
+        "LSC-1DB",
+        "LSC-1S",
+        "LSC-1",
+        "LSC-2OP",
+        "LSC-2",
+        "LSC-2P",
+        "P2CG1I1",
+        "P2CG1I2",
+        "P2CG1I3",
+        "P2CG1I4"
+      ],
+      "note": "No unit is edited."
+    },
+    "U26": {
+      "carryForwards": [
+        {
+          "id": "CF-S-9",
+          "origin": "review privacy analysis (raw no-playerId replay; pre-existing)",
+          "status": "open (standing)",
+          "directedTo": "U26 (standing): the raw no-playerId sendReplay and the P2P reconnect callback remain unguarded, unchanged by S; the production binder always passes the verified identity. Recorded under successorNotes.U26; U26 is not edited.",
+          "reviewer": "| CF-S-9 | U26 (standing) | Raw no-\\`playerId\\` \\`sendReplay\\` and the P2P reconnect callback remain unguarded; unchanged by S; the production binder always passes identity. |",
+          "statusAtB14_0AClosure": "open (standing), unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-B14A-9",
+          "origin": "admission ruling B14-0A-R3 and review judged item (e)",
+          "status": "open",
+          "directedTo": "U26, as the owner ruling writes (\"rewind -> U26\"): the rewind-preview and rewind-commit routes refuse fogOfWar === true with their own reason and answer an undefined config through the generic 500; migrating them to the shared predicate is U26's call. The row's HP note stands: no FogAware dependency change for P2CG1HP, and CF-S-1 stays with B14-0 / HP. Recorded under successorNotes.U26; U26 is not edited.",
+          "reviewer": "| CF-B14A-9 | U26 | Rewind routes refuse `fogOfWar === true` with their own reason and answer an undefined config via the generic 500; migrating them to the shared predicate is U26's call. HP: no FogAware dependency change; CF-S-1 (fog-off root-branch read) remains with B14-0/HP. |",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "U26 is not edited."
+    },
+    "builtServerSocketSmoke": {
+      "note": "Still owed, unchanged by B14-0B: The exact-main built-server socket smoke (P2CG1S registration20261017HPrereqs proof 4: \"exact-main built-server socket smoke before H or any spectator-bearing shipment.\") remains owed, as the owner ruling writes (\"The built-server socket smoke test required before H or any build shipping spectating remains owed\") and as the admission and local receipts recorded it (a post-merge obligation). This closure's main proof is jest, typecheck and validator only; it does not discharge the smoke. It binds before P2CG1H and before any build that ships spectating. B14-0A changed HTTP refusal only (no WebSocket, spectator or server.js byte; server.js is an admission control) and this closure's main proof is jest, typecheck and validator only, so it neither discharges nor narrows the smoke. B14-0B is test-only (no product, WebSocket or server.js byte; server.js is an admission control) and this closure's main proof is jest, typecheck and validator only, so it neither discharges nor narrows the smoke."
+    },
+    "seamSpecOwner": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-9",
+          "reviewerOwner": "S (engine/e2e)",
+          "item": "Seam Anchors :425 same-seed marker inequality is a recurring flake (also 2026-10-15 on a docs-only commit); not a G2 defect.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "As tabulated, \"S (engine/e2e)\": the engine/e2e owner of e2e/seam-fresh-construction-no-instant-defeat.spec.ts:425 (same-seed run-to-run marker inequality, aliveBySide.player 2 vs 1 from turn 3 heat), a recurring flake (failed then passed on rerun for the units.json-only 293ae722b in run 38810066031 on 2026-10-15, and for this head in run 39109741978 attempt 1). Recorded under successorNotes.P2CG1S as routed; the registered P2CG1S (live-wire spectator sealed-choice privacy) does not own that spec or the battle-resolution path, so the item binds whichever unit next owns the seam spec or that engine path (Root note G2-SEAM-1). Not a P2CG1G2 defect; no unit is edited.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "CF-G2-9 (Seam Anchors :425 same-seed marker inequality) did not recur on the B14-0B head: the filter=all listing on 90d2bae2 shows one Seam Anchors run, success on its first attempt, with no rerun, as the author's by-name comment records (\"the CF-G2-9 Seam Anchors flake did not occur\"). B14-0B touched no e2e, engine, simulation or gameplay file (e2e/seam-fresh-construction-no-instant-defeat.spec.ts is byte-identical from the B14-0A merge to this merge) and its admission recorded the item as passing through. It stays open with its real owner (G2-SEAM-1, S-SEAM-1, B14A-SEAM-1); one more clean run does not discharge it."
+    },
+    "nextOwnerJournalCampaignEventStoreTest": {
+      "carryForwards": [
+        {
+          "id": "CF-R-2",
+          "origin": "P2CG1R local receipt (new; author mutant RM9 survived) and the reviewer's RM9 assessment",
+          "status": "open",
+          "directedTo": "The next owner of src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts (the reviewer names HP if it touches the adapter suite, else H; P2CG1S does not own it): add the one-row probe in the review (stub the store-level getCommandReceipt to miss once; expect committed, no guard, hook or notification, one saved-record rewrite), which kills RM9, RV3 and RV4. Recorded under successorNotes.nextOwnerJournalCampaignEventStoreTest.",
+          "reviewer": "**CF-R-2 -> next owner of `JournalCampaignEventStore.test.ts`** (HP if it touches the adapter suite, else H; S does not own it). Non-equivalent survivor confirmed; one probe row (template above) closes RM9, RV3 and RV4.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "Unchanged from the B14-0A closure."
+    },
+    "nextOwnerJournalCampaignEventStore": {
+      "carryForwards": [
+        {
+          "id": "CF-R-5",
+          "origin": "review (new; findings N1 and N2)",
+          "status": "open",
+          "directedTo": "The next owner of src/lib/campaign/sync/JournalCampaignEventStore.ts: move signalNotCommitted above the JSDoc block it orphaned (JournalCampaignEventStore.ts:306-331) and add a logger.warn (src/utils/logger.ts) when the hook throws. Recorded under successorNotes.nextOwnerJournalCampaignEventStore.",
+          "reviewer": "**CF-R-5 (new, reviewer, Low) -> next adapter owner.** N1 (JSDoc re-attachment) and N2 (silent swallow in `signalNotCommitted`).",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-R-6",
+          "origin": "review (new; finding N4)",
+          "status": "recorded (info)",
+          "directedTo": "Recorded, as the owner ruling writes; the reviewer names the next adapter owner. Hook-only controls inside an outer transaction get no signal when the outer owner rolls back; unreachable from the binder. No change requested. Recorded under successorNotes.nextOwnerJournalCampaignEventStore.",
+          "reviewer": "**CF-R-6 (new, reviewer, Info) -> next adapter owner.** N4 nested-savepoint asymmetry for hook-only controls.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "Unchanged from the B14-0A closure."
+    },
+    "allTestOwners": {
+      "carryForwards": [
+        {
+          "id": "CF-R-3",
+          "origin": "P2CG1R local receipt (new, test hazard)",
+          "status": "open (standing practice)",
+          "directedTo": "All P2CG1 test owners (P2CG1S, P2CG1HP, P2CG1H, P2CG1I1-P2CG1I4, P2CG2): assert SQLite rejections by message (toMatchObject), not rejects.toThrow(Class), when suites can share a worker. Recorded under successorNotes.allTestOwners.",
+          "reviewer": "**CF-R-3 (test hazard) -> all P2CG1 test owners (S, HP, H, I1-I4, P2CG2).** Confirmed sensible: assert SQLite rejections by message, not `rejects.toThrow(Class)`, when suites share a worker.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "units": [
+        "B14-0",
+        "B14-HEAD",
+        "P2CG1HP",
+        "P2CG1H",
+        "P2CG1I1",
+        "P2CG1I2",
+        "P2CG1I3",
+        "P2CG1I4",
+        "P2CG2"
+      ],
+      "note": "B14-0B, a test owner, added no SQLite rejection assertion."
+    },
+    "B15": {
+      "carryForwards": [
+        {
+          "id": "CF-G2-10",
+          "reviewerOwner": "B15",
+          "item": "Unchanged from G2A: PRIV-1 campaignId correlation, MR1/MR4 route rows, CF-G2A-1/2/3/6.",
+          "status": "open, unchanged by P2CG1R",
+          "directedTo": "B15, unchanged from P2CG1G2A: the PRIV-1 campaignId correlation (the R-PRIV-1 hold on B15-6), the MR1/MR4 route rows (CF-G2A-4, re-routed by G2A-ROUTE-1) and CF-G2A-1, 2, 3 and 6, as recorded in evidence/p2cg1g2a-review-20261018.json. Reduced P2CG1G2 neither widened nor narrowed PRIV-1 (review section 3, Privacy). Recorded under successorNotes.B15; no B15 unit is edited.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-B14A-8",
+          "origin": "review judged item (e) (lobby and invite summaries)",
+          "status": "open",
+          "directedTo": "B15-PRIV / FOG, as the owner ruling writes (\"lobby summaries publish fogOfWar for open lobbies -> B15-PRIV/FOG\"; the review row says \"B15 / Root backlog\"): lobby and invite summaries publish fogOfWar for joinable lobbies to any authenticated caller; reconcile with the \"non-member learns nothing of fog\" wording, which holds for active and completed matches only. Recorded under successorNotes.B15 and successorNotes.FOGChain; no unit is edited.",
+          "reviewer": "| CF-B14A-8 | B15 / Root backlog | Lobby and invite summaries publish `fogOfWar` for joinable lobbies to any authenticated caller; reconcile with the \"non-member learns nothing of fog\" wording (it holds for active/completed matches only). |",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "stillOpenFromP2CG1G2A": [
+        {
+          "id": "CF-G2A-1",
+          "status": "open",
+          "directedTo": "B15 (remote hosting): an abuse budget / rate limiter on the invite route in both modes before any non-loopback hosting claim (F9). Routed as the owner ruling writes (\"B15 (rate limiter ...)\"). Recorded under successorNotes.B15; no B15 unit is edited here.",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2A-2",
+          "status": "open",
+          "directedTo": "B15: the R-PRIV-1 remote/tunnel readiness obligation recorded on B15-6 by #2245 (fix in joinableLobbies.ts / session creation) must also close the co-op-ness bit (review section 7 item 1) and the campaignId correlation, then re-verify that a non-member with a listed code gets 404/401 in identity mode. Routed as the owner ruling writes (\"PRIV-1 fix including the co-op bit\").",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2A-3",
+          "status": "open",
+          "directedTo": "B15 auth hardening: strict base64 in decodeTokenFromWire (src/types/multiplayer/Player.ts, a leaf of neither P2CG1G2A nor reduced P2CG1G2) (F4). Routed as the owner ruling writes (\"strict wire decode\").",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2A-4",
+          "status": "open (re-routed by parent ruling)",
+          "directedTo": "B15 auth hardening, NOT reduced P2CG1G2 (Root routing note G2A-ROUTE-1, parent ruling 2026-10-18): the lowercase-scheme and empty-string-campaignId rows that kill MR1 and MR4 belong to whoever next owns src/__tests__/api/securityBoundary.test.ts and the invite route under B15 auth hardening (F1, F2).",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        },
+        {
+          "id": "CF-G2A-6",
+          "status": "open",
+          "directedTo": "B15: consider logging the verified playerId (logger.ts, not console) on identity-mode success so the gate provides accountability. Routed as the owner ruling writes (\"accountability logging\").",
+          "statusAtB14_0AClosure": "open, unchanged by B14-0A",
+          "statusAtThisClosure": "open, unchanged by B14-0B"
+        }
+      ],
+      "note": "Unchanged from the B14-0A closure; no B15 unit is edited."
+    },
+    "openNotes": [
+      {
+        "id": "B14B-MAIN-1",
+        "label": "Root",
+        "concern": "main did not move between the PR base and the merge",
+        "travelsTo": "recorded in this closure (merge receipt treeIntegration)",
+        "source": "git rev-list --parents 4d9eb721; git merge-tree --write-tree",
+        "note": "Main did not move between the PR base e6d1553c (the #2269 merge, the units.json baseline field; its first parent is the B14-0A closure merge #2268 e23ce5e5, and #2269 changed only simulation and construction files, none in a B14 manifest, control or openspec) and the merge: the merge commit 4d9eb721 has first parent e6d1553c and second parent the merged head 90d2bae2; its tree f3c7b51e equals the head tree and git merge-tree --write-tree of the two parents (clean), as the owner ruling recorded (\"merge state is CLEAN\"). Its units.json equals the head's, which differs from the baseline only in the B14-0B entry; the packets are unchanged. The ten test leaves each carry one +10/-0 hunk with the identical seam block (sha256 ab0a7ed9532f1be41e72acf9591f3b9bae4b75c9f8ed4171e127b237db31e1dd over the ten added lines) from the seams commit cd45d922 through the merge, no other src file changed, and the eighteen admission unchanged controls (including fogMatchAdmission.ts, the three host modules, MatchWireSealedChoices.ts, fogOfWar.ts, the projection modules, the guard suite matchHistoryFog.test.ts, the four B14-0A seam suites, sealedChoiceDelivery.test.ts, the fog-of-war spec and server.js) equal their admission hashes at the baseline, the head, the merge and the closure base (main moved after the merge by 921ad8a1 #2271, changing docs/audits/2026-10-15-move-completion-opus-review.md, docs/audits/2026-10-15-ndc1-current-runtime-route-review.md, docs/audits/2026-10-15-ndc1-current-runtime-route.md, docs/audits/2026-10-15-ndc1-r5-differential-outcome.md, docs/audits/2026-10-15-ndc1-r5-differential-review.md, docs/audits/2026-10-15-ndc1-r5-native-failure-review.md, docs/audits/2026-10-15-ndc1-r5-schema-binding-review.md, docs/audits/2026-10-15-ndc1-r5-tool-renewal-review.md, docs/audits/2026-10-15-ndc1-vss-origin-candidate-review.md, docs/audits/2026-10-15-ndc1-vss-origin-design-review.md, docs/audits/2026-10-15-opus-foundation-catchup-review.md, docs/audits/2026-10-15-opus-investigations-catchup-review.md, docs/audits/2026-10-15-opus-p1p2-catchup-review.md, docs/audits/2026-10-15-opus-task56-scope-review.md, docs/audits/2026-10-15-p1-local-qualification.md, docs/audits/2026-10-15-p2-ci-lint-repair-review.md, docs/audits/2026-10-15-p2-main-exit-review.md, docs/audits/2026-10-15-p2-repair-release-review.md, docs/audits/2026-10-15-task56-catalog-candidate-review.md, docs/audits/2026-10-15-task9-p2ca-opus-review.md, docs/audits/2026-10-16-council-A-product-path.md, docs/audits/2026-10-16-council-B-process.md, docs/audits/2026-10-16-council-C-architecture.md, docs/audits/2026-10-16-p2cb-saga-registration-fable-review.md, docs/audits/2026-10-16-p2ce-split-registration-fable-review.md, docs/audits/2026-10-16-p2ce1-fable-review.md, docs/audits/2026-10-16-p2ce2-fable-review.md, docs/audits/2026-10-16-p2ce3-fable-review-r2.md, docs/audits/2026-10-16-p2ce3-fable-review.md, docs/audits/2026-10-16-p2cer-registration-opus-review.md, docs/audits/2026-10-16-p2cf-split-registration-fable-review.md, docs/audits/2026-10-16-p2cf1-fable-review.md, docs/audits/2026-10-16-p2cf2-fable-review.md, docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md, docs/audits/2026-10-16-p2cg1a1-fable-review.md, docs/audits/2026-10-16-p2cg1a2-fable-review.md, docs/audits/2026-10-16-task10-p2cb-fable-review.md, docs/audits/2026-10-16-task11-p2cd-opus-review.md, docs/audits/2026-10-16-task14-sequencing-fable-review.md, docs/audits/2026-10-16-task57-residual-registration-opus-review-r2.md, docs/audits/2026-10-16-task57-residual-registration-opus-review.md, docs/audits/2026-10-16-task9-p2ca-packet-opus-review-r2.md, docs/audits/2026-10-16-ts7s1a-fable-review.md, docs/audits/2026-10-16-ts7s1b-fable-review.md, docs/audits/2026-10-16-ts7s2a-fable-review.md, docs/audits/2026-10-16-ts7s2b-fable-review.md, docs/audits/2026-10-17-council-A-ts7-path.md, docs/audits/2026-10-17-council-B-roadmap.md, docs/audits/2026-10-17-council-C-cadence.md, docs/audits/2026-10-17-council-roadmap-decision.md, docs/audits/2026-10-17-l1-amendment-draft.md, docs/audits/2026-10-17-p2cg1b-review.md, docs/audits/2026-10-17-p2cg1c-review.md, docs/audits/2026-10-17-p2cg1d-admission-stop-report.md, docs/audits/2026-10-17-p2cg1d-review.md, docs/audits/2026-10-17-pr2209-review.md, docs/audits/2026-10-17-pr2210-review.md, docs/audits/2026-10-17-pr2211-review-r2.md, docs/audits/2026-10-17-pr2211-review.md, docs/audits/2026-10-17-pr2212-review-r2.md, docs/audits/2026-10-17-pr2212-review.md, docs/audits/2026-10-17-pr2215-review.md, docs/audits/2026-10-17-pr2220-review.md, docs/audits/2026-10-17-pr2223-review.md, docs/audits/2026-10-17-pr2224-review.md, docs/audits/2026-10-17-pr2225-review.md, docs/audits/2026-10-17-pr2226-review.md, docs/audits/2026-10-17-rel04-prereview.md, docs/audits/2026-10-17-rel04-review.md, docs/audits/2026-10-17-ts7-archive-ownership-fix.md, docs/audits/2026-10-17-ts7-track-exit-recheck.md, docs/audits/2026-10-17-ts7-track-exit-review.md, docs/audits/2026-10-17-ts7s2od-review.md, docs/audits/2026-10-17-ts7s3-review.md, docs/audits/2026-10-17-ts7s4a-review.md, docs/audits/2026-10-17-ts7s4b-review.md, docs/audits/2026-10-17-ts7s5a-review.md, docs/audits/2026-10-17-ts7s5b-review.md, docs/audits/2026-10-17-ts7s5c-review.md, docs/audits/2026-10-18-audit-batch-provenance.md, docs/audits/2026-10-18-ichain-amendment-design.md, docs/audits/2026-10-18-megamek-mm-data-reference.md, docs/audits/2026-10-18-p2cg1e-review.md, docs/audits/2026-10-18-pr2226-review-r2.md, docs/audits/2026-10-18-pr2227-review.md, docs/audits/2026-10-18-pr2229-verify.md; none is a B14-0B leaf; the B14-0A, B14-0B, B14-0 and P2CG1S entries are unchanged)."
+      },
+      {
+        "id": "B14B-CHECKS-1",
+        "label": "Root",
+        "concern": "CF-H12 on the exact head",
+        "travelsTo": "recorded in this closure; CF-H12 remains the practice on every later exact head",
+        "source": "check-runs API on 90d2bae2 (latest and filter=all) and 4d9eb721",
+        "note": "CF-H12: all 32 required PR check runs on the merged head 90d2bae2 (run 39146060890) concluded success on their first attempt (the filter=all listing holds exactly 32 check runs) and their names equal, one to one, the 32 names recorded for P2CG1G1, P2CG1G2A, P2CG1G2, P2CG1R, P2CG1S and B14-0A (the P2CG1S local receipt expectedNames); the author posted the by-name comparison, with each run id, as https://github.com/SwiggitySwerve/MekStation/pull/2270#issuecomment-6252601181 (posted 2026-10-18T16:58:12Z, not edited; before the ruling). pr-checks.yml (blob a82fe0f7) is identical at the P2CG1S merge, the B14-0A head, merge and closure, the B14-0B baseline, head and merge and the closure base. The PR checks do not run on the push of the merge commit to main; at 2026-10-18T17:14:49Z the merge commit carried 10 push-workflow check runs (Live Tier Signal completed/success; release completed/skipped; Push Docker image completed/skipped; build completed/skipped; Build Docker image completed/skipped; Prepare Build Artifacts completed/skipped; Determine release tag completed/success; Publish Live Evidence (windows-latest) completed/success; Publish Live Evidence (ubuntu-latest) completed/success; version-and-release completed/success), none failed. The exact-main proof here is the fresh local run at the merge."
+      },
+      {
+        "id": "B14B-CFMAP-1",
+        "label": "Root",
+        "concern": "owner ruling clauses mapped to review rows",
+        "travelsTo": "carryForwards.items",
+        "source": "owner ruling 6252742470; review carry-forward bullets",
+        "note": "The owner ruling routes the four review carry-forwards by id, one clause each, with the same owners as the review bullets except that CF-B14B-3 is written \"FOG-*/B14-HEAD\" for the review's \"FOG-*, with B14-HEAD\". CF-B14B-1 folds in CF-B14A-2 (B14-0A closure, routed to B14-0): both now travel as one B14-0 guard-tightening item, and CF-B14A-2 keeps its own row with statusAtThisClosure naming the fold. CF-B14B-4 is routed to B14-HEAD, so this closure records that the necessity re-check is owed rather than claiming it (B14B-NEC-1). No review finding is discharged by this closure; the review records no blocking finding."
+      },
+      {
+        "id": "B14B-RED-1",
+        "label": "Root",
+        "concern": "RED not-applicable for a test-only unit",
+        "travelsTo": "recorded in this closure",
+        "source": "evidence/b14-0b-red-20261018.json; review section 4; owner ruling 6252742470",
+        "note": "B14-0B is a test-only unit. Its RED receipt is status not-applicable under admission ruling B14-0B-R1 and the registration acceptance (\"RED is honestly N/A ... Record each suite passing before and after; do not fabricate a failing-product proof.\"), backed by four real runs (before and after on Main, 71/71 each; simulated B14-0 refusal unseamed 35 failed of 71 and seamed 71/71). The reviewer judged it PASS (section 4) and reproduced the numbers; the owner ruling accepted it (\"RED not-applicable: the rationale is backed by four real runs.\"). This closure records no failing-product proof and invents none; the validator requires only that the red receipt path exists."
+      },
+      {
+        "id": "B14B-NEC-1",
+        "label": "Root",
+        "concern": "seam necessity against real B14-0 code (CF-B14B-4)",
+        "travelsTo": "successorNotes.B14-HEADAndU38 (no unit edited)",
+        "source": "red receipt simulation; reviewer P1/P1b; owner ruling 6252742470",
+        "note": "CF-B14B-4 asks that the seams' necessity be re-checked against the real B14-0 code. The author's RED receipt (status not-applicable, ruling B14-0B-R1) recorded the necessity run against an uncommitted simulation of B14-0 (b14-0-simulation.json, sha256 3d8d921f2a339127581e317c50be688b566f1a32c78c6fc19bc3492e4987c66e): unseamed 35 failed of 71 across 10/10 suites, seamed 71/71; the reviewer reproduced it with the same simulation hash (35/71 unseamed, 71/71 seamed; reviewerProofLogs P1b.json and P1.json). The owner ruling routes the re-check against real code to B14-HEAD. This closure's exact-main proof runs the merged tree, where no WebSocket module imports fogMatchAdmission and the seams are inert (admission design.inertOnMain); it neither re-runs the simulation nor claims the re-check."
+      },
+      {
+        "id": "B14B-ENC-1",
+        "label": "Root",
+        "concern": "review report carries one CRLF; stored as a base64 envelope",
+        "travelsTo": "nothing further",
+        "source": "review bytes; .gitattributes",
+        "note": "The review report is 10257 bytes of ASCII with no byte-order mark and 76 line feeds, of which exactly one, ending the last line (the CF-B14B-4 bullet), is preceded by a carriage return. The repository .gitattributes sets \"* text=auto eol=lf\", so a .txt copy would be normalized on commit and its blob would no longer hash to 6a3f095054c4d6113ddb8ca1cebd46b8a5e40161975e97aaf071d1b5c3fd666c. The B14-0A closure stored its CR-free review as a .txt; to keep this one byte for byte, as the owner ruling requires (\"The closure copies it byte-for-byte\"), the closure stores it as a base64 envelope ({encoding, payloadSha256, payloadBytes, data}), the same form the main-proof logs use to survive LF normalization. Decoding data yields the report exactly; payloadSha256 is the ruling's sha256. No .gitattributes or other repository-wide file is changed."
+      },
+      {
+        "id": "B14B-SMOKE-1",
+        "label": "Root",
+        "concern": "exact-main built-server socket smoke still owed",
+        "travelsTo": "successorNotes.builtServerSocketSmoke and successorNotes.P2CG1H (no unit edited)",
+        "source": "evidence/b14-0a-review-20261018.json successorNotes.builtServerSocketSmoke (B14A-SMOKE-1)",
+        "note": "Still owed, unchanged by B14-0B: The exact-main built-server socket smoke (P2CG1S registration20261017HPrereqs proof 4: \"exact-main built-server socket smoke before H or any spectator-bearing shipment.\") remains owed, as the owner ruling writes (\"The built-server socket smoke test required before H or any build shipping spectating remains owed\") and as the admission and local receipts recorded it (a post-merge obligation). This closure's main proof is jest, typecheck and validator only; it does not discharge the smoke. It binds before P2CG1H and before any build that ships spectating. B14-0A changed HTTP refusal only (no WebSocket, spectator or server.js byte; server.js is an admission control) and this closure's main proof is jest, typecheck and validator only, so it neither discharges nor narrows the smoke. B14-0B is test-only (no product, WebSocket or server.js byte; server.js is an admission control) and this closure's main proof is jest, typecheck and validator only, so it neither discharges nor narrows the smoke."
+      },
+      {
+        "id": "B14B-SEAM-1",
+        "label": "Root",
+        "concern": "CF-G2-9 on the B14-0B head",
+        "travelsTo": "successorNotes.seamSpecOwner (the real owner; no unit edited)",
+        "source": "check-runs filter=all on 90d2bae2; comment 6252601181",
+        "note": "CF-G2-9 (Seam Anchors :425 same-seed marker inequality) did not recur on the B14-0B head: the filter=all listing on 90d2bae2 shows one Seam Anchors run, success on its first attempt, with no rerun, as the author's by-name comment records (\"the CF-G2-9 Seam Anchors flake did not occur\"). B14-0B touched no e2e, engine, simulation or gameplay file (e2e/seam-fresh-construction-no-instant-defeat.spec.ts is byte-identical from the B14-0A merge to this merge) and its admission recorded the item as passing through. It stays open with its real owner (G2-SEAM-1, S-SEAM-1, B14A-SEAM-1); one more clean run does not discharge it."
+      },
+      {
+        "id": "B14B-GATE-1",
+        "label": "Root",
+        "concern": "machine gate",
+        "travelsTo": "recorded in this closure (main proof machine)",
+        "source": "evidence/b14-0a-mainproof-20261018.json machine; closure brief",
+        "note": "The main-proof runner gated every run with node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164, the gate Root ruled for the P2CG1G2 closure (G2-GATE-1: PID 47516 the idle server.js, PID 55164 T3 Code's idle html_preview renderer), used by the P2CG1R, P2CG1S and B14-0A closures (R-GATE-1, S-GATE-1, B14A-GATE-1) and restated by the closure brief; --own-pid was the only exclusion flag, and the runner waited on any other busy reading. Every reading printed MACHINE_IDLE on the first check, one per run. The runs were sequential (one heavy run at a time); this closure neither started nor stopped any process other than its own runner and its jest/tsc/validator children, and no timeout was raised."
+      },
+      {
+        "id": "B14B-SLOT-1",
+        "label": "Root",
+        "concern": "reserved review slot",
+        "travelsTo": "nothing further",
+        "source": "evidence/b14-0b-admission-20261018.json manifest; evidence/b14-0b-local-20261018.json census",
+        "note": "The reserved review slot evidence/b14-0b-review-20261018.json (frozen in the admission manifest as the one reservedUnchanged entry, already listed in B14-0B.ownershipExceptions, and recorded \"(unwritten)\" by the local census) was unwritten at the head, the merge and the closure base. This closure writes it, under its frozen name, as the closure review receipt: Root/closure text that binds the genuine review by sha256 and quotes reviewer strings only verbatim (each checked as a substring of the stored copy). No reviewer text is authored into it. The reviewer's own report was written to docs/audits/2026-10-18-b14-0b-review.md in its detached review worktree (untracked there); this closure preserves it byte for byte at evidence/b14-0b-source-sonnet-review-20261018.bytes.json (B14B-ENC-1)."
+      }
+    ],
+    "note": "Every reviewer string (title, header lines, verdict line, section titles and lines, table headers, rows and cells, guard-probe bullets, observations, carry-forward bullets and their id, owner and item) is a verbatim substring of the decoded evidence/b14-0b-source-sonnet-review-20261018.bytes.json, checked by the closure generator; everything else is closure or Root text."
+  },
+  "reservedSlot": "The reserved review slot evidence/b14-0b-review-20261018.json (frozen in the admission manifest as the one reservedUnchanged entry, already listed in B14-0B.ownershipExceptions, and recorded \"(unwritten)\" by the local census) was unwritten at the head, the merge and the closure base. This closure writes it, under its frozen name, as the closure review receipt: Root/closure text that binds the genuine review by sha256 and quotes reviewer strings only verbatim (each checked as a substring of the stored copy). No reviewer text is authored into it. The reviewer's own report was written to docs/audits/2026-10-18-b14-0b-review.md in its detached review worktree (untracked there); this closure preserves it byte for byte at evidence/b14-0b-source-sonnet-review-20261018.bytes.json (B14B-ENC-1).",
+  "redNotApplicable": "B14-0B is a test-only unit. Its RED receipt is status not-applicable under admission ruling B14-0B-R1 and the registration acceptance (\"RED is honestly N/A ... Record each suite passing before and after; do not fabricate a failing-product proof.\"), backed by four real runs (before and after on Main, 71/71 each; simulated B14-0 refusal unseamed 35 failed of 71 and seamed 71/71). The reviewer judged it PASS (section 4) and reproduced the numbers; the owner ruling accepted it (\"RED not-applicable: the rationale is backed by four real runs.\"). This closure records no failing-product proof and invents none; the validator requires only that the red receipt path exists.",
+  "seamNecessity": "CF-B14B-4 asks that the seams' necessity be re-checked against the real B14-0 code. The author's RED receipt (status not-applicable, ruling B14-0B-R1) recorded the necessity run against an uncommitted simulation of B14-0 (b14-0-simulation.json, sha256 3d8d921f2a339127581e317c50be688b566f1a32c78c6fc19bc3492e4987c66e): unseamed 35 failed of 71 across 10/10 suites, seamed 71/71; the reviewer reproduced it with the same simulation hash (35/71 unseamed, 71/71 seamed; reviewerProofLogs P1b.json and P1.json). The owner ruling routes the re-check against real code to B14-HEAD. This closure's exact-main proof runs the merged tree, where no WebSocket module imports fogMatchAdmission and the seams are inert (admission design.inertOnMain); it neither re-runs the simulation nor claims the re-check.",
+  "ciQualification": "CF-H12: all 32 required PR check runs on the merged head 90d2bae2 (run 39146060890) concluded success on their first attempt (the filter=all listing holds exactly 32 check runs) and their names equal, one to one, the 32 names recorded for P2CG1G1, P2CG1G2A, P2CG1G2, P2CG1R, P2CG1S and B14-0A (the P2CG1S local receipt expectedNames); the author posted the by-name comparison, with each run id, as https://github.com/SwiggitySwerve/MekStation/pull/2270#issuecomment-6252601181 (posted 2026-10-18T16:58:12Z, not edited; before the ruling). pr-checks.yml (blob a82fe0f7) is identical at the P2CG1S merge, the B14-0A head, merge and closure, the B14-0B baseline, head and merge and the closure base. The PR checks do not run on the push of the merge commit to main; at 2026-10-18T17:14:49Z the merge commit carried 10 push-workflow check runs (Live Tier Signal completed/success; release completed/skipped; Push Docker image completed/skipped; build completed/skipped; Build Docker image completed/skipped; Prepare Build Artifacts completed/skipped; Determine release tag completed/success; Publish Live Evidence (windows-latest) completed/success; Publish Live Evidence (ubuntu-latest) completed/success; version-and-release completed/success), none failed. The exact-main proof here is the fresh local run at the merge.",
+  "laneB": {
+    "ruledHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+    "pr": 2270,
+    "commentId": 6252742470,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a37ca8dd92a961135ac96e10424042eb767a5404e3cce08024e9b86d2f896b27",
+    "bodyBytes": 2540,
+    "at": "2026-10-18T17:11:55Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2270#issuecomment-6252742470",
+    "bodyPath": "evidence/b14-0b-owner-ruling-6252742470.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6252742470 --jq .body, which prints the body plus one trailing LF (2541 bytes); the stored file is the exact body without that added newline, equal to the JSON body field and byte-identical to the Root receipt copy E:/Projects/Personal/MekStation-wt/_receipts/pr2270-owner-ruling.md"
+  },
+  "ownerRulingNote": "The ruling body names the exact merged head and B14-0B (L1; sensitive class privacy/authority/replay; test-only), quotes the owner standing instruction and the direct approval of 2026-10-18 under which Root rules, cites the review of the same head by path and sha256 (10,257 bytes) and requires the closure to copy it byte for byte, restates the seam shape (ten identical +10/-0 hunks, __tests__ only), 85/85 at head, the simulated-refusal baselines (71/71 seamed, 35 failures unseamed), the re-run author mutants and the two pre-existing survivors, the S spectator rows (34/34; F3 breaks 21), RED not-applicable with four real runs, caps 15/15 files and 16/500 lines, CI 32/32 and a clean merge state. It rules ACCEPT and merge at this exact head, routes CF-B14B-1..4 (B14B-CFMAP-1) and directs that the closure releases only B14-0. It is transcribed verbatim.",
+  "chronology": "The owner ruling was posted at 2026-10-18T17:11:55Z, before the head-guarded merge at 2026-10-18T17:12:01Z (6 seconds later). This records a premerge ruling on the exact merged head 90d2bae2; the independent review (on the same head) and the CF-H12 comment (2026-10-18T16:58:12Z) both precede it.",
+  "identityScope": "Preserves the existing unversioned B14-0B evidence and the actual cross-model review provenance. No v2/v3 identity manifest or engine observation is claimed.",
+  "githubApproval": "Lane A engineering evidence only; no GitHub approval claimed.",
+  "successorRelease": {
+    "label": "successor release",
+    "scope": "Separate from the B14-0B closure. This change set also releases B14-0 (successor release), as the owner ruling directs (\"Next: the closure PR releases only B14-0.\"). No other field of B14-0 changes and no other unit is released; B14-HEAD, P2CG1HP, P2CG1H, the LSC units, P2CG1I1-P2CG1I4, P2CG2, P2CH, P2C, U26, U38, the FOG units, every B15 unit and every other unit stay as they are.",
+    "release": {
+      "unit": "B14-0",
+      "field": "state",
+      "from": "blocked",
+      "to": "planned",
+      "basis": "B14-0's only documentary predecessor is B14-0B, which is main-verified in this same change set with a genuine exact-main mainProof PASS at 4d9eb7213449962d9285402f48416b9608868642 (the merge is the closure base 921ad8a1 or its ancestor), as B14-0.admissionRequires demands before release to planned (\"Parent releases to planned only after the predecessor is main-verified ... with genuine exact-main mainProof PASS, fetched-main ancestry and closure\"). Its further condition \"Predecessor: B14-0B, with B14-0A and S also closed.\" holds: B14-0A is main-verified (merge 2e61f050, closure #2268 e23ce5e5) and P2CG1S is main-verified (merge 1b855862, closure #2265), both ancestors of this merge. B14-0B has no task keys, so its tick stays null. B14-0B has one successor, B14-0.",
+      "permission": "Release to planned only. Selection is not admission. B14-0 source work still requires its own normal finite admission at its own baseline (containing 4d9eb721 and this closure): the one-product-writing-lane rule including closure, the fresh-Main rebase and re-census, the literal 11-file manifest freeze of ownershipPathsAmended20261018B14, the genuine sensitive packet, independent exact-head review, OWNER-RULING, required CI and every other gate in its admissionRequires. It carries CF-B14B-1 (with CF-B14A-2 folded in), CF-B14A-5, CF-S-1, CF-S-2 and CF-S-3; it must keep all 14 seamed suites passing beneath its real refusal and pin refuse-by-default without the seam in b14FogContainment.test.ts."
+    }
+  }
+}

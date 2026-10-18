@@ -1,0 +1,483 @@
+{
+  "unit": "B14-0B",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T17:32:56Z",
+  "pr": 2270,
+  "title": "B14-0B: declare projection availability in ten legacy fog-filter suites (test-only)",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2270",
+  "head": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+  "reviewedHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+  "mergeSha": "4d9eb7213449962d9285402f48416b9608868642",
+  "mergedAt": "2026-10-18T17:12:01Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "Two-parent merge commit (head-guarded)",
+  "parentCount": 2,
+  "treeIntegration": {
+    "parents": [
+      "e6d1553ce90ca9c56705a349155c4030e7901857",
+      "90d2bae2a48868dff619cf740fa212dfba8a6968"
+    ],
+    "expectedTree": "f3c7b51ed3b09efdca7cc8ef1726d131a977192f",
+    "actualTree": "f3c7b51ed3b09efdca7cc8ef1726d131a977192f",
+    "matches": true,
+    "headTree": "f3c7b51ed3b09efdca7cc8ef1726d131a977192f",
+    "headTreeEqualsMergeTree": true,
+    "note": "Main did not move between the PR base e6d1553c (the #2269 merge, the units.json baseline field; its first parent is the B14-0A closure merge #2268 e23ce5e5, and #2269 changed only simulation and construction files, none in a B14 manifest, control or openspec) and the merge: the merge commit 4d9eb721 has first parent e6d1553c and second parent the merged head 90d2bae2; its tree f3c7b51e equals the head tree and git merge-tree --write-tree of the two parents (clean), as the owner ruling recorded (\"merge state is CLEAN\"). Its units.json equals the head's, which differs from the baseline only in the B14-0B entry; the packets are unchanged. The ten test leaves each carry one +10/-0 hunk with the identical seam block (sha256 ab0a7ed9532f1be41e72acf9591f3b9bae4b75c9f8ed4171e127b237db31e1dd over the ten added lines) from the seams commit cd45d922 through the merge, no other src file changed, and the eighteen admission unchanged controls (including fogMatchAdmission.ts, the three host modules, MatchWireSealedChoices.ts, fogOfWar.ts, the projection modules, the guard suite matchHistoryFog.test.ts, the four B14-0A seam suites, sealedChoiceDelivery.test.ts, the fog-of-war spec and server.js) equal their admission hashes at the baseline, the head, the merge and the closure base (main moved after the merge by 921ad8a1 #2271, changing docs/audits/2026-10-15-move-completion-opus-review.md, docs/audits/2026-10-15-ndc1-current-runtime-route-review.md, docs/audits/2026-10-15-ndc1-current-runtime-route.md, docs/audits/2026-10-15-ndc1-r5-differential-outcome.md, docs/audits/2026-10-15-ndc1-r5-differential-review.md, docs/audits/2026-10-15-ndc1-r5-native-failure-review.md, docs/audits/2026-10-15-ndc1-r5-schema-binding-review.md, docs/audits/2026-10-15-ndc1-r5-tool-renewal-review.md, docs/audits/2026-10-15-ndc1-vss-origin-candidate-review.md, docs/audits/2026-10-15-ndc1-vss-origin-design-review.md, docs/audits/2026-10-15-opus-foundation-catchup-review.md, docs/audits/2026-10-15-opus-investigations-catchup-review.md, docs/audits/2026-10-15-opus-p1p2-catchup-review.md, docs/audits/2026-10-15-opus-task56-scope-review.md, docs/audits/2026-10-15-p1-local-qualification.md, docs/audits/2026-10-15-p2-ci-lint-repair-review.md, docs/audits/2026-10-15-p2-main-exit-review.md, docs/audits/2026-10-15-p2-repair-release-review.md, docs/audits/2026-10-15-task56-catalog-candidate-review.md, docs/audits/2026-10-15-task9-p2ca-opus-review.md, docs/audits/2026-10-16-council-A-product-path.md, docs/audits/2026-10-16-council-B-process.md, docs/audits/2026-10-16-council-C-architecture.md, docs/audits/2026-10-16-p2cb-saga-registration-fable-review.md, docs/audits/2026-10-16-p2ce-split-registration-fable-review.md, docs/audits/2026-10-16-p2ce1-fable-review.md, docs/audits/2026-10-16-p2ce2-fable-review.md, docs/audits/2026-10-16-p2ce3-fable-review-r2.md, docs/audits/2026-10-16-p2ce3-fable-review.md, docs/audits/2026-10-16-p2cer-registration-opus-review.md, docs/audits/2026-10-16-p2cf-split-registration-fable-review.md, docs/audits/2026-10-16-p2cf1-fable-review.md, docs/audits/2026-10-16-p2cf2-fable-review.md, docs/audits/2026-10-16-p2cg1-split-registration-fable-review.md, docs/audits/2026-10-16-p2cg1a1-fable-review.md, docs/audits/2026-10-16-p2cg1a2-fable-review.md, docs/audits/2026-10-16-task10-p2cb-fable-review.md, docs/audits/2026-10-16-task11-p2cd-opus-review.md, docs/audits/2026-10-16-task14-sequencing-fable-review.md, docs/audits/2026-10-16-task57-residual-registration-opus-review-r2.md, docs/audits/2026-10-16-task57-residual-registration-opus-review.md, docs/audits/2026-10-16-task9-p2ca-packet-opus-review-r2.md, docs/audits/2026-10-16-ts7s1a-fable-review.md, docs/audits/2026-10-16-ts7s1b-fable-review.md, docs/audits/2026-10-16-ts7s2a-fable-review.md, docs/audits/2026-10-16-ts7s2b-fable-review.md, docs/audits/2026-10-17-council-A-ts7-path.md, docs/audits/2026-10-17-council-B-roadmap.md, docs/audits/2026-10-17-council-C-cadence.md, docs/audits/2026-10-17-council-roadmap-decision.md, docs/audits/2026-10-17-l1-amendment-draft.md, docs/audits/2026-10-17-p2cg1b-review.md, docs/audits/2026-10-17-p2cg1c-review.md, docs/audits/2026-10-17-p2cg1d-admission-stop-report.md, docs/audits/2026-10-17-p2cg1d-review.md, docs/audits/2026-10-17-pr2209-review.md, docs/audits/2026-10-17-pr2210-review.md, docs/audits/2026-10-17-pr2211-review-r2.md, docs/audits/2026-10-17-pr2211-review.md, docs/audits/2026-10-17-pr2212-review-r2.md, docs/audits/2026-10-17-pr2212-review.md, docs/audits/2026-10-17-pr2215-review.md, docs/audits/2026-10-17-pr2220-review.md, docs/audits/2026-10-17-pr2223-review.md, docs/audits/2026-10-17-pr2224-review.md, docs/audits/2026-10-17-pr2225-review.md, docs/audits/2026-10-17-pr2226-review.md, docs/audits/2026-10-17-rel04-prereview.md, docs/audits/2026-10-17-rel04-review.md, docs/audits/2026-10-17-ts7-archive-ownership-fix.md, docs/audits/2026-10-17-ts7-track-exit-recheck.md, docs/audits/2026-10-17-ts7-track-exit-review.md, docs/audits/2026-10-17-ts7s2od-review.md, docs/audits/2026-10-17-ts7s3-review.md, docs/audits/2026-10-17-ts7s4a-review.md, docs/audits/2026-10-17-ts7s4b-review.md, docs/audits/2026-10-17-ts7s5a-review.md, docs/audits/2026-10-17-ts7s5b-review.md, docs/audits/2026-10-17-ts7s5c-review.md, docs/audits/2026-10-18-audit-batch-provenance.md, docs/audits/2026-10-18-ichain-amendment-design.md, docs/audits/2026-10-18-megamek-mm-data-reference.md, docs/audits/2026-10-18-p2cg1e-review.md, docs/audits/2026-10-18-pr2226-review-r2.md, docs/audits/2026-10-18-pr2227-review.md, docs/audits/2026-10-18-pr2229-verify.md; none is a B14-0B leaf; the B14-0A, B14-0B, B14-0 and P2CG1S entries are unchanged)."
+  },
+  "baseline": {
+    "baseline": "e6d1553ce90ca9c56705a349155c4030e7901857",
+    "mainAtMerge": "e6d1553ce90ca9c56705a349155c4030e7901857",
+    "rebase": false,
+    "mergeBase": "e6d1553ce90ca9c56705a349155c4030e7901857",
+    "mainBetween": [],
+    "headCommits": [
+      "6178b13af9108164b02738d5b93809722700b780",
+      "cd45d9223bd2b495b4cfab1129675db8e978766b",
+      "90d2bae2a48868dff619cf740fa212dfba8a6968"
+    ],
+    "commitRoles": {
+      "admission": "6178b13af9108164b02738d5b93809722700b780",
+      "seams": "cd45d9223bd2b495b4cfab1129675db8e978766b",
+      "local": "90d2bae2a48868dff619cf740fa212dfba8a6968"
+    },
+    "predecessorClosure": "e23ce5e5de7ba70b9dbf1b447a953195001f3312"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames e6d1553ce90ca9c56705a349155c4030e7901857 90d2bae2a48868dff619cf740fa212dfba8a6968",
+    "changedFiles": 14,
+    "reservedUnwrittenAtMerge": 1,
+    "countedLines": 16,
+    "countedByFile": {
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": 16
+    },
+    "testAdditions": {
+      "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts": {
+        "added": 10,
+        "deleted": 0
+      },
+      "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts": {
+        "added": 10,
+        "deleted": 0
+      }
+    },
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    }
+  },
+  "seamDiff": {
+    "leaves": 10,
+    "hunkShape": "@@ -N,0 +N+1,10 @@ (one hunk per leaf, no deletion)",
+    "addedBlockSha256": "ab0a7ed9532f1be41e72acf9591f3b9bae4b75c9f8ed4171e127b237db31e1dd",
+    "addedBlockNote": "sha256 of the ten added lines joined with LF plus a final LF; identical in all ten leaves",
+    "otherSrcFiles": 0
+  },
+  "testLeaves": {
+    "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts": {
+      "sha256": "5cb0fd4f2f1f4957d18598293325d1cbeef91bb09d2141c8c5170c6267f70bae",
+      "bytes": 28618,
+      "baselineSha256": "08be664f38f7c50302bcb762ac1142d455c08621f0487f9dbcaa41167e992477"
+    },
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts": {
+      "sha256": "0b9ef884a191bee858d3213b3a32abd1e7d2b2a9dd248d593d51cb2c4fc54340",
+      "bytes": 25081,
+      "baselineSha256": "8bc39917f410bcd6532051d017f6cc6837d114f10c2aaeea6964c10879220c6c"
+    },
+    "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts": {
+      "sha256": "3c9fe0fff8f3686754cddd529f84f481e4e599441856b9cf75dbcd1ebe71f48a",
+      "bytes": 23564,
+      "baselineSha256": "9e0961875481fe825efe0aec7af948dc39ccf8f0b20ce4a013c2efbb5ed242fd"
+    },
+    "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts": {
+      "sha256": "b7f5b14428dd55a44bebcd7e47f9ac8476c970d7aa0267fdfb8b7afa8b313905",
+      "bytes": 10381,
+      "baselineSha256": "4e574011c4cbcbbb42cc1b2083087aba715e55afad9bdf6edd96c095ffea24c1"
+    },
+    "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts": {
+      "sha256": "93871a9576b51253bcedb8b4552eea8e95ae5ecbf858e36261fb0470596e051e",
+      "bytes": 9143,
+      "baselineSha256": "7d569388f6e0c2bd1639301285cd98e1955e24c3b6793a7d3d908502df71a8f2"
+    },
+    "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts": {
+      "sha256": "5007f7c230aa81e024459819cf6e7d8d9b9eb487814a6b36d07a3399afc2cdd1",
+      "bytes": 8961,
+      "baselineSha256": "292a3f759e548b3bda631ea8641010c77d43ff60fd6d2b6258b9e51b72ff4282"
+    },
+    "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts": {
+      "sha256": "1d4255ca4e704d704388f0624e779ae3446fdf39c9cd81c8af1dfaf592cf0b44",
+      "bytes": 8748,
+      "baselineSha256": "1d55b942007cf2a174ab2ad5c27bfcb74c039edd06d0165db51d548de1389134"
+    },
+    "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts": {
+      "sha256": "83ad309ad2c9c3ea197351377dfba127f60c50cf635237c9048f80adbe10a554",
+      "bytes": 6615,
+      "baselineSha256": "48d080d393523687fd48e1db9d423f6e41a771b4e3dcf539b370e6cae693576a"
+    },
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts": {
+      "sha256": "987bdeeb8e9dbc65bb63a2cbf3b3b22c9b42decd011c169a1bfc055b0cd9d996",
+      "bytes": 19221,
+      "baselineSha256": "368fef26cfb1e0383818e9810a5715b908a7e7ec992386ec1632ce64989bb17b"
+    },
+    "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts": {
+      "sha256": "9c15173b874bf2a89fd61f268f76724180f5bee9cb6db68635c2aa928c80b3ef",
+      "bytes": 4827,
+      "baselineSha256": "3a68502f196e6389833169a21b7b16b14ded2b473c182b2eb8370dee927f22c2"
+    }
+  },
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "sha256": "d6a8903bd3e7c3ecb9e544ab0d10f5b3debc224533771748017769813c8f090e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "sha256": "9a7f9300bed3e9dd47efca51a627a6ed96cb818cf0027c5e1a9c3df4f010a26b"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "sha256": "44334a238bfbc5679e5665b2a33a06b3c8dd0ca4857352da1ab79a4160cf245c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "sha256": "d12a58a3f1b3c79d8dfc4633d0afaaab7a35d14ada69f03ce596718ae989a20f"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "sha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120"
+    },
+    {
+      "path": "src/lib/multiplayer/server/fogOfWar.ts",
+      "sha256": "a8b7a1d381dfd087237a68780d509963ffd6c3925917041bc305fc71fbc4a6aa"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+      "sha256": "f19a5df823c5daa366f64dc639043287d57c5406279deb26501779648143acf5"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerPublicationBoundary.ts",
+      "sha256": "0fb8428f0c7546716c823a3f79485e97358d08921e325263105bbbeffcf1a5d3"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts",
+      "sha256": "4418dbb3e994c9afbf86aa5a432590aa9e628baa6a50cfdbbb73d32239fe90ae"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+      "sha256": "9066d70df0352daed25e11700ccc6938212e9aa866315075b3df4459f01e1634"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "sha256": "2d52d2487e0ba31faf26e5d545fac484960bbbcd9af0622bdfd7353459e3ad66"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "sha256": "648d715adeebac3bac4a921beda7dfa47dfe3bafa53f9831a53ce0e67cec2ad1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "sha256": "2cba52e17ba8c7a68677b89a2b6ba14ec5fa8376cf8e06259f84d6c3a282d2ff"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "sha256": "965fd92f139a896df8c6df7311edea8f43696906d8348b193d6c1bded0097f90"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "sha256": "20f4ee19e2c683c1c3dd539777cd59f978b305a7e1e914714dd88b926d67c7d1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4"
+    },
+    {
+      "path": "openspec/specs/fog-of-war/spec.md",
+      "sha256": "d5e61ffd7fb2b94c94de6871d572afd680404c66fe91450646ea9e0fad876687"
+    },
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    }
+  ],
+  "postMerge": {
+    "firstParentAfterMerge": [
+      "921ad8a1ec1c3ccac460ab6e6808ca5146474171"
+    ],
+    "closureBase": "921ad8a1ec1c3ccac460ab6e6808ca5146474171"
+  },
+  "checksObservedAt": "2026-10-18T17:14:48Z",
+  "checks": {
+    "head": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+    "successful": 32,
+    "other": 0,
+    "statuses": 0,
+    "run": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890",
+    "jobs": [
+      {
+        "name": "Lint and Test",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117731138857"
+      },
+      {
+        "name": "Build Test / linux",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730412549"
+      },
+      {
+        "name": "Build Test / mac",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730412507"
+      },
+      {
+        "name": "Build Test / win",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730412501"
+      },
+      {
+        "name": "Coverage Floor",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153819"
+      },
+      {
+        "name": "E2E Smoke",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153796"
+      },
+      {
+        "name": "Determinism Audit",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153766"
+      },
+      {
+        "name": "Build Storybook",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153751"
+      },
+      {
+        "name": "Customizer Regressions",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153720"
+      },
+      {
+        "name": "A11y Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153719"
+      },
+      {
+        "name": "Desktop Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153717"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153707"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153706"
+      },
+      {
+        "name": "Validate BV Parity",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153697"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153690"
+      },
+      {
+        "name": "Seam Anchors",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153687"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153680"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153624"
+      },
+      {
+        "name": "Schema Bridge",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153622"
+      },
+      {
+        "name": "Desktop Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153618"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153616"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153576"
+      },
+      {
+        "name": "Format Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153565"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153559"
+      },
+      {
+        "name": "Perf Budget PR",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153558"
+      },
+      {
+        "name": "Lint",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153537"
+      },
+      {
+        "name": "Type Check",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153534"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730153507"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730074264"
+      },
+      {
+        "name": "Install Dependencies",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730026534"
+      },
+      {
+        "name": "Detect Changes",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730026473"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39146060890/job/117730026264"
+      }
+    ],
+    "failedAttempts": 0,
+    "allAttemptsCount": 32,
+    "cfh12Comment": "https://github.com/SwiggitySwerve/MekStation/pull/2270#issuecomment-6252601181",
+    "cfh12CommentEdit": "posted 2026-10-18T16:58:12Z, not edited"
+  },
+  "requiredChecks": "Observed 2026-10-18T17:14:48Z. GET branches/main/protection: required_status_checks.contexts [\"Lint and Test\"] (strict false), required_conversation_resolution enabled, required_pull_request_reviews with 0 required approvals. GET rules/branches/main returns no rules. GitHub enforces only Lint and Test; CF-H12 asks for all 32 by name, verified here one to one against the P2CG1G1/P2CG1G2A/P2CG1G2/P2CG1R/P2CG1S/B14-0A names (pr-checks.yml blob a82fe0f7).",
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-18T17:14:49Z",
+    "runs": [
+      {
+        "name": "Live Tier Signal",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "release",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Push Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Determine release tag",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (windows-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (ubuntu-latest)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "version-and-release",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "note": "Push workflows on the merge commit; pr-checks.yml runs only on pull_request."
+  },
+  "ownerRuling": {
+    "ruledHead": "90d2bae2a48868dff619cf740fa212dfba8a6968",
+    "pr": 2270,
+    "commentId": 6252742470,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a37ca8dd92a961135ac96e10424042eb767a5404e3cce08024e9b86d2f896b27",
+    "bodyBytes": 2540,
+    "at": "2026-10-18T17:11:55Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2270#issuecomment-6252742470",
+    "bodyPath": "evidence/b14-0b-owner-ruling-6252742470.txt",
+    "fetchedWith": "gh api repos/SwiggitySwerve/MekStation/issues/comments/6252742470 --jq .body, which prints the body plus one trailing LF (2541 bytes); the stored file is the exact body without that added newline, equal to the JSON body field and byte-identical to the Root receipt copy E:/Projects/Personal/MekStation-wt/_receipts/pr2270-owner-ruling.md"
+  },
+  "chronology": "Ruled at 17:11:55Z on the exact head; merged at 17:12:01Z. The ruling preceded the merge."
+}
