@@ -1,0 +1,151 @@
+# P2CG1R independent sensitive review - PR #2260
+
+- Date: 2026-10-18
+- Reviewer: independent review sub-agent (read-only; no push, comment, label or merge)
+- PR: SwiggitySwerve/MekStation #2260, head `e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a`, base `c4d0eae46e8ae49851b15e3037e2fe139e99745b` (merge-base = base; base is an ancestor of head)
+- Unit: P2CG1R (R2.authority-live), H-OPEN-1 / CF-E1 reservation-release repair, registered by `evidence/h-prereq-registration-20261017.json`
+- Review worktree: `E:/Projects/Personal/MekStation-wt/review-2260-20261018` (detached at the head; own `npm ci` against the head lockfile because the root lockfile differs). Root checkout untouched.
+- Proof directory (reviewer-owned, outside the repo): `E:/Projects/Personal/MekStation-wt/review-2260-proof/`
+- Review classes: authority, privacy, replay, idempotency, concurrency
+
+## Verdict
+
+**APPROVE-WITH-NOTES.**
+
+The change does exactly what the unit contract asks and nothing more: a default-absent, server-only `onNotCommitted` control; the adapter fires it once, synchronously, inside the append's own transaction, only after the guard admitted and only when the admitted append returns non-committed or throws; the host forwards it as the identical function and includes it in capability detection; the binder wires it to the idempotent `release`. Error classification is preserved (conflict stays `lost-race`/stale-head, throw stays commit-uncertain), duplicate-first semantics are preserved, and the outer-COMMIT-failure residual is recorded honestly. No product defect found. The notes below are coverage/documentation observations and carry-forwards; none requires a re-spin of this head.
+
+## What I verified myself
+
+| Check | Result |
+| --- | --- |
+| Ledger: admission `1d7fdb54` | 2 files, no source (receipt + own P2CG1R lifecycle fields in units.json only) |
+| Ledger: RED `c68ae161` | 3 test files + red receipt + units.json; product bytes byte-identical to baseline (`git diff --name-only 1d7fdb54 c68ae161 -- src ':!**/__tests__/**'` empty) |
+| Ledger: GREEN `e3f2535e` | 4 product files + local receipt + units.json; no test byte changed after RED |
+| Manifest | 11 changed files + 1 reserved review slot = 12/15; every file is in the frozen admission manifest; units.json diff touches only P2CG1R's own ownershipExceptions/state/baseline/stageReceipts |
+| Counted lines | 6 + 28 + 11 + 4 product + 16 units.json = 65/500 (tests 232 + 101 + 268 exempt) |
+| `git diff --check` | clean |
+| RED re-run (baseline product + RED tests, 3 suites, --runInBand, private cache, MACHINE_IDLE) | **13 failed / 114 passed / 127** - exactly the 13 behaviour rows (6 binder doors, 5 adapter, 2 pipeline); the CF-H8/CF-G5 and CF-E7 pins are green at RED as declared (`red.log` sha256 61514c03...c57f) |
+| GREEN re-run (same 3 suites) | **127/127** (`green.log` sha256 26f88316...2b7f) |
+| typecheck (`npm run typecheck`, typescript7) | PASS |
+| oxlint on the 4 product leaves | 0 errors (2 pre-existing max-lines warnings) |
+| oxfmt --check on the 7 product/test leaves | PASS |
+| Frozen controls | SQLiteEventJournalWriter.ts, DurableMatchStore.ts, campaignHostBatchCommit.ts, CampaignGmArbiter.ts untouched (confirmed by name list of the diff) |
+
+## Source review (five classes)
+
+Key sites: `src/lib/campaign/sync/JournalCampaignEventStore.ts:323-329` (`signalNotCommitted`), `:363-370` (capability detection), `:379-413` (extension body), `src/lib/multiplayer/server/CampaignMatchHost.ts:627-648` (forwarding), `src/lib/multiplayer/server/bindCampaignSyncConnection.ts:849-888` (binder `release` / controls), `src/lib/events/journal/SQLiteEventJournalWriter.ts:63-84` (unchanged writer; `db.transaction(...).immediate()`), `src/lib/multiplayer/server/DurableMatchStore.ts:1822-1851` (unchanged `holdMatchConnection` with its microtask safety net).
+
+### Release exactly once, never early, never on success
+
+- **Never before guard admission.** The hook is reachable only after `recorded` is false and `guard(db)` returned `null` (`JournalCampaignEventStore.ts:385-390` return before the `try` at `:393`). A guard refusal releases inside the guard itself (`bindCampaignSyncConnection.ts:872`); a throwing `revalidate` releases and rethrows (`:875-876`); a throwing `reserve()` never set `held` (`:865-867`). A thenable guard result throws from `rejectPreparedThenable` outside the `try`: the hook does not fire there (pre-existing B behaviour; the binder guard never returns a thenable). Mutant RM12 (author) and RV7 (mine) confirm early/success firing is pinned.
+- **Never on success.** The committed path returns at `:409` without signalling; the `onCommitted` notification (consume then release, `bindCampaignSyncConnection.ts:879-885`) fires only after the writer's real COMMIT. RV7 (signal after a committed append) is caught by 4 rows.
+- **Never on a recorded retry.** `if (recorded) return append();` (`:385`) short-circuits before guard, hook, `afterCommit` and `committed`; semantically identical to the pre-R `!recorded` conditions. See RM9/RV3 below for the reachability caveat.
+- **Exactly once.** One signal per non-commit: either the `kind !== 'committed'` branch (`:395-397`) or the `catch` (`:410-412`), never both (the branch returns before the catch can see anything). Adapter test asserts `signals() === 1`; RV1 (double signal) is caught by 3 rows. The binder's `release` is idempotent (`held = null` before `hold?.release()`), and `holdMatchConnection`'s own `release` is idempotent on its `held` flag, so the later `afterRelease` and the reservation microtask are harmless no-ops after an explicit release.
+
+### Hook ordering vs transaction state
+
+- Conflict: `append()` returns `revision-conflict` with no rows written; hook fires while C is still open (trail `M:ROLLBACK:C-open=true`); better-sqlite3 then COMMITs an empty C. Releasing M before the empty COMMIT is safe: M protects revalidate-plus-commit of a batch that will not exist.
+- Throw (native abort or throwing `afterCommit`): hook fires in the `catch`, then the original error is rethrown unchanged (RV11, swallowing it, is caught by 8 rows; RM13 by the author), and better-sqlite3 ROLLBACKs C. A throwing `afterCommit` after `append()` wrote rows is correctly treated as not committed because the rethrow rolls C back.
+- A throwing hook never replaces the outcome (`signalNotCommitted` swallows; RM10 caught). See N2 for the missing diagnostic.
+
+### Interaction with the later fallback release
+
+Three releases can target the same hold: the synchronous hook, `afterRelease` (after the host lock is released, `CampaignMatchHost.ts:455-460`) and `holdMatchConnection`'s microtask queued at `BEGIN IMMEDIATE`. With R the first wins and the other two are no-ops; the receipt's "retain idempotent onCommitted/afterRelease cleanup and the reservation microtask fallback" is accurate. The only path on which the fallback still does real work is the outer-COMMIT failure (below).
+
+### Foreign-writer interleaving at BEGIN IMMEDIATE
+
+The hazard (H-OPEN-1): a foreign write on the match connection issued after the guard's `BEGIN IMMEDIATE` but before the late release nests as a SAVEPOINT under M and is discarded by the microtask ROLLBACK. The tests reproduce it faithfully: the `exec` spy queues its tick microtask **before** `holdMatchConnection` queues its own release microtask, so at RED the foreign row is written under M and discarded (`foreignRows() === 0`); at GREEN the release precedes the tick and the row commits on its own. Because JS is single-threaded and the whole extension is synchronous, no foreign write can interleave between `BEGIN IMMEDIATE`, the guard and the hook; a foreign writer that already holds the connection makes `holdMatchConnection` throw and the guard answers `progression-reservation-busy` (unchanged, pinned by the P2CG1D row "answers a busy match connection as a typed refusal").
+
+### Error classification preserved
+
+Conflict -> `sequence-conflict` -> `lost-race` -> `CAMPAIGN_STALE_HEAD` (binder rows assert the frame and no close); throw -> rethrown -> commit-uncertain -> socket closes `1008 dispatch-failed`; neither becomes a refusal (`CAMPAIGN_NOT_CONVERGED` asserted absent). Binder `consumed()` is 0 on every non-commit (RM8 caught).
+
+### Outer-COMMIT-failure residual (honestly bounded)
+
+If the extension returns `committed` and the writer's COMMIT then fails, `.immediate()` throws after the extension: neither `onCommitted` (correct - nothing committed) nor `onNotCommitted` (not observable from inside the extension) fires; M is released by the reservation microtask (before `afterRelease`, which runs after the host lock). The hazard window therefore survives only on this path, which on this WAL database with a write lock already held is reachable via deferred-FK failure, `SQLITE_FULL`/`IOERR`, or `BUSY` on checkpoint - exactly the receipt's boundary. Closing it needs a writer-level change (a commit-failure callback around `.immediate()`), which R correctly did not make; see CF-R-4.
+
+### Authority / privacy / replay / idempotency summary
+
+- **Authority:** the hook is a server-only control on `ICampaignAppendControls`; it is never on the wire, never client-suppliable, and reaches the store only through `applyHostIntentWithControls` from the binder's three AdvanceDay doors. A hook-only control on a journal/store without the capability fails closed before any write (adapter + pipeline rows; RM4/RM6 caught).
+- **Privacy:** `() => void` carries no data; no new frame, log or payload field. The abort-path close reason is the pre-existing `dispatch-failed`.
+- **Replay:** command identity, batch, payload and digest are untouched (controls are not part of `toJournalBatch`); a recorded command replays its stored batch before guard/hook; census/day/head unchanged after every failure; the same host intent then commits exactly once.
+- **Idempotency:** release idempotent at two layers; `consumed()` only on a known commit; duplicate-first order preserved.
+- **Concurrency:** covered above; the hook runs inside the host single-writer lock and inside C, before any await.
+
+## Reviewer mutants (beyond the author's RM1-RM13)
+
+Method: one string edit of one GREEN product file in my worktree, three R suites (127 rows) with `--runInBand` and a private cache, MACHINE_IDLE before each, original bytes restored after each (`rv-mutants.cjs` sha256 78c8d3be...4f2a; `reviewer-mutants.json` sha256 e3d71e28...af65; per-mutant logs `mutant-RV*.log`).
+
+| Id | File | Mutant | Result | Failing rows |
+| --- | --- | --- | --- | --- |
+| RV1 | JournalCampaignEventStore.ts | hook fired twice on a non-committed result (double release) | CAUGHT | 3 (adapter conflict row `signals()===1`, signal row, pipeline conflict row) |
+| RV2 | bindCampaignSyncConnection.ts | `onNotCommitted: () => queueMicrotask(release)` | CAUGHT | 6 (all 3 doors x 2 failures: trail order / foreign row) |
+| RV3 | JournalCampaignEventStore.ts | hook also fired on the in-transaction recorded path | SURVIVED (RM9 class, see below) | 0 |
+| RV4 | JournalCampaignEventStore.ts | only `revision-conflict` signals (identity/integrity conflicts do not) | SURVIVED (same class: in-transaction identity conflict reachable only via the race) | 0 |
+| RV5 | CampaignMatchHost.ts | hook forwarded as a wrapper, not the identical function | CAUGHT | 1 (pipeline `toBe(onNotCommitted)`) |
+| RV6 | bindCampaignSyncConnection.ts | `onCommitted` consumes but never releases (success release left to the microtask) | CAUGHT | 1 (P2CG1D "holds C then M ... releases M before any publication") |
+| RV7 | JournalCampaignEventStore.ts | hook also fired after a committed append (release on success inside C) | CAUGHT | 4 |
+| RV8 | bindCampaignSyncConnection.ts | CF-G5 member arm (`:1278`) ignores the application view | CAUGHT | 17 (P2CG1D door rows via `joinedAndReady`; **not** the CF-H8 rows) |
+| RV9 | bindCampaignSyncConnection.ts | CF-G5 host arm (`:1247-1251`) always uses `joinMember` | CAUGHT | 44 incl. the three CF-H8/CF-G5 rows |
+| RV10 | bindCampaignSyncConnection.ts | CF-G5 newcomer arm (`:1414`) ignores the application view | SURVIVED in the 3 R suites; CAUGHT only by `coopMissionAnnouncement.reconnect.test.ts` › "application offers (P2CE2) › a newcomer quoting lastSeq ... gets the public bundle" (1/56 in a 5-suite broad run) | 0 / 1 |
+| RV11 | JournalCampaignEventStore.ts | catch path swallows the error and returns `integrity-conflict` after signalling | CAUGHT | 8 |
+
+Score: 11 reviewer mutants, 8 caught by the R suites, 3 survived (RV3, RV4 in the RM9 class; RV10 outside R's suites but caught elsewhere). Together with the author's 12/13 the product change is tightly pinned; the only survivor class is the race-only in-transaction recorded path.
+
+### RM9 / CF-R-2 assessment
+
+The author's survivor RM9 (drop `if (recorded) return append();`) is **not an equivalent mutant**. I wrote a probe row (untracked, removed after use; template below) that stubs the store-level `getCommandReceipt` to miss once, which is exactly what a racing writer between the async store-level read and the IMMEDIATE transaction produces. On GREEN bytes the probe passes (replay returns `committed`, no guard, no hook, no notification, no second saved-record rewrite). Under RM9 the probe fails with `['guard','notify']` - the mutant re-takes M, re-runs the extension and re-fires the commit notification on a replay; under RV3 it fails with `['not-committed']`. So one row closes the class. Reachability in production is confined to a concurrent writer on the same campaign journal outside the host's single-writer lock, which today does not exist; severity Low. Template (`rm9-probe.cjs` sha256 d550d94b...6eb8 ran it):
+
+```ts
+jest.spyOn(store, 'getCommandReceipt').mockResolvedValueOnce(null);
+const again = await store.appendControlledCommandBatch!('campaign-journal', input, {
+  guard: () => { log.push('guard'); return null; },
+  onCommitted: () => log.push('notify'),
+  onNotCommitted: () => log.push('not-committed'),
+});
+expect(again.kind).toBe('committed'); expect(log).toEqual([]); expect(rewrites).toBe(1);
+```
+
+## Findings
+
+| # | Severity | Location | Finding |
+| --- | --- | --- | --- |
+| N1 | Low (doc) | `src/lib/campaign/sync/JournalCampaignEventStore.ts:306-331` | Inserting `signalNotCommitted` between the long JSDoc block and `appendControlledCampaignBatch` re-attaches that block to the helper; the function it describes is now undocumented in editors. Move the helper above the block. Next owner of the file (S does not own it; HP/H or the next adapter owner). |
+| N2 | Low | `src/lib/campaign/sync/JournalCampaignEventStore.ts:323-329` | A throwing hook is swallowed with no diagnostic. In the binder the hook can throw only if `ROLLBACK` on the match handle fails, and the microtask fallback swallows the same way, so the reservation can be left held silently until the next `holdMatchConnection` refuses. Recommend a `logger.warn` via `src/utils/logger.ts` in a later owner; not blocking (the contract says the signal never replaces the outcome). |
+| N3 | Info | `src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts` CF-H8/CF-G5 rows | The pin exercises only the GM/host join arm (`bindCampaignSyncConnection.ts:1247-1251`). The active-member arm (`:1278`) is pinned only indirectly (RV8: door rows need offers) and the newcomer arm (`:1414`) only by a P2CE2 row in another suite (RV10); neither asserts "`joinMember`/`joinGuest` never invoked". See the CF-H8/CF-G5 ruling below. |
+| N4 | Info | `JournalCampaignEventStore.ts:393-413` with a nested caller | Hook-only controls (no `onCommitted`) inside an outer transaction would receive a not-committed signal on SAVEPOINT failure but none when the outer owner later rolls back; the writer refuses only `onCommitted` when nested. Unreachable from the binder (it always passes `onCommitted`). Record for the next adapter owner; no change requested. |
+| N5 | Info | `CampaignGmArbiter.ts:548-561` (frozen control) | CF-R-1 confirmed from source: on a commit-uncertain outcome the arbiter's `consume()` at `:559` drops the pending approval before `resultOfDoor` rethrows. With R, an in-extension throw is a *known* rollback (the hook fired, so ROLLBACK follows); the classification is conservative there and only the outer-COMMIT failure is genuinely uncertain. Arbiter leaf -> H. |
+| N6 | Info | tests | The binder rows wait `setTimeout(20)` after the answer frame before reading the trail; harmless today (everything asserted is already synchronous by then) but a tick-count wait would be more deterministic. No change requested. |
+
+## Carry-forward rulings
+
+- **CF-E1 / H-OPEN-1 - discharged.** Three real failure classes at the adapter (conflict, native abort, throwing saved-record extension), host pipeline forwarding on a real conflict, and all three binder AdvanceDay doors x {conflict, abort} with the exact trail `M:BEGIN IMMEDIATE, guard, M:ROLLBACK (C open), tick` and the foreign row surviving. RED proves each row depends on the product change. Residual bounded to the outer-COMMIT failure (CF-R-4).
+- **CF-H8 / CF-G5 - discharged for the GM seat; partially for guests.** Read against the exact definition in `p2cg1f-review-20261018.json` line 405 ("with the port installed, a bound join's first campaign frame carries `appliedView`, and `joinMember` is never invoked for that socket"; cites all three application arms) and the G1 reviews (carried unchanged). R pins the host arm for confirmed/held/failed send callbacks with a `joinMember` spy. The member and newcomer arms are held by other rows (RV8, RV10) but not by an explicit never-invoked assertion. **HP ruling:** HP may drop the binder test from its manifest (9 -> 8 files) **only** if the owner accepts the indirect guest-arm coverage; otherwise HP keeps the file and widens the R row to `it.each` over {host, member} (a two-line change, same socket harness) - I recommend the latter as the honest completion of CF-G5.
+- **CF-E7 - pinned.** Empty M trail on participants-behind preparation refusal, veto during preparation and an explicit invalid proposal reservation (pending proposal kept). Baseline-green pins as declared.
+- **CF-G2-3 - correctly not absorbed;** client leaves byte-identical. Stays with H.
+- **CF-R-1 -> H** (next owner of `CampaignGmArbiter.ts`). Reviewer addition: use R's hook as the evidence for a `known-rolled-back` classification so a pending approval is not dropped on a certain rollback; keep commit-uncertain for the outer-COMMIT failure only.
+- **CF-R-2 -> next owner of `JournalCampaignEventStore.test.ts`** (HP if it touches the adapter suite, else H; S does not own it). Non-equivalent survivor confirmed; one probe row (template above) closes RM9, RV3 and RV4.
+- **CF-R-3 (test hazard) -> all P2CG1 test owners (S, HP, H, I1-I4, P2CG2).** Confirmed sensible: assert SQLite rejections by message, not `rejects.toThrow(Class)`, when suites share a worker.
+- **CF-R-4 (new, reviewer) -> H or a separate writer registration before H if H requires it.** Outer-COMMIT failure after the extension returned `committed` is not observable by the adapter; the reservation microtask is the only release and the H-OPEN-1 nesting window reopens on that path. Closing it is a `SQLiteEventJournalWriter.appendWithExtension` change (commit-failure callback around `.immediate()`), explicitly out of R's manifest.
+- **CF-R-5 (new, reviewer, Low) -> next adapter owner.** N1 (JSDoc re-attachment) and N2 (silent swallow in `signalNotCommitted`).
+- **CF-R-6 (new, reviewer, Info) -> next adapter owner.** N4 nested-savepoint asymmetry for hook-only controls.
+- Not R's: B14-0, LSC, P2CG2 receive nothing new from this review beyond CF-R-3.
+
+## Boundary and ledger statements
+
+- No writer edit; no activation; no cross-file atomicity claim; R's #2249 boundary respected.
+- No file outside the frozen manifest; caps 12/15 files, 65/500 counted lines.
+- Review worktree left at the head with a clean tree; the reviewer probe test was created and removed inside the review worktree only; no root, impl or scratch worktree was touched.
+- Not verified here: required CI by name on the exact head (CF-H12/CF-E10) - belongs to the PR comment per the receipt; the 451-suite broad run (author-reported 5892/5892) was not repeated.
+
+## Artefacts (reviewer-owned)
+
+| File | sha256 | bytes |
+| --- | --- | --- |
+| `review-2260-proof/green.log` | 26f883167214098348304d5777734eff87a3c09a4a64cfdc348ca636d7862b7f | 53844 |
+| `review-2260-proof/red.log` | 61514c038509cd2ccf84ef7fab29d8a9e6e9db3d90997a3d97252856a97ec57f | 78688 |
+| `review-2260-proof/reviewer-mutants.json` | e3d71e2814ba0260e5cc6ab4374e22068a6ab2dbbf6debb9d6d678550ac6af65 | 8165 |
+| `review-2260-proof/rv-mutants.cjs` | 78c8d3be1719aebf721b5966feb21a60d125464048da761534b371c4bfc44f2a | 5815 |
+| `review-2260-proof/rm9-probe.cjs` | d550d94b8510971a4f16265064f61250267bd1d448d76b26e10a45b5acdf6eb8 | 1761 |
+| `review-2260-proof/mutant-RV10-broad.log` | 9ec47f85cba7e05549e285e6658aedf5703b3e746adf0a2e6408734e7aa46d1f | 291932 |
+| `review-2260-proof/typecheck.log` | 8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951 | 358 |
