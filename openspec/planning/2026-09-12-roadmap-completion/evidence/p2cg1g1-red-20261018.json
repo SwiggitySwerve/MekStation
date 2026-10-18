@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1G1",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+  "admissionCommit": "a62fc69c873b58819ecfad869052fa03dbb386d9",
+  "runtime": {
+    "node": "v24.15.0",
+    "jest": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --cacheDirectory <private> --runTestsByPath <4 G1 suites>",
+    "idle": "node scripts/qc/machine-idle.mjs --own-pid 47516 -> MACHINE_IDLE immediately before the run (idle.log)"
+  },
+  "productUnchanged": {
+    "note": "The two existing product leaves are byte-identical to the baseline (git diff --quiet exit 0) and the two new product leaves do not exist. The tests import no module that is absent at the baseline",
+    "files": [
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "sha256": "80cb4d849a1827bfd69b58f93ee87fd3fc012c44e70e3ebff6567ce959a31e97",
+        "bytes": 18690
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "sha256": "452c1b31b12546000dcf97cde4e685fe3efa800ac87920d93f364a1aac97f154",
+        "bytes": 9539
+      }
+    ],
+    "absent": [
+      "src/components/campaign/coop/campaignCoopSurfaceHelpers.ts",
+      "src/lib/campaign/coop/campaignHostFoldStore.ts"
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "added": 475,
+      "deleted": 1
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+      "added": 20,
+      "deleted": 0
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+      "added": 12,
+      "deleted": 0
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+      "added": 20,
+      "deleted": 0
+    }
+  ],
+  "result": {
+    "summary": "Test Suites: 1 failed, 3 passed, 4 total; Tests: 3 failed, 73 passed, 76 total",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/red.log",
+      "sha256": "b79b51267079e1fa706425d1911087580d180bad827292ef96d4d52e9b0eb14b",
+      "bytes": 89950
+    },
+    "idleLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/idle.log",
+      "sha256": "759cbbcd722b7e5e49e5774b906bd8d0dbe7f48b2757174b08d6c22336d88f46",
+      "bytes": 270
+    }
+  },
+  "failingRows": [
+    {
+      "row": "R1 applies the next linked launch onto the retained fold and facts after a remount, before its exact ACK",
+      "behaviour": "m8 P1 continuation (CF11/M2 store)",
+      "failure": "confirms[2] is v1-r2 with status \"failed\" instead of \"applied\": the post-F surface restarts the GM fold at EMPTY on every binding, so the linked launch has no lineage, the consumer sends no receipt and the view rejoins"
+    },
+    {
+      "row": "R2 re-projects the retained fold when the remount binds, before any new frame",
+      "behaviour": "projection continuity at remount",
+      "failure": "stored balance 1000000 (the reloaded record) instead of the retained fold 800000"
+    },
+    {
+      "row": "W1 keeps the continued lineage through a quiet confirmation window after the remount (CF-G3)",
+      "behaviour": "CF-G3: no re-armed pre-receipt window on a heard, continued transport",
+      "failure": "last confirmation is v1-r1, not v1-r2 applied: the remount restarts at EMPTY and its fresh 60 s window closes the socket at T"
+    }
+  ],
+  "controlsGreenAtRed": [
+    "C1 starts from EMPTY on the replacement transport a rejoin opens",
+    "C2 gives another campaign a fresh fold that holds none of the first campaign facts",
+    "C3 lets neither binding certify an offer whose refresh is held across the remount",
+    "CF-G1 ends the quiet window on the first offer (fake timers; dispose clears no window)",
+    "CF-G2 does not end the quiet window on a heartbeat, a proposal or a command refusal",
+    "CF-G8 trades the old window for the new one across a rejoin",
+    "CF-G8 arms no window on an unbound transport",
+    "CF-G11 arms no window on a fixture fake that carries only the mounted campaignId",
+    "heard semantics: does not remember a first campaign frame that arrives while no surface is mounted",
+    "heard semantics: re-arms the window when a sequenced campaign frame arrives while no surface is mounted",
+    "fixture compatibility: CampaignLifecycleGate and GuestRebuildStaleGate new rows, GuestProposalSurface inline assertion (G2 preparation, not behaviour RED)",
+    "every pre-existing row of the four suites"
+  ],
+  "pinsNote": "CF-G1/CF-G2/CF-G8/CF-G11 and the two heard-semantics rows are mutation pins, green at RED by design (they pin P2CG1F behaviour G1 must keep). The second heard-semantics row also fails the stop-report prototype WeakSet, which is why the implementation records a lastSeq watermark instead (admission heardSemantics)",
+  "fixtureNotes": "The F-era installBoundTransport helper now takes matchId from the connect input (falling back to MATCH_ID); every existing caller passes MATCH_ID, so existing rows are unaffected. That one line is the only deleted test line; no existing assertion was removed or weakened",
+  "redShape": "All three failures are assertion failures (toEqual/toBe) against the behaviour G1 delivers; none is a compile or missing-API failure",
+  "discardedRun": {
+    "path": "E:/Projects/Personal/MekStation-wt/p2cg1g1-proof-20261018/red-discarded-mojibake.log",
+    "note": "An earlier RED run (same 3 failed / 73 passed) was made while the applied prototype test patch carried 7 em-dashes mangled by a cp1252 read in the scratch tree (comments and one describe title). They were restored to the baseline bytes and RED re-run; the earlier log is kept and not cited"
+  }
+}

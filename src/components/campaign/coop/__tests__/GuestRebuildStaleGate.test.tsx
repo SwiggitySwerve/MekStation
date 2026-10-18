@@ -37,6 +37,8 @@ import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbite
 import { CAMPAIGN_CONFLICT_REBASE_ACTION } from '@/lib/campaign/authority/campaignConflictDecision';
 import {
   _resetCampaignSyncTransportsForTest,
+  connectStoredCampaignSyncTransport,
+  getActiveCampaignSyncTransport,
   registerCampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
@@ -400,8 +402,11 @@ describe('a refusal reaches the guest through the channel it really has', () => 
       },
     } as never);
 
+    // The mounted campaign's id, so a creator bound to it (P2CG1G2)
+    // reuses this transport instead of detaching it.
     const transport: ICampaignSyncTransport = {
       matchId: MATCH_ID,
+      campaignId: CAMPAIGN_ID,
       playerId: 'guest-player',
       role: 'guest',
       sendProposal: jest.fn(),
@@ -444,6 +449,21 @@ describe('a refusal reaches the guest through the channel it really has', () => 
       await Promise.resolve();
     });
   }
+
+  it('registers a transport a creator bound to the mounted campaign reuses', async () => {
+    await mountGuestFinances();
+
+    const live = getActiveCampaignSyncTransport(MATCH_ID);
+    expect(live?.campaignId).toBe(guestCampaign().id);
+    expect(
+      connectStoredCampaignSyncTransport({
+        matchId: MATCH_ID,
+        role: 'guest',
+        roomCode: ROOM_CODE,
+        expectedCampaignId: guestCampaign().id,
+      }),
+    ).toBe(live);
+  });
 
   it('withholds the guest control once the server refuses on the wire', async () => {
     await mountGuestFinances();

@@ -27,6 +27,7 @@ import type {
 
 import {
   _resetCampaignSyncTransportsForTest,
+  connectStoredCampaignSyncTransport,
   registerCampaignSyncTransport,
   type ICampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
@@ -340,8 +341,11 @@ describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
       wireToken: 'wire-token',
       displayName: 'Guest Player',
     });
+    // The mounted campaign's id, so a creator bound to it (P2CG1G2)
+    // reuses this transport instead of detaching it.
     const transport: ICampaignSyncTransport = {
       matchId: 'match-reload',
+      campaignId: guest.id,
       playerId: 'guest-player',
       role: 'guest',
       sendProposal: jest.fn(),
@@ -354,6 +358,14 @@ describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
       lastSeq: jest.fn(() => -1),
     };
     registerCampaignSyncTransport(transport);
+    expect(
+      connectStoredCampaignSyncTransport({
+        matchId: 'match-reload',
+        role: 'guest',
+        roomCode: 'ABC234',
+        expectedCampaignId: guest.id,
+      }),
+    ).toBe(transport);
 
     render(
       <CampaignCoopRouteSurfaceConnected
