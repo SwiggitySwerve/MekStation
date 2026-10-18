@@ -4,7 +4,7 @@
   "stage": "red",
   "date": "20261018",
   "baseline": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
-  "admissionCommit": "52c83c7e2d563b329497273814a213c21ded1a76",
+  "admissionCommit": "2c066e49d279065ef0e0b4e9e4c0a037bacad1b4",
   "staging": "Rebased on verified closure #2295. This fresh RED supersedes the earlier 17-row run on 18319cc5.",
   "runtime": {
     "node": "v22.22.0",
@@ -90,5 +90,10 @@
     "CF-LSC0-15",
     "CF-LSC0-16",
     "CF-LSC0-17"
-  ]
+  ],
+  "originalAdmissionCommit": "52c83c7e2d563b329497273814a213c21ded1a76",
+  "postProofRebase": {
+    "base": "24e9cf22736c9b11543ac611588086ff7eb0ff4f",
+    "reason": "Rebased over merged L2 amendment #2292; test bytes and runtime source unchanged."
+  }
 }
