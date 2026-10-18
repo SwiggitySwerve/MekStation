@@ -7159,7 +7159,11 @@
         "src/__tests__/api/securityBoundary.test.ts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-admission-review-20261018.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1g2a-local-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -7174,12 +7178,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "58e5c31b09d7d724ef409b497f3b421d41d48a29",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": {
+          "path": "evidence/p2cg1g2a-admission-20261018.json"
+        },
         "red": null,
         "local": null,
         "review": null,
