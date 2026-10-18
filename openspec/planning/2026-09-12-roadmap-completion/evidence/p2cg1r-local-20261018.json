@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1R",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "c4d0eae46e8ae49851b15e3037e2fe139e99745b",
+  "commits": {
+    "admission": "1d7fdb54108ed6fb5c745d942cfe82ef9ddffffe",
+    "red": "c68ae161822b1aaa06ceb77e6f3fc9bcbd9e851d",
+    "implementation": "this commit"
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "P2CG1R implementation sub-agent"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "dependencies": "npm ci in the implementation worktree (baseline package-lock)",
+    "jest": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand, private --cacheDirectory; every heavy run preceded by node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164 -> MACHINE_IDLE; one heavy run at a time"
+  },
+  "productBytes": [
+    {
+      "path": "src/lib/campaign/sync/ICampaignEventStore.ts",
+      "exists": true,
+      "sha256": "d4144b2ad9ca111104eaa29ed3a9d5b166c3198f7c24abfe8ab224f199541c5a",
+      "bytes": 11190,
+      "physicalLines": 301,
+      "added": 6,
+      "deleted": 0
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "exists": true,
+      "sha256": "0c1296fd1ad65a4e7f485c57f41e9fc275bac8e1e856d5c750fb798017eeae33",
+      "bytes": 27401,
+      "physicalLines": 682,
+      "added": 28,
+      "deleted": 6
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "exists": true,
+      "sha256": "e470fb3b350274cdb2d6a065a673b52b7239ae96a69672af78ae50f3dd9cec3f",
+      "bytes": 26759,
+      "physicalLines": 707,
+      "added": 11,
+      "deleted": 3
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "exists": true,
+      "sha256": "bc7405199b37c489ce0748699bbddf70b21ac43b509ed6cdeaaf552ec0ea31f0",
+      "bytes": 57655,
+      "physicalLines": 1831,
+      "added": 4,
+      "deleted": 2
+    }
+  ],
+  "testBytesVersusRed": "identical: no test byte changed after the RED commit (c68ae161)",
+  "delivered": [
+    "ICampaignAppendControls.onNotCommitted?: () => void — trusted, server-only, default-absent; never in batch, payload, command identity or wire.",
+    "JournalCampaignEventStore: the hook joins capability detection (hook-only controls on a non-SQLite journal refuse append-controls-unsupported before any write); a recorded command short-circuits before guard and hook; after the guard admits, a non-committed append result, a native append throw or a throwing saved-record extension calls the hook inside the same synchronous extension span, then the original typed result or error is returned/rethrown; a throwing hook never replaces it.",
+    "CampaignMatchHost.commitEvents: the hook is in the capability check and forwarded as the identical function.",
+    "bindCampaignSyncConnection.commitGuardedProgression: onNotCommitted: release. onCommitted (consume then release), afterRelease and the reservation microtask fallback are unchanged; the reservation is consumed only on a known commit.",
+    "Proof: for host AdvanceDay, auto-approved AdvanceDay and GM approval of a pending AdvanceDay, a real post-guard revision conflict and a native append abort both give the trail [M:BEGIN IMMEDIATE:C-open=true, guard, M:ROLLBACK:C-open=true, tick]; a foreign M write queued at BEGIN commits on its own (1 row) instead of nesting under M and being discarded; census, day and C/M idle state unchanged; conflict stays a stale-head answer, the throw stays commit-uncertain (socket closes INTERNAL_ERROR dispatch-failed), never a refusal; the same host intent then commits exactly once."
+  ],
+  "boundary": "No activation or port installation. No cross-file atomicity or comprehensive outer-COMMIT claim (rBoundary #2249): a native outer COMMIT failure after the extension returns is not observable synchronously by the adapter and remains released only by the reservation microtask; reachable only via deferred foreign-key checks (set only by the branchPin migration) or SQLITE_FULL/IOERR at COMMIT. Recorded, not repaired; any writer-level widening is a separate registration before H if H requires it.",
+  "carryForwards": {
+    "CF-E1/H-OPEN-1": "Delivered and pinned (adapter x3 failure classes, host pipeline, binder 3 doors x 2 failure classes); mutants RM1-RM3, RM5, RM7, RM12 caught.",
+    "CF-H8/CF-G5": {
+      "result": "Pinned in bindCampaignSyncConnection.test.ts on this head: with the installed port and a membership-admitted bound join, for send callbacks confirmed, held and failed, every campaign frame (the first included) carries appliedView and syncSession.joinMember is never invoked. Baseline-green preservation pin (existing exclusivity), green at RED and GREEN.",
+      "rows": [
+        "P2CG1R CF-H8/CF-G5: an installed bound membership join only ever offers (confirmed|held|failed send callback); joinMember is never invoked"
+      ],
+      "hpEffect": "Once this head is merged with genuine exact-main PASS and closure, P2CG1HP may record this receipt/head/assertions and drop the binder test (9 -> 8 files); not assumed here."
+    },
+    "CF-E7": {
+      "result": "Pinned on this head (next binder-test owner): participants-behind preparation refusal (trail added to 'composes application from the installed port...'), veto during preparation (trail added to 'a GM veto while an approval is being prepared...') and an explicit invalid proposal reservation (new row 'P2CG1R CF-E7: an invalid proposal reservation never opens M and keeps the pending proposal') each assert an empty M trail. Baseline-green pins."
+    },
+    "CF-G2-3": "Not absorbed: N3 (superseded same-seat transport) is in client leaves CampaignCoopEntryPanel.tsx / campaignSyncTransportSeat.ts, byte-identical here (controls); stays with H.",
+    "CF-E9/CF-H11": {
+      "lint": "87 warnings / 0 errors before and after; max-lines counted JournalCampaignEventStore 446 -> 463 and bindCampaignSyncConnection 1459 -> 1460 (both already warned; the correction stays in the existing control seam, no extraction); CampaignMatchHost and ICampaignEventStore not warned.",
+      "madge": "four product leaves: 977 files / 175 chains before and after (identical counts)"
+    },
+    "CF-H12/CF-E10": {
+      "rule": "verify every required check run by name on the exact head",
+      "expectedNames": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ],
+      "expectedCount": 32,
+      "exactHead": "A receipt cannot contain the CI result of the commit that carries it; the by-name comparison on the exact PR head is posted as a PR comment."
+    },
+    "CF-R-1 (new)": "Arbiter, not an R leaf: on a native append throw (commit-uncertain) the pending GM approval is consumed by the arbiter and the answering socket closes INTERNAL_ERROR dispatch-failed; on a post-guard conflict it is resolved stale-head. R pins only that the binder never consumes the reservation on a non-commit (RM8 caught). Routed to the next owner of CampaignGmArbiter.ts / P2CG1H.",
+    "CF-R-2 (new)": "RM9 survivor: the adapter's in-transaction recorded-command short-circuit is reachable only when a concurrent writer records the command between the store-level getCommandReceipt duplicate check and the IMMEDIATE transaction; no suite pins that race (pre-existing since P2CG1B's !recorded conditions). Next owner of JournalCampaignEventStore.test.ts: stub the store-level read to miss once and assert duplicate with no guard, hook or notification.",
+    "CF-R-3 (new)": "Test hazard: a native better-sqlite3 SqliteError can come from another Jest file's realm when suites share a worker; assert rejections by message (toMatchObject), not rejects.toThrow."
+  },
+  "mutationProbes": {
+    "script": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/r-mutants.cjs",
+      "sha256": "266b9b8f0e7e2b9381e8c9640d9662363ee1b24b36db3085adf1f992ef0291f6",
+      "bytes": 4362
+    },
+    "method": "Each mutant is one string edit of one GREEN product file in the disposable scratch worktree p2cg1r-scratch-20261018 (RED commit c68ae161 plus the GREEN product bytes); the three R suites (127 rows) run per mutant with --runInBand and a private cache, gated MACHINE_IDLE before each; the original bytes are restored after each.",
+    "results": [
+      {
+        "id": "RM1",
+        "mutant": "adapter: no signal on a non-committed result",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       6 failed, 121 passed, 127 total",
+        "failingRowCount": 6,
+        "firstFailingRow": "P2CG1D guarded progression doors (installed receipt port) â€º P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span"
+      },
+      {
+        "id": "RM2",
+        "mutant": "adapter: no signal on a throw",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       6 failed, 121 passed, 127 total",
+        "failingRowCount": 6,
+        "firstFailingRow": "P2CG1D guarded progression doors (installed receipt port) â€º P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span"
+      },
+      {
+        "id": "RM3",
+        "mutant": "adapter: signal deferred to a microtask",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       11 failed, 116 passed, 127 total",
+        "failingRowCount": 8,
+        "firstFailingRow": "P2CG1D guarded progression doors (installed receipt port) â€º P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span"
+      },
+      {
+        "id": "RM4",
+        "mutant": "adapter: hook missing from capability detection",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       1 failed, 126 passed, 127 total",
+        "failingRowCount": 1,
+        "firstFailingRow": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) â€º P2CG1R: hook-only controls on a journal without the capability fail closed before any write"
+      },
+      {
+        "id": "RM5",
+        "mutant": "host: hook not forwarded",
+        "file": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "caught": true,
+        "tests": "Tests:       7 failed, 120 passed, 127 total",
+        "failingRowCount": 4,
+        "firstFailingRow": "P2CG1D guarded progression doors (installed receipt port) â€º P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span"
+      },
+      {
+        "id": "RM6",
+        "mutant": "host: hook missing from capability check",
+        "file": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+        "caught": true,
+        "tests": "Tests:       1 failed, 126 passed, 127 total",
+        "failingRowCount": 1,
+        "firstFailingRow": "CampaignMatchHost controlled commits over a file-backed SQLite journal (P2CG1B) â€º P2CG1R: hook-only controls on a store without the capability refuse before the first event"
+      },
+      {
+        "id": "RM7",
+        "mutant": "binder: onNotCommitted release removed",
+        "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "caught": true,
+        "tests": "Tests:       6 failed, 121 passed, 127 total",
+        "failingRowCount": 3,
+        "firstFailingRow": "P2CG1D guarded progression doors (installed receipt port) â€º P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span"
+      },
+      {
+        "id": "RM8",
+        "mutant": "binder: non-commit also consumes the reservation",
+        "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "caught": true,
+        "tests": "Tests:       4 failed, 123 passed, 127 total",
+        "failingRowCount": 2,
+        "firstFailingRow": "P2CG1D guarded progression doors (installed receipt port) â€º P2CG1R: an auto-approved AdvanceDay proposal failing after its guard admitted (auto) releases M in the append span"
+      },
+      {
+        "id": "RM9",
+        "mutant": "adapter: recorded retry re-runs guard and hook",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": false,
+        "tests": "Tests:       127 passed, 127 total",
+        "failingRowCount": 0,
+        "firstFailingRow": null
+      },
+      {
+        "id": "RM10",
+        "mutant": "adapter: a throwing hook replaces the outcome",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       1 failed, 126 passed, 127 total",
+        "failingRowCount": 1,
+        "firstFailingRow": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) â€º P2CG1R: no not-committed signal on a guard refusal, a commit or a recorded retry; a throwing signal never replaces the outcome"
+      },
+      {
+        "id": "RM11",
+        "mutant": "adapter: signal on a guard refusal",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       1 failed, 126 passed, 127 total",
+        "failingRowCount": 1,
+        "firstFailingRow": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) â€º P2CG1R: no not-committed signal on a guard refusal, a commit or a recorded retry; a throwing signal never replaces the outcome"
+      },
+      {
+        "id": "RM12",
+        "mutant": "adapter: signal before the append (releases M before C commits)",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       7 failed, 120 passed, 127 total",
+        "failingRowCount": 7,
+        "firstFailingRow": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) â€º P2CG1R: a real revision conflict after the guard admitted releases M inside the append, before a queued foreign write"
+      },
+      {
+        "id": "RM13",
+        "mutant": "adapter: the throw path loses the original error",
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "caught": true,
+        "tests": "Tests:       5 failed, 122 passed, 127 total",
+        "failingRowCount": 5,
+        "firstFailingRow": "P2CG1B borrowed append, prewrite guard and actual-commit signal (real SQLite) â€º a throwing guard, a thenable guard result and a throwing saved-record extension all roll back with no notification"
+      }
+    ],
+    "summary": "12 of 13 caught. Survivor RM9 (drop the in-transaction recorded short-circuit) is unreachable through the public store API because appendControlledCommandBatch answers a recorded command before the transaction; carried as CF-R-2.",
+    "results_json": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/mutants.json",
+      "sha256": "13842b7260d1fc0477fdc0383be1c8c4f84c6a86057f4244a962a77c62eb8627",
+      "bytes": 12135
+    },
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/mutants.log",
+      "sha256": "f208226557a1b70397b95b4c14600dc4f7d8a83ab45f86e5cd8d8a77f13e161e",
+      "bytes": 725
+    }
+  },
+  "results": {
+    "green": {
+      "summary": "Test Suites: 3 passed, 3 total; Tests: 127 passed, 127 total",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/green.log",
+        "sha256": "a9e0c8811655a7a9a81cd34120496deddaeead295a62405494352615370c4a74",
+        "bytes": 26098
+      },
+      "idleLog": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/idle-green.log",
+        "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e",
+        "bytes": 13
+      }
+    },
+    "broad": {
+      "set": "src/lib/campaign src/lib/multiplayer src/lib/events (unit project, --runInBand)",
+      "summary": "Test Suites: 451 passed, 451 total; Tests: 5892 passed, 5892 total",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/broad-green.log",
+        "sha256": "042083b61689fb96a7f3fb66d62dbdc05a1319273b91887fdc2586ced4e7097c",
+        "bytes": 864258
+      }
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "result": "PASS (npm run typecheck, typescript7) at baseline, RED and GREEN",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/typecheck-green.log",
+        "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+        "bytes": 174
+      }
+    },
+    "lint": {
+      "result": "0 errors, 87 warnings = baseline",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/lint-green.log",
+        "sha256": "c56e472a578ea92280921fad8b8303b676b676bc817d23090e70fadc74bbd509",
+        "bytes": 39570
+      }
+    },
+    "format": {
+      "result": "PASS (npx oxfmt --check ., 8233 files)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/format-green.log",
+        "sha256": "f39d0bd31ec73345fd3e3de5939b598ee0692105948a5fefc02c752954e18294",
+        "bytes": 117
+      }
+    },
+    "lintUnits": {
+      "result": "LINT_UNITS_PASS 17898/17899 (src-tests 17782, ceiling 17783 = baseline)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/lint-units-green.log",
+        "sha256": "bfd06beb5fe67f8621febb1b2036c62db67658c4e9f07cf97cec3511ed8e976a",
+        "bytes": 355
+      }
+    },
+    "validator": {
+      "result": "validate-roadmap.mjs plain and --git PASS (82 nodes, 13 packages, 381 tasks, 40 triage rows); --next advisory U25",
+      "logs": [
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/validator-green.log",
+          "sha256": "34ee8b0f98d13c44ee01934c15af2698244b3c35b53a4154324722fe7bc34bc1",
+          "bytes": 76
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/validator-git-green.log",
+          "sha256": "61407f359620b95a31929998d9514698450017aaf9ffb4e54c1ebbb6a4470b99",
+          "bytes": 2354
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/validator-next-green.log",
+          "sha256": "b0b896ffbe54660baef433a3b71bd0f8036573f2253fda5e77211fe5402156ad",
+          "bytes": 4
+        }
+      ]
+    },
+    "validatorTests": {
+      "result": "86/86",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/validator-tests-green.log",
+        "sha256": "dbda7f1bea9a8f175f9791804bfcf3fa4b9951a4f244378e6df81a6350d317c8",
+        "bytes": 16288
+      }
+    },
+    "openspec": {
+      "result": "npx openspec validate --all --strict: 230 passed, 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/openspec-green.log",
+        "sha256": "fd47a21118ed60eedc45c31821d6c48a6fc31bdb8c31b9b84436716ebfa8a9f1",
+        "bytes": 6857
+      }
+    },
+    "qc": {
+      "result": "qc:openspec-ci:validate errors=0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/qc-openspec-ci-green.log",
+        "sha256": "5b8f564706d4d1758110b42749f598120cc028d713f83d2c9c79b43af3738c93",
+        "bytes": 291
+      }
+    },
+    "cycles": {
+      "result": "madge from the four product leaves: 977 files / 175 chains (= baseline)",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/madge-green.log",
+        "sha256": "4ea121c48bb5e41f392b29636441628624e567fe7a8774b443ea8eb08dc8d9ba",
+        "bytes": 109437
+      }
+    },
+    "diffCheck": "git diff --check clean"
+  },
+  "census": {
+    "command": "git diff --numstat --no-renames c4d0eae46e8ae49851b15e3037e2fe139e99745b..HEAD",
+    "countedLines": {
+      "ICampaignEventStore.ts": 6,
+      "JournalCampaignEventStore.ts": 28,
+      "CampaignMatchHost.ts": 11,
+      "bindCampaignSyncConnection.ts": 4,
+      "units.json": 16,
+      "total": 65,
+      "cap": 500
+    },
+    "files": {
+      "changed": 11,
+      "reservedReviewSlot": 1,
+      "total": 12,
+      "cap": 15,
+      "reserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-admission-review-20261018.md (unwritten)"
+    },
+    "lineExempt": "test leaves 232 + 266 + 101 added (2 deleted in the binder suite); evidence receipts"
+  },
+  "boundaryControls": {
+    "note": "All eight unchanged controls frozen at admission are byte-identical after GREEN (controls census re-hashed: same sha256 79ce3f77...): SQLiteEventJournalWriter.ts (no writer edit), DurableMatchStore.ts, campaignHostBatchCommit.ts, CampaignGmArbiter.ts, CampaignMatchHost.doors.ts, IMatchStore.ts, campaignSyncTransportSeat.ts, CampaignCoopEntryPanel.tsx.",
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1r-proof-20261018/frozen-controls.json",
+      "sha256": "79ce3f77a744375da1227f0f976b7ded513d6a4b24c1d72b06fb8dedc2f9f71e",
+      "bytes": 1782
+    }
+  },
+  "status": "Local proof complete; awaiting independent sensitive review (reserved slot), OWNER-RULING, required CI and the CF-H12 by-name comparison on the exact head. Not merged."
+}

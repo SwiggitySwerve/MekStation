@@ -624,8 +624,12 @@ export class CampaignMatchHost {
         'CampaignMatchHost.commitEvents reached without the single-writer lock held',
       );
     }
-    const { guard, onCommitted } = controls ?? {};
-    if (guard !== undefined || onCommitted !== undefined) {
+    const { guard, onCommitted, onNotCommitted } = controls ?? {};
+    if (
+      guard !== undefined ||
+      onCommitted !== undefined ||
+      onNotCommitted !== undefined
+    ) {
       const appendControlled = this.eventStore.appendControlledCommandBatch;
       // Fail closed before any event, the per-event fallback included.
       if (appendControlled === undefined) {
@@ -636,7 +640,11 @@ export class CampaignMatchHost {
         this.batchHost(),
         events,
         (campaignId, input) =>
-          appendControlled(campaignId, input, { guard, onCommitted }),
+          appendControlled(campaignId, input, {
+            guard,
+            onCommitted,
+            onNotCommitted,
+          }),
         identity,
       );
     }

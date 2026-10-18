@@ -829,8 +829,9 @@ const appendRefusal = (reason: string) =>
  * P2CG1D guarded progression: the P2CB view is prepared outside SQL; B's
  * guard, inside the append's IMMEDIATE campaign transaction (C), takes the
  * P2CG1C match reservation (M) and revalidates. C commits while M is held;
- * the refusal return and the commit notification release M in that same
- * synchronous span. A throwing reservation is a refusal, never uncertain.
+ * the refusal return, a post-guard non-commit (P2CG1R) and the commit
+ * notification release M in that same synchronous span. A throwing
+ * reservation is a refusal, never uncertain.
  * Every refusal is the guard's, so a duplicate replays before any of them.
  */
 async function commitGuardedProgression(
@@ -882,6 +883,7 @@ async function commitGuardedProgression(
         release();
       }
     },
+    onNotCommitted: release,
     afterRelease: release,
   });
 }

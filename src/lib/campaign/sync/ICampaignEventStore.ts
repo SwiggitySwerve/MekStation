@@ -157,6 +157,12 @@ export interface ICampaignAppendControls {
   readonly guard?: (db: Database.Database) => ICampaignAppendRefusal | null;
   /** Runs once, after the real outer COMMIT of a newly written batch. */
   readonly onCommitted?: (batch: ICampaignCommittedBatch) => void;
+  /**
+   * P2CG1R: runs once, synchronously inside the append's own transaction,
+   * when an admitted new batch is not committed there (a non-committed
+   * result or a throw). Never on a guard refusal or a recorded retry.
+   */
+  readonly onNotCommitted?: () => void;
 }
 
 /** What the controlled batch capability answers. */
