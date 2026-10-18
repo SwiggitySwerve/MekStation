@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { CreateMatchForm } from '../CreateMatchForm';
 
@@ -34,12 +35,40 @@ describe('CreateMatchForm', () => {
     });
   });
 
-  it('submits fog enabled when double-blind is selected', async () => {
+  it.each([false, true])('explains unavailable fog while busy=%s', (busy) => {
+    render(<CreateMatchForm onSubmit={jest.fn()} busy={busy} />);
+
+    const checkbox = screen.getByRole('checkbox', {
+      name: 'Double-blind (fog of war)',
+    });
+    expect(checkbox).toBeDisabled();
+    expect(checkbox).not.toBeChecked();
+    expect(checkbox).toHaveAttribute(
+      'aria-describedby',
+      'cm-fogOfWar-description',
+    );
+    expect(checkbox).toHaveAccessibleDescription(
+      'Fog of war is unavailable in multiplayer in this release.',
+    );
+    expect(
+      screen.getByText(
+        'Fog of war is unavailable in multiplayer in this release.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('keeps fog disabled after attempted selection and submits fog off', async () => {
+    const user = userEvent.setup();
     const onSubmit = jest.fn();
     render(<CreateMatchForm onSubmit={onSubmit} />);
 
-    fireEvent.click(screen.getByLabelText('Double-blind (fog of war)'));
-    fireEvent.click(screen.getByRole('button', { name: 'Create match' }));
+    const checkbox = screen.getByRole('checkbox', {
+      name: 'Double-blind (fog of war)',
+    });
+    await user.click(checkbox);
+    await user.click(screen.getByText('Double-blind (fog of war)'));
+    expect(checkbox).not.toBeChecked();
+    await user.click(screen.getByRole('button', { name: 'Create match' }));
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit).toHaveBeenCalledWith({
@@ -47,7 +76,7 @@ describe('CreateMatchForm', () => {
       displayName: 'MechWarrior',
       mapRadius: 8,
       turnLimit: 20,
-      fogOfWar: true,
+      fogOfWar: false,
       rosterMode: 'preset',
       rosterPresetId: 'assault-vs-heavy',
       unitBootstrap: expect.any(Array),
@@ -119,6 +148,7 @@ describe('CreateMatchForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         rosterMode: 'custom',
+        fogOfWar: false,
         rosterPresetId: 'assault-vs-heavy',
         unitBootstrap: expect.arrayContaining([
           expect.objectContaining({
