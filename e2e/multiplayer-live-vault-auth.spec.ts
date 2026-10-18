@@ -5,7 +5,7 @@
  *   - seeds two real vault identities through the locked E2E-only seam
  *   - drives the public host/join/lobby UI in two browser contexts
  *   - proves both players connect through signed vault tokens
- *   - launches a fog-enabled match and verifies both clients render the
+ *   - launches a match with multiplayer fog disabled and verifies both clients render the
  *     networked surface
  *   - advances the initial server-owned phase through the real WebSocket path
  *
@@ -129,7 +129,7 @@ async function markReady(page: Page, slotId: string): Promise<void> {
 }
 
 test.describe('multiplayer live vault-auth flow', () => {
-  test('two browser contexts can host, join, launch, and advance a fog-enabled match', async ({
+  test('two browser contexts can host, join, launch, and advance a match with fog disabled', async ({
     browser,
     request,
   }) => {
@@ -157,7 +157,18 @@ test.describe('multiplayer live vault-auth flow', () => {
       await hostPage.getByLabel('Display name').fill('Host Commander');
       await hostPage.getByLabel('Map radius').fill('4');
       await hostPage.getByLabel('Turn limit').fill('5');
-      await hostPage.getByLabel('Double-blind (fog of war)').check();
+      const fogCheckbox = hostPage.getByLabel('Double-blind (fog of war)');
+      await expect(fogCheckbox).toBeDisabled();
+      await expect(fogCheckbox).not.toBeChecked();
+      await expect(fogCheckbox).toHaveAccessibleDescription(
+        'Fog of war is unavailable in multiplayer in this release.',
+      );
+      await expect(
+        hostPage.getByText(
+          'Fog of war is unavailable in multiplayer in this release.',
+          { exact: true },
+        ),
+      ).toBeVisible();
 
       const hostTokenResponse = hostPage.waitForResponse(
         (response) =>
@@ -190,7 +201,7 @@ test.describe('multiplayer live vault-auth flow', () => {
       matchId = created.matchId;
       roomCode = created.roomCode ?? created.meta.roomCode ?? null;
       expect(roomCode).toMatch(/^[A-Z0-9]{6}$/);
-      expect(created.meta.config.fogOfWar).toBe(true);
+      expect(created.meta.config.fogOfWar).toBe(false);
       expect(created.meta.unitBootstrap).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -247,7 +258,7 @@ test.describe('multiplayer live vault-auth flow', () => {
           }[];
         };
       };
-      expect(metaPayload.meta.config.fogOfWar).toBe(true);
+      expect(metaPayload.meta.config.fogOfWar).toBe(false);
       expect(metaPayload.meta.playerIds).toContain(hostToken.playerId);
       expect(metaPayload.meta.sideAssignments).toEqual(
         expect.arrayContaining([
