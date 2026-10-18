@@ -587,10 +587,105 @@ describe('fog of war on the HTTP match-history chain', () => {
         }),
       ).rejects.toMatchObject({ message: 'fog-projection-unavailable' });
     });
-    it('B14 membership precedes fog policy: no seat or seat failure discloses no fog', async () => {
+    it('B14 refuses fog-on reads with zero journal reads for every audience', async () => {
+      const journal = new SQLiteEventJournal(getSQLiteService().getDatabase());
+      const reads = jest.spyOn(journal, 'readStream');
+      const service = new FogAwareMatchProjectionService({
+        journal,
+        registry: registry(),
+        matchMeta: store,
+        seatMembership: new MatchSeatMembershipSource(store),
+        heads: {
+          branches: new SQLiteEventHistoryBranchStore(
+            getSQLiteService().getDatabase(),
+          ),
+          readEffectiveStreamHead: () => ({ branchId: 'main', revision: 1 }),
+        },
+      });
+      for (const holder of [host, opponent, spectator]) {
+        await expect(
+          service.projectWithIdentities(await viewerFor(holder), {
+            streamType: 'match',
+            streamId: MATCH_ID,
+          }),
+        ).rejects.toMatchObject({
+          code: 'projection-failed',
+          message: 'fog-projection-unavailable',
+        });
+      }
+      expect(reads).not.toHaveBeenCalled();
+      // Control: the same instrumented service reads once fog is off.
+      await store.updateMatchMeta(MATCH_ID, {
+        config: {
+          ...(await store.getMatchMeta(MATCH_ID)).config,
+          fogOfWar: false,
+        },
+      });
+      await service.projectWithIdentities(await viewerFor(host), {
+        streamType: 'match',
+        streamId: MATCH_ID,
+      });
+      expect(reads).toHaveBeenCalled();
+    });
+    it('B14 brand and scope precede the config read, with the parent codes', async () => {
+      const db = getSQLiteService().getDatabase();
+      const configReads = jest.spyOn(store, 'getMatchMeta');
+      const service = new FogAwareMatchProjectionService({
+        journal: new SQLiteEventJournal(db),
+        registry: registry(),
+        matchMeta: store,
+        seatMembership: new MatchSeatMembershipSource(store),
+        heads: {
+          branches: new SQLiteEventHistoryBranchStore(db),
+          readEffectiveStreamHead: () => ({ branchId: 'main', revision: 1 }),
+        },
+      });
+      const viewer = await viewerFor(host);
+      configReads.mockClear();
+      const unbranded = await service
+        .project({ ...viewer }, { streamType: 'match', streamId: MATCH_ID })
+        .catch((error: unknown) => error);
+      expect(unbranded).toMatchObject({ code: 'not-a-viewer' });
+      const foreign = await service
+        .project(viewer, { streamType: 'match', streamId: 'other-match' })
+        .catch((error: unknown) => error);
+      expect(foreign).toMatchObject({
+        code: 'wrong-session',
+        message: 'Authorization refused',
+      });
+      expect(configReads).not.toHaveBeenCalled();
+      configReads.mockRestore();
+    });
+    it('B14 passes a non-match stream on a fog-on match id to the parent', async () => {
+      const db = getSQLiteService().getDatabase();
+      const both = registry();
+      both.register({
+        ...matchWireAudienceDefinition(),
+        streamType: 'history-proof',
+      });
+      const service = new FogAwareMatchProjectionService({
+        journal: new SQLiteEventJournal(db),
+        registry: both,
+        matchMeta: store,
+        seatMembership: new MatchSeatMembershipSource(store),
+        heads: {
+          branches: new SQLiteEventHistoryBranchStore(db),
+          readEffectiveStreamHead: () => ({ branchId: 'main', revision: 1 }),
+        },
+      });
+      const projected = await service.project(await viewerFor(host), {
+        streamType: 'history-proof',
+        streamId: MATCH_ID,
+      });
+      expect(projected.streamType).toBe('history-proof');
+      expect(projected.facts).toEqual([]);
+    });
+    it('B14 membership precedes fog policy: no seat, inactive seat or seat failure discloses no fog', async () => {
       const db = getSQLiteService().getDatabase();
       const build = (
-        lookupMembership: () => Promise<null>,
+        lookupMembership: () => Promise<
+          Awaited<ReturnType<MatchSeatMembershipSource['lookupMembership']>>
+        >,
       ): FogAwareMatchProjectionService =>
         new FogAwareMatchProjectionService({
           journal: new SQLiteEventJournal(db),
@@ -618,11 +713,24 @@ describe('fog of war on the HTTP match-history chain', () => {
       })
         .project(await viewerFor(opponent), request)
         .catch((error: unknown) => error);
+      const seated = await new MatchSeatMembershipSource(
+        store,
+      ).lookupMembership(opponent.playerId, MATCH_ID);
+      expect(seated?.active).toBe(true);
+      const inactive = await build(async () =>
+        seated === null ? null : { ...seated, active: false },
+      )
+        .project(await viewerFor(opponent), request)
+        .catch((error: unknown) => error);
+      expect(inactive).toMatchObject({
+        code: 'wrong-session',
+        message: 'Authorization refused',
+      });
       expect(failed).toBeInstanceOf(ViewerProjectionError);
       expect((failed as ViewerProjectionError).code).toBe('projection-failed');
-      expect(JSON.stringify([absent, failed, String(failed)])).not.toMatch(
-        /fog|private-seat/,
-      );
+      expect(
+        JSON.stringify([absent, inactive, failed, String(failed)]),
+      ).not.toMatch(/fog|private-seat/);
     });
   });
 

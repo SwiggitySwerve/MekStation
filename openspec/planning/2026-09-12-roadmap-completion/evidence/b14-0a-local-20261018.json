@@ -8,7 +8,7 @@
   "commits": {
     "admission": "04c4f4b469f38cf5776d4cce1ca89674ba7aca1b",
     "red": "f402759d48f0e66d9afddddce5a4cb9fea91a476",
-    "implementation": "the commit carrying this receipt (product leaves FogAwareMatchProjection.ts and matches/[id].ts only, plus units.json local path)"
+    "implementation": "d66ef43662b9012495124a6bcd373ff95db34d47"
   },
   "contributor": {
     "provider": "anthropic",
@@ -243,11 +243,13 @@
         "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/broad.json",
         "sha256": "9959a9821a82ffdcc314836834f748a51c1a7d1c7637e73e06bb38634ae505df",
         "bytes": 1145582
-      }
+      },
+      "head": "d66ef43662b9012495124a6bcd373ff95db34d47",
+      "attribution": "Run on the same GREEN working tree, committed byte-identically as d66ef4366."
     },
     "green": {
       "name": "green-run",
-      "head": "f402759d48f0e66d9afddddce5a4cb9fea91a476",
+      "head": "d66ef43662b9012495124a6bcd373ff95db34d47",
       "exit": 0,
       "seconds": 12.507,
       "suites": 7,
@@ -261,11 +263,13 @@
         "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/green-run.json",
         "sha256": "c209e5af90f3efcd3868550db1678718605b965ad368787751016e25cd5fec84",
         "bytes": 67796
-      }
+      },
+      "recordedHead": "f402759d48f0e66d9afddddce5a4cb9fea91a476",
+      "attribution": "Run on the uncommitted GREEN working tree (product leaves already edited) on top of the RED commit f402759d4; the runner recorded git HEAD, so head originally read the RED sha. The tree was committed byte-identically as d66ef4366 (productBytes above match). Corrected per review F6."
     },
     "regression": {
       "name": "regression-green",
-      "head": "f402759d48f0e66d9afddddce5a4cb9fea91a476",
+      "head": "d66ef43662b9012495124a6bcd373ff95db34d47",
       "exit": 0,
       "seconds": 81.635,
       "suites": 109,
@@ -280,7 +284,9 @@
         "sha256": "1dd0cd563887f0a706bb0fb915c0f64ca6285c78520244711db51f80869603eb",
         "bytes": 380515
       },
-      "scope": "109 suites: every test file referencing ServerMatchHost, FogAwareMatchProjection, matchHistoryViewerChain, multiplayer/matches/[id], MatchHostRegistry, fogMatchAdmission or fogOfWar (B14-PREP2 census list)"
+      "scope": "109 suites: every test file referencing ServerMatchHost, FogAwareMatchProjection, matchHistoryViewerChain, multiplayer/matches/[id], MatchHostRegistry, fogMatchAdmission or fogOfWar (B14-PREP2 census list)",
+      "recordedHead": "f402759d48f0e66d9afddddce5a4cb9fea91a476",
+      "attribution": "Run on the uncommitted GREEN working tree (product leaves already edited) on top of the RED commit f402759d4; the runner recorded git HEAD, so head originally read the RED sha. The tree was committed byte-identically as d66ef4366 (productBytes above match). Corrected per review F6."
     },
     "mutants": {
       "total": 12,
@@ -523,5 +529,462 @@
       "unchanged": true
     }
   ],
-  "status": "Local proof complete; awaiting independent sensitive review (privacy/authority/replay; reserved slot), sensitive packet, OWNER-RULING on the exact head, required CI and the CF-H12 by-name comparison. Not merged."
+  "status": "Local proof complete at the follow-up head (review findings F1-F4, F6 addressed); awaiting OWNER-RULING on the new exact head, sensitive packet, required CI and the CF-H12 by-name comparison. Not merged.",
+  "followUp20261018": {
+    "authority": "Parent ruling on #2267 under the owner standing instruction (\"continue with recommended options and fix the issues that come up, publish as needed\"): independent Fable review APPROVE of d66ef4366 (docs/audits/2026-10-18-b14-0a-review.md, sha256 8c11dbbc...); add the recommended in-PR test additions F1, F2, F4, F3 (product only if trivially inside FogAwareMatchProjection.ts and the cap) and fix F6, as a follow-up commit on #2267.",
+    "parentHead": "d66ef43662b9012495124a6bcd373ff95db34d47",
+    "commit": "the follow-up commit carrying this section (FogAwareMatchProjection.ts, matchHistoryFog.test.ts and this receipt only); productBytes below are its product leaves",
+    "findings": {
+      "F1": "Added \"B14 refuses fog-on reads with zero journal reads for every audience\": a jest.spyOn on the real SQLiteEventJournal.readStream; host, opponent and spectator are refused with the fixed reason and readStream is never called; control: the same instrumented service reads once fog is off. Kills reviewer R1.",
+      "F2": "The membership-precedes-policy row now also feeds an inactive copy of the real durable seat record (active:false) and expects wrong-session \"Authorization refused\" with no fog detail. Kills R2.",
+      "F3": "Product (FogAwareMatchProjection.ts only): the parent brand-then-scope check (not-a-viewer / wrong-session with VIEWER_PROJECTION_MESSAGES) now runs at the top of projectWithIdentities, before the config read; requireCurrentSeat keeps only the durable seat check. An unbranded viewer now gets not-a-viewer under fog-on as under fog-off. Row \"B14 brand and scope precede the config read, with the parent codes\": unbranded copy -> not-a-viewer, foreign stream -> wrong-session, and getMatchMeta is never called. Kills R3 (adapted: the check moved, so the mutant removes the new assertViewerScope call).",
+      "F4": "Row \"B14 passes a non-match stream on a fog-on match id to the parent\": a history-proof projector registered beside match; the projection resolves with streamType history-proof and no facts. Kills R8.",
+      "F6": "results.green.head and results.regression.head corrected from the RED sha to d66ef4366 with the original value kept as recordedHead; the runner now also records worktree state and dirty paths.",
+      "notTaken": "F5, F7, F8, F9 stay as the reviewer's CF-B14A-2, -6, -7 (no in-PR change requested). CF-B14A-1 and the F3/F4 half of CF-B14A-3 are discharged by this commit; CF-B14A-4 is satisfied by the F6 correction."
+    },
+    "results": {
+      "green": {
+        "name": "green-fu",
+        "head": "d66ef43662b9012495124a6bcd373ff95db34d47",
+        "worktree": "uncommitted changes on top of head",
+        "dirtyPaths": [
+          "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+          "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+        ],
+        "exit": 0,
+        "seconds": 12.753,
+        "suites": 7,
+        "passedSuites": 7,
+        "passed": 162,
+        "failed": 0,
+        "total": 162,
+        "failedSuites": [],
+        "command": "node node_modules/jest/bin/jest.js --runTestsByPath <7 files> --runInBand --cacheDirectory <proof>/.jest-private --json",
+        "json": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/green-fu.json",
+          "sha256": "7f0124c006596740e846179dff9b7538fa620a71bd5137cd2270ae9ef66125aa",
+          "bytes": 69108
+        },
+        "note": "Run on the follow-up working tree before commit; committed byte-identically."
+      },
+      "regression": {
+        "name": "regression-fu",
+        "head": "d66ef43662b9012495124a6bcd373ff95db34d47",
+        "worktree": "uncommitted changes on top of head",
+        "dirtyPaths": [
+          "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+          "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+        ],
+        "exit": 0,
+        "seconds": 82.047,
+        "suites": 109,
+        "passedSuites": 109,
+        "passed": 868,
+        "failed": 0,
+        "total": 868,
+        "failedSuites": [],
+        "command": "node node_modules/jest/bin/jest.js --runTestsByPath <109 files> --runInBand --cacheDirectory <proof>/.jest-private --json",
+        "json": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/regression-fu.json",
+          "sha256": "ad394de73dc6a560020dcfa5fec7e0bd13cd5050e64ddc3403d594862032f3b1",
+          "bytes": 381823
+        }
+      },
+      "broad": {
+        "command": "node node_modules/jest/bin/jest.js src/lib/multiplayer src/pages-modules/api src/__tests__/api src/__tests__/unit/api --runInBand --cacheDirectory <proof>/.jest-private --json",
+        "suites": 267,
+        "passedSuites": 267,
+        "passed": 2799,
+        "failed": 0,
+        "json": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/broad-fu.json",
+          "sha256": "68d093724338e8621de76be7da0e44b11a70c4e91d737127f6de2b567af8b121",
+          "bytes": 1146931
+        }
+      },
+      "mutants": {
+        "total": 16,
+        "caught": 16,
+        "survived": [],
+        "note": "Author A01-A12 re-run (A12 retargeted to the VIEWER_PROJECTION_MESSAGES form) plus reviewer R1, R2, R3 (adapted), R8, which survived at d66ef4366 per the review."
+      },
+      "mutationProbes": [
+        {
+          "name": "A01-metadata-bypass",
+          "mutation": "metadata fog-on refusal removed",
+          "exit": 1,
+          "passed": 157,
+          "failed": 5,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "API security boundaries campaign identity invite resolution (G2-BOOT-1) B14 metadata fog=true caller=host: membership first, fog-on refused before private serialization",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a lobby fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a active fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a completed fog-on match after membership"
+          ]
+        },
+        {
+          "name": "A02-export-bypass",
+          "mutation": "export/private-preview refusal removed",
+          "exit": 1,
+          "passed": 155,
+          "failed": 7,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for host",
+            "fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for opponent",
+            "fog of war on the HTTP match-history chain fog on B14 refuses export and private preview for spectator",
+            "fog of war on the HTTP match-history chain fog on B14 policy throws before journal projection for admitted viewer"
+          ]
+        },
+        {
+          "name": "A03-unknown-allowed",
+          "mutation": "unknown (undefined) config treated as fog-off",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog off B14 known-off configuration needs no projection-head metadata; unknown configuration refuses"
+          ]
+        },
+        {
+          "name": "A04-export-policy-before-membership",
+          "mutation": "export fog refusal issued without the current-seat check",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 membership precedes fog policy: no seat, inactive seat or seat failure discloses no fog"
+          ]
+        },
+        {
+          "name": "A05-metadata-policy-before-participant",
+          "mutation": "metadata fog refusal moved before the participant check (stranger oracle)",
+          "exit": 1,
+          "passed": 160,
+          "failed": 2,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "API security boundaries campaign identity invite resolution (G2-BOOT-1) B14 metadata fog=true caller=stranger: membership first, fog-on refused before private serialization",
+            "GET match metadata privacy B14-0A fog-on containment gives an outsider the generic denial, never the fog reason"
+          ]
+        },
+        {
+          "name": "A06-reason-drift",
+          "mutation": "fixed refusal reason changed",
+          "exit": 1,
+          "passed": 151,
+          "failed": 11,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "API security boundaries campaign identity invite resolution (G2-BOOT-1) B14 metadata fog=true caller=host: membership first, fog-on refused before private serialization",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a lobby fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a active fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a completed fog-on match after membership"
+          ]
+        },
+        {
+          "name": "A07-omitted-flag-is-fog",
+          "mutation": "known config without the legacy flag treated as fog-on",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "GET match metadata privacy B14-0A fog-on containment treats a known config without the legacy flag as fog-off"
+          ]
+        },
+        {
+          "name": "A08-metadata-status-200",
+          "mutation": "metadata refusal answered 200",
+          "exit": 1,
+          "passed": 157,
+          "failed": 5,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a lobby fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a active fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses a seated player in a completed fog-on match after membership",
+            "GET match metadata privacy B14-0A fog-on containment refuses the GM/host without a playing seat when fog is on"
+          ]
+        },
+        {
+          "name": "A09-seat-failure-leaks",
+          "mutation": "seat-lookup failure rethrown raw instead of constant projection-failed",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 membership precedes fog policy: no seat, inactive seat or seat failure discloses no fog"
+          ]
+        },
+        {
+          "name": "A10-always-refuse",
+          "mutation": "every match refused (known-off broken)",
+          "exit": 1,
+          "passed": 152,
+          "failed": 10,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 refuses fog-on reads with zero journal reads for every audience",
+            "fog of war on the HTTP match-history chain fog off B14 known-off configuration needs no projection-head metadata; unknown configuration refuses",
+            "fog of war on the HTTP match-history chain fog off every viewer gets exactly the parent projection, unchanged",
+            "GET match metadata privacy lobby match returns the full metadata to a seated player"
+          ]
+        },
+        {
+          "name": "A11-seam-outside-allowlist",
+          "mutation": "a capability mock added to a non-allowlisted suite (sealedChoiceDelivery)",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "B14 legacy-filter seam allowlist confines the capability mock to registered suites with the canonical seam"
+          ]
+        },
+        {
+          "name": "A12-export-wrong-session-on-seat",
+          "mutation": "missing seat answered with the fog reason (policy before membership result)",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 membership precedes fog policy: no seat, inactive seat or seat failure discloses no fog"
+          ]
+        },
+        {
+          "name": "R1-journal-before-refusal",
+          "mutation": "reviewer R1: journal projection executed before the fog refusal",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 refuses fog-on reads with zero journal reads for every audience"
+          ]
+        },
+        {
+          "name": "R2-inactive-seat-passes",
+          "mutation": "reviewer R2: seat === null || !seat.active -> seat === null",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 membership precedes fog policy: no seat, inactive seat or seat failure discloses no fog"
+          ]
+        },
+        {
+          "name": "R3-brand-scope-check-removed",
+          "mutation": "reviewer R3 (adapted to the moved check): brand/scope check before the config read removed",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 brand and scope precede the config read, with the parent codes"
+          ]
+        },
+        {
+          "name": "R8-streamtype-gate-removed",
+          "mutation": "reviewer R8: streamType === match gate removed",
+          "exit": 1,
+          "passed": 161,
+          "failed": 1,
+          "suiteErrors": 0,
+          "outcome": "caught",
+          "killingAssertions": [
+            "fog of war on the HTTP match-history chain fog on B14 passes a non-match stream on a fog-on match id to the parent"
+          ]
+        }
+      ]
+    },
+    "checks": {
+      "typecheck": {
+        "command": "npm run typecheck",
+        "result": "exit 0",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/typecheck-fu.log",
+          "sha256": "3b36e22e1b0478b0238ff74f78f016d01c34b3acc5ef45f73c88babce588152f",
+          "bytes": 374
+        }
+      },
+      "lint": {
+        "command": "npx oxlint",
+        "result": "87 warnings, 0 errors (= baseline)",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/lint-fu.log",
+          "sha256": "fc91485f21f2de4573a96086fd4056ee820e2b252535755cd721877ca1aeb452",
+          "bytes": 81286
+        }
+      },
+      "lintUnits": {
+        "command": "npm run lint:units",
+        "result": "LINT_UNITS_PASS 17896/17899; src-tests 17780 = baseline",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/lint-units-fu.log",
+          "sha256": "5b011cca5ee3e74186606c498e9ebe5d9b25e3ca93b017c5ac9ee8de001f3a12",
+          "bytes": 746
+        }
+      },
+      "format": {
+        "command": "npx oxfmt --check .",
+        "result": "exit 0",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/format-fu.log",
+          "sha256": "6ea3c24bccd667cd89eedb0eddd0fce80971f21370d975681d24e6eba0096975",
+          "bytes": 260
+        }
+      },
+      "maintenance": {
+        "result": "type-safety high 4 (unchanged from d66ef4366)",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/maintenance-fu.log",
+          "sha256": "bdee4cf546e0187e557f03328c2e29baa684e60d41e45674b93ea98ea85a888e",
+          "bytes": 19526
+        }
+      },
+      "openspec": {
+        "command": "npx openspec validate --all --strict",
+        "result": "230 passed, 0 failed",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/openspec-fu.log",
+          "sha256": "35a1cabfa87e09910ec90fb9337bc353010518beec543beb342b2900c6f91606",
+          "bytes": 13920
+        }
+      },
+      "validatorTests": {
+        "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "result": "86/86",
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/b14-0a-proof-20261018/validator-tests-fu.log",
+          "sha256": "9f65d97d32939b72be05cad51ccb66e967ee63fec7c88b583bcdab74094cfff0",
+          "bytes": 33654
+        }
+      },
+      "roadmap": "validate-roadmap plain and --git: PASSED (after this receipt)",
+      "diffCheck": "git diff --check: clean"
+    },
+    "productBytes": [
+      {
+        "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+        "sha256": "d6a8903bd3e7c3ecb9e544ab0d10f5b3debc224533771748017769813c8f090e",
+        "bytes": 683
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+        "sha256": "9066d70df0352daed25e11700ccc6938212e9aa866315075b3df4459f01e1634",
+        "bytes": 12634
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id].ts",
+        "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36",
+        "bytes": 4915
+      }
+    ],
+    "census": {
+      "command": "git diff --numstat --no-renames 87c0f1508c859fe1386595c02c53501d9446b861 (cumulative PR, follow-up included)",
+      "countedLines": {
+        "openspec/planning/2026-09-12-roadmap-completion/units.json": 16,
+        "src/lib/multiplayer/server/fogMatchAdmission.ts": 18,
+        "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts": 70,
+        "src/pages/api/multiplayer/matches/[id].ts": 8,
+        "total": 112,
+        "cap": 500
+      },
+      "files": {
+        "changed": 14,
+        "reservedReviewSlot": 1,
+        "total": 15,
+        "cap": 15
+      },
+      "lineExempt": "test leaves 455 added / 188 deleted"
+    },
+    "boundaryControls": [
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerProjectionService.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages-modules/api/matchHistoryViewerChain.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages-modules/api/matchHistoryExportRoute.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages-modules/api/matchPrivatePreviewRoute.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages-modules/api/matchHeadRoute.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages/api/matches/[id]/rewind-preview.ts",
+        "unchanged": true
+      },
+      {
+        "path": "src/pages/api/matches/[id]/rewind-commit.ts",
+        "unchanged": true
+      },
+      {
+        "path": "server.js",
+        "unchanged": true
+      }
+    ]
+  }
 }

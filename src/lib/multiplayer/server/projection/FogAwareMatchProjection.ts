@@ -257,6 +257,25 @@ export function fogMatchHistoryProjection(
   });
 }
 
+/** The parent's brand-then-scope refusal, with its codes and messages. */
+function assertViewerScope(viewer: IAuthorizedViewer, streamId: string): void {
+  if (!isAuthorizedViewer(viewer)) {
+    throw new ViewerProjectionError(
+      'not-a-viewer',
+      VIEWER_PROJECTION_MESSAGES.notAViewer,
+    );
+  }
+  if (
+    streamId !== viewer.campaignSessionId &&
+    (viewer.matchId === null || streamId !== viewer.matchId)
+  ) {
+    throw new ViewerProjectionError(
+      'wrong-session',
+      VIEWER_PROJECTION_MESSAGES.wrongSession,
+    );
+  }
+}
+
 /**
  * The history graph's projection service. Identical to its parent for
  * every stream but a fog-on `match` stream. Overriding
@@ -276,6 +295,8 @@ export class FogAwareMatchProjectionService extends ViewerProjectionService {
     viewer: IAuthorizedViewer,
     request: IViewerProjectionRequest,
   ): Promise<IViewerProjectionWithIdentities> {
+    // The parent's brand and scope checks run before any match read.
+    assertViewerScope(viewer, request.streamId);
     if (
       request.streamType === MATCH_STREAM_TYPE &&
       noPerViewerRevealProjection(await this.matchConfig(request.streamId))
@@ -302,18 +323,14 @@ export class FogAwareMatchProjectionService extends ViewerProjectionService {
     viewer: IAuthorizedViewer,
     request: IViewerProjectionRequest,
   ): Promise<void> {
-    if (
-      !isAuthorizedViewer(viewer) ||
-      (request.streamId !== viewer.matchId &&
-        request.streamId !== viewer.campaignSessionId)
-    ) {
-      throw new ViewerProjectionError('wrong-session', 'Authorization refused');
-    }
     const seat = await this.fogDeps.seatMembership
       .lookupMembership(viewer.principalId, request.streamId)
       .catch(() => projectionFailed());
     if (seat === null || !seat.active) {
-      throw new ViewerProjectionError('wrong-session', 'Authorization refused');
+      throw new ViewerProjectionError(
+        'wrong-session',
+        VIEWER_PROJECTION_MESSAGES.wrongSession,
+      );
     }
   }
 }
