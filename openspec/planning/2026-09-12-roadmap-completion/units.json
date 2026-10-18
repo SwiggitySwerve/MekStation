@@ -7474,12 +7474,12 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "Blocked documentary registration only. P2CG1S must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; NEXT supplies no permission. Preserve one product-writing lane including closure. Re-census all existing/prospective leaves, aliases, exceptions and planned/blocked holders on latest Main at admission: securityBoundary.test.ts belongs to P2CG1G2A, which lands first; ServerMatchHostEvents/Replay are shared with P2CG1S and U26. Preserve those contracts and G2; src/lib/campaign/coop remains read-only. Freeze the complete literal 15-file source/test/spec/lifecycle/evidence manifest in roadmap.json ownershipPathsAmended20261018B14; aliases are navigation only, never directory-wide permission. Six product files + three tests + one spec + one lifecycle ledger + four bounded evidence/review files = 15. Estimate 250-410 non-test additions (150-230 product plus 100-180 spec/lifecycle/evidence); tests reported separately under U41. This is not measured cap-fit proof. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit. If compatibility proof or sensitive review/closure needs a sixteenth file or more than 500 counted additions, split through normal registration; never suppress proof. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Register a genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main proof and closure; ownerGate null is not a waiver. No fabricated receipts or source admission. Mandatory admission census item: src/pages-modules/api/matchHeadRoute.ts returns a privileged host journal-head digest and is not an edit leaf in this 15-file manifest. Its derived digest is within B14-0 privacy acceptance if it can leak hidden-unit information under fog; host/GM privilege is not an automatic exemption. Trace and test that route at admission, recording whether its digest is independent of hidden information or requires containment. If containment is required, use the shared fogMatchAdmission decision only where reachable through existing registered leaves; if a route edit or retained test beyond this manifest is necessary, stop and separately register a bounded split before implementation. Do not silently exempt the route, claim coverage through FogAwareMatchProjection (the head route bypasses it), or exceed 15 files.",
+      "admissionRequires": "Blocked documentary registration only. P2CG1S must have genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; NEXT supplies no permission. Preserve one product-writing lane including closure. Re-census all existing/prospective leaves, aliases, exceptions and planned/blocked holders on latest Main at admission: securityBoundary.test.ts belongs to P2CG1G2A, which lands first; ServerMatchHostEvents/Replay are shared with P2CG1S and U26. Preserve those contracts and G2; src/lib/campaign/coop remains read-only. Freeze the complete literal 15-file source/test/spec/lifecycle/evidence manifest in roadmap.json ownershipPathsAmended20261018B14; aliases are navigation only, never directory-wide permission. Six product files + three tests + one spec + one lifecycle ledger + four bounded evidence/review files = 15. Estimate 250-410 non-test additions (150-230 product plus 100-180 spec/lifecycle/evidence); tests reported separately under U41. This is not measured cap-fit proof. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit. If compatibility proof or sensitive review/closure needs a sixteenth file or more than 500 counted additions, split through normal registration; never suppress proof. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Register a genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main proof and closure; ownerGate null is not a waiver. No fabricated receipts or source admission. The mandatory matchHeadRoute.ts census proved hidden-dependent journal digest material, including payload gunnery and expectedPostStateDigest. Route containment is owned by B14-HEAD; B14-0 must not edit src/pages-modules/api/matchHeadRoute.ts or its existing route test. B14-0 retains its literal 15-file manifest and all other acceptance. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure. See evidence/b14hp-prep-20261018.txt, section B14 fit ruling and draft split, and b14HeadRegistration20261018.",
       "predecessors": [
         "P2CG1S"
       ],
       "successors": [
-        "P2CG1HP"
+        "B14-HEAD"
       ],
       "registration20261018B14": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-fog-scope-20261018.txt",
@@ -7492,6 +7492,62 @@
           "Probe the real server.js WebSocket entry at implementation time, including admission and rejoin, not only a host mock. server.js is a read-only proof surface in this manifest; a required edit triggers normal split/registration. The real server.js WS probe is evidence-only, recorded in evidence/b14-0-local.json; no retained harness file is added."
         ],
         "closePolicy": "Limited to the audited combat admission/revocation/rejoin terminal-refusal paths in ServerMatchHost.ts and ServerMatchHostReplay.ts plus B14 fog refusal: fixed secret-free typed reason, WS 1008 for membership/policy refusal, 1011 for infrastructure failure, server-side detach and physical close on terminal refusal. Pre-upgrade invalid authentication remains HTTP 401, not a received WS close. Withholding an ordinary hidden event does not close a healthy socket. No campaign transport rewrite or P2CG2 removal ownership change."
+      }
+    },
+    {
+      "id": "B14-HEAD",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Contain the privileged host journal-head route: authorize the caller first using existing host authorization, then use B14-0's shared fogMatchAdmission decision to refuse fog-on and unknown-config reads with HTTP 403 and the fixed fog-projection-unavailable reason before any journal digest is serialized. No digest or hidden-dependent payload is serialized on refusal. Preserve otherwise-authorized known-off reads and existing authentication/authorization behavior unchanged. The head route bypasses FogAwareMatchProjection; host/GM privilege is not a fog exemption. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
+      "ownershipPaths": [
+        "src/pages-modules/api"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "splitFrom": "B14-0",
+      "admissionRequires": "Blocked documentary registration only. B14-0 must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; preserve G2/R/S prerequisites and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no source permission. Rebase and re-census latest Main, reservations, aliases and existing/prospective leaves, including U26 history-route/test ownership, before admission. Use the landed shared fogMatchAdmission decision read-only; no helper edit is granted. Freeze the literal seven-file manifest in roadmap.json ownershipPathsAmended20261018B14Head: route, existing route test, units.json and four bounded admission/red/local/admission-review outputs. Aliases are navigation only, never directory-wide permission; spare slots grant no unnamed leaves. Prep measured 8 counted route additions and 13 test additions; an illustrative 35-line lifecycle allowance gives 43/500, not authentic admission fit or runtime proof. Measure the actual complete stage: caps remain 15 unique files / 500 counted added lines, tests and ledger evidence line-exempt but file-counted, no deletion credit. A required extra leaf or cap overflow stops for separate registration. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Register a genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then exact-main PASS and closure before HP release; ownerGate null is not a waiver. No fabricated receipts or source admission. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
+      "predecessors": [
+        "B14-0"
+      ],
+      "successors": [
+        "P2CG1HP"
+      ],
+      "registration20261018B14Head": {
+        "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt",
+        "sourceSha256": "a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787",
+        "sourceAdmitted": false,
+        "acceptance": [
+          "Red-first route proof must demonstrate the hidden-dependent digest on unchanged Main, then assert the actual serialized HTTP 403 response for fog-on and unknown configuration contains only the fixed fog-projection-unavailable refusal with no digest, hidden-unit reference, skill, location, construction or derived hidden information.",
+          "Authorization precedes fog policy: unauthenticated and non-host callers retain existing generic authentication/authorization refusals without fog configuration disclosure. Known-off host responses, including their journal head/digest contract, remain unchanged.",
+          "Pin use of the shared fogMatchAdmission decision, fog-on and unknown-config fail-closed behavior, authorization ordering and known-off compatibility in the existing route test. Re-run relevant B14-0 regressions after rebasing; local prep is not exact-main acceptance.",
+          "Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+        ]
       }
     },
     {
@@ -7534,9 +7590,10 @@
       },
       "ownerGate": null,
       "splitFrom": "P2CG1H",
-      "admissionRequires": "Blocked ordinary-cap registration only. B14-0 must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; preserve G2/R/S prerequisites and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no source permission. Rebase/re-census fresh Main, reservations and all existing/prospective leaves before admission: connected surface overlaps G2, binder test R/I3, hostProjection I1, and units.json all units. Aliases are navigation, never directory-wide permission. Freeze the four exact source/test leaves, units.json and four truthful final admission/red/local/admission-review evidence names from hConsumerPrereqAmendment20261018: nine prospective files, 96-195 estimated counted additions and 250-500 test additions, not measured fit. If R supplies exact CF-H8/CF-G5 proof, record its receipt/head/assertions and reduce by the binder test to eight files; never assume closure. Caps stay 15 unique files / 500 counted added lines, tests and ledger evidence line-exempt but file-counted, no deletion credit. Required extra leaf or cap overflow stops for separate registration; spare slots grant no unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Red-first proof, required CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS and closure precede H admission/install; ownerGate null is no waiver. Reconcile CF-H5 consumer/fold-store predicate without editing unregistered campaignHostFoldStore.ts; register an exact leaf if needed. CF-E7 follows binder-test ownership; record R proof or discharge at this owner without claiming historical carry-forwards closed.",
+      "admissionRequires": "Blocked ordinary-cap registration only. B14-0 and B14-HEAD must both be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; preserve G2/R/S prerequisites and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no source permission. Rebase/re-census fresh Main, reservations and all existing/prospective leaves before admission: connected surface overlaps G2, binder test R/I3, hostProjection I1, and units.json all units. Aliases are navigation, never directory-wide permission. Freeze the four exact source/test leaves, units.json and four truthful final admission/red/local/admission-review evidence names from hConsumerPrereqAmendment20261018: nine prospective files, 96-195 estimated counted additions and 250-500 test additions, not measured fit. If R supplies exact CF-H8/CF-G5 proof, record its receipt/head/assertions and reduce by the binder test to eight files; never assume closure. Caps stay 15 unique files / 500 counted added lines, tests and ledger evidence line-exempt but file-counted, no deletion credit. Required extra leaf or cap overflow stops for separate registration; spare slots grant no unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Red-first proof, required CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS and closure precede H admission/install; ownerGate null is no waiver. Reconcile CF-H5 consumer/fold-store predicate without editing unregistered campaignHostFoldStore.ts; register an exact leaf if needed. CF-E7 follows binder-test ownership; record R proof or discharge at this owner without claiming historical carry-forwards closed.",
       "predecessors": [
-        "B14-0"
+        "B14-0",
+        "B14-HEAD"
       ],
       "successors": [
         "P2CG1H"
@@ -7595,7 +7652,7 @@
       },
       "ownerGate": null,
       "splitFrom": "P2CG1",
-      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json. B14-0 must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. P2CG1HP must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation, alongside existing G2/R/S/B14-0 prerequisites. Its independent sensitive review and exact-head OWNER-RULING precede merge; registration is not that ruling. R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required, register it before H; no implied waiver. See evidence/hi-prep-20261018.txt and hConsumerPrereqAmendment20261018. Freeze truthful final evidence names and measured fit at admission; roadmap.json registration edits are not part of H own lifecycle source stage.",
+      "admissionRequires": "Narrower ordinary-cap successor of P2CG1 (plan Task 14), registered by evidence/p2cg1-split-registration-20261016.json. P2CG1G2 must be complete with a genuine exact-main mainProof PASS before the parent releases this unit to planned; NEXT does not enforce these unit dependencies. No preserved P2CG1 source candidate exists; this slice runs its own red-first proof and measured admission. Task8 must first complete independent exact-head docs review, current required CI, guarded merge and independent exact-main registration proof. Parent verifies documentary predecessors complete with genuine exact-main mainProof PASS, ancestry and closure on fetched main and no actual overlap before every source admission. NEXT selection supplies no permission. Prospective assignment only; source permission remains non-effective until normal finite admission freezes the complete literal existing/prospective source/test/lifecycle/stage/helper/evidence manifest and measures actual unique files and product/test additions under unchanged 15-file/500-product-added-line limits. Named source/test lists and known lower bounds are in R2.authority-live.ownershipPathsAmended20261009P2C.restrictions for this ID. No unnamed test, directory-wide grant, placeholder/hash, capException or cap inflation. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze of actual bytes/names/hashes and full census. If measured scope cannot fit, use the existing narrower separately registered ordinary-cap successor procedure; do not omit a required scenario. Additional hard pre-activation prerequisites registered 2026-10-17: P2CG1R (H-OPEN-1 / CF-E1) and P2CG1S (B10) must both have genuine exact-main mainProof PASS before H admission or port installation. This design selects repair, not the historical residual-acceptance option; any proposed waiver is a separate explicit Root/owner decision, never inferred from NEXT. See evidence/h-prereq-registration-20261017.json. B14-0 and B14-HEAD must both be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation. P2CG1HP must be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before P2CG1H admission or port installation, alongside existing G2/R/S/B14-0 prerequisites. Its independent sensitive review and exact-head OWNER-RULING precede merge; registration is not that ruling. R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required, register it before H; no implied waiver. See evidence/hi-prep-20261018.txt and hConsumerPrereqAmendment20261018. Freeze truthful final evidence names and measured fit at admission; roadmap.json registration edits are not part of H own lifecycle source stage.",
       "predecessors": [
         "P2CG1G2",
         "P2CG1R",
@@ -21857,6 +21914,7 @@
       "P2CG1R",
       "P2CG1S",
       "B14-0",
+      "B14-HEAD",
       "P2CG1HP",
       "P2CG1H",
       "P2CG1I1",
@@ -21882,6 +21940,7 @@
         "P2CG1R",
         "P2CG1S",
         "B14-0",
+        "B14-HEAD",
         "P2CG1HP",
         "P2CG1H",
         "P2CG1I1",
@@ -21895,7 +21954,7 @@
       "18": ["P2"],
       "19": ["U38"]
     },
-    "order": "Current effective L1 order (22 units, including the R/S prerequisites, S3 G2A insertion, B14-0 containment and pre-H consumer recovery): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> P2CG1HP -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
+    "order": "Current effective L1 order (23 units, including the R/S prerequisites, S3 G2A insertion, B14-0/B14-HEAD containment and pre-H consumer recovery): P2CG1B -> P2CG1C -> P2CG1D -> P2CG1E -> P2CG1F -> P2CG1G1 -> P2CG1G2A -> P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> P2CG1H -> P2CG1I1 -> P2CG1I2 -> P2CG1I3 -> P2CG1I4 -> P2CG2 -> P2CH -> P2C -> P2 -> U38. Each release requires predecessor genuine exact-main mainProof PASS, fetched-main ancestry and closure. The one-product-writing-lane rule and all original release acceptance/checkpoint/task holders remain. P2 readmission remains governed by P2C and its registered convergence gates.",
     "entry": "ts7TrackRegistration20261016.stoppingCondition is met: at baseline all eleven active TS7 units (TS7S1A through TS7S5C, including TS7S2OD, TS7S5B and TS7S5C) are main-verified, so the TS7 track is complete. L0 (v2.1.0) is published (tag v2.1.0 at e308fb2a44d8cbea3317acbf165bd536b31e45cb, GitHub release 2026-10-17T11:11:29Z) and is independent of this layer.",
     "releasePredicate": "U38 main-verified with an exact-main mainProof PASS; npm run verify:qc:coop-campaign-journey PASS on that exact Main (P2's registered proof) and the Task 19 selector PASS; then v2.2.0 minted by auto-version workflow_dispatch (bump_type=minor), the L0 installer smoke repeated on the v2.2.0 installer and a playtest/ session recorded where two players and a non-playing GM launch, play to Results and reload one shared mission. The release is a layer boundary, not a phase exit: P3 stays open until its full exit contract (PLAN.md P3 Exit) is met.",
     "acceptance": {
@@ -21967,6 +22026,16 @@
       "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
       "sourceSha256": "6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590",
       "rule": "Registration only. HP/H remain blocked; parent-enforced predecessor exact-main PASS, ancestry and closure precede release. Original release acceptance, task holders, H activation predicate/checkpoint, I1 successor and one product-writing lane remain unchanged. Prior dated amendments are historical."
+    },
+    "amended20261018B14Head": {
+      "additionalUnits": [
+        "B14-HEAD"
+      ],
+      "unitCount": 23,
+      "order": "P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> P2CG1H",
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt",
+      "sourceSha256": "a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787",
+      "rule": "Registration only. B14-0/B14-HEAD/HP/H remain blocked; parent-enforced predecessor exact-main PASS, ancestry and closure precede release. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure. Original release acceptance, task holders, H activation predicate/checkpoint and one product-writing lane remain unchanged. Prior dated amendments are historical."
     }
   },
   "hPrereqRegistration20261017": {
@@ -21989,6 +22058,7 @@
       "P2CG1R",
       "P2CG1S",
       "B14-0",
+      "B14-HEAD",
       "P2CG1HP",
       "P2CG1H"
     ],
@@ -22057,5 +22127,33 @@
     },
     "rBoundary": "R does not establish cross-file atomicity or comprehensive outer-COMMIT cleanup. If broader repair is required it must be separately registered before H; repair-not-implied-waiver remains.",
     "enforcement": "Documentary predecessors only: NEXT supplies no permission. Parent releases HP only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure, then H only after equivalent HP proof and closure alongside existing G2/R/S/B14-0 prerequisites. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or receipt fabricated."
+  },
+  "b14HeadRegistration20261018": {
+    "baseline": "f32626fbd2b558e1307f16590d4ab03c55668772",
+    "status": "planned-gated",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14hp-prep-20261018.txt",
+    "sourceSha256": "a9e395468f332ab5ae90e58d6c57a348a1389143746d25f16d866d98f377b787",
+    "authority": "Parent adopts the recommendation in B14HP-PREP.md, section B14 fit ruling and draft split, under the owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This records the parent ruling, not a fresh direct owner answer, future implementation OWNER-RULING or runtime acceptance.",
+    "node": "R2.authority-live",
+    "unit": "B14-HEAD",
+    "layer": "L1",
+    "order": "P2CG1G2 -> P2CG1R -> P2CG1S -> B14-0 -> B14-HEAD -> P2CG1HP -> P2CG1H",
+    "manifest": [
+      "src/pages-modules/api/matchHeadRoute.ts",
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json"
+    ],
+    "knownSourceTestLifecycleSubtotal": 3,
+    "totalProspectiveFiles": 7,
+    "census": "matchHeadRoute.ts:61/:73 returns the privileged host journal-head digest; digest material includes payload, including gunnery and expectedPostStateDigest. The mandatory census proves containment is required. Adding route/test to B14-0 would make 17/15 files; this split leaves B14-0 at 15/15 and registers B14-HEAD at 7/15 under unchanged 15/500 caps.",
+    "apportionment": "B14-HEAD owns /head route containment and its existing route test; B14-0 must not edit either leaf. B14-0 retains its shared fogMatchAdmission decision and unchanged remaining acceptance. Full B14 privacy acceptance is discharged only when BOTH B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure.",
+    "evidenceNames": "Four prospective bounded output names only; freeze truthful final admission/red/local/admission-review evidence at admission. No placeholder receipts are created. Later review/identity/closure outputs require the existing separate G-OWN freeze and entire-stage census.",
+    "enforcement": "Parent releases B14-HEAD only after B14-0 genuine exact-main PASS, fetched-main ancestry and closure; HP requires both B14-0 and B14-HEAD equivalent proof and closure; H retains all existing prerequisites and also requires B14-HEAD main-verified with exact-main PASS, ancestry and closure. NEXT supplies no permission. Sensitive review, exact-head OWNER-RULING and required CI precede implementation merge. No source admission or completion claimed."
   }
 }
