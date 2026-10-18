@@ -74,6 +74,65 @@ describe('machine idle process boundary', () => {
       row(10, 'node node_modules/@playwright/test/cli.js test'),
     ],
     ['Playwright wrapper', runner],
+    ['Jest CLI', row(10, 'node node_modules/jest/bin/jest.js --runInBand')],
+    ['jest-cli', row(10, 'node node_modules/jest-cli/bin/jest.js')],
+    ['Jest bin shim', row(10, 'node node_modules/.bin/jest --watchAll=false')],
+    [
+      'quoted Windows Jest CLI with Node flags',
+      row(
+        10,
+        '"C:\\Program Files\\nodejs\\node.exe" --require setup.cjs "E:\\Mek Station\\node_modules\\jest\\bin\\jest.js"',
+      ),
+    ],
+    [
+      'Jest process worker',
+      row(10, 'node node_modules/jest-worker/build/workers/processChild.js'),
+    ],
+    [
+      'Jest thread worker',
+      row(10, 'node node_modules/jest-worker/build/workers/threadChild.js'),
+    ],
+    [
+      'TypeScript CLI',
+      row(10, 'node node_modules/typescript/bin/tsc --noEmit'),
+    ],
+    [
+      'TypeScript 7 CLI',
+      row(
+        10,
+        'node node_modules/typescript7/bin/tsc -p scripts/tsconfig.json --noEmit',
+      ),
+    ],
+    [
+      'TypeScript JS CLI',
+      row(10, 'node node_modules/typescript/lib/tsc.js --noEmit'),
+    ],
+    [
+      'TypeScript internal CLI',
+      row(10, 'node node_modules/typescript/lib/_tsc.js --noEmit'),
+    ],
+    ['native tsc', row(10, 'tsc --noEmit', 'tsc')],
+    [
+      'native tsgo',
+      row(
+        10,
+        '"E:/Mek Station/node_modules/@typescript/native-preview-win32-x64/lib/tsgo.exe" --noEmit',
+        'tsgo.exe',
+      ),
+    ],
+    ['tsgo bin shim', row(10, 'node node_modules/.bin/tsgo --noEmit')],
+    [
+      'native-preview CLI',
+      row(
+        10,
+        'node node_modules/@typescript/native-preview/bin/tsgo.js --noEmit',
+      ),
+    ],
+    ['npm ci', row(10, 'node node_modules/npm/bin/npm-cli.js ci')],
+    [
+      'npm install',
+      row(10, 'node node_modules/npm/bin/npm-cli.js install --ignore-scripts'),
+    ],
   ])('recognizes %s', (_label, processRow) => {
     expect(pids([processRow as ReturnType<typeof row>])).toEqual([
       (processRow as ReturnType<typeof row>).ProcessId,
@@ -87,6 +146,48 @@ describe('machine idle process boundary', () => {
         row(21, 'node server.js', 'node.exe', 20),
       ]),
     ).toEqual([20, 21]);
+  });
+  it.each([
+    'node worker.js "node_modules/jest/bin/jest.js"',
+    'node worker.js "node_modules/jest-worker/build/workers/processChild.js"',
+    'node worker.js "node_modules/@typescript/native-preview/bin/tsgo.js"',
+    'node worker.js "node_modules/npm/bin/npm-cli.js ci"',
+    'node node_modules/not-jest/bin/jest.js',
+    'node node_modules/jest/bin/jest.js.map',
+    'node tools/jest-worker/build/workers/processChild.js',
+    'node node_modules/typescript/lib/tsserver.js',
+    'node node_modules/typescript/lib/typingsInstaller.js',
+    'node node_modules/@typescript/native-preview/bin/tsserver.js',
+    'node node_modules/npm/bin/npm-cli.js run dev',
+    'node node_modules/npm/bin/npm-cli.js run install',
+    'node node_modules/npm/bin/npm-cli.js config get install',
+    'node node_modules/npm/bin/npm-cli.js --version',
+    'node node_modules/npm/bin/npm-cli.js install-test',
+    'node -e "node_modules/jest/bin/jest.js"',
+    'node --eval "node_modules/jest-worker/build/workers/processChild.js"',
+    'node --eval=node_modules/jest/bin/jest.js',
+    'node tools/codex.js exec "node_modules/jest/bin/jest.js"',
+    'node E:/cursor-agent/versions/v/node_modules/jest/bin/jest.js',
+    'node E:/@openai/codex/node_modules/@typescript/native-preview/bin/tsgo.js',
+  ])(
+    'ignores tool mentions, editor services and non-install npm commands: %s',
+    (command) => {
+      expect(pids([row(40, command)])).toEqual([]);
+    },
+  );
+  it('excludes own PIDs without hiding foreign Jest workers', () => {
+    const snapshot = [
+      row(55164, 'T3 Code.exe --type=renderer', 'T3 Code.exe'),
+      row(47516, 'node server.js'),
+      row(40, 'node node_modules/jest/bin/jest.js'),
+      row(
+        41,
+        'node node_modules/jest-worker/build/workers/processChild.js',
+        'node.exe',
+        40,
+      ),
+    ];
+    expect(pids(snapshot, [55164, 47516, 40])).toEqual([41]);
   });
   it.each([
     [

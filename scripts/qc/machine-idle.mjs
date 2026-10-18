@@ -93,7 +93,7 @@ function processShape(row) {
       )
     )
       return {};
-  } else if (!['next', 'playwright'].includes(image)) {
+  } else if (!['next', 'playwright', 'tsc', 'tsgo'].includes(image)) {
     return {
       browser:
         /^(chrome|chromium|chromium-browser|chrome-headless|chrome-headless-shell|headless_shell)$/.test(
@@ -103,6 +103,17 @@ function processShape(row) {
     };
   }
   const entry = basename(script);
+  const jest =
+    /(?:^|\/)node_modules\/(?:(?:jest|jest-cli)\/bin\/jest\.js|\.bin\/jest|jest-worker\/build\/workers\/(?:processChild|threadChild)\.js)$/i.test(
+      script,
+    );
+  const typecheck =
+    ['tsc', 'tsgo'].includes(entry) ||
+    /(?:^|\/)node_modules\/(?:typescript(?:7)?\/lib\/_?tsc\.js|@typescript\/native-preview\/bin\/tsgo\.js)$/.test(
+      script,
+    );
+  // Require the install command itself, never a later argument or script name.
+  const install = entry === 'npm-cli.js' && ['ci', 'install'].includes(args[0]);
   const playwright =
     entry === 'playwright' ||
     entry === 'run-playwright.mjs' ||
@@ -120,7 +131,14 @@ function processShape(row) {
       script.startsWith(repoRoot) ||
       /(?:^|\/)mekstation(?:[-_][^/]+)?\//.test(script));
   return {
-    busy: next || server || entry === 'relaunching-server.mjs' || playwright,
+    busy:
+      next ||
+      server ||
+      entry === 'relaunching-server.mjs' ||
+      playwright ||
+      jest ||
+      typecheck ||
+      install,
     playwright,
   };
 }
