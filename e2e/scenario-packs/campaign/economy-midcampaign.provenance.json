@@ -1,7 +1,7 @@
 {
   "genesisSource": "fast-forward:economy-midcampaign",
-  "mintedAt": "2026-07-11T10:02:47.027Z",
-  "baseCommit": "472c7ca30eb30a085e039f4e84e9375d75bfbf1e",
+  "mintedAt": "2026-10-18T05:39:27.308Z",
+  "baseCommit": "c962217ba54d3179897918cd234058bf1d9dc298",
   "invariantSummary": {
     "battles": [
       {
@@ -17,10 +17,11 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 26,
-              "left_torso": 26,
-              "right_torso": 16,
-              "left_torso_rear": 2
+              "center_torso": 31,
+              "left_torso": 21,
+              "right_torso": 26,
+              "center_torso_rear": 5,
+              "right_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
@@ -28,32 +29,29 @@
               "left_torso": 16,
               "right_torso": 16,
               "center_torso_rear": 23,
-              "right_torso_rear": 16,
-              "left_torso_rear": 16
+              "left_torso_rear": 16,
+              "right_torso_rear": 16
             }
           },
           {
             "unitId": "player-1-atlas-as7-d",
             "side": "player",
-            "destroyed": true,
-            "finalStatus": "destroyed",
+            "destroyed": false,
+            "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 42,
-              "left_torso": 27,
-              "right_torso": 32,
-              "left_torso_rear": 2,
-              "right_torso_rear": 0,
-              "center_torso_rear": 0
+              "center_torso": 47,
+              "left_torso": 32,
+              "right_torso": 22,
+              "center_torso_rear": 5
             },
             "internalsRemaining": {
               "head": 3,
               "center_torso": 31,
               "left_torso": 21,
-              "right_torso": 13,
-              "center_torso_rear": 31,
-              "left_torso_rear": 21,
-              "right_torso_rear": 13
+              "right_torso": 21,
+              "right_torso_rear": 21,
+              "center_torso_rear": 31
             }
           }
         ]

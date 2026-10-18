@@ -115,6 +115,34 @@ describe('buildFastForwardFixture', () => {
     }
   });
 
+  it.each([1, 4, 8, 12])(
+    'gives each of %i teams a distinct roster unit and pilot',
+    (combatTeamCount) => {
+      const fixture = buildFastForwardFixture({
+        useRoleBasedSalaries: false,
+        combatTeamCount,
+      });
+      const roster = useCampaignRosterStore.getState();
+      const assignedIds = [...fixture.campaign.forces.values()].flatMap(
+        (force) => force.unitIds,
+      );
+      expect(assignedIds).toHaveLength(combatTeamCount);
+      expect(new Set(assignedIds).size).toBe(combatTeamCount);
+      const assignedUnits = assignedIds.map((id) =>
+        roster.units.find((unit) => unit.unitId === id),
+      );
+      expect(assignedUnits.every((unit) => unit !== undefined)).toBe(true);
+      expect(new Set(assignedUnits.map((unit) => unit?.pilotId)).size).toBe(
+        combatTeamCount,
+      );
+      for (const unit of assignedUnits) {
+        expect(
+          roster.pilots.some((pilot) => pilot.pilotId === unit?.pilotId),
+        ).toBe(true);
+      }
+    },
+  );
+
   it('bounds the contract window so no scenario can generate after the covered Monday', () => {
     registerBuiltinProcessors();
     const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });

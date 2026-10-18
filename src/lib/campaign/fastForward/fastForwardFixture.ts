@@ -44,8 +44,8 @@
  * pilot ids to session-unit-id-shaped strings").
  *
  * Combat-team force linkage (group 3, task 3.3): each `campaign.forces`
- * entry's `unitIds` references REAL roster-projection `unitId`s (cycled
- * across the 4-unit roster pool when `combatTeamCount` exceeds it) —
+ * entry's `unitIds` references a distinct REAL roster-projection `unitId`
+ * (canonical unit refs repeat when more than four teams are requested) —
  * NOT synthetic placeholder ids. This lets the combat runner resolve "the
  * roster units assigned to a bridged scenario's team" by intersecting
  * `campaign.forces.get(teamForceId).unitIds` against
@@ -159,38 +159,40 @@ export interface FastForwardFixture {
  * (not just applied to the store) so `buildCombatTeamsAndForces` can
  * reference the real roster `unitId`s when wiring `campaign.forces`.
  */
-function buildFastForwardRoster(): {
+function buildFastForwardRoster(teamCount: number): {
   readonly pilots: readonly ICampaignRosterEntry[];
   readonly units: readonly IRosterUnitProjection[];
 } {
-  const pilots: ICampaignRosterEntry[] = CANONICAL_UNIT_REFS.map(
-    (unitRef, index) => ({
-      pilotId: `vault-pilot-${String(index + 1).padStart(3, '0')}`,
-      pilotName: `Fixture Pilot ${index + 1}`,
-      status: CampaignPilotStatus.Active,
-      wounds: 0,
-      recoveryTime: 0,
-      xp: 0,
-      campaignXpEarned: 0,
-      campaignKills: 0,
-      campaignMissions: 0,
-      primaryRole: CampaignPersonnelRole.PILOT,
-      rankIndex: 0,
-      hireDate: new Date('3024-01-01'),
-      unitRef,
-    }),
+  // Each team owns a different roster unit and pilot. Reusing a catalog
+  // design is valid; assigning the same roster unit to two forces is not.
+  const unitRefs = Array.from(
+    { length: Math.max(CANONICAL_UNIT_REFS.length, teamCount) },
+    (_, index) => CANONICAL_UNIT_REFS[index % CANONICAL_UNIT_REFS.length],
   );
+  const pilots: ICampaignRosterEntry[] = unitRefs.map((unitRef, index) => ({
+    pilotId: `vault-pilot-${String(index + 1).padStart(3, '0')}`,
+    pilotName: `Fixture Pilot ${index + 1}`,
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    hireDate: new Date('3024-01-01'),
+    unitRef,
+  }));
 
-  const units: IRosterUnitProjection[] = CANONICAL_UNIT_REFS.map(
-    (unitRef, index) => ({
-      unitId: `ff-roster-unit-${index + 1}`,
-      unitRef,
-      unitName: unitRef,
-      pilotId: pilots[index]?.pilotId,
-      chassisVariant: unitRef,
-      readiness: 'Ready',
-    }),
-  );
+  const units: IRosterUnitProjection[] = unitRefs.map((unitRef, index) => ({
+    unitId: `ff-roster-unit-${index + 1}`,
+    unitRef,
+    unitName: unitRef,
+    pilotId: pilots[index]?.pilotId,
+    chassisVariant: unitRef,
+    readiness: 'Ready',
+  }));
 
   return { pilots, units };
 }
@@ -226,8 +228,8 @@ function seedFastForwardRoster(
  * only lever for the seed-independent battle guarantee.
  *
  * Each force's `unitIds` references a REAL roster-projection `unitId`
- * from `rosterUnits`, cycling across the (small, canonical) roster pool
- * when `count` exceeds it (task 3.3: the combat runner resolves "the
+ * from `rosterUnits`, with one distinct roster unit per team
+ * (task 3.3: the combat runner resolves "the
  * roster units assigned to a scenario's team" by intersecting a force's
  * `unitIds` against the roster store, so the two MUST share ids — a
  * synthetic placeholder id here would leave the runner with an empty
@@ -254,10 +256,10 @@ function buildCombatTeamsAndForces(
 
   for (let index = 0; index < count; index += 1) {
     const forceId = `ff-team-force-${index + 1}`;
-    const rosterUnit = rosterUnits[index % rosterUnits.length];
+    const rosterUnit = rosterUnits[index];
     if (!rosterUnit) {
       throw new Error(
-        `buildCombatTeamsAndForces: no roster unit at cycled index ${index % rosterUnits.length}`,
+        `buildCombatTeamsAndForces: no roster unit for team ${index + 1}`,
       );
     }
     forces.set(forceId, {
@@ -306,7 +308,7 @@ export function buildFastForwardFixture(
 
   // Roster built FIRST so combat-team forces can reference real roster
   // `unitId`s (task 3.3 — see `buildCombatTeamsAndForces`'s doc comment).
-  const roster = buildFastForwardRoster();
+  const roster = buildFastForwardRoster(combatTeamCount);
   const { forces, teams } = buildCombatTeamsAndForces(
     combatTeamCount,
     roster.units,

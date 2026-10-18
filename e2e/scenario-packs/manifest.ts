@@ -124,10 +124,10 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/economy-midcampaign.campaign.json',
     provenance: {
       genesisSource: 'fast-forward:economy-midcampaign',
-      mintedAt: '2026-07-11T09:52:31.961Z',
-      baseCommit: '472c7ca30eb30a085e039f4e84e9375d75bfbf1e',
+      mintedAt: '2026-10-18T05:39:27.308Z',
+      baseCommit: 'c962217ba54d3179897918cd234058bf1d9dc298',
     },
-    pins: { schemaVersion: 1 },
+    pins: { schemaVersion: 2 },
     postLoadActions: [],
   },
   {
@@ -142,10 +142,10 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/maintenance-repairbay.campaign.json',
     provenance: {
       genesisSource: 'fast-forward:maintenance-repairbay',
-      mintedAt: '2026-07-11T09:52:42.914Z',
-      baseCommit: '472c7ca30eb30a085e039f4e84e9375d75bfbf1e',
+      mintedAt: '2026-10-18T05:40:37.143Z',
+      baseCommit: 'c962217ba54d3179897918cd234058bf1d9dc298',
     },
-    pins: { schemaVersion: 1 },
+    pins: { schemaVersion: 2 },
     // Design D8 — the repair-bay projection is populated only by the
     // production CLEANUP-phase processor on `advanceDay`; the minted
     // payload's tickets are captured UNTOUCHED (`status: 'parts-needed'`)

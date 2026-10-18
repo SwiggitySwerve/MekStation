@@ -57,6 +57,19 @@ test.describe('scenario pack manifest registry', () => {
     }
   });
 
+  test('each campaign schema pin matches its committed payload', () => {
+    for (const entry of SCENARIO_PACK_MANIFEST) {
+      if (entry.kind !== 'campaign') continue;
+      const payload = JSON.parse(
+        fs.readFileSync(
+          path.join(SCENARIO_PACKS_DIR, entry.payloadPath),
+          'utf8',
+        ),
+      );
+      expect(payload.schemaVersion, entry.id).toBe(entry.pins.schemaVersion);
+    }
+  });
+
   // spec scenario "Registry and manifest are one-to-one": every payload
   // file under e2e/scenario-packs/ SHALL have exactly one manifest entry,
   // and every manifest entry SHALL resolve to exactly one existing payload
