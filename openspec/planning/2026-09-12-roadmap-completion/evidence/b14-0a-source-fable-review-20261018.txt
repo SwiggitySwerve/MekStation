@@ -1,0 +1,108 @@
+﻿# B14-0A independent sensitive review: PR #2267 (head d66ef436)
+
+- Date: 2026-10-18
+- Reviewer: claude-fable-5-1 (review sub-agent), read-only; no push, comment, label or merge
+- Unit: B14-0A (split from B14-0 by #2263), node R2.authority-live, review classes privacy / authority / replay (idempotency and concurrency also assessed)
+- PR: SwiggitySwerve/MekStation #2267, base 87c0f1508, head d66ef43662b9012495124a6bcd373ff95db34d47
+- Review checkout: E:/Projects/Personal/MekStation-wt/review-2267-20261018 (new detached worktree at the PR head; own npm ci because the root lockfile differs from the PR head); root checkout untouched
+- Commits: 04c4f4b46 admission (manifest + receipt), f402759d4 RED (tests + unreferenced 18-line helper), d66ef4366 GREEN (two product leaves + receipt)
+
+## Verdict
+
+**APPROVE** for owner ruling and merge, with two recommended in-PR test additions (no cap or file impact; both land in already-owned test leaves) and carry-forwards CF-B14A-1..9 below.
+
+Product behaviour matches the unit contract on every surface I could reach: metadata authenticates and checks participation first (outsider keeps the generic 404 with no fog hint), then refuses fog-on/unknown with HTTP 403 `{error:"fog-projection-unavailable"}` before serialization; export / private-preview / history pages read authoritative config, verify scope and the durable current seat on refusal, then throw the fixed reason before any journal, audit or private-record read (existing 500 mapping); known-off and flag-omitted paths are the unchanged parent path; no WebSocket module imports the helper. RED (11/159 failing on byte-identical product leaves) and GREEN (159/159) both reproduce. 10 reviewer mutants beyond the author's 12: 6 caught, 4 survived; the survivors are test-coverage gaps (one against an explicit acceptance clause), not product defects. Nothing found that discloses fog configuration or hidden battle state to a non-member, or serves a raw fallback.
+
+## Reproduction
+
+| Step | Result |
+| --- | --- |
+| machine-idle gate before every heavy run | MACHINE_IDLE (node scripts/qc/machine-idle.mjs --own-pid 47516 --own-pid 55164) |
+| Worktree at d66ef4366; npm ci (lockfile differs from root HEAD d68858607) | ok; package.json/lock unchanged base..head |
+| Base ancestry | 87c0f1508 is an ancestor of the head; 3971389b3 (units.json baseline, #2265) is an ancestor of 87c0f1508 (#2266 docs-only) |
+| Product hashes vs local receipt | fogMatchAdmission.ts d6a8903b...f090e (683 B), FogAwareMatchProjection.ts 8757d423...27e8d (12169 B), matches/[id].ts 8075e431...614d36 (4915 B): all match |
+| Census | git diff --numstat 87c0f1508..HEAD: units.json 16 + helper 18 + FogAware 53 + [id].ts 8 = 95/500 counted; 14 changed files + 1 reserved review slot = 15/15 |
+| GREEN d66ef4366, 7 owned suites, --runInBand --cacheDirectory (private) | 7/7 suites, 159/159 tests |
+| RED f402759d4, same suites | 3 suites failed, 11 failed / 148 passed / 159 (list below) |
+| RED dead-code check | git grep fogMatchAdmission at f402759d4 outside tests: no match; the two product leaves are byte-identical to 87c0f1508 |
+| Typecheck at head | npm run typecheck exit 0 |
+| Related regression at head | jest src/pages-modules/api src/lib/multiplayer/server/{history,projection,delivery,authorization}: 35 suites, 319/319 |
+
+RED failures (all behavioural assertions against the unchanged product; none are compile/registration errors): securityBoundary B14 metadata fog=true caller=host (200 vs 403); multiplayerMatchMeta fog-on seated player lobby/active/completed and GM-without-seat (200 vs 403); matchHistoryFog export+private-preview host/opponent/spectator (200 vs 500), policy-before-journal (resolved vs rejected), membership-precedes-policy (projection-failed vs wrong-session shape), known-off/unknown (generic reason vs fixed reason).
+
+## Judged items
+
+**(a) Helper in the RED commit.** Confirmed dead code at RED: no product file imports `fogMatchAdmission.ts` at f402759d4 and both product leaves are byte-identical to the base, so product behaviour is unchanged and all 11 RED failures are genuine behavioural failures. The author's justification is correct for the canonical seam as registered: the factory spreads `jest.requireActual(...)`, which throws at factory evaluation if the module does not exist (`{virtual:true}` would only help a factory that does not requireActual). Ruling B14-0A-R1 is recorded in the admission receipt before the RED commit. Acceptable ledger discipline; the stricter convention "RED adds no product bytes" is knowingly bent with a recorded ruling and a dead-code proof. Recommend future splits register the helper in the admission commit instead (it is behaviour-free) so RED stays test-only.
+
+**(b) Ordering.**
+- Metadata (`src/pages/api/multiplayer/matches/[id].ts:99-104`): authenticate -> getMatchMeta -> participant (host or occupied human seat) -> fog predicate -> serialize. Non-participants and spectators get the pre-existing generic 404 body; the fog branch is unreachable before the participant check. Reads and status codes for a stranger are identical to Main (same single store read), so no timing or body oracle is added. Known-off and flag-omitted: identical bytes (`{ meta }`), pinned by the retained multiplayerMatchMeta rows.
+- History chain: `ViewerHistoryService.exportForViewer` resolves the viewer through `authorizeHumanAction` (durable seats; `HostAsGmMembershipSource` still requires an inner seat row) before `projection.project`; `FogAwareMatchProjectionService.projectWithIdentities` (`FogAwareMatchProjection.ts:275-286`) reads config, and on refusal verifies brand+scope and the durable current seat, then throws `projection-failed` / `fog-projection-unavailable` before `super.projectWithIdentities` (the only journal reader), before `auditRepo.readBySession`, before `collectPrivateExportViews`, and before the export route's `readMatchHistoryLineage`. History pages (`projectWithCursor`) call `projectWithIdentities` before `resolveEpoch`/`assignSequences`, so no epoch is minted on refusal. No raw fallback exists: `matchConfig` maps any read failure to `undefined`, which the predicate refuses; the `heads` projection-metadata dependency is no longer read at all, so an unavailable effective head cannot refuse a known-off match (pinned at matchHistoryFog.test.ts:634).
+- One ordering nuance at the service level only (F3): config is read before the brand/scope check that the parent performs first, and an unbranded viewer is answered `wrong-session` on fog-on versus `not-a-viewer` on fog-off. Unreachable through any HTTP route (every caller brand-checks first) and not a non-member disclosure, but it is a service-level fog oracle for a future direct caller. Low.
+
+**(c) Seam.** `jest.mock` module factories exist only in the four allowlisted test files (git diff confirms 10 added lines each, no assertion changes); nothing in product code or configuration references the override, so it cannot reach a production bundle. The allowlist guard (matchHistoryFog.test.ts:697-770) is sound for what it inspects (jest.mock/doMock/unstable_mockModule/setMock with a literal path containing `fogMatchAdmission`, canonical comment, both overrides present, all four B14-0A seams present) but it is a tripwire, not a fence: my probe R9 (an unlisted suite using `jest.doMock('@/lib/multiplayer/server/' + 'fogMatchAdmission', ...)`) overrode the predicate while the guard passed; `jest.spyOn`, a `moduleNameMapper` entry or a mock of the consumer module would also evade it. Real refusal is pinned unmocked by securityBoundary, multiplayerMatchMeta and matchHistoryFog (none mocks the capability module; the guard would flag them if they did). The seam's `matchLacksRevealProjection: async () => false` is consistent with the #2263 binding ("false means projection available") and with `noPerViewerRevealProjection: () => false`.
+
+**(d) 1011/false semantics for B14-0.** Preserved: B14-0A exports only `FOG_REFUSAL` and the boolean predicate; no WS module imports it; `ServerMatchHost*.ts`, `MatchWireSealedChoices.ts`, `server.js` are byte-identical to the frozen controls (admission receipt hashes). The seam pins `matchLacksRevealProjection` as **async** returning `false`; B14-0 must implement it as a Promise-returning function and `await` it at every call site, otherwise the seam's Promise is truthy and the four suites would (loudly) refuse. Recorded as CF-B14A-5.
+
+**(e) Completeness of HTTP private reads.** Contained: participant metadata GET; `/export`; `/private-preview` (projection throws before any private ref is exported or audited); history pages via `projectWithCursor` (no HTTP route currently calls `readHistory`, but the override covers it). Left open by design: `/head` (B14-HEAD; hidden-dependent digest, census row at matchHistoryFog.test.ts:499 consumed read-only); `/timeline` (audit rows + lineage; see CF-B14A-7 for the count/timing leak class); rewind-preview/commit (already refuse `fogOfWar === true`; an undefined config throws into the generic 500 before any projection; U26). Lobby/invite summaries (`joinableLobbies.ts:159,182`) publish `fogOfWar` for joinable lobbies to anyone, by design; the metadata route's non-disclosure therefore protects active/completed matches, not open lobbies (CF-B14A-8). `GET /api/matches/[id]` (post-battle report, unauthenticated) is the local combat-resolution surface, not a multiplayer journal read; out of B14 scope. Campaign routes read campaign streams only.
+
+## Findings
+
+| # | Severity | Location | Finding |
+| --- | --- | --- | --- |
+| F1 | Medium (test gap, not product) | matchHistoryFog.test.ts:570-588; FogAwareMatchProjection.ts:275-286 | Acceptance clause "refuse before any journal read" is not pinned. Reviewer mutant R1 (call `super.projectWithIdentities` first, refuse afterwards) survives 159/159. Product does refuse before the read today. Recommend an in-PR row that wraps the journal (`readStream` throws or records) under fog-on and asserts the fixed refusal with zero reads; `matchHistoryFog.test.ts` is an owned leaf, so no cap/file cost. If not taken in-PR -> CF-B14A-1. |
+| F2 | Low (defense-in-depth gap) | FogAwareMatchProjection.ts:315 | `!seat.active` is not pinned (R2 survives). Via HTTP the resolver already maps inactive seats to `no-viewer`, so it is unreachable, but the service's own membership gate is half-tested. Add an inactive-seat row to the membership-precedes-policy test (same leaf). |
+| F3 | Low | FogAwareMatchProjection.ts:277-281, 304-310 | Config is read before the parent's brand/scope check, and an unbranded viewer receives `wrong-session` under fog-on vs `not-a-viewer` under fog-off (R3 survives). Unreachable through routes; service-level parity gap and a latent fog oracle for direct callers. Mirror the parent's codes (`not-a-viewer` for brand failure) or run the parent checks before reading config. |
+| F4 | Low | FogAwareMatchProjection.ts:280 | Non-`match` stream types on a fog-on match id are not pinned to pass through (R8 survives: removing the streamType gate over-refuses silently). Only the test-only `history-proof` stream exists today. |
+| F5 | Low | matchHistoryFog.test.ts:733-736, 749 | Seam allowlist guard is bypassable (R9: concatenated path with `jest.doMock`; also `jest.spyOn`, `moduleNameMapper`, consumer-module mocks). It is adequate as a tripwire because unmocked suites pin the real refusal; B14-0's `b14FogContainment.test.ts` should additionally assert the live module is unmocked (e.g. `jest.isMockFunction(noPerViewerRevealProjection) === false` and identity with `jest.requireActual`). |
+| F6 | Low (ledger accuracy) | evidence/b14-0a-local-20261018.json `results.green.head`, `results.regression.head` | Both GREEN runs are attributed to `f402759d4` (the RED commit) because the receipt was produced before the implementation commit existed. The product hashes and census in the same receipt match d66ef4366 and my rerun reproduces 159/159 on d66ef4366, so no behavioural doubt; the review/closure receipt should state the reviewed head explicitly rather than inherit this field. |
+| F7 | Low (coverage regression on retained code) | FogAwareMatchProjection.ts:183-259; matchHistoryFog.test.ts (deleted rows) | Five pre-existing fog-on HTTP pins were retired (spectator-outranks-stale-side-assignment, authority-only field stripping, mid-stream page refusal, unreadable-envelope fail-closed, mirror precondition). `fogMatchHistoryProjection` is kept exported and "retained for the FOG chain" but is now dead and untested, including the S/B10 HTTP comparison it used to provide. Reactivation (FOG-H) must re-prove it from scratch. |
+| F8 | Low (dead wiring / stale docs) | FogAwareMatchProjection.ts:113, 261-266; matchHistoryViewerChain.ts:133-140 | `heads: IMatchHistoryHeadStores` is still required and constructed (a branch store per request) but never read; the class comment still says "overriding the read keeps the parent's brand, scope and registry checks in front of it" and the chain comment still describes effective-head fog reads. |
+| F9 | Info | matchHistoryTimelineRoute.ts; ViewerHistoryLineage.ts:154; ViewerHistoryService.ts mapPlayerTimelineEntry | Timeline under fog-on remains served: `lineage.effectiveHead.revision` is the total journal revision (hidden events included) and audit rows carry `committedEventCount`/`occurredAt` for other players' commands. A count/timing side channel, accepted by the contract as audit-only; FOG chain to decide. |
+| F10 | Info | fogMatchAdmission.ts | Predicate and reason are correct and minimal; `config === undefined || config.fogOfWar === true`; new matches always persist an explicit flag (`matches/index.ts:239`, `coopMissionCreate.ts:254`), so "omitted" only describes legacy rows. Config has no update route, so there is no fog-toggle TOCTOU between the config read and a later read. |
+
+## Mutants
+
+Author's 12 (A01-A12) are recorded in the local receipt as all caught; I did not rerun them. Reviewer mutants, each a single edit on d66ef4366 run against the seven owned suites (`--runInBand`, private cache; product restored after each run, `git status` clean):
+
+| ID | Mutation | Outcome | Killing assertion(s) |
+| --- | --- | --- | --- |
+| R1 | FogAware: journal projection executed before the fog refusal (refuse after read) | **SURVIVED** 159/159 | none (F1) |
+| R2 | FogAware: `seat === null || !seat.active` -> `seat === null` | **SURVIVED** | none (F2) |
+| R3 | FogAware: brand/scope check in `requireCurrentSeat` removed | **SURVIVED** | none (F3) |
+| R4 | Metadata: refuse only when `status !== 'completed'` | caught 158/159 | multiplayerMatchMeta completed fog-on row |
+| R5 | Metadata: 403 body `{ error, meta }` | caught 154/159 | multiplayerMatchMeta x4 (toStrictEqual + secret regex), securityBoundary host row |
+| R6 | FogAware: override `project()` only (history-page path bypass) | caught 158/159 | matchHistoryFog "policy throws before journal projection" |
+| R7 | FogAware: unknown (`undefined`) config treated as off at the service | caught 158/159 | matchHistoryFog known-off/unknown row |
+| R8 | FogAware: `streamType === 'match'` gate removed | **SURVIVED** | none (F4) |
+| R13 | FogAware: seat-lookup failure -> `null` (answered wrong-session) | caught 158/159 | matchHistoryFog membership-precedes-policy (expects projection-failed) |
+| R9 | Unlisted suite overrides the predicate via `jest.doMock('.../' + 'fogMatchAdmission')` | **SURVIVED** (guard passed) | none (F5) - probe file removed after the run |
+
+Totals: 10 reviewer mutants, 6 caught, 4 survived; author 12/12 caught. Combined 22 mutants, 18 caught. Survivors are coverage gaps; none changes the verdict on product behaviour, which I traced by reading.
+
+## Five-class analysis
+
+- **Authority.** Membership precedes policy on both surfaces (metadata participant check; history resolver with durable seats, then the service's own seat re-check). Host/GM privilege is not a fog exemption (GM-without-seat refused 403; host private-preview refused 500). No new authority is granted to anyone; the only change for authorized viewers is refusal. Spectators remain non-participants of the metadata route.
+- **Privacy.** Fog-on/unknown private reads refuse before serialization with a fixed, secret-free reason; refusal bodies pinned to exact shape. Non-members get the pre-existing generic refusals (404 metadata; 403 "Authorization refused" from the resolver) with no fog string. Residual channels are pre-existing and out of this manifest: `/head` digest (B14-HEAD), `/timeline` counts/timing (F9), lobby summaries publishing `fogOfWar` for open lobbies (F10/CF-8), WebSocket (B14-0).
+- **Replay.** No event, journal, or reducer change; the fog-on effective-head read is removed with the served projection, and fog-off still reads the root branch exactly as Main (CF-S-1 untouched). No derived state is persisted or changed.
+- **Idempotency.** Every refusal path is read-only: no epoch resolved, no sequences assigned, no private-access audit written, no match row updated. Repeated refusals are byte-identical.
+- **Concurrency.** Fog config is immutable after creation (no update path) so the config-then-seat reads cannot straddle a toggle; the metadata route uses a single meta read. Seat revocation between the resolver and the service re-check only tightens (second check refuses). The unused per-request `SQLiteEventHistoryBranchStore` construction is wasteful but harmless.
+
+## Carry-forwards
+
+| ID | Owner | Item |
+| --- | --- | --- |
+| CF-B14A-1 | B14-0A (in-PR if taken) else B14-0 (b14FogContainment.test.ts) | Pin "no journal read before refusal" with a journal spy under fog-on (F1); pin the inactive-seat branch (F2). |
+| CF-B14A-2 | B14-0 | `b14FogContainment.test.ts` asserts the capability module is unmocked (identity with `jest.requireActual`, `jest.isMockFunction` false) in addition to the allowlist tripwire (F5); optionally extend the guard regex to `jest.spyOn(...fogMatchAdmission` and non-literal paths. |
+| CF-B14A-3 | B14-0 / FOG-* | Service-level parity: brand failure should answer `not-a-viewer` and the parent checks should precede the config read (F3); pin non-match stream pass-through (F4). Whoever next edits `FogAwareMatchProjection.ts`. |
+| CF-B14A-4 | B14-0A closure receipt / review receipt | Record the reviewed head (d66ef4366) explicitly; local receipt `results.*.head` cites the RED SHA (F6). |
+| CF-B14A-5 | B14-0 | `matchLacksRevealProjection` must be async (Promise) and awaited everywhere; the four seams pin `async () => false`. Decide and pin CF-S-2 (publishEvent meta-read failure -> terminal 1011 vs silent withholding) as the admission receipt forwards it. |
+| CF-B14A-6 | FOG-H (reactivation) | `fogMatchHistoryProjection` is dead and unpinned after this PR; the retired rows (stale-spectator side assignment, authority-only field stripping, mid-stream refusal, unreadable envelope) must be re-proven with fresh parity before any HTTP fog projection is served; remove or use the `heads` dependency and fix the stale class/chain comments (F7, F8). Owner fog direction (incremental reveal allowances from GM state) must be designed there; B14 refusal does not conflict. |
+| CF-B14A-7 | FOG-* (timeline) / B14-HEAD for the digest | `/timeline` count/timing side channel under fog-on (F9); `/head` digest remains open until B14-HEAD lands. |
+| CF-B14A-8 | B15 / Root backlog | Lobby and invite summaries publish `fogOfWar` for joinable lobbies to any authenticated caller; reconcile with the "non-member learns nothing of fog" wording (it holds for active/completed matches only). |
+| CF-B14A-9 | U26 | Rewind routes refuse `fogOfWar === true` with their own reason and answer an undefined config via the generic 500; migrating them to the shared predicate is U26's call. HP: no FogAware dependency change; CF-S-1 (fog-off root-branch read) remains with B14-0/HP. |
+
+## Method notes
+
+- Static trace of every HTTP reader of match journal/metadata in `src/pages`, `src/pages-modules`, `server.js`; read `ViewerProjectionService`, `ViewerHistoryService`, `projectWithDelivery`, `matchHistoryViewerChain`, export/private-preview/timeline/head routes, `HostAsGmMembershipSource`, `HumanActionAuthorizationGate`, `ViewerHistoryLineage`, `joinableLobbies`, rewind routes.
+- Dynamic: RED/GREEN reruns, typecheck, 35-suite related regression, 10 single-edit mutants (script and raw results in E:/Projects/Personal/MekStation-wt/review-2267-proof/{mutate.mjs,mutants.json,mutants.log}; an earlier accidental double launch was discarded and rerun cleanly).
+- Not run: full `npm run verify`, e2e, desktop, the author's 109/267-suite census (receipt-only), author mutants A01-A12 (receipt-only).
