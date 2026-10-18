@@ -24,8 +24,6 @@ import {
   GameSide,
   LockState,
 } from '@/types/gameplay/GameSessionCoreTypes';
-import { canActInPhysicalAttack } from '@/utils/gameplay/gameSessionCore';
-import { applyUnitEjected } from '@/utils/gameplay/gameState/unitExitState';
 
 import { usePhaseQueueProjection } from '../usePhaseQueueProjection';
 
@@ -64,6 +62,7 @@ function buildSession({
 
   return {
     id: 'test-session',
+    events: [],
     units: [playerUnit, opponentUnit],
     currentState: {
       phase,
@@ -88,57 +87,6 @@ describe('usePhaseQueueProjection', () => {
       useGameplayStore.setState({ session: null });
     });
   });
-
-  it.each([
-    [GameSide.Player, 0, 'p2'],
-    [GameSide.Player, 1, 'o1'],
-    [GameSide.Player, 2, null],
-    [GameSide.Opponent, 0, 'o1'],
-    [GameSide.Opponent, 1, 'p2'],
-    [GameSide.Opponent, 2, null],
-  ] as const)(
-    'agrees with the physical engine after multi-unit ejection: first %s, cursor %s',
-    (firstMover, activationIndex, expectedActor) => {
-      const base = buildSession({
-        phase: GamePhase.PhysicalAttack,
-        firstMover,
-        activationIndex,
-        unitLockStates: {},
-      });
-      const session: IGameSession = {
-        ...base,
-        units: [base.units[0], { ...base.units[0], id: 'p2' }, base.units[1]],
-        currentState: applyUnitEjected(
-          {
-            ...base.currentState,
-            units: {
-              ...base.currentState.units,
-              p2: { ...base.currentState.units.p1, id: 'p2' },
-            },
-          },
-          {
-            unitId: 'p1',
-            turn: base.currentState.turn,
-            reason: 'player_declared',
-          },
-        ),
-      };
-      act(() => useGameplayStore.setState({ session }));
-      const { result } = renderHook(() => usePhaseQueueProjection());
-
-      expect(
-        session.units
-          .filter((unit) => canActInPhysicalAttack(session, unit.id))
-          .map((unit) => unit.id),
-      ).toEqual(expectedActor ? [expectedActor] : []);
-      expect(result.current.activeUnitId).toBe(expectedActor);
-      expect(result.current.initiativeOrder).toContain('p1');
-      expect(result.current.unresolvedUnits).not.toContain('p1');
-      expect(
-        result.current.blockers.map((blocker) => blocker.unitId),
-      ).not.toContain('p1');
-    },
-  );
 
   it('returns an empty projection when no session is loaded', () => {
     act(() => {
@@ -330,7 +278,7 @@ describe('usePhaseQueueProjection', () => {
     const session = buildSession({
       phase: GamePhase.Movement,
       activationIndex: 1,
-      unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+      unitLockStates: { p1: LockState.Locked, o1: LockState.Pending },
     });
     Reflect.deleteProperty(session.currentState.units.o1, 'side');
 

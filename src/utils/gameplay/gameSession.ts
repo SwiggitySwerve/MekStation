@@ -10,6 +10,7 @@ export {
   advancePhase,
   canAdvancePhase,
   getPhaseActivationOrder,
+  getActivePhaseUnitId,
   isPhaseActivationEligible,
   roll2d6,
   rollInitiative,

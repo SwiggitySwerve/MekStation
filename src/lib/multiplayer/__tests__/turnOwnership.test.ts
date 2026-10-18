@@ -15,6 +15,7 @@ import {
   GamePhase,
   GameSide,
   GameStatus,
+  LockState,
   type IGameSession,
   type IGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -131,10 +132,20 @@ describe('activeSideFromSession', () => {
   });
 
   it("returns the next eligible actor's side at cursor one", () => {
-    const session = makeSession({
+    const base = makeSession({
       firstMover: GameSide.Opponent,
       activationIndex: 1,
     });
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          o1: { ...base.currentState.units.o1, lockState: LockState.Locked },
+        },
+      },
+    };
     expect(activeSideFromSession(session)).toBe(GameSide.Player);
   });
 
@@ -157,9 +168,20 @@ describe('activeSideFromSession', () => {
   });
 
   it('returns null when the eligible activation queue is exhausted', () => {
-    expect(
-      activeSideFromSession(makeSession({ activationIndex: 2 })),
-    ).toBeNull();
+    const base = makeSession({ activationIndex: 2 });
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: Object.fromEntries(
+          Object.entries(base.currentState.units).map(([id, unit]) => [
+            id,
+            { ...unit, lockState: LockState.Locked },
+          ]),
+        ),
+      },
+    };
+    expect(activeSideFromSession(session)).toBeNull();
   });
 });
 

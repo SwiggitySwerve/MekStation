@@ -21,8 +21,8 @@
  *     server bootstraps `playerUnits` / `opponentUnits`.
  *   - The active side comes from the mirror's `IGameState`: in the
  *     alternating Movement / WeaponAttack / PhysicalAttack phases the
- *     engine's eligible activation order identifies the unit at the
- *     current cursor. Ineligible units do not reserve a side's turn.
+ *     engine identifies the next eligible unit with an unfinished action.
+ *     Eligibility changes cannot move a numeric cursor past a pending actor.
  *
  * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
  */
@@ -35,7 +35,7 @@ import {
   GameStatus,
   type IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { getPhaseActivationOrder } from '@/utils/gameplay/gameSession';
+import { getActivePhaseUnitId } from '@/utils/gameplay/gameSession';
 
 // =============================================================================
 // Local side
@@ -99,7 +99,7 @@ export function activeSideFromSession(
   const state = session.currentState;
   if (state.status !== GameStatus.Active) return null;
   if (!INTENT_PHASES.has(state.phase)) return null;
-  const activeUnitId = getPhaseActivationOrder(session)[state.activationIndex];
+  const activeUnitId = getActivePhaseUnitId(session);
   if (!activeUnitId) return null;
   return (
     state.units[activeUnitId]?.side ??

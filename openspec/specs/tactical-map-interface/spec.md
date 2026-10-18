@@ -2211,6 +2211,7 @@ side data as allied.
 - **AND** destroyed units SHALL retain Eliminated text; otherwise retreated or withdrawing units SHALL retain Withdrawn text; all other ejected units SHALL show Skipped text
 - **AND** the unit SHALL be excluded from the active-turn sequence, unresolved units, and blockers
 - **AND** the rail SHALL NOT mark the ejected unit as active or upcoming, even if the activation cursor still names it
+- **AND** ejecting a unit that already acted SHALL preserve the next unfinished actor and its controls without skipping pending teammates or reactivating completed units
 
 #### Scenario: Rail selects and focuses units
 - **GIVEN** the player selects a unit in the rail

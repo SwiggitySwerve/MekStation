@@ -33,7 +33,10 @@ import {
   GameSide,
   LockState,
 } from '@/types/gameplay/GameSessionCoreTypes';
-import { getPhaseActivationOrder } from '@/utils/gameplay/gameSession';
+import {
+  getActivePhaseUnitId,
+  getPhaseActivationOrder,
+} from '@/utils/gameplay/gameSession';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -67,7 +70,7 @@ export interface IPhaseQueueProjection {
   readonly round: number;
   readonly phase: GamePhase;
   readonly activeSide: GameSide;
-  /** Eligible unit at the engine's activation cursor, or null. */
+  /** Next eligible unit whose phase action is unfinished, or null. */
   readonly activeUnitId: UnitId | null;
   /** All units in activation order for this phase. */
   readonly initiativeOrder: readonly UnitId[];
@@ -134,13 +137,7 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
     if (!session) return EMPTY_PROJECTION;
 
     const { currentState, units: gameUnits } = session;
-    const {
-      phase,
-      turn,
-      firstMover,
-      activationIndex,
-      units: unitStates,
-    } = currentState;
+    const { phase, turn, firstMover, units: unitStates } = currentState;
 
     // The first mover determines ordering; the active unit determines current
     // ownership once the queue advances.
@@ -225,8 +222,10 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       }
     }
 
-    // Match engine selection exactly, including an exhausted cursor.
-    const activeUnitId = actionOrder[activationIndex] ?? null;
+    // Match the engine's actor identity, independent of roster shrinkage.
+    const activeUnitId = ALTERNATING_PHASES.has(phase)
+      ? getActivePhaseUnitId(session)
+      : null;
     const activeSide = activeUnitId
       ? (resolvedSideByUnitId.get(activeUnitId) ?? firstMoverSide)
       : firstMoverSide;
