@@ -6965,7 +6965,22 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-admission-review-20261018.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-owner-ruling-6244750389.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-tests.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-leaves.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-selector.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-p2cg1e.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-p2cg1d.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-p2cg1c.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-p2cg1b.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-predecessors.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-fd9891e1-validator.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1f-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -6980,10 +6995,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "3b80a8bff25ca474f766a5dc7efb290353697946",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "66240745192f483f2ee1adfabfd9a30f09b13a63",
+      "mergeSha": "fd9891e161ee13ab8e3a62c56a5f9029bc5fa127",
       "stageReceipts": {
         "admission": {
           "path": "evidence/p2cg1f-admission-20261018.json"
@@ -6994,9 +7009,27 @@
         "local": {
           "path": "evidence/p2cg1f-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/p2cg1f-review-20261018.json",
+          "head": "66240745192f483f2ee1adfabfd9a30f09b13a63",
+          "reviewedHead": "66240745192f483f2ee1adfabfd9a30f09b13a63",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "51949e2635b4203fc2bad1814975e908ee288aedf54dc53fbb06f5e88d36f023",
+          "verdict": "APPROVE-WITH-NOTES"
+        },
+        "merge": {
+          "path": "evidence/p2cg1f-merge-20261018.json",
+          "pr": 2234,
+          "head": "66240745192f483f2ee1adfabfd9a30f09b13a63",
+          "mergeSha": "fd9891e161ee13ab8e3a62c56a5f9029bc5fa127"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1f-mainproof-20261018.json",
+          "mergeCommit": "fd9891e161ee13ab8e3a62c56a5f9029bc5fa127",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       679 passed, 679 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -7041,7 +7074,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -15914,6 +15947,44 @@
         "commentId": 6243490372,
         "author": "SwiggitySwerve",
         "bodySha256": "3477f8b57325ee6e3335f7616904b3bb120c8e5b952ffb848b8d6eb0d44b89a9"
+      }
+    },
+    {
+      "id": "PK-p2cg1f-ruling",
+      "blocks": [
+        "P2CG1F"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review across its five sensitive classes and required green CI, should the owner rule the bounded P2CG1F head (client hardening, dormant until receipt mode: useCampaignApplicationConsumer catches each queue step into one rejoin, confirmApplied included (CF13), consumes the P2CG1E close signal through the existing fixed-prefix match (the CF12 consumer half, tests only) and arms one 60 s pre-receipt quiet window per bound binding that the first campaign frame, a rejoin or dispose clears (CF-F3); useCampaignPersistenceStore bumps loadGeneration in adoptFlushedRevision after its version and digest proofs, so an older guarded refresh writes nothing (CF14); and m7, m8 and m12 pinned by tests with no product change; all dormant because no shipped creator binds expectedCampaignId and the bump has no production reader) before guarded merge?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit guarded P2CG1F merge and exact-main proof only; with no bound creator the queue catch, the close-signal consumption and the quiet window stay unreachable and the generation bump has no production reader, and P2CG1G1 may be released to planned only after that proof, with the review carry-forwards recorded for its admission. The behaviour-text omissions (F-DOC-1) and the baseline/rebase record (F-DOC-2) are recorded at closure, with the behaviour-text correction made by a separate parent documentary change.",
+          "effort": "One independent exact-head review across authority, privacy, replay, idempotency and concurrency, evidence check and owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until the concrete authority, privacy, replay, idempotency, concurrency or proof objections are fixed and fresh exact-head review, CI and owner ruling are complete.",
+          "effort": "Bounded by the concrete review objections"
+        }
+      ],
+      "agentRecommendation": "Rule only an independently approved green exact head that meets all of these: the new assertions fail on unchanged product and no test byte changes after the red commit; a throwing queue step, confirmApplied included, rejoins once and never rejects the queue, and later steps on the dead binding neither fold nor ACK; the close signal is consumed by the existing fixed-prefix match; the quiet window is armed only for a bound binding, fires at most once and is cleared by the first campaign frame, by rejoin and by dispose; the generation bump happens only after the version and digest proofs of a proven adoption, so an unproved flush disturbs nothing and an older guarded refresh writes nothing; and without a bound creator production behaviour is unchanged. This proposal grants no approval or merge permission.",
+      "revertCost": "Low: revert the two changed product leaves and the three test leaves; P2CG1F changes no Protocol type, transport, binder, registry, server.js composition or client creator, and no shipped creator binds expectedCampaignId, so production already takes the unbound path where the queue, the quiet window and the guarded refresh are never reached.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-18T02:31:25Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2234#issuecomment-6244750389"
+      },
+      "ruling": {
+        "ruledHead": "66240745192f483f2ee1adfabfd9a30f09b13a63",
+        "pr": 2234,
+        "commentId": 6244750389,
+        "author": "SwiggitySwerve",
+        "bodySha256": "c68bd921ab3a491fea9dd357608a97a8868747ac18dcf9c2a51e4baa7846ac81"
       }
     },
     {

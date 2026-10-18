@@ -1,0 +1,21 @@
+OWNER-RULING 66240745192f483f2ee1adfabfd9a30f09b13a63
+
+The owner authorized this ruling in chat (T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35, 2026-10-17, owner text: "continue with recommended options and fix the issues that come up, publish as needed"; Root posts OWNER-RULING comments for sensitive units under that instruction, disclosed to the owner).
+
+The ruling covers P2CG1F, which hardens the consumer against failure:
+- CF13: a throwing queue step, including confirmApplied, now rejoins once instead of stalling every later step.
+- CF12: the consumer half of E's close signal is pinned by tests only.
+- CF-F3: a bound connection with no campaign frame within 60 s rejoins once. Any campaign frame, a rejoin or an unmount cancels the timer. The reviewer ruled that this satisfies CF-F3 and the authority/privacy contract.
+- CF14: adopting a proved discard flush bumps loadGeneration, so an older in-flight refresh writes nothing. The reviewer ruled this sound and the better of the two options.
+- m7, m8 and m12 are pinned by tests.
+
+It is dormant: no shipped creator binds expectedCampaignId, and the store bump has no production reader. Review classes are authority, privacy, replay, idempotency and concurrency.
+
+An independent reviewer (Claude Fable 5.1 high) returned APPROVE-WITH-NOTES with no blockers (docs/audits/2026-10-18-p2cg1f-review.md, sha256 51949e2635b4203fc2bad1814975e908ee288aedf54dc53fbb06f5e88d36f023).
+- **Ledger:** reconciled exactly. The admission froze the manifest before any edit, the product was byte-identical at RED, and no test byte changed after RED. Files are 10/15 and counted lines 36/500. All 33 proof logs hash as recorded.
+- **Re-runs on the exact head:** registered suites 78/78, the Task 14 selector 104/104, B+C+D+E 344/344 and A1/A2 388/388.
+- **Mutants:** 8 run, 4 caught. The two near-equivalents are noted. The two real gaps are that heartbeats and offers ending the window are unpinned; they carry forward as CF-G1 and CF-G2.
+- **Ancestry:** merges cleanly onto main 8dc6b82b with F's entry intact.
+- **Documentary:** F-DOC-1 and F-DOC-2 are recorded at closure.
+
+Carry-forwards CF-G1..CF-G11 go to P2CG1G1 and the named owners. CI 32/32. The ruling approves merging this exact head.
