@@ -17,6 +17,10 @@ import { join } from 'path';
 const AI_MODULE_FILES = [
   'src/simulation/ai/AITerrainPathfinder.ts',
   'src/simulation/ai/AITierRegistry.ts',
+  'src/simulation/ai/AITierParameters.ts',
+  'src/simulation/ai/AITierDefaults.ts',
+  'src/simulation/ai/AITierCatalog.ts',
+  'src/simulation/ai/AITierResolvers.ts',
   'src/simulation/ai/MoveAI.ts',
   'src/simulation/ai/types.ts',
   'src/simulation/ai/behaviorVariants.ts',
