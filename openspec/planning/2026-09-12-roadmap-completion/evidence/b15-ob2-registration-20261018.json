@@ -63,12 +63,17 @@
       "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
       "sha256": "cf24477281833f67d518bd93a05a17704abba7643f81e5971174f62a8b2e7c19",
       "bytes": 16707
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2237-20261018/docs/audits/2026-10-18-pr2237-review.md",
+      "sha256": "584c505b6e5dcd0b1b3312d604cf5191649467d2b48cfc05a5e8e349c24977ef",
+      "bytes": 16685
     }
   ],
   "challengeCorrections": [
     "1 Gate A adopted by explicit Root ruling; no pending topology question.",
     "2 Entire original L1 marker, including releasePredicate and acceptance, unchanged from rebased Main.",
-    "3 Seven units (6+1 as enumerated by challenge), three sensitive and four routine; order 0/1/2/4/3/5/6.",
+    "3 Original seven contract groups retained; Root review-fix instruction registers three narrower ordinary-cap slices (4J/3R/5R). Ten units, five routine/five sensitive, no new product obligation.",
     "4 No ownership schema/migration/quarantine; multi-operator owner-column follow-up remains FN-ob2 open.",
     "5 matches/index.ts operator gate before co-op creation belongs to sensitive B15-5.",
     "6 Full exact/prefix census includes planned/blocked holders; sequence after U38, then serialize U50/U81/U101c/d.",
@@ -92,13 +97,16 @@
       "B15-1",
       "B15-2",
       "B15-4",
+      "B15-4J",
+      "B15-3R",
       "B15-3",
       "B15-5",
+      "B15-5R",
       "B15-6"
     ],
     "layer": "L2 = P3 exit",
     "rationale": "Authentication/read projection hardens the shared-mission surface already completed at P3 exit. No separate user-visible layer or L1 predicate change is needed. Historical 13-package obligations stay unchanged; this additional group must close before L2/P3 exit and any remote/tunnel support claim.",
-    "order": "U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-3 -> B15-5 -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.",
+    "order": "U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.",
     "L1Unchanged": true,
     "supportedV220Topology": "One machine, Electron or localhost development server; existing enforced loopback listener unchanged. No inter-participant isolation on the same OS session. No remote/proxy/tunnel support in v2.2.0.",
     "releaseNotes": "docs/releases/v2.2.0-topology.md",
@@ -107,8 +115,34 @@
       "FNob2": "Original finding and OB-2 text/status unchanged. B15 addresses single-operator credential/member access only; owner-column/multi-operator identity clause remains open, not discharged.",
       "FNu96": "B15-3 is prospective resolvedBy; finding stays recorded until genuine exact-main PASS and closure."
     },
-    "enforcement": "Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/6 do not acquire sensitive owner gates; sensitive 1/3/5 retain packet and exact-head OWNER-RULING.",
-    "supersedes": "Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded."
+    "enforcement": "Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/4J/6 do not acquire sensitive owner gates; sensitive 1/3R/3/5/5R retain packet and exact-head OWNER-RULING.",
+    "supersedes": "Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded.",
+    "decisionSource": "Root parent ruling supplied in the task message headed PARENT RULING, following the independent Fable challenge; reaffirmed by Root in the review-fix instruction for PR #2237. This is parent-transcribed authority under a standing owner instruction, not a new direct owner answer.",
+    "ownerWords": "continue with recommended options and fix the issues that come up, publish as needed",
+    "parentWords": "Root adopts gate A: v2.2.0 ships on the existing enforced same-host/loopback boundary, unchanged from today's OB-2 posture, with release notes stating the supported topology; B15 is registered for delivery before any remote/tunnel hosting claim, NOT as an L1 prerequisite",
+    "disclosure": "The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.",
+    "releaseNotesShipRequirement": "Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.",
+    "selectorDependency": "R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.",
+    "pendingG2Split": {
+      "source": "Root review-fix instruction",
+      "unit": "P2CG1G2A",
+      "registeredAtBaseline": false,
+      "paths": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts"
+      ],
+      "directB15LeafOverlap": [],
+      "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
+    },
+    "reviewFixSplit": {
+      "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
+      "additionalUnits": [
+        "B15-4J",
+        "B15-3R",
+        "B15-5R"
+      ],
+      "reason": "Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."
+    }
   },
   "units": [
     {
@@ -214,7 +248,7 @@
       "classes": [
         "routine"
       ],
-      "behavior": "Add a small campaignCredentialClient attaching the stored co-op bearer for host/guest requests. Operator cookie rides existing same-origin fetch and keepalive automatically; no solo/desktop principal-store migration. Update persistence GET/PUT/keepalive, list, activity, head/preflight and co-op entry token handoff. Keep token readiness before page-hide, guest context separate, and existing receipt/CAS semantics. Routes remain unenforced until B15-3. No change to authority policy, scope requirements or token verification; such a change requires sensitive reclassification.",
+      "behavior": "Add a small campaignCredentialClient attaching the stored co-op bearer for host/guest requests. Operator cookie rides existing same-origin fetch and keepalive automatically; no solo/desktop principal-store migration. Update persistence GET/PUT/keepalive, list, activity, head/preflight and co-op entry token handoff. Keep token readiness before page-hide, guest context separate, and existing receipt/CAS semantics. Routes remain unenforced until B15-3R/B15-3. No change to authority policy, scope requirements or token verification; such a change requires sensitive reclassification.",
       "leaves": [
         "src/lib/campaign/authority/campaignCredentialClient.ts",
         "src/stores/campaign/useCampaignPersistenceStore.ts",
@@ -266,22 +300,17 @@
     },
     {
       "id": "B15-4",
-      "title": "Fixture and readiness migration",
+      "title": "Fixture identity helper and readiness migration",
       "classes": [
         "routine"
       ],
-      "behavior": "Migrate e2e fixture/import/cleanup helpers and direct REST journey callers to explicit operator test sessions or isolated member bearers through a shared helper. Readiness probes use /api/health instead of anonymous campaign listing. Preserve assertions and actor separation, no auth verifier bypass. Land green before enforcement. This test-infrastructure unit runs the existing closure-proof suite once locally; no new network acceptance framework.",
+      "behavior": "Register the new e2e/helpers/campaignAccessIdentity.ts shared helper for real operator session setup and isolated member credentials. Migrate the four fixture/import/cleanup/two-process helpers and the direct restart-pack readiness probe to it; readiness uses /api/health. Keep credentials separated, preserve assertions, no verifier bypass. Supply operator-controlled test destination allowlist configuration for later replica tests. Lands green before B15-4J and enforcement; run closure-proof suite once locally. Direct journey callers are separately owned by B15-4J.",
       "leaves": [
+        "e2e/helpers/campaignAccessIdentity.ts",
         "e2e/fixtures/campaign.ts",
         "e2e/helpers/scenarioPackLoading.ts",
         "e2e/helpers/campaignJournalDrive.ts",
         "e2e/helpers/campaignJournalTwoProcess.ts",
-        "e2e/campaign-flow.spec.ts",
-        "e2e/saved-custom-combat.spec.ts",
-        "e2e/coop-campaign-two-browser-journey.spec.ts",
-        "e2e/gm-campaign-ledger-control-plane.spec.ts",
-        "e2e/campaign-two-device-drive.spec.ts",
-        "e2e/campaign-journal-two-process-convergence.spec.ts",
         "e2e/gm-two-player-restart.pack.spec.ts"
       ],
       "regressionTests": [
@@ -295,56 +324,152 @@
         "e2e/helpers/scenarioPackLoading.ts",
         "e2e/helpers/campaignJournalDrive.ts",
         "e2e/helpers/campaignJournalTwoProcess.ts",
+        "e2e/gm-two-player-restart.pack.spec.ts"
+      ],
+      "prospectivePaths": [
+        "e2e/helpers/campaignAccessIdentity.ts"
+      ],
+      "predecessors": [
+        "B15-2"
+      ],
+      "successors": [
+        "B15-4J"
+      ],
+      "sizing": {
+        "sourceAndTestCandidateLeaves": 6,
+        "countedAddedLinesEstimate": 100,
+        "lifecycleAndEvidenceReserveFiles": 5,
+        "lifecycleAddedLinesReserve": 35,
+        "fullCandidateFiles": 11,
+        "fullCandidateCountedLines": 135,
+        "admissionReady": false,
+        "requiresMeasuredSelectionOrNarrowerRegistration": false,
+        "note": "Candidate inventory includes exact regression test migration leaves. Full union is not an admission manifest. Every actual source/test/lifecycle/evidence output counts; if union is needed above caps, STOP for separately registered narrower successors, including fixture/test migration or guest projection as necessary. No scope is silently waived."
+      }
+    },
+    {
+      "id": "B15-4J",
+      "title": "Direct journey caller migration",
+      "classes": [
+        "routine"
+      ],
+      "behavior": "Migrate the six direct REST journey callers to B15-4 campaignAccessIdentity and its credential-bearing fixture helpers. Preserve every existing journey assertion and per-actor isolation; no operator cookie in member browser contexts. Run green before read/CRUD enforcement. No production edits or new auth policy.",
+      "leaves": [
         "e2e/campaign-flow.spec.ts",
         "e2e/saved-custom-combat.spec.ts",
         "e2e/coop-campaign-two-browser-journey.spec.ts",
         "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "e2e/campaign-two-device-drive.spec.ts",
-        "e2e/campaign-journal-two-process-convergence.spec.ts",
-        "e2e/gm-two-player-restart.pack.spec.ts"
+        "e2e/campaign-journal-two-process-convergence.spec.ts"
+      ],
+      "regressionTests": [
+        "six affected e2e journeys; assertion preservation and real verifier",
+        "existing closure-proof suite once locally for changed test infrastructure"
+      ],
+      "estimatedProductAddedLines": 80,
+      "existingPaths": [
+        "e2e/campaign-flow.spec.ts",
+        "e2e/saved-custom-combat.spec.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts",
+        "e2e/campaign-two-device-drive.spec.ts",
+        "e2e/campaign-journal-two-process-convergence.spec.ts"
       ],
       "prospectivePaths": [],
       "predecessors": [
-        "B15-2"
+        "B15-4"
+      ],
+      "successors": [
+        "B15-3R"
+      ],
+      "sizing": {
+        "sourceAndTestCandidateLeaves": 6,
+        "countedAddedLinesEstimate": 80,
+        "lifecycleAndEvidenceReserveFiles": 5,
+        "lifecycleAddedLinesReserve": 35,
+        "fullCandidateFiles": 11,
+        "fullCandidateCountedLines": 115,
+        "admissionReady": false,
+        "requiresMeasuredSelectionOrNarrowerRegistration": false,
+        "note": "Candidate inventory includes exact regression test migration leaves. Full union is not an admission manifest. Every actual source/test/lifecycle/evidence output counts; if union is needed above caps, STOP for separately registered narrower successors, including fixture/test migration or guest projection as necessary. No scope is silently waived."
+      }
+    },
+    {
+      "id": "B15-3R",
+      "title": "Authenticated member reads and guest projection",
+      "classes": [
+        "authority",
+        "privacy"
+      ],
+      "behavior": "Enforce record GET, activity, head and launch-authority actor/role policy before existence or private facts are disclosed. Member GET returns the existing canonical CampaignSnapshot projection, not the source envelope; adapt useCampaignPersistenceStore guest refresh to its discriminated response and own its test. Authenticate the activity viewer from bearer membership rather than claimed query ID; preserve solo cookie access and launch readiness semantics. Migrate the five owned route/store suites using authentic credentials; pin unauthorized read/private-byte RED assertions before enforcement. PUT/DELETE/adopt/collection remain B15-3; this is no remote-release point.",
+      "leaves": [
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "src/pages-modules/api/campaignActivityRoute.ts",
+        "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "src/__tests__/api/campaigns/campaigns.test.ts",
+        "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+      ],
+      "regressionTests": [
+        "real-token invalid/expired/stranger/GM/player/revoked/operator read matrix in owned suites",
+        "guest projection hydration/reload and own-store regression; no GM-private envelope",
+        "existing no-session launch and durable readiness regressions"
+      ],
+      "estimatedProductAddedLines": 400,
+      "existingPaths": [
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "src/pages-modules/api/campaignActivityRoute.ts",
+        "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "src/__tests__/api/campaigns/campaigns.test.ts",
+        "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+      ],
+      "prospectivePaths": [],
+      "predecessors": [
+        "B15-4J"
       ],
       "successors": [
         "B15-3"
       ],
       "sizing": {
-        "sourceAndTestCandidateLeaves": 11,
-        "countedAddedLinesEstimate": 100,
+        "sourceAndTestCandidateLeaves": 10,
+        "countedAddedLinesEstimate": 400,
         "lifecycleAndEvidenceReserveFiles": 5,
         "lifecycleAddedLinesReserve": 35,
-        "fullCandidateFiles": 16,
-        "fullCandidateCountedLines": 135,
+        "fullCandidateFiles": 15,
+        "fullCandidateCountedLines": 435,
         "admissionReady": false,
-        "requiresMeasuredSelectionOrNarrowerRegistration": true,
+        "requiresMeasuredSelectionOrNarrowerRegistration": false,
         "note": "Candidate inventory includes exact regression test migration leaves. Full union is not an admission manifest. Every actual source/test/lifecycle/evidence output counts; if union is needed above caps, STOP for separately registered narrower successors, including fixture/test migration or guest projection as necessary. No scope is silently waived."
       }
     },
     {
       "id": "B15-3",
-      "title": "Core enforcement and guest projection",
+      "title": "CRUD enforcement and FN-u96 live-host PUT",
       "classes": [
         "authority",
         "privacy"
       ],
-      "behavior": "Enforce operator/member policy on collection GET, record GET/PUT/DELETE, adopt, activity, head and launch-authority before existence/body/conflict/omission disclosure. Operator administers all local records; active GM/player reads use role projection. Member GET returns existing canonical CampaignSnapshot projection, never the full source envelope; adapt guest refresh to that discriminated response without broadening it. Live-host PUT requires operator OR authenticated durable host for the same match; body.coopSession is no credential (FN-u96). Keep source/replica, CAS, genesis/checkpoint and live-host ordering after authorization. RED actor x method matrix uses real verifier and SQLite and checks bytes plus row/journal effects; stranger browser regression belongs in this unit. Do not announce remote support until B15-5 closes remaining doors.",
+      "behavior": "After B15-3R supplies authenticated guest reads/projection, enforce collection GET and full-record PUT/DELETE/adopt before body, conflict or omission disclosure. Operator administers local records; live-host PUT requires operator OR a verified durable host identity for the stored match, never body.coopSession (FN-u96). Preserve the protected GET projection from B15-3R. Explicitly migrate campaignPutLiveHost, campaignPutGenesisRoute and campaignRecordJournalTransaction tests to real authorized requests while preserving anonymous-host-shaped RED refusal, CAS, genesis and journal/checkpoint atomicity assertions. Consolidated real-verifier actor x method RED matrix and stranger-context e2e inspect bytes plus row/journal/host effects. Complete remaining-door matrix only after B15-5/B15-5R; no remote support before group closure.",
       "leaves": [
         "src/pages/api/campaigns/index.ts",
         "src/pages/api/campaigns/[id].ts",
         "src/pages/api/campaigns/[id]/adopt.ts",
-        "src/pages-modules/api/campaignActivityRoute.ts",
-        "src/pages-modules/api/campaignLaunchHeadRoute.ts",
-        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
-        "src/stores/campaign/useCampaignPersistenceStore.ts",
-        "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
-        "e2e/campaign-access-isolation.spec.ts",
         "src/__tests__/api/campaigns/campaigns.test.ts",
         "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
-        "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
-        "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
-        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+        "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+        "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
+        "e2e/campaign-access-isolation.spec.ts"
       ],
       "regressionTests": [
         "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
@@ -353,81 +478,122 @@
         "invalid/expired/anonymous/valid-self-issued-stranger/operator/GM/player/revoked actors; conflict bytes, private rationale, omission metadata, body-host takeover",
         "guest reload consumes projected snapshot; preserve real matrix RED and remove check to kill regression"
       ],
-      "estimatedProductAddedLines": 400,
+      "estimatedProductAddedLines": 370,
       "existingPaths": [
         "src/pages/api/campaigns/index.ts",
         "src/pages/api/campaigns/[id].ts",
         "src/pages/api/campaigns/[id]/adopt.ts",
-        "src/pages-modules/api/campaignActivityRoute.ts",
-        "src/pages-modules/api/campaignLaunchHeadRoute.ts",
-        "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
-        "src/stores/campaign/useCampaignPersistenceStore.ts",
         "src/__tests__/api/campaigns/campaigns.test.ts",
         "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
-        "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
-        "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
-        "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+        "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts"
       ],
       "prospectivePaths": [
         "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
         "e2e/campaign-access-isolation.spec.ts"
       ],
       "predecessors": [
-        "B15-4"
+        "B15-3R"
       ],
       "successors": [
         "B15-5"
       ],
       "sizing": {
-        "sourceAndTestCandidateLeaves": 14,
-        "countedAddedLinesEstimate": 400,
+        "sourceAndTestCandidateLeaves": 10,
+        "countedAddedLinesEstimate": 370,
         "lifecycleAndEvidenceReserveFiles": 5,
         "lifecycleAddedLinesReserve": 35,
-        "fullCandidateFiles": 19,
-        "fullCandidateCountedLines": 435,
+        "fullCandidateFiles": 15,
+        "fullCandidateCountedLines": 405,
         "admissionReady": false,
-        "requiresMeasuredSelectionOrNarrowerRegistration": true,
+        "requiresMeasuredSelectionOrNarrowerRegistration": false,
         "note": "Candidate inventory includes exact regression test migration leaves. Full union is not an admission manifest. Every actual source/test/lifecycle/evidence output counts; if union is needed above caps, STOP for separately registered narrower successors, including fixture/test migration or guest projection as necessary. No scope is silently waived."
       }
     },
     {
       "id": "B15-5",
-      "title": "Remaining campaign authority doors",
+      "title": "Operator co-op creation and complete grants boundary",
       "classes": [
         "authority",
         "privacy"
       ],
-      "behavior": "Co-op matches/index.ts creation requires an operator session plus the verified creator bearer BEFORE match/GM-seat/host-registry side effects; a self-issued stranger naming a campaignId cannot manufacture membership. Grants require operator or active authorized GM even with zero/all-revoked seats. Redeem and replica-sync management require operator plus verified recipient/grant signature/source provenance; validate destination policy before dial, never trust caller URL/body as entitlement. Commands/rewind keep membership/GM and per-intent checks, allow operator only through the explicit policy, and project response state without leaking private pipeline/preview data. Complete the 17-method matrix and co-op-create case. No owner-column or migration.",
+      "behavior": "Require verified operator session plus creator bearer before co-op matches/index.ts creates a match, GM seat or host-registry side effect. Close the zero/all-revoked-seat grant bypass at BOTH grants.ts and campaignShareService.requireCampaignGm; own campaignShareCallerAuthority.test.ts and replace its no-participants bypass assertion with explicit operator success/stranger refusal. Carry a trusted server-resolved operator capability into the service, never caller-controlled booleans or missing callerId. Active authorized GM remains supported. Exercise route and non-route service callers, update the consolidated matrix, and preserve no-account operator access without seats. Redeem, replica-sync, commands and rewind are B15-5R; no remote claim before it closes.",
       "leaves": [
         "src/pages/api/multiplayer/matches/index.ts",
         "src/pages/api/campaigns/[id]/grants.ts",
-        "src/pages/api/campaigns/redeem.ts",
-        "src/pages/api/campaigns/[id]/replica-sync.ts",
-        "src/pages/api/campaigns/[id]/commands.ts",
-        "src/pages/api/campaigns/[id]/rewind-preview.ts",
-        "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
+        "src/lib/campaign/grants/campaignShareService.ts",
         "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
         "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
-        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
-        "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
-        "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
-        "src/__tests__/api/campaigns/rewindPreviewRoute.test.ts"
+        "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts",
+        "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
       ],
       "regressionTests": [
-        "real self-issued stranger gets no GM seat or match; no registry/participant/journal side effects",
-        "zero-seat grant and cross-principal replica management refusal; verified recipient and no arbitrary/internal destination dial",
-        "command response and rewind-private bytes; authentic signature/expiry/revocation cases"
+        "real self-issued stranger receives no match, participant or host registration",
+        "route AND direct service: zero/all-revoked seats do not authorize strangers; explicit operator succeeds, active GM succeeds, player refuses",
+        "no caller-controlled operator flag; real actor/method negative bytes and durable effects"
       ],
-      "estimatedProductAddedLines": 390,
+      "estimatedProductAddedLines": 320,
       "existingPaths": [
         "src/pages/api/multiplayer/matches/index.ts",
         "src/pages/api/campaigns/[id]/grants.ts",
+        "src/lib/campaign/grants/campaignShareService.ts",
+        "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
+        "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts"
+      ],
+      "prospectivePaths": [
+        "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+      ],
+      "predecessors": [
+        "B15-3"
+      ],
+      "successors": [
+        "B15-5R"
+      ],
+      "sizing": {
+        "sourceAndTestCandidateLeaves": 7,
+        "countedAddedLinesEstimate": 320,
+        "lifecycleAndEvidenceReserveFiles": 5,
+        "lifecycleAddedLinesReserve": 35,
+        "fullCandidateFiles": 12,
+        "fullCandidateCountedLines": 355,
+        "admissionReady": false,
+        "requiresMeasuredSelectionOrNarrowerRegistration": false,
+        "note": "Candidate inventory includes exact regression test migration leaves. Full union is not an admission manifest. Every actual source/test/lifecycle/evidence output counts; if union is needed above caps, STOP for separately registered narrower successors, including fixture/test migration or guest projection as necessary. No scope is silently waived."
+      }
+    },
+    {
+      "id": "B15-5R",
+      "title": "Replica management and command/rewind closure",
+      "classes": [
+        "authority",
+        "privacy"
+      ],
+      "behavior": "Redeem POST: require operator session plus verified recipient bearer matching token.participantId; retain existing embedded-public-key signature/expiry verification and source/replica conflict checks. Embedded-key verification is NOT pinned issuer authentication or signed body/sourceInstanceId provenance; the authoritative pinned-key check stays at the source on connection. Replica-sync GET/DELETE: require operator before status/stop effects. Replica-sync POST: additionally require verified recipient bearer matching body.playerId and presented participantId, compare presented campaignId/grantId to the stored replica authority, check presented expiry, and enforce an operator-configured destination allowlist before any dial; refuse missing policy/unknown destination. The local authority does not store participantId or issuer key: do NOT promise local pinned grant-signature verification or a stored-participant comparison. Source verifies the grant on connect; issuer/participant/address persistence is a separate unregistered schema/provenance follow-up, not silently added here. Commands and rewind retain active membership/per-intent/GM checks and project private response state; operator cookie does not manufacture a co-op seat. Extend the real-verifier matrix across all 17 methods and source/replica actors.",
+      "leaves": [
         "src/pages/api/campaigns/redeem.ts",
         "src/pages/api/campaigns/[id]/replica-sync.ts",
         "src/pages/api/campaigns/[id]/commands.ts",
         "src/pages/api/campaigns/[id]/rewind-preview.ts",
-        "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
-        "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
+        "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+        "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
+        "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
+        "src/__tests__/api/campaigns/rewindPreviewRoute.test.ts",
+        "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+      ],
+      "regressionTests": [
+        "redeem bad embedded signature/expiry/recipient refusal, not a claim of pinned issuer verification",
+        "replica status/stop: stranger/operator; POST: operator+recipient, stored grant/campaign mismatch, expiry, no-policy and unallowlisted destination; no dial on refusal",
+        "source rejects invalid pinned grant on connect; local replica test must not assert unavailable signature check",
+        "command and rewind privacy/per-intent refusal, no solo-seat fabrication; complete actor x method real-verifier matrix"
+      ],
+      "estimatedProductAddedLines": 390,
+      "existingPaths": [
+        "src/pages/api/campaigns/redeem.ts",
+        "src/pages/api/campaigns/[id]/replica-sync.ts",
+        "src/pages/api/campaigns/[id]/commands.ts",
+        "src/pages/api/campaigns/[id]/rewind-preview.ts",
         "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
         "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
         "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
@@ -437,20 +603,20 @@
         "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
       ],
       "predecessors": [
-        "B15-3"
+        "B15-5"
       ],
       "successors": [
         "B15-6"
       ],
       "sizing": {
-        "sourceAndTestCandidateLeaves": 13,
+        "sourceAndTestCandidateLeaves": 9,
         "countedAddedLinesEstimate": 390,
         "lifecycleAndEvidenceReserveFiles": 5,
         "lifecycleAddedLinesReserve": 35,
-        "fullCandidateFiles": 18,
+        "fullCandidateFiles": 14,
         "fullCandidateCountedLines": 425,
         "admissionReady": false,
-        "requiresMeasuredSelectionOrNarrowerRegistration": true,
+        "requiresMeasuredSelectionOrNarrowerRegistration": false,
         "note": "Candidate inventory includes exact regression test migration leaves. Full union is not an admission manifest. Every actual source/test/lifecycle/evidence output counts; if union is needed above caps, STOP for separately registered narrower successors, including fixture/test migration or guest projection as necessary. No scope is silently waived."
       }
     },
@@ -483,7 +649,7 @@
         "docs/deployment/campaign-hosting.md"
       ],
       "predecessors": [
-        "B15-5"
+        "B15-5R"
       ],
       "successors": [],
       "sizing": {
@@ -2539,6 +2705,196 @@
       },
       {
         "unit": "B15-4",
+        "path": "e2e/helpers/campaignAccessIdentity.ts",
+        "exists": false,
+        "holders": [
+          {
+            "id": "U1",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1b",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1c",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1e",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1d",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U2",
+            "state": "blocked",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U2b",
+            "state": "blocked",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U2c",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U22",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U86",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U87",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U25",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U27",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U28",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U51",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U52",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U53",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U30",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U31",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U54",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U55",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U57",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U3",
+            "state": "main-verified",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U6",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U7",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-4",
         "path": "e2e/fixtures/campaign.ts",
         "exists": true,
         "holders": [
@@ -3299,6 +3655,196 @@
       },
       {
         "unit": "B15-4",
+        "path": "e2e/gm-two-player-restart.pack.spec.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U1",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1b",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1c",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1e",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U1d",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U2",
+            "state": "blocked",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U2b",
+            "state": "blocked",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U2c",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U22",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U86",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U87",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U25",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U27",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U28",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U51",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U52",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U53",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U30",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U31",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U54",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U55",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U57",
+            "state": "planned",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U3",
+            "state": "main-verified",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U6",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          },
+          {
+            "id": "U7",
+            "state": "complete",
+            "matchedPaths": [
+              "e2e"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-4J",
         "path": "e2e/campaign-flow.spec.ts",
         "exists": true,
         "holders": [
@@ -3488,7 +4034,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-4",
+        "unit": "B15-4J",
         "path": "e2e/saved-custom-combat.spec.ts",
         "exists": true,
         "holders": [
@@ -3678,7 +4224,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-4",
+        "unit": "B15-4J",
         "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
         "exists": true,
         "holders": [
@@ -3903,7 +4449,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-4",
+        "unit": "B15-4J",
         "path": "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "exists": true,
         "holders": [
@@ -4093,7 +4639,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-4",
+        "unit": "B15-4J",
         "path": "e2e/campaign-two-device-drive.spec.ts",
         "exists": true,
         "holders": [
@@ -4283,7 +4829,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-4",
+        "unit": "B15-4J",
         "path": "e2e/campaign-journal-two-process-convergence.spec.ts",
         "exists": true,
         "holders": [
@@ -4473,219 +5019,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-4",
-        "path": "e2e/gm-two-player-restart.pack.spec.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U1",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U1b",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U1c",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U1e",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U1d",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U2",
-            "state": "blocked",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U2b",
-            "state": "blocked",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U2c",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U35d",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U22",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U86",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U87",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U25",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U27",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U28",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U51",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U52",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U53",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U30",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U31",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U54",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U55",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U57",
-            "state": "planned",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U3",
-            "state": "main-verified",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U6",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          },
-          {
-            "id": "U7",
-            "state": "complete",
-            "matchedPaths": [
-              "e2e"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-3",
-        "path": "src/pages/api/campaigns/index.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U35b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages/api/campaigns"
-            ]
-          },
-          {
-            "id": "U8",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-3",
+        "unit": "B15-3R",
         "path": "src/pages/api/campaigns/[id].ts",
         "exists": true,
         "holders": [
@@ -4714,29 +5048,121 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-3",
-        "path": "src/pages/api/campaigns/[id]/adopt.ts",
+        "unit": "B15-3R",
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
         "exists": true,
         "holders": [
           {
-            "id": "U35b",
+            "id": "U35f",
             "state": "complete",
             "matchedPaths": [
-              "src/pages/api/campaigns"
+              "src/stores/campaign/useCampaignPersistenceStore.ts"
             ]
           },
           {
-            "id": "U8",
-            "state": "complete",
+            "id": "P2CF2",
+            "state": "main-verified",
             "matchedPaths": [
-              "src/pages/api/campaigns"
+              "src/stores/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1F",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/stores/campaign"
+            ]
+          },
+          {
+            "id": "U69",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          },
+          {
+            "id": "U71",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          },
+          {
+            "id": "U73",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          },
+          {
+            "id": "U76",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
             ]
           }
         ],
         "inFlightHolders": []
       },
       {
-        "unit": "B15-3",
+        "unit": "B15-3R",
+        "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35f",
+            "state": "complete",
+            "matchedPaths": [
+              "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+            ]
+          },
+          {
+            "id": "P2CF2",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/stores/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1F",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/stores/campaign"
+            ]
+          },
+          {
+            "id": "U69",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          },
+          {
+            "id": "U71",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          },
+          {
+            "id": "U73",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          },
+          {
+            "id": "U76",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/stores"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3R",
         "path": "src/pages-modules/api/campaignActivityRoute.ts",
         "exists": true,
         "holders": [
@@ -4835,7 +5261,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-3",
+        "unit": "B15-3R",
         "path": "src/pages-modules/api/campaignLaunchHeadRoute.ts",
         "exists": true,
         "holders": [
@@ -4934,7 +5360,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-3",
+        "unit": "B15-3R",
         "path": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
         "exists": true,
         "holders": [
@@ -5040,57 +5466,600 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-3",
-        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "unit": "B15-3R",
+        "path": "src/__tests__/api/campaigns/campaigns.test.ts",
         "exists": true,
         "holders": [
           {
-            "id": "U35f",
+            "id": "U35c",
             "state": "complete",
             "matchedPaths": [
-              "src/stores/campaign/useCampaignPersistenceStore.ts"
+              "src/__tests__/api/campaigns"
             ]
           },
           {
-            "id": "P2CF2",
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3R",
+        "path": "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U21",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U21b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1E",
             "state": "main-verified",
             "matchedPaths": [
-              "src/stores/campaign"
+              "src/pages-modules/api"
             ]
           },
           {
-            "id": "P2CG1F",
+            "id": "P2CG1H",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1I1",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U26",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U46",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U48",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5a",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5g",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U104",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3R",
+        "path": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U21",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U21b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1E",
             "state": "main-verified",
             "matchedPaths": [
-              "src/stores/campaign"
+              "src/pages-modules/api"
             ]
           },
           {
-            "id": "U69",
+            "id": "P2CG1H",
             "state": "blocked",
             "matchedPaths": [
-              "src/stores"
+              "src/pages-modules/api"
             ]
           },
           {
-            "id": "U71",
+            "id": "P2CG1I1",
             "state": "blocked",
             "matchedPaths": [
-              "src/stores"
+              "src/pages-modules/api"
             ]
           },
           {
-            "id": "U73",
-            "state": "blocked",
+            "id": "U26",
+            "state": "planned",
             "matchedPaths": [
-              "src/stores"
+              "src/pages-modules/api"
             ]
           },
           {
-            "id": "U76",
+            "id": "U46",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U48",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5a",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5g",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U104",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3R",
+        "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U21",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U21b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2A",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+            ]
+          },
+          {
+            "id": "P2CG1",
             "state": "blocked",
             "matchedPaths": [
-              "src/stores"
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1E",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1H",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "P2CG1I1",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U26",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U46",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U48",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5a",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U5g",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          },
+          {
+            "id": "U104",
+            "state": "planned",
+            "matchedPaths": [
+              "src/pages-modules/api"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/pages/api/campaigns/index.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/pages/api/campaigns/[id].ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U96",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns/[id].ts"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/pages/api/campaigns/[id]/adopt.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/__tests__/api/campaigns/campaigns.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U96",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-3",
+        "path": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
             ]
           }
         ],
@@ -5323,382 +6292,6 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-3",
-        "path": "src/__tests__/api/campaigns/campaigns.test.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U35c",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          },
-          {
-            "id": "U35b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          },
-          {
-            "id": "U35d",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          },
-          {
-            "id": "U35e",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-3",
-        "path": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U35c",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          },
-          {
-            "id": "U35b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          },
-          {
-            "id": "U35d",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          },
-          {
-            "id": "U35e",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-3",
-        "path": "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U21",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U21b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1E",
-            "state": "main-verified",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1H",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1I1",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U26",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U46",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U48",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5a",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5c",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5g",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U104",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-3",
-        "path": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U21",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U21b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1E",
-            "state": "main-verified",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1H",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1I1",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U26",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U46",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U48",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5a",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5c",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5g",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U104",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-3",
-        "path": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U21",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U21b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2A",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
-            ]
-          },
-          {
-            "id": "P2CG1",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1E",
-            "state": "main-verified",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1H",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "P2CG1I1",
-            "state": "blocked",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U26",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U46",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U48",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5a",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5c",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U5g",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          },
-          {
-            "id": "U104",
-            "state": "planned",
-            "matchedPaths": [
-              "src/pages-modules/api"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
         "unit": "B15-5",
         "path": "src/pages/api/multiplayer/matches/index.ts",
         "exists": true,
@@ -5751,123 +6344,203 @@
       },
       {
         "unit": "B15-5",
-        "path": "src/pages/api/campaigns/redeem.ts",
+        "path": "src/lib/campaign/grants/campaignShareService.ts",
         "exists": true,
         "holders": [
           {
-            "id": "U35b",
+            "id": "U35g",
             "state": "complete",
             "matchedPaths": [
-              "src/pages/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U8",
+            "id": "U35i",
             "state": "complete",
             "matchedPaths": [
-              "src/pages/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-5",
-        "path": "src/pages/api/campaigns/[id]/replica-sync.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U35b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U8",
+            "id": "U58",
             "state": "complete",
             "matchedPaths": [
-              "src/pages/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-5",
-        "path": "src/pages/api/campaigns/[id]/commands.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U35b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U8",
+            "id": "U89",
             "state": "complete",
             "matchedPaths": [
-              "src/pages/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-5",
-        "path": "src/pages/api/campaigns/[id]/rewind-preview.ts",
-        "exists": true,
-        "holders": [
-          {
-            "id": "U35b",
-            "state": "complete",
-            "matchedPaths": [
-              "src/pages/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U8",
+            "id": "U92",
             "state": "complete",
             "matchedPaths": [
-              "src/pages/api/campaigns"
-            ]
-          }
-        ],
-        "inFlightHolders": []
-      },
-      {
-        "unit": "B15-5",
-        "path": "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
-        "exists": false,
-        "holders": [
-          {
-            "id": "U35c",
-            "state": "complete",
-            "matchedPaths": [
-              "src/__tests__/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U35b",
+            "id": "U97",
             "state": "complete",
             "matchedPaths": [
-              "src/__tests__/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U35d",
+            "id": "U98",
             "state": "complete",
             "matchedPaths": [
-              "src/__tests__/api/campaigns"
+              "src/lib/campaign"
             ]
           },
           {
-            "id": "U35e",
+            "id": "P1B",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P1B1",
             "state": "complete",
             "matchedPaths": [
-              "src/__tests__/api/campaigns"
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
             ]
           }
         ],
@@ -5940,6 +6613,334 @@
       },
       {
         "unit": "B15-5",
+        "path": "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35g",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U35i",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U58",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U89",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U92",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U97",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U98",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P1B",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P1B1",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P1",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CA",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CB",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CD",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CF",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CF1",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1B",
+            "state": "main-verified",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G1",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1R",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U38",
+            "state": "blocked",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U45",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U56",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U4",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U5d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U5e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U5h",
+            "state": "complete",
+            "matchedPaths": [
+              "src/lib"
+            ]
+          },
+          {
+            "id": "U100",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U105",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "U101c",
+            "state": "planned",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5",
+        "path": "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
+        "exists": false,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5R",
+        "path": "src/pages/api/campaigns/redeem.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5R",
+        "path": "src/pages/api/campaigns/[id]/replica-sync.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5R",
+        "path": "src/pages/api/campaigns/[id]/commands.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5R",
+        "path": "src/pages/api/campaigns/[id]/rewind-preview.ts",
+        "exists": true,
+        "holders": [
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          },
+          {
+            "id": "U8",
+            "state": "complete",
+            "matchedPaths": [
+              "src/pages/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5R",
         "path": "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
         "exists": true,
         "holders": [
@@ -5982,7 +6983,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-5",
+        "unit": "B15-5R",
         "path": "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
         "exists": true,
         "holders": [
@@ -6018,7 +7019,7 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-5",
+        "unit": "B15-5R",
         "path": "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
         "exists": true,
         "holders": [
@@ -6054,9 +7055,45 @@
         "inFlightHolders": []
       },
       {
-        "unit": "B15-5",
+        "unit": "B15-5R",
         "path": "src/__tests__/api/campaigns/rewindPreviewRoute.test.ts",
         "exists": true,
+        "holders": [
+          {
+            "id": "U35c",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35b",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35d",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          },
+          {
+            "id": "U35e",
+            "state": "complete",
+            "matchedPaths": [
+              "src/__tests__/api/campaigns"
+            ]
+          }
+        ],
+        "inFlightHolders": []
+      },
+      {
+        "unit": "B15-5R",
+        "path": "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
+        "exists": false,
         "holders": [
           {
             "id": "U35c",
@@ -6147,19 +7184,31 @@
       "U50",
       "U81",
       "U101c",
-      "U101d"
+      "U101d",
+      "P2CG1G2A (pending, not registered at baseline)"
     ],
-    "noSourceAdmission": true
+    "noSourceAdmission": true,
+    "pendingG2Split": {
+      "source": "Root review-fix instruction",
+      "unit": "P2CG1G2A",
+      "registeredAtBaseline": false,
+      "paths": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts"
+      ],
+      "directB15LeafOverlap": [],
+      "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
+    }
   },
   "preimages": {
     "units": "660648099d0681f46eb961b829227bd9832d7bfe90804ac9f6902804b0f01876",
     "roadmap": "152072508187488758b315649b3663568b0060ec1bd9480991de500543db7718"
   },
   "postimages": {
-    "units": "affe85cce5edc44f66af90a350ddb6cb07f24f6f47860a602417200e0be7caaf",
-    "roadmap": "1112cef029ccaace69f2d8c020d9fd5025cf7a0e3db5535aa2c83bd5c50c4602",
-    "design": "9ca66e6cb23e77ee15207593dd62da59daf5a3cdc35b8004ca2b2f93f8b5bd08",
-    "releaseNotes": "6046f2e9e7aed6c39e12417faaba7e35297e483362a16d983d3f00b1f26cee14"
+    "units": "3cd6b334314f2e59cbfcb7e09029bd8ab9a233ab0bd0c791a26b6a993b453840",
+    "roadmap": "73e331ae04a6ee833d921104305a50a2004be808d68878a6b1c37dfc2d69b261",
+    "design": "84f2cb4cc1e0d73284584eda3013975e21e531b0728cd7afb26d9e3e2e378007",
+    "releaseNotes": "8a89e8c1d79a03ab4ea53d0ee28f3e42cbdb6515f0974a8b552c7ac64025be1f"
   },
   "validation": [
     {
@@ -6188,8 +7237,8 @@
       "summary": "86 passed / 0 failed / 0 skipped",
       "log": {
         "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-tests.log",
-        "sha256": "5af63c77debb4fa80047625b9771ef69ca4158861ed7031b7b92ef6c21b03060",
-        "bytes": 33728
+        "sha256": "726562ea7c44281ff9a01177fbf88b1ea8d2b33ecf62bd65c91caeda2668914e",
+        "bytes": 33786
       }
     },
     {
@@ -6198,18 +7247,28 @@
       "summary": "230 passed / 0 failed",
       "log": {
         "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-openspec.log",
-        "sha256": "b757c5beff1c0ddd87be3fafe5bdcf637ab4fb24c33991c3a29ea5f5a697da18",
+        "sha256": "ffa178dc51da6e9d5431d3fc8772bd09b8ac665c7271563615a9e8bd509145d0",
         "bytes": 13920
       }
     },
     {
       "command": "node E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/revised-audit.cjs",
       "exitCode": 0,
-      "summary": "11 additive fields only; all 208 original units, 80 original nodes, original L1 object and OB-2/FN-ob2 preserved",
+      "summary": "14 additive fields only; all 208 original units, 80 original nodes, original L1 object and OB-2/FN-ob2 preserved",
       "log": {
         "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-exact-field-diff.log",
-        "sha256": "cfec74d846e460568fc015fed0c30fc8d573b5c271612c8248c6223902e7c8e8",
-        "bytes": 250
+        "sha256": "ca9758bea364184f9bc756f36b0defd5c8b4c0f51570d14f8ffa00a699a347da",
+        "bytes": 476
+      }
+    },
+    {
+      "command": "node E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/review-next.cjs",
+      "exitCode": 0,
+      "summary": "actual NEXT P2CG1G1 unchanged; old edge NONE-ADMISSIBLE exit 3; corrected edge selects each of ten individually released B15 units exit 0",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-next.log",
+        "sha256": "a7f9a683c58e08929422e17a94d305543bcb8f763eff87ad4c90972bec8c1112",
+        "bytes": 4805
       }
     },
     {
@@ -6220,10 +7279,126 @@
   ],
   "limits": [
     "Static design and existing test-source inspection, not a fresh packaged runtime or Docker run.",
-    "Seven-unit registration is not measured cap-fit proof. Full candidate test/evidence union may require a narrower registration before admission, especially 3/5 and fixture migration. No caps or required proof relaxed.",
+    "All ten candidate inventories including five provisional lifecycle/evidence slots are <=15 files and estimated counted additions <=500. These are static estimates, not admission proof; further necessary tests/helpers still require fresh census/split. No source or cap waiver.",
     "No product auth enforced by this PR. Same-host support and historical OB-2 remain unchanged; no remote claim authorized.",
     "Parent ruling authorizes this docs-only push/PR, not merge or a future fabricated sensitive OWNER-RULING."
   ],
+  "reviewResponse": {
+    "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
+    "verdict": "APPROVE-WITH-NOTES",
+    "source": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2237-20261018/docs/audits/2026-10-18-pr2237-review.md",
+      "sha256": "584c505b6e5dcd0b1b3312d604cf5191649467d2b48cfc05a5e8e349c24977ef"
+    },
+    "findings": {
+      "F1": "Node edge now R2.authority-live; isolated actual --next simulation records original blocker and every new chain member. Parent still enforces post-U38 genuine predecessor proof.",
+      "F2": "B15-3 explicitly owns all three PUT suites; B15-3R owns store plus store test and read/projection suites. B15-3R precedes B15-3; each full candidate union including five reserved files is <=15.",
+      "F3": "B15-5 owns campaignShareService.ts and campaignShareCallerAuthority.test.ts and closes the zero-seat bypass at route AND direct service boundaries.",
+      "F4": "B15-5R separates redeem embedded-key signature checks from replica-sync operator/recipient/stored-claim/expiry/destination checks. No local pinned-key verification or stored recipient field is promised. Source-side pinned check retained; new persistence/provenance out of scope.",
+      "F5": "B15-4 owns prospective e2e/helpers/campaignAccessIdentity.ts; B15-4J takes direct journeys so both fit candidate file budget.",
+      "N6": "Prospective resolvedBy remains explicitly pending; closer replaces with genuine post-hoc unit/PR/merge/Main proof shape on PASS.",
+      "N7": "decisionSource, ownerWords, parentWords and disclosure added to both B15 markers.",
+      "N8": "Both topology and Docker-honesty text must ship in actual v2.2.0 notes via Root; cannot wait for B15-6.",
+      "N9": "P1 also holds matches/index.ts; pending G2A two-leaf transfer recorded without fabricating baseline ownership."
+    },
+    "notAnImplementationApproval": true
+  },
+  "selectorSimulation": {
+    "result": "PASS",
+    "method": "Actual validator against isolated units/roadmap copies; evidence directories copied because the identity verifier rejects junction aliases; sibling files hardlinked read-only. Original planned units blocked; exactly one B15 candidate planned per case. No terminal state, proof or receipt fabricated. Actual ledger untouched.",
+    "limit": "Selector availability only. Root still enforces post-U38 exact-main PASS and every ordinary predecessor; no source admission.",
+    "temporaryDirectory": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/next-YFktYi",
+    "cases": [
+      {
+        "label": "actual ledger unchanged",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+        "exitCode": 0,
+        "stdout": "P2CG1G1",
+        "stderr": ""
+      },
+      {
+        "label": "negative control: old node edge",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 3,
+        "stdout": "NONE-ADMISSIBLE: 0 owner-gated, 95 blocked",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-0",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-0",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-1",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-1",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-2",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-2",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-4",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-4",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-4J",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-4J",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-3R",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-3R",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-3",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-3",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-5",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-5",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-5R",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-5R",
+        "stderr": ""
+      },
+      {
+        "label": "released individually in registered order: B15-6",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --roadmap E:\\Projects\\Personal\\MekStation-wt\\b15-registration-evidence-20261018\\next-YFktYi\\roadmap.json --next",
+        "exitCode": 0,
+        "stdout": "B15-6",
+        "stderr": ""
+      }
+    ],
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-next.log",
+      "sha256": "a7f9a683c58e08929422e17a94d305543bcb8f763eff87ad4c90972bec8c1112"
+    }
+  },
   "exactFieldDiff": {
     "result": "PASS",
     "changes": [
@@ -6266,7 +7441,7 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
           "predecessors": [
             "U38"
           ],
@@ -6327,7 +7502,7 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
           "predecessors": [
             "B15-0"
           ],
@@ -6349,7 +7524,7 @@
           "id": "B15-2",
           "node": "R2.campaign-access",
           "taskKeys": [],
-          "behavior": "Additive member bearer attachment: Add a small campaignCredentialClient attaching the stored co-op bearer for host/guest requests. Operator cookie rides existing same-origin fetch and keepalive automatically; no solo/desktop principal-store migration. Update persistence GET/PUT/keepalive, list, activity, head/preflight and co-op entry token handoff. Keep token readiness before page-hide, guest context separate, and existing receipt/CAS semantics. Routes remain unenforced until B15-3. No change to authority policy, scope requirements or token verification; such a change requires sensitive reclassification.",
+          "behavior": "Additive member bearer attachment: Add a small campaignCredentialClient attaching the stored co-op bearer for host/guest requests. Operator cookie rides existing same-origin fetch and keepalive automatically; no solo/desktop principal-store migration. Update persistence GET/PUT/keepalive, list, activity, head/preflight and co-op entry token handoff. Keep token readiness before page-hide, guest context separate, and existing receipt/CAS semantics. Routes remain unenforced until B15-3R/B15-3. No change to authority policy, scope requirements or token verification; such a change requires sensitive reclassification.",
           "ownershipPaths": [
             "src/stores/campaign/useCampaignPersistenceStore.ts",
             "src/pages/gameplay/campaigns/index.tsx",
@@ -6388,7 +7563,7 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
           "predecessors": [
             "B15-1"
           ],
@@ -6410,19 +7585,71 @@
           "id": "B15-4",
           "node": "R2.campaign-access",
           "taskKeys": [],
-          "behavior": "Fixture and readiness migration: Migrate e2e fixture/import/cleanup helpers and direct REST journey callers to explicit operator test sessions or isolated member bearers through a shared helper. Readiness probes use /api/health instead of anonymous campaign listing. Preserve assertions and actor separation, no auth verifier bypass. Land green before enforcement. This test-infrastructure unit runs the existing closure-proof suite once locally; no new network acceptance framework.",
+          "behavior": "Fixture identity helper and readiness migration: Register the new e2e/helpers/campaignAccessIdentity.ts shared helper for real operator session setup and isolated member credentials. Migrate the four fixture/import/cleanup/two-process helpers and the direct restart-pack readiness probe to it; readiness uses /api/health. Keep credentials separated, preserve assertions, no verifier bypass. Supply operator-controlled test destination allowlist configuration for later replica tests. Lands green before B15-4J and enforcement; run closure-proof suite once locally. Direct journey callers are separately owned by B15-4J.",
           "ownershipPaths": [
             "e2e/fixtures/campaign.ts",
             "e2e/helpers/scenarioPackLoading.ts",
             "e2e/helpers/campaignJournalDrive.ts",
             "e2e/helpers/campaignJournalTwoProcess.ts",
+            "e2e/gm-two-player-restart.pack.spec.ts"
+          ],
+          "ownershipExceptions": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "e2e/helpers/campaignAccessIdentity.ts"
+          ],
+          "lifecycleOwnershipLimit": "Own authentic lifecycle only; no other task/packet/receipt changes. Literal prospective files only, not directory-wide ownership.",
+          "ciClass": "product",
+          "reviewClasses": [
+            "routine"
+          ],
+          "caps": {
+            "maxFiles": 15,
+            "maxNonGeneratedLines": 500
+          },
+          "state": "blocked",
+          "baseline": null,
+          "prHead": null,
+          "mergeSha": null,
+          "stageReceipts": {
+            "admission": null,
+            "red": null,
+            "local": null,
+            "review": null,
+            "merge": null,
+            "mainProof": null,
+            "tick": null
+          },
+          "ownerGate": null,
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
+          "predecessors": [
+            "B15-2"
+          ],
+          "successors": [
+            "B15-4J"
+          ],
+          "registration20261018B15": {
+            "evidence": "evidence/b15-ob2-registration-20261018.json",
+            "layer": "L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite",
+            "ownerRulingRequired": false,
+            "sourceAdmitted": false
+          }
+        }
+      },
+      {
+        "op": "add",
+        "path": "/units.json/units/212",
+        "value": {
+          "id": "B15-4J",
+          "node": "R2.campaign-access",
+          "taskKeys": [],
+          "behavior": "Direct journey caller migration: Migrate the six direct REST journey callers to B15-4 campaignAccessIdentity and its credential-bearing fixture helpers. Preserve every existing journey assertion and per-actor isolation; no operator cookie in member browser contexts. Run green before read/CRUD enforcement. No production edits or new auth policy.",
+          "ownershipPaths": [
             "e2e/campaign-flow.spec.ts",
             "e2e/saved-custom-combat.spec.ts",
             "e2e/coop-campaign-two-browser-journey.spec.ts",
             "e2e/gm-campaign-ledger-control-plane.spec.ts",
             "e2e/campaign-two-device-drive.spec.ts",
-            "e2e/campaign-journal-two-process-convergence.spec.ts",
-            "e2e/gm-two-player-restart.pack.spec.ts"
+            "e2e/campaign-journal-two-process-convergence.spec.ts"
           ],
           "ownershipExceptions": [
             "openspec/planning/2026-09-12-roadmap-completion/units.json"
@@ -6450,12 +7677,12 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
           "predecessors": [
-            "B15-2"
+            "B15-4"
           ],
           "successors": [
-            "B15-3"
+            "B15-3R"
           ],
           "registration20261018B15": {
             "evidence": "evidence/b15-ob2-registration-20261018.json",
@@ -6467,25 +7694,83 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/212",
+        "path": "/units.json/units/213",
+        "value": {
+          "id": "B15-3R",
+          "node": "R2.campaign-access",
+          "taskKeys": [],
+          "behavior": "Authenticated member reads and guest projection: Enforce record GET, activity, head and launch-authority actor/role policy before existence or private facts are disclosed. Member GET returns the existing canonical CampaignSnapshot projection, not the source envelope; adapt useCampaignPersistenceStore guest refresh to its discriminated response and own its test. Authenticate the activity viewer from bearer membership rather than claimed query ID; preserve solo cookie access and launch readiness semantics. Migrate the five owned route/store suites using authentic credentials; pin unauthorized read/private-byte RED assertions before enforcement. PUT/DELETE/adopt/collection remain B15-3; this is no remote-release point.",
+          "ownershipPaths": [
+            "src/pages/api/campaigns/[id].ts",
+            "src/stores/campaign/useCampaignPersistenceStore.ts",
+            "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+            "src/pages-modules/api/campaignActivityRoute.ts",
+            "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+            "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+            "src/__tests__/api/campaigns/campaigns.test.ts",
+            "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
+            "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+            "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+          ],
+          "ownershipExceptions": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json"
+          ],
+          "lifecycleOwnershipLimit": "Own authentic lifecycle only; no other task/packet/receipt changes. Literal prospective files only, not directory-wide ownership.",
+          "ciClass": "product",
+          "reviewClasses": [
+            "authority",
+            "privacy"
+          ],
+          "caps": {
+            "maxFiles": 15,
+            "maxNonGeneratedLines": 500
+          },
+          "state": "blocked",
+          "baseline": null,
+          "prHead": null,
+          "mergeSha": null,
+          "stageReceipts": {
+            "admission": null,
+            "red": null,
+            "local": null,
+            "review": null,
+            "merge": null,
+            "mainProof": null,
+            "tick": null
+          },
+          "ownerGate": null,
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
+          "predecessors": [
+            "B15-4J"
+          ],
+          "successors": [
+            "B15-3"
+          ],
+          "registration20261018B15": {
+            "evidence": "evidence/b15-ob2-registration-20261018.json",
+            "layer": "L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite",
+            "ownerRulingRequired": true,
+            "sourceAdmitted": false
+          }
+        }
+      },
+      {
+        "op": "add",
+        "path": "/units.json/units/214",
         "value": {
           "id": "B15-3",
           "node": "R2.campaign-access",
           "taskKeys": [],
-          "behavior": "Core enforcement and guest projection: Enforce operator/member policy on collection GET, record GET/PUT/DELETE, adopt, activity, head and launch-authority before existence/body/conflict/omission disclosure. Operator administers all local records; active GM/player reads use role projection. Member GET returns existing canonical CampaignSnapshot projection, never the full source envelope; adapt guest refresh to that discriminated response without broadening it. Live-host PUT requires operator OR authenticated durable host for the same match; body.coopSession is no credential (FN-u96). Keep source/replica, CAS, genesis/checkpoint and live-host ordering after authorization. RED actor x method matrix uses real verifier and SQLite and checks bytes plus row/journal effects; stranger browser regression belongs in this unit. Do not announce remote support until B15-5 closes remaining doors.",
+          "behavior": "CRUD enforcement and FN-u96 live-host PUT: After B15-3R supplies authenticated guest reads/projection, enforce collection GET and full-record PUT/DELETE/adopt before body, conflict or omission disclosure. Operator administers local records; live-host PUT requires operator OR a verified durable host identity for the stored match, never body.coopSession (FN-u96). Preserve the protected GET projection from B15-3R. Explicitly migrate campaignPutLiveHost, campaignPutGenesisRoute and campaignRecordJournalTransaction tests to real authorized requests while preserving anonymous-host-shaped RED refusal, CAS, genesis and journal/checkpoint atomicity assertions. Consolidated real-verifier actor x method RED matrix and stranger-context e2e inspect bytes plus row/journal/host effects. Complete remaining-door matrix only after B15-5/B15-5R; no remote support before group closure.",
           "ownershipPaths": [
             "src/pages/api/campaigns/index.ts",
             "src/pages/api/campaigns/[id].ts",
             "src/pages/api/campaigns/[id]/adopt.ts",
-            "src/pages-modules/api/campaignActivityRoute.ts",
-            "src/pages-modules/api/campaignLaunchHeadRoute.ts",
-            "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
-            "src/stores/campaign/useCampaignPersistenceStore.ts",
             "src/__tests__/api/campaigns/campaigns.test.ts",
             "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
-            "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
-            "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
-            "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+            "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+            "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+            "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts"
           ],
           "ownershipExceptions": [
             "openspec/planning/2026-09-12-roadmap-completion/units.json",
@@ -6516,9 +7801,9 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
           "predecessors": [
-            "B15-4"
+            "B15-3R"
           ],
           "successors": [
             "B15-5"
@@ -6533,21 +7818,76 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/213",
+        "path": "/units.json/units/215",
         "value": {
           "id": "B15-5",
           "node": "R2.campaign-access",
           "taskKeys": [],
-          "behavior": "Remaining campaign authority doors: Co-op matches/index.ts creation requires an operator session plus the verified creator bearer BEFORE match/GM-seat/host-registry side effects; a self-issued stranger naming a campaignId cannot manufacture membership. Grants require operator or active authorized GM even with zero/all-revoked seats. Redeem and replica-sync management require operator plus verified recipient/grant signature/source provenance; validate destination policy before dial, never trust caller URL/body as entitlement. Commands/rewind keep membership/GM and per-intent checks, allow operator only through the explicit policy, and project response state without leaking private pipeline/preview data. Complete the 17-method matrix and co-op-create case. No owner-column or migration.",
+          "behavior": "Operator co-op creation and complete grants boundary: Require verified operator session plus creator bearer before co-op matches/index.ts creates a match, GM seat or host-registry side effect. Close the zero/all-revoked-seat grant bypass at BOTH grants.ts and campaignShareService.requireCampaignGm; own campaignShareCallerAuthority.test.ts and replace its no-participants bypass assertion with explicit operator success/stranger refusal. Carry a trusted server-resolved operator capability into the service, never caller-controlled booleans or missing callerId. Active authorized GM remains supported. Exercise route and non-route service callers, update the consolidated matrix, and preserve no-account operator access without seats. Redeem, replica-sync, commands and rewind are B15-5R; no remote claim before it closes.",
           "ownershipPaths": [
             "src/pages/api/multiplayer/matches/index.ts",
             "src/pages/api/campaigns/[id]/grants.ts",
+            "src/lib/campaign/grants/campaignShareService.ts",
+            "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+            "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
+            "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts"
+          ],
+          "ownershipExceptions": [
+            "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+          ],
+          "lifecycleOwnershipLimit": "Own authentic lifecycle only; no other task/packet/receipt changes. Literal prospective files only, not directory-wide ownership.",
+          "ciClass": "product",
+          "reviewClasses": [
+            "authority",
+            "privacy"
+          ],
+          "caps": {
+            "maxFiles": 15,
+            "maxNonGeneratedLines": 500
+          },
+          "state": "blocked",
+          "baseline": null,
+          "prHead": null,
+          "mergeSha": null,
+          "stageReceipts": {
+            "admission": null,
+            "red": null,
+            "local": null,
+            "review": null,
+            "merge": null,
+            "mainProof": null,
+            "tick": null
+          },
+          "ownerGate": null,
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
+          "predecessors": [
+            "B15-3"
+          ],
+          "successors": [
+            "B15-5R"
+          ],
+          "registration20261018B15": {
+            "evidence": "evidence/b15-ob2-registration-20261018.json",
+            "layer": "L2 = P3 exit; remote/tunnel support precondition, never an L1 prerequisite",
+            "ownerRulingRequired": true,
+            "sourceAdmitted": false
+          }
+        }
+      },
+      {
+        "op": "add",
+        "path": "/units.json/units/216",
+        "value": {
+          "id": "B15-5R",
+          "node": "R2.campaign-access",
+          "taskKeys": [],
+          "behavior": "Replica management and command/rewind closure: Redeem POST: require operator session plus verified recipient bearer matching token.participantId; retain existing embedded-public-key signature/expiry verification and source/replica conflict checks. Embedded-key verification is NOT pinned issuer authentication or signed body/sourceInstanceId provenance; the authoritative pinned-key check stays at the source on connection. Replica-sync GET/DELETE: require operator before status/stop effects. Replica-sync POST: additionally require verified recipient bearer matching body.playerId and presented participantId, compare presented campaignId/grantId to the stored replica authority, check presented expiry, and enforce an operator-configured destination allowlist before any dial; refuse missing policy/unknown destination. The local authority does not store participantId or issuer key: do NOT promise local pinned grant-signature verification or a stored-participant comparison. Source verifies the grant on connect; issuer/participant/address persistence is a separate unregistered schema/provenance follow-up, not silently added here. Commands and rewind retain active membership/per-intent/GM checks and project private response state; operator cookie does not manufacture a co-op seat. Extend the real-verifier matrix across all 17 methods and source/replica actors.",
+          "ownershipPaths": [
             "src/pages/api/campaigns/redeem.ts",
             "src/pages/api/campaigns/[id]/replica-sync.ts",
             "src/pages/api/campaigns/[id]/commands.ts",
             "src/pages/api/campaigns/[id]/rewind-preview.ts",
-            "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
-            "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
             "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
             "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
             "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
@@ -6581,9 +7921,9 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Sensitive: register a genuine packet before local-verified and obtain independent exact-head review plus OWNER-RULING before merge. ownerGate null is not a waiver; no unresolved choice packet is fabricated.",
           "predecessors": [
-            "B15-3"
+            "B15-5"
           ],
           "successors": [
             "B15-6"
@@ -6598,7 +7938,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/214",
+        "path": "/units.json/units/217",
         "value": {
           "id": "B15-6",
           "node": "R2.campaign-access",
@@ -6637,9 +7977,9 @@
             "tick": null
           },
           "ownerGate": null,
-          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3 and B15-5 exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
+          "admissionRequires": "Blocked documentary registration, no source admission. L2/P3-exit supporting group after U38 and prior B15 predecessor exact-main PASS, fetched-main ancestry and closure. No overlap with L1, U50, U81 or U101c/d work; re-census every literal path, including exceptions and planned/blocked holders, before admission. Keep one product/closure lane. Ordinary caps are 15 actual unique files and 500 U41 added counted lines, no deletion credit. Freeze complete source/test/helper/lifecycle/evidence manifest before edits. This inventory is not cap-fit proof: if required tests, projection or evidence exceed either cap, register narrower ordinary-cap successors before implementation; never omit proof or bypass auth to fit. NEXT does not enforce documentary edges or release policy. No remote/tunnel claim before B15-3R, B15-3, B15-5 and B15-5R exact-main proof plus the complete group/hosting acceptance. Existing L1 predicate is unchanged. Routine: ordinary independent review/CI; no sensitive OWNER-RULING required. Reclassify before any actual authority/privacy policy change.",
           "predecessors": [
-            "B15-5"
+            "B15-5R"
           ],
           "successors": [],
           "registration20261018B15": {
@@ -6677,13 +8017,16 @@
             "B15-1",
             "B15-2",
             "B15-4",
+            "B15-4J",
+            "B15-3R",
             "B15-3",
             "B15-5",
+            "B15-5R",
             "B15-6"
           ],
           "layer": "L2 = P3 exit",
           "rationale": "Authentication/read projection hardens the shared-mission surface already completed at P3 exit. No separate user-visible layer or L1 predicate change is needed. Historical 13-package obligations stay unchanged; this additional group must close before L2/P3 exit and any remote/tunnel support claim.",
-          "order": "U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-3 -> B15-5 -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.",
+          "order": "U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.",
           "L1Unchanged": true,
           "supportedV220Topology": "One machine, Electron or localhost development server; existing enforced loopback listener unchanged. No inter-participant isolation on the same OS session. No remote/proxy/tunnel support in v2.2.0.",
           "releaseNotes": "docs/releases/v2.2.0-topology.md",
@@ -6692,8 +8035,34 @@
             "FNob2": "Original finding and OB-2 text/status unchanged. B15 addresses single-operator credential/member access only; owner-column/multi-operator identity clause remains open, not discharged.",
             "FNu96": "B15-3 is prospective resolvedBy; finding stays recorded until genuine exact-main PASS and closure."
           },
-          "enforcement": "Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/6 do not acquire sensitive owner gates; sensitive 1/3/5 retain packet and exact-head OWNER-RULING.",
-          "supersedes": "Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded."
+          "enforcement": "Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/4J/6 do not acquire sensitive owner gates; sensitive 1/3R/3/5/5R retain packet and exact-head OWNER-RULING.",
+          "supersedes": "Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded.",
+          "decisionSource": "Root parent ruling supplied in the task message headed PARENT RULING, following the independent Fable challenge; reaffirmed by Root in the review-fix instruction for PR #2237. This is parent-transcribed authority under a standing owner instruction, not a new direct owner answer.",
+          "ownerWords": "continue with recommended options and fix the issues that come up, publish as needed",
+          "parentWords": "Root adopts gate A: v2.2.0 ships on the existing enforced same-host/loopback boundary, unchanged from today's OB-2 posture, with release notes stating the supported topology; B15 is registered for delivery before any remote/tunnel hosting claim, NOT as an L1 prerequisite",
+          "disclosure": "The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.",
+          "releaseNotesShipRequirement": "Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.",
+          "selectorDependency": "R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.",
+          "pendingG2Split": {
+            "source": "Root review-fix instruction",
+            "unit": "P2CG1G2A",
+            "registeredAtBaseline": false,
+            "paths": [
+              "src/pages/api/multiplayer/invites/[roomCode].ts",
+              "src/__tests__/api/securityBoundary.test.ts"
+            ],
+            "directB15LeafOverlap": [],
+            "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
+          },
+          "reviewFixSplit": {
+            "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
+            "additionalUnits": [
+              "B15-4J",
+              "B15-3R",
+              "B15-5R"
+            ],
+            "reason": "Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."
+          }
         }
       },
       {
@@ -6706,7 +8075,7 @@
           "kind": "implementation",
           "state": "planned",
           "dependsOn": [
-            "R2.multiplayer-client"
+            "R2.authority-live"
           ],
           "ownershipPaths": [
             "openspec/changes/design-campaign-authority-and-sync/design.md",
@@ -6729,32 +8098,37 @@
             "e2e/helpers/scenarioPackLoading.ts",
             "e2e/helpers/campaignJournalDrive.ts",
             "e2e/helpers/campaignJournalTwoProcess.ts",
+            "e2e/gm-two-player-restart.pack.spec.ts",
             "e2e/campaign-flow.spec.ts",
             "e2e/saved-custom-combat.spec.ts",
             "e2e/coop-campaign-two-browser-journey.spec.ts",
             "e2e/gm-campaign-ledger-control-plane.spec.ts",
             "e2e/campaign-two-device-drive.spec.ts",
             "e2e/campaign-journal-two-process-convergence.spec.ts",
-            "e2e/gm-two-player-restart.pack.spec.ts",
-            "src/pages/api/campaigns/index.ts",
             "src/pages/api/campaigns/[id].ts",
-            "src/pages/api/campaigns/[id]/adopt.ts",
             "src/pages-modules/api/campaignActivityRoute.ts",
             "src/pages-modules/api/campaignLaunchHeadRoute.ts",
             "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
             "src/__tests__/api/campaigns/campaigns.test.ts",
-            "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
             "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
             "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
             "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+            "src/pages/api/campaigns/index.ts",
+            "src/pages/api/campaigns/[id]/adopt.ts",
+            "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+            "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+            "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+            "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
             "src/pages/api/multiplayer/matches/index.ts",
             "src/pages/api/campaigns/[id]/grants.ts",
+            "src/lib/campaign/grants/campaignShareService.ts",
+            "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+            "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
+            "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts",
             "src/pages/api/campaigns/redeem.ts",
             "src/pages/api/campaigns/[id]/replica-sync.ts",
             "src/pages/api/campaigns/[id]/commands.ts",
             "src/pages/api/campaigns/[id]/rewind-preview.ts",
-            "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
-            "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
             "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
             "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
             "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
@@ -6765,7 +8139,7 @@
             "docs/releases/v2.2.0-topology.md"
           ],
           "acceptance": [
-            "B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-3 -> B15-5 -> B15-6; all ordinary caps and genuine exact-main proof",
+            "B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-6; all ordinary caps and genuine exact-main proof",
             "L1 release predicate and historical OB-2/U61 preserved; L2/P3 exit includes this group; remote/tunnel claims require full proof",
             "Operator cookie, verified active member projection, real actor x method negative matrix; no per-campaign owner-column discharge"
           ],
@@ -6797,13 +8171,16 @@
             "B15-1",
             "B15-2",
             "B15-4",
+            "B15-4J",
+            "B15-3R",
             "B15-3",
             "B15-5",
+            "B15-5R",
             "B15-6"
           ],
           "layer": "L2 = P3 exit",
           "rationale": "Authentication/read projection hardens the shared-mission surface already completed at P3 exit. No separate user-visible layer or L1 predicate change is needed. Historical 13-package obligations stay unchanged; this additional group must close before L2/P3 exit and any remote/tunnel support claim.",
-          "order": "U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-3 -> B15-5 -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.",
+          "order": "U38 -> B15-0 -> B15-1 -> B15-2 -> B15-4 -> B15-4J -> B15-3R -> B15-3 -> B15-5 -> B15-5R -> B15-6. Then resume eligible L2 work, including U101a-d under their original order. No concurrent U50/U81/U101c/d ownership; rebase/re-census if any lands first.",
           "L1Unchanged": true,
           "supportedV220Topology": "One machine, Electron or localhost development server; existing enforced loopback listener unchanged. No inter-participant isolation on the same OS session. No remote/proxy/tunnel support in v2.2.0.",
           "releaseNotes": "docs/releases/v2.2.0-topology.md",
@@ -6812,8 +8189,34 @@
             "FNob2": "Original finding and OB-2 text/status unchanged. B15 addresses single-operator credential/member access only; owner-column/multi-operator identity clause remains open, not discharged.",
             "FNu96": "B15-3 is prospective resolvedBy; finding stays recorded until genuine exact-main PASS and closure."
           },
-          "enforcement": "Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/6 do not acquire sensitive owner gates; sensitive 1/3/5 retain packet and exact-head OWNER-RULING.",
-          "supersedes": "Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded."
+          "enforcement": "Documentary scheduling/hosting hold; generic validator does not enforce these markers or unit predecessor arrays. Root owns release/publication checks. Routine 0/2/4/4J/6 do not acquire sensitive owner gates; sensitive 1/3R/3/5/5R retain packet and exact-head OWNER-RULING.",
+          "supersedes": "Rejected unpublished 16-unit gate-B design at 4bce669ac3112a783e99e6806a9e25a27ee6594d; challenge and parent ruling replace it. No historical Main receipt is superseded.",
+          "decisionSource": "Root parent ruling supplied in the task message headed PARENT RULING, following the independent Fable challenge; reaffirmed by Root in the review-fix instruction for PR #2237. This is parent-transcribed authority under a standing owner instruction, not a new direct owner answer.",
+          "ownerWords": "continue with recommended options and fix the issues that come up, publish as needed",
+          "parentWords": "Root adopts gate A: v2.2.0 ships on the existing enforced same-host/loopback boundary, unchanged from today's OB-2 posture, with release notes stating the supported topology; B15 is registered for delivery before any remote/tunnel hosting claim, NOT as an L1 prerequisite",
+          "disclosure": "The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.",
+          "releaseNotesShipRequirement": "Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.",
+          "selectorDependency": "R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.",
+          "pendingG2Split": {
+            "source": "Root review-fix instruction",
+            "unit": "P2CG1G2A",
+            "registeredAtBaseline": false,
+            "paths": [
+              "src/pages/api/multiplayer/invites/[roomCode].ts",
+              "src/__tests__/api/securityBoundary.test.ts"
+            ],
+            "directB15LeafOverlap": [],
+            "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
+          },
+          "reviewFixSplit": {
+            "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
+            "additionalUnits": [
+              "B15-4J",
+              "B15-3R",
+              "B15-5R"
+            ],
+            "reason": "Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."
+          }
         }
       }
     ],
@@ -6836,18 +8239,18 @@
   "registrationBudget": {
     "actualFiles": 5,
     "maxFiles": 15,
-    "countedAddedLines": 252,
+    "countedAddedLines": 334,
     "maxNonGeneratedLines": 500,
     "countedBreakdown": [
       {
         "path": "docs/audits/2026-10-18-b15-ob2-registration-design.md",
-        "added": 61,
+        "added": 75,
         "deleted": 0,
         "excluded": false
       },
       {
         "path": "docs/releases/v2.2.0-topology.md",
-        "added": 15,
+        "added": 17,
         "deleted": 0,
         "excluded": false
       },
@@ -6859,7 +8262,7 @@
       },
       {
         "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
-        "added": 158,
+        "added": 224,
         "deleted": 2,
         "excluded": false
       }
