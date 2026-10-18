@@ -25225,7 +25225,7 @@
       "L1-SMOKE-A2": "blocked",
       "L1-SMOKE-B": "blocked"
     },
-    "order": "P2CG1S -> L1-SMOKE-A1 -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. The smoke records are placed after B14-HEAD so --next retains B14-0 priority on Main plus this registration; array placement does not add a B14 predecessor to A1/A2.",
+    "order": "P2CG1S -> L1-SMOKE-A1; {L1-SMOKE-A1, MP-RECOVERY-UNITS-1, MP-HOST-DEDUPE-1} -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. A1 remains independent of B14; A2 now waits for the registered B14/HP recovery and dedupe repairs. Array placement remains selector priority, not extra admission permission.",
     "reason": "Root review round 1 split A baseline/harness from A2 B10 matrix/restart proof because 500 counted lines is a total per-unit cap, not per-file. Three finite, separately capped new-leaf units replace the two-unit shared-file proposal; no partial gate exists in the validator.",
     "obligation": {
       "status": "owed; registered for future discharge only",
