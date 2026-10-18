@@ -349,13 +349,16 @@ describe('GET /api/matches/:id/head', () => {
     expect(result.body).toStrictEqual({ error: 'no head' });
   });
   describe('B14-HEAD fog containment', () => {
-    const fogConfig = (config: IMatchMeta['config'] | undefined): void => {
+    const fogConfig = (
+      config: IMatchMeta['config'] | undefined,
+      status?: IMatchMeta['status'],
+    ): void => {
       const original = store.getMatchMeta.bind(store);
       metaSpy = jest
         .spyOn(store, 'getMatchMeta')
         .mockImplementation(async (id) => {
           const m = await original(id);
-          return { ...m, config } as IMatchMeta;
+          return { ...m, config, status: status ?? m.status } as IMatchMeta;
         });
     };
     let metaSpy: jest.SpyInstance | undefined;
@@ -376,10 +379,23 @@ describe('GET /api/matches/:id/head', () => {
         expect(result.body).toStrictEqual({
           error: 'fog-projection-unavailable',
         });
+        expect(result.headers).toStrictEqual({});
         const text = JSON.stringify(result.body);
         for (const secret of [ACTIVE_DIGEST, ROOT_DIGEST, 'candidate-1']) {
           expect(text).not.toContain(secret);
         }
+      },
+    );
+
+    it.each(['active', 'completed'] as const)(
+      'refuses a fog-on host with no head when the match is %s',
+      async (status) => {
+        fogConfig({ mapRadius: 4, turnLimit: 5, fogOfWar: true }, status);
+        const result = await getHead(host.wire);
+        expect(result.statusCode).toBe(403);
+        expect(result.body).toStrictEqual({
+          error: 'fog-projection-unavailable',
+        });
       },
     );
 
