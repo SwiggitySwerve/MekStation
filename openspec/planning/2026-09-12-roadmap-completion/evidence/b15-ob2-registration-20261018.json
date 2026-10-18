@@ -1,7 +1,7 @@
 {
   "event": "b15-ob2-registration-revised-after-challenge",
   "at": "2026-10-18",
-  "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+  "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
   "registrationOnly": true,
   "sourceAdmitted": false,
   "proofClass": "ledger",
@@ -68,6 +68,11 @@
       "path": "E:/Projects/Personal/MekStation-wt/review-2237-20261018/docs/audits/2026-10-18-pr2237-review.md",
       "sha256": "584c505b6e5dcd0b1b3312d604cf5191649467d2b48cfc05a5e8e349c24977ef",
       "bytes": 16685
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2237-r2-20261018/docs/audits/2026-10-18-pr2237-review-r2.md",
+      "sha256": "753e88b2d090f0a88a904886657551c3d1c7eee34d07a0d9e3539d3e95ebd2f2",
+      "bytes": 16066
     }
   ],
   "challengeCorrections": [
@@ -78,14 +83,14 @@
     "5 matches/index.ts operator gate before co-op creation belongs to sensitive B15-5.",
     "6 Full exact/prefix census includes planned/blocked holders; sequence after U38, then serialize U50/U81/U101c/d.",
     "7 New planned R2.campaign-access node contains exact existing unit paths verbatim; no containment claim or widening of completed R2.authority-live.",
-    "8 Baseline post-2235 54764673; P2CG1F main-verified; persistence store literal directly registered, no stale deferral.",
+    "8 Baseline e52000e35d99c36691b21d31e60bf19d57de4d64 includes #2235/#2236, G1 #2238, G2 split #2239 and #2233. Existing persistence store literals remain directly registered; all Main objects including G1/G2A/G2 and the 20-unit L1 amendment are preserved.",
     "9 Docker production image and dev compose fail HOSTNAME admission; config honesty defect, no working exposure path.",
     "10 Cite existing packaged-listener test and validator; no new network QC script/spec/unit.",
     "11 FN-u96.resolvedBy identifies B15-3 with pending exact-main condition, without claiming fixed; OB-2/FN-ob2 untouched.",
     "12 Design and separate v2.2.0 release-note artifact state same-host lacks inter-participant isolation and remote is unsupported."
   ],
   "registration": {
-    "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+    "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
     "evidence": "evidence/b15-ob2-registration-20261018.json",
     "recommendation": "A",
     "authority": "Root parent ruling in this task, under owner standing instruction: v2.2.0 same-host/loopback; B15 after L1 and before any remote/tunnel hosting claim.",
@@ -123,17 +128,6 @@
     "disclosure": "The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.",
     "releaseNotesShipRequirement": "Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.",
     "selectorDependency": "R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.",
-    "pendingG2Split": {
-      "source": "Root review-fix instruction",
-      "unit": "P2CG1G2A",
-      "registeredAtBaseline": false,
-      "paths": [
-        "src/pages/api/multiplayer/invites/[roomCode].ts",
-        "src/__tests__/api/securityBoundary.test.ts"
-      ],
-      "directB15LeafOverlap": [],
-      "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
-    },
     "reviewFixSplit": {
       "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
       "additionalUnits": [
@@ -142,6 +136,21 @@
         "B15-5R"
       ],
       "reason": "Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."
+    },
+    "g2SplitComposition": {
+      "source": "Root round-2 review handoff; merged #2238/#2239 preserved on current origin/main",
+      "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
+      "reviewedB15Head": "5d413f2075533441fab80fd436acbe1ff465c6ca",
+      "g1Merge": "68eb607212a099a6a707a59be6bc8654064e8534",
+      "g2SplitMerge": "969af8de89c4dd042b86d629075b022a9b1f0f96",
+      "unit": "P2CG1G2A",
+      "registeredAtBaseline": true,
+      "paths": [
+        "src/pages/api/multiplayer/invites/[roomCode].ts",
+        "src/__tests__/api/securityBoundary.test.ts"
+      ],
+      "directB15LeafOverlap": [],
+      "rule": "Merged G2A owns the invite/security literals; reduced G2 retains entry panel/test overlap and its src/lib/campaign alias contains B15-1/2/5 leaves. Current L1 has 20 units and is unchanged by B15. G1 is still implementing in this baseline ledger despite its product merge, so its broad campaign alias remains an active collision; preserve lifecycle and wait for genuine closure. All B15 remains blocked post-U38, transitively after G2A/G2; re-census before admission."
     }
   },
   "units": [
@@ -667,8 +676,10 @@
   ],
   "ownershipCensus": {
     "method": "Every baseline unit ownershipPath containment plus literal exception; all states retained, not just in-flight. Future overlap must be serialized, not called absent.",
-    "baselineUnitCount": 208,
-    "inFlightUnits": [],
+    "baselineUnitCount": 209,
+    "inFlightUnits": [
+      "P2CG1G1"
+    ],
     "entries": [
       {
         "unit": "B15-0",
@@ -919,7 +930,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -1002,7 +1020,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-1",
@@ -1271,7 +1291,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -1354,7 +1381,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-1",
@@ -1602,7 +1631,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -1685,7 +1721,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-2",
@@ -1870,7 +1908,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -1953,7 +1998,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-2",
@@ -2074,7 +2121,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -2157,7 +2211,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-2",
@@ -2278,7 +2334,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -2368,7 +2431,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-2",
@@ -2539,7 +2604,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -2622,7 +2694,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-2",
@@ -6461,7 +6535,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -6544,7 +6625,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-5",
@@ -6730,7 +6813,14 @@
           },
           {
             "id": "P2CG1G1",
-            "state": "planned",
+            "state": "implementing",
+            "matchedPaths": [
+              "src/lib/campaign"
+            ]
+          },
+          {
+            "id": "P2CG1G2",
+            "state": "blocked",
             "matchedPaths": [
               "src/lib/campaign"
             ]
@@ -6813,7 +6903,9 @@
             ]
           }
         ],
-        "inFlightHolders": []
+        "inFlightHolders": [
+          "P2CG1G1"
+        ]
       },
       {
         "unit": "B15-5",
@@ -7176,6 +7268,8 @@
       "disposition": "No B15 Dockerfile grant; README/compose comments describe unsupported Docker honestly. Any later Dockerfile edit requires a separate exact ownership decision."
     },
     "knownSequencingHolders": [
+      "P2CG1G1",
+      "P2CG1G2A",
       "P2CG1G2",
       "P2CG1H",
       "P2CH",
@@ -7184,99 +7278,113 @@
       "U50",
       "U81",
       "U101c",
-      "U101d",
-      "P2CG1G2A (pending, not registered at baseline)"
+      "U101d"
     ],
     "noSourceAdmission": true,
-    "pendingG2Split": {
-      "source": "Root review-fix instruction",
+    "g2SplitComposition": {
+      "source": "Root round-2 review handoff; merged #2238/#2239 preserved on current origin/main",
+      "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
+      "reviewedB15Head": "5d413f2075533441fab80fd436acbe1ff465c6ca",
+      "g1Merge": "68eb607212a099a6a707a59be6bc8654064e8534",
+      "g2SplitMerge": "969af8de89c4dd042b86d629075b022a9b1f0f96",
       "unit": "P2CG1G2A",
-      "registeredAtBaseline": false,
+      "registeredAtBaseline": true,
       "paths": [
         "src/pages/api/multiplayer/invites/[roomCode].ts",
         "src/__tests__/api/securityBoundary.test.ts"
       ],
       "directB15LeafOverlap": [],
-      "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
+      "rule": "Merged G2A owns the invite/security literals; reduced G2 retains entry panel/test overlap and its src/lib/campaign alias contains B15-1/2/5 leaves. Current L1 has 20 units and is unchanged by B15. G1 is still implementing in this baseline ledger despite its product merge, so its broad campaign alias remains an active collision; preserve lifecycle and wait for genuine closure. All B15 remains blocked post-U38, transitively after G2A/G2; re-census before admission."
+    },
+    "activeCollisionEntries": 9,
+    "g2CompositionSummary": {
+      "g2aMatches": [],
+      "g2Matches": [
+        {
+          "unit": "B15-1",
+          "path": "src/lib/campaign/authority/CampaignOperatorCredential.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-1",
+          "path": "src/lib/campaign/authority/__tests__/CampaignOperatorCredential.test.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/lib/campaign/authority/campaignCredentialClient.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/lib/campaign/hooks/useCampaignActivityFeed.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/lib/campaign/encounter/readCampaignLaunchHead.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "matchedPaths": [
+            "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/lib/campaign/authority/__tests__/campaignCredentialClient.test.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-2",
+          "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "matchedPaths": [
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ]
+        },
+        {
+          "unit": "B15-5",
+          "path": "src/lib/campaign/grants/campaignShareService.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        },
+        {
+          "unit": "B15-5",
+          "path": "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts",
+          "matchedPaths": [
+            "src/lib/campaign"
+          ]
+        }
+      ],
+      "rule": "No G2A product-leaf overlap. G1 active and G2 planned/blocked overlaps are serialized after U38; lifecycle units.json exception is shared bookkeeping only, not a product grant."
     }
   },
   "preimages": {
-    "units": "660648099d0681f46eb961b829227bd9832d7bfe90804ac9f6902804b0f01876",
-    "roadmap": "152072508187488758b315649b3663568b0060ec1bd9480991de500543db7718"
+    "units": "b4c5ecc35db43897c51cfaf1bd157deabd2b1b1543c49caafc183e6592c355e8",
+    "roadmap": "2d116e5cf9687e2f493a6aab0a809abc79611b1f5dc4e1d9ef2b9f51229f4e94"
   },
-  "postimages": {
-    "units": "3cd6b334314f2e59cbfcb7e09029bd8ab9a233ab0bd0c791a26b6a993b453840",
-    "roadmap": "73e331ae04a6ee833d921104305a50a2004be808d68878a6b1c37dfc2d69b261",
-    "design": "84f2cb4cc1e0d73284584eda3013975e21e531b0728cd7afb26d9e3e2e378007",
-    "releaseNotes": "8a89e8c1d79a03ab4ea53d0ee28f3e42cbdb6515f0974a8b552c7ac64025be1f"
-  },
-  "validation": [
-    {
-      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
-      "exitCode": 0,
-      "summary": "81 nodes / 13 packages / 381 tasks / 40 triage rows; PASS",
-      "log": {
-        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-roadmap.log",
-        "sha256": "5a57b81088aa5987f4a41c7c6b114665df41e9d485d97e483e52b69544a1d235",
-        "bytes": 156
-      }
-    },
-    {
-      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
-      "exitCode": 0,
-      "summary": "historical Git/evidence checks PASS; 81 nodes",
-      "log": {
-        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-roadmap-git.log",
-        "sha256": "2aaa623d3d992c38577a7910c04ab2077eb26f24ec45c3eefbd8f341a8d9948b",
-        "bytes": 4714
-      }
-    },
-    {
-      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
-      "exitCode": 0,
-      "summary": "86 passed / 0 failed / 0 skipped",
-      "log": {
-        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-tests.log",
-        "sha256": "726562ea7c44281ff9a01177fbf88b1ea8d2b33ecf62bd65c91caeda2668914e",
-        "bytes": 33786
-      }
-    },
-    {
-      "command": "npx openspec validate --all --strict",
-      "exitCode": 0,
-      "summary": "230 passed / 0 failed",
-      "log": {
-        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-openspec.log",
-        "sha256": "ffa178dc51da6e9d5431d3fc8772bd09b8ac665c7271563615a9e8bd509145d0",
-        "bytes": 13920
-      }
-    },
-    {
-      "command": "node E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/revised-audit.cjs",
-      "exitCode": 0,
-      "summary": "14 additive fields only; all 208 original units, 80 original nodes, original L1 object and OB-2/FN-ob2 preserved",
-      "log": {
-        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-exact-field-diff.log",
-        "sha256": "ca9758bea364184f9bc756f36b0defd5c8b4c0f51570d14f8ffa00a699a347da",
-        "bytes": 476
-      }
-    },
-    {
-      "command": "node E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/review-next.cjs",
-      "exitCode": 0,
-      "summary": "actual NEXT P2CG1G1 unchanged; old edge NONE-ADMISSIBLE exit 3; corrected edge selects each of ten individually released B15 units exit 0",
-      "log": {
-        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-next.log",
-        "sha256": "a7f9a683c58e08929422e17a94d305543bcb8f763eff87ad4c90972bec8c1112",
-        "bytes": 4805
-      }
-    },
-    {
-      "command": "git diff --cached --check",
-      "exitCode": 0,
-      "summary": "No whitespace errors"
-    }
-  ],
   "limits": [
     "Static design and existing test-source inspection, not a fresh packaged runtime or Docker run.",
     "All ten candidate inventories including five provisional lifecycle/evidence slots are <=15 files and estimated counted additions <=500. These are static estimates, not admission proof; further necessary tests/helpers still require fresh census/split. No source or cap waiver.",
@@ -7303,7 +7411,35 @@
     },
     "notAnImplementationApproval": true
   },
-  "selectorSimulation": {
+  "validationEnvironment": {
+    "node": "v22.22.0",
+    "nodeExecutable": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\b15-registration-20261018",
+    "dependencyInstallation": false,
+    "rootCheckoutWrites": false,
+    "packagedRuntimeOrDockerRun": false
+  },
+  "round2Response": {
+    "reviewedHead": "5d413f2075533441fab80fd436acbe1ff465c6ca",
+    "verdict": "APPROVE-WITH-NOTES",
+    "source": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2237-r2-20261018/docs/audits/2026-10-18-pr2237-review-r2.md",
+      "sha256": "753e88b2d090f0a88a904886657551c3d1c7eee34d07a0d9e3539d3e95ebd2f2"
+    },
+    "previousBaseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+    "rebasedOnto": "e52000e35d99c36691b21d31e60bf19d57de4d64",
+    "preservedMerges": [
+      "68eb607212a099a6a707a59be6bc8654064e8534",
+      "969af8de89c4dd042b86d629075b022a9b1f0f96",
+      "e52000e35d99c36691b21d31e60bf19d57de4d64"
+    ],
+    "notes": {
+      "N-R2-1": "Design guest-refresh adaptation now names B15-3R.",
+      "N-R2-2": "Rebased without conflicts. Preserve all current Main units/nodes/packets, G1 lifecycle, G2A/reduced G2 registration and entire 20-unit L1 marker. Refresh every B15 census entry and pinned pre/post images against current Main."
+    },
+    "noProductAdmission": true
+  },
+  "historicalSelectorSimulation": {
     "result": "PASS",
     "method": "Actual validator against isolated units/roadmap copies; evidence directories copied because the identity verifier rejects junction aliases; sibling files hardlinked read-only. Original planned units blocked; exactly one B15 candidate planned per case. No terminal state, proof or receipt fabricated. Actual ledger untouched.",
     "limit": "Selector availability only. Root still enforces post-U38 exact-main PASS and every ordinary predecessor; no source admission.",
@@ -7397,14 +7533,18 @@
     "log": {
       "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/rev-next.log",
       "sha256": "a7f9a683c58e08929422e17a94d305543bcb8f763eff87ad4c90972bec8c1112"
-    }
+    },
+    "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+    "reviewedHead": "5d413f2075533441fab80fd436acbe1ff465c6ca",
+    "historicalOnly": true,
+    "note": "Prior proof against the pre-G1 baseline. Not a current admission/selector claim: Main now has G1 implementing and active ownership overlaps."
   },
   "exactFieldDiff": {
     "result": "PASS",
     "changes": [
       {
         "op": "add",
-        "path": "/units.json/units/208",
+        "path": "/units.json/units/209",
         "value": {
           "id": "B15-0",
           "node": "R2.campaign-access",
@@ -7458,7 +7598,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/209",
+        "path": "/units.json/units/210",
         "value": {
           "id": "B15-1",
           "node": "R2.campaign-access",
@@ -7519,7 +7659,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/210",
+        "path": "/units.json/units/211",
         "value": {
           "id": "B15-2",
           "node": "R2.campaign-access",
@@ -7580,7 +7720,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/211",
+        "path": "/units.json/units/212",
         "value": {
           "id": "B15-4",
           "node": "R2.campaign-access",
@@ -7637,7 +7777,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/212",
+        "path": "/units.json/units/213",
         "value": {
           "id": "B15-4J",
           "node": "R2.campaign-access",
@@ -7694,7 +7834,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/213",
+        "path": "/units.json/units/214",
         "value": {
           "id": "B15-3R",
           "node": "R2.campaign-access",
@@ -7756,7 +7896,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/214",
+        "path": "/units.json/units/215",
         "value": {
           "id": "B15-3",
           "node": "R2.campaign-access",
@@ -7818,7 +7958,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/215",
+        "path": "/units.json/units/216",
         "value": {
           "id": "B15-5",
           "node": "R2.campaign-access",
@@ -7877,7 +8017,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/216",
+        "path": "/units.json/units/217",
         "value": {
           "id": "B15-5R",
           "node": "R2.campaign-access",
@@ -7938,7 +8078,7 @@
       },
       {
         "op": "add",
-        "path": "/units.json/units/217",
+        "path": "/units.json/units/218",
         "value": {
           "id": "B15-6",
           "node": "R2.campaign-access",
@@ -8005,7 +8145,7 @@
         "op": "add",
         "path": "/units.json/b15Registration20261018",
         "value": {
-          "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+          "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
           "evidence": "evidence/b15-ob2-registration-20261018.json",
           "recommendation": "A",
           "authority": "Root parent ruling in this task, under owner standing instruction: v2.2.0 same-host/loopback; B15 after L1 and before any remote/tunnel hosting claim.",
@@ -8043,17 +8183,6 @@
           "disclosure": "The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.",
           "releaseNotesShipRequirement": "Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.",
           "selectorDependency": "R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.",
-          "pendingG2Split": {
-            "source": "Root review-fix instruction",
-            "unit": "P2CG1G2A",
-            "registeredAtBaseline": false,
-            "paths": [
-              "src/pages/api/multiplayer/invites/[roomCode].ts",
-              "src/__tests__/api/securityBoundary.test.ts"
-            ],
-            "directB15LeafOverlap": [],
-            "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
-          },
           "reviewFixSplit": {
             "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
             "additionalUnits": [
@@ -8062,6 +8191,21 @@
               "B15-5R"
             ],
             "reason": "Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."
+          },
+          "g2SplitComposition": {
+            "source": "Root round-2 review handoff; merged #2238/#2239 preserved on current origin/main",
+            "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
+            "reviewedB15Head": "5d413f2075533441fab80fd436acbe1ff465c6ca",
+            "g1Merge": "68eb607212a099a6a707a59be6bc8654064e8534",
+            "g2SplitMerge": "969af8de89c4dd042b86d629075b022a9b1f0f96",
+            "unit": "P2CG1G2A",
+            "registeredAtBaseline": true,
+            "paths": [
+              "src/pages/api/multiplayer/invites/[roomCode].ts",
+              "src/__tests__/api/securityBoundary.test.ts"
+            ],
+            "directB15LeafOverlap": [],
+            "rule": "Merged G2A owns the invite/security literals; reduced G2 retains entry panel/test overlap and its src/lib/campaign alias contains B15-1/2/5 leaves. Current L1 has 20 units and is unchanged by B15. G1 is still implementing in this baseline ledger despite its product merge, so its broad campaign alias remains an active collision; preserve lifecycle and wait for genuine closure. All B15 remains blocked post-U38, transitively after G2A/G2; re-census before admission."
           }
         }
       },
@@ -8159,7 +8303,7 @@
         "op": "add",
         "path": "/roadmap.json/b15Registration20261018",
         "value": {
-          "baseline": "54764673b3eb8aaa9759bfc919461640f7e360b6",
+          "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
           "evidence": "evidence/b15-ob2-registration-20261018.json",
           "recommendation": "A",
           "authority": "Root parent ruling in this task, under owner standing instruction: v2.2.0 same-host/loopback; B15 after L1 and before any remote/tunnel hosting claim.",
@@ -8197,17 +8341,6 @@
           "disclosure": "The ownerWords quote is the standing instruction reported by Root. Gate A and L2 placement are Root's adopted recommendation, not wording attributed to a fresh owner topology choice. The design agent transcribed that ruling and the review-fix request. No future sensitive OWNER-RULING, merge approval or runtime acceptance is supplied by this provenance record.",
           "releaseNotesShipRequirement": "Root must include both the same-host/no-proxy-or-tunnel topology statement and the Docker HOSTNAME-refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md in the actual v2.2.0 release notes. README/compose edits remain B15-6 after L1; disclosure must not wait for that unit. This is the parent's release-note handoff, not a B15 implementation prerequisite added to the unchanged L1 predicate.",
           "selectorDependency": "R2.campaign-access depends on already-main-verified R2.authority-live so NEXT can select each explicitly released B15 unit. U38 and ordinary unit predecessor PASS/closure remain parent-enforced admission predicates; the node edge alone does not release any unit.",
-          "pendingG2Split": {
-            "source": "Root review-fix instruction",
-            "unit": "P2CG1G2A",
-            "registeredAtBaseline": false,
-            "paths": [
-              "src/pages/api/multiplayer/invites/[roomCode].ts",
-              "src/__tests__/api/securityBoundary.test.ts"
-            ],
-            "directB15LeafOverlap": [],
-            "rule": "Pending G2A ownership transfer is not fabricated into this baseline. B15 owns neither transferred literal, but retains G2 entry/campaign and broad-parent overlaps. Every B15 slice stays post-U38, transitively after the G2/G2A chain; refresh census when that registration lands. No active product admission is authorized."
-          },
           "reviewFixSplit": {
             "reviewedHead": "28ff707f1d4a55f23229cfd43af02e85206afc53",
             "additionalUnits": [
@@ -8216,11 +8349,26 @@
               "B15-5R"
             ],
             "reason": "Root directed F1-F5 fixes with caps respected. Split candidate inventories instead of widening 4/3/5 above 15 files; all successors retain ordinary 15/500 caps and inherited review class."
+          },
+          "g2SplitComposition": {
+            "source": "Root round-2 review handoff; merged #2238/#2239 preserved on current origin/main",
+            "baseline": "e52000e35d99c36691b21d31e60bf19d57de4d64",
+            "reviewedB15Head": "5d413f2075533441fab80fd436acbe1ff465c6ca",
+            "g1Merge": "68eb607212a099a6a707a59be6bc8654064e8534",
+            "g2SplitMerge": "969af8de89c4dd042b86d629075b022a9b1f0f96",
+            "unit": "P2CG1G2A",
+            "registeredAtBaseline": true,
+            "paths": [
+              "src/pages/api/multiplayer/invites/[roomCode].ts",
+              "src/__tests__/api/securityBoundary.test.ts"
+            ],
+            "directB15LeafOverlap": [],
+            "rule": "Merged G2A owns the invite/security literals; reduced G2 retains entry panel/test overlap and its src/lib/campaign alias contains B15-1/2/5 leaves. Current L1 has 20 units and is unchanged by B15. G1 is still implementing in this baseline ledger despite its product merge, so its broad campaign alias remains an active collision; preserve lifecycle and wait for genuine closure. All B15 remains blocked post-U38, transitively after G2A/G2; re-census before admission."
           }
         }
       }
     ],
-    "originalUnitsPreserved": 208,
+    "originalUnitsPreserved": 209,
     "originalNodesPreserved": 80,
     "originalL1ObjectUnchanged": true,
     "OB2andFNob2Unchanged": true,
@@ -8228,14 +8376,79 @@
     "FNu96": "only conditional prospective resolvedBy added; status remains recorded",
     "nonAdditiveChanges": 0
   },
-  "validationEnvironment": {
-    "node": "v22.22.0",
-    "nodeExecutable": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
-    "cwd": "E:\\Projects\\Personal\\MekStation-wt\\b15-registration-20261018",
-    "dependencyInstallation": false,
-    "rootCheckoutWrites": false,
-    "packagedRuntimeOrDockerRun": false
+  "postimages": {
+    "units": "dcd152f8e1d2118158d8cb1346bf621f7aa510d99dc80e2e25c002e08993e99b",
+    "roadmap": "8a3d94f7f2ae7012a6fe773e6dc970f9838635b1ff23318bda78f242bc29e21f",
+    "design": "beda3edb526ea239121652d841a65ef9782e806bcce9ac51350a79aa5a654302",
+    "releaseNotes": "8a89e8c1d79a03ab4ea53d0ee28f3e42cbdb6515f0974a8b552c7ac64025be1f"
   },
+  "validation": [
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "summary": "81 nodes / 13 packages / 381 tasks / 40 triage rows; PASS",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/r2-roadmap.log",
+        "sha256": "5a57b81088aa5987f4a41c7c6b114665df41e9d485d97e483e52b69544a1d235",
+        "bytes": 156
+      }
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "summary": "historical Git/evidence checks PASS; 81 nodes",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/r2-roadmap-git.log",
+        "sha256": "2aaa623d3d992c38577a7910c04ab2077eb26f24ec45c3eefbd8f341a8d9948b",
+        "bytes": 4714
+      }
+    },
+    {
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exitCode": 0,
+      "summary": "86 passed / 0 failed / 0 skipped",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/r2-tests.log",
+        "sha256": "939e81e59047cee91f5effd3ffca06a0b6ad9f4f1955fa886be052831bdadfd5",
+        "bytes": 33668
+      }
+    },
+    {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "summary": "230 passed / 0 failed",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/r2-openspec.log",
+        "sha256": "ffa178dc51da6e9d5431d3fc8772bd09b8ac665c7271563615a9e8bd509145d0",
+        "bytes": 13920
+      }
+    },
+    {
+      "command": "node E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/round2-audit.cjs",
+      "exitCode": 0,
+      "summary": "14 additive fields only; all 209 original units, 80 original nodes, 20-unit L1 object and OB-2/FN-ob2 preserved",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/r2-exact-field-diff.log",
+        "sha256": "f1c41f81334320fb52374bb0f47e36cb5b649b488927010be15e6997153280d4",
+        "bytes": 476
+      }
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "summary": "actual NEXT U24b; G1 remains implementing and B15 remains blocked",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/b15-registration-evidence-20261018/r2-next.log",
+        "sha256": "3adcd30fd6e2221cadb1df905eda4a6cd76259ee8a947315953d5e481405c591",
+        "bytes": 14
+      }
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0,
+      "summary": "No whitespace errors"
+    }
+  ],
   "registrationBudget": {
     "actualFiles": 5,
     "maxFiles": 15,
