@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-HOST-DEDUPE-1",
+  "stage": "red",
+  "status": "RED_REPRODUCED_PREP_ONLY",
+  "baseline": "28032229f053a4fc681e838d1f41422c12d982a0",
+  "command": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane mp-dedupe --class jest --cwd E:/Projects/Personal/MekStation-wt/mp-dedupe-20261018 -- npm.cmd test -- --runInBand --selectProjects unit --runTestsByPath src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+  "exitCode": 1,
+  "tests": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5
+  },
+  "failure": {
+    "expected": {
+      "hostsCreated": 1,
+      "sameHost": true,
+      "firstAccepted": true,
+      "secondAccepted": true,
+      "firstErrors": [],
+      "secondErrors": [],
+      "unitsAdapted": 2
+    },
+    "observed": {
+      "hostsCreated": 2,
+      "sameHost": false,
+      "registryHost": true,
+      "firstAccepted": false,
+      "secondAccepted": true,
+      "firstErrors": [
+        {
+          "code": "STORE_FAILURE",
+          "reason": "revision-conflict",
+          "intentId": "dedupe-first"
+        }
+      ],
+      "secondErrors": [],
+      "unitsAdapted": 4
+    }
+  },
+  "evidence": {
+    "test": {
+      "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "bytes": 11672,
+      "sha256": "de41b3fc31bae006c053fa68338b07fa8c5e1160670bf8780019df1fdaa06654"
+    },
+    "log": {
+      "path": ".mp-dedupe-proof/red-run-2.ascii.log",
+      "bytes": 7276,
+      "sha256": "513a6f7c29289d6b4b50999a96147627f358e8fefdd9df4edf3f01277575e4aa"
+    },
+    "logRole": "Local run artifact; observed facts portable in this receipt."
+  },
+  "method": "Both production socket bindings are started before a controlled first metadata read is released. Real MatchHostRegistry, ServerMatchHost and private on-disk DurableMatchStore. Call-through create spy records all hosts without substituting authority. After both bindings resolve, each actual bound host receives a verified-principal AdvancePhase command; one persistence conflict is observed. Connections are not serialized.",
+  "limits": [
+    "Wire endpoint is an EventEmitter double; no HTTP upgrade or live WebSocket network proof claimed.",
+    "Existing catalog adapter mock retained; canonical boot recovery belongs to RECOVERY.",
+    "Shared Jest jsdom setup emits IndexedDB-unavailable diagnostics; the RED assertion is specifically two hosts plus STORE_FAILURE revision-conflict.",
+    "Co-op, failed-creation retry, independent IDs and existing-host reuse remain GREEN-stage test obligations."
+  ],
+  "cleanup": "All constructed hosts close before remaining sockets, then the private SQLite handle closes and the owned temp directory is removed.",
+  "productChanged": false,
+  "lifecycleChanged": false,
+  "prOpened": false,
+  "originalRun": {
+    "evidence": {
+      "test": {
+        "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+        "bytes": 11138,
+        "sha256": "3c993fa67ef5f800aebdcf77304a26b2eac3cca3681456712bd228cd5a684337"
+      },
+      "log": {
+        "path": ".mp-dedupe-proof/red-run-1.ascii.log",
+        "bytes": 17918,
+        "sha256": "3adc5845b659c7481a9b71386a31e2236c7b1515776c6353c8560a01a692048c"
+      },
+      "logRole": "Local raw-run artifact, not a prospective PR leaf; portable observed facts retained in this receipt."
+    },
+    "failure": {
+      "expected": {
+        "hostsCreated": 1,
+        "sameHost": true,
+        "firstAccepted": true,
+        "secondAccepted": true,
+        "firstErrors": [],
+        "secondErrors": [],
+        "unitsAdapted": 2
+      },
+      "observed": {
+        "hostsCreated": 2,
+        "sameHost": false,
+        "registryHost": true,
+        "firstAccepted": false,
+        "secondAccepted": true,
+        "firstErrors": [
+          {
+            "code": "STORE_FAILURE",
+            "reason": "revision-conflict",
+            "intentId": "dedupe-first"
+          }
+        ],
+        "secondErrors": [],
+        "unitsAdapted": 4
+      }
+    }
+  },
+  "amendment": {
+    "reason": "Claude prep review: also detect duplicated bootstrap, await durable opening events, close hosts before sockets.",
+    "exitCode": 1,
+    "tests": {
+      "passed": 4,
+      "failed": 1,
+      "total": 5
+    },
+    "timeoutIncreased": false
+  },
+  "causalAnalysis": {
+    "source": "Independent Claude static trace corroborated by initial-event collision warnings and RED result; extended reconnect/completed-status consequence is not separately runtime-tested.",
+    "trace": [
+      "Concurrent registry reads admit two creations.",
+      "Duplicate constructor persistence collides at opening sequences 0 and 1; the retained losing host keeps lastBroadcastSeq=-1.",
+      "Its next drain includes opening events; appendCommandBatch expects revision 0 against stored head 1 and refuses revision-conflict.",
+      "Failure invokes host.closeMatch; potential completed-status/reconnect consequences require explicit GREEN-stage lifecycle checks."
+    ]
+  }
+}

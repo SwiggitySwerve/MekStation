@@ -1,6 +1,18 @@
+import { waitFor } from '@testing-library/react';
+import { EventEmitter } from 'node:events';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import type { IGameCreatedPayload } from '@/types/gameplay';
 
+import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEventType, GameSide } from '@/types/gameplay';
+import {
+  type IIntent,
+  type IServerMessage,
+  nowIso,
+} from '@/types/multiplayer/Protocol';
 
 jest.mock('@/engine/adapters/CompendiumAdapter', () => {
   const gameplay = jest.requireActual('@/types/gameplay/GameSessionInterfaces');
@@ -48,9 +60,12 @@ jest.mock('@/engine/adapters/CompendiumAdapter', () => {
 
 import type { IMatchMeta } from '../IMatchStore';
 
+import { bindMultiplayerSocketConnection } from '../bindMultiplayerSocketConnection';
+import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { MatchHostRegistry } from '../MatchHostRegistry';
 import { buildDefaultMatchUnitBootstrap } from '../matchUnitBootstrap';
+import { ServerMatchHost } from '../ServerMatchHost';
 
 function matchMeta(overrides: Partial<IMatchMeta> = {}): IMatchMeta {
   const now = '2026-06-26T00:00:00.000Z';
@@ -196,5 +211,140 @@ describe('MatchHostRegistry unit bootstrap', () => {
         }),
       ]),
     );
+  });
+});
+
+// MP-HOST-DEDUPE-1: the socket boundary and authority/store are real; only
+// catalog adaptation (above) and the wire endpoint are test doubles.
+class DedupeSocket extends EventEmitter {
+  readonly sent: IServerMessage[] = [];
+  readyState = 1;
+
+  send(data: string): void {
+    this.sent.push(JSON.parse(data) as IServerMessage);
+  }
+
+  close(): void {
+    this.readyState = 3;
+    this.emit('close');
+  }
+}
+
+describe('MP-HOST-DEDUPE-1 concurrent first socket connections', () => {
+  it('shares one authority and accepts later intents without a durable store conflict', async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), 'mp-host-dedupe-'));
+    const store = new DurableMatchStore({
+      path: path.join(directory, 'matches.db'),
+    });
+    const registry = new MatchHostRegistry({ store });
+    const createdHosts: ServerMatchHost[] = [];
+    const create = ServerMatchHost.create;
+    const createSpy = jest
+      .spyOn(ServerMatchHost, 'create')
+      .mockImplementation((...args) => {
+        const host = create(...args);
+        createdHosts.push(host);
+        return host;
+      });
+    const sockets = [new DedupeSocket(), new DedupeSocket()];
+    const meta = matchMeta({
+      matchId: 'concurrent-first-sockets',
+      config: { mapRadius: 6, turnLimit: 8, fogOfWar: false },
+    });
+
+    try {
+      await store.createMatch(meta);
+      jest.mocked(adaptUnit).mockClear();
+      const readMeta = store.getMatchMeta.bind(store);
+      let releaseFirst!: () => void;
+      const gate = new Promise<void>((resolve) => {
+        releaseFirst = resolve;
+      });
+      // Hold the first read after its empty registry lookup. Both bindings
+      // start before release. A correct dedupe joins this pending creation;
+      // it never needs a second store read to release the test barrier.
+      jest.spyOn(store, 'getMatchMeta').mockImplementationOnce(async (id) => {
+        await gate;
+        return readMeta(id);
+      });
+      const connections = sockets.map((socket, index) =>
+        bindMultiplayerSocketConnection({
+          socket,
+          matchId: meta.matchId,
+          verifiedPlayerId: index === 0 ? 'pid_host' : 'pid_guest',
+          connectionKey: `dedupe-${index}`,
+          registry,
+          diceSeed: 42,
+        }),
+      );
+      releaseFirst();
+      const [first, second] = await Promise.all(connections);
+      expect(first).not.toBeNull();
+      expect(second).not.toBeNull();
+      const unitsAdapted = jest.mocked(adaptUnit).mock.calls.length;
+      // Observe durable opening events before commands, without changing
+      // connection concurrency or relying on a fixed microtask count.
+      await waitFor(async () => {
+        expect(await store.getEvents(meta.matchId, 0)).toHaveLength(2);
+      });
+
+      const advance = (playerId: string, intentId: string): IIntent => ({
+        kind: 'Intent',
+        matchId: meta.matchId,
+        ts: nowIso(),
+        playerId,
+        intentId,
+        intent: { kind: 'AdvancePhase' },
+      });
+      // Await real command completion, so the first durable commit precedes
+      // the second command. Client *connections* above remain concurrent.
+      const firstResult = await first!.host.handleIntent(
+        advance('pid_host', 'dedupe-first'),
+        first!.connectionKey,
+        'pid_host',
+      );
+      const secondResult = await second!.host.handleIntent(
+        advance('pid_guest', 'dedupe-second'),
+        second!.connectionKey,
+        'pid_guest',
+      );
+      const events = await store.getEvents(meta.matchId, 0);
+      expect({
+        hostsCreated: createdHosts.length,
+        unitsAdapted,
+        sameHost: first!.host === second!.host,
+        registryHost: registry.get(meta.matchId) === first!.host,
+        firstErrors: firstResult.filter((message) => message.kind === 'Error'),
+        secondErrors: secondResult.filter(
+          (message) => message.kind === 'Error',
+        ),
+        firstAccepted: firstResult.some((message) => message.kind === 'Event'),
+        secondAccepted: secondResult.some(
+          (message) => message.kind === 'Event',
+        ),
+      }).toEqual({
+        hostsCreated: 1,
+        unitsAdapted: 2,
+        sameHost: true,
+        registryHost: true,
+        firstErrors: [],
+        secondErrors: [],
+        firstAccepted: true,
+        secondAccepted: true,
+      });
+      expect(events.map((event) => event.sequence)).toEqual(
+        events.map((_, index) => index),
+      );
+      expect(
+        events.filter((event) => event.type === GameEventType.GameCreated),
+      ).toHaveLength(1);
+    } finally {
+      // Close every constructed host, including the orphan exposed by RED.
+      await Promise.all(createdHosts.map((host) => host.closeMatch()));
+      sockets.forEach((socket) => socket.close());
+      createSpy.mockRestore();
+      store.close();
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 });

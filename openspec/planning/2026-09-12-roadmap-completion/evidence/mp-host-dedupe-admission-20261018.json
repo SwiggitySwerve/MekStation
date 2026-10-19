@@ -1,0 +1,465 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-HOST-DEDUPE-1",
+  "stage": "admission",
+  "status": "PREP_ONLY_NOT_ADMITTED",
+  "date": "2026-10-18",
+  "baseline": "28032229f053a4fc681e838d1f41422c12d982a0",
+  "authority": "Explicit PREP ONLY: freeze admission proposal and RED locally; no product fix, lifecycle admission, PR, push or merge before RECOVERY is merged and closed and this unit is planned on fetched origin/main.",
+  "manifest": {
+    "count": 7,
+    "maxFiles": 15,
+    "files": [
+      "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json"
+    ]
+  },
+  "caps": {
+    "maxNonGeneratedLines": 500,
+    "counting": "U41 added physical lines, no deletion credit; tests/evidence line-exempt but file-counted"
+  },
+  "frozenBeforeTestEdits": [
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "bytes": 11287,
+      "sha256": "feb2576461403b3dafd68dba5631b43c4f0ba9620d0f0f006f47178b8d62cade"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "bytes": 6174,
+      "sha256": "e2cc7f0b49c345216557db2243d92af167380782d79b32afd9f63e1b12c351bf"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 2002236,
+      "sha256": "4c404aa03870c9604742e16f30e800571afc60ab330e677fbb10c5ecdab0cf95"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-20261018.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-red-20261018.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-local-20261018.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json",
+      "exists": false
+    }
+  ],
+  "unitState": "blocked",
+  "predecessor": {
+    "id": "MP-RECOVERY-UNITS-1",
+    "node": "R2.authority-live",
+    "taskKeys": [],
+    "behavior": "FINDING-A1-REV-1 / CF-SMOKEA1-2: recover canonical combat units before the packaged listener is ready, so a restarted active match accepts a real unit action. MatchHostRegistry.bootstrapMultiplayerServer -> MatchRecovery -> InteractiveSession.recovery -> CompendiumAdapter.adaptUnit currently reaches the localhost-fetch CanonicalUnitService before server.js listen; server-2.log reports units not found / skipping. NodeCanonicalUnitService is already filesystem-based, not the faulty fetch implementation. Preferred design: use the filesystem-backed NodeCanonicalUnitService at boot through the registered server leaves, without changing server.js boot order. Establish a server-only catalog dependency without importing filesystem code into browser paths, retaining deterministic replay, custom-unit snapshots and durable identity. Prove on a real production standalone image: create/launch, stop, restart same image and DB, reconnect, accepted unit intent plus public/replay controls, with no skipped canonical units; replay alone is insufficient.",
+    "ownershipPaths": [
+      "src/lib/multiplayer/server",
+      "src/services/units/NodeCanonicalUnitService.ts"
+    ],
+    "ownershipExceptions": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "ciClass": "product",
+    "reviewClasses": [
+      "authority",
+      "replay",
+      "migration"
+    ],
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "state": "blocked",
+    "baseline": null,
+    "prHead": null,
+    "mergeSha": null,
+    "stageReceipts": {
+      "admission": null,
+      "red": null,
+      "local": null,
+      "review": null,
+      "merge": null,
+      "mainProof": null,
+      "tick": null
+    },
+    "ownerGate": null,
+    "predecessors": [
+      "B14-0"
+    ],
+    "successors": [
+      "MP-HOST-DEDUPE-1",
+      "L1-SMOKE-A2"
+    ],
+    "admissionRequires": "Blocked registration only; no source admission or runtime acceptance. Parent release requires every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Rebase/re-census every open PR and planned/blocked/implementing unit, resolve literal and coarse ownership collisions, and freeze every source/test/helper/lifecycle/evidence leaf before admission. Aliases are navigation only. Caps include lifecycle: 15 unique files / 500 counted additions under U41; tests/evidence are line-exempt but file-counted. Extra scope or overflow requires a separately registered split. NEXT does not enforce these edges. Serialize the owning lane and shared units.json writes through closure; retain required CI, independent exact-head review and exact-main proof. Sensitive work requires a genuine packet before local-verified and OWNER-RULING before merge; null receipts waive nothing. B14/HP lane after B14-0, the holder of the server-directory alias, before host dedupe and HP; B14-HEAD independently feeds HP and is not a recovery/A2 prerequisite. Preferred design is filesystem-backed canonical-unit loading at boot, without changing server.js. Explicit candidate leaves: src/lib/multiplayer/server/MatchHostRegistry.ts, src/lib/multiplayer/server/MatchRecovery.ts, src/lib/multiplayer/server/matchUnitBootstrap.ts, src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts and src/services/units/NodeCanonicalUnitService.ts. Five candidates plus units.json and four bounded admission/red/local/admission-review receipts make 10 prospective files, not measured fit. NodeCanonicalUnitService.ts has no other planned/blocked/implementing owner at the census baseline. CanonicalUnitService.ts, server.js and src/engine remain read-only controls. Any server.js boot-order edit requires a scope amendment against P2CG1H, U101d and B15-1; any src/engine edit requires a scope amendment against U73. No implicit engine/service-factory write grant. Preserve B14 frozen predicates and completed receipts.",
+    "registration20261018": {
+      "source": "evidence/followups-registration-20261018.txt",
+      "sourceSha256": "06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428"
+    }
+  },
+  "census": {
+    "activeSourceOverlaps": [
+      {
+        "id": "P1B",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CE",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "B14-0",
+        "state": "implementing",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "MP-RECOVERY-UNITS-1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "MP-HOST-DEDUPE-1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG1I2",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG1I3",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG1I4",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CG2",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CH",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U38",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U24",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U24b",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U44",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U45",
+        "state": "planned",
+        "paths": [
+          "src/lib"
+        ]
+      },
+      {
+        "id": "U26",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U46",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U47",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U48",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U49",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U56",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U101",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U104",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U105",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U101a",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U101d",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-K",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-B",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-L",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-R",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-H",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "FOG-X",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server"
+        ]
+      }
+    ],
+    "recovery": {
+      "worktree": "E:/Projects/Personal/MekStation-wt/mp-recovery-20261018",
+      "head": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+      "trackedDiff": "",
+      "developmentWorktree": "E:/Projects/Personal/MekStation-wt/mp-recovery-dev-20261018",
+      "developmentHead": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+      "developmentDiff": "src/lib/multiplayer/server/MatchRecovery.ts        |  27 +-\n .../MatchHostRegistry.unitBootstrap.test.ts        | 395 ++++++++++++++++++---\n src/lib/multiplayer/server/matchUnitBootstrap.ts   |  95 ++++-\n 3 files changed, 452 insertions(+), 65 deletions(-)",
+      "sourceAndTestOverlap": [
+        "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+      ],
+      "lifecycleOverlap": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "note": "Named predecessor worktree currently has no source diff. Adjacent development worktree changes shared test leaf. Root asked to confirm authoritative diff/head. Re-census both committed and uncommitted predecessor leaves before restacking.",
+      "observedDevelopmentLeaves": [
+        "src/lib/multiplayer/server/MatchRecovery.ts",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts"
+      ],
+      "observedLiteralSourceOverlap": [
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+      ],
+      "registryOverlap": "Registered candidate, but not yet modified in the observed development diff; preserve new resolver/dependency plumbing if it arrives.",
+      "sourceAndTestOverlapKind": "Registered candidate overlap, not the current observed diff.",
+      "restackRequirement": "Shared test header and EOF conflict: retain RECOVERY spread-mock / adaptUnitFromData support. Separate test leaf recommended by reviewer, deferred to Root because this prep freezes the registered seven-leaf manifest."
+    }
+  },
+  "design": {
+    "approach": "Per-registry Map<matchId, Promise<ServerMatchHost | null>> around the complete creation path, including co-op recoverActiveMatches(matchId). Publish the promise before any await; existing live host/quarantine checks retained. finally evicts settled work, including null and rejection, allowing retry. Independent match IDs proceed concurrently; never globally serialize connections.",
+    "preserve": [
+      "durable recovery and quarantine semantics",
+      "RECOVERY server-only canonical resolver wiring",
+      "one authority host for both sockets",
+      "first caller dice options",
+      "existing live-host reuse"
+    ],
+    "requiredGreenCases": [
+      "concurrent first socket bindings: one identity and successful subsequent intents on a real private durable store",
+      "co-op lookup shares recovery",
+      "null/rejected creation cleanup and retry",
+      "independent IDs do not block",
+      "existing host reused"
+    ],
+    "notImplemented": true,
+    "lifecycleNote": "GREEN must prevent a late creation from registering after _reset (generation or operation-identity guard plus disposal); clearing the map alone does not prevent resurrection. Preserve pre-listener boot sweep ordering. Cover co-op recovery with recovery-specific invocation/host counts. closeMatch during creation is a pre-existing lifecycle race to assess within scope."
+  },
+  "controls": [
+    "server.js",
+    "src/lib/multiplayer/server/MatchRecovery.ts",
+    "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+    "src/services/units/NodeCanonicalUnitService.ts",
+    "src/engine"
+  ],
+  "gate": "BLOCKED until MP-RECOVERY-UNITS-1 is merged, closed and exact-main proven; MP-HOST-DEDUPE-1 is planned on fetched origin/main; restack on RECOVERY head and re-census before admission.",
+  "prepValidation": {
+    "dependencies": {
+      "command": "npm ci",
+      "node": "v22.22.0",
+      "exitCode": 0,
+      "packagesAdded": 1078
+    },
+    "lint": {
+      "command": "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "warnings": 0,
+      "errors": 0
+    },
+    "format": "oxfmt applied to test leaf",
+    "diffCheck": "PASS",
+    "measuredTestAdditions": 150,
+    "measuredProductAdditions": 0,
+    "measuredLifecycleAdditions": 0,
+    "fit": "PREP ONLY: 7 frozen prospective leaves / 15 cap; implementation size remains unmeasured"
+  },
+  "gateCheck": {
+    "checkedAt": "2026-10-18T22:39:15.679Z",
+    "originMain": "cfc53c3085d35a7407b61361283a9657b2522110",
+    "recoveryState": "blocked",
+    "dedupeState": "blocked",
+    "recoveryMergeSha": null,
+    "recoveryMainProof": null,
+    "decision": "BLOCKED: predecessor merge/closure and DEDUPE planned-state gate not met; PREP ONLY."
+  },
+  "independentPrepReview": {
+    "status": "completed",
+    "provider": "cliproxy",
+    "model": "claude-fable-5-1",
+    "taskId": "node:delegated-task:command%3Amcp%3A86e13703-5763-4052-b36c-622db21850c0%3Adelegate-task%3Amp-dedupe-prep-review-20261018-r1",
+    "scope": "Read-only review of prep test/design/census; no product acceptance or OWNER-RULING claimed.",
+    "receiptReserved": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json",
+    "verdict": {
+      "red": "Sound and deterministic, real binder and durable store.",
+      "design": "Per-match in-flight promise map approved in principle, subject to pending-creation reset guard.",
+      "admission": "PREP ONLY is consistent; refresh moving predecessor census and distinguish declared candidates from observed overlap.",
+      "gate": "BLOCKED: no GREEN work or PR until predecessor merge/closure and planned state on origin/main."
+    },
+    "receipt": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json",
+      "bytes": 12031,
+      "sha256": "1b9775e86562e93f53eb628438cfd71f5b32dbdfc47af6c4aadcee8c091c541f"
+    },
+    "hardening": "Three test refinements applied and RED rechecked; no independent re-review of those edits claimed."
+  }
+}
