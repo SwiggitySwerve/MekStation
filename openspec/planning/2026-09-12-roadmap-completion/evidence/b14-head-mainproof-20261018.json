@@ -1,0 +1,256 @@
+{
+  "unit": "B14-HEAD",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-18T23:36:42.538Z",
+  "mergeCommit": "8fcd311d5b60951b766fded267ba688f2dae0395",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       2837 passed, 2837 total",
+    "suites": "268 passed, 268 total",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci: 1078 packages at the exact merge, before any closure edit",
+    "tsc": "npm run typecheck: exit 0"
+  },
+  "machineGate": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane b14-head --class jest --cwd E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018 -- node E:\\Projects\\Personal\\MekStation-wt\\_b14-head-closure-logs/run-proof.cjs",
+  "execution": "One queued slot, sequential commands, private Jest cache; clean exact merge checked before every job and after the last. No foreign process stopped and no timeout raised.",
+  "proof": {
+    "path": "evidence/mainproof-8fcd311d5-regression-log.bytes.json",
+    "payloadSha256": "a7b1210061215ce58bb1ade4750b6112fa72d995ec4bfc0682a250830a5a77f7",
+    "payloadBytes": 965135,
+    "counts": {
+      "suites": 268,
+      "passedSuites": 268,
+      "tests": 2837,
+      "passed": 2837,
+      "failed": 0
+    }
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-8fcd311d5-npm-ci-log.bytes.json",
+      "payloadSha256": "04ba3668939be475df7bbfee1aff900463d27dac9d216aebea2d8c134837aeb3",
+      "payloadBytes": 1427
+    },
+    {
+      "path": "evidence/mainproof-8fcd311d5-owned-log.bytes.json",
+      "payloadSha256": "8c764585dbd55177aa9c950d0cde63dde73345d4e236339428a3384fd2b05d8b",
+      "payloadBytes": 19283
+    },
+    {
+      "path": "evidence/mainproof-8fcd311d5-owned-json.bytes.json",
+      "payloadSha256": "1e38a66087b5a2d80a3eb827b0773019d586b8eeeb5eac6cbe2f676452c0e59b",
+      "payloadBytes": 49451
+    },
+    {
+      "path": "evidence/mainproof-8fcd311d5-regression-log.bytes.json",
+      "payloadSha256": "a7b1210061215ce58bb1ade4750b6112fa72d995ec4bfc0682a250830a5a77f7",
+      "payloadBytes": 965135
+    },
+    {
+      "path": "evidence/mainproof-8fcd311d5-regression-json.bytes.json",
+      "payloadSha256": "a1e5a7946a20dd8626b64f3569227a001554aa3c373295a2d84720cb95f2703d",
+      "payloadBytes": 1163384
+    },
+    {
+      "path": "evidence/mainproof-8fcd311d5-typecheck-log.bytes.json",
+      "payloadSha256": "4b2ca172b39e1363c45e22fcff54efa0dfaa2ae92adca95f409b55060d23baf1",
+      "payloadBytes": 418
+    },
+    {
+      "path": "evidence/mainproof-8fcd311d5-validator-log.bytes.json",
+      "payloadSha256": "078b7a4ab40e2467f2f946caba4cab7fbec990eafdace87836f744dfb7996b77",
+      "payloadBytes": 376
+    }
+  ],
+  "runs": [
+    {
+      "name": "npm-ci",
+      "command": "npm ci",
+      "start": "2026-10-18T23:31:02.519Z",
+      "end": "2026-10-18T23:32:26.319Z",
+      "head": "8fcd311d5b60951b766fded267ba688f2dae0395",
+      "worktree": "E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018",
+      "node": "v22.22.0",
+      "exit": 0
+    },
+    {
+      "name": "owned",
+      "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\_b14-head-closure-logs/jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\_b14-head-closure-logs/owned.json --runTestsByPath src/pages-modules/api/__tests__/matchHeadRoute.test.ts src/pages-modules/api/__tests__/matchHistoryFog.test.ts src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts src/__tests__/unit/api/multiplayerMatchMeta.test.ts src/__tests__/api/securityBoundary.test.ts",
+      "start": "2026-10-18T23:32:26.438Z",
+      "end": "2026-10-18T23:33:28.460Z",
+      "head": "8fcd311d5b60951b766fded267ba688f2dae0395",
+      "worktree": "E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018",
+      "node": "v22.22.0",
+      "exit": 0,
+      "counts": {
+        "suites": 5,
+        "passedSuites": 5,
+        "tests": 121,
+        "passed": 121,
+        "failed": 0
+      }
+    },
+    {
+      "name": "regression",
+      "command": "node node_modules/jest/bin/jest.js --runInBand --watchAll=false --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\_b14-head-closure-logs/jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\_b14-head-closure-logs/regression.json src/lib/multiplayer src/pages-modules/api src/__tests__/api src/__tests__/unit/api",
+      "start": "2026-10-18T23:33:28.556Z",
+      "end": "2026-10-18T23:36:23.339Z",
+      "head": "8fcd311d5b60951b766fded267ba688f2dae0395",
+      "worktree": "E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018",
+      "node": "v22.22.0",
+      "exit": 0,
+      "counts": {
+        "suites": 268,
+        "passedSuites": 268,
+        "tests": 2837,
+        "passed": 2837,
+        "failed": 0
+      }
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck",
+      "start": "2026-10-18T23:36:23.462Z",
+      "end": "2026-10-18T23:36:29.563Z",
+      "head": "8fcd311d5b60951b766fded267ba688f2dae0395",
+      "worktree": "E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018",
+      "node": "v22.22.0",
+      "exit": 0
+    },
+    {
+      "name": "validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "start": "2026-10-18T23:36:29.659Z",
+      "end": "2026-10-18T23:36:37.470Z",
+      "head": "8fcd311d5b60951b766fded267ba688f2dae0395",
+      "worktree": "E:/Projects/Personal/MekStation-wt/b14-head-closure-20261018",
+      "node": "v22.22.0",
+      "exit": 0
+    }
+  ],
+  "owned": {
+    "suites": [
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "src/__tests__/api/securityBoundary.test.ts",
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "src/__tests__/unit/api/multiplayerMatchMeta.test.ts"
+    ],
+    "passedSuites": 5,
+    "tests": 121,
+    "passed": 121,
+    "failed": 0
+  },
+  "regression": {
+    "suites": 268,
+    "passedSuites": 268,
+    "tests": 2837,
+    "passed": 2837,
+    "failed": 0,
+    "directories": [
+      "src/lib/multiplayer",
+      "src/pages-modules/api",
+      "src/__tests__/api",
+      "src/__tests__/unit/api"
+    ],
+    "includesAll14SeamedSuites": true,
+    "seamSuites": [
+      "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+      "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+      "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts"
+    ]
+  },
+  "runner": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_b14-head-closure-logs/run-proof.cjs",
+    "sha256": "888ac9e038f4ab2a99ca6e8b7827bb81a5c2d8b14e0cdf807962b3aa983eeddd",
+    "bytes": 2550
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-18T23:36:42.538Z",
+    "ledgerBase": "8fcd311d5b60951b766fded267ba688f2dae0395",
+    "algorithm": "Only newly eligible dependents of B14-HEAD; every declared predecessor must be main-verified, complete or archived. Existing independent holds remain. Only state blocked -> planned may change.",
+    "releases": [],
+    "candidates": [
+      {
+        "id": "L1-SMOKE-B",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "mainProof": null
+          },
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-HEAD",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [
+          "L1-SMOKE-A2"
+        ],
+        "eligible": false
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-HEAD",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "blocked",
+            "mainProof": null
+          }
+        ],
+        "blockedBy": [
+          "MP-HOST-DEDUPE-1"
+        ],
+        "eligible": false
+      }
+    ]
+  },
+  "closureManifest": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-source-fable-review-20261018.txt",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-owner-ruling-6256509380.txt",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-merge-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-mainproof-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-npm-ci-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-owned-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-owned-json.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-regression-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-regression-json.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-typecheck-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-8fcd311d5-validator-log.bytes.json"
+  ],
+  "limits": "This is exact-merge Jest/typecheck/ledger proof. It claims no browser, desktop, built-server smoke or restored per-viewer fog projection. Built-server spectator/fog proof remains with L1-SMOKE-A2/B; HP keeps its other prerequisite.",
+  "preservation": "Raw logs and Jest JSON are base64 envelopes. Decode data and verify payloadSha256 and payloadBytes. Review and ruling copies retain their exact original bytes."
+}

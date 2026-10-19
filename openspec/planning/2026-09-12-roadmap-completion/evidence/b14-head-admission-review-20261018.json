@@ -1,0 +1,264 @@
+{
+  "unit": "B14-HEAD",
+  "stage": "review",
+  "recordedAt": "2026-10-18T23:36:42.538Z",
+  "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+  "reviewedHead": "20af77868bde12a3e5530c72121be0182e8482f5",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "verdictText": "**APPROVE** for owner ruling and merge at 20af77868bde12a3e5530c72121be0182e8482f5. No product defect found. The ten-line route change does exactly what the unit contract says, in the right place: existing method/db/id/bearer preparation, then the match-meta read, then the existing host-as-GM authorization (non-host and stranger keep the generic 403, anonymous keeps 401), then the shared B14-0A predicate noPerViewerRevealProjection(meta.config) refusing fog-on and unknown configuration with HTTP 403 {\"error\":\"fog-projection-unavailable\"} before the SQLite transaction opens, so no branch id, revision, generation or digest is read or serialized. Known-off and flag-omitted host reads are byte-identical to Main. The three findings below are coverage gaps in the owned test leaf (three of my ten mutants survive; none corresponds to a product bug), plus ledger/channel notes. The recommended fixes are test rows only (line-exempt, already in the manifest); if Root prefers to merge without them they travel as CF-B14H-1..3 and the verdict is unchanged.",
+  "outputPath": "evidence/b14-head-source-fable-review-20261018.txt",
+  "outputSha256": "66a4d9289776ad50e1ac7402062709506862d60a76ecd10eb71baf75d25cb654",
+  "outputBytes": 23231,
+  "originalPath": "E:/Projects/Personal/MekStation-wt/review-2294-20261018/2026-10-18-b14-head-review.md",
+  "headNote": "Fable reviewed 20af77868. The subsequent 1e55540e changes only the owned test leaf (+18/-2), catches RV9/RV6/RV4, and is Root-diffed/owner-ruled; no independent re-review of the follow-up is claimed.",
+  "reservedSlot": "This was the unfilled admission-review slot in the original seven-file freeze; it now binds the genuine full sensitive review, mirroring B14-0's reserved review receipt.",
+  "classes": [
+    "privacy",
+    "authority",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "reviewerRows": [
+    "| CF-B14B-4 re-run on this head: all 14 canonical seams stripped (14 seams removed, each found exactly once) | **14/14 suites fail, 125 failed / 162**, per-suite counts identical to the author's necessity-1c7632b1 baseline (Coop 84/84, spectator 14/34, rawNegativeSweep 6/11, clientAgainstFog 5/6, fogOfWarIntegration 4/5, viewerDeliverySequence 3/3, concealmentLeak 2/2, rewindLiveReplay 1/6, recoveryDelivery 1/1, customConstruction 1/1, sparsity 1/1, CommandResults 1/3, authorityFieldLeak 1/3, matchmaking 1/2); tree restored clean. The author's baseline head 40b7f41f6 has an src/lib/multiplayer tree byte-identical to this head (git diff empty), so its record transfers exactly |",
+    "| F1 | Low (test gap) | matchHeadRoute.test.ts 'B14-HEAD fog containment' | Every fog row seeds a head first. There is no fog-on host **without** a head, so a route that disclosed head existence under fog (404 'no head' vs 403) would pass: my RV9 (fog-on + raw COUNT over event_journal_stream_heads -> 404 when empty, else 403) survives 17/17. The product is correct (the refusal precedes the existence check), but the unit's 'before any journal digest is serialized' is stronger than the pin: head existence is a 1-bit channel of the same family as CF-B14A-9's count channel. Add one row: fog-on host, no seedActivatedHead(), expect 403 and body toStrictEqual({error:'fog-projection-unavailable'}) (not 404 'no head'). |",
+    "| F2 | Low (test gap) | same describe | All rows use the fixture's status 'active'. A status-conditional bypass (refuse only while status === 'active') survives: RV6 17/17. A completed or paused fog match's digest is as hidden-dependent as a live one. Add a row with meta.status 'completed' (via the same getMatchMeta spy) expecting 403 + fixed reason. |",
+    "| F3 | Info (test strength) | 'refuses a fog host before any head or journal read' | The before-any-read pin is a spy on SQLiteEventHistoryBranchStore.prototype.readEffectiveHead only. A direct SQL read of event_journal_stream_heads plus a disclosure through a response header passes (RV4 survives 17/17: X-Head-Revision set from MAX(stream_revision) before the 403; result.headers is captured by the mock but never asserted). Cheap hardening: in the two fixed-reason rows assert expect(result.headers).toStrictEqual({}); optionally also spy on Database.prototype.prepare and assert it is not called with a stream_heads statement. |",
+    "| F4 | Info (pre-existing, out of manifest) | matchHeadRoute.ts:36-41; matchPrivatePreviewRoute (same pattern) | store.getMatchMeta runs before authorization and any throw maps to 404 'unknown match', so a bearer minted for a non-existent match id gets 404 while an existing match gives 403 'Authorization refused': a match-existence oracle that the MATCH_HISTORY_AUTHORIZATION_REFUSED comment ('cannot probe whether a match exists') intends to avoid, and an infrastructure failure of the store is indistinguishable from not-found. Both pre-date B14-HEAD (the row 'answers an unknown match with the private-preview 404 body' pins it) and are fail-closed for the digest. Not changed here; name it for the HTTP owner. |",
+    "| F5 | Info (channel outside manifest; CF-B14A-7/9) | matchHistoryTimelineRoute.ts + ViewerHistoryLineage.projectEffectiveHead | /timeline is pinned by B14-0A at 200 under fog for seated viewers and its lineage.effectiveHead carries {branchId, revision, generation} of the same journal head /head now withholds. So B14-HEAD uniquely closes the **digest**; the head sequence (revision) and branch id remain readable under fog by every seated viewer (host included) through /timeline. This is exactly the '/timeline count/timing half' the receipts route to the FOG chain; record that the half includes the head revision, not only the audit count. The rewind-preview/commit routes already refuse fog with their own older reason 'fog-preview-unsupported' (409), a second vocabulary FOG-H may want to unify. |",
+    "| F6 | Info (ledger) | b14-head-local-20261018.json runs.*.head | The owned/regression runs record head 59e41d754 (the GREEN commit before its amend) while commits.green is descriptive. Product and test blobs at 59e41d754 are identical to 20af77868 (verified), so the runs are valid for this head; the review/closure receipt should state reviewedHead 20af77868bde12a3e5530c72121be0182e8482f5 explicitly (same pattern as CF-B14-6 / CF-B14A-4). |",
+    "| F7 | Info (helper edge, out of manifest) | fogMatchAdmission.noPerViewerRevealProjection | config === null (a possible legacy JSON shape; the type says IMatchConfig but rows are JSON.parse'd verbatim) is not 'unknown' to the predicate and throws TypeError at config.fogOfWar; the route's catch maps it to 500 with the TypeError text. Fail-closed and secret-free, but a 403 fixed reason would be the intended answer. B14-0A helper; a one-token change (config == null) for the FOG chain or whoever next owns the helper. |",
+    "| F8 | Info (PR body) | PR body / local receipt | The body says 'Six files changed plus one reserved admission-review slot' and 26 counted lines: verified. The CF-H12/CF-E10 comment reflects a 1/32 dispatch snapshot; CI is now 32/32 on the same head. |",
+    "| RV1 | Policy before membership: fog check moved to right after getMatchMeta, before authorizeHumanAction | caught 16/17 | 'authorizes first: non-host and stranger keep the generic refusal under fog' |",
+    "| RV2 | Refusal after the effective-head existence check (fog-on + no effective head -> 404) | caught 16/17 | 'refuses a fog host before any head or journal read' (spy) |",
+    "| RV3 | Host/GM exemption: refuse only when viewer.role !== 'gm' | caught 14/17 | both fixed-reason rows + before-any-read row |",
+    "| RV4 | Disclosure via header + raw SQL (X-Head-Revision from MAX(stream_revision) before the 403) | **SURVIVED** 17/17 | none (F3) |",
+    "| RV5 | Member-but-not-host gets the fog reason (fog check before the host check, gated on isAuthorizedViewer) | caught 16/17 | 'authorizes first ...' |",
+    "| RV6 | Status-conditional bypass: refuse only while meta.status === 'active' | **SURVIVED** 17/17 | none (F2) |",
+    "| RV7 | Reason collapse: fog refusal thrown as AuthorizedViewerError -> generic 403 | caught 15/17 | both fixed-reason rows |",
+    "| RV8 | Omitted flag treated as fog (config?.fogOfWar !== false) | caught 13/17 | the two 200 host rows and the two 'no head' rows |",
+    "| RV9 | Fog-on host with no head answers 404 'no head' (raw COUNT, evades the branch-store spy); with a head still 403 | **SURVIVED** 17/17 | none (F1) |",
+    "| RV10 | Missing config defaulted to a known-off object (meta.config ?? {...}) | caught 16/17 | 'refuses the host for unknown config ...' |",
+    "| CF-B14H-1 | B14-HEAD (in-PR if taken) else FOG-H | Pin fog-on refusal with no head present (F1, RV9). |",
+    "| CF-B14H-2 | B14-HEAD (in-PR if taken) else FOG-H | Pin fog-on refusal independent of match status (F2, RV6); assert no response headers on refusal (F3, RV4). |",
+    "| CF-B14H-3 | FOG chain (with CF-B14A-7/9) | /timeline lineage.effectiveHead exposes the journal head's branchId/revision/generation under fog to every seated viewer; the FOG-H head/HTTP parity work must close or project it together with the audit count/timing channel, and may unify the rewind routes' 'fog-preview-unsupported' vocabulary with fog-projection-unavailable (F5). |",
+    "| CF-B14H-4 | HTTP history owner (U26 alias) | getMatchMeta before authorization maps every throw to 404 'unknown match' on /head and /private-preview: existence oracle and not-found/infra conflation (F4, pre-existing). |",
+    "| CF-B14H-5 | FOG chain / next helper owner | noPerViewerRevealProjection(null) throws instead of refusing; consider config == null (F7). |",
+    "| CF-B14H-6 | B14-HEAD closure receipt | Record reviewedHead 20af77868bde12a3e5530c72121be0182e8482f5 explicitly; the local receipt's run head is the pre-amend 59e41d754 with identical product/test blobs (F6). |",
+    "| CF-B14B-4 | discharged | Re-run here on the exact head: 14/14 suites fail unseamed, 125/162; identical to the recorded baseline. |",
+    "| CF-B14B-3 | pass-through (recorded) | Seam retirement note when a real per-viewer projection lands. |",
+    "| CF-B14-3 (F6 no-op detach) | U26 / FOG as ruled | Still present at ServerMatchHost.ts:719; outside this manifest. |"
+  ],
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-B14H-1",
+        "status": "discharged by 1e55540e",
+        "evidence": "No-head fog-on host is refused with 403 and the fixed body; RV9 caught."
+      },
+      {
+        "id": "CF-B14H-2",
+        "status": "discharged by 1e55540e",
+        "evidence": "Completed/no-head fog-on host is refused; fixed-reason rows require empty headers; RV6 and RV4 caught."
+      },
+      {
+        "id": "CF-B14H-3",
+        "status": "open",
+        "owner": "FOG chain",
+        "item": "Timeline lineage.effectiveHead exposes branchId/revision/generation under fog. Close or project it with count/timing; consider unifying fog-preview-unsupported."
+      },
+      {
+        "id": "CF-B14H-4",
+        "status": "open",
+        "owner": "U26 (HTTP history owner)",
+        "item": "getMatchMeta before authorization maps every throw to 404 on head/private-preview: existing match-existence oracle and not-found/infrastructure conflation."
+      },
+      {
+        "id": "CF-B14H-5",
+        "status": "open",
+        "owner": "FOG-H (B14-0A helper owner)",
+        "item": "config null throws and returns 500 instead of the intended fixed refusal."
+      },
+      {
+        "id": "CF-B14H-6",
+        "status": "discharged here",
+        "reviewedHead": "20af77868bde12a3e5530c72121be0182e8482f5",
+        "outputSha256": "66a4d9289776ad50e1ac7402062709506862d60a76ecd10eb71baf75d25cb654",
+        "item": "Record the independently reviewed head separately from the later test-only, Root-diffed and ruled head."
+      },
+      {
+        "id": "CF-B14B-4",
+        "status": "discharged by the Fable review at 20af77868bde12a3e5530c72121be0182e8482f5",
+        "evidence": "All 14 suites fail unseamed; 125/162 tests, identical per-suite counts. This mainProof preserves the seams and reruns all fourteen within regression."
+      },
+      {
+        "id": "CF-B14B-3",
+        "status": "open, pass-through",
+        "owner": "FOG chain",
+        "item": "Remove/retarget legacy-filter seams and shrink the allowlist when real per-viewer projection lands."
+      }
+    ],
+    "unchanged": [
+      "CF-B14-3 (F6 no-op detach; U26/FOG)",
+      "CF-S-* (CF-S-4 at U38)",
+      "CF-B14A-6..9",
+      "CF-B14B-2",
+      "CF-B14-4/5",
+      "CF-B14-0-1",
+      "CF-G2-9"
+    ],
+    "inheritedLedger": {
+      "path": "evidence/b14-0-review.json",
+      "sha256": "e053d4781e23eaaf2c214c6944feee625bdec64680a32fd33300abe98acb1444",
+      "treatment": "Preserved; this closure does not overwrite or discharge other owners' findings."
+    },
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2294#issuecomment-6256509380"
+  },
+  "ownerRuling": {
+    "ruledHead": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+    "pr": 2294,
+    "commentId": 6256509380,
+    "author": "SwiggitySwerve",
+    "at": "2026-10-18T23:29:13Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2294#issuecomment-6256509380",
+    "bodyPath": "evidence/b14-head-owner-ruling-6256509380.txt",
+    "bodySha256": "e41011b061761e44c8fb53d8771e9bcc4befb81193e65a3f80280f49915881e8",
+    "bodyBytes": 2867,
+    "copyEqualsRootSource": true
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-18T23:36:42.538Z",
+    "ledgerBase": "8fcd311d5b60951b766fded267ba688f2dae0395",
+    "algorithm": "Only newly eligible dependents of B14-HEAD; every declared predecessor must be main-verified, complete or archived. Existing independent holds remain. Only state blocked -> planned may change.",
+    "releases": [],
+    "candidates": [
+      {
+        "id": "L1-SMOKE-B",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "mainProof": null
+          },
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-HEAD",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [
+          "L1-SMOKE-A2"
+        ],
+        "eligible": false
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-HEAD",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "blocked",
+            "mainProof": null
+          }
+        ],
+        "blockedBy": [
+          "MP-HOST-DEDUPE-1"
+        ],
+        "eligible": false
+      }
+    ]
+  },
+  "followUp": {
+    "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+    "files": [
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts"
+    ],
+    "added": 18,
+    "deleted": 2,
+    "productUnchanged": true,
+    "mutants": [
+      {
+        "id": "RV9",
+        "exit": 1,
+        "failed": 2,
+        "total": 19,
+        "failures": [
+          {
+            "file": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts",
+            "tests": [
+              {
+                "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog-on host with no head when the match is active",
+                "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 403\nReceived: 404\n    at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:395:35)"
+              },
+              {
+                "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog-on host with no head when the match is completed",
+                "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 403\nReceived: 404\n    at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:395:35)"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "RV6",
+        "exit": 1,
+        "failed": 1,
+        "total": 19,
+        "failures": [
+          {
+            "file": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts",
+            "tests": [
+              {
+                "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses a fog-on host with no head when the match is completed",
+                "message": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 403\nReceived: 404\n    at toBe (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:395:35)"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "RV4",
+        "exit": 1,
+        "failed": 2,
+        "total": 19,
+        "failures": [
+          {
+            "file": "E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts",
+            "tests": [
+              {
+                "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for fog on with only the fixed reason, before any digest",
+                "message": "Error: expect(received).toStrictEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 3\n\n- Object {}\n+ Object {\n+   \"X-Head-Revision\": \"4\",\n+ }\n    at toStrictEqual (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:382:32)"
+              },
+              {
+                "name": "GET /api/matches/:id/head B14-HEAD fog containment refuses the host for unknown config with only the fixed reason, before any digest",
+                "message": "Error: expect(received).toStrictEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 3\n\n- Object {}\n+ Object {\n+   \"X-Head-Revision\": \"4\",\n+ }\n    at toStrictEqual (E:\\Projects\\Personal\\MekStation-wt\\b14-head-sol-20261018\\src\\pages-modules\\api\\__tests__\\matchHeadRoute.test.ts:382:32)"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "owned": {
+      "suites": 5,
+      "tests": 121
+    }
+  }
+}

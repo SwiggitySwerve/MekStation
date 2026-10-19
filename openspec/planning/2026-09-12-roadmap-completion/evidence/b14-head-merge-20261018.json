@@ -1,0 +1,660 @@
+{
+  "unit": "B14-HEAD",
+  "stage": "merge",
+  "recordedAt": "2026-10-18T23:36:42.538Z",
+  "pr": 2294,
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2294",
+  "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+  "reviewedHead": "20af77868bde12a3e5530c72121be0182e8482f5",
+  "mergeSha": "8fcd311d5b60951b766fded267ba688f2dae0395",
+  "mergedAt": "2026-10-18T23:29:19Z",
+  "mergedBy": "SwiggitySwerve",
+  "baseline": "5a18aa586c519ea3ad122c7b0a03b502ea69a71b",
+  "prBaseRefOid": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+  "parents": [
+    "24e9cf22736c9b11543ac611588086ff7eb0ff4f",
+    "1e55540e9d56bd0e0a503045b88984fca43c2d02"
+  ],
+  "mergedTree": "5ffb7fa8be70d4a69981b57eb80ef19412e0322d",
+  "reconstructedTree": "5ffb7fa8be70d4a69981b57eb80ef19412e0322d",
+  "integrationClean": true,
+  "commits": [
+    "9c7eae2f23fc5953ab1b03d5290cc333dba99d31",
+    "79ddc3339956dddea00702b9f44c84915e176c5a",
+    "20af77868bde12a3e5530c72121be0182e8482f5",
+    "1e55540e9d56bd0e0a503045b88984fca43c2d02"
+  ],
+  "sourceCensus": {
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "src/pages-modules/api/matchHeadRoute.ts"
+    ],
+    "count": 6,
+    "reservedReviewSlot": "openspec/planning/2026-09-12-roadmap-completion/evidence/b14-head-admission-review-20261018.json",
+    "countedLines": 26,
+    "cap": 500
+  },
+  "sourceIdentities": [
+    {
+      "path": "src/pages-modules/api/matchHeadRoute.ts",
+      "reviewedBlob": "b4d19c5ac6ffd39371318c32d9abf281457fcafa",
+      "ruledBlob": "b4d19c5ac6ffd39371318c32d9abf281457fcafa",
+      "mergeBlob": "b4d19c5ac6ffd39371318c32d9abf281457fcafa",
+      "closureBaseBlob": "b4d19c5ac6ffd39371318c32d9abf281457fcafa"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "reviewedBlob": "3b2b861a28584d3b0017f0974624b0a07561d5c8",
+      "ruledBlob": "d20902a48261550c231c49846a1836978001d8ce",
+      "mergeBlob": "d20902a48261550c231c49846a1836978001d8ce",
+      "closureBaseBlob": "d20902a48261550c231c49846a1836978001d8ce"
+    }
+  ],
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+      "blob": "55bc5726cf7017fce49a1083e2e90ea2bd05f49f",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "blob": "d0ba104a1e19834eb61a3d55d894cb7d38053a49",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages-modules/api/hostAsGmMembershipSource.ts",
+      "blob": "108e73b1472f8a7d2b9698b5085618fba8019e18",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages/api/matches/[id]/head.ts",
+      "blob": "5a94462a28f6d286b0e983bf312e4101e86a61aa",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts",
+      "blob": "e763a325ec9a16f26fe82106a701dd57ae020024",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+      "blob": "3a85ddaa94af58193ea3fcf354211e6e6ed4dbf3",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHistoryExportRoute.ts",
+      "blob": "a89f9f4506fd53d96a611af07ba3caf537cbbaf4",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages-modules/api/matchPrivatePreviewRoute.ts",
+      "blob": "b1ce45ac00f4ef5ba0882213118a6929e29ad7ad",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages-modules/api/matchHistoryTimelineRoute.ts",
+      "blob": "311777f26adbcdb033c23c4e30e58b8a4e4bc2d3",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "blob": "2a2ee822a8b7571dddcc2c68cfbc15f4e9587291",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "blob": "ded6d378c4d8f3539445a73d293bb3c6423b4612",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "blob": "fde72713fdf1b94927c7be3f7b3e781986e2d72c",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "blob": "bbf7155b4371ac24ce250a07e51d7cd536f85e2b",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+      "blob": "7319812b3dd5f04c445de8d7aaebfcf88296667c",
+      "sameAtClosureBase": true
+    },
+    {
+      "path": "server.js",
+      "blob": "7ce8627c35dbc754fa789f70cc701c536f3549e8",
+      "sameAtClosureBase": true
+    }
+  ],
+  "checks": {
+    "observedAt": "2026-10-18T23:31:29.372Z",
+    "expectedNames": [
+      "A11y Tests",
+      "Build Storybook",
+      "Build Test / linux",
+      "Build Test / mac",
+      "Build Test / win",
+      "Coverage Floor",
+      "Customizer Regressions",
+      "Desktop Tests",
+      "Desktop Type Check",
+      "Detect Changes",
+      "Determinism Audit",
+      "E2E Smoke",
+      "Format Check",
+      "Install Dependencies",
+      "Lint",
+      "Lint and Test",
+      "Perf Budget PR",
+      "Perf Smoke Tests",
+      "Prepare Build Artifacts",
+      "Schema Bridge",
+      "Seam Anchors",
+      "Statistical Proof PR",
+      "Type Check",
+      "Unit Tests (1/6)",
+      "Unit Tests (2/6)",
+      "Unit Tests (3/6)",
+      "Unit Tests (4/6)",
+      "Unit Tests (5/6)",
+      "Unit Tests (6/6)",
+      "Validate BV Parity",
+      "Validate Combat Suite",
+      "Validate Roadmap Ledger"
+    ],
+    "namesEqual": true,
+    "successful": 32,
+    "runs": [
+      {
+        "name": "Lint and Test",
+        "id": 117820620102,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117820620102"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 117819668208,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819668208"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 117819668119,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819668119"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 117819668078,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819668078"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 117819241596,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241596"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 117819241589,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241589"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 117819241555,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241555"
+      },
+      {
+        "name": "A11y Tests",
+        "id": 117819241540,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241540"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 117819241509,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241509"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 117819241488,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241488"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 117819241483,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241483"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 117819241470,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241470"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 117819241467,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241467"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 117819241437,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241437"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 117819241401,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241401"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 117819241352,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241352"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 117819241323,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241323"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 117819241320,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241320"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 117819241305,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241305"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 117819241300,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241300"
+      },
+      {
+        "name": "Format Check",
+        "id": 117819241282,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241282"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 117819241275,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241275"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 117819241269,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241269"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 117819241262,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241262"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 117819241258,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241258"
+      },
+      {
+        "name": "Lint",
+        "id": 117819241246,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241246"
+      },
+      {
+        "name": "Type Check",
+        "id": 117819241153,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241153"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 117819241147,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819241147"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117819148780,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819148780"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 117819098359,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819098359"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 117819098343,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819098343"
+      },
+      {
+        "name": "Detect Changes",
+        "id": 117819098205,
+        "head": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/39176141877/job/117819098205"
+      }
+    ],
+    "allAttempts": [
+      {
+        "name": "Lint and Test",
+        "id": 117820620102,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 117819668208,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 117819668119,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 117819668078,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 117819241596,
+        "conclusion": "success"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 117819241589,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 117819241555,
+        "conclusion": "success"
+      },
+      {
+        "name": "A11y Tests",
+        "id": 117819241540,
+        "conclusion": "success"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 117819241509,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 117819241488,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 117819241483,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 117819241470,
+        "conclusion": "success"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 117819241467,
+        "conclusion": "success"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 117819241437,
+        "conclusion": "success"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 117819241401,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 117819241352,
+        "conclusion": "success"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 117819241323,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 117819241320,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 117819241305,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 117819241300,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format Check",
+        "id": 117819241282,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 117819241275,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 117819241269,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 117819241262,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 117819241258,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint",
+        "id": 117819241246,
+        "conclusion": "success"
+      },
+      {
+        "name": "Type Check",
+        "id": 117819241153,
+        "conclusion": "success"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 117819241147,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117819148780,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 117819098359,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 117819098343,
+        "conclusion": "success"
+      },
+      {
+        "name": "Detect Changes",
+        "id": 117819098205,
+        "conclusion": "success"
+      }
+    ],
+    "priorNonSuccess": []
+  },
+  "mergeCommitChecks": [
+    {
+      "name": "Live Tier Signal",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Push Docker image",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "build",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Build Docker image",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "release",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Prepare Build Artifacts",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Determine release tag",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "version-and-release",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Publish Live Evidence (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Publish Live Evidence (windows-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "1e55540e9d56bd0e0a503045b88984fca43c2d02",
+    "pr": 2294,
+    "commentId": 6256509380,
+    "author": "SwiggitySwerve",
+    "at": "2026-10-18T23:29:13Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2294#issuecomment-6256509380",
+    "bodyPath": "evidence/b14-head-owner-ruling-6256509380.txt",
+    "bodySha256": "e41011b061761e44c8fb53d8771e9bcc4befb81193e65a3f80280f49915881e8",
+    "bodyBytes": 2867,
+    "copyEqualsRootSource": true
+  },
+  "chronologySeconds": 6,
+  "closureBase": "8fcd311d5b60951b766fded267ba688f2dae0395"
+}

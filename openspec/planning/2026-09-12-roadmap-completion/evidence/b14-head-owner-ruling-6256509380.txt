@@ -1,0 +1,34 @@
+OWNER-RULING 1e55540e9d56bd0e0a503045b88984fca43c2d02
+
+Unit: B14-HEAD (L1, B14/HP lane; sensitive privacy/authority/replay). Implemented by Sol ultrafast and verified by Claude Fable, under the owner's direction "Use Sol ultrafast for most subagents agents and Claude agents to verify the work". PR #2294 at exact head 1e55540e9d56bd0e0a503045b88984fca43c2d02.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them". This covers Root posting OWNER-RULINGs, and the temporary fog-on refusal for v2.2.0.
+Root rules under these.
+
+Basis: the independent full review (Fable 5.1) on 20af77868bde12a3e5530c72121be0182e8482f5 returned APPROVE. Report: 2026-10-18-b14-head-review.md, sha256 66a4d9289776ad50e1ac7402062709506862d60a76ecd10eb71baf75d25cb654 (23,231 bytes).
+- Order of checks on /head: prepare, then getMatchMeta, then host-as-GM authorization (403 or 401), then noPerViewerRevealProjection. The 403 {"error":"fog-projection-unavailable"} is returned before any transaction, branch-store read, stream-heads SELECT or serialization.
+- There is no fallback and no host exemption. Known-off and flag-omitted behaviour is byte-unchanged. It uses the same predicate and reason as B14-0A.
+- RED is test-only and behavioural (3/17). No test byte changed after RED. GREEN passes 17/17.
+- 26/500 counted lines. Owned suites 119/119; regression 268 suites / 2,835 tests.
+- CF-B14B-4 was re-run on this head: 14/14 suites, 125/162, so it is discharged.
+- Mutants: 22 total, 19 caught.
+
+Optional in-PR fixes, applied at 1e55540e9d56bd0e0a503045b88984fca43c2d02:
+- Root diffed 20af7786..1e55540e9d56bd0e0a503045b88984fca43c2d02: one file, matchHeadRoute.test.ts, +18/-2.
+- New rows: a fog-on host with no head gets 403 and the fixed body (no existence oracle); the same under status completed; result headers are strictly {}.
+- Surviving mutants RV9, RV6 and RV4 are now caught. 121 owned tests pass. No product byte changed.
+- CI is 32/32 and the merge state is CLEAN.
+
+Ruling: ACCEPT, and merge at this exact head.
+
+Carry-forwards:
+- CF-B14H-3 (F5): timeline lineage.effectiveHead under fog, and unifying fog-preview-unsupported -> FOG chain.
+- CF-B14H-4 (F4): the getMatchMeta 404-before-authorization oracle -> the HTTP history owner (U26).
+- CF-B14H-5 (F7): config null throws 500 -> the B14-0A helper owner (FOG-H).
+- CF-B14H-6: record reviewedHead 20af7786 in the closure.
+- CF-B14H-1 and CF-B14H-2 are discharged by the fixes.
+- CF-B14B-3, CF-B14-3 (F6), CF-S-*, CF-B14A-6..9, CF-B14B-2, CF-B14-4/5, CF-B14-0-1 and CF-G2-9 pass through.
+
+Next: the closure releases P2CG1HP only once MP-HOST-DEDUPE-1 is also main-verified. Until then it releases nothing new beyond what the ledger edges allow; L1-SMOKE-B also waits on A2.

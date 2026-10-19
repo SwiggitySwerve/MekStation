@@ -1,3 +1,39 @@
+## 2026-10-18 B14-HEAD source verified on main
+
+B14-HEAD moves from implementing to main-verified after source PR #2294
+(ruled head 1e55540e9d56bd0e0a503045b88984fca43c2d02, merge 8fcd311d5b60951b766fded267ba688f2dae0395).
+The independent Fable review approved 20af77868bde12a3e5530c72121be0182e8482f5; its exact 23,231-byte copy
+and SHA-256 66a4d9289776ad50e1ac7402062709506862d60a76ecd10eb71baf75d25cb654 are preserved in evidence.
+The later +18/-2 change touched only matchHeadRoute.test.ts, killed RV9/RV6/RV4,
+and was Root-diffed and ruled without a new review round. reviewedHead is
+recorded separately from the ruled head (CF-B14H-6).
+
+PK-b14-head-ruling records the posted owner decision before the merge.
+The exact posted ruling and review are copied byte-for-byte; the merge receipt
+records all 32 exact-head CI names and the clean two-parent tree integration.
+
+Fresh proof at exactly 8fcd311d5b60951b766fded267ba688f2dae0395, before any closure edit:
+- npm ci: 1078 packages on Node v22.22.0.
+- Owned: 5 suites, 121/121 tests.
+- Regression: 268 suites, 2837/2837 tests; includes all 14 seamed suites.
+- Typecheck and the unedited ledger validator pass.
+All runs used the heavy-run queue, lane b14-head, with a private Jest cache.
+Raw proof logs/JSON are preserved in base64 envelopes.
+
+Successor release: NONE. Closing B14-HEAD makes no dependent newly eligible.
+- L1-SMOKE-B stays blocked: waiting on L1-SMOKE-A2.
+- P2CG1HP stays blocked: waiting on MP-HOST-DEDUPE-1.
+No unrelated unit or packet changes. Selection is not source admission.
+
+CF-B14H-1/2 are discharged by the test fixes; CF-B14H-6 is recorded here.
+CF-B14H-3 stays with the FOG chain; CF-B14H-4 with U26; CF-B14H-5 with FOG-H.
+CF-B14B-4 was discharged by the exact-head Fable seam-necessity rerun.
+CF-B14B-3 and the ruled legacy carry-forwards remain routed and open.
+No task tick, browser proof, built-server smoke or restored fog projection is claimed.
+This closure metadata still needs its own CI and parent merge.
+
+---
+
 ## 2026-10-18 LSC-1DB verified on main; LSC-1S released; closure metadata proposed
 
 LSC-1DB advances from implementing to main-verified for PR #2290, head d1fef6cb76f64e6b1987eb705d0432df0c59c4fc, merge 44bd8bb9191f2c945324f483e4f524841b098ddf.
