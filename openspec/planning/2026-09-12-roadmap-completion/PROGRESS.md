@@ -1,4 +1,4 @@
-## 2026-10-18 MP-RECOVERY-UNITS-2 registered (blocked)
+## 2026-10-18 MP-RECOVERY-UNITS-2 registered (planned)
 
 Root confirmed #2300 merged at f73bfe7d7251db564c7cc8b2bed544fd89fdc140.
 Registers the remaining #2296 owner-routed recovery work; no implementation or source admission.
@@ -16,7 +16,7 @@ The matchUnitBootstrap.ts exception is only the required optional d6Roller plumb
 ServerMatchHost.ts ownership is restricted to recover; engine/server.js/registry/catalog/fog stay read-only.
 U44 capability-DB cutover and U26 projection stay separate; no simultaneous shared-file admission.
 
-The new unit stays blocked with all lifecycle receipts null, capped at 15 files/500 counted additions.
+The new unit starts planned: its only predecessor is main-verified; all lifecycle receipts remain null.
 Its 11 prospective source-stage leaves are not measured fit or permission for extra files.
 L1 closure accounting advances from 38 to 39; every other acceptance/human-session gate is retained.
 Existing unit lifecycle, tasks, packets, HP manifest and historical receipts are preserved.

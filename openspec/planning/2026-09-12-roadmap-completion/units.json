@@ -8201,7 +8201,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -8221,10 +8221,10 @@
       "successors": [
         "L1-SMOKE-A2"
       ],
-      "admissionRequires": "Blocked registration only, not source admission. The sole predecessor is MP-RECOVERY-UNITS-1, which already has genuine exact-main PASS and closure. May run in parallel with MP-HOST-DEDUPE-1 because the exact source/test leaves are disjoint; there is no DEDUPE dependency. Shared metadata writes serialize through the writer queue. After DEDUPE merges, rebase onto its merged Main and re-freeze this exact manifest before further source/admission or merge. No P2CG1HP dependency in either direction: its exact four source/test leaves are disjoint. Rebase/re-census every open PR and active reservation, including U44/U26 and HP, before finite admission. Freeze the exact 11 prospective source/test/helper/lifecycle/evidence leaves in mpRecoveryUnits2Registration20261018; 11/15 is an unmeasured planning count, not fit proof. Tests/evidence are line-exempt but file-counted; aggregate 500 counted additions include lifecycle, without deletion credit. The matchUnitBootstrap.ts helper exception is solely optional d6Roller plumbing required by CF-MPRU-4. The ServerMatchHost.ts grant is recover-only. Preserve engine, server.js, catalog service, registry, existing tests, journal schema and fog controls; register any extra source/helper/test leaf before editing. U44 capability-DB cutover and U26/FOG projection stay out of scope, with no simultaneous shared-file admission. Required RED and discriminating mutants, accepted post-restart co-op action, capture-backed rolls and recorded roll payloads, current CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS/ancestry/closure. No future packet, review, acceptance or source permission is supplied by this registration; null ownerGate and NEXT waive nothing. Persistence uses the existing migration review class; no validator taxonomy edit.",
+      "admissionRequires": "Planned registration only; no source admission until Root sends GATE OPEN. The sole predecessor is MP-RECOVERY-UNITS-1, which already has genuine exact-main PASS and closure. May run in parallel with MP-HOST-DEDUPE-1 because the exact source/test leaves are disjoint; there is no DEDUPE dependency. Shared metadata writes serialize through the writer queue. After DEDUPE merges, rebase onto its merged Main and re-freeze this exact manifest before further source/admission or merge. No P2CG1HP dependency in either direction: its exact four source/test leaves are disjoint. Rebase/re-census every open PR and active reservation, including U44/U26 and HP, before finite admission. Freeze the exact 11 prospective source/test/helper/lifecycle/evidence leaves in mpRecoveryUnits2Registration20261018; 11/15 is an unmeasured planning count, not fit proof. Tests/evidence are line-exempt but file-counted; aggregate 500 counted additions include lifecycle, without deletion credit. The matchUnitBootstrap.ts helper exception is solely optional d6Roller plumbing required by CF-MPRU-4. The ServerMatchHost.ts grant is recover-only. Preserve engine, server.js, catalog service, registry, existing tests, journal schema and fog controls; register any extra source/helper/test leaf before editing. U44 capability-DB cutover and U26/FOG projection stay out of scope, with no simultaneous shared-file admission. Required RED and discriminating mutants, accepted post-restart co-op action, capture-backed rolls and recorded roll payloads, current CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS/ancestry/closure. No future packet, review, acceptance or source permission is supplied by this registration; null ownerGate and NEXT waive nothing. Persistence uses the existing migration review class; no validator taxonomy edit.",
       "registration20261018": {
         "source": "evidence/mp-recovery-units-2-registration-20261018.json",
-        "sourceSha256": "bc248b618d3cc52a9da8215e6f4f9beb802ff03e251454fc2ed1ea851a51c85c",
+        "sourceSha256": "edb4122b57001b69cb9bb3bf25c4f9ee7bf0a85f7c8fb4f81d2f05d617ad5e0b",
         "sourceAdmitted": false
       }
     },
@@ -26365,9 +26365,11 @@
       "qualification": "This is registration authority and a transcription of routed findings, not an OWNER-RULING on any future implementation head."
     },
     "unit": "MP-RECOVERY-UNITS-2",
+    "initialState": "planned",
+    "readiness": "MP-RECOVERY-UNITS-1 is already main-verified with exact-main PASS, so no later predecessor closure is needed to release this registration. NEXT is advisory; Root GATE OPEN and finite admission still precede source work.",
     "layer": "L1 / B14-HP lane",
     "source": "evidence/mp-recovery-units-2-registration-20261018.json",
-    "sourceSha256": "bc248b618d3cc52a9da8215e6f4f9beb802ff03e251454fc2ed1ea851a51c85c",
+    "sourceSha256": "edb4122b57001b69cb9bb3bf25c4f9ee7bf0a85f7c8fb4f81d2f05d617ad5e0b",
     "order": "MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 and MP-RECOVERY-UNITS-2 independently; both remain predecessors of L1-SMOKE-A2. DEDUPE -> P2CG1HP remains independent; no DEDUPE -> recovery-2 or recovery-2 -> HP edge.",
     "lane": "May run in parallel with DEDUPE: the exact source/test leaves are disjoint, as #2303 confirms. Shared-file ordering belongs to the writer queue, not the dependency graph. Serialize units.json/roadmap.json/PROGRESS.md writes. After DEDUPE merges, rebase onto its merged Main and re-freeze the exact manifest before further source/admission or merge; preserve its registry changes. HP has disjoint literal leaves and gets no additional prerequisite. LSC remains independent.",
     "manifest": {

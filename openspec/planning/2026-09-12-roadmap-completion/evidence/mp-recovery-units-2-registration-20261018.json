@@ -1,8 +1,10 @@
 {
   "schemaVersion": 1,
   "unit": "MP-RECOVERY-UNITS-2",
+  "initialState": "planned",
+  "readiness": "MP-RECOVERY-UNITS-1 is already main-verified with exact-main PASS, so no later predecessor closure is needed to release this registration. NEXT is advisory; Root GATE OPEN and finite admission still precede source work.",
   "stage": "registration",
-  "recordedAt": "2026-10-19T01:02:01.601Z",
+  "recordedAt": "2026-10-19T01:04:32.018Z",
   "baseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
   "authority": {
     "ownerStandingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",

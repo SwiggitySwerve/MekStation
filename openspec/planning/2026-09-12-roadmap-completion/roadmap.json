@@ -19157,9 +19157,11 @@
       "qualification": "This is registration authority and a transcription of routed findings, not an OWNER-RULING on any future implementation head."
     },
     "unit": "MP-RECOVERY-UNITS-2",
+    "initialState": "planned",
+    "readiness": "MP-RECOVERY-UNITS-1 is already main-verified with exact-main PASS, so no later predecessor closure is needed to release this registration. NEXT is advisory; Root GATE OPEN and finite admission still precede source work.",
     "layer": "L1 / B14-HP lane",
     "source": "evidence/mp-recovery-units-2-registration-20261018.json",
-    "sourceSha256": "bc248b618d3cc52a9da8215e6f4f9beb802ff03e251454fc2ed1ea851a51c85c",
+    "sourceSha256": "edb4122b57001b69cb9bb3bf25c4f9ee7bf0a85f7c8fb4f81d2f05d617ad5e0b",
     "order": "MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 and MP-RECOVERY-UNITS-2 independently; both remain predecessors of L1-SMOKE-A2. DEDUPE -> P2CG1HP remains independent; no DEDUPE -> recovery-2 or recovery-2 -> HP edge.",
     "lane": "May run in parallel with DEDUPE: the exact source/test leaves are disjoint, as #2303 confirms. Shared-file ordering belongs to the writer queue, not the dependency graph. Serialize units.json/roadmap.json/PROGRESS.md writes. After DEDUPE merges, rebase onto its merged Main and re-freeze the exact manifest before further source/admission or merge; preserve its registry changes. HP has disjoint literal leaves and gets no additional prerequisite. LSC remains independent.",
     "manifest": {
