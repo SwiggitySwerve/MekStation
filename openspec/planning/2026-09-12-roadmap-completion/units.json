@@ -8109,7 +8109,8 @@
       ],
       "successors": [
         "MP-HOST-DEDUPE-1",
-        "L1-SMOKE-A2"
+        "L1-SMOKE-A2",
+        "MP-RECOVERY-UNITS-2"
       ],
       "admissionRequires": "Blocked registration only; no source admission or runtime acceptance. Parent release requires every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Rebase/re-census every open PR and planned/blocked/implementing unit, resolve literal and coarse ownership collisions, and freeze every source/test/helper/lifecycle/evidence leaf before admission. Aliases are navigation only. Caps include lifecycle: 15 unique files / 500 counted additions under U41; tests/evidence are line-exempt but file-counted. Extra scope or overflow requires a separately registered split. NEXT does not enforce these edges. Serialize the owning lane and shared units.json writes through closure; retain required CI, independent exact-head review and exact-main proof. Sensitive work requires a genuine packet before local-verified and OWNER-RULING before merge; null receipts waive nothing. B14/HP lane after B14-0, the holder of the server-directory alias, before host dedupe and HP; B14-HEAD independently feeds HP and is not a recovery/A2 prerequisite. Preferred design is filesystem-backed canonical-unit loading at boot, without changing server.js. Explicit candidate leaves: src/lib/multiplayer/server/MatchHostRegistry.ts, src/lib/multiplayer/server/MatchRecovery.ts, src/lib/multiplayer/server/matchUnitBootstrap.ts, src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts and src/services/units/NodeCanonicalUnitService.ts. Five candidates plus units.json and four bounded admission/red/local/admission-review receipts make 10 prospective files, not measured fit. NodeCanonicalUnitService.ts has no other planned/blocked/implementing owner at the census baseline. CanonicalUnitService.ts, server.js and src/engine remain read-only controls. Any server.js boot-order edit requires a scope amendment against P2CG1H, U101d and B15-1; any src/engine edit requires a scope amendment against U73. No implicit engine/service-factory write grant. Preserve B14 frozen predicates and completed receipts.",
       "registration20261018": {
@@ -8162,6 +8163,69 @@
       "registration20261018": {
         "source": "evidence/followups-registration-20261018.txt",
         "sourceSha256": "06f8fdf1b4d503f432771bddcd8d70564d896298c6a39cba4634bb7bd73a7428"
+      }
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Complete the narrowly routed #2296 recovery follow-ups: disk-derived co-op/ordinary recovered journal units (CF-MPRU-1), server-only live rewind rebuild (CF-MPRU-3), crypto RollCapture after legacy-path restart (Medium CF-MPRU-4), an unmocked rewound-at-boot fixture (CF-MPRU-2/M8), and custom-unit no-snapshot success/fail-closed coverage (F3/R2/R10). Preserve deterministic replay, journal branch identity, durable custom-unit validation and multiplayer privacy.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "registeredSourceLeaves": [
+        "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+        "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts"
+      ],
+      "ownershipPathPolicy": "The server alias is validator navigation only, never directory-wide write permission. Only registeredSourceLeaves are prospective source/test scope; finite admission must freeze them and the named lifecycle/evidence leaves.",
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence after accepted registration and finite admission. Every actual leaf counts; no incumbent lifecycle, historical receipt or unrelated packet edits. Shared ledger writes are serialized.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "replay",
+        "migration"
+      ],
+      "sensitiveBoundaries": [
+        "authority",
+        "replay",
+        "persistence"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "MP-RECOVERY-UNITS-1"
+      ],
+      "successors": [
+        "L1-SMOKE-A2"
+      ],
+      "admissionRequires": "Blocked registration only, not source admission. The sole predecessor is MP-RECOVERY-UNITS-1, which already has genuine exact-main PASS and closure. May run in parallel with MP-HOST-DEDUPE-1 because the exact source/test leaves are disjoint; there is no DEDUPE dependency. Shared metadata writes serialize through the writer queue. After DEDUPE merges, rebase onto its merged Main and re-freeze this exact manifest before further source/admission or merge. No P2CG1HP dependency in either direction: its exact four source/test leaves are disjoint. Rebase/re-census every open PR and active reservation, including U44/U26 and HP, before finite admission. Freeze the exact 11 prospective source/test/helper/lifecycle/evidence leaves in mpRecoveryUnits2Registration20261018; 11/15 is an unmeasured planning count, not fit proof. Tests/evidence are line-exempt but file-counted; aggregate 500 counted additions include lifecycle, without deletion credit. The matchUnitBootstrap.ts helper exception is solely optional d6Roller plumbing required by CF-MPRU-4. The ServerMatchHost.ts grant is recover-only. Preserve engine, server.js, catalog service, registry, existing tests, journal schema and fog controls; register any extra source/helper/test leaf before editing. U44 capability-DB cutover and U26/FOG projection stay out of scope, with no simultaneous shared-file admission. Required RED and discriminating mutants, accepted post-restart co-op action, capture-backed rolls and recorded roll payloads, current CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS/ancestry/closure. No future packet, review, acceptance or source permission is supplied by this registration; null ownerGate and NEXT waive nothing. Persistence uses the existing migration review class; no validator taxonomy edit.",
+      "registration20261018": {
+        "source": "evidence/mp-recovery-units-2-registration-20261018.json",
+        "sourceSha256": "bc248b618d3cc52a9da8215e6f4f9beb802ff03e251454fc2ed1ea851a51c85c",
+        "sourceAdmitted": false
       }
     },
     {
@@ -8322,13 +8386,14 @@
       "predecessors": [
         "L1-SMOKE-A1",
         "MP-RECOVERY-UNITS-1",
-        "MP-HOST-DEDUPE-1"
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2"
       ],
       "successors": [
         "L1-SMOKE-B",
         "P2CG1H"
       ],
-      "admissionRequires": "Blocked. Parent releases to planned only after L1-SMOKE-A1, MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 have genuine exact-main mainProof PASS, fetched-Main ancestry and closure; then normal finite admission. Recovery/dedupe add only the B14-0 prerequisite through the server-directory lane. B14-HEAD is not an A2 prerequisite; it independently gates HP and L1-SMOKE-B. Preserve A1 frozen modules byte-for-byte. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam. CF-SMOKEA1-2: feasibility must include an accepted unit intent after restart on the real image. CF-SMOKEA1-3: Root must record physical-versus-oxfmt-normalized smoke-line counting before admission, then remeasure A2/B budgets without a cap waiver. CF-SMOKEA1-8: account for spectator-refusal broadcasts and game_created absent from late replay; do not mislabel these observed contracts as a leak or gap.",
+      "admissionRequires": "Blocked. Parent releases to planned only after L1-SMOKE-A1, MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 have genuine exact-main mainProof PASS, fetched-Main ancestry and closure; then normal finite admission. Recovery/dedupe add only the B14-0 prerequisite through the server-directory lane. B14-HEAD is not an A2 prerequisite; it independently gates HP and L1-SMOKE-B. Preserve A1 frozen modules byte-for-byte. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam. CF-SMOKEA1-2: feasibility must include an accepted unit intent after restart on the real image. CF-SMOKEA1-3: Root must record physical-versus-oxfmt-normalized smoke-line counting before admission, then remeasure A2/B budgets without a cap waiver. CF-SMOKEA1-8: account for spectator-refusal broadcasts and game_created absent from late replay; do not mislabel these observed contracts as a leak or gap. MP-RECOVERY-UNITS-2 exact-main PASS, ancestry and closure is also required under the #2296 owner ruling; retain all existing predecessors and frozen A1 controls.",
       "registration20261018L1Smoke": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
         "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
@@ -25551,7 +25616,7 @@
       "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
     },
     "layer": "L1 / v2.2.0",
-    "unitCount": 38,
+    "unitCount": 39,
     "closures": [
       "P2CG1B",
       "P2CG1C",
@@ -25569,6 +25634,7 @@
       "B14-HEAD",
       "MP-RECOVERY-UNITS-1",
       "MP-HOST-DEDUPE-1",
+      "MP-RECOVERY-UNITS-2",
       "P2CG1HP",
       "LSC-0",
       "LSC-1DB",
@@ -25597,7 +25663,7 @@
       {
         "id": "closures",
         "status": "pending",
-        "requirement": "All 38 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+        "requirement": "All 39 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
       },
       {
         "id": "built-server-spectator-smoke",
@@ -25983,7 +26049,7 @@
       "L1-SMOKE-A2": "blocked",
       "L1-SMOKE-B": "blocked"
     },
-    "order": "P2CG1S -> L1-SMOKE-A1; {L1-SMOKE-A1, MP-RECOVERY-UNITS-1, MP-HOST-DEDUPE-1} -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. A1 remains independent of B14; A2 waits for recovery/dedupe after B14-0, without waiting for B14-HEAD. B14-HEAD continues to gate HP and B. Array placement remains selector priority, not extra admission permission.",
+    "order": "P2CG1S -> L1-SMOKE-A1; {L1-SMOKE-A1, MP-RECOVERY-UNITS-1, MP-HOST-DEDUPE-1, MP-RECOVERY-UNITS-2} -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. A1 remains independent of B14; A2 waits for both recovery units and dedupe after B14-0, without waiting for B14-HEAD. B14-HEAD continues to gate HP and B. Array placement remains selector priority, not extra admission permission.",
     "reason": "Root review round 1 split A baseline/harness from A2 B10 matrix/restart proof because 500 counted lines is a total per-unit cap, not per-file. Three finite, separately capped new-leaf units replace the two-unit shared-file proposal; no partial gate exists in the validator.",
     "obligation": {
       "status": "owed; registered for future discharge only",
@@ -26149,7 +26215,7 @@
       "verdict": "CHANGES",
       "response": "Rebased onto #2273; preserves B14-0 priority; A1/A2/B distinct new leaves and total aggregate caps; exact merge-diff allowlist, lint-clean zero-headroom rule and tsx/offline-SQL fixture restriction. Root will independently re-review the revised head; no approval is inferred."
     },
-    "followups20261018": "A2 also requires MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 exact-main PASS, ancestry and closure. Recovery depends on B14-0, not B14-HEAD; A2 has no B14-HEAD wait. This supersedes prior A2-only/no-B14-wait descriptions and the first follow-up draft sequencing; A1 remains independent. See followupsRegistration20261018."
+    "followups20261018": "A2 also requires MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 exact-main PASS, ancestry and closure. Recovery depends on B14-0, not B14-HEAD; A2 has no B14-HEAD wait. This supersedes prior A2-only/no-B14-wait descriptions and the first follow-up draft sequencing; A1 remains independent. See followupsRegistration20261018. MP-RECOVERY-UNITS-2 additionally precedes A2 under the #2296 ruling; see mpRecoveryUnits2Registration20261018. This adds no HP gate."
   },
   "dataFidelityRegistration20261018": {
     "baseline": "407ff0e9ae3eb0cd200b3c68da26e3d27d66a144",
@@ -26284,5 +26350,158 @@
     "census": "Evidence captures every open PR (4; exact head before/after; all file pages including rename sources) and all 124 planned/blocked/implementing units plus both-ledger manifests and new-unit intersections. Rebase/re-census each admission and merge. Shared units writer queue follows merged B14-0/A1 source PRs; their closure lifecycle is parent-owned, with LSC-1DB #2290 in flight. Publication refresh captures all five current open PRs, including A1 closure #2291; Main and the 124-unit census are unchanged. Shared ledger writes remain serialized. No historical record is rewritten.",
     "release": "Every L2 obligation, required carry-forward disposition, packaged GUI on actual platform artifacts and every P3 acceptance letter need genuine exact-Main proof/ancestry/closure, then independent Astra P3-exit review and v2.3.0. Retain withheld application, wrong scope, hidden state, stale lineage, revocation, no-op and reconnect negatives. P4 Task33 final production UAT remains distinct; FN-ob2 owner-column/multi-operator and FN-u96 stay open pending their own proof.",
     "bounds": "This amendment owns only units.json, roadmap.json, PROGRESS.md and the hash-bound evidence; <=15 files/500 counted additions, no deletion credit. All current caps/review classes/receipts remain. New slices retain 15/500, tests/evidence file-counted and line-exempt under U41; future overflow or extra leaves require a registered split. One heavy run and existing machine-idle gate; no heavy validation in this edit."
+  },
+  "mpRecoveryUnits2Registration20261018": {
+    "baseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": {
+      "ownerStandingInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+      "rootInstruction": "After MP-RECOVERY-UNITS-1 closure #2300 merged, register MP-RECOVERY-UNITS-2; post REVIEW_READY, then end the turn.",
+      "sourceRuling": "https://github.com/SwiggitySwerve/MekStation/pull/2296#issuecomment-6256894879",
+      "sourceRuledHead": "f4165728412418d0c30f32d00b5174fe8121300a",
+      "closurePr": 2300,
+      "closureMerge": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
+      "qualification": "This is registration authority and a transcription of routed findings, not an OWNER-RULING on any future implementation head."
+    },
+    "unit": "MP-RECOVERY-UNITS-2",
+    "layer": "L1 / B14-HP lane",
+    "source": "evidence/mp-recovery-units-2-registration-20261018.json",
+    "sourceSha256": "bc248b618d3cc52a9da8215e6f4f9beb802ff03e251454fc2ed1ea851a51c85c",
+    "order": "MP-RECOVERY-UNITS-1 -> MP-HOST-DEDUPE-1 and MP-RECOVERY-UNITS-2 independently; both remain predecessors of L1-SMOKE-A2. DEDUPE -> P2CG1HP remains independent; no DEDUPE -> recovery-2 or recovery-2 -> HP edge.",
+    "lane": "May run in parallel with DEDUPE: the exact source/test leaves are disjoint, as #2303 confirms. Shared-file ordering belongs to the writer queue, not the dependency graph. Serialize units.json/roadmap.json/PROGRESS.md writes. After DEDUPE merges, rebase onto its merged Main and re-freeze the exact manifest before further source/admission or merge; preserve its registry changes. HP has disjoint literal leaves and gets no additional prerequisite. LSC remains independent.",
+    "manifest": {
+      "sourceLeaves": [
+        "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts"
+      ],
+      "testLeaves": [
+        "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+        "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts"
+      ],
+      "prospectiveSourceStage": [
+        "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+        "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-review.json"
+      ],
+      "totalProspectiveFiles": 11,
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "qualification": "Candidate exact leaves, not source admission or measured fit. Freeze every real source/test/helper/lifecycle/evidence leaf and census current Main/open PRs at admission. Test/evidence lines are exempt but files count; aggregate counted additions include lifecycle with no deletion credit. No spare slot grants unnamed work."
+    },
+    "requirements": [
+      {
+        "id": "CF-MPRU-1",
+        "scope": "ServerMatchHost.recover",
+        "requirement": "Derive canonical journal units for recovered co-op and ordinary hosts through deriveServerAdaptedUnits on disk, not deriveAdaptedUnitsFromSession over HTTP. Preserve side/order/instance identity and custom-unit recovery. Witness a real accepted unit action after co-op restart; an empty journal-unit list or replay-only result is insufficient."
+      },
+      {
+        "id": "CF-MPRU-3",
+        "scope": "ServerMatchHostRewindRebuild.rebuildHostFromActivatedBranch",
+        "requirement": "Use recoverServerInteractiveSession for the activated journal path without HTTP-to-self. Preserve the truncated branch, random/dice seeds, lease lifecycle, cursor resets, replay delivery and privacy guards."
+      },
+      {
+        "id": "CF-MPRU-4",
+        "severity": "Medium",
+        "scope": "ServerMatchHost.recover and matchUnitBootstrap.recoverServerInteractiveSession",
+        "requirement": "Let recoverServerInteractiveSession accept an optional d6Roller, with existing seeded/default behavior when omitted. Wire the recovered legacy host to () => host.capture.d6(), using the stable host capture callback so per-intent RollCapture swaps work. Prove post-restart dice use crypto-backed capture and events contain the captured rolls, not the predictable SeededRandom(0xc0ffee) fallback. Never replace deterministic journal replay with ambient randomness."
+      },
+      {
+        "id": "CF-MPRU-2",
+        "scope": "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+        "requirement": "Add an unmocked rewound-at-boot fixture selecting an activated branch; recover the truncated session and accept a legal unit action with no catalog HTTP. Kill the M8 arm-to-HTTP mutant."
+      },
+      {
+        "id": "F3 / R2/R10",
+        "scope": "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+        "requirement": "Strip customUnitDefinition from a custom- GameCreated unit. Prove recovery through readServerCustomCombatDefinition when the definition exists, and fail only that match when it is missing rather than silently skipping. Kill the custom-ref predicate and null-custom-reader mutants."
+      }
+    ],
+    "scopeBoundary": "ServerMatchHost.ts is owned only for the recover path; ServerMatchHostRewindRebuild.ts only for the live server-unit rebuild integration and its existing invariants. matchUnitBootstrap.ts is the necessary narrow helper exception for the optional d6Roller signature/default behavior; no other bootstrap redesign. Test setup uses existing fixtures/services without editing engine, catalog service, server boot order, journal schema, fog policy or other owners.",
+    "readOnlyControls": [
+      "server.js",
+      "src/engine",
+      "src/services/units/CanonicalUnitService.ts",
+      "src/services/units/NodeCanonicalUnitService.ts",
+      "src/services/units/serverCustomCombatDefinition.ts",
+      "src/lib/multiplayer/server/MatchRecovery.ts",
+      "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+    ],
+    "collisionResolution": {
+      "dedupe": {
+        "leaves": [
+          "src/lib/multiplayer/server/MatchHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+        ],
+        "literalOverlap": [],
+        "disposition": "Run in parallel with DEDUPE; #2303 confirms that its only source/test leaves are MatchHostRegistry.ts and MatchHostRegistry.unitBootstrap.test.ts. Serialize shared metadata writes through the writer queue. After DEDUPE merges, rebase and re-freeze this manifest against the new Main; this unit never edits the registry or adds its recovery/dice work to DEDUPE."
+      },
+      "hp": {
+        "manifest": [
+          "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+          "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+          "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+        ],
+        "literalOverlap": [],
+        "disposition": "No ownership-forced HP gate; HP unit and manifest remain byte/semantically unchanged."
+      },
+      "futureOwners": [
+        {
+          "unit": "U44",
+          "state": "planned",
+          "leaves": [
+            "src/lib/multiplayer/server/ServerMatchHost.ts",
+            "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts"
+          ],
+          "disposition": "Reserve only disk-unit/roller integration now. Capability-DB selection, fallback removal, marker retirement and post-flip cutover stay U44-owned and out of scope. No simultaneous admission on shared files; the later owner must rebase/refreeze after the earlier closure."
+        },
+        {
+          "unit": "U26",
+          "state": "planned",
+          "leaves": [
+            "src/lib/multiplayer/server/ServerMatchHost.ts"
+          ],
+          "disposition": "Reserve only recover path now. Fog/hidden-state rewind projection and publication-boundary changes stay U26/FOG-owned and out of scope. No simultaneous admission on shared files; later owner rebases/refreezes."
+        }
+      ],
+      "coarseAliases": "All recorded server/src/lib ancestor reservations remain navigation-only. No concurrent ownership is granted; exact conflicts must be resolved before admission, not hidden by directory aliases.",
+      "sharedMetadata": "Serialize units.json/roadmap.json/PROGRESS.md registration and lifecycle writes; preserve the merged LSC-1S #2301 lifecycle and receipts at 17e4998f53e0ae3357672e756534be7f4e9e2b59. Rebase and re-freeze after DEDUPE merges."
+    },
+    "releaseAccounting": {
+      "previous": 38,
+      "total": 39,
+      "addedClosure": "MP-RECOVERY-UNITS-2",
+      "checklist": "l1ReleaseChecklist20261018",
+      "qualification": "Adds one L1 closure before A2; retains every existing acceptance/human-session gate. No existing unit release or lifecycle transition."
+    },
+    "validationGate": "Plain, --git and --next roadmap validation; roadmap validator tests; lint:units; format:check; strict OpenSpec. Future source requires RED, measured finite admission, genuine sensitive packet before local-verified, independent exact-head cross-model review and OWNER-RULING, current required CI, exact-main PASS/ancestry and closure. NEXT and null ownerGate waive nothing.",
+    "evidenceNotes": {
+      "F1": "Older pre-fix probe summary accepted any reply; independent reviewer raw before/after evidence supersedes it.",
+      "F2": "A2 must detect both canonical catalog and server canonical catalog skip messages. Assert behavior (accepted action), not a logger spy silenced under test mode.",
+      "ordinaryCombat": "CF-SMOKEA1-2 is already discharged only for ordinary combat by #2296; no co-op acceptance is claimed here."
+    }
   }
 }
