@@ -1,0 +1,34 @@
+OWNER-RULING 86cf410237a2fed16bbd79ce60d9318901286eac
+
+Unit: MP-HOST-DEDUPE-1 (L1, B14/HP lane; sensitive authority/concurrency/persistence/replay). Implemented by Sol ultrafast and verified by Claude Fable. PR #2303 at exact head 86cf410237a2fed16bbd79ce60d9318901286eac.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them".
+- 2026-10-18: "Use Sol ultrafast for most subagents agents and Claude agents to verify the work".
+Root rules under these.
+
+Basis: independent full review (Fable 5.1) on 86cf410237a2fed16bbd79ce60d9318901286eac: APPROVE for OWNER-RULING, with no required in-PR change. Report: 2026-10-18-mp-host-dedupe-review.md, sha256 6d158e759d188d330966e25e829871bd4f2ddb7d5b0b9451fa0457896add076a (23,260 bytes).
+- Production repro in both directions, on fresh builds driven by the L1-SMOKE-A1 runner with two first upgrades in the same tick:
+  - the baseline FAILS (MatchStoreSequenceCollisionError, then revision-conflict);
+  - the head PASSES 3/3.
+- RED is test-only and behavioural: 7 failed / 5 passed on the baseline, with 2 hosts and 4 adaptations. No test byte changed after RED.
+- Mutants: 11 run, 8 killed. The 3 survivors are reachable only through the test-only _reset seam.
+- The reviewer's 6 probes pass:
+  - 8 concurrent first connections produce 1 host;
+  - a rejected co-op recovery leaves 0 unhandled rejections and the entry is cleared;
+  - the boot sweep is idempotent.
+- ServerMatchHost.ts and RewindRebuild are byte-identical. 85/500 lines. CI is 32/32.
+
+Ruling: ACCEPT, and merge at this exact head. The optional A1/A2 items are routed.
+
+Carry-forwards:
+- CF-MPHD-1 (L1): the sweep registers through the in-flight entry -> MP-RECOVERY-UNITS-2/backlog.
+- CF-MPHD-2 (L2): release discarded recovered hosts -> backlog.
+- CF-MPHD-3: getOrCreate ignores meta.status, so a completed or failed-recovery match gets a fresh colliding host. Refuse or recover instead -> P2CG1H review scope.
+- CF-MPHD-4: CampaignHostRegistry.getOrCreate has the same check-then-set race. This matters for co-op campaign joins in the 2-players-plus-GM journey -> Root will route it to the next unit owning CampaignHostRegistry.ts (P2CG1HP or H); confirm at admission.
+- CF-MPHD-5: lift the concurrent-first-sockets round into L1-SMOKE-A2.
+- CF-MPHD-6: the closure records the review receipt and the PK packet.
+- A1 (return an already-landed open host) and A2 (rows for M5b/M5c/M7) -> backlog.
+
+Next: the closure releases P2CG1HP (all its predecessors are then main-verified). L1-SMOKE-A2 still waits on MP-RECOVERY-UNITS-2.

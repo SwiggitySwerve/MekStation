@@ -1,49 +1,155 @@
 {
-  "schemaVersion": 1,
   "unit": "MP-HOST-DEDUPE-1",
-  "stage": "admission-review",
-  "status": "PREP_REVIEW_COMPLETED_NOT_PRODUCT_APPROVAL",
-  "reviewer": {
-    "provider": "cliproxy",
-    "model": "claude-fable-5-1",
-    "taskId": "node:delegated-task:command%3Amcp%3A86e13703-5763-4052-b36c-622db21850c0%3Adelegate-task%3Amp-dedupe-prep-review-20261018-r1"
-  },
-  "reviewedBaseline": "28032229f053a4fc681e838d1f41422c12d982a0",
-  "reviewScope": "Original staged RED and admission proposal. Subsequent prep hardening is not independently re-reviewed.",
-  "verdict": {
-    "red": "Sound and deterministic, real binder and durable store.",
-    "design": "Per-match in-flight promise map approved in principle, subject to pending-creation reset guard.",
-    "admission": "PREP ONLY is consistent; refresh moving predecessor census and distinguish declared candidates from observed overlap.",
-    "gate": "BLOCKED: no GREEN work or PR until predecessor merge/closure and planned state on origin/main."
-  },
-  "responses": [
-    {
-      "finding": "Assert only one bootstrap, await initial persistence explicitly, close hosts before sockets.",
-      "response": "Applied in the same frozen test leaf. Rerun: expected RED, 1 failed / 4 passed, unitsAdapted=4, hostsCreated=2, STORE_FAILURE revision-conflict. No timeout increased."
-    },
-    {
-      "finding": "Separate concurrent-socket test leaf would avoid RECOVERY header/EOF conflict.",
-      "response": "Deferred to Root's next manifest/admission decision. Current frozen seven-leaf manifest retained. Preserve RECOVERY spread-mock and adaptUnitFromData when restacking."
-    },
-    {
-      "finding": "RECOVERY diff changed while review ran.",
-      "response": "Refreshed current development diff in admission after the review; final exact-head census remains required."
-    },
-    {
-      "finding": "Pending creation may resurrect a host after _reset.",
-      "response": "GREEN obligation: generation/identity guard must prevent late registration and close discarded hosts. Clearing the promise map alone is insufficient."
-    }
+  "stage": "review",
+  "recordedAt": "2026-10-19T01:45:10.575Z",
+  "head": "86cf410237a2fed16bbd79ce60d9318901286eac",
+  "reviewedHead": "86cf410237a2fed16bbd79ce60d9318901286eac",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "verdictText": "APPROVE for OWNER-RULING; no required in-PR changes. Optional A1/A2 and CF-MPHD-1..6 routed by owner.",
+  "outputPath": "evidence/mp-host-dedupe-source-fable-review-20261018.txt",
+  "outputSha256": "6d158e759d188d330966e25e829871bd4f2ddb7d5b0b9451fa0457896add076a",
+  "outputBytes": 23260,
+  "originalPath": "E:/Projects/Personal/MekStation-wt/review-2303-20261018/2026-10-18-mp-host-dedupe-review.md",
+  "reservedSlot": "Original reserved admission-review slot now binds the full sensitive source review; historical prep review remains in Git.",
+  "classes": [
+    "authority",
+    "concurrency"
   ],
-  "reviewText": "## Review: MP-HOST-DEDUPE-1 (PREP ONLY, read-only)\n\nNothing was written, run, or messaged. Product registry confirmed unmodified (`git status` shows only the test file + the admission JSON). The RED run finished at 16:21:33 and I read the log.\n\n### 1. What RED actually proves (log: `.mp-dedupe-proof/red-run-1.log`)\n\nReceived vs expected: `hostsCreated: 2`, `sameHost: false`, `registryHost: true`, `firstErrors: [STORE_FAILURE revision-conflict]`, `secondAccepted: true`. Four prior tests in the file pass.\n\nMechanism, traced statically (the log shows the symptom, not the cause \u2014 worth stating in the RED receipt):\n\n1. Both bindings pass `hosts.get()` synchronously before either awaits, so two `ServerMatchHost.create` calls are guaranteed \u2014 RED is deterministic, not timing-lucky.\n2. The gated binding (index 0, `pid_host`) is created second and is the one the registry keeps (`hosts.set` last-wins). Its constructor's fire-and-forget `persistInitialEvents` collides on seq 0 and 1 (the two warnings in the log), so its `lastBroadcastSeq` stays `-1`.\n3. On its first intent, `drainNewEvents(events, -1)` (`ServerMatchHost.ts:1361`) re-emits `GameCreated`/`GameStarted`, so the batch goes to `appendCommandBatch` with `expectedRevision = events[0].sequence = 0` while the store head is 1 \u2192 `revision-conflict` (`DurableMatchStore.ts:922`) \u2192 `STORE_FAILURE` \u2192 `closeMatch()` \u2192 **durable status set to `completed`**.\n4. Production severity: the registry now holds a closed orphan; the *next* connection creates a third host, whose initial persist collides again, so every later intent on it fails the same way, each re-marking the match completed \u2014 and boot recovery (`active` only) will never recover it. Meanwhile the healthy host keeps serving only the guest's already-bound socket. That's a bricked match, not a cosmetic double-create.\n\n### 2. Test quality\n\n**Determinism \u2014 sound, with one gap.** The gate is belt-and-braces (concurrency is already guaranteed by synchronous entry); `mockImplementationOnce` is consumed by binding 0's registry read synchronously, so no other `getMatchMeta` caller (`admitSocket`, membership, fog) can steal it. GREEN via a promise map is deterministic (publish-before-await).\n\nThe gap: the test does **not** discriminate \"join the pending creation\" from \"double-check after the bootstrap await, discard own\". Because `releaseFirst()` fires immediately, binding 0 trails by ~2 microtasks, and a check-before-`create` fix would pass. Recommend asserting single bootstrap work: clear and read `jest.mocked(adaptUnit).mock.calls.length === 2` (1v1 \u2192 exactly two unit adaptations), which fails any create-twice *or* bootstrap-twice variant.\n\n**Production binder/durable store evidence \u2014 good.** Real `bindMultiplayerSocketConnection`, real `MatchHostRegistry`, real `ServerMatchHost`, real `DurableMatchStore` on a private temp SQLite file; injected registry (no global slot). Doubles are only the wire socket and the pre-existing `CompendiumAdapter` mock. `fogOfWar: false` correctly avoids the fog admission refusal; roster-based membership admits both principals.\n\n**Host identity / later-intent assertions \u2014 strong.** `===` on host plus `create` spy count catches create-then-discard. Contiguity and single-`GameCreated` assertions are good invariants but do not themselves discriminate RED/GREEN (the orphan's batch rolls back atomically), so the `firstErrors: []` assertion is the load-bearing one \u2014 fine.\n\nOne GREEN flake risk: the first intent relies on `persistInitialEvents` (fire-and-forget) having finished. Margin is several microtasks (admitSocket does \u22653 store reads), but it is implicit. Add an explicit wait before the first intent (poll `store.getEvents(matchId, 0)` length \u2265 2, or `host.highestSeq() >= 1`); the file already has `flushInitialEventPersist` as precedent.\n\n**Cleanup.** Correct in effect, but order is inverted: sockets close first \u2192 `onLastSocketDropped` queues `handleSocketDropped` on the live host \u2192 `closeMatch` sets `closed` \u2192 `store.close()` \u2192 the queued command may read a closed DB. Today it's benign (meta status `lobby` makes migration and grace both no-ops; errors swallowed). Close `createdHosts` first (it detaches sockets with `closed=true`, so the drop path short-circuits), then sockets. `getMatchMeta` spy is unrestored but store-local; harmless. The six `IndexedDB unavailable` console.errors are pre-existing jsdom noise from `InteractiveSession` persistence, not a defect.\n\n### 3. Scope and overlap with RECOVERY\n\n- Named RECOVERY worktree: no diff (confirmed). Dev worktree `mp-recovery-dev-20261018` has **drifted since the census**: JSON records 351/407 lines for the test file; live is 390/447. Re-census before restack, as the JSON already requires.\n- RECOVERY dev does **not** touch `MatchHostRegistry.ts`. The JSON's `sourceAndTestOverlap` lists it by declared candidate leaf, not live diff \u2014 label the two kinds separately.\n- The live overlap is the shared test file, and it is a **guaranteed textual conflict**: RECOVERY rewrites the header (new `jest.mock` using `...requireActual`, different imports, also imports `ServerMatchHost`, `nowIso`, `IServerMessage`) and appends ~280 lines at EOF; the dedupe diff edits the same header and appends at EOF. On restack, RECOVERY's spread-mock form must win \u2014 the dedupe branch's whole-module mock omits `adaptUnitFromData`, which RECOVERY's `matchUnitBootstrap.ts` now imports.\n- Strong recommendation: move the dedupe test to its own file (e.g. `MatchHostRegistry.concurrentFirstSocket.test.ts`). That removes the only live source/test overlap with RECOVERY; remaining overlap is `units.json` only. File count stays at 7.\n- Controls list (`server.js`, `MatchRecovery.ts`, `matchUnitBootstrap.ts`, `NodeCanonicalUnitService.ts`, `src/engine`) correctly fences RECOVERY's leaves. Caps are comfortable: the product change is ~20\u201330 lines.\n\n### 4. Minimal GREEN design (not implemented \u2014 for the admission record)\n\n```ts\nprivate readonly inFlight = new Map<string, Promise<ServerMatchHost | null>>();\n\ngetOrCreate = async (matchId, options = {}) => {\n  const existing = this.hosts.get(matchId);\n  if (existing && !existing.isClosed()) return existing;\n  if (this.isQuarantined(matchId)) return null;\n  const pending = this.inFlight.get(matchId);\n  if (pending) return pending;                       // joiners share the attempt\n  const creation = this.createHost(matchId, options) // = today's body from getMatchMeta \u2192 hosts.set,\n    .finally(() => {                                 //   including the coop recoverActiveMatches(matchId) + get()\n      if (this.inFlight.get(matchId) === creation) this.inFlight.delete(matchId);\n    });\n  this.inFlight.set(matchId, creation);              // published before any await\n  return creation;\n};\n```\n\nProperties: `createHost` runs synchronously to its first await, so check-and-publish is atomic per tick; entry is evicted *before* `creation` settles for any awaiter, so null/rejection evict cleanly and the next caller retries; independent IDs never serialize; existing live-host and quarantine checks precede the join; first caller's `diceSeed` wins (joiners' seeds silently ignored \u2014 acceptable, `server.js` strips it in production, but say so in the receipt).\n\nLifecycle hazards to record:\n- `_reset()` while a creation is in flight: the late `hosts.set` resurrects a host after reset. Clear `inFlight` in `_reset`, or have `createHost` verify `this.inFlight.get(matchId) === creation` before `hosts.set` and close the orphan otherwise. Test-only path, but it is exactly the registry-test reset seam AGENTS.md insists on.\n- `closeMatch(matchId)` during in-flight creation is a no-op, then the host lands. Pre-existing race; a two-line `await this.inFlight.get(matchId)` in `closeMatch` fixes it, but it is optional scope.\n- Boot `recoverActiveMatches()` sweep is outside the map. Safe today only because `server.js` awaits `bootstrapMultiplayerServer()` (line 537) before installing the upgrade handler (line 839). Note the dependency; don't widen.\n- Rejection propagates to all joiners (unchanged from today's single-caller behaviour; `bind` does not catch \u2014 `server.js` does).\n- Co-op GREEN case must spy `ServerMatchHost.recover` / count `recoverActiveMatches`, not `create`.\n\n### Verdict\n\n- **Test:** sound RED, deterministic, real binder + real durable store, correct identity and store-conflict assertions. Tighten before GREEN: assert single bootstrap (adaptUnit call count), explicit initial-persist wait, close hosts before sockets, and record the `drainNewEvents(-1)` mechanism in the RED receipt.\n- **Admission proposal:** consistent with PREP ONLY \u2014 `PREP_ONLY_NOT_ADMITTED`, `notImplemented: true`, gate on RECOVERY merge/closure and planning on fetched `origin/main`. Fix the census precision (declared vs live overlap, drifted dev diff) and strongly consider the separate test file to eliminate the shared-leaf conflict.\n- **Design:** approve the per-match in-flight promise map as specified, with the `_reset` hazard addressed in the same change and the other hazards documented.\n- **Gate:** remains BLOCKED as stated. No GREEN work until RECOVERY is merged/closed and this unit is re-censused and restacked on its head.",
-  "originalReviewedTest": {
-    "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
-    "bytes": 11138,
-    "sha256": "3c993fa67ef5f800aebdcf77304a26b2eac3cca3681456712bd228cd5a684337"
+  "supplementalReviewClasses": [
+    "persistence",
+    "replay"
+  ],
+  "carryForwards": {
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2303#issuecomment-6257829278",
+    "items": [
+      {
+        "id": "CF-MPHD-1",
+        "severity": "L1",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-2/backlog",
+        "item": "Route sweep registration through the same in-flight entry. Recovery-2 currently excludes MatchHostRegistry.ts; amend scope or split before implementation. This closure grants no new source ownership."
+      },
+      {
+        "id": "CF-MPHD-2",
+        "severity": "L2",
+        "status": "open",
+        "owner": "backlog",
+        "item": "Release discarded recovered hosts without closing their shared durable store."
+      },
+      {
+        "id": "CF-MPHD-3",
+        "status": "open",
+        "owner": "P2CG1H review scope",
+        "item": "Refuse or recover completed and failed-recovery matches instead of creating a fresh colliding host when getOrCreate ignores meta.status."
+      },
+      {
+        "id": "CF-MPHD-4",
+        "status": "confirm at admission",
+        "owner": "Root: next CampaignHostRegistry.ts owner (P2CG1HP or P2CG1H)",
+        "item": "CampaignHostRegistry.getOrCreate has the same check-then-set race for co-op campaign joins. Root confirms owner at admission; no automatic source scope expansion."
+      },
+      {
+        "id": "CF-MPHD-5",
+        "status": "open",
+        "owner": "L1-SMOKE-A2",
+        "item": "Lift the concurrent-first-sockets production round into the setup, JOIN, play, reconnect, finish, reload journey."
+      },
+      {
+        "id": "CF-MPHD-6",
+        "status": "discharged by closure",
+        "owner": "MP-HOST-DEDUPE-1 closure",
+        "item": "Record the byte-exact full review receipt and bind the existing PK-mp-host-dedupe-1-ruling packet to the posted owner ruling."
+      },
+      {
+        "id": "A1",
+        "status": "open",
+        "owner": "backlog",
+        "item": "Prefer an already-landed open host."
+      },
+      {
+        "id": "A2",
+        "status": "open",
+        "owner": "backlog",
+        "item": "Add test rows for M5b/M5c/M7."
+      }
+    ]
   },
-  "hardenedTest": {
-    "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
-    "bytes": 11672,
-    "sha256": "de41b3fc31bae006c053fa68338b07fa8c5e1160670bf8780019df1fdaa06654"
+  "ownerRuling": {
+    "ruledHead": "86cf410237a2fed16bbd79ce60d9318901286eac",
+    "pr": 2303,
+    "commentId": 6257829278,
+    "author": "SwiggitySwerve",
+    "at": "2026-10-19T01:39:41Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2303#issuecomment-6257829278",
+    "bodyPath": "evidence/mp-host-dedupe-owner-ruling-6257829278.txt",
+    "bodySha256": "08fd3abdf2ad54e59909ef77ea8d6e33920674bd5a325bacfaa5c7ef115439c6",
+    "bodyBytes": 2680,
+    "copyEqualsRootSource": true
   },
-  "independentRereviewOfHardening": false
+  "successorRelease": {
+    "computedAt": "2026-10-19T01:45:10.575Z",
+    "ledgerBase": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "algorithm": "Only newly eligible DEDUPE dependents; every declared predecessor must be main-verified. Only eligible state blocked -> planned changes.",
+    "releases": [
+      "P2CG1HP"
+    ],
+    "candidates": [
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-2",
+            "state": "planned",
+            "mainProof": null
+          }
+        ],
+        "blockedBy": [
+          "MP-RECOVERY-UNITS-2"
+        ],
+        "eligible": false
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-HEAD",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [],
+        "eligible": true
+      }
+    ]
+  }
 }

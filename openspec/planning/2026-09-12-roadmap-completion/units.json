@@ -8131,7 +8131,19 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-owner-ruling-6257829278.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-mainproof-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-regression-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-regression-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-validator-log.bytes.json"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -8142,10 +8154,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "review-required",
+      "state": "main-verified",
       "baseline": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "86cf410237a2fed16bbd79ce60d9318901286eac",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
       "stageReceipts": {
         "admission": {
           "path": "evidence/mp-host-dedupe-admission-20261018.json"
@@ -8156,9 +8168,27 @@
         "local": {
           "path": "evidence/mp-host-dedupe-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/mp-host-dedupe-admission-review-20261018.json",
+          "head": "86cf410237a2fed16bbd79ce60d9318901286eac",
+          "reviewedHead": "86cf410237a2fed16bbd79ce60d9318901286eac",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "6d158e759d188d330966e25e829871bd4f2ddb7d5b0b9451fa0457896add076a",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/mp-host-dedupe-merge-20261018.json",
+          "pr": 2303,
+          "head": "86cf410237a2fed16bbd79ce60d9318901286eac",
+          "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0"
+        },
+        "mainProof": {
+          "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+          "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8536,7 +8566,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -18771,10 +18801,21 @@
           "effort": "Bounded corrections and renewed exact-head review."
         }
       ],
-      "agentRecommendation": "Use a per-match in-flight promise map; prefer acceptance only after the source head satisfies the full review and proof gates. This packet records a pending decision, not a ruling.",
+      "agentRecommendation": "Accept the independently reviewed exact head under the posted owner ruling; route CF-MPHD-1..6 and A1/A2 as recorded. This is the existing owner decision.",
       "revertCost": "Reverting restores concurrent first-connection duplicate hosts and possible durable revision conflicts; no schema or wire format change.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept reviewed head",
+        "at": "2026-10-19T01:39:41Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2303#issuecomment-6257829278"
+      },
+      "ruling": {
+        "ruledHead": "86cf410237a2fed16bbd79ce60d9318901286eac",
+        "pr": 2303,
+        "commentId": 6257829278,
+        "author": "SwiggitySwerve",
+        "bodySha256": "08fd3abdf2ad54e59909ef77ea8d6e33920674bd5a325bacfaa5c7ef115439c6"
+      }
     },
     {
       "id": "PK-p2ca-ruling",
