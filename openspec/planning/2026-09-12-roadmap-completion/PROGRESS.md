@@ -1,3 +1,35 @@
+## 2026-10-18 MP-RECOVERY-UNITS-1 source verified on main
+
+MP-RECOVERY-UNITS-1 moves from implementing to main-verified after #2296
+(reviewed and ruled head f4165728412418d0c30f32d00b5174fe8121300a,
+merge e69ae02911f11fd0d3bd891c83108414f3098727).
+The independent Fable review is copied byte-for-byte: 20,977 bytes,
+SHA-256 aaac1dab30cbc69009f69d6095ba455ae07632fc6daa9ba3ac04aace7e9e2eac.
+PK-mp-recovery-units-1-ruling binds the exact posted OWNER-RULING to that head.
+The merge receipt records all 32 successful source checks and clean two-parent integration.
+
+Fresh proof at exactly e69ae02911f11fd0d3bd891c83108414f3098727, before closure edits:
+- Fresh npm ci on Node v22.22.0.
+- Multiplayer server (including MatchRecovery.canonicalUnits.test.ts): 176 suites, 1574/1574 tests.
+- Related engine/API/catalog: 7 suites, 54/54 tests.
+- Typecheck and the unedited ledger validator pass.
+All proof runs used the heavy-run queue, lane mp-recovery, and a private Jest cache.
+Raw logs/JSON are preserved in seven base64 envelopes.
+
+Successor release: MP-HOST-DEDUPE-1 only (blocked -> planned), computed from the ledger.
+- L1-SMOKE-A2 stays blocked: waiting on MP-HOST-DEDUPE-1.
+No unrelated unit or existing packet changes. Selection is not source admission.
+
+CF-MPRU-1/2/3/4 and F3 (R2/R10 custom no-snapshot row) route to MP-RECOVERY-UNITS-2.
+Root will register that narrow recovery/rewind/crypto-dice unit after this closure merges,
+before L1-SMOKE-A2; this closure does not register it or change A2 dependency edges.
+F1/F2 evidence-quality notes are recorded; A2 must match both skip-message variants.
+CF-SMOKEA1-2 is discharged for ordinary combat matches; A2 still owes co-op restart acceptance.
+OBS-MPRU-2 remains with DEDUPE. No task tick or new built-image/browser proof is claimed.
+This closure metadata still requires its own CI and parent review/merge.
+
+---
+
 ## 2026-10-18 B14-HEAD source verified on main
 
 B14-HEAD moves from implementing to main-verified after source PR #2294

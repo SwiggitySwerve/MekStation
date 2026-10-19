@@ -1,0 +1,32 @@
+OWNER-RULING f4165728412418d0c30f32d00b5174fe8121300a
+
+Unit: MP-RECOVERY-UNITS-1 (L1, B14/HP lane; sensitive authority/replay/persistence). PR #2296 at exact head f4165728412418d0c30f32d00b5174fe8121300a.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them", which covers Root posting OWNER-RULINGs.
+- 2026-10-18 project review: the journey must include reconnect.
+Root rules under these.
+
+Basis: independent full review (Fable 5.1) on f4165728412418d0c30f32d00b5174fe8121300a: APPROVE for OWNER-RULING. Report: 2026-10-18-mp-recovery-review.md, sha256 aaac1dab30cbc69009f69d6095ba455ae07632fc6daa9ba3ac04aace7e9e2eac (20,977 bytes).
+- All four MatchRecovery arms now read catalog units from disk through NodeCanonicalUnitService.getByIdSync, with no fetch before listen. Custom units still go through the engine path.
+- src/engine, server.js and the frozen controls are byte-identical.
+- The reseed rule is a faithful copy of fromSessionAsync, and seed +/-1 mutants are caught.
+- A schema-invalid bundled unit now fails only its own match's recovery. Other matches and the listener are unaffected, and all 4,225 catalog units parse.
+- RED reproduced independently (3/3). No test byte changed after RED.
+- Census: 116/500 lines, 8/15 files. CI is 32/32, and the merge-tree with Main is clean.
+- Built-image restart probe, run in the reviewer's own lane: the baseline fails (2 skip lines, NoMovementCapability); the head passes 3/3 (0 skips, movement_declared accepted).
+- Mutants: 10 run, 6 caught. The survivors are R2/R10 (an untested custom no-snapshot branch) and two equivalents.
+
+Ruling: ACCEPT, and merge at this exact head. The optional F3 test row is routed rather than requiring a new head.
+
+Carry-forwards: Root will register a new narrow unit, MP-RECOVERY-UNITS-2, before L1-SMOKE-A2. It covers ServerMatchHost.ts and ServerMatchHostRewindRebuild.ts and owns:
+- CF-MPRU-1: co-op ServerMatchHost.recover still fetches units over HTTP. This does not block today's reconnect journey, because journal authority is off, but A2's co-op restart row must witness an accepted action.
+- CF-MPRU-3: live rewind rebuild still uses HTTP to self.
+- CF-MPRU-4 (Medium, pre-existing): recovered legacy-path hosts never wire the crypto RollCapture, so post-restart dice come from SeededRandom(0xc0ffee) at position zero, and events carry no captured rolls. Post-restart dice are therefore predictable, which is an authority/fairness defect.
+- CF-MPRU-2: a rewound-at-boot fixture (M8).
+- F3 / R2/R10: a custom-unit no-snapshot test row.
+- F1/F2: evidence-quality notes, recorded.
+CF-SMOKEA1-2 is discharged for ordinary combat matches.
+
+Next: the closure releases MP-HOST-DEDUPE-1. L1-SMOKE-A2 waits on DEDUPE and on the new MP-RECOVERY-UNITS-2.

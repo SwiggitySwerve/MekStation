@@ -8042,7 +8042,19 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-admission.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-local.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-review.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-source-fable-review-20261018.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-owner-ruling-6256894879.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-mainproof-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-regression-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-regression-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e69ae0291-validator-log.bytes.json"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -8054,10 +8066,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "44bd8bb9191f2c945324f483e4f524841b098ddf",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "f4165728412418d0c30f32d00b5174fe8121300a",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
       "stageReceipts": {
         "admission": {
           "path": "evidence/mp-recovery-units-1-admission.json"
@@ -8068,9 +8080,27 @@
         "local": {
           "path": "evidence/mp-recovery-units-1-local.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/mp-recovery-units-1-review.json",
+          "head": "f4165728412418d0c30f32d00b5174fe8121300a",
+          "reviewedHead": "f4165728412418d0c30f32d00b5174fe8121300a",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "claude-opus-5-5",
+          "outputSha256": "aaac1dab30cbc69009f69d6095ba455ae07632fc6daa9ba3ac04aace7e9e2eac",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/mp-recovery-units-1-merge-20261018.json",
+          "pr": 2296,
+          "head": "f4165728412418d0c30f32d00b5174fe8121300a",
+          "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727"
+        },
+        "mainProof": {
+          "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+          "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8107,7 +8137,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -19519,6 +19549,44 @@
         "commentId": 6256509380,
         "author": "SwiggitySwerve",
         "bodySha256": "e41011b061761e44c8fb53d8771e9bcc4befb81193e65a3f80280f49915881e8"
+      }
+    },
+    {
+      "id": "PK-mp-recovery-units-1-ruling",
+      "blocks": [
+        "MP-RECOVERY-UNITS-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the owner accept the exact reviewed source head that recovers canonical combat units from disk before listen while preserving custom-unit and deterministic replay behavior?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit the bounded recovery source merge and exact-main proof; release only eligible successors. Register MP-RECOVERY-UNITS-2 before A2 for the ruled carry-forwards.",
+          "effort": "Independent full sensitive review, red/green and built-image restart proof, CI and exact-head owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until concrete defects and proof gaps are resolved and required review and ruling complete.",
+          "effort": "Bounded by concrete findings"
+        }
+      ],
+      "agentRecommendation": "Accept the independently reviewed head and route CF-MPRU-1/2/3/4 plus F3 to the new narrow unit, recording F1/F2. This records the existing owner decision.",
+      "revertCost": "Reverting the server-only catalog recovery change restores pre-listen HTTP dependency and unavailable canonical unit actions after restart; no schema or wire-format migration.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-19T00:10:59Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2296#issuecomment-6256894879"
+      },
+      "ruling": {
+        "ruledHead": "f4165728412418d0c30f32d00b5174fe8121300a",
+        "pr": 2296,
+        "commentId": 6256894879,
+        "author": "SwiggitySwerve",
+        "bodySha256": "71178f68963e7cc8e1ee5daaa71da0596a96d338735cec96099eaec7ebcc5966"
       }
     },
     {
