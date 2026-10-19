@@ -1,3 +1,21 @@
+## 2026-10-19 L1 review follow-up registration (docs only)
+
+Registered [three follow-ups](evidence/l1-followups2-registration-20261019.json), evidence SHA-256 0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793, on ca92b6a01c07e5038c2d1b3840117af72b0a3ed3.
+
+- MP-RECOVERY-UNITS-2 -> MP-REWIND-DICE-1 -> v2.2.0 release checklist. Initial state blocked: source merge alone is not main-verified closure. Three exact host/rebuild/test leaves; crypto capture and event rolls, with the old deterministic test re-sealed. H/I and the shared mission do not own live rewind.
+- MP-HOST-DEDUPE-1 -> MP-CAMPAIGN-HOST-DEDUPE-1 -> P2CG1H. Initial state planned. Choose a two-leaf concurrency unit instead of widening H's type-only grant or its full prospective manifest. HP #2307 did not touch CampaignHostRegistry.ts.
+- LSC-2OP -> LSC-SALVAGE-1. Initial state blocked; seven exact #2309 patch leaves, KNOWN-RED owned after v2.2.0. Whole-unit salvage is outside the shared mission. The 12/12 verify:qc:campaign-economy:browser predicate moves with the repair, not a false PASS or silent waiver.
+
+H admission must acknowledge CF-HP-1..3, still-open CF-S-1, CF-MPHD-3 status-policy routing and I3 empty-status spacing. These notes grant no unregistered behavior change.
+
+L1 closure accounting: 39 -> 41; salvage is excluded. All existing human-session, installer, exact-RC and three-seat gates remain.
+
+Census includes all open PRs with paginated file lists, active unit and node ancestor reservations, RECOVERY-2 and HP source/closure boundaries. Their metadata writes serialize; fetch/rebase and re-census before admission and publication. U44 cutover and U26/FOG work stay separate.
+
+No product edit, lifecycle advancement, packet, task tick, source admission or future OWNER-RULING is supplied. All units retain 15-file / 500-counted-addition caps and authentic evidence gates.
+
+---
+
 ## 2026-10-19 LSC-1 verified on main; only LSC-2OP released
 
 LSC-1 advances to main-verified for #2304, ruled head 1b4fb6bf531fdac96613b1a2bf4a6458d669e514, merge f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0. Fable reviewed 25e1c0316bc8185d0c8bb17a22b8007f4df3f61c: APPROVE WITH IN-PR FIXES, no High. Root diffed the four-file test/receipt amendment and accepted the exact merged head; no second full-head review is claimed.
