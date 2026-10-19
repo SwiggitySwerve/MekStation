@@ -1,0 +1,138 @@
+# MP-HOST-DEDUPE-1 independent sensitive review (authority/concurrency/persistence/replay): PR #2303
+
+- **PR:** https://github.com/SwiggitySwerve/MekStation/pull/2303 (codex/mp-host-dedupe-prep-20261018 -> main)
+- **Head reviewed:** 86cf410237a2fed16bbd79ce60d9318901286eac (GREEN/fix commit). RED commits: 0922b7e9bf2792c55eb8611964c7ff747a2ce256 (first 5-row RED), 925408629a479d5241adb6dc571215b6bac11794 (closure RED, 12 rows)
+- **Base:** merge-base with fetched origin/main = f73bfe7d7251db564c7cc8b2bed544fd89fdc140 (= the unit's recorded baseline). origin/main is now 9c2a8a088c9ba8333d84b064328f063d7bdf0ab4 (#2299: QuickGameReplayPanel, e2e campaignFlow, one audit doc); none of the PR's seven paths is touched by that delta, so the three-dot diff is the merge result.
+- **Reviewer:** Fable (claude-fable-5-1), independent of the implementer (Sol ultrafast); read-only: no push, comment, label or merge; root checkout E:/Projects/Personal/MekStation untouched.
+- **Review worktrees:** E:/Projects/Personal/MekStation-wt/review-2303-20261018 (detached at the head, own npm ci, Node v22.22.0) and E:/Projects/Personal/MekStation-wt/review-2303-base-20261018 (detached at f73bfe7d7 for the baseline control, own npm ci). Both are clean including untracked files at the end of this review (the report file is the only untracked file in the head worktree).
+- **Date:** 2026-10-18
+
+## 1. Verdict
+
+**APPROVE for OWNER-RULING on the exact head 86cf41023** (no required in-PR change).
+
+The in-flight per-match promise map in MatchHostRegistry.getOrCreate fixes FINDING-A1-PREP-1 as registered: N concurrent first connections now share one creation attempt, one bootstrap and one host; the losing-host STORE_FAILURE revision-conflict is gone. I reproduced the defect on a production standalone build of the baseline (two first upgrades in the same tick on a REST-created lobby match -> MatchStoreSequenceCollisionError at seq 0 and 1 on the orphan host, then the guest's AdvancePhase refused STORE_FAILURE:revision-conflict) and confirmed the same scenario on the production build of the head: 3/3 rounds, both participants' intents accepted, zero collision warnings. RED is behavioural and test-only (7 failed / 5 passed with hostsCreated 2, unitsAdapted 4, revision-conflict), the test leaf is byte-identical from the closure RED commit through the head, 8 of my 11 mutants are killed by the PR test (the three survivors are only reachable through the test-only _reset seam), and the controls reserved for MP-RECOVERY-UNITS-2 (ServerMatchHost.ts, ServerMatchHostRewindRebuild.ts) are byte-identical to origin/main. Caps, manifest, typecheck, lint, format, lint:units, roadmap validator (+86 tests), 230 strict OpenSpec validations and 32/32 CI check-runs on the exact head all hold.
+
+Two hardening items are recorded as optional in-PR fixes (section 8) and carry-forwards (section 9); neither is a defect in the delivered behaviour on the production boot order, and neither blocks the ruling.
+
+## 2. What I verified and how
+
+| Item | Method | Result |
+| --- | --- | --- |
+| Head/base | git rev-parse, merge-base | 86cf41023 on f73bfe7d7; origin/main 9c2a8a088 differs only by #2299 (no path overlap) |
+| Diff scope | git diff --name-status origin/main...HEAD | exactly 7 paths = the admission manifest (MatchHostRegistry.ts, its unitBootstrap test, units.json, 4 receipts). No server.js, package*, workflows, other src |
+| Counted lines | git diff --numstat --no-renames | units.json +43/-6, MatchHostRegistry.ts +42/-1 = **85/500**; test +330 and receipts +1090 line-exempt. 7/15 files. Matches local receipt caps |
+| Leaf hashes at head | sha256 | MatchHostRegistry.ts 9a3e25c8...78fd (12751 B) and test 97d36303...37c4 (18030 B) = local receipt; test sha = closureBaselineRed.test.sha256 |
+| Test byte identity after RED | git rev-parse <commit>:<test> | blob 6788f61c at 925408629 (closure RED) and at 86cf41023: **no test byte changed after RED**. MatchHostRegistry.ts blob 4d0c0644 (= origin/main) at both RED commits: RED is test-only |
+| RECOVERY-UNITS-2 reserved controls | git rev-parse origin/main:<path> vs HEAD:<path> | ServerMatchHost.ts fde72713 = fde72713; ServerMatchHostRewindRebuild.ts def146b3 = def146b3: **untouched**. All six controlHashes in the admission/local receipts reproduce at head (server.js e4f973d2, MatchRecovery.ts 47cbb7a0, matchUnitBootstrap.ts a07b27bf, NodeCanonicalUnitService.ts e9cc8143, ServerMatchHost.ts b4602f5b, RewindRebuild e97c2562) |
+| units.json lifecycle | diff | MP-HOST-DEDUPE-1 only: 4 receipt ownershipExceptions, state planned -> review-required, baseline f73bfe7d7, 3 stage paths, new packet PK-mp-host-dedupe-1-ruling with decision/ruling null; other-unit bytes preserved |
+| Focused GREEN | queue lane rev-2303, jest --runInBand --runTestsByPath (head worktree) | 12/12 pass, 4.0 s (review-2303-green-focused.log) |
+| RED replay | head test bytes (97d3630...) copied into the baseline worktree, same jest command, then restored | **7 failed / 5 passed**: concurrent row shows hostsCreated 2, sameHost false, unitsAdapted 4, firstErrors STORE_FAILURE revision-conflict; the independent-match control passes. Matches closureBaselineRed exactly (review-2303-red-replay.log) |
+| Own probes (6 rows) | temporary jest file in the head worktree (removed afterwards; copy at review-2303-probe.test.ts) | 6/6; details in section 5 |
+| Mutants (11) | review-2303-mutants.mjs, each patch -> PR test -> restore (file restored, sha verified) | 8 killed, 3 survived (section 4) |
+| Production repro | own harness over the frozen L1-SMOKE-A1 runner (review-2303-concurrent-smoke.mjs), --build on both worktrees | baseline f73bfe7d7: **FAIL round 1 (revision-conflict reproduced)**; head 86cf41023: **PASS 3/3** (section 6) |
+| Typecheck | npm run typecheck (both tsc projects) | 0 errors |
+| Lint | oxlint | 84 warnings (pre-existing, none in the two changed leaves: 0/0 on them), 0 errors |
+| Format | oxfmt --check . | all matched files formatted |
+| lint:units | node scripts/qc/lint-units.mjs | LINT_UNITS_PASS 17896/17899 |
+| Roadmap validator | validate-roadmap.mjs --git; node --test validate-roadmap.test.mjs | ROADMAP VALIDATION PASSED (93 nodes, 13 packages, 381 tasks, 40 triage rows); 86/86 |
+| OpenSpec | npx openspec validate --all --strict | 230 passed, 0 failed |
+| CI | gh api .../commits/86cf41023.../check-runs | **32/32 completed success** on the exact head; names equal the local receipt's 32 expected names |
+| Modularity | wc | MatchHostRegistry.ts 360 lines (runtime band 250-350 target, 400 soft) |
+
+## 3. Code review of the change (src/lib/multiplayer/server/MatchHostRegistry.ts)
+
+Shape: getOrCreate keeps the existing-open-host and quarantine checks, then consults inFlight (Map<matchId, Promise<ServerMatchHost|null>>). A miss publishes creation = createHost(...).finally(evict-if-still-mine) synchronously before any await, so every caller in the same tick and every caller until settlement joins the same promise. createHost is the previous body (getMatchMeta -> coop recoverActiveMatches(matchId) + get, or buildMatchHostBootstrapFromMeta -> ServerMatchHost.create -> hosts.set) with generation guards; recoverActiveMatches captures generation and refuses to register after _reset; closeMatch awaits a pending creation; _reset bumps generation and clears inFlight.
+
+Properties checked against the brief:
+
+- **N concurrent first connections -> one host, one adaptation, no store conflict.** Publication precedes the first await, so check-and-set is atomic per tick (mutant M4 shows the test catches a one-tick delay). Joiners receive the same promise and therefore the same host identity; adaptUnit runs once per unit (PR test asserts 2 for 1v1; my P1 asserts 2 with 8 joiners and 1 getMatchMeta read). Only one ServerMatchHost constructor runs, so only one persistInitialEvents, so no sequence collision and no stale lastBroadcastSeq=-1 drain -> no revision-conflict. Confirmed on the production image (section 6).
+- **Failure clears the entry; no rejected promise cached.** The .finally callback runs before creation settles for any awaiter, so by the time a joiner resumes with null or a rejection the entry is already gone and the next call retries (M1, M3 killed; PR rows "missing metadata", "evicts a failed bootstrap", coop null/reject; my P2). The identity check (=== creation) means a late settle cannot evict a newer attempt (M7 survives, see 4).
+- **No unhandled rejection.** createHost can reject only via the coop recoverActiveMatches path (getMatchMeta and bootstrap failures are caught and return null). The first caller always receives and awaits creation; every joiner awaits the same promise; closeMatch attaches .catch(() => null). My P2 registered process.on('unhandledRejection') around 6 joiners of a rejecting recovery: zero events, all 6 rejected, second call re-ran recovery. Rejection propagates to all joiners exactly as it propagated to the single caller before (bind does not catch; server.js does) - unchanged contract.
+- **Durable recovery semantics intact.** bootstrapMultiplayerServer -> registry.recoverActiveMatches() is unchanged apart from the generation guard, which is a no-op unless _reset ran during the sweep (generation starts at 0 and only _reset increments it; production never calls _reset or _resetMatchHostRegistry). The sweep's hosts.set still honours an existing open host (idempotent). My P6 on a DurableMatchStore with one active match: first sweep recovered 1, second sweep recovered 1 and size stayed 1, two concurrent getOrCreate afterwards returned the recovered instance with zero ServerMatchHost.create calls - **recovered hosts are registered once and never re-created**. The MP-RECOVERY-UNITS-1 path (disk catalog in recoverServerInteractiveSession) is not touched; MatchRecovery.ts and matchUnitBootstrap.ts hashes are the merged #2296 bytes.
+- **No cross-match blocking.** The map is keyed by matchId; PR row "does not block another match" and M2 (shared key) both exercise it (M2 fails that row by timeout plus the closeMatch row).
+- **Eviction/close during creation.** closeMatch awaits the pending creation, then closes and deletes the landed host (PR row; M6 killed; my P3). Two pre-existing shapes remain and are not widened by this PR: (a) P3 - host.closeMatch marks the store completed, and a later getOrCreate on that completed match builds a fresh host (pre-existing: getOrCreate never looked at meta.status); (b) P4 - a retry that starts after a failed attempt but before closeMatch's continuation lands a host that survives the close (close-vs-create ordering, pre-existing). Both are recorded as carry-forwards, not in-PR.
+- **MatchRecovery and the #2296 path vs a new connection.** Inside getOrCreate, the coop branch (meta.coopMission -> recoverActiveMatches(matchId)) is now covered by the same in-flight entry, so a socket and the coopMissionCreate REST call racing on the same coop match share one recovery (PR coop rows; my P2). The boot sweep itself is outside the map (as the admission review noted): if a non-coop getOrCreate for an active match ran concurrently with recoverActiveMatches(), my P5 shows the fresh host wins (createHost's hosts.set is unconditional; the sweep's set defers to it), the recovered host is dropped unclosed, and the fresh host's initial persist would collide. This is **unreachable on the delivered server**: server.js awaits runtime.bootstrapMultiplayerServer() (line 537) before createServer and before server.on('upgrade') (line 839) and server.listen (882), so no socket or REST getOrCreate exists during the sweep; recoverActiveMatches has no other production caller. It is a registry-level invariant gap, not a behaviour defect; optional fix in section 8, CF-MPHD-1.
+- **First caller's options win.** Joiners' diceSeed is ignored (comment says so). server.js strips the seed in production, so no authority consequence; the PR test asserts the reuse case explicitly (seed 2 joins seed 1's host).
+- **Generation guards.** They exist only for the test-only _reset seam the admission review required ("pending creation may resurrect a host after _reset"). The guard before ServerMatchHost.create means a stale attempt never constructs (so never persists) a host - the right fix. In the sweep arm, a stale result's hosts are discarded without closeMatch (they hold a campaign-pause binding and have resumed publications); closing them would mark the store completed, so dropping is the lesser evil, but it is a leak on a test-only path (CF-MPHD-2).
+- **Authority/privacy.** No change to admission, viewer projection, fog, intents or wire frames; the registry still only hands back a host after the same quarantine and meta checks. Nothing a client sends influences the dedupe except the matchId it already supplies.
+
+## 4. Mutants (review-2303-mutants/results.json; PR test, 12 rows)
+
+| Id | Mutation | Result |
+| --- | --- | --- |
+| M1 | no .finally cleanup (entry never evicted) | killed: 4 rows (missing-meta, failed-bootstrap, coop null, coop reject) |
+| M2 | one shared in-flight key for all matches | killed: 2 rows (independent match row times out; closeMatch row) |
+| M3 | evict only on fulfilment (rejection cached) | killed: coop reject row (recover called once instead of twice) |
+| M4 | publish inFlight after one microtask (check-then-set race) | killed: 6 rows incl. the concurrent/durable row (2 hosts) |
+| M5a | drop all generation checks in createHost | killed: reset row |
+| M5b | drop only the coop-return generation check | **survived** (reset row uses a non-coop meta) |
+| M5c | drop the sweep generation guard | **survived** (no row resets during a sweep) |
+| M6 | closeMatch does not await the pending creation | killed: closeMatch row |
+| M7 | .finally deletes without the === creation identity check | **survived** (only observable if a new attempt is published while a stale one is settling, i.e. after _reset) |
+| M8 | _reset keeps inFlight | killed: reset row (times out) |
+| M10 | joiner awaits pending then runs its own creation | killed: 4 rows |
+
+Assessment: every production-reachable property (dedupe, cleanup, cached rejection, cross-match, close-during-create, check-then-set atomicity) is falsified by the PR test. The three survivors concern _reset-only semantics; they are worth a row each but do not touch delivered behaviour (section 8, optional).
+
+## 5. Own probes (review-2303-probe.test.ts, run once in the head worktree then removed)
+
+- P1: 8 concurrent getOrCreate on a private DurableMatchStore -> 1 host (create spy), 2 adaptUnit calls, 1 getMatchMeta read, size 1, both AdvancePhase accepted, sequences 0..n contiguous, exactly one GameCreated.
+- P2: 6 joiners of a rejecting coop recovery -> 6 rejected, recover called once, 0 unhandledRejection, entry cleared (next call re-runs recovery).
+- P3: closeMatch during creation -> landed host closed, registry empty; store status becomes completed; a later getOrCreate re-creates an open host (pre-existing, characterisation).
+- P4: failed attempt, closeMatch awaiting it, retry started before close's continuation -> retry's host survives the close (pre-existing ordering, characterisation).
+- P5: new registry on a store holding an active match with a log; recoverActiveMatches() and getOrCreate() concurrently -> sweep recovered 1, one fresh create, registry and caller both hold the fresh host (characterisation of the non-deduped sweep pair; unreachable on the production boot order).
+- P6: same store; sweep twice then two getOrCreate -> recovered once, size 1, zero fresh creates, same instance everywhere.
+
+## 6. Production standalone reproduction (queue lane rev-2303, class build)
+
+Harness: review-2303-concurrent-smoke.mjs imports runHarness/issueIdentity/api/openSocket from the frozen L1-SMOKE-A1 leaves (unchanged); per round it POSTs a fog-off 1v1 match with a real Ed25519 bearer, opens the host and guest sockets in the same tick (both upgrades verified in the server log before either SessionJoin), joins both, seats and readies, LaunchMatch, then AdvancePhase from host, guest, host; it records every reply and scans the owned server log for persist/collision/conflict warnings. Both runs: gitSource clean (including untracked), fresh BUILD_ID, standalone server.js git blob 7ce8627c = committed server.js at the respective head, one readiness record, owned-PID cleanup, no retained credential.
+
+- **Baseline f73bfe7d7** (review-2303-proof/base-f73bfe7d7, BUILD_ID 1792372706037): **FAIL**. Round 1: server log 'failed to persist initial event seq=0 ... MatchStoreSequenceCollisionError' and 'seq=1' with the stack at MatchHostRegistry.getOrCreate:151, then guest AdvancePhase -> Error STORE_FAILURE revision-conflict while host's two AdvancePhase were accepted. Rounds 2-3 did not reproduce (warm catalog narrows the two-await window) - consistent with the finding's timing nature and why round 1 (cold catalog in buildMatchHostBootstrapFromMeta) is the realistic trigger.
+- **Head 86cf41023** (review-2303-proof/head-86cf41023, BUILD_ID 1792372437405): **PASS 3/3**. Same cold round 1 and warm rounds: all 7 steps per round accepted (LobbyUpdated x4, Event x3), zero warnings, both seats visible to both principals.
+
+## 7. Findings by severity
+
+### High / Medium
+None.
+
+### Low
+- **L1 (invariant gap, not reachable in production): the boot sweep is outside the in-flight map and createHost's hosts.set is unconditional.** P5 shows a fresh host overwriting a just-recovered one if the two ever overlap. Guarded today solely by server.js ordering (bootstrap awaited before createServer/upgrade/listen). Optional 3-line fix in section 8 (A1); otherwise CF-MPHD-1.
+- **L2 (test-only leak): a sweep that observes a stale generation discards recovered hosts without releasing them** (campaign pause binding, resumed publications). Only after _reset during a sweep. CF-MPHD-2.
+- **L3 (proof gap, _reset seam only): M5b, M5c and M7 survive.** Optional rows in section 8 (A2).
+
+### Informational / pre-existing (not introduced here)
+- I1: getOrCreate ignores meta.status; a completed match (P3) or an active match whose recovery failed-but-not-quarantined (e.g. partial-history) gets a fresh host whose initial persist collides with the durable log - the same failure class as this finding but on a different trigger. CF-MPHD-3.
+- I2: closeMatch now waits for an in-flight creation; DELETE /matches/:id latency is bound to bootstrap latency (previously it returned immediately with no host). Acceptable; noted so A2's restart/reconnect rows are not surprised.
+- I3: CampaignHostRegistry.getOrCreate (bindCampaignSyncConnection, coopMissionCreate) has the same check-then-set shape (await getMatchMeta, then register); register() returns an existing open entry but two concurrent misses both build. Different registry, outside this unit's manifest. CF-MPHD-4.
+- I4: The PR is three commits on f73bfe7d7 and is not rebased on current origin/main (9c2a8a088); no path overlap, three-dot diff is the merge; exact-main proof must run on the merge commit as usual.
+
+## 8. Precise in-PR fixes (all optional; none required for the ruling)
+
+**A1 (optional, source, ~3 counted lines, well inside 85/500):** in createHost, immediately before `host = ServerMatchHost.create(matchId, this.store, bootstrap);` add
+```ts
+      const landed = this.hosts.get(matchId);
+      if (landed && !landed.isClosed()) return landed;
+```
+so a host registered by any other path while this attempt awaited (today only the boot sweep) is preferred and no second constructor (and no second initial persist) runs. Closing the window entirely would need the sweep's per-match registration to go through the same map; that is CF-MPHD-1 scope, not this PR.
+
+**A2 (optional, test leaf, line-exempt):** three rows for the survivors: (i) coop meta + gate inside the mocked recoverActiveMatches, _reset while pending, expect the stale call to resolve null and registry.get to be null (M5b); (ii) gate the store's listActiveMatches, call registry.recoverActiveMatches(), _reset during it, expect recovered 0 and size 0 (M5c); (iii) _reset while A is pending, start B, resolve A, then a third getOrCreate must join B's promise rather than start C (assert create spy count 1 after B lands) (M7).
+
+If either is taken: one amendment commit, re-run the focused 12(+3) rows and the multiplayer server sweep, update the local receipt's source/test hashes and caps, and I re-review the new head (hashes only, if the diff is exactly A1/A2).
+
+## 9. Carry-forwards
+
+| Id | Owner | Item |
+| --- | --- | --- |
+| CF-MPHD-1 | new narrow src unit under R2.authority-live, or the next unit admitted to MatchHostRegistry.ts | Route the boot/coop sweep's per-match registration through the same in-flight entry (or make createHost prefer a landed open host; A1) so the registry's one-host-per-match invariant does not depend on server.js boot order |
+| CF-MPHD-2 | same owner as CF-MPHD-1 | Release (not store-close) recovered hosts discarded on a stale generation in recoverActiveMatches; add a drop/release seam on ServerMatchHost if needed (that file is RECOVERY-UNITS-2's today) |
+| CF-MPHD-3 | new src unit (registry + bind refusal) | getOrCreate must refuse or recover, never freshly bootstrap, a match whose meta is completed or whose durable log is non-empty (I1); the bind path should answer with a typed refusal rather than a host that will fail STORE_FAILURE on its first command |
+| CF-MPHD-4 | LSC/campaign-sync lane owner | Same in-flight dedupe for CampaignHostRegistry.getOrCreate (I3) before campaign-sync reconnect rows are smoked with several principals at once |
+| CF-MPHD-5 | L1-SMOKE-A2 | Lift section 6's concurrent-first-sockets round into A2 (or a scripts/release leaf) as a positive row now that the fix is in; A1's "serial first connections" comment can stay as history |
+| CF-MPHD-6 | Root / ledger | After merge, set MP-HOST-DEDUPE-1 review receipt to this report's sha256 and record PK-mp-host-dedupe-1-ruling with the exact head; successors P2CG1HP and L1-SMOKE-A2 stay blocked until exact-main mainProof |
+
+## 10. Artifacts (all outside the repo; nothing committed; nothing pushed)
+
+- This report (untracked in the head review worktree).
+- E:/Projects/Personal/MekStation-wt/review-2303-npmci.log, review-2303-base-npmci.log, review-2303-green-focused.log (12/12), review-2303-probe.log and review-2303-probe.test.ts (6/6; the file was removed from the worktree afterwards), review-2303-mutants.mjs, review-2303-mutants.log and review-2303-mutants/ (results.json + 11 logs), review-2303-static.log (typecheck/lint/format/roadmap/openspec), review-2303-red-replay.log (7 failed / 5 passed on the baseline with head test bytes), review-2303-concurrent-smoke.mjs, review-2303-smoke-head.log, review-2303-smoke-base.log, review-2303-proof/head-86cf41023/ and review-2303-proof/base-f73bfe7d7/ (manifest.json, summary.json, evidence.jsonl, server-1.log, db/).
+- Processes: the only processes I stopped were my own rev-2303 heavy-run wrapper (PID 59656) and its own machine-idle child (PID 54532), on Root's instruction after the allow-list change; no other lane, implementer or queue process was touched. Both review worktrees were added with git worktree add --detach and are left in place.

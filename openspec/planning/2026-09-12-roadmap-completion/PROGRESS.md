@@ -1,3 +1,36 @@
+## 2026-10-18 MP-HOST-DEDUPE-1 source verified on main
+
+MP-HOST-DEDUPE-1 moves from review-required to main-verified after #2303.
+Reviewed and ruled head: 86cf410237a2fed16bbd79ce60d9318901286eac.
+Exact source merge: 86e2a7214b77856bdce4ead9c5697a0416fbfad0.
+Full Fable review copied byte-for-byte: 23,260 bytes; SHA-256 6d158e759d188d330966e25e829871bd4f2ddb7d5b0b9451fa0457896add076a.
+The existing PK-mp-host-dedupe-1-ruling packet records the posted owner decision.
+Source CI: all 32 expected checks passed; clean two-parent merge integration verified.
+
+Fresh mainProof at exactly 86e2a7214b77856bdce4ead9c5697a0416fbfad0 before closure edits:
+- Fresh npm ci, Node v22.22.0, private Jest cache and queued lane mp-dedupe.
+- Focused MatchHostRegistry.unitBootstrap.test.ts: 1 suite, 12/12 tests.
+- Full src/lib/multiplayer/server: 176 suites, 1582/1582 tests.
+- Typecheck and the unedited ledger validator passed.
+Seven base64 envelopes preserve raw logs and JSON; byte lengths and SHA-256 are verified.
+
+Only P2CG1HP is released (blocked -> planned), with all predecessors main-verified.
+L1-SMOKE-A2 stays blocked on MP-RECOVERY-UNITS-2. No task tick or new unit.
+All unrelated units and packets are preserved; selection does not grant source admission.
+
+CF-MPHD-1 -> MP-RECOVERY-UNITS-2/backlog; registry scope amendment or split required.
+CF-MPHD-2 -> backlog; release discarded recovered hosts without closing the shared store.
+CF-MPHD-3 -> P2CG1H review scope; refuse/recover completed or failed-recovery matches.
+CF-MPHD-4 -> Root confirms the next CampaignHostRegistry.ts owner (P2CG1HP or H) at admission.
+CF-MPHD-5 -> L1-SMOKE-A2 concurrent-first-sockets production round.
+CF-MPHD-6 -> discharged here by the full review receipt and existing ruling packet.
+Optional A1 (prefer landed host) and A2 (M5b/M5c/M7 test rows) -> backlog.
+
+No product/test changes or new built-image/browser proof are claimed.
+This closure still requires its own CI and Root review/merge.
+
+---
+
 ## 2026-10-18 MP-RECOVERY-UNITS-2 registered (planned)
 
 Root confirmed #2300 merged at f73bfe7d7251db564c7cc8b2bed544fd89fdc140.

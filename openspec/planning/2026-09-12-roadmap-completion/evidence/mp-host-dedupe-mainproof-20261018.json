@@ -1,0 +1,487 @@
+{
+  "unit": "MP-HOST-DEDUPE-1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-19T01:45:10.575Z",
+  "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       1582 passed, 1582 total",
+    "suites": "176 passed, 176 total",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci at exact merge before closure edits",
+    "tsc": "npm run typecheck: exit 0"
+  },
+  "machineGate": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane mp-dedupe --class jest --cwd E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018 -- node E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018/run-proof.cjs",
+  "execution": "Sequential in one queued slot, private Jest cache, clean exact merge checked before and after every job. No foreign process stopped or timeout raised.",
+  "proof": {
+    "path": "evidence/mainproof-86e2a7214-regression-log.bytes.json",
+    "payloadSha256": "ab12f585c598c0bdfb734018974e26750c52c3ffd0481ed29f870766995d44b9",
+    "payloadBytes": 773145,
+    "counts": {
+      "suites": 176,
+      "passedSuites": 176,
+      "tests": 1582,
+      "passed": 1582,
+      "failed": 0
+    }
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-86e2a7214-npm-ci-log.bytes.json",
+      "payloadSha256": "c3cfbefc9c92ac472e2e69b7b3b2e309d8b6f99feb3a4e46a83262027967cedc",
+      "payloadBytes": 1195
+    },
+    {
+      "path": "evidence/mainproof-86e2a7214-owned-log.bytes.json",
+      "payloadSha256": "77b67a16f444d8ba8368f44d8595925f93ea799bb0f1093d8c9252d05f68cd7b",
+      "payloadBytes": 1386
+    },
+    {
+      "path": "evidence/mainproof-86e2a7214-owned-json.bytes.json",
+      "payloadSha256": "b90e8bf720250f5a5533fdcaf1c782ee6005bc201106b2568c869c26455fe379",
+      "payloadBytes": 5642
+    },
+    {
+      "path": "evidence/mainproof-86e2a7214-regression-log.bytes.json",
+      "payloadSha256": "ab12f585c598c0bdfb734018974e26750c52c3ffd0481ed29f870766995d44b9",
+      "payloadBytes": 773145
+    },
+    {
+      "path": "evidence/mainproof-86e2a7214-regression-json.bytes.json",
+      "payloadSha256": "5a94101c1087c58982d4fbdeec8375c5fb66869e9cd190ce0e88ba5d85512a4c",
+      "payloadBytes": 684016
+    },
+    {
+      "path": "evidence/mainproof-86e2a7214-typecheck-log.bytes.json",
+      "payloadSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+      "payloadBytes": 174
+    },
+    {
+      "path": "evidence/mainproof-86e2a7214-validator-log.bytes.json",
+      "payloadSha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+      "payloadBytes": 2354
+    }
+  ],
+  "runs": [
+    {
+      "name": "npm-ci",
+      "command": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm.cmd ci"
+      ],
+      "head": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "cwd": "E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018",
+      "node": "v22.22.0",
+      "start": "2026-10-19T01:41:07.977Z",
+      "end": "2026-10-19T01:41:46.359Z",
+      "exit": 0,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\npm-ci.log",
+        "bytes": 1195,
+        "sha256": "c3cfbefc9c92ac472e2e69b7b3b2e309d8b6f99feb3a4e46a83262027967cedc"
+      }
+    },
+    {
+      "name": "owned",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-20261018\\node_modules\\jest\\bin\\jest.js",
+        "--runInBand",
+        "--selectProjects",
+        "unit",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\jest-cache",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\owned.json",
+        "--runTestsByPath",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+      ],
+      "head": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "cwd": "E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018",
+      "node": "v22.22.0",
+      "start": "2026-10-19T01:41:46.546Z",
+      "end": "2026-10-19T01:42:38.092Z",
+      "exit": 0,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\owned.log",
+        "bytes": 1386,
+        "sha256": "77b67a16f444d8ba8368f44d8595925f93ea799bb0f1093d8c9252d05f68cd7b"
+      },
+      "result": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\owned.json",
+        "bytes": 5642,
+        "sha256": "b90e8bf720250f5a5533fdcaf1c782ee6005bc201106b2568c869c26455fe379"
+      },
+      "counts": {
+        "suites": 1,
+        "passedSuites": 1,
+        "tests": 12,
+        "passed": 12,
+        "failed": 0
+      }
+    },
+    {
+      "name": "regression",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-20261018\\node_modules\\jest\\bin\\jest.js",
+        "--runInBand",
+        "--selectProjects",
+        "unit",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\jest-cache",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\regression.json",
+        "--testPathPattern=src/lib/multiplayer/server"
+      ],
+      "head": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "cwd": "E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018",
+      "node": "v22.22.0",
+      "start": "2026-10-19T01:42:38.264Z",
+      "end": "2026-10-19T01:44:36.895Z",
+      "exit": 0,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\regression.log",
+        "bytes": 773145,
+        "sha256": "ab12f585c598c0bdfb734018974e26750c52c3ffd0481ed29f870766995d44b9"
+      },
+      "result": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\regression.json",
+        "bytes": 684016,
+        "sha256": "5a94101c1087c58982d4fbdeec8375c5fb66869e9cd190ce0e88ba5d85512a4c"
+      },
+      "counts": {
+        "suites": 176,
+        "passedSuites": 176,
+        "tests": 1582,
+        "passed": 1582,
+        "failed": 0
+      }
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "cmd.exe",
+        "/d",
+        "/c",
+        "npm.cmd run typecheck"
+      ],
+      "head": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "cwd": "E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018",
+      "node": "v22.22.0",
+      "start": "2026-10-19T01:44:37.124Z",
+      "end": "2026-10-19T01:44:42.832Z",
+      "exit": 0,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\typecheck.log",
+        "bytes": 174,
+        "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
+      }
+    },
+    {
+      "name": "validator",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--git"
+      ],
+      "head": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "cwd": "E:/Projects/Personal/MekStation-wt/mp-dedupe-closure-20261018",
+      "node": "v22.22.0",
+      "start": "2026-10-19T01:44:43.165Z",
+      "end": "2026-10-19T01:44:59.668Z",
+      "exit": 0,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018\\validator.log",
+        "bytes": 2354,
+        "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46"
+      }
+    }
+  ],
+  "owned": {
+    "suites": [
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+    ],
+    "passedSuites": 1,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0
+  },
+  "regression": {
+    "suites": [
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/ViewerHistoryService.test.ts",
+      "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerFrameRawNegativeSweep.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignGmArbiter.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionRun.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityRecovery.test.ts",
+      "src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/ThreeContextPrivacyEvidence.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignMatchHost.pipeline.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignBaselineViewerProjection.test.ts",
+      "src/lib/multiplayer/server/projection/__tests__/ViewerProjectionService.test.ts",
+      "src/lib/multiplayer/server/projection/__tests__/ViewerPublicationBoundary.test.ts",
+      "src/lib/multiplayer/server/delivery/__tests__/DeliveryEpochStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchStoreBatchContract.test.ts",
+      "src/lib/multiplayer/server/__tests__/handleRoomCodeGuestJoin.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/rejectionAuditViewerSurfaces.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionTarget.test.ts",
+      "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityRollbackProof.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts",
+      "src/lib/multiplayer/server/authorization/__tests__/HumanActionAuthorization.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchCommandBatch.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchBroadcaster.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignMatchHost.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchJournalBatchRecovery.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts",
+      "src/lib/multiplayer/server/__tests__/durableViewerDelivery.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityAdmission.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts",
+      "src/lib/multiplayer/server/__tests__/commandRejectionAudit.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchMarkerRetirementRecovery.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignSurfaceParity.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindMultiplayerSocketConnection.test.ts",
+      "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignLiveDeliveryUnification.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalMirrorFailClosed.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostViewerBound.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryJournalHead.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignReconcileBatchDoor.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostEventsBackpressure.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/DurableMatchStore.supersede.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+      "src/lib/multiplayer/server/__tests__/outboxPublicationLive.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.rebuild.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignGrantChannel.delivery.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignGrantChannel.auth.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignHostLostRace.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts",
+      "src/lib/multiplayer/server/authorization/__tests__/MatchAdmission.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchStreamRebuildAdmission.test.ts",
+      "src/lib/multiplayer/server/__tests__/fogOfWar.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchStreamJournalMirrorLaunch.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+      "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerFrameAuthorityFieldLeak.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignGmArbiterProductionTimeout.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts",
+      "src/lib/multiplayer/server/delivery/__tests__/projectWithCursor.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/commandDigestLock.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.test.ts",
+      "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts",
+      "src/lib/multiplayer/server/authorization/__tests__/AuthorizedViewer.test.ts",
+      "src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchMarkerWriteRetired.test.ts",
+      "src/lib/multiplayer/server/__tests__/socketTokenScope.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerSequenceConcealmentLeak.test.ts",
+      "src/lib/multiplayer/server/__tests__/resumePendingPublications.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchmaking.integration.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchPublicationOutbox.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostEventsSendFault.test.ts",
+      "src/lib/multiplayer/server/__tests__/serializedIntentExecutor.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignHostSerialization.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignGrantWakeEquivalence.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/replayResumeFromDeliveryCursor.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.reconcile.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRollbackReaderSelection.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostEventsMultiSocket.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+      "src/lib/multiplayer/server/projection/__tests__/ViewerFrameProjector.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignGrantAck.socket.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostRollArbitration.test.ts",
+      "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchSocketLifecycle.test.ts",
+      "src/lib/multiplayer/server/__tests__/auth.test.ts",
+      "src/lib/multiplayer/server/__tests__/transportConsolidation.test.ts",
+      "src/lib/multiplayer/server/__tests__/importLegacyMatchEvents.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts",
+      "src/lib/multiplayer/server/projection/__tests__/ViewerPublicationJoin.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "src/lib/multiplayer/server/__tests__/lobbyStateMachine.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.quarantineBinder.test.ts",
+      "src/lib/multiplayer/server/__tests__/DurableMatchStore.schemaReapply.test.ts",
+      "src/lib/multiplayer/server/__tests__/scratchDecisionProjection.test.ts",
+      "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+      "src/lib/multiplayer/server/__tests__/PendingPeerTracker.test.ts",
+      "src/lib/multiplayer/server/__tests__/decideCommandBatch.test.ts",
+      "src/lib/multiplayer/server/__tests__/importLegacyMatchEvents.test.ts",
+      "src/lib/multiplayer/server/__tests__/intentReplayWindow.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignGrantChannel.revocation.test.ts",
+      "src/lib/multiplayer/server/__tests__/joinableLobbies.test.ts",
+      "src/lib/multiplayer/server/__tests__/spectatorSeats.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignGrantChannel.lateJoin.test.ts",
+      "src/lib/multiplayer/server/reconnection/__tests__/HostMigration.test.ts",
+      "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostEngineDispatch.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchAuthorityBaseline.test.ts",
+      "src/lib/multiplayer/server/authorization/__tests__/MatchSeatMembershipSource.test.ts",
+      "src/lib/multiplayer/server/__tests__/getCampaignEventStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityStarted.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignDownstreamIsolation.test.ts",
+      "src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts",
+      "src/lib/multiplayer/server/projection/__tests__/combatViewerProbe.test.ts",
+      "src/lib/multiplayer/server/__tests__/completedMatchGuard.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryBlockedVerdict.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignParticipationFreshness.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchCommandBatchContract.test.ts",
+      "src/lib/multiplayer/server/__tests__/getDefaultMatchStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/replayStream.test.ts",
+      "src/lib/multiplayer/server/__tests__/InMemoryPlayerStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/InMemoryMatchStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerCursorResume.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.gmNoPromotion.test.ts",
+      "src/lib/multiplayer/server/__tests__/shadowOutcomeSuppression.test.ts",
+      "src/lib/multiplayer/server/__tests__/deliveryAckPersistence.test.ts",
+      "src/lib/multiplayer/server/reconnection/__tests__/campaignGmHostProbe.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignViewerWireGate.test.ts",
+      "src/lib/multiplayer/server/__tests__/IntentRateLimiter.test.ts",
+      "src/lib/multiplayer/server/__tests__/commitThenPublish.test.ts",
+      "src/lib/multiplayer/server/history/__tests__/ViewerHistoryBoundary.test.ts",
+      "src/lib/multiplayer/server/projection/__tests__/ViewerProjectionBoundary.test.ts",
+      "src/lib/multiplayer/server/delivery/__tests__/DeliveryEpochBoundary.test.ts",
+      "src/lib/multiplayer/server/__tests__/campaignParticipationForceOwnership.test.ts",
+      "src/lib/multiplayer/server/__tests__/AcceptedIntentTracker.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchQuarantineIsolation.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts",
+      "src/lib/multiplayer/server/__tests__/CryptoDiceRoller.test.ts",
+      "src/lib/multiplayer/server/__tests__/RollCapture.test.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignGrantChannel.roomCode.test.ts",
+      "src/lib/multiplayer/server/__tests__/playerIdFromPublicKey.test.ts",
+      "src/lib/multiplayer/server/__tests__/viewerDeliveryBound.test.ts",
+      "src/lib/multiplayer/server/__tests__/reconnectPersistence.integration.test.ts",
+      "src/lib/multiplayer/server/__tests__/hardenedTransport.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+    ],
+    "passedSuites": 176,
+    "tests": 1582,
+    "passed": 1582,
+    "failed": 0
+  },
+  "runner": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-dedupe-closure-proof-20261018/run-proof.cjs",
+    "sha256": "4c17759644c5d2f1a94f92f625ed7d34944e0a7a3777db0418b63f0b0b509786",
+    "bytes": 3354
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-19T01:45:10.575Z",
+    "ledgerBase": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "algorithm": "Only newly eligible DEDUPE dependents; every declared predecessor must be main-verified. Only eligible state blocked -> planned changes.",
+    "releases": [
+      "P2CG1HP"
+    ],
+    "candidates": [
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-2",
+            "state": "planned",
+            "mainProof": null
+          }
+        ],
+        "blockedBy": [
+          "MP-RECOVERY-UNITS-2"
+        ],
+        "eligible": false
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-HEAD",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [],
+        "eligible": true
+      }
+    ]
+  },
+  "closureManifest": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-source-fable-review-20261018.txt",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-owner-ruling-6257829278.txt",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-merge-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-mainproof-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-npm-ci-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-owned-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-owned-json.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-regression-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-regression-json.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-typecheck-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-86e2a7214-validator-log.bytes.json"
+  ],
+  "limits": "Exact-merge focused and full server Jest, typecheck and ledger proof. No new browser, desktop or built-image probe claimed; byte-copied independent review contains prior production baseline/head proof. A2 still owes the journey and concurrent-first-sockets round.",
+  "preservation": "Seven base64 envelopes retain raw bytes. Decode data and verify payloadSha256/payloadBytes. Review and posted ruling copies retain exact bytes."
+}
