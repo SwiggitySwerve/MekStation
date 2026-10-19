@@ -141,6 +141,23 @@ describe('LSC-1 prospective runtime survivors', () => {
     expect(identityCrypto.decryptWithPassword).not.toHaveBeenCalled();
   });
 
+  it('R2-01/R2-04: ten successful mints across both seats exhaust the shared window until expiry', async () => {
+    for (let i = 0; i < 10; i++) {
+      await expect(
+        mint(
+          i % 2 ? 'local-seat-2' : 'local-seat-1',
+          i % 2 ? PASSWORD2 : PASSWORD,
+        ),
+      ).resolves.toHaveProperty('token');
+    }
+    const count = jest.mocked(identityCrypto.decryptWithPassword).mock.calls
+      .length;
+    await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    expect(identityCrypto.decryptWithPassword).toHaveBeenCalledTimes(count);
+    clock += 60_000;
+    await expect(mint()).resolves.toHaveProperty('token');
+  });
+
   it.each(['decrypt', 'sign'] as const)(
     'R2-11: revoke during %s returns no token and clears the request key',
     async (phase) => {

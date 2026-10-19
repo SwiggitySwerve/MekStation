@@ -4,10 +4,10 @@
   "stage": "red",
   "date": "20261018",
   "baseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
-  "recordedAt": "2026-10-19T01:03:57.627Z",
+  "recordedAt": "2026-10-19T01:06:14.906Z",
   "runtime": {
     "node": "v22.22.0",
-    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792371716344-lsc.json",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792371969473-lsc.json",
     "command": [
       "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
       "node_modules/jest/bin/jest.js",
@@ -60,18 +60,18 @@
   "testChanges": [
     {
       "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
-      "sha256": "2776f918820e4ecaa990eaaba3a86689018d9809564b9eb4ba87cadd01a31042",
-      "bytes": 30865
+      "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3",
+      "bytes": 31524
     },
     {
       "path": "src/__tests__/api/localSeatCredentials.test.ts",
-      "sha256": "1eb8d9007e3f0c47a39658b16bbbba7b122ca511462ab8abb9e80d40f5fc9d8c",
-      "bytes": 12600
+      "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a",
+      "bytes": 12572
     }
   ],
   "result": {
-    "base": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
-    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792371716344-lsc.json",
+    "base": "6cbdb2eeb6203dad303d1e8359628cf59469e468",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792371969473-lsc.json",
     "node": "v22.22.0",
     "command": [
       "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
@@ -86,33 +86,21 @@
       "src/__tests__/api/localSeatCredentials.test.ts"
     ],
     "exitCode": 1,
-    "sha256": "c3d42a6c926c4fb9bed959e578e444ff8c70d5bb6f30db9ad1322ca4a8eee027",
-    "bytes": 30711,
-    "summary": "Tests:       43 failed, 16 passed, 59 total",
+    "sha256": "4be6a0a0aed487da6e4b8c4ccb82df8443cd7a185117c6278cf35fbe86ab5f1a",
+    "bytes": 31463,
+    "summary": "Tests:       44 failed, 16 passed, 60 total",
     "suites": "Test Suites: 2 failed, 2 total",
     "tests": [
       {
         "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
-        "sha256": "2776f918820e4ecaa990eaaba3a86689018d9809564b9eb4ba87cadd01a31042"
+        "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3"
       },
       {
         "path": "src/__tests__/api/localSeatCredentials.test.ts",
-        "sha256": "1eb8d9007e3f0c47a39658b16bbbba7b122ca511462ab8abb9e80d40f5fc9d8c"
+        "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a"
       }
     ],
     "failures": [
-      "LSC-1 prospective runtime survivors › R2-01/R2-04: ten route-wide attempts precede KDF, including wrong guesses on both seats",
-      "LSC-1 prospective runtime survivors › R2-12: a locked seat consumes the mint window but performs no KDF",
-      "LSC-1 prospective runtime survivors › R2-11: revoke during decrypt returns no token and clears the request key",
-      "LSC-1 prospective runtime survivors › R2-11: revoke during sign returns no token and clears the request key",
-      "LSC-1 prospective runtime survivors › CF-LSC1S-3: a second in-flight mint is refused before its KDF",
-      "LSC-1 prospective runtime survivors › R2-07/R2-08: revoked seats refuse mint; re-provision replaces the password and keeps only ciphertext",
-      "LSC-1 prospective runtime survivors › R2-14: mint uses the seat password and leaves the primary identity unchanged",
-      "LSC-1 prospective runtime survivors › CF-LSC0-14: explicit short TTL expires while renewal keeps the seat player id",
-      "LSC-1 prospective runtime survivors › R2-05: authenticated replay skips keygen and preserves the original password",
-      "LSC-1 prospective runtime survivors › R2-06/R2-10: ordinary tokens verify with scope parity and reject a substituted player",
-      "LSC-1 prospective runtime survivors › R2-08: erases the exact decrypted buffer on sign failure=false without secret diagnostics",
-      "LSC-1 prospective runtime survivors › R2-08: erases the exact decrypted buffer on sign failure=true without secret diagnostics",
       "/api/multiplayer/auth/local-seats › R2-03: never accepts credentials from a query string",
       "/api/multiplayer/auth/local-seats › CF-LSC1S-1: separate requests on both seats share the operator window",
       "/api/multiplayer/auth/local-seats › R2-02: admits the literal loopback host 127.0.0.1:3001",
@@ -143,12 +131,25 @@
       "/api/multiplayer/auth/local-seats › maps wrong seat passwords to 401 and lockout to 429 with Retry-After",
       "/api/multiplayer/auth/local-seats › maps unexpected failures to a generic 500 without internals",
       "/api/multiplayer/auth/local-seats › reports generation conflicts and replays idempotent retries",
-      "/api/multiplayer/auth/local-seats › R2-13/CF-LSC1S-1: forwards only validated credentials to the singleton"
+      "/api/multiplayer/auth/local-seats › R2-13/CF-LSC1S-1: forwards only validated credentials to the singleton",
+      "LSC-1 prospective runtime survivors › R2-01/R2-04: ten route-wide attempts precede KDF, including wrong guesses on both seats",
+      "LSC-1 prospective runtime survivors › R2-12: a locked seat consumes the mint window but performs no KDF",
+      "LSC-1 prospective runtime survivors › R2-01/R2-04: ten successful mints across both seats exhaust the shared window until expiry",
+      "LSC-1 prospective runtime survivors › R2-11: revoke during decrypt returns no token and clears the request key",
+      "LSC-1 prospective runtime survivors › R2-11: revoke during sign returns no token and clears the request key",
+      "LSC-1 prospective runtime survivors › CF-LSC1S-3: a second in-flight mint is refused before its KDF",
+      "LSC-1 prospective runtime survivors › R2-07/R2-08: revoked seats refuse mint; re-provision replaces the password and keeps only ciphertext",
+      "LSC-1 prospective runtime survivors › R2-14: mint uses the seat password and leaves the primary identity unchanged",
+      "LSC-1 prospective runtime survivors › CF-LSC0-14: explicit short TTL expires while renewal keeps the seat player id",
+      "LSC-1 prospective runtime survivors › R2-05: authenticated replay skips keygen and preserves the original password",
+      "LSC-1 prospective runtime survivors › R2-06/R2-10: ordinary tokens verify with scope parity and reject a substituted player",
+      "LSC-1 prospective runtime survivors › R2-08: erases the exact decrypted buffer on sign failure=false without secret diagnostics",
+      "LSC-1 prospective runtime survivors › R2-08: erases the exact decrypted buffer on sign failure=true without secret diagnostics"
     ],
     "log": {
       "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/red.log",
-      "sha256": "c3d42a6c926c4fb9bed959e578e444ff8c70d5bb6f30db9ad1322ca4a8eee027",
-      "bytes": 30711
+      "sha256": "4be6a0a0aed487da6e4b8c4ccb82df8443cd7a185117c6278cf35fbe86ab5f1a",
+      "bytes": 31463
     }
   },
   "runtimeSurvivors": {
