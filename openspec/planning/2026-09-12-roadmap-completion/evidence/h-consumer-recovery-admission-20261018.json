@@ -1,0 +1,522 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1HP",
+  "stage": "admission",
+  "status": "ADMITTED",
+  "date": "2026-10-18",
+  "recordedAt": "2026-10-19T02:08:41.179Z",
+  "baseline": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
+  "authority": "Root opened P2CG1HP after DEDUPE closure #2305. Implement GREEN on latest fetched main, reuse existing worktree, preserve frozen RED tests, publish PR and hand off for independent review.",
+  "proofClass": "full",
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "manifest": {
+    "count": 9,
+    "maxFiles": 15,
+    "files": [
+      "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+    ]
+  },
+  "caps": {
+    "maxNonGeneratedLines": 500,
+    "counting": "U41 added physical lines, no deletion credit; tests/evidence line-exempt but file-counted"
+  },
+  "frozenBeforeTestEdits": [
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "bytes": 10632,
+      "sha256": "3074c9a3d74acc51e0f6e61efebc283ff0dfa1e3699b53d90ac74c385fb87606"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "bytes": 14183,
+      "sha256": "f1af7f61eb2548bcaadfa90c28cf55e7536378e50f72b4dff438c4e49b8db599"
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "bytes": 60444,
+      "sha256": "cdbfe394372ebe25cafabb1294f658c6ad9e823b064a3c208955b626344bdcab"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "bytes": 118932,
+      "sha256": "f26855a5a3b9eba54434c705141429e64354e7d0f9cec4d4cac71d76d179e8bf"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 2048022,
+      "sha256": "02e652d9c1d996253ff3dda5568f0fde5e2aa1b9fcc0f36891fe4bb42d047202"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+      "bytes": 21196,
+      "sha256": "af70adb4779cfbf917cc0e91884a6c07c469098382f352cfce4842540b984810"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json",
+      "exists": false
+    }
+  ],
+  "gate": {
+    "originMain": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
+    "hpState": "planned",
+    "verifiedPredecessors": [
+      {
+        "id": "B14-0",
+        "mergeSha": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+        "mainProof": {
+          "path": "evidence/b14-0-mainproof-20261018.json",
+          "mergeCommit": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1669 passed, 1669 total"
+        }
+      },
+      {
+        "id": "B14-HEAD",
+        "mergeSha": "8fcd311d5b60951b766fded267ba688f2dae0395",
+        "mainProof": {
+          "path": "evidence/b14-head-mainproof-20261018.json",
+          "mergeCommit": "8fcd311d5b60951b766fded267ba688f2dae0395",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       2837 passed, 2837 total"
+        }
+      },
+      {
+        "id": "MP-HOST-DEDUPE-1",
+        "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+        "mainProof": {
+          "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+          "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+        }
+      }
+    ],
+    "closurePR": 2305,
+    "closureMerge": "c0995937dbd9a35b7cf2c46deb132e0b3afab702",
+    "lsc1Merge": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
+    "lsc1OwnedOverlap": [],
+    "decision": "Gate open; independent sensitive review, OWNER-RULING, CI, exact-main proof and closure still owed."
+  },
+  "baselineProof": {
+    "label": "baseline",
+    "start": "2026-10-19T00:03:15.885Z",
+    "end": "2026-10-19T00:04:14.144Z",
+    "command": [
+      "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--runTestsByPath",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "--cacheDirectory",
+      "E:\\Projects\\Personal\\MekStation-wt\\p2cg1hp-sol-proof-20261018\\jest-cache",
+      "--json",
+      "--outputFile",
+      "E:\\Projects\\Personal\\MekStation-wt\\p2cg1hp-sol-proof-20261018\\baseline.json"
+    ],
+    "exitCode": 0,
+    "passed": 118,
+    "failed": 0,
+    "total": 118,
+    "passedSuites": 2,
+    "failedSuites": 0,
+    "runtimeErrors": 0,
+    "report": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1hp-sol-proof-20261018/baseline.json",
+      "bytes": 56532,
+      "sha256": "a3ab8f93daccb94049309410441c257271054c565c09a94db7f276cdc3bca549"
+    },
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\p2cg1hp-sol-proof-20261018/baseline.log",
+      "bytes": 68247,
+      "sha256": "65df02741edfeaede3240dab0d22791fd2c5c527a115655942660b21e01fe70d"
+    }
+  },
+  "priorPreparation": {
+    "report": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1hp-impl-20261018/HP-PREP.md",
+      "bytes": 13091,
+      "sha256": "28da9bc98089c782faeccd123710a200690131161747b99c942137c7a1e6e93b"
+    },
+    "patch": {
+      "path": "E:/Projects/Personal/MekStation-wt/p2cg1hp-scratch-20261018/.hp-prep/P2CG1HP-port.patch",
+      "bytes": 43032,
+      "sha256": "b250735682b1fa8bfda668d5467005e274cefba0e4c88e5fcd191e853efbb87a"
+    },
+    "oldBase": "70eab85ae2e16adfc05e4c2fcced4be5cae4f21e",
+    "oldToNewOwnedDiff": "",
+    "qualification": "Prior runs and mutations are design context only, not fresh evidence. Import only the two test hunks after this admission commit; product bytes stay at 2d94d2347."
+  },
+  "census": {
+    "recovery": {
+      "files": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-admission.json",
+          "additions": 198,
+          "deletions": 0,
+          "changeType": "ADDED"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-local.json",
+          "additions": 191,
+          "deletions": 0,
+          "changeType": "ADDED"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-red.json",
+          "additions": 57,
+          "deletions": 0,
+          "changeType": "ADDED"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "additions": 16,
+          "deletions": 6,
+          "changeType": "MODIFIED"
+        },
+        {
+          "path": "src/lib/multiplayer/server/MatchRecovery.ts",
+          "additions": 9,
+          "deletions": 18,
+          "changeType": "MODIFIED"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts",
+          "additions": 327,
+          "deletions": 0,
+          "changeType": "ADDED"
+        },
+        {
+          "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+          "additions": 91,
+          "deletions": 4,
+          "changeType": "MODIFIED"
+        }
+      ],
+      "headRefName": "codex/mp-recovery-units-1-20261018",
+      "headRefOid": "f4165728412418d0c30f32d00b5174fe8121300a",
+      "state": "OPEN",
+      "sharedFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "sourceTestOverlap": []
+    },
+    "dedupe": {
+      "branch": "codex/mp-host-dedupe-prep-20261018",
+      "head": "28032229f053a4fc681e838d1f41422c12d982a0",
+      "admission": {
+        "path": "E:/Projects/Personal/MekStation-wt/mp-dedupe-20261018/openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-20261018.json",
+        "bytes": 17927,
+        "sha256": "ee772ec1196c4a0916580efbac4f19386d54f1f6e910c86d9ff1ac0544df9106"
+      },
+      "declaredFiles": [
+        "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json"
+      ],
+      "observedIndexFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-host-dedupe-red-20261018.json",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+      ],
+      "sharedFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "sourceTestOverlap": []
+    },
+    "consequence": "Both share units.json only. Server directory ownership aliases do not grant extra leaves or waive serial lifecycle writing; HP binder test imports server graph, so rerun after prerequisite closures."
+  },
+  "plan": {
+    "policy": "Two automatic quiet-window retries per mounted campaign/match/player episode across replacement transports. Reset only on healthy application confirmation or explicit route reload; heartbeat/frame/rebind do not reset. Close exhausted socket and show exact inline text.",
+    "message": "Campaign sync could not connect. Reload this campaign to try again.",
+    "accessibility": "Persistent initially empty role=status aria-live=polite region, same element after exhaustion.",
+    "tests": "Host and guest cap; heartbeat/rebind versus route reload; healthy confirmation reset; synchronous release before microtask dispose; same-tick consume/dispose; campaign/match and player identity scope; late dead callbacks and timer disposal. Widen existing R binder row to host/member x confirmed/held/failed.",
+    "expectedRed": {
+      "failed": 7,
+      "reason": "Six recovery cap/reset/identity behavior rows plus CF-H14; preservation rows and widened binder pins should pass."
+    },
+    "estimatedFit": {
+      "sourceAdditions": 99,
+      "lifecycleReserve": 35,
+      "estimatedCountedTotal": 134,
+      "testAdditions": 233,
+      "qualification": "Prior prototype measurements only; measure eventual GREEN fresh. No product patch applied in prep."
+    }
+  },
+  "carryForwards": [
+    {
+      "id": "CF-H7 / CF-G4",
+      "disposition": "HP episode cap and persistent accessible notice; to implement after gate."
+    },
+    {
+      "id": "CF-H14",
+      "disposition": "RED microtask-dispose pin; release synchronously before confirmation in future GREEN."
+    },
+    {
+      "id": "CF-H15",
+      "disposition": "Add preservation pin for same-tick consume/dispose; leave consume-time count intact."
+    },
+    {
+      "id": "CF-H8 / CF-G5 / R-HP-1",
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-review-20261018.json",
+      "reviewedHead": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+      "disposition": "Host arm discharged in R: first campaign frame has appliedView, no joinMember, confirmed/held/failed controls. Retain nine-file manifest and widen to member; no eight-file reduction. Existing P2CE2 reconnect row cross-checks newcomer."
+    },
+    {
+      "id": "CF-E7",
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1r-review-20261018.json",
+      "reviewedHead": "e3f2535e3968d3ea8e465aa2c4f2ff64bc2fcd6a",
+      "disposition": "R pinned empty M trail on participants-behind refusal, veto during preparation, and invalid proposal reservation. Preserve these baseline-green binder assertions."
+    },
+    {
+      "id": "CF-S-1",
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-review-20261018.json",
+      "disposition": "Still open with B14-0/HP routing: fog-off history/export has no sealed-choice hold, latent behind root-branch read. HP does not move fog-off onto effective head and has no HTTP/projection leaf. Carry unchanged; before any such move, route through sealed projection or register parent-service repair. No discharge claimed."
+    },
+    {
+      "id": "CF-H5",
+      "disposition": "Preserve consumer/fold-store predicate without editing unregistered campaignHostFoldStore.ts; prior design fits current consumer only."
+    },
+    {
+      "id": "CF-R-2",
+      "disposition": "JournalCampaignEventStore test not owned by HP; remains with H/next owner."
+    },
+    {
+      "id": "CF-R-3",
+      "disposition": "No SQLite rejection assertions added; no new discharge claimed."
+    },
+    {
+      "id": "CF-H12 / CF-G2-11",
+      "disposition": "Future PR: compare all 32 required check names and prove exact merge commit at closure."
+    },
+    {
+      "id": "CF-MPHD-4",
+      "source": "Root handoff after DEDUPE #2303 merge at 86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "location": "src/lib/multiplayer/server/CampaignHostRegistry.ts:418",
+      "status": "open; outside HP literal manifest",
+      "nextRegisteredOwner": "P2CG1H",
+      "laterBehavioralOwner": "P2CG2",
+      "disposition": "HP does not own CampaignHostRegistry.ts: its frozen four source/test leaves remain unchanged. P2CG1H next owns this literal, but only for CF-E6 type imports; repairing getOrCreate requires an explicit behavioral scope amendment or separately registered repair. P2CG2 also lists this literal for retained-seat recovery. Root to route the check-then-set race; no HP repair or closure claimed.",
+      "recommendedRepair": "Mirror DEDUPE per-match in-flight promise map: concurrent callers share one creation, failed attempts release their slot, and lifecycle/reset behavior rejects stale pending completion. Add adversarial concurrent and retry/reset proof in the eventual authorized repair."
+    }
+  ],
+  "acceptedResiduals": [
+    "Pre-H legacy servers have no healthy application confirmation; budget resets on remount only.",
+    "Same-key effect rerun can bind against a spent budget; notice persists until healthy confirmation or reload.",
+    "Only quiet-window retries are bounded; non-quiet recovery-required signals remain outside this finite policy.",
+    "No receipt-port installation and no durable cross-route retry cap."
+  ],
+  "futureEvidence": "GREEN/local proof and independent review pending; review slot remains unwritten.",
+  "prepHistory": {
+    "baseline": "2d94d234723fa1430e8b3a769331307e6cd20216",
+    "gate": {
+      "originMain": "2d94d234723fa1430e8b3a769331307e6cd20216",
+      "unit": {
+        "id": "P2CG1HP",
+        "node": "R2.authority-live",
+        "taskKeys": [],
+        "behavior": "Pre-H consumer recovery. Bound automatic quiet-window recovery across replacement transport objects, with accessible user-facing text (CF-H7/CF-G4). Release settling count synchronously exactly when a consumed offer can no longer confirm or has confirmed, preserving cut marking for unfinished work (CF-H14). Pin same-tick consume/dispose recovery (CF-H15). With port installed, membership-admitted bound join's first campaign frame carries appliedView and joinMember is never invoked for that socket (CF-H8/CF-G5), unless R already supplies exact proof. Preserve G1 heardAt cursor-watermark semantics, CF-H1 held-refresh cut, ordered offers, stale-binding silence, replacement EMPTY fold and healthy legacy-server first-frame behavior. Red-first proof, sensitive review, required CI, exact-main PASS and closure precede H admission/install. Adopted finite policy: two automatic quiet-window retries per mounted campaign-seat recovery episode, counted across replacement transport identities, not a socket WeakMap. Reset only after healthy application confirmation or explicit user retry, never heartbeat, any frame or rebind. Exhaustion closes the unproductive socket, stops automatic rejoin and displays accessible inline text: \"Campaign sync could not connect. Reload this campaign to try again.\" Reload is explicit retry, requiring no new UI component. Scope hook-local state by campaign/match/player; dispose cancels timers. Document and pin route remount reset; no durable cross-route cap or new store leaf is granted. No port installation in this unit.",
+        "ownershipPaths": [
+          "src/components/campaign/coop",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
+        "ciClass": "product",
+        "reviewClasses": [
+          "authority",
+          "privacy",
+          "replay",
+          "idempotency",
+          "concurrency"
+        ],
+        "caps": {
+          "maxFiles": 15,
+          "maxNonGeneratedLines": 500
+        },
+        "state": "blocked",
+        "baseline": null,
+        "prHead": null,
+        "mergeSha": null,
+        "stageReceipts": {
+          "admission": null,
+          "red": null,
+          "local": null,
+          "review": null,
+          "merge": null,
+          "mainProof": null,
+          "tick": null
+        },
+        "ownerGate": null,
+        "splitFrom": "P2CG1H",
+        "admissionRequires": "Blocked ordinary-cap registration only. B14-0 and B14-HEAD must both be main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure before parent release to planned; preserve G2/R/S prerequisites and one product-writing lane including closure. NEXT does not enforce ordinary predecessor arrays and supplies no source permission. Rebase/re-census fresh Main, reservations and all existing/prospective leaves before admission: connected surface overlaps G2, binder test R/I3, hostProjection I1, and units.json all units. Aliases are navigation, never directory-wide permission. Freeze the four exact source/test leaves, units.json and four truthful final admission/red/local/admission-review evidence names from hConsumerPrereqAmendment20261018: nine prospective files, 96-195 estimated counted additions and 250-500 test additions, not measured fit. If R supplies exact CF-H8/CF-G5 proof, record its receipt/head/assertions and reduce by the binder test to eight files; never assume closure. Caps stay 15 unique files / 500 counted added lines, tests and ledger evidence line-exempt but file-counted, no deletion credit. Required extra leaf or cap overflow stops for separate registration; spare slots grant no unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and census. Red-first proof, required CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS and closure precede H admission/install; ownerGate null is no waiver. Reconcile CF-H5 consumer/fold-store predicate without editing unregistered campaignHostFoldStore.ts; register an exact leaf if needed. CF-E7 follows binder-test ownership; record R proof or discharge at this owner without claiming historical carry-forwards closed. MP-HOST-DEDUPE-1 and its MP-RECOVERY-UNITS-1 predecessor must also have exact-main PASS, ancestry and closure before HP release; follow followupsRegistration20261018.",
+        "predecessors": [
+          "B14-0",
+          "B14-HEAD",
+          "MP-HOST-DEDUPE-1"
+        ],
+        "successors": [
+          "P2CG1H"
+        ],
+        "registration20261018HP": {
+          "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/hi-prep-20261018.txt",
+          "sourceSha256": "6b8df3e824b27717d7db0c6f6f316ef150295d4cdb28d3861eb23a697ffb7590",
+          "sourceAdmitted": false,
+          "acceptance": [
+            "RED: hold sockets open/no campaign frames through at least4 windows -> old unbounded cycle fails finite socket count and visible-text assertion. Test replacement binds, explicit retry, healthy-confirmation reset, identity switch and late dead callbacks. For H14, decrement once on every success/return/throw before confirm can schedule dispose; leave queued work counted from **consume**, not promise start. Hook confirmApplied to `Promise.resolve().then(unmount)` after linked success -> remount one healthy socket/no rejoin. Same-tick consume+unmount -> remount rejoins, ACKs baseline only, refresh never called. Retain held-refresh cut/G1 fake-timer pins. Round1 'heard only after confirm' fix was withdrawn by round2 because it stalls chains; do not reuse it.",
+            "Pin no reset on heartbeat/frame/rebind, dispose timer cancellation, route remount reset and identity scope. Preserve held/failed send callback controls and no unoffered snapshot escape in CF-H8/CF-G5 proof, unless exact R evidence discharges that obligation."
+          ]
+        }
+      },
+      "predecessors": [
+        {
+          "id": "B14-0",
+          "state": "main-verified",
+          "mergeSha": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+          "mainProof": {
+            "path": "evidence/b14-0-mainproof-20261018.json",
+            "mergeCommit": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+            "verdict": "PASS",
+            "runtime": "Source/Main Jest: Tests:       1669 passed, 1669 total"
+          }
+        },
+        {
+          "id": "B14-HEAD",
+          "state": "main-verified",
+          "mergeSha": "8fcd311d5b60951b766fded267ba688f2dae0395",
+          "mainProof": {
+            "path": "evidence/b14-head-mainproof-20261018.json",
+            "mergeCommit": "8fcd311d5b60951b766fded267ba688f2dae0395",
+            "verdict": "PASS",
+            "runtime": "Source/Main Jest: Tests:       2837 passed, 2837 total"
+          }
+        },
+        {
+          "id": "MP-RECOVERY-UNITS-1",
+          "state": "planned",
+          "mergeSha": null,
+          "mainProof": null
+        },
+        {
+          "id": "MP-HOST-DEDUPE-1",
+          "state": "blocked",
+          "mergeSha": null,
+          "mainProof": null
+        }
+      ],
+      "decision": "PREP ONLY. Do not implement GREEN or open a PR. Before release, fetch origin, verify MP-HOST-DEDUPE-1 exact-main PASS and closure and HP planned state; then rebase/re-census and refresh baseline proof."
+    },
+    "rebasePreparation": {
+      "date": "2026-10-19T01:48:44.706Z",
+      "base": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "sourcePR": 2303,
+      "originalBase": "2d94d234723fa1430e8b3a769331307e6cd20216",
+      "rebasedAdmissionCommit": "b53e0c3374ffc0d931c8e2f9aa99c0568a55fd5e",
+      "rebasedRedCommit": "2a727de7f2b0748723d08e2ecacc8ca765e8fb9e",
+      "originMain": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "hpState": "blocked",
+      "predecessorState": "review-required",
+      "qualification": "Original admission/RED fields preserve historical proof on 2d94d2347. This addendum records the authorized rebase on the DEDUPE product merge; closure/release remains pending. No HP product, test byte, manifest or units.json change.",
+      "frozenTestsUnchanged": true,
+      "changedPredecessorServerLeaves": [
+        "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "src/lib/multiplayer/server/MatchRecovery.ts",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+        "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts"
+      ],
+      "sourceTestOverlap": [],
+      "gate": "No HP PR until HP is planned on freshly fetched origin/main; no GREEN implemented in this prep handoff."
+    },
+    "source": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp/prep-admission.json",
+      "bytes": 23644,
+      "sha256": "82838b3b3337c8fa13136051211d5fc525cf07d28a172454c79d975dfe646a80"
+    }
+  },
+  "baselineFiles": [
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "bytes": 10632,
+      "sha256": "3074c9a3d74acc51e0f6e61efebc283ff0dfa1e3699b53d90ac74c385fb87606"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "bytes": 14183,
+      "sha256": "f1af7f61eb2548bcaadfa90c28cf55e7536378e50f72b4dff438c4e49b8db599"
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "bytes": 60444,
+      "sha256": "cdbfe394372ebe25cafabb1294f658c6ad9e823b064a3c208955b626344bdcab"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "bytes": 118932,
+      "sha256": "f26855a5a3b9eba54434c705141429e64354e7d0f9cec4d4cac71d76d179e8bf"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 2079254,
+      "sha256": "15ba2a6ef8ef693dc7962e5ff7a1187c213994770445889aeffc34db9b133d5a"
+    }
+  ],
+  "frozenRedTests": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "bytes": 68883,
+      "sha256": "cfb1bdb1daed47a05c40a0a340208963956b76709c3abf1c875c8685d2f21759"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "bytes": 119177,
+      "sha256": "373220883c801efb996d972714703c9e2d2adf854c6ef3b326751d83625877fb"
+    }
+  ],
+  "releasedRed": {
+    "passed": 123,
+    "failed": 7,
+    "runtimeErrors": 0,
+    "report": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\red-released-main.json",
+      "bytes": 131295,
+      "sha256": "539b50656409a0a02a2a5d87ef8fc4be74564bbd66236c849306de7c4ead0e73"
+    },
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\red-released-main.log",
+      "bytes": 109248,
+      "sha256": "0b3359e709768b43ffe4dac7c971177f4a04bc734efb0768857e3526a1f2677f"
+    }
+  }
+}

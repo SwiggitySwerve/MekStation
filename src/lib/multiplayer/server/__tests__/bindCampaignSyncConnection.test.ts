@@ -3270,10 +3270,17 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
     },
   );
 
-  it.each(['confirmed', 'held', 'failed'] as const)(
-    'P2CG1R CF-H8/CF-G5: an installed bound membership join only ever offers (%s send callback); joinMember is never invoked',
-    async (mode) => {
+  it.each(
+    (['host', 'member'] as const).flatMap((seat) =>
+      (['confirmed', 'held', 'failed'] as const).map(
+        (mode) => [seat, mode] as const,
+      ),
+    ),
+  )(
+    'P2CG1R CF-H8/CF-G5 (P2CG1HP {host, member}): an installed bound %s membership join only ever offers (%s send callback); joinMember is never invoked',
+    async (seat, mode) => {
       await open('host-review');
+      const player = seat === 'host' ? route().host : route().guest;
       const unoffered = jest.spyOn(entry.syncSession, 'joinMember');
       class Controlled extends ConfirmingSocket {
         override send(data: string, onSent?: (error?: Error) => void): void {
@@ -3291,7 +3298,7 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
         socket,
         registry: getCampaignHostRegistry(),
         matchId: entry.matchId,
-        verifiedPlayerId: route().host.playerId,
+        verifiedPlayerId: player.playerId,
         logger: quietLogger,
         membership: createCampaignSessionMembershipPort(),
       });
@@ -3299,8 +3306,8 @@ describe('P2CG1D guarded progression doors (installed receipt port)', () => {
         kind: 'CampaignJoin',
         matchId: entry.matchId,
         ts: nowIso(),
-        playerId: route().host.playerId,
-        role: 'host',
+        playerId: player.playerId,
+        role: seat === 'host' ? 'host' : 'guest',
         roomCode: entry.roomCode ?? undefined,
         campaignId: entry.campaignId,
       });
