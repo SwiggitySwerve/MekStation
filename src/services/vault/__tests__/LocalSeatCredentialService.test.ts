@@ -15,6 +15,7 @@ import path from 'node:path';
 
 import type { IEncryptedData } from '@/types/vault';
 
+import { verifyPlayerToken } from '@/lib/multiplayer/server/auth';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -22,6 +23,7 @@ import {
 import { IdentityRepository } from '@/services/vault/IdentityRepository';
 import { createIdentity } from '@/services/vault/IdentityService';
 import * as identityCrypto from '@/services/vault/IdentityService';
+import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 import { logger } from '@/utils/logger';
 
 jest.mock('@/services/vault/IdentityService', () => {
@@ -31,7 +33,389 @@ jest.mock('@/services/vault/IdentityService', () => {
     generateKeyPair: jest.fn(actual.generateKeyPair),
     encryptWithPassword: jest.fn(actual.encryptWithPassword),
     decryptWithPassword: jest.fn(actual.decryptWithPassword),
+    signData: jest.fn(actual.signData),
   };
+});
+
+// Prospective LSC-1 runtime RED. No product admission or PR until LSC-1S closes.
+interface IPreparedMintResult {
+  token: string;
+  playerId: string;
+  expiresAt: string;
+}
+interface IPreparedMintService extends IService {
+  mint(input: {
+    seatId: SeatId;
+    password: string;
+    ttlMs?: number;
+  }): Promise<IPreparedMintResult>;
+}
+
+describe('LSC-1 prospective runtime survivors', () => {
+  let dir: string;
+  let clock: number;
+  let subject: IPreparedMintService;
+  const PASSWORD = 'seat-one-pass';
+  const PASSWORD2 = 'seat-two-pass';
+
+  beforeEach(async () => {
+    const actual = jest.requireActual<typeof identityCrypto>(
+      '@/services/vault/IdentityService',
+    );
+    jest
+      .mocked(identityCrypto.generateKeyPair)
+      .mockReset()
+      .mockImplementation(actual.generateKeyPair);
+    jest
+      .mocked(identityCrypto.encryptWithPassword)
+      .mockReset()
+      .mockImplementation(actual.encryptWithPassword);
+    jest
+      .mocked(identityCrypto.decryptWithPassword)
+      .mockReset()
+      .mockImplementation(actual.decryptWithPassword);
+    jest
+      .mocked(identityCrypto.signData)
+      .mockReset()
+      .mockImplementation(actual.signData);
+    dir = await mkdtemp(path.join(tmpdir(), 'lsc-1-runtime-red-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'seats.db') }).initialize();
+    clock = T0;
+    subject = new (service().LocalSeatCredentialService)({
+      now: () => clock,
+      verifyOperatorPassword: async () => 'ok',
+    }) as IPreparedMintService;
+    for (const seatId of ['local-seat-1', 'local-seat-2'] as const) {
+      await subject.provision({
+        operatorPassword: OPERATOR,
+        seatId,
+        password: seatId === 'local-seat-1' ? PASSWORD : PASSWORD2,
+        label: seatId,
+        expectedGeneration: 0,
+        operationId: `prep-${seatId}`,
+      });
+    }
+  });
+
+  afterEach(async () => {
+    jest.restoreAllMocks();
+    resetSQLiteService();
+    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+  });
+
+  function mint(
+    seatId: SeatId = 'local-seat-1',
+    password = PASSWORD,
+    ttlMs?: number,
+  ) {
+    expect(typeof subject.mint).toBe('function');
+    return subject.mint({ seatId, password, ttlMs });
+  }
+
+  it('R2-01/R2-04: ten route-wide attempts precede KDF, including wrong guesses on both seats', async () => {
+    expect(typeof subject.mint).toBe('function');
+    jest.mocked(identityCrypto.decryptWithPassword).mockClear();
+    for (let i = 0; i < 10; i++)
+      await expect(
+        mint(i % 2 ? 'local-seat-2' : 'local-seat-1', 'bad-password'),
+      ).rejects.toMatchObject({ code: 'invalid-credentials' });
+    const calls = jest.mocked(identityCrypto.decryptWithPassword).mock.calls
+      .length;
+    await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    expect(identityCrypto.decryptWithPassword).toHaveBeenCalledTimes(calls);
+  });
+
+  it('R2-12: a locked seat consumes the mint window but performs no KDF', async () => {
+    expect(typeof subject.mint).toBe('function');
+    for (let i = 0; i < 5; i++)
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    jest.mocked(identityCrypto.decryptWithPassword).mockClear();
+    for (let i = 0; i < 5; i++)
+      await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    await expect(mint('local-seat-2', PASSWORD2)).rejects.toMatchObject({
+      code: 'throttled',
+    });
+    expect(identityCrypto.decryptWithPassword).not.toHaveBeenCalled();
+  });
+
+  it('R2-12: the mint lock survives a SQLite reopen and a new service', async () => {
+    for (let i = 0; i < 5; i++) {
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    }
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'seats.db') }).initialize();
+    subject = new (service().LocalSeatCredentialService)({
+      now: () => clock,
+      verifyOperatorPassword: async () => 'ok',
+    }) as IPreparedMintService;
+    jest.mocked(identityCrypto.decryptWithPassword).mockClear();
+    await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    expect(identityCrypto.decryptWithPassword).not.toHaveBeenCalled();
+    clock += 60_000;
+    await expect(mint()).resolves.toHaveProperty('token');
+  });
+
+  it('a successful mint clears the durable failure count and lock', async () => {
+    const repo = new (repository().LocalSeatCredentialRepository)();
+    for (let i = 0; i < 4; i++) {
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    }
+    expect(repo.get('local-seat-1')?.failedAttempts).toBe(4);
+    await expect(mint()).resolves.toHaveProperty('token');
+    expect(repo.get('local-seat-1')).toMatchObject({
+      failedAttempts: 0,
+      lockedUntilMs: 0,
+    });
+    for (let i = 0; i < 4; i++) {
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    }
+    await expect(mint()).resolves.toHaveProperty('token');
+    expect(repo.get('local-seat-1')).toMatchObject({
+      failedAttempts: 0,
+      lockedUntilMs: 0,
+    });
+  });
+
+  it('R2-01/R2-04: ten successful mints across both seats exhaust the shared window until expiry', async () => {
+    for (let i = 0; i < 10; i++) {
+      await expect(
+        mint(
+          i % 2 ? 'local-seat-2' : 'local-seat-1',
+          i % 2 ? PASSWORD2 : PASSWORD,
+        ),
+      ).resolves.toHaveProperty('token');
+    }
+    const count = jest.mocked(identityCrypto.decryptWithPassword).mock.calls
+      .length;
+    await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    expect(identityCrypto.decryptWithPassword).toHaveBeenCalledTimes(count);
+    clock += 60_000;
+    await expect(mint()).resolves.toHaveProperty('token');
+  });
+
+  it.each(['decrypt', 'sign'] as const)(
+    'R2-11: revoke during %s returns no token and clears the request key',
+    async (phase) => {
+      expect(typeof subject.mint).toBe('function');
+      let enter!: () => void;
+      let release!: () => void;
+      const entered = new Promise<void>((resolve) => {
+        enter = resolve;
+      });
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const actual = jest.requireActual<typeof identityCrypto>(
+        '@/services/vault/IdentityService',
+      );
+      let privateKey: Uint8Array | undefined;
+      if (phase === 'decrypt')
+        jest
+          .mocked(identityCrypto.decryptWithPassword)
+          .mockImplementationOnce(async (...args) => {
+            privateKey = await actual.decryptWithPassword(...args);
+            enter();
+            await gate;
+            return privateKey;
+          });
+      else
+        jest
+          .mocked(identityCrypto.signData)
+          .mockImplementationOnce(async (...args) => {
+            const signature = await actual.signData(...args);
+            enter();
+            await gate;
+            return signature;
+          });
+      const pending = mint();
+      await entered;
+      await subject.revoke({
+        operatorPassword: OPERATOR,
+        seatId: 'local-seat-1',
+        expectedGeneration: 1,
+        operationId: `revoke-${phase}`,
+      });
+      release();
+      await expect(pending).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+      if (privateKey) expect([...privateKey].every((v) => v === 0)).toBe(true);
+    },
+  );
+
+  it('CF-LSC1S-3: a second in-flight mint is refused before its KDF', async () => {
+    expect(typeof subject.mint).toBe('function');
+    let enter!: () => void;
+    let release!: () => void;
+    const entered = new Promise<void>((resolve) => {
+      enter = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const actual = jest.requireActual<typeof identityCrypto>(
+      '@/services/vault/IdentityService',
+    );
+    jest
+      .mocked(identityCrypto.decryptWithPassword)
+      .mockImplementationOnce(async (...args) => {
+        enter();
+        await gate;
+        return actual.decryptWithPassword(...args);
+      });
+    const pending = mint('local-seat-1', 'wrong');
+    const settled = expect(pending).rejects.toMatchObject({
+      code: 'invalid-credentials',
+    });
+    await entered;
+    await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    expect(identityCrypto.decryptWithPassword).toHaveBeenCalledTimes(1);
+    release();
+    await settled;
+    expect(
+      new (repository().LocalSeatCredentialRepository)().get('local-seat-1')
+        ?.failedAttempts,
+    ).toBe(1);
+  });
+
+  it('R2-07/R2-08: revoked seats refuse mint; re-provision replaces the password and keeps only ciphertext', async () => {
+    expect(typeof subject.mint).toBe('function');
+    await subject.revoke({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      expectedGeneration: 1,
+      operationId: 'revoke',
+    });
+    await expect(mint()).rejects.toMatchObject({ code: 'invalid-credentials' });
+    await subject.provision({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      password: 'replacement-pass',
+      label: 'replacement',
+      expectedGeneration: 2,
+      operationId: 'replace',
+    });
+    await expect(mint()).rejects.toMatchObject({ code: 'invalid-credentials' });
+    await expect(
+      mint('local-seat-1', 'replacement-pass'),
+    ).resolves.toHaveProperty('token');
+    const rows = JSON.stringify(
+      getSQLiteService()
+        .getDatabase()
+        .prepare('SELECT * FROM local_seat_credentials')
+        .all(),
+    );
+    expect(rows).not.toContain('replacement-pass');
+  });
+
+  it('R2-14: mint uses the seat password and leaves the primary identity unchanged', async () => {
+    expect(typeof subject.mint).toBe('function');
+    const identities = new IdentityRepository();
+    const primary = await createIdentity('GM', OPERATOR);
+    await identities.save(primary);
+    await expect(mint('local-seat-1', OPERATOR)).rejects.toMatchObject({
+      code: 'invalid-credentials',
+    });
+    await expect(mint()).resolves.toHaveProperty('token');
+    expect((await identities.getActive())?.id).toBe(primary.id);
+  });
+
+  it('CF-LSC0-14: explicit short TTL expires while renewal keeps the seat player id', async () => {
+    expect(typeof subject.mint).toBe('function');
+    const first = await mint('local-seat-1', PASSWORD, 1000);
+    expect(Date.parse(first.expiresAt)).toBe(clock + 1000);
+    clock += 1001;
+    const renewed = await mint();
+    expect(renewed.playerId).toBe(first.playerId);
+    expect(Date.parse(renewed.expiresAt)).toBe(clock + 3_600_000);
+  });
+
+  it('R2-05: authenticated replay skips keygen and preserves the original password', async () => {
+    jest.mocked(identityCrypto.generateKeyPair).mockClear();
+    const retry = await subject.provision({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      password: 'changed-password',
+      label: 'local-seat-1',
+      expectedGeneration: 0,
+      operationId: 'prep-local-seat-1',
+    });
+    expect(retry).toMatchObject({ replayed: true, generation: 1 });
+    expect(identityCrypto.generateKeyPair).not.toHaveBeenCalled();
+    await expect(mint()).resolves.toHaveProperty('token');
+    await expect(
+      mint('local-seat-1', 'changed-password'),
+    ).rejects.toMatchObject({ code: 'invalid-credentials' });
+  });
+
+  it('R2-06/R2-10: ordinary tokens verify with scope parity and reject a substituted player', async () => {
+    const first = decodeTokenFromWire((await mint()).token)!;
+    const second = decodeTokenFromWire(
+      (await mint('local-seat-2', PASSWORD2)).token,
+    )!;
+    expect(first.scope).toBeUndefined();
+    expect(first.playerId).not.toBe(second.playerId);
+    await expect(
+      verifyPlayerToken(first, clock, { kind: 'match', id: 'match-a' }),
+    ).resolves.toMatchObject({ ok: true, playerId: first.playerId });
+    await expect(
+      verifyPlayerToken({ ...first, playerId: second.playerId }, clock),
+    ).resolves.toEqual({ ok: false, reason: 'pid-mismatch' });
+    await subject.revoke({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      expectedGeneration: 1,
+      operationId: 'keep-issued-expiry',
+    });
+    await expect(mint()).rejects.toMatchObject({ code: 'invalid-credentials' });
+    await expect(verifyPlayerToken(first, clock)).resolves.toMatchObject({
+      ok: true,
+    });
+    await expect(
+      verifyPlayerToken(first, Date.parse(first.expiresAt)),
+    ).resolves.toEqual({ ok: false, reason: 'expired' });
+  });
+
+  it.each([false, true])(
+    'R2-08: erases the exact decrypted buffer on sign failure=%s without secret diagnostics',
+    async (fail) => {
+      const actual = jest.requireActual<typeof identityCrypto>(
+        '@/services/vault/IdentityService',
+      );
+      let key!: Uint8Array;
+      jest
+        .mocked(identityCrypto.decryptWithPassword)
+        .mockImplementationOnce(
+          async (...args) => (key = await actual.decryptWithPassword(...args)),
+        );
+      const spies = [
+        jest.spyOn(console, 'error').mockImplementation(() => undefined),
+        jest.spyOn(logger, 'error').mockImplementation(() => undefined),
+      ];
+      if (fail)
+        jest
+          .mocked(identityCrypto.signData)
+          .mockRejectedValueOnce(new Error(PASSWORD));
+      if (fail) {
+        const error = await mint().catch((caught: unknown) => caught);
+        expect(error).toMatchObject({ message: 'internal-error' });
+        expect(JSON.stringify(error) + String(error)).not.toContain(PASSWORD);
+      } else await expect(mint()).resolves.toHaveProperty('token');
+      expect(key.every((v) => v === 0)).toBe(true);
+      expect(JSON.stringify(spies.flatMap((s) => s.mock.calls))).not.toContain(
+        PASSWORD,
+      );
+    },
+  );
 });
 
 type SeatId = 'local-seat-1' | 'local-seat-2';

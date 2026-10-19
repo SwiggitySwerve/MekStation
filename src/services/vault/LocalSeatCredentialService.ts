@@ -3,7 +3,9 @@
 
 import { createHash } from 'node:crypto';
 
+import { canonicalTokenPayload } from '@/lib/multiplayer/server/auth';
 import { derivePlayerId } from '@/lib/multiplayer/server/playerIdFromPublicKey';
+import { encodeTokenForWire } from '@/types/multiplayer/Player';
 
 import { createSingleton } from '../core/createSingleton';
 import { getIdentityRepository } from './IdentityRepository';
@@ -13,6 +15,7 @@ import {
   fromBase64,
   generateKeyPair,
   toBase64,
+  signData,
 } from './IdentityService';
 import {
   LOCAL_SEAT_IDS,
@@ -74,6 +77,15 @@ export interface ILocalSeatWriteOutcome {
   readonly seats: ILocalSeatPublic[];
 }
 
+export interface ILocalSeatToken {
+  readonly token: string;
+  readonly playerId: string;
+  readonly publicKey: string;
+  readonly displayName: string;
+  readonly expiresAt: string;
+  readonly seatId: LocalSeatId;
+}
+
 export type OperatorVerification = 'ok' | 'denied' | 'missing';
 
 export interface ILocalSeatServiceDeps {
@@ -130,6 +142,11 @@ export class LocalSeatCredentialService {
     LOCAL_SEAT_POLICY.maxOperatorAttemptsPerWindow,
   );
 
+  private readonly mintWindow = new AttemptWindow(
+    LOCAL_SEAT_POLICY.maxMintAttemptsPerWindow,
+  );
+  private readonly minting = new Set<LocalSeatId>();
+
   constructor(deps: ILocalSeatServiceDeps = {}) {
     this.repository = deps.repository ?? new LocalSeatCredentialRepository();
     this.verifyOperator =
@@ -163,6 +180,97 @@ export class LocalSeatCredentialService {
     }
   }
 
+  async mint(input: {
+    readonly seatId: LocalSeatId;
+    readonly password: string;
+    readonly ttlMs?: number;
+  }): Promise<ILocalSeatToken> {
+    let key: Uint8Array<ArrayBuffer> | undefined;
+    let claimed = false;
+    try {
+      const nowMs = this.now();
+      this.mintWindow.take(nowMs);
+      if (this.minting.has(input.seatId)) {
+        throw new LocalSeatCredentialError('throttled', { retryAfterMs: 1000 });
+      }
+      const row = this.repository.get(input.seatId);
+      if (!row || row.revokedAt !== null) {
+        throw new LocalSeatCredentialError('invalid-credentials');
+      }
+      if (row.lockedUntilMs > nowMs) {
+        throw new LocalSeatCredentialError('throttled', {
+          retryAfterMs: row.lockedUntilMs - nowMs,
+        });
+      }
+      this.minting.add(input.seatId);
+      claimed = true;
+      try {
+        // WebCrypto decrypt returns an ArrayBuffer-backed plaintext view.
+        key = (await decryptWithPassword(
+          row.encryptedPrivateKey,
+          input.password,
+        )) as Uint8Array<ArrayBuffer>;
+      } catch {
+        this.repository.recordFailure(
+          input.seatId,
+          row.generation,
+          this.now(),
+          LOCAL_SEAT_POLICY,
+        );
+        throw new LocalSeatCredentialError('invalid-credentials');
+      }
+      const checkCurrent = () => {
+        const current = this.repository.get(input.seatId);
+        if (
+          !current ||
+          current.generation !== row.generation ||
+          current.revokedAt !== null
+        ) {
+          throw new LocalSeatCredentialError('invalid-credentials');
+        }
+      };
+      checkCurrent();
+      const ttl = input.ttlMs ?? LOCAL_SEAT_POLICY.defaultTtlMs;
+      if (
+        !Number.isSafeInteger(ttl) ||
+        ttl <= 0 ||
+        ttl > LOCAL_SEAT_POLICY.maxTtlMs
+      ) {
+        throw new LocalSeatCredentialError('invalid-credentials');
+      }
+      const playerId = derivePlayerId(fromBase64(row.publicKey));
+      const issuedAt = new Date(this.now()).toISOString();
+      const expiresAt = new Date(Date.parse(issuedAt) + ttl).toISOString();
+      const payload = canonicalTokenPayload({ playerId, issuedAt, expiresAt });
+      const signature = toBase64(
+        await signData(new TextEncoder().encode(payload), key),
+      );
+      checkCurrent();
+      this.repository.clearFailures(input.seatId, row.generation);
+      return {
+        token: encodeTokenForWire({
+          playerId,
+          issuedAt,
+          expiresAt,
+          publicKey: row.publicKey,
+          signature,
+        }),
+        playerId,
+        publicKey: row.publicKey,
+        displayName: row.label,
+        expiresAt,
+        seatId: input.seatId,
+      };
+    } catch (error) {
+      throw error instanceof LocalSeatCredentialError
+        ? error
+        : new LocalSeatCredentialError('internal-error');
+    } finally {
+      key?.fill(0);
+      if (claimed) this.minting.delete(input.seatId);
+    }
+  }
+
   async provision(
     input: IOperatorWrite & {
       readonly password: string;
@@ -170,6 +278,17 @@ export class LocalSeatCredentialService {
     },
   ): Promise<ILocalSeatWriteOutcome> {
     return this.operatorWrite(input, async () => {
+      const current = this.repository.get(input.seatId);
+      // A strictly stale generation cannot become writable: generations only rise.
+      // Let the authoritative transaction distinguish replay, mismatch and conflict.
+      if (current && current.generation > input.expectedGeneration) {
+        return this.repository.provision({
+          ...this.writeBase(input, 'provision', input.label),
+          label: input.label,
+          publicKey: current.publicKey,
+          encryptedPrivateKey: current.encryptedPrivateKey,
+        });
+      }
       const keyPair = await generateKeyPair();
       try {
         const encryptedPrivateKey = await encryptWithPassword(

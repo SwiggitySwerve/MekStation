@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
+  "recordedAt": "2026-10-19T01:06:14.906Z",
+  "runtime": {
+    "node": "v22.22.0",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792371969473-lsc.json",
+    "command": [
+      "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--cacheDirectory",
+      "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/jest-cache",
+      "--runTestsByPath",
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "src/__tests__/api/localSeatCredentials.test.ts"
+    ],
+    "driver": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/run.cjs",
+      "sha256": "0a839c8c7e609e3c01f736f4ec8870b8cca3dc2bef709d7be84373399b009c42",
+      "bytes": 2398
+    }
+  },
+  "productUnchanged": {
+    "note": "Service/schema exact closure bytes; local-seats API absent; six frozen controls match.",
+    "files": [
+      {
+        "path": "src/services/vault/LocalSeatCredentialService.ts",
+        "exists": true,
+        "sha256": "e64a719800f1dbab32c2c5d6f90dee739deeccf4c466d26193dce4ad63cd51c1",
+        "bytes": 7708
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "exists": true,
+        "sha256": "ec8380db811af5eda2023387fb0c73d765de5b45c56478aabd53e517237e2f88",
+        "bytes": 19341
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+        "exists": false
+      },
+      {
+        "path": "src/__tests__/api/localSeatCredentials.test.ts",
+        "exists": false
+      },
+      {
+        "path": "src/lib/api/securitySchemas.ts",
+        "exists": true,
+        "sha256": "592a59e62e85d40e912c52caf324c0e7f78de630ee76fa28aa6bf74a8f7eca12",
+        "bytes": 6797
+      }
+    ]
+  },
+  "testChanges": [
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3",
+      "bytes": 31524
+    },
+    {
+      "path": "src/__tests__/api/localSeatCredentials.test.ts",
+      "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a",
+      "bytes": 12572
+    }
+  ],
+  "result": {
+    "base": "6cbdb2eeb6203dad303d1e8359628cf59469e468",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792371969473-lsc.json",
+    "node": "v22.22.0",
+    "command": [
+      "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--cacheDirectory",
+      "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/jest-cache",
+      "--runTestsByPath",
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "src/__tests__/api/localSeatCredentials.test.ts"
+    ],
+    "exitCode": 1,
+    "sha256": "4be6a0a0aed487da6e4b8c4ccb82df8443cd7a185117c6278cf35fbe86ab5f1a",
+    "bytes": 31463,
+    "summary": "Tests:       44 failed, 16 passed, 60 total",
+    "suites": "Test Suites: 2 failed, 2 total",
+    "tests": [
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3"
+      },
+      {
+        "path": "src/__tests__/api/localSeatCredentials.test.ts",
+        "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a"
+      }
+    ],
+    "failures": [
+      "/api/multiplayer/auth/local-seats \u203a R2-03: never accepts credentials from a query string",
+      "/api/multiplayer/auth/local-seats \u203a CF-LSC1S-1: separate requests on both seats share the operator window",
+      "/api/multiplayer/auth/local-seats \u203a R2-02: admits the literal loopback host 127.0.0.1:3001",
+      "/api/multiplayer/auth/local-seats \u203a R2-02: admits the literal loopback host localhost:3001",
+      "/api/multiplayer/auth/local-seats \u203a R2-02: admits the literal loopback host [::1]:3001",
+      "/api/multiplayer/auth/local-seats \u203a allows only GET and POST",
+      "/api/multiplayer/auth/local-seats \u203a refuses a non-loopback host before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a refuses a rebinding host with matching origin before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a refuses a cross-site origin before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a refuses a cross-site fetch before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a refuses a same-site fetch (R2-09) before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a refuses a resolving DNS alias (R2-02) before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a refuses a missing host before reading the body",
+      "/api/multiplayer/auth/local-seats \u203a accepts same-origin loopback requests and sets no-store security headers",
+      "/api/multiplayer/auth/local-seats \u203a rejects an unknown action with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects an unknown seat id with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects an extra field with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects an oversized password with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects a short seat password with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects a missing operation id with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects a blank operation id with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects a blank label with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects a fractional generation with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects an unsafe generation with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a rejects an empty mint password with a detail-free 400",
+      "/api/multiplayer/auth/local-seats \u203a requires a primary vault identity and its password for operator writes",
+      "/api/multiplayer/auth/local-seats \u203a provisions, mints a verifiable ordinary token and never returns secret material",
+      "/api/multiplayer/auth/local-seats \u203a maps wrong seat passwords to 401 and lockout to 429 with Retry-After",
+      "/api/multiplayer/auth/local-seats \u203a maps unexpected failures to a generic 500 without internals",
+      "/api/multiplayer/auth/local-seats \u203a reports generation conflicts and replays idempotent retries",
+      "/api/multiplayer/auth/local-seats \u203a R2-13/CF-LSC1S-1: forwards only validated credentials to the singleton",
+      "LSC-1 prospective runtime survivors \u203a R2-01/R2-04: ten route-wide attempts precede KDF, including wrong guesses on both seats",
+      "LSC-1 prospective runtime survivors \u203a R2-12: a locked seat consumes the mint window but performs no KDF",
+      "LSC-1 prospective runtime survivors \u203a R2-01/R2-04: ten successful mints across both seats exhaust the shared window until expiry",
+      "LSC-1 prospective runtime survivors \u203a R2-11: revoke during decrypt returns no token and clears the request key",
+      "LSC-1 prospective runtime survivors \u203a R2-11: revoke during sign returns no token and clears the request key",
+      "LSC-1 prospective runtime survivors \u203a CF-LSC1S-3: a second in-flight mint is refused before its KDF",
+      "LSC-1 prospective runtime survivors \u203a R2-07/R2-08: revoked seats refuse mint; re-provision replaces the password and keeps only ciphertext",
+      "LSC-1 prospective runtime survivors \u203a R2-14: mint uses the seat password and leaves the primary identity unchanged",
+      "LSC-1 prospective runtime survivors \u203a CF-LSC0-14: explicit short TTL expires while renewal keeps the seat player id",
+      "LSC-1 prospective runtime survivors \u203a R2-05: authenticated replay skips keygen and preserves the original password",
+      "LSC-1 prospective runtime survivors \u203a R2-06/R2-10: ordinary tokens verify with scope parity and reject a substituted player",
+      "LSC-1 prospective runtime survivors \u203a R2-08: erases the exact decrypted buffer on sign failure=false without secret diagnostics",
+      "LSC-1 prospective runtime survivors \u203a R2-08: erases the exact decrypted buffer on sign failure=true without secret diagnostics"
+    ],
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/red.log",
+      "sha256": "4be6a0a0aed487da6e4b8c4ccb82df8443cd7a185117c6278cf35fbe86ab5f1a",
+      "bytes": 31463
+    }
+  },
+  "runtimeSurvivors": {
+    "R2-01": "Runtime ten-attempt shared mint window plus retained exact policy test.",
+    "R2-02": "Runtime literal IPv4/localhost/IPv6 acceptance and DNS alias refusal.",
+    "R2-03": "Runtime query-string credential rejection and detail-free strict body validation.",
+    "R2-04": "Runtime shared-window exhaustion asserts no additional decrypt/KDF call.",
+    "R2-05": "Retained replay/public-key test; GREEN must mint with original password after replay to prove no rotation.",
+    "R2-06": "Downstream LSC-2 consumer/recovery: bearer replacement, wrong-player rejection and explicit clear/rejoin. API tests do not discharge browser storage behavior.",
+    "R2-07": "Retained revoke-keeps/re-provision-clears tests and runtime revoked mint refusal.",
+    "R2-08": "Retained real ciphertext/decrypt test plus mint cleanup; independent review reruns RV-02/RV-10/RV-16 secrecy mutants.",
+    "R2-09": "Runtime same-site and cross-site Sec-Fetch-Site refusal before body/KDF.",
+    "R2-10": "Fresh full ownership/consumer/open-PR census including U101/a/c/d; runtime ordinary-token membership parity complements, not replaces, census.",
+    "R2-11": "Runtime revoke barriers after KDF and signing refuse token and clear request key.",
+    "R2-12": "Runtime locked-seat and concurrent refusal before KDF, with consumed shared mint window.",
+    "R2-13": "Frozen primary token/unlock handlers; independent reviewer verifies H2 stays local-route-only. Primary F1/F2/B15 remain downstream.",
+    "R2-14": "Runtime primary-password verification and seat mint preserve active identity; reviewer confirms N4/no unlock-session side effect."
+  },
+  "interpretation": "Fresh post-closure behavioral RED. Retained operator rows are positive controls. R2-06 consumer recovery, R2-10 full census, R2-13 H2 scope and R2-14 review limits remain explicitly bounded in admission.",
+  "notClaimed": [
+    "No GREEN, independent review, owner ruling, merge approval or downstream acceptance."
+  ]
+}
