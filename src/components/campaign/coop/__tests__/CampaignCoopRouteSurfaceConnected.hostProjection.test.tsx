@@ -1604,6 +1604,47 @@ describe('CampaignCoopRouteSurfaceConnected - a GM remount on its live bound tra
       'Campaign sync could not connect. Reload this campaign to try again.',
     );
   });
+  it('HP healthy confirmation clears the same status node after an exhausted same-key rebind (F1)', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const mounted = await mountHost();
+    await settled();
+    const status = screen.getByRole('status');
+    for (let i = 0; i < 3; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(3);
+    expect(connection.sockets.every((socket) => socket.readyState === 3)).toBe(
+      true,
+    );
+    expect(status).toHaveTextContent(
+      'Campaign sync could not connect. Reload this campaign to try again.',
+    );
+
+    const campaign = {
+      ...hostCampaign(),
+      coopSession: createHostCoopSession('DEF567', MATCH_ID),
+    };
+    mounted.rerender(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={campaign}
+        routeId="dashboard"
+      />,
+    );
+    await settled();
+    expect(connection.sockets).toHaveLength(4);
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).not.toBeEmptyDOMElement();
+
+    await applied(
+      connection,
+      baselineOffer('healthy-after-exhaustion', 800_000),
+    );
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toBeEmptyDOMElement();
+  });
+
   it('HP releases settling before confirm schedules microtask disposal (CF-H14)', async () => {
     const connection = installReusedBoundTransport();
     const first = await mountHost();
