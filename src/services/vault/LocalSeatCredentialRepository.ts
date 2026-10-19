@@ -207,7 +207,9 @@ export class LocalSeatCredentialRepository {
         return { kind: 'generation-conflict', currentGeneration };
       }
       db.prepare(
-        'INSERT INTO local_seat_credential_operations VALUES (?, ?, ?, ?, ?, ?)',
+        `INSERT INTO local_seat_credential_operations
+         (operation_id, seat_id, kind, fingerprint, result_generation, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`,
       ).run(
         write.operationId,
         write.seatId,

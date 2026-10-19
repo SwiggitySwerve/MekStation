@@ -70,6 +70,7 @@ export interface IOperatorWrite {
 
 export interface ILocalSeatWriteOutcome {
   readonly replayed: boolean;
+  readonly generation: number;
   readonly seats: ILocalSeatPublic[];
 }
 
@@ -239,7 +240,11 @@ export class LocalSeatCredentialService {
         currentGeneration: result.currentGeneration,
       });
     }
-    return { replayed: result.kind === 'replayed', seats: this.listSeats() };
+    return {
+      replayed: result.kind === 'replayed',
+      generation: result.generation,
+      seats: this.listSeats(),
+    };
   }
 }
 

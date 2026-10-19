@@ -13,6 +13,8 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { IEncryptedData } from '@/types/vault';
+
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -36,6 +38,7 @@ type SeatId = 'local-seat-1' | 'local-seat-2';
 type Verdict = 'ok' | 'denied' | 'missing';
 interface IOutcome {
   replayed: boolean;
+  generation: number;
   seats: Array<{
     seatId: SeatId;
     status: string;
@@ -73,6 +76,7 @@ interface IRepoModule {
   LocalSeatCredentialRepository: new () => {
     get(seatId: SeatId): {
       publicKey: string;
+      encryptedPrivateKey: IEncryptedData;
       failedAttempts: number;
       lockedUntilMs: number;
       generation: number;
@@ -386,6 +390,12 @@ describe('LocalSeatCredentialService operator writes (LSC-1S)', () => {
     expect(
       (await code(provision('local-seat-1', 0, 'op-dup', 'wrong'))).code,
     ).toBe('operator-denied');
+    await svc.revoke({
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      expectedGeneration: 1,
+      operationId: 'op-between-deliveries',
+    });
     const retry = await provision(
       'local-seat-1',
       0,
@@ -393,19 +403,44 @@ describe('LocalSeatCredentialService operator writes (LSC-1S)', () => {
       OPERATOR,
       'a-different-seat-pass',
     );
-    expect(retry.replayed).toBe(true);
-    expect(retry.seats[0]).toEqual(first.seats[0]);
+    expect(retry).toMatchObject({ replayed: true, generation: 1 });
+    expect(first.generation).toBe(1);
+    expect(retry.seats[0]).toMatchObject({ generation: 2, status: 'revoked' });
     expect(
       new (repository().LocalSeatCredentialRepository)().get('local-seat-1')
         ?.publicKey,
     ).toBe(key);
-    expect(operator).toHaveBeenCalledTimes(3);
-    // Replays still consume the operator window: calls 4 and 5 replay, 6 is throttled.
-    expect((await provision('local-seat-1', 0, 'op-dup')).replayed).toBe(true);
+    expect(operator).toHaveBeenCalledTimes(4);
+    // Replays still consume the window: call 5 replays, 6 is throttled.
     expect((await provision('local-seat-1', 0, 'op-dup')).replayed).toBe(true);
     expect((await code(provision('local-seat-1', 0, 'op-dup'))).code).toBe(
       'throttled',
     );
+  });
+
+  it('stores the seat key only as ciphertext under the seat password', async () => {
+    make();
+    await provision('local-seat-1');
+    const row = new (repository().LocalSeatCredentialRepository)().get(
+      'local-seat-1',
+    );
+    expect(row).not.toBeNull();
+    if (!row) throw new Error('Missing provisioned seat');
+    const key = await identityCrypto.decryptWithPassword(
+      row.encryptedPrivateKey,
+      SEAT_PASSWORD,
+    );
+    try {
+      expect(key.byteLength).toBeGreaterThan(0);
+      expect(row.encryptedPrivateKey.ciphertext).not.toBe(
+        identityCrypto.toBase64(key),
+      );
+      await expect(
+        identityCrypto.decryptWithPassword(row.encryptedPrivateKey, 'wrong'),
+      ).rejects.toThrow();
+    } finally {
+      key.fill(0);
+    }
   });
 
   it('refuses a reused operation id with different parameters and a stale generation', async () => {
@@ -414,6 +449,24 @@ describe('LocalSeatCredentialService operator writes (LSC-1S)', () => {
     expect((await code(provision('local-seat-2', 0, 'op-x'))).code).toBe(
       'operation-mismatch',
     );
+    expect(
+      (
+        await code(
+          svc.provision({
+            operatorPassword: OPERATOR,
+            seatId: 'local-seat-1',
+            password: SEAT_PASSWORD,
+            label: 'Other',
+            expectedGeneration: 0,
+            operationId: 'op-x',
+          }),
+        )
+      ).code,
+    ).toBe('operation-mismatch');
+    expect(svc.listSeats()[0]).toMatchObject({
+      label: 'Player 1',
+      generation: 1,
+    });
     const stale = await code(provision('local-seat-1', 0, 'op-y'));
     expect(stale).toMatchObject({
       code: 'generation-conflict',
