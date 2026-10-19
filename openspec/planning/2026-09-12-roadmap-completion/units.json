@@ -8551,7 +8551,11 @@
         "src/lib/multiplayer/server"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8566,13 +8570,17 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
+        "admission": {
+          "path": "evidence/h-consumer-recovery-admission-20261018.json"
+        },
+        "red": {
+          "path": "evidence/h-consumer-recovery-red-20261018.json"
+        },
         "local": null,
         "review": null,
         "merge": null,
