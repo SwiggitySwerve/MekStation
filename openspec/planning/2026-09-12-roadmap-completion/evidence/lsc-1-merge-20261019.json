@@ -1,0 +1,453 @@
+{
+  "unit": "LSC-1",
+  "stage": "merge",
+  "recordedAt": "2026-10-19T02:08:40.530Z",
+  "pr": 2304,
+  "title": "feat(LSC-1): mint and guard local seat credentials",
+  "head": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+  "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+  "mergeSha": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
+  "mergedAt": "2026-10-19T02:03:12Z",
+  "mergedBy": "SwiggitySwerve",
+  "treeIntegration": {
+    "parents": [
+      "c0995937dbd9a35b7cf2c46deb132e0b3afab702",
+      "1b4fb6bf531fdac96613b1a2bf4a6458d669e514"
+    ],
+    "actualTree": "b70032de326d6198115190ce8ff3d37b221d65cd",
+    "expectedTree": "b70032de326d6198115190ce8ff3d37b221d65cd",
+    "matches": true,
+    "headTree": "027ddf3caa782a1c5dab84af28b934c81c9485a7",
+    "headTreeEqualsMergeTree": false
+  },
+  "baseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
+  "admissionBaseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
+  "census": {
+    "changedFiles": 9,
+    "reservedUnwrittenAtMerge": 1,
+    "manifestFiles": 10,
+    "countedLines": 273,
+    "caps": {
+      "actualFiles": 9,
+      "reservedUnwrittenReview": 1,
+      "registeredManifest": 10,
+      "maxFiles": 15,
+      "countedAddedLines": 273,
+      "productAddedLines": 262,
+      "ledgerAddedLines": 11,
+      "maxCountedAddedLines": 500,
+      "noDeletionCredit": true
+    },
+    "byFile": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-20261018.json",
+        "added": 4544,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-local-20261018.json",
+        "added": 707,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-red-20261018.json",
+        "added": 175,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 11,
+        "deleted": 5
+      },
+      {
+        "path": "src/__tests__/api/localSeatCredentials.test.ts",
+        "added": 403,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/api/securitySchemas.ts",
+        "added": 34,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+        "added": 109,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/vault/LocalSeatCredentialService.ts",
+        "added": 119,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "added": 384,
+        "deleted": 0
+      }
+    ]
+  },
+  "leavesAtMerge": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "localReceiptSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9",
+      "headSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9",
+      "mergeSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9"
+    },
+    {
+      "path": "src/lib/api/securitySchemas.ts",
+      "localReceiptSha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac",
+      "headSha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac",
+      "mergeSha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac"
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "localReceiptSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "headSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "mergeSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "localReceiptSha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021",
+      "headSha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021",
+      "mergeSha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021"
+    },
+    {
+      "path": "src/__tests__/api/localSeatCredentials.test.ts",
+      "localReceiptSha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62",
+      "headSha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62",
+      "mergeSha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62"
+    }
+  ],
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "admissionSha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c",
+      "mergeSha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c"
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "admissionSha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "mergeSha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd"
+    },
+    {
+      "path": "src/pages/api/vault/identity/unlock.ts",
+      "admissionSha256": "61c100217d1ffd91dbddb7c1276449debae80cfc9fe9db4b220ed63f1fcee1e2",
+      "mergeSha256": "61c100217d1ffd91dbddb7c1276449debae80cfc9fe9db4b220ed63f1fcee1e2"
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "admissionSha256": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd",
+      "mergeSha256": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd"
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "admissionSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+      "mergeSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48"
+    },
+    {
+      "path": "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
+      "admissionSha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e",
+      "mergeSha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e"
+    }
+  ],
+  "checks": {
+    "head": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+    "observedAt": "2026-10-19T02:08:40.530Z",
+    "total": 32,
+    "successful": 32,
+    "namesEqualExpected32": true,
+    "missing": [],
+    "unexpected": [],
+    "expectedFrom": "evidence/p2cg1s-local-20261018.json carryForwards[\"CF-H12/CF-E10\"].expectedNames",
+    "jobs": [
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 117851928625,
+        "conclusion": "success"
+      },
+      {
+        "name": "Detect Changes",
+        "id": 117851928713,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 117851928743,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117851980191,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 117852027982,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 117852028023,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format Check",
+        "id": 117852028049,
+        "conclusion": "success"
+      },
+      {
+        "name": "Type Check",
+        "id": 117852028051,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 117852028082,
+        "conclusion": "success"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 117852028093,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 117852028121,
+        "conclusion": "success"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 117852028129,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 117852028144,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 117852028155,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 117852028169,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 117852028175,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint",
+        "id": 117852028184,
+        "conclusion": "success"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 117852028186,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 117852028216,
+        "conclusion": "success"
+      },
+      {
+        "name": "A11y Tests",
+        "id": 117852028217,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 117852028226,
+        "conclusion": "success"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 117852028228,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 117852028231,
+        "conclusion": "success"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 117852028234,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 117852028238,
+        "conclusion": "success"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 117852028262,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 117852028302,
+        "conclusion": "success"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 117852028321,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 117852551244,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 117852551282,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 117852551290,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint and Test",
+        "id": 117853096575,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "requiredChecks": {
+    "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks",
+    "strict": false,
+    "contexts": [
+      "Lint and Test"
+    ],
+    "contexts_url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks/contexts",
+    "checks": [
+      {
+        "context": "Lint and Test",
+        "app_id": 15368
+      }
+    ]
+  },
+  "mergeCommitCheckRuns": {
+    "observedAt": "2026-10-19T02:08:40.530Z",
+    "jobs": [
+      {
+        "name": "Live Tier Signal",
+        "id": 117855198005,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Push Docker image",
+        "id": 117854927219,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "release",
+        "id": 117854927191,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "id": 117854926769,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "id": 117854926522,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117854926501,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Determine release tag",
+        "id": 117854878165,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "release",
+        "id": 117854876609,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Push Docker image",
+        "id": 117854876355,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "build",
+        "id": 117854876148,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 117854876113,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Build Docker image",
+        "id": 117854875775,
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Determine release tag",
+        "id": 117854826617,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (windows-latest)",
+        "id": 117854807616,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish Live Evidence (ubuntu-latest)",
+        "id": 117854807537,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "version-and-release",
+        "id": 117854806884,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "ownerRuling": {
+    "ruledHead": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+    "pr": 2304,
+    "commentId": 6258073974,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a34031e424d522e53961ff47fe5a089e25899382717e2d203951bb4490293dcf",
+    "bodyBytes": 2644,
+    "at": "2026-10-19T02:03:06Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2304#issuecomment-6258073974",
+    "bodyPath": "evidence/lsc-1-owner-ruling-6258073974.bytes.json",
+    "encoding": "base64 envelope of exact posted UTF-8 comment body; byte-identical to _receipts/pr2304-owner-ruling.md"
+  },
+  "chronology": "Owner ruling 2026-10-19T02:03:06Z preceded merge 2026-10-19T02:03:12Z."
+}
