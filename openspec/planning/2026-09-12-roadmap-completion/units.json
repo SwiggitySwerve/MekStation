@@ -8223,7 +8223,11 @@
       ],
       "ownershipPathPolicy": "The server alias is validator navigation only, never directory-wide write permission. Only registeredSourceLeaves are prospective source/test scope; finite admission must freeze them and the named lifecycle/evidence leaves.",
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence after accepted registration and finite admission. Every actual leaf counts; no incumbent lifecycle, historical receipt or unrelated packet edits. Shared ledger writes are serialized.",
       "ciClass": "product",
@@ -8241,14 +8245,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "review-required",
+      "baseline": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/mp-recovery-units-2-admission.json"
+        },
+        "red": {
+          "path": "evidence/mp-recovery-units-2-red.json"
+        },
+        "local": {
+          "path": "evidence/mp-recovery-units-2-local.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -19798,6 +19808,33 @@
         "author": "SwiggitySwerve",
         "bodySha256": "71178f68963e7cc8e1ee5daaa71da0596a96d338735cec96099eaec7ebcc5966"
       }
+    },
+    {
+      "id": "PK-mp-recovery-units-2-implementation",
+      "blocks": [
+        "MP-RECOVERY-UNITS-2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "After independent exact-head review and RED/GREEN proof, accept disk-only recovery/rewind hydration and crypto-backed captured post-restart dice without widening the registered recovery scope?",
+      "options": [
+        {
+          "label": "accept the reviewed bounded implementation",
+          "consequence": "Merge only the reviewed head after required CI; verify exact Main and retain the co-op restart/captured-roll and deterministic replay evidence.",
+          "effort": "Sensitive authority/replay/persistence review with mutation and recovery proof"
+        },
+        {
+          "label": "request bounded changes",
+          "consequence": "Keep the implementation unmerged until concrete recovery, capture or replay defects are fixed and re-reviewed.",
+          "effort": "Bounded by the review findings"
+        }
+      ],
+      "agentRecommendation": "Prefer the server disk helper and a stable host-capture callback, preserving helper defaults and activated-branch semantics. Await the independent review and exact-head owner ruling before merge.",
+      "revertCost": "Reverting restores HTTP-to-self recovery/rewind and predictable uncaptured legacy restart rolls; no schema or wire-format migration is introduced.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-l1-smoke-a1-ruling",

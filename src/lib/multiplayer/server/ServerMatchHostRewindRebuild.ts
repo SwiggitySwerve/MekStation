@@ -18,6 +18,7 @@
  * branch to answer from.
  */
 
+import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { IMatchStore } from '@/lib/multiplayer/server/IMatchStore';
 import type { IMatchJournalEnvelope } from '@/lib/multiplayer/server/MatchStreamJournalMirror';
 import type {
@@ -25,7 +26,6 @@ import type {
   IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
 
-import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   materializeBranchPath,
   resolveBranchPath,
@@ -38,8 +38,8 @@ import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindP
 import { matchJournalBranchSegmentReader } from '@/lib/multiplayer/server/history/matchJournalBranchSegmentReader';
 import { isLivePathBranchId } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { foldMatchSession } from '@/lib/multiplayer/server/MatchSessionProjector';
+import { recoverServerInteractiveSession } from '@/lib/multiplayer/server/matchUnitBootstrap';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { readServerCustomCombatDefinition } from '@/services/units/serverCustomCombatDefinition';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -197,10 +197,7 @@ export async function rebuildHostFromActivatedBranch(
       ...folded,
       config: { ...folded.config, seed: host.journalRandomSeed },
     };
-    const session = await InteractiveSession.fromSessionAsync(
-      seeded,
-      readServerCustomCombatDefinition,
-    );
+    const session = await recoverServerInteractiveSession(seeded);
     host.replaceSession(session);
     // Claim only after replaceSession returns — a throw above must
     // leave servedBranchId on the previous identity.
