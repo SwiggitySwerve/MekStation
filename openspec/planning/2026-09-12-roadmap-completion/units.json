@@ -8215,7 +8215,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "state": "implementing",
       "baseline": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
       "prHead": null,
       "mergeSha": null,
@@ -8223,7 +8223,9 @@
         "admission": {
           "path": "evidence/mp-recovery-units-2-admission.json"
         },
-        "red": null,
+        "red": {
+          "path": "evidence/mp-recovery-units-2-red.json"
+        },
         "local": null,
         "review": null,
         "merge": null,

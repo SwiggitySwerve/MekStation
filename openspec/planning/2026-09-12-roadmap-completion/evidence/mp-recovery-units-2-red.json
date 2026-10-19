@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-RECOVERY-UNITS-2",
+  "stage": "red",
+  "recordedAt": "2026-10-19T01:31:30.267Z",
+  "baseline": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
+  "head": "8ec7d52d158d8e77297c67bb2f46ab5307a78a96",
+  "node": "v22.22.0",
+  "verdict": "EXPECTED_RED",
+  "passed": 3,
+  "failed": 6,
+  "total": 9,
+  "run": {
+    "name": "target",
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/red-final-target.json --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+    "head": "8ec7d52d158d8e77297c67bb2f46ab5307a78a96",
+    "at": "2026-10-19T01:31:20.484Z",
+    "end": "2026-10-19T01:31:24.553Z",
+    "exit": 1,
+    "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/red-final-target.log",
+    "logSha256": "7206a58eab074bd8f7f7b60bd4b7cf945964f847adf34fee2dda154f886b9b6d",
+    "passed": 3,
+    "failed": 6,
+    "total": 9,
+    "suites": 3,
+    "failedRows": [
+      {
+        "suite": "ServerMatchHost.recoveryUnits.test.ts",
+        "name": "hydrates recovered journal units from disk and accepts Move (co-op=false)",
+        "message": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 3\n+ Received  + 1\n\n- Array [\n-   \"player-1-atlas-as7-d\",\n- ]\n+ Array []\n    at toEqual (E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-implementation-20261018\\src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHost.recoveryUnits.test.ts:181:55)"
+      },
+      {
+        "suite": "ServerMatchHost.recoveryUnits.test.ts",
+        "name": "hydrates recovered journal units from disk and accepts Move (co-op=true)",
+        "message": "Error: expect(jest.fn()).not.toHaveBeenCalled()\n\nExpected number of calls: 0\nReceived number of calls: 2\n\n1: \"/data/units/battlemechs/index.json\"\n2: \"/data/units/battlemechs/index.json\"\n    at toHaveBeenCalled (E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-implementation-20261018\\src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHost.recoveryUnits.test.ts:175:23)"
+      },
+      {
+        "suite": "ServerMatchHost.recoveryUnits.test.ts",
+        "name": "records crypto-backed dice after restart across fresh capture buffers (seed=undefined)",
+        "message": "Error: expect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n    at toBeGreaterThan (E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-implementation-20261018\\src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHost.recoveryUnits.test.ts:263:31)"
+      },
+      {
+        "suite": "ServerMatchHost.recoveryUnits.test.ts",
+        "name": "records crypto-backed dice after restart across fresh capture buffers (seed=4242)",
+        "message": "Error: expect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n    at toBeGreaterThan (E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-implementation-20261018\\src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHost.recoveryUnits.test.ts:263:31)"
+      },
+      {
+        "suite": "ServerMatchHost.recoveryUnits.test.ts",
+        "name": "lets an explicit recovery roller override a persisted seed, while omitted rollers retain parity",
+        "message": "Error: expect(jest.fn()).toHaveBeenCalled()\n\nExpected number of calls: >= 1\nReceived number of calls:    0\n    at Object.toHaveBeenCalled (E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-implementation-20261018\\src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHost.recoveryUnits.test.ts:289:18)"
+      },
+      {
+        "suite": "ServerMatchHostRewindRebuild.serverUnits.test.ts",
+        "name": "rebuilds the activated prefix from disk and retains the journal random seed and reset protocol",
+        "message": "Error: expect(jest.fn()).not.toHaveBeenCalled()\n\nExpected number of calls: 0\nReceived number of calls: 2\n\n1: \"/data/units/battlemechs/index.json\"\n2: \"/data/units/battlemechs/index.json\"\n    at Object.toHaveBeenCalled (E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-implementation-20261018\\src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHostRewindRebuild.serverUnits.test.ts:199:21)"
+      }
+    ]
+  },
+  "tests": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+      "sha256": "fcaa9a80bc41e3ff24b4f91598b3687d4c1ddcfe2188a932b948187162055a7f"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+      "sha256": "125d95a9489123d56ae5f1e09563473c0bc4b2cec32b3ebae7ffa0446acef173"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+      "sha256": "5e778e8782b7efc662ff90684812960a1bf3077fc7cb65bf32bd446eda16abe9"
+    }
+  ],
+  "product": [
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "exists": true,
+      "sha256": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e",
+      "bytes": 65252
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "exists": true,
+      "sha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010",
+      "bytes": 11982
+    },
+    {
+      "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "exists": true,
+      "sha256": "a07b27bf06cb7566e05d6403ff8ccf9efc821e10dab20f0a2d68ad4bd1b45e2a",
+      "bytes": 9339
+    }
+  ],
+  "proofPath": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/red-final-runs.json",
+  "proofSha256": "f207051d4ee63a7f6d4fc5c32ff015c89633ada6e76d9f4fa4972c373baecdb0",
+  "fixtureQualification": "The real activated-branch boot fixture preserves the existing missing-journal-head refusal after a crash without a matching receipt. It asserts the recovered prefix, unit capabilities and no HTTP; it does not claim that the unrelated rollback fence is resolved. Two custom no-snapshot rows also pass before GREEN.",
+  "preparation": "Two pre-seal drafts: the first exposed the existing rewind rollback fence; the final fixture pins it rather than bypassing it. Only this finalized RED binds the no-test-edits invariant."
+}
