@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "unit": "MP-RECOVERY-UNITS-2",
   "stage": "local",
-  "recordedAt": "2026-10-19T01:39:43.846Z",
-  "codeHead": "5340ced852e6dbadac5be120bf4269a384491df5",
+  "recordedAt": "2026-10-19T01:48:47.493Z",
+  "codeHead": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
   "verdict": "PASS",
   "source": [
     {
@@ -38,7 +38,7 @@
   ],
   "verification": {
     "scope": "PASS",
-    "base": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
+    "base": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
     "files": 10,
     "reservedFiles": 11,
     "countedAdditions": 65,
@@ -48,19 +48,19 @@
   },
   "reports": [
     {
-      "tag": "final-target",
-      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-target-runs.json",
-      "sha256": "91de579593907131d341ce5296c075e9f815ce486d6b99aab39ca1d50d1faf92",
+      "tag": "rebased-target",
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-target-runs.json",
+      "sha256": "7cd060fa332f97369ef0e611902f49c336e6c02ced4b5078711cfc904db3b4da",
       "runs": [
         {
           "name": "target",
-          "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-target-target.json --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:35:13.266Z",
-          "end": "2026-10-19T01:35:17.485Z",
+          "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-target-target.json --runTestsByPath src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:45:02.039Z",
+          "end": "2026-10-19T01:45:06.287Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-target-target.log",
-          "logSha256": "b07dca61a432de1032150cab8b9bee5cf85f298588c1b5540d12bb6cb14a92a3",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-target-target.log",
+          "logSha256": "c12f1e122d8dfffa1bdaa7efa49608092dd21d4eeafeb61f109dc8d3a3f26da9",
           "passed": 9,
           "failed": 0,
           "total": 9,
@@ -70,41 +70,41 @@
       ]
     },
     {
-      "tag": "final-server",
-      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-server-runs.json",
-      "sha256": "d3e745e652c45c82ec6649068dcd99cc81443207d8351764dff6d3aac14a1e0e",
+      "tag": "rebased-server",
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-server-runs.json",
+      "sha256": "b8e49fd5d545f98fbbf38b06037bbea26fc9dd688a55a04baba5d642f7bed91d",
       "runs": [
         {
           "name": "server",
-          "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-server-server.json src/lib/multiplayer/server",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:35:17.520Z",
-          "end": "2026-10-19T01:37:32.726Z",
+          "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-server-server.json src/lib/multiplayer/server",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:45:06.323Z",
+          "end": "2026-10-19T01:47:09.994Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-server-server.log",
-          "logSha256": "cda0265c4487c79a0f796d232e3eb088292541da9554bd4f7b9dd78715e6bf62",
-          "passed": 1583,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-server-server.log",
+          "logSha256": "9c6488079e52b26342ef3debcb601741b5cb973c14c32cfc8746d6c1a7eca43f",
+          "passed": 1591,
           "failed": 0,
-          "total": 1583,
+          "total": 1591,
           "suites": 179,
           "failedRows": []
         }
       ]
     },
     {
-      "tag": "final-related",
-      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-related-runs.json",
-      "sha256": "a645e8090c4133a86d7bb680c4d3317a350c80c715f3c8c5f994dfd6a7f821b7",
+      "tag": "rebased-related",
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-related-runs.json",
+      "sha256": "5310c6a49c459a8a075c8c6687757d6a95d61220a61fd458882f63f806e197c2",
       "runs": [
         {
           "name": "related",
-          "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-related-related.json --runTestsByPath src/engine/__tests__/InteractiveSession.recovery.test.ts src/engine/__tests__/interactiveSessionRecoveryDeterminism.test.ts src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts src/engine/__tests__/InteractiveSession.seedRoundTrip.test.ts src/services/units/__tests__/NodeCanonicalUnitService.test.ts src/services/units/__tests__/NodeCanonicalUnitService.boundary.test.ts src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:32.766Z",
-          "end": "2026-10-19T01:37:37.586Z",
+          "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/.jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-related-related.json --runTestsByPath src/engine/__tests__/InteractiveSession.recovery.test.ts src/engine/__tests__/interactiveSessionRecoveryDeterminism.test.ts src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts src/engine/__tests__/InteractiveSession.seedRoundTrip.test.ts src/services/units/__tests__/NodeCanonicalUnitService.test.ts src/services/units/__tests__/NodeCanonicalUnitService.boundary.test.ts src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:10.032Z",
+          "end": "2026-10-19T01:47:14.692Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-related-related.log",
-          "logSha256": "9e32c152bff96ec0d93e4d247fdae716872a3f49c3bbdea5f4d9fe61fbc6c232",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-related-related.log",
+          "logSha256": "b67a7e71e49347db59b18965fabf0f84edfefbfccf7b702bbdbd1705b6c2403f",
           "passed": 54,
           "failed": 0,
           "total": 54,
@@ -114,106 +114,106 @@
       ]
     },
     {
-      "tag": "final-quality",
-      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-runs.json",
-      "sha256": "542637eaff099c9064c352bd67069f9cb06bf8c41ee4f7a8a5c30b20f25ecc0c",
+      "tag": "rebased-quality",
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-runs.json",
+      "sha256": "4564bc248c8b4dc76e3cd28f0a383bfbedfcfa89cf14de73ed4e1ac5e6e9ce1d",
       "runs": [
         {
           "name": "typecheck",
           "command": "npm run typecheck",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:37.621Z",
-          "end": "2026-10-19T01:37:39.173Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:14.770Z",
+          "end": "2026-10-19T01:47:16.746Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-typecheck.log",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-typecheck.log",
           "logSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
         },
         {
           "name": "lint",
           "command": "npm run lint",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:39.175Z",
-          "end": "2026-10-19T01:37:39.774Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:16.748Z",
+          "end": "2026-10-19T01:47:17.291Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-lint.log",
-          "logSha256": "78a1a9a5f5d4f5fa92bc96f6fb3f1a74ab8a31937466fbb9582c6fe4743ac400"
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-lint.log",
+          "logSha256": "af9c53766172ac8da98e6882042c48b6a9fa1d4bca1218e087b74004e24c0276"
         },
         {
           "name": "format",
           "command": "npm run format:check",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:39.775Z",
-          "end": "2026-10-19T01:37:52.844Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:17.292Z",
+          "end": "2026-10-19T01:47:29.942Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-format.log",
-          "logSha256": "71a08f57c3553ad73060c3816f97a182753b539aa7055217d4f757c866b3b504"
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-format.log",
+          "logSha256": "3a69302e96275d9cad9d4843c4ed7522e5e580375a3c01c667789de471a55066"
         },
         {
           "name": "lint-units",
           "command": "npm run lint:units",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:52.845Z",
-          "end": "2026-10-19T01:37:53.721Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:29.942Z",
+          "end": "2026-10-19T01:47:30.923Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-lint-units.log",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-lint-units.log",
           "logSha256": "12fa0e12cfc1fdc733654a7d2cbc2aa32c7b6ea5ac44ebe89615f2d4cb5eb965"
         },
         {
           "name": "plain",
           "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:53.721Z",
-          "end": "2026-10-19T01:37:57.879Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:30.924Z",
+          "end": "2026-10-19T01:47:35.088Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-plain.log",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-plain.log",
           "logSha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7"
         },
         {
           "name": "git",
           "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:37:57.880Z",
-          "end": "2026-10-19T01:38:10.894Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:35.089Z",
+          "end": "2026-10-19T01:47:48.505Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-git.log",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-git.log",
           "logSha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46"
         },
         {
           "name": "next",
           "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:38:10.894Z",
-          "end": "2026-10-19T01:38:15.624Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:48.506Z",
+          "end": "2026-10-19T01:47:52.599Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-next.log",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-next.log",
           "logSha256": "56eba421449a62910e71ccac76c1483307e41b4ae77d6c90c280669c7250132a"
         },
         {
           "name": "validator-tests",
           "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:38:15.624Z",
-          "end": "2026-10-19T01:38:26.683Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:47:52.599Z",
+          "end": "2026-10-19T01:48:03.118Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-validator-tests.log",
-          "logSha256": "f1f8e425055fea7be5e65b75bc36177bacb64bc550735523779a5cbd5545f320"
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-validator-tests.log",
+          "logSha256": "29575ef8674aba62b31523e761a67a5405959a65c61582891a430bb107da5a9b"
         },
         {
           "name": "openspec",
           "command": "npx openspec validate --all --strict",
-          "head": "5340ced852e6dbadac5be120bf4269a384491df5",
-          "at": "2026-10-19T01:38:26.683Z",
-          "end": "2026-10-19T01:38:29.048Z",
+          "head": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
+          "at": "2026-10-19T01:48:03.119Z",
+          "end": "2026-10-19T01:48:04.461Z",
           "exit": 0,
-          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-openspec.log",
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-quality-openspec.log",
           "logSha256": "fd47a21118ed60eedc45c31821d6c48a6fc31bdb8c31b9b84436716ebfa8a9f1"
         }
       ]
     }
   ],
   "mutants": {
-    "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/mutants.json",
-    "sha256": "f9457948286f47fa76427004dbd1b6c583d4cc2f96b10b8d551cb03a3d28019b",
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/rebased-mutants.json",
+    "sha256": "f2990b4b00b536c9436b07cbd65538968cf89775e37523d18018d95e62b4a747",
     "applied": 9,
     "caught": 9,
     "results": [
@@ -286,10 +286,10 @@
     "Pending sensitive packet PK-mp-recovery-units-2-implementation awaits independent exact-head review and owner ruling. No source approval, mainProof, browser/build proof or task tick is claimed."
   ],
   "publicationCensus": {
-    "at": "2026-10-19T01:39:36.199Z",
-    "originMain": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
-    "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/census.json",
-    "sha256": "afd2a20535d228300dbf3b6f867bb08212c1e813dadc2d1ac13e43f723721fc6",
+    "at": "2026-10-19T01:41:46.614Z",
+    "originMain": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/census-rebased.json",
+    "sha256": "b6933c80c48953c0cbf60d285c0eab2a3cff080806e937a0db3176a6dd5fb2f6",
     "openPullRequests": [
       {
         "number": 2304,
@@ -300,18 +300,6 @@
             "status": "modified",
             "additions": 11,
             "deletions": 5
-          }
-        ]
-      },
-      {
-        "number": 2303,
-        "head": "86cf410237a2fed16bbd79ce60d9318901286eac",
-        "intersections": [
-          {
-            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
-            "status": "modified",
-            "additions": 43,
-            "deletions": 6
           }
         ]
       },
@@ -331,8 +319,131 @@
   "cadence": {
     "admissionCommit": "8ec7d52d158d8e77297c67bb2f46ab5307a78a96",
     "redCommit": "9c5cb1242524e64664e8f3dead7c7ce6d93a69d9",
-    "implementationCommit": "5340ced852e6dbadac5be120bf4269a384491df5",
+    "implementationCommit": "4a31e0d4dc015370453dd9a605917804b7fef003",
+    "testedHead": "533e3fc64ccb00d26ba9f584ca2e319acb2906e7",
     "sealedTestsUnchanged": true
+  },
+  "refreeze": {
+    "at": "2026-10-19T01:40:42.189Z",
+    "base": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "head": "150cbaf3dbe9d6a70182c31b703aeda05dce3b2c",
+    "reason": "DEDUPE #2303 merged; rebase and re-freeze under Root instruction.",
+    "priorBase": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
+    "controls": [
+      {
+        "path": "server.js",
+        "treeOrBlob": "7ce8627c35dbc754fa789f70cc701c536f3549e8"
+      },
+      {
+        "path": "src/engine",
+        "treeOrBlob": "56cdc6646d1940d7f0dce492db846c060e4de61d"
+      },
+      {
+        "path": "src/services/units/CanonicalUnitService.ts",
+        "treeOrBlob": "8dc82244ca5a2faeb156a55448d4096e33387bcd"
+      },
+      {
+        "path": "src/services/units/NodeCanonicalUnitService.ts",
+        "treeOrBlob": "cc53b290115776163cdf2f30b4bae14212bf7655"
+      },
+      {
+        "path": "src/services/units/serverCustomCombatDefinition.ts",
+        "treeOrBlob": "fcc8f00857c4e7ceadaad7a8c48c370b8a436323"
+      },
+      {
+        "path": "src/lib/multiplayer/server/MatchRecovery.ts",
+        "treeOrBlob": "07a790958b10cd06d18d781acc2530d4872f25a9"
+      },
+      {
+        "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "treeOrBlob": "ca3f4080a732b0aafffec2ebc4409b3db13efc9e"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+        "treeOrBlob": "6788f61ca3535b7c90fa98a4105dfeecd40f6832"
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "treeOrBlob": "87057fbba31a9b929347a59fb4ed6cc02304a994"
+      },
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "treeOrBlob": "bf86e35f7d711708b89dbdefac2b48ef233c845c"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "treeOrBlob": "335c4644ef7f85a43d84080d5f7aceaecd19ba83"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "treeOrBlob": "e5ceff34237fc89e79165e46e98628cfdaf4847a"
+      }
+    ],
+    "sourceAndTestsByteIdentical": true,
+    "rebasedCommits": {
+      "admission": "11f4f5dff93699b86b935d965b211f9bb4fe4360",
+      "red": "34e54bd8d3a071b1948c4750f16f615d2fc6af35",
+      "green": "4a31e0d4dc015370453dd9a605917804b7fef003",
+      "local": "150cbaf3dbe9d6a70182c31b703aeda05dce3b2c"
+    },
+    "source": [
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "blob": "1747417215c438819c12e433606b69e320369217",
+        "sha256": "d9bb7a3bf6c08bd7cd4b824d4105bf2d42cbf01c0ad798f202482a2674ea2440"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "blob": "8e6fd27c67e61b3b477d1e26d4831d9bc400ccd7",
+        "sha256": "2f8ee5f6d739d99bda63d56df6063f02cc3a4dedfb3bfe93acc3999b7c9b1007"
+      },
+      {
+        "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "blob": "f9b5576e87e2c532d30a81f179707b5f85174313",
+        "sha256": "3580918996ec8dfaac7a2e7e79c7f5d8c9c090efea4e0ee4ee295291c3409eee"
+      }
+    ],
+    "tests": [
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+        "sha256": "fcaa9a80bc41e3ff24b4f91598b3687d4c1ddcfe2188a932b948187162055a7f"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+        "sha256": "125d95a9489123d56ae5f1e09563473c0bc4b2cec32b3ebae7ffa0446acef173"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+        "sha256": "5e778e8782b7efc662ff90684812960a1bf3077fc7cb65bf32bd446eda16abe9"
+      }
+    ]
+  },
+  "priorLocalProof": {
+    "commit": "150cbaf3dbe9d6a70182c31b703aeda05dce3b2c",
+    "sha256": "d05b77e1d29864a90989ea10f68b221dcdc54c8d8b640f9f9f528f8ee2915134",
+    "codeHead": "5340ced852e6dbadac5be120bf4269a384491df5",
+    "reports": [
+      {
+        "tag": "final-target",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-target-runs.json",
+        "sha256": "91de579593907131d341ce5296c075e9f815ce486d6b99aab39ca1d50d1faf92"
+      },
+      {
+        "tag": "final-server",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-server-runs.json",
+        "sha256": "d3e745e652c45c82ec6649068dcd99cc81443207d8351764dff6d3aac14a1e0e"
+      },
+      {
+        "tag": "final-related",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-related-runs.json",
+        "sha256": "a645e8090c4133a86d7bb680c4d3317a350c80c715f3c8c5f994dfd6a7f821b7"
+      },
+      {
+        "tag": "final-quality",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\mp-recovery-2-proof-20261018/final-quality-runs.json",
+        "sha256": "542637eaff099c9064c352bd67069f9cb06bf8c41ee4f7a8a5c30b20f25ecc0c"
+      }
+    ]
   },
   "qualitySummary": {
     "roadmapTests": 86,
