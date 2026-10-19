@@ -375,6 +375,16 @@
     {
       "id": "CF-H12 / CF-G2-11",
       "disposition": "Future PR: compare all 32 required check names and prove exact merge commit at closure."
+    },
+    {
+      "id": "CF-MPHD-4",
+      "source": "Root handoff after DEDUPE #2303 merge at 86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "location": "src/lib/multiplayer/server/CampaignHostRegistry.ts:418",
+      "status": "open; outside HP literal manifest",
+      "nextRegisteredOwner": "P2CG1H",
+      "laterBehavioralOwner": "P2CG2",
+      "disposition": "HP does not own CampaignHostRegistry.ts: its frozen four source/test leaves remain unchanged. P2CG1H next owns this literal, but only for CF-E6 type imports; repairing getOrCreate requires an explicit behavioral scope amendment or separately registered repair. P2CG2 also lists this literal for retained-seat recovery. Root to route the check-then-set race; no HP repair or closure claimed.",
+      "recommendedRepair": "Mirror DEDUPE per-match in-flight promise map: concurrent callers share one creation, failed attempts release their slot, and lifecycle/reset behavior rejects stale pending completion. Add adversarial concurrent and retry/reset proof in the eventual authorized repair."
     }
   ],
   "acceptedResiduals": [
@@ -383,5 +393,27 @@
     "Only quiet-window retries are bounded; non-quiet recovery-required signals remain outside this finite policy.",
     "No receipt-port installation and no durable cross-route retry cap."
   ],
-  "futureEvidence": "Local/admission-review slots remain unwritten. Full GREEN, regression, meaningful mutation, static checks and independent sensitive review are still owed after gate."
+  "futureEvidence": "Local/admission-review slots remain unwritten. Full GREEN, regression, meaningful mutation, static checks and independent sensitive review are still owed after gate.",
+  "rebasePreparation": {
+    "date": "2026-10-19T01:48:44.706Z",
+    "base": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "sourcePR": 2303,
+    "originalBase": "2d94d234723fa1430e8b3a769331307e6cd20216",
+    "rebasedAdmissionCommit": "b53e0c3374ffc0d931c8e2f9aa99c0568a55fd5e",
+    "rebasedRedCommit": "2a727de7f2b0748723d08e2ecacc8ca765e8fb9e",
+    "originMain": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "hpState": "blocked",
+    "predecessorState": "review-required",
+    "qualification": "Original admission/RED fields preserve historical proof on 2d94d2347. This addendum records the authorized rebase on the DEDUPE product merge; closure/release remains pending. No HP product, test byte, manifest or units.json change.",
+    "frozenTestsUnchanged": true,
+    "changedPredecessorServerLeaves": [
+      "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "src/lib/multiplayer/server/MatchRecovery.ts",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts",
+      "src/lib/multiplayer/server/matchUnitBootstrap.ts"
+    ],
+    "sourceTestOverlap": [],
+    "gate": "No HP PR until HP is planned on freshly fetched origin/main; no GREEN implemented in this prep handoff."
+  }
 }
