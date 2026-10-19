@@ -8678,7 +8678,11 @@
         "src/services/vault"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8693,14 +8697,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/lsc-1s-admission-20261018.json"
+        },
+        "red": {
+          "path": "evidence/lsc-1s-red-20261018.json"
+        },
+        "local": {
+          "path": "evidence/lsc-1s-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

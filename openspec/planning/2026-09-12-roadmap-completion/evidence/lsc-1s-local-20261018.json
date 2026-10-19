@@ -1,0 +1,732 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1S",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
+  "admissionCommit": "2c066e49d279065ef0e0b4e9e4c0a037bacad1b4",
+  "redCommit": "70dee4f70ad40bc3ea95049a9dc1390e0c49c533",
+  "productChanges": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "sha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c",
+      "bytes": 7211,
+      "added": 225,
+      "deleted": 0
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "sha256": "e64a719800f1dbab32c2c5d6f90dee739deeccf4c466d26193dce4ad63cd51c1",
+      "bytes": 7708,
+      "added": 259,
+      "deleted": 0
+    }
+  ],
+  "testChanges": [
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "sha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a",
+      "bytes": 13264,
+      "added": 421,
+      "deleted": 0
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "sha256": "ec8380db811af5eda2023387fb0c73d765de5b45c56478aabd53e517237e2f88",
+      "bytes": 19341,
+      "added": 586,
+      "deleted": 0
+    }
+  ],
+  "caps": {
+    "files": {
+      "changed": 8,
+      "reservedUnwritten": 1,
+      "manifest": 9,
+      "cap": 15
+    },
+    "countedLines": {
+      "added": 500,
+      "cap": 500,
+      "product": 484,
+      "unitsJson": 16,
+      "convention": "Added physical lines with no deletion credit in both new product modules and units.json; tests/receipts exempt from line cap but count as files."
+    }
+  },
+  "green": {
+    "command": "heavy-run --lane lsc --class jest -> review-fixes.cjs: all vault suites plus the migration-33 suite",
+    "exitCode": 0,
+    "sha256": "e7db64ee3bc066d743e0ba526efce4e7c6224ec32aba5ff276de7e31d14c90c0",
+    "bytes": 7870,
+    "summary": "Tests:       852 passed, 852 total",
+    "suites": "Test Suites: 53 passed, 53 total",
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/r1/green.log",
+      "sha256": "e7db64ee3bc066d743e0ba526efce4e7c6224ec32aba5ff276de7e31d14c90c0",
+      "bytes": 7870
+    }
+  },
+  "typecheck": {
+    "command": "npm run --silent typecheck within the same heavy ticket",
+    "exitCode": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/r1/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "mutants": {
+    "caught": 18,
+    "equivalent": 1,
+    "total": 19,
+    "rows": [
+      {
+        "id": "R1",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "fingerprint mismatch accepted",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "c55473df5d9740a35daa10ada85d4b9f9b2839983791a29f62253cc5a34def33"
+      },
+      {
+        "id": "R2",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "stale generation accepted",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "cb4c2d693909e7ce1dd1628bbb199990ce2e37f5930fea19610841c11c63cbdc"
+      },
+      {
+        "id": "R3",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "repeat revoke accepted",
+        "result": "EQUIVALENT",
+        "exitCode": 0,
+        "summary": "Tests:       29 passed, 29 total",
+        "sha256": "edcfa6a8d58e5cbc89e04d40c3428c398e019846530dd4b21fb8c09db421d32c",
+        "reason": "The revoke UPDATE itself requires revoked_at IS NULL and exactly one changed row; removing the earlier read guard changes no result, write or operation record."
+      },
+      {
+        "id": "R4",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "re-provision keeps revocation",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       2 failed, 27 passed, 29 total",
+        "sha256": "dd8d063715b0a8dece4703a6cd398bc05b68b45af38963c95adfc48d5734e901"
+      },
+      {
+        "id": "R5",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "re-provision keeps lock",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       2 failed, 27 passed, 29 total",
+        "sha256": "fb6c2a57f7fea012afc4b35aa126ff028073d62e5a6ef1cccd250db76af907e2"
+      },
+      {
+        "id": "R6",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "lock threshold off by one",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       5 failed, 24 passed, 29 total",
+        "sha256": "e418f3909497daa4282e5b9deae9a4ddf99d7bb168b06eb254727e46f064cadc"
+      },
+      {
+        "id": "R7",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "CAS does not require changes one",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       2 failed, 27 passed, 29 total",
+        "sha256": "7bd616e86f65e3465fbc896969d6162347a2d50c2ccf4609c8564539b91b9a9f"
+      },
+      {
+        "id": "R8",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "writes are not transactional",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "5838a28584947c3373ff325dc08a5f044ebdd1752c412e16a89fba967214007d"
+      },
+      {
+        "id": "R9",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "failure fencing inverted",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       5 failed, 24 passed, 29 total",
+        "sha256": "3a214e553b1217a8e4f002e06afbecc3bd003d3f1e0be59115cdb7722e92e906"
+      },
+      {
+        "id": "R10",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "operator denial skipped",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       6 failed, 23 passed, 29 total",
+        "sha256": "79d22db1d32a9a64cac0b27f29e3ced775456b0fc4048656e305739269436e6f"
+      },
+      {
+        "id": "R11",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "missing operator identity misclassified",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "65a8b257f890c589d9a7ce6466eaf70955355dd05a9b16c7d6d7c674ac836086"
+      },
+      {
+        "id": "R12",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "operator window skipped",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       3 failed, 26 passed, 29 total",
+        "sha256": "5888200f31c134e78b79ed9f8c257e1eddfe376a220b235e0ceac2e23ba73519"
+      },
+      {
+        "id": "R13",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "empty revocation treated active",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "9a5c8afa83fd0a22c93ff2f410ab55d0511968f9e66748fb79b13a4b1d8eddb5"
+      },
+      {
+        "id": "R14",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "window starts at epoch rather than first attempt",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "8d3ca62e7bafc29186379b8fdf9235d37b0adb45b3d50f5a90e5f704fe9205fe"
+      },
+      {
+        "id": "R15",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "raw secret-bearing errors escape",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "6892e80ecafcec67042a6c132a4d03e4dcf63d8c3662e8f049f173d1d13cda6f"
+      },
+      {
+        "id": "R16",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "generated private key not erased",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "afe2b4633e8993e689c8cfe8a32717da205cf3f18e1e2ed5763f89819e6e2949"
+      },
+      {
+        "id": "R17",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "fingerprint includes passwords",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "4a260ee9e195e0f0575ccd928246d6596d4ce090846ac2913320bd9a6f5e0f67"
+      },
+      {
+        "id": "R18",
+        "file": "LocalSeatCredentialService.ts",
+        "purpose": "decrypted operator key not erased",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "025a88f44b9f53a6a0dd1deacc84f21b7431b1731b3f8e6166897224d1d9a777"
+      },
+      {
+        "id": "R19",
+        "file": "LocalSeatCredentialRepository.ts",
+        "purpose": "clock rollback shortens durable lock",
+        "result": "CAUGHT",
+        "exitCode": 1,
+        "summary": "Tests:       1 failed, 28 passed, 29 total",
+        "sha256": "a6c052bd5d7b5a3af27c203b15db89a569f543cd21bc759c638691a422f872fb"
+      }
+    ],
+    "harness": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/mutants.cjs",
+      "sha256": "15fbabcecbed610d2cf4258ebe0e1db5be84601e44f8b00812facf18d53d4736",
+      "bytes": 4831
+    },
+    "results": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/mutants.json",
+      "sha256": "e1aef05ca0e5f9b7cafcc2f5124e17cdca2f04f6efd48ee5c7e3ae120d3f851f",
+      "bytes": 5984
+    },
+    "initialSweep": {
+      "results": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/mutants-initial.json",
+        "sha256": "df7d287d8f425a1fc3680299259f757ea903159c533df4687f3b3490ad9f72b3",
+        "bytes": 5175
+      },
+      "finding": "R2 survived because empty-seat nonzero expected generation was not asserted; new RED/Green regression closes it. R3 is equivalent under the SQL revoked_at IS NULL condition plus changes===1."
+    },
+    "testedHead": "14f73d06b2ffe38c7c9eef05535d943046d4a22f",
+    "note": "The original 19-case sweep belongs to the independently reviewed head; the post-review amendment below separately proves F1 and reviewer RV-07/RV-10 on the patched sources."
+  },
+  "iterations": {
+    "initialGreen": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/green-initial.log",
+      "sha256": "05c1c15882bee2ec9670f5b62416a1c6b967ff84c4483058fa904f93484f8bc6",
+      "bytes": 11303
+    },
+    "note": "Initial run: two added test probes failed because SWC exports cannot be replaced with spyOn. Switched to explicit Jest factory wrappers around the real crypto primitives, repeated full RED with product absent, then GREEN. No production workaround for the test-harness issue."
+  },
+  "security": {
+    "operatorVerification": "Reads active stored identity, verifies through real password decryption, discards mutable plaintext buffer; never calls setActive or saves a vault row.",
+    "keyLifetime": "Generated private-key bytes remain within the provision request and are zeroed in finally on success and encryption failure. No decrypted/generated key is stored in service fields. No guaranteed erasure of immutable JS password strings is claimed.",
+    "errors": "Stable error code plus numeric retry/current-generation detail only; dependency errors are replaced without a cause or message copy. Public list failures are also generic. No logger or console calls in either new product module.",
+    "operationRecords": "Fingerprint hashes kind/seat/expected generation/label, excluding both passwords and key bytes. Free-text labels and operation ids are caller input; the schema cannot prove arbitrary strings are not secrets."
+  },
+  "carryIn": {
+    "CF-LSC1DB-1": "Numeric SQL bindings; provision and revoke use SQL generation predicates and require exactly one changed row; stale/no-op writes leave row and operation history untouched; revoke keeps lock, re-provision clears it.",
+    "CF-LSC1DB-2": "Immediate SQLite transaction plus unique seat/result-generation index; two-connection loser and concurrent async operator writes record one winner. Operation insert failure rolls back credential write.",
+    "CF-LSC1DB-3": "Revocation uses non-null semantics. Deadlines use the caller/service wall clock; rollback preserves future lock deadlines and MAX prevents recordFailure shortening them. Forward clock jumps may shorten time remaining.",
+    "CF-LSC1DB-4": "No secret-bearing logs/errors/operation rows. Operator and generated key buffers are request-local; mint-specific lifetime/redaction remains LSC-1.",
+    "CF-LSC1DB-5": "Only successful authentication/re-provision clears the durable count; next post-expiry failure re-locks. Every operator call consumes the fixed route-wide window before password KDF, including duplicate/denied/stale/error requests. Mint-specific locked/concurrent refusal consumption remains LSC-1.",
+    "CF-LSC0-8": "Revoke preserves failure count/lock; re-provision resets both; generation-fenced clear/failure protects replacement credentials.",
+    "CF-LSC0-15": "Policy binds 10 mint attempts, 5 operator attempts per 60 seconds, 5 failures -> 60-second lock, 1-hour token default/cap. Mint behavior remains LSC-1.",
+    "CF-LSC0-16": "First-attempt anchored, process-local route window resets at 60 seconds, not keyed by address; durable lock/counter survive restart.",
+    "CF-LSC0-17": "Replay still authenticates and consumes operator window; changed seat password does not overwrite the originally applied key."
+  },
+  "unchangedControls": [
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "sha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "sha256": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "sha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/playerIdFromPublicKey.ts",
+      "sha256": "3cfe8bb53a07668cc0e375d0fb6c5e67ad73b6cb58d28b6c31d018c6f7445db3",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/logger.ts",
+      "sha256": "b6ac6b9aec48391119a59321e6a1a8aa7811b4eeef312f3ab0f42a49390c9bb9",
+      "unchanged": true
+    }
+  ],
+  "notClaimed": [
+    "No mint API, guest window or bearer issuance (LSC-1).",
+    "No operator UI or browser/release acceptance.",
+    "Fable reviewed 14f73d06 with in-PR fixes; Root exact-change review and owner ruling remain pending. The closure review receipt remains reserved."
+  ],
+  "validation": {
+    "lint": {
+      "exitCode": 0,
+      "sha256": "cadc10b064eb6c730cb72818f1701ba864cffabbea36595506cbab4685b8cbbb",
+      "bytes": 38915
+    },
+    "format": {
+      "exitCode": 0,
+      "sha256": "b71577c585f2fde3cd31a7c95255b8d298d375f004f4243c2331235ff2828c75",
+      "bytes": 118
+    },
+    "openspec": {
+      "exitCode": 0,
+      "sha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+      "bytes": 6857
+    },
+    "qc-openspec": {
+      "exitCode": 0,
+      "sha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+      "bytes": 191
+    },
+    "roadmap": {
+      "exitCode": 0,
+      "sha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
+      "bytes": 76
+    },
+    "roadmap-git": {
+      "exitCode": 0,
+      "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+      "bytes": 2354
+    },
+    "roadmap-next": {
+      "exitCode": 0,
+      "sha256": "acf3c8c65002ea59ea490db4b6e8636ed0e522fddc0aecae0a9651b06f4e439b",
+      "bytes": 9
+    },
+    "roadmap-tests": {
+      "exitCode": 0,
+      "sha256": "5f583df32c633bcc2bd505306a7e65598e992eb8f001bb5a73dd08a0752d0b1d",
+      "bytes": 16288
+    },
+    "lint-units": {
+      "exitCode": 0,
+      "sha256": "e639970feeb2ee541aae69c86f934920888c9a6b5f81d4f1b80cefda93830316",
+      "bytes": 286
+    },
+    "diff": {
+      "exitCode": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "originalAdmissionCommit": "52c83c7e2d563b329497273814a213c21ded1a76",
+  "originalRedCommit": "608bff1ff3c60d1e93c8ce57eb2a4cfe9860e4fc",
+  "integration": {
+    "base": "24e9cf22736c9b11543ac611588086ff7eb0ff4f",
+    "headBeforeReceiptRebind": "f614bfe2329c074c07f239a0e6b592fc1b365ef4",
+    "originalProofBase": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
+    "bindings": [
+      {
+        "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+        "testedSha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c",
+        "currentSha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c"
+      },
+      {
+        "path": "src/services/vault/LocalSeatCredentialService.ts",
+        "testedSha256": "e64a719800f1dbab32c2c5d6f90dee739deeccf4c466d26193dce4ad63cd51c1",
+        "currentSha256": "e64a719800f1dbab32c2c5d6f90dee739deeccf4c466d26193dce4ad63cd51c1"
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "testedSha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a",
+        "currentSha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a"
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "testedSha256": "ec8380db811af5eda2023387fb0c73d765de5b45c56478aabd53e517237e2f88",
+        "currentSha256": "ec8380db811af5eda2023387fb0c73d765de5b45c56478aabd53e517237e2f88"
+      }
+    ],
+    "openPullRequests": [
+      {
+        "headRefOid": "f4165728412418d0c30f32d00b5174fe8121300a",
+        "number": 2296,
+        "collisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefOid": "20af77868bde12a3e5530c72121be0182e8482f5",
+        "number": 2294,
+        "collisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefOid": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "number": 2113,
+        "collisions": []
+      },
+      {
+        "headRefOid": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "number": 1886,
+        "collisions": []
+      }
+    ],
+    "note": "The historical admission baseline and proof logs remain c8d3e6aed. Rebasing only brings in the L2 ledger amendment; all four tested source/test byte hashes are unchanged. Commit references rebound to the visible PR ancestry. F1-F4 post-review amendment updates the byte bindings to the new focused/full-suite proof.",
+    "changedFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "src/services/vault/LocalSeatCredentialRepository.ts",
+      "src/services/vault/LocalSeatCredentialService.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts"
+    ],
+    "onlyOwnUnitChanged": true
+  },
+  "postReviewAmendment": {
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2297-20261018/2026-10-18-lsc-1s-review.md",
+      "sha256": "cb73426edb2a848179e8e868d0760acee1f06f5c9eeee9eeae791fd56165d6ec",
+      "bytes": 25410,
+      "reviewedHead": "14f73d06b2ffe38c7c9eef05535d943046d4a22f",
+      "verdict": "APPROVE WITH IN-PR FIXES",
+      "reviewerModel": "claude-fable-5-1"
+    },
+    "fixes": {
+      "F1": "Expose result.generation on applied/replayed outcomes; test revoke between deliveries with recorded generation 1 and current seat generation 2.",
+      "F2": "Read the stored envelope, decrypt with SEAT_PASSWORD, reject the wrong password and compare ciphertext with the decrypted key encoding.",
+      "F3": "Re-send op-x with label Other; refuse as operation-mismatch and preserve the original row.",
+      "F4": "Name all six columns in the operation INSERT; final count is 500/500."
+    },
+    "priorProductChanges": [
+      {
+        "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+        "sha256": "ddd04ee2e196c3a0f9fba053ab2f822cd5201fb865b5608daea79663bf549876",
+        "bytes": 7119,
+        "added": 223,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/vault/LocalSeatCredentialService.ts",
+        "sha256": "ce39b62a3cdf53dd1d57187dd88d99e9075581bd207845ab99becbb3d1ccc28d",
+        "bytes": 7623,
+        "added": 254,
+        "deleted": 0
+      }
+    ],
+    "priorTestBindings": [
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "testedSha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a",
+        "currentSha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a"
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "testedSha256": "8429a84a15f554fbd7f2d108959b2db4b2e117fb7411e6ba2ba4ce005973b8b5",
+        "currentSha256": "8429a84a15f554fbd7f2d108959b2db4b2e117fb7411e6ba2ba4ce005973b8b5"
+      }
+    ],
+    "oldHeadProof": {
+      "F1": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "still throttles and authenticates a duplicate delivery"
+        ],
+        "exitCode": 1,
+        "sha256": "88dfec68a5819868e7140be21c340f8624d9701d227086079794caa1cde642b6",
+        "bytes": 2631,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      },
+      "F2": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "stores the seat key only as ciphertext"
+        ],
+        "exitCode": 0,
+        "sha256": "8f71b73bf7c527b67dfe09cfad403ee7d82a3a0bb71e6fb8532818ff1a3bfdd7",
+        "bytes": 1860,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      },
+      "F3": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "refuses a reused operation id with different parameters"
+        ],
+        "exitCode": 0,
+        "sha256": "52b7fb8bbacf85c7753a0b1c2e7bb19cc529da011704d23bae5f2bba60860bbd",
+        "bytes": 1862,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      }
+    },
+    "patchedProof": {
+      "F1": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "still throttles and authenticates a duplicate delivery"
+        ],
+        "exitCode": 0,
+        "sha256": "c544d54e55a60b847a0cfbb0f5ebb2ef8b8d64cb7feb6777daac4e0fe7166725",
+        "bytes": 1862,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      },
+      "F2": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "stores the seat key only as ciphertext"
+        ],
+        "exitCode": 0,
+        "sha256": "8546b656a1cf3ba317922142ed1e91a7269ead9cd35297d7d59d40c55cb96806",
+        "bytes": 1861,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      },
+      "F3": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "refuses a reused operation id with different parameters"
+        ],
+        "exitCode": 0,
+        "sha256": "6d9662a5c368734cdd740c2073243099a4d34b631bc9faef4d4f6d57497ce43d",
+        "bytes": 1862,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      }
+    },
+    "regressionMutants": {
+      "F1": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "still throttles and authenticates a duplicate delivery"
+        ],
+        "exitCode": 1,
+        "sha256": "92c45663e56dd79792a49d684f3392e140b57c0e962b6536c19d91f26c4bc92b",
+        "bytes": 2632,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      },
+      "RV-10": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "stores the seat key only as ciphertext"
+        ],
+        "exitCode": 1,
+        "sha256": "2aff94834e87f48da2cd003c7cf7943dffddedf4980dcdc5f6c351b62052b276",
+        "bytes": 2099,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      },
+      "RV-07": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "refuses a reused operation id with different parameters"
+        ],
+        "exitCode": 1,
+        "sha256": "b94f73e30e72594ca57b71b23d4e010348d57edf7640f345cd2adfa7c58d714e",
+        "bytes": 2606,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      }
+    },
+    "proof": {
+      "harness": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/review-fixes.cjs",
+        "sha256": "5fa27285779d4e615f85c2bbd2f8d8596ff6eddc28ad6983aabcac46d7f66129",
+        "bytes": 3864
+      },
+      "results": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/r1/results.json",
+        "sha256": "a74c4169420d07393f389356285b3b63e76f5f6269eee66963e86edf494f195e",
+        "bytes": 13095
+      }
+    },
+    "proofInterpretation": "F1 fails on unmodified 14f73d06 and passes patched. F2/F3 are test gaps, not broken implementation: their new assertions pass on 14f73d06 and patched; RV-10 and RV-07 fail them. All three targeted regression mutations fail on the patched test suite. No assertion failure is fabricated for the correct old-head F2/F3 behavior.",
+    "carryForwards": [
+      "- CF-LSC1S-1 (-> LSC-1): the local-seats route must obtain the service via getLocalSeatCredentialService() so the operator window is genuinely route-wide; add a route test that two requests on different seats share one window and that no address/header reaches the service. Never construct LocalSeatCredentialService in the route.",
+      "- CF-LSC1S-2 (-> LSC-1): request schema must enforce a non-empty (recommend >= 8, matching the vault route) seat password, label 1-64 non-blank, operation id 1-128 non-blank, and an integer expectedGeneration before calling the service, so CHECK failures do not surface as 'internal-error' after the window and KDF were consumed (L3). Consider a pre-read of the operation row and generation before keygen (L1).",
+      "- CF-LSC1S-3 (-> LSC-1): one-in-flight mint per seat, mint-vs-revoke post-check (re-read generation and revoked_at after both KDF and signing; refuse with the revoked-seat code), locked-seat refusal before KDF, and whether locked/concurrent refusals consume the mint window; recordFailure/clearFailures with service.now() and the mint's start generation (P5 shows the substrate behaves).",
+      "- CF-LSC1S-4 (-> LSC-2OP): the outcome's generation (after F1) is the value to seed the next expectedGeneration; mint a fresh operation id per submit; a 'generation-conflict' detail.currentGeneration must refresh the form, never auto-retry.",
+      "- CF-LSC1S-5 (-> LSC-1 / later): decide whether 'internal-error' should log error.name only (L2); keep message/cause out of logs.",
+      "- CF-LSC1S-6 (-> LSC-1 review): re-run RV-02/RV-10/RV-16-style mutants on the mint path (no-store header, no password in URL/log/error, decrypted seat key zero-filled after signing)."
+    ],
+    "validation": {
+      "lint": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/oxlint/bin/oxlint",
+          "src/services/vault/LocalSeatCredentialRepository.ts",
+          "src/services/vault/LocalSeatCredentialService.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts"
+        ],
+        "exitCode": 0,
+        "sha256": "f8f9d3c9ece6a71fd3a9ff513da46bce8bc46d57609da07389d543b7a9d66f2c",
+        "bytes": 92
+      },
+      "format": {
+        "command": [
+          "npm",
+          "run",
+          "--silent",
+          "format:check"
+        ],
+        "exitCode": 0,
+        "sha256": "805f03f214ed2ba3c951d339516d64b826a4d26bdd88f822b1419db1a3e97ee3",
+        "bytes": 118
+      }
+    },
+    "recordedAt": "2026-10-19T00:08:29.088Z"
+  }
+}

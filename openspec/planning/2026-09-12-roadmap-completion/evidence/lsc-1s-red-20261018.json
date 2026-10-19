@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-1S",
+  "stage": "red",
+  "date": "20261018",
+  "baseline": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
+  "admissionCommit": "2c066e49d279065ef0e0b4e9e4c0a037bacad1b4",
+  "staging": "Rebased on verified closure #2295. This fresh RED supersedes the earlier 17-row run on 18319cc5.",
+  "runtime": {
+    "node": "v22.22.0",
+    "command": "heavy-run.mjs --lane lsc --class jest --cwd <repo> -- node E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/run.cjs <repo> red",
+    "driver": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/run.cjs",
+      "sha256": "edb70269586bb29ec20d6e183b177b0c80eadf2480e7c5a87073223210119cff"
+    }
+  },
+  "productUnchanged": {
+    "note": "Both product modules absent; all five frozen controls retain their admission hashes."
+  },
+  "testChanges": [
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "sha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a",
+      "bytes": 13264,
+      "added": 421,
+      "deleted": 0
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "sha256": "8429a84a15f554fbd7f2d108959b2db4b2e117fb7411e6ba2ba4ce005973b8b5",
+      "bytes": 17825,
+      "added": 533,
+      "deleted": 0
+    }
+  ],
+  "result": {
+    "exitCode": 1,
+    "sha256": "a2016ce395405265f4d103f7483ef8373a33820c791daaaa381d0d5866a060c2",
+    "bytes": 24643,
+    "summary": "Tests:       29 failed, 29 total",
+    "suites": "Test Suites: 2 failed, 2 total",
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/red.log",
+      "sha256": "a2016ce395405265f4d103f7483ef8373a33820c791daaaa381d0d5866a060c2",
+      "bytes": 24643
+    }
+  },
+  "behaviourRows": {
+    "count": 29,
+    "rows": [
+      "LocalSeatCredentialService operator writes (LSC-1S) › binds the Root-recommended policy numbers (CF-LSC0-15)",
+      "LocalSeatCredentialService operator writes (LSC-1S) › lists both seats as unprovisioned public metadata",
+      "LocalSeatCredentialService operator writes (LSC-1S) › requires the operator password and refuses without a primary identity, changing nothing",
+      "LocalSeatCredentialService operator writes (LSC-1S) › applies a route-wide 5-per-60s operator window before any key derivation",
+      "LocalSeatCredentialService operator writes (LSC-1S) › anchors the window at the first attempt and keeps it closed across clock rollback",
+      "LocalSeatCredentialService operator writes (LSC-1S) › treats every non-null revocation as revoked and preserves future lock deadlines on clock rollback",
+      "LocalSeatCredentialService operator writes (LSC-1S) › sanitizes unexpected verification and encryption failures without logging secrets",
+      "LocalSeatCredentialService operator writes (LSC-1S) › erases generated private-key bytes on both encryption success and failure",
+      "LocalSeatCredentialService operator writes (LSC-1S) › records one winner when two operator requests race for the same generation",
+      "LocalSeatCredentialService operator writes (LSC-1S) › discards the decrypted operator key without changing its active identity",
+      "LocalSeatCredentialService operator writes (LSC-1S) › still throttles and authenticates a duplicate delivery and replays the original outcome (CF-LSC0-17)",
+      "LocalSeatCredentialService operator writes (LSC-1S) › refuses a reused operation id with different parameters and a stale generation",
+      "LocalSeatCredentialService operator writes (LSC-1S) › revoke keeps the lock; re-provision clears it and rotates the player identity (CF-LSC0-8)",
+      "LocalSeatCredentialService operator writes (LSC-1S) › keeps passwords out of errors, outcomes and logs (CF-LSC0-6)",
+      "LocalSeatCredentialService operator writes (LSC-1S) › verifies the real primary vault password without switching the active row",
+      "LocalSeatCredentialRepository (LSC-1S) › provisions generation 1 and reads back public and encrypted material only",
+      "LocalSeatCredentialRepository (LSC-1S) › replays an identical operation and refuses a reused id for a different request",
+      "LocalSeatCredentialRepository (LSC-1S) › fences competing writers on the expected generation",
+      "LocalSeatCredentialRepository (LSC-1S) › refuses a nonzero expected generation for an empty seat",
+      "LocalSeatCredentialRepository (LSC-1S) › never shortens a durable lock when the wall clock moves backward",
+      "LocalSeatCredentialRepository (LSC-1S) › records only the winning operation across two connections (CF-LSC1DB-2)",
+      "LocalSeatCredentialRepository (LSC-1S) › requires exactly one changed row for provision CAS (CF-LSC1DB-1)",
+      "LocalSeatCredentialRepository (LSC-1S) › requires exactly one changed row for revoke CAS (CF-LSC1DB-1)",
+      "LocalSeatCredentialRepository (LSC-1S) › rolls back the credential write if recording the operation fails",
+      "LocalSeatCredentialRepository (LSC-1S) › revokes once, refuses a second revoke and an unprovisioned revoke",
+      "LocalSeatCredentialRepository (LSC-1S) › locks after 5 failures, keeps the lock through a revoke and clears it on re-provision (CF-LSC0-8)",
+      "LocalSeatCredentialRepository (LSC-1S) › re-locks on the first failure after a lock expires, and only a success clears the count (CF-LSC0-16)",
+      "LocalSeatCredentialRepository (LSC-1S) › ignores failures and clears fenced by a stale generation, and keeps the lock across a restart",
+      "LocalSeatCredentialRepository (LSC-1S) › keeps operation records and seat rows free of secrets and never creates vault_identities (CF-LSC0-6)"
+    ],
+    "shape": "29 behavioral assertion failures; 0 suite-failed-to-run, TypeError or module-resolution failures."
+  },
+  "carryIn": [
+    "CF-LSC1DB-1",
+    "CF-LSC1DB-2",
+    "CF-LSC1DB-3",
+    "CF-LSC1DB-4",
+    "CF-LSC1DB-5",
+    "CF-LSC0-8",
+    "CF-LSC0-15",
+    "CF-LSC0-16",
+    "CF-LSC0-17"
+  ],
+  "originalAdmissionCommit": "52c83c7e2d563b329497273814a213c21ded1a76",
+  "postProofRebase": {
+    "base": "24e9cf22736c9b11543ac611588086ff7eb0ff4f",
+    "reason": "Rebased over merged L2 amendment #2292; test bytes and runtime source unchanged."
+  }
+}
