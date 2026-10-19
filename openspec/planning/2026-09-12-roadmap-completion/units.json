@@ -8038,7 +8038,11 @@
         "src/services/units/NodeCanonicalUnitService.ts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-review.json"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -8050,14 +8054,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "44bd8bb9191f2c945324f483e4f524841b098ddf",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/mp-recovery-units-1-admission.json"
+        },
+        "red": {
+          "path": "evidence/mp-recovery-units-1-red.json"
+        },
+        "local": {
+          "path": "evidence/mp-recovery-units-1-local.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

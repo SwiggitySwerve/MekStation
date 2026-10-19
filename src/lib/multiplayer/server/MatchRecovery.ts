@@ -23,6 +23,7 @@
  * @spec openspec/changes/harden-multiplayer-transport/specs/multiplayer-server/spec.md
  */
 
+import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { AuthorityRecoveryBlockedReason } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 import type {
@@ -30,7 +31,6 @@ import type {
   IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
 
-import { InteractiveSession } from '@/engine/InteractiveSession';
 import { quarantineAuthorityCorruption } from '@/lib/events/checkpoints/AuthorityQuarantine';
 import {
   BranchCheckpointCache,
@@ -38,7 +38,6 @@ import {
   referenceRecoveryPort,
 } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
-import { readServerCustomCombatDefinition } from '@/services/units/serverCustomCombatDefinition';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
@@ -51,6 +50,7 @@ import {
   foldMatchSession,
   matchAuthoritativePipeline,
 } from './MatchSessionProjector';
+import { recoverServerInteractiveSession } from './matchUnitBootstrap';
 import { ServerMatchHost } from './ServerMatchHost';
 import { tryFoldActivatedRewindBranch } from './ServerMatchHostRewindRebuild';
 
@@ -107,20 +107,17 @@ export function isRecoverableMatchStore(
  * is empty or does not begin with `GameCreated`.
  *
  * Per `fix-recovered-session-adapted-units` (closes playtest gap #2):
- * uses `fromSessionAsync` so the recovered host has its per-unit
- * adapted state (weaponsByUnit / movementByUnit / etc.) populated.
- * Without this, move/attack on a recovered session throws because
- * the per-unit maps are empty.
+ * the recovered host has its per-unit adapted state (weaponsByUnit /
+ * movementByUnit / etc.) populated, or move/attack throws. Catalog
+ * units are read from disk: boot recovery runs before the listener the
+ * fetch catalog would call (MP-RECOVERY-UNITS-1).
  */
 export async function rebuildSessionFromEvents(
   matchId: string,
   events: readonly IGameEvent[],
 ): Promise<InteractiveSession> {
   const session = hydrateGameSessionFromEvents(matchId, events);
-  return InteractiveSession.fromSessionAsync(
-    session,
-    readServerCustomCombatDefinition,
-  );
+  return recoverServerInteractiveSession(session);
 }
 
 /**
@@ -138,10 +135,7 @@ async function registerRecoveredHost(
   matchId: string,
   state: IGameSession,
 ): Promise<void> {
-  const session = await InteractiveSession.fromSessionAsync(
-    state,
-    readServerCustomCombatDefinition,
-  );
+  const session = await recoverServerInteractiveSession(state);
   const host = await ServerMatchHost.recover(matchId, store, session);
   await host.restorePersistedViewerDeliveries();
   await host.resumePendingEventPublications();
@@ -193,10 +187,7 @@ export async function recoverActiveMatches(
       // that path here — the store log is still the untruncated line.
       const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId);
       if (rewound !== null) {
-        const session = await InteractiveSession.fromSessionAsync(
-          rewound.session,
-          readServerCustomCombatDefinition,
-        );
+        const session = await recoverServerInteractiveSession(rewound.session);
         const host = await ServerMatchHost.recover(
           meta.matchId,
           store,

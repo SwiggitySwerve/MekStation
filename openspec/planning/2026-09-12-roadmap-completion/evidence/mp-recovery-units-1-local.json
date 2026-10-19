@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-RECOVERY-UNITS-1",
+  "stage": "local",
+  "date": "20261018",
+  "baseline": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+  "commits": {
+    "admission": "b71451433",
+    "red": "9c526b464",
+    "green": "95139068f05b89f9bd046bb2670b136ae6a0f65f"
+  },
+  "productHead": "95139068f05b89f9bd046bb2670b136ae6a0f65f",
+  "summary": "GREEN 3/3 on the owned suite; no test byte changed after RED. 176-suite src/lib/multiplayer/server sweep 1574/1574; engine recovery, API meta and NodeCanonicalUnitService suites 54/54. Mutants 7/10 caught, 2 equivalent, 1 coverage gap routed. Production standalone image built from the GREEN head: restart of an active durable match recovers both canonical units with zero skip lines and accepts a unit Move (movement_declared); the merged L1-SMOKE-A1 runner passes 10/10 on the same image and its restart log also carries no skip line.",
+  "change": {
+    "src/lib/multiplayer/server/matchUnitBootstrap.ts": "deriveServerAdaptedUnits + recoverServerInteractiveSession (see admission design).",
+    "src/lib/multiplayer/server/MatchRecovery.ts": "rebuildSessionFromEvents, registerRecoveredHost and the activated-rewind arm call recoverServerInteractiveSession instead of InteractiveSession.fromSessionAsync."
+  },
+  "behaviourNotes": [
+    "Unknown catalog unitRef: still skipped with a warning (now via utils/logger, \"not found in the server canonical catalog\"), same as before.",
+    "A bundled unit JSON that parses but violates UnitContract now throws in NodeCanonicalUnitService.getByIdSync (its documented fail-loud boundary) and the match lands in failed instead of recovering without that unit. Before this change the same data error was invisible: fetch returned the raw object or null.",
+    "Catalog root is process.cwd(); server.js chdirs to the standalone directory, which carries public/ (hydrate-next-standalone-multiplayer-server.mjs). Proven by the built-image probe.",
+    "Fresh host creation (getOrCreate -> buildMatchHostBootstrapFromMeta -> adaptUnit) is unchanged; it runs after listen."
+  ],
+  "run": {
+    "gate": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane mp-recovery --class jest (repo machine-idle gate inside the queue); jest --runInBand with a private cache",
+    "batch": {
+      "path": "E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/green-95139068f/batch.json",
+      "sha256": "6f4f597124922ea33e57d86496e0f64ddd1c77f46984de6eebb11c13da8c3f9c",
+      "bytes": 5920,
+      "head": "95139068f05b89f9bd046bb2670b136ae6a0f65f"
+    },
+    "target": {
+      "passed": 3,
+      "failed": 0,
+      "total": 3
+    },
+    "multiplayerServer": {
+      "suites": 176,
+      "passed": 1574,
+      "failed": 0
+    },
+    "related": {
+      "suites": 7,
+      "passed": 54,
+      "failed": 0,
+      "files": [
+        "src/__tests__/unit/api/multiplayerMatchMeta.test.ts",
+        "src/engine/__tests__/InteractiveSession.recovery.test.ts",
+        "src/engine/__tests__/interactiveSessionRecoveryDeterminism.test.ts",
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts",
+        "src/engine/__tests__/InteractiveSession.seedRoundTrip.test.ts",
+        "src/services/units/__tests__/NodeCanonicalUnitService.test.ts",
+        "src/services/units/__tests__/NodeCanonicalUnitService.boundary.test.ts"
+      ]
+    }
+  },
+  "mutants": {
+    "suites": [
+      "MatchRecovery.canonicalUnits.test.ts",
+      "customCombatRecovery.durableAuthority.test.ts",
+      "customCombatRecovery.recoveryDelivery.test.ts"
+    ],
+    "caught": 7,
+    "applied": 10,
+    "results": [
+      {
+        "id": "M1-catalog-http",
+        "caught": true,
+        "failed": 3,
+        "total": 6
+      },
+      {
+        "id": "M2-drop-d6-seed",
+        "caught": true,
+        "failed": 1,
+        "total": 6
+      },
+      {
+        "id": "M3-route-custom-to-catalog",
+        "caught": true,
+        "failed": 2,
+        "total": 6
+      },
+      {
+        "id": "M4-host-arm-http",
+        "caught": true,
+        "failed": 1,
+        "total": 6
+      },
+      {
+        "id": "M5-rebuild-http",
+        "caught": true,
+        "failed": 2,
+        "total": 6
+      },
+      {
+        "id": "M6-drop-random-seed",
+        "caught": true,
+        "failed": 1,
+        "total": 6
+      },
+      {
+        "id": "M7-reverse-unit-order",
+        "caught": false,
+        "failed": 0,
+        "total": 6,
+        "note": "EQUIVALENT: InteractiveSession concatenates playerUnits and opponentUnits and keys every per-unit map by unit id (InteractiveSession.setup.ts:67 and :107), so iteration order is not observable."
+      },
+      {
+        "id": "M8-rewound-arm-http",
+        "caught": false,
+        "failed": 0,
+        "total": 6,
+        "note": "SURVIVES (coverage gap, not a behaviour gap): no unmocked test reaches recoverActiveMatches with an activated rewind branch at boot. The arm is the same one-call routing as M4/M5 (both caught). Routed as CF-MPRU-2."
+      },
+      {
+        "id": "M9-drop-engine-units",
+        "caught": true,
+        "failed": 1,
+        "total": 6
+      },
+      {
+        "id": "M10-side-from-catalog",
+        "caught": false,
+        "failed": 0,
+        "total": 6,
+        "note": "EQUIVALENT at this surface: the adapted unit side only selects which of the two arrays it joins, and both arrays are concatenated into id-keyed maps (setup.ts:67, :107). The game unit side used by rules comes from the replayed session, not the adapted object."
+      }
+    ],
+    "postRunTreeClean": true
+  },
+  "checks": {
+    "typecheck": "npm run typecheck exit 0",
+    "lint": "npm run lint exit 0 (91 warnings / 0 errors repo-wide); oxlint on the three changed files: 0 warnings",
+    "format": "npm run format:check exit 0 after the out-of-repo probe copy was moved out of the worktree (the batch row failed only on that untracked .mp-recovery-proof/ copy, now outside the repo)",
+    "lintUnits": "LINT_UNITS_PASS 17896/17899",
+    "validateRoadmap": [
+      "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows (plain)",
+      "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows (--git)"
+    ],
+    "validatorTests": "# pass 86 # fail 0",
+    "openspec": "Totals: 230 passed, 0 failed (230 items)"
+  },
+  "builtImage": {
+    "probe": {
+      "script": "E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/run-recovery-probe.v3.mjs (outside the repo; imports scripts/release/run-l1-built-server-smoke.mjs and l1-built-server-socket-cases.mjs read-only)",
+      "source": {
+        "head": "95139068f05b89f9bd046bb2670b136ae6a0f65f",
+        "clean": true
+      },
+      "image": {
+        "buildId": "1792364745243",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "sourceTreeSha256": "9dd70f7c6709383d35208c8e7ab69d2fa58615f9eaa028d8c1714a0f67761fb9"
+      },
+      "rows": [
+        "pre-restart-action-accepted: create, seat, ready, launch, AdvancePhase -> Event",
+        "restart-units-resolved: stop, restart same image/port/DB; server-2.log has zero \"canonical catalog\" skip lines before [mp-boot] recovered 1 active match(es)",
+        "post-restart-unit-action-accepted: reconnect (SessionJoin replay window) then Move player-1-atlas-as7-d: first target 6 hexes away -> movement_invalid InsufficientMP (capability present), adjacent hex -> movement_declared"
+      ],
+      "verdict": "PASS 3/3",
+      "output": "E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/probe-green-95139068f-main44bd",
+      "summarySha256": "e0ee63a0d4f9212ff1807d59eb246d97738113649421f65abafd90eef3c9a980",
+      "processes": "two owned server processes on one port, one readiness record each, both stopped by the harness"
+    },
+    "beforeFix": "Same probe on a 1c7632b18 image: FAIL restart-units-resolved (two skip lines); Move -> movement_invalid NoMovementCapability. Output E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/repro-base-1c7632b18.",
+    "l1SmokeA1": {
+      "command": "node scripts/release/run-l1-built-server-smoke.mjs --expected-sha=95139068f05b89f9bd046bb2670b136ae6a0f65f --output=<proof>/a1-smoke-95139068f (same image, no rebuild)",
+      "verdict": "PASS 10/10 (credential refusals, authenticated participants, accepted action, spectator seat/replay/live public facts, spectator-cannot-act, stop/offline lineage/restart/reconnect replay)",
+      "restartSkipLines": 0,
+      "summarySha256": "1ebf9a378974ad22b3bec0030648f7e6eba6c7173eef3613bd4ded52a245fa36",
+      "evidenceSha256": "b3245b08915ecaeac9cd1c528bdd36c35c1cc19da4013b9d2a0519d92a39a56f"
+    }
+  },
+  "census": {
+    "countingConvention": "U41 added physical lines, git diff --numstat --no-renames baseline..HEAD, no deletion credit; test and evidence line-exempt but file-counted.",
+    "counted": {
+      "matchUnitBootstrap.ts": 91,
+      "MatchRecovery.ts": 9,
+      "units.json": "about 16 including this local pointer; remeasure on the PR head"
+    },
+    "files": "8/15 including the reserved, unwritten mp-recovery-units-1-review.json slot; exactly the frozen admission manifest",
+    "frozenControlsUnchanged": "server.js, CanonicalUnitService.ts, NodeCanonicalUnitService.ts, MatchHostRegistry.ts, MatchHostRegistry.unitBootstrap.test.ts, ServerMatchHost.ts, ServerMatchHostRewindRebuild.ts, src/engine (CompendiumAdapter, InteractiveSession, InteractiveSession.recovery), scripts/release harness: no byte change (git diff baseline..HEAD lists none of them)."
+  },
+  "carryForwards": {
+    "CF-MPRU-1": "ServerMatchHost.recover still derives co-op mission journal units with deriveAdaptedUnitsFromSession (fetch catalog) at boot. Co-op recovery at packaged boot therefore still lacks journal units for canonical refs. ServerMatchHost.ts is outside this manifest; recommended owner MP-HOST-DEDUPE-1 (already covers the co-op recovery path) or the next unit admitting ServerMatchHost.ts: swap to deriveServerAdaptedUnits from matchUnitBootstrap.ts.",
+    "CF-MPRU-2": "Mutant M8 (activated-rewind boot arm back to fromSessionAsync) survives for lack of an unmocked rewound-at-boot fixture. Recommended owner U44 (rewind/journal-head recovery).",
+    "CF-MPRU-3": "ServerMatchHostRewindRebuild.ts still uses fromSessionAsync for live rewind rebuilds; correct while listening, but it depends on HTTP-to-self. Route with CF-MPRU-1.",
+    "CF-SMOKEA1-2": "Discharged for the combat (non-co-op) recovery path on a real image; L1-SMOKE-A2 may cite this receipt for restart acceptance."
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-RECOVERY-UNITS-1",
+  "stage": "admission",
+  "date": "20261018",
+  "baseline": "44bd8bb9191f2c945324f483e4f524841b098ddf",
+  "authority": "Root GATE OPEN message for MP-RECOVERY-UNITS-1 (2026-10-18): the B14-0 closure #2293 merged at 5a18aa586 and this unit is planned on Main. Verified independently: gh pr view 2293 = MERGED (mergeCommit 5a18aa586c519ea3ad122c7b0a03b502ea69a71b); origin/main units.json has B14-0 main-verified (mergeSha 1c7632b18) and MP-RECOVERY-UNITS-1 planned. Main has since moved to 44bd8bb91 (#2290 LSC-1DB, src/services/persistence only), which is the baseline here. Owner standing instructions: \"continue with recommended options and fix the issues that come up, publish as needed\"; \"let's keep going on the main path of things using as many sub-agents as we can in parallel to go quickly\". Root asked to keep the test leaf separate from MatchHostRegistry.unitBootstrap.test.ts where possible, because MP-HOST-DEDUPE-1 stacks on this head and names that file. This receipt records the release; it is not an owner ruling on the implementation head.",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-opus-5-5",
+    "task": "B14/HP lane implementation sub-agent (MP-RECOVERY-UNITS-1)"
+  },
+  "predecessors": {
+    "B14-0": "main-verified (merge 1c7632b18 of #2281; closure #2293 merged at 5a18aa586)."
+  },
+  "finding": "FINDING-A1-REV-1 / CF-SMOKEA1-2 (L1-SMOKE-A1 Fable review, H1). Reproduced on a production standalone image built from 1c7632b18 before admission: server-2.log carries both \"[InteractiveSession.fromSessionAsync] unit ... not found in the canonical catalog - skipping\" lines before \"[mp-boot] recovered 1 active match(es)\", and a post-restart Move for player-1-atlas-as7-d answers movement_invalid / NoMovementCapability.",
+  "design": "Filesystem-backed canonical units at boot, through the registered server leaves only. matchUnitBootstrap.ts gains deriveServerAdaptedUnits and recoverServerInteractiveSession: catalog units are read synchronously with getNodeCanonicalUnitService().getByIdSync and adapted with the same adaptUnitFromData the engine uses; custom units (recorded snapshot or custom- ref) keep the engine path (deriveAdaptedUnitsFromSession with readServerCustomCombatDefinition), so snapshot validation and fail-closed custom behaviour are byte-identical; the session is adopted with InteractiveSession.fromHydratedSession using the same reseed rule as fromSessionAsync (finite config.seed -> SeededRandom + SeededD6Roller, else SeededRandom(0xc0ffee) and the default roller). MatchRecovery.ts routes its three fromSessionAsync call sites (rebuildSessionFromEvents, registerRecoveredHost, the activated-rewind arm) to recoverServerInteractiveSession. server.js boot order, src/engine, CanonicalUnitService.ts and NodeCanonicalUnitService.ts are unchanged. matchUnitBootstrap.ts is already server-only (server registry graph); no browser module imports it.",
+  "callerCensus": {
+    "note": "Callers of the fetch-catalog recovery path (InteractiveSession.fromSessionAsync / deriveAdaptedUnitsFromSession / adaptUnit) in src/lib/multiplayer/server at the baseline.",
+    "changed": [
+      "MatchRecovery.ts rebuildSessionFromEvents",
+      "MatchRecovery.ts registerRecoveredHost (journal-head and legacy checkpoint arms)",
+      "MatchRecovery.ts recoverActiveMatches activated-rewind arm"
+    ],
+    "unchangedRouted": [
+      "matchUnitBootstrap.ts adaptBootstrapUnit (fresh host creation via getOrCreate / REST: runs after listen, fetch catalog answers; unchanged).",
+      "ServerMatchHost.recover deriveAdaptedUnitsFromSession for coopMission journal units (co-op recovery path, also at boot). ServerMatchHost.ts is a frozen control here (B14 lane holders, U26/U44 literal mentions). Routed as CF-MPRU-1 to the next unit that admits ServerMatchHost.ts; recommended to MP-HOST-DEDUPE-1 which already covers the co-op recovery path.",
+      "ServerMatchHostRewindRebuild.ts fromSessionAsync (live rewind rebuild on a listening server; fetch answers). Frozen control; same routing as above if packaged rewind-at-boot is ever reached."
+    ],
+    "outsideServer": "src/lib/campaign/maxState/unitMaxStateResolver.ts and src/services/units/quickGameSavedDesigns.ts call adaptUnit outside the boot path; unchanged and out of scope."
+  },
+  "overlap": "Single product-writing lane for these leaves. At the baseline the only implementing unit is LSC-1DB (src/services/persistence, merged, awaiting closure): no overlap. B14-HEAD (planned) owns src/pages-modules/api: no overlap. Planned holders of the src/lib/multiplayer/server alias (U24b, U44, U45, U26, U46, U47, U48, U49, U56, U101, U101a, U101d, U104, U105) are not in flight and none names matchUnitBootstrap.ts, MatchRecovery.ts or the new test literally. Open PRs at the baseline: #2292 (units.json registration, docs only), #2113 and #1886 (no file in this manifest). MP-HOST-DEDUPE-1 (blocked, stacks on this head) names MatchHostRegistry.ts and MatchHostRegistry.unitBootstrap.test.ts; both are frozen controls here, untouched, per Root.",
+  "manifestDeviation": "The registration lists MatchHostRegistry.ts, MatchHostRegistry.unitBootstrap.test.ts and NodeCanonicalUnitService.ts as candidate leaves. None needs a byte change: NodeCanonicalUnitService already exposes getByIdSync, and the registry calls recoverActiveMatches unchanged. On Root's instruction the test lives in a new file under the owned src/lib/multiplayer/server path (__tests__/MatchRecovery.canonicalUnits.test.ts) instead of the bootstrap test MP-HOST-DEDUPE-1 will edit. The three unused candidates become frozen controls.",
+  "caps": {
+    "files": 15,
+    "productAddedLines": 500
+  },
+  "manifest": {
+    "count": 8,
+    "spare": 7,
+    "reservedUnchanged": 1,
+    "files": [
+      "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "src/lib/multiplayer/server/MatchRecovery.ts",
+      "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-review.json"
+    ],
+    "note": "2 product leaves (matchUnitBootstrap.ts, MatchRecovery.ts) + MatchRecovery.canonicalUnits.test.ts (new) + units.json (own lifecycle fields only) + admission/red/local receipts + 1 reserved, unwritten review slot = 8/15. Spare slots grant nothing."
+  },
+  "countingConvention": "U41 counted lines = added physical lines (git diff --numstat --no-renames baseline..HEAD, no deletion credit) in the two product leaves and units.json. The test leaf and evidence receipts are line-exempt but file-counted.",
+  "prepEstimate": "Prep measurement on the 1c7632b18 dev worktree: matchUnitBootstrap.ts +91, MatchRecovery.ts +9, units.json lifecycle about +16 = about 116/500.",
+  "census": {
+    "path": "E:/Projects/Personal/MekStation-wt/mp-recovery-proof-20261018/frozen-files.json",
+    "sha256": "6329ca0455969c063297d7ec6116c12ec8c8adb973ca039b3ea6e2bb65980a95",
+    "bytes": 4303,
+    "frozenBefore": "any source, test, lifecycle or evidence edit on the 44bd8bb91-based branch"
+  },
+  "frozenFiles": [
+    {
+      "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "exists": true,
+      "sha256": "f9a6adf5fdd2cda453a440d83eb4d30499c925a5c8fd464b6a8a639585342b7d",
+      "bytes": 6058,
+      "physicalLines": 184
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchRecovery.ts",
+      "exists": true,
+      "sha256": "b41eddd1986c76e50308a4338419e18d9b2caa7993a068ea73ed7c9a1628b0fb",
+      "bytes": 15859,
+      "physicalLines": 392
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "exists": true,
+      "sha256": "2eeddf2afd8c1a8e22b402f98419b3390c0bfc6d7401fbcb837dba9d7a3f9850",
+      "bytes": 2016419,
+      "physicalLines": 25660
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-admission.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-red.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-local.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-1-review.json",
+      "exists": false
+    }
+  ],
+  "unchangedControls": [
+    {
+      "path": "server.js",
+      "exists": true,
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+      "bytes": 32625,
+      "physicalLines": 904
+    },
+    {
+      "path": "src/services/units/CanonicalUnitService.ts",
+      "exists": true,
+      "sha256": "a2a0f936af9922e0baac1eb8fa6f1f6e45e0ad9aff192fa6d790fde96499f952",
+      "bytes": 8956,
+      "physicalLines": 319
+    },
+    {
+      "path": "src/services/units/NodeCanonicalUnitService.ts",
+      "exists": true,
+      "sha256": "e9cc8143e95d79066ee824bd8181050272ea983fff5c81ba3aff4b1183611baf",
+      "bytes": 18490,
+      "physicalLines": 536
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "exists": true,
+      "sha256": "feb2576461403b3dafd68dba5631b43c4f0ba9620d0f0f006f47178b8d62cade",
+      "bytes": 11287,
+      "physicalLines": 319
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "exists": true,
+      "sha256": "e2cc7f0b49c345216557db2243d92af167380782d79b32afd9f63e1b12c351bf",
+      "bytes": 6174,
+      "physicalLines": 200
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "exists": true,
+      "sha256": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e",
+      "bytes": 65252,
+      "physicalLines": 1711
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "exists": true,
+      "sha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010",
+      "bytes": 11982,
+      "physicalLines": 310
+    },
+    {
+      "path": "src/engine/adapters/CompendiumAdapter.ts",
+      "exists": true,
+      "sha256": "b05b12e5019fc00f4460f62a680fba8823772fb0989832db76934d5acf8ff708",
+      "bytes": 7302,
+      "physicalLines": 228
+    },
+    {
+      "path": "src/engine/InteractiveSession.ts",
+      "exists": true,
+      "sha256": "c64e10aa672892702d821d5140f693084f5cd465d6aa95908c5bd6f34c407cb3",
+      "bytes": 28393,
+      "physicalLines": 777
+    },
+    {
+      "path": "src/engine/InteractiveSession.recovery.ts",
+      "exists": true,
+      "sha256": "04132de845696cba6298504adc9e90da97a71c56a6e76dafdf98b4ea7acec50c",
+      "bytes": 6931,
+      "physicalLines": 220
+    },
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "exists": true,
+      "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+      "bytes": 16500,
+      "physicalLines": 226
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "exists": true,
+      "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+      "bytes": 15615,
+      "physicalLines": 199
+    }
+  ],
+  "proofPlan": [
+    "RED: MatchRecovery.canonicalUnits.test.ts only, on the unchanged product leaves (expected: the restart Move row and the disk-vs-HTTP parity row fail on skipped units and on fetch calls).",
+    "GREEN: product leaves; no test byte after RED.",
+    "Mutants: catalog source back to fetch, d6/random reseed dropped, custom units routed to the catalog, each MatchRecovery arm back to fromSessionAsync.",
+    "Regression: src/lib/multiplayer/server, the API meta suite and the engine recovery suites; typecheck, lint, format, lint:units, validate-roadmap.",
+    "Built image: production standalone, durable store: create/launch, accepted AdvancePhase, stop, restart same image and DB, reconnect, zero skipped units, accepted unit Move (movement_declared)."
+  ]
+}
