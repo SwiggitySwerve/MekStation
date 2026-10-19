@@ -7,7 +7,12 @@
  * shared.
  */
 
-import { expect, type Locator, type Page } from '@playwright/test';
+import {
+  expect,
+  type Locator,
+  type Page,
+  type Request,
+} from '@playwright/test';
 
 import { assertNoMekStationLoading } from './wait';
 
@@ -148,13 +153,18 @@ export async function createCampaignViaWizard(
 
 /** Require a successful save and a real dashboard before inspecting its widgets. */
 export async function submitCampaignWizard(page: Page): Promise<void> {
+  const isCampaignSave = (request: Request) =>
+    request.method() === 'PUT' &&
+    /\/api\/campaigns\/[^/?]+$/.test(new URL(request.url()).pathname);
+  let saveStarted = false;
+  const onRequest = (request: Request) => {
+    if (isCampaignSave(request)) saveStarted = true;
+  };
+  page.on('request', onRequest);
   const saved = page
-    .waitForResponse(
-      (response) =>
-        response.request().method() === 'PUT' &&
-        /\/api\/campaigns\/[^/?]+$/.test(new URL(response.url()).pathname),
-      { timeout: 30_000 },
-    )
+    .waitForResponse((response) => isCampaignSave(response.request()), {
+      timeout: 30_000,
+    })
     .then(async (response) => {
       if (!response.ok()) {
         throw new Error(
@@ -173,16 +183,23 @@ export async function submitCampaignWizard(page: Page): Promise<void> {
       timeout: 30_000,
     })
     .then(async () => {
+      // Once a PUT starts, its status/body owns the diagnostic. The inline
+      // error can render before response.text() finishes reading that body.
+      if (saveStarted) await saved;
       throw new Error(
         `Campaign create failed: ${await page.getByTestId('name-error').innerText()}`,
       );
     });
   // Install all rejection handlers before clicking: a fast failed PUT must
   // surface its status/body, and a local save error may precede any request.
-  await Promise.all([
-    Promise.race([Promise.all([saved, dashboard]), wizardError]),
-    page.getByTestId('wizard-submit-btn').click(),
-  ]);
+  try {
+    await Promise.all([
+      Promise.race([Promise.all([saved, dashboard]), wizardError]),
+      page.getByTestId('wizard-submit-btn').click(),
+    ]);
+  } finally {
+    page.off('request', onRequest);
+  }
 }
 
 /**

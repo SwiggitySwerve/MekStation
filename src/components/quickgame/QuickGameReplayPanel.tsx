@@ -74,6 +74,12 @@ export function QuickGameReplayPanel({
   // hook is memoized internally so the projection only re-walks the
   // event log when `currentSequence` actually changes.
   const hexMapState = useHexMapStateFromEvents(events, replay.currentSequence);
+  // Effects share the token projection's cursor. Passing the complete log
+  // mounts every future attack at once, even while replay is stopped at 0.
+  const visibleEvents = useMemo(
+    () => events.filter((event) => event.sequence <= replay.currentSequence),
+    [events, replay.currentSequence],
+  );
 
   // Per `add-replay-step-and-effect-animations` (tactical-map-interface
   // delta — "Replay Movement Step Animation Playback"): drive the
@@ -138,7 +144,7 @@ export function QuickGameReplayPanel({
             tokens={hexMapState.tokens}
             hexTerrain={hexMapState.hexTerrain}
             selectedHex={null}
-            events={events}
+            events={visibleEvents}
           />
         ) : (
           <div className="p-6 text-center">
