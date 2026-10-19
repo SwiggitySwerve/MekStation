@@ -148,6 +148,47 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
     global.fetch = mockFetch as unknown as typeof fetch;
   });
 
+  it('opens the mounted operator controls without changing initial create/join requests', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        seats: [
+          {
+            seatId: 'local-seat-1',
+            status: 'unprovisioned',
+            generation: 0,
+            label: null,
+            playerId: null,
+            lockedUntil: null,
+          },
+          {
+            seatId: 'local-seat-2',
+            status: 'unprovisioned',
+            generation: 0,
+            label: null,
+            playerId: null,
+            lockedUntil: null,
+          },
+        ],
+      }),
+    });
+    render(<CampaignCoopEntryPanel />);
+    expect(mockFetch).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Manage local seats' }));
+    expect(
+      await screen.findByRole('group', { name: 'Local seat credentials' }),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/multiplayer/auth/local-seats',
+      {
+        method: 'GET',
+        cache: 'no-store',
+        credentials: 'same-origin',
+      },
+    );
+  });
+
   it('discloses the one-click co-op defaults near the create control', () => {
     render(<CampaignCoopEntryPanel />);
 
