@@ -6763,5 +6763,102 @@
     "GREEN with test bytes unchanged; targeted suites, server regression, engine/API/catalog, typecheck, lint, formatting, roadmap and strict OpenSpec.",
     "Mutation probes for HTTP regression, capture override/default/source mistakes, rewound boot arm and custom-ref/readCustom branches."
   ],
-  "parallelPolicy": "DEDUPE source/test leaves are disjoint and read-only here. Shared units.json writes serialize. Refresh origin/main before PR; if DEDUPE merges, rebase and re-freeze while preserving all incumbent lifecycle and completed evidence."
+  "parallelPolicy": "DEDUPE source/test leaves are disjoint and read-only here. Shared units.json writes serialize. Refresh origin/main before PR; if DEDUPE merges, rebase and re-freeze while preserving all incumbent lifecycle and completed evidence.",
+  "refreezes": [
+    {
+      "at": "2026-10-19T01:40:42.189Z",
+      "base": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "head": "150cbaf3dbe9d6a70182c31b703aeda05dce3b2c",
+      "reason": "DEDUPE #2303 merged; rebase and re-freeze under Root instruction.",
+      "priorBase": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
+      "controls": [
+        {
+          "path": "server.js",
+          "treeOrBlob": "7ce8627c35dbc754fa789f70cc701c536f3549e8"
+        },
+        {
+          "path": "src/engine",
+          "treeOrBlob": "56cdc6646d1940d7f0dce492db846c060e4de61d"
+        },
+        {
+          "path": "src/services/units/CanonicalUnitService.ts",
+          "treeOrBlob": "8dc82244ca5a2faeb156a55448d4096e33387bcd"
+        },
+        {
+          "path": "src/services/units/NodeCanonicalUnitService.ts",
+          "treeOrBlob": "cc53b290115776163cdf2f30b4bae14212bf7655"
+        },
+        {
+          "path": "src/services/units/serverCustomCombatDefinition.ts",
+          "treeOrBlob": "fcc8f00857c4e7ceadaad7a8c48c370b8a436323"
+        },
+        {
+          "path": "src/lib/multiplayer/server/MatchRecovery.ts",
+          "treeOrBlob": "07a790958b10cd06d18d781acc2530d4872f25a9"
+        },
+        {
+          "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+          "treeOrBlob": "ca3f4080a732b0aafffec2ebc4409b3db13efc9e"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+          "treeOrBlob": "6788f61ca3535b7c90fa98a4105dfeecd40f6832"
+        },
+        {
+          "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+          "treeOrBlob": "87057fbba31a9b929347a59fb4ed6cc02304a994"
+        },
+        {
+          "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+          "treeOrBlob": "bf86e35f7d711708b89dbdefac2b48ef233c845c"
+        },
+        {
+          "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+          "treeOrBlob": "335c4644ef7f85a43d84080d5f7aceaecd19ba83"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+          "treeOrBlob": "e5ceff34237fc89e79165e46e98628cfdaf4847a"
+        }
+      ],
+      "sourceAndTestsByteIdentical": true,
+      "rebasedCommits": {
+        "admission": "11f4f5dff93699b86b935d965b211f9bb4fe4360",
+        "red": "34e54bd8d3a071b1948c4750f16f615d2fc6af35",
+        "green": "4a31e0d4dc015370453dd9a605917804b7fef003",
+        "local": "150cbaf3dbe9d6a70182c31b703aeda05dce3b2c"
+      },
+      "source": [
+        {
+          "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+          "blob": "1747417215c438819c12e433606b69e320369217",
+          "sha256": "d9bb7a3bf6c08bd7cd4b824d4105bf2d42cbf01c0ad798f202482a2674ea2440"
+        },
+        {
+          "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+          "blob": "8e6fd27c67e61b3b477d1e26d4831d9bc400ccd7",
+          "sha256": "2f8ee5f6d739d99bda63d56df6063f02cc3a4dedfb3bfe93acc3999b7c9b1007"
+        },
+        {
+          "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+          "blob": "f9b5576e87e2c532d30a81f179707b5f85174313",
+          "sha256": "3580918996ec8dfaac7a2e7e79c7f5d8c9c090efea4e0ee4ee295291c3409eee"
+        }
+      ],
+      "tests": [
+        {
+          "path": "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+          "sha256": "fcaa9a80bc41e3ff24b4f91598b3687d4c1ddcfe2188a932b948187162055a7f"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+          "sha256": "125d95a9489123d56ae5f1e09563473c0bc4b2cec32b3ebae7ffa0446acef173"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts",
+          "sha256": "5e778e8782b7efc662ff90684812960a1bf3077fc7cb65bf32bd446eda16abe9"
+        }
+      ]
+    }
+  ]
 }
