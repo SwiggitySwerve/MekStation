@@ -1,0 +1,244 @@
+{
+  "unit": "P2CG1HP",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-20T19:34:57.733Z",
+  "mergeCommit": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018",
+  "runtime": {
+    "playwright": "Source/Main Jest: Tests:       384 passed, 384 total",
+    "suites": "18 passed, 18 total",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci at exact merge before any closure edits",
+    "tsc": "npm run typecheck: exit 0"
+  },
+  "machineGate": "node E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs --lane hp --class jest --cwd E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018 -- node E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp-closure/run-proof.cjs",
+  "execution": "One queued slot; clean exact merge checked before each job and after last; no timeout raised or foreign process stopped.",
+  "proof": {
+    "path": "evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+    "payloadSha256": "ae38871ed53443d210cf40d98c1d8a508ce49471f12da1e9a32609698e286afe",
+    "payloadBytes": 397172,
+    "counts": {
+      "suites": 18,
+      "passedSuites": 18,
+      "tests": 384,
+      "passed": 384,
+      "failed": 0
+    }
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-ca92b6a01-npm-ci-log.bytes.json",
+      "payloadSha256": "aab55f44b105cbba2a9782a5761b5ecf1726eb69b368f37d0a763511e5d506d5",
+      "payloadBytes": 1427
+    },
+    {
+      "path": "evidence/mainproof-ca92b6a01-owned-log.bytes.json",
+      "payloadSha256": "433880e9b0cfb27c9747d43c8b6bd95df74e56c7745d7a69fdb0de0addc0e1f2",
+      "payloadBytes": 90563
+    },
+    {
+      "path": "evidence/mainproof-ca92b6a01-owned-json.bytes.json",
+      "payloadSha256": "cb33895e13852285fd8f4e3e3d5a9aaa9972ed23d43a82a2fb8f57a4bf6917cb",
+      "payloadBytes": 64445
+    },
+    {
+      "path": "evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+      "payloadSha256": "ae38871ed53443d210cf40d98c1d8a508ce49471f12da1e9a32609698e286afe",
+      "payloadBytes": 397172
+    },
+    {
+      "path": "evidence/mainproof-ca92b6a01-regression-json.bytes.json",
+      "payloadSha256": "5e6faf41c14c5d10016a2ef341007b3ec0c7cd44026d98abd117f615a85b1128",
+      "payloadBytes": 176849
+    },
+    {
+      "path": "evidence/mainproof-ca92b6a01-typecheck-log.bytes.json",
+      "payloadSha256": "505e336800c289c9eba3b5a55914984f75d8b6889ac17a5ee08ec17c5e9e766e",
+      "payloadBytes": 418
+    },
+    {
+      "path": "evidence/mainproof-ca92b6a01-validator-log.bytes.json",
+      "payloadSha256": "a559dca607903a5bd5c9356b5621507eb534db193c635092d7e91582ed15c680",
+      "payloadBytes": 376
+    }
+  ],
+  "runs": [
+    {
+      "name": "npm-ci",
+      "command": "npm ci",
+      "start": "2026-10-19T02:38:39.704Z",
+      "end": "2026-10-19T02:41:22.354Z",
+      "head": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+      "worktree": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018",
+      "node": "v22.22.0",
+      "exit": 0
+    },
+    {
+      "name": "owned",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --watchAll=false --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp-closure/jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp-closure/owned.json --runTestsByPath src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "start": "2026-10-19T02:41:22.488Z",
+      "end": "2026-10-19T02:42:19.734Z",
+      "head": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+      "worktree": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018",
+      "node": "v22.22.0",
+      "exit": 0,
+      "counts": {
+        "suites": 2,
+        "passedSuites": 2,
+        "tests": 131,
+        "passed": 131,
+        "failed": 0
+      }
+    },
+    {
+      "name": "regression",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --watchAll=false --cacheDirectory E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp-closure/jest-cache --json --outputFile E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp-closure/regression.json --runTestsByPath src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx src/components/campaign/coop/__tests__/CampaignSyncGate.test.tsx src/components/campaign/coop/__tests__/CoopDecisionAnnouncement.test.tsx src/components/campaign/coop/__tests__/CoopParticipationPicker.test.tsx src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx src/components/campaign/coop/__tests__/GmDecisionConfirmation.test.tsx src/components/campaign/coop/__tests__/GmRebuildStaleGate.test.tsx src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx src/components/campaign/coop/__tests__/HostGmReviewSurface.test.tsx src/components/campaign/coop/__tests__/scopedPerspectiveUi.test.tsx src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+      "start": "2026-10-19T02:42:19.851Z",
+      "end": "2026-10-19T02:42:35.337Z",
+      "head": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+      "worktree": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018",
+      "node": "v22.22.0",
+      "exit": 0,
+      "counts": {
+        "suites": 18,
+        "passedSuites": 18,
+        "tests": 384,
+        "passed": 384,
+        "failed": 0
+      }
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck",
+      "start": "2026-10-19T02:42:35.458Z",
+      "end": "2026-10-19T02:42:38.211Z",
+      "head": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+      "worktree": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018",
+      "node": "v22.22.0",
+      "exit": 0
+    },
+    {
+      "name": "validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "start": "2026-10-19T02:42:38.415Z",
+      "end": "2026-10-19T02:42:46.445Z",
+      "head": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+      "worktree": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018",
+      "node": "v22.22.0",
+      "exit": 0
+    }
+  ],
+  "owned": {
+    "suites": 2,
+    "passedSuites": 2,
+    "tests": 131,
+    "passed": 131,
+    "failed": 0
+  },
+  "regression": {
+    "suites": 18,
+    "passedSuites": 18,
+    "tests": 384,
+    "passed": 384,
+    "failed": 0
+  },
+  "runner": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp-closure/run-proof.cjs",
+    "bytes": 2763,
+    "sha256": "dc9cfab9f1243315356c352d873d46b5928d9669179752c54d1780bd0fb6b01f"
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-20T19:34:57.733Z",
+    "ledgerBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "algorithm": "Only dependents of HP whose every declared predecessor is main-verified/complete/archived with mainProof PASS; blocked -> planned only.",
+    "releases": [],
+    "candidates": [
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "P2CG1G2",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "P2CG1R",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "LSC-2P",
+            "state": "blocked",
+            "mainProof": null,
+            "verified": false
+          },
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "mainProof": null,
+            "verified": false
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "mainProof": null,
+            "verified": false
+          },
+          {
+            "id": "P2CG1HP",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
+            "state": "planned",
+            "mainProof": null,
+            "verified": false
+          }
+        ],
+        "blockedBy": [
+          "LSC-2P",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B",
+          "MP-CAMPAIGN-HOST-DEDUPE-1"
+        ],
+        "eligible": false
+      }
+    ]
+  },
+  "closureManifest": [
+    "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-source-opus-review-20261019.txt",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-owner-ruling-6258459937.txt",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-merge-20261019.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-mainproof-20261019.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-npm-ci-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-json.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-json.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-typecheck-log.bytes.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-validator-log.bytes.json"
+  ],
+  "limits": "Exact-merge Jest, typecheck and ledger proof only. No browser, desktop, receipt-port activation, non-quiet cap or fog projection restoration claimed.",
+  "preservation": "Decode base64 data and verify payloadSha256/payloadBytes; review and posted ruling copies retain exact bytes."
+}
