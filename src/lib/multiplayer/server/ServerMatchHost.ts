@@ -51,10 +51,7 @@ import type {
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
-import {
-  InteractiveSession,
-  deriveAdaptedUnitsFromSession,
-} from '@/engine/InteractiveSession';
+import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   type IGameSessionChannel,
   type IReconnectRequestEnvelope,
@@ -128,6 +125,10 @@ import {
   type MatchRollbackBlockedReason,
   type MatchRollbackReaderDecision,
 } from './matchRollbackReaderSelection';
+import {
+  deriveServerAdaptedUnits,
+  recoverServerInteractiveSession,
+} from './matchUnitBootstrap';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
@@ -509,13 +510,16 @@ export class ServerMatchHost {
       session,
     );
     const mission = (await store.getMatchMeta(matchId)).coopMission;
-    const units = mission
-      ? await deriveAdaptedUnitsFromSession(
-          session.getSession(),
-          readServerCustomCombatDefinition,
-        )
-      : [];
-    const host = new ServerMatchHost(matchId, store, session, undefined, {
+    const state = session.getSession();
+    const units = await deriveServerAdaptedUnits(state);
+    // Hydration does not roll dice. The callback starts after host construction
+    // and reads its current capture, including each per-intent buffer swap.
+    const recovered = await recoverServerInteractiveSession(
+      state,
+      readServerCustomCombatDefinition,
+      () => host.capture.d6(),
+    );
+    const host = new ServerMatchHost(matchId, store, recovered, undefined, {
       recovered: true,
       rollbackReader,
       playerUnits: units.filter((unit) => unit.side === GameSide.Player),

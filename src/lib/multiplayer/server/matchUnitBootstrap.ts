@@ -6,6 +6,7 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { TeamLayout } from '@/types/multiplayer/Lobby';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
 import {
   adaptUnit,
@@ -258,13 +259,15 @@ export async function deriveServerAdaptedUnits(
 export async function recoverServerInteractiveSession(
   session: IGameSession,
   readCustom: ReadCustomCombatDefinition = readServerCustomCombatDefinition,
+  d6Roller?: D6Roller,
 ): Promise<InteractiveSession> {
   const adapted = await deriveServerAdaptedUnits(session, readCustom);
   const seed = session.config.seed;
   const seeded = typeof seed === 'number' && Number.isFinite(seed);
   return InteractiveSession.fromHydratedSession(session, {
     random: new SeededRandom(seeded ? seed : 0xc0ffee),
-    d6Roller: seeded ? new SeededD6Roller(seed).asD6Roller() : undefined,
+    d6Roller:
+      d6Roller ?? (seeded ? new SeededD6Roller(seed).asD6Roller() : undefined),
     playerUnits: adapted.filter((unit) => unit.side === GameSide.Player),
     opponentUnits: adapted.filter((unit) => unit.side === GameSide.Opponent),
   });
