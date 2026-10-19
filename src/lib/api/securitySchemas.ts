@@ -6,6 +6,40 @@ const PASSWORD_MAX_LENGTH = 512;
 const DISPLAY_NAME_MAX_LENGTH = 64;
 const ID_MAX_LENGTH = 128;
 
+const LocalSeatIdSchema = z.enum(['local-seat-1', 'local-seat-2']);
+const LocalSeatOperatorFields = {
+  seatId: LocalSeatIdSchema,
+  operatorPassword: z.string().min(1).max(PASSWORD_MAX_LENGTH),
+  expectedGeneration: z
+    .number()
+    .int()
+    .nonnegative()
+    .max(Number.MAX_SAFE_INTEGER),
+  operationId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+};
+
+export const LocalSeatBodySchema = z.discriminatedUnion('action', [
+  z
+    .object({
+      action: z.literal('mint'),
+      seatId: LocalSeatIdSchema,
+      password: z.string().min(1).max(PASSWORD_MAX_LENGTH),
+      ttlMs: z.number().int().positive().max(3_600_000).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal('provision'),
+      ...LocalSeatOperatorFields,
+      password: z.string().min(8).max(PASSWORD_MAX_LENGTH),
+      label: z.string().trim().min(1).max(DISPLAY_NAME_MAX_LENGTH),
+    })
+    .strict(),
+  z
+    .object({ action: z.literal('revoke'), ...LocalSeatOperatorFields })
+    .strict(),
+]);
+
 const OptionalEntityIdSchema = z
   .string()
   .trim()

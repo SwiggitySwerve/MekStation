@@ -38,37 +38,34 @@
     "reservedUnwrittenReview": "evidence/lsc-1-admission-review-20261018.json"
   },
   "measuredFit": {
-    "status": "measured formatted product drafts against exact admission baseline; conservative lifecycle reserve",
-    "method": "git diff --no-index --numstat for existing source files; physical lines for newly added route; no deletion credit",
+    "status": "measured installed source against exact admission baseline; conservative lifecycle reserve",
+    "method": "git diff --numstat for existing source files; physical lines for new route; no deletion credit",
     "files": [
       {
         "path": "src/services/vault/LocalSeatCredentialService.ts",
-        "draft": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/LocalSeatCredentialService.ts",
-        "sha256": "73ce9374cd8c772785cc99a6540cb1aabc59ddfd122d37e8aaa4c639dc0a6a6a",
-        "bytes": 11621,
-        "added": 118
+        "sha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9",
+        "bytes": 11738,
+        "added": 119
       },
       {
         "path": "src/lib/api/securitySchemas.ts",
-        "draft": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/securitySchemas.ts",
         "sha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac",
         "bytes": 7798,
         "added": 34
       },
       {
         "path": "src/pages/api/multiplayer/auth/local-seats.ts",
-        "draft": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/local-seats.ts",
-        "sha256": "29875632c6e97928890ef3215d33cfa92112d5eb96bbd40c90cf5595193541b4",
-        "bytes": 3525,
-        "added": 113
+        "sha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+        "bytes": 3473,
+        "added": 109
       }
     ],
-    "productAddedLines": 265,
+    "productAddedLines": 262,
     "lifecycleAddedLineReserve": 25,
-    "totalReservedCountedAddedLines": 290,
+    "totalReservedCountedAddedLines": 287,
     "cap": 500,
-    "remaining": 210,
-    "note": "Final GREEN uses actual first-parent/source diff; all 10 registered files remain file-counted. Tests and evidence are line-exempt; units.json is counted."
+    "remaining": 213,
+    "note": "Refreshed after typed decrypt-boundary BufferSource fix; no runtime view guard or key copy. Final local receipt replaces lifecycle reserve with actual added ledger lines."
   },
   "carryIn": [
     "CF-LSC1S-1",

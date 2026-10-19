@@ -8830,7 +8830,9 @@
         "red": {
           "path": "evidence/lsc-1-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/lsc-1-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
