@@ -299,6 +299,15 @@ test.describe('ux walkthrough audit — desktop', () => {
 
       await walk.step('inspect replay tab', async () => {
         await page.getByRole('tab', { name: /replay/i }).click();
+        const replay = page.getByTestId('quickgame-replay-panel');
+        await expect(
+          replay.getByText(/Event 1 of \d+.*Press Play/),
+        ).toBeVisible();
+        // The first frame precedes combat: future attack effects must not
+        // animate the entire battle while the replay is stopped at event 1.
+        await expect(
+          replay.locator('[data-testid^="attack-effect-event-"]'),
+        ).toHaveCount(0);
       });
 
       await walk.step('exit to games', async () => {
