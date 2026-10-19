@@ -1,3 +1,33 @@
+## 2026-10-18 MP-RECOVERY-UNITS-2 registered (planned)
+
+Root confirmed #2300 merged at f73bfe7d7251db564c7cc8b2bed544fd89fdc140.
+Registers the remaining #2296 owner-routed recovery work; no implementation or source admission.
+CF-MPRU-1: disk-derived co-op and ordinary recovered journal units.
+CF-MPRU-3: live rewind rebuild without HTTP-to-self.
+CF-MPRU-4 (Medium): recovered legacy hosts use crypto RollCapture, with captured rolls on events.
+CF-MPRU-2/M8: unmocked rewound-at-boot fixture; F3/R2/R10: custom no-snapshot success/failure.
+
+Recovery-1 alone precedes recovery-2; A2 keeps both recovery-2 and DEDUPE as predecessors.
+Run in parallel with DEDUPE; shared metadata writes serialize in the writer queue, not the graph.
+After DEDUPE merges, rebase on its merged Main and re-freeze the exact manifest.
+DEDUPE and HP literal source/test leaves are disjoint from the new 3-source/3-test manifest.
+HP receives no new dependency; shared metadata writes still serialize.
+The matchUnitBootstrap.ts exception is only the required optional d6Roller plumbing.
+ServerMatchHost.ts ownership is restricted to recover; engine/server.js/registry/catalog/fog stay read-only.
+U44 capability-DB cutover and U26 projection stay separate; no simultaneous shared-file admission.
+
+The new unit starts planned: its only predecessor is main-verified; all lifecycle receipts remain null.
+Its 11 prospective source-stage leaves are not measured fit or permission for extra files.
+L1 closure accounting advances from 38 to 39; every other acceptance/human-session gate is retained.
+Existing unit lifecycle, tasks, packets, HP manifest and historical receipts are preserved.
+Both ledgers bind the full open-PR/active-reservation census and exact scope to one hashed receipt.
+Rebased over merged LSC-1S #2301; its lifecycle, receipts and release are preserved.
+Sonnet requested removal of the unforced DEDUPE dependency; #2303 confirms disjoint leaves.
+RED, finite admission, sensitive packet, independent exact-head review, OWNER-RULING, CI and
+exact-main proof/ancestry/closure remain future source gates. Registration supplies none of them.
+
+---
+
 ## 2026-10-18 LSC-1S verified on main; LSC-1 released; closure metadata proposed
 
 LSC-1S advances from implementing to main-verified for PR #2297, head 12f4e726d83ecbc061df243e9d72731699db9b86, merge e9e63a55ebdb945668166cf2978890bfca36c91d.
