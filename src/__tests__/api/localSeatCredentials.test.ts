@@ -174,15 +174,18 @@ describe('/api/multiplayer/auth/local-seats', () => {
       { host: '127.0.0.1.nip.io:3001', origin: 'http://127.0.0.1.nip.io:3001' },
     ],
     ['a missing host', {}],
-  ])('refuses %s before reading the body', async (_label, headers) => {
-    const { status, json } = await call(
-      'POST',
-      { action: 'mint' },
-      headers as Record<string, string>,
-    );
-    expect(status).toBe(403);
-    expect(json).toEqual({ error: 'Local seats are same-host only' });
-  });
+  ])(
+    'refuses %s before any KDF or credential interpretation',
+    async (_label, headers) => {
+      const { status, json } = await call(
+        'POST',
+        { action: 'mint' },
+        headers as Record<string, string>,
+      );
+      expect(status).toBe(403);
+      expect(json).toEqual({ error: 'Local seats are same-host only' });
+    },
+  );
 
   it('accepts same-origin loopback requests and sets no-store security headers', async () => {
     const { status, json, res } = await call('GET', undefined, {

@@ -141,6 +141,50 @@ describe('LSC-1 prospective runtime survivors', () => {
     expect(identityCrypto.decryptWithPassword).not.toHaveBeenCalled();
   });
 
+  it('R2-12: the mint lock survives a SQLite reopen and a new service', async () => {
+    for (let i = 0; i < 5; i++) {
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    }
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'seats.db') }).initialize();
+    subject = new (service().LocalSeatCredentialService)({
+      now: () => clock,
+      verifyOperatorPassword: async () => 'ok',
+    }) as IPreparedMintService;
+    jest.mocked(identityCrypto.decryptWithPassword).mockClear();
+    await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
+    expect(identityCrypto.decryptWithPassword).not.toHaveBeenCalled();
+    clock += 60_000;
+    await expect(mint()).resolves.toHaveProperty('token');
+  });
+
+  it('a successful mint clears the durable failure count and lock', async () => {
+    const repo = new (repository().LocalSeatCredentialRepository)();
+    for (let i = 0; i < 4; i++) {
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    }
+    expect(repo.get('local-seat-1')?.failedAttempts).toBe(4);
+    await expect(mint()).resolves.toHaveProperty('token');
+    expect(repo.get('local-seat-1')).toMatchObject({
+      failedAttempts: 0,
+      lockedUntilMs: 0,
+    });
+    for (let i = 0; i < 4; i++) {
+      await expect(mint('local-seat-1', 'wrong')).rejects.toMatchObject({
+        code: 'invalid-credentials',
+      });
+    }
+    await expect(mint()).resolves.toHaveProperty('token');
+    expect(repo.get('local-seat-1')).toMatchObject({
+      failedAttempts: 0,
+      lockedUntilMs: 0,
+    });
+  });
+
   it('R2-01/R2-04: ten successful mints across both seats exhaust the shared window until expiry', async () => {
     for (let i = 0; i < 10; i++) {
       await expect(
@@ -224,17 +268,23 @@ describe('LSC-1 prospective runtime survivors', () => {
     jest
       .mocked(identityCrypto.decryptWithPassword)
       .mockImplementationOnce(async (...args) => {
-        const key = await actual.decryptWithPassword(...args);
         enter();
         await gate;
-        return key;
+        return actual.decryptWithPassword(...args);
       });
-    const pending = mint();
+    const pending = mint('local-seat-1', 'wrong');
+    const settled = expect(pending).rejects.toMatchObject({
+      code: 'invalid-credentials',
+    });
     await entered;
     await expect(mint()).rejects.toMatchObject({ code: 'throttled' });
     expect(identityCrypto.decryptWithPassword).toHaveBeenCalledTimes(1);
     release();
-    await expect(pending).resolves.toHaveProperty('token');
+    await settled;
+    expect(
+      new (repository().LocalSeatCredentialRepository)().get('local-seat-1')
+        ?.failedAttempts,
+    ).toBe(1);
   });
 
   it('R2-07/R2-08: revoked seats refuse mint; re-provision replaces the password and keeps only ciphertext', async () => {

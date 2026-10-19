@@ -32,13 +32,13 @@
   "testChanges": [
     {
       "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
-      "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3",
-      "bytes": 31524
+      "sha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021",
+      "bytes": 33391
     },
     {
       "path": "src/__tests__/api/localSeatCredentials.test.ts",
-      "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a",
-      "bytes": 12572
+      "sha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62",
+      "bytes": 12621
     }
   ],
   "caps": {
@@ -54,8 +54,8 @@
   },
   "proofs": {
     "green": {
-      "base": "6cbdb2eeb6203dad303d1e8359628cf59469e468",
-      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792372061856-lsc.json",
+      "base": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792374247065-lsc.json",
       "node": "v22.22.0",
       "command": [
         "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
@@ -64,36 +64,36 @@
         "unit",
         "--runInBand",
         "--cacheDirectory",
-        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/jest-cache",
+        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/jest-cache",
         "--runTestsByPath",
         "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
         "src/__tests__/api/localSeatCredentials.test.ts"
       ],
       "exitCode": 0,
-      "sha256": "892887a81bbcf17346b4aff87cc0aacd7c9847fc3f1ba1aea5529a245398a24f",
+      "sha256": "457d85e1d7b9889b9edfa2432abf695472f3ed028e1de107a6809d784143694e",
       "bytes": 414,
-      "summary": "Tests:       60 passed, 60 total",
+      "summary": "Tests:       62 passed, 62 total",
       "suites": "Test Suites: 2 passed, 2 total",
       "tests": [
         {
           "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
-          "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3"
+          "sha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021"
         },
         {
           "path": "src/__tests__/api/localSeatCredentials.test.ts",
-          "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a"
+          "sha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62"
         }
       ],
       "failures": [],
       "log": {
-        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/green.log",
-        "sha256": "892887a81bbcf17346b4aff87cc0aacd7c9847fc3f1ba1aea5529a245398a24f",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/green.log",
+        "sha256": "457d85e1d7b9889b9edfa2432abf695472f3ed028e1de107a6809d784143694e",
         "bytes": 414
       }
     },
     "regression": {
-      "base": "6cbdb2eeb6203dad303d1e8359628cf59469e468",
-      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792372061856-lsc.json",
+      "base": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792374247065-lsc.json",
       "node": "v22.22.0",
       "command": [
         "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
@@ -102,7 +102,7 @@
         "unit",
         "--runInBand",
         "--cacheDirectory",
-        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/jest-cache",
+        "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/jest-cache",
         "--runTestsByPath",
         "src/services/vault/__tests__/BundleService.test.ts",
         "src/services/vault/__tests__/ChangeLogRepository.get-latest-for-item.test.ts",
@@ -165,18 +165,18 @@
         "src/lib/multiplayer/server/__tests__/bindCampaignGrantChannel.auth.test.ts"
       ],
       "exitCode": 0,
-      "sha256": "a82ac01306c7d71ebe588543740f3aec8e4c87730d7b785cefe4b0354c4c6cc9",
+      "sha256": "531b9b59e7c267b7bd1fac63aec9b9622786f99a9000a256b46c9da28a7a5c1d",
       "bytes": 9502,
-      "summary": "Tests:       956 passed, 956 total",
+      "summary": "Tests:       958 passed, 958 total",
       "suites": "Test Suites: 59 passed, 59 total",
       "tests": [
         {
           "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
-          "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3"
+          "sha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021"
         },
         {
           "path": "src/__tests__/api/localSeatCredentials.test.ts",
-          "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a"
+          "sha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62"
         }
       ],
       "failures": [
@@ -184,14 +184,14 @@
         "Console"
       ],
       "log": {
-        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/regression.log",
-        "sha256": "a82ac01306c7d71ebe588543740f3aec8e4c87730d7b785cefe4b0354c4c6cc9",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/regression.log",
+        "sha256": "531b9b59e7c267b7bd1fac63aec9b9622786f99a9000a256b46c9da28a7a5c1d",
         "bytes": 9502
       }
     },
     "typecheck": {
-      "base": "6cbdb2eeb6203dad303d1e8359628cf59469e468",
-      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792372061856-lsc.json",
+      "base": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792374247065-lsc.json",
       "node": "v22.22.0",
       "command": [
         "npm",
@@ -205,16 +205,16 @@
       "tests": [
         {
           "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
-          "sha256": "8eaca6e1e223a25014a4a460205edf8d8bd939c8260767ca4ff14985f8b43dc3"
+          "sha256": "7d53c434a0e4db3e705a3766f3802c3643a488ca43a07a7e5585aa87208c1021"
         },
         {
           "path": "src/__tests__/api/localSeatCredentials.test.ts",
-          "sha256": "a1bec6a1dd5a5fb8379fdc9a005d0a902acd325e294946fd63935dbf9203eb2a"
+          "sha256": "5c26907da96710054ca5af9535aa0bd5f90e837f0ef73fdb24233bd6af455b62"
         }
       ],
       "failures": [],
       "log": {
-        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/typecheck.log",
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/typecheck.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "bytes": 0
       }
@@ -222,21 +222,21 @@
     "validation": {
       "lint": {
         "exitCode": 0,
-        "sha256": "f56b5b1c30c58d663b27f21c0a84050418a4a0150e22fac37fc874187413ff33",
+        "sha256": "8210bcc939bb602c29f851c5b5638139596fce0a5a8d888976c92323f2d14409",
         "bytes": 38915,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/lint.log",
-          "sha256": "f56b5b1c30c58d663b27f21c0a84050418a4a0150e22fac37fc874187413ff33",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/lint.log",
+          "sha256": "8210bcc939bb602c29f851c5b5638139596fce0a5a8d888976c92323f2d14409",
           "bytes": 38915
         }
       },
       "format": {
         "exitCode": 0,
-        "sha256": "df179c6808977557a1fb90e2b32282e28189389efec94818322ad1bb4ee41be0",
+        "sha256": "cec376e40fe937f89be39d25628d0efa369fb84703ce7b3c63cca42e1507b2ba",
         "bytes": 118,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/format.log",
-          "sha256": "df179c6808977557a1fb90e2b32282e28189389efec94818322ad1bb4ee41be0",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/format.log",
+          "sha256": "cec376e40fe937f89be39d25628d0efa369fb84703ce7b3c63cca42e1507b2ba",
           "bytes": 118
         }
       },
@@ -245,7 +245,7 @@
         "sha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
         "bytes": 6857,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/openspec.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/openspec.log",
           "sha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
           "bytes": 6857
         }
@@ -255,7 +255,7 @@
         "sha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
         "bytes": 191,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/qc-openspec.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/qc-openspec.log",
           "sha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
           "bytes": 191
         }
@@ -265,7 +265,7 @@
         "sha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
         "bytes": 76,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/roadmap.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/roadmap.log",
           "sha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
           "bytes": 76
         }
@@ -275,7 +275,7 @@
         "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
         "bytes": 2354,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/roadmap-git.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/roadmap-git.log",
           "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
           "bytes": 2354
         }
@@ -285,18 +285,18 @@
         "sha256": "7f37406fb8818bfee7383a8b38ea867e1d9d95dbd1fa47ea5c831d2f4e7718a4",
         "bytes": 17,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/roadmap-next.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/roadmap-next.log",
           "sha256": "7f37406fb8818bfee7383a8b38ea867e1d9d95dbd1fa47ea5c831d2f4e7718a4",
           "bytes": 17
         }
       },
       "roadmap-tests": {
         "exitCode": 0,
-        "sha256": "eb5f24381bfe364c43a864ecc28650b6e08fe6d0513213cd7bc3843db34c749c",
+        "sha256": "bbc5360299cc733ae8c4911b3a345043bcb905ce1d1e2c403bef519b4782e495",
         "bytes": 16289,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/roadmap-tests.log",
-          "sha256": "eb5f24381bfe364c43a864ecc28650b6e08fe6d0513213cd7bc3843db34c749c",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/roadmap-tests.log",
+          "sha256": "bbc5360299cc733ae8c4911b3a345043bcb905ce1d1e2c403bef519b4782e495",
           "bytes": 16289
         }
       },
@@ -305,7 +305,7 @@
         "sha256": "d78d31f3906e325e222e72f3f6c78d882f6cd64a61a8f71eba1f116c4ac8fd2c",
         "bytes": 286,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/lint-units.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/lint-units.log",
           "sha256": "d78d31f3906e325e222e72f3f6c78d882f6cd64a61a8f71eba1f116c4ac8fd2c",
           "bytes": 286
         }
@@ -315,7 +315,7 @@
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "bytes": 0,
         "log": {
-          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs/diff.log",
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/diff.log",
           "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "bytes": 0
         }
@@ -488,7 +488,7 @@
     "loggingDecision": "Retain no-diagnostic default for unexpected failures; do not copy dependency message/cause. Mint secrecy mutants test console/error serialization.",
     "keyLifetime": "Same request-local decrypted ArrayBuffer is viewed for signing and wiped in finally; no mutable private key is retained on service fields.",
     "revocation": "New mint/renewal refuses after revoke; already-issued signed token keeps original expiry.",
-    "guardScope": "Host/Origin/Fetch-Site guard applies only to local-seats route; frozen primary handlers unchanged."
+    "guardScope": "Local-seat requests are refused before any KDF or credential interpretation; Next apiResolver JSON-parses up to 8 kB before the handler. The guard remains local-seat-only; primary handlers are unchanged. CF-LSC1-6 reserves the literal pre-read decision to Root."
   },
   "unchangedControls": [
     {
@@ -543,7 +543,7 @@
     "R2-06": "Downstream LSC-2 consumer/recovery: bearer replacement, wrong-player rejection and explicit clear/rejoin. API tests do not discharge browser storage behavior.",
     "R2-07": "Retained revoke-keeps/re-provision-clears tests and runtime revoked mint refusal.",
     "R2-08": "Retained real ciphertext/decrypt test plus mint cleanup; independent review reruns RV-02/RV-10/RV-16 secrecy mutants.",
-    "R2-09": "Runtime same-site and cross-site Sec-Fetch-Site refusal before body/KDF.",
+    "R2-09": "Runtime same-site and cross-site Sec-Fetch-Site refusal before any KDF or credential interpretation. Next apiResolver parses up to 8 kB JSON before the handler.",
     "R2-10": "Fresh full ownership/consumer/open-PR census including U101/a/c/d; runtime ordinary-token membership parity complements, not replaces, census.",
     "R2-11": "Runtime revoke barriers after KDF and signing refuse token and clear request key.",
     "R2-12": "Runtime locked-seat and concurrent refusal before KDF, with consumed shared mint window.",
@@ -610,5 +610,98 @@
       "disposition": "Four open PRs. Only shared units.json collisions in #2302/#2303; no source/consumer collisions. Serialize shared ledger integration and refresh upon new Main."
     }
   },
-  "rawArtifacts": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs"
+  "rawArtifacts": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs",
+  "reviewFixes": {
+    "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2304-20261019/2026-10-19-lsc-1-review.md",
+      "sha256": "9452a72031640fafc020a380bec255b9b10a895b18af5a03e6ff6454307e2dd8",
+      "bytes": 31063
+    },
+    "scope": "F1-F5 in one test/receipt-only amendment; zero counted lines, no new files, product and units.json unchanged.",
+    "fixes": {
+      "F1": "Five wrong mints followed by SQLite reopen and a new service: correct password is throttled before KDF; expiry permits mint. MUT-14 is caught by this row.",
+      "F2": "Four wrong mints followed by success clear failedAttempts and lockedUntilMs; a second sequence still succeeds. MUT-15 is caught by this row.",
+      "F3": "A wrong-password in-flight mint plus a refused concurrent request records exactly one failure. MUT-18 is caught by the amended row.",
+      "F4": "Refused before any KDF or credential interpretation. Next apiResolver JSON-parses up to 8 kB before the handler runs; literal pre-read enforcement is deferred to the Root decision in CF-LSC1-6.",
+      "F5": "RED receipt is ASCII-only through JSON Unicode escapes; parsed content and original runtime proof are unchanged."
+    },
+    "mutationProof": {
+      "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+      "node": "v22.22.0",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792374247065-lsc.json",
+      "reviewerHarness": {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2304-logs/mutants.cjs",
+        "sha256": "919fcdbb5f47eb535f9b765e77fa82977fe24d01b073edb8a02f0c0001d31bc9"
+      },
+      "productRestoredSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9",
+      "rows": [
+        {
+          "name": "head-rows",
+          "pattern": "the mint lock survives|a successful mint clears the durable|a second in-flight mint",
+          "exitCode": 0,
+          "summary": "Tests:       28 skipped, 3 passed, 31 total",
+          "sha256": "2fbeba837252624f70016e2d00add370e3a1c14e1afc61097d641426a8105d0a",
+          "bytes": 3298
+        },
+        {
+          "name": "MUT-14",
+          "pattern": "the mint lock survives",
+          "exitCode": 1,
+          "summary": "Tests:       1 failed, 30 skipped, 31 total",
+          "sha256": "72f870072c0e71706ee627772bc355761f678e7d11e75864c7e419e826284e4c",
+          "bytes": 4715
+        },
+        {
+          "name": "MUT-15",
+          "pattern": "a successful mint clears the durable",
+          "exitCode": 1,
+          "summary": "Tests:       1 failed, 30 skipped, 31 total",
+          "sha256": "ab9a4b6fc11e966f7a9106c532b0941b9a862f834c743559b73a802b268ca152",
+          "bytes": 4074
+        },
+        {
+          "name": "MUT-18",
+          "pattern": "a second in-flight mint",
+          "exitCode": 1,
+          "summary": "Tests:       1 failed, 30 skipped, 31 total",
+          "sha256": "0f47f63748b5f48ee374fc0999574b56b680edca4c54d82d1a22e87d4e6bffe8",
+          "bytes": 3945
+        }
+      ],
+      "file": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/mutation-proof.json",
+        "sha256": "38eeec7468ca12c1faa13769b669cc6401c755ec652069cf96ebf46026acb7c3",
+        "bytes": 1645
+      },
+      "runner": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/prove.cjs",
+        "sha256": "0e9f5385c17a18d35aebcb56531e0978f5de9dd42a14319506c77601e65956cf",
+        "bytes": 3172
+      },
+      "logs": [
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/head-rows.log",
+          "sha256": "2fbeba837252624f70016e2d00add370e3a1c14e1afc61097d641426a8105d0a",
+          "bytes": 3298
+        },
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/MUT-14.log",
+          "sha256": "72f870072c0e71706ee627772bc355761f678e7d11e75864c7e419e826284e4c",
+          "bytes": 4715
+        },
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/MUT-15.log",
+          "sha256": "ab9a4b6fc11e966f7a9106c532b0941b9a862f834c743559b73a802b268ca152",
+          "bytes": 4074
+        },
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/MUT-18.log",
+          "sha256": "0f47f63748b5f48ee374fc0999574b56b680edca4c54d82d1a22e87d4e6bffe8",
+          "bytes": 3945
+        }
+      ]
+    },
+    "historicalProof": "The original 44-fail/16-pass RED and initial ten mutants refer to the reviewed test revision. Current test hashes and GREEN/regression/typecheck below include F1-F3; the three reviewer mutants provide their additional RED proof. No original baseline RED rerun is claimed."
+  }
 }
