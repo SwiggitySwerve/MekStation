@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-HOST-DEDUPE-1",
+  "stage": "local",
+  "status": "PASS_REVIEW_REQUIRED",
+  "baseline": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
+  "redCommit": "925408629a479d5241adb6dc571215b6bac11794",
+  "summary": "One in-flight creation/recovery per match. First options win; null/rejection evicts only its own attempt. Independent matches remain concurrent. Reset cannot publish stale hosts and close waits for pending creation.",
+  "source": {
+    "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+    "bytes": 12751,
+    "sha256": "9a3e25c847cf02c730cd429ada24c9514275419fb6391a5b401d4e268db978fd"
+  },
+  "test": {
+    "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+    "bytes": 18030,
+    "sha256": "97d3630392d4829a447115ec7a548d3d79c1701e3817bc095af4ca447d0937c4"
+  },
+  "testIdenticalToClosureRed": true,
+  "validation": {
+    "focused": {
+      "passed": 12,
+      "failed": 0
+    },
+    "multiplayerServer": {
+      "suites": 176,
+      "passed": 1582,
+      "failed": 0
+    },
+    "typecheck": {
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    "lint": {
+      "exitCode": 0,
+      "warnings": 84,
+      "errors": 0,
+      "targetWarnings": 0
+    },
+    "format": {
+      "command": "npm run format:check",
+      "exitCode": 0
+    },
+    "lintUnits": "LINT_UNITS_PASS 17896/17899",
+    "roadmap": {
+      "git": true,
+      "exitCode": 0,
+      "validatorTests": {
+        "passed": 86,
+        "failed": 0
+      }
+    },
+    "openspec": {
+      "strict": true,
+      "passed": 230,
+      "failed": 0
+    }
+  },
+  "logs": [
+    {
+      "path": ".mp-dedupe-proof/green-focused-typecheck.ascii.log",
+      "bytes": 2067,
+      "sha256": "df0fe31c1909cc8d22ac73f83a16b8ce5602fac10378ff8ff3df7e3ccc4767bd"
+    },
+    {
+      "path": ".mp-dedupe-proof/green-regression-v2.ascii.log",
+      "bytes": 853831,
+      "sha256": "963cc7ba53f5d8abbb9321b32005555245eb6093da31ae9fc2458ba955d2260e"
+    }
+  ],
+  "caps": {
+    "frozenFiles": 7,
+    "maxFiles": 15,
+    "countedAdditions": 85,
+    "maxCountedAdditions": 500,
+    "byFile": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 43,
+        "removed": 6
+      },
+      {
+        "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "added": 42,
+        "removed": 1
+      }
+    ],
+    "testsAndEvidence": "line-exempt, file-counted"
+  },
+  "controlsVerified": [
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchRecovery.ts",
+      "sha256": "47cbb7a02e3b99e45cf740438760bb0e2e80b9f40044ce569f9eb85e61d4539c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "sha256": "a07b27bf06cb7566e05d6403ff8ccf9efc821e10dab20f0a2d68ad4bd1b45e2a"
+    },
+    {
+      "path": "src/services/units/NodeCanonicalUnitService.ts",
+      "sha256": "e9cc8143e95d79066ee824bd8181050272ea983fff5c81ba3aff4b1183611baf"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "sha256": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "sha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010"
+    }
+  ],
+  "scopeLimits": [
+    "Per-registry process-local dedupe; no distributed coordination.",
+    "Co-op null/rejection operation sharing is isolated with a recovery-method double; full multiplayer sweep exercises the unchanged recovery integration.",
+    "No change to ServerMatchHost.ts or ServerMatchHostRewindRebuild.ts; RECOVERY-UNITS-2 retains those leaves.",
+    "Full independent sensitive review and exact-head owner ruling are pending."
+  ],
+  "ci": {
+    "expected": {
+      "source": "f4165728412418d0c30f32d00b5174fe8121300a",
+      "names": [
+        "A11y Tests",
+        "Build Storybook",
+        "Build Test / linux",
+        "Build Test / mac",
+        "Build Test / win",
+        "Coverage Floor",
+        "Customizer Regressions",
+        "Desktop Tests",
+        "Desktop Type Check",
+        "Detect Changes",
+        "Determinism Audit",
+        "E2E Smoke",
+        "Format Check",
+        "Install Dependencies",
+        "Lint",
+        "Lint and Test",
+        "Perf Budget PR",
+        "Perf Smoke Tests",
+        "Prepare Build Artifacts",
+        "Schema Bridge",
+        "Seam Anchors",
+        "Statistical Proof PR",
+        "Type Check",
+        "Unit Tests (1/6)",
+        "Unit Tests (2/6)",
+        "Unit Tests (3/6)",
+        "Unit Tests (4/6)",
+        "Unit Tests (5/6)",
+        "Unit Tests (6/6)",
+        "Validate BV Parity",
+        "Validate Combat Suite",
+        "Validate Roadmap Ledger"
+      ]
+    },
+    "status": "Compare by name on published PR head; no CI success claimed in this local receipt."
+  },
+  "executionNotes": [
+    "Node v22.22.0; heavy commands through --lane mp-dedupe shared queue.",
+    "The initial broader command used a positional path swallowed by --selectProjects and was aborted; only the identified owned Jest process tree was terminated. It is not acceptance evidence. The corrected --testPathPattern run above completed successfully.",
+    "Git hooks disabled for commits so heavy validation stays inside the queue; formatting, lint and both typecheck projects were run explicitly."
+  ],
+  "pendingDecisionPacket": "PK-mp-host-dedupe-1-ruling"
+}
