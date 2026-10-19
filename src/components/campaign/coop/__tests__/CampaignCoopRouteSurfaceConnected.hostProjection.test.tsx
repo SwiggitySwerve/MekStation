@@ -751,7 +751,10 @@ function installBoundTransport(
   connectMock.mockImplementation((input) => {
     connects.push(input);
     const transport = connectCampaignSyncTransport({
-      expectedCampaignId: expectedCampaignId ?? undefined,
+      expectedCampaignId:
+        input.matchId === 'match-host-fold-other'
+          ? 'campaign-host-fold-other'
+          : (expectedCampaignId ?? undefined),
       matchId: input.matchId ?? MATCH_ID,
       role,
       playerId: role === 'host' ? 'host-player' : 'guest-player',
@@ -923,6 +926,28 @@ describe('CampaignCoopRouteSurfaceConnected - a guest applies each offer before 
       launchFact(4),
     ]);
     expect(connection.connects).toHaveLength(1);
+  });
+
+  it('HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status', async () => {
+    jest.useFakeTimers();
+    try {
+      const connection = await mountGuest();
+      for (let i = 0; i < 5; i++) {
+        await act(async () => {
+          jest.advanceTimersByTime(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+        });
+        await flush();
+      }
+      expect(connection.sockets).toHaveLength(3);
+      expect(connection.sockets.every((s) => s.readyState === 3)).toBe(true);
+      const status = screen.getByText(
+        'Campaign sync could not connect. Reload this campaign to try again.',
+      );
+      expect(status).toHaveAttribute('role', 'status');
+      expect(status).toHaveAttribute('aria-live', 'polite');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it.each([
@@ -1511,6 +1536,204 @@ describe('CampaignCoopRouteSurfaceConnected - a GM remount on its live bound tra
     expect(storedBalance()).toBe(600_000);
   });
 
+  it('HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+    // One persistent live region, present and empty before exhaustion.
+    const region = screen.getByRole('status');
+    expect(region).toBeEmptyDOMElement();
+    for (let i = 0; i < 5; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(3);
+    expect(connection.sockets.every((s) => s.readyState === 3)).toBe(true);
+    expect(screen.getByRole('status')).toBe(region);
+    expect(region).toHaveTextContent(
+      'Campaign sync could not connect. Reload this campaign to try again.',
+    );
+  });
+  it('HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const first = await mountHost();
+    await settled();
+    for (let i = 0; i < 3; i++) {
+      await inject(connection, {
+        kind: 'Heartbeat',
+        matchId: MATCH_ID,
+        ts: '3025-01-01T00:00:00.000Z',
+      });
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(3);
+    first.unmount();
+    await mountHost();
+    await settled();
+    for (let i = 0; i < 3; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(6);
+  });
+  it('HP healthy application resets budget after two quiet retries', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+    for (let i = 0; i < 2; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    await applied(connection, baselineOffer('reset', 800_000));
+    await inject(
+      connection,
+      errorFrame('INTERNAL_ERROR', 'campaign-application-unknown-receipt'),
+    );
+    await settled();
+    const before = connection.sockets.length;
+    for (let i = 0; i < 3; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets.length - before).toBe(2);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Campaign sync could not connect. Reload this campaign to try again.',
+    );
+  });
+  it('HP releases settling before confirm schedules microtask disposal (CF-H14)', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await applied(connection, baselineOffer('h14', 800_000));
+    const transport = connection.transports[0];
+    const confirm = transport.confirmApplied;
+    if (!confirm) throw new Error('unbound transport');
+    first.unmount();
+    // A binding captures confirmApplied, so wrap it before the remount binds.
+    const remounted: { current?: ReturnType<typeof render> } = {};
+    transport.confirmApplied = (offer, outcome) => {
+      const result = confirm(offer, outcome);
+      // The linked offer's confirm disposes in its next microtask.
+      if (offer.appliedView.previousReceiptId !== null)
+        void Promise.resolve().then(() => remounted.current?.unmount());
+      return result;
+    };
+    remounted.current = await mountHost();
+    await settled();
+    await inject(connection, linkedOffer('h14', 1, fundsEvent(1, 750_000)));
+    await settled();
+    await mountHost();
+    await settled();
+    expect(connection.sockets).toHaveLength(1);
+    expect(connection.acks(0)).toEqual(['h14-r0', 'h14-r1']);
+  });
+  it('HP counts queued consume immediately for same-tick dispose (CF-H15)', async () => {
+    const connection = installReusedBoundTransport();
+    const first = await mountHost();
+    await settled();
+    await applied(connection, baselineOffer('h15', 800_000));
+    refresh.mockClear();
+    act(() => {
+      connection.inject(linkedOffer('h15', 1, fundsEvent(1, 750_000)));
+      first.unmount();
+    });
+    await settled();
+    await mountHost();
+    await settled();
+    expect(connection.sockets).toHaveLength(2);
+    expect(connection.acks(0)).toEqual(['h15-r0']);
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it('HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const mounted = await mountHost();
+    await settled();
+    for (let i = 0; i < 3; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(3);
+    const stale = connection.sockets[0];
+    await act(async () => {
+      stale.inject(
+        errorFrame('INTERNAL_ERROR', 'campaign-application-unknown-receipt'),
+      );
+    });
+    await settled();
+    expect(connection.sockets).toHaveLength(3);
+    const other = {
+      ...hostCampaign(),
+      id: OTHER_CAMPAIGN_ID,
+      coopSession: createHostCoopSession(ROOM_CODE, OTHER_MATCH_ID),
+    };
+    useCampaignStore().getState().switchCampaign(other);
+    mounted.rerender(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={other}
+        routeId="dashboard"
+      />,
+    );
+    await settled();
+    expect(
+      screen.queryByText(
+        'Campaign sync could not connect. Reload this campaign to try again.',
+      ),
+    ).toBeNull();
+    expect(connection.sockets).toHaveLength(4);
+    for (let i = 0; i < 3; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(6);
+  });
+  it('HP dispose cancels the quiet timer and ignores late dead callbacks', async () => {
+    const connection = installReusedBoundTransport();
+    jest.useFakeTimers();
+    const mounted = await mountHost();
+    await settled();
+    mounted.unmount();
+    await elapse(4 * APPLICATION_CONFIRMATION_TIMEOUT_MS);
+    connection.sockets[0].inject(
+      errorFrame('INTERNAL_ERROR', 'campaign-application-unknown-receipt'),
+    );
+    await settled();
+    expect(connection.sockets).toHaveLength(1);
+    expect(connection.sockets[0].readyState).toBe(1);
+  });
+  it('HP a rotated seat on the same campaign and match starts its own episode', async () => {
+    const connection = installReusedBoundTransport();
+    const reused = connectMock.getMockImplementation();
+    if (!reused) throw new Error('no reused transport');
+    let seat: string | null = null;
+    // The stored token rotated: the replacement transport carries the new seat.
+    connectMock.mockImplementation((input) => {
+      const transport = reused(input);
+      if (transport && seat !== null && transport.playerId !== seat)
+        Object.defineProperty(transport, 'playerId', { value: seat });
+      return transport;
+    });
+    jest.useFakeTimers();
+    await mountHost();
+    await settled();
+    await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+    await settled();
+    expect(connection.sockets).toHaveLength(2);
+    seat = 'host-player-rotated';
+    for (let i = 0; i < 4; i++) {
+      await elapse(APPLICATION_CONFIRMATION_TIMEOUT_MS);
+      await settled();
+    }
+    expect(connection.sockets).toHaveLength(5);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Campaign sync could not connect. Reload this campaign to try again.',
+    );
+  });
   // --- The pre-receipt quiet window under fake timers (CF-G1..CF-G3, CF-G8, CF-G11) ---
 
   async function elapse(ms: number): Promise<void> {
