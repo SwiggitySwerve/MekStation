@@ -1,0 +1,871 @@
+{
+  "schemaVersion": 1,
+  "unit": "P2CG1HP",
+  "stage": "local",
+  "date": "2026-10-19",
+  "at": "2026-10-19T02:10:47.591Z",
+  "baseline": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
+  "implementer": {
+    "provider": "openai",
+    "model": "gpt-6.1-sol",
+    "worktree": "E:/Projects/Personal/MekStation-wt/p2cg1hp-sol-prep-20261018"
+  },
+  "summary": "Two automatic quiet-window retries per mounted campaign/match/player episode, followed by closed socket and persistent accessible inline error; synchronous settlement release before confirmation avoids false cut recovery.",
+  "commits": {
+    "admission": "4a088d958014b497b5c5ec91b47cf246487201dc",
+    "red": "0f74e0023f1dca0811fa588a83ccecc5248b205a",
+    "green": "This commit; independent reviewer must record exact final head."
+  },
+  "scope": {
+    "manifest": [
+      "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+    ],
+    "actualFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json"
+    ],
+    "reservedUnwritten": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+    ],
+    "actualCount": 8,
+    "fullReservationCount": 9,
+    "countedAddedLines": 115,
+    "sourceAndTestCounts": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
+        "added": 522,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
+        "added": 294,
+        "deleted": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 16,
+        "deleted": 6,
+        "counted": true
+      },
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "added": 16,
+        "deleted": 2,
+        "counted": true
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "added": 224,
+        "deleted": 1,
+        "counted": false
+      },
+      {
+        "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "added": 83,
+        "deleted": 20,
+        "counted": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "added": 13,
+        "deleted": 6,
+        "counted": false
+      }
+    ],
+    "limits": {
+      "files": 15,
+      "countedAddedLines": 500
+    }
+  },
+  "frozenTests": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "bytes": 68883,
+      "sha256": "cfb1bdb1daed47a05c40a0a340208963956b76709c3abf1c875c8685d2f21759"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+      "bytes": 119177,
+      "sha256": "373220883c801efb996d972714703c9e2d2adf854c6ef3b326751d83625877fb"
+    }
+  ],
+  "product": [
+    {
+      "path": "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+      "bytes": 13117,
+      "sha256": "d6eda784f5e77d9c699bea54240fc572349ea58a476b786fc39ed02faf54639a"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "bytes": 14494,
+      "sha256": "7789749f18c2bb851e375c21a0fc43bdaa26a4d69c8d101c5e82477a429d4127"
+    }
+  ],
+  "runs": {
+    "releasedRed": {
+      "name": "red-released-main",
+      "exit": 1,
+      "suites": 2,
+      "passed": 123,
+      "failed": 7,
+      "total": 130,
+      "runtimeErrors": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\jest-cache",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\red-released-main.json"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\red-released-main.log",
+        "bytes": 109248,
+        "sha256": "0b3359e709768b43ffe4dac7c971177f4a04bc734efb0768857e3526a1f2677f"
+      },
+      "report": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\red-released-main.json",
+        "bytes": 131295,
+        "sha256": "539b50656409a0a02a2a5d87ef8fc4be74564bbd66236c849306de7c4ead0e73"
+      }
+    },
+    "owned": {
+      "name": "green-owned",
+      "exit": 0,
+      "suites": 2,
+      "passed": 130,
+      "failed": 0,
+      "total": 130,
+      "runtimeErrors": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\jest-cache",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\green-owned.json"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\green-owned.log",
+        "bytes": 88462,
+        "sha256": "a4dcb5d6ef35a6ae576b1b2b95dc3592c0a76ae027966aa8650b13fc67a0f295"
+      },
+      "report": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\green-owned.json",
+        "bytes": 63827,
+        "sha256": "cd4d5dc13e0c1182a7d1645f084cad8c7baca7cdf3c3e5b9edada6a8b17fa3ce"
+      }
+    },
+    "regression": {
+      "name": "green-regression",
+      "exit": 0,
+      "suites": 18,
+      "passed": 383,
+      "failed": 0,
+      "total": 383,
+      "runtimeErrors": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.creatorBinding.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignLifecycleGate.test.tsx",
+        "src/components/campaign/coop/__tests__/CampaignSyncGate.test.tsx",
+        "src/components/campaign/coop/__tests__/CoopDecisionAnnouncement.test.tsx",
+        "src/components/campaign/coop/__tests__/CoopParticipationPicker.test.tsx",
+        "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+        "src/components/campaign/coop/__tests__/GmDecisionConfirmation.test.tsx",
+        "src/components/campaign/coop/__tests__/GmRebuildStaleGate.test.tsx",
+        "src/components/campaign/coop/__tests__/GuestProposalSurface.test.tsx",
+        "src/components/campaign/coop/__tests__/GuestRebuildStaleGate.test.tsx",
+        "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+        "src/components/campaign/coop/__tests__/HostGmReviewSurface.test.tsx",
+        "src/components/campaign/coop/__tests__/scopedPerspectiveUi.test.tsx",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.reconnect.test.ts",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\jest-cache",
+        "--json",
+        "--outputFile",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\green-regression.json"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\green-regression.log",
+        "bytes": 393867,
+        "sha256": "7458edb456ca8b5b5b15b011353a379980b4c9fc1aeeaef358533cd71c759aea"
+      },
+      "report": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\green-regression.json",
+        "bytes": 176243,
+        "sha256": "a4c32c6ab5dfdbe97bbab532709caad87733fddb7a6e789a1aef234dbda50963"
+      }
+    }
+  },
+  "mutations": {
+    "runCount": 20,
+    "caught": 19,
+    "results": [
+      {
+        "name": "HP01-third-retry",
+        "exit": 1,
+        "passed": 46,
+        "failed": 6,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP01-third-retry.json",
+          "bytes": 95610,
+          "sha256": "506811e8b73d7855b737d451b94b469747ddd957dae404a18972d76914df9d85"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP01-third-retry.log",
+          "bytes": 83526,
+          "sha256": "a052c6e8840fdcb2b325911cc896c9dac619477c596c7d8dd58db5d787392d35"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP02-one-retry",
+        "exit": 1,
+        "passed": 46,
+        "failed": 6,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP02-one-retry.json",
+          "bytes": 65295,
+          "sha256": "ff757a8cd16cb328255125a278fecd7b4352fef81ea9d5f9b9bb503981d37773"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP02-one-retry.log",
+          "bytes": 75057,
+          "sha256": "c7f26eeda19f0773898aa938bb2b016cff748eb077c7b16fc25e86fc171a3798"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP03-rebind-resets",
+        "exit": 1,
+        "passed": 46,
+        "failed": 6,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP03-rebind-resets.json",
+          "bytes": 104547,
+          "sha256": "9dac5c4100fa04bec3da06e6f5cdfbbd5b8798b936bec9f5c239665af1c2badf"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP03-rebind-resets.log",
+          "bytes": 86041,
+          "sha256": "ebfa31aa18a407f26b0f017eea225aae7f9e29e03cc421ecfbf33fe06146255f"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP04-heartbeat-resets",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP04-heartbeat-resets.json",
+          "bytes": 40775,
+          "sha256": "b7945d07cb0a833870c50eda27a5a292455e480a35a9e6826b3648ede72b908e"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP04-heartbeat-resets.log",
+          "bytes": 66016,
+          "sha256": "8aaab0f700728f0760108eded1e6aae3c92b5f1d28586a24188111b060e51810"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP05-no-close",
+        "exit": 1,
+        "passed": 0,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP05-no-close.json",
+          "bytes": 36184,
+          "sha256": "7d635c1008f5273b73e0044d47873a75202ff371488e5c02f52da14e4fb2e40f"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP05-no-close.log",
+          "bytes": 9456,
+          "sha256": "7969f4e9129b4919535f555a7dd3b73570d0679506600b08705c05670a626032"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP06-no-visible-text",
+        "exit": 1,
+        "passed": 48,
+        "failed": 4,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP06-no-visible-text.json",
+          "bytes": 45647,
+          "sha256": "39736f314d23bb455f6eb7be2cf90dd314be581cc9692b2d4b2045f77a34d74e"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP06-no-visible-text.log",
+          "bytes": 71398,
+          "sha256": "1a58e7ec468655dc713b8bd6e4f8d98270939430e31052d5773cc4640bc52b29"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP07-late-settling-release",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP releases settling before confirm schedules microtask disposal (CF-H14)"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP07-late-settling-release.json",
+          "bytes": 36039,
+          "sha256": "d8feee877e50d64c92dbb3f09b9031e732bdf856f9f27d0b583883e959ff8b20"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP07-late-settling-release.log",
+          "bytes": 66139,
+          "sha256": "71107c1822eae5def7428715abc261b6a989ee0f0fd5a94b639c793b131a741b"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP08-count-at-promise-start",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP counts queued consume immediately for same-tick dispose (CF-H15)"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP08-count-at-promise-start.json",
+          "bytes": 33329,
+          "sha256": "7c96a4ff8f1ec4543f8d6f469b6ea72bb7615eff32b751c67c87ec049931921e"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP08-count-at-promise-start.log",
+          "bytes": 65345,
+          "sha256": "52255d6ce68db3e92ddd1d3e7b507421044fcbe00283b365714c1540bbbafaa3"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP09-no-healthy-reset",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP09-no-healthy-reset.json",
+          "bytes": 30700,
+          "sha256": "9d5050b84dff295a495422e0fddc6b2bac48c42ff55a3b7ee6f41a3a5778a5c3"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP09-no-healthy-reset.log",
+          "bytes": 64614,
+          "sha256": "e22e57b25e96406dbde2f35bd36d690c5f1772f0e65fc3a1d841b36ac7497f2f"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP10-no-dispose-timer-cancel",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) trades the old window for the new one across a rejoin (CF-G8)"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP10-no-dispose-timer-cancel.json",
+          "bytes": 30685,
+          "sha256": "838857b5f350936ac566bae610050c4c2372a5ac5d6d0fba31d83d78f98af90e"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP10-no-dispose-timer-cancel.log",
+          "bytes": 64606,
+          "sha256": "742f44195cc64dbbef6615351b03ce8e7aa4f5c40035d29de41e1b10671a6ee8"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP11-omit-identity-key",
+        "exit": 1,
+        "passed": 50,
+        "failed": 2,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP11-omit-identity-key.json",
+          "bytes": 40633,
+          "sha256": "211afd684f91eafd68966033440922b1a97aab35e3d703f3df112b23585d4f55"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP11-omit-identity-key.log",
+          "bytes": 67851,
+          "sha256": "8b247654f450ff9a65c3de93ff7def70a2a9c27831125bd193b394db3e1657b9"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP12-rejoin-after-exhaustion",
+        "exit": 1,
+        "passed": 46,
+        "failed": 6,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP12-rejoin-after-exhaustion.json",
+          "bytes": 104549,
+          "sha256": "79406815e8b3e08373a7f2875e6d4b1c7eb688b1bc568ac71d16edcf016d52ef"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP12-rejoin-after-exhaustion.log",
+          "bytes": 86053,
+          "sha256": "01ef05dcf982c356ead1f97885917409c7e1e7e242f3076ea8e9e90dceb1a619"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP13-identity-keeps-stale-error",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP13-identity-keeps-stale-error.json",
+          "bytes": 30894,
+          "sha256": "77253fb4271206840a6491f09673fee04b47eaf11fc29c14095c90cc97f00f83"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP13-identity-keeps-stale-error.log",
+          "bytes": 64708,
+          "sha256": "c809345ae7e2b7e3d5e8278296350bd7a269a81c0c4bd8aa5d9d8ef33e5cbae5"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP14-no-cut-on-dispose",
+        "exit": 1,
+        "passed": 48,
+        "failed": 4,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) lets neither binding certify an offer whose refresh is held across the remount, and rejoins at the remount (CF-H1)",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP counts queued consume immediately for same-tick dispose (CF-H15)",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) recovers within one window when the remount stays quiet after a cut settle (CF-H1)",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) recovers within one window even when the next offer arrives first after a cut settle (CF-H1)"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP14-no-cut-on-dispose.json",
+          "bytes": 37644,
+          "sha256": "a1b23545fa651401abddfcddb3fa68cc9d2a66dc2ca5f88b58305e237f83de3c"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP14-no-cut-on-dispose.log",
+          "bytes": 68111,
+          "sha256": "1646dfe7ca0361116a359fc5c974c18425debc48146fb9764881c43442b98da7"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP15-heard-watermark-dropped",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) keeps the continued lineage through a quiet confirmation window after the remount (CF-G3)"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP15-heard-watermark-dropped.json",
+          "bytes": 35571,
+          "sha256": "35d2b2d9458b9e56be895b57a439870388ffab3578c730fee8b6900b01f65778"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP15-heard-watermark-dropped.log",
+          "bytes": 65635,
+          "sha256": "d520d1daef78a145cf1c02dd56c9f9d8c2857959a851a10e255ed64c6085d03e"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP16-member-join-unoffered",
+        "exit": 1,
+        "passed": 58,
+        "failed": 20,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R: host AdvanceDay failing after its guard admitted (host) releases M in the append span",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R: an auto-approved AdvanceDay proposal failing after its guard admitted (auto) releases M in the append span",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R: an auto-approved AdvanceDay proposal failing after its guard admitted (auto) releases M in the append span",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R: GM approval of a pending AdvanceDay failing after its guard admitted (gm) releases M in the append span",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R: GM approval of a pending AdvanceDay failing after its guard admitted (gm) releases M in the append span",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R CF-H8/CF-G5 (P2CG1HP {host, member}): an installed bound member membership join only ever offers (confirmed send callback); joinMember is never invoked",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R CF-H8/CF-G5 (P2CG1HP {host, member}): an installed bound member membership join only ever offers (held send callback); joinMember is never invoked",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R CF-H8/CF-G5 (P2CG1HP {host, member}): an installed bound member membership join only ever offers (failed send callback); joinMember is never invoked",
+          "P2CG1D guarded progression doors (installed receipt port) composes application from the installed port; a numeric cursor cannot authorize, genuine receipts commit host AdvanceDay once",
+          "P2CG1D guarded progression doors (installed receipt port) holds C then M inside the guard on the exact handles, commits C under M, and releases M before any publication",
+          "P2CG1D guarded progression doors (installed receipt port) refuses a change made after preparation inside the guard, rolling back with nothing written or fanned out",
+          "P2CG1D guarded progression doors (installed receipt port) answers a busy match connection as a typed refusal, never an uncertain commit",
+          "P2CG1D guarded progression doors (installed receipt port) refuses before any write when the match store has no progression reservation",
+          "P2CG1D guarded progression doors (installed receipt port) keeps a known commit when publication then fails: no refusal, released M, and a retry does not append again",
+          "P2CG1D guarded progression doors (installed receipt port) guards an auto-approved AdvanceDay proposal and leaves SpendFunds proposals unguarded",
+          "P2CG1D guarded progression doors (installed receipt port) keeps a refused GM approval pending with its timer, then coalesces concurrent approvals into one commit",
+          "P2CG1D guarded progression doors (installed receipt port) a GM veto while an approval is being prepared invalidates it before any write",
+          "P2CG1D guarded progression doors (installed receipt port) P2CG1R CF-E7: an invalid proposal reservation never opens M and keeps the pending proposal",
+          "P2CG1D guarded progression doors (installed receipt port) a late refusal of a GM approval preserves the still-valid pending proposal"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP16-member-join-unoffered.json",
+          "bytes": 91126,
+          "sha256": "0eff9429161f890ab04262ddcbe735a335c6b249a6043cb8d98d06ff73167db6"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP16-member-join-unoffered.log",
+          "bytes": 60341,
+          "sha256": "3466e5782f7f399b1621e8d0ef777813dd270d12c0ba4c3ba1504748bdc54aee"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP17-rejoin-keeps-healthy-listener",
+        "exit": 0,
+        "passed": 52,
+        "failed": 0,
+        "suitesFailed": 0,
+        "failedAssertions": [],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP17-rejoin-keeps-healthy-listener.json",
+          "bytes": 29451,
+          "sha256": "28c6b02b304cebda158dea391be9a60194e414d16da40c9e821c90a065376e6d"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP17-rejoin-keeps-healthy-listener.log",
+          "bytes": 63852,
+          "sha256": "f64dbe3e78f6234843e8909ccaa9ff37ed3c1e9a4d36a8b6e6a2c3e9e82e644d"
+        },
+        "outcome": "survived"
+      },
+      {
+        "name": "HP18-key-omits-player",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP18-key-omits-player.json",
+          "bytes": 39184,
+          "sha256": "1771e86ad968c5bf21c537bace6ef775ffcd4366d1d26c5b1665f78039238347"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP18-key-omits-player.log",
+          "bytes": 66981,
+          "sha256": "f3965c02cbb22e863452c157ca3e7a765685327a6e6b02891055b1cc69dd7d98"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP20-region-inserted-on-exhaustion",
+        "exit": 1,
+        "passed": 51,
+        "failed": 1,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP20-region-inserted-on-exhaustion.json",
+          "bytes": 32301,
+          "sha256": "837740877124013fab3dbd5ff06c5dbdc904343400701ebf4db4f30444877d88"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP20-region-inserted-on-exhaustion.log",
+          "bytes": 65355,
+          "sha256": "b241bb6b113673613046c442b2b8689c13f864a2f5339e563c85670fc81d87e4"
+        },
+        "outcome": "caught"
+      },
+      {
+        "name": "HP19-quiet-counts-as-healthy",
+        "exit": 1,
+        "passed": 46,
+        "failed": 6,
+        "suitesFailed": 1,
+        "failedAssertions": [
+          "CampaignCoopRouteSurfaceConnected - a guest applies each offer before its exact ACK HP caps a quiet guest seat at initial plus two sockets, closes them and shows the status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP caps quiet replacement sockets at initial plus two, closes exhausted socket and renders status",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP heartbeat and rebind do not replenish retry budget; route reload explicitly resets it",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP healthy application resets budget after two quiet retries",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP identity switch starts a fresh mounted-seat episode; stale sockets cannot revive exhausted episode",
+          "CampaignCoopRouteSurfaceConnected - a GM remount on its live bound transport continues the fold lineage (P2CG1G1, m8 P1) HP a rotated seat on the same campaign and match starts its own episode"
+        ],
+        "report": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP19-quiet-counts-as-healthy.json",
+          "bytes": 104550,
+          "sha256": "b24f4f0e626c4fba9c2713f2b4c7228cf971d61a0978ffe9b4022a791290c4cf"
+        },
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\HP19-quiet-counts-as-healthy.log",
+          "bytes": 86054,
+          "sha256": "e6350f13c122867ff24ff8b1fec55b8a58d95f1dc3651b3adee4a4fe47b791e5"
+        },
+        "outcome": "caught"
+      }
+    ],
+    "equivalentSurvivor": {
+      "id": "HP17-rejoin-keeps-healthy-listener",
+      "reason": "rejoin marks live=false before close; the retained callback checks live and cannot reset the episode. Removing its unsubscribe changes listener cleanup, not observed recovery behavior. No functional mutation is counted as killed without a failed assertion."
+    },
+    "outOfManifestTransientProbe": "HP16 temporarily routes the existing member binder arm through joinMember; the original binder is restored byte-for-byte. No out-of-manifest product change is committed."
+  },
+  "staticChecks": [
+    {
+      "name": "typecheck",
+      "start": "2026-10-19T02:10:18.511Z",
+      "end": "2026-10-19T02:10:22.464Z",
+      "exit": 0,
+      "command": [
+        "cmd.exe",
+        "/d",
+        "/s",
+        "/c",
+        "npm.cmd run typecheck"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\typecheck.log",
+        "bytes": 174,
+        "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
+      }
+    },
+    {
+      "name": "lint-owned",
+      "start": "2026-10-19T02:10:22.465Z",
+      "end": "2026-10-19T02:10:22.809Z",
+      "exit": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/oxlint/bin/oxlint",
+        "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\lint-owned.log",
+        "bytes": 91,
+        "sha256": "a784462dd6f7fc03e08308dd2d71a200eabae186a03e4e62df508bf65bd85964"
+      }
+    },
+    {
+      "name": "format-owned",
+      "start": "2026-10-19T02:10:22.814Z",
+      "end": "2026-10-19T02:10:22.932Z",
+      "exit": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/oxfmt/bin/oxfmt",
+        "--check",
+        "src/components/campaign/coop/useCampaignApplicationConsumer.ts",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\format-owned.log",
+        "bytes": 112,
+        "sha256": "e12cc883c83bf6a356ebfc1b722a98fa5a612707f6b1ed085d75ebba2406a6ba"
+      }
+    },
+    {
+      "name": "lint-units",
+      "start": "2026-10-19T02:10:22.937Z",
+      "end": "2026-10-19T02:10:25.107Z",
+      "exit": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "scripts/qc/lint-units.mjs"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\lint-units.log",
+        "bytes": 286,
+        "sha256": "d78d31f3906e325e222e72f3f6c78d882f6cd64a61a8f71eba1f116c4ac8fd2c"
+      }
+    },
+    {
+      "name": "validate-roadmap",
+      "start": "2026-10-19T02:10:25.114Z",
+      "end": "2026-10-19T02:10:44.527Z",
+      "exit": 0,
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--git"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\validate-roadmap.log",
+        "bytes": 2354,
+        "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46"
+      }
+    },
+    {
+      "name": "openspec",
+      "start": "2026-10-19T02:10:44.532Z",
+      "end": "2026-10-19T02:10:47.279Z",
+      "exit": 0,
+      "command": [
+        "cmd.exe",
+        "/d",
+        "/s",
+        "/c",
+        "npx.cmd openspec validate --all --strict"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\openspec.log",
+        "bytes": 6857,
+        "sha256": "fd47a21118ed60eedc45c31821d6c48a6fc31bdb8c31b9b84436716ebfa8a9f1"
+      }
+    },
+    {
+      "name": "final-diff-check",
+      "start": "2026-10-19T02:10:47.286Z",
+      "end": "2026-10-19T02:10:47.355Z",
+      "exit": 0,
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\p2cg1hp\\final-diff-check.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "carryForwards": {
+    "CF-H7 / CF-G4": "Implemented per-seat two-retry budget across replacement sockets, reset only on healthy application confirmation or route remount. Exact inline text lives in an always-mounted role=status aria-live=polite region.",
+    "CF-H14": "Release each settlement once before confirmApplied can schedule disposal; preserve cut marking for still-unfinished consumed work. HP07 is killed.",
+    "CF-H15": "Preserve consume-time count; same-tick consume/dispose row passes and HP08 is killed.",
+    "CF-H8 / CF-G5 / R-HP-1": "Frozen R row widened to host/member x confirmed/held/failed; first application offer and no joinMember are pinned. HP16 is killed; existing newcomer reconnect regression passes.",
+    "CF-E7": "Preserved R baseline-green empty-M-trail pins; no historical discharge rewritten.",
+    "CF-H5": "Consumer-only reconciliation preserves authoritative fold and G1 heardAt behavior; no fold-store edit.",
+    "CF-S-1": "OPEN, carried unchanged. Fog-off HTTP history/export has no sealed-choice hold in ViewerProjectionService; its root-branch read keeps the known issue latent. HP changes no HTTP/projection/journal reader and does not move it to the effective head. Before that move, the responsible owner must route through the sealed projection or register the parent-service repair. No privacy restoration claimed.",
+    "CF-MPHD-4": "OPEN with P2CG1H per Root, scope amendment pending. CampaignHostRegistry.ts is outside HP literal manifest and byte-identical to admission base.",
+    "CF-R-2": "Not triggered: HP does not own JournalCampaignEventStore.test.ts; remains with H/next owner.",
+    "CF-R-3": "No new SQLite rejection assertions.",
+    "CF-H12": "32-check by-name comparison will be posted on the published head; no current CI-success claim."
+  },
+  "sensitiveAnalysis": {
+    "authority": "Consumer applies only server-offered state and confirms exactly offered receipts; bound host/member joins still bypass joinMember. No new authority or server port activation.",
+    "privacy": "Fixed recovery message reveals no payload or receipt details. CF-S-1 stays open; HTTP projection unchanged.",
+    "replay": "G1 heardAt watermark, ordered settlement, replacement EMPTY fold and cut marking remain pinned.",
+    "idempotency": "Idempotent settlement release; exactly two quiet retries per mounted identity until qualified reset.",
+    "concurrency": "Per-mounted-hook episode spans socket identities, ignores stale callbacks, clears timers on disposal, and releases before a confirmation-triggered microtask unmount."
+  },
+  "acceptedResiduals": [
+    "Pre-H legacy servers have no healthy application confirmation; budget resets on remount only.",
+    "Same-key effect rerun can bind against a spent budget; notice persists until healthy confirmation or reload.",
+    "Only quiet-window retries are bounded; non-quiet recovery-required signals remain outside this finite policy.",
+    "No receipt-port installation and no durable cross-route retry cap."
+  ],
+  "status": "Local proof complete. Unit remains implementing until Root registers its sensitive packet and completes independent exact-head review, OWNER-RULING and required CI. Exact-main proof/closure remain required before H."
+}

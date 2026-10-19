@@ -8581,7 +8581,9 @@
         "red": {
           "path": "evidence/h-consumer-recovery-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/h-consumer-recovery-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

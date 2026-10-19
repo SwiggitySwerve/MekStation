@@ -100,7 +100,11 @@ export function CampaignCoopRouteSurfaceConnected({
   latestCampaignRef.current = campaign;
   // Receipt-mode application (P2CF2): idle unless a transport is bound to
   // this campaign, which no production creator does before Task 14.
-  const { rejoins, bind: bindApplication } = useCampaignApplicationConsumer();
+  const {
+    rejoins,
+    recoveryError,
+    bind: bindApplication,
+  } = useCampaignApplicationConsumer();
   const applyRefusal = useCallback((message: IServerMessage): void => {
     const refusal = refusalFromFrame(message);
     if (refusal === undefined) return;
@@ -375,7 +379,7 @@ export function CampaignCoopRouteSurfaceConnected({
     mirrorPaused,
   ]);
 
-  return (
+  const surface = (
     <CampaignCoopRouteSurface
       campaign={campaign}
       routeId={routeId}
@@ -393,6 +397,16 @@ export function CampaignCoopRouteSurfaceConnected({
       }}
       guestMirrorSummary={guestMirrorSummary}
     />
+  );
+  // CF-H7: one persistent live region, empty until quiet-window recovery is
+  // exhausted; reload retries. The surface never remounts around it.
+  return (
+    <>
+      <p role="status" aria-live="polite">
+        {recoveryError}
+      </p>
+      {surface}
+    </>
   );
 }
 

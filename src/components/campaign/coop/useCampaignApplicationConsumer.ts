@@ -5,11 +5,12 @@
  * mirror, projection, launch facts, a GM's awaited guarded record refresh)
  * before one `confirmApplied`; a failure sends no receipt, a stale binding
  * reports nothing, and every recovery signal rejoins once from EMPTY.
+ * Quiet-window rejoins are bounded per mounted campaign seat (CF-H7).
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D4, D9)
  */
 
-import { useCallback, useState, type MutableRefObject } from 'react';
+import { useCallback, useRef, useState, type MutableRefObject } from 'react';
 
 import type { ICampaignAuthoritativeFold } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 import type {
@@ -156,9 +157,22 @@ const heardAt = new WeakMap<ICampaignSyncTransport, number>();
  */
 const cutTransports = new WeakSet<ICampaignSyncTransport>();
 
+/** Automatic quiet-window rejoins per mounted seat episode (CF-H7/CF-G4). */
+const QUIET_RETRIES = 2;
+const SYNC_EXHAUSTED =
+  'Campaign sync could not connect. Reload this campaign to try again.';
+
+interface IRecoveryEpisode {
+  readonly rejoin: () => void;
+  /** A quiet window elapsed: true while the episode may rejoin again. */
+  readonly quiet: () => boolean;
+  /** The server confirmed an applied view: the episode is healthy. */
+  readonly healthy: () => void;
+}
+
 function bindCampaignApplicationConsumer(
   binding: CampaignApplicationBinding,
-  onRejoin: () => void,
+  episode: IRecoveryEpisode,
 ): ICampaignApplicationConsumer {
   const { transport, campaignId, store } = binding;
   const confirm = transport.confirmApplied;
@@ -168,10 +182,11 @@ function bindCampaignApplicationConsumer(
   let queue = Promise.resolve();
   let settling = 0;
   // A close before receipt mode latches is silent, so a bound view that
-  // hears no campaign frame within one confirmation window rejoins once.
+  // hears no campaign frame within one confirmation window rejoins, while
+  // its episode still has a retry.
   const quiet =
     active && heardAt.get(transport) !== transport.lastSeq()
-      ? setTimeout(rejoin, APPLICATION_CONFIRMATION_TIMEOUT_MS)
+      ? setTimeout(() => rejoin(true), APPLICATION_CONFIRMATION_TIMEOUT_MS)
       : undefined;
   const heard = (): void => clearTimeout(quiet);
 
@@ -183,13 +198,23 @@ function bindCampaignApplicationConsumer(
           rejoin();
       })
     : () => undefined;
-  function rejoin(): void {
+  // Only a validated server confirmation is healthy: never a heartbeat, a
+  // frame or a rebind.
+  const offHealthy =
+    (active &&
+      transport.onAppliedViewConfirmed?.(() => {
+        if (live) episode.healthy();
+      })) ||
+    (() => undefined);
+  function rejoin(quietWindow = false): void {
     if (!live) return;
     live = false;
     heard();
     offError();
+    offHealthy();
     transport.close();
-    onRejoin();
+    // An exhausted episode closes the unproductive socket and stops here.
+    if (!quietWindow || episode.quiet()) episode.rejoin();
   }
 
   const project = (state: ICampaignAuthoritativeState | null): boolean => {
@@ -202,7 +227,10 @@ function bindCampaignApplicationConsumer(
     return projected !== null;
   };
 
-  const settle = async (offer: ICampaignApplicationOffer): Promise<void> => {
+  const settle = async (
+    offer: ICampaignApplicationOffer,
+    release: () => void,
+  ): Promise<void> => {
     if (!live) return;
     let failure: Failure | null = null;
     try {
@@ -239,6 +267,9 @@ function bindCampaignApplicationConsumer(
     const outcome: CampaignAppliedOutcome = failure
       ? { status: 'failed', reason: failure }
       : { status: 'applied' };
+    // CF-H14: this offer is settled before confirm, which may dispose now or
+    // in its next microtask.
+    release();
     const result = confirm(offer, outcome);
     if (result.status === 'refused' || result.status === 'recovery-required')
       rejoin();
@@ -266,13 +297,17 @@ function bindCampaignApplicationConsumer(
       latched = true;
       // A step that throws, confirmApplied included, rejoins once; it never
       // rejects the queue, so later steps still run and see the dead binding.
+      // CF-H15: counted from consume, so a same-tick dispose still cuts.
       settling += 1;
+      let released = false;
+      const release = (): void => {
+        if (!released) settling -= 1;
+        released = true;
+      };
       queue = queue
-        .then(() => settle(message))
+        .then(() => settle(message, release))
         .catch(() => rejoin())
-        .then(() => {
-          settling -= 1;
-        });
+        .then(release);
       return true;
     },
     dispose: () => {
@@ -280,24 +315,52 @@ function bindCampaignApplicationConsumer(
       live = false;
       heard();
       offError();
+      offHealthy();
     },
   };
 }
 
-/** Binds each connected transport; `rejoins` changes so the effects reconnect. */
+/**
+ * Binds each connected transport; `rejoins` changes so the effects reconnect.
+ * One recovery episode per mounted seat (campaign, match, player) spans its
+ * replacement transports. It is hook-local: a remount, reloading the
+ * campaign, is the explicit retry and starts a fresh episode.
+ */
 export function useCampaignApplicationConsumer(): {
   readonly rejoins: number;
+  readonly recoveryError: string | null;
   readonly bind: (
     binding: CampaignApplicationBinding,
   ) => ICampaignApplicationConsumer;
 } {
   const [rejoins, setRejoins] = useState(0);
-  const bind = useCallback(
-    (binding: CampaignApplicationBinding) =>
-      bindCampaignApplicationConsumer(binding, () =>
-        setRejoins((count) => count + 1),
-      ),
-    [],
-  );
-  return { rejoins, bind };
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+  const episode = useRef({ key: '', retries: 0 });
+  const bind = useCallback((binding: CampaignApplicationBinding) => {
+    const { matchId, playerId } = binding.transport;
+    const key = JSON.stringify([binding.campaignId, matchId, playerId]);
+    if (episode.current.key !== key) {
+      episode.current = { key, retries: 0 };
+      setRecoveryError(null);
+    }
+    const current = (): boolean => episode.current.key === key;
+    return bindCampaignApplicationConsumer(binding, {
+      rejoin: () => setRejoins((count) => count + 1),
+      quiet: () => {
+        if (!current()) return false;
+        if (episode.current.retries >= QUIET_RETRIES) {
+          setRecoveryError(SYNC_EXHAUSTED);
+          return false;
+        }
+        episode.current.retries += 1;
+        return true;
+      },
+      healthy: () => {
+        if (!current()) return;
+        episode.current.retries = 0;
+        setRecoveryError(null);
+      },
+    });
+  }, []);
+  return { rejoins, recoveryError, bind };
 }
