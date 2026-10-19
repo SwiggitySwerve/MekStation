@@ -8712,7 +8712,14 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-admission-review-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-red-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-source-fable-review-20261018.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-owner-ruling-6257071774.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e9e63a55e-jest.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e9e63a55e-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-e9e63a55e-run-proof-cjs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-merge-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1s-mainproof-20261018.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8727,10 +8734,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "c8d3e6aeda1073054644fd9f9f9019d69aae912b",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "12f4e726d83ecbc061df243e9d72731699db9b86",
+      "mergeSha": "e9e63a55ebdb945668166cf2978890bfca36c91d",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-1s-admission-20261018.json"
@@ -8741,9 +8748,27 @@
         "local": {
           "path": "evidence/lsc-1s-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-1s-admission-review-20261018.json",
+          "head": "12f4e726d83ecbc061df243e9d72731699db9b86",
+          "reviewedHead": "14f73d06b2ffe38c7c9eef05535d943046d4a22f",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "cb73426edb2a848179e8e868d0760acee1f06f5c9eeee9eeae791fd56165d6ec",
+          "verdict": "APPROVE WITH IN-PR FIXES"
+        },
+        "merge": {
+          "path": "evidence/lsc-1s-merge-20261018.json",
+          "pr": 2297,
+          "head": "12f4e726d83ecbc061df243e9d72731699db9b86",
+          "mergeSha": "e9e63a55ebdb945668166cf2978890bfca36c91d"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-1s-mainproof-20261018.json",
+          "mergeCommit": "e9e63a55ebdb945668166cf2978890bfca36c91d",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 2 passed (all vault suites plus local-seat migration: 53 suites, 852/852 tests; typecheck exit 0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8794,7 +8819,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -19711,6 +19736,44 @@
         "commentId": 6256147045,
         "author": "SwiggitySwerve",
         "bodySha256": "1a40e49e21598174f6a4c8450bf2606f874bf297fe42672b474a6971e71bc06a"
+      }
+    },
+    {
+      "id": "PK-lsc-1s-ruling",
+      "blocks": [
+        "LSC-1S"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the LSC-1S repository and operator service at 12f4e726 after the independent sensitive review and F1-F4 in-PR fixes, with exact-head 32/32 CI?",
+      "options": [
+        {
+          "label": "rule the exact amended operator-service head",
+          "consequence": "Permit guarded merge, then exact-main proof and closure releasing only LSC-1. Route CF-LSC1S-1..6 as ruled.",
+          "effort": "Independent sensitive review plus Root amendment check and exact-head CI"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge pending fixes, fresh evidence and owner ruling.",
+          "effort": "Bounded by concrete objections"
+        }
+      ],
+      "agentRecommendation": "Accept only the reviewed and amended exact head under the posted owner ruling; runtime behavior remains with downstream units.",
+      "revertCost": "Revert the repository/operator service; keep the additive LSC-1DB schema and its data.",
+      "decision": {
+        "option": "rule the exact amended operator-service head",
+        "at": "2026-10-19T00:27:06Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2297#issuecomment-6257071774"
+      },
+      "ruling": {
+        "ruledHead": "12f4e726d83ecbc061df243e9d72731699db9b86",
+        "pr": 2297,
+        "commentId": 6257071774,
+        "author": "SwiggitySwerve",
+        "bodySha256": "a4bfebca1824c9d56954cf62906dd25da084c8cb1969a8b14d189fc9398d7678"
       }
     },
     {
