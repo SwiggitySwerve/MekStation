@@ -1,0 +1,395 @@
+{
+  "unit": "LSC-1S",
+  "stage": "review",
+  "recordedAt": "2026-10-19T00:31:53.954Z",
+  "head": "12f4e726d83ecbc061df243e9d72731699db9b86",
+  "reviewedHead": "14f73d06b2ffe38c7c9eef05535d943046d4a22f",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE WITH IN-PR FIXES",
+  "outputPath": "evidence/lsc-1s-source-fable-review-20261018.bytes.json",
+  "outputSha256": "cb73426edb2a848179e8e868d0760acee1f06f5c9eeee9eeae791fd56165d6ec",
+  "outputBytes": 25410,
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "headNote": "The independent report reviewed 14f73d06. Root checked the four-file in-PR amendment to 12f4e726 and accepted that exact head. No second independent full-head review is claimed.",
+  "postReviewAmendment": {
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2297-20261018/2026-10-18-lsc-1s-review.md",
+      "sha256": "cb73426edb2a848179e8e868d0760acee1f06f5c9eeee9eeae791fd56165d6ec",
+      "bytes": 25410,
+      "reviewedHead": "14f73d06b2ffe38c7c9eef05535d943046d4a22f",
+      "verdict": "APPROVE WITH IN-PR FIXES",
+      "reviewerModel": "claude-fable-5-1"
+    },
+    "fixes": {
+      "F1": "Expose result.generation on applied/replayed outcomes; test revoke between deliveries with recorded generation 1 and current seat generation 2.",
+      "F2": "Read the stored envelope, decrypt with SEAT_PASSWORD, reject the wrong password and compare ciphertext with the decrypted key encoding.",
+      "F3": "Re-send op-x with label Other; refuse as operation-mismatch and preserve the original row.",
+      "F4": "Name all six columns in the operation INSERT; final count is 500/500."
+    },
+    "priorProductChanges": [
+      {
+        "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+        "sha256": "ddd04ee2e196c3a0f9fba053ab2f822cd5201fb865b5608daea79663bf549876",
+        "bytes": 7119,
+        "added": 223,
+        "deleted": 0
+      },
+      {
+        "path": "src/services/vault/LocalSeatCredentialService.ts",
+        "sha256": "ce39b62a3cdf53dd1d57187dd88d99e9075581bd207845ab99becbb3d1ccc28d",
+        "bytes": 7623,
+        "added": 254,
+        "deleted": 0
+      }
+    ],
+    "priorTestBindings": [
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "testedSha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a",
+        "currentSha256": "37cc51ae53bf8e589554ca982bcec617c657930b846ef6d34b59511cf3a2699a"
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "testedSha256": "8429a84a15f554fbd7f2d108959b2db4b2e117fb7411e6ba2ba4ce005973b8b5",
+        "currentSha256": "8429a84a15f554fbd7f2d108959b2db4b2e117fb7411e6ba2ba4ce005973b8b5"
+      }
+    ],
+    "oldHeadProof": {
+      "F1": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "still throttles and authenticates a duplicate delivery"
+        ],
+        "exitCode": 1,
+        "sha256": "88dfec68a5819868e7140be21c340f8624d9701d227086079794caa1cde642b6",
+        "bytes": 2631,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      },
+      "F2": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "stores the seat key only as ciphertext"
+        ],
+        "exitCode": 0,
+        "sha256": "8f71b73bf7c527b67dfe09cfad403ee7d82a3a0bb71e6fb8532818ff1a3bfdd7",
+        "bytes": 1860,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      },
+      "F3": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "refuses a reused operation id with different parameters"
+        ],
+        "exitCode": 0,
+        "sha256": "52b7fb8bbacf85c7753a0b1c2e7bb19cc529da011704d23bae5f2bba60860bbd",
+        "bytes": 1862,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      }
+    },
+    "patchedProof": {
+      "F1": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "still throttles and authenticates a duplicate delivery"
+        ],
+        "exitCode": 0,
+        "sha256": "c544d54e55a60b847a0cfbb0f5ebb2ef8b8d64cb7feb6777daac4e0fe7166725",
+        "bytes": 1862,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      },
+      "F2": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "stores the seat key only as ciphertext"
+        ],
+        "exitCode": 0,
+        "sha256": "8546b656a1cf3ba317922142ed1e91a7269ead9cd35297d7d59d40c55cb96806",
+        "bytes": 1861,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      },
+      "F3": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "refuses a reused operation id with different parameters"
+        ],
+        "exitCode": 0,
+        "sha256": "6d9662a5c368734cdd740c2073243099a4d34b631bc9faef4d4f6d57497ce43d",
+        "bytes": 1862,
+        "summary": "Tests:       15 skipped, 1 passed, 16 total",
+        "suites": "Test Suites: 1 passed, 1 total"
+      }
+    },
+    "regressionMutants": {
+      "F1": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "still throttles and authenticates a duplicate delivery"
+        ],
+        "exitCode": 1,
+        "sha256": "92c45663e56dd79792a49d684f3392e140b57c0e962b6536c19d91f26c4bc92b",
+        "bytes": 2632,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      },
+      "RV-10": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "stores the seat key only as ciphertext"
+        ],
+        "exitCode": 1,
+        "sha256": "2aff94834e87f48da2cd003c7cf7943dffddedf4980dcdc5f6c351b62052b276",
+        "bytes": 2099,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      },
+      "RV-07": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/jest-cache",
+          "--runTestsByPath",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "--testNamePattern",
+          "refuses a reused operation id with different parameters"
+        ],
+        "exitCode": 1,
+        "sha256": "b94f73e30e72594ca57b71b23d4e010348d57edf7640f345cd2adfa7c58d714e",
+        "bytes": 2606,
+        "summary": "Tests:       1 failed, 15 skipped, 16 total",
+        "suites": "Test Suites: 1 failed, 1 total"
+      }
+    },
+    "proof": {
+      "harness": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/review-fixes.cjs",
+        "sha256": "5fa27285779d4e615f85c2bbd2f8d8596ff6eddc28ad6983aabcac46d7f66129",
+        "bytes": 3864
+      },
+      "results": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1s-sol-logs/r1/results.json",
+        "sha256": "a74c4169420d07393f389356285b3b63e76f5f6269eee66963e86edf494f195e",
+        "bytes": 13095
+      }
+    },
+    "proofInterpretation": "F1 fails on unmodified 14f73d06 and passes patched. F2/F3 are test gaps, not broken implementation: their new assertions pass on 14f73d06 and patched; RV-10 and RV-07 fail them. All three targeted regression mutations fail on the patched test suite. No assertion failure is fabricated for the correct old-head F2/F3 behavior.",
+    "carryForwards": [
+      "- CF-LSC1S-1 (-> LSC-1): the local-seats route must obtain the service via getLocalSeatCredentialService() so the operator window is genuinely route-wide; add a route test that two requests on different seats share one window and that no address/header reaches the service. Never construct LocalSeatCredentialService in the route.",
+      "- CF-LSC1S-2 (-> LSC-1): request schema must enforce a non-empty (recommend >= 8, matching the vault route) seat password, label 1-64 non-blank, operation id 1-128 non-blank, and an integer expectedGeneration before calling the service, so CHECK failures do not surface as 'internal-error' after the window and KDF were consumed (L3). Consider a pre-read of the operation row and generation before keygen (L1).",
+      "- CF-LSC1S-3 (-> LSC-1): one-in-flight mint per seat, mint-vs-revoke post-check (re-read generation and revoked_at after both KDF and signing; refuse with the revoked-seat code), locked-seat refusal before KDF, and whether locked/concurrent refusals consume the mint window; recordFailure/clearFailures with service.now() and the mint's start generation (P5 shows the substrate behaves).",
+      "- CF-LSC1S-4 (-> LSC-2OP): the outcome's generation (after F1) is the value to seed the next expectedGeneration; mint a fresh operation id per submit; a 'generation-conflict' detail.currentGeneration must refresh the form, never auto-retry.",
+      "- CF-LSC1S-5 (-> LSC-1 / later): decide whether 'internal-error' should log error.name only (L2); keep message/cause out of logs.",
+      "- CF-LSC1S-6 (-> LSC-1 review): re-run RV-02/RV-10/RV-16-style mutants on the mint path (no-store header, no password in URL/log/error, decrypted seat key zero-filled after signing)."
+    ],
+    "validation": {
+      "lint": {
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/oxlint/bin/oxlint",
+          "src/services/vault/LocalSeatCredentialRepository.ts",
+          "src/services/vault/LocalSeatCredentialService.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts"
+        ],
+        "exitCode": 0,
+        "sha256": "f8f9d3c9ece6a71fd3a9ff513da46bce8bc46d57609da07389d543b7a9d66f2c",
+        "bytes": 92
+      },
+      "format": {
+        "command": [
+          "npm",
+          "run",
+          "--silent",
+          "format:check"
+        ],
+        "exitCode": 0,
+        "sha256": "805f03f214ed2ba3c951d339516d64b826a4d26bdd88f822b1419db1a3e97ee3",
+        "bytes": 118
+      }
+    },
+    "recordedAt": "2026-10-19T00:08:29.088Z"
+  },
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-LSC1S-1",
+        "rulingText": "- CF-LSC1S-1 -> LSC-1: the route uses the singleton service, so one window is shared, and no address or header reaches the service.",
+        "reviewerText": "- CF-LSC1S-1 (-> LSC-1): the local-seats route must obtain the service via getLocalSeatCredentialService() so the operator window is genuinely route-wide; add a route test that two requests on different seats share one window and that no address/header reaches the service. Never construct LocalSeatCredentialService in the route.",
+        "directedTo": "LSC-1",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1S-2",
+        "rulingText": "- CF-LSC1S-2 -> LSC-1: request-schema minimums (password >= 8, label 1-64, op id 1-128, integer generation), plus a pre-read before keygen.",
+        "reviewerText": "- CF-LSC1S-2 (-> LSC-1): request schema must enforce a non-empty (recommend >= 8, matching the vault route) seat password, label 1-64 non-blank, operation id 1-128 non-blank, and an integer expectedGeneration before calling the service, so CHECK failures do not surface as 'internal-error' after the window and KDF were consumed (L3). Consider a pre-read of the operation row and generation before keygen (L1).",
+        "directedTo": "LSC-1",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1S-3",
+        "rulingText": "- CF-LSC1S-3 -> LSC-1: one in-flight mint, a mint-vs-revoke post-check, locked-seat refusal before the KDF, and window consumption.",
+        "reviewerText": "- CF-LSC1S-3 (-> LSC-1): one-in-flight mint per seat, mint-vs-revoke post-check (re-read generation and revoked_at after both KDF and signing; refuse with the revoked-seat code), locked-seat refusal before KDF, and whether locked/concurrent refusals consume the mint window; recordFailure/clearFailures with service.now() and the mint's start generation (P5 shows the substrate behaves).",
+        "directedTo": "LSC-1",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1S-4",
+        "rulingText": "- CF-LSC1S-4 -> LSC-2OP: seed expectedGeneration from the outcome; a fresh op id per submit; on generation-conflict, refresh rather than auto-retry.",
+        "reviewerText": "- CF-LSC1S-4 (-> LSC-2OP): the outcome's generation (after F1) is the value to seed the next expectedGeneration; mint a fresh operation id per submit; a 'generation-conflict' detail.currentGeneration must refresh the form, never auto-retry.",
+        "directedTo": "LSC-2OP",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1S-5",
+        "rulingText": "- CF-LSC1S-5: decide on name-only logging for internal-error.",
+        "reviewerText": "- CF-LSC1S-5 (-> LSC-1 / later): decide whether 'internal-error' should log error.name only (L2); keep message/cause out of logs.",
+        "directedTo": "LSC-1 / later decision",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1S-6",
+        "rulingText": "- CF-LSC1S-6 -> the LSC-1 review: rerun the secrecy mutants on the mint path.",
+        "reviewerText": "- CF-LSC1S-6 (-> LSC-1 review): re-run RV-02/RV-10/RV-16-style mutants on the mint path (no-store header, no password in URL/log/error, decrypted seat key zero-filled after signing).",
+        "directedTo": "LSC-1 review",
+        "status": "open"
+      }
+    ]
+  },
+  "successorNotes": {
+    "LSC-1": {
+      "carryForwards": [
+        "CF-LSC1S-1",
+        "CF-LSC1S-2",
+        "CF-LSC1S-3",
+        "CF-LSC1S-6",
+        "CF-LSC0-1",
+        "CF-LSC0-2",
+        "CF-LSC0-4",
+        "CF-LSC0-9",
+        "CF-LSC0-13",
+        "CF-LSC0-14",
+        "CF-LSC0-15",
+        "CF-LSC0-16",
+        "CF-LSC0-17",
+        "CF-LSC0-18"
+      ],
+      "rules": "Singleton route service; strict input schema; one in-flight mint; post-KDF and post-sign generation/revocation fences; locked-seat refusal before KDF; window consumption; runtime R2-01..14 coverage and named downstream limits."
+    },
+    "LSC-2OP": {
+      "carryForwards": [
+        "CF-LSC1S-4"
+      ]
+    },
+    "laterDecision": {
+      "carryForwards": [
+        "CF-LSC1S-5"
+      ]
+    }
+  },
+  "ownerRuling": {
+    "ruledHead": "12f4e726d83ecbc061df243e9d72731699db9b86",
+    "pr": 2297,
+    "commentId": 6257071774,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a4bfebca1824c9d56954cf62906dd25da084c8cb1969a8b14d189fc9398d7678",
+    "bodyBytes": 3120,
+    "at": "2026-10-19T00:27:06Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2297#issuecomment-6257071774",
+    "bodyPath": "evidence/lsc-1s-owner-ruling-6257071774.bytes.json",
+    "encoding": "base64 envelope of exact posted UTF-8 comment body; byte-identical to _receipts/pr2297-owner-ruling.md"
+  },
+  "reservedSlot": "Frozen reserved admission-review slot, unwritten in the implementation and filled by closure.",
+  "successorRelease": {
+    "unit": "LSC-1",
+    "field": "state",
+    "from": "blocked",
+    "to": "planned",
+    "basis": "Only successor released by the owner ruling, after genuine exact-main PASS; selection is not admission."
+  }
+}

@@ -1,3 +1,27 @@
+## 2026-10-18 LSC-1S verified on main; LSC-1 released; closure metadata proposed
+
+LSC-1S advances from implementing to main-verified for PR #2297, head 12f4e726d83ecbc061df243e9d72731699db9b86, merge e9e63a55ebdb945668166cf2978890bfca36c91d.
+The independent Fable 5.1 report reviewed 14f73d06b2ffe38c7c9eef05535d943046d4a22f: APPROVE WITH IN-PR FIXES. Root checked the four-file amendment and ruled ACCEPT at the exact merged head; no second independent full-head review is claimed.
+The review is byte-preserved (25410 bytes, sha256 cb73426edb2a848179e8e868d0760acee1f06f5c9eeee9eeae791fd56165d6ec), as is the posted owner ruling (3120 bytes, sha256 a4bfebca1824c9d56954cf62906dd25da084c8cb1969a8b14d189fc9398d7678). Both use base64 envelopes to prevent line-ending normalization. PK-lsc-1s-ruling records comment 6257071774, posted 2026-10-19T00:27:06Z, before merge 2026-10-19T00:27:12Z.
+
+The [review receipt](evidence/lsc-1s-admission-review-20261018.json) fills the reserved slot and routes carry-forwards. The [merge receipt](evidence/lsc-1s-merge-20261018.json) records clean tree integration, unchanged controls and product/test bytes, 9/15 manifest files and 500/500 counted lines, and 32/32 exact-head check names.
+The [main proof](evidence/lsc-1s-mainproof-20261018.json) records fresh npm ci and runs at exactly e9e63a55ebdb945668166cf2978890bfca36c91d: 53 vault/migration suites, 852/852 tests; typecheck PASS. All heavy runs used the lsc jest ticket queue. Raw logs and the runner are byte-preserved.
+
+Carry-forwards (owner ruling text, verbatim):
+
+- CF-LSC1S-1 -> LSC-1: the route uses the singleton service, so one window is shared, and no address or header reaches the service.
+- CF-LSC1S-2 -> LSC-1: request-schema minimums (password >= 8, label 1-64, op id 1-128, integer generation), plus a pre-read before keygen.
+- CF-LSC1S-3 -> LSC-1: one in-flight mint, a mint-vs-revoke post-check, locked-seat refusal before the KDF, and window consumption.
+- CF-LSC1S-4 -> LSC-2OP: seed expectedGeneration from the outcome; a fresh op id per submit; on generation-conflict, refresh rather than auto-retry.
+- CF-LSC1S-5: decide on name-only logging for internal-error.
+- CF-LSC1S-6 -> the LSC-1 review: rerun the secrecy mutants on the mint path.
+
+LSC-1 preparation carries CF-LSC1S-1/2/3/6 and CF-LSC0-1/2/4/9/13/14/15/16/17/18 as routed. H2 is a local-seat-route-only guard; no primary token/vault-route or B15 discharge. RED must be runtime tests covering R2-01..14 with downstream recovery/census limits named. CF-LSC1S-4 stays with LSC-2OP; CF-LSC1S-5 is the name-only logging decision.
+
+Successor release is separate from admission: only LSC-1 moves blocked -> planned because LSC-1S has genuine exact-main PASS. All other units are unchanged. No tasks.md checkbox changes; tick remains null. This closure still requires its own CI, independent verification and merge.
+
+---
+
 ## 2026-10-18 MP-RECOVERY-UNITS-1 source verified on main
 
 MP-RECOVERY-UNITS-1 moves from implementing to main-verified after #2296
