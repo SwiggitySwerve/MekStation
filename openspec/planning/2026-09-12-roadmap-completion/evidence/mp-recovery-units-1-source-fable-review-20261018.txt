@@ -1,0 +1,217 @@
+# MP-RECOVERY-UNITS-1 review: PR #2296 (independent FULL SENSITIVE review)
+
+Reviewer: Fable (rev-2296 lane), 2026-10-18 / 2026-10-19T00:08Z
+Head reviewed: f4165728412418d0c30f32d00b5174fe8121300a (= PR head at review time; CI run 39175533427 reports the same headSha)
+Baseline: 44bd8bb9191f2c945324f483e4f524841b098ddf (merge-base with origin/main confirmed)
+Main at review time: 8fcd311d5 (moved past the PR body's c8d3e6aed by #2292 and #2294; those touch
+matchHeadRoute.ts and its test only; git merge-tree origin/main HEAD is clean, tree 73dffe6a4)
+Review classes: authority, replay, migration (units.json reviewClasses), plus persistence as briefed.
+Read-only review: nothing pushed, commented, labelled or merged. Root checkout untouched.
+Worktrees used: E:/Projects/Personal/MekStation-wt/review-2296-20261018 (detached f4165728, own npm ci)
+and E:/Projects/Personal/MekStation-wt/review-2296-base-20261018 (detached 44bd8bb91, own npm ci).
+Evidence directory (untracked, outside the repo): E:/Projects/Personal/MekStation-wt/review-2296-proof/.
+
+## 1. Verdict
+
+APPROVE for OWNER-RULING, with one optional in-PR test addition (section 7) and four carry-forwards
+(section 8). No blocking finding. The change does what the unit registered, stays inside the frozen
+manifest, needs no scope amendment, and its proof (RED, GREEN, mutants, built-image restart) reproduces
+independently on this head.
+
+## 2. What the change is
+
+Two product leaves, one new test file, units.json lifecycle fields, three receipts.
+
+- src/lib/multiplayer/server/matchUnitBootstrap.ts (+91/-4): deriveServerAdaptedUnits and
+  recoverServerInteractiveSession. Catalog units: getNodeCanonicalUnitService().getByIdSync(unitRef)
+  (fs.readFileSync under process.cwd()/public/data/units/battlemechs) adapted with the engine's own
+  adaptUnitFromData(fullUnit, { side }), then id overridden to the game-instance id. Custom units
+  (recorded customUnitDefinition or custom- ref): filtered into the unchanged engine path
+  deriveAdaptedUnitsFromSession(session, readServerCustomCombatDefinition). Session adopted with
+  InteractiveSession.fromHydratedSession using the fromSessionAsync reseed rule: finite config.seed ->
+  SeededRandom(seed) + SeededD6Roller(seed); else SeededRandom(0xc0ffee) and no roller.
+- src/lib/multiplayer/server/MatchRecovery.ts (+9/-18): rebuildSessionFromEvents, registerRecoveredHost
+  (journal-head and legacy checkpoint arms) and the activated-rewind arm call
+  recoverServerInteractiveSession instead of InteractiveSession.fromSessionAsync. InteractiveSession and
+  readServerCustomCombatDefinition imports become type-only / removed.
+
+## 3. Checks against the brief
+
+| Brief item | Result |
+| --- | --- |
+| Boot recovery reads catalog units from disk via NodeCanonicalUnitService.getByIdSync, no HTTP-to-self before listen | YES for every MatchRecovery arm (journal-head, legacy checkpoint, rewound-at-boot, rebuildSessionFromEvents). The only remaining pre-listen fetch is ServerMatchHost.recover's co-op journal-units derivation (CF-MPRU-1, outside the manifest). Test row 2 asserts preListenFetch not called; my built-image probe at the head shows zero skip lines under a regex that covers both the old engine message and the new server-catalog message. |
+| Custom units still go through the engine path | YES. isEngineRecoveredUnit routes customUnitDefinition-present or custom- refs to deriveAdaptedUnitsFromSession with readServerCustomCombatDefinition; requireRecordedCustomCombatSnapshot and the fail-closed throws are untouched (src/engine byte-identical). Mutants M3/R6 caught by the custom recovery suites. Coverage gap: the no-snapshot custom branch is not exercised by any suite on the new path (R2, R10 survive) - see F3. |
+| Seeded RNG and dice streams identical after recovery | YES. Same reseed rule; fromHydratedSession passes random, d6Roller, both unit arrays, optionalRules and victoryConditions exactly as fromSessionAsync does, and neither passes the 12th seed arg nor sets suppressOutcomePublication. Row 3 proves AI-turn (random) and InitiativeRolled (dice) parity against fromSessionAsync for seed 4242; R7 (random seed+1) and R8 (d6 seed+1) are caught by that row. MP matches carry no config.seed, so they fall through to the legacy 0xc0ffee values exactly as before (see CF-MPRU-4 for the pre-existing consequence). |
+| Schema-invalid bundled unit now fails that match's recovery | YES, and it is the right fail-closed behaviour (section 4). Isolation: per-match try/catch in recoverActiveMatches pushes the matchId to failed and continues; bootstrapMultiplayerServer only logs the count; server.js wraps the whole runtime bootstrap in try/catch and listens regardless. One bad match blocks neither other matches nor the listener. |
+| No edits to server.js or src/engine; only the two product leaves plus the new test | YES. git diff 44bd8bb91..HEAD lists exactly 7 files; server.js, src/engine/**, CanonicalUnitService.ts, NodeCanonicalUnitService.ts, MatchHostRegistry.ts, ServerMatchHost.ts, ServerMatchHostRewindRebuild.ts and scripts/release are byte-identical to the baseline. No scope amendment needed. |
+| RED is 3/3 behavioural and no test byte changed after RED | YES. Reproduced: with the two product leaves checked out at 44bd8bb91 bytes and the head test file, jest reports 3 failed / 3 (red-repro.json; the failing assertions are the Move/NoMovementCapability shape, preListenFetch called 2 times, and the seeded-stream shape diverging). git diff 9c526b464..HEAD touches no test file. |
+| M8 routed as CF-MPRU-2 | YES, recorded in the local receipt and the PR body. I confirm no existing suite reaches recoverActiveMatches with an activated rewind branch without mocks; the arm is a one-call swap identical to M4/M5 (both caught). |
+| CF-MPRU-1/3 honestly scoped out | YES; see section 5 for whether they block the reconnect journey. |
+| Built-image restart probe before/after | DONE independently, both images built in this lane through the heavy queue (class build). Before (44bd8bb91, buildId 1792367896666): FAIL - two fromSessionAsync skip lines before [mp-boot] recovered 1 active match(es), then seven Move attempts all movement_invalid NoMovementCapability. After (f4165728, buildId 1792367129401, sourceTreeSha256 9dd70f7c... identical to the implementer's 95139068f image): PASS 3/3 - zero skip lines, Move -> InsufficientMP at 6 hexes (capability present), adjacent hex -> movement_declared. |
+| At least 6 own mutants | 10 written, 6 caught, 4 survive (section 6). |
+| Caps, manifest, typecheck, lint, validators, CI | All pass (section 9). |
+
+## 4. Fail-closed behaviour on a schema-invalid bundled unit
+
+Before: CanonicalUnitService.getById (fetch) returns the raw JSON without contract validation, so a
+contract-violating unit file was adapted silently at launch and at recovery (when the fetch worked).
+After: getByIdSync runs parseUnit and throws UnitContractParseError naming the field path; the throw
+propagates out of deriveServerAdaptedUnits -> recoverServerInteractiveSession -> the per-match
+try/catch in recoverActiveMatches, which logs "[MatchRecovery] failed to rebuild match <id>" and adds the
+id to failed. Other matches continue; the server listens.
+
+Is that right? Yes for a packaged image: a bundled unit JSON that violates UnitContract is a build/data
+defect, and recovering the match with that unit silently dropped would reproduce exactly the
+FINDING-A1-REV-1 symptom (no adapted state, every action refused) with less diagnosis. Fail-loud is the
+documented boundary of NodeCanonicalUnitService and is consistent with the engine's custom-unit rule.
+Reachability today: I scanned the whole bundled catalog through getByIdSync at this head (4225 indexed,
+4225 parse, 0 null, 0 throws, 28.6 s; catalog-scan.ts). So the branch is unreachable on a correct image
+and only an image corrupted after build can hit it.
+
+Two consequences worth knowing (neither blocks):
+- Asymmetry: launch (getOrCreate -> buildMatchHostBootstrapFromMeta -> adaptUnit over fetch) still does
+  not validate, so a hypothetically invalid unit launches but cannot be recovered. Harmless while the
+  catalog is clean; worth folding into CF-MPRU-1's owner if the fetch service is ever replaced.
+- Pre-existing fall-through: a match that lands in failed (not blocked/quarantined) is not in
+  hosts, so the next getOrCreate for a non-co-op match builds a FRESH host from meta
+  (MatchHostRegistry.getOrCreate, the "Refused recovery must not fall through to a fresh empty host"
+  guard covers quarantine only). That is the existing behaviour for every rebuild throw; this PR adds a
+  new (unreachable today) throw class to it. Noted as OBS-MPRU-2, owner MP-HOST-DEDUPE-1 since it is
+  already in getOrCreate/recoverActiveMatches.
+
+## 5. Do CF-MPRU-1 / CF-MPRU-3 block the reconnect journey (2 players + GM shared mission)?
+
+CF-MPRU-1 (ServerMatchHost.recover derives co-op mission journal units through
+deriveAdaptedUnitsFromSession, fetch catalog, at boot): at packaged boot every canonical unit of a
+co-op mission host is skipped with the old engine warning, so journalPlayerUnits/journalOpponentUnits
+on that host are empty. I traced every consumer of those two fields: they feed only decideDeps
+(ServerMatchHost.ts:1324-1328), i.e. the combat journal-authority decide/apply/divergence-rebuild path
+(ServerMatchHostJournalAuthority.ts:159, :258-272) and the shadow comparer. The live engine session
+that answers legacy-path intents (Move, Attack, AdvancePhase, the CoopOpponentDriver AI turn) is the
+InteractiveSession this PR now builds from disk. COMBAT_JOURNAL_AUTHORITY_MODE is 'off' in production
+and a recovered host enables journal authority only when the durable rollback reader is
+journal-compatible (a started fact exists), which the 'off' mode never writes. So after this PR a
+restarted co-op mission accepts unit actions on the legacy path; CF-MPRU-1 does NOT block the
+reconnect journey today. It does become High the day combat journal authority is cut over, and it is
+not yet proven on a real image (the probes here are 1v1 combat). Verdict: not blocking for A2's
+restart row, but A2's co-op restart case must witness an accepted action, not only a replay.
+Note the same empty-journal-units gap exists for NON-co-op recovered hosts (recover passes [] for
+them), so the fix should hand the disk-derived units to the host for both kinds (OBS-MPRU-1).
+
+CF-MPRU-3 (ServerMatchHostRewindRebuild live rebuild still uses fromSessionAsync -> fetch): only runs
+while the server is listening, so it works; it is the same self-fetch pattern, so it is fragile under
+NEXT_PUBLIC_BASE_URL/PORT mismatch or a saturated listener. Not blocking for reconnect/restart; the
+rewound-at-boot arm (the one that matters at restart) is already on disk in this PR.
+
+Owner recommendation: a new narrow unit (suggested id MP-RECOVERY-UNITS-2, R2.authority-live,
+predecessor MP-RECOVERY-UNITS-1, before L1-SMOKE-A2) owning ServerMatchHost.ts and
+ServerMatchHostRewindRebuild.ts: (a) ServerMatchHost.recover takes units from deriveServerAdaptedUnits
+for both co-op and non-co-op hosts, (b) rebuildHostFromActivatedBranch calls
+recoverServerInteractiveSession, (c) one unmocked rewound-at-boot fixture so M8 is caught (CF-MPRU-2),
+(d) the recovered-host dice wiring in CF-MPRU-4. Folding (a)-(d) into MP-HOST-DEDUPE-1 is possible
+(it owns the server directory and is next in the lane) but mixes a concurrency RED with a unit-source
+swap; I would keep DEDUPE-1 narrow. Either way, L1-SMOKE-A2's co-op restart row should cite the owner.
+
+## 6. Mutants (my own, applied one at a time to the head product bytes; suites:
+MatchRecovery.canonicalUnits, customCombatRecovery.durableAuthority, customCombatRecovery.recoveryDelivery,
+journalAuthorityRecovery, outboxPublicationLive = 22 tests; post-run src tree clean)
+
+| Id | Mutation | Result |
+| --- | --- | --- |
+| R1 drop-id-override | adapted catalog unit keeps the catalog id instead of gameUnit.id | CAUGHT (3 failed) |
+| R2 drop-custom-ref-predicate | isEngineRecoveredUnit ignores custom- refs without a recorded snapshot (they go to the catalog and silently skip) | SURVIVES - every fixture custom unit carries a recorded snapshot, so readCustom is never consulted on the new path |
+| R3 unknown-ref-throws | unknown catalog ref throws instead of warn+skip | CAUGHT (6 failed) - the skip rule is pinned by the custom and journal suites, not by the new test |
+| R4 lookup-by-instance-id | getByIdSync(gameUnit.id) | CAUGHT (3 failed) |
+| R5 suppress-outcome | fromHydratedSession with suppressOutcomePublication: true | SURVIVES - no server suite pins that a recovered session still announces CombatOutcomeReady on the engine bus; server-side outcome delivery goes through publishDurableCombatOutcome, so equivalent at this surface |
+| R6 engine-lookup-by-unitref | engineById.get(gameUnit.unitRef) drops custom units | CAUGHT (1 failed) |
+| R7 random-seed-plus-one | SeededRandom(seed + 1) when seeded | CAUGHT (1 failed, row 3) |
+| R8 d6-seed-plus-one | SeededD6Roller(seed + 1) when seeded | CAUGHT (1 failed, row 3) |
+| R9 unseeded-gets-seeded-roller | unseeded sessions get SeededD6Roller(0xc0ffee) instead of undefined | SURVIVES - equivalent in predictability (see CF-MPRU-4): with undefined the resolvers fall back to random.nextInt on SeededRandom(0xc0ffee) |
+| R10 readCustom-null-in-rebuild | rebuildSessionFromEvents passes a reader that returns null | SURVIVES - same root as R2 |
+
+6/10 caught. The four survivors are coverage facts, not behaviour defects: the code under R2/R10 is
+correct by reading and is the engine's own branch; R5 and R9 are equivalent at the server surface.
+Implementer's 10 mutants re-read: M7 and M10 equivalence reasoning (InteractiveSession.setup keys
+both arrays by id) is correct; M8 survivor correctly routed.
+
+## 7. Findings and precise in-PR fixes
+
+F1 (low, evidence quality, no code change required): the pre-fix repro cited in the red receipt
+(repro-base-1c7632b18) ran an older probe whose post-restart row passed on any reply; its summary lists
+post-restart-unit-action-accepted as passed while the raw evidence shows NoMovementCapability. The PR
+statement is true on the raw evidence, not on that summary. Superseded by my own before/after
+reproduction (section 3), which uses the v3 assertions.
+
+F2 (low, evidence quality): both the implementer's probe and my v4 report "zero skip lines", but the
+implementer's SKIP regex (/not found in the canonical catalog - skipping/) does not match the new
+logger message "not found in the server canonical catalog - skipping". My v4 regex matches both and
+still reports zero, so the claim holds; A2 should use the wider regex. Also, in the jest row 1 the
+warn spy cannot observe a new-path skip at all (utils/logger is silenced under NODE_ENV=test unless
+testMode), so the behavioural guard in that row is the Move acceptance, which is the right one.
+
+F3 (low, optional in-PR, test leaf only, line-exempt): add one row to
+MatchRecovery.canonicalUnits.test.ts that strips customUnitDefinition from a custom- unit on
+GameCreated and (a) recovers it through readServerCustomCombatDefinition, (b) with the definition
+missing expects recoverActiveMatches to report that match in failed rather than a silent skip. This
+kills R2 and R10 and pins the only engine-path branch the new code can bypass. Not required for the
+ruling: the branch is engine code already covered by src/engine suites on fromSessionAsync.
+
+No required in-PR product change.
+
+## 8. Carry-forwards
+
+| Id | Owner | Item |
+| --- | --- | --- |
+| CF-MPRU-1 | new narrow unit MP-RECOVERY-UNITS-2 (or DEDUPE-1 if Root prefers), before L1-SMOKE-A2 | ServerMatchHost.recover: take units from deriveServerAdaptedUnits for co-op AND non-co-op hosts (today co-op uses fetch at boot and non-co-op passes []); only consumers are the journal-authority decideDeps, so latent while mode is 'off' |
+| CF-MPRU-2 | same unit (PR says U44; either) | unmocked rewound-at-boot fixture so M8 is caught |
+| CF-MPRU-3 | same unit | ServerMatchHostRewindRebuild.rebuildHostFromActivatedBranch -> recoverServerInteractiveSession (drop the live HTTP-to-self) |
+| CF-MPRU-4 (new, pre-existing, Medium for the shared mission) | same unit; needs ServerMatchHost.ts | A recovered legacy-path MP host never wires its crypto RollCapture into the engine: ServerMatchHost.recover passes no sourceRoller and the session has d6Roller undefined, so every post-restart roll comes from InteractiveSession's fallback random.nextInt on SeededRandom(0xc0ffee) from position zero, and events carry no captured rolls. Dice after a restart are therefore predictable from a public constant. Byte-identical to the pre-PR fromSessionAsync behaviour (the PR deliberately preserves it); fix is to let recoverServerInteractiveSession accept an optional d6Roller and have recover pass () => host.capture.d6(). |
+| CF-SMOKEA1-2 | discharged for the 1v1 combat recovery path on two independently built images (this review); L1-SMOKE-A2 may cite this report and the local receipt; co-op restart remains to be witnessed |
+
+Observations (no owner change needed): OBS-MPRU-1 non-co-op journal units empty on recovered hosts
+(folded into CF-MPRU-1); OBS-MPRU-2 failed-recovery fall-through to a fresh host in getOrCreate
+(DEDUPE-1 territory); OBS-MPRU-3 the PR body's "Main has since moved to c8d3e6aed" is stale (now
+8fcd311d5) but still non-overlapping and merge-clean.
+
+## 9. Caps, manifest, checks, CI (all on f4165728)
+
+- Census (U41, git diff --numstat --no-renames 44bd8bb91..HEAD): matchUnitBootstrap.ts 91,
+  MatchRecovery.ts 9, units.json 16 = 116/500 counted; test 327 and receipts 446 line-exempt.
+  Files 7 changed + 1 reserved review slot = 8/15, exactly the frozen admission manifest.
+- units.json: only MP-RECOVERY-UNITS-1 fields changed (state implementing, baseline, three receipt
+  pointers, four evidence ownershipExceptions). admissionRequires rules respected: no server.js /
+  src/engine edit, NodeCanonicalUnitService.ts unchanged, MatchHostRegistry.ts and its bootstrap test
+  left to DEDUPE-1.
+- Browser boundary: matchUnitBootstrap.ts importers are MatchHostRegistry, MatchRecovery,
+  coopMissionCreate and pages/api only; no component/store/hook path reaches it; CI build jobs green.
+- Packaged catalog root: server.js chdir(__dirname) in standalone mode and public/data is copied by
+  Dockerfile (COPY public/data) and desktop afterPack (next-standalone/public); dev uses the repo root.
+  Confirmed on the built image by the probe.
+- typecheck: exit 0 (root + scripts tsconfig). lint: 0 errors / 84 warnings repo-wide, 0 on the
+  changed files. format:check: pass. lint:units: LINT_UNITS_PASS 17896/17899.
+  validate-roadmap: PASSED (plain and --git). validator tests: 86 pass / 0 fail.
+  openspec validate --all --strict: 230 passed / 0 failed.
+- Jest on the head (through the heavy queue, lane rev-2296, runInBand, private cache): owned suite
+  3/3 plus 7 related suites = 33/33 (green-head.log).
+- CI run 39175533427 on headSha f4165728: 32/32 checks pass (A11y, Storybook, Build Test linux/mac/win,
+  Coverage Floor, Customizer Regressions, Desktop Tests/Type Check, Detect Changes, Determinism Audit,
+  E2E Smoke, Format, Install, Lint, Lint and Test, Perf Budget PR, Perf Smoke, Prepare Build Artifacts,
+  Schema Bridge, Seam Anchors, Statistical Proof PR, Type Check, Unit Tests 1-6, Validate BV Parity,
+  Validate Combat Suite, Validate Roadmap Ledger).
+
+## 10. Evidence (E:/Projects/Personal/MekStation-wt/review-2296-proof, sha256 / bytes)
+
+- green-head.log ca40cb63084667124dece61e52c73264f16d7cc048151234409160f59f5ddafb 66295
+- red-repro.json 79d0a93f000fc60768975859d047b314572d95bfc4c8704a1424deb6d5a2a6a5 349 (3 failed / 3; product leaves at baseline bytes; tree restored clean)
+- red-repro.log 70b972ae12e13eb67e116664e4dbfc6c4d270629d3b646c3ed0ab596dba89393 4076
+- mutants.json 28765960e01047747cbac978d9dc5124ff977e9df7f7c9c897d5127824a5e8f4 1803 (mutants.cjs a8f3810b...)
+- probe-head-f4165728/summary.json 40e44e11a386933e439bb9fe32b06ebb7ed4ae6747fee82f4845c28b4ac386ce 1578 (PASS 3/3)
+- probe-head-f4165728/evidence.jsonl 0a2f341aec37586c6f255fb955db50314c018807ca7bca68cd86c09f8e1c0beb 24854
+- probe-base-44bd8bb9/summary.json c14c012d4d73c9bda6fa54f1c7864234fd35ba80025bfcd755242359b803323c 2084 (FAIL, as expected before the fix)
+- probe-base-44bd8bb9/evidence.jsonl fcf5fcb3bb36dd803f318ff3506d9ce1e5b510e727eda578218e198eae2a7efd 31052
+- run-recovery-probe.v4.mjs d0de0fb4324cbde105cb3cd6bb802528dd5975bfd1d30dc9ba30123475c091a9 4327 (v3 with the wider SKIP regex and this lane's runner path)
+- catalog-scan.ts b9a9256953c17329a10d2ccc7f51e64d64eea9f4fa6dc43ad6a7701a5017ebc0 711 (4225/4225 parse)
+- typecheck.log 9a0a684f005bf79e7354a26d9bdc607775658a4f7609bfab9b291e9ae150684d 188
+
+Implementer receipts re-hashed: probe-green-95139068f-main44bd/summary.json e0ee63a0...,
+a1-smoke-95139068f/summary.json 1ebf9a37..., both match the local receipt.

@@ -1,0 +1,176 @@
+{
+  "unit": "MP-RECOVERY-UNITS-1",
+  "stage": "review",
+  "recordedAt": "2026-10-19T00:23:12.248Z",
+  "head": "f4165728412418d0c30f32d00b5174fe8121300a",
+  "reviewedHead": "f4165728412418d0c30f32d00b5174fe8121300a",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "claude-opus-5-5",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "verdictText": "APPROVE for OWNER-RULING, with one optional in-PR test addition and four carry-forwards. No blocking finding.",
+  "outputPath": "evidence/mp-recovery-units-1-source-fable-review-20261018.txt",
+  "outputSha256": "aaac1dab30cbc69009f69d6095ba455ae07632fc6daa9ba3ac04aace7e9e2eac",
+  "outputBytes": 20977,
+  "originalPath": "E:/Projects/Personal/MekStation-wt/review-2296-20261018/2026-10-18-mp-recovery-review.md",
+  "reservedSlot": "The original admission manifest reserved this review slot; it now binds the genuine full sensitive review.",
+  "classes": [
+    "authority",
+    "replay",
+    "migration"
+  ],
+  "supplementalReviewClasses": [
+    "persistence"
+  ],
+  "reviewerRows": [
+    "| CF-MPRU-1/3 honestly scoped out | YES; see section 5 for whether they block the reconnect journey. |",
+    "| R1 drop-id-override | adapted catalog unit keeps the catalog id instead of gameUnit.id | CAUGHT (3 failed) |",
+    "| R2 drop-custom-ref-predicate | isEngineRecoveredUnit ignores custom- refs without a recorded snapshot (they go to the catalog and silently skip) | SURVIVES - every fixture custom unit carries a recorded snapshot, so readCustom is never consulted on the new path |",
+    "| R3 unknown-ref-throws | unknown catalog ref throws instead of warn+skip | CAUGHT (6 failed) - the skip rule is pinned by the custom and journal suites, not by the new test |",
+    "| R4 lookup-by-instance-id | getByIdSync(gameUnit.id) | CAUGHT (3 failed) |",
+    "| R5 suppress-outcome | fromHydratedSession with suppressOutcomePublication: true | SURVIVES - no server suite pins that a recovered session still announces CombatOutcomeReady on the engine bus; server-side outcome delivery goes through publishDurableCombatOutcome, so equivalent at this surface |",
+    "| R6 engine-lookup-by-unitref | engineById.get(gameUnit.unitRef) drops custom units | CAUGHT (1 failed) |",
+    "| R7 random-seed-plus-one | SeededRandom(seed + 1) when seeded | CAUGHT (1 failed, row 3) |",
+    "| R8 d6-seed-plus-one | SeededD6Roller(seed + 1) when seeded | CAUGHT (1 failed, row 3) |",
+    "| R9 unseeded-gets-seeded-roller | unseeded sessions get SeededD6Roller(0xc0ffee) instead of undefined | SURVIVES - equivalent in predictability (see CF-MPRU-4): with undefined the resolvers fall back to random.nextInt on SeededRandom(0xc0ffee) |",
+    "| R10 readCustom-null-in-rebuild | rebuildSessionFromEvents passes a reader that returns null | SURVIVES - same root as R2 |",
+    "| CF-MPRU-1 | new narrow unit MP-RECOVERY-UNITS-2 (or DEDUPE-1 if Root prefers), before L1-SMOKE-A2 | ServerMatchHost.recover: take units from deriveServerAdaptedUnits for co-op AND non-co-op hosts (today co-op uses fetch at boot and non-co-op passes []); only consumers are the journal-authority decideDeps, so latent while mode is 'off' |",
+    "| CF-MPRU-2 | same unit (PR says U44; either) | unmocked rewound-at-boot fixture so M8 is caught |",
+    "| CF-MPRU-3 | same unit | ServerMatchHostRewindRebuild.rebuildHostFromActivatedBranch -> recoverServerInteractiveSession (drop the live HTTP-to-self) |",
+    "| CF-MPRU-4 (new, pre-existing, Medium for the shared mission) | same unit; needs ServerMatchHost.ts | A recovered legacy-path MP host never wires its crypto RollCapture into the engine: ServerMatchHost.recover passes no sourceRoller and the session has d6Roller undefined, so every post-restart roll comes from InteractiveSession's fallback random.nextInt on SeededRandom(0xc0ffee) from position zero, and events carry no captured rolls. Dice after a restart are therefore predictable from a public constant. Byte-identical to the pre-PR fromSessionAsync behaviour (the PR deliberately preserves it); fix is to let recoverServerInteractiveSession accept an optional d6Roller and have recover pass () => host.capture.d6(). |",
+    "| CF-SMOKEA1-2 | discharged for the 1v1 combat recovery path on two independently built images (this review); L1-SMOKE-A2 may cite this report and the local receipt; co-op restart remains to be witnessed |"
+  ],
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-MPRU-1",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-2",
+        "item": "ServerMatchHost.recover must derive co-op and non-co-op journal units from disk via deriveServerAdaptedUnits. A2 co-op restart must witness an accepted action; current journal authority is off."
+      },
+      {
+        "id": "CF-MPRU-2",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-2",
+        "item": "Add an unmocked rewound-at-boot fixture that catches M8."
+      },
+      {
+        "id": "CF-MPRU-3",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-2",
+        "item": "Remove HTTP-to-self from ServerMatchHostRewindRebuild.rebuildHostFromActivatedBranch using recoverServerInteractiveSession."
+      },
+      {
+        "id": "CF-MPRU-4",
+        "severity": "Medium",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-2",
+        "item": "Recovered legacy-path hosts must wire crypto RollCapture. Add optional d6Roller to recoverServerInteractiveSession; ServerMatchHost.recover passes () => host.capture.d6(). Current post-restart dice use predictable SeededRandom(0xc0ffee) with no captured rolls."
+      },
+      {
+        "id": "F3 / R2/R10",
+        "status": "open",
+        "owner": "MP-RECOVERY-UNITS-2",
+        "item": "Custom-unit no-snapshot test: successful stored-definition recovery and fail-closed missing definition, rather than silent catalog skip."
+      },
+      {
+        "id": "F1",
+        "status": "recorded",
+        "owner": "closure evidence",
+        "item": "Old pre-fix probe summary accepted any reply and mislabeled NoMovementCapability as accepted. Raw evidence supports the defect; independent reviewer before/after probe supersedes that summary."
+      },
+      {
+        "id": "F2",
+        "status": "recorded; apply in A2 proof",
+        "owner": "L1-SMOKE-A2",
+        "item": "Use skip detection matching both canonical catalog and server canonical catalog messages. Reviewer broader regex still finds zero skips. Jest Move acceptance is the behavioral guard; warn spy is silenced under test mode."
+      },
+      {
+        "id": "CF-SMOKEA1-2",
+        "status": "discharged for ordinary combat matches",
+        "owner": "L1-SMOKE-A2",
+        "item": "Independent built-image before/after restart validates accepted ordinary combat action; co-op restart acceptance remains an A2 obligation."
+      },
+      {
+        "id": "OBS-MPRU-1",
+        "status": "folded into CF-MPRU-1",
+        "owner": "MP-RECOVERY-UNITS-2",
+        "item": "Recovered non-co-op journal units are currently empty."
+      },
+      {
+        "id": "OBS-MPRU-2",
+        "status": "open, pass-through",
+        "owner": "MP-HOST-DEDUPE-1",
+        "item": "Failed recovery falls through to a fresh host in getOrCreate."
+      },
+      {
+        "id": "OBS-MPRU-3",
+        "status": "recorded",
+        "owner": "closure evidence",
+        "item": "Source PR body Main reference was stale; this receipt fetches the actual merge and verifies its integration tree."
+      }
+    ],
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2296#issuecomment-6256894879",
+    "registration": "Root will register MP-RECOVERY-UNITS-2 in a separate docs-only PR after this closure merges, before L1-SMOKE-A2. This closure creates no unit or dependency edge for that future registration."
+  },
+  "ownerRuling": {
+    "ruledHead": "f4165728412418d0c30f32d00b5174fe8121300a",
+    "pr": 2296,
+    "commentId": 6256894879,
+    "author": "SwiggitySwerve",
+    "at": "2026-10-19T00:10:59Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2296#issuecomment-6256894879",
+    "bodyPath": "evidence/mp-recovery-units-1-owner-ruling-6256894879.txt",
+    "bodySha256": "71178f68963e7cc8e1ee5daaa71da0596a96d338735cec96099eaec7ebcc5966",
+    "bodyBytes": 2887,
+    "copyEqualsRootSource": true
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-19T00:23:12.248Z",
+    "ledgerBase": "e69ae02911f11fd0d3bd891c83108414f3098727",
+    "algorithm": "Only newly eligible dependents of MP-RECOVERY-UNITS-1; every declared predecessor must be main-verified, complete or archived. Existing independent holds remain. Only state blocked -> planned may change.",
+    "releases": [
+      "MP-HOST-DEDUPE-1"
+    ],
+    "candidates": [
+      {
+        "id": "MP-HOST-DEDUPE-1",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "MP-RECOVERY-UNITS-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [],
+        "eligible": true
+      },
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "planned",
+            "mainProof": null
+          }
+        ],
+        "blockedBy": [
+          "MP-HOST-DEDUPE-1"
+        ],
+        "eligible": false
+      }
+    ]
+  }
+}
