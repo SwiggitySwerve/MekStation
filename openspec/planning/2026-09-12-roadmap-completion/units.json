@@ -151,33 +151,6 @@
           "U1c"
         ],
         "packets": [
-    {
-      "id": "PK-mp-host-dedupe-1-ruling",
-      "blocks": [
-        "MP-HOST-DEDUPE-1"
-      ],
-      "nodes": [
-        "R2.authority-live"
-      ],
-      "taskKeys": [],
-      "question": "Should the owner accept the independently reviewed exact source head that shares per-match host creation and co-op recovery, retries failed attempts, and preserves durable authority?",
-      "options": [
-        {
-          "label": "accept reviewed head",
-          "consequence": "Permit source merge and exact-main proof only after full sensitive review and all required checks; release successors only through closure.",
-          "effort": "Independent Claude Fable review, concurrent RED/GREEN, lifecycle and durable recovery regressions, CI comparison, exact-head OWNER-RULING."
-        },
-        {
-          "label": "request changes",
-          "consequence": "Keep merge blocked until concrete authority, concurrency or proof issues are resolved.",
-          "effort": "Bounded corrections and renewed exact-head review."
-        }
-      ],
-      "agentRecommendation": "Use a per-match in-flight promise map; prefer acceptance only after the source head satisfies the full review and proof gates. This packet records a pending decision, not a ruling.",
-      "revertCost": "Reverting restores concurrent first-connection duplicate hosts and possible durable revision conflicts; no schema or wire format change.",
-      "decision": null,
-      "ruling": null
-    },
           "PK-rewind-branch-reader (holds 22.3)",
           "PK-e2e-80-ci-wiring"
         ]
@@ -8168,7 +8141,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "review-required",
       "baseline": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
       "prHead": null,
       "mergeSha": null,
@@ -8179,7 +8152,9 @@
         "red": {
           "path": "evidence/mp-host-dedupe-red-20261018.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/mp-host-dedupe-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -18684,6 +18659,33 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-mp-host-dedupe-1-ruling",
+      "blocks": [
+        "MP-HOST-DEDUPE-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the owner accept the independently reviewed exact source head that shares per-match host creation and co-op recovery, retries failed attempts, and preserves durable authority?",
+      "options": [
+        {
+          "label": "accept reviewed head",
+          "consequence": "Permit source merge and exact-main proof only after full sensitive review and all required checks; release successors only through closure.",
+          "effort": "Independent Claude Fable review, concurrent RED/GREEN, lifecycle and durable recovery regressions, CI comparison, exact-head OWNER-RULING."
+        },
+        {
+          "label": "request changes",
+          "consequence": "Keep merge blocked until concrete authority, concurrency or proof issues are resolved.",
+          "effort": "Bounded corrections and renewed exact-head review."
+        }
+      ],
+      "agentRecommendation": "Use a per-match in-flight promise map; prefer acceptance only after the source head satisfies the full review and proof gates. This packet records a pending decision, not a ruling.",
+      "revertCost": "Reverting restores concurrent first-connection duplicate hosts and possible durable revision conflicts; no schema or wire format change.",
+      "decision": null,
+      "ruling": null
+    },
     {
       "id": "PK-p2ca-ruling",
       "blocks": [

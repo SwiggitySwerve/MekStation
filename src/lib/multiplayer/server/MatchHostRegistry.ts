@@ -53,6 +53,11 @@ export interface IRegistryDeps {
 
 export class MatchHostRegistry {
   private readonly hosts = new Map<string, ServerMatchHost>();
+  private readonly inFlight = new Map<
+    string,
+    Promise<ServerMatchHost | null>
+  >();
+  private generation = 0;
   private readonly store: IMatchStore;
   /**
    * Instance-owned, not a module singleton: each registry (including
@@ -132,22 +137,44 @@ export class MatchHostRegistry {
     // Refused recovery must not fall through to a fresh empty host.
     if (this.isQuarantined(matchId)) return null;
 
+    const pending = this.inFlight.get(matchId);
+    if (pending) return pending;
+
+    // Publish before yielding, so first sockets share bootstrap and co-op
+    // recovery. The first caller's options own this creation attempt.
+    const creation = this.createHost(matchId, options, this.generation).finally(
+      () => {
+        if (this.inFlight.get(matchId) === creation)
+          this.inFlight.delete(matchId);
+      },
+    );
+    this.inFlight.set(matchId, creation);
+    return creation;
+  };
+
+  private createHost = async (
+    matchId: string,
+    options: { diceSeed?: number },
+    generation: number,
+  ): Promise<ServerMatchHost | null> => {
     let meta;
     try {
       meta = await this.store.getMatchMeta(matchId);
     } catch {
       return null;
     }
+    if (generation !== this.generation) return null;
 
     let host: ServerMatchHost;
     if (meta.coopMission) {
       await this.recoverActiveMatches(matchId);
-      return this.get(matchId);
+      return generation === this.generation ? this.get(matchId) : null;
     }
     try {
       const bootstrap = await buildMatchHostBootstrapFromMeta(meta, {
         diceSeed: options.diceSeed,
       });
+      if (generation !== this.generation) return null;
       host = ServerMatchHost.create(matchId, this.store, bootstrap);
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -182,11 +209,21 @@ export class MatchHostRegistry {
     readonly failed: number;
     readonly blocked: readonly IMatchRecoveryBlock[];
   }> => {
+    const generation = this.generation;
     const result = await recoverActiveMatches(
       this.store,
       this.quarantine,
       matchId,
     );
+    // Reset invalidates a pending sweep as well as fresh bootstrap. These
+    // recovered hosts have never been attached to a socket in this registry.
+    if (generation !== this.generation) {
+      return {
+        recovered: 0,
+        failed: result.failed.length,
+        blocked: this.blocked,
+      };
+    }
     this.blocked = [
       ...this.blocked.filter(
         (entry) => matchId !== undefined && entry.matchId !== matchId,
@@ -216,6 +253,8 @@ export class MatchHostRegistry {
    * server shutdown.
    */
   closeMatch = async (matchId: string): Promise<void> => {
+    // A delete/shutdown arriving during bootstrap must close its result.
+    await this.inFlight.get(matchId)?.catch(() => null);
     const host = this.hosts.get(matchId);
     if (!host) return;
     await host.closeMatch();
@@ -224,6 +263,8 @@ export class MatchHostRegistry {
 
   /** Test-only: drop everything. */
   _reset = (): void => {
+    this.generation += 1;
+    this.inFlight.clear();
     this.hosts.forEach((host) => {
       void host.closeMatch();
     });
