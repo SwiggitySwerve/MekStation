@@ -3118,7 +3118,9 @@
         "src/lib/multiplayer/__tests__/clientAgainstFogServer.integration.test.ts",
         "src/components/campaign/CampaignNavigation.tsx",
         "scripts",
-        "src/services/units/NodeCanonicalUnitService.ts"
+        "src/services/units/NodeCanonicalUnitService.ts",
+        "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+        "src/types/campaign/Salvage.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3859,6 +3861,31 @@
         "edges": "P2CG1S -> L1-SMOKE-A1 -> L1-SMOKE-A2; {L1-SMOKE-A2, B14-0, B14-HEAD} -> L1-SMOKE-B; {L1-SMOKE-A1, L1-SMOKE-A2, L1-SMOKE-B, all retained H prerequisites} -> P2CG1H. The smoke records are placed after B14-HEAD so --next retains B14-0 priority on Main plus this registration; array placement does not add a B14 predecessor to A1/A2.",
         "rule": "One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam.",
         "extensionContract": "New-leaves-only extension: A1 freezes its four modules, including an import-safe runHarness(options, runCases) orchestration entry and reusable authenticated transport/baseline helpers. The callback receives the verified image/connection/evidence context and can request owned-process stop, offline fixture preparation, restart and reconnect through the harness. A2 owns four different new leaves and imports A1 read-only; it exports its matrix/fixture callbacks as well as its direct CLI. B owns four further new leaves and imports A1/A2 read-only, explicitly composing baseline + spectator matrix + fog-refusal cases in one verified build/image lineage. Every runner enumerates its required cases and fails on any missing row; no implicit discovery that can silently skip a predecessor matrix. A2/B must not change any A1-frozen leaf, and B must not change A2-frozen leaves. An inadequate interface is an admission blocker requiring separately registered scope, not permission to edit a predecessor."
+      },
+      "ownershipPathsAmended20261019Followups": {
+        "source": "evidence/l1-followups2-registration-20261019.json",
+        "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
+        "restrictions": {
+          "MP-REWIND-DICE-1": [
+            "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+            "src/lib/multiplayer/server/ServerMatchHost.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+          ],
+          "MP-CAMPAIGN-HOST-DEDUPE-1": [
+            "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+          ],
+          "LSC-SALVAGE-1": [
+            "e2e/campaign-economy-browser.spec.ts",
+            "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+            "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+            "src/stores/campaign/__tests__/salvageUnitEnrollment.test.ts",
+            "src/stores/campaign/campaignBayActions.ts",
+            "src/stores/campaign/salvageUnitEnrollment.ts",
+            "src/types/campaign/Salvage.ts"
+          ]
+        },
+        "qualification": "Only these exact prospective source/test leaves; no source admission. Existing H type-only grant and all other restrictions stand."
       }
     },
     {
@@ -19297,5 +19324,64 @@
       "F2": "A2 must detect both canonical catalog and server canonical catalog skip messages. Assert behavior (accepted action), not a logger spy silenced under test mode.",
       "ordinaryCombat": "CF-SMOKEA1-2 is already discharged only for ordinary combat by #2296; no co-op acceptance is claimed here."
     }
+  },
+  "l1Followups2Registration20261019": {
+    "baseline": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/l1-followups2-registration-20261019.json",
+    "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
+    "units": [
+      "MP-REWIND-DICE-1",
+      "MP-CAMPAIGN-HOST-DEDUPE-1",
+      "LSC-SALVAGE-1"
+    ],
+    "initialStates": {
+      "MP-REWIND-DICE-1": "blocked",
+      "MP-CAMPAIGN-HOST-DEDUPE-1": "planned",
+      "LSC-SALVAGE-1": "blocked"
+    },
+    "order": "MP-RECOVERY-UNITS-2 -> MP-REWIND-DICE-1 -> v2.2.0 release checklist; MP-HOST-DEDUPE-1 -> MP-CAMPAIGN-HOST-DEDUPE-1 -> P2CG1H; LSC-2OP -> LSC-SALVAGE-1 (post-v2.2.0). Unit edges are reciprocal; release-checklist edge is documentary, not a fake unit.",
+    "manifests": {
+      "MP-REWIND-DICE-1": [
+        "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+      ],
+      "MP-CAMPAIGN-HOST-DEDUPE-1": [
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ],
+      "LSC-SALVAGE-1": [
+        "e2e/campaign-economy-browser.spec.ts",
+        "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+        "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+        "src/stores/campaign/__tests__/salvageUnitEnrollment.test.ts",
+        "src/stores/campaign/campaignBayActions.ts",
+        "src/stores/campaign/salvageUnitEnrollment.ts",
+        "src/types/campaign/Salvage.ts"
+      ]
+    },
+    "decision": "Choose separate campaign dedupe unit (a) for bounded concurrency review and unchanged H type-only grant. H/I do not own rewind; it gates the v2.2.0 checklist. Whole-unit salvage is outside the L1 mission, so transfer known-red ownership and the 12/12 predicate from LSC-2OP to LSC-SALVAGE-1 after v2.2.0.",
+    "hAdmissionNotes": {
+      "CF-HP-1": "Bound or back off non-quiet recovery signals; prove no unbounded retry loop.",
+      "CF-HP-2": "Re-check same-key rebind and legacy reset-on-reload behavior.",
+      "CF-HP-3": "Pin the episode-key guards with behavioral regressions.",
+      "CF-S-1": "Still open: fog-off HTTP history/export lacks the sealed-choice hold. Acknowledge before activation; preserve privacy refusal, and obtain a separate finite scope amendment if repair needs leaves outside H.",
+      "CF-MPHD-3": "getOrCreate ignores meta.status: refuse or recover completed/failed-recovery matches instead of creating a colliding host. H review/admission must route this explicitly; its type-only grant does not permit this behavior change.",
+      "I3": "Visual check: empty role=status paragraph renders on every campaign page and may leave a spacing gap. Coordinate H/LSC-2; do not claim a fix or grant extra source leaves here."
+    },
+    "releaseAccounting": {
+      "previous": 39,
+      "total": 41,
+      "addedClosures": [
+        "MP-REWIND-DICE-1",
+        "MP-CAMPAIGN-HOST-DEDUPE-1"
+      ],
+      "excluded": "LSC-SALVAGE-1"
+    },
+    "collisionRule": "Only the named source/test leaves are reserved. MP-RECOVERY-UNITS-2 -> rewind serializes its overlapping host/rebuild/test leaves. Campaign dedupe follows already-main-verified MP-HOST-DEDUPE-1 and precedes H; H retains its type-only grant. U44 capability-DB/rollback-reader work, U26/FOG privacy, U45/src-lib and other ancestor aliases remain separate owners: no simultaneous shared-leaf admission; re-census, rebase/refreeze and obtain a narrow scope amendment for any additional leaf. Salvage follows LSC-2OP; census B15/campaign-store/e2e/roster aliases before admission. All registration/closure writers serialize units.json, roadmap.json and PROGRESS.md; no source admission is granted.",
+    "scope": "Four documentation files only. Existing lifecycle, packets, task holders, historical evidence and caps remain unchanged. These follow-up notes do not grant H runtime edits outside its manifest.",
+    "authority": "Owner: continue with recommended options and fix the issues that come up, publish as needed. Register three narrow follow-ups; Sol implements, Claude Opus/Astra/Sonnet verifies. This is not a future sensitive OWNER-RULING."
   }
 }
