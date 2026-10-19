@@ -18,6 +18,7 @@ jest.mock('@/engine/adapters/CompendiumAdapter', () => {
   const gameplay = jest.requireActual('@/types/gameplay/GameSessionInterfaces');
   const hex = jest.requireActual('@/types/gameplay/HexGridInterfaces');
   return {
+    ...jest.requireActual('@/engine/adapters/CompendiumAdapter'),
     adaptUnit: jest.fn(
       async (
         unitRef: string,
@@ -347,4 +348,183 @@ describe('MP-HOST-DEDUPE-1 concurrent first socket connections', () => {
       await rm(directory, { recursive: true, force: true });
     }
   });
+
+  it('shares missing metadata, retries later, and reuses an existing host', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    const registry = new MatchHostRegistry({ store });
+    const read = jest.spyOn(store, 'getMatchMeta');
+    const meta = matchMeta();
+    expect(
+      await Promise.all([
+        registry.getOrCreate(meta.matchId),
+        registry.getOrCreate(meta.matchId),
+      ]),
+    ).toEqual([null, null]);
+    expect(read).toHaveBeenCalledTimes(1);
+    await store.createMatch(meta);
+    const host = await registry.getOrCreate(meta.matchId, { diceSeed: 1 });
+    try {
+      expect(host).not.toBeNull();
+      expect(await registry.getOrCreate(meta.matchId, { diceSeed: 2 })).toBe(
+        host,
+      );
+    } finally {
+      await host?.closeMatch();
+    }
+  });
+
+  it('evicts a failed bootstrap so the next attempt can succeed', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    const meta = matchMeta();
+    await store.createMatch(meta);
+    const registry = new MatchHostRegistry({ store });
+    const warning = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest
+      .mocked(adaptUnit)
+      .mockRejectedValueOnce(new Error('catalog unavailable'));
+    let results: Awaited<ReturnType<typeof registry.getOrCreate>>[] = [];
+    let retry: ServerMatchHost | null = null;
+    try {
+      results = await Promise.all([
+        registry.getOrCreate(meta.matchId),
+        registry.getOrCreate(meta.matchId),
+      ]);
+      expect(results).toEqual([null, null]);
+      retry = await registry.getOrCreate(meta.matchId);
+      expect(retry).not.toBeNull();
+    } finally {
+      await Promise.all(
+        [...new Set([...results, retry])].map((host) => host?.closeMatch()),
+      );
+      warning.mockRestore();
+    }
+  });
+
+  it('does not block another match behind a pending creation', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta({ matchId: 'slow' }));
+    await store.createMatch(matchMeta({ matchId: 'fast' }));
+    const read = store.getMatchMeta.bind(store);
+    const gate = deferred();
+    jest.spyOn(store, 'getMatchMeta').mockImplementation(async (id) => {
+      if (id === 'slow') await gate.promise;
+      return read(id);
+    });
+    const registry = new MatchHostRegistry({ store });
+    const slow = registry.getOrCreate('slow');
+    let fast: ServerMatchHost | null = null;
+    try {
+      fast = await registry.getOrCreate('fast');
+      expect(fast).not.toBeNull();
+      expect(registry.get('slow')).toBeNull();
+    } finally {
+      gate.resolve();
+      await (await slow)?.closeMatch();
+      await fast?.closeMatch();
+    }
+  });
+
+  it.each(['null', 'reject'] as const)(
+    'shares co-op recovery and retries after %s',
+    async (failure) => {
+      const store = new InMemoryMatchStore({ quiet: true });
+      const meta = matchMeta({
+        coopMission: {
+          campaignId: 'campaign',
+          sessionId: 'session',
+          missionId: 'mission',
+          acceptedHead: {
+            branchId: 'main',
+            revision: 1,
+            effectiveGeneration: 1,
+          },
+          requestFingerprint: 'dedupe',
+          deployingPlayerIds: ['pid_host', 'pid_guest'],
+        },
+      });
+      await store.createMatch(meta);
+      const registry = new MatchHostRegistry({ store });
+      const gate = deferred();
+      const recover = jest
+        .spyOn(registry, 'recoverActiveMatches')
+        .mockImplementation(async () => {
+          await gate.promise;
+          if (failure === 'reject') throw new Error('recovery unavailable');
+          return { recovered: 0, failed: 1, blocked: [] };
+        });
+      const pending = Promise.allSettled([
+        registry.getOrCreate(meta.matchId),
+        registry.getOrCreate(meta.matchId),
+      ]);
+      gate.resolve();
+      const outcomes = await pending;
+      expect(recover).toHaveBeenCalledTimes(1);
+      expect(outcomes.map((outcome) => outcome.status)).toEqual([
+        failure === 'reject' ? 'rejected' : 'fulfilled',
+        failure === 'reject' ? 'rejected' : 'fulfilled',
+      ]);
+      recover.mockResolvedValue({ recovered: 0, failed: 1, blocked: [] });
+      expect(await registry.getOrCreate(meta.matchId)).toBeNull();
+      expect(recover).toHaveBeenCalledTimes(2);
+      recover.mockRestore();
+    },
+  );
+
+  it('does not resurrect a creation that was pending during reset', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    const meta = matchMeta();
+    await store.createMatch(meta);
+    const gate = deferred();
+    const read = store.getMatchMeta.bind(store);
+    jest.spyOn(store, 'getMatchMeta').mockImplementationOnce(async (id) => {
+      await gate.promise;
+      return read(id);
+    });
+    const registry = new MatchHostRegistry({ store });
+    const stale = registry.getOrCreate(meta.matchId);
+    registry._reset();
+    const current = await registry.getOrCreate(meta.matchId);
+    gate.resolve();
+    const old = await stale;
+    try {
+      expect(old).toBeNull();
+      expect(registry.get(meta.matchId)).toBe(current);
+    } finally {
+      await Promise.all(
+        [...new Set([old, current])].map((host) => host?.closeMatch()),
+      );
+    }
+  });
+
+  it('closeMatch waits for a pending host and closes it', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    const meta = matchMeta();
+    await store.createMatch(meta);
+    const gate = deferred();
+    const read = store.getMatchMeta.bind(store);
+    jest.spyOn(store, 'getMatchMeta').mockImplementationOnce(async (id) => {
+      await gate.promise;
+      return read(id);
+    });
+    const registry = new MatchHostRegistry({ store });
+    const pending = registry.getOrCreate(meta.matchId);
+    const closing = registry.closeMatch(meta.matchId);
+    gate.resolve();
+    const host = await pending;
+    await closing;
+    try {
+      expect(host?.isClosed()).toBe(true);
+      expect(registry.get(meta.matchId)).toBeNull();
+    } finally {
+      await host?.closeMatch();
+    }
+  });
 });
+
+function deferred(): { promise: Promise<void>; resolve: () => void } {
+  let resolve!: () => void;
+  const promise = new Promise<void>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}

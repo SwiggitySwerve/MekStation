@@ -122,5 +122,31 @@
       "Its next drain includes opening events; appendCommandBatch expects revision 0 against stored head 1 and refuses revision-conflict.",
       "Failure invokes host.closeMatch; potential completed-status/reconnect consequences require explicit GREEN-stage lifecycle checks."
     ]
+  },
+  "closureBaselineRed": {
+    "baseline": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
+    "tests": {
+      "passed": 5,
+      "failed": 7,
+      "total": 12
+    },
+    "test": {
+      "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+      "sha256": "97d3630392d4829a447115ec7a548d3d79c1701e3817bc095af4ca447d0937c4"
+    },
+    "log": {
+      "path": ".mp-dedupe-proof/red-closure.ascii.log",
+      "sha256": "47ffc4051676f8cc903deb51c1f1c12a888faacf8890518d901b41dcd5b53916"
+    },
+    "expectedFailures": [
+      "concurrent sockets / duplicated bootstrap / durable revision-conflict",
+      "missing metadata dedupe",
+      "bootstrap failure dedupe",
+      "co-op null dedupe",
+      "co-op rejection dedupe",
+      "reset stale creation",
+      "close pending creation"
+    ],
+    "controls": "Four original bootstrap rows and independent-match progress passed."
   }
 }

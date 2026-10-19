@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "unit": "MP-HOST-DEDUPE-1",
   "stage": "admission",
-  "status": "PREP_ONLY_NOT_ADMITTED",
+  "status": "ADMITTED",
   "date": "2026-10-18",
-  "baseline": "28032229f053a4fc681e838d1f41422c12d982a0",
-  "authority": "Explicit PREP ONLY: freeze admission proposal and RED locally; no product fix, lifecycle admission, PR, push or merge before RECOVERY is merged and closed and this unit is planned on fetched origin/main.",
+  "baseline": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
+  "authority": "Root GATE OPEN: implement GREEN, open PR with 32-check comparison and REVIEW_READY, then stop for Claude Fable full review. Independently confirmed #2296 merged e69ae02911f11fd0d3bd891c83108414f3098727; closure #2300 merged f73bfe7d7251db564c7cc8b2bed544fd89fdc140. DEDUPE planned on origin/main. No merge authorized in this turn.",
   "manifest": {
     "count": 7,
     "maxFiles": 15,
@@ -107,285 +107,165 @@
     }
   },
   "census": {
-    "activeSourceOverlaps": [
+    "actualRecoveryProductLeaves": [
+      "src/lib/multiplayer/server/MatchRecovery.ts",
+      "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "src/lib/multiplayer/server/__tests__/MatchRecovery.canonicalUnits.test.ts"
+    ],
+    "actualProductOverlap": [],
+    "sharedLifecycleOnly": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+    "resolution": "RECOVERY used separate test; rebase clean. Prior transient dev-test conflict no longer applies.",
+    "aliasHolders": [
       {
         "id": "P1B",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P1",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CE",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG1",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
-      },
-      {
-        "id": "B14-0",
-        "state": "implementing",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
-      },
-      {
-        "id": "MP-RECOVERY-UNITS-1",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
-      },
-      {
-        "id": "MP-HOST-DEDUPE-1",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG1HP",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG1H",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG1I2",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG1I3",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG1I4",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CG2",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "P2CH",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
+      },
+      {
+        "id": "TS7S1",
+        "state": "blocked"
       },
       {
         "id": "U38",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "U24",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "U24b",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U44",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U45",
-        "state": "planned",
-        "paths": [
-          "src/lib"
-        ]
+        "state": "planned"
       },
       {
         "id": "U26",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U46",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U47",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U48",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U49",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U56",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U101",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U104",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U105",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U101a",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
       },
       {
         "id": "U101d",
-        "state": "planned",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "planned"
+      },
+      {
+        "id": "B15-PRIV",
+        "state": "blocked"
       },
       {
         "id": "FOG-K",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "FOG-B",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "FOG-L",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "FOG-R",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "FOG-H",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
       },
       {
         "id": "FOG-X",
-        "state": "blocked",
-        "paths": [
-          "src/lib/multiplayer/server"
-        ]
+        "state": "blocked"
+      },
+      {
+        "id": "B15-WIRE",
+        "state": "blocked"
       }
     ],
-    "recovery": {
-      "worktree": "E:/Projects/Personal/MekStation-wt/mp-recovery-20261018",
-      "head": "1c7632b18d062e1b684fc7384faa4f2668183b69",
-      "trackedDiff": "",
-      "developmentWorktree": "E:/Projects/Personal/MekStation-wt/mp-recovery-dev-20261018",
-      "developmentHead": "1c7632b18d062e1b684fc7384faa4f2668183b69",
-      "developmentDiff": "src/lib/multiplayer/server/MatchRecovery.ts        |  27 +-\n .../MatchHostRegistry.unitBootstrap.test.ts        | 395 ++++++++++++++++++---\n src/lib/multiplayer/server/matchUnitBootstrap.ts   |  95 ++++-\n 3 files changed, 452 insertions(+), 65 deletions(-)",
-      "sourceAndTestOverlap": [
-        "src/lib/multiplayer/server/MatchHostRegistry.ts",
-        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
-      ],
-      "lifecycleOverlap": "openspec/planning/2026-09-12-roadmap-completion/units.json",
-      "note": "Named predecessor worktree currently has no source diff. Adjacent development worktree changes shared test leaf. Root asked to confirm authoritative diff/head. Re-census both committed and uncommitted predecessor leaves before restacking.",
-      "observedDevelopmentLeaves": [
-        "src/lib/multiplayer/server/MatchRecovery.ts",
-        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
-        "src/lib/multiplayer/server/matchUnitBootstrap.ts"
-      ],
-      "observedLiteralSourceOverlap": [
-        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
-      ],
-      "registryOverlap": "Registered candidate, but not yet modified in the observed development diff; preserve new resolver/dependency plumbing if it arrives.",
-      "sourceAndTestOverlapKind": "Registered candidate overlap, not the current observed diff.",
-      "restackRequirement": "Shared test header and EOF conflict: retain RECOVERY spread-mock / adaptUnitFromData support. Separate test leaf recommended by reviewer, deferred to Root because this prep freezes the registered seven-leaf manifest."
-    }
+    "rootReservedControls": [
+      "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts"
+    ],
+    "reservation": "MP-RECOVERY-UNITS-2 owns these controls; no edits."
   },
   "design": {
     "approach": "Per-registry Map<matchId, Promise<ServerMatchHost | null>> around the complete creation path, including co-op recoverActiveMatches(matchId). Publish the promise before any await; existing live host/quarantine checks retained. finally evicts settled work, including null and rejection, allowing retry. Independent match IDs proceed concurrently; never globally serialize connections.",
@@ -403,15 +283,18 @@
       "independent IDs do not block",
       "existing host reused"
     ],
-    "notImplemented": true,
-    "lifecycleNote": "GREEN must prevent a late creation from registering after _reset (generation or operation-identity guard plus disposal); clearing the map alone does not prevent resurrection. Preserve pre-listener boot sweep ordering. Cover co-op recovery with recovery-specific invocation/host counts. closeMatch during creation is a pre-existing lifecycle race to assess within scope."
+    "notImplemented": false,
+    "lifecycleNote": "Generation guards prevent stale work from publishing after _reset, including co-op recovery registration. closeMatch joins pending creation. No global lock; first caller options win; failure/null cleanup guarded by promise identity.",
+    "implementationPending": true
   },
   "controls": [
     "server.js",
     "src/lib/multiplayer/server/MatchRecovery.ts",
     "src/lib/multiplayer/server/matchUnitBootstrap.ts",
     "src/services/units/NodeCanonicalUnitService.ts",
-    "src/engine"
+    "src/engine",
+    "src/lib/multiplayer/server/ServerMatchHost.ts",
+    "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts"
   ],
   "gate": "BLOCKED until MP-RECOVERY-UNITS-1 is merged, closed and exact-main proven; MP-HOST-DEDUPE-1 is planned on fetched origin/main; restack on RECOVERY head and re-census before admission.",
   "prepValidation": {
@@ -434,13 +317,17 @@
     "fit": "PREP ONLY: 7 frozen prospective leaves / 15 cap; implementation size remains unmeasured"
   },
   "gateCheck": {
-    "checkedAt": "2026-10-18T22:39:15.679Z",
-    "originMain": "cfc53c3085d35a7407b61361283a9657b2522110",
-    "recoveryState": "blocked",
-    "dedupeState": "blocked",
-    "recoveryMergeSha": null,
-    "recoveryMainProof": null,
-    "decision": "BLOCKED: predecessor merge/closure and DEDUPE planned-state gate not met; PREP ONLY."
+    "originMain": "f73bfe7d7251db564c7cc8b2bed544fd89fdc140",
+    "recoveryState": "main-verified",
+    "recoveryMerge": "e69ae02911f11fd0d3bd891c83108414f3098727",
+    "recoveryMainProof": {
+      "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+      "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+      "verdict": "PASS",
+      "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+    },
+    "dedupeState": "planned",
+    "decision": "OPEN"
   },
   "independentPrepReview": {
     "status": "completed",
@@ -461,5 +348,325 @@
       "sha256": "1b9775e86562e93f53eb628438cfd71f5b32dbdfc47af6c4aadcee8c091c541f"
     },
     "hardening": "Three test refinements applied and RED rechecked; no independent re-review of those edits claimed."
-  }
+  },
+  "prepHistory": {
+    "baseline": "28032229f053a4fc681e838d1f41422c12d982a0",
+    "gateCheck": {
+      "checkedAt": "2026-10-18T22:39:15.679Z",
+      "originMain": "cfc53c3085d35a7407b61361283a9657b2522110",
+      "recoveryState": "blocked",
+      "dedupeState": "blocked",
+      "recoveryMergeSha": null,
+      "recoveryMainProof": null,
+      "decision": "BLOCKED: predecessor merge/closure and DEDUPE planned-state gate not met; PREP ONLY."
+    },
+    "census": {
+      "activeSourceOverlaps": [
+        {
+          "id": "P1B",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P1",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CE",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG1",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "B14-0",
+          "state": "implementing",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "MP-RECOVERY-UNITS-1",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "MP-HOST-DEDUPE-1",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG1HP",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG1H",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG1I2",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG1I3",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG1I4",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CG2",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "P2CH",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U38",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U24",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U24b",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U44",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U45",
+          "state": "planned",
+          "paths": [
+            "src/lib"
+          ]
+        },
+        {
+          "id": "U26",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U46",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U47",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U48",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U49",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U56",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U101",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U104",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U105",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U101a",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "U101d",
+          "state": "planned",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "FOG-K",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "FOG-B",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "FOG-L",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "FOG-R",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "FOG-H",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        },
+        {
+          "id": "FOG-X",
+          "state": "blocked",
+          "paths": [
+            "src/lib/multiplayer/server"
+          ]
+        }
+      ],
+      "recovery": {
+        "worktree": "E:/Projects/Personal/MekStation-wt/mp-recovery-20261018",
+        "head": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+        "trackedDiff": "",
+        "developmentWorktree": "E:/Projects/Personal/MekStation-wt/mp-recovery-dev-20261018",
+        "developmentHead": "1c7632b18d062e1b684fc7384faa4f2668183b69",
+        "developmentDiff": "src/lib/multiplayer/server/MatchRecovery.ts        |  27 +-\n .../MatchHostRegistry.unitBootstrap.test.ts        | 395 ++++++++++++++++++---\n src/lib/multiplayer/server/matchUnitBootstrap.ts   |  95 ++++-\n 3 files changed, 452 insertions(+), 65 deletions(-)",
+        "sourceAndTestOverlap": [
+          "src/lib/multiplayer/server/MatchHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+        ],
+        "lifecycleOverlap": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "note": "Named predecessor worktree currently has no source diff. Adjacent development worktree changes shared test leaf. Root asked to confirm authoritative diff/head. Re-census both committed and uncommitted predecessor leaves before restacking.",
+        "observedDevelopmentLeaves": [
+          "src/lib/multiplayer/server/MatchRecovery.ts",
+          "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts",
+          "src/lib/multiplayer/server/matchUnitBootstrap.ts"
+        ],
+        "observedLiteralSourceOverlap": [
+          "src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts"
+        ],
+        "registryOverlap": "Registered candidate, but not yet modified in the observed development diff; preserve new resolver/dependency plumbing if it arrives.",
+        "sourceAndTestOverlapKind": "Registered candidate overlap, not the current observed diff.",
+        "restackRequirement": "Shared test header and EOF conflict: retain RECOVERY spread-mock / adaptUnitFromData support. Separate test leaf recommended by reviewer, deferred to Root because this prep freezes the registered seven-leaf manifest."
+      }
+    },
+    "authority": "Explicit PREP ONLY: freeze admission proposal and RED locally; no product fix, lifecycle admission, PR, push or merge before RECOVERY is merged and closed and this unit is planned on fetched origin/main."
+  },
+  "controlHashes": [
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchRecovery.ts",
+      "sha256": "47cbb7a02e3b99e45cf740438760bb0e2e80b9f40044ce569f9eb85e61d4539c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "sha256": "a07b27bf06cb7566e05d6403ff8ccf9efc821e10dab20f0a2d68ad4bd1b45e2a"
+    },
+    {
+      "path": "src/services/units/NodeCanonicalUnitService.ts",
+      "sha256": "e9cc8143e95d79066ee824bd8181050272ea983fff5c81ba3aff4b1183611baf"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "sha256": "b4602f5bc6dd972018cd2cec6074b158cab9d4ef6807a52b8ea772d1caf8491e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "sha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010"
+    }
+  ]
 }
