@@ -1,0 +1,203 @@
+{
+  "unit": "LSC-1",
+  "stage": "review",
+  "recordedAt": "2026-10-19T02:08:40.530Z",
+  "head": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+  "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE WITH IN-PR FIXES",
+  "outputPath": "evidence/lsc-1-source-fable-review-20261019.bytes.json",
+  "outputSha256": "9452a72031640fafc020a380bec255b9b10a895b18af5a03e6ff6454307e2dd8",
+  "outputBytes": 31063,
+  "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "headNote": "Fable reviewed 25e1c031. Root diffed the four-file test/receipt amendment and accepted 1b4fb6bf. No second independent full-head review is claimed.",
+  "postReviewAmendment": {
+    "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/review-2304-20261019/2026-10-19-lsc-1-review.md",
+      "sha256": "9452a72031640fafc020a380bec255b9b10a895b18af5a03e6ff6454307e2dd8",
+      "bytes": 31063
+    },
+    "scope": "F1-F5 in one test/receipt-only amendment; zero counted lines, no new files, product and units.json unchanged.",
+    "fixes": {
+      "F1": "Five wrong mints followed by SQLite reopen and a new service: correct password is throttled before KDF; expiry permits mint. MUT-14 is caught by this row.",
+      "F2": "Four wrong mints followed by success clear failedAttempts and lockedUntilMs; a second sequence still succeeds. MUT-15 is caught by this row.",
+      "F3": "A wrong-password in-flight mint plus a refused concurrent request records exactly one failure. MUT-18 is caught by the amended row.",
+      "F4": "Refused before any KDF or credential interpretation. Next apiResolver JSON-parses up to 8 kB before the handler runs; literal pre-read enforcement is deferred to the Root decision in CF-LSC1-6.",
+      "F5": "RED receipt is ASCII-only through JSON Unicode escapes; parsed content and original runtime proof are unchanged."
+    },
+    "mutationProof": {
+      "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+      "node": "v22.22.0",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792374247065-lsc.json",
+      "reviewerHarness": {
+        "path": "E:/Projects/Personal/MekStation-wt/review-2304-logs/mutants.cjs",
+        "sha256": "919fcdbb5f47eb535f9b765e77fa82977fe24d01b073edb8a02f0c0001d31bc9"
+      },
+      "productRestoredSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9",
+      "rows": [
+        {
+          "name": "head-rows",
+          "pattern": "the mint lock survives|a successful mint clears the durable|a second in-flight mint",
+          "exitCode": 0,
+          "summary": "Tests:       28 skipped, 3 passed, 31 total",
+          "sha256": "2fbeba837252624f70016e2d00add370e3a1c14e1afc61097d641426a8105d0a",
+          "bytes": 3298
+        },
+        {
+          "name": "MUT-14",
+          "pattern": "the mint lock survives",
+          "exitCode": 1,
+          "summary": "Tests:       1 failed, 30 skipped, 31 total",
+          "sha256": "72f870072c0e71706ee627772bc355761f678e7d11e75864c7e419e826284e4c",
+          "bytes": 4715
+        },
+        {
+          "name": "MUT-15",
+          "pattern": "a successful mint clears the durable",
+          "exitCode": 1,
+          "summary": "Tests:       1 failed, 30 skipped, 31 total",
+          "sha256": "ab9a4b6fc11e966f7a9106c532b0941b9a862f834c743559b73a802b268ca152",
+          "bytes": 4074
+        },
+        {
+          "name": "MUT-18",
+          "pattern": "a second in-flight mint",
+          "exitCode": 1,
+          "summary": "Tests:       1 failed, 30 skipped, 31 total",
+          "sha256": "0f47f63748b5f48ee374fc0999574b56b680edca4c54d82d1a22e87d4e6bffe8",
+          "bytes": 3945
+        }
+      ],
+      "file": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/mutation-proof.json",
+        "sha256": "38eeec7468ca12c1faa13769b669cc6401c755ec652069cf96ebf46026acb7c3",
+        "bytes": 1645
+      },
+      "runner": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/prove.cjs",
+        "sha256": "0e9f5385c17a18d35aebcb56531e0978f5de9dd42a14319506c77601e65956cf",
+        "bytes": 3172
+      },
+      "logs": [
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/head-rows.log",
+          "sha256": "2fbeba837252624f70016e2d00add370e3a1c14e1afc61097d641426a8105d0a",
+          "bytes": 3298
+        },
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/MUT-14.log",
+          "sha256": "72f870072c0e71706ee627772bc355761f678e7d11e75864c7e419e826284e4c",
+          "bytes": 4715
+        },
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/MUT-15.log",
+          "sha256": "ab9a4b6fc11e966f7a9106c532b0941b9a862f834c743559b73a802b268ca152",
+          "bytes": 4074
+        },
+        {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_lsc-1-green-sol-logs\\review-fixes/MUT-18.log",
+          "sha256": "0f47f63748b5f48ee374fc0999574b56b680edca4c54d82d1a22e87d4e6bffe8",
+          "bytes": 3945
+        }
+      ]
+    },
+    "historicalProof": "The original 44-fail/16-pass RED and initial ten mutants refer to the reviewed test revision. Current test hashes and GREEN/regression/typecheck below include F1-F3; the three reviewer mutants provide their additional RED proof. No original baseline RED rerun is claimed."
+  },
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-LSC1-1",
+        "rulingText": "- CF-LSC1-1: the window is a per-module singleton; revisit if a second route appears.",
+        "reviewerText": "- CF-LSC1-1 (-> LSC-2OP / LSC-2 / any later route): the mint and operator windows live on the LocalSeatCredentialService module singleton; Next bundles API routes separately and dev HMR re-instantiates modules, so a second route importing the service may not share the window. Keep every seat action on /api/multiplayer/auth/local-seats, or prove sharing with a two-route test before adding one.",
+        "directedTo": "LSC-2OP / LSC-2 / later routes",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1-2",
+        "rulingText": "- CF-LSC1-2: no E2E bypass, for LSC-2P.",
+        "reviewerText": "- CF-LSC1-2 (-> LSC-2P): AttemptWindow has no E2E bypass (unlike rateLimit). Playwright scenarios must stay within 10 mints and 5 operator writes per server-minute or advance time; the explicit ttlMs <= 1 h is the expiry seam (CF-LSC0-14 resolved that way).",
+        "directedTo": "LSC-2P",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1-3",
+        "rulingText": "- CF-LSC1-3: client handling of 429 vs 401 -> LSC-2.",
+        "reviewerText": "- CF-LSC1-3 (-> LSC-2): the client must distinguish 429 LOCAL_SEAT_THROTTLED (Retry-After; lockout, window or in-flight) from 401 LOCAL_SEAT_DENIED, surface Retry-After, and never auto-retry a mint in a loop (every attempt consumes the shared window; D14 accepted same-host denial).",
+        "directedTo": "LSC-2 (carry into LSC-2OP prep)",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1-4",
+        "rulingText": "- CF-LSC1-4: re-check scope parity when U101a lands.",
+        "reviewerText": "- CF-LSC1-4 (-> U101a / LSC-2, whichever lands second): \"same payload, scope and verifier semantics as the primary mint route at that head\" is proven for the unscoped head; when token.ts or the socket verifier gains required scopes, local-seats.ts / LocalSeatCredentialService.mint must change in the same head and the P5-style parity row re-run.",
+        "directedTo": "U101a / LSC-2, whichever lands second",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1-5",
+        "rulingText": "- CF-LSC1-5: the H2 guard and limiter stay route-local for B15.",
+        "reviewerText": "- CF-LSC1-5 (-> B15-AUTH-ORIGIN / B15-AUTH-LIMIT): isLocalRequest() and AttemptWindow are route-local by contract; B15 may lift the shape but LSC-1 discharges nothing for token.ts, unlock.ts or security.ts (blob ids unchanged at this head: token.ts e50fceca5, unlock.ts 3dd359466, security.ts a68e79e09, auth.ts 4a38dd1a7, server.js 7ce8627c3).",
+        "directedTo": "B15-AUTH-ORIGIN / B15-AUTH-LIMIT",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1-6",
+        "rulingText": "- CF-LSC1-6: literal vs handler-level \"before reading the body\".",
+        "reviewerText": "- CF-LSC1-6 (-> Root / LSC-2OP admission): decide whether H2's \"before reading the body\" is to be literal (bodyParser: false + bounded manual read after the guard, about 15 counted lines) or handler-level as implemented (L2); record the decision in the LSC-1 review receipt.",
+        "directedTo": "Root / LSC-2OP admission",
+        "status": "open"
+      },
+      {
+        "id": "CF-LSC1-7",
+        "rulingText": "- CF-LSC1-7: 409 handling -> LSC-2OP.",
+        "reviewerText": "- CF-LSC1-7 (-> LSC-2OP UI): a 409 GENERATION_CONFLICT carries currentGeneration; a 409 OPERATION_MISMATCH carries nothing; both must refresh the form and mint a fresh operation id (CF-LSC1S-4 unchanged). Ghost membership and the operator-can-impersonate disclosure remain LSC-2OP's (D14).",
+        "directedTo": "LSC-2OP",
+        "status": "open"
+      }
+    ]
+  },
+  "successorNotes": {
+    "LSC-2OP": {
+      "carryForwards": [
+        "CF-LSC1S-4",
+        "CF-LSC1-1",
+        "CF-LSC1-3",
+        "CF-LSC1-6",
+        "CF-LSC1-7",
+        "CF-LSC0-3",
+        "CF-LSC0-7",
+        "CF-LSC0-10",
+        "CF-LSC0-12"
+      ],
+      "knownRed": "Campaign-economy salvage patch is assigned to LSC-2OP; preparation must reconcile its literal scope, and release requires 12/12 verify:qc:campaign-economy:browser."
+    }
+  },
+  "ownerRuling": {
+    "ruledHead": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+    "pr": 2304,
+    "commentId": 6258073974,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a34031e424d522e53961ff47fe5a089e25899382717e2d203951bb4490293dcf",
+    "bodyBytes": 2644,
+    "at": "2026-10-19T02:03:06Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2304#issuecomment-6258073974",
+    "bodyPath": "evidence/lsc-1-owner-ruling-6258073974.bytes.json",
+    "encoding": "base64 envelope of exact posted UTF-8 comment body; byte-identical to _receipts/pr2304-owner-ruling.md"
+  },
+  "reservedSlot": "Frozen review slot, unwritten during implementation and filled by closure.",
+  "successorRelease": {
+    "unit": "LSC-2OP",
+    "field": "state",
+    "from": "blocked",
+    "to": "planned",
+    "basis": "Only successor released by owner ruling after genuine exact-main PASS; selection is not admission."
+  }
+}

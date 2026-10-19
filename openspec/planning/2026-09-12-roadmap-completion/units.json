@@ -8909,7 +8909,15 @@
         "src/__tests__/api"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-source-fable-review-20261019.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-owner-ruling-6258073974.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f4a40db2b-jest.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f4a40db2b-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f4a40db2b-run-proof-cjs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-merge-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-1-mainproof-20261019.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8924,10 +8932,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "17e4998f53e0ae3357672e756534be7f4e9e2b59",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+      "mergeSha": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-1-admission-20261018.json"
@@ -8938,9 +8946,27 @@
         "local": {
           "path": "evidence/lsc-1-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-1-admission-review-20261018.json",
+          "head": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+          "reviewedHead": "25e1c0316bc8185d0c8bb17a22b8007f4df3f61c",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "9452a72031640fafc020a380bec255b9b10a895b18af5a03e6ff6454307e2dd8",
+          "verdict": "APPROVE WITH IN-PR FIXES"
+        },
+        "merge": {
+          "path": "evidence/lsc-1-merge-20261019.json",
+          "pr": 2304,
+          "head": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+          "mergeSha": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-1-mainproof-20261019.json",
+          "mergeCommit": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 2 passed (59 vault/migration/API/auth suites, 958/958 tests; typecheck exit 0; 0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8990,7 +9016,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -19923,6 +19949,44 @@
         "commentId": 6257071774,
         "author": "SwiggitySwerve",
         "bodySha256": "a4bfebca1824c9d56954cf62906dd25da084c8cb1969a8b14d189fc9398d7678"
+      }
+    },
+    {
+      "id": "PK-lsc-1-ruling",
+      "blocks": [
+        "LSC-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the LSC-1 local-seat mint route at 1b4fb6bf after the independent sensitive review, test/receipt F1-F5 fixes and exact-head 32/32 CI?",
+      "options": [
+        {
+          "label": "rule the exact amended mint-route head",
+          "consequence": "Permit guarded merge, then exact-main proof and closure releasing only LSC-2OP. Route CF-LSC1-1..7 as ruled.",
+          "effort": "Independent sensitive review, Root amendment diff and exact-head CI"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge pending fixes, fresh evidence and owner ruling.",
+          "effort": "Bounded by concrete objections"
+        }
+      ],
+      "agentRecommendation": "Accept only the exact amended head under the posted owner ruling; retain all downstream obligations.",
+      "revertCost": "Revert the local-seat mint route and service additions; keep the earlier durable credential schema and operator service.",
+      "decision": {
+        "option": "rule the exact amended mint-route head",
+        "at": "2026-10-19T02:03:06Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2304#issuecomment-6258073974"
+      },
+      "ruling": {
+        "ruledHead": "1b4fb6bf531fdac96613b1a2bf4a6458d669e514",
+        "pr": 2304,
+        "commentId": 6258073974,
+        "author": "SwiggitySwerve",
+        "bodySha256": "a34031e424d522e53961ff47fe5a089e25899382717e2d203951bb4490293dcf"
       }
     },
     {

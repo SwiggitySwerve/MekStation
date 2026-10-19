@@ -1,3 +1,27 @@
+## 2026-10-19 LSC-1 verified on main; only LSC-2OP released
+
+LSC-1 advances to main-verified for #2304, ruled head 1b4fb6bf531fdac96613b1a2bf4a6458d669e514, merge f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0. Fable reviewed 25e1c0316bc8185d0c8bb17a22b8007f4df3f61c: APPROVE WITH IN-PR FIXES, no High. Root diffed the four-file test/receipt amendment and accepted the exact merged head; no second full-head review is claimed.
+
+The review (31063 bytes, SHA-256 9452a72031640fafc020a380bec255b9b10a895b18af5a03e6ff6454307e2dd8) and exact posted owner ruling (2644 bytes, SHA-256 a34031e424d522e53961ff47fe5a089e25899382717e2d203951bb4490293dcf) are byte-preserved in base64 envelopes. PK-lsc-1-ruling records comment 6258073974, posted 2026-10-19T02:03:06Z, before merge 2026-10-19T02:03:12Z.
+
+The [review receipt](evidence/lsc-1-admission-review-20261018.json) fills the reserved slot. The [merge receipt](evidence/lsc-1-merge-20261019.json) records clean integration, unchanged product/test/control bytes, 10/15 manifest files, 273/500 counted lines, and 32/32 exact ruled-head check names. The [main proof](evidence/lsc-1-mainproof-20261019.json) records fresh npm ci, 59 vault/migration/API/auth suites (958/958) and typecheck PASS at exactly f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0, all through the lsc queue. Raw proof logs and runner are preserved.
+
+Carry-forwards (owner ruling text, verbatim):
+
+- CF-LSC1-1: the window is a per-module singleton; revisit if a second route appears.
+- CF-LSC1-2: no E2E bypass, for LSC-2P.
+- CF-LSC1-3: client handling of 429 vs 401 -> LSC-2.
+- CF-LSC1-4: re-check scope parity when U101a lands.
+- CF-LSC1-5: the H2 guard and limiter stay route-local for B15.
+- CF-LSC1-6: literal vs handler-level "before reading the body".
+- CF-LSC1-7: 409 handling -> LSC-2OP.
+
+Only LSC-2OP moves blocked -> planned. Its preparation carries CF-LSC1S-4, CF-LSC1-3/7 and CF-LSC0-3/7/10/12. The assigned KNOWN-RED campaign-economy salvage patch must be reconciled with literal admission scope; its release predicate is 12/12 on verify:qc:campaign-economy:browser. This closure does not claim that repair or browser acceptance.
+
+No other unit or existing packet changes. No tasks.md checkbox changes; tick stays null. Selection is not admission; this closure still requires independent verification and merge.
+
+---
+
 ## 2026-10-18 MP-HOST-DEDUPE-1 source verified on main
 
 MP-HOST-DEDUPE-1 moves from review-required to main-verified after #2303.
