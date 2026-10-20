@@ -3039,6 +3039,16 @@ Register L1-SMOKE-A2F (planned, four verified predecessors), then L1-SMOKE-A2M (
 
 Registration only: Root must merge #2315 and qualify this registration before A2F admission. No source, test, stage receipt, packet, runtime PASS or task tick is supplied. A1 and historical source/ruling receipts stay unchanged; Main's LSC-2OP/P2CG1HP changes stand exactly.
 
+## LSC-2 serial split registered under Root ruling (2026-10-20)
+
+Root accepts the admission sizing stop: 682 normally formatted product additions before lifecycle (store267, chooser/renewal373, entry32, navigation10). No source admission, RED/GREEN or runtime acceptance. The frozen sizing receipt is `evidence/lsc-2-admission-20261018.json`; exact Root ruling is `evidence/lsc-2-split-root-ruling-20261020.txt` (SHA-256 `686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873`), bound by `evidence/lsc-2-split-registration-20261020.json`. Branch starts from merged A2 registration #2315 at `a69540e25`; its ledger and all historical evidence stay intact.
+
+Register planned LSC-2C (adapter), blocked LSC-2O (operator/server carries), then blocked narrowed LSC-2 (chooser/join/renewal and final integration). Symmetric chain: LSC-2OP -> LSC-2C -> LSC-2O -> LSC-2; LSC-2 retains its id and all successors. Each gets unchanged 15-file/500-counted-addition caps after normal oxfmt, full sensitive cadence and separate exact-main closure. Prospective stage counts are7/15/10; product sizing267/unknown/415 is not final admission fit. Current L1 closure inventory45; every release status remains pending.
+
+CF-LSC2OP-1 routes to C/final UI; -2 to O plus final/packaged three-identity proof; -3 now has named server target O; -4 preserves password purposes with packaged autofill proof in2P; -7 explicitly requires unknown-outcome refresh and write disable on refresh failure in O, preserved by final integration. No original acceptance, primary/bearer controls, H/P2/U38/P2J/installer/human gate or salvage ownership is waived.
+
+Registration only: no C admission commit until Root merges and independently qualifies this docs PR. Null source baselines/heads/stage receipts/ownerGate remain; no packet or future OWNER-RULING is invented. Reports/design remain outside source under `_reports/2026-10-19/lsc-2-fit-sol/`.
+
 
 ## MP-REWIND-DICE-1 closure (2026-10-20)
 
