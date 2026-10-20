@@ -1,0 +1,761 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2",
+  "stage": "admission",
+  "date": "2026-10-20",
+  "outcome": "STOP: current candidate exceeds cap; serial split proposed",
+  "sourceAdmitted": false,
+  "sourceImplemented": false,
+  "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+  "contributor": {
+    "model": "gpt-6.1-sol",
+    "role": "implementation lane",
+    "lane": "l1-smoke-a2"
+  },
+  "authority": "Root implementation brief: use normal formatted style; if the unit overflows its caps, propose a split in admission instead of exceeding them. Hooks ON, no timeouts raised, no skip guards, no merge or CI watching. Standing owner instruction: continue with recommended options and fix the issues that come up, publish as needed.",
+  "paths": {
+    "trackedLedger": "openspec/planning/2026-09-12-roadmap-completion",
+    "requestedLegacyLedger": ".omo/plans/2026-09-12-roadmap-completion",
+    "trackedValidator": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "requestedLegacyValidator": "scripts/qc/validate-roadmap.mjs",
+    "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/l1-smoke-a2"
+  },
+  "sensitivity": {
+    "reviewClasses": ["privacy", "authority"],
+    "reason": "Spectator privacy, trusted membership, accepted authoritative actions, captured-roll and durable-recovery proof. No sensitive acceptance, packet, ruling or runtime PASS is manufactured."
+  },
+  "frozenManifest": {
+    "kind": "diagnostic/admission-stop writes only",
+    "mergeDiffAllowlist": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "exists": true,
+        "bytes": 2106849,
+        "sha256": "aace05f1085ca2c943c0848a6edb1caca537f129a61b2f04e4dff7cd38e7be8c"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "exists": true,
+        "bytes": 512184,
+        "sha256": "e20dc45eb3767d29b246e831650274610e30338b21d06a0f3dc6192ab4e5df13"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-admission-20261020.json",
+        "exists": false,
+        "bytes": 0,
+        "sha256": null
+      }
+    ],
+    "uniqueFiles": 3,
+    "sourceCandidateLeavesReservedButUnwritten": [
+      "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+      "scripts/release/l1-built-server-spectator-cases.mjs",
+      "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "scripts/release/l1-built-server-spectator.test.mjs"
+    ],
+    "protectedControls": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "bytes": 16500,
+        "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "bytes": 15615,
+        "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "bytes": 3309,
+        "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "bytes": 25830,
+        "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+      },
+      {
+        "path": "server.js",
+        "bytes": 32625,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+      },
+      {
+        "path": "package.json",
+        "bytes": 35833,
+        "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 656778,
+        "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80"
+      },
+      {
+        "path": "scripts/qc/lint-units.ceiling.json",
+        "bytes": 349,
+        "sha256": "fb68b3759ce5a5f03cc95476e5300553411c9fcaedbd6121b575bdd937a85219"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "bytes": 1227815,
+        "sha256": "0415735ba4ed71fc7a4800f71dc8a71f7e5f5894e3dc13a1e17cb5db2b5ae8d8"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "bytes": 53627,
+        "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
+      }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "unchanged": true,
+    "measurementRule": "Count physical git-added lines after explicit-path repository oxfmt normalization; use the U41 test/evidence exclusions, count lifecycle and PROGRESS additions and every unique file. No deletion credit, cap waiver, compressed formatting or hook bypass. The parent must record/adopt this convention under CF-SMOKEA1-3 before any source admission."
+  },
+  "sizing": {
+    "observedAt": "2026-10-20T20:25:32.511Z",
+    "node": "v22.22.0",
+    "formatterVersion": "0.28.0",
+    "configSha256": "aeec1cd8f81f3f4cfa1b0af19bbfeb8188a9a022671cd1e8c8196f44e2346be1",
+    "a1": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "originalPhysicalLines": 226,
+        "originalSha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+        "normalizedLines": 591,
+        "normalizedSha256": "fbb9ac8db974622aa19b7d375e6235c36b85db0f29c3a2c18ec177dfeb80c206",
+        "formatterOutput": ""
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "originalPhysicalLines": 199,
+        "originalSha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+        "normalizedLines": 573,
+        "normalizedSha256": "989077cce78a78d7efb4fa101f0bf4cfec4bed9b0e256c6fa803535a7aa511e0",
+        "formatterOutput": ""
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "originalPhysicalLines": 46,
+        "originalSha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+        "normalizedLines": 102,
+        "normalizedSha256": "d83dcddbbe77cc8cc3c98101d679d6da8fd5c1666bdbfd807e89f6e1f4a6daac",
+        "formatterOutput": ""
+      }
+    ],
+    "candidate": [
+      {
+        "path": "feasibility/matrix-core.mjs",
+        "draftPhysicalLines": 466,
+        "normalizedLines": 481,
+        "bytes": 14877,
+        "sha256": "d8d52b362e1decf46fecd9ab98ca393c109c79ec240c2b088e952cbbbe18778d",
+        "formatterOutput": ""
+      },
+      {
+        "path": "feasibility/trusted-audience-fixture.ts",
+        "draftPhysicalLines": 146,
+        "normalizedLines": 143,
+        "bytes": 4489,
+        "sha256": "5b5bfd884266148a23ed92f2775819c6f481041be4e12ef62f86cd565ba6ad97",
+        "formatterOutput": ""
+      }
+    ],
+    "a1PhysicalTotal": 471,
+    "a1NormalizedTotal": 1266,
+    "candidateNormalizedTotal": 624,
+    "candidateComplete": false,
+    "candidateExecuted": false,
+    "omittedCountedWork": [
+      "matrix enumeration/CLI and A1 composition",
+      "legal phase-ready fixtures and public barriers which preserve withheld declarations",
+      "ordinary campaign/session/mission API provisioning",
+      "durable captured-roll comparison",
+      "lifecycle/PROGRESS additions"
+    ],
+    "exemptWorkStillRequired": [
+      "RED falsifiers",
+      "raw sanitized built-image proof",
+      "sensitive packet and independent review",
+      "owner ruling and exact-main closure"
+    ],
+    "interpretation": "This is a measured incomplete design draft which already exceeds the cap, not proof that every conceivable implementation must overflow. Stop this design at admission and propose smaller units. The draft is not executed, validated product behavior, fit proof or admitted source. It deliberately retains unresolved provisioner/phase/public-barrier contracts; finishing them adds counted work."
+  },
+  "draftBytes": [
+    {
+      "path": "feasibility/matrix-core.mjs",
+      "sha256": "d8d52b362e1decf46fecd9ab98ca393c109c79ec240c2b088e952cbbbe18778d",
+      "byteLength": 14877,
+      "encoding": "base64",
+      "data": "LyoqCiAqIEFkbWlzc2lvbiBzaXppbmcgZHJhZnQgb25seS4gTmV2ZXIgaW1wb3J0ZWQgYnkgdGhlIHJlcG9zaXRvcnkgb3IgcnVuIGFzIHByb29mLgogKiBQcm92aXNpb25pbmcsIHN0b3BwZWQtREIgZml4dHVyZXMgYW5kIHRoZSBjby1vcCBtaXNzaW9uIGRyaXZlciByZW1haW4gc2VwYXJhdGUuCiAqLwppbXBvcnQgewogIGFwaSwKICBpc3N1ZUlkZW50aXR5LAogIG9wZW5Tb2NrZXQsCn0gZnJvbSAnLi4vLi4vLi4vLi4vbDEtc21va2UtYTItMjAyNjEwMjAvc2NyaXB0cy9yZWxlYXNlL2wxLWJ1aWx0LXNlcnZlci1zb2NrZXQtY2FzZXMubWpzJzsKCmV4cG9ydCBjb25zdCBBVURJRU5DRVMgPSBPYmplY3QuZnJlZXplKFsKICB7IGlkOiAncGxheWVyLXN0YWxlJywgYnJhbmQ6ICdwbGF5ZXInLCBzdGFsZTogdHJ1ZSB9LAogIHsgaWQ6ICdnbS1zdGFsZScsIGJyYW5kOiAnZ20nLCBzdGFsZTogdHJ1ZSB9LAogIHsgaWQ6ICdnbS11bmFzc2lnbmVkJywgYnJhbmQ6ICdnbScsIHN0YWxlOiBmYWxzZSB9LApdKTsKCmV4cG9ydCBjb25zdCBERUNMQVJBVElPTlMgPSBPYmplY3QuZnJlZXplKFsKICB7IGtpbmQ6ICdNb3ZlJywgdHlwZTogJ21vdmVtZW50X2RlY2xhcmVkJywgcGhhc2U6ICdtb3ZlbWVudCcgfSwKICB7IGtpbmQ6ICdBdHRhY2snLCB0eXBlOiAnYXR0YWNrX2RlY2xhcmVkJywgcGhhc2U6ICd3ZWFwb25fYXR0YWNrJyB9LAogIHsKICAgIGtpbmQ6ICdQaHlzaWNhbCcsCiAgICB0eXBlOiAncGh5c2ljYWxfYXR0YWNrX2RlY2xhcmVkJywKICAgIHBoYXNlOiAncGh5c2ljYWxfYXR0YWNrJywKICB9LApdKTsKCmV4cG9ydCBjb25zdCBNQVRSSVhfUk9XUyA9IE9iamVjdC5mcmVlemUoCiAgREVDTEFSQVRJT05TLmZsYXRNYXAoKGRlY2xhcmF0aW9uKSA9PgogICAgQVVESUVOQ0VTLm1hcCgoYXVkaWVuY2UpID0+ICh7CiAgICAgIGlkOiBgJHtkZWNsYXJhdGlvbi5raW5kfToke2F1ZGllbmNlLmlkfWAsCiAgICAgIGRlY2xhcmF0aW9uLAogICAgICBhdWRpZW5jZSwKICAgIH0pKSwKICApLAopOwoKZnVuY3Rpb24gbWVzc2FnZXMoY29ubiwgc2luY2UgPSAwKSB7CiAgaWYgKGNvbm4uZmF1bHQgfHwgY29ubi5jbG9zZWQpIHsKICAgIHRocm93IG5ldyBFcnJvcihgJHtjb25uLmxhYmVsfTogY29ubmVjdGlvbiBmYWlsZWQgZHVyaW5nIG9ic2VydmF0aW9uYCk7CiAgfQogIHJldHVybiBjb25uLmZyYW1lcy5zbGljZShzaW5jZSkubWFwKChmcmFtZSkgPT4gZnJhbWUucGFyc2VkKTsKfQoKZnVuY3Rpb24gZXZlbnRzKGZyYW1lcykgewogIHJldHVybiBmcmFtZXMuZmxhdE1hcCgoZnJhbWUpID0+IHsKICAgIGlmIChmcmFtZS5raW5kID09PSAnRXZlbnQnKSB7CiAgICAgIHJldHVybiBbeyBldmVudDogZnJhbWUuZXZlbnQsIGRlbGl2ZXJ5OiBmcmFtZS5kZWxpdmVyeVNlcXVlbmNlIH1dOwogICAgfQogICAgaWYgKGZyYW1lLmtpbmQgIT09ICdSZXBsYXlDaHVuaycpIHJldHVybiBbXTsKICAgIGlmIChmcmFtZS5ldmVudHMubGVuZ3RoICE9PSBmcmFtZS5kZWxpdmVyeVNlcXVlbmNlcz8ubGVuZ3RoKSB7CiAgICAgIHRocm93IG5ldyBFcnJvcigncmVwbGF5IGxhY2tzIG9uZSBkZWxpdmVyeSBpbmRleCBwZXIgZXZlbnQnKTsKICAgIH0KICAgIHJldHVybiBmcmFtZS5ldmVudHMubWFwKChldmVudCwgaW5kZXgpID0+ICh7CiAgICAgIGV2ZW50LAogICAgICBkZWxpdmVyeTogZnJhbWUuZGVsaXZlcnlTZXF1ZW5jZXNbaW5kZXhdLAogICAgfSkpOwogIH0pOwp9CgpmdW5jdGlvbiBjb250aWd1b3VzKHJvd3MpIHsKICBjb25zdCBpbmRpY2VzID0gcm93cy5tYXAoKHJvdykgPT4gcm93LmRlbGl2ZXJ5KTsKICByZXR1cm4gaW5kaWNlcy5ldmVyeSgKICAgICh2YWx1ZSwgaW5kZXgpID0+CiAgICAgIE51bWJlci5pc0ludGVnZXIodmFsdWUpICYmCiAgICAgIChpbmRleCA9PT0gMCB8fCB2YWx1ZSA9PT0gaW5kaWNlc1tpbmRleCAtIDFdICsgMSksCiAgKTsKfQoKZnVuY3Rpb24gYXNzZXJ0UHVibGljKGN0eCwgZnJhbWVzLCBleHBlY3RlZElkLCBjYXNlSWQpIHsKICBjb25zdCByb3dzID0gZXZlbnRzKGZyYW1lcyk7CiAgY3R4LmNoZWNrKAogICAgcm93cy5zb21lKCh7IGV2ZW50IH0pID0+IGV2ZW50LmlkID09PSBleHBlY3RlZElkKSwKICAgIGNhc2VJZCwKICAgICdwdWJsaWMgY29udHJvbCBtaXNzaW5nJywKICAgIHsgZXhwZWN0ZWRJZCwgcmVjZWl2ZWQ6IHJvd3MubWFwKCh7IGV2ZW50IH0pID0+IGV2ZW50LmlkKSB9LAogICk7CiAgY3R4LmNoZWNrKAogICAgY29udGlndW91cyhyb3dzKSwKICAgIGNhc2VJZCwKICAgICd2aXNpYmxlIGRlbGl2ZXJ5IGN1cnNvciBoYXMgYSBnYXAnLAogICAgcm93cy5tYXAoKHsgZGVsaXZlcnkgfSkgPT4gZGVsaXZlcnkpLAogICk7CiAgZm9yIChjb25zdCB7IGV2ZW50IH0gb2Ygcm93cykgewogICAgY3R4LmNoZWNrKAogICAgICAhT2JqZWN0Lmhhc093bihldmVudCwgJ3NlcXVlbmNlJyksCiAgICAgIGNhc2VJZCwKICAgICAgJ2F1dGhvcml0eSBzZXF1ZW5jZSBleHBvc2VkIHRvIHNwZWN0YXRvcicsCiAgICAgIGV2ZW50LAogICAgKTsKICB9Cn0KCmV4cG9ydCBmdW5jdGlvbiBhc3NlcnRXaXRoaGVsZChjdHgsIGZyYW1lcywgc2VjcmV0LCBjYXNlSWQpIHsKICBjb25zdCByYXcgPSBKU09OLnN0cmluZ2lmeShmcmFtZXMpOwogIGZvciAoY29uc3Qgc2VudGluZWwgb2YgW3NlY3JldC5pZCwgc2VjcmV0Lm1hcmtlcl0pIHsKICAgIGN0eC5jaGVjaygKICAgICAgIXJhdy5pbmNsdWRlcyhzZW50aW5lbCksCiAgICAgIGNhc2VJZCwKICAgICAgJ3NlYWxlZCBkZWNsYXJhdGlvbiBzZW50aW5lbCByZWFjaGVkIHNwZWN0YXRvcicsCiAgICAgIHsgc2VudGluZWwsIGZyYW1lcyB9LAogICAgKTsKICB9CiAgY3R4LmNoZWNrKAogICAgIWV2ZW50cyhmcmFtZXMpLnNvbWUoKHsgZXZlbnQgfSkgPT4gZXZlbnQudHlwZSA9PT0gc2VjcmV0LnR5cGUpLAogICAgY2FzZUlkLAogICAgJ3NlYWxlZCBkZWNsYXJhdGlvbiBvciBwbGFjZWhvbGRlciByZWFjaGVkIHNwZWN0YXRvcicsCiAgICBmcmFtZXMsCiAgKTsKfQoKYXN5bmMgZnVuY3Rpb24gYWNjZXB0ZWQoY3R4LCBjb25uLCBpbnRlbnQsIGNhc2VJZCkgewogIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGNvbm4uaW50ZW50KGludGVudCk7CiAgY3R4LmNoZWNrKAogICAgcmVzdWx0LnJlcGx5LmtpbmQgPT09ICdFdmVudCcsCiAgICBjYXNlSWQsCiAgICAncGFydGljaXBhbnQgaW50ZW50IHJlZnVzZWQnLAogICAgeyBpbnRlbnQsIHJlcGx5OiByZXN1bHQucmVwbHkgfSwKICApOwogIGN0eC5jaGVjaygKICAgIHJlc3VsdC5yZXBseS5ldmVudC5wYXlsb2FkLmludGVudElkID09PSByZXN1bHQuaW50ZW50SWQsCiAgICBjYXNlSWQsCiAgICAncGFydGljaXBhbnQgZXZlbnQgbGFja3MgY29ycmVsYXRlZCBpbnRlbnQgaWQnLAogICAgcmVzdWx0LAogICk7CiAgcmV0dXJuIHJlc3VsdDsKfQoKYXN5bmMgZnVuY3Rpb24gZGVsaXZlcmVkKGNvbm4sIGV2ZW50SWQsIHNpbmNlKSB7CiAgcmV0dXJuIGNvbm4ud2FpdEZvcigKICAgIChtZXNzYWdlKSA9PiBtZXNzYWdlLmtpbmQgPT09ICdFdmVudCcgJiYgbWVzc2FnZS5ldmVudC5pZCA9PT0gZXZlbnRJZCwKICAgIGBwdWJsaWMgY29udHJvbCAke2V2ZW50SWR9YCwKICAgIHsgc2luY2UgfSwKICApOwp9Cgphc3luYyBmdW5jdGlvbiByZXBsYXkoY3R4LCBjb25uLCBjYXNlSWQpIHsKICBjb25zdCByZXN1bHQgPSBhd2FpdCBjdHgucmVjb25uZWN0KGNvbm4pOwogIGN0eC5jaGVjaygKICAgIHJlc3VsdC5yZXBsYXlbMF0/LmtpbmQgPT09ICdSZXBsYXlTdGFydCcgJiYKICAgICAgcmVzdWx0LnJlcGxheS5hdCgtMSk/LmtpbmQgPT09ICdSZXBsYXlFbmQnLAogICAgY2FzZUlkLAogICAgJ3JlY29ubmVjdCBkaWQgbm90IGRlbGl2ZXIgYSBjb21wbGV0ZSByZXBsYXknLAogICAgcmVzdWx0LnJlcGxheSwKICApOwogIHJldHVybiByZXN1bHQ7Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBwcm92aXNpb25NYXRyaXhNYXRjaChjdHgsIHJvdykgewogIGNvbnN0IGhvc3QgPSBhd2FpdCBpc3N1ZUlkZW50aXR5KGN0eCwgYCR7cm93LmlkfS1ob3N0YCk7CiAgY29uc3QgYWN0b3IgPSBhd2FpdCBpc3N1ZUlkZW50aXR5KGN0eCwgYCR7cm93LmlkfS1hY3RvcmApOwogIGNvbnN0IHdhdGNoZXIgPSBhd2FpdCBpc3N1ZUlkZW50aXR5KGN0eCwgYCR7cm93LmlkfS13YXRjaGVyYCk7CiAgY29uc3QgY3JlYXRlZCA9IGF3YWl0IGFwaShjdHgsICdQT1NUJywgJy9hcGkvbXVsdGlwbGF5ZXIvbWF0Y2hlcycsIGhvc3QsIHsKICAgIGNvbmZpZzogeyBtYXBSYWRpdXM6IDQsIHR1cm5MaW1pdDogMTAsIGZvZ09mV2FyOiBmYWxzZSB9LAogICAgbGF5b3V0OiAnMXYxJywKICAgIGRpc3BsYXlOYW1lOiByb3cuaWQsCiAgfSk7CiAgY3R4LmNoZWNrKAogICAgY3JlYXRlZC5zdGF0dXMgPT09IDIwMSAmJiBjcmVhdGVkLmpzb24ubWV0YS5jb25maWcuZm9nT2ZXYXIgPT09IGZhbHNlLAogICAgcm93LmlkLAogICAgJ21hdHJpeCBsb2JieSBub3QgY3JlYXRlZCcsCiAgICBjcmVhdGVkLAogICk7CiAgY29uc3QgbWF0Y2hJZCA9IGNyZWF0ZWQuanNvbi5tYXRjaElkOwogIGNvbnN0IGggPSBhd2FpdCBvcGVuU29ja2V0KGN0eCwgaG9zdCwgbWF0Y2hJZCk7CiAgYXdhaXQgaC5qb2luKCk7CiAgY29uc3QgYSA9IGF3YWl0IG9wZW5Tb2NrZXQoY3R4LCBhY3RvciwgbWF0Y2hJZCk7CiAgYXdhaXQgYS5qb2luKCk7CiAgZm9yIChjb25zdCBpbnRlbnQgb2YgWwogICAgeyBraW5kOiAnT2NjdXB5U2VhdCcsIHNsb3RJZDogJ2JyYXZvLTEnIH0sCiAgICB7IGtpbmQ6ICdTZXRSZWFkeScsIHNsb3RJZDogJ2JyYXZvLTEnLCByZWFkeTogdHJ1ZSB9LAogIF0pIHsKICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGEuaW50ZW50KGludGVudCk7CiAgICBjdHguY2hlY2soCiAgICAgIHJlc3VsdC5yZXBseS5raW5kID09PSAnTG9iYnlVcGRhdGVkJywKICAgICAgcm93LmlkLAogICAgICAnbWF0cml4IGFjdG9yIG5vdCBzZWF0ZWQgYW5kIHJlYWR5JywKICAgICAgcmVzdWx0LAogICAgKTsKICB9CiAgYXdhaXQgaC5pbnRlbnQoeyBraW5kOiAnU2V0UmVhZHknLCBzbG90SWQ6ICdhbHBoYS0xJywgcmVhZHk6IHRydWUgfSk7CiAgY29uc3QgbGF1bmNoZWQgPSBhd2FpdCBoLmludGVudCh7IGtpbmQ6ICdMYXVuY2hNYXRjaCcgfSk7CiAgY3R4LmNoZWNrKAogICAgbGF1bmNoZWQucmVwbHkuc3RhdHVzID09PSAnYWN0aXZlJywKICAgIHJvdy5pZCwKICAgICdtYXRyaXggbG9iYnkgZGlkIG5vdCBsYXVuY2gnLAogICAgbGF1bmNoZWQsCiAgKTsKICBjb25zdCBzcGVjdGF0ZSA9IGF3YWl0IGFwaSgKICAgIGN0eCwKICAgICdQT1NUJywKICAgIGAvYXBpL211bHRpcGxheWVyL21hdGNoZXMvJHttYXRjaElkfS9zcGVjdGF0ZWAsCiAgICB3YXRjaGVyLAogICk7CiAgY3R4LmNoZWNrKAogICAgc3BlY3RhdGUuc3RhdHVzID09PSAyMDEsCiAgICByb3cuaWQsCiAgICAnd2F0Y2hlciBub3QgYWRtaXR0ZWQgdGhyb3VnaCBzcGVjdGF0b3Igcm91dGUnLAogICAgc3BlY3RhdGUsCiAgKTsKICBoLmNsb3NlKCk7CiAgYS5jbG9zZSgpOwogIHJldHVybiB7IHJvdywgbWF0Y2hJZCwgaWRlbnRpdGllczogeyBob3N0LCBhY3Rvciwgd2F0Y2hlciB9IH07Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBvcGVuTWF0cml4TWF0Y2goY3R4LCBwcmVwYXJlZCkgewogIGNvbnN0IHsgcm93LCBtYXRjaElkLCBpZGVudGl0aWVzIH0gPSBwcmVwYXJlZDsKICBjb25zdCBhY3RvciA9IGF3YWl0IG9wZW5Tb2NrZXQoY3R4LCBpZGVudGl0aWVzLmFjdG9yLCBtYXRjaElkKTsKICBhd2FpdCBhY3Rvci5qb2luKCk7CiAgY29uc3QgaG9sZGVyID0gYXdhaXQgb3BlblNvY2tldChjdHgsIGlkZW50aXRpZXMuaG9zdCwgbWF0Y2hJZCk7CiAgYXdhaXQgaG9sZGVyLmpvaW4oKTsKICBjb25zdCB3YXRjaGVyID0gYXdhaXQgb3BlblNvY2tldChjdHgsIGlkZW50aXRpZXMud2F0Y2hlciwgbWF0Y2hJZCk7CiAgY29uc3QgaW5pdGlhbCA9IGF3YWl0IHdhdGNoZXIuam9pbigpOwogIGNvbnN0IGxvYmJ5ID0gYXdhaXQgd2F0Y2hlci53YWl0Rm9yKAogICAgKG1lc3NhZ2UpID0+IG1lc3NhZ2Uua2luZCA9PT0gJ0xvYmJ5VXBkYXRlZCcsCiAgICAnY3VycmVudCBzcGVjdGF0b3Igc2VhdCcsCiAgKTsKICBjb25zdCBvY2N1cGllZCA9IGxvYmJ5LmZyYW1lLnNlYXRzLmZpbHRlcigKICAgIChzZWF0KSA9PiBzZWF0Lm9jY3VwYW50Py5wbGF5ZXJJZCA9PT0gaWRlbnRpdGllcy53YXRjaGVyLnBsYXllcklkLAogICk7CiAgY3R4LmNoZWNrKAogICAgb2NjdXBpZWQubGVuZ3RoID09PSAxICYmIG9jY3VwaWVkWzBdLmtpbmQgPT09ICdzcGVjdGF0b3InLAogICAgcm93LmlkLAogICAgJ3RydXN0ZWQgc3BlY3RhdG9yIHNlYXQgbm90IHdpdG5lc3NlZCcsCiAgICBvY2N1cGllZCwKICApOwogIHJldHVybiB7IC4uLnByZXBhcmVkLCBhY3RvciwgaG9sZGVyLCB3YXRjaGVyLCBpbml0aWFsIH07Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBydW5XaXRoaGVsZFJvdyhjdHgsIHN0YXRlLCBmaXh0dXJlKSB7CiAgY29uc3QgeyByb3csIGFjdG9yLCBob2xkZXIgfSA9IHN0YXRlOwogIGxldCB3YXRjaGVyID0gc3RhdGUud2F0Y2hlcjsKICBjb25zdCBjYXNlSWQgPSBgJHtyb3cuaWR9OndpdGhoZWxkYDsKICBjb25zdCBiZWZvcmUgPSBhd2FpdCBhY2NlcHRlZChjdHgsIGhvbGRlciwgZml4dHVyZS5wdWJsaWNCZWZvcmUsIGNhc2VJZCk7CiAgYXdhaXQgZGVsaXZlcmVkKHdhdGNoZXIsIGJlZm9yZS5yZXBseS5ldmVudC5pZCwgMCk7CiAgY29uc3Qgc3RhcnQgPSB3YXRjaGVyLmZyYW1lcy5sZW5ndGg7CiAgY29uc3QgZGVjbGFyZWQgPSBhd2FpdCBhY2NlcHRlZChjdHgsIGFjdG9yLCBmaXh0dXJlLmludGVudCwgY2FzZUlkKTsKICBjb25zdCBkZWNsYXJhdGlvbiA9IGRlY2xhcmVkLnJlcGx5LmV2ZW50OwogIGN0eC5jaGVjaygKICAgIGRlY2xhcmF0aW9uLnR5cGUgPT09IHJvdy5kZWNsYXJhdGlvbi50eXBlLAogICAgY2FzZUlkLAogICAgJ2ludGVudCBwcm9kdWNlZCB0aGUgd3JvbmcgZGVjbGFyYXRpb24nLAogICAgZGVjbGFyYXRpb24sCiAgKTsKICBjdHguY2hlY2soCiAgICBKU09OLnN0cmluZ2lmeShkZWNsYXJhdGlvbi5wYXlsb2FkKS5pbmNsdWRlcyhmaXh0dXJlLm1hcmtlciksCiAgICBjYXNlSWQsCiAgICAncG9zaXRpdmUgYWN0b3IgY29udHJvbCBsYWNrcyB0aGUgc2VjcmV0IHNlbnRpbmVsJywKICAgIGRlY2xhcmF0aW9uLAogICk7CiAgY29uc3Qgc2VjcmV0ID0gewogICAgaWQ6IGRlY2xhcmF0aW9uLmlkLAogICAgdHlwZTogZGVjbGFyYXRpb24udHlwZSwKICAgIG1hcmtlcjogZml4dHVyZS5tYXJrZXIsCiAgfTsKICBjb25zdCBhZnRlciA9IGF3YWl0IGFjY2VwdGVkKGN0eCwgaG9sZGVyLCBmaXh0dXJlLnB1YmxpY0FmdGVyLCBjYXNlSWQpOwogIGF3YWl0IGRlbGl2ZXJlZCh3YXRjaGVyLCBhZnRlci5yZXBseS5ldmVudC5pZCwgc3RhcnQpOwogIGNvbnN0IGxpdmUgPSBtZXNzYWdlcyh3YXRjaGVyLCBzdGFydCk7CiAgYXNzZXJ0UHVibGljKGN0eCwgbGl2ZSwgYWZ0ZXIucmVwbHkuZXZlbnQuaWQsIGNhc2VJZCk7CiAgYXNzZXJ0V2l0aGhlbGQoY3R4LCBsaXZlLCBzZWNyZXQsIGNhc2VJZCk7CiAgZm9yIChjb25zdCBtb2RlIG9mIFsncmVjb25uZWN0JywgJ3Jlc3RhcnQnXSkgewogICAgaWYgKG1vZGUgPT09ICdyZXN0YXJ0JykgewogICAgICBhd2FpdCBjdHguc3RvcCgpOwogICAgICBjb25zdCBkdXJhYmxlID0gYXdhaXQgY3R4LnByZXBhcmVPZmZsaW5lKGZpeHR1cmUuc2NyaXB0LCBbCiAgICAgICAgJ3dpdG5lc3MnLAogICAgICAgIGAtLW1hdGNoPSR7c3RhdGUubWF0Y2hJZH1gLAogICAgICBdKTsKICAgICAgY3R4LmNoZWNrKAogICAgICAgIGR1cmFibGUud2l0aGhlbGRJZHMuaW5jbHVkZXMoc2VjcmV0LmlkKSwKICAgICAgICBjYXNlSWQsCiAgICAgICAgJ3dpdGhoZWxkIGRlY2xhcmF0aW9uIG1pc3NpbmcgZnJvbSBkdXJhYmxlIHN0b3JlJywKICAgICAgICBkdXJhYmxlLAogICAgICApOwogICAgICBhd2FpdCBjdHgucmVzdGFydCgpOwogICAgfQogICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgcmVwbGF5KGN0eCwgd2F0Y2hlciwgY2FzZUlkKTsKICAgIHdhdGNoZXIgPSByZXN1bHQuY29ubjsKICAgIGFzc2VydFB1YmxpYyhjdHgsIHJlc3VsdC5yZXBsYXksIGFmdGVyLnJlcGx5LmV2ZW50LmlkLCBjYXNlSWQpOwogICAgYXNzZXJ0V2l0aGhlbGQoY3R4LCByZXN1bHQucmVwbGF5LCBzZWNyZXQsIGNhc2VJZCk7CiAgICBjdHguZXZpZGVuY2UucmVjb3JkKCduZWdhdGl2ZS13aW5kb3cnLCB7CiAgICAgIGNhc2VJZCwKICAgICAgbW9kZSwKICAgICAgc2VjcmV0SWQ6IHNlY3JldC5pZCwKICAgICAgY29udHJvbElkOiBhZnRlci5yZXBseS5ldmVudC5pZCwKICAgICAgcmVwbGF5OiByZXN1bHQucmVwbGF5LAogICAgfSk7CiAgfQogIGN0eC5wYXNzKGNhc2VJZCwgeyBzZWNyZXQsIHB1YmxpY0lkOiBhZnRlci5yZXBseS5ldmVudC5pZCB9KTsKICByZXR1cm4geyAuLi5zdGF0ZSwgd2F0Y2hlciwgc2VjcmV0IH07Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBhc3NlcnRSZXZlYWwoY3R4LCBzdGF0ZSwgZml4dHVyZSkgewogIGNvbnN0IGNhc2VJZCA9IGAke3N0YXRlLnJvdy5pZH06cmV2ZWFsYDsKICBjb25zdCBhY3RvciA9IGF3YWl0IGN0eC5yZWNvbm5lY3Qoc3RhdGUuYWN0b3IpOwogIGNvbnN0IGhvbGRlciA9IGF3YWl0IGN0eC5yZWNvbm5lY3Qoc3RhdGUuaG9sZGVyKTsKICBjb25zdCBzdGFydCA9IHN0YXRlLndhdGNoZXIuZnJhbWVzLmxlbmd0aDsKICBjb25zdCByZWxlYXNlZCA9IGF3YWl0IGFjY2VwdGVkKGN0eCwgaG9sZGVyLmNvbm4sIGZpeHR1cmUucmVsZWFzZSwgY2FzZUlkKTsKICBhd2FpdCBkZWxpdmVyZWQoc3RhdGUud2F0Y2hlciwgcmVsZWFzZWQucmVwbHkuZXZlbnQuaWQsIHN0YXJ0KTsKICBjb25zdCByb3dzID0gZXZlbnRzKG1lc3NhZ2VzKHN0YXRlLndhdGNoZXIsIHN0YXJ0KSk7CiAgY3R4LmNoZWNrKAogICAgcm93cy5zb21lKCh7IGV2ZW50IH0pID0+IGZpeHR1cmUucmV2ZWFsVHlwZXMuaW5jbHVkZXMoZXZlbnQudHlwZSkpLAogICAgY2FzZUlkLAogICAgJ2VsaWdpYmxlIGF1dGhvcml0YXRpdmUgcmV2ZWFsIGRpZCBub3QgcmVhY2ggc3BlY3RhdG9yJywKICAgIHJvd3MsCiAgKTsKICBjb25zdCBuZXh0ID0gYXdhaXQgcmVwbGF5KGN0eCwgc3RhdGUud2F0Y2hlciwgY2FzZUlkKTsKICBjb25zdCByZXBsYXlSb3dzID0gZXZlbnRzKG5leHQucmVwbGF5KTsKICBjdHguY2hlY2soCiAgICByZXBsYXlSb3dzLnNvbWUoKHsgZXZlbnQgfSkgPT4gZml4dHVyZS5yZXZlYWxUeXBlcy5pbmNsdWRlcyhldmVudC50eXBlKSksCiAgICBjYXNlSWQsCiAgICAnZWxpZ2libGUgcmV2ZWFsIG1pc3NpbmcgZnJvbSByZXBsYXknLAogICAgcmVwbGF5Um93cywKICApOwogIGNvbnN0IGFjdG9ySWRzID0gZXZlbnRzKGFjdG9yLnJlcGxheSkubWFwKCh7IGV2ZW50IH0pID0+IGV2ZW50LmlkKTsKICBjdHguY2hlY2soCiAgICBhY3Rvcklkcy5pbmNsdWRlcyhzdGF0ZS5zZWNyZXQuaWQpLAogICAgY2FzZUlkLAogICAgJ293bmluZyBhY3RvciBsb3N0IGl0cyBkZWNsYXJhdGlvbiBvbiByZXN0YXJ0IHJlcGxheScsCiAgICBhY3RvcklkcywKICApOwogIGZvciAoY29uc3QgY29ubiBvZiBbYWN0b3IuY29ubiwgaG9sZGVyLmNvbm4sIG5leHQuY29ubl0pIGNvbm4uY2xvc2UoKTsKICBjdHgucGFzcyhjYXNlSWQsIHsgcmV2ZWFsVHlwZXM6IGZpeHR1cmUucmV2ZWFsVHlwZXMgfSk7Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBjb25jdXJyZW50Rmlyc3RTb2NrZXRzKGN0eCkgewogIGNvbnN0IGNhc2VJZCA9ICdjb25jdXJyZW50LWZpcnN0LXNvY2tldHMnOwogIGNvbnN0IGhvc3QgPSBhd2FpdCBpc3N1ZUlkZW50aXR5KGN0eCwgJ2NvbmN1cnJlbnQtaG9zdCcpOwogIGNvbnN0IGd1ZXN0ID0gYXdhaXQgaXNzdWVJZGVudGl0eShjdHgsICdjb25jdXJyZW50LWd1ZXN0Jyk7CiAgY29uc3QgY3JlYXRlZCA9IGF3YWl0IGFwaShjdHgsICdQT1NUJywgJy9hcGkvbXVsdGlwbGF5ZXIvbWF0Y2hlcycsIGhvc3QsIHsKICAgIGNvbmZpZzogeyBtYXBSYWRpdXM6IDQsIHR1cm5MaW1pdDogNSB9LAogICAgbGF5b3V0OiAnMXYxJywKICB9KTsKICBjdHguY2hlY2soY3JlYXRlZC5zdGF0dXMgPT09IDIwMSwgY2FzZUlkLCAnY3JlYXRlIGZhaWxlZCcsIGNyZWF0ZWQpOwogIGNvbnN0IHNvY2tldHMgPSBhd2FpdCBQcm9taXNlLmFsbCgKICAgIFtob3N0LCBndWVzdF0ubWFwKChpZGVudGl0eSkgPT4KICAgICAgb3BlblNvY2tldChjdHgsIGlkZW50aXR5LCBjcmVhdGVkLmpzb24ubWF0Y2hJZCksCiAgICApLAogICk7CiAgdHJ5IHsKICAgIGF3YWl0IFByb21pc2UuYWxsKHNvY2tldHMubWFwKChjb25uKSA9PiBjb25uLmpvaW4oKSkpOwogICAgY29uc3QgW2gsIGddID0gc29ja2V0czsKICAgIGF3YWl0IGcuaW50ZW50KHsga2luZDogJ09jY3VweVNlYXQnLCBzbG90SWQ6ICdicmF2by0xJyB9KTsKICAgIGF3YWl0IGcuaW50ZW50KHsga2luZDogJ1NldFJlYWR5Jywgc2xvdElkOiAnYnJhdm8tMScsIHJlYWR5OiB0cnVlIH0pOwogICAgYXdhaXQgaC5pbnRlbnQoeyBraW5kOiAnU2V0UmVhZHknLCBzbG90SWQ6ICdhbHBoYS0xJywgcmVhZHk6IHRydWUgfSk7CiAgICBjb25zdCBsYXVuY2ggPSBhd2FpdCBoLmludGVudCh7IGtpbmQ6ICdMYXVuY2hNYXRjaCcgfSk7CiAgICBjdHguY2hlY2soCiAgICAgIGxhdW5jaC5yZXBseS5zdGF0dXMgPT09ICdhY3RpdmUnLAogICAgICBjYXNlSWQsCiAgICAgICdsYXVuY2ggZmFpbGVkJywKICAgICAgbGF1bmNoLAogICAgKTsKICAgIGNvbnN0IGZpcnN0ID0gYXdhaXQgYWNjZXB0ZWQoY3R4LCBoLCB7IGtpbmQ6ICdBZHZhbmNlUGhhc2UnIH0sIGNhc2VJZCk7CiAgICBjb25zdCBzZWNvbmQgPSBhd2FpdCBhY2NlcHRlZChjdHgsIGcsIHsga2luZDogJ0FkdmFuY2VQaGFzZScgfSwgY2FzZUlkKTsKICAgIGNvbnN0IGFsbCA9IHNvY2tldHMuZmxhdE1hcCgoY29ubikgPT4gbWVzc2FnZXMoY29ubikpOwogICAgY3R4LmNoZWNrKAogICAgICAhYWxsLnNvbWUoKG1lc3NhZ2UpID0+IG1lc3NhZ2UuY29kZSA9PT0gJ1NUT1JFX0ZBSUxVUkUnKSwKICAgICAgY2FzZUlkLAogICAgICAnY29uY3VycmVudCBmaXJzdCB1cGdyYWRlcyBjcmVhdGVkIGNvbmZsaWN0aW5nIGF1dGhvcml0aWVzJywKICAgICAgYWxsLAogICAgKTsKICAgIGN0eC5wYXNzKGNhc2VJZCwgewogICAgICBtYXRjaElkOiBjcmVhdGVkLmpzb24ubWF0Y2hJZCwKICAgICAgYWNjZXB0ZWRJZHM6IFtmaXJzdC5pbnRlbnRJZCwgc2Vjb25kLmludGVudElkXSwKICAgIH0pOwogIH0gZmluYWxseSB7CiAgICBmb3IgKGNvbnN0IGNvbm4gb2Ygc29ja2V0cykgY29ubi5jbG9zZSgpOwogIH0KfQoKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIG5vblNwZWN0YXRpbmdHbUNvbnRyb2woY3R4LCBwcmVwYXJlZCwgZml4dHVyZSkgewogIGNvbnN0IGNhc2VJZCA9IGAke3ByZXBhcmVkLnJvdy5pZH06bm9uLXNwZWN0YXRpbmctZ21gOwogIGNvbnN0IGFjdG9yID0gYXdhaXQgb3BlblNvY2tldCgKICAgIGN0eCwKICAgIHByZXBhcmVkLmlkZW50aXRpZXMuYWN0b3IsCiAgICBwcmVwYXJlZC5tYXRjaElkLAogICk7CiAgY29uc3QgZ20gPSBhd2FpdCBvcGVuU29ja2V0KGN0eCwgcHJlcGFyZWQuaWRlbnRpdGllcy5nbSwgcHJlcGFyZWQubWF0Y2hJZCk7CiAgdHJ5IHsKICAgIGF3YWl0IGFjdG9yLmpvaW4oKTsKICAgIGF3YWl0IGdtLmpvaW4oKTsKICAgIGNvbnN0IHN0YXJ0ID0gZ20uZnJhbWVzLmxlbmd0aDsKICAgIGNvbnN0IGRlY2xhcmVkID0gYXdhaXQgYWNjZXB0ZWQoY3R4LCBhY3RvciwgZml4dHVyZS5pbnRlbnQsIGNhc2VJZCk7CiAgICBjb25zdCBkZWxpdmVyZWQgPSBhd2FpdCBnbS53YWl0Rm9yKAogICAgICAobWVzc2FnZSkgPT4KICAgICAgICBtZXNzYWdlLmtpbmQgPT09ICdFdmVudCcgJiYKICAgICAgICBtZXNzYWdlLmV2ZW50LmlkID09PSBkZWNsYXJlZC5yZXBseS5ldmVudC5pZCwKICAgICAgJ25vbi1zcGVjdGF0aW5nIEdNIHNlYWxlZCBkZWNsYXJhdGlvbicsCiAgICAgIHsgc2luY2U6IHN0YXJ0IH0sCiAgICApOwogICAgY3R4LmNoZWNrKAogICAgICBKU09OLnN0cmluZ2lmeShkZWxpdmVyZWQuZnJhbWUuZXZlbnQucGF5bG9hZCkuaW5jbHVkZXMoZml4dHVyZS5tYXJrZXIpLAogICAgICBjYXNlSWQsCiAgICAgICdub24tc3BlY3RhdGluZyBHTSBsb3N0IGl0cyBleGlzdGluZyBkZWNsYXJhdGlvbiBwb2xpY3knLAogICAgICBkZWxpdmVyZWQuZnJhbWUsCiAgICApOwogICAgY3R4LnBhc3MoY2FzZUlkLCB7IGRlY2xhcmF0aW9uSWQ6IGRlY2xhcmVkLnJlcGx5LmV2ZW50LmlkIH0pOwogIH0gZmluYWxseSB7CiAgICBhY3Rvci5jbG9zZSgpOwogICAgZ20uY2xvc2UoKTsKICB9Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBjb29wUmVzdGFydENvbnRyb2woY3R4LCBtaXNzaW9uLCBmaXh0dXJlKSB7CiAgY29uc3QgY2FzZUlkID0gJ2Nvb3AtcmVzdGFydC1hY3Rpb24tYW5kLXJvbGxzJzsKICBjb25zdCBhY3RvciA9IGF3YWl0IG9wZW5Tb2NrZXQoY3R4LCBtaXNzaW9uLmFjdG9yLCBtaXNzaW9uLm1hdGNoSWQpOwogIGF3YWl0IGFjdG9yLmpvaW4oKTsKICBjb25zdCBwcmUgPSBhd2FpdCBhY2NlcHRlZChjdHgsIGFjdG9yLCBmaXh0dXJlLnByZVJlc3RhcnQsIGNhc2VJZCk7CiAgY29uc3Qgb3JpZ2luYWxJbWFnZSA9IEpTT04uc3RyaW5naWZ5KGN0eC5pZGVudGl0eSk7CiAgY29uc3Qgb3JpZ2luYWxQaWQgPSBjdHgucGlkOwogIGFjdG9yLmNsb3NlKCk7CiAgYXdhaXQgY3R4LnN0b3AoKTsKICBjb25zdCBkdXJhYmxlID0gYXdhaXQgY3R4LnByZXBhcmVPZmZsaW5lKGZpeHR1cmUuc2NyaXB0LCBbCiAgICAnd2l0bmVzcy1taXNzaW9uJywKICAgIGAtLW1hdGNoPSR7bWlzc2lvbi5tYXRjaElkfWAsCiAgXSk7CiAgY3R4LmNoZWNrKAogICAgZHVyYWJsZS5jb29wTWlzc2lvbj8ubWlzc2lvbklkID09PSBtaXNzaW9uLm1pc3Npb25JZCAmJgogICAgICBkdXJhYmxlLmV2ZW50SWRzLmluY2x1ZGVzKHByZS5yZXBseS5ldmVudC5pZCksCiAgICBjYXNlSWQsCiAgICAnY28tb3AgbWlzc2lvbiBpZGVudGl0eSBvciBwcmUtcmVzdGFydCBhY2NlcHRlZCBhY3Rpb24gbm90IGR1cmFibGUnLAogICAgZHVyYWJsZSwKICApOwogIGF3YWl0IGN0eC5yZXN0YXJ0KCk7CiAgY3R4LmNoZWNrKAogICAgb3JpZ2luYWxJbWFnZSA9PT0gSlNPTi5zdHJpbmdpZnkoY3R4LmlkZW50aXR5KSAmJiBjdHgucGlkICE9PSBvcmlnaW5hbFBpZCwKICAgIGNhc2VJZCwKICAgICdjby1vcCByZXN0YXJ0IGNoYW5nZWQgdGhlIGltYWdlIG9yIHJldGFpbmVkIHRoZSBvbGQgcHJvY2VzcycsCiAgICB7IG9yaWdpbmFsUGlkLCBjdXJyZW50UGlkOiBjdHgucGlkIH0sCiAgKTsKICBjdHguY2hlY2soCiAgICAhL3NraXBwaW5nfG5vdCBmb3VuZCBpbiB0aGUgKHNlcnZlciApP2Nhbm9uaWNhbCBjYXRhbG9nL2kudGVzdCgKICAgICAgY3R4LnNlcnZlck91dHB1dCgpLAogICAgKSwKICAgIGNhc2VJZCwKICAgICdjby1vcCBib290IHJlY292ZXJ5IHNraXBwZWQgYSB1bml0JywKICAgIGN0eC5zZXJ2ZXJPdXRwdXQoKSwKICApOwogIGNvbnN0IG5leHQgPSBhd2FpdCBjdHgucmVjb25uZWN0KGFjdG9yKTsKICBjb25zdCBtb3ZlID0gYXdhaXQgYWNjZXB0ZWQoY3R4LCBuZXh0LmNvbm4sIGZpeHR1cmUucG9zdFJlc3RhcnRNb3ZlLCBjYXNlSWQpOwogIGN0eC5jaGVjaygKICAgIG1vdmUucmVwbHkuZXZlbnQudHlwZSA9PT0gJ21vdmVtZW50X2RlY2xhcmVkJywKICAgIGNhc2VJZCwKICAgICdwb3N0LXJlc3RhcnQgY28tb3AgdW5pdCBhY3Rpb24gd2FzIG5vdCBhY2NlcHRlZCcsCiAgICBtb3ZlLAogICk7CiAgY29uc3Qgc3RhcnQgPSBuZXh0LmNvbm4uZnJhbWVzLmxlbmd0aDsKICBsZXQgY2FwdHVyZWQgPSBudWxsOwogIGZvciAobGV0IGNvdW50ID0gMDsgY291bnQgPCAxNCAmJiAhY2FwdHVyZWQ7IGNvdW50ICs9IDEpIHsKICAgIGNvbnN0IHBoYXNlID0gYXdhaXQgYWNjZXB0ZWQoCiAgICAgIGN0eCwKICAgICAgbmV4dC5jb25uLAogICAgICB7IGtpbmQ6ICdBZHZhbmNlUGhhc2UnIH0sCiAgICAgIGNhc2VJZCwKICAgICk7CiAgICBhd2FpdCBuZXh0LmNvbm4ud2FpdEZvcigKICAgICAgKG1lc3NhZ2UpID0+CiAgICAgICAgbWVzc2FnZS5raW5kID09PSAnRXZlbnQnICYmCiAgICAgICAgbWVzc2FnZS5ldmVudC5wYXlsb2FkPy5pbnRlbnRJZCA9PT0gcGhhc2UuaW50ZW50SWQsCiAgICAgICdwb3N0LXJlc3RhcnQgYWNjZXB0ZWQgcGhhc2UgZXZlbnQnLAogICAgICB7IHNpbmNlOiBwaGFzZS5zaW5jZSB9LAogICAgKTsKICAgIGNhcHR1cmVkID0gZXZlbnRzKG1lc3NhZ2VzKG5leHQuY29ubiwgc3RhcnQpKS5maW5kKCh7IGV2ZW50IH0pID0+CiAgICAgIEFycmF5LmlzQXJyYXkoZXZlbnQucGF5bG9hZD8ucm9sbHMpLAogICAgKTsKICB9CiAgY29uc3Qgcm9sbHMgPSBjYXB0dXJlZD8uZXZlbnQucGF5bG9hZC5yb2xsczsKICBjdHguY2hlY2soCiAgICByb2xscz8ubGVuZ3RoID4gMCAmJgogICAgICByb2xscy5ldmVyeSgKICAgICAgICAodmFsdWUpID0+IE51bWJlci5pc0ludGVnZXIodmFsdWUpICYmIHZhbHVlID49IDEgJiYgdmFsdWUgPD0gNiwKICAgICAgKSwKICAgIGNhc2VJZCwKICAgICdmaXJzdCBwb3N0LXJlc3RhcnQgcm9sbCBldmVudCBsYWNrcyBjYXB0dXJlZCBkNiB2YWx1ZXMnLAogICAgY2FwdHVyZWQsCiAgKTsKICBuZXh0LmNvbm4uY2xvc2UoKTsKICBjdHgucGFzcyhjYXNlSWQsIHsKICAgIG1pc3Npb25JZDogbWlzc2lvbi5taXNzaW9uSWQsCiAgICBtb3ZlSWQ6IG1vdmUucmVwbHkuZXZlbnQuaWQsCiAgICBjYXB0dXJlZDogY2FwdHVyZWQuZXZlbnQsCiAgfSk7Cn0K"
+    },
+    {
+      "path": "feasibility/trusted-audience-fixture.ts",
+      "sha256": "5b5bfd884266148a23ed92f2775819c6f481041be4e12ef62f86cd565ba6ad97",
+      "byteLength": 4489,
+      "encoding": "base64",
+      "data": "aW1wb3J0IERhdGFiYXNlIGZyb20gJ2JldHRlci1zcWxpdGUzJzsKaW1wb3J0IHBhdGggZnJvbSAnbm9kZTpwYXRoJzsKaW1wb3J0IHsgcGF0aFRvRmlsZVVSTCB9IGZyb20gJ25vZGU6dXJsJzsKCi8qKiBBZG1pc3Npb24gc2l6aW5nIGRyYWZ0IG9ubHk7IG5vIGZpeHR1cmUgaGFzIGJlZW4gYXBwbGllZCB0byBhbnkgZGF0YWJhc2UuICovCmltcG9ydCB0eXBlIHsgSU1hdGNoTWV0YSB9IGZyb20gJ0AvbGliL211bHRpcGxheWVyL3NlcnZlci9JTWF0Y2hTdG9yZSc7CgppbXBvcnQgewogIG9wZW5TdG9wcGVkRGIsCiAgcmVhZE1hdGNoTWV0YSwKfSBmcm9tICcuLi8uLi8uLi8uLi9sMS1zbW9rZS1hMi0yMDI2MTAyMC9zY3JpcHRzL3JlbGVhc2UvbDEtYnVpbHQtc2VydmVyLWZpeHR1cmVzJzsKCmludGVyZmFjZSBJQXVkaWVuY2VJbnB1dCB7CiAgcmVhZG9ubHkgbWF0Y2hJZDogc3RyaW5nOwogIHJlYWRvbmx5IHdhdGNoZXJJZDogc3RyaW5nOwogIHJlYWRvbmx5IGJyYW5kOiAncGxheWVyJyB8ICdnbSc7CiAgcmVhZG9ubHkgc3RhbGU6IGJvb2xlYW47Cn0KCmludGVyZmFjZSBJTWVtYmVyc2hpcFJvdyB7CiAgcmVhZG9ubHkgc2VhdDogc3RyaW5nOwogIHJlYWRvbmx5IHJldm9rZWRfYXQ6IHN0cmluZyB8IG51bGw7Cn0KCmZ1bmN0aW9uIHdpdG5lc3MoZGI6IERhdGFiYXNlLkRhdGFiYXNlLCBpbnB1dDogSUF1ZGllbmNlSW5wdXQpIHsKICBjb25zdCBtZXRhID0gcmVhZE1hdGNoTWV0YShkYiwgaW5wdXQubWF0Y2hJZCk7CiAgY29uc3Qgb2NjdXBpZWQgPSAobWV0YS5zZWF0cyA/PyBbXSkuZmlsdGVyKAogICAgKHNlYXQpID0+IHNlYXQub2NjdXBhbnQ/LnBsYXllcklkID09PSBpbnB1dC53YXRjaGVySWQsCiAgKTsKICBpZiAob2NjdXBpZWQubGVuZ3RoICE9PSAxIHx8IG9jY3VwaWVkWzBdLmtpbmQgIT09ICdzcGVjdGF0b3InKSB7CiAgICB0aHJvdyBuZXcgRXJyb3IoJ2ZpeHR1cmUgcmVxdWlyZXMgZXhhY3RseSBvbmUgY3VycmVudCBzcGVjdGF0b3Igc2VhdCcpOwogIH0KICBpZiAobWV0YS5jb25maWcuZm9nT2ZXYXIgIT09IGZhbHNlIHx8IG1ldGEuc3RhdHVzICE9PSAnYWN0aXZlJykgewogICAgdGhyb3cgbmV3IEVycm9yKCdmaXh0dXJlIHJlcXVpcmVzIGFuIGFjdGl2ZSBmb2ctb2ZmIG1hdGNoJyk7CiAgfQogIGNvbnN0IGFzc2lnbm1lbnQgPSBtZXRhLnNpZGVBc3NpZ25tZW50cz8uZmlsdGVyKAogICAgKHJvdykgPT4gcm93LnBsYXllcklkID09PSBpbnB1dC53YXRjaGVySWQsCiAgKTsKICBjb25zdCBjYW1wYWlnbklkID0gbWV0YS5jb29wQ2FtcGFpZ24/LmNhbXBhaWduSWQ7CiAgY29uc3QgbWVtYmVyc2hpcCA9IGNhbXBhaWduSWQKICAgID8gKGRiCiAgICAgICAgLnByZXBhcmUoCiAgICAgICAgICBgU0VMRUNUIHNlYXQsIHJldm9rZWRfYXQgRlJPTSBjYW1wYWlnbl9zZXNzaW9uX3BhcnRpY2lwYW50CiAgICAgICAgICAgV0hFUkUgY2FtcGFpZ25faWQgPSA/IEFORCBzZXNzaW9uX2lkID0gPyBBTkQgcGFydGljaXBhbnRfaWQgPSA/YCwKICAgICAgICApCiAgICAgICAgLmdldChjYW1wYWlnbklkLCBpbnB1dC5tYXRjaElkLCBpbnB1dC53YXRjaGVySWQpIGFzCiAgICAgICAgfCBJTWVtYmVyc2hpcFJvdwogICAgICAgIHwgdW5kZWZpbmVkKQogICAgOiB1bmRlZmluZWQ7CiAgY29uc3QgYnJhbmQgPQogICAgbWVtYmVyc2hpcD8uc2VhdCA9PT0gJ2dtJyAmJiBtZW1iZXJzaGlwLnJldm9rZWRfYXQgPT09IG51bGwKICAgICAgPyAnZ20nCiAgICAgIDogJ3BsYXllcic7CiAgcmV0dXJuIHsKICAgIG1hdGNoSWQ6IGlucHV0Lm1hdGNoSWQsCiAgICB3YXRjaGVySWQ6IGlucHV0LndhdGNoZXJJZCwKICAgIG9jY3VwaWVkLAogICAgYXNzaWdubWVudDogYXNzaWdubWVudCA/PyBbXSwKICAgIGJyYW5kLAogICAgbWVtYmVyc2hpcDogbWVtYmVyc2hpcCA/PyBudWxsLAogICAgY2FtcGFpZ25JZCwKICB9Owp9CgpmdW5jdGlvbiBwcmVwYXJlQXVkaWVuY2UoZGI6IERhdGFiYXNlLkRhdGFiYXNlLCBpbnB1dDogSUF1ZGllbmNlSW5wdXQpIHsKICByZXR1cm4gZGIudHJhbnNhY3Rpb24oKCkgPT4gewogICAgY29uc3QgYmVmb3JlID0gd2l0bmVzcyhkYiwgaW5wdXQpOwogICAgY29uc3QgbWV0YSA9IHJlYWRNYXRjaE1ldGEoZGIsIGlucHV0Lm1hdGNoSWQpOwogICAgY29uc3Qgb3RoZXJBc3NpZ25tZW50cyA9IChtZXRhLnNpZGVBc3NpZ25tZW50cyA/PyBbXSkuZmlsdGVyKAogICAgICAocm93KSA9PiByb3cucGxheWVySWQgIT09IGlucHV0LndhdGNoZXJJZCwKICAgICk7CiAgICBjb25zdCBuZXh0OiBJTWF0Y2hNZXRhID0gewogICAgICAuLi5tZXRhLAogICAgICBzaWRlQXNzaWdubWVudHM6IGlucHV0LnN0YWxlCiAgICAgICAgPyBbLi4ub3RoZXJBc3NpZ25tZW50cywgeyBwbGF5ZXJJZDogaW5wdXQud2F0Y2hlcklkLCBzaWRlOiAnb3Bwb25lbnQnIH1dCiAgICAgICAgOiBvdGhlckFzc2lnbm1lbnRzLAogICAgfTsKICAgIGRiLnByZXBhcmUoJ1VQREFURSBtcF9tYXRjaGVzIFNFVCBtZXRhX2pzb24gPSA/IFdIRVJFIG1hdGNoX2lkID0gPycpLnJ1bigKICAgICAgSlNPTi5zdHJpbmdpZnkobmV4dCksCiAgICAgIGlucHV0Lm1hdGNoSWQsCiAgICApOwogICAgaWYgKGlucHV0LmJyYW5kID09PSAnZ20nKSB7CiAgICAgIGlmICghbWV0YS5jb29wQ2FtcGFpZ24pIHsKICAgICAgICB0aHJvdyBuZXcgRXJyb3IoCiAgICAgICAgICAnR00gZml4dHVyZSByZXF1aXJlcyBhIHJlYWwgcHJvdmlzaW9uZWQgY28tb3AgY2FtcGFpZ24nLAogICAgICAgICk7CiAgICAgIH0KICAgICAgZGIucHJlcGFyZSgKICAgICAgICBgSU5TRVJUIElOVE8gY2FtcGFpZ25fc2Vzc2lvbl9wYXJ0aWNpcGFudAogICAgICAgICAgIChjYW1wYWlnbl9pZCwgc2Vzc2lvbl9pZCwgcGFydGljaXBhbnRfaWQsIHNlYXQsIGJvdW5kX2F0LCByZXZva2VkX2F0KQogICAgICAgICBWQUxVRVMgKD8sID8sID8sICdnbScsID8sIE5VTEwpYCwKICAgICAgKS5ydW4oCiAgICAgICAgbWV0YS5jb29wQ2FtcGFpZ24uY2FtcGFpZ25JZCwKICAgICAgICBpbnB1dC5tYXRjaElkLAogICAgICAgIGlucHV0LndhdGNoZXJJZCwKICAgICAgICBuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCksCiAgICAgICk7CiAgICB9CiAgICBjb25zdCBhZnRlciA9IHdpdG5lc3MoZGIsIGlucHV0KTsKICAgIGlmIChhZnRlci5icmFuZCAhPT0gaW5wdXQuYnJhbmQpIHRocm93IG5ldyBFcnJvcigndHJ1c3RlZCBicmFuZCBtaXNtYXRjaCcpOwogICAgaWYgKGFmdGVyLmFzc2lnbm1lbnQubGVuZ3RoID4gMCAhPT0gaW5wdXQuc3RhbGUpIHsKICAgICAgdGhyb3cgbmV3IEVycm9yKCd0cnVzdGVkIHN0YWxlIGFzc2lnbm1lbnQgbWlzbWF0Y2gnKTsKICAgIH0KICAgIHJldHVybiB7IGJlZm9yZSwgYWZ0ZXIgfTsKICB9KSgpOwp9CgppZiAoCiAgcHJvY2Vzcy5hcmd2WzFdICYmCiAgaW1wb3J0Lm1ldGEudXJsID09PSBwYXRoVG9GaWxlVVJMKHBhdGgucmVzb2x2ZShwcm9jZXNzLmFyZ3ZbMV0pKS5ocmVmCikgewogIGNvbnN0IGFyZyA9IChuYW1lOiBzdHJpbmcpID0+CiAgICBwcm9jZXNzLmFyZ3YKICAgICAgLnNsaWNlKDIpCiAgICAgIC5maW5kKCh2YWx1ZSkgPT4gdmFsdWUuc3RhcnRzV2l0aChgLS0ke25hbWV9PWApKQogICAgICA/LnNsaWNlKG5hbWUubGVuZ3RoICsgMyk7CiAgY29uc3QgYnJhbmQgPSBhcmcoJ2JyYW5kJyk7CiAgY29uc3Qgb3BlcmF0aW9uID0gcHJvY2Vzcy5hcmd2WzJdOwogIGlmICghWydwcmVwYXJlJywgJ3dpdG5lc3MnXS5pbmNsdWRlcyhvcGVyYXRpb24pKSB7CiAgICB0aHJvdyBuZXcgRXJyb3IoJ3Vua25vd24gZml4dHVyZSBvcGVyYXRpb24nKTsKICB9CiAgaWYgKGJyYW5kICE9PSAncGxheWVyJyAmJiBicmFuZCAhPT0gJ2dtJykgdGhyb3cgbmV3IEVycm9yKCd1bmtub3duIGJyYW5kJyk7CiAgY29uc3QgaW5wdXQ6IElBdWRpZW5jZUlucHV0ID0gewogICAgbWF0Y2hJZDogYXJnKCdtYXRjaCcpID8/ICcnLAogICAgd2F0Y2hlcklkOiBhcmcoJ3dhdGNoZXInKSA/PyAnJywKICAgIGJyYW5kLAogICAgc3RhbGU6IGFyZygnc3RhbGUnKSA9PT0gJ3RydWUnLAogIH07CiAgY29uc3QgZGJQYXRoID0gYXJnKCdkYicpID8/ICcnOwogIGNvbnN0IHN0b3BwZWQgPSBvcGVuU3RvcHBlZERiKGRiUGF0aCwgTnVtYmVyKGFyZygnc3RvcHBlZC1waWQnKSkpOwogIHN0b3BwZWQuY2xvc2UoKTsKICBjb25zdCBkYiA9IG5ldyBEYXRhYmFzZShkYlBhdGgsIHsKICAgIGZpbGVNdXN0RXhpc3Q6IHRydWUsCiAgICByZWFkb25seTogb3BlcmF0aW9uID09PSAnd2l0bmVzcycsCiAgfSk7CiAgdHJ5IHsKICAgIGNvbnN0IHJlc3VsdCA9CiAgICAgIG9wZXJhdGlvbiA9PT0gJ3ByZXBhcmUnID8gcHJlcGFyZUF1ZGllbmNlKGRiLCBpbnB1dCkgOiB3aXRuZXNzKGRiLCBpbnB1dCk7CiAgICBwcm9jZXNzLnN0ZG91dC53cml0ZShgJHtKU09OLnN0cmluZ2lmeSh7IG9wZXJhdGlvbiwgcmVzdWx0IH0pfVxuYCk7CiAgfSBmaW5hbGx5IHsKICAgIGRiLmNsb3NlKCk7CiAgfQp9Cg=="
+    }
+  ],
+  "predecessorQualification": [
+    {
+      "id": "L1-SMOKE-A1",
+      "state": "main-verified",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+      "mainProof": {
+        "path": "evidence/l1-smoke-a1-mainproof-20261018.json",
+        "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+      },
+      "ancestor": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-1",
+      "state": "main-verified",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+        "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+      },
+      "ancestor": true
+    },
+    {
+      "id": "MP-HOST-DEDUPE-1",
+      "state": "main-verified",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "mainProof": {
+        "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+        "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+      },
+      "ancestor": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-2",
+      "state": "main-verified",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+        "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+      },
+      "ancestor": true
+    }
+  ],
+  "census": {
+    "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+    "observedAt": "2026-10-20T20:17:31.320Z",
+    "unitCount": 264,
+    "activeCount": 124,
+    "nodeCount": 93,
+    "candidateOwnership": [
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ]
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ]
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ]
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator.test.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ]
+      }
+    ],
+    "openPRs": [
+      {
+        "headRefName": "codex/p2cg1hp-closure-20261019",
+        "headRefOid": "bd0527236f4542c9d5ac6801714f385915855244",
+        "number": 2311,
+        "title": "docs(roadmap): close P2CG1HP; main-verified; release none",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-npm-ci-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-json.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-json.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-typecheck-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-validator-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-mainproof-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-merge-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-owner-ruling-6258459937.txt",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-source-opus-review-20261019.txt",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "diagnosticOverlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "candidateOverlaps": []
+      },
+      {
+        "headRefName": "codex/lsc-2op-prep-sol-20261019",
+        "headRefOid": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+        "number": 2309,
+        "title": "feat(LSC-2OP): add local seat operator controls",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-local-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-red-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+        ],
+        "diagnosticOverlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "candidateOverlaps": []
+      },
+      {
+        "headRefName": "codex/thread-transfer-history-20261002",
+        "headRefOid": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "number": 2113,
+        "title": "docs(audits): preserve complete thread-transfer history",
+        "files": [
+          "docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+          "docs/audits/2026-10-02-thread-transfer/README.md",
+          "docs/audits/2026-10-02-thread-transfer/START-HERE.md",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json"
+        ],
+        "diagnosticOverlaps": [],
+        "candidateOverlaps": []
+      },
+      {
+        "headRefName": "roadmap-u2b-e2e-19-25-rows-20260922",
+        "headRefOid": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "number": 1886,
+        "title": "wip(e2e): U2b resumed, E2E-19 green under the privacy-pack arm, E2E-25 refused at the candidate anchor (parked again)",
+        "files": [
+          "e2e/gm-two-player-privacy.pack.spec.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "scripts/qc/gm-two-player-campaign-core.cjs"
+        ],
+        "diagnosticOverlaps": [],
+        "candidateOverlaps": []
+      }
+    ],
+    "interpretation": "No current literal A2 script leaf collides. scripts is navigation only. Open #2311/#2309 touch the shared ledger; Root must serialize incorporation. No source admission or new registration occurs here."
+  },
+  "requestedLedgerCorrections": [
+    {
+      "target": "L1-SMOKE-A2.admissionRequires",
+      "change": "Replace stale Blocked prefix and name all four verified predecessors including MP-RECOVERY-UNITS-2."
+    },
+    {
+      "target": "L1-SMOKE-A2.behavior",
+      "change": "Restate CF-MPRU2-3 built-image co-op restart acceptance and CF-MPHD-5 concurrent-first-sockets proof."
+    },
+    {
+      "target": "U44.behavior",
+      "change": "Restate CF-MPRU2-2 missing-journal-head fence and conditionally route OBS-MPRU2-1 to the next frozen MatchRecovery.ts owner; no source grant."
+    }
+  ],
+  "matchRecoveryRouting": {
+    "literalActiveOwners": [],
+    "containingOwners": [
+      {
+        "id": "P1B",
+        "state": "blocked"
+      },
+      {
+        "id": "P1",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CE",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CG1",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "implementing"
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CG1I2",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CG1I3",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CG1I4",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CG2",
+        "state": "blocked"
+      },
+      {
+        "id": "P2CH",
+        "state": "blocked"
+      },
+      {
+        "id": "U38",
+        "state": "blocked"
+      },
+      {
+        "id": "U24",
+        "state": "blocked"
+      },
+      {
+        "id": "U24b",
+        "state": "planned"
+      },
+      {
+        "id": "U44",
+        "state": "planned"
+      },
+      {
+        "id": "U45",
+        "state": "planned"
+      },
+      {
+        "id": "U26",
+        "state": "planned"
+      },
+      {
+        "id": "U46",
+        "state": "planned"
+      },
+      {
+        "id": "U47",
+        "state": "planned"
+      },
+      {
+        "id": "U48",
+        "state": "planned"
+      },
+      {
+        "id": "U49",
+        "state": "planned"
+      },
+      {
+        "id": "U56",
+        "state": "planned"
+      },
+      {
+        "id": "U101",
+        "state": "planned"
+      },
+      {
+        "id": "U104",
+        "state": "planned"
+      },
+      {
+        "id": "U105",
+        "state": "planned"
+      },
+      {
+        "id": "U101a",
+        "state": "planned"
+      },
+      {
+        "id": "U101d",
+        "state": "planned"
+      },
+      {
+        "id": "FOG-K",
+        "state": "blocked"
+      },
+      {
+        "id": "FOG-B",
+        "state": "blocked"
+      },
+      {
+        "id": "FOG-L",
+        "state": "blocked"
+      },
+      {
+        "id": "FOG-R",
+        "state": "blocked"
+      },
+      {
+        "id": "FOG-H",
+        "state": "blocked"
+      },
+      {
+        "id": "FOG-X",
+        "state": "blocked"
+      },
+      {
+        "id": "MP-REWIND-DICE-1",
+        "state": "planned"
+      },
+      {
+        "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
+        "state": "planned"
+      }
+    ],
+    "disposition": "No active unit has a literal MatchRecovery.ts freeze. U44 is the recovery/cutover routing point, not a fabricated exclusive next owner. Its text carries OBS-MPRU2-1 conditionally until a real file-owner admission identifies the next owner."
+  },
+  "proposedSplit": {
+    "registered": false,
+    "sourceAdmitted": false,
+    "serial": true,
+    "units": [
+      {
+        "id": "L1-SMOKE-A2F",
+        "proposedOnly": true,
+        "predecessors": [
+          "L1-SMOKE-A1",
+          "MP-RECOVERY-UNITS-1",
+          "MP-HOST-DEDUPE-1",
+          "MP-RECOVERY-UNITS-2"
+        ],
+        "scope": "Reusable ordinary matrix provisioning and stopped-private-DB trusted audience/phase fixtures. Prove all three legal accepted declaration fixtures, the three spectator brand/assignment preconditions, and a separate non-spectating-GM control (one active GM per campaign session). Freeze an import-safe interface for later proof units. No sealed declaration insertion, production test seam or existing source edit.",
+        "proposedNewLeaves": [
+          "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "scripts/release/l1-built-server-spectator-context.mjs",
+          "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+        ],
+        "estimatedCountedBudget": {
+          "provisioningAndFixtures": 370,
+          "runnerAndLifecycle": 80,
+          "total": 450
+        }
+      },
+      {
+        "id": "L1-SMOKE-A2M",
+        "proposedOnly": true,
+        "predecessors": [
+          "L1-SMOKE-A1",
+          "MP-RECOVERY-UNITS-1",
+          "MP-HOST-DEDUPE-1",
+          "MP-RECOVERY-UNITS-2",
+          "L1-SMOKE-A2F"
+        ],
+        "scope": "All nine B10 declaration/audience combinations, live and replay; positive actor/non-spectating-GM/public/reveal controls; gapless delivery and no authority-sequence disclosure. Preserve withheld-secret and positive controls through reconnect and restart on the same A1 image/private DB. Export explicit required-row enumeration and case callback; re-run A1. Import A1 and A2F read-only.",
+        "proposedNewLeaves": [
+          "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+          "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+          "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+        ],
+        "estimatedCountedBudget": {
+          "matrixAndControls": 360,
+          "runnerAndLifecycle": 80,
+          "total": 440
+        }
+      },
+      {
+        "id": "L1-SMOKE-A2",
+        "proposedOnly": true,
+        "predecessors": [
+          "L1-SMOKE-A1",
+          "MP-RECOVERY-UNITS-1",
+          "MP-HOST-DEDUPE-1",
+          "MP-RECOVERY-UNITS-2",
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M"
+        ],
+        "scope": "Narrow the existing final A2 to ordinary co-op campaign/session/mission provisioning, built-image co-op restart with an accepted unit action and the first captured post-restart rolls checked against durable replay, plus CF-MPHD-5 concurrent-first-sockets accepted-action proof. Compose A1 + A2M + these controls in one verified lineage. Keep the existing four A2 new leaves and downstream A2 -> B/H edges; import prior frozen leaves read-only.",
+        "proposedNewLeaves": [
+          "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+          "scripts/release/l1-built-server-spectator-cases.mjs",
+          "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "scripts/release/l1-built-server-spectator.test.mjs"
+        ],
+        "estimatedCountedBudget": {
+          "concurrentCoopAndProvisioning": 350,
+          "runnerAndLifecycle": 90,
+          "total": 440
+        }
+      }
+    ],
+    "capsPerUnit": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "fileBudgets": "Each prospective stage must freshly freeze source/test/helper/lifecycle/evidence leaves and fit 15 files. The four/three/four code-leaf lists are proposals; they do not expand any current grant.",
+    "qualification": "All estimates above remain unmeasured planning allocations. Each proposed unit must pass its own normal-format census and admission, RED, GREEN, required CI, independent review, OWNER-RULING, exact-main proof and closure. Stop and split again if any aggregate does not fit. Root must register/qualify the actual manifests and edges before implementation.",
+    "coverage": "Every original A2 acceptance row remains owed. Preserve original four predecessors, A1 byte-frozen interface, no fog-on claim, final B combined smoke, S-SMOKE-1/B14A-SMOKE-1/B14B-SMOKE-1 obligations and downstream B/H gates. No checklist tick or partial gate is claimed."
+  },
+  "lifecycle": {
+    "stateBefore": "planned",
+    "stateAfter": "planned",
+    "admissionReceiptLinked": false,
+    "reason": "A stopped feasibility attempt is not genuine source admission. baseline/prHead/mergeSha, every stage receipt, all predecessors/successors, caps, packet and owner fields remain unchanged."
+  },
+  "redGreen": {
+    "red": "NOT STARTED: admission stopped; no tests-only commit or expected test failure is fabricated.",
+    "green": "NOT STARTED: all four A2 source/test leaves remain absent."
+  },
+  "carryForwards": {
+    "CF-MPRU2-2": "U44: preserve and repair missing-journal-head accepted-action limitation.",
+    "CF-MPRU2-3": "A2/final co-op slice: accepted unit action and first captured post-restart rolls on the built image.",
+    "CF-MPHD-5": "A2/final concurrent slice: positive same-tick first sockets and accepted actions, no store conflict.",
+    "OBS-MPRU2-1": "Next actual MatchRecovery.ts owner: triple derivation at boot; conditional U44 routing text.",
+    "CF-SMOKEA1-3": "Physical and formatter-normalized A1 measurements retained; parent counting decision and each split fit proof remain admission prerequisites."
+  },
+  "resumeWhen": "Root registers and qualifies a bounded serial split (or supplies a complete normally formatted <=500-line candidate with all acceptance rows); rebase/re-census and repeat finite source admission before RED/GREEN."
+}

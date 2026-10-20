@@ -1,0 +1,17 @@
+ROOT RULING on the A2 sizing stop (#2315 at affb35ac7). Your recommendation is ACCEPTED under the owner's standing instruction: "continue with recommended options and fix the issues that come up, publish as needed".
+
+1. Line counting (CF-SMOKEA1-3): ADOPTED going forward. Caps of 500 counted lines are measured after normal repository formatting (oxfmt). A1's historical receipt stands; do not re-open it.
+
+2. Serial split: APPROVED, in the order A2F (trusted fixtures and ordinary provisioning) -> A2M (the nine matrix cases with their controls) -> narrowed A2 (co-op mission restart with captured rolls, i.e. CF-MPRU2-3; concurrent first sockets, i.e. CF-MPHD-5; and final composition). Each unit gets 15 files, 500 counted lines and the full sensitive cadence.
+
+3. To save a CI cycle, register the split IN THIS SAME PR, #2315. Do not open a separate registration PR.
+   - Add units A2F and A2M to units.json and roadmap.json, with predecessors, successors, scope, caps, sensitivity, acceptance rows and admissionRequires, following the existing registration pattern (#2310 is the latest).
+   - Re-point the narrowed L1-SMOKE-A2 so its predecessors are A2M plus its current four. Keep A2's id and all of its successors (L1-SMOKE-B and P2CG1H), so no downstream edge changes and no acceptance row or B/H gate is waived.
+   - A2F starts as planned, because all of its predecessors are main-verified. A2M and A2 start as blocked.
+   - Record the split rationale (624/500) and this ruling, with its sha256, in the evidence.
+
+4. Main has moved to a2e2a7b8d: #2309 LSC-2OP and #2311 P2CG1HP, both of which touch units.json and PROGRESS.md. Merge origin/main into the branch first, as a union that keeps main's ledger changes exactly as main has them.
+
+5. Run validate-roadmap plain, --git and --next (--next should name A2F), its tests, lint:units and format:check, with hooks ON. Push, update the PR body, post the 32-check comparison and REVIEW_READY <head>, then end your turn. Root launches an Astra ledger review.
+
+6. Do NOT start A2F's admission until Root merges #2315. You can prepare its design in your reports folder in the meantime.
