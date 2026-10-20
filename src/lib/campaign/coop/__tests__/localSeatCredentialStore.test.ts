@@ -119,7 +119,7 @@ describe('LSC-2C public choice and credential adapter', () => {
     feature('writeCoopCredentialChoice', 'seat2');
     expect(localStorage.getItem(choiceKey)).toBe('seat2');
     jest.isolateModules(() => {
-      const reloaded = require('../localSeatCredentialStore');
+      const reloaded = jest.requireActual('../localSeatCredentialStore');
       expect(reloaded.readCoopCredentialChoice?.()).toBe('seat2');
     });
     expect(localStorage.length).toBe(1);

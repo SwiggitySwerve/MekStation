@@ -9392,7 +9392,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "local-verified",
       "baseline": "434fdab1d5b0fbe107435a88985ce3eaaf753033",
       "prHead": null,
       "mergeSha": null,
@@ -9403,7 +9403,9 @@
         "red": {
           "path": "evidence/lsc-2c-red-20261020.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/lsc-2c-local-20261020.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -20891,6 +20893,33 @@
         "owner": "Root",
         "target": "Separately registered server follow-up; no new source admission"
       }
+    },
+    {
+      "id": "PK-lsc-2c-ruling",
+      "blocks": [
+        "LSC-2C"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the bounded LSC-2C client adapter after independent exact-head sensitive review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge followed by exact-main proof and closure; release only LSC-2O after genuine verification.",
+          "effort": "Independent review, current CI and main proof"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete findings within scope/caps, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING; retain all operator/final UI/packaged gates.",
+      "revertCost": "Revert the two client/test leaves and own lifecycle; primary auth, bearer store and server routes remain unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",
