@@ -73,6 +73,15 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
       );
       return;
     }
+    if (
+      action === 'provision' &&
+      (!label.trim() || label.trim().length > 64 || seatPassword.length < 8)
+    ) {
+      setMessage(
+        'Provisioning needs a seat label (1-64 characters) and a new seat password of at least 8 characters.',
+      );
+      return;
+    }
     work(true);
     setMessage('');
     try {
@@ -179,6 +188,8 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
                 <input
                   className={control}
                   value={label}
+                  required
+                  maxLength={64}
                   onChange={(event) => setLabel(event.target.value)}
                 />
               </label>
@@ -194,7 +205,10 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
                     className={control}
                     ref={ref}
                     type="password"
-                    autoComplete="off"
+                    autoComplete={
+                      ref === primary ? 'current-password' : 'new-password'
+                    }
+                    minLength={ref === password ? 8 : undefined}
                   />
                 </label>
               ))}
@@ -204,6 +218,10 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
               <button
                 className={control}
                 type="button"
+                disabled={
+                  seats.find((seat) => seat.seatId === seatId)?.status !==
+                  'active'
+                }
                 onClick={() => void submit('revoke')}
               >
                 Revoke seat

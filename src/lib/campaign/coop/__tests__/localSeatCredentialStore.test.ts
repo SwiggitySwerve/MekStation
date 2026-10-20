@@ -41,6 +41,12 @@ const response = (
 });
 
 describe('local seat request adapter', () => {
+  afterEach(() => {
+    expect(mockFetch.mock.calls.map(([url]) => url)).toEqual(
+      mockFetch.mock.calls.map(() => '/api/multiplayer/auth/local-seats'),
+    );
+    jest.restoreAllMocks();
+  });
   beforeEach(() => {
     mockFetch.mockReset();
     global.fetch = mockFetch;
@@ -158,6 +164,10 @@ describe('local seat request adapter', () => {
   it.each(['network', 'json', 'unknown'])(
     'sanitizes %s failures',
     async (kind) => {
+      const logs = (['log', 'info', 'warn', 'error', 'debug'] as const).map(
+        (method) =>
+          jest.spyOn(console, method).mockImplementation(() => undefined),
+      );
       if (kind === 'network')
         mockFetch.mockRejectedValue(new Error('primary-secret private-key'));
       else if (kind === 'json')
@@ -175,6 +185,10 @@ describe('local seat request adapter', () => {
         code: 'REQUEST_FAILED',
         message: 'Local seat request failed.',
       });
+      for (const log of logs)
+        expect(JSON.stringify(log.mock.calls)).not.toMatch(
+          /primary-secret|seat-secret/,
+        );
     },
   );
 });

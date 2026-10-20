@@ -32,16 +32,8 @@ interface IWrite {
   password?: string;
   label?: string;
 }
-const storeModule = existsSync(
-  path.resolve(
-    process.cwd(),
-    'src/lib/campaign/coop/localSeatCredentialStore.ts',
-  ),
-)
-  ? '@/lib/campaign/coop/localSeatCredentialStore'
-  : 'absent-local-seat-store';
 jest.doMock(
-  storeModule,
+  '@/lib/campaign/coop/localSeatCredentialStore',
   () => ({
     listLocalSeats: jest.fn(),
     writeLocalSeat: jest.fn(),
@@ -50,7 +42,7 @@ jest.doMock(
   { virtual: true },
 );
 
-const store = require(storeModule) as {
+const store = require('@/lib/campaign/coop/localSeatCredentialStore') as {
   listLocalSeats: jest.Mock<Promise<ISeat[]>, []>;
   writeLocalSeat: jest.Mock<Promise<IOutcome>, [IWrite]>;
   LocalSeatRequestError: new (message: string) => Error;
@@ -72,7 +64,7 @@ function seats(first = 0, second = 4): ISeat[] {
     },
     {
       seatId: 'local-seat-2',
-      status: 'revoked',
+      status: 'active',
       label: 'Gunner',
       playerId: 'player-two',
       generation: second,
@@ -107,6 +99,8 @@ function deferred<T>() {
 const button = (name: string) => screen.getByRole('button', { name });
 const input = (name: string) => screen.getByLabelText(name);
 function credentials(primary = 'primary-secret', seat = 'seat-secret') {
+  if (!(input('Seat label') as HTMLInputElement).value)
+    fireEvent.change(input('Seat label'), { target: { value: 'Scout' } });
   fireEvent.change(input('Primary vault password'), {
     target: { value: primary },
   });
@@ -129,7 +123,107 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('LocalSeatOperatorPanel', () => {
+  it('masks unnamed passwords, supplies autofill purposes, and clears them on seat selection', async () => {
+    await openPanel();
+    const primary = input('Primary vault password');
+    const password = input('New seat password');
+    for (const field of [primary, password]) {
+      expect(field).toHaveAttribute('type', 'password');
+      expect(field).not.toHaveAttribute('name');
+    }
+    expect(primary).toHaveAttribute('autocomplete', 'current-password');
+    expect(password).toHaveAttribute('autocomplete', 'new-password');
+    credentials();
+    fireEvent.change(input('Local seat'), {
+      target: { value: 'local-seat-2' },
+    });
+    expectCleared();
+  });
+
+  it.each([
+    ['   ', 'password8'],
+    ['x'.repeat(65), 'password8'],
+    ['Pilot', 'short77'],
+  ])(
+    'explains invalid provision label %s or password without a request',
+    async (label, password) => {
+      await openPanel();
+      expect(input('Seat label')).toBeRequired();
+      expect(input('Seat label')).toHaveAttribute('maxlength', '64');
+      expect(input('New seat password')).toHaveAttribute('minlength', '8');
+      credentials('primary-secret', password);
+      fireEvent.change(input('Seat label'), { target: { value: label } });
+      fireEvent.submit(button('Provision seat').closest('form')!);
+      expect(store.writeLocalSeat).not.toHaveBeenCalled();
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Provisioning needs a seat label (1-64 characters) and a new seat password of at least 8 characters.',
+      );
+      expectCleared();
+    },
+  );
+
+  it.each(['GENERATION_CONFLICT', 'OPERATION_MISMATCH'])(
+    '%s keeps seat 2 selected and targets it after refreshing',
+    async (code) => {
+      await openPanel();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      store.writeLocalSeat.mockRejectedValueOnce(
+        failure(code, 409, 'Refresh required.'),
+      );
+      store.listLocalSeats.mockResolvedValueOnce(seats(3, 9));
+      credentials();
+      fireEvent.click(button('Provision seat'));
+      await waitFor(() =>
+        expect(store.listLocalSeats).toHaveBeenCalledTimes(2),
+      );
+      await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+      expect(input('Local seat')).toHaveValue('local-seat-2');
+      credentials();
+      fireEvent.click(button('Provision seat'));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(2),
+      );
+      expect(store.writeLocalSeat.mock.calls[1][0]).toMatchObject({
+        seatId: 'local-seat-2',
+        expectedGeneration: 9,
+      });
+    },
+  );
+
+  it('enables Revoke only for an active seat', async () => {
+    store.listLocalSeats.mockResolvedValueOnce([
+      seats()[0],
+      { ...seats()[1], status: 'revoked' },
+    ]);
+    await openPanel();
+    expect(button('Revoke seat')).toBeDisabled();
+    fireEvent.change(input('Local seat'), {
+      target: { value: 'local-seat-2' },
+    });
+    expect(button('Revoke seat')).toBeDisabled();
+    store.listLocalSeats.mockResolvedValueOnce(seats(2));
+    fireEvent.click(button('Retry refresh'));
+    await waitFor(() => expect(button('Revoke seat')).toBeEnabled());
+    credentials('primary-secret', '');
+    store.writeLocalSeat.mockResolvedValueOnce(
+      outcome(5, [
+        seats(2)[0],
+        { ...seats()[1], status: 'revoked', generation: 5 },
+      ]),
+    );
+    fireEvent.click(button('Revoke seat'));
+    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    await waitFor(() => expect(button('Revoke seat')).toBeDisabled());
+    expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+  });
+
   it('loads only on opening, lists both seats, and discloses all trust and revocation limits', async () => {
+    store.listLocalSeats.mockResolvedValueOnce([
+      seats()[0],
+      { ...seats()[1], status: 'revoked' },
+    ]);
     render(<LocalSeatOperatorPanel />);
     expect(store.listLocalSeats).not.toHaveBeenCalled();
     expect(
@@ -257,6 +351,9 @@ describe('LocalSeatOperatorPanel', () => {
     'rejects an empty primary password for %s without a write',
     async (action) => {
       await openPanel();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
       credentials('', 'seat-secret');
       fireEvent.click(button(action));
       expect(store.writeLocalSeat).not.toHaveBeenCalled();
@@ -362,7 +459,10 @@ describe('LocalSeatOperatorPanel', () => {
 
   it('revokes using primary authorization only and renders the returned revoked state', async () => {
     store.writeLocalSeat.mockResolvedValueOnce(
-      outcome(5, [seats()[0], { ...seats()[1], generation: 5 }]),
+      outcome(5, [
+        seats()[0],
+        { ...seats()[1], generation: 5, status: 'revoked' },
+      ]),
     );
     await openPanel();
     fireEvent.change(input('Local seat'), {

@@ -6,7 +6,7 @@
   "dateBasis": "America/Denver local calendar date; recordedAt is UTC. Evidence filename retains exact 20261018 registration literal.",
   "recordedAt": "2026-10-19T02:31:41.276Z",
   "baseline": "545073d83c9d23781a75a93565dbdcf87cac5786",
-  "headAtValidation": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+  "headAtValidation": "5846c87419b5e7585c7364852f6d033493fd8953",
   "state": "implementing",
   "productChanges": [
     {
@@ -18,9 +18,9 @@
     },
     {
       "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
-      "sha256": "418c2b0eb11d6050997aef88300db7354be1f9fb11e3b221002947188777e399",
-      "bytes": 7183,
-      "added": 217,
+      "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b",
+      "bytes": 7833,
+      "added": 235,
       "deleted": 0
     },
     {
@@ -34,13 +34,13 @@
   "testChanges": [
     {
       "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
-      "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455",
-      "bytes": 5110
+      "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634",
+      "bytes": 5630
     },
     {
       "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
-      "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb",
-      "bytes": 15285
+      "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258",
+      "bytes": 19201
     },
     {
       "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
@@ -53,8 +53,8 @@
     "registeredManifest": 11,
     "reservedUnwrittenReview": 1,
     "maxFiles": 15,
-    "countedAddedLines": 327,
-    "productAddedLines": 316,
+    "countedAddedLines": 345,
+    "productAddedLines": 334,
     "ledgerAddedLines": 11,
     "maxCountedAddedLines": 500,
     "noDeletionCredit": true
@@ -1107,5 +1107,2058 @@
     "No salvage repair or12/12 release predicate closure.",
     "No independent review, owner ruling, merge approval, mainProof, downstream chooser/renewal or packaged proof."
   ],
-  "rawArtifacts": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol"
+  "rawArtifacts": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol",
+  "initialLocalProof": {
+    "productChanges": [
+      {
+        "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9",
+        "bytes": 3086,
+        "added": 96,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "sha256": "418c2b0eb11d6050997aef88300db7354be1f9fb11e3b221002947188777e399",
+        "bytes": 7183,
+        "added": 217,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "sha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa",
+        "bytes": 18916,
+        "added": 3,
+        "deleted": 0
+      }
+    ],
+    "testChanges": [
+      {
+        "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455",
+        "bytes": 5110
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb",
+        "bytes": 15285
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838",
+        "bytes": 22812
+      }
+    ],
+    "caps": {
+      "actualFiles": 10,
+      "registeredManifest": 11,
+      "reservedUnwrittenReview": 1,
+      "maxFiles": 15,
+      "countedAddedLines": 327,
+      "productAddedLines": 316,
+      "ledgerAddedLines": 11,
+      "maxCountedAddedLines": 500,
+      "noDeletionCredit": true
+    },
+    "headAtValidation": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+    "proofs": {
+      "green": {
+        "observedAt": "2026-10-19T02:29:49.058Z",
+        "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376711821-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+          "--runTestsByPath",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+        ],
+        "exitCode": 0,
+        "sha256": "3f3d4cfbfb1db3065ca6ae3a00b1c001995ce5d7fb833662463510bd2247881e",
+        "bytes": 651,
+        "summary": "Tests:       51 passed, 51 total",
+        "suites": "Test Suites: 3 passed, 3 total",
+        "tests": [
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ],
+        "failureCount": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/green.log",
+          "sha256": "3f3d4cfbfb1db3065ca6ae3a00b1c001995ce5d7fb833662463510bd2247881e",
+          "bytes": 651
+        }
+      },
+      "regression": {
+        "observedAt": "2026-10-19T02:30:39.526Z",
+        "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "node_modules/jest/bin/jest.js",
+          "--selectProjects",
+          "unit",
+          "--runInBand",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+          "--runTestsByPath",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+          "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+          "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+          "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+          "src/services/vault/__tests__/BundleService.test.ts",
+          "src/services/vault/__tests__/ChangeLogRepository.get-latest-for-item.test.ts",
+          "src/services/vault/__tests__/ChangeLogRepository.row-to-entry-conversion.test.ts",
+          "src/services/vault/__tests__/ChangeLogRepository.test.ts",
+          "src/services/vault/__tests__/ContactRepository.test.ts",
+          "src/services/vault/__tests__/ContactRepository.update-notes.test.ts",
+          "src/services/vault/__tests__/ContactService.test.ts",
+          "src/services/vault/__tests__/ExportService.generic-export.test.ts",
+          "src/services/vault/__tests__/ExportService.test.ts",
+          "src/services/vault/__tests__/IdentityRepository.test.ts",
+          "src/services/vault/__tests__/IdentityRepository.update.test.ts",
+          "src/services/vault/__tests__/IdentityService.test.ts",
+          "src/services/vault/__tests__/ImportService.test.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "src/services/vault/__tests__/OfflineQueueRepository.mark-failed.test.ts",
+          "src/services/vault/__tests__/OfflineQueueRepository.row-to-message-conversion.test.ts",
+          "src/services/vault/__tests__/OfflineQueueRepository.test.ts",
+          "src/services/vault/__tests__/OfflineQueueService.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.check-permission.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.cleanup-expired.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.delete-by-grantee.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.get-by-category.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.get-by-grantee.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.test.ts",
+          "src/services/vault/__tests__/PermissionRepository.update-level.test.ts",
+          "src/services/vault/__tests__/PermissionService.revoke-all-for-grantee.test.ts",
+          "src/services/vault/__tests__/PermissionService.test.ts",
+          "src/services/vault/__tests__/ShareLinkRepository.redeem.test.ts",
+          "src/services/vault/__tests__/ShareLinkRepository.test.ts",
+          "src/services/vault/__tests__/ShareLinkRepository.token-generation.test.ts",
+          "src/services/vault/__tests__/ShareLinkService.delete-all-for-item.test.ts",
+          "src/services/vault/__tests__/ShareLinkService.test.ts",
+          "src/services/vault/__tests__/SyncEngine.conflictResolution.real.test.ts",
+          "src/services/vault/__tests__/SyncEngine.conflictResolution.test.ts",
+          "src/services/vault/__tests__/SyncEngine.contentApply.test.ts",
+          "src/services/vault/__tests__/SyncEngine.folderChanges.test.ts",
+          "src/services/vault/__tests__/SyncEngine.folderSync.test.ts",
+          "src/services/vault/__tests__/SyncEngine.integration.test.ts",
+          "src/services/vault/__tests__/SyncEngine.lifecycle.test.ts",
+          "src/services/vault/__tests__/SyncEngine.peerChanges.test.ts",
+          "src/services/vault/__tests__/SyncEngine.reconciliation.test.ts",
+          "src/services/vault/__tests__/SyncEngine.state.test.ts",
+          "src/services/vault/__tests__/SyncEngine.test.ts",
+          "src/services/vault/__tests__/VaultFolderRepository.delete-folder.test.ts",
+          "src/services/vault/__tests__/VaultFolderRepository.test.ts",
+          "src/services/vault/__tests__/VaultService.bulk-operations.test.ts",
+          "src/services/vault/__tests__/VaultService.test.ts",
+          "src/services/vault/__tests__/VersionHistoryRepository.edge-cases.test.ts",
+          "src/services/vault/__tests__/VersionHistoryRepository.get-latest-version.test.ts",
+          "src/services/vault/__tests__/VersionHistoryRepository.test.ts",
+          "src/services/vault/__tests__/VersionHistoryService.test.ts",
+          "src/__tests__/api/localSeatCredentials.test.ts",
+          "src/lib/multiplayer/server/__tests__/auth.test.ts",
+          "src/__tests__/api/securityBoundary.test.ts"
+        ],
+        "exitCode": 0,
+        "sha256": "98a1381cdf2971ef00bec7999af90e10e16483afb080247f13b916f1a5872c0e",
+        "bytes": 10784,
+        "summary": "Tests:       1119 passed, 1119 total",
+        "suites": "Test Suites: 67 passed, 67 total",
+        "tests": [
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ],
+        "failureCount": 2,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/regression.log",
+          "sha256": "98a1381cdf2971ef00bec7999af90e10e16483afb080247f13b916f1a5872c0e",
+          "bytes": 10784
+        }
+      },
+      "typecheck": {
+        "observedAt": "2026-10-19T02:30:41.900Z",
+        "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "npm",
+          "run",
+          "--silent",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "tests": [
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ],
+        "failureCount": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/typecheck.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "validation": {
+        "lint": {
+          "observedAt": "2026-10-19T02:30:42.495Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "npm",
+            "run",
+            "--silent",
+            "lint"
+          ],
+          "exitCode": 0,
+          "sha256": "9d6319de4f0a57d429867199d1a81836cc9f257e1e07459920630a743f7e7b03",
+          "bytes": 38915,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/lint.log",
+            "sha256": "9d6319de4f0a57d429867199d1a81836cc9f257e1e07459920630a743f7e7b03",
+            "bytes": 38915
+          }
+        },
+        "format": {
+          "observedAt": "2026-10-19T02:30:54.996Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "npm",
+            "run",
+            "--silent",
+            "format:check"
+          ],
+          "exitCode": 0,
+          "sha256": "6a330dbf2aab2a115b3106b63f116e6558d55f0b97fc59845076d48ab1acc73e",
+          "bytes": 118,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/format.log",
+            "sha256": "6a330dbf2aab2a115b3106b63f116e6558d55f0b97fc59845076d48ab1acc73e",
+            "bytes": 118
+          }
+        },
+        "openspec": {
+          "observedAt": "2026-10-19T02:30:57.244Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "npx",
+            "openspec",
+            "validate",
+            "--all",
+            "--strict"
+          ],
+          "exitCode": 0,
+          "sha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+          "bytes": 6857,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/openspec.log",
+            "sha256": "3f957310c0c3835ba3d5704458ddc03218d48f0b205252ed6d52ca87951ba4f5",
+            "bytes": 6857
+          }
+        },
+        "qc-openspec": {
+          "observedAt": "2026-10-19T02:30:57.635Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "npm",
+            "run",
+            "--silent",
+            "qc:openspec-ci:validate"
+          ],
+          "exitCode": 0,
+          "sha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+          "bytes": 191,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/qc-openspec.log",
+            "sha256": "f2ecacc6006cdd0cc60052c81384bf785d65970c200c0bcc8ebcbc4834c1a61a",
+            "bytes": 191
+          }
+        },
+        "roadmap": {
+          "observedAt": "2026-10-19T02:31:05.521Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+          ],
+          "exitCode": 0,
+          "sha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
+          "bytes": 76,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/roadmap.log",
+            "sha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
+            "bytes": 76
+          }
+        },
+        "roadmap-git": {
+          "observedAt": "2026-10-19T02:31:19.744Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--git"
+          ],
+          "exitCode": 0,
+          "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+          "bytes": 2354,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/roadmap-git.log",
+            "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+            "bytes": 2354
+          }
+        },
+        "roadmap-next": {
+          "observedAt": "2026-10-19T02:31:23.968Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "node",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--next"
+          ],
+          "exitCode": 0,
+          "sha256": "acc908a960577e5e2b938897d97ec5d8427a4e76418a2384073208b9df2a93c3",
+          "bytes": 20,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/roadmap-next.log",
+            "sha256": "acc908a960577e5e2b938897d97ec5d8427a4e76418a2384073208b9df2a93c3",
+            "bytes": 20
+          }
+        },
+        "roadmap-tests": {
+          "observedAt": "2026-10-19T02:31:34.807Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "node",
+            "--test",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+          ],
+          "exitCode": 0,
+          "sha256": "e1b2ce51bd15e50cfbb087c6e31a52ba58a04361fac0c431ffcb65f131d31a0d",
+          "bytes": 16308,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/roadmap-tests.log",
+            "sha256": "e1b2ce51bd15e50cfbb087c6e31a52ba58a04361fac0c431ffcb65f131d31a0d",
+            "bytes": 16308
+          }
+        },
+        "lint-units": {
+          "observedAt": "2026-10-19T02:31:35.673Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "npm",
+            "run",
+            "--silent",
+            "lint:units"
+          ],
+          "exitCode": 0,
+          "sha256": "f0004dfc3c3abf814e362d344d7d5766f9bd4479768420a89236023fdc9005fc",
+          "bytes": 286,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/lint-units.log",
+            "sha256": "f0004dfc3c3abf814e362d344d7d5766f9bd4479768420a89236023fdc9005fc",
+            "bytes": 286
+          }
+        },
+        "diff": {
+          "observedAt": "2026-10-19T02:31:35.782Z",
+          "base": "a528e3371fdde38fba43af96f63fdc9f0f3ed265",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376940867-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "exitCode": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "tests": [
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "failureCount": 0,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/diff.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        }
+      },
+      "mutants": {
+        "rows": [
+          {
+            "id": "C11",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "const base = { seatId, expectedGeneration, operatorPassword };",
+              "to": "const base = { seatId, expectedGeneration, operatorPassword: '' };"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       2 failed, 13 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-C11.log",
+              "sha256": "69a1ec54d1408626f19bfec35c14b1acc4174fc4744feb54fa21d5e1349f64d3",
+              "bytes": 9258
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "C12",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "onClick={() => void submit('revoke')}",
+              "to": "onClick={() => void submit('provision')}"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 14 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-C12.log",
+              "sha256": "98ec2df100e55f554c086d162c67db02eb890362bd1422e265c13290ec8033aa",
+              "bytes": 2526
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "C14",
+            "file": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "mutation": {
+              "from": "      <LocalSeatOperatorPanel />",
+              "to": ""
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 23 passed, 24 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-C14.log",
+              "sha256": "01e7dc0ba36d56b4723c3f40c0a258ecd42bbd4a199f4f5208bd8dab089e3d7f",
+              "bytes": 6229
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "UI-01",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "    if (primary.current) primary.current.value = '';\n    if (password.current) password.current.value = '';\n    if (!operatorPassword",
+              "to": "    if (!operatorPassword"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       8 failed, 7 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-01.log",
+              "sha256": "f08a05c3882037d177cc6a91d1bd6121072cc470fe1157be5b3e4cbee8753f36",
+              "bytes": 13465
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "UI-02",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "    } catch (error) {\n      const detail =",
+              "to": "    } catch (error) {\n      const detail ="
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       2 failed, 13 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-02.log",
+              "sha256": "ef3d8f151963022f6dcf10dade3688d1a92138cb9e5903a2b4538e6df22743a0",
+              "bytes": 3232
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ],
+            "appliedMutation": {
+              "from": "      setMessage(detail);",
+              "to": "      if (primary.current) primary.current.value = operatorPassword;\n      if (password.current) password.current.value = seatPassword;\n      setMessage(detail);"
+            }
+          },
+          {
+            "id": "UI-03",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "setExpectedGeneration(result.generation);",
+              "to": "setExpectedGeneration(result.seats.find((seat) => seat.seatId === seatId)!.generation);"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 14 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-03.log",
+              "sha256": "d127f0ea2bcc4f739501b8ba84dded7815d471f3141e7697bd939cbfac9c5c59",
+              "bytes": 2563
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "UI-04",
+            "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "mutation": {
+              "from": "crypto.randomUUID()",
+              "to": "'00000000-0000-4000-8000-000000000001'"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 11 passed, 12 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-04.log",
+              "sha256": "824e38bd0912acff91d2499556d4e62a9af4c05be44fcc7b0e760c9fabf59427",
+              "bytes": 1850
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+            ]
+          },
+          {
+            "id": "UI-05",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "        await refresh(detail);",
+              "to": "        await refresh(detail);\n        const retry = { seatId, expectedGeneration, operatorPassword };\n        await writeLocalSeat(action === 'provision' ? { ...retry, action, password: seatPassword, label } : { ...retry, action });"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       3 failed, 12 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-05.log",
+              "sha256": "c77cbe3dca9daf9697060b029a1d443d53144ecca9eb42c8926130ba790ff57d",
+              "bytes": 4217
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "UI-06",
+            "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "mutation": {
+              "from": "code === 'GENERATION_CONFLICT' &&",
+              "to": "(code === 'GENERATION_CONFLICT' || code === 'OPERATION_MISMATCH') &&"
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 11 passed, 12 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-06.log",
+              "sha256": "591e37f00aa3e5f960fe6b1a15a79715472964df0cbc2717d3272adf8cbe4362",
+              "bytes": 2027
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+            ]
+          },
+          {
+            "id": "UI-07",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "Re-provisioning creates a new playerId and requires GM readmission.",
+              "to": "Provisioning updates the local seat."
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 14 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-07.log",
+              "sha256": "197bdd912699f275d6b80fde5fb2ab87484f12506bc919a74d7f9933a72db1c8",
+              "bytes": 8281
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "UI-08",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "existing bearer remains effective until expiry. The prior principal\n            remains a campaign member until explicitly removed.",
+              "to": "existing bearer is invalidated immediately and membership is removed."
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 14 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-08.log",
+              "sha256": "fdf48f96d8228d52abc44143e829636c66452f17f22e14dd60e72b95f5914f78",
+              "bytes": 2654
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          },
+          {
+            "id": "UI-09",
+            "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "mutation": {
+              "from": "The operator can impersonate either local seat. Shared OS access is\n            not isolated.",
+              "to": "Each local seat is isolated from the operator."
+            },
+            "exitCode": 1,
+            "caught": true,
+            "summary": "Tests:       1 failed, 14 passed, 15 total",
+            "suites": "Test Suites: 1 failed, 1 total",
+            "log": {
+              "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutant-UI-09.log",
+              "sha256": "ee4083cee7c23704858c4fb265e1fc3b22ad766d7306f24cf09d19351d5c4b2e",
+              "bytes": 8342
+            },
+            "command": [
+              "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+              "node_modules/jest/bin/jest.js",
+              "--selectProjects",
+              "unit",
+              "--runInBand",
+              "--cacheDirectory",
+              "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+              "--runTestsByPath",
+              "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+            ]
+          }
+        ],
+        "results": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutants.json",
+          "sha256": "c5f0dbe3dc10a917a6c6691a2ef13a2b9b8d72a268df5d9677c7d18f09b5f64c",
+          "bytes": 14493
+        },
+        "harness": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/mutate.cjs",
+          "sha256": "a71b49bd98b360bc750850c016e1c07149188f1abc985b0a97e075cf8ed4df0a",
+          "bytes": 4751
+        },
+        "total": 12,
+        "caught": 12,
+        "restored": true,
+        "metadataNote": "UI-02 uses the conditional branch in mutate.cjs: insert assignments restoring operatorPassword and seatPassword immediately before setMessage(detail) in the write catch. The raw generic from/to placeholder for UI-02 is not the applied edit; this explicit note describes the actual executed mutation. All other rows use their literal from/to edit."
+      }
+    }
+  },
+  "reviewFixCensus": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/census.json",
+    "sha256": "62d43fe780963a07dd671b2bed45254ea829a3917e50d21e91c3ebf864f12040",
+    "bytes": 211636,
+    "baseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "observedAt": "2026-10-20T19:56:28.643Z",
+    "otherPullRequests": [
+      {
+        "number": 2312,
+        "head": "73321e72ba9f2fb2084de4fc3857958e014764dc",
+        "manifestCollisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "consumerTouches": []
+      },
+      {
+        "number": 2311,
+        "head": "bd0527236f4542c9d5ac6801714f385915855244",
+        "manifestCollisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "consumerTouches": []
+      },
+      {
+        "number": 2113,
+        "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "manifestCollisions": [],
+        "consumerTouches": []
+      },
+      {
+        "number": 1886,
+        "head": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "manifestCollisions": [],
+        "consumerTouches": []
+      }
+    ],
+    "disposition": "No other active PR source/consumer collisions. Shared units.json writers #2311/#2312 remain serialized; own #2309 excluded from collision refusal."
+  },
+  "reviewerDirectedFixesAfterRed": {
+    "recordedAt": "2026-10-20T20:02:19.393Z",
+    "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-19/pr2309-lsc-2op-review.md",
+      "sha256": "2a7359800f0c3014b705039bfa716a7ce6bc31f8e010946389aa428a896db9bc",
+      "bytes": 24408
+    },
+    "integrationBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "fixes": [
+      "F1 literal jest.doMock and require: removes the computed seam and fixes the B14 CI guard.",
+      "F2 label trim 1-64 / password >=8, explanatory preflight and HTML constraints.",
+      "T1 R01/R02/R07/R08/R09/R12 pinned in owned tests.",
+      "F3 Revoke disabled unless selected seat active.",
+      "F5 current-password/new-password autocomplete purposes."
+    ],
+    "testByteChange": "Reviewer-directed fixes after the original runtime RED. Original admission and RED receipts remain byte-unchanged. Revised tests are explicitly re-proved against reviewed product and reviewer mutants; no claim that the revised test bytes were the original RED bytes.",
+    "originalTests": [
+      {
+        "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455",
+        "bytes": 5110
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb",
+        "bytes": 15285
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838",
+        "bytes": 22812
+      }
+    ],
+    "green": {
+      "observedAt": "2026-10-20T19:41:38.700Z",
+      "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+      "node": "v22.22.0",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exitCode": 0,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/green.log",
+        "sha256": "3e6d948e7ae74cf161d50d722f344ca416959939d5c9d0e73e13ab79f5d219a5",
+        "bytes": 928
+      },
+      "suites": "Test Suites: 5 passed, 5 total",
+      "tests": "Tests:       103 passed, 103 total",
+      "runtimeAssertionFailure": false,
+      "files": [
+        {
+          "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+        },
+        {
+          "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+        }
+      ]
+    },
+    "reviewerDirectedRed": {
+      "observedAt": "2026-10-20T19:41:49.970Z",
+      "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+      "node": "v22.22.0",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--cacheDirectory",
+        "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+      ],
+      "exitCode": 1,
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/reviewer-directed-red.log",
+        "sha256": "0cc34feeb4396bf71c6159d272acbe10cadc46e7210146cee5ae5e64578a7c2c",
+        "bytes": 4753
+      },
+      "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+      "tests": "Tests:       5 failed, 53 passed, 58 total",
+      "runtimeAssertionFailure": true,
+      "files": [
+        {
+          "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "sha256": "418c2b0eb11d6050997aef88300db7354be1f9fb11e3b221002947188777e399"
+        },
+        {
+          "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+        }
+      ]
+    },
+    "mutants": {
+      "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+      "rows": [
+        {
+          "id": "R01",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "mutation": {
+            "from": "const response = await fetch('/api/multiplayer/auth/local-seats', {",
+            "to": "const response = await fetch('/api/multiplayer/auth/local-seats' + (typeof init.body === 'string' ? '?b=' + encodeURIComponent(init.body) : ''), {"
+          },
+          "observedAt": "2026-10-20T19:42:04.786Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-R01.log",
+            "sha256": "e33baae249f8e8434a5d274e2591b96a9224ec98639e71f4dab9009df32eeb4f",
+            "bytes": 12580
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       11 failed, 47 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "828e14b468dcdf0d300aa93ddccedc870b51c1499bb53d164798820dc5d2d963"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "R02",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "mutation": {
+            "from": "    if (error instanceof LocalSeatRequestError) throw error;",
+            "to": "    console.warn('local seat request failed', init.body);\n    if (error instanceof LocalSeatRequestError) throw error;"
+          },
+          "observedAt": "2026-10-20T19:42:08.923Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-R02.log",
+            "sha256": "9253071855a9d3204bd276251baf4886d589535899e2594635b35905386a5382",
+            "bytes": 7823
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       3 failed, 55 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "fd3ab749f46443512b47b5070c1b768b3d0a0555ed9c984532aa75aa8d408e93"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "R07",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "type=\"password\"",
+            "to": "type=\"text\""
+          },
+          "observedAt": "2026-10-20T19:42:13.431Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-R07.log",
+            "sha256": "1f4c790a04cc6a229c94805b45447237732afadbdfadc571b5385a3ebd54d44c",
+            "bytes": 1504
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       1 failed, 57 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "614c7af3724f8839d531442f5ec1890656658ce97471e1b53f3336fafc516017"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "R08",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "    setLabel(seat.label ?? '');\n    if (primary.current) primary.current.value = '';\n    if (password.current) password.current.value = '';\n  };",
+            "to": "    setLabel(seat.label ?? '');\n  };"
+          },
+          "observedAt": "2026-10-20T19:42:17.776Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-R08.log",
+            "sha256": "3a2ba74f601a25d841e77f035fe9a82bd60e4e84a8a8f3be0ed215ab86b3d1b2",
+            "bytes": 1448
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       1 failed, 57 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "9947f7989ce9f46e483f07e155d5229f6a412a96d3d9430e5a55eada0d7e3757"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "R09",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "const selected = snapshot.find((seat) => seat.seatId === seatId);",
+            "to": "const selected = snapshot[0];"
+          },
+          "observedAt": "2026-10-20T19:42:23.452Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-R09.log",
+            "sha256": "a50e72295bcdc9146ebbefca29cec5d8e0b91a71ce8983be7f5f94428d32b1b2",
+            "bytes": 9343
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       3 failed, 55 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "e86929bb8af699ab7bee57cc2312cb6bacf83da00aa667321f3244382704e2f2"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "R12",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "                    type=\"password\"",
+            "to": "                    type=\"password\"\n                    name={title}"
+          },
+          "observedAt": "2026-10-20T19:42:27.804Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-R12.log",
+            "sha256": "7044b1435d0694f6e8134f0c0fba65e0e84460fabc855670fc1362058c224f7c",
+            "bytes": 1531
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       1 failed, 57 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "25f913d0d693f8235099f6664ca50df7438a3927889df840b3bec661b9811578"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "F2-label",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "!label.trim() || label.trim().length > 64 || seatPassword.length < 8",
+            "to": "seatPassword.length < 8"
+          },
+          "observedAt": "2026-10-20T19:42:31.783Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-F2-label.log",
+            "sha256": "ec897780444b3f689c2f4e04b1d9804cac056336941b6d5766cef87932f7bafb",
+            "bytes": 14317
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       2 failed, 56 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "5509cdffe0f9679336aacfba2eee36847f7033d04a2ed2b43379b4314722ae43"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "F2-password",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "!label.trim() || label.trim().length > 64 || seatPassword.length < 8",
+            "to": "!label.trim() || label.trim().length > 64"
+          },
+          "observedAt": "2026-10-20T19:42:36.073Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792524991582-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-F2-password.log",
+            "sha256": "4090f10b94fccc99ba90cebfdb841e8827b4cf3acafa4af8e167da47d142d0da",
+            "bytes": 7434
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       1 failed, 57 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "f0fcd5a832112d44446e9a3c6a6701cd913f802e981498374d403720a1fbaf05"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "F3",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "seats.find((seat) => seat.seatId === seatId)?.status !==\n                  'active'",
+            "to": "false"
+          },
+          "observedAt": "2026-10-20T20:00:52.122Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-F3.log",
+            "sha256": "54c327f8ee5db7bf2207ca72972a3cde361c727de77e729165bb71083e0ec241",
+            "bytes": 1367
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       1 failed, 57 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "b755858295159f7906203ed0f0ee0af6aa9454c1f55a79c9e73ffa05bf53f003"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "F5",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "mutation": {
+            "from": "ref === primary ? 'current-password' : 'new-password'",
+            "to": "'off'"
+          },
+          "observedAt": "2026-10-20T20:00:56.204Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-F5.log",
+            "sha256": "665a41c5a35ef9eeae8ed65b5745d08cd6ceb7747f6fd71eda2e10f679cf8dfd",
+            "bytes": 1554
+          },
+          "suites": "Test Suites: 1 failed, 2 passed, 3 total",
+          "tests": "Tests:       1 failed, 57 passed, 58 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "ed5228c544212f0e3ecaaf0897f524ba83971544ab388e6c3b491e883f3ad042"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        },
+        {
+          "id": "F1",
+          "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "mutation": {
+            "from": "jest.doMock(\n  '@/lib/campaign/coop/localSeatCredentialStore',",
+            "to": "const storeModule = '@/lib/campaign/coop/localSeatCredentialStore';\njest.doMock(\n  storeModule,"
+          },
+          "observedAt": "2026-10-20T20:01:01.209Z",
+          "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+          "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+          "node": "v22.22.0",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "node_modules/jest/bin/jest.js",
+            "--selectProjects",
+            "unit",
+            "--runInBand",
+            "--cacheDirectory",
+            "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/jest-cache",
+            "--runTestsByPath",
+            "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+            "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/mutant-F1.log",
+            "sha256": "c1cd39d276cfbd69c1bbd3c0a284647fccd8fe32d2c3074facd8e60b210a648e",
+            "bytes": 23595
+          },
+          "suites": "Test Suites: 1 failed, 1 passed, 2 total",
+          "tests": "Tests:       1 failed, 44 passed, 45 total",
+          "runtimeAssertionFailure": true,
+          "files": [
+            {
+              "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+              "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+              "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+            },
+            {
+              "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+              "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+              "sha256": "fa6ae157582719dfd7b9a8e679113026c36d389893c1f0963bdb6e250b8c8fe4"
+            },
+            {
+              "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+              "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+            }
+          ],
+          "caught": true
+        }
+      ],
+      "total": 11,
+      "caught": 11
+    },
+    "validation": {
+      "typecheck": {
+        "observedAt": "2026-10-20T20:01:04.571Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "npm",
+          "run",
+          "--silent",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/typecheck.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      },
+      "lint": {
+        "observedAt": "2026-10-20T20:01:06.509Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "npm",
+          "run",
+          "--silent",
+          "lint"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/lint.log",
+          "sha256": "3599f92859bb4bd34a3c1606f0b6f9deceda044d8d623263c7be8139f983d565",
+          "bytes": 38914
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      },
+      "format": {
+        "observedAt": "2026-10-20T20:01:21.636Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "npm",
+          "run",
+          "--silent",
+          "format:check"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/format.log",
+          "sha256": "c0cdc0d57b98a7dae3672bd10d69c0e6e39190572719dd88d3e5a33be9d0914f",
+          "bytes": 118
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      },
+      "roadmap": {
+        "observedAt": "2026-10-20T20:01:49.085Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/roadmap.log",
+          "sha256": "5024cdc2300b695592c9110329650d3c669d6029413fe991bce44f23bf67f0f7",
+          "bytes": 76
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      },
+      "roadmap-git": {
+        "observedAt": "2026-10-20T20:02:05.540Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/roadmap-git.log",
+          "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46",
+          "bytes": 2354
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      },
+      "roadmap-next": {
+        "observedAt": "2026-10-20T20:02:10.194Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--next"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/roadmap-next.log",
+          "sha256": "b0b896ffbe54660baef433a3b71bd0f8036573f2253fda5e77211fe5402156ad",
+          "bytes": 4
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      },
+      "diff": {
+        "observedAt": "2026-10-20T20:02:10.280Z",
+        "head": "5846c87419b5e7585c7364852f6d033493fd8953",
+        "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P0-1792526447115-lsc.json",
+        "node": "v22.22.0",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exitCode": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/diff.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "runtimeAssertionFailure": false,
+        "files": [
+          {
+            "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+          },
+          {
+            "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+            "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+          },
+          {
+            "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+          }
+        ]
+      }
+    },
+    "harness": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol\\review-fixes/run.cjs",
+      "sha256": "dec9adfc7cbaa4fb45ab9ccb310a4d3f14e26ae295c82583d0f6c28f9bf96dda",
+      "bytes": 5372
+    },
+    "carryForwards": {
+      "CF-LSC2OP-1": "LSC-2 guest mint/renewal/recovery: code-aware 401 vs429/Retry-After, no auto-retry, secrecy tests.",
+      "CF-LSC2OP-2": "LSC-2/LSC-2P distinct re-provision action/confirmation and new playerId -> GM readmission -> retained old membership proof.",
+      "CF-LSC2OP-3": "Server follow-up outside operator ownership: consider distinct not-revocable error code.",
+      "CF-LSC2OP-4": "Autocomplete purposes fixed here; packaged password-manager/autofill verification remains LSC-2P.",
+      "CF-LSC2OP-5": "Root registered LSC-SALVAGE-1 in #2310, transferring known-red ownership and12/12 predicate; no repair or browser PASS claimed."
+    },
+    "salvageRegistration": "Fresh main #2310 at59004af9c registers LSC-SALVAGE-1. Historical admission/local salvage observations retained above; no salvage leaves changed."
+  }
 }
