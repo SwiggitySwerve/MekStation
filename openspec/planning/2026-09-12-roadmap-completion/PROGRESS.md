@@ -1,3 +1,36 @@
+## 2026-10-19 P2CG1HP source verified on main
+
+P2CG1HP moves from implementing to main-verified after #2307.
+Exact source merge: ca92b6a01c07e5038c2d1b3840117af72b0a3ed3.
+Ruled head: aa1b70d8379e22d6031d7ea5546af53bf0dd370a; independently reviewed head: e582634ce9f8f4365200e3ec6ad2cca28c4f88f7 (CF-HP-4).
+Opus full review: APPROVE-WITH-IN-PR-FIXES, no product defect; exact 13,967-byte copy
+has SHA-256 a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa.
+F1 subsequently changed one test leaf (+41/-0), killed R08 and passed 131/131 owned tests.
+Root diffed and accepted that follow-up; no second independent review is claimed.
+PK-p2cg1hp-ruling binds the posted ACCEPT comment; ruling and review are byte-copied.
+All 32 source-head checks passed; two-parent merge tree reconstructs exactly.
+
+Fresh proof at exactly ca92b6a01c07e5038c2d1b3840117af72b0a3ed3 before closure edits:
+- npm ci and Node v22.22.0 through the heavy-run queue, lane hp.
+- Owned: 2 suites, 131/131 tests.
+- Regression: 18 suites, 384/384 tests.
+- Typecheck and the unedited ledger validator passed; seven raw-log/JSON envelopes preserved.
+
+Successor release: NONE.
+- P2CG1H stays blocked; waiting on LSC-2P, L1-SMOKE-A2, L1-SMOKE-B, MP-CAMPAIGN-HOST-DEDUPE-1.
+Eligibility is computed from all declared predecessors and mainProof PASS; no other unit changes.
+
+CF-HP-1, CF-HP-2, CF-HP-3 and open CF-S-1 -> P2CG1H.
+CF-MPHD-4 was routed to H by the source ruling; #2310 assigns its repair to MP-CAMPAIGN-HOST-DEDUPE-1, an H prerequisite.
+I3 (visual spacing check for the empty status paragraph) -> P2CG1H / LSC-2.
+CF-H7/CF-G4, CF-H14, CF-H15, CF-H8/CF-G5 member seat and CF-H12 are discharged.
+CF-HP-4 is discharged here by the separate reviewedHead record.
+Other review carry-forwards pass through without rewriting prior receipts or expanding scope.
+No task tick, browser/build smoke, fog projection restoration or receipt-port installation is claimed.
+This closure still needs its own CI and Root review/merge.
+
+---
+
 ## 2026-10-19 MP-RECOVERY-UNITS-2 source verified on main
 
 MP-RECOVERY-UNITS-2 moves from review-required to main-verified after #2306

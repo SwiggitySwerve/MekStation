@@ -8597,7 +8597,19 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-source-opus-review-20261019.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-owner-ruling-6258459937.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-merge-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-mainproof-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-validator-log.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8612,10 +8624,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+      "mergeSha": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
       "stageReceipts": {
         "admission": {
           "path": "evidence/h-consumer-recovery-admission-20261018.json"
@@ -8626,9 +8638,27 @@
         "local": {
           "path": "evidence/h-consumer-recovery-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/h-consumer-recovery-admission-review-20261018.json",
+          "head": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+          "reviewedHead": "e582634ce9f8f4365200e3ec6ad2cca28c4f88f7",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p2cg1hp-merge-20261019.json",
+          "pr": 2307,
+          "head": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+          "mergeSha": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1hp-mainproof-20261019.json",
+          "mergeCommit": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       384 passed, 384 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9068,14 +9098,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "545073d83c9d23781a75a93565dbdcf87cac5786",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/lsc-2op-admission-20261018.json"
+        },
+        "red": {
+          "path": "evidence/lsc-2op-red-20261018.json"
+        },
+        "local": {
+          "path": "evidence/lsc-2op-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -23331,6 +23367,44 @@
         "bodySha256": "d95ec59844e28287aecd9f174a0a6305d0013769aa471af3d0d006d1b60d06ef",
         "postedBy": "Parent under existing standing owner authorization",
         "deviationDisclosed": "Existing historical head-bound ruling reopened through live GitHub API; no new human response or manual GitHub review. Original literal body bytes are preserved."
+      }
+    },
+    {
+      "id": "PK-p2cg1hp-ruling",
+      "blocks": [
+        "P2CG1HP"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the exact HP source head after independent sensitive review, Root-diffed F1 test fix and passing CI?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit source merge and exact-main proof; release dependents only when every predecessor is verified. Route CF-HP-1..3, CF-S-1 and CF-MPHD-4 to H and I3 to H/LSC-2.",
+          "effort": "Independent sensitive review, mutation and main proof, exact-head owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until concrete defects and proof gaps are fixed and reruled.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Records the existing ACCEPT ruling on aa1b70d8, not a new approval. Preserve distinct reviewedHead e582634c and pending downstream gates.",
+      "revertCost": "Reverting consumer recovery would restore unbounded quiet retries and the false-cut settlement bug; no schema or wire-format migration.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-19T02:37:25Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2307#issuecomment-6258459937"
+      },
+      "ruling": {
+        "ruledHead": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+        "pr": 2307,
+        "commentId": 6258459937,
+        "author": "SwiggitySwerve",
+        "bodySha256": "121486facf69be0a41b63c9056a2ab5c4a27152e5793fe5a29eebfa3e2780266"
       }
     }
   ],

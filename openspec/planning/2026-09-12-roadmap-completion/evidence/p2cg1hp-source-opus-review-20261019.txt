@@ -1,0 +1,187 @@
+# PR #2307 (P2CG1HP) independent full sensitive review
+
+- Reviewer: Claude Code review sub-agent, read-only. Nothing was pushed, commented, labelled or merged.
+- Head reviewed: e582634ce9f8f4365200e3ec6ad2cca28c4f88f7 (the current head of codex/p2cg1hp-sol-prep-20261018).
+- Base: f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0, which is current origin/main and the merge-base.
+- Worktree: E:/Projects/Personal/MekStation-wt/review-2294-20261018, checked out detached at the head. The lockfile is unchanged, so npm ci was not run. After the review the only untracked file is the earlier B14-HEAD report, which this review did not touch.
+- Review classes: authority, privacy, replay, idempotency, concurrency.
+- Date: 2026-10-19.
+
+## Verdict
+
+APPROVE-WITH-IN-PR-FIXES. There is no product defect and no High or Medium finding. One test-only fix is recommended (F1). The other findings are carry-forwards or informational.
+
+## What changed (8 files; 9/15 counting the reserved review receipt)
+
+| File | +/- | Counted |
+| --- | --- | --- |
+| src/components/campaign/coop/useCampaignApplicationConsumer.ts | +83/-20 | yes |
+| src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx | +16/-2 | yes |
+| openspec/.../units.json | +16/-6 | yes |
+| hostProjection.test.tsx | +224/-1 | test (exempt) |
+| bindCampaignSyncConnection.test.ts | +13/-6 | test (exempt) |
+| evidence admission/red/local json | +522/+294/+871 | evidence (exempt) |
+
+- Counted additions are 83 + 16 + 16 = 115 of 500.
+- Files are 8 changed plus the reserved review receipt = 9 of 15.
+- Every source file sits under src/components/campaign/coop or src/lib/multiplayer/server, and each is a frozen leaf. The server-side change is the binder test only; there is no server product change.
+- units.json: a semantic diff of all 261 units finds that only P2CG1HP changed, and only its ownershipExceptions, state, baseline and stageReceipts fields. The ownershipExceptions addition records the four evidence names that admissionRequires froze. The same pattern appears in 28 earlier units. Strictly, ownershipExceptions is a manifest field rather than a lifecycle field; the PR body's "only lifecycle fields" wording is slightly loose (Info I4).
+
+## Behaviour verified
+
+### Bounded recovery (CF-H7 / CF-G4)
+
+- QUIET_RETRIES = 2. The episode key is JSON [campaignId, transport.matchId, transport.playerId].
+  - At route level, matchId comes from the route and playerId from the stored token, so the key is stable across replacement transports.
+  - The budget therefore spans socket identities, not a socket WeakMap, as the policy requires.
+- Only the quiet-window timer calls rejoin(true).
+  - Exhaustion closes the transport, does not call setRejoins (so no new effect and no new socket), and sets the fixed text.
+  - That text is "Campaign sync could not connect. Reload this campaign to try again.".
+  - No loop is possible: after exhaustion live=false, and every listener (quiet timer, onError, onAppliedViewConfirmed) is removed.
+- Sockets: the initial one plus 2 replacements, so 3 in total, all closed (readyState 3). This is pinned for both host and guest.
+- Backoff: retries are spaced at a fixed APPLICATION_CONFIRMATION_TIMEOUT_MS (= HEARTBEAT_TIMEOUT_MS), with no exponential growth. This matches the owner policy of 2 retries then the inline message (I1).
+- Reset paths:
+  - A validated server confirmation (transport.onAppliedViewConfirmed, emitted by the transport's confirmation handling) resets the budget.
+  - So does a key change.
+  - So does a route remount, because the state is hook-local.
+- A heartbeat, a frame or a rebind does not reset the budget. This is pinned by "HP heartbeat and rebind do not replenish retry budget".
+- Live region: one persistent p element with role="status" aria-live="polite".
+  - It is rendered before the surface, empty until exhaustion, and is the same DOM node before and after (pinned with toBe(region)).
+  - Identity switch clears it (pinned).
+
+### Release of settled offers (CF-H14 / CF-H15)
+
+- settling is incremented in consume, not when the promise starts, so a same-tick dispose still cuts (CF-H15).
+- The per-offer release() is guarded by released, so it is idempotent. It is called synchronously before confirmApplied, and again by the final .then(release), which is a no-op.
+- Coverage of each path:
+  - On a normal return, release happens before confirm.
+  - On an early return (!live) or a throw before release, the final .then releases.
+  - In both of those cases live is already false, so cut marking was decided at dispose time and stays correct.
+  - If confirm throws, release has already run; the .catch rejoins.
+- A confirm that schedules dispose in its next microtask now sees settling=0, so there is no false cut. Pinned: 1 socket, ACKs h14-r0 and h14-r1.
+- The CF-H1 held-refresh cut is still caught. My mutants R01 and R07 both fail the three CF-H1 rows.
+
+### Authority
+
+- The client still only folds server offers and sends CampaignAck.
+- "Healthy" is derived only from the server's validated applied-view confirmation; a client-side outcome never counts as healthy.
+- No intent is resolved client-side, and nothing new is sent.
+- Exhaustion only closes the client's own socket. Server seat cleanup runs through the existing close handler; no server product file changed.
+- The binder row is widened to {host, member} x {confirmed, held, failed}. Every row shows an installed membership-bound join only offers, and joinMember is never invoked. All 6 rows pass.
+
+### Privacy
+
+- The visible text is a constant. It carries no ids, reasons or server error strings.
+- The episode key, which contains playerId, stays in memory: it is never rendered or logged.
+- No logger or console calls were added.
+
+### Fog / B14 consistency
+
+- The HP change touches no server, projection or journal reader. B14-0 and B14-HEAD refusals carry the reason fog-projection-unavailable.
+  - That reason does not start with campaign-application-, so it never triggers a consumer rejoin.
+  - A refused or silent socket now reaches the generic exhaustion text after 2 retries instead of reconnecting forever.
+- The generic text is no fog oracle: it is identical for fog-on refusal, an outage, or a legacy server.
+- Fog-on matches are still refused by the unchanged B14 paths.
+
+### Replay
+
+- Each replacement binding still starts from EMPTY.
+- The G1 heardAt watermark, ordered offers and stale-binding silence all hold; the regression set is green.
+
+### Concurrency between recovery and release
+
+- A quiet timer cannot fire mid-settle, because consuming an offer frame marks it heard and clears the timer.
+- A rejoin during a settle sets live=false. The settle returns without confirming, and the later release does no harm: the dispose after the rejoin sees live=false and does not cut, and the replacement starts from EMPTY.
+- A dispose immediately after a synchronous confirm sees the release already applied.
+
+## Validation (my runs, through heavy-run lane rev-2307)
+
+| Check | Result |
+| --- | --- |
+| Owned (hostProjection + binder) | 130/130 pass |
+| Regression set (18 suites, the implementer's list) | 383/383 pass |
+| RED replay (product leaves at f4a40db, tests at head) | 7 failed / 123 passed; all 7 are behavioural assertion failures (socket counts 6 vs 3, missing role=status, budget delta, CF-H14 socket count), with no runtime errors |
+| Frozen test bytes | head sha256 = RED receipt (cfb1bdb1... hostProjection, 373220883c... binder); git diff 0f74e0023..HEAD over tests is empty, so no test byte changed after RED |
+| npm run typecheck | exit 0 |
+| oxlint (owned) | 0 warnings, 0 errors |
+| oxfmt --check (owned) | exit 0 |
+| scripts/qc/lint-units.mjs | exit 0 |
+| validate-roadmap.mjs --git | PASSED (93 nodes, 381 tasks) |
+| openspec validate --all --strict | 230/230 |
+| CI on e582634c | 32/32 SUCCESS, mergeState CLEAN; names identical to DEDUPE #2303 (32/32 by name) |
+| Coop browser spec | none is named by P2CG1HP, so none was run |
+
+The binder member rows are green at RED. They are a widening pin that discharges CF-H8/CF-G5 for the member seat; no product change is claimed for them.
+
+## Reviewer mutants (13; script _reports/2026-10-19/pr2307-rev/mutants.cjs, results mutants.json)
+
+| Id | Mutation | Result |
+| --- | --- | --- |
+| R01 | release not idempotent (double decrement) | CAUGHT (4: CF-H1 x3, CF-H15) |
+| R02 | healthy callback ignores live | survived, equivalent: the listener is removed on rejoin and dispose (same as HP17) |
+| R03 | quiet() ignores the episode-key check | survived, unreachable at route level (see F2) |
+| R04 | healthy() ignores the episode-key check | survived, unreachable at route level (see F2) |
+| R05 | stale-key quiet() returns true | survived, unreachable at route level (see F2) |
+| R06 | role=alert / aria-live=assertive | CAUGHT (4) |
+| R07 | release at the start of settle | CAUGHT (3: CF-H1) |
+| R08 | healthy resets retries but keeps the error text | SURVIVED, a real gap (F1) |
+| R09 | non-quiet rejoin consumes quiet budget | CAUGHT (1) |
+| R10 | dispose keeps the healthy listener | survived, equivalent: guarded by live=false |
+| R11 | drop the final .then(release) | survived, equivalent: only reachable once live=false (see the release analysis) |
+| R12 | exhaustion keeps the socket open | CAUGHT (3) |
+| R13 | key change keeps the retry count | CAUGHT (2) |
+
+Of the 13 mutants, 6 were caught and 7 survived. Of the survivors, 3 are equivalent, 3 are defensive guards that cannot be reached at route level, and 1 (R08) is a real gap.
+
+## Findings
+
+### Low
+
+- F1 (Low, test gap; recommended in-PR, test-only): nothing pins that a healthy confirmation clears the visible exhaustion notice.
+  - Mutant R08 (healthy resets retries but leaves recoveryError) passes all 130 owned tests.
+  - The local receipt's accepted residual says "notice persists until healthy confirmation or reload", but nothing asserts the "healthy confirmation" half.
+  - The path is reachable. A same-key effect rerun can happen when roomCode, store or applyRefusal identity changes. It binds a new transport against the spent budget, and that transport can become healthy while the stale "could not connect" text stays.
+  - Fix: add one row to hostProjection.test.tsx:
+    1. Exhaust the budget (3 sockets, text shown).
+    2. Force a same-key rebind without remount. For example, rerender with a campaign whose coopSession has a different roomCode but the same matchId, so the host effect deps change but the key does not.
+    3. Apply a healthy baseline via applied(connection, baselineOffer(...)).
+    4. Assert that screen.getByRole('status') is the same node and is empty.
+  - R08 must then fail. No product change is needed.
+- F2 (Low, defensive code that is not pinned; no fix required): the current() episode-key guards in quiet() and healthy() cannot be reached through the route.
+  - Effect cleanup disposes the old binding, which clears its timer and listener, before a new key binds. R03, R04 and R05 survive for that reason.
+  - The guards are correct defence in depth. If H installs a receipt port or keeps bindings across keys, a hook-level test should pin them (CF-HP-3).
+
+### Info
+
+- I1: Retries are not backed off; they are spaced at one fixed quiet window. Total time to the notice is about 3 windows. This is consistent with the adopted policy.
+- I2: Non-quiet recovery is still unbounded, with no backoff.
+  - Signals: recovery-required, prefix-conflict, application-refused, confirmation-timeout, and INTERNAL_ERROR with a campaign-application-* reason.
+  - A server that answers every join with a campaign-application-* error drives an immediate reconnect loop, bounded only by round-trip time.
+  - This predates the PR, sits outside the registered quiet-window scope, and is disclosed in the PR body and the local receipt. See CF-HP-1.
+- I3: The empty live region (a p element) now renders on every campaign page that mounts the connected surface: campaignPageShell routes, personnel and dashboard, single-player included.
+  - It is an empty polite region, so a11y is harmless and the A11y CI job passed.
+  - If PageLayout spaces its children with gap or space-y, an empty unstyled p may add one spacing slot. A quick visual check is suggested; this is not a blocker.
+- I4: As noted above, the units.json ownershipExceptions edit is a manifest field. It is justified by admissionRequires, and 28 earlier units set the precedent.
+- I5: A same-key rebind against a spent budget opens one socket and closes it after a window without a further notice change. This is disclosed. Legacy servers reset only on reload; also disclosed.
+
+## Carry-forwards
+
+- CF-HP-1 -> P2CG1H (or a separately registered follow-up): bound non-quiet recovery, or back it off, and decide whether the exhaustion text covers it (I2).
+- CF-HP-2 -> P2CG1H: same-key rebind against a spent budget, and the legacy-server reset-on-reload-only behaviour (I5). Re-check both when the receipt port is installed.
+- CF-HP-3 -> P2CG1H: pin the episode-key guards with a hook-level test if bindings can outlive a key change (F2).
+- CF-HP-4 -> closure receipt: record reviewed head e582634ce9f8f4365200e3ec6ad2cca28c4f88f7. If F1 lands, re-diff to confirm the change is test-only.
+- Pass-through, unchanged:
+  - CF-S-1 (OPEN; HP does not move fog-off HTTP history/export to the effective head).
+  - CF-MPHD-4 (P2CG1H; CampaignHostRegistry.ts byte-identical).
+  - CF-R-2, CF-R-3, CF-H5 (consumer-only), CF-E7.
+  - CF-B14H-3..5, CF-B14-3..5, CF-B14-0-1.
+- CF-H7/CF-G4, CF-H14, CF-H15 and CF-H8/CF-G5 (member seat) are discharged at this head, subject to the F1 test.
+- CF-H12 is discharged: 32/32 by name, identical to #2303.
+
+## Artifacts
+
+All under E:/Projects/Personal/MekStation-wt/_reports/2026-10-19/pr2307-rev/:
+- base.json, base-owned.*, base-regression.*
+- red-replay.json/.log
+- mutants.cjs, mutants.json, R01..R13.json/.log
+- checks.ps1, typecheck.log, lint.log, fmt.log, lint-units.log, roadmap.log, openspec.log

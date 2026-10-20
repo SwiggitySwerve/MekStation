@@ -30,6 +30,8 @@ import {
   type IPlayerToken,
 } from '@/types/multiplayer/Player';
 
+import { LocalSeatOperatorPanel } from './LocalSeatOperatorPanel';
+
 function defaultCoopCampaignName(roomCode: string): string {
   return `Co-op Campaign ${roomCode}`;
 }
@@ -367,6 +369,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
 
   return (
     <>
+      <LocalSeatOperatorPanel />
       <section className="border-border-theme bg-surface-deep/50 mb-6 rounded-lg border px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
           <Button
