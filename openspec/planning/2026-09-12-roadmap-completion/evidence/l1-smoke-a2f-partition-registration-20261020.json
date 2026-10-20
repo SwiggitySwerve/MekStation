@@ -1,0 +1,3280 @@
+{
+  "schemaVersion": 1,
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "sourcePR": 2318,
+  "baseline": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+  "observedAt": "2026-10-20T21:39:39.840Z",
+  "ruling": {
+    "path": "evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt",
+    "sha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
+    "bytes": 1872,
+    "encoding": "UTF-8/LF, one trailing newline",
+    "source": "Exact Root ruling in this implementation thread",
+    "futureImplementationRuling": false
+  },
+  "rationale": {
+    "formattedCandidateLines": 646,
+    "cap": 500,
+    "context": 221,
+    "trustedFixture": 272,
+    "runner": 153,
+    "ordinaryContextPlusRunner": 374,
+    "admissionStopHead": "d0868008c83c7f290a0c3203b74243df64886e0c",
+    "receipt": "evidence/l1-smoke-a2f-admission.json",
+    "receiptSha256": "d5dca85a0eca6420a7032302b206c5bbebd71de30f2ee731ec57fddd5c554cb9",
+    "candidateExecuted": false,
+    "candidateComplete": false,
+    "decision": "Root accepts A2FP -> narrowed existing A2F, registered in this same PR. The 374 subtotal includes unqualified cross-fixture calls; activation selection, detached read-only witness, structural CLI validation, falsifiers and lifecycle remain unmeasured. No implementation fit is asserted. If FP overflows, tell Root before any third split proposal."
+  },
+  "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+  "initialStates": {
+    "L1-SMOKE-A2FP": "planned",
+    "L1-SMOKE-A2F": "blocked"
+  },
+  "capsPerUnit": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "sensitivityPerUnit": ["privacy", "authority"],
+  "manifests": {
+    "L1-SMOKE-A2FP": [
+      "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "scripts/release/l1-built-server-spectator-context.mjs",
+      "scripts/release/l1-built-server-spectator-reachability.ts",
+      "scripts/release/l1-built-server-spectator-reachability.test.mjs"
+    ],
+    "L1-SMOKE-A2F": [
+      "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+    ]
+  },
+  "acceptance": {
+    "L1-SMOKE-A2FP": [
+      "Using frozen A1 harness/transport read-only on a real built production image, provision canonical units/positions, authenticated participants and current spectator seats through ordinary APIs/actions. Prove accepted legal phase-ready Move, Attack and Physical commands, correlated declaration events and durable read-only witnesses; never insert sealed declarations or use source-host calls. Select the active phase unit and matching authenticated principal from actual activation order, preserving a still-eligible second actor able to withhold reveal. Missing legal reachability retains explicit unrun rows and stops for Root; no product seam is granted.",
+      "Own the ordinary context, reachability runner and read-only stopped-private-DB phase/unit/declaration witnesses. Validate CLI input structurally and falsify live owning PID, foreign/redirected private DB, unexpected metadata/canonical unit/position/phase/weapon/limb/lock state, missing accepted intent and absent positive/precondition control. Read-only witnesses must leave DB lineage/history unchanged. No trusted brand/stale-assignment mutation is granted to FP.",
+      "Freeze import-safe provisioner, activation-aware phase-ready callbacks, accepted-command checks, read-only witnesses and explicit required-case enumeration for F/M/A2. Use installed tsx or standalone SQL offline with the owned server stopped; no new loader/dependency or existing A1/product/helper/config edit. Preserve A1 command/exit/build/listener/readiness/owned-PID/DB hashes, credential redaction and bounded cleanup; tokens never enter URLs or retained evidence. Tests falsify broken guards and missing accepted-action/precondition controls.",
+      "FP supplies ordinary provisioning/read-only reachability only. Narrowed F must reuse it read-only, add every trusted audience and observed non-spectating-GM positive, and re-execute the full F acceptance before M admission. FP alone accepts no full privacy matrix, co-op restart, captured rolls, concurrent-first-sockets or B/H/RC gate. Require FP genuine exact-main PASS, fetched-Main ancestry and closure before F admission."
+    ],
+    "L1-SMOKE-A2F": [
+      "Import frozen A1/FP modules read-only. Establish current spectator seats for player brand with stale side assignment, GM brand with stale assignment and GM without assignment, using stopped-owned-private-DB fixtures only for unreachable trusted brand/stale/phase preconditions. GM identity must be witnessed by a real durable campaign_session_participant gm row. Preserve trusted metadata and canonical unit/phase preconditions; refuse live owning PID, foreign/redirected DB or unexpected trusted state and retain before/after private-DB lineage with unchanged combat events.",
+      "Observe an actual correlated unrevealed authoritative declaration on a separate non-spectating-GM socket, consistently with the one-active-GM-per-session constraint. Qualify fixture-only GM branding against the real built image, including recovery and the durable role source; a label, fabricated transport role or durable row alone is not a positive delivery control. Ordinary accepted intents produce positive behavior, never inserted sealed declaration events or source-host/append/broadcast internals.",
+      "Freeze import-safe trusted-audience/mutation callbacks and structural witnesses for M/A2, composing FP ordinary provisioning and activation-aware Move/Attack/Physical reachability with every trusted-condition control in one verified A1 image/private-DB lineage. Keep the second actor able to withhold reveal; re-run all FP required rows, preserve command/exit/build/listener/readiness/PID/DB identity and credential guarantees. Use only installed tsx/standalone SQL offline, with no loader/dependency or existing predecessor/product edits. Falsifiers reject broken guards, missing positive GM/accepted-action/precondition witnesses and omitted inherited rows.",
+      "Full F composition retains all four original F acceptance rows across FP and narrowed F; every row remains owed and original text is preserved in registration20261020 and this evidence. F genuine exact-main PASS, fetched-Main ancestry and closure remain required before M admission. F supplies trusted reachability, not the nine-case privacy matrix or co-op restart; M, final A2 and B retain all original A2 acceptance. CF-MPRU2-3 and CF-MPHD-5 stay final A2-owned; no downstream gate is waived."
+    ]
+  },
+  "predecessors": {
+    "L1-SMOKE-A2FP": [
+      "L1-SMOKE-A1",
+      "MP-RECOVERY-UNITS-1",
+      "MP-HOST-DEDUPE-1",
+      "MP-RECOVERY-UNITS-2"
+    ],
+    "L1-SMOKE-A2F": [
+      "L1-SMOKE-A1",
+      "MP-RECOVERY-UNITS-1",
+      "MP-HOST-DEDUPE-1",
+      "MP-RECOVERY-UNITS-2",
+      "L1-SMOKE-A2FP"
+    ]
+  },
+  "successors": {
+    "L1-SMOKE-A2FP": ["L1-SMOKE-A2F"],
+    "L1-SMOKE-A2F": ["L1-SMOKE-A2M"]
+  },
+  "originalPredecessors": [
+    {
+      "id": "L1-SMOKE-A1",
+      "state": "main-verified",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+      "mainProof": {
+        "path": "evidence/l1-smoke-a1-mainproof-20261018.json",
+        "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+      },
+      "ancestorOfMain": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-1",
+      "state": "main-verified",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+        "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+      },
+      "ancestorOfMain": true
+    },
+    {
+      "id": "MP-HOST-DEDUPE-1",
+      "state": "main-verified",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "mainProof": {
+        "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+        "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+      },
+      "ancestorOfMain": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-2",
+      "state": "main-verified",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+        "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+      },
+      "ancestorOfMain": true
+    }
+  ],
+  "originalFAcceptance": [
+    "Using frozen A1 harness/transport read-only on a real built production image, prove legal phase-ready fixtures for accepted Move, Attack and Physical commands. Keep a second actor able to withhold reveal until negative observations finish. Ordinary authenticated APIs/actions provision positive behavior; stopped-DB fixtures only establish unreachable trusted stale-seat/brand/phase preconditions. Never insert sealed declaration events as a substitute for accepted intents. If reachability needs a product seam, retain explicit unrun rows and stop for a separately registered slice.",
+    "Witness current spectator seats for player brand with stale assignment, GM brand with stale assignment and GM without assignment; GM identity comes from a real durable campaign-session gm row. Provide a separate non-spectating-GM control consistent with the one-active-GM constraint. Preserve trusted metadata, canonical unit/phase preconditions and before/after private DB lineage; refuse a live owning PID, foreign DB or unexpected trusted state.",
+    "Freeze import-safe ordinary provisioner, phase-ready and trusted-audience fixture callbacks plus structural witnesses for A2M/A2. Fixtures use the installed tsx or standalone SQL only while the owned server is stopped. No new dependency/loader or existing A1/source edit. Keep tokens out of URLs and retained evidence, preserve commands/exits/build/listener/readiness/PID/DB hashes, and falsify broken fixture guards and missing accepted-action/precondition controls.",
+    "A2F supplies reusable reachability and trusted-condition proof, not acceptance of the nine-case privacy matrix or co-op restart. All original A2 acceptance remains owed through A2M, final A2 composition and B; genuine exact-main PASS and closure are required before A2M admission."
+  ],
+  "acceptanceCoverage": [
+    {
+      "originalRow": 0,
+      "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+      "allocation": "FP ordinary accepted M/A/P reachability, activation-aware principal and reveal holder; F composes these with trusted conditions and re-runs all inherited reachability. Explicit unrun rows if product seam needed; no inserted declarations."
+    },
+    {
+      "originalRow": 1,
+      "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+      "allocation": "FP read-only canonical phase/unit/seat and DB/PID/precondition falsifiers; F all three trusted brands/assignments, real durable GM role, separate observed non-spectating-GM declaration positive and unchanged-history lineage on the actual image."
+    },
+    {
+      "originalRow": 2,
+      "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+      "allocation": "FP ordinary provisioner/phase-ready/read-only callbacks, strict CLI and positive/guard falsifiers; F trusted-audience callbacks and full F composition. Both preserve all A1 authority, credential, command, image/listener/PID/DB, loader/dependency and offline-only constraints."
+    },
+    {
+      "originalRow": 3,
+      "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+      "allocation": "FP ordinary-only partial proof; F retains full F acceptance and exact-main closure before M. Full nine-case privacy and co-op restart stay M/final A2/B-owned; every downstream gate and original A2 row stands."
+    }
+  ],
+  "unchangedDownstream": {
+    "L1-SMOKE-A2M": {
+      "predecessors": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2F"
+      ],
+      "successors": ["L1-SMOKE-A2"],
+      "state": "blocked"
+    },
+    "L1-SMOKE-A2": {
+      "predecessors": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2M"
+      ],
+      "successors": ["L1-SMOKE-B", "P2CG1H"],
+      "state": "blocked"
+    },
+    "L1-SMOKE-B": {
+      "predecessors": ["L1-SMOKE-A2", "B14-0", "B14-HEAD"],
+      "successors": ["P2CG1H", "CF-SMOKEA1-4"],
+      "state": "blocked"
+    },
+    "P2CG1H": {
+      "predecessors": [
+        "P2CG1G2",
+        "P2CG1R",
+        "B14-0",
+        "LSC-2P",
+        "L1-SMOKE-A1",
+        "L1-SMOKE-A2",
+        "L1-SMOKE-B",
+        "P2CG1HP",
+        "MP-CAMPAIGN-HOST-DEDUPE-1"
+      ],
+      "successors": ["P2CG1I1", "P2C"],
+      "state": "blocked"
+    }
+  },
+  "census": {
+    "unitCount": 266,
+    "nodeCount": 93,
+    "activeReservations": [
+      {
+        "id": "U0",
+        "state": "complete",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U1",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U1b",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U1c",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U1e",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U1d",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U2",
+        "state": "blocked",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U2b",
+        "state": "blocked",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U2c",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": ["scripts/__tests__/gm-two-player-campaign-qc.test.ts"],
+        "literalLeaves": null
+      },
+      {
+        "id": "U19",
+        "state": "blocked",
+        "paths": ["src/lib/events/journal"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U19b",
+        "state": "complete",
+        "paths": ["src/lib/events/journal", "src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U20",
+        "state": "complete",
+        "paths": ["src/lib/campaign/authority"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35",
+        "state": "blocked",
+        "paths": ["src/lib/campaign/sync", "src/lib/campaign/persistence"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35a",
+        "state": "complete",
+        "paths": ["src/lib/campaign/authority", "src/lib/campaign/sync"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35c",
+        "state": "complete",
+        "paths": ["src/__tests__/api/campaigns", "src/__tests__/unit/api"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U62",
+        "state": "complete",
+        "paths": [".husky", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35b",
+        "state": "complete",
+        "paths": [
+          "src/services/campaignPersistence",
+          "src/pages/api/campaigns",
+          "src/__tests__/api/campaigns",
+          "src/lib/campaign/authority"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35g",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/types/campaign/RosterUnitProjection.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35d",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign/sync",
+          "src/__tests__/api/campaigns",
+          "e2e",
+          "scripts/e2e",
+          "src/__tests__/unit/api"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35h",
+        "state": "complete",
+        "paths": [
+          "playwright.config.ts",
+          "scripts/qc",
+          "scripts/__tests__",
+          "e2e/gm-two-player-authority-recovery.pack.spec.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35i",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/pages/api/multiplayer/matches/index.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35j",
+        "state": "complete",
+        "paths": [
+          "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+          "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35e",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign/authority",
+          "src/lib/campaign/sync",
+          "src/services/campaignPersistence",
+          "src/__tests__/api/campaigns",
+          "src/__tests__/unit/api"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U35f",
+        "state": "complete",
+        "paths": [
+          "src/components/campaign/coop",
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U58",
+        "state": "complete",
+        "paths": ["src/lib/campaign"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U21",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/pages/api/matches",
+          "src/__tests__/api/matches"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U22",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U86",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U87",
+        "state": "complete",
+        "paths": ["e2e"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U22a",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/types/multiplayer/Protocol.ts",
+          "src/types/multiplayer/__tests__/Protocol.test.ts",
+          "src/lib/multiplayer/client.ts",
+          "src/lib/multiplayer/__tests__/client.test.ts",
+          "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+          "src/lib/multiplayer/mirrorMatchSession.ts",
+          "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+          "src/hooks/useMultiplayerSession.ts",
+          "src/hooks/useMultiplayerSession.helpers.ts",
+          "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+          "src/hooks/__tests__/useMultiplayerSession.test.tsx"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U21b",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server", "src/pages-modules/api"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U89",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server", "src/lib/campaign"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U88",
+        "state": "complete",
+        "paths": ["src/lib/api"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U93",
+        "state": "complete",
+        "paths": ["src/lib/api"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U90",
+        "state": "blocked",
+        "paths": ["src/components/campaign/coop"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U91",
+        "state": "complete",
+        "paths": ["openspec/changes/harden-gm-two-player-campaign-sessions"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U92",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/types/campaign/CampaignSync.ts",
+          "src/types/multiplayer/Protocol.ts",
+          "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+          "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+          "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U94",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U95",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U96",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/campaigns/[id].ts",
+          "src/stores/campaign/useCampaignStore.dayActions.ts",
+          "src/stores/campaign/useCampaignStore.actions.ts",
+          "src/__tests__/integration/coopMutationPersistence.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U97",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/lib/campaign",
+          "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+          "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+          "openspec/changes/design-campaign-authority-and-sync",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+          "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+          "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U98",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server", "src/lib/campaign"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U36",
+        "state": "complete",
+        "paths": [
+          "src/components/multiplayer",
+          "src/pages-modules/multiplayer",
+          "src/components/campaign/coop"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U37",
+        "state": "complete",
+        "paths": ["src/hooks", "src/utils/gameplay/gameState"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1A",
+        "state": "complete",
+        "paths": [
+          "src/lib/api",
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/lib/multiplayer/server"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U98b",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U98c",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U17c",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1B",
+        "state": "blocked",
+        "paths": [
+          "src/types/campaign/CampaignSync.ts",
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+          "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+          "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1B1",
+        "state": "complete",
+        "paths": [
+          "src/types/campaign/CampaignSync.ts",
+          "src/lib/campaign",
+          "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+          "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+          "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+          "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
+          "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1B2",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1B3",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1C",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign/coop/launchCoopMission.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/lib/api",
+          "src/types/campaign/CampaignSync.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "PAIC",
+        "state": "complete",
+        "paths": ["openspec/changes/harden-gm-two-player-campaign-sessions"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U17d",
+        "state": "complete",
+        "paths": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "PAI",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2A",
+        "state": "complete",
+        "paths": [
+          "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+          "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2BC",
+        "state": "complete",
+        "paths": ["openspec/changes/harden-gm-two-player-campaign-sessions"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "PRI",
+        "state": "complete",
+        "paths": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+          "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U17e",
+        "state": "complete",
+        "paths": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "PMP",
+        "state": "complete",
+        "paths": [
+          "scripts/qc/roadmap-main-proof.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2B",
+        "state": "complete",
+        "paths": [
+          "src/lib/multiplayer/server/coopMissionAdmission.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+          "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+          "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
+          "src/lib/multiplayer/server/coopMissionCreate.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CC",
+        "state": "complete",
+        "paths": ["openspec/changes/harden-gm-two-player-campaign-sessions"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-admission-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-red-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-local-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-lane-a-review-20261002.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-review-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-merge-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-mainproof-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-tick-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-cc61b5aa54b319aa8c200b51584122e986cea07ae5905929d261d086974325d5.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-dd35f38fbd91c7a70033df906af7633d2f916defd04576121bf467da54754360.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/review-identity-bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-logs-20261002.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CE",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CF",
+        "state": "blocked",
+        "paths": ["src/components/campaign/coop", "src/lib/campaign"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG1",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server", "src/pages-modules/api"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "L1-SMOKE-A2F",
+        "state": "planned",
+        "paths": ["scripts"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": [
+          "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "scripts/release/l1-built-server-spectator-context.mjs",
+          "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-A2M",
+        "state": "blocked",
+        "paths": ["scripts"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": [
+          "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+          "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+          "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "paths": ["scripts"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": [
+          "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+          "scripts/release/l1-built-server-spectator-cases.mjs",
+          "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "scripts/release/l1-built-server-spectator.test.mjs"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-B",
+        "state": "blocked",
+        "paths": ["scripts"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "LSC-2",
+        "state": "planned",
+        "paths": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns",
+          "src/lib/campaign",
+          "src/components/campaign/CampaignNavigation.tsx"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "LSC-2P",
+        "state": "blocked",
+        "paths": ["e2e", "docs/releases"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "playwright.local-seat-packaged.config.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "paths": [
+          "server.js",
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-two-player-authority.pack1.spec.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG1I1",
+        "state": "blocked",
+        "paths": ["src/pages-modules/api"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG1I2",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG1I3",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG1I4",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CG2",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2CH",
+        "state": "blocked",
+        "paths": [
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/lib/multiplayer/server"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2C",
+        "state": "blocked",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2",
+        "state": "blocked",
+        "paths": [
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+          "src/components/campaign/coop",
+          "src/hooks",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/lib/campaign/coop/launchCoopMission.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/pages/multiplayer"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "P2J",
+        "state": "blocked",
+        "paths": ["e2e/coop-campaign-two-browser-journey.spec.ts"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "TS7S1",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server/auth.ts",
+          "src/services/vault/IdentityService.ts",
+          "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "tsconfig.json",
+          "desktop/tsconfig.json",
+          "openspec/active-change-ledger.json",
+          "desktop/tsconfig.test.json"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "openspec/changes/migrate-to-typescript-7/design.md"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U38",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server", "src/lib/campaign"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U39",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U40",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U41",
+        "state": "complete",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U42",
+        "state": "complete",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U59",
+        "state": "complete",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U60",
+        "state": "complete",
+        "paths": [
+          "openspec/changes/add-saved-custom-unit-campaign-roster",
+          "scripts/qc",
+          "scripts/__tests__/camp01-authority-receipt-writer.test.ts",
+          "scripts/__tests__/camp01-camp00-listener-adapter.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U61",
+        "state": "complete",
+        "paths": ["openspec/changes/design-campaign-authority-and-sync"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U23",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U43",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U24",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+          "scripts/qc/gm-two-player-campaign-core.cjs",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "playwright.config.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U24a",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "CNI0",
+        "state": "complete",
+        "paths": [
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+          "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "CNI1",
+        "state": "complete",
+        "paths": [
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
+        ],
+        "exceptions": [
+          "scripts/qc/roadmap-codex-identity-capture.mjs",
+          "scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+          "scripts/qc/roadmap-loop-runtime.mjs",
+          "scripts/qc/review-identity/contract.mjs",
+          "scripts/qc/review-identity/custody.mjs",
+          "scripts/qc/review-identity/source.mjs",
+          "scripts/qc/review-identity/native-binding.mjs",
+          "scripts/qc/review-identity/review.mjs",
+          "scripts/__tests__/roadmap-codex-review-identity.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "CNI2",
+        "state": "blocked",
+        "paths": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "CNI3",
+        "state": "blocked",
+        "paths": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-admission-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-red-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-local-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-review-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-lane-a-review-20261008.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-merge-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-mainproof-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-tick-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-logs-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e63196768647e4ee491ecdd9f8be85be62e51ff4316fceb4d2821a6fdaa689c0.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d9f5ad9c98e8df686776211dd8cda8daa9386f08ef724290d2a32e2b4cfb06da.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U24b",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+          "scripts/qc/gm-two-player-campaign-core.cjs",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "playwright.config.ts",
+          ".github/workflows/nightly-validation.yml"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U44",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/lib/events/journal",
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U45",
+        "state": "planned",
+        "paths": ["src/types/multiplayer", "src/lib"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U25",
+        "state": "planned",
+        "paths": ["e2e"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U26",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U46",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U47",
+        "state": "planned",
+        "paths": ["src/lib/interventions", "src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U27",
+        "state": "planned",
+        "paths": ["e2e"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U48",
+        "state": "planned",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U49",
+        "state": "planned",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U50",
+        "state": "planned",
+        "paths": [
+          "src/components/multiplayer",
+          "src/pages-modules/multiplayer",
+          "src/hooks",
+          "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+          "src/lib/campaign/encounter/__tests__/requestLaunchAuthority.test.ts",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U28",
+        "state": "planned",
+        "paths": [
+          "scripts/qc",
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U29",
+        "state": "complete",
+        "paths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U51",
+        "state": "planned",
+        "paths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U52",
+        "state": "planned",
+        "paths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U53",
+        "state": "planned",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U30",
+        "state": "planned",
+        "paths": ["e2e"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U31",
+        "state": "planned",
+        "paths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions",
+          "e2e"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U54",
+        "state": "planned",
+        "paths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U55",
+        "state": "planned",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U32",
+        "state": "planned",
+        "paths": [
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U33",
+        "state": "planned",
+        "paths": [
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U34",
+        "state": "complete",
+        "paths": [
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U56",
+        "state": "planned",
+        "paths": ["src/lib/campaign", "src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U57",
+        "state": "planned",
+        "paths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions",
+          "scripts/qc",
+          "scripts/__tests__",
+          "e2e"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U4",
+        "state": "complete",
+        "paths": ["src/lib", "src/types/multiplayer"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U15a",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U15b",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__", "playwright.config.ts"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U16",
+        "state": "complete",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U6",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U7",
+        "state": "complete",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": ["scripts/__tests__/gm-two-player-campaign-qc.test.ts"],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5a",
+        "state": "complete",
+        "paths": [
+          "src/pages/api/matches",
+          "src/pages-modules/api",
+          "src/lib/multiplayer/server"
+        ],
+        "exceptions": ["src/__tests__/api/matches/rewindPreviewRoute.test.ts"],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5b",
+        "state": "complete",
+        "paths": [
+          "src/pages/multiplayer",
+          "src/components/multiplayer",
+          "src/pages-modules/multiplayer"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5c",
+        "state": "complete",
+        "paths": ["src/pages/api/matches", "src/pages-modules/api"],
+        "exceptions": [
+          "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5d",
+        "state": "complete",
+        "paths": ["src/lib"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5e",
+        "state": "complete",
+        "paths": ["src/lib"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5f",
+        "state": "complete",
+        "paths": ["src/pages-modules/multiplayer"],
+        "exceptions": [
+          "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5g",
+        "state": "complete",
+        "paths": ["src/pages/api/matches", "src/pages-modules/api"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5h",
+        "state": "complete",
+        "paths": ["src/lib"],
+        "exceptions": [
+          "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+          "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+          "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U5i",
+        "state": "complete",
+        "paths": ["src/pages-modules/multiplayer"],
+        "exceptions": [
+          "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U8",
+        "state": "complete",
+        "paths": ["src/pages/api/campaigns"],
+        "exceptions": [
+          "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "U9",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U10",
+        "state": "complete",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U11",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U12",
+        "state": "blocked",
+        "paths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U12b",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U13",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U17",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U17b",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U14",
+        "state": "complete",
+        "paths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          "package.json",
+          ".oxlintrc.json"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U9b",
+        "state": "complete",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U63",
+        "state": "planned",
+        "paths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U64",
+        "state": "blocked",
+        "paths": [".github/workflows/pr-checks.yml", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U65",
+        "state": "blocked",
+        "paths": [
+          "src/kernel/__tests__/KernelBoundary.test.ts",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U66",
+        "state": "blocked",
+        "paths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          ".github/workflows/pr-checks.yml"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U67",
+        "state": "blocked",
+        "paths": [
+          "src/utils/gameplay/movement",
+          "src/utils/gameplay/movement.ts",
+          "src/utils/gameplay/pilotingSkillRolls",
+          "src/utils/gameplay/pilotingSkillRolls.ts",
+          "src/utils/gameplay/spaModifiers",
+          "src/utils/gameplay/spaModifiers.ts",
+          "src/utils/gameplay/standUpRules.ts",
+          "src/utils/gameplay/physicalAttacks",
+          "src/utils/gameplay/__tests__",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U68",
+        "state": "blocked",
+        "paths": ["src/components/customizer", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U69",
+        "state": "blocked",
+        "paths": ["src/stores", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U70",
+        "state": "blocked",
+        "paths": [".oxlintrc.json", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U71",
+        "state": "blocked",
+        "paths": [
+          "src/services/units/unitLoaderService",
+          "src/stores",
+          ".oxlintrc.json",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U72",
+        "state": "blocked",
+        "paths": [
+          "src/components/spa",
+          "src/lib/spa/designation",
+          "src/services/printing",
+          ".oxlintrc.json",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U73",
+        "state": "blocked",
+        "paths": [
+          "src/engine",
+          "src/stores",
+          "src/components/gameplay/pages/preBattle"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U74",
+        "state": "blocked",
+        "paths": [
+          "src/lib/combat/acar.ts",
+          "src/lib/combat/__tests__/acar.test.ts",
+          "src/lib/combat/__tests__/acar.test-helpers.ts",
+          ".oxlintrc.json",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U75",
+        "state": "blocked",
+        "paths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          "package.json",
+          ".github/workflows/pr-checks.yml"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U76",
+        "state": "blocked",
+        "paths": [
+          "src/lib/spa/designation",
+          "src/stores",
+          "src/types/gameplay",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U77",
+        "state": "blocked",
+        "paths": [
+          "src/types/gameplay",
+          "src/utils/gameplay/aerospace",
+          "src/utils/gameplay/infantry",
+          "src/utils/gameplay/protomech",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U78",
+        "state": "blocked",
+        "paths": [
+          "src/services/printing",
+          "src/services/unit-card",
+          "src/services/pilot-mech-card",
+          "src/services/assets",
+          "src/types/printing",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U79",
+        "state": "planned",
+        "paths": [
+          "scripts/megameklab-conversion",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U80",
+        "state": "blocked",
+        "paths": [
+          "config",
+          "scripts/mm-data",
+          "scripts/__tests__",
+          "package.json"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U81",
+        "state": "blocked",
+        "paths": [
+          ".github/actions/setup-node-and-install/action.yml",
+          ".github/workflows/pr-checks.yml",
+          ".github/workflows/release.yml",
+          "Dockerfile",
+          "scripts/__tests__"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U82",
+        "state": "blocked",
+        "paths": ["public/data/units", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U83",
+        "state": "blocked",
+        "paths": ["package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U84",
+        "state": "blocked",
+        "paths": ["package.json"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U85",
+        "state": "blocked",
+        "paths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U99",
+        "state": "planned",
+        "paths": [
+          "openspec/specs/coop-campaign-sync/spec.md",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U100",
+        "state": "planned",
+        "paths": ["src/lib/campaign"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U101",
+        "state": "planned",
+        "paths": [
+          "src/pages/api/multiplayer/auth",
+          "src/lib/multiplayer/server"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U103",
+        "state": "planned",
+        "paths": ["scripts/qc", "scripts/__tests__"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U104",
+        "state": "planned",
+        "paths": ["src/pages-modules/api", "src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U105",
+        "state": "planned",
+        "paths": ["src/lib/campaign", "src/lib/multiplayer/server"],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U101a",
+        "state": "planned",
+        "paths": [
+          "src/pages/api/multiplayer/auth",
+          "src/lib/multiplayer/server",
+          "src/lib/api/securitySchemas.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U101b",
+        "state": "planned",
+        "paths": [
+          "src/pages/multiplayer/index.tsx",
+          "src/pages/multiplayer/lobby/[roomCode].tsx",
+          "src/pages/multiplayer/spectate/[matchId].tsx",
+          "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+          "src/pages-modules/multiplayer/multiplayerAuthTokenStore.ts",
+          "src/lib/multiplayer/client/issuePlayerToken.ts",
+          "src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U101c",
+        "state": "planned",
+        "paths": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/lib/campaign"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "U101d",
+        "state": "planned",
+        "paths": [
+          "server.js",
+          "scripts/validate-multiplayer-packaged-socket.mjs",
+          "src/lib/multiplayer/server",
+          "src/lib/api/securitySchemas.ts",
+          "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts",
+          "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts"
+        ],
+        "exceptions": [],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-0",
+        "state": "blocked",
+        "paths": [
+          "openspec/changes/design-campaign-authority-and-sync/design.md",
+          "openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md",
+          "openspec/changes/design-campaign-authority-and-sync/specs/campaign-access-projection/spec.md"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-1",
+        "state": "blocked",
+        "paths": [
+          "server.js",
+          "desktop/electron/main.server.ts",
+          "desktop/electron/main.window.ts",
+          "desktop/electron/__tests__/main.server.test.ts",
+          "desktop/electron/__tests__/main.window.security.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/authority/CampaignOperatorCredential.ts",
+          "src/pages/api/campaign-local-session.ts",
+          "src/pages-modules/api/campaignAccess.ts",
+          "src/lib/campaign/authority/__tests__/CampaignOperatorCredential.test.ts",
+          "src/pages-modules/api/__tests__/campaignAccess.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-2",
+        "state": "blocked",
+        "paths": [
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/pages/gameplay/campaigns/index.tsx",
+          "src/lib/campaign/hooks/useCampaignActivityFeed.ts",
+          "src/lib/campaign/encounter/readCampaignLaunchHead.ts",
+          "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/authority/campaignCredentialClient.ts",
+          "src/lib/campaign/authority/__tests__/campaignCredentialClient.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-4",
+        "state": "blocked",
+        "paths": [
+          "e2e/fixtures/campaign.ts",
+          "e2e/helpers/scenarioPackLoading.ts",
+          "e2e/helpers/campaignJournalDrive.ts",
+          "e2e/helpers/campaignJournalTwoProcess.ts",
+          "e2e/gm-two-player-restart.pack.spec.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "e2e/helpers/campaignAccessIdentity.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-4J",
+        "state": "blocked",
+        "paths": [
+          "e2e/campaign-flow.spec.ts",
+          "e2e/saved-custom-combat.spec.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-campaign-ledger-control-plane.spec.ts",
+          "e2e/campaign-two-device-drive.spec.ts",
+          "e2e/campaign-journal-two-process-convergence.spec.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-3R",
+        "state": "blocked",
+        "paths": [
+          "src/pages/api/campaigns/[id].ts",
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "src/pages-modules/api/campaignActivityRoute.ts",
+          "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "src/__tests__/api/campaigns/campaigns.test.ts",
+          "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-3",
+        "state": "blocked",
+        "paths": [
+          "src/pages/api/campaigns/index.ts",
+          "src/pages/api/campaigns/[id].ts",
+          "src/pages/api/campaigns/[id]/adopt.ts",
+          "src/__tests__/api/campaigns/campaigns.test.ts",
+          "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
+          "e2e/campaign-access-isolation.spec.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-5",
+        "state": "blocked",
+        "paths": [
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/pages/api/campaigns/[id]/grants.ts",
+          "src/lib/campaign/grants/campaignShareService.ts",
+          "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
+          "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-5R",
+        "state": "blocked",
+        "paths": [
+          "src/pages/api/campaigns/redeem.ts",
+          "src/pages/api/campaigns/[id]/replica-sync.ts",
+          "src/pages/api/campaigns/[id]/commands.ts",
+          "src/pages/api/campaigns/[id]/rewind-preview.ts",
+          "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
+          "src/__tests__/api/campaigns/rewindPreviewRoute.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-PRIV",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server/joinableLobbies.ts",
+          "src/lib/multiplayer/server/__tests__/joinableLobbies.test.ts",
+          "src/__tests__/unit/api/multiplayerLobbies.test.ts",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/__tests__/api/securityBoundary.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-review.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-main.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-6",
+        "state": "blocked",
+        "paths": [
+          "README.md",
+          "docker-compose.yml",
+          "playtest/checklists/coop-uat.md",
+          "docs/releases/v2.2.0-topology.md"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "docs/deployment/campaign-hosting.md"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-S",
+        "state": "blocked",
+        "paths": ["openspec/specs/fog-of-war/spec.md"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-K",
+        "state": "blocked",
+        "paths": ["src/utils/gameplay", "src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-B",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server", "src/types/gameplay"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-L",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/components/multiplayer",
+          "src/utils/gameplay"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-R",
+        "state": "blocked",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-H",
+        "state": "blocked",
+        "paths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/pages/api/multiplayer"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "FOG-X",
+        "state": "blocked",
+        "paths": [
+          "e2e",
+          "src/lib/multiplayer/server",
+          "openspec/specs/fog-of-war/spec.md"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "DF-SHEET-QV",
+        "state": "blocked",
+        "paths": [
+          "src/services/printing/recordsheet/mechTypeUtils.ts",
+          "src/services/printing/recordsheet/__tests__"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "DF-MECH-RULES",
+        "state": "blocked",
+        "paths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "DF-MECH-CONFIG",
+        "state": "blocked",
+        "paths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "DF-MECH-META",
+        "state": "blocked",
+        "paths": [
+          "scripts/megameklab-conversion",
+          "scripts/__tests__",
+          "public/data/equipment/_schema/unit-schema.json",
+          "src/types/contracts/generated/unit.zod.ts",
+          "src/types/contracts/__tests__/unit.contract.test.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "EQ-ID",
+        "state": "blocked",
+        "paths": ["scripts/analysis", "scripts/__tests__"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "DF-BLK-ENGINE",
+        "state": "blocked",
+        "paths": ["scripts/megameklab-conversion", "scripts/__tests__"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "DF-CATALOG-PIN",
+        "state": "blocked",
+        "paths": ["config", "scripts/__tests__"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "COOP-PACK-GEN",
+        "state": "blocked",
+        "paths": [
+          "e2e",
+          "scripts/qc",
+          "scripts/__tests__",
+          "src/lib/scenarioPacks/__tests__/coopPackCoverage.test.ts",
+          "openspec/specs/scenario-packs/spec.md"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "CF-SMOKEA1-4",
+        "state": "blocked",
+        "paths": [
+          ".gitignore",
+          "package.json",
+          ".github/workflows/pr-checks.yml",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "CF-SMOKEA1-6",
+        "state": "blocked",
+        "paths": [
+          "package.json",
+          ".oxfmtignore",
+          ".husky",
+          "scripts/__tests__"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-AUTH-LIMIT",
+        "state": "blocked",
+        "paths": [
+          "src/lib/api/security.ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/__tests__/api/vault/unlock.test.ts"
+        ],
+        "exceptions": [
+          "src/lib/api/__tests__/security.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-local.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-AUTH-ORIGIN",
+        "state": "blocked",
+        "paths": [
+          "src/lib/api/security.ts",
+          "src/pages/api/multiplayer/auth/token.ts",
+          "src/pages/api/vault/identity/unlock.ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/__tests__/api/vault/unlock.test.ts"
+        ],
+        "exceptions": [
+          "src/lib/api/__tests__/security.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-local.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-WIRE",
+        "state": "blocked",
+        "paths": [
+          "src/types/multiplayer/Player.ts",
+          "src/lib/multiplayer/server/__tests__/auth.test.ts"
+        ],
+        "exceptions": [
+          "src/types/multiplayer/__tests__/Player.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-local.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "B15-INV",
+        "state": "blocked",
+        "paths": [
+          "src/pages/api/multiplayer/invites/[roomCode].ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/lib/api/security.ts"
+        ],
+        "exceptions": [
+          "src/lib/api/__tests__/security.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-local.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "L2-GUI-SMOKE",
+        "state": "blocked",
+        "paths": [
+          ".github/workflows/pr-checks.yml",
+          "desktop/scripts/test-build.js"
+        ],
+        "exceptions": [
+          "desktop/scripts/validate-packaged-launch.js",
+          "desktop/scripts/__tests__/validate-packaged-launch.test.js",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-local.json"
+        ],
+        "literalLeaves": null
+      },
+      {
+        "id": "MP-REWIND-DICE-1",
+        "state": "planned",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json"
+        ],
+        "literalLeaves": [
+          "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+          "src/lib/multiplayer/server/ServerMatchHost.ts",
+          "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+        ]
+      },
+      {
+        "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
+        "state": "planned",
+        "paths": ["src/lib/multiplayer/server"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+        ],
+        "literalLeaves": [
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ]
+      },
+      {
+        "id": "LSC-SALVAGE-1",
+        "state": "blocked",
+        "paths": [
+          "e2e",
+          "src/stores/campaign",
+          "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+          "src/types/campaign/Salvage.ts"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-review-20261019.json"
+        ],
+        "literalLeaves": [
+          "e2e/campaign-economy-browser.spec.ts",
+          "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+          "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+          "src/stores/campaign/__tests__/salvageUnitEnrollment.test.ts",
+          "src/stores/campaign/campaignBayActions.ts",
+          "src/stores/campaign/salvageUnitEnrollment.ts",
+          "src/types/campaign/Salvage.ts"
+        ]
+      }
+    ],
+    "openPRs": [
+      {
+        "headRefName": "work/rewind-dice-closure-20261020",
+        "headRefOid": "7f72975ea61279f8242cd1e4cd087018cbdc8494",
+        "number": 2319,
+        "title": "docs(roadmap): close MP-REWIND-DICE-1 and route carry-forwards",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-npm-ci-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-owned-json.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-owned-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-server-json.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-server-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-typecheck-log.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-mainproof-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-merge-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-owner-ruling-6301768235.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-owner-ruling-6301768235.txt",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-source-opus-review-20261020.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-source-opus-review-20261020.txt",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefName": "codex/l1-smoke-a2f-20261020",
+        "headRefOid": "d0868008c83c7f290a0c3203b74243df64886e0c",
+        "number": 2318,
+        "title": "docs(roadmap): record A2F admission sizing stop at 646 formatted lines",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json"
+        ]
+      },
+      {
+        "headRefName": "codex/lsc-2-split-registration-sol-20261020",
+        "headRefOid": "a70523eeb55f26becf7c4bd70342ee343aa96ab8",
+        "number": 2317,
+        "title": "docs(roadmap): register ruled LSC-2C and LSC-2O serial split",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-split-registration-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-split-root-ruling-20261020.txt",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefName": "codex/mp-campaign-host-dedupe-20261019",
+        "headRefOid": "c3eb20afa28a6d5d630f55511e892e26c2b341cb",
+        "number": 2313,
+        "title": "fix(multiplayer): deduplicate concurrent campaign host creation",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ]
+      },
+      {
+        "headRefName": "codex/thread-transfer-history-20261002",
+        "headRefOid": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "number": 2113,
+        "title": "docs(audits): preserve complete thread-transfer history",
+        "files": [
+          "docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+          "docs/audits/2026-10-02-thread-transfer/README.md",
+          "docs/audits/2026-10-02-thread-transfer/START-HERE.md",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0072.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0073.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0074.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0075.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0076.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0077.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0078.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0079.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0080.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0081.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0082.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0083.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0084.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0085.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0086.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0087.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0088.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0089.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0090.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0091.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0092.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0093.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0094.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0095.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0096.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0097.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0098.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0099.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0100.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0101.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0102.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0103.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0104.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0105.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0106.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0107.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0108.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0109.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0110.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0111.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0112.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0113.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0114.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0115.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0116.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0117.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0118.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0119.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0120.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0121.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0122.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0123.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0124.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0125.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0126.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0127.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0128.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0129.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0130.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0131.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0132.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0133.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0134.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0135.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0136.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0137.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0138.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0139.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0140.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0141.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0142.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0143.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0144.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0145.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0146.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0147.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0148.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0149.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0150.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0151.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0152.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0153.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0154.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0155.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0156.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0157.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0158.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0159.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0160.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0161.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0162.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0163.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0164.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0165.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0166.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0167.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0168.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0169.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0170.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0171.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0172.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0173.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0174.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0175.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0176.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0177.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0178.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0179.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0180.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0181.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0182.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0183.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0184.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0185.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0186.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0187.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0188.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0189.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0190.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0191.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0192.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0193.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0194.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0195.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0196.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0197.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0198.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0199.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0200.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0201.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0202.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0203.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0204.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0205.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0206.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0207.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0208.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0209.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0210.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0211.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0212.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0213.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0214.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0215.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0216.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0217.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0218.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0219.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0220.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0221.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0222.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0223.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0224.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0225.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0226.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0227.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0228.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0229.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0230.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0231.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0232.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0233.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0234.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0235.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0236.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0237.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0238.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0239.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0240.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0241.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0242.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0243.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0244.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0245.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0246.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0247.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0248.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0249.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0250.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0251.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0252.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0253.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0254.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0255.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0256.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0257.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0258.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0259.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0260.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0261.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0262.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0263.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0264.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0265.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0266.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0267.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0268.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0269.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0270.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0271.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0272.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0273.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0274.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0275.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0276.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0277.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0278.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0279.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0280.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0281.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0282.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0283.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0284.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0285.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0286.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0287.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0288.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0289.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0290.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0291.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0292.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0293.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0294.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0295.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0296.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0297.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0298.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0299.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0300.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0301.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0302.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0303.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0304.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0305.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0306.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0307.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0308.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0309.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0310.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0311.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0312.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0313.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0314.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0315.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0316.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0317.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0318.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0319.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0320.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0321.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0322.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0323.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0324.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0325.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0326.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0327.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0328.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0329.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0330.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0331.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0332.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0333.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0334.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0335.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0336.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0337.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0338.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0339.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0340.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0341.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0342.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0343.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0344.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0345.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0346.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0347.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0348.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0349.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0350.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0351.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0352.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0353.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0354.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0355.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0356.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0357.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0358.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0359.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0360.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0361.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0362.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0363.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0364.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0365.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0366.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0367.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0368.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0369.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0370.json",
+          "docs/audits/2026-10-02-thread-transfer/historical-153-todos-and-current-override.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-000.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-001.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-002.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-003.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-004.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-005.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-006.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-007.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-008.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-009.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-010.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-011.json",
+          "docs/audits/2026-10-02-thread-transfer/read-archives.mjs"
+        ]
+      },
+      {
+        "headRefName": "roadmap-u2b-e2e-19-25-rows-20260922",
+        "headRefOid": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "number": 1886,
+        "title": "wip(e2e): U2b resumed, E2E-19 green under the privacy-pack arm, E2E-25 refused at the candidate anchor (parked again)",
+        "files": [
+          "e2e/gm-two-player-privacy.pack.spec.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "scripts/qc/gm-two-player-campaign-core.cjs"
+        ]
+      }
+    ],
+    "leaves": [
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-context.mjs",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-reachability.ts",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "exists": false,
+        "containingAliases": [
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B"
+        ],
+        "openPRs": []
+      }
+    ],
+    "qualification": "Effective new literal manifests are disjoint; transferred ordinary leaves were uncreated F reservations. Historical #2315 allocation is superseded only by this partition. scripts aliases are navigation, not broad source ownership. LSC shared-ledger writes are union-merged before each push."
+  },
+  "acceptanceBarrier": "Root merges #2318 before FP admission; all stages, actual scope and formatting counts freshly freeze afterward. Sensitive cadence and all unchanged gates apply. No runtime result, packet, closure or task tick is supplied by registration."
+}
