@@ -138,8 +138,8 @@
     "command": "node node_modules/oxfmt/bin/oxfmt --write --config .oxfmtrc.json <absolute report candidate paths>",
     "candidateFormattedLines": 646,
     "sourceOverCapBy": 146,
-    "progressAddedLines": 8,
-    "prospectiveSourcePlusThisProgress": 654,
+    "progressAddedLines": 10,
+    "prospectiveSourcePlusThisProgress": 656,
     "candidateExecuted": false,
     "candidateComplete": false,
     "interpretation": "Measured design candidate already over cap before all lifecycle work. This is not proof that all possible implementations exceed 500 lines. Three code files are scratch design only; relative imports deliberately name the eventual repository interface and have not been installed/executed. No source admission or runtime claim follows from a successful syntax/format check.",
@@ -3095,5 +3095,22 @@
     "CF-MPRU2-2": "U44 remains owner.",
     "OBS-MPRU2-1": "Next actual MatchRecovery.ts owner; existing conditional routing unchanged."
   },
-  "resumeWhen": "Root qualifies and registers a bounded partition, or a complete normally formatted <=500-line candidate with all required controls is supplied; re-fetch, census and repeat source admission before RED/GREEN."
+  "resumeWhen": "Root qualifies and registers a bounded partition, or a complete normally formatted <=500-line candidate with all required controls is supplied; re-fetch, census and repeat source admission before RED/GREEN.",
+  "hookSetupCorrection": {
+    "initialCommit": "af6a586004e0abd322f0e544136f1d370535e7e3",
+    "finding": "Fresh worktree had core.hooksPath=.husky/_ but no generated launchers. Initial documentary commit therefore did not execute the pre-commit hook despite HUSKY=1.",
+    "repair": "Installed worktree-local generated launchers via heavy-run --lane l1-smoke-a2f --class package --cwd <worktree> -- npm run prepare. No tracked product/config/dependency file changed.",
+    "correctedAdmissionRequirement": "A new corrective admission commit stages this receipt and the appended progress disclosure with hooks enabled. Publication must verify live lint-staged output and unchanged post-hook hashes. Initial commit alone is not an adequate hooks-on admission receipt.",
+    "launchers": [
+      {
+        "path": ".husky/_/pre-commit",
+        "sha256": "34fe496008be71d8fdd446b2cce81e4bb0406109c130eafc583fbd9fe33244e2"
+      },
+      {
+        "path": ".husky/_/h",
+        "sha256": "70200b200ca709b0622784f93839a5b2872333a917a09afddefd7dc2d8cdc680"
+      }
+    ],
+    "redGreen": "Neither stage started; no candidate source leaf has ever been admitted or created."
+  }
 }
