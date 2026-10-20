@@ -2969,3 +2969,11 @@ Effective order: P2CG1S -> B14-0A -> B14-0B -> B14-0 -> B14-HEAD -> P2CG1HP. B14
 Unreadable fog config during live delivery is infrastructure failure: WS 1011; fog-policy refusal stays 1008. Export/private-preview retains its existing HTTP 500 mapping with fixed fog-projection-unavailable reason. New ownership grants are literal multiplayerMatchMeta.test.ts and clientAgainstFogServer.integration.test.ts leaves, not parent directories. S spectator suite transfers to B14-0B only after S closes; securityBoundary.test.ts also has B15-PRIV reservation (and LSC-1 alias), requiring fresh admission census.
 
 Parent ruling resolves the link coordination: change only P2CG1S.successors from B14-0 to B14-0A, retaining P2C and every R/S state, admission and proof field. The registered chain is symmetric; the draft coordination hold is removed.
+
+## L1-SMOKE-A2 admission sizing stop (2026-10-20)
+
+Fetched Main `c24bcedbb` includes closure #2312; all four A2 predecessors are main-verified with PASS mainProof and ancestor merges. A2 remains planned. Evidence `evidence/l1-smoke-a2-admission-20261020.json` freezes this three-file documentary diff, the read-only A1 controls and the current candidate leaves. It records 624 normally formatted lines in an incomplete sizing draft before the runner, legal phase/public-barrier provisioning, ordinary co-op mission setup and lifecycle work. No source admission, RED/GREEN or runtime acceptance is claimed.
+
+Propose serial L1-SMOKE-A2F (trusted fixtures/provisioning), L1-SMOKE-A2M (all nine matrix/reconnect/restart controls), then a narrowed A2 (co-op restart/captured rolls, concurrent first sockets and final composition). These are proposals only; Root must register/qualify their manifests and edges, and every unit must independently fit the unchanged 15-file/500-counted-line caps. Original acceptance, A1 frozen modules and downstream B/H gates remain intact.
+
+Correct A2's stale release text and omitted RECOVERY-2 predecessor. Restate CF-MPRU2-3/CF-MPHD-5 in A2 and CF-MPRU2-2 in U44; U44 carries OBS-MPRU2-1 conditionally for the next genuine MatchRecovery.ts owner. No other unit lifecycle, roadmap edge, historical receipt or packet changes.
