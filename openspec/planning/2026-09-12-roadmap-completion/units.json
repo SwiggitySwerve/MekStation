@@ -13618,7 +13618,7 @@
       "id": "U44",
       "node": "R4.S7",
       "taskKeys": [],
-      "behavior": "After the flip, every recovery and rewind journal read takes its database from the match store's capability handle (store.isCapabilityDbAvailable() / capabilityDatabase()), not getSQLiteService(). That covers MatchRecoveryJournalHead, tryFoldActivatedRewindBranch and the rebuild lease hold and release at ServerMatchHostRewindRebuild.ts:135, :219, :254. A match whose head cannot be read is refused, typed; it no longer falls back to headFromLegacyEvents or selectMatchRollbackReader (ServerMatchHost.ts:1457-1466; MatchRecoveryJournalHead.ts:91-94). The S7-d tri-state in matchJournalAuthorityStartedDerived.ts collapses, and the R4.S3 marker table, read port and batch field (R4.S3 residual OQ-2) are deleted under OD-mvp-hard-cutover. Riders: the remaining 'not wired/owed' comments and the stale 'NOT CLAIMED: event-at-a-time' note are rewritten to match main. The stale it.failing at src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts:391-419 is deleted; the passing test at :455 pins the opposite, correct rule. Red-first: a closed capability DB at recovery falls back silently today and is refused typed after. If over cap, the residue deletion becomes a following R4.S7 unit. CF-MPRU2-2: a rewound-at-boot accepted action is still fenced by rollback-reader-blocked:missing-journal-head after branch activation without a matching command receipt; witness an accepted action when repairing the recovery/cutover path. OBS-MPRU2-1: the next frozen owner of MatchRecovery.ts must assess triple unit derivation at boot. U44 is the recovery/cutover routing point: acknowledge this observation if its admission freezes MatchRecovery.ts, otherwise carry it to that next file owner. This routing note grants no additional source ownership.",
+      "behavior": "After the flip, every recovery and rewind journal read takes its database from the match store's capability handle (store.isCapabilityDbAvailable() / capabilityDatabase()), not getSQLiteService(). That covers MatchRecoveryJournalHead, tryFoldActivatedRewindBranch and the rebuild lease hold and release at ServerMatchHostRewindRebuild.ts:135, :219, :254. A match whose head cannot be read is refused, typed; it no longer falls back to headFromLegacyEvents or selectMatchRollbackReader (ServerMatchHost.ts:1457-1466; MatchRecoveryJournalHead.ts:91-94). The S7-d tri-state in matchJournalAuthorityStartedDerived.ts collapses, and the R4.S3 marker table, read port and batch field (R4.S3 residual OQ-2) are deleted under OD-mvp-hard-cutover. Riders: the remaining 'not wired/owed' comments and the stale 'NOT CLAIMED: event-at-a-time' note are rewritten to match main. The stale it.failing at src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts:391-419 is deleted; the passing test at :455 pins the opposite, correct rule. Red-first: a closed capability DB at recovery falls back silently today and is refused typed after. If over cap, the residue deletion becomes a following R4.S7 unit. CF-MPRU2-2: a rewound-at-boot accepted action is still fenced by rollback-reader-blocked:missing-journal-head after branch activation without a matching command receipt; witness an accepted action when repairing the recovery/cutover path. OBS-MPRU2-1: the next frozen owner of MatchRecovery.ts must assess triple unit derivation at boot. U44 is the recovery/cutover routing point: acknowledge this observation if its admission freezes MatchRecovery.ts, otherwise carry it to that next file owner. This routing note grants no additional source ownership. CF-MPRD-1 (Low): Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file. CF-MPRD-2 (Low): Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it. CF-MPRD-3 (Info): Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations. CF-MPRD-1..3 are routing/admission notes only: retain the existing 15-file/500-counted-addition cap and freeze exact leaves before work; split or forward anything outside that freeze. No source ownership expands under this closure.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/lib/events/journal",
@@ -19529,7 +19529,20 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-source-opus-review-20261020.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-source-opus-review-20261020.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-owner-ruling-6301768235.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-owner-ruling-6301768235.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-merge-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-mainproof-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-server-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-server-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-typecheck-log.bytes.json"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -19540,17 +19553,41 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "main-verified",
+      "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+      "prHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+      "mergeSha": "664f8c13f7d59dd3d53212309993fac9a23e655b",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "admission": {
+          "path": "evidence/mp-rewind-dice-1-admission-20261019.json"
+        },
+        "red": {
+          "path": "evidence/mp-rewind-dice-1-red-20261019.json"
+        },
+        "local": {
+          "path": "evidence/mp-rewind-dice-1-local-20261019.json"
+        },
+        "review": {
+          "path": "evidence/mp-rewind-dice-1-review-20261019.json",
+          "head": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+          "reviewedHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+          "reviewerModel": "claude-opus",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/mp-rewind-dice-1-merge-20261020.json",
+          "pr": 2316,
+          "head": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+          "mergeSha": "664f8c13f7d59dd3d53212309993fac9a23e655b"
+        },
+        "mainProof": {
+          "path": "evidence/mp-rewind-dice-1-mainproof-20261020.json",
+          "mergeCommit": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+          "verdict": "PASS",
+          "runtime": "Main Jest: Tests:       1595 passed, 1595 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -19568,7 +19605,50 @@
         "source": "evidence/l1-followups2-registration-20261019.json",
         "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
         "sourceAdmitted": false
-      }
+      },
+      "reviewedHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+      "carryForwardRouting20261020": [
+        {
+          "id": "CF-MPRD-1",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHost.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file."
+        },
+        {
+          "id": "CF-MPRD-2",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "U44 / next journal-authority owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it."
+        },
+        {
+          "id": "CF-MPRD-3",
+          "severity": "Info",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHostRewindRebuild.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations."
+        },
+        {
+          "id": "CF-MPRD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "co-op AI owner, to register",
+          "status": "open registration follow-up; no named registered target unit",
+          "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+        },
+        {
+          "id": "CF-MPRD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "journal-authority owner, to register",
+          "status": "open registration follow-up; no named registered target unit for this divergence repair",
+          "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+        }
+      ]
     },
     {
       "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
@@ -24066,6 +24146,104 @@
         "author": "SwiggitySwerve",
         "bodySha256": "121486facf69be0a41b63c9056a2ab5c4a27152e5793fe5a29eebfa3e2780266"
       }
+    },
+    {
+      "id": "PK-mp-rewind-dice-1-ruling",
+      "blocks": [
+        "MP-REWIND-DICE-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the owner accept the exact independently reviewed host-capture wiring after live GM rewind?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Accept the bounded fix and genuine exact-main proof; retain all five routed carry-forwards and release only newly eligible declared successors.",
+          "effort": "Independent Opus sensitive review, source RED/GREEN and mutants, 32 successful source CI checks, exact-head owner ruling and exact-main proof"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold closure until concrete findings and acceptance requirements are satisfied.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Record the existing owner ruling. Route CF-MPRD-1..3 into U44 admission text as the planned host/rebuild routing point; keep CF-MPRD-4 and CF-MPRD-5 as explicit open registration follow-ups for Root. This grants no source scope.",
+      "revertCost": "Reverting restores uncaptured seeded dice after live rewind; no schema or wire migration.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-20T21:22:18Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2316#issuecomment-6301768235"
+      },
+      "ruling": {
+        "ruledHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+        "pr": 2316,
+        "commentId": 6301768235,
+        "author": "SwiggitySwerve",
+        "bodySha256": "bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d"
+      },
+      "carryForwards": [
+        {
+          "id": "CF-MPRD-1",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHost.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file."
+        },
+        {
+          "id": "CF-MPRD-2",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "U44 / next journal-authority owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it."
+        },
+        {
+          "id": "CF-MPRD-3",
+          "severity": "Info",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHostRewindRebuild.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations."
+        },
+        {
+          "id": "CF-MPRD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "co-op AI owner, to register",
+          "status": "open registration follow-up; no named registered target unit",
+          "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+        },
+        {
+          "id": "CF-MPRD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "journal-authority owner, to register",
+          "status": "open registration follow-up; no named registered target unit for this divergence repair",
+          "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+        }
+      ],
+      "openRegistrationFollowUps": [
+        {
+          "id": "CF-MPRD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "co-op AI owner, to register",
+          "status": "open registration follow-up; no named registered target unit",
+          "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+        },
+        {
+          "id": "CF-MPRD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "journal-authority owner, to register",
+          "status": "open registration follow-up; no named registered target unit for this divergence repair",
+          "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+        }
+      ]
     }
   ],
   "deferrals": [

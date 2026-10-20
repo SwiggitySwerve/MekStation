@@ -1,0 +1,104 @@
+{
+  "unit": "MP-REWIND-DICE-1",
+  "stage": "review",
+  "recordedAt": "2026-10-20T21:28:30.908Z",
+  "head": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+  "reviewedHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+  "reviewerModel": "claude-opus",
+  "reviewerModelNote": "Root identifies the independent reviewer as Opus; no unreported model version is inferred.",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "classes": [
+    "authority",
+    "replay"
+  ],
+  "outputPath": "evidence/mp-rewind-dice-1-source-opus-review-20261020.txt",
+  "outputSha256": "69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a",
+  "outputBytes": 14244,
+  "outputEnvelope": {
+    "path": "evidence/mp-rewind-dice-1-source-opus-review-20261020.bytes.json",
+    "payloadSha256": "69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a",
+    "payloadBytes": 14244
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/pr2316-mp-rewind-dice-review.md",
+  "byteExact": true,
+  "ownerRuling": {
+    "ruledHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+    "pr": 2316,
+    "commentId": 6301768235,
+    "author": "SwiggitySwerve",
+    "bodySha256": "bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d",
+    "at": "2026-10-20T21:22:18Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2316#issuecomment-6301768235",
+    "bodyPath": "evidence/mp-rewind-dice-1-owner-ruling-6301768235.txt",
+    "bodyBytes": 2144,
+    "envelope": {
+      "path": "evidence/mp-rewind-dice-1-owner-ruling-6301768235.bytes.json",
+      "payloadSha256": "bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d",
+      "payloadBytes": 2144
+    },
+    "copyEqualsLive": true,
+    "copyEqualsRootSource": true
+  },
+  "carryForwards": [
+    {
+      "id": "CF-MPRD-1",
+      "severity": "Low",
+      "owner": "U44",
+      "target": "next frozen ServerMatchHost.ts owner",
+      "status": "open; receiving-unit admission note",
+      "item": "Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file."
+    },
+    {
+      "id": "CF-MPRD-2",
+      "severity": "Low",
+      "owner": "U44",
+      "target": "U44 / next journal-authority owner",
+      "status": "open; receiving-unit admission note",
+      "item": "Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it."
+    },
+    {
+      "id": "CF-MPRD-3",
+      "severity": "Info",
+      "owner": "U44",
+      "target": "next frozen ServerMatchHostRewindRebuild.ts owner",
+      "status": "open; receiving-unit admission note",
+      "item": "Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations."
+    },
+    {
+      "id": "CF-MPRD-4",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "co-op AI owner, to register",
+      "status": "open registration follow-up; no named registered target unit",
+      "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+    },
+    {
+      "id": "CF-MPRD-5",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "journal-authority owner, to register",
+      "status": "open registration follow-up; no named registered target unit for this divergence repair",
+      "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+    }
+  ],
+  "openRegistrationFollowUps": [
+    {
+      "id": "CF-MPRD-4",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "co-op AI owner, to register",
+      "status": "open registration follow-up; no named registered target unit",
+      "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+    },
+    {
+      "id": "CF-MPRD-5",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "journal-authority owner, to register",
+      "status": "open registration follow-up; no named registered target unit for this divergence repair",
+      "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+    }
+  ]
+}
