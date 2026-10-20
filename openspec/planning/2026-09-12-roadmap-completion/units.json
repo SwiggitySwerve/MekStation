@@ -26784,9 +26784,7 @@
       {
         "id": "live-gm-rewind-dice",
         "status": "pending",
-        "units": [
-          "MP-REWIND-DICE-1"
-        ],
+        "units": ["MP-REWIND-DICE-1"],
         "requirement": "Before v2.2.0 ships or claims live GM rewind, require MP-REWIND-DICE-1 exact-main mainProof PASS, fetched-main ancestry and closure; on the exact release candidate witness a real post-rewind dice-producing command, crypto capture stamped into persisted/broadcast events and faithful replay. H/I activation is not this proof."
       }
     ],
