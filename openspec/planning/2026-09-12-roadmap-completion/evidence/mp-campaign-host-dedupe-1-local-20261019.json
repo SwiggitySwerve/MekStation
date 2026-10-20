@@ -3,7 +3,7 @@
   "stage": "local",
   "verdict": "PASS_REVIEW_REQUIRED",
   "at": "2026-10-20T20:25:36.234Z",
-  "baseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
   "implementation": "One in-flight promise per matchId (the existing campaign-session key). Publish before yielding; return the same pending promise; finally removes success, null and rejection with identity-guarded cleanup.",
   "testSha256": "d1fb1f8de2a764cce045708478056c0c766a7961f8465ac274ece8c5126a63ef",
   "registrySha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9",
@@ -208,5 +208,27 @@
     }
   ],
   "limits": "No new browser or production built-image probe. Deduplication is process-local and keyed by existing matchId, not a cross-replica lock. Direct register/dispose concurrency and reset during pending registration are pre-existing lifecycle behavior outside this getOrCreate repair. Existing invite, pause, branch and revision behavior is retained and regression-tested.",
-  "review": "Full exact-head Claude Opus review and owner ruling remain pending. Review receipt slot is reserved, not populated with synthetic approval."
+  "review": "Full exact-head Claude Opus review and owner ruling remain pending. Review receipt slot is reserved, not populated with synthetic approval.",
+  "originalBaseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "restack": {
+    "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+    "admissionBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "at": "2026-10-20T20:25:53.944Z",
+    "headBefore": "7d77292c6158b4663d3fa582dc94f34f9c0ea5d3",
+    "headAfterRebase": "2db74ef5b3d1253a03d3d23589696a780d121a99",
+    "sourceBefore": [
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "blob": "a1e6f624fecb517308dacec1d8c0f25f89dc5f2b",
+        "sha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "blob": "d8aef732e7416d093a6bb2a838a50d60371e24da",
+        "sha256": "d1fb1f8de2a764cce045708478056c0c766a7961f8465ac274ece8c5126a63ef"
+      }
+    ],
+    "sourceTestAndDependenciesEqualAtBases": true,
+    "proof": "RED captured on original baseline. GREEN source/test blobs are unchanged by rebase; metadata is verified against current Main. No completed runtime proof repeated."
+  }
 }

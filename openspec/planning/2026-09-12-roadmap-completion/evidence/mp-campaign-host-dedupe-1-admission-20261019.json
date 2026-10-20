@@ -3,7 +3,7 @@
   "stage": "admission",
   "status": "ADMITTED",
   "recordedAt": "2026-10-20T19:36:02.571Z",
-  "baseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
   "authority": "Root GATE OPEN after #2310; resume at standard Sol tier. Admission, RED, GREEN, PR and REVIEW_READY only; Root owns independent Claude Opus review and ruling.",
   "manifest": {
     "files": [
@@ -1166,5 +1166,27 @@
     }
   ],
   "design": "Publish one in-flight promise before yielding; share metadata read and register result per key; finally evicts success, null and rejection so later calls retry. Preserve existing host reuse, durable register, rebuild pause and expired invite semantics. Direct register and dispose concurrency are outside this getOrCreate repair.",
-  "review": "Pending full exact-head Claude Opus review; no review acceptance or owner ruling claimed."
+  "review": "Pending full exact-head Claude Opus review; no review acceptance or owner ruling claimed.",
+  "originalBaseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "restack": {
+    "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+    "admissionBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "at": "2026-10-20T20:25:53.944Z",
+    "headBefore": "7d77292c6158b4663d3fa582dc94f34f9c0ea5d3",
+    "headAfterRebase": "2db74ef5b3d1253a03d3d23589696a780d121a99",
+    "sourceBefore": [
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "blob": "a1e6f624fecb517308dacec1d8c0f25f89dc5f2b",
+        "sha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "blob": "d8aef732e7416d093a6bb2a838a50d60371e24da",
+        "sha256": "d1fb1f8de2a764cce045708478056c0c766a7961f8465ac274ece8c5126a63ef"
+      }
+    ],
+    "sourceTestAndDependenciesEqualAtBases": true,
+    "proof": "RED captured on original baseline. GREEN source/test blobs are unchanged by rebase; metadata is verified against current Main. No completed runtime proof repeated."
+  }
 }
