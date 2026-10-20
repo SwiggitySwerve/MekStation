@@ -1,0 +1,3099 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2F",
+  "stage": "admission",
+  "date": "2026-10-20",
+  "baseline": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+  "outcome": "STOP: formatted sizing candidate exceeds 500-line cap",
+  "sourceAdmitted": false,
+  "sourceImplemented": false,
+  "contributor": {
+    "model": "gpt-6.1-sol",
+    "role": "implementation lane",
+    "lane": "l1-smoke-a2f"
+  },
+  "authority": {
+    "gate": "Root opened A2F after #2315 merged as a69540e25, Astra APPROVE and OWNER-RULING comment 6301741730. If F still does not fit, stop at admission with measurements. Union-merge Main before each push.",
+    "standingOwnerInstruction": "continue with recommended options and fix the issues that come up, publish as needed",
+    "counting": "CF-SMOKEA1-3 Root ruling adopted normal repository oxfmt counting prospectively; A1 historical receipt stands."
+  },
+  "paths": {
+    "ledger": "openspec/planning/2026-09-12-roadmap-completion",
+    "validator": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "reports": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/l1-smoke-a2f"
+  },
+  "sensitivity": {
+    "classes": ["privacy", "authority"],
+    "reason": "Authoritative accepted intents, spectator privacy, stale assignments, durable GM membership and stopped-private-DB mutation. This documentary stop asserts no runtime PASS or sensitive packet completion."
+  },
+  "frozenManifest": {
+    "kind": "admission-stop documentary writes only",
+    "literalLeaves": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md"
+    ],
+    "files": 2,
+    "baselineHashes": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json",
+        "exists": false,
+        "sha256": null
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "exists": true,
+        "sha256": "3577228b7f02a07ab6ada0dd478ed39cbbfb5d91cc2395b9d7ccfef18ca00f65"
+      }
+    ],
+    "sourceCandidateReservedButUnwritten": [
+      "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "scripts/release/l1-built-server-spectator-context.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+    ],
+    "prospectiveFullStageManifestNotAdmitted": [
+      "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "scripts/release/l1-built-server-spectator-context.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
+    ],
+    "protectedControls": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "bytes": 16500,
+        "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "bytes": 15615,
+        "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "bytes": 3309,
+        "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "bytes": 25830,
+        "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+      },
+      {
+        "path": "server.js",
+        "bytes": 32625,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+      },
+      {
+        "path": "package.json",
+        "bytes": 35833,
+        "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 656778,
+        "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80"
+      },
+      {
+        "path": ".oxfmtrc.json",
+        "bytes": 318,
+        "sha256": "aeec1cd8f81f3f4cfa1b0af19bbfeb8188a9a022671cd1e8c8196f44e2346be1"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "bytes": 2139189,
+        "sha256": "5c27e236e9aa1204c083400fcebcdbcbaef20e83ab6251c27b923567bca149f9"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "bytes": 1232331,
+        "sha256": "c475466f2a06253a25a06876f4e94f62422cab005966b31fb4a93b069667d2e2"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "bytes": 53627,
+        "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "bytes": 36989,
+        "sha256": "efd3a17cea64b29a3566aa13051e8300083abef32f359547a1e9f53d6cdb35c3"
+      }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "unchanged": true,
+    "rule": "Aggregate actual git-added lines after normal repository oxfmt formatting; no deletion credit. Tests and evidence line-exempt, every actual unique file counted. PROGRESS/lifecycle additions counted. No minification or hooks bypass."
+  },
+  "sizing": {
+    "formatter": "oxfmt 0.28.0",
+    "configSha256": "aeec1cd8f81f3f4cfa1b0af19bbfeb8188a9a022671cd1e8c8196f44e2346be1",
+    "command": "node node_modules/oxfmt/bin/oxfmt --write --config .oxfmtrc.json <absolute report candidate paths>",
+    "candidateFormattedLines": 646,
+    "sourceOverCapBy": 146,
+    "progressAddedLines": 8,
+    "prospectiveSourcePlusThisProgress": 654,
+    "candidateExecuted": false,
+    "candidateComplete": false,
+    "interpretation": "Measured design candidate already over cap before all lifecycle work. This is not proof that all possible implementations exceed 500 lines. Three code files are scratch design only; relative imports deliberately name the eventual repository interface and have not been installed/executed. No source admission or runtime claim follows from a successful syntax/format check.",
+    "unresolvedCountedWork": [
+      "Select the active phase unit and matching authenticated principal from the real activation order; the current draft assumes the host acts first, which cryptographic initiative does not guarantee.",
+      "Observe an actual correlated declaration on the separate non-spectating-GM socket; durable GM branding and actor identity alone do not establish this positive delivery control.",
+      "Strengthen declaration/precondition checks with canonical position, legal weapon/limb, still-eligible second actor, explicit reveal-event mapping and phase-specific lock witnesses.",
+      "Qualify fixture-only campaign registration and durable membership against actual built-image recovery, without presenting it as ordinary co-op campaign/mission provisioning.",
+      "Freeze read-only witness versus mutation entry points and validate untrusted CLI JSON structurally; falsify live PID, foreign/redirected DB, unexpected state and missing positive witnesses.",
+      "Remaining lifecycle/progress additions, accepted-command falsifiers and genuine privacy/authority review packet before local-verified."
+    ],
+    "draft": [
+      {
+        "proposedPath": "scripts/release/l1-built-server-spectator-context.mjs",
+        "reportPath": "feasibility/l1-built-server-spectator-context.mjs",
+        "formattedLines": 221,
+        "bytes": 6561,
+        "sha256": "99aa86124196ac669387170e6cca30ec243197b9ab793a8a72cc3539291a41a7",
+        "encoding": "base64",
+        "content": "LyoqIFVuYWRtaXR0ZWQgc2l6aW5nIGNhbmRpZGF0ZS4gTm8gcnVudGltZSBjbGFpbTsgaW1wb3J0cyByZXNvbHZlIG9ubHkgYWZ0ZXIgYWRtaXNzaW9uLiAqLwppbXBvcnQgeyBjcmVhdGVIYXNoIH0gZnJvbSAnbm9kZTpjcnlwdG8nOwppbXBvcnQgcGF0aCBmcm9tICdub2RlOnBhdGgnOwoKaW1wb3J0IHsKICBhcGksCiAgaXNzdWVJZGVudGl0eSwKICBvcGVuU29ja2V0LAp9IGZyb20gJy4vbDEtYnVpbHQtc2VydmVyLXNvY2tldC1jYXNlcy5tanMnOwoKZXhwb3J0IGNvbnN0IEFVRElFTkNFUyA9IE9iamVjdC5mcmVlemUoWwogIHsgaWQ6ICdwbGF5ZXItc3RhbGUnLCBicmFuZDogJ3BsYXllcicsIHN0YWxlOiB0cnVlIH0sCiAgeyBpZDogJ2dtLXN0YWxlJywgYnJhbmQ6ICdnbScsIHN0YWxlOiB0cnVlIH0sCiAgeyBpZDogJ2dtLXVuYXNzaWduZWQnLCBicmFuZDogJ2dtJywgc3RhbGU6IGZhbHNlIH0sCiAgeyBpZDogJ2dtLXBhcnRpY2lwYW50JywgYnJhbmQ6ICdnbScsIHN0YWxlOiBmYWxzZSwgcGFydGljaXBhbnQ6IHRydWUgfSwKXSk7CmV4cG9ydCBjb25zdCBDT01NQU5EUyA9IE9iamVjdC5mcmVlemUoWwogIHsga2luZDogJ01vdmUnLCBwaGFzZTogJ21vdmVtZW50JywgdHlwZTogJ21vdmVtZW50X2RlY2xhcmVkJywgYWR2YW5jZXM6IDEgfSwKICB7CiAgICBraW5kOiAnQXR0YWNrJywKICAgIHBoYXNlOiAnd2VhcG9uX2F0dGFjaycsCiAgICB0eXBlOiAnYXR0YWNrX2RlY2xhcmVkJywKICAgIGFkdmFuY2VzOiAyLAogIH0sCiAgewogICAga2luZDogJ1BoeXNpY2FsJywKICAgIHBoYXNlOiAncGh5c2ljYWxfYXR0YWNrJywKICAgIHR5cGU6ICdwaHlzaWNhbF9hdHRhY2tfZGVjbGFyZWQnLAogICAgYWR2YW5jZXM6IDMsCiAgfSwKXSk7CmNvbnN0IGRpZ2VzdCA9ICh2YWx1ZSkgPT4KICBjcmVhdGVIYXNoKCdzaGEyNTYnKS51cGRhdGUoSlNPTi5zdHJpbmdpZnkodmFsdWUpKS5kaWdlc3QoJ2hleCcpOwpleHBvcnQgY29uc3QgVFJVU1RFRF9TQ1JJUFQgPSBuZXcgVVJMKAogICcuL2wxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3ItdHJ1c3RlZC1maXh0dXJlcy50cycsCiAgaW1wb3J0Lm1ldGEudXJsLAopOwoKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGFjY2VwdGVkKGN0eCwgY29ubiwgaW50ZW50LCB0eXBlKSB7CiAgY29uc3QgcmVzdWx0ID0gYXdhaXQgY29ubi5pbnRlbnQoaW50ZW50KTsKICBjdHguY2hlY2soCiAgICByZXN1bHQucmVwbHkua2luZCA9PT0gJ0V2ZW50JyAmJgogICAgICByZXN1bHQucmVwbHkuZXZlbnQudHlwZSA9PT0gdHlwZSAmJgogICAgICByZXN1bHQucmVwbHkuZXZlbnQucGF5bG9hZC5pbnRlbnRJZCA9PT0gcmVzdWx0LmludGVudElkLAogICAgJ2FjY2VwdGVkLWNvbW1hbmQnLAogICAgJ21pc3NpbmcgY29ycmVsYXRlZCBhdXRob3JpdGF0aXZlIGRlY2xhcmF0aW9uJywKICAgIHsgaW50ZW50LCByZXN1bHQgfSwKICApOwogIHJldHVybiByZXN1bHQ7Cn0KCi8qKiBQcm9kdWN0aW9uIEhUVFAgYW5kIHNlcmlhbCBzb2NrZXRzIG9ubHk7IG5vIGluamVjdGVkIGRlY2xhcmF0aW9uIG9yIHNvdXJjZS1ob3N0IGNhbGwuICovCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBwcm92aXNpb24oY3R4LCBsYWJlbCwgYXVkaWVuY2UgPSBBVURJRU5DRVNbMF0pIHsKICBjb25zdCBob3N0ID0gYXdhaXQgaXNzdWVJZGVudGl0eShjdHgsIGAke2xhYmVsfS1ob3N0YCk7CiAgY29uc3QgaG9sZGVyID0gYXdhaXQgaXNzdWVJZGVudGl0eShjdHgsIGAke2xhYmVsfS1ob2xkZXJgKTsKICBjb25zdCB3YXRjaGVyID0gYXVkaWVuY2UucGFydGljaXBhbnQKICAgID8gaG9zdAogICAgOiBhd2FpdCBpc3N1ZUlkZW50aXR5KGN0eCwgYCR7bGFiZWx9LXdhdGNoZXJgKTsKICBjb25zdCB1bml0Qm9vdHN0cmFwID0gWwogICAgewogICAgICB1bml0SWQ6ICdmaXh0dXJlLWFjdG9yJywKICAgICAgdW5pdFJlZjogJ2F0bGFzLWFzNy1kJywKICAgICAgc2lkZTogJ3BsYXllcicsCiAgICAgIHN0YXJ0SGV4OiB7IHE6IDAsIHI6IDAgfSwKICAgIH0sCiAgICB7CiAgICAgIHVuaXRJZDogJ2ZpeHR1cmUtaG9sZGVyJywKICAgICAgdW5pdFJlZjogJ2F0bGFzLWFzNy1kJywKICAgICAgc2lkZTogJ29wcG9uZW50JywKICAgICAgc3RhcnRIZXg6IHsgcTogMCwgcjogLTEgfSwKICAgIH0sCiAgXTsKICBjb25zdCBjcmVhdGVkID0gYXdhaXQgYXBpKGN0eCwgJ1BPU1QnLCAnL2FwaS9tdWx0aXBsYXllci9tYXRjaGVzJywgaG9zdCwgewogICAgY29uZmlnOiB7IG1hcFJhZGl1czogNCwgdHVybkxpbWl0OiA1LCBmb2dPZldhcjogZmFsc2UgfSwKICAgIGxheW91dDogJzF2MScsCiAgICBkaXNwbGF5TmFtZTogbGFiZWwsCiAgICB1bml0Qm9vdHN0cmFwLAogIH0pOwogIGN0eC5jaGVjayhjcmVhdGVkLnN0YXR1cyA9PT0gMjAxLCBsYWJlbCwgJ29yZGluYXJ5IGNyZWF0ZSBmYWlsZWQnLCBjcmVhdGVkKTsKICBjb25zdCBtYXRjaElkID0gY3JlYXRlZC5qc29uLm1hdGNoSWQ7CiAgY29uc3QgYWN0b3IgPSBhd2FpdCBvcGVuU29ja2V0KGN0eCwgaG9zdCwgbWF0Y2hJZCk7CiAgYXdhaXQgYWN0b3Iuam9pbigpOwogIGNvbnN0IG90aGVyID0gYXdhaXQgb3BlblNvY2tldChjdHgsIGhvbGRlciwgbWF0Y2hJZCk7CiAgYXdhaXQgb3RoZXIuam9pbigpOwogIGZvciAoY29uc3QgW2Nvbm4sIGludGVudF0gb2YgWwogICAgW290aGVyLCB7IGtpbmQ6ICdPY2N1cHlTZWF0Jywgc2xvdElkOiAnYnJhdm8tMScgfV0sCiAgICBbb3RoZXIsIHsga2luZDogJ1NldFJlYWR5Jywgc2xvdElkOiAnYnJhdm8tMScsIHJlYWR5OiB0cnVlIH1dLAogICAgW2FjdG9yLCB7IGtpbmQ6ICdTZXRSZWFkeScsIHNsb3RJZDogJ2FscGhhLTEnLCByZWFkeTogdHJ1ZSB9XSwKICAgIFthY3RvciwgeyBraW5kOiAnTGF1bmNoTWF0Y2gnIH1dLAogIF0pIHsKICAgIGNvbnN0IHsgcmVwbHkgfSA9IGF3YWl0IGNvbm4uaW50ZW50KGludGVudCk7CiAgICBjdHguY2hlY2soCiAgICAgIHJlcGx5LmtpbmQgPT09ICdMb2JieVVwZGF0ZWQnLAogICAgICBsYWJlbCwKICAgICAgJ29yZGluYXJ5IGxvYmJ5IGludGVudCByZWZ1c2VkJywKICAgICAgcmVwbHksCiAgICApOwogICAgaWYgKGludGVudC5raW5kID09PSAnTGF1bmNoTWF0Y2gnKQogICAgICBjdHguY2hlY2socmVwbHkuc3RhdHVzID09PSAnYWN0aXZlJywgbGFiZWwsICdsYXVuY2ggaW5hY3RpdmUnLCByZXBseSk7CiAgfQogIGlmICghYXVkaWVuY2UucGFydGljaXBhbnQpIHsKICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGFwaSgKICAgICAgY3R4LAogICAgICAnUE9TVCcsCiAgICAgIGAvYXBpL211bHRpcGxheWVyL21hdGNoZXMvJHttYXRjaElkfS9zcGVjdGF0ZWAsCiAgICAgIHdhdGNoZXIsCiAgICApOwogICAgY3R4LmNoZWNrKHJlc3VsdC5zdGF0dXMgPT09IDIwMSwgbGFiZWwsICdvcmRpbmFyeSBzcGVjdGF0ZSBmYWlsZWQnLCByZXN1bHQpOwogIH0KICByZXR1cm4gewogICAgbGFiZWwsCiAgICBhdWRpZW5jZSwKICAgIG1hdGNoSWQsCiAgICB1bml0Qm9vdHN0cmFwLAogICAgaWRlbnRpdGllczogeyBob3N0LCBob2xkZXIsIHdhdGNoZXIgfSwKICAgIGFjdG9yLAogICAgaG9sZGVyOiBvdGhlciwKICB9Owp9CgovKiogQWR2YW5jZSB3aXRob3V0IGRlY2xhcmluZyBmb3IgZWl0aGVyIHVuaXQ7IHRoZSBob2xkZXIgcmVtYWlucyBhdmFpbGFibGUgdG8gd2l0aGhvbGQgcmV2ZWFsLiAqLwpleHBvcnQgYXN5bmMgZnVuY3Rpb24gcGhhc2VSZWFkeShjdHgsIHN0YXRlLCBjb21tYW5kKSB7CiAgZm9yIChsZXQgaW5kZXggPSAwOyBpbmRleCA8IGNvbW1hbmQuYWR2YW5jZXM7IGluZGV4ICs9IDEpIHsKICAgIGNvbnN0IHsgcmVwbHkgfSA9IGF3YWl0IHN0YXRlLmFjdG9yLmludGVudCh7IGtpbmQ6ICdBZHZhbmNlUGhhc2UnIH0pOwogICAgY3R4LmNoZWNrKAogICAgICByZXBseS5raW5kID09PSAnRXZlbnQnLAogICAgICBzdGF0ZS5sYWJlbCwKICAgICAgJ3BoYXNlIGFkdmFuY2UgcmVmdXNlZCcsCiAgICAgIHJlcGx5LAogICAgKTsKICB9CiAgY29uc3QgbWV0YSA9IGF3YWl0IGFwaSgKICAgIGN0eCwKICAgICdHRVQnLAogICAgYC9hcGkvbXVsdGlwbGF5ZXIvbWF0Y2hlcy8ke3N0YXRlLm1hdGNoSWR9YCwKICAgIHN0YXRlLmlkZW50aXRpZXMuaG9zdCwKICApOwogIGN0eC5jaGVjaygKICAgIG1ldGEuc3RhdHVzID09PSAyMDAgJiYgbWV0YS5qc29uLm1ldGEuc3RhdHVzID09PSAnYWN0aXZlJywKICAgIHN0YXRlLmxhYmVsLAogICAgJ21ldGFkYXRhIG1pc3NpbmcnLAogICAgbWV0YSwKICApOwogIHN0YXRlLmFjdG9yLmNsb3NlKCk7CiAgc3RhdGUuaG9sZGVyLmNsb3NlKCk7CiAgYXdhaXQgY3R4LnN0b3AoKTsKICBjb25zdCByZXF1ZXN0ID0gewogICAgbWF0Y2hJZDogc3RhdGUubWF0Y2hJZCwKICAgIHdhdGNoZXJJZDogc3RhdGUuaWRlbnRpdGllcy53YXRjaGVyLnBsYXllcklkLAogICAgaG9sZGVySWQ6IHN0YXRlLmlkZW50aXRpZXMuaG9sZGVyLnBsYXllcklkLAogICAgYWN0b3JJZDogc3RhdGUuaWRlbnRpdGllcy5ob3N0LnBsYXllcklkLAogICAgYXVkaWVuY2U6IHN0YXRlLmF1ZGllbmNlLAogICAgY29tbWFuZCwKICAgIHVuaXRCb290c3RyYXA6IHN0YXRlLnVuaXRCb290c3RyYXAsCiAgICBleHBlY3RlZE1ldGFTaGEyNTY6IGRpZ2VzdChtZXRhLmpzb24ubWV0YSksCiAgICBleHBlY3RlZERiOiBwYXRoLmpvaW4oY3R4LmV2aWRlbmNlLmRpciwgJ2RiJywgJ3Ntb2tlLnNxbGl0ZScpLAogIH07CiAgY29uc3QgcHJlcGFyZWQgPSBhd2FpdCBjdHgucHJlcGFyZU9mZmxpbmUoCiAgICBUUlVTVEVEX1NDUklQVC5wYXRobmFtZS5yZXBsYWNlKC9eXC8oLjpcLykvLCAnJDEnKSwKICAgIFsncHJlcGFyZScsIGAtLXJlcXVlc3Q9JHtKU09OLnN0cmluZ2lmeShyZXF1ZXN0KX1gXSwKICApOwogIGN0eC5jaGVjaygKICAgIHByZXBhcmVkLmFmdGVyLnBoYXNlID09PSBjb21tYW5kLnBoYXNlICYmIHByZXBhcmVkLmV2ZW50c1VuY2hhbmdlZCwKICAgIHN0YXRlLmxhYmVsLAogICAgJ3RydXN0ZWQgZml4dHVyZSBkYW1hZ2VkIHBoYXNlL2hpc3RvcnknLAogICAgcHJlcGFyZWQsCiAgKTsKICBhd2FpdCBjdHgucmVzdGFydCgpOwogIGNvbnN0IGFjdG9yID0gYXdhaXQgb3BlblNvY2tldChjdHgsIHN0YXRlLmlkZW50aXRpZXMuaG9zdCwgc3RhdGUubWF0Y2hJZCk7CiAgYXdhaXQgYWN0b3Iuam9pbigpOwogIGNvbnN0IGhvbGRlciA9IGF3YWl0IG9wZW5Tb2NrZXQoY3R4LCBzdGF0ZS5pZGVudGl0aWVzLmhvbGRlciwgc3RhdGUubWF0Y2hJZCk7CiAgYXdhaXQgaG9sZGVyLmpvaW4oKTsKICBjb25zdCB3YXRjaGVyID0gc3RhdGUuYXVkaWVuY2UucGFydGljaXBhbnQKICAgID8gYWN0b3IKICAgIDogYXdhaXQgb3BlblNvY2tldChjdHgsIHN0YXRlLmlkZW50aXRpZXMud2F0Y2hlciwgc3RhdGUubWF0Y2hJZCk7CiAgaWYgKHdhdGNoZXIgIT09IGFjdG9yKSBhd2FpdCB3YXRjaGVyLmpvaW4oKTsKICByZXR1cm4geyAuLi5zdGF0ZSwgYWN0b3IsIGhvbGRlciwgd2F0Y2hlciwgY29tbWFuZCwgcmVxdWVzdCwgcHJlcGFyZWQgfTsKfQoKZXhwb3J0IGZ1bmN0aW9uIGNvbW1hbmRGb3Ioc3RhdGUpIHsKICBjb25zdCBhdHRhY2tlcklkID0gJ2ZpeHR1cmUtYWN0b3InOwogIGNvbnN0IHRhcmdldElkID0gJ2ZpeHR1cmUtaG9sZGVyJzsKICBzd2l0Y2ggKHN0YXRlLmNvbW1hbmQua2luZCkgewogICAgY2FzZSAnTW92ZSc6CiAgICAgIHJldHVybiB7CiAgICAgICAga2luZDogJ01vdmUnLAogICAgICAgIHVuaXRJZDogYXR0YWNrZXJJZCwKICAgICAgICB0bzogeyBxOiAtMSwgcjogMCB9LAogICAgICAgIGZhY2luZzogMCwKICAgICAgICBtb3ZlbWVudFR5cGU6ICd3YWxrJywKICAgICAgfTsKICAgIGNhc2UgJ0F0dGFjayc6CiAgICAgIHJldHVybiB7CiAgICAgICAga2luZDogJ0F0dGFjaycsCiAgICAgICAgYXR0YWNrZXJJZCwKICAgICAgICB0YXJnZXRJZCwKICAgICAgICB3ZWFwb25JZHM6IFtzdGF0ZS5wcmVwYXJlZC5hZnRlci53ZWFwb25JZF0sCiAgICAgIH07CiAgICBjYXNlICdQaHlzaWNhbCc6CiAgICAgIHJldHVybiB7CiAgICAgICAga2luZDogJ1BoeXNpY2FsJywKICAgICAgICBhdHRhY2tlcklkLAogICAgICAgIHRhcmdldElkLAogICAgICAgIGF0dGFja1R5cGU6ICdwdW5jaCcsCiAgICAgICAgbGltYjogJ2xlZnRBcm0nLAogICAgICB9OwogICAgZGVmYXVsdDoKICAgICAgdGhyb3cgbmV3IEVycm9yKCd1bmtub3duIGZpeHR1cmUgY29tbWFuZCcpOwogIH0KfQoKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIHdpdG5lc3MoY3R4LCBzdGF0ZSkgewogIGZvciAoY29uc3QgY29ubiBvZiBuZXcgU2V0KFtzdGF0ZS5hY3Rvciwgc3RhdGUuaG9sZGVyLCBzdGF0ZS53YXRjaGVyXSkpCiAgICBjb25uLmNsb3NlKCk7CiAgYXdhaXQgY3R4LnN0b3AoKTsKICBjb25zdCByZXN1bHQgPSBhd2FpdCBjdHgucHJlcGFyZU9mZmxpbmUoCiAgICBUUlVTVEVEX1NDUklQVC5wYXRobmFtZS5yZXBsYWNlKC9eXC8oLjpcLykvLCAnJDEnKSwKICAgIFsnd2l0bmVzcycsIGAtLXJlcXVlc3Q9JHtKU09OLnN0cmluZ2lmeShzdGF0ZS5yZXF1ZXN0KX1gXSwKICApOwogIHJldHVybiByZXN1bHQ7Cn0K"
+      },
+      {
+        "proposedPath": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "reportPath": "feasibility/l1-built-server-spectator-trusted-fixtures.ts",
+        "formattedLines": 272,
+        "bytes": 8594,
+        "sha256": "21421dd2422a8c8f299ef57a6a59238ecbe77a5cdd8b63a2fe3b1f87d7a415e0",
+        "encoding": "base64",
+        "content": "LyoqIFVuYWRtaXR0ZWQgc2l6aW5nIGNhbmRpZGF0ZS4gQnJhbmQvYXNzaWdubWVudCBvbmx5OyBubyBjb21iYXQgaGlzdG9yeSB3cml0ZXMuICovCmltcG9ydCBEYXRhYmFzZSBmcm9tICdiZXR0ZXItc3FsaXRlMyc7CmltcG9ydCB7IGNyZWF0ZUhhc2ggfSBmcm9tICdub2RlOmNyeXB0byc7CmltcG9ydCBmcyBmcm9tICdub2RlOmZzJzsKaW1wb3J0IHBhdGggZnJvbSAnbm9kZTpwYXRoJzsKaW1wb3J0IHsgcGF0aFRvRmlsZVVSTCB9IGZyb20gJ25vZGU6dXJsJzsKCmltcG9ydCB0eXBlIHsgSU1hdGNoTWV0YSB9IGZyb20gJ0AvbGliL211bHRpcGxheWVyL3NlcnZlci9JTWF0Y2hTdG9yZSc7CmltcG9ydCB0eXBlIHsgSUdhbWVFdmVudCB9IGZyb20gJ0AvdHlwZXMvZ2FtZXBsYXkvR2FtZVNlc3Npb25JbnRlcmZhY2VzJzsKCmltcG9ydCB7IGFkYXB0VW5pdEZyb21EYXRhIH0gZnJvbSAnQC9lbmdpbmUvYWRhcHRlcnMvQ29tcGVuZGl1bUFkYXB0ZXInOwppbXBvcnQgeyBnZXROb2RlQ2Fub25pY2FsVW5pdFNlcnZpY2UgfSBmcm9tICdAL3NlcnZpY2VzL3VuaXRzL05vZGVDYW5vbmljYWxVbml0U2VydmljZSc7CmltcG9ydCB7IGh5ZHJhdGVHYW1lU2Vzc2lvbkZyb21FdmVudHMgfSBmcm9tICdAL3V0aWxzL2dhbWVwbGF5L2dhbWVTZXNzaW9uJzsKCmltcG9ydCB7IG9wZW5TdG9wcGVkRGIsIHJlYWRNYXRjaE1ldGEgfSBmcm9tICcuL2wxLWJ1aWx0LXNlcnZlci1maXh0dXJlcyc7CgppbnRlcmZhY2UgSVJlcXVlc3QgewogIG1hdGNoSWQ6IHN0cmluZzsKICB3YXRjaGVySWQ6IHN0cmluZzsKICBob2xkZXJJZDogc3RyaW5nOwogIGFjdG9ySWQ6IHN0cmluZzsKICBleHBlY3RlZERiOiBzdHJpbmc7CiAgZXhwZWN0ZWRNZXRhU2hhMjU2OiBzdHJpbmc7CiAgYXVkaWVuY2U6IHsKICAgIGlkOiBzdHJpbmc7CiAgICBicmFuZDogJ3BsYXllcicgfCAnZ20nOwogICAgc3RhbGU6IGJvb2xlYW47CiAgICBwYXJ0aWNpcGFudD86IGJvb2xlYW47CiAgfTsKICBjb21tYW5kOiB7IGtpbmQ6IHN0cmluZzsgcGhhc2U6IHN0cmluZzsgdHlwZTogc3RyaW5nIH07CiAgdW5pdEJvb3RzdHJhcDogSU1hdGNoTWV0YVsndW5pdEJvb3RzdHJhcCddOwp9CmludGVyZmFjZSBJTWVtYmVyIHsKICBwYXJ0aWNpcGFudF9pZDogc3RyaW5nOwogIHNlYXQ6IHN0cmluZzsKICByZXZva2VkX2F0OiBzdHJpbmcgfCBudWxsOwp9CmNvbnN0IGhhc2ggPSAodmFsdWU6IHVua25vd24pID0+CiAgY3JlYXRlSGFzaCgnc2hhMjU2JykudXBkYXRlKEpTT04uc3RyaW5naWZ5KHZhbHVlKSkuZGlnZXN0KCdoZXgnKTsKY29uc3QgcmVxdWlyZVN0YXRlID0gKG9rOiB1bmtub3duLCBtZXNzYWdlOiBzdHJpbmcpOiB2b2lkID0+IHsKICBpZiAoIW9rKSB0aHJvdyBuZXcgRXJyb3IoYGZpeHR1cmU6ICR7bWVzc2FnZX1gKTsKfTsKCmV4cG9ydCBmdW5jdGlvbiBvcGVuUHJpdmF0ZSgKICBkYlBhdGg6IHN0cmluZywKICBwaWQ6IG51bWJlciwKICBleHBlY3RlZDogc3RyaW5nLAopOiBEYXRhYmFzZS5EYXRhYmFzZSB7CiAgcmVxdWlyZVN0YXRlKAogICAgcGF0aC5pc0Fic29sdXRlKGV4cGVjdGVkKSAmJgogICAgICBwYXRoLnJlc29sdmUoZGJQYXRoKSA9PT0gcGF0aC5yZXNvbHZlKGV4cGVjdGVkKSwKICAgICdmb3JlaWduIERCIHBhdGgnLAogICk7CiAgcmVxdWlyZVN0YXRlKAogICAgZnMucmVhbHBhdGhTeW5jKGRiUGF0aCkgPT09IHBhdGgucmVzb2x2ZShleHBlY3RlZCksCiAgICAncmVkaXJlY3RlZCBEQiBwYXRoJywKICApOwogIGNvbnN0IGd1YXJkID0gb3BlblN0b3BwZWREYihkYlBhdGgsIHBpZCk7CiAgZ3VhcmQuY2xvc2UoKTsKICByZXR1cm4gbmV3IERhdGFiYXNlKGRiUGF0aCwgeyBmaWxlTXVzdEV4aXN0OiB0cnVlIH0pOwp9CgpmdW5jdGlvbiBldmVudHMoZGI6IERhdGFiYXNlLkRhdGFiYXNlLCBtYXRjaElkOiBzdHJpbmcpOiBJR2FtZUV2ZW50W10gewogIGNvbnN0IHJvd3MgPSBkYgogICAgLnByZXBhcmUoCiAgICAgICdTRUxFQ1QgZXZlbnRfanNvbiBGUk9NIG1wX21hdGNoX2V2ZW50cyBXSEVSRSBtYXRjaF9pZCA9ID8gT1JERVIgQlkgc2VxdWVuY2UnLAogICAgKQogICAgLnBsdWNrKCkKICAgIC5hbGwobWF0Y2hJZCkgYXMgc3RyaW5nW107CiAgcmV0dXJuIHJvd3MubWFwKChyb3cpID0+IEpTT04ucGFyc2Uocm93KSBhcyBJR2FtZUV2ZW50KTsKfQoKZXhwb3J0IGZ1bmN0aW9uIGluc3BlY3QoZGI6IERhdGFiYXNlLkRhdGFiYXNlLCBpbnB1dDogSVJlcXVlc3QpIHsKICBjb25zdCBtZXRhID0gcmVhZE1hdGNoTWV0YShkYiwgaW5wdXQubWF0Y2hJZCk7CiAgcmVxdWlyZVN0YXRlKAogICAgbWV0YS5zdGF0dXMgPT09ICdhY3RpdmUnICYmIG1ldGEuY29uZmlnLmZvZ09mV2FyID09PSBmYWxzZSwKICAgICdhY3RpdmUgZm9nLW9mZiBtYXRjaCByZXF1aXJlZCcsCiAgKTsKICByZXF1aXJlU3RhdGUobWV0YS5ob3N0UGxheWVySWQgPT09IGlucHV0LmFjdG9ySWQsICd1bmV4cGVjdGVkIGhvc3QnKTsKICByZXF1aXJlU3RhdGUoCiAgICBoYXNoKG1ldGEudW5pdEJvb3RzdHJhcCkgPT09IGhhc2goaW5wdXQudW5pdEJvb3RzdHJhcCksCiAgICAndW5leHBlY3RlZCBjYW5vbmljYWwgYm9vdHN0cmFwJywKICApOwogIGNvbnN0IHNlYXRzID0gbWV0YS5zZWF0cyA/PyBbXTsKICBjb25zdCBvd25lZCA9IHNlYXRzLmZpbHRlcigKICAgIChzZWF0KSA9PiBzZWF0Lm9jY3VwYW50Py5wbGF5ZXJJZCA9PT0gaW5wdXQud2F0Y2hlcklkLAogICk7CiAgcmVxdWlyZVN0YXRlKAogICAgb3duZWQubGVuZ3RoID09PSAxICYmCiAgICAgIG93bmVkWzBdLmtpbmQgPT09IChpbnB1dC5hdWRpZW5jZS5wYXJ0aWNpcGFudCA/ICdodW1hbicgOiAnc3BlY3RhdG9yJyksCiAgICAndW5leHBlY3RlZCBjdXJyZW50IHdhdGNoZXIgc2VhdCcsCiAgKTsKICByZXF1aXJlU3RhdGUoCiAgICBzZWF0cy5zb21lKAogICAgICAoc2VhdCkgPT4KICAgICAgICBzZWF0LmtpbmQgPT09ICdodW1hbicgJiYgc2VhdC5vY2N1cGFudD8ucGxheWVySWQgPT09IGlucHV0LmhvbGRlcklkLAogICAgKSwKICAgICdzZWNvbmQgYWN0b3IgbWlzc2luZycsCiAgKTsKICBjb25zdCBoaXN0b3J5ID0gZXZlbnRzKGRiLCBpbnB1dC5tYXRjaElkKTsKICBjb25zdCBzZXNzaW9uID0gaHlkcmF0ZUdhbWVTZXNzaW9uRnJvbUV2ZW50cyhpbnB1dC5tYXRjaElkLCBoaXN0b3J5KTsKICByZXF1aXJlU3RhdGUoCiAgICBzZXNzaW9uLmN1cnJlbnRTdGF0ZS5waGFzZSA9PT0gaW5wdXQuY29tbWFuZC5waGFzZSwKICAgICd3cm9uZyBwaGFzZScsCiAgKTsKICBjb25zdCBhY3RvciA9IHNlc3Npb24uY3VycmVudFN0YXRlLnVuaXRzWydmaXh0dXJlLWFjdG9yJ107CiAgY29uc3QgaG9sZGVyID0gc2Vzc2lvbi5jdXJyZW50U3RhdGUudW5pdHNbJ2ZpeHR1cmUtaG9sZGVyJ107CiAgcmVxdWlyZVN0YXRlKAogICAgYWN0b3IgJiYgaG9sZGVyICYmIGFjdG9yLnNpZGUgIT09IGhvbGRlci5zaWRlLAogICAgJ3R3byBjYW5vbmljYWwgYWN0b3JzIG1pc3NpbmcnLAogICk7CiAgY29uc3QgY2Fub25pY2FsID0gZ2V0Tm9kZUNhbm9uaWNhbFVuaXRTZXJ2aWNlKCkuZ2V0QnlJZFN5bmMoJ2F0bGFzLWFzNy1kJyk7CiAgcmVxdWlyZVN0YXRlKGNhbm9uaWNhbCwgJ2Nhbm9uaWNhbCBBdGxhcyB1bmF2YWlsYWJsZScpOwogIGlmICghY2Fub25pY2FsKSB0aHJvdyBuZXcgRXJyb3IoJ2Nhbm9uaWNhbCBsb29rdXAgZmFpbGVkJyk7CiAgY29uc3QgYWRhcHRlZCA9IGFkYXB0VW5pdEZyb21EYXRhKGNhbm9uaWNhbCwgeyBzaWRlOiBhY3Rvci5zaWRlIH0pOwogIGNvbnN0IHdlYXBvbiA9IGFkYXB0ZWQud2VhcG9ucy5maW5kKChlbnRyeSkgPT4KICAgIGVudHJ5LmlkLmluY2x1ZGVzKCdtZWRpdW0tbGFzZXInKSwKICApOwogIHJlcXVpcmVTdGF0ZSh3ZWFwb24sICdjYW5vbmljYWwgd2VhcG9uIHVuYXZhaWxhYmxlJyk7CiAgY29uc3QgbWVtYmVyc2hpcCA9IG1ldGEuY29vcENhbXBhaWduCiAgICA/IChkYgogICAgICAgIC5wcmVwYXJlKAogICAgICAgICAgJ1NFTEVDVCBwYXJ0aWNpcGFudF9pZCwgc2VhdCwgcmV2b2tlZF9hdCBGUk9NIGNhbXBhaWduX3Nlc3Npb25fcGFydGljaXBhbnQgV0hFUkUgY2FtcGFpZ25faWQgPSA/IEFORCBzZXNzaW9uX2lkID0gPyBBTkQgcmV2b2tlZF9hdCBJUyBOVUxMJywKICAgICAgICApCiAgICAgICAgLmFsbChtZXRhLmNvb3BDYW1wYWlnbi5jYW1wYWlnbklkLCBpbnB1dC5tYXRjaElkKSBhcyBJTWVtYmVyW10pCiAgICA6IFtdOwogIGNvbnN0IGdtID0gbWVtYmVyc2hpcC5maWx0ZXIoKHJvdykgPT4gcm93LnNlYXQgPT09ICdnbScpOwogIHJlcXVpcmVTdGF0ZShnbS5sZW5ndGggPD0gMSwgJ211bHRpcGxlIGFjdGl2ZSBHTXMnKTsKICByZXR1cm4gewogICAgbWV0YSwKICAgIHNlYXRzOiBvd25lZCwKICAgIHBoYXNlOiBzZXNzaW9uLmN1cnJlbnRTdGF0ZS5waGFzZSwKICAgIHR1cm46IHNlc3Npb24uY3VycmVudFN0YXRlLnR1cm4sCiAgICBhY3RvciwKICAgIGhvbGRlciwKICAgIHdlYXBvbklkOiB3ZWFwb24/LmlkLAogICAgYXNzaWdubWVudHM6IG1ldGEuc2lkZUFzc2lnbm1lbnRzLmZpbHRlcigKICAgICAgKHJvdykgPT4gcm93LnBsYXllcklkID09PSBpbnB1dC53YXRjaGVySWQsCiAgICApLAogICAgbWVtYmVyc2hpcCwKICAgIGJyYW5kOiBnbS5zb21lKChyb3cpID0+IHJvdy5wYXJ0aWNpcGFudF9pZCA9PT0gaW5wdXQud2F0Y2hlcklkKQogICAgICA/ICdnbScKICAgICAgOiAncGxheWVyJywKICAgIGV2ZW50c1NoYTI1NjogaGFzaChoaXN0b3J5KSwKICAgIGV2ZW50Q291bnQ6IGhpc3RvcnkubGVuZ3RoLAogICAgZGVjbGFyYXRpb25zOiBoaXN0b3J5LmZpbHRlcigoZXZlbnQpID0+IGV2ZW50LnR5cGUgPT09IGlucHV0LmNvbW1hbmQudHlwZSksCiAgICByZXZlYWxzOiBoaXN0b3J5LmZpbHRlcigoZXZlbnQpID0+IGV2ZW50LnR5cGUuaW5jbHVkZXMoJ3JldmVhbGVkJykpLAogIH07Cn0KCmV4cG9ydCBmdW5jdGlvbiBwcmVwYXJlKGRiOiBEYXRhYmFzZS5EYXRhYmFzZSwgaW5wdXQ6IElSZXF1ZXN0KSB7CiAgcmV0dXJuIGRiLnRyYW5zYWN0aW9uKCgpID0+IHsKICAgIGNvbnN0IGJlZm9yZSA9IGluc3BlY3QoZGIsIGlucHV0KTsKICAgIHJlcXVpcmVTdGF0ZSgKICAgICAgaGFzaChiZWZvcmUubWV0YSkgPT09IGlucHV0LmV4cGVjdGVkTWV0YVNoYTI1NiwKICAgICAgJ3VuZXhwZWN0ZWQgdHJ1c3RlZCBtZXRhZGF0YScsCiAgICApOwogICAgcmVxdWlyZVN0YXRlKAogICAgICBiZWZvcmUuYXNzaWdubWVudHMubGVuZ3RoID09PSAoaW5wdXQuYXVkaWVuY2UucGFydGljaXBhbnQgPyAxIDogMCksCiAgICAgICd1bmV4cGVjdGVkIG9yaWdpbmFsIGFzc2lnbm1lbnQnLAogICAgKTsKICAgIHJlcXVpcmVTdGF0ZSgKICAgICAgYmVmb3JlLmJyYW5kID09PSAncGxheWVyJyAmJiAhYmVmb3JlLm1ldGEuY29vcENhbXBhaWduLAogICAgICAndW5leHBlY3RlZCBvcmlnaW5hbCBicmFuZCcsCiAgICApOwogICAgcmVxdWlyZVN0YXRlKAogICAgICBiZWZvcmUuZGVjbGFyYXRpb25zLmxlbmd0aCA9PT0gMCAmJiBiZWZvcmUucmV2ZWFscy5sZW5ndGggPT09IDAsCiAgICAgICdwcmUtZXhpc3Rpbmcgc2VhbGVkL3JldmVhbGVkIGNvbW1hbmQnLAogICAgKTsKICAgIGNvbnN0IGFzc2lnbm1lbnRzID0gYmVmb3JlLm1ldGEuc2lkZUFzc2lnbm1lbnRzLmZpbHRlcigKICAgICAgKHJvdykgPT4gcm93LnBsYXllcklkICE9PSBpbnB1dC53YXRjaGVySWQsCiAgICApOwogICAgY29uc3QgY2FtcGFpZ25JZCA9IGBmaXh0dXJlLWJyYW5kLSR7aW5wdXQubWF0Y2hJZH1gOwogICAgY29uc3QgbWV0YTogSU1hdGNoTWV0YSA9IHsKICAgICAgLi4uYmVmb3JlLm1ldGEsCiAgICAgIHNpZGVBc3NpZ25tZW50czogaW5wdXQuYXVkaWVuY2UucGFydGljaXBhbnQKICAgICAgICA/IGJlZm9yZS5tZXRhLnNpZGVBc3NpZ25tZW50cwogICAgICAgIDogaW5wdXQuYXVkaWVuY2Uuc3RhbGUKICAgICAgICAgID8gWy4uLmFzc2lnbm1lbnRzLCB7IHBsYXllcklkOiBpbnB1dC53YXRjaGVySWQsIHNpZGU6ICdvcHBvbmVudCcgfV0KICAgICAgICAgIDogYXNzaWdubWVudHMsCiAgICAgIC4uLihpbnB1dC5hdWRpZW5jZS5icmFuZCA9PT0gJ2dtJwogICAgICAgID8gewogICAgICAgICAgICBjb29wQ2FtcGFpZ246IHsKICAgICAgICAgICAgICBjYW1wYWlnbklkLAogICAgICAgICAgICAgIHN0YXRlOiB7CiAgICAgICAgICAgICAgICBjYW1wYWlnbklkLAogICAgICAgICAgICAgICAgZGF5OiAwLAogICAgICAgICAgICAgICAgYmFsYW5jZTogMCwKICAgICAgICAgICAgICAgIHJvc3RlclVuaXRzOiB7fSwKICAgICAgICAgICAgICAgIHBpbG90czoge30sCiAgICAgICAgICAgICAgICBjb250cmFjdHM6IHt9LAogICAgICAgICAgICAgICAgZmFjdGlvblN0YW5kaW5nOiB7fSwKICAgICAgICAgICAgICAgIHNhbHZhZ2VQb29sOiAwLAogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgIH0sCiAgICAgICAgICB9CiAgICAgICAgOiB7fSksCiAgICB9OwogICAgZGIucHJlcGFyZSgnVVBEQVRFIG1wX21hdGNoZXMgU0VUIG1ldGFfanNvbiA9ID8gV0hFUkUgbWF0Y2hfaWQgPSA/JykucnVuKAogICAgICBKU09OLnN0cmluZ2lmeShtZXRhKSwKICAgICAgaW5wdXQubWF0Y2hJZCwKICAgICk7CiAgICBpZiAoaW5wdXQuYXVkaWVuY2UuYnJhbmQgPT09ICdnbScpIHsKICAgICAgZGIucHJlcGFyZShgSU5TRVJUIElOVE8gY2FtcGFpZ25fc2Vzc2lvbl9wYXJ0aWNpcGFudAogICAgICAgIChjYW1wYWlnbl9pZCwgc2Vzc2lvbl9pZCwgcGFydGljaXBhbnRfaWQsIHNlYXQsIGJvdW5kX2F0LCByZXZva2VkX2F0KQogICAgICAgIFZBTFVFUyAoPywgPywgPywgJ2dtJywgPywgTlVMTClgKS5ydW4oCiAgICAgICAgY2FtcGFpZ25JZCwKICAgICAgICBpbnB1dC5tYXRjaElkLAogICAgICAgIGlucHV0LndhdGNoZXJJZCwKICAgICAgICBuZXcgRGF0ZSgpLnRvSVNPU3RyaW5nKCksCiAgICAgICk7CiAgICB9CiAgICBjb25zdCBhZnRlciA9IGluc3BlY3QoZGIsIGlucHV0KTsKICAgIHJlcXVpcmVTdGF0ZSgKICAgICAgYWZ0ZXIuYnJhbmQgPT09IGlucHV0LmF1ZGllbmNlLmJyYW5kLAogICAgICAnYnJhbmQgbm90IGVzdGFibGlzaGVkIGJ5IGR1cmFibGUgR00gcm93JywKICAgICk7CiAgICByZXF1aXJlU3RhdGUoCiAgICAgIGFmdGVyLmFzc2lnbm1lbnRzLmxlbmd0aCA9PT0KICAgICAgICAoaW5wdXQuYXVkaWVuY2Uuc3RhbGUgfHwgaW5wdXQuYXVkaWVuY2UucGFydGljaXBhbnQgPyAxIDogMCksCiAgICAgICdhc3NpZ25tZW50IG5vdCBlc3RhYmxpc2hlZCcsCiAgICApOwogICAgcmVxdWlyZVN0YXRlKAogICAgICBhZnRlci5ldmVudHNTaGEyNTYgPT09IGJlZm9yZS5ldmVudHNTaGEyNTYsCiAgICAgICdjb21iYXQgaGlzdG9yeSBjaGFuZ2VkJywKICAgICk7CiAgICByZXR1cm4gewogICAgICBiZWZvcmUsCiAgICAgIGFmdGVyLAogICAgICBldmVudHNVbmNoYW5nZWQ6IHRydWUsCiAgICAgIGZpeHR1cmVPbmx5Q2FtcGFpZ246IGlucHV0LmF1ZGllbmNlLmJyYW5kID09PSAnZ20nLAogICAgfTsKICB9KSgpOwp9CgppZiAoCiAgcHJvY2Vzcy5hcmd2WzFdICYmCiAgaW1wb3J0Lm1ldGEudXJsID09PSBwYXRoVG9GaWxlVVJMKHBhdGgucmVzb2x2ZShwcm9jZXNzLmFyZ3ZbMV0pKS5ocmVmCikgewogIGNvbnN0IGFyZ3MgPSBwcm9jZXNzLmFyZ3Yuc2xpY2UoMik7CiAgY29uc3QgYXJnID0gKG5hbWU6IHN0cmluZykgPT4KICAgIGFyZ3MKICAgICAgLmZpbmQoKGVudHJ5KSA9PiBlbnRyeS5zdGFydHNXaXRoKGAtLSR7bmFtZX09YCkpCiAgICAgID8uc2xpY2UobmFtZS5sZW5ndGggKyAzKTsKICBjb25zdCBvcGVyYXRpb24gPSBhcmdzLmZpbmQoKGVudHJ5KSA9PiAhZW50cnkuc3RhcnRzV2l0aCgnLS0nKSk7CiAgcmVxdWlyZVN0YXRlKAogICAgb3BlcmF0aW9uID09PSAncHJlcGFyZScgfHwgb3BlcmF0aW9uID09PSAnd2l0bmVzcycsCiAgICAndW5rbm93biBvcGVyYXRpb24nLAogICk7CiAgY29uc3QgaW5wdXQgPSBKU09OLnBhcnNlKGFyZygncmVxdWVzdCcpID8/ICcnKSBhcyBJUmVxdWVzdDsKICByZXF1aXJlU3RhdGUoCiAgICBbJ3BsYXllcicsICdnbSddLmluY2x1ZGVzKGlucHV0LmF1ZGllbmNlLmJyYW5kKSAmJgogICAgICB0eXBlb2YgaW5wdXQuYXVkaWVuY2Uuc3RhbGUgPT09ICdib29sZWFuJywKICAgICdpbnZhbGlkIGF1ZGllbmNlJywKICApOwogIHJlcXVpcmVTdGF0ZSgKICAgIFsnTW92ZScsICdBdHRhY2snLCAnUGh5c2ljYWwnXS5pbmNsdWRlcyhpbnB1dC5jb21tYW5kLmtpbmQpLAogICAgJ2ludmFsaWQgY29tbWFuZCcsCiAgKTsKICBjb25zdCBkYiA9IG9wZW5Qcml2YXRlKAogICAgYXJnKCdkYicpID8/ICcnLAogICAgTnVtYmVyKGFyZygnc3RvcHBlZC1waWQnKSksCiAgICBpbnB1dC5leHBlY3RlZERiLAogICk7CiAgdHJ5IHsKICAgIGNvbnN0IHJlc3VsdCA9CiAgICAgIG9wZXJhdGlvbiA9PT0gJ3ByZXBhcmUnID8gcHJlcGFyZShkYiwgaW5wdXQpIDogaW5zcGVjdChkYiwgaW5wdXQpOwogICAgcHJvY2Vzcy5zdGRvdXQud3JpdGUoYCR7SlNPTi5zdHJpbmdpZnkocmVzdWx0KX1cbmApOwogIH0gZmluYWxseSB7CiAgICBkYi5jbG9zZSgpOwogIH0KfQo="
+      },
+      {
+        "proposedPath": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "reportPath": "feasibility/run-l1-built-server-spectator-fixture-proof.mjs",
+        "formattedLines": 153,
+        "bytes": 4185,
+        "sha256": "d918584ddc59c37153a7b15bce30ba1c3af412c11fcd205db6e7075e3fcfd71e",
+        "encoding": "base64",
+        "content": "LyoqIFVuYWRtaXR0ZWQgc2l6aW5nIGNhbmRpZGF0ZS4gRiByZWFjaGFiaWxpdHkgb25seTsgTSByZXRhaW5zIGFsbCBuaW5lIHByaXZhY3kgY2FzZXMuICovCmltcG9ydCBwYXRoIGZyb20gJ25vZGU6cGF0aCc7CmltcG9ydCB7IGZpbGVVUkxUb1BhdGggfSBmcm9tICdub2RlOnVybCc7CgppbXBvcnQgewogIEFVRElFTkNFUywKICBDT01NQU5EUywKICBhY2NlcHRlZCwKICBjb21tYW5kRm9yLAogIHBoYXNlUmVhZHksCiAgcHJvdmlzaW9uLAogIHdpdG5lc3MsCn0gZnJvbSAnLi9sMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLWNvbnRleHQubWpzJzsKaW1wb3J0IHsgcnVuSGFybmVzcyB9IGZyb20gJy4vcnVuLWwxLWJ1aWx0LXNlcnZlci1zbW9rZS5tanMnOwoKZXhwb3J0IGNvbnN0IEZfUkVRVUlSRUQgPSBPYmplY3QuZnJlZXplKFsKICAuLi5DT01NQU5EUy5tYXAoKGNvbW1hbmQpID0+IGBhY2NlcHRlZC0ke2NvbW1hbmQua2luZH1gKSwKICAuLi5BVURJRU5DRVMubWFwKChhdWRpZW5jZSkgPT4gYHRydXN0ZWQtJHthdWRpZW5jZS5pZH1gKSwKXSk7CgpleHBvcnQgZnVuY3Rpb24gYXNzZXJ0RGVjbGFyYXRpb24oY3R4LCBzdGF0ZSwgcmVzdWx0LCBkdXJhYmxlKSB7CiAgY29uc3QgZGVjbGFyYXRpb24gPSByZXN1bHQucmVwbHkuZXZlbnQ7CiAgY29uc3Qgc3RvcmVkID0gZHVyYWJsZS5kZWNsYXJhdGlvbnMuZmluZCgKICAgIChldmVudCkgPT4gZXZlbnQuaWQgPT09IGRlY2xhcmF0aW9uLmlkLAogICk7CiAgY3R4LmNoZWNrKAogICAgc3RvcmVkPy5wYXlsb2FkLmludGVudElkID09PSByZXN1bHQuaW50ZW50SWQgJiYKICAgICAgc3RvcmVkLnR5cGUgPT09IHN0YXRlLmNvbW1hbmQudHlwZSwKICAgIHN0YXRlLmxhYmVsLAogICAgJ2FjY2VwdGVkIGRlY2xhcmF0aW9uIGFic2VudCBmcm9tIHByaXZhdGUgZHVyYWJsZSBoaXN0b3J5JywKICAgIGR1cmFibGUsCiAgKTsKICBjdHguY2hlY2soCiAgICBkdXJhYmxlLnBoYXNlID09PSBzdGF0ZS5jb21tYW5kLnBoYXNlICYmIGR1cmFibGUucmV2ZWFscy5sZW5ndGggPT09IDAsCiAgICBzdGF0ZS5sYWJlbCwKICAgICdkZWNsYXJhdGlvbiBhbHJlYWR5IHJldmVhbGVkIG9yIHBoYXNlIGNoYW5nZWQnLAogICAgZHVyYWJsZSwKICApOwogIGN0eC5jaGVjaygKICAgIGR1cmFibGUuaG9sZGVyLmxvY2tTdGF0ZSA9PT0gJ3BlbmRpbmcnLAogICAgc3RhdGUubGFiZWwsCiAgICAnaG9sZGVyIGNhbm5vdCB3aXRoaG9sZCByZXZlYWwnLAogICAgZHVyYWJsZS5ob2xkZXIsCiAgKTsKICBjb25zdCBwYXlsb2FkID0gSlNPTi5zdHJpbmdpZnkoZGVjbGFyYXRpb24ucGF5bG9hZCk7CiAgY3R4LmNoZWNrKAogICAgcGF5bG9hZC5pbmNsdWRlcygnZml4dHVyZS1hY3RvcicpICYmCiAgICAgIChzdGF0ZS5jb21tYW5kLmtpbmQgPT09ICdNb3ZlJyB8fCBwYXlsb2FkLmluY2x1ZGVzKCdmaXh0dXJlLWhvbGRlcicpKSwKICAgIHN0YXRlLmxhYmVsLAogICAgJ3Bvc2l0aXZlIGRlY2xhcmF0aW9uIGxhY2tzIGNhbm9uaWNhbCBhY3Rvci90YXJnZXQnLAogICAgZGVjbGFyYXRpb24sCiAgKTsKfQoKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIHJ1bkZpeHR1cmVDYXNlcyhjdHgpIHsKICBmb3IgKGNvbnN0IGNvbW1hbmQgb2YgQ09NTUFORFMpIHsKICAgIGNvbnN0IHN0YXRlID0gYXdhaXQgcGhhc2VSZWFkeSgKICAgICAgY3R4LAogICAgICBhd2FpdCBwcm92aXNpb24oY3R4LCBgYWNjZXB0ZWQtJHtjb21tYW5kLmtpbmR9YCksCiAgICAgIGNvbW1hbmQsCiAgICApOwogICAgY29uc3QgcmVzdWx0ID0gYXdhaXQgYWNjZXB0ZWQoCiAgICAgIGN0eCwKICAgICAgc3RhdGUuYWN0b3IsCiAgICAgIGNvbW1hbmRGb3Ioc3RhdGUpLAogICAgICBjb21tYW5kLnR5cGUsCiAgICApOwogICAgY29uc3QgZHVyYWJsZSA9IGF3YWl0IHdpdG5lc3MoY3R4LCBzdGF0ZSk7CiAgICBhc3NlcnREZWNsYXJhdGlvbihjdHgsIHN0YXRlLCByZXN1bHQsIGR1cmFibGUpOwogICAgY3R4LnBhc3MoYGFjY2VwdGVkLSR7Y29tbWFuZC5raW5kfWAsIHsKICAgICAgZGVjbGFyYXRpb246IHJlc3VsdC5yZXBseS5ldmVudCwKICAgICAgZHVyYWJsZSwKICAgIH0pOwogICAgYXdhaXQgY3R4LnJlc3RhcnQoKTsKICB9CiAgZm9yIChjb25zdCBhdWRpZW5jZSBvZiBBVURJRU5DRVMpIHsKICAgIGNvbnN0IHN0YXRlID0gYXdhaXQgcGhhc2VSZWFkeSgKICAgICAgY3R4LAogICAgICBhd2FpdCBwcm92aXNpb24oY3R4LCBgdHJ1c3RlZC0ke2F1ZGllbmNlLmlkfWAsIGF1ZGllbmNlKSwKICAgICAgQ09NTUFORFNbMF0sCiAgICApOwogICAgY29uc3QgYmVmb3JlID0gc3RhdGUucHJlcGFyZWQuYWZ0ZXI7CiAgICBjdHguY2hlY2soCiAgICAgIGJlZm9yZS5icmFuZCA9PT0gYXVkaWVuY2UuYnJhbmQgJiYKICAgICAgICBiZWZvcmUuc2VhdHNbMF0ua2luZCA9PT0gKGF1ZGllbmNlLnBhcnRpY2lwYW50ID8gJ2h1bWFuJyA6ICdzcGVjdGF0b3InKSwKICAgICAgc3RhdGUubGFiZWwsCiAgICAgICd0cnVzdGVkIHNlYXQgb3IgYnJhbmQgbWlzc2luZycsCiAgICAgIGJlZm9yZSwKICAgICk7CiAgICBjdHguY2hlY2soCiAgICAgIGJlZm9yZS5hc3NpZ25tZW50cy5sZW5ndGggPT09CiAgICAgICAgKGF1ZGllbmNlLnN0YWxlIHx8IGF1ZGllbmNlLnBhcnRpY2lwYW50ID8gMSA6IDApLAogICAgICBzdGF0ZS5sYWJlbCwKICAgICAgJ3N0YWxlL3VuYXNzaWduZWQgd2l0bmVzcyBtaXNzaW5nJywKICAgICAgYmVmb3JlLAogICAgKTsKICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGFjY2VwdGVkKAogICAgICBjdHgsCiAgICAgIHN0YXRlLmFjdG9yLAogICAgICBjb21tYW5kRm9yKHN0YXRlKSwKICAgICAgJ21vdmVtZW50X2RlY2xhcmVkJywKICAgICk7CiAgICBpZiAoYXVkaWVuY2UucGFydGljaXBhbnQpIHsKICAgICAgY3R4LmNoZWNrKAogICAgICAgIHN0YXRlLndhdGNoZXIgPT09IHN0YXRlLmFjdG9yLAogICAgICAgIHN0YXRlLmxhYmVsLAogICAgICAgICdub24tc3BlY3RhdGluZyBHTSBjb250cm9sIGxvc3QnLAogICAgICAgIGF1ZGllbmNlLAogICAgICApOwogICAgfQogICAgY29uc3QgYWZ0ZXIgPSBhd2FpdCB3aXRuZXNzKGN0eCwgc3RhdGUpOwogICAgYXNzZXJ0RGVjbGFyYXRpb24oY3R4LCBzdGF0ZSwgcmVzdWx0LCBhZnRlcik7CiAgICBjdHguY2hlY2soCiAgICAgIGFmdGVyLmJyYW5kID09PSBiZWZvcmUuYnJhbmQgJiYKICAgICAgICBKU09OLnN0cmluZ2lmeShhZnRlci5hc3NpZ25tZW50cykgPT09CiAgICAgICAgICBKU09OLnN0cmluZ2lmeShiZWZvcmUuYXNzaWdubWVudHMpLAogICAgICBzdGF0ZS5sYWJlbCwKICAgICAgJ3RydXN0ZWQgY29uZGl0aW9uIGRpZCBub3Qgc3Vydml2ZSBpbWFnZSByZXN0YXJ0JywKICAgICAgeyBiZWZvcmUsIGFmdGVyIH0sCiAgICApOwogICAgY3R4LnBhc3MoYHRydXN0ZWQtJHthdWRpZW5jZS5pZH1gLCB7IGJlZm9yZSwgYWZ0ZXIgfSk7CiAgICBhd2FpdCBjdHgucmVzdGFydCgpOwogIH0KfQoKaWYgKAogIHByb2Nlc3MuYXJndlsxXSAmJgogIHBhdGgucmVzb2x2ZShwcm9jZXNzLmFyZ3ZbMV0pID09PSBmaWxlVVJMVG9QYXRoKGltcG9ydC5tZXRhLnVybCkKKSB7CiAgY29uc3QgYXJnID0gKG5hbWUpID0+CiAgICBwcm9jZXNzLmFyZ3YKICAgICAgLmZpbmQoKHZhbHVlKSA9PiB2YWx1ZS5zdGFydHNXaXRoKGAtLSR7bmFtZX09YCkpCiAgICAgID8uc2xpY2UobmFtZS5sZW5ndGggKyAzKTsKICBydW5IYXJuZXNzKAogICAgewogICAgICBidWlsZDogcHJvY2Vzcy5hcmd2LmluY2x1ZGVzKCctLWJ1aWxkJyksCiAgICAgIGV4cGVjdGVkU2hhOiBhcmcoJ2V4cGVjdGVkLXNoYScpLAogICAgICByZXBvUm9vdDogYXJnKCdyZXBvLXJvb3QnKSwKICAgICAgb3V0cHV0OiBhcmcoJ291dHB1dCcpLAogICAgICByZXF1aXJlZENhc2VzOiBGX1JFUVVJUkVELAogICAgfSwKICAgIHJ1bkZpeHR1cmVDYXNlcywKICApLnRoZW4oCiAgICAoc3VtbWFyeSkgPT4KICAgICAgcHJvY2Vzcy5zdGRvdXQud3JpdGUoCiAgICAgICAgYCR7SlNPTi5zdHJpbmdpZnkoeyB2ZXJkaWN0OiBzdW1tYXJ5LnZlcmRpY3QsIHBhc3NlZDogc3VtbWFyeS5wYXNzZWQgfSl9XG5gLAogICAgICApLAogICAgKGVycm9yKSA9PiB7CiAgICAgIHByb2Nlc3Muc3RkZXJyLndyaXRlKGAke2Vycm9yLm1lc3NhZ2V9XG5gKTsKICAgICAgcHJvY2Vzcy5leGl0Q29kZSA9IDE7CiAgICB9LAogICk7Cn0K"
+      }
+    ]
+  },
+  "predecessorQualification": [
+    {
+      "id": "L1-SMOKE-A1",
+      "state": "main-verified",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+      "mainProof": {
+        "path": "evidence/l1-smoke-a1-mainproof-20261018.json",
+        "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+      },
+      "ancestorOfFetchedMain": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-1",
+      "state": "main-verified",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+        "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+      },
+      "ancestorOfFetchedMain": true
+    },
+    {
+      "id": "MP-HOST-DEDUPE-1",
+      "state": "main-verified",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "mainProof": {
+        "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+        "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+      },
+      "ancestorOfFetchedMain": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-2",
+      "state": "main-verified",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+        "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+      },
+      "ancestorOfFetchedMain": true
+    }
+  ],
+  "census": {
+    "observedAt": "2026-10-20T21:28:43.557Z",
+    "baseline": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+    "unitCount": 266,
+    "nodeCount": 93,
+    "activeCount": 220,
+    "predecessors": [
+      {
+        "id": "L1-SMOKE-A1",
+        "state": "main-verified",
+        "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+        "mainProof": {
+          "path": "evidence/l1-smoke-a1-mainproof-20261018.json",
+          "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+        },
+        "ancestorOfFetchedMain": true
+      },
+      {
+        "id": "MP-RECOVERY-UNITS-1",
+        "state": "main-verified",
+        "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
+        "mainProof": {
+          "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+          "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+        },
+        "ancestorOfFetchedMain": true
+      },
+      {
+        "id": "MP-HOST-DEDUPE-1",
+        "state": "main-verified",
+        "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+        "mainProof": {
+          "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+          "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+        },
+        "ancestorOfFetchedMain": true
+      },
+      {
+        "id": "MP-RECOVERY-UNITS-2",
+        "state": "main-verified",
+        "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+        "mainProof": {
+          "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+          "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+        },
+        "ancestorOfFetchedMain": true
+      }
+    ],
+    "openPRs": [
+      {
+        "headRefName": "codex/mp-campaign-host-dedupe-20261019",
+        "headRefOid": "c3eb20afa28a6d5d630f55511e892e26c2b341cb",
+        "number": 2313,
+        "title": "fix(multiplayer): deduplicate concurrent campaign host creation",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ],
+        "literalSourceOverlaps": [],
+        "documentaryOverlaps": []
+      },
+      {
+        "headRefName": "codex/thread-transfer-history-20261002",
+        "headRefOid": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "number": 2113,
+        "title": "docs(audits): preserve complete thread-transfer history",
+        "files": [
+          "docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+          "docs/audits/2026-10-02-thread-transfer/README.md",
+          "docs/audits/2026-10-02-thread-transfer/START-HERE.md",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json"
+        ],
+        "literalSourceOverlaps": [],
+        "documentaryOverlaps": []
+      },
+      {
+        "headRefName": "roadmap-u2b-e2e-19-25-rows-20260922",
+        "headRefOid": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "number": 1886,
+        "title": "wip(e2e): U2b resumed, E2E-19 green under the privacy-pack arm, E2E-25 refused at the candidate anchor (parked again)",
+        "files": [
+          "e2e/gm-two-player-privacy.pack.spec.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "scripts/qc/gm-two-player-campaign-core.cjs"
+        ],
+        "literalSourceOverlaps": [],
+        "documentaryOverlaps": []
+      }
+    ],
+    "allReservations": [
+      {
+        "id": "U0",
+        "state": "complete",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U1",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U1b",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U1c",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U1e",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U1d",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U2",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U2b",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U2c",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U19",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/events/journal"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U19b",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/events/journal",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U20",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/campaign/authority"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/campaign/sync",
+          "src/lib/campaign/persistence"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35a",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign/authority",
+          "src/lib/campaign/sync"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35c",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/__tests__/api/campaigns",
+          "src/__tests__/unit/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U62",
+        "state": "complete",
+        "ownershipPaths": [".husky", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35b",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/services/campaignPersistence",
+          "src/pages/api/campaigns",
+          "src/__tests__/api/campaigns",
+          "src/lib/campaign/authority"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35g",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/types/campaign/RosterUnitProjection.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35d",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign/sync",
+          "src/__tests__/api/campaigns",
+          "e2e",
+          "scripts/e2e",
+          "src/__tests__/unit/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35h",
+        "state": "complete",
+        "ownershipPaths": [
+          "playwright.config.ts",
+          "scripts/qc",
+          "scripts/__tests__",
+          "e2e/gm-two-player-authority-recovery.pack.spec.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35i",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/pages/api/multiplayer/matches/index.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35j",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+          "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35e",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign/authority",
+          "src/lib/campaign/sync",
+          "src/services/campaignPersistence",
+          "src/__tests__/api/campaigns",
+          "src/__tests__/unit/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U35f",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/components/campaign/coop",
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U58",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/campaign"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U21",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/pages/api/matches",
+          "src/__tests__/api/matches"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U22",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U86",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U87",
+        "state": "complete",
+        "ownershipPaths": ["e2e"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U22a",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/types/multiplayer/Protocol.ts",
+          "src/types/multiplayer/__tests__/Protocol.test.ts",
+          "src/lib/multiplayer/client.ts",
+          "src/lib/multiplayer/__tests__/client.test.ts",
+          "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+          "src/lib/multiplayer/mirrorMatchSession.ts",
+          "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+          "src/hooks/useMultiplayerSession.ts",
+          "src/hooks/useMultiplayerSession.helpers.ts",
+          "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+          "src/hooks/__tests__/useMultiplayerSession.test.tsx"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U21b",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U89",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server", "src/lib/campaign"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U88",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/api"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U93",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/api"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U90",
+        "state": "blocked",
+        "ownershipPaths": ["src/components/campaign/coop"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U91",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U92",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/types/campaign/CampaignSync.ts",
+          "src/types/multiplayer/Protocol.ts",
+          "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+          "src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+          "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U94",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U95",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U96",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/campaigns/[id].ts",
+          "src/stores/campaign/useCampaignStore.dayActions.ts",
+          "src/stores/campaign/useCampaignStore.actions.ts",
+          "src/__tests__/integration/coopMutationPersistence.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U97",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/lib/campaign",
+          "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+          "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+          "openspec/changes/design-campaign-authority-and-sync",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+          "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+          "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U98",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server", "src/lib/campaign"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U36",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/components/multiplayer",
+          "src/pages-modules/multiplayer",
+          "src/components/campaign/coop"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U37",
+        "state": "complete",
+        "ownershipPaths": ["src/hooks", "src/utils/gameplay/gameState"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1A",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/api",
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U98b",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U98c",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U17c",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1B",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/types/campaign/CampaignSync.ts",
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+          "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+          "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1B1",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/types/campaign/CampaignSync.ts",
+          "src/lib/campaign",
+          "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "src/lib/events/replay/ReplayBaselineDomainRegistry.ts",
+          "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+          "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+          "src/lib/events/replay/ReplayInputProvenanceManifest.ts",
+          "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1B2",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1B3",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1C",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign/coop/launchCoopMission.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P1",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/lib/api",
+          "src/types/campaign/CampaignSync.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "PAIC",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U17d",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "PAI",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2A",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/campaign/encounter/campaignOwnedForceMaterialization.ts",
+          "src/lib/campaign/encounter/__tests__/campaignOwnedForceMaterialization.test.ts",
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2BC",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "PRI",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+          "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U17e",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "PMP",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc/roadmap-main-proof.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+          "scripts/__tests__/roadmap-loop-scripts.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2B",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server/coopMissionAdmission.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.fixture.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.test.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionCreate.refusals.test.ts",
+          "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts",
+          "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
+          "src/lib/multiplayer/server/coopMissionCreate.ts",
+          "src/lib/multiplayer/server/__tests__/coopMissionAnnouncement.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CC",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-admission-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-red-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-local-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-lane-a-review-20261002.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-review-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-merge-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-mainproof-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-tick-20261002.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-cc61b5aa54b319aa8c200b51584122e986cea07ae5905929d261d086974325d5.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-dd35f38fbd91c7a70033df906af7633d2f916defd04576121bf467da54754360.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/review-identity-bac0b59a0096cacf5c70d83c1fc603e08209a94e7b31d2dda38a9b7d5ed063e4.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cc-logs-20261002.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CE",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CF",
+        "state": "blocked",
+        "ownershipPaths": ["src/components/campaign/coop", "src/lib/campaign"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG1",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "L1-SMOKE-A2F",
+        "state": "planned",
+        "ownershipPaths": ["scripts"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": [
+          "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "scripts/release/l1-built-server-spectator-context.mjs",
+          "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-A2M",
+        "state": "blocked",
+        "ownershipPaths": ["scripts"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": [
+          "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+          "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+          "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "ownershipPaths": ["scripts"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": [
+          "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+          "scripts/release/l1-built-server-spectator-cases.mjs",
+          "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "scripts/release/l1-built-server-spectator.test.mjs"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-B",
+        "state": "blocked",
+        "ownershipPaths": ["scripts"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "LSC-2",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns",
+          "src/lib/campaign",
+          "src/components/campaign/CampaignNavigation.tsx"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "LSC-2P",
+        "state": "blocked",
+        "ownershipPaths": ["e2e", "docs/releases"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "playwright.local-seat-packaged.config.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "ownershipPaths": [
+          "server.js",
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-two-player-authority.pack1.spec.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG1I1",
+        "state": "blocked",
+        "ownershipPaths": ["src/pages-modules/api"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG1I2",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG1I3",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG1I4",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CG2",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2CH",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2C",
+        "state": "blocked",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+          "src/components/campaign/coop",
+          "src/hooks",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/lib/campaign/coop/launchCoopMission.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/pages/multiplayer"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "P2J",
+        "state": "blocked",
+        "ownershipPaths": ["e2e/coop-campaign-two-browser-journey.spec.ts"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "TS7S1",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server/auth.ts",
+          "src/services/vault/IdentityService.ts",
+          "src/lib/events/checkpoints/BranchCheckpointCache.ts",
+          "tsconfig.json",
+          "desktop/tsconfig.json",
+          "openspec/active-change-ledger.json",
+          "desktop/tsconfig.test.json"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/changes/migrate-to-typescript-7/tasks.md",
+          "openspec/changes/migrate-to-typescript-7/design.md"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U38",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server", "src/lib/campaign"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U39",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U40",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U41",
+        "state": "complete",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U42",
+        "state": "complete",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U59",
+        "state": "complete",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U60",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/add-saved-custom-unit-campaign-roster",
+          "scripts/qc",
+          "scripts/__tests__/camp01-authority-receipt-writer.test.ts",
+          "scripts/__tests__/camp01-camp00-listener-adapter.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U61",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/design-campaign-authority-and-sync"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U23",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U43",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U24",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+          "scripts/qc/gm-two-player-campaign-core.cjs",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "playwright.config.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U24a",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "CNI0",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/planning/2026-09-12-roadmap-completion/GOAL.md",
+          "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+          "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni-registration-20261002.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "CNI1",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc/roadmap-ledger-lib.mjs",
+          "scripts/qc/roadmap-unit-closure.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "scripts/__tests__/roadmap-loop-closure-proof.test.ts"
+        ],
+        "ownershipExceptions": [
+          "scripts/qc/roadmap-codex-identity-capture.mjs",
+          "scripts/__tests__/roadmap-codex-identity-capture.test.ts",
+          "scripts/qc/roadmap-loop-runtime.mjs",
+          "scripts/qc/review-identity/contract.mjs",
+          "scripts/qc/review-identity/custody.mjs",
+          "scripts/qc/review-identity/source.mjs",
+          "scripts/qc/review-identity/native-binding.mjs",
+          "scripts/qc/review-identity/review.mjs",
+          "scripts/__tests__/roadmap-codex-review-identity.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "CNI2",
+        "state": "blocked",
+        "ownershipPaths": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d352a03d3d259ff926ebde5aa20e4ecbd9602b3f9110a2bd2c830a54a57ce554.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-6318d72e2faeb6ad97d44847641273de2b8c3de3299900cd7831bd76c5168dd3.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d094fc269d8325ba8ab4e729b63fc476b29d1f359ff9acf57141617c468b3689.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-60e8c88160cfdc60cdd403c037ef9d19ed7f0c1033c1d63831d6093658b72c27.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-31fcbcd60def4f724c56eb0c56f0a27d618a85e104d853d30f16c87f2d17d7f8.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "CNI3",
+        "state": "blocked",
+        "ownershipPaths": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-admission-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-red-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-local-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-review-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-lane-a-review-20261004.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e84105a99a699fe5bf405820d15b0ab0a3f4438ed5cf9f83b78f6b5baa811454.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-b3c0afb63366923c6cc75f636a7c797d203e84c704e7295c4df71b9a8847deba.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-502b4847dbba8730e3f3e120c7301666832e64fdd6d21d19cecb95cb97e8beaa.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-25f98a9de258e6ac7b978428c49d9f57840581bbe3bc23487704d959bfed6391.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-72431485c6cb4abde67e7d16a0a94052c47ed973677645813a63b2cc90d0d227.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-merge-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-mainproof-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-tick-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni1-logs-20261004.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-admission-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-red-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-local-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-review-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-lane-a-review-20261008.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-merge-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-mainproof-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-tick-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/cni0-logs-20261008.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-e63196768647e4ee491ecdd9f8be85be62e51ff4316fceb4d2821a6fdaa689c0.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-observation-d9f5ad9c98e8df686776211dd8cda8daa9386f08ef724290d2a32e2b4cfb06da.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/codex-review-identity-99b825a348d9584e30375147395f2f9db6128c0140bda982f267b85ffe312311.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U24b",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+          "scripts/qc/gm-two-player-campaign-core.cjs",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "playwright.config.ts",
+          ".github/workflows/nightly-validation.yml"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U44",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/lib/events/journal",
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U45",
+        "state": "planned",
+        "ownershipPaths": ["src/types/multiplayer", "src/lib"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U25",
+        "state": "planned",
+        "ownershipPaths": ["e2e"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U26",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U46",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U47",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/lib/interventions",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U27",
+        "state": "planned",
+        "ownershipPaths": ["e2e"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U48",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/matches",
+          "src/pages-modules/api"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U49",
+        "state": "planned",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U50",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/components/multiplayer",
+          "src/pages-modules/multiplayer",
+          "src/hooks",
+          "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+          "src/lib/campaign/encounter/__tests__/requestLaunchAuthority.test.ts",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U28",
+        "state": "planned",
+        "ownershipPaths": [
+          "scripts/qc",
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U29",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U51",
+        "state": "planned",
+        "ownershipPaths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U52",
+        "state": "planned",
+        "ownershipPaths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U53",
+        "state": "planned",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U30",
+        "state": "planned",
+        "ownershipPaths": ["e2e"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U31",
+        "state": "planned",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions",
+          "e2e"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U54",
+        "state": "planned",
+        "ownershipPaths": [
+          "e2e",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U55",
+        "state": "planned",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U32",
+        "state": "planned",
+        "ownershipPaths": [
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U33",
+        "state": "planned",
+        "ownershipPaths": [
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U34",
+        "state": "complete",
+        "ownershipPaths": [
+          "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U56",
+        "state": "planned",
+        "ownershipPaths": ["src/lib/campaign", "src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U57",
+        "state": "planned",
+        "ownershipPaths": [
+          "openspec/changes/harden-gm-two-player-campaign-sessions",
+          "scripts/qc",
+          "scripts/__tests__",
+          "e2e"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U4",
+        "state": "complete",
+        "ownershipPaths": ["src/lib", "src/types/multiplayer"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U15a",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U15b",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          "playwright.config.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U16",
+        "state": "complete",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U6",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U7",
+        "state": "complete",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5a",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/pages/api/matches",
+          "src/pages-modules/api",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [
+          "src/__tests__/api/matches/rewindPreviewRoute.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5b",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/pages/multiplayer",
+          "src/components/multiplayer",
+          "src/pages-modules/multiplayer"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5c",
+        "state": "complete",
+        "ownershipPaths": ["src/pages/api/matches", "src/pages-modules/api"],
+        "ownershipExceptions": [
+          "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5d",
+        "state": "complete",
+        "ownershipPaths": ["src/lib"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5e",
+        "state": "complete",
+        "ownershipPaths": ["src/lib"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5f",
+        "state": "complete",
+        "ownershipPaths": ["src/pages-modules/multiplayer"],
+        "ownershipExceptions": [
+          "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5g",
+        "state": "complete",
+        "ownershipPaths": ["src/pages/api/matches", "src/pages-modules/api"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5h",
+        "state": "complete",
+        "ownershipPaths": ["src/lib"],
+        "ownershipExceptions": [
+          "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+          "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+          "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U5i",
+        "state": "complete",
+        "ownershipPaths": ["src/pages-modules/multiplayer"],
+        "ownershipExceptions": [
+          "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U8",
+        "state": "complete",
+        "ownershipPaths": ["src/pages/api/campaigns"],
+        "ownershipExceptions": [
+          "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U9",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U10",
+        "state": "complete",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U11",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U12",
+        "state": "blocked",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U12b",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U13",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U17",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U17b",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U14",
+        "state": "complete",
+        "ownershipPaths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          "package.json",
+          ".oxlintrc.json"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U9b",
+        "state": "complete",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U63",
+        "state": "planned",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__", "package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U64",
+        "state": "blocked",
+        "ownershipPaths": [
+          ".github/workflows/pr-checks.yml",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U65",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/kernel/__tests__/KernelBoundary.test.ts",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U66",
+        "state": "blocked",
+        "ownershipPaths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          ".github/workflows/pr-checks.yml"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U67",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/utils/gameplay/movement",
+          "src/utils/gameplay/movement.ts",
+          "src/utils/gameplay/pilotingSkillRolls",
+          "src/utils/gameplay/pilotingSkillRolls.ts",
+          "src/utils/gameplay/spaModifiers",
+          "src/utils/gameplay/spaModifiers.ts",
+          "src/utils/gameplay/standUpRules.ts",
+          "src/utils/gameplay/physicalAttacks",
+          "src/utils/gameplay/__tests__",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U68",
+        "state": "blocked",
+        "ownershipPaths": ["src/components/customizer", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U69",
+        "state": "blocked",
+        "ownershipPaths": ["src/stores", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U70",
+        "state": "blocked",
+        "ownershipPaths": [".oxlintrc.json", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U71",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/services/units/unitLoaderService",
+          "src/stores",
+          ".oxlintrc.json",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U72",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/components/spa",
+          "src/lib/spa/designation",
+          "src/services/printing",
+          ".oxlintrc.json",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U73",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/engine",
+          "src/stores",
+          "src/components/gameplay/pages/preBattle"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U74",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/combat/acar.ts",
+          "src/lib/combat/__tests__/acar.test.ts",
+          "src/lib/combat/__tests__/acar.test-helpers.ts",
+          ".oxlintrc.json",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U75",
+        "state": "blocked",
+        "ownershipPaths": [
+          "scripts/qc",
+          "scripts/__tests__",
+          "package.json",
+          ".github/workflows/pr-checks.yml"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U76",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/spa/designation",
+          "src/stores",
+          "src/types/gameplay",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U77",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/types/gameplay",
+          "src/utils/gameplay/aerospace",
+          "src/utils/gameplay/infantry",
+          "src/utils/gameplay/protomech",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U78",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/services/printing",
+          "src/services/unit-card",
+          "src/services/pilot-mech-card",
+          "src/services/assets",
+          "src/types/printing",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U79",
+        "state": "planned",
+        "ownershipPaths": [
+          "scripts/megameklab-conversion",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U80",
+        "state": "blocked",
+        "ownershipPaths": [
+          "config",
+          "scripts/mm-data",
+          "scripts/__tests__",
+          "package.json"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U81",
+        "state": "blocked",
+        "ownershipPaths": [
+          ".github/actions/setup-node-and-install/action.yml",
+          ".github/workflows/pr-checks.yml",
+          ".github/workflows/release.yml",
+          "Dockerfile",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U82",
+        "state": "blocked",
+        "ownershipPaths": ["public/data/units", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U83",
+        "state": "blocked",
+        "ownershipPaths": ["package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U84",
+        "state": "blocked",
+        "ownershipPaths": ["package.json"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U85",
+        "state": "blocked",
+        "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U99",
+        "state": "planned",
+        "ownershipPaths": [
+          "openspec/specs/coop-campaign-sync/spec.md",
+          "openspec/changes/harden-gm-two-player-campaign-sessions"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U100",
+        "state": "planned",
+        "ownershipPaths": ["src/lib/campaign"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U101",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/pages/api/multiplayer/auth",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U103",
+        "state": "planned",
+        "ownershipPaths": ["scripts/qc", "scripts/__tests__"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U104",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/pages-modules/api",
+          "src/lib/multiplayer/server"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U105",
+        "state": "planned",
+        "ownershipPaths": ["src/lib/campaign", "src/lib/multiplayer/server"],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U101a",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/pages/api/multiplayer/auth",
+          "src/lib/multiplayer/server",
+          "src/lib/api/securitySchemas.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U101b",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/pages/multiplayer/index.tsx",
+          "src/pages/multiplayer/lobby/[roomCode].tsx",
+          "src/pages/multiplayer/spectate/[matchId].tsx",
+          "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+          "src/pages-modules/multiplayer/multiplayerAuthTokenStore.ts",
+          "src/lib/multiplayer/client/issuePlayerToken.ts",
+          "src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U101c",
+        "state": "planned",
+        "ownershipPaths": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/lib/campaign"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "U101d",
+        "state": "planned",
+        "ownershipPaths": [
+          "server.js",
+          "scripts/validate-multiplayer-packaged-socket.mjs",
+          "src/lib/multiplayer/server",
+          "src/lib/api/securitySchemas.ts",
+          "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts",
+          "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts"
+        ],
+        "ownershipExceptions": [],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-0",
+        "state": "blocked",
+        "ownershipPaths": [
+          "openspec/changes/design-campaign-authority-and-sync/design.md",
+          "openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md",
+          "openspec/changes/design-campaign-authority-and-sync/specs/campaign-access-projection/spec.md"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-1",
+        "state": "blocked",
+        "ownershipPaths": [
+          "server.js",
+          "desktop/electron/main.server.ts",
+          "desktop/electron/main.window.ts",
+          "desktop/electron/__tests__/main.server.test.ts",
+          "desktop/electron/__tests__/main.window.security.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/authority/CampaignOperatorCredential.ts",
+          "src/pages/api/campaign-local-session.ts",
+          "src/pages-modules/api/campaignAccess.ts",
+          "src/lib/campaign/authority/__tests__/CampaignOperatorCredential.test.ts",
+          "src/pages-modules/api/__tests__/campaignAccess.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-2",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/pages/gameplay/campaigns/index.tsx",
+          "src/lib/campaign/hooks/useCampaignActivityFeed.ts",
+          "src/lib/campaign/encounter/readCampaignLaunchHead.ts",
+          "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/authority/campaignCredentialClient.ts",
+          "src/lib/campaign/authority/__tests__/campaignCredentialClient.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-4",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e/fixtures/campaign.ts",
+          "e2e/helpers/scenarioPackLoading.ts",
+          "e2e/helpers/campaignJournalDrive.ts",
+          "e2e/helpers/campaignJournalTwoProcess.ts",
+          "e2e/gm-two-player-restart.pack.spec.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "e2e/helpers/campaignAccessIdentity.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-4J",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e/campaign-flow.spec.ts",
+          "e2e/saved-custom-combat.spec.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-campaign-ledger-control-plane.spec.ts",
+          "e2e/campaign-two-device-drive.spec.ts",
+          "e2e/campaign-journal-two-process-convergence.spec.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-3R",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/pages/api/campaigns/[id].ts",
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "src/pages-modules/api/campaignActivityRoute.ts",
+          "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+          "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+          "src/__tests__/api/campaigns/campaigns.test.ts",
+          "src/pages-modules/api/__tests__/campaignActivityRoute.test.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+          "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-3",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/pages/api/campaigns/index.ts",
+          "src/pages/api/campaigns/[id].ts",
+          "src/pages/api/campaigns/[id]/adopt.ts",
+          "src/__tests__/api/campaigns/campaigns.test.ts",
+          "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts",
+          "e2e/campaign-access-isolation.spec.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-5",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/pages/api/campaigns/[id]/grants.ts",
+          "src/lib/campaign/grants/campaignShareService.ts",
+          "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "src/__tests__/api/campaigns/campaignGrantsRoute.test.ts",
+          "src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-5R",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/pages/api/campaigns/redeem.ts",
+          "src/pages/api/campaigns/[id]/replica-sync.ts",
+          "src/pages/api/campaigns/[id]/commands.ts",
+          "src/pages/api/campaigns/[id]/rewind-preview.ts",
+          "src/__tests__/api/campaigns/campaignRedeemRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
+          "src/__tests__/api/campaigns/campaignCommandsRoute.test.ts",
+          "src/__tests__/api/campaigns/rewindPreviewRoute.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignAccessMatrix.test.ts"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-PRIV",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server/joinableLobbies.ts",
+          "src/lib/multiplayer/server/__tests__/joinableLobbies.test.ts",
+          "src/__tests__/unit/api/multiplayerLobbies.test.ts",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/__tests__/api/securityBoundary.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-review.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-priv-main.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-6",
+        "state": "blocked",
+        "ownershipPaths": [
+          "README.md",
+          "docker-compose.yml",
+          "playtest/checklists/coop-uat.md",
+          "docs/releases/v2.2.0-topology.md"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "docs/deployment/campaign-hosting.md"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-S",
+        "state": "blocked",
+        "ownershipPaths": ["openspec/specs/fog-of-war/spec.md"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-K",
+        "state": "blocked",
+        "ownershipPaths": ["src/utils/gameplay", "src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-B",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server", "src/types/gameplay"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-L",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/components/multiplayer",
+          "src/utils/gameplay"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-R",
+        "state": "blocked",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-H",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/pages/api/multiplayer"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "FOG-X",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e",
+          "src/lib/multiplayer/server",
+          "openspec/specs/fog-of-war/spec.md"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "DF-SHEET-QV",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/services/printing/recordsheet/mechTypeUtils.ts",
+          "src/services/printing/recordsheet/__tests__"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "DF-MECH-RULES",
+        "state": "blocked",
+        "ownershipPaths": [
+          "scripts/megameklab-conversion",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "DF-MECH-CONFIG",
+        "state": "blocked",
+        "ownershipPaths": [
+          "scripts/megameklab-conversion",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "DF-MECH-META",
+        "state": "blocked",
+        "ownershipPaths": [
+          "scripts/megameklab-conversion",
+          "scripts/__tests__",
+          "public/data/equipment/_schema/unit-schema.json",
+          "src/types/contracts/generated/unit.zod.ts",
+          "src/types/contracts/__tests__/unit.contract.test.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "EQ-ID",
+        "state": "blocked",
+        "ownershipPaths": ["scripts/analysis", "scripts/__tests__"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "DF-BLK-ENGINE",
+        "state": "blocked",
+        "ownershipPaths": [
+          "scripts/megameklab-conversion",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "DF-CATALOG-PIN",
+        "state": "blocked",
+        "ownershipPaths": ["config", "scripts/__tests__"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "COOP-PACK-GEN",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "scripts/__tests__",
+          "src/lib/scenarioPacks/__tests__/coopPackCoverage.test.ts",
+          "openspec/specs/scenario-packs/spec.md"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "CF-SMOKEA1-4",
+        "state": "blocked",
+        "ownershipPaths": [
+          ".gitignore",
+          "package.json",
+          ".github/workflows/pr-checks.yml",
+          "scripts/qc",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "CF-SMOKEA1-6",
+        "state": "blocked",
+        "ownershipPaths": [
+          "package.json",
+          ".oxfmtignore",
+          ".husky",
+          "scripts/__tests__"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-AUTH-LIMIT",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/api/security.ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/__tests__/api/vault/unlock.test.ts"
+        ],
+        "ownershipExceptions": [
+          "src/lib/api/__tests__/security.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-limit-local.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-AUTH-ORIGIN",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/api/security.ts",
+          "src/pages/api/multiplayer/auth/token.ts",
+          "src/pages/api/vault/identity/unlock.ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/__tests__/api/vault/unlock.test.ts"
+        ],
+        "ownershipExceptions": [
+          "src/lib/api/__tests__/security.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-auth-origin-local.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-WIRE",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/types/multiplayer/Player.ts",
+          "src/lib/multiplayer/server/__tests__/auth.test.ts"
+        ],
+        "ownershipExceptions": [
+          "src/types/multiplayer/__tests__/Player.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-wire-local.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "B15-INV",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/pages/api/multiplayer/invites/[roomCode].ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/lib/api/security.ts"
+        ],
+        "ownershipExceptions": [
+          "src/lib/api/__tests__/security.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/b15-inv-local.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "L2-GUI-SMOKE",
+        "state": "blocked",
+        "ownershipPaths": [
+          ".github/workflows/pr-checks.yml",
+          "desktop/scripts/test-build.js"
+        ],
+        "ownershipExceptions": [
+          "desktop/scripts/validate-packaged-launch.js",
+          "desktop/scripts/__tests__/validate-packaged-launch.test.js",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l2-gui-smoke-local.json"
+        ],
+        "registeredSourceLeaves": null
+      },
+      {
+        "id": "MP-REWIND-DICE-1",
+        "state": "planned",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json"
+        ],
+        "registeredSourceLeaves": [
+          "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+          "src/lib/multiplayer/server/ServerMatchHost.ts",
+          "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+        ]
+      },
+      {
+        "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
+        "state": "planned",
+        "ownershipPaths": ["src/lib/multiplayer/server"],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+        ],
+        "registeredSourceLeaves": [
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ]
+      },
+      {
+        "id": "LSC-SALVAGE-1",
+        "state": "blocked",
+        "ownershipPaths": [
+          "e2e",
+          "src/stores/campaign",
+          "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+          "src/types/campaign/Salvage.ts"
+        ],
+        "ownershipExceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-salvage-1-review-20261019.json"
+        ],
+        "registeredSourceLeaves": [
+          "e2e/campaign-economy-browser.spec.ts",
+          "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+          "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+          "src/stores/campaign/__tests__/salvageUnitEnrollment.test.ts",
+          "src/stores/campaign/campaignBayActions.ts",
+          "src/stores/campaign/salvageUnitEnrollment.ts",
+          "src/types/campaign/Salvage.ts"
+        ]
+      }
+    ],
+    "sourceOwnership": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "exists": false,
+        "containingReservations": [
+          {
+            "id": "L1-SMOKE-A2F",
+            "state": "planned",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2M",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          }
+        ]
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-context.mjs",
+        "exists": false,
+        "containingReservations": [
+          {
+            "id": "L1-SMOKE-A2F",
+            "state": "planned",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2M",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          }
+        ]
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "exists": false,
+        "containingReservations": [
+          {
+            "id": "L1-SMOKE-A2F",
+            "state": "planned",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2M",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          }
+        ]
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "exists": false,
+        "containingReservations": [
+          {
+            "id": "L1-SMOKE-A2F",
+            "state": "planned",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2M",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "aliases": ["scripts"]
+          }
+        ]
+      }
+    ],
+    "interpretation": "scripts is a navigation alias. The four registered F leaves are the prospective scope; coarse aliases alone do not confer source admission. No literal candidate leaf overlaps an open PR. LSC shared-ledger registration is independent; fetch/union-merge Main before this documentary push."
+  },
+  "retainedAcceptance": [
+    "Using frozen A1 harness/transport read-only on a real built production image, prove legal phase-ready fixtures for accepted Move, Attack and Physical commands. Keep a second actor able to withhold reveal until negative observations finish. Ordinary authenticated APIs/actions provision positive behavior; stopped-DB fixtures only establish unreachable trusted stale-seat/brand/phase preconditions. Never insert sealed declaration events as a substitute for accepted intents. If reachability needs a product seam, retain explicit unrun rows and stop for a separately registered slice.",
+    "Witness current spectator seats for player brand with stale assignment, GM brand with stale assignment and GM without assignment; GM identity comes from a real durable campaign-session gm row. Provide a separate non-spectating-GM control consistent with the one-active-GM constraint. Preserve trusted metadata, canonical unit/phase preconditions and before/after private DB lineage; refuse a live owning PID, foreign DB or unexpected trusted state.",
+    "Freeze import-safe ordinary provisioner, phase-ready and trusted-audience fixture callbacks plus structural witnesses for A2M/A2. Fixtures use the installed tsx or standalone SQL only while the owned server is stopped. No new dependency/loader or existing A1/source edit. Keep tokens out of URLs and retained evidence, preserve commands/exits/build/listener/readiness/PID/DB hashes, and falsify broken fixture guards and missing accepted-action/precondition controls.",
+    "A2F supplies reusable reachability and trusted-condition proof, not acceptance of the nine-case privacy matrix or co-op restart. All original A2 acceptance remains owed through A2M, final A2 composition and B; genuine exact-main PASS and closure are required before A2M admission."
+  ],
+  "proposedSplit": {
+    "registered": false,
+    "sourceAdmitted": false,
+    "serial": true,
+    "recommendation": "Introduce L1-SMOKE-A2FP as a new ordinary provisioning/read-only reachability predecessor, then retain the existing A2F id for trusted-brand/stale-assignment fixtures and full F composition. Register separately only after Root qualifies this proposal.",
+    "units": [
+      {
+        "id": "L1-SMOKE-A2FP",
+        "proposedOnly": true,
+        "predecessors": [
+          "L1-SMOKE-A1",
+          "MP-RECOVERY-UNITS-1",
+          "MP-HOST-DEDUPE-1",
+          "MP-RECOVERY-UNITS-2"
+        ],
+        "successor": "L1-SMOKE-A2F",
+        "scope": "Ordinary authenticated match/spectator setup; canonical positions and weapons; legal activation-aware Move/Attack/Physical commands; read-only stopped-private-DB phase/unit/declaration witnesses, active second actor and falsifiers. Freeze import-safe callbacks. No GM/stale mutation, no nine-case privacy/restart acceptance.",
+        "planningCountedBudget": {
+          "ordinaryContext": 155,
+          "readOnlyWitness": 125,
+          "runnerAndLifecycle": 145,
+          "total": 425
+        }
+      },
+      {
+        "id": "L1-SMOKE-A2F",
+        "proposedOnly": true,
+        "predecessors": [
+          "L1-SMOKE-A1",
+          "MP-RECOVERY-UNITS-1",
+          "MP-HOST-DEDUPE-1",
+          "MP-RECOVERY-UNITS-2",
+          "L1-SMOKE-A2FP"
+        ],
+        "successor": "L1-SMOKE-A2M",
+        "scope": "Trusted brand/stale/unassigned mutation with strict stopped-owned-private-DB guards and invariant event history; all three spectator audiences plus separate non-spectating-GM positive declaration control; full F composition using frozen FP/A1 read-only. Preserve every current F acceptance row.",
+        "planningCountedBudget": {
+          "trustedMutationAndGuards": 175,
+          "bridgeAndControls": 180,
+          "runnerAndLifecycle": 75,
+          "total": 430
+        }
+      }
+    ],
+    "qualification": "Unmeasured partition budgets, not fit proof. Both unchanged 15-file/500-formatted-line caps need complete candidates measured at fresh admission. Do not silently add leaves/edges, move a requirement outside its final composition or start implementation. Existing F source leaves need an explicit registration allocation; later units may only import frozen predecessors read-only.",
+    "downstream": "F id and F -> M -> final A2 -> B/H edges and gates remain unchanged. Every original acceptance row remains owed. No fog-on or co-op/restart claim; CF-MPRU2-3 and CF-MPHD-5 remain final A2-owned."
+  },
+  "lifecycle": {
+    "before": "planned",
+    "after": "planned",
+    "receiptLinked": false,
+    "reason": "A stopped sizing attempt is not genuine source admission; all unit fields, receipts, caps, edges and ownerGate remain unchanged."
+  },
+  "redGreen": {
+    "red": "NOT STARTED: sizing stopped at admission, no manufactured expected failure.",
+    "green": "NOT STARTED: no candidate leaf exists in the worktree and no built-image reachability was run."
+  },
+  "carryForwards": {
+    "CF-SMOKEA1-3": "Adopted counting used; historical A1 receipt unchanged.",
+    "CF-MPRU2-3": "Final A2 retains genuine co-op restart/captured-roll proof.",
+    "CF-MPHD-5": "Final A2 retains concurrent-first-sockets with accepted actions.",
+    "CF-MPRU2-2": "U44 remains owner.",
+    "OBS-MPRU2-1": "Next actual MatchRecovery.ts owner; existing conditional routing unchanged."
+  },
+  "resumeWhen": "Root qualifies and registers a bounded partition, or a complete normally formatted <=500-line candidate with all required controls is supplied; re-fetch, census and repeat source admission before RED/GREEN."
+}
