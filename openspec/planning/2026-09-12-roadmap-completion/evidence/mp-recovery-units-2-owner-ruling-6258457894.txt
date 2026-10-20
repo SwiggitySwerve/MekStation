@@ -1,0 +1,29 @@
+OWNER-RULING 8bc3ebfd32a7789f8b4c6c20e1c48f638946b992
+
+Unit: MP-RECOVERY-UNITS-2 (L1, B14/HP lane; sensitive authority/replay/persistence). Implemented by Sol ultrafast. PR #2306 at exact head 8bc3ebfd32a7789f8b4c6c20e1c48f638946b992.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them".
+Root rules under these.
+
+Basis: independent full review (Fable 5.1, started before the owner's 2026-10-19 switch to Opus/Astra reviews) on 8bc3ebfd32a7789f8b4c6c20e1c48f638946b992: APPROVE for OWNER-RULING. Report: _reports/2026-10-19/pr2306-mp-recovery-2-review.md, sha256 24d2f0b7d00ce7ae50e90ba79bb2109a8930faffb7a55aaca6f6a654578d0236 (23,423 bytes).
+- CF-MPRU-1: recover() derives journal units from disk for co-op and non-co-op hosts.
+- CF-MPRU-3: the live rebuild uses recoverServerInteractiveSession.
+- CF-MPRU-4: boot-recovered hosts read engine d6 through the crypto capture, and the rolls are stamped before persist and broadcast. Seeded determinism is preserved when no roller is passed. Replay is faithful.
+- CF-MPRU-2: a real rewound-at-boot fixture.
+- F3: two custom no-snapshot rows.
+- The grant is respected: engine, server.js, the catalog service, the registry, MatchRecovery and the journal schema are byte-identical.
+- RED reproduced independently (6/3). Mutants: 13 run, 12 caught, one equivalent.
+- Built-image restart probe: PASS 4/4, with zero skip lines, an accepted Move, and post-restart initiative carrying captured rolls.
+- 65/500 lines, 11/15 files. CI is 32/32.
+
+Ruling: ACCEPT, and merge at this exact head.
+
+Carry-forwards:
+- CF-MPRU2-1 (Medium, pre-existing since #1593): the LIVE rewind rebuild still rolls uncaptured deterministic dice from SeededD6Roller(0xc0ffee). Root will register a narrow unit on the rewind port (or route it to U44) before the GM-rewind path is claimed for v2.2.0.
+- CF-MPRU2-2: a rewound-at-boot accepted action is still fenced by rollback-reader-blocked:missing-journal-head -> U44.
+- CF-MPRU2-3: co-op restart on a built image, with an accepted action and captured rolls -> L1-SMOKE-A2.
+- OBS-MPRU2-1: triple derivation at boot -> the next MatchRecovery.ts owner.
+
+Next: the closure releases L1-SMOKE-A2 once all its predecessors are main-verified. Its predecessors are A1, RECOVERY-1, DEDUPE and RECOVERY-2.

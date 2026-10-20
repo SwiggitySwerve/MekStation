@@ -31,6 +31,37 @@ This closure still needs its own CI and Root review/merge.
 
 ---
 
+## 2026-10-19 MP-RECOVERY-UNITS-2 source verified on main
+
+MP-RECOVERY-UNITS-2 moves from review-required to main-verified after #2306
+(reviewed and ruled head 8bc3ebfd32a7789f8b4c6c20e1c48f638946b992, merge 1fff48df38a4d51dc235724f9bc6f7960b578e03).
+The independent Fable review is copied byte-for-byte: 23,423 bytes,
+SHA-256 24d2f0b7d00ce7ae50e90ba79bb2109a8930faffb7a55aaca6f6a654578d0236.
+PK-mp-recovery-units-2-ruling binds the exact posted OWNER-RULING; source CI is 32/32.
+The merge receipt verifies clean two-parent integration and preserves the source manifest.
+
+Fresh proof at exactly 1fff48df38a4d51dc235724f9bc6f7960b578e03, before closure edits:
+- Fresh npm ci on Node v22.22.0.
+- Multiplayer server, including all three owned test leaves: 179 suites, 1591/1591 tests.
+- Related engine/API/catalog: 7 suites, 54/54 tests.
+- Typecheck and the unedited ledger validator pass.
+All proof runs used the heavy-run queue, lane mp-recovery2, and a private Jest cache.
+Seven base64 envelopes preserve the raw proof logs/JSON.
+
+Only L1-SMOKE-A2 and MP-REWIND-DICE-1 are released (blocked -> planned), computed from the ledger after this transition.
+A1, RECOVERY-1, DEDUPE and RECOVERY-2 are all main-verified with PASS mainProof.
+No unrelated unit or existing packet changes. No task tick or new source admission is claimed.
+
+Ruled carry-forwards:
+- CF-MPRU2-1 (Medium) -> MP-REWIND-DICE-1, registered in #2310: live rewind dice bypass capture; repair required before the v2.2.0 GM-rewind claim. This closure releases the unit without implementing it.
+- CF-MPRU2-2 -> U44: rewound-at-boot accepted action still meets the missing-journal-head fence.
+- CF-MPRU2-3 -> L1-SMOKE-A2: built-image co-op restart with an accepted action and captured rolls.
+- OBS-MPRU2-1 -> next MatchRecovery.ts owner: triple unit derivation at boot.
+The copied source review supplies ordinary 1v1 built-image PASS 4/4; this closure adds no browser/build proof.
+This metadata PR still needs its own CI and parent review/merge.
+
+---
+
 ## 2026-10-19 L1 review follow-up registration (docs only)
 
 Registered [three follow-ups](evidence/l1-followups2-registration-20261019.json), evidence SHA-256 0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793, on ca92b6a01c07e5038c2d1b3840117af72b0a3ed3.

@@ -8228,7 +8228,19 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-admission.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-local.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-review.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-source-fable-review-20261019.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-owner-ruling-6258457894.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-merge-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-mainproof-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-regression-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-regression-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-validator-log.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence after accepted registration and finite admission. Every actual leaf counts; no incumbent lifecycle, historical receipt or unrelated packet edits. Shared ledger writes are serialized.",
       "ciClass": "product",
@@ -8246,10 +8258,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "review-required",
+      "state": "main-verified",
       "baseline": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
       "stageReceipts": {
         "admission": {
           "path": "evidence/mp-recovery-units-2-admission.json"
@@ -8260,9 +8272,27 @@
         "local": {
           "path": "evidence/mp-recovery-units-2-local.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/mp-recovery-units-2-review.json",
+          "head": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+          "reviewedHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+          "reviewerModel": "claude-fable-5-1",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "24d2f0b7d00ce7ae50e90ba79bb2109a8930faffb7a55aaca6f6a654578d0236",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/mp-recovery-units-2-merge-20261019.json",
+          "pr": 2306,
+          "head": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+          "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03"
+        },
+        "mainProof": {
+          "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+          "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8421,7 +8451,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -18896,7 +18926,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -20030,6 +20060,44 @@
         "commentId": 6256894879,
         "author": "SwiggitySwerve",
         "bodySha256": "71178f68963e7cc8e1ee5daaa71da0596a96d338735cec96099eaec7ebcc5966"
+      }
+    },
+    {
+      "id": "PK-mp-recovery-units-2-ruling",
+      "blocks": [
+        "MP-RECOVERY-UNITS-2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the owner accept the exact reviewed source head that loads recovered and live-rewind units from disk and captures boot-recovered host rolls?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Accept the bounded recovery source change and exact-main proof; release only successors whose predecessors are all main-verified; retain the ruled live-rewind and co-op carry-forwards.",
+          "effort": "Independent sensitive review, RED/GREEN, mutation and built-image evidence, source CI and exact-head owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold acceptance until concrete findings are resolved and required review and ruling complete.",
+          "effort": "Bounded by the findings"
+        }
+      ],
+      "agentRecommendation": "Record the existing owner acceptance; under Root subsequent #2310 registration, route CF-MPRU2-1 to MP-REWIND-DICE-1, CF-MPRU2-2 to U44, CF-MPRU2-3 to A2, and OBS-MPRU2-1 to the next MatchRecovery.ts owner.",
+      "revertCost": "Reverting restores HTTP-dependent co-op/live-rewind hydration and uncaptured predictable post-restart legacy rolls; no schema or wire migration.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-19T02:37:14Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2306#issuecomment-6258457894"
+      },
+      "ruling": {
+        "ruledHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+        "pr": 2306,
+        "commentId": 6258457894,
+        "author": "SwiggitySwerve",
+        "bodySha256": "2b5f43af140e83c022ec6ed49e76d2723b74cb6410dd9a625bebabb7367f32ce"
       }
     },
     {

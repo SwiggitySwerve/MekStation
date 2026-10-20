@@ -1,0 +1,206 @@
+# MP-RECOVERY-UNITS-2 review: PR #2306 (independent FULL SENSITIVE review)
+
+Reviewer: Fable (rev-2306 lane), 2026-10-19 (UTC 02:00-02:45)
+Head reviewed: 8bc3ebfd32a7789f8b4c6c20e1c48f638946b992 (= PR head at review time; CI run 39187383119 reports the same head_sha)
+Base: 86e2a7214b77856bdce4ead9c5697a0416fbfad0 (DEDUPE #2303 merge; merge-base with origin/main confirmed; origin/main was
+still at 86e2a7214 at review time, so git merge-tree origin/main HEAD is trivially clean: tree e5d9103f8)
+Unit: MP-RECOVERY-UNITS-2 (R2.authority-live; registered by #2302 at eff1c6c18; predecessor MP-RECOVERY-UNITS-1 ruled at
+f4165728 by E:/Projects/Personal/MekStation-wt/_receipts/pr2296-owner-ruling.md).
+Review classes: authority, replay, migration (units.json reviewClasses), plus persistence as briefed.
+Read-only review: nothing pushed, commented, labelled or merged. Root checkout E:/Projects/Personal/MekStation untouched.
+Worktree reused: E:/Projects/Personal/MekStation-wt/review-2296-20261018, checked out detached at 8bc3ebfd (lockfile
+unchanged since f4165728, so no npm ci). Node v22.22.0. Heavy runs via _locks/heavy-run.mjs --lane rev-2306.
+Evidence directory (outside the repo): E:/Projects/Personal/MekStation-wt/review-2306-proof/ (section 10).
+Note: the worktree root carries the untracked prior report 2026-10-18-mp-recovery-review.md (cited by the UNITS-1
+ruling). I parked it for the built-image probe (the harness refuses an unclean tree) and restored it afterwards; a copy
+now also lives at _reports/2026-10-18/pr2296-mp-recovery-review.md.
+
+## 1. Verdict
+
+APPROVE for OWNER-RULING at exact head 8bc3ebfd32a7789f8b4c6c20e1c48f638946b992. No blocking finding and no required
+in-PR change. All four carry-forwards from the UNITS-1 ruling (CF-MPRU-1/2/3/4) and F3 are discharged on the registered
+leaves, the grant is respected to the line, RED is behavioural and sealed, 12/13 of my mutants are caught (the survivor
+is equivalent at the server surface), the checks and CI are green, and my own built-image restart probe shows a
+recovered match accepting a unit Move AND stamping crypto-captured rolls on its first post-restart initiative event.
+Two carry-forwards are new (section 8): the live rewind rebuild still rolls uncaptured deterministic dice (pre-existing,
+outside this unit's grant, and now pinned by one of the new tests), and the rewound-at-boot accepted action is still
+fenced by the missing journal head (the PR says so honestly).
+
+## 2. What the change is (product diff, 86e2a7214..8bc3ebfd)
+
+- src/lib/multiplayer/server/ServerMatchHost.ts (+15/-11, recover() only plus two import blocks): recover now
+  (a) derives journal units for EVERY recovered host from disk via deriveServerAdaptedUnits(state) - before, co-op hosts
+  fetched over HTTP and non-co-op hosts got []; (b) rebuilds the engine session itself with
+  recoverServerInteractiveSession(state, readServerCustomCombatDefinition, () => host.capture.d6()), so the engine's
+  d6Roller reads through the host's per-intent RollCapture (crypto source, since recover passes no sourceRoller);
+  (c) constructs the host from that rebuilt session. The caller-supplied session is now used only for rollback-reader
+  selection (its events). bindCampaignPause / publishDurableCombatOutcome unchanged.
+- src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts (+3/-6): rebuildHostFromActivatedBranch replaces
+  InteractiveSession.fromSessionAsync(seeded, readServerCustomCombatDefinition) with
+  recoverServerInteractiveSession(seeded) (disk catalog; same seed stamp from host.journalRandomSeed). InteractiveSession
+  import becomes type-only; readServerCustomCombatDefinition import removed (the helper defaults to it).
+- src/lib/multiplayer/server/matchUnitBootstrap.ts (+4/-1): recoverServerInteractiveSession gains an optional third
+  parameter d6Roller?: D6Roller; d6Roller ?? (seeded ? SeededD6Roller(seed) : undefined). Nothing else changes.
+- Three new test leaves (838 lines, line-exempt), units.json lifecycle fields (+43/-6), three receipts.
+
+## 3. Checks against the brief
+
+| Brief item | Result |
+| --- | --- |
+| CF-MPRU-1: co-op ServerMatchHost.recover reads units from disk, not HTTP | YES. recover() calls deriveServerAdaptedUnits(state) for co-op AND non-co-op (OBS-MPRU-1 from UNITS-1 closed too). deriveAdaptedUnitsFromSession import is gone from ServerMatchHost.ts; the only remaining engine-path use is inside deriveServerAdaptedUnits for custom units (SQLite reader, not HTTP). Test rows co-op=false/true assert fetch never called, journalPlayerUnits/journalOpponentUnits populated by id, and a real Move declared and persisted. Mutants M1 (HTTP for co-op, [] otherwise), M9 ([] for non-co-op) and M10 (sides swapped) caught. |
+| CF-MPRU-3: live rewind rebuild does not use HTTP-to-self | YES. Mutant M7 (revert to fromSessionAsync) and M8 (drop the journalRandomSeed stamp) caught by the serverUnits row, which runs a REAL activated branch (appendCommandBatch + commitGmCombatRewind on a real SQLite journal) and asserts fetch not called, prefix ids, capabilities and the reset-protocol order. |
+| CF-MPRU-4: post-restart dice from the crypto RollCapture, events record the captured rolls, not predictable from SeededRandom(0xc0ffee) | YES for boot-recovered hosts (every MatchRecovery arm ends in ServerMatchHost.recover). The engine callback is () => host.capture.d6(); the host constructs ServerMatchHostCapture(undefined) = CryptoDiceRoller; installFreshCapture/stampRollsOnNewEvents run per intent (ServerMatchHostIntent 343/360) BEFORE persist+broadcast, so store and wire carry identical rolls. Test rows seed=undefined/4242 spy CryptoDiceRoller.prototype.d6 (call-through) and assert recorded payload.rolls === consumed crypto values across two separate intents (fresh buffers). Mutants M2 (drop wiring), M3 (construct from the caller session), M5 (helper ignores roller), M11 (crypto but uncaptured) caught. Built-image probe (section 5): post-restart initiative_rolled carries rolls [3,1,6,5]. NOT yet true after a LIVE rewind rebuild (F1 / CF-MPRU2-1). |
+| Determinism preserved where required; replay of recorded rolls faithful | YES. With the roller omitted, seeded sessions still get SeededRandom(seed)+SeededD6Roller(seed) (parity row vs fromSessionAsync for seed 4242; M4, which lets the seed beat an explicit roller, is caught; UNITS-1's R7/R8 seed+1 behaviour is unchanged code). Unseeded sessions still fall to SeededRandom(0xc0ffee) and no roller - now reached in production only by rebuildSessionFromEvents (no non-test caller) and MatchRecovery's discarded pre-derivations. Journal-authority decide (ServerMatchHostDecision) still takes its d6 from host.capture; unchanged. Replay: hydrateGameSessionFromEvents applies payloads and never re-rolls, so recorded rolls are inert facts for replay; the live rebuild folds from the journal with the same seed stamp as before. The probe's restart reconnect replayed the pre-restart events and then accepted new intents numbered after them. |
+| CF-MPRU-2: rewound-at-boot fixture | YES, real and unmocked (legacyBranches row 1): real journal, real commitGmCombatRewind, real recoverActiveMatches with HTTP refused; asserts servedBranchId = activated branch, prefix ids, Movement phase, capabilities present, no fetch. Mutants M12 (fromSessionAsync in the rewound arm) and M13 (drop adoptServedBranch) caught - so M8 from UNITS-1 would now be caught. Limit: the Move is refused with rollback-reader-blocked:missing-journal-head (pre-existing fence), so an ACCEPTED action at that crash point is not witnessed (CF-MPRU2-2). |
+| F3: custom-unit no-snapshot row | YES, two rows: stored definition present -> recovered with capabilities and no fetch; definition deleted -> only that match in failed, the healthy match recovered. The implementer's M7/M8 target these; UNITS-1's R2/R10 would now be caught. |
+| Grant respected | YES. ServerMatchHost.ts hunks: imports (51-57, 128-131) and recover() body (509-527) only; rewindRebuildPort, create, constructor, decide deps untouched. ServerMatchHostRewindRebuild.ts: import swap + one call. matchUnitBootstrap.ts: type import + optional param + ?? only. Controls byte-identical to base (git rev-parse HEAD:<p> == 86e2a7214:<p>): server.js 7ce8627c3, src/engine tree 56cdc6646, CanonicalUnitService.ts, NodeCanonicalUnitService.ts, serverCustomCombatDefinition.ts, MatchRecovery.ts, MatchHostRegistry.ts, MatchHostRegistry.unitBootstrap.test.ts; also src/lib/events (journal schema), DurableMatchStore.ts, history/, RollCapture.ts, ServerMatchHostCapture.ts, ServerMatchHostBootstrap.ts, Dockerfile, scripts/release: no diff. The refreeze control blobs in the admission receipt match HEAD. |
+| RED behavioural, no test byte changed after RED | YES. Reproduced: product leaves at 86e2a7214 bytes + head tests -> 6 failed / 3 passed (red-repro.json), the same six rows and assertion shapes as the sealed receipt (journal units [], fetch called twice for index.json, consumed crypto 0, override roller never called, rewind fetch called). The 3 passing rows are the legacyBranches fixtures, which the receipt labels controls (UNITS-1 already routed MatchRecovery through disk). git diff 34e54bd8d..HEAD on the three test files is empty; their sha256 equal the red receipt's (fcaa9a80..., 125d95a9..., 5e778e87...). |
+| >= 8 own mutants | 13 run, 12 caught, 1 equivalent survivor (section 6). |
+| Built-image restart probe | DONE for a 1v1 combat match: PASS 4/4 incl. rolls captured (section 5). Co-op on a built image not attempted (section 5). |
+| Caps, manifest, typecheck, lint, validators, CI | All pass (section 9). |
+
+## 4. Reading notes (authority / replay / persistence)
+
+- Closure over host before declaration: recover passes () => host.capture.d6() while const host is still in its TDZ. Safe
+  because fromHydratedSession/constructor never roll (BotPlayer is constructed, not run; setup builds maps only). If a
+  future hydration ever rolled synchronously it would throw ReferenceError, which the per-match try/catch in
+  recoverActiveMatches turns into a failed match, not a crash. The code comment documents the ordering. No change needed.
+- Capture pointer identity: recover does not call adoptExternalCaptureRef (create does). That is correct here: the
+  callback reads host.capture.d6() through the field, and ServerMatchHostCapture.installFresh updates that same field,
+  so per-intent swaps stay visible to the engine. Proven by the two-intent rows (second intent's rolls land in the
+  second buffer and equal the second batch of crypto calls).
+- Rolls stamped before persistence: ServerMatchHostIntent stamps and then persists+broadcasts, so DurableMatchStore
+  rows and the wire frames carry the same rolls; the fog filter preserves payload.rolls for AttackResolved; the
+  probe saw rolls on the host's live frame and the jest row saw them in store.getEvents.
+- Fail-closed behaviour: unchanged from UNITS-1 (UnitContractParseError or a missing custom definition fails only that
+  match; legacyBranches row 3 pins the isolation).
+- Co-op binding: mission ? bindCampaignPause(mission.sessionId) unchanged; the co-op=true row uses an absent campaign
+  session and still recovers, so pause binding tolerates a missing session (pre-existing behaviour).
+
+## 5. Built-image restart probe (own lane, class build, harness scripts/release/run-l1-built-server-smoke.mjs read-only)
+
+run-recovery-probe.v5.mjs = UNITS-1's v4 plus a fourth required case: after the Move, AdvancePhase until an event frame
+carries payload.rolls; every roll must be an integer 1..6. Built from the clean detached head
+(source.head 8bc3ebfd, clean true; buildId 1792376706679, sourceTreeSha256 9d4a8975...).
+Result PASS 4/4: pre-restart AdvancePhase accepted; boot log [mp-boot] recovered 1 active match with zero skip lines
+under the wide regex; post-restart Move -> InsufficientMP at 6 hexes then movement_declared on the adjacent hex; six
+AdvancePhase intents later initiative_rolled with rolls [3,1,6,5] (intentId host+restart-8). Pre-restart the same
+match's initiative event also carried rolls (recorded in the pass row), so the restart no longer degrades roll capture.
+Co-op on a built image: not attempted. Minting a co-op mission on the packaged server needs the campaign/mission create
+route and a GM session; the PR body already states its co-op proof is a co-op-marked record with a real accepted Move
+(the co-op=true jest row). A2's co-op restart row must still witness an accepted action on a built image.
+
+## 6. Mutants (own, one at a time on head bytes; suites = the three owned rows, 9 tests; tree verified clean after)
+
+| Id | Mutation | Result |
+| --- | --- | --- |
+| M1 | recover: co-op units via engine deriveAdaptedUnitsFromSession (HTTP), non-co-op [] (the pre-PR shape) | CAUGHT (2: both Move rows) |
+| M2 | recover: pass undefined instead of () => host.capture.d6() | CAUGHT (2: both dice rows) |
+| M3 | recover: construct the host from the caller's session, discard the rebuilt one | CAUGHT (2: both dice rows) |
+| M4 | helper: seeded ? SeededD6Roller(seed) : d6Roller (seed beats the roller) | CAUGHT (2: seed=4242 dice row + override row) |
+| M5 | helper: ignore d6Roller entirely | CAUGHT (3) |
+| M6 | helper: d6Roller ?? SeededD6Roller(seeded ? seed : 0xc0ffee) (unseeded default gets a seeded roller) | SURVIVES - equivalent at the server surface: after this PR the unseeded no-roller branch is reached only by rebuildSessionFromEvents (no production caller) and the discarded MatchRecovery pre-derivations; same as UNITS-1's R9 |
+| M7 | live rebuild: revert to InteractiveSession.fromSessionAsync(seeded, readServerCustomCombatDefinition) | CAUGHT (1: serverUnits fetch assertion) |
+| M8 | live rebuild: drop the journalRandomSeed stamp (recover from folded) | CAUGHT (1: parity vs seed 4242 control) |
+| M9 | recover: units only for co-op (non-co-op []) | CAUGHT (1: co-op=false Move row, journal unit ids) |
+| M10 | recover: swap player/opponent journal units | CAUGHT (2) |
+| M11 | recover: fresh CryptoDiceRoller not routed through the capture (random but unrecorded) | CAUGHT (2: recorded != consumed, consumed 0) |
+| M12 | MatchRecovery rewound-at-boot arm: fromSessionAsync (HTTP) | CAUGHT (1: legacyBranches rewound-boot row) - this is UNITS-1's M8 |
+| M13 | MatchRecovery rewound-at-boot arm: drop adoptServedBranch | CAUGHT (1) |
+
+12/13 caught. Implementer's 9/9 re-read: names and failure counts are consistent with my equivalents (their M1~my M1,
+M3~M2, M4~M11, M5~M5, M6~UNITS-1 R8, M9~M7).
+
+## 7. Findings and precise in-PR fixes
+
+F1 (Medium, pre-existing since #1593 e870eb36a, OUTSIDE this unit's grant; carry-forward CF-MPRU2-1): the LIVE rewind
+rebuild still rolls uncaptured, predictable dice. rebuildHostFromActivatedBranch stamps config.seed =
+host.journalRandomSeed (0xc0ffee for every MP host: create never passes randomSeed) and calls
+recoverServerInteractiveSession(seeded) with NO d6Roller, so the rebuilt engine's d6Roller is
+SeededD6Roller(0xc0ffee).asD6Roller() from position zero; host.reseedDice(journalDiceSeed=0) then replaces the capture
+with SeededDiceRoller(SeededRandom(0)), which the legacy engine path never consults (only the journal-authority decide
+path reads capture.d6). My probe on a REAL ServerMatchHost (probe-live-rewind-dice.log; recovered: true host with a
+legacy-compatible reader, real journal rewind, then rebuildFromActivatedBranch): post-rebuild initiative_rolled
+{playerRoll 5, opponentRoll 10}, payload.rolls absent on every fresh event, CryptoDiceRoller.d6 called 0 times. So
+after a GM rewind on a live server: (a) events carry no rolls, (b) dice are predictable from a public constant, and
+(c) boot-recovered rewound hosts (now crypto via capture) and live-rebuilt hosts (seeded, uncaptured) diverge in dice
+provenance. Byte-identical to the pre-PR fromSessionAsync behaviour, so not a regression, but it is the same
+authority/fairness class as CF-MPRU-4 and this PR closes CF-MPRU-4 only for the boot path. Fix sketch (needs
+ServerMatchHost.rewindRebuildPort, outside the recover-only grant): add d6: () => this.capture.d6() to
+IRewindRebuildHost and call recoverServerInteractiveSession(seeded, undefined, host.d6) - or, if post-rewind dice are
+meant to be deterministic from journalDiceSeed, route the engine through the reseeded capture so they are at least
+recorded. Caveat: the new serverUnits row PINS the current behaviour (rebuilt vs a seed-4242 control over seven
+advancePhase steps including an initiative roll), so the fix must re-seal that test; that is a reason to route it as a
+unit, not to change bytes under this RED.
+
+F2 (Low, observation, frozen control): recover now rebuilds the session it is handed. registerRecoveredHost and the
+rewound arm in MatchRecovery still call recoverServerInteractiveSession(state) first, so every boot-recovered match
+derives units three times (MatchRecovery, recover's journal units, recover's session). NodeCanonicalUnitService caches
+parsed units, so the cost is adaptUnitFromData + the custom SQLite reader x3 per unit - negligible, and it keeps
+MatchRecovery byte-identical as the grant requires. OBS-MPRU2-1: a later owner of MatchRecovery.ts can let recover
+take IGameSession (or the derived units) and drop the pre-derivation.
+
+F3 (Low, coverage): M6 survives; see section 6. Not a defect.
+
+F4 (Low, observation): the explicit roller wins over a finite config.seed (test row 3). MP hosts never persist a seed
+and SP recovery still goes through the engine's fromSessionAsync, so no conflict today. A debug ?seed=N MP host loses
+its seeded dice on restart (recover passes no sourceRoller and diceSeed is not persisted) - it did before too (the
+0xc0ffee fallback was not the debug seed either). Note for whoever owns diceSeed persistence, if ever.
+
+F5 (Low, evidence quality): the PR body claims no production-build proof; this review supplies it for 1v1 (section 5).
+The red receipt's "three passing controls" are the legacyBranches fixtures; fine, and honest.
+
+No required in-PR product or test change. The optional change (F1) is routed, not requested, because it needs a file
+outside the grant and a new RED seal.
+
+## 8. Carry-forwards
+
+| Id | Owner (suggested) | Item |
+| --- | --- | --- |
+| CF-MPRU2-1 (Medium, pre-existing) | new narrow unit on ServerMatchHost.ts rewindRebuildPort + ServerMatchHostRewindRebuild.ts + re-seal of ServerMatchHostRewindRebuild.serverUnits.test.ts; or U44 if the rollback/cutover work touches the port anyway | Live rewind rebuild: engine dice bypass the host capture (SeededD6Roller(journalRandomSeed=0xc0ffee), no payload.rolls, reseedDice reseeds an unread capture). Decide crypto-vs-journalDiceSeed provenance, then route through the capture so rolls are recorded. |
+| CF-MPRU2-2 | U44 (as the PR routes it) | Rewound-at-boot accepted action: a crash right after branch activation with no matching command receipt still refuses intents with rollback-reader-blocked:missing-journal-head. The fixture pins the fence; an accepted action at that point is not proven. |
+| CF-MPRU2-3 | L1-SMOKE-A2 | Co-op restart on a BUILT image: witness an accepted unit action and rolls on the first post-restart roll event (reuse run-recovery-probe.v5.mjs's fourth case; extend with the co-op mission create route). |
+| OBS-MPRU2-1 | next MatchRecovery.ts owner | Triple derivation at boot (F2). |
+| CF-SMOKEA1-2 | discharged for 1v1 combat on this head as well (section 5) |
+
+## 9. Caps, manifest, checks, CI (all on 8bc3ebfd)
+
+- Census (git diff --numstat --no-renames 86e2a7214..HEAD): ServerMatchHost.ts 15, ServerMatchHostRewindRebuild.ts 3,
+  matchUnitBootstrap.ts 4, units.json 43 = 65/500 counted additions; tests 838 and receipts 7415 line-exempt.
+  Files: 10 changed + 1 reserved review slot = 11/15, exactly the frozen admission manifest; no file outside it.
+- units.json: only MP-RECOVERY-UNITS-2 fields changed (state review-required, baseline eff1c6c18, three receipt
+  pointers, four evidence ownershipExceptions) plus the new PK-mp-recovery-units-2-implementation packet with
+  decision/ruling null. admissionRequires honoured (recover-only, d6Roller-only helper change, controls unchanged,
+  rebase and re-freeze on 86e2a7214 recorded in the admission receipt's refreezes with byte-identical source/tests).
+- typecheck: exit 0 (root + scripts tsconfig). lint on the six changed files: 0 errors, 1 pre-existing warning
+  (max-lines on ServerMatchHost.ts, 1073 lines; +4 net here). Repo lint: 84 warnings / 0 errors (unchanged count).
+  format:check: pass on the tracked tree (the only flagged file was the prior review's untracked report in the worktree
+  root). lint:units: LINT_UNITS_PASS 17896/17899. validate-roadmap: PASSED plain and --git. Validator tests 86/86.
+  openspec validate --all --strict: 230 passed / 0 failed.
+- Jest (heavy queue, runInBand, private cache): owned suites 9/9 (green-head.json); related server suites
+  (recovery, rewind, registry, roll capture, journal authority, outbox, campaign registry) 32 suites / 205 tests pass
+  (related.json).
+- CI run 39187383119 on head_sha 8bc3ebfd: 32/32 checks success (A11y, Storybook, Build Test linux/mac/win, Coverage
+  Floor, Customizer Regressions, Desktop Tests/Type Check, Detect Changes, Determinism Audit, E2E Smoke, Format,
+  Install, Lint, Lint and Test, Perf Budget PR, Perf Smoke, Prepare Build Artifacts, Schema Bridge, Seam Anchors,
+  Statistical Proof PR, Type Check, Unit Tests 1-6, Validate BV Parity, Validate Combat Suite, Validate Roadmap Ledger).
+  mergeStateStatus BLOCKED = review pending; no reviews or labels on the PR.
+
+## 10. Evidence (E:/Projects/Personal/MekStation-wt/review-2306-proof, sha256 / bytes)
+
+- red-repro.json c5e9c826305eac88cf381331b4bc4d281aba951aa0c83e41847566d920fd32c0 11893 (6 failed / 3 passed; product leaves at base bytes; tree restored)
+- red-repro.log e7377684c594639a6cd0e032a460a6cfd129e50ac4ed7108f06906c74896a5b5 113478
+- green-head.json 18cbb445e498f097df29497d503f850a9fbce81b697704da442585f93d159548 4605 (9/9)
+- green-head.log 17aa57c3f75d05d91b8cc6bf13ff125b6bbf5cde680ce137a1d2c99765495997 387052
+- related.json 28e87e3f33e3c0367f60d816001585d0410472b1e4061c4efde77e5402901038 93634 (32 suites / 205 tests)
+- mutants.cjs d7f076913f8e7ac3900c186edf367a121526b48abe6dd3b62a95ba61978e2124 6303
+- mutants.json 949b143129a64dbc9ea72f0d5f33cc49840e767e8b56c07864a11415aa1cd027 3688 (12 caught / 13; per-mutant jest json alongside)
+- probe-live-rewind-dice.log af15bccd03f0f7152bfd7ef7710735517b1404e7ad576faa761385fd6620af73 78566 (F1 evidence; the probe test file was removed from the worktree after the run)
+- run-recovery-probe.v5.mjs 7e9bf087a9e933036a8aeaad382abfe2fe0470c5aae1c65523a25f5132e91364 6105
+- probe-head-8bc3ebfd/summary.json 300ff461cd6033baa5421d112cd017e47fc8594b13565758bd5f43521b7af318 1685 (PASS 4/4)
+- probe-head-8bc3ebfd/evidence.jsonl f124a8f755146bcd00ff77d338fb00021486bf1c857fd8c0630c696792ca8311 36548
+- probe-head-8bc3ebfd/manifest.json c77bd691b6574097cf8c7c987f60066d5ad1781b025e704097218224dfa24225 925
+- typecheck.log e1d515f99435b35118b64498feb3f7abcb9db16230ccaae94ba1ab2eb634b968 374
+- checks.log 7a53526223dd738fae103e5726e5a88f270d76c6d1a0bb1ae88b42d26c765023 6662 (validators, lint:units, lint, openspec)
+- lint-changed.log 3aa79792405e83b523561d25b2649e5d001798c02d824882962955e291c1a483 740
+- format-full.log b43ec351f39de32ad85ee47f55aaefda09248006fe090501f47dae3a059c2c6e 386
