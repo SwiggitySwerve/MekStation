@@ -9373,7 +9373,9 @@
       "node": "R2.authority-live",
       "taskKeys": [],
       "behavior": "Public browser-profile choice and per-match identity binding, sanitized explicit chosen mint/renewal adapter and forget/reclaim primitives; preserve existing operator adapter and bearer store. No UI/role/primary-server changes.",
-      "ownershipPaths": ["src/lib/campaign"],
+      "ownershipPaths": [
+        "src/lib/campaign"
+      ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json"
       ],
@@ -9386,13 +9388,18 @@
         "idempotency",
         "concurrency"
       ],
-      "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "planned",
-      "baseline": null,
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "admitted",
+      "baseline": "434fdab1d5b0fbe107435a88985ce3eaaf753033",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": {
+          "path": "evidence/lsc-2c-admission-20261020.json"
+        },
         "red": null,
         "local": null,
         "review": null,
@@ -9401,8 +9408,12 @@
         "tick": null
       },
       "ownerGate": null,
-      "predecessors": ["LSC-2OP"],
-      "successors": ["LSC-2O"],
+      "predecessors": [
+        "LSC-2OP"
+      ],
+      "successors": [
+        "LSC-2O"
+      ],
       "admissionRequires": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory. 15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split. Re-fetch/rebase and census all literal/ancestor aliases, planned/blocked/active reservations and paginated open-PR files before admission/merge. Serialize C -> O -> LSC-2 through closure; shared store/test and units.json writers cannot overlap. U101/a/c/d, U105, B15-2/B15-PRIV, R2.campaign-access, FOG-H, R7.context/R8.starmap/R2.camp-8 reservations remain; preserve U101c refresh migration and primary auth controls. Aliases grant no unnamed leaves; extra scope needs amendment.",
       "registeredSourceLeaves": [
         "src/lib/campaign/coop/localSeatCredentialStore.ts",
@@ -9424,7 +9435,10 @@
         "carryRoutes": [
           {
             "id": "CF-LSC2OP-1",
-            "directedTo": ["LSC-2C", "LSC-2"],
+            "directedTo": [
+              "LSC-2C",
+              "LSC-2"
+            ],
             "obligation": "Sanitized mint/renewal/recovery code map, 401/429 Retry-After, no automatic mint retry and no secrets in state/storage/URLs/logs."
           }
         ],
