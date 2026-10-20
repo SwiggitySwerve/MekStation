@@ -1,0 +1,1170 @@
+{
+  "unit": "MP-CAMPAIGN-HOST-DEDUPE-1",
+  "stage": "admission",
+  "status": "ADMITTED",
+  "recordedAt": "2026-10-20T19:36:02.571Z",
+  "baseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "authority": "Root GATE OPEN after #2310; resume at standard Sol tier. Admission, RED, GREEN, PR and REVIEW_READY only; Root owns independent Claude Opus review and ruling.",
+  "manifest": {
+    "files": [
+      "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+    ],
+    "count": 7,
+    "reservedReviewSlot": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "frozenBeforeEdits": [
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "bytes": 17930,
+      "sha256": "7293d6b928cd510301e5e39abeb2636dea7f1bc80ea5718426dbb71e1a2e355f"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "bytes": 17750,
+      "sha256": "f2450ac3249d5003ae1a9cbf4e4ead96375416c38faa437a48a3d0624cdda29f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "bytes": 2102607,
+      "sha256": "52309f78ae613ed3647d611d636983ff50bb40a6e94115bd0bc03af62aef771d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json",
+      "exists": false
+    }
+  ],
+  "key": "matchId, the existing campaign-session registry key; distinct session keys are independent",
+  "census": {
+    "recursiveLiteralAndAncestor": [
+      {
+        "id": "P1B",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P1",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2CE",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CF",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "MP-RECOVERY-UNITS-2",
+        "state": "review-required",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-B",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1HP",
+        "state": "implementing",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "LSC-2OP",
+        "state": "planned",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "LSC-2",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "LSC-2P",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1I1",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1I2",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1I3",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG1I4",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CG2",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2CH",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "P2C",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion"
+        ]
+      },
+      {
+        "id": "P2J",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "TS7S1",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "U38",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U24",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "CNI2",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "CNI3",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "U24b",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U44",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U45",
+        "state": "planned",
+        "overlaps": [
+          "src/lib"
+        ]
+      },
+      {
+        "id": "U26",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U46",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U47",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U48",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U49",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U56",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U85",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion"
+        ]
+      },
+      {
+        "id": "U101",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U104",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U105",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U101a",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "U101d",
+        "state": "planned",
+        "overlaps": [
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "B15-0",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-1",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-2",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-4",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-4J",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-3R",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-3",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-5",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-5R",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-PRIV",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-6",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-S",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-K",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-B",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-L",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-R",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-H",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "FOG-X",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "DF-SHEET-QV",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "DF-MECH-RULES",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "DF-MECH-CONFIG",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "DF-MECH-META",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "EQ-ID",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "DF-BLK-ENGINE",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "DF-CATALOG-PIN",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "COOP-PACK-GEN",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "CF-SMOKEA1-4",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "CF-SMOKEA1-6",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-AUTH-LIMIT",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-AUTH-ORIGIN",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-WIRE",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "B15-INV",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "L2-GUI-SMOKE",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "MP-REWIND-DICE-1",
+        "state": "blocked",
+        "overlaps": [
+          "src/lib/multiplayer/server",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "id": "LSC-SALVAGE-1",
+        "state": "blocked",
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      }
+    ],
+    "openPRs": [
+      {
+        "pr": 2309,
+        "head": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-local-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-red-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+        ],
+        "overlaps": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "pr": 2113,
+        "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "files": [
+          "docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+          "docs/audits/2026-10-02-thread-transfer/README.md",
+          "docs/audits/2026-10-02-thread-transfer/START-HERE.md",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0072.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0073.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0074.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0075.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0076.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0077.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0078.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0079.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0080.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0081.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0082.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0083.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0084.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0085.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0086.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0087.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0088.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0089.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0090.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0091.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0092.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0093.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0094.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0095.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0096.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0097.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0098.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0099.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0100.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0101.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0102.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0103.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0104.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0105.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0106.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0107.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0108.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0109.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0110.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0111.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0112.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0113.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0114.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0115.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0116.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0117.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0118.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0119.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0120.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0121.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0122.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0123.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0124.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0125.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0126.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0127.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0128.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0129.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0130.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0131.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0132.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0133.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0134.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0135.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0136.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0137.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0138.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0139.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0140.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0141.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0142.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0143.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0144.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0145.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0146.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0147.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0148.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0149.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0150.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0151.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0152.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0153.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0154.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0155.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0156.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0157.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0158.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0159.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0160.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0161.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0162.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0163.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0164.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0165.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0166.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0167.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0168.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0169.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0170.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0171.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0172.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0173.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0174.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0175.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0176.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0177.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0178.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0179.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0180.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0181.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0182.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0183.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0184.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0185.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0186.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0187.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0188.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0189.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0190.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0191.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0192.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0193.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0194.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0195.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0196.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0197.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0198.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0199.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0200.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0201.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0202.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0203.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0204.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0205.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0206.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0207.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0208.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0209.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0210.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0211.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0212.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0213.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0214.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0215.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0216.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0217.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0218.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0219.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0220.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0221.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0222.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0223.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0224.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0225.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0226.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0227.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0228.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0229.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0230.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0231.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0232.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0233.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0234.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0235.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0236.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0237.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0238.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0239.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0240.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0241.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0242.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0243.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0244.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0245.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0246.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0247.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0248.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0249.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0250.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0251.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0252.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0253.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0254.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0255.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0256.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0257.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0258.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0259.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0260.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0261.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0262.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0263.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0264.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0265.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0266.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0267.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0268.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0269.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0270.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0271.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0272.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0273.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0274.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0275.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0276.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0277.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0278.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0279.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0280.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0281.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0282.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0283.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0284.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0285.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0286.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0287.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0288.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0289.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0290.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0291.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0292.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0293.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0294.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0295.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0296.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0297.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0298.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0299.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0300.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0301.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0302.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0303.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0304.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0305.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0306.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0307.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0308.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0309.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0310.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0311.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0312.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0313.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0314.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0315.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0316.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0317.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0318.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0319.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0320.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0321.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0322.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0323.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0324.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0325.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0326.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0327.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0328.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0329.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0330.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0331.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0332.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0333.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0334.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0335.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0336.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0337.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0338.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0339.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0340.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0341.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0342.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0343.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0344.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0345.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0346.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0347.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0348.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0349.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0350.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0351.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0352.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0353.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0354.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0355.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0356.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0357.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0358.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0359.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0360.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0361.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0362.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0363.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0364.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0365.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0366.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0367.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0368.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0369.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0370.json",
+          "docs/audits/2026-10-02-thread-transfer/historical-153-todos-and-current-override.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-000.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-001.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-002.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-003.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-004.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-005.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-006.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-007.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-008.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-009.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-010.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-011.json",
+          "docs/audits/2026-10-02-thread-transfer/read-archives.mjs"
+        ],
+        "overlaps": []
+      },
+      {
+        "pr": 1886,
+        "head": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "files": [
+          "e2e/gm-two-player-privacy.pack.spec.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "scripts/qc/gm-two-player-campaign-core.cjs"
+        ],
+        "overlaps": []
+      }
+    ],
+    "disposition": "No open PR touches either source/test leaf. Shared units.json is a serialized metadata writer surface; preserve every other unit and packet. P2CG1H is a blocked successor; its type-only registry grant does not run concurrently. Broad server aliases are navigation only; this unit gets exactly its two registered leaves."
+  },
+  "predecessor": {
+    "id": "MP-HOST-DEDUPE-1",
+    "state": "main-verified",
+    "merge": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+    "mainProof": {
+      "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+      "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "verdict": "PASS",
+      "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+    },
+    "closure": "c0995937dbd9a35b7cf2c46deb132e0b3afab702"
+  },
+  "controls": [
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "blob": "ca3f4080a732b0aafffec2ebc4409b3db13efc9e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "blob": "1747417215c438819c12e433606b69e320369217"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "blob": "8e6fd27c67e61b3b477d1e26d4831d9bc400ccd7"
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "blob": "0eaa7ebf8a3aa2d7f0dc57c3d180b71bc9f20749"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "blob": "7e73fc3066a835b03dcebd6ccca8eb264959f7e1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "blob": "853313fe7e8bc81cf638099a7f9fdd20b0324aff"
+    },
+    {
+      "path": "server.js",
+      "blob": "7ce8627c35dbc754fa789f70cc701c536f3549e8"
+    }
+  ],
+  "design": "Publish one in-flight promise before yielding; share metadata read and register result per key; finally evicts success, null and rejection so later calls retry. Preserve existing host reuse, durable register, rebuild pause and expired invite semantics. Direct register and dispose concurrency are outside this getOrCreate repair.",
+  "review": "Pending full exact-head Claude Opus review; no review acceptance or owner ruling claimed."
+}
