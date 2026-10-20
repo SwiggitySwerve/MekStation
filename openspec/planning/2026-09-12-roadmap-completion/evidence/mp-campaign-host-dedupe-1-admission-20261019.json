@@ -3,7 +3,7 @@
   "stage": "admission",
   "status": "ADMITTED",
   "recordedAt": "2026-10-20T19:36:02.571Z",
-  "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+  "baseline": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
   "authority": "Root GATE OPEN after #2310; resume at standard Sol tier. Admission, RED, GREEN, PR and REVIEW_READY only; Root owns independent Claude Opus review and ruling.",
   "manifest": {
     "files": [
@@ -1169,11 +1169,11 @@
   "review": "Pending full exact-head Claude Opus review; no review acceptance or owner ruling claimed.",
   "originalBaseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
   "restack": {
-    "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+    "baseline": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
     "admissionBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
-    "at": "2026-10-20T20:25:53.944Z",
-    "headBefore": "7d77292c6158b4663d3fa582dc94f34f9c0ea5d3",
-    "headAfterRebase": "2db74ef5b3d1253a03d3d23589696a780d121a99",
+    "at": "2026-10-20T20:32:20.357Z",
+    "headBefore": "b85d24431beaa8f967b749ea61934e53a75cfa8f",
+    "headAfterRebase": "c39a0d92ba5922710db4f8714573b81b8bb5bebf",
     "sourceBefore": [
       {
         "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
