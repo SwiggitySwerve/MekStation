@@ -3912,6 +3912,42 @@
           ]
         },
         "qualification": "Prospective literal new leaves only, no source admission. A2F/A2M/A2 stay serial through closure; A2/B downstream gates and A1 frozen bytes remain. This amendment supersedes only the old effective A2 scope/interface allocation, not original acceptance. Normal oxfmt counting is adopted; do not start A2F admission before Root merges #2315."
+      },
+      "ownershipPathsAmended20261020LocalSeatSplit": {
+        "source": "evidence/lsc-2-split-registration-20261020.json",
+        "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+        "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+        "units": [
+          "LSC-2C",
+          "LSC-2O",
+          "LSC-2"
+        ],
+        "restrictions": {
+          "LSC-2C": [
+            "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+          ],
+          "LSC-2O": [
+            "src/services/vault/LocalSeatCredentialRepository.ts",
+            "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+            "src/services/vault/LocalSeatCredentialService.ts",
+            "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "src/pages/api/multiplayer/auth/local-seats.ts",
+            "src/__tests__/api/localSeatCredentials.test.ts",
+            "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+          ],
+          "LSC-2": [
+            "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+            "src/components/campaign/CampaignNavigation.tsx"
+          ]
+        },
+        "qualification": "Effective prospective literal source/test leaves only, full stage manifests in unit registration20261020. C -> O -> final LSC-2 serial through exact-main closures; original acceptance and downstream gates retained. Supersedes old effective LSC-2 literals; historical registration remains evidence, not extra scope. Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory."
       }
     },
     {
@@ -19452,5 +19488,61 @@
     },
     "historicalRule": "Supersedes only effective A2 scope/interface/budget scheduling in the old prospective smoke registration. Original A2 acceptance stays retained through F/M proof plus final A2 composition; historical source hashes/receipts, A1 receipt and downstream B/H gates are unchanged.",
     "sourceAdmissionBarrier": "Do not start A2F admission until Root merges #2315 and independently qualifies this registration. All stage receipts/baselines/heads/merge fields remain null for F/M/A2; planned is not admitted. Root owns subsequent Astra ledger review, CI, ruling and merge."
+  },
+  "localSeatCredentialsSplit3Registration20261020": {
+    "baseline": "a69540e25389a01ee24b92994f1418d700c0039a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/lsc-2-split-registration-20261020.json",
+    "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+    "rulingPath": "evidence/lsc-2-split-root-ruling-20261020.txt",
+    "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+    "units": [
+      "LSC-2C",
+      "LSC-2O",
+      "LSC-2"
+    ],
+    "initialStates": {
+      "LSC-2C": "planned",
+      "LSC-2O": "blocked",
+      "LSC-2": "blocked"
+    },
+    "order": "LSC-2OP -> LSC-2C -> LSC-2O -> LSC-2 -> unchanged LSC-2 successors",
+    "manifests": {
+      "LSC-2C": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+      ],
+      "LSC-2O": [
+        "src/services/vault/LocalSeatCredentialRepository.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/services/vault/LocalSeatCredentialService.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/pages/api/multiplayer/auth/local-seats.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+      ],
+      "LSC-2": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+        "src/components/campaign/CampaignNavigation.tsx"
+      ]
+    },
+    "countPolicy": "15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split.",
+    "releaseAccounting": {
+      "previous": 43,
+      "total": 45,
+      "addedClosures": [
+        "LSC-2C",
+        "LSC-2O"
+      ]
+    },
+    "historicalRule": "Supersedes only effective prospective LSC-2 scope, stage manifest and serial allocation. Historical receipts/manifests/source hashes are not rewritten. Stopped sizing receipt is immutable; final narrowed LSC-2 gets separately named implementation receipts. Retain all old behavior/notes/carries through explicit partition and final integration. No downstream edge, task holder, prior lifecycle, packet, salvage or packaged proof changes.",
+    "sourceAdmissionBarrier": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory."
   }
 }
