@@ -296,6 +296,8 @@ export class ServerMatchHost {
    * so the host stays a thin orchestrator.
    */
   private capture: ServerMatchHostCapture;
+  /** Only an explicitly seeded debug host may reseed its dice after rewind. */
+  private readonly seededRewindDice: boolean;
 
   /**
    * Wave 5: server-side `CombatOutcomeReady` publish safety net. A
@@ -409,6 +411,7 @@ export class ServerMatchHost {
     this.journalPlayerUnits = options.playerUnits ?? [];
     this.journalOpponentUnits = options.opponentUnits ?? [];
     this.capture = new ServerMatchHostCapture(sourceRoller);
+    this.seededRewindDice = sourceRoller instanceof SeededDiceRoller;
     this.outcomePublisher = new ServerMatchHostOutcomePublisher(session);
     this.lifecycle = new ServerMatchSocketLifecycle({
       matchId: this.matchId,
@@ -606,10 +609,17 @@ export class ServerMatchHost {
       journalRandomSeed: this.journalRandomSeed,
       journalDiceSeed: this.journalDiceSeed,
       nowIso,
+      // Resolve the current capture after every per-intent buffer swap.
+      d6: () => this.capture.d6(),
       reseedDice: (diceSeed) => {
-        this.capture = new ServerMatchHostCapture(
-          new SeededDiceRoller(new SeededRandom(diceSeed)),
-        );
+        if (this.seededRewindDice) {
+          this.capture = new ServerMatchHostCapture(
+            new SeededDiceRoller(new SeededRandom(diceSeed)),
+          );
+        } else {
+          // Production keeps its crypto source; journalDiceSeed is not entropy.
+          this.capture.installFresh();
+        }
       },
       replaceSession: (session) => {
         this.session = session;
