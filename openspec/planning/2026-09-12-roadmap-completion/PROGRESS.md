@@ -3048,3 +3048,20 @@ Register planned LSC-2C (adapter), blocked LSC-2O (operator/server carries), the
 CF-LSC2OP-1 routes to C/final UI; -2 to O plus final/packaged three-identity proof; -3 now has named server target O; -4 preserves password purposes with packaged autofill proof in2P; -7 explicitly requires unknown-outcome refresh and write disable on refresh failure in O, preserved by final integration. No original acceptance, primary/bearer controls, H/P2/U38/P2J/installer/human gate or salvage ownership is waived.
 
 Registration only: no C admission commit until Root merges and independently qualifies this docs PR. Null source baselines/heads/stage receipts/ownerGate remain; no packet or future OWNER-RULING is invented. Reports/design remain outside source under `_reports/2026-10-19/lsc-2-fit-sol/`.
+
+
+## MP-REWIND-DICE-1 closure (2026-10-20)
+
+Source #2316 is main-verified: ruled/reviewed head `0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5`, merge `664f8c13f7d59dd3d53212309993fac9a23e655b`. Independent Opus review APPROVE and live OWNER-RULING comment 6301768235 are byte-copied, each with a SHA-256/base64 envelope. Review: 14244 bytes, SHA-256 `69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a`; ruling: 2144 bytes, SHA-256 `bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d`.
+
+Fresh npm ci and mainProof at clean exact `664f8c13f`: owned 2/2; multiplayer server 179 suites / 1595 tests; strict root/scripts typecheck PASS, all through heavy-run lane rewind-dice. Source CI was 32/32 SUCCESS. Original admission/RED/local evidence and product bytes are unchanged by this metadata-only closure. No task tick, browser/build proof or release acceptance is claimed.
+
+CARRY-FORWARD routing (no added source permission):
+
+- CF-MPRD-1 (Low) -> U44: Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file.
+- CF-MPRD-2 (Low) -> U44: Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it.
+- CF-MPRD-3 (Info) -> U44: Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations.
+- CF-MPRD-4 (Info) -> Root registration follow-up: Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix.
+- CF-MPRD-5 (Info) -> Root registration follow-up: Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair.
+
+All three U44 items are in its behavior text. CF-MPRD-4 and CF-MPRD-5 remain open registration follow-ups for Root in the source unit, review receipt and ruling packet; no named finite target unit exists for those repairs. No successors are released: this unit declares no successor or reverse predecessor edge. Unrelated units and in-flight LSC-2/A2F lifecycle edits remain owned by their lanes and must be union-preserved before publication.
