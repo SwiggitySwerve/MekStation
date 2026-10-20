@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-2OP",
+  "stage": "red",
+  "date": "20261018",
+  "recordedAt": "2026-10-19T02:25:02.304Z",
+  "baseline": "545073d83c9d23781a75a93565dbdcf87cac5786",
+  "runtime": {
+    "node": "v22.22.0",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376695992-lsc.json",
+    "command": [
+      "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--cacheDirectory",
+      "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+      "--runTestsByPath",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+    ],
+    "driver": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/run.cjs",
+      "sha256": "a70ca6a34be02406c5e911760371c10b454452c78412990aeff0d7e6506f3818",
+      "bytes": 3207
+    }
+  },
+  "productUnchanged": "New store and panel absent; entry panel equals exact closure baseline; frozen server/identity controls unchanged.",
+  "testChanges": [
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455",
+      "bytes": 5110
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb",
+      "bytes": 15285
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838",
+      "bytes": 22812
+    }
+  ],
+  "result": {
+    "observedAt": "2026-10-19T02:24:59.166Z",
+    "base": "545073d83c9d23781a75a93565dbdcf87cac5786",
+    "ticket": "E:\\Projects\\Personal\\MekStation-wt\\_locks\\heavy\\tickets\\P1-1792376695992-lsc.json",
+    "node": "v22.22.0",
+    "command": [
+      "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--cacheDirectory",
+      "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/jest-cache",
+      "--runTestsByPath",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+    ],
+    "exitCode": 1,
+    "sha256": "352fd25fc70e19105fcd8f47fe7848982112d3762cf6c022159e130df0ea3a66",
+    "bytes": 37050,
+    "summary": "Tests:       28 failed, 23 passed, 51 total",
+    "suites": "Test Suites: 3 failed, 3 total",
+    "tests": [
+      {
+        "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "sha256": "e64a8ae9e41d17c5d65347eeae13af1afa12ab8a56fc78a6bff343b4ccdc5455"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "sha256": "51c6e504f8382fde535d7aee3dcbe19fdaa678b13467e55b04dc49fc8797c9eb"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+      }
+    ],
+    "failureCount": 28,
+    "failures": [
+      "CampaignCoopEntryPanel onboarding affordances › opens the mounted operator controls without changing initial create/join requests",
+      "local seat request adapter › loads public seats through an uncached same-origin GET",
+      "local seat request adapter › sends primary authorization, generation and fresh operation IDs without storing secrets",
+      "local seat request adapter › sends revoke without provisioning fields",
+      "local seat request adapter › handles 401 OPERATOR_DENIED with safe metadata and no retries",
+      "local seat request adapter › handles 401 LOCAL_SEAT_DENIED with safe metadata and no retries",
+      "local seat request adapter › handles 429 LOCAL_SEAT_THROTTLED with safe metadata and no retries",
+      "local seat request adapter › handles 409 OPERATOR_IDENTITY_REQUIRED with safe metadata and no retries",
+      "local seat request adapter › preserves the GENERATION_CONFLICT conflict shape",
+      "local seat request adapter › preserves the OPERATION_MISMATCH conflict shape",
+      "local seat request adapter › sanitizes network failures",
+      "local seat request adapter › sanitizes json failures",
+      "local seat request adapter › sanitizes unknown failures",
+      "LocalSeatOperatorPanel › loads only on opening, lists both seats, and discloses all trust and revocation limits",
+      "LocalSeatOperatorPanel › clears secrets before success and retains the submitted outcome generation even with a newer snapshot",
+      "LocalSeatOperatorPanel › uses snapshot generations on selection, including selecting back after a replay",
+      "LocalSeatOperatorPanel › shows sanitized OPERATOR_DENIED errors distinctly and clears both secrets",
+      "LocalSeatOperatorPanel › shows sanitized THROTTLED errors distinctly and clears both secrets",
+      "LocalSeatOperatorPanel › rejects an empty primary password for Provision seat without a write",
+      "LocalSeatOperatorPanel › rejects an empty primary password for Revoke seat without a write",
+      "LocalSeatOperatorPanel › requires a new seat password to provision and clears the supplied primary password",
+      "LocalSeatOperatorPanel › GENERATION_CONFLICT refreshes once without retrying either write action",
+      "LocalSeatOperatorPanel › OPERATION_MISMATCH refreshes once without retrying either write action",
+      "LocalSeatOperatorPanel › blocks all writes after conflict refresh fails until explicit successful refresh",
+      "LocalSeatOperatorPanel › recovers an initial list failure using explicit refresh",
+      "LocalSeatOperatorPanel › revokes using primary authorization only and renders the returned revoked state",
+      "LocalSeatOperatorPanel › disables every control while writing and blocks same-tick duplicate form submission",
+      "LocalSeatOperatorPanel › disables controls during list loading and never writes browser storage"
+    ],
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\lsc-2op-sol/red.log",
+      "sha256": "352fd25fc70e19105fcd8f47fe7848982112d3762cf6c022159e130df0ea3a66",
+      "bytes": 37050
+    }
+  },
+  "coverage": "Operator fetch/write/error handling, primary password, submit clearing, fresh operation id, outcome generation, both409 refresh/no replay, reset/revoke and disclosure/mount behavior. Existing entry rows retained as controls.",
+  "mutationInventory": {
+    "count": 12,
+    "minimum": 10,
+    "rows": [
+      {
+        "id": "C11",
+        "mutation": "Omit primary operator password from operator write request.",
+        "oracle": "Runtime request must contain user-entered primary password; seat password cannot authorize operator work.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "C12",
+        "mutation": "Omit revoke dispatch.",
+        "oracle": "Revoke button submits action revoke for selected seat with fresh operation id and current generation.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "C14",
+        "mutation": "Remove operator panel entry mount.",
+        "oracle": "Manage local seats button opens the operator surface and fetches current seats.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-01",
+        "mutation": "Retain password inputs after successful submission.",
+        "oracle": "Primary and seat password inputs clear immediately on submit and stay empty on success.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-02",
+        "mutation": "Retain password inputs after failed submission.",
+        "oracle": "Both password inputs stay empty after rejected submission.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-03",
+        "mutation": "Seed next expectedGeneration from old seat list rather than operation outcome.",
+        "oracle": "Next write uses outcome.generation after applied/replayed response.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-04",
+        "mutation": "Reuse operation id across separate submits.",
+        "oracle": "Each call creates a fresh crypto.randomUUID operation id.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-05",
+        "mutation": "Automatically retry POST after HTTP409 refresh.",
+        "oracle": "Conflict causes one GET refresh and no automatic second POST.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-06",
+        "mutation": "Invent currentGeneration for OPERATION_MISMATCH.",
+        "oracle": "Only GENERATION_CONFLICT exposes provided numeric currentGeneration; both shapes refresh without retry.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-07",
+        "mutation": "Remove reset/new-player/re-admission disclosure.",
+        "oracle": "Reset warning says new player identity needs GM re-admission.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-08",
+        "mutation": "Remove issued-bearer and existing-membership disclosure.",
+        "oracle": "UI states issued tokens keep expiry and old principal remains member until explicitly removed.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      },
+      {
+        "id": "UI-09",
+        "mutation": "Remove operator/shared-OS impersonation disclosure.",
+        "oracle": "UI warns local operator/shared OS can act as local seats; no private multi-user boundary is promised.",
+        "status": "frozen prospective probe; runtime outcome not yet claimed"
+      }
+    ],
+    "note": "C11/C12/C14 retained by registration; nine additional operator-UI/store probes. Future source anchors may adapt, behavioral obligations remain frozen. Only genuine runtime assertion failures count; no compile/module/timeouts credited."
+  },
+  "salvageBoundary": {
+    "admitted": false,
+    "sevenRequiredLeaves": [
+      "e2e/campaign-economy-browser.spec.ts",
+      "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+      "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+      "src/stores/campaign/__tests__/salvageUnitEnrollment.test.ts",
+      "src/stores/campaign/campaignBayActions.ts",
+      "src/stores/campaign/salvageUnitEnrollment.ts",
+      "src/types/campaign/Salvage.ts"
+    ],
+    "knownRed": "campaign-economy-browser.spec.ts:377 whole-unit salvage force membership lacks roster projection",
+    "releasePredicate": "npm run verify:qc:campaign-economy:browser must pass12/12; not discharged by operator tests.",
+    "history": "Candidate baseline-f-salvage.patch has historical728 additions/40 deletions;292 product+436 test additions and would exceed combined15-file/500-line scope. Historical23/23 not rerun.",
+    "rootDirection": "Keep salvage outside LSC-2OP literal implementation. Separate registered successor required; do not silently apply or mark the predicate resolved."
+  },
+  "notClaimed": [
+    "No salvage repair; campaign-economy12/12 release predicate remains open.",
+    "No GREEN, independent review, owner ruling or downstream credential consumer proof."
+  ]
+}

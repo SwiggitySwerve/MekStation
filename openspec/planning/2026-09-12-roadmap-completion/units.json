@@ -9068,14 +9068,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "implementing",
+      "baseline": "545073d83c9d23781a75a93565dbdcf87cac5786",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/lsc-2op-admission-20261018.json"
+        },
+        "red": {
+          "path": "evidence/lsc-2op-red-20261018.json"
+        },
+        "local": {
+          "path": "evidence/lsc-2op-local-20261018.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
