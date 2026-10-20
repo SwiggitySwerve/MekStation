@@ -3,8 +3,8 @@
   "registrationOnly": true,
   "sourceAdmitted": false,
   "sourcePR": 2318,
-  "baseline": "664f8c13f7d59dd3d53212309993fac9a23e655b",
-  "observedAt": "2026-10-20T21:39:39.840Z",
+  "baseline": "434fdab1d5b0fbe107435a88985ce3eaaf753033",
+  "observedAt": "2026-10-20T21:47:37.614Z",
   "ruling": {
     "path": "evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt",
     "sha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
@@ -206,7 +206,7 @@
     }
   },
   "census": {
-    "unitCount": 266,
+    "unitCount": 268,
     "nodeCount": 93,
     "activeReservations": [
       {
@@ -965,19 +965,62 @@
         "literalLeaves": null
       },
       {
-        "id": "LSC-2",
+        "id": "LSC-2C",
         "state": "planned",
+        "paths": ["src/lib/campaign"],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": [
+          "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+        ]
+      },
+      {
+        "id": "LSC-2O",
+        "state": "blocked",
+        "paths": [
+          "src/services/vault",
+          "src/pages/api/multiplayer/auth",
+          "src/__tests__/api",
+          "src/lib/campaign",
+          "src/pages-modules/gameplay/campaigns"
+        ],
+        "exceptions": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ],
+        "literalLeaves": [
+          "src/services/vault/LocalSeatCredentialRepository.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+          "src/services/vault/LocalSeatCredentialService.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "src/pages/api/multiplayer/auth/local-seats.ts",
+          "src/__tests__/api/localSeatCredentials.test.ts",
+          "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+        ]
+      },
+      {
+        "id": "LSC-2",
+        "state": "blocked",
         "paths": [
           "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
           "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
           "src/pages-modules/gameplay/campaigns",
-          "src/lib/campaign",
           "src/components/campaign/CampaignNavigation.tsx"
         ],
         "exceptions": [
           "openspec/planning/2026-09-12-roadmap-completion/units.json"
         ],
-        "literalLeaves": null
+        "literalLeaves": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+          "src/components/campaign/CampaignNavigation.tsx"
+        ]
       },
       {
         "id": "LSC-2P",
@@ -2670,20 +2713,6 @@
         "files": [
           "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
           "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json"
-        ]
-      },
-      {
-        "headRefName": "codex/lsc-2-split-registration-sol-20261020",
-        "headRefOid": "a70523eeb55f26becf7c4bd70342ee343aa96ab8",
-        "number": 2317,
-        "title": "docs(roadmap): register ruled LSC-2C and LSC-2O serial split",
-        "files": [
-          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
-          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-admission-20261018.json",
-          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-split-registration-20261020.json",
-          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-split-root-ruling-20261020.txt",
-          "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
-          "openspec/planning/2026-09-12-roadmap-completion/units.json"
         ]
       },
       {

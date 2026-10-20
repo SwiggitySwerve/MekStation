@@ -1,0 +1,18 @@
+ROOT RULING on the LSC-2 fit stop. Your recommendation is ACCEPTED under the owner's standing instruction: "continue with recommended options and fix the issues that come up, publish as needed".
+
+1. Serial split APPROVED, in this order:
+   - LSC-2C: the client adapter, the store (about 267 lines).
+   - LSC-2O: the operator panel plus the server carry-fixes. It takes CF-LSC2OP-2 and CF-LSC2OP-7 (refresh after an unknown-outcome write) on the operator panel, and CF-LSC2OP-3 (a distinct "not revocable" error code, in the repository and service).
+   - Narrowed LSC-2: the chooser/renewal UI, entry and navigation (about 415 lines).
+   Each unit gets 15 files, 500 counted lines after formatting, the full sensitive cadence, and its own closure on main. LSC-2 keeps its id and all of its successors (LSC-2P and the others), so no downstream edge changes and no acceptance row is waived.
+
+2. Register the split in ONE small docs PR now, branched from origin/main a69540e25 or later. #2315 (the A2 split) has merged as a69540e25, so start from that. Follow the #2315 pattern:
+   - add LSC-2C and LSC-2O to units.json and roadmap.json with symmetric predecessors and successors;
+   - partition LSC-2's acceptance rows across the three units, dropping none;
+   - route CF-LSC2OP-1..4 and 7 explicitly;
+   - LSC-2C starts as planned; LSC-2O and LSC-2 start as blocked;
+   - record your fit measurements and this ruling (with its sha256) in the evidence.
+
+3. Run validate-roadmap plain, --git and --next, its tests, lint:units and format:check, with hooks ON. Post the 32-check comparison and REVIEW_READY, then end your turn. Root launches an Astra ledger review.
+
+4. While the review runs, you may prepare the LSC-2C admission design in your reports folder. Do not commit it until Root merges the registration.
