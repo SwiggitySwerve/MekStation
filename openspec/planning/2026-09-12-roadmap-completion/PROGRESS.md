@@ -1,3 +1,23 @@
+## 2026-10-20 LSC-2OP main-verified; only LSC-2 released
+
+#2309 merged at 0372f9d1dc51af9b463f93b2d9e2151892b8a0e1, ruled head 34cb0eb1e15805267c25ffcbe48ed5f3df8e241b; Opus reviewed 05da7d97b71e7fdb3617bd060af0c07de4cc6964 as REQUEST CHANGES. Root diffed the single F1/F2/T1/F3/F5 fix commit, accepted it in live comment6300739754 and merged after32/32 exact-head CI. No second full review or revised Opus verdict is claimed.
+
+Review 24408 bytes SHA256 2a7359800f0c3014b705039bfa716a7ce6bc31f8e010946389aa428a896db9bc and live ruling 1593 bytes SHA256 f7276d879b2cf4a32dd7c3d0992ed55450a3da4181ed3908120839a5699affa5 are byte-preserved in base64 envelopes. The ruling is captured from the live API body, not a local ruling file. PK-lsc-2op-ruling binds it.
+
+[Main proof](evidence/lsc-2op-mainproof-20261020.json): fresh npm ci; owned plus B14/match-history guards103/103; co-op/vault/API/auth regression1126/1126 across67 suites; typecheck PASS, all at clean exact 0372f9d1dc51af9b463f93b2d9e2151892b8a0e1 through heavy-run --lane lsc. Raw logs and runner are preserved. Implementation was345/500 counted lines,10 changed files plus1 reserved review slot. [Merge receipt](evidence/lsc-2op-merge-20261020.json) binds source/test/control hashes and clean integration. Original admission/RED/local evidence stays unchanged.
+
+Carry routing:
+
+- CF-LSC2OP-1 -> LSC-2: Retain the reviewer obligation in the receiving unit.
+- CF-LSC2OP-2 -> LSC-2 / LSC-2P: Retain the reviewer obligation in the receiving unit.
+- CF-LSC2OP-3 -> Root / separately registered server follow-up: No registered server-follow-up unit was named by the ruling; Root retains registration responsibility. This closure grants no server source scope.
+- CF-LSC2OP-4 -> LSC-2P: F5 autocomplete purposes fixed in-PR; packaged password-manager/autofill verification remains LSC-2P.
+- CF-LSC2OP-5 -> LSC-SALVAGE-1: #2310 registered LSC-SALVAGE-1; preserve its state and recorded release policy. No salvage repair or browser PASS claimed.
+
+LSC-2 predecessor states: LSC-2OP=main-verified. Only LSC-2 moves blocked -> planned; LSC-2P and LSC-SALVAGE-1 retain their states. Root explicitly directs pipelined LSC-2 admission on the published closure head; closure verification, CI and merge remain Root-owned. No LSC-2 product PR, packaged acceptance, salvage repair or browser PASS is claimed.
+
+---
+
 ## 2026-10-19 P2CG1HP source verified on main
 
 P2CG1HP moves from implementing to main-verified after #2307.

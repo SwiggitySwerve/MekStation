@@ -9083,7 +9083,17 @@
         "src/pages-modules/gameplay/campaigns"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-source-opus-review-20261020.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-owner-ruling-6300739754.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-install.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-owned-guards.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-regression.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-run-proof-cjs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-merge-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-mainproof-20261020.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9098,10 +9108,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "545073d83c9d23781a75a93565dbdcf87cac5786",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+      "mergeSha": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-2op-admission-20261018.json"
@@ -9112,9 +9122,28 @@
         "local": {
           "path": "evidence/lsc-2op-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-2op-admission-review-20261018.json",
+          "head": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+          "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "2a7359800f0c3014b705039bfa716a7ce6bc31f8e010946389aa428a896db9bc",
+          "verdict": "REQUEST CHANGES",
+          "ownerDisposition": "ACCEPT reviewer-directed fixes at34cb0eb1e15805267c25ffcbe48ed5f3df8e241b"
+        },
+        "merge": {
+          "path": "evidence/lsc-2op-merge-20261020.json",
+          "pr": 2309,
+          "head": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+          "mergeSha": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-2op-mainproof-20261020.json",
+          "mergeCommit": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 3 passed (owned plus guards:103/103; regression:1126/1126 across67 suites; typecheck PASS;0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9139,7 +9168,8 @@
         "N5": "Revocation is effective at the next mint or renewal; already-issued bearers retain their original lifetime, with no immediate eviction or retroactive signature invalidation claim."
       },
       "carryForward20261018": "KNOWN-RED campaign-economy-browser.spec.ts:377: whole-unit salvage adds force membership without roster projection (enemy-atlas absent); resolve unitRef/unitSource/sourceVersion. Candidate E:/Projects/Personal/MekStation-wt/nightly-diag-20261018/baseline-f-salvage.patch (reported 23/23 unit tests, not rerun here) based on #2282 0da8feed0. Release predicate: verify:qc:campaign-economy:browser 12/12. Patch store/type/page/e2e leaves exceed current ownership; admission must rebaseline and explicitly register needed scope/successor within caps, not silently apply it.",
-      "salvageHandoff20261019": "Supersedes earlier LSC-2OP salvage ownership/release wording: LSC-SALVAGE-1 owns the seven-leaf KNOWN-RED repair and 12/12 verify:qc:campaign-economy:browser predicate after v2.2.0. LSC-2OP retains operator-seat acceptance; no browser PASS or repair is claimed."
+      "salvageHandoff20261019": "Supersedes earlier LSC-2OP salvage ownership/release wording: LSC-SALVAGE-1 owns the seven-leaf KNOWN-RED repair and 12/12 verify:qc:campaign-economy:browser predicate after v2.2.0. LSC-2OP retains operator-seat acceptance; no browser PASS or repair is claimed.",
+      "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964"
     },
     {
       "id": "LSC-2",
@@ -9169,7 +9199,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -9201,7 +9231,21 @@
         "N1": "Before admission, census U101, U101a, U101c, U105, B15-2 and FOG-H claims on token.ts, securitySchemas.ts, CampaignCoopEntryPanel.tsx and coopCampaignAuthTokenStore.ts, including all ancestor aliases and planned/blocked reservations.",
         "N2": "Register a separate split for required SQLite migration or Playwright/npm registration leaves; LSC-1DB and LSC-2P implement this split. Any further required leaf needs separate registration even if a spare cap slot exists.",
         "N5": "Revocation is effective at the next mint or renewal; already-issued bearers retain their original lifetime, with no immediate eviction or retroactive signature invalidation claim."
-      }
+      },
+      "carryForwards20261020LSC2OP": [
+        {
+          "id": "CF-LSC2OP-1",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-1 (-> LSC-2):** the guest mint, renewal and recovery client consumes LocalSeatRequestError and its code map (LOCAL_SEAT_DENIED 401 vs LOCAL_SEAT_THROTTLED 429 with Retry-After). It must never auto-retry a mint (CF-LSC1-3). It must keep passwords out of state, storage and URLs, with the same T1-style tests.",
+          "disposition": "Retain the reviewer obligation in the receiving unit."
+        },
+        {
+          "id": "CF-LSC2OP-2",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-2 (-> LSC-2/LSC-2P):** give re-provision of an active seat a distinct label or confirmation (F4). The three-identity proof must show re-provision, then the new playerId, then GM readmission, then ghost membership retained until removal.",
+          "disposition": "Retain the reviewer obligation in the receiving unit."
+        }
+      ]
     },
     {
       "id": "LSC-2P",
@@ -9262,7 +9306,21 @@
         "N2": "Register a separate split for required SQLite migration or Playwright/npm registration leaves; LSC-1DB and LSC-2P implement this split. Any further required leaf needs separate registration even if a spare cap slot exists.",
         "N5": "Revocation is effective at the next mint or renewal; already-issued bearers retain their original lifetime, with no immediate eviction or retroactive signature invalidation claim."
       },
-      "carryForward20261018": "CF-SMOKEA1-7: production standalone reports InMemoryPlayerStore dev-only store in use. Establish intended behavior under local seat credentials and durable identity/reconnect consequences in packaged proof; register a separate product owner if repair is needed."
+      "carryForward20261018": "CF-SMOKEA1-7: production standalone reports InMemoryPlayerStore dev-only store in use. Establish intended behavior under local seat credentials and durable identity/reconnect consequences in packaged proof; register a separate product owner if repair is needed.",
+      "carryForwards20261020LSC2OP": [
+        {
+          "id": "CF-LSC2OP-2",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-2 (-> LSC-2/LSC-2P):** give re-provision of an active seat a distinct label or confirmation (F4). The three-identity proof must show re-provision, then the new playerId, then GM readmission, then ghost membership retained until removal.",
+          "disposition": "Retain the reviewer obligation in the receiving unit."
+        },
+        {
+          "id": "CF-LSC2OP-4",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-4 (-> LSC-2P):** verify password-manager and autofill behaviour on the packaged browser, using current-password/new-password (F5), if F5 is not done in-PR.",
+          "disposition": "F5 autocomplete purposes fixed in-PR; packaged password-manager/autofill verification remains LSC-2P."
+        }
+      ]
     },
     {
       "id": "P2CG1H",
@@ -19076,7 +19134,15 @@
         "source": "evidence/l1-followups2-registration-20261019.json",
         "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
         "sourceAdmitted": false
-      }
+      },
+      "carryForwards20261020LSC2OP": [
+        {
+          "id": "CF-LSC2OP-5",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-5 (-> Root):** register the salvage successor now: the seven leaves, its own caps, and the 12/12 predicate transferred from LSC-2OP. It runs in parallel with LSC-2 and gates v2.2.0 unless the owner waives it.",
+          "disposition": "#2310 registered LSC-SALVAGE-1; preserve its state and recorded release policy. No salvage repair or browser PASS claimed."
+        }
+      ]
     }
   ],
   "packets": [
@@ -20321,6 +20387,50 @@
         "commentId": 6258073974,
         "author": "SwiggitySwerve",
         "bodySha256": "a34031e424d522e53961ff47fe5a089e25899382717e2d203951bb4490293dcf"
+      }
+    },
+    {
+      "id": "PK-lsc-2op-ruling",
+      "blocks": [
+        "LSC-2OP"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept LSC-2OP reviewer-directed fixes at34cb0eb1e after Opus REQUEST CHANGES at05da7d97, exact-head32/32 CI and Root diff?",
+      "options": [
+        {
+          "label": "accept exact reviewer-directed fix head",
+          "consequence": "Permit merge, exact-main proof and closure; release LSC-2 only when all predecessors are main-verified; retain CF-LSC2OP-1..5.",
+          "effort": "Opus review, Root diff, exact-head CI and exact-main runtime proof"
+        },
+        {
+          "label": "request further changes",
+          "consequence": "Hold closure/release pending concrete objections and fresh ruling.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Record the live exact-head owner ruling; retain all downstream obligations and separate packaged acceptance.",
+      "revertCost": "Revert bounded operator UI/store implementation; preserve earlier server credential layers.",
+      "decision": {
+        "option": "accept exact reviewer-directed fix head",
+        "at": "2026-10-20T20:27:05Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2309#issuecomment-6300739754"
+      },
+      "ruling": {
+        "ruledHead": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+        "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+        "pr": 2309,
+        "commentId": 6300739754,
+        "author": "SwiggitySwerve",
+        "bodySha256": "f7276d879b2cf4a32dd7c3d0992ed55450a3da4181ed3908120839a5699affa5"
+      },
+      "openRegistrationFollowUp": {
+        "id": "CF-LSC2OP-3",
+        "owner": "Root",
+        "target": "Separately registered server follow-up; no new source admission"
       }
     },
     {
