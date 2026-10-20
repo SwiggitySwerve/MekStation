@@ -59,6 +59,8 @@ export interface IRewindRebuildHost {
   readonly journalRandomSeed: number;
   readonly journalDiceSeed: number;
   nowIso(): string;
+  /** Current host capture: hydration never consumes it; live commands do. */
+  d6(): number;
   reseedDice(diceSeed: number): void;
   replaceSession(session: InteractiveSession): void;
   /** After replaceSession only — a failed rebuild must not claim this. */
@@ -197,7 +199,11 @@ export async function rebuildHostFromActivatedBranch(
       ...folded,
       config: { ...folded.config, seed: host.journalRandomSeed },
     };
-    const session = await recoverServerInteractiveSession(seeded);
+    const session = await recoverServerInteractiveSession(
+      seeded,
+      undefined,
+      () => host.d6(),
+    );
     host.replaceSession(session);
     // Claim only after replaceSession returns — a throw above must
     // leave servedBranchId on the previous identity.
