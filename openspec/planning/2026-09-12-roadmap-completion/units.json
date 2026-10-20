@@ -18956,7 +18956,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "review-required",
       "baseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
       "prHead": null,
       "mergeSha": null,
@@ -18967,7 +18967,9 @@
         "red": {
           "path": "evidence/mp-campaign-host-dedupe-1-red-20261019.json"
         },
-        "local": null,
+        "local": {
+          "path": "evidence/mp-campaign-host-dedupe-1-local-20261019.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

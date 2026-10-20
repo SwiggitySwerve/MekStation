@@ -1,0 +1,212 @@
+{
+  "unit": "MP-CAMPAIGN-HOST-DEDUPE-1",
+  "stage": "local",
+  "verdict": "PASS_REVIEW_REQUIRED",
+  "at": "2026-10-20T20:25:36.234Z",
+  "baseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "implementation": "One in-flight promise per matchId (the existing campaign-session key). Publish before yielding; return the same pending promise; finally removes success, null and rejection with identity-guarded cleanup.",
+  "testSha256": "d1fb1f8de2a764cce045708478056c0c766a7961f8465ac274ece8c5126a63ef",
+  "registrySha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9",
+  "runs": {
+    "node": "v22.22.0",
+    "head": "2182c28b07ea73b7d7c19e52476421a5317878df",
+    "rows": [
+      {
+        "name": "format",
+        "command": [
+          "node",
+          "node_modules/oxfmt/bin/oxfmt",
+          "--write",
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ],
+        "start": "2026-10-20T20:20:21.630Z",
+        "end": "2026-10-20T20:20:21.747Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-format.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "owned",
+        "command": [
+          "node",
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--selectProjects",
+          "unit",
+          "--watchAll=false",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/jest-cache",
+          "--json",
+          "--outputFile",
+          "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-owned.json",
+          "--runTestsByPath",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ],
+        "start": "2026-10-20T20:20:21.781Z",
+        "end": "2026-10-20T20:20:25.410Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-owned.log",
+          "bytes": 3689,
+          "sha256": "f9f9ce2b8f0590e3b3417a9a60088fe09f637b8e3a488f2e14dc0de690ba0ccf"
+        }
+      },
+      {
+        "name": "server",
+        "command": [
+          "node",
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--selectProjects",
+          "unit",
+          "--watchAll=false",
+          "--cacheDirectory",
+          "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/jest-cache",
+          "--json",
+          "--outputFile",
+          "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-server.json",
+          "--testPathPattern=src/lib/multiplayer/server"
+        ],
+        "start": "2026-10-20T20:20:25.439Z",
+        "end": "2026-10-20T20:24:09.684Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-server.log",
+          "bytes": 960754,
+          "sha256": "ee7846b7e6bf05ef3f8b0d44dcfe3e227098c1db22c7f32df4709a9da74ad97f"
+        }
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "cmd.exe",
+          "/d",
+          "/c",
+          "npm.cmd run typecheck"
+        ],
+        "start": "2026-10-20T20:24:10.165Z",
+        "end": "2026-10-20T20:24:15.535Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-typecheck.log",
+          "bytes": 174,
+          "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
+        }
+      },
+      {
+        "name": "format-check",
+        "command": [
+          "cmd.exe",
+          "/d",
+          "/c",
+          "npm.cmd run format:check"
+        ],
+        "start": "2026-10-20T20:24:15.566Z",
+        "end": "2026-10-20T20:24:37.974Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-format-check.log",
+          "bytes": 174,
+          "sha256": "7d4b406ee9324ce7af8937306ffca8cdec931e9437adf8e4d6897dea113ecc56"
+        }
+      },
+      {
+        "name": "lint-units",
+        "command": [
+          "cmd.exe",
+          "/d",
+          "/c",
+          "npm.cmd run lint:units"
+        ],
+        "start": "2026-10-20T20:24:38.742Z",
+        "end": "2026-10-20T20:24:41.137Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-lint-units.log",
+          "bytes": 355,
+          "sha256": "c98eb92bfcf9af8abecf5eda9b17bd3cf0aee368b856275062d3f423894019b6"
+        }
+      },
+      {
+        "name": "ledger",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "start": "2026-10-20T20:24:41.216Z",
+        "end": "2026-10-20T20:25:24.272Z",
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\mp-cdedupe/green-ledger.log",
+          "bytes": 2354,
+          "sha256": "86558697a00c210916ccdb45d8b4cf66029686f4cfe58e6fd5cf5cc738de6a46"
+        }
+      }
+    ]
+  },
+  "owned": {
+    "suites": 1,
+    "tests": 28,
+    "failed": 0
+  },
+  "server": {
+    "suites": 179,
+    "tests": 1600,
+    "failed": 0
+  },
+  "manifest": {
+    "files": [
+      "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+    ],
+    "count": 7,
+    "reservedReviewSlot": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+  },
+  "census": {
+    "sourceCountedAdditionsBeforeFinalLifecycle": 58,
+    "maxNonGeneratedLines": 500,
+    "filesAtMost": 7
+  },
+  "controls": [
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "blob": "ca3f4080a732b0aafffec2ebc4409b3db13efc9e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "blob": "1747417215c438819c12e433606b69e320369217"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "blob": "8e6fd27c67e61b3b477d1e26d4831d9bc400ccd7"
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "blob": "0eaa7ebf8a3aa2d7f0dc57c3d180b71bc9f20749"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "blob": "7e73fc3066a835b03dcebd6ccca8eb264959f7e1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "blob": "853313fe7e8bc81cf638099a7f9fdd20b0324aff"
+    },
+    {
+      "path": "server.js",
+      "blob": "7ce8627c35dbc754fa789f70cc701c536f3549e8"
+    }
+  ],
+  "limits": "No new browser or production built-image probe. Deduplication is process-local and keyed by existing matchId, not a cross-replica lock. Direct register/dispose concurrency and reset during pending registration are pre-existing lifecycle behavior outside this getOrCreate repair. Existing invite, pause, branch and revision behavior is retained and regression-tested.",
+  "review": "Full exact-head Claude Opus review and owner ruling remain pending. Review receipt slot is reserved, not populated with synthetic approval."
+}
