@@ -1,0 +1,144 @@
+{
+  "unit": "MP-RECOVERY-UNITS-2",
+  "stage": "review",
+  "recordedAt": "2026-10-20T19:30:08.003Z",
+  "head": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+  "reviewedHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+  "reviewerModel": "claude-fable-5-1",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "verdictText": "APPROVE for OWNER-RULING at the exact head, with no blocking finding or required in-PR change; carry-forwards remain explicitly routed.",
+  "outputPath": "evidence/mp-recovery-units-2-source-fable-review-20261019.txt",
+  "outputSha256": "24d2f0b7d00ce7ae50e90ba79bb2109a8930faffb7a55aaca6f6a654578d0236",
+  "outputBytes": 23423,
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-19/pr2306-mp-recovery-2-review.md",
+  "reservedSlot": "The original admission manifest reserved this review slot; it now binds the genuine full sensitive review.",
+  "classes": [
+    "authority",
+    "replay",
+    "migration"
+  ],
+  "supplementalReviewClasses": [
+    "persistence"
+  ],
+  "reviewerRows": [
+    "| CF-MPRU-1: co-op ServerMatchHost.recover reads units from disk, not HTTP | YES. recover() calls deriveServerAdaptedUnits(state) for co-op AND non-co-op (OBS-MPRU-1 from UNITS-1 closed too). deriveAdaptedUnitsFromSession import is gone from ServerMatchHost.ts; the only remaining engine-path use is inside deriveServerAdaptedUnits for custom units (SQLite reader, not HTTP). Test rows co-op=false/true assert fetch never called, journalPlayerUnits/journalOpponentUnits populated by id, and a real Move declared and persisted. Mutants M1 (HTTP for co-op, [] otherwise), M9 ([] for non-co-op) and M10 (sides swapped) caught. |",
+    "| CF-MPRU-3: live rewind rebuild does not use HTTP-to-self | YES. Mutant M7 (revert to fromSessionAsync) and M8 (drop the journalRandomSeed stamp) caught by the serverUnits row, which runs a REAL activated branch (appendCommandBatch + commitGmCombatRewind on a real SQLite journal) and asserts fetch not called, prefix ids, capabilities and the reset-protocol order. |",
+    "| CF-MPRU-4: post-restart dice from the crypto RollCapture, events record the captured rolls, not predictable from SeededRandom(0xc0ffee) | YES for boot-recovered hosts (every MatchRecovery arm ends in ServerMatchHost.recover). The engine callback is () => host.capture.d6(); the host constructs ServerMatchHostCapture(undefined) = CryptoDiceRoller; installFreshCapture/stampRollsOnNewEvents run per intent (ServerMatchHostIntent 343/360) BEFORE persist+broadcast, so store and wire carry identical rolls. Test rows seed=undefined/4242 spy CryptoDiceRoller.prototype.d6 (call-through) and assert recorded payload.rolls === consumed crypto values across two separate intents (fresh buffers). Mutants M2 (drop wiring), M3 (construct from the caller session), M5 (helper ignores roller), M11 (crypto but uncaptured) caught. Built-image probe (section 5): post-restart initiative_rolled carries rolls [3,1,6,5]. NOT yet true after a LIVE rewind rebuild (F1 / CF-MPRU2-1). |",
+    "| CF-MPRU-2: rewound-at-boot fixture | YES, real and unmocked (legacyBranches row 1): real journal, real commitGmCombatRewind, real recoverActiveMatches with HTTP refused; asserts servedBranchId = activated branch, prefix ids, Movement phase, capabilities present, no fetch. Mutants M12 (fromSessionAsync in the rewound arm) and M13 (drop adoptServedBranch) caught - so M8 from UNITS-1 would now be caught. Limit: the Move is refused with rollback-reader-blocked:missing-journal-head (pre-existing fence), so an ACCEPTED action at that crash point is not witnessed (CF-MPRU2-2). |",
+    "| M1 | recover: co-op units via engine deriveAdaptedUnitsFromSession (HTTP), non-co-op [] (the pre-PR shape) | CAUGHT (2: both Move rows) |",
+    "| M2 | recover: pass undefined instead of () => host.capture.d6() | CAUGHT (2: both dice rows) |",
+    "| M3 | recover: construct the host from the caller's session, discard the rebuilt one | CAUGHT (2: both dice rows) |",
+    "| M4 | helper: seeded ? SeededD6Roller(seed) : d6Roller (seed beats the roller) | CAUGHT (2: seed=4242 dice row + override row) |",
+    "| M5 | helper: ignore d6Roller entirely | CAUGHT (3) |",
+    "| M6 | helper: d6Roller ?? SeededD6Roller(seeded ? seed : 0xc0ffee) (unseeded default gets a seeded roller) | SURVIVES - equivalent at the server surface: after this PR the unseeded no-roller branch is reached only by rebuildSessionFromEvents (no production caller) and the discarded MatchRecovery pre-derivations; same as UNITS-1's R9 |",
+    "| M7 | live rebuild: revert to InteractiveSession.fromSessionAsync(seeded, readServerCustomCombatDefinition) | CAUGHT (1: serverUnits fetch assertion) |",
+    "| M8 | live rebuild: drop the journalRandomSeed stamp (recover from folded) | CAUGHT (1: parity vs seed 4242 control) |",
+    "| M9 | recover: units only for co-op (non-co-op []) | CAUGHT (1: co-op=false Move row, journal unit ids) |",
+    "| M10 | recover: swap player/opponent journal units | CAUGHT (2) |",
+    "| M11 | recover: fresh CryptoDiceRoller not routed through the capture (random but unrecorded) | CAUGHT (2: recorded != consumed, consumed 0) |",
+    "| M12 | MatchRecovery rewound-at-boot arm: fromSessionAsync (HTTP) | CAUGHT (1: legacyBranches rewound-boot row) - this is UNITS-1's M8 |",
+    "| M13 | MatchRecovery rewound-at-boot arm: drop adoptServedBranch | CAUGHT (1) |",
+    "| CF-MPRU2-1 (Medium, pre-existing) | new narrow unit on ServerMatchHost.ts rewindRebuildPort + ServerMatchHostRewindRebuild.ts + re-seal of ServerMatchHostRewindRebuild.serverUnits.test.ts; or U44 if the rollback/cutover work touches the port anyway | Live rewind rebuild: engine dice bypass the host capture (SeededD6Roller(journalRandomSeed=0xc0ffee), no payload.rolls, reseedDice reseeds an unread capture). Decide crypto-vs-journalDiceSeed provenance, then route through the capture so rolls are recorded. |",
+    "| CF-MPRU2-2 | U44 (as the PR routes it) | Rewound-at-boot accepted action: a crash right after branch activation with no matching command receipt still refuses intents with rollback-reader-blocked:missing-journal-head. The fixture pins the fence; an accepted action at that point is not proven. |",
+    "| CF-MPRU2-3 | L1-SMOKE-A2 | Co-op restart on a BUILT image: witness an accepted unit action and rolls on the first post-restart roll event (reuse run-recovery-probe.v5.mjs's fourth case; extend with the co-op mission create route). |",
+    "| OBS-MPRU2-1 | next MatchRecovery.ts owner | Triple derivation at boot (F2). |",
+    "| CF-SMOKEA1-2 | discharged for 1v1 combat on this head as well (section 5) |"
+  ],
+  "carryForwards": {
+    "items": [
+      {
+        "id": "CF-MPRU2-1",
+        "severity": "Medium",
+        "status": "open; registered by #2310; released to planned by this closure",
+        "owner": "MP-REWIND-DICE-1",
+        "item": "Live rewind rebuild still uses predictable, uncaptured SeededD6Roller(0xc0ffee). The registered narrow rewind-port/capture unit owns provenance, captured event rolls, and re-sealing the affected test before the GM-rewind path is claimed for v2.2.0. This closure releases but does not implement it."
+      },
+      {
+        "id": "CF-MPRU2-2",
+        "status": "open",
+        "owner": "U44",
+        "item": "A rewound-at-boot accepted action remains fenced by rollback-reader-blocked:missing-journal-head. The real boot fixture verifies hydration and refusal, not an accepted action at that crash point."
+      },
+      {
+        "id": "CF-MPRU2-3",
+        "status": "open",
+        "owner": "L1-SMOKE-A2",
+        "item": "Co-op restart on a built image must witness an accepted unit action and captured rolls on the first post-restart roll event. The source review built-image probe covers ordinary 1v1 only."
+      },
+      {
+        "id": "OBS-MPRU2-1",
+        "status": "open; next-owner observation",
+        "owner": "next MatchRecovery.ts owner",
+        "item": "Boot currently derives units three times. A future MatchRecovery.ts owner may remove redundant derivations while preserving custom-unit behavior, journal unit arrays and capture wiring."
+      }
+    ],
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2306#issuecomment-6258457894",
+    "registration": "Root subsequently registered MP-REWIND-DICE-1 in #2310 (main 59004af9c). This closure computes its release from the ledger and routes CF-MPRU2-1 there; it registers no new unit or dependency edge."
+  },
+  "ownerRuling": {
+    "ruledHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+    "pr": 2306,
+    "commentId": 6258457894,
+    "author": "SwiggitySwerve",
+    "at": "2026-10-19T02:37:14Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2306#issuecomment-6258457894",
+    "bodyPath": "evidence/mp-recovery-units-2-owner-ruling-6258457894.txt",
+    "bodySha256": "2b5f43af140e83c022ec6ed49e76d2723b74cb6410dd9a625bebabb7367f32ce",
+    "bodyBytes": 2407,
+    "copyEqualsRootSource": true
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-20T19:30:08.003Z",
+    "ledgerBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "algorithm": "Only newly eligible dependents of MP-RECOVERY-UNITS-2; every declared predecessor must be main-verified with a PASS mainProof. Existing independent holds remain. Only state blocked -> planned may change.",
+    "releases": [
+      "L1-SMOKE-A2",
+      "MP-REWIND-DICE-1"
+    ],
+    "candidates": [
+      {
+        "id": "L1-SMOKE-A2",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-HOST-DEDUPE-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-RECOVERY-UNITS-2",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [],
+        "eligible": true
+      },
+      {
+        "id": "MP-REWIND-DICE-1",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "MP-RECOVERY-UNITS-2",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "blockedBy": [],
+        "eligible": true
+      }
+    ]
+  }
+}
