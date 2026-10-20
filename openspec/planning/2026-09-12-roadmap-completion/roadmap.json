@@ -3886,6 +3886,32 @@
           ]
         },
         "qualification": "Only these exact prospective source/test leaves; no source admission. Existing H type-only grant and all other restrictions stand."
+      },
+      "ownershipPathsAmended20261020L1SmokeSplit": {
+        "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+        "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+        "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+        "units": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+        "restrictions": {
+          "L1-SMOKE-A2F": [
+            "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+            "scripts/release/l1-built-server-spectator-context.mjs",
+            "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+            "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+          ],
+          "L1-SMOKE-A2M": [
+            "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+            "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+            "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+          ],
+          "L1-SMOKE-A2": [
+            "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+            "scripts/release/l1-built-server-spectator-cases.mjs",
+            "scripts/release/l1-built-server-spectator-fixtures.ts",
+            "scripts/release/l1-built-server-spectator.test.mjs"
+          ]
+        },
+        "qualification": "Prospective literal new leaves only, no source admission. A2F/A2M/A2 stay serial through closure; A2/B downstream gates and A1 frozen bytes remain. This amendment supersedes only the old effective A2 scope/interface allocation, not original acceptance. Normal oxfmt counting is adopted; do not start A2F admission before Root merges #2315."
       }
     },
     {
@@ -19383,5 +19409,48 @@
     "collisionRule": "Only the named source/test leaves are reserved. MP-RECOVERY-UNITS-2 -> rewind serializes its overlapping host/rebuild/test leaves. Campaign dedupe follows already-main-verified MP-HOST-DEDUPE-1 and precedes H; H retains its type-only grant. U44 capability-DB/rollback-reader work, U26/FOG privacy, U45/src-lib and other ancestor aliases remain separate owners: no simultaneous shared-leaf admission; re-census, rebase/refreeze and obtain a narrow scope amendment for any additional leaf. Salvage follows LSC-2OP; census B15/campaign-store/e2e/roster aliases before admission. All registration/closure writers serialize units.json, roadmap.json and PROGRESS.md; no source admission is granted.",
     "scope": "Four documentation files only. Existing lifecycle, packets, task holders, historical evidence and caps remain unchanged. These follow-up notes do not grant H runtime edits outside its manifest.",
     "authority": "Owner: continue with recommended options and fix the issues that come up, publish as needed. Register three narrow follow-ups; Sol implements, Claude Opus/Astra/Sonnet verifies. This is not a future sensitive OWNER-RULING."
+  },
+  "l1SmokeA2SplitRegistration20261020": {
+    "baseline": "a2e2a7b8d113ad06279ad50f71665339fdeece0e",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+    "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+    "rulingPath": "evidence/l1-smoke-a2-split-root-ruling-20261020.txt",
+    "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+    "units": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+    "initialStates": {
+      "L1-SMOKE-A2F": "planned",
+      "L1-SMOKE-A2M": "blocked",
+      "L1-SMOKE-A2": "blocked"
+    },
+    "order": "L1-SMOKE-A1 + MP-RECOVERY-UNITS-1 + MP-HOST-DEDUPE-1 + MP-RECOVERY-UNITS-2 -> L1-SMOKE-A2F -> L1-SMOKE-A2M -> L1-SMOKE-A2; A2 retains its original four direct predecessors and both B/H successors.",
+    "manifests": {
+      "L1-SMOKE-A2F": [
+        "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "scripts/release/l1-built-server-spectator-context.mjs",
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+      ],
+      "L1-SMOKE-A2M": [
+        "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+      ],
+      "L1-SMOKE-A2": [
+        "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "scripts/release/l1-built-server-spectator-cases.mjs",
+        "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "scripts/release/l1-built-server-spectator.test.mjs"
+      ]
+    },
+    "countPolicy": "500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 generated/test/evidence exclusions remain, every unique file counts, no deletion credit or cap waiver. A1 historical receipt is not reopened; future A2F/A2M/A2/B budgets must be remeasured at their own finite admissions.",
+    "releaseAccounting": {
+      "previous": 41,
+      "total": 43,
+      "addedClosures": ["L1-SMOKE-A2F", "L1-SMOKE-A2M"]
+    },
+    "historicalRule": "Supersedes only effective A2 scope/interface/budget scheduling in the old prospective smoke registration. Original A2 acceptance stays retained through F/M proof plus final A2 composition; historical source hashes/receipts, A1 receipt and downstream B/H gates are unchanged.",
+    "sourceAdmissionBarrier": "Do not start A2F admission until Root merges #2315 and independently qualifies this registration. All stage receipts/baselines/heads/merge fields remain null for F/M/A2; planned is not admitted. Root owns subsequent Astra ledger review, CI, ruling and merge."
   }
 }
