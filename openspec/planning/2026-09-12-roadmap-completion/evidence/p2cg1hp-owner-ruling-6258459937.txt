@@ -1,0 +1,31 @@
+OWNER-RULING aa1b70d8379e22d6031d7ea5546af53bf0dd370a
+
+Unit: P2CG1HP (L1, B14/HP lane; sensitive authority, privacy, replay, idempotency, concurrency). Implemented by Sol ultrafast and verified by Claude Opus, under the owner's direction "Use opus or Astra instead of fable for reviews going forward". PR #2307 at exact head aa1b70d8379e22d6031d7ea5546af53bf0dd370a.
+
+Owner text:
+- Standing: "continue with recommended options and fix the issues that come up, publish as needed".
+- 2026-10-18: "I think the recommended actions make sense for the ones that have them", which covers the HP policy of 2 retries followed by an inline message.
+Root rules under these.
+
+Basis: independent full review (Opus 5.5) on e582634ce9f8f4365200e3ec6ad2cca28c4f88f7: APPROVE-WITH-IN-PR-FIXES, with no product defect. Report: _reports/2026-10-19/pr2307-hp-review.md, sha256 a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa (13,967 bytes).
+- Recovery is bounded: 2 retries per seat, keyed on campaign, match and player. After that it stops and shows a fixed message.
+- The role="status" live region is persistent and starts empty.
+- Release is idempotent, and the held-refresh cut is enforced.
+- The server stays authoritative. The message contains no ids, and fog refusal never triggers a rejoin.
+- RED is behavioural (7/130). The owned suites pass 130/130; regression 383/383.
+- 115/500 lines, 9/15 files.
+
+In-PR fix applied at aa1b70d8379e22d6031d7ea5546af53bf0dd370a. Root diffed e582634c..aa1b70d8379e22d6031d7ea5546af53bf0dd370a: one test file, +41 lines. F1: a healthy confirmation after a same-key re-render clears the stale message, which kills R08. 131/131 pass. CI is 32/32, and the merge state is CLEAN.
+
+Ruling: ACCEPT, and merge at this exact head.
+
+Carry-forwards:
+- CF-HP-1: bound or back off non-quiet recovery signals -> P2CG1H.
+- CF-HP-2: same-key rebind and legacy reset-on-reload -> P2CG1H.
+- CF-HP-3: pin the episode-key guards -> P2CG1H.
+- CF-HP-4: the closure records reviewedHead e582634c.
+- CF-S-1 (open) and CF-MPHD-4 -> P2CG1H.
+- I3: the empty status <p> renders on every campaign page; do a visual check for a spacing gap -> P2CG1H/LSC-2.
+- CF-H7/G4, CF-H14, CF-H15, CF-H8/G5 (member seat) and CF-H12 are discharged.
+
+Next: the closure releases P2CG1H only once its other predecessors are verified (G2, R, B14-0, LSC-2P, L1-SMOKE A1/A2/B, HP).

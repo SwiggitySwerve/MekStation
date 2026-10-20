@@ -1,0 +1,213 @@
+{
+  "unit": "P2CG1HP",
+  "stage": "review",
+  "recordedAt": "2026-10-20T19:34:57.733Z",
+  "head": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+  "reviewedHead": "e582634ce9f8f4365200e3ec6ad2cca28c4f88f7",
+  "reviewerModel": "claude-opus-5-5",
+  "implementerModel": "gpt-6.1-sol",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE-WITH-IN-PR-FIXES",
+  "outputPath": "evidence/p2cg1hp-source-opus-review-20261019.txt",
+  "outputSha256": "a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa",
+  "outputBytes": 13967,
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-19/pr2307-hp-review.md",
+  "headNote": "Opus reviewed e582634c. F1 subsequently added 41 lines in one test leaf, killed R08 and passed 131 owned tests. Root explicitly diffed and accepted aa1b70d8 without another independent review; no second review is fabricated.",
+  "reservedSlot": "The original nine-file manifest reserved this previously unwritten review slot.",
+  "classes": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "carryForwards": {
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2307#issuecomment-6258459937",
+    "items": [
+      {
+        "id": "CF-HP-1",
+        "status": "open",
+        "owner": "P2CG1H",
+        "item": "Bound or back off non-quiet recovery signals; choose whether exhaustion text covers them."
+      },
+      {
+        "id": "CF-HP-2",
+        "status": "open",
+        "owner": "P2CG1H",
+        "item": "Recheck same-key rebinding against a spent budget and legacy reset-on-reload when installing receipts."
+      },
+      {
+        "id": "CF-HP-3",
+        "status": "open",
+        "owner": "P2CG1H",
+        "item": "Pin episode-key guards with hook-level proof if bindings can outlive key changes."
+      },
+      {
+        "id": "CF-HP-4",
+        "status": "discharged by this closure",
+        "reviewedHead": "e582634ce9f8f4365200e3ec6ad2cca28c4f88f7",
+        "outputSha256": "a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa",
+        "item": "Keep independently reviewed head distinct from Root-diffed, test-only F1 head."
+      },
+      {
+        "id": "CF-S-1",
+        "status": "open",
+        "owner": "P2CG1H",
+        "item": "Fog-off HTTP history/export lacks a sealed-choice hold; implement it before moving to the effective head. No privacy restoration claimed."
+      },
+      {
+        "id": "CF-MPHD-4",
+        "status": "open",
+        "owner": "MP-CAMPAIGN-HOST-DEDUPE-1 (P2CG1H predecessor)",
+        "item": "The source ruling routed this to H; subsequent registration #2310 assigns the CampaignHostRegistry race repair to this separate prerequisite. Preserve that current registration; no H type-only scope expansion or HP repair."
+      },
+      {
+        "id": "I3",
+        "status": "open",
+        "owner": "P2CG1H / LSC-2",
+        "item": "Visually check whether the persistent empty status paragraph introduces an unwanted spacing gap."
+      },
+      {
+        "id": "CF-H7/CF-G4",
+        "status": "discharged by reviewed/ruled HP source",
+        "owner": "P2CG1HP"
+      },
+      {
+        "id": "CF-H14",
+        "status": "discharged by reviewed/ruled HP source",
+        "owner": "P2CG1HP"
+      },
+      {
+        "id": "CF-H15",
+        "status": "discharged by reviewed/ruled HP source",
+        "owner": "P2CG1HP"
+      },
+      {
+        "id": "CF-H8/CF-G5 (member seat)",
+        "status": "discharged by reviewed/ruled HP source",
+        "owner": "P2CG1HP"
+      },
+      {
+        "id": "CF-H12",
+        "status": "discharged by reviewed/ruled HP source",
+        "owner": "P2CG1HP"
+      }
+    ],
+    "passThrough": [
+      "CF-R-2",
+      "CF-R-3",
+      "CF-H5 (consumer-only)",
+      "CF-E7",
+      "CF-B14H-3..5",
+      "CF-B14-3..5",
+      "CF-B14-0-1"
+    ],
+    "qualification": "Prior receipts and other unit fields are preserved. Routing is recorded here and in PROGRESS; no implicit scope expansion for H or LSC-2."
+  },
+  "ownerRuling": {
+    "ruledHead": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+    "pr": 2307,
+    "commentId": 6258459937,
+    "author": "SwiggitySwerve",
+    "at": "2026-10-19T02:37:25Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2307#issuecomment-6258459937",
+    "bodyPath": "evidence/p2cg1hp-owner-ruling-6258459937.txt",
+    "bodySha256": "121486facf69be0a41b63c9056a2ab5c4a27152e5793fe5a29eebfa3e2780266",
+    "bodyBytes": 2370,
+    "copyEqualsRootSource": true
+  },
+  "successorRelease": {
+    "computedAt": "2026-10-20T19:34:57.733Z",
+    "ledgerBase": "59004af9c186c1cc7326384623c43d9f060cfec5",
+    "algorithm": "Only dependents of HP whose every declared predecessor is main-verified/complete/archived with mainProof PASS; blocked -> planned only.",
+    "releases": [],
+    "candidates": [
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "P2CG1G2",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "P2CG1R",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "LSC-2P",
+            "state": "blocked",
+            "mainProof": null,
+            "verified": false
+          },
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked",
+            "mainProof": null,
+            "verified": false
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "mainProof": null,
+            "verified": false
+          },
+          {
+            "id": "P2CG1HP",
+            "state": "main-verified",
+            "mainProof": "PASS",
+            "verified": true
+          },
+          {
+            "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
+            "state": "planned",
+            "mainProof": null,
+            "verified": false
+          }
+        ],
+        "blockedBy": [
+          "LSC-2P",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B",
+          "MP-CAMPAIGN-HOST-DEDUPE-1"
+        ],
+        "eligible": false
+      }
+    ]
+  },
+  "followUp": {
+    "head": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+    "files": [
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx"
+    ],
+    "added": 41,
+    "deleted": 0,
+    "productUnchanged": true,
+    "mutation": {
+      "id": "R08",
+      "failed": 1,
+      "report": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-19\\pr2307-f1\\R08-mutant.json",
+        "bytes": 31623,
+        "sha256": "5608b9a55dc8dbc7df5205acdfa4c781c385e00aa5fa8cfea3041af8a222a4ad"
+      }
+    },
+    "owned": 131
+  }
+}
