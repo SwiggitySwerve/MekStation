@@ -10,6 +10,13 @@ import { stripVTControlCharacters } from 'node:util';
 export const TSRS_VERSION = '0.18.0-ts7.1.0-dev.20260929';
 export const TSRS_SHA256 =
   'd0bd720c20e9900764811bb0f36e46d2d56916d3048e768053919d40db02a194';
+export const PROJECTS = [
+  ['root', ['--noEmit', '--skipLibCheck']],
+  ['scripts', ['-p', 'scripts/tsconfig.json', '--noEmit']],
+];
+const BLOCK_LIMIT = 64 * 1024;
+const SUMMARY_LIMIT = 900 * 1024;
+const RUN_TIMEOUT_MS = 3 * 60 * 1000;
 
 export function classifyExit(status) {
   if (status === 0) return 'clean';
@@ -63,6 +70,9 @@ export function compareRuns(baseline, candidate, cwd) {
   const ts7 = normalize(baseline);
   const tsrs = normalize(candidate);
   const problems = [];
+  const timedOut = [baseline, candidate].some(
+    (run) => run.error?.code === 'ETIMEDOUT',
+  );
   for (const [name, run, normalized] of [
     ['TS7', baseline, ts7],
     ['tsrs', candidate, tsrs],
@@ -70,7 +80,9 @@ export function compareRuns(baseline, candidate, cwd) {
     const count =
       normalized.stdout.diagnostics.length +
       normalized.stderr.diagnostics.length;
-    if (
+    if (run.error?.code === 'ETIMEDOUT') {
+      problems.push(`${name}: TIMEOUT after ${RUN_TIMEOUT_MS / 1000}s`);
+    } else if (
       run.error ||
       run.signal ||
       normalized.exit === 'error' ||
@@ -101,18 +113,35 @@ export function compareRuns(baseline, candidate, cwd) {
     }
   }
   return {
-    parity: problems.length ? 'ERROR' : diff.length ? 'MISMATCH' : 'MATCH',
+    parity: timedOut
+      ? 'TIMEOUT'
+      : problems.length
+        ? 'ERROR'
+        : diff.length
+          ? 'MISMATCH'
+          : 'MATCH',
     diff: [...problems, ...diff],
   };
 }
 
-function fenced(text) {
-  const longest = Math.max(
-    0,
-    ...Array.from(text.matchAll(/`+/g), (match) => match[0].length),
-  );
+export function clip(text, limit = BLOCK_LIMIT) {
+  const bytes = Buffer.from(text);
+  if (bytes.length <= limit) return text;
+  const note = `\n[truncated; full ${bytes.length} bytes are in the job log]\n`;
+  let end = Math.max(0, limit - Buffer.byteLength(note));
+  // Avoid replacing a partial UTF-8 character with a larger replacement character.
+  while (end > 0 && (bytes[end] & 0xc0) === 0x80) end--;
+  return bytes.toString('utf8', 0, end) + note.slice(0, limit);
+}
+
+export function fenced(text, limit = BLOCK_LIMIT) {
+  const body = clip(text, limit);
+  const longest = Array.from(
+    body.matchAll(/`+/g),
+    (match) => match[0].length,
+  ).reduce((max, length) => Math.max(max, length), 0);
   const fence = '`'.repeat(Math.max(3, longest + 1));
-  return `${fence}text\n${text}\n${fence}\n`;
+  return `${fence}text\n${body}\n${fence}\n`;
 }
 
 export function runSideCheck({
@@ -127,6 +156,15 @@ export function runSideCheck({
     `tsrs: ${TSRS_VERSION}; native SHA256: ${TSRS_SHA256}.`,
     '',
   ];
+  const fullReport = [...report];
+  const add = (...lines) => {
+    report.push(...lines);
+    fullReport.push(...lines);
+  };
+  const addBlock = (text) => {
+    report.push(fenced(text));
+    fullReport.push(fenced(text, Infinity));
+  };
   let failed = false;
   try {
     if (!prefix)
@@ -140,22 +178,26 @@ export function runSideCheck({
         'utf8',
       ),
     );
+    const nativeManifest = JSON.parse(
+      fs.readFileSync(
+        path.join(prefix, 'node_modules/@tsrs/linux-x64-gnu/package.json'),
+        'utf8',
+      ),
+    );
     const hash = createHash('sha256')
       .update(fs.readFileSync(binary))
       .digest('hex');
-    if (manifest.version !== TSRS_VERSION || hash !== TSRS_SHA256) {
+    if (
+      manifest.version !== TSRS_VERSION ||
+      nativeManifest.version !== TSRS_VERSION ||
+      hash !== TSRS_SHA256
+    ) {
       throw new Error(
-        `tsrs integrity mismatch: version=${manifest.version}, sha256=${hash}`,
+        `tsrs integrity mismatch: version=${manifest.version}, nativeVersion=${nativeManifest.version}, sha256=${hash}`,
       );
     }
-    report.push(
-      'Native binary integrity: MATCH (checked before execution).',
-      '',
-    );
-    for (const [project, args] of [
-      ['root', ['--noEmit', '--skipLibCheck']],
-      ['scripts', ['-p', 'scripts/tsconfig.json', '--noEmit']],
-    ]) {
+    add('Native binary integrity: MATCH (checked before execution).', '');
+    for (const [project, args] of PROJECTS) {
       const runs = [];
       for (const [name, command, launcher, extra] of [
         ['TS7', process.execPath, ['node_modules/typescript7/bin/tsc'], []],
@@ -172,7 +214,7 @@ export function runSideCheck({
             {
               cwd,
               encoding: 'utf8',
-              timeout: 5 * 60 * 1000,
+              timeout: RUN_TIMEOUT_MS,
               maxBuffer: 32 * 1024 * 1024,
               env: { ...process.env, NO_COLOR: '1' },
             },
@@ -182,33 +224,31 @@ export function runSideCheck({
         }
         const seconds = ((performance.now() - start) / 1000).toFixed(3);
         runs.push(result);
-        report.push(
-          `- ${project} / ${name}: ${seconds}s; exit ${result.status}; ${classifyExit(result.status)}.`,
+        add(
+          `- ${project} / ${name}: ${seconds}s; exit ${result.status}; ${result.error?.code === 'ETIMEDOUT' ? 'TIMEOUT' : classifyExit(result.status)}.`,
         );
       }
       const comparison = compareRuns(...runs, cwd);
       failed ||= comparison.parity !== 'MATCH';
-      report.push('', `${project} parity: **${comparison.parity}**`, '');
-      if (comparison.diff.length)
-        report.push(fenced(comparison.diff.join('\n')));
+      add('', `${project} parity: **${comparison.parity}**`, '');
+      if (comparison.diff.length) addBlock(comparison.diff.join('\n'));
       // Preserve unexpected output (including compiler crashes) for diagnosis.
-      if (comparison.parity === 'ERROR') {
+      if (comparison.parity === 'ERROR' || comparison.parity === 'TIMEOUT') {
         for (const [index, run] of runs.entries()) {
-          report.push(
-            fenced(
-              `${index === 0 ? 'TS7' : 'tsrs'} stdout:\n${run.stdout ?? ''}\nstderr:\n${run.stderr ?? ''}`,
-            ),
+          addBlock(
+            `${index === 0 ? 'TS7' : 'tsrs'} stdout:\n${run.stdout ?? ''}\nstderr:\n${run.stderr ?? ''}`,
           );
         }
       }
     }
   } catch (error) {
     failed = true;
-    report.push('Side-check: **ERROR**', '', fenced(error.message));
+    add('Side-check: **ERROR**', '');
+    addBlock(error.message);
   }
   const markdown = report.join('\n') + '\n';
-  if (summary) fs.appendFileSync(summary, markdown);
-  process.stdout.write(markdown);
+  if (summary) fs.appendFileSync(summary, clip(markdown, SUMMARY_LIMIT));
+  process.stdout.write(fullReport.join('\n') + '\n');
   // Job-level continue-on-error makes disagreements visible without gating the PR.
   return failed ? 1 : 0;
 }

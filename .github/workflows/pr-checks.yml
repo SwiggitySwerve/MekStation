@@ -200,6 +200,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -207,7 +209,7 @@ jobs:
           node-version: '22'
 
       - name: Install isolated pinned tsrs
-        run: npm install --no-save --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
 
       - name: Compare TS7 and verified tsrs diagnostics
         run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"

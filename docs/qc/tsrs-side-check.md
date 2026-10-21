@@ -4,7 +4,9 @@
 `pr-checks.yml`. It is outside the `Lint and Test` aggregator's `needs`, uses
 `continue-on-error: true`, and must stay outside branch protection. The existing
 `npm run typecheck` TS7 gate remains authoritative. The historical 32-check-name
-comparison in `evidence/p2cg1s-local-20261018.json` is unchanged.
+comparison in
+`openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-local-20261018.json`
+is unchanged.
 
 The Linux trial and independent verification found identical diagnostics for
 clean projects and 18 seeded errors, with about 6x faster root checking on that
@@ -13,10 +15,10 @@ editor, watch, emit, warm incremental, or Windows compatibility.
 
 ## Pin and behavior
 
-- Isolated install: `npm install --no-save --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929`.
+- Isolated install: `npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929`.
 - Native package: `@tsrs/linux-x64-gnu`; binary SHA256:
   `d0bd720c20e9900764811bb0f36e46d2d56916d3048e768053919d40db02a194`.
-- `scripts/qc/tsrs-side-check.mjs` verifies the version and native binary hash
+- `scripts/qc/tsrs-side-check.mjs` verifies both package versions and the native binary hash
   before executing it, then runs both existing typecheck projects with both
   compilers: root `--noEmit --skipLibCheck` and scripts
   `-p scripts/tsconfig.json --noEmit`. Each root run deletes
@@ -32,7 +34,12 @@ editor, watch, emit, warm incremental, or Windows compatibility.
   tsrs follows classic tsc's exit 2.
 
 The step summary contains cold wall timings, raw exit statuses, normalized
-parity (`MATCH`, `MISMATCH`, or `ERROR`), and any diff. Differences or operational
+parity (`MATCH`, `MISMATCH`, `TIMEOUT`, or `ERROR`), and any diff. Each compiler run
+has a three-minute timeout within the 15-minute job limit; timeouts still write
+the summary. Summary blocks are clipped to 64 KiB with a truncation note, and
+the final summary is capped at 900 KiB. Full text remains in the job log.
+Checkout does not persist credentials, and the isolated install skips lifecycle
+scripts. Differences or operational
 errors return nonzero so the tolerated job failure is visible, without failing
 the PR. Installation/setup failures remain visible in the job log. No repository
 dependency or lockfile is modified.
