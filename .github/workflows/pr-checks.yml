@@ -187,6 +187,33 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true'
         run: npm run typecheck
 
+  # Advisory only: never add this job to lint-and-test.needs or branch protection.
+  tsrs-side-check:
+    name: tsrs Side-Check (advisory)
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+
+      - name: Install isolated pinned tsrs
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
+
+      - name: Compare TS7 and verified tsrs diagnostics
+        run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
+
   unit-test-shards:
     name: Unit Tests (${{ matrix.shard }}/6)
     needs: install-deps

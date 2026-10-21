@@ -1515,7 +1515,7 @@
       ],
       "specRefs": ["openspec/README.md"],
       "activeChangeRefs": [],
-      "tests": ["all"],
+      "tests": ["all", "scripts/__tests__/tsrs-side-check.test.ts"],
       "commands": [
         "npm.cmd run qc:openspec-ci:validate",
         "npx.cmd openspec validate --all --strict",
@@ -1526,6 +1526,7 @@
       "manualChecks": [],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "docs/qc/tsrs-side-check.md",
         "2026-06-27 `qc:openspec-ci:validate` makes PR workflow, branch-protection required contexts, top-level verify:qc wiring, strict OpenSpec status, combat/BV gates, schema bridge, tactical browser smoke, and desktop build matrix coverage machine-checkable.",
         "2026-06-27 PR #917 ran the protected CI contract green: Lint and Test plus Build Test / win, mac, and linux all passed before merge.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23.",
