@@ -27,7 +27,6 @@ import React from 'react';
 
 import type { ICampaignSyncWebSocket } from '@/lib/campaign/coop/campaignSyncTransport';
 import type { CoopCredentialChoice } from '@/lib/campaign/coop/localSeatCredentialStore';
-import type { IMintedCoopCredential } from '@/lib/campaign/coop/localSeatCredentialStore';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
@@ -472,6 +471,13 @@ describe('CoopCredentialRenewal explicit renewal (LS17-LS20)', () => {
       fetchMock.mockResolvedValueOnce(reply(200, renewed));
       mountRenewal();
 
+      // CF-LSC2OP-4: an unnamed current-password field the password manager can fill.
+      expect(password(joined)).toHaveAttribute('type', 'password');
+      expect(password(joined)).toHaveAttribute(
+        'autocomplete',
+        'current-password',
+      );
+      expect(password(joined)).not.toHaveAttribute('name');
       fireEvent.change(password(joined), { target: { value: 'joined-pass' } });
       fireEvent.click(renewButton());
       await waitFor(() => expect(reloadPage).toHaveBeenCalledTimes(1));

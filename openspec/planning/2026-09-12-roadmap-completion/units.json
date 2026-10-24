@@ -9832,14 +9832,14 @@
         "concurrency"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "implementing",
+      "state": "local-verified",
       "baseline": "e012028a945df0641089d946877c1192b51e9329",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/lsc-2-implementation-admission.json" },
         "red": { "path": "evidence/lsc-2-implementation-red.json" },
-        "local": null,
+        "local": { "path": "evidence/lsc-2-implementation-local.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -21564,6 +21564,33 @@
           "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
         }
       ]
+    },
+    {
+      "id": "PK-lsc-2-ruling",
+      "blocks": [
+        "LSC-2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the bounded LSC-2 co-op credential chooser, renewal and recovery mount, and shared-adapter create path after independent exact-head sensitive review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge followed by exact-main proof and closure; release only LSC-2P after genuine verification.",
+          "effort": "Independent review, current CI and main proof"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete findings within scope/caps, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING on the exact head. Review should cover: the in-repo three-identity proof (LS21: real routes, SQLite, client transport and the production membership port, with the GM RemoveParticipant and reconnect paths settled by the G4 scratch probe); L-1 taken with the two remaining mintToken copies named (CF-LSC2-L1-DUP) and the panel-side L-3 accepted; the LS08 different-identity join guard, the LS13 invalid-choice recovery wording and the reload/navigate seams, which differ from the sizing draft; CF-LSC2OP-1/2/4/7 and the 21 mutant obligations (29 variants killed). I2 closes not taken. LSC-2P keeps the packaged journey, password-manager proof and the absent ordinary-UI ghost-removal control (G5). Retain all operator, final UI and packaged gates.",
+      "revertCost": "Revert the five registered leaves and the unit's own lifecycle; the local-seat store, operator panel, routes, local_seat_credentials schema (v33), primary auth and bearer store are unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",

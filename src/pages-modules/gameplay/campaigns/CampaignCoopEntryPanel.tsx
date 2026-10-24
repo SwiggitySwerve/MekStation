@@ -15,7 +15,17 @@ import {
   type ICampaignSyncSeat,
   waitForSeatCampaignSnapshot,
 } from '@/lib/campaign/coop/campaignSyncTransportSeat';
-import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import {
+  readCoopCampaignToken,
+  storeCoopCampaignToken,
+} from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import {
+  type IMintedCoopCredential,
+  LocalSeatRequestError,
+  mintCoopCredential,
+  readCoopCredentialChoice,
+  rememberCoopCredential,
+} from '@/lib/campaign/coop/localSeatCredentialStore';
 import { applyPreset } from '@/lib/campaign/presetService';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { parseRoomCode } from '@/lib/p2p/roomCodes';
@@ -25,11 +35,8 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
-import {
-  decodeTokenFromWire,
-  type IPlayerToken,
-} from '@/types/multiplayer/Player';
 
+import { LocalSeatCredentialPanel } from './LocalSeatCredentialPanel';
 import { LocalSeatOperatorPanel } from './LocalSeatOperatorPanel';
 
 function defaultCoopCampaignName(roomCode: string): string {
@@ -38,12 +45,6 @@ function defaultCoopCampaignName(roomCode: string): string {
 
 const DEFAULT_COOP_FACTION_ID = CampaignType.MERCENARY;
 const DEFAULT_COOP_PRESET = CampaignPreset.STANDARD;
-
-interface ITokenState {
-  readonly wireToken: string;
-  readonly token: IPlayerToken;
-  readonly displayName: string;
-}
 
 interface ICreateMatchResponse {
   readonly matchId: string;
@@ -56,50 +57,11 @@ interface ICreateMatchResponse {
 
 type CoopErrorKind = 'vault-identity' | 'generic';
 
-class VaultIdentityError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'VaultIdentityError';
-  }
-}
-
-function isVaultIdentityError(error: unknown): error is Error {
-  return error instanceof Error && error.name === 'VaultIdentityError';
-}
-
-async function mintToken(password: string): Promise<ITokenState> {
-  try {
-    const res = await fetch('/api/multiplayer/auth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
-    if (!res.ok) {
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      throw new VaultIdentityError(data.error ?? `HTTP ${res.status}`);
-    }
-    const data = (await res.json()) as {
-      token: string;
-      playerId: string;
-      displayName: string;
-    };
-    const decoded = decodeTokenFromWire(data.token);
-    if (!decoded) {
-      throw new VaultIdentityError('Server returned a malformed token');
-    }
-    return {
-      wireToken: data.token,
-      token: decoded,
-      displayName: data.displayName,
-    };
-  } catch (error) {
-    if (isVaultIdentityError(error)) {
-      throw error;
-    }
-    throw new VaultIdentityError(
-      error instanceof Error ? error.message : 'Unable to mint a vault token',
-    );
-  }
+function isVaultIdentityRequired(error: unknown): boolean {
+  return (
+    error instanceof LocalSeatRequestError &&
+    error.code === 'OPERATOR_IDENTITY_REQUIRED'
+  );
 }
 
 /** G2-BOOT-1: the campaign identity, never match metadata, before any socket. */
@@ -138,7 +100,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState('');
-  const [joinCoopPassword, setJoinCoopPassword] = useState('');
+  const joinPasswordRef = useRef<HTMLInputElement>(null);
   const [joinBusy, setJoinBusy] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joinErrorKind, setJoinErrorKind] = useState<CoopErrorKind | null>(
@@ -147,27 +109,28 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
   const [createCoopError, setCreateCoopError] = useState<string | null>(null);
   const [createCoopErrorKind, setCreateCoopErrorKind] =
     useState<CoopErrorKind | null>(null);
-  const [createCoopPassword, setCreateCoopPassword] = useState('');
+  const createPasswordRef = useRef<HTMLInputElement>(null);
   const [createCoopBusy, setCreateCoopBusy] = useState(false);
-  const [coopTokenState, setCoopTokenState] = useState<ITokenState | null>(
-    null,
-  );
+  const [coopTokenState, setCoopTokenState] =
+    useState<IMintedCoopCredential | null>(null);
   const joinAttempt = useRef<AbortController | null>(null);
   useEffect(() => () => joinAttempt.current?.abort(), []);
 
   const handleCreateCoopCampaign = useCallback(async () => {
+    const password = createPasswordRef.current?.value ?? '';
+    if (createPasswordRef.current) createPasswordRef.current.value = '';
     setCreateCoopError(null);
     setCreateCoopErrorKind(null);
     setCreateCoopBusy(true);
     try {
       let auth = coopTokenState;
       if (!auth) {
-        if (!createCoopPassword) {
+        if (!password) {
           setCreateCoopError('Enter your vault password to host co-op.');
           setCreateCoopErrorKind('generic');
           return;
         }
-        auth = await mintToken(createCoopPassword);
+        auth = await mintCoopCredential('primary', password);
         setCoopTokenState(auth);
       }
 
@@ -239,6 +202,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         wireToken: auth.wireToken,
         displayName: auth.displayName,
       });
+      rememberCoopCredential(data.matchId, 'primary', auth.token.playerId);
       await Promise.resolve(
         store.getState().updateCampaign({
           name: defaultCoopCampaignName(roomCode),
@@ -249,12 +213,12 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     } catch (e) {
       setCreateCoopError(e instanceof Error ? e.message : 'Unknown error');
       setCreateCoopErrorKind(
-        isVaultIdentityError(e) ? 'vault-identity' : 'generic',
+        isVaultIdentityRequired(e) ? 'vault-identity' : 'generic',
       );
     } finally {
       setCreateCoopBusy(false);
     }
-  }, [coopTokenState, createCoopPassword, router, store]);
+  }, [coopTokenState, router, store]);
 
   const handleOpenJoinCoop = useCallback(() => {
     setCreateCoopError(null);
@@ -262,14 +226,14 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     setJoinError(null);
     setJoinErrorKind(null);
     setJoinCode('');
-    setJoinCoopPassword('');
+    if (joinPasswordRef.current) joinPasswordRef.current.value = '';
     setJoinOpen(true);
   }, []);
 
   const handleCloseJoinCoop = useCallback(() => {
     setJoinOpen(false);
     setJoinCode('');
-    setJoinCoopPassword('');
+    if (joinPasswordRef.current) joinPasswordRef.current.value = '';
     setJoinError(null);
     setJoinErrorKind(null);
   }, []);
@@ -286,6 +250,8 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
   }, [handleCloseJoinCoop, joinOpen]);
 
   const handleSubmitJoinCoop = useCallback(async () => {
+    const password = joinPasswordRef.current?.value ?? '';
+    if (joinPasswordRef.current) joinPasswordRef.current.value = '';
     const parsed = parseRoomCode(joinCode);
     if (!parsed) {
       setJoinError(
@@ -294,8 +260,10 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       setJoinErrorKind('generic');
       return;
     }
-    if (!joinCoopPassword) {
-      setJoinError('Enter your vault password to join co-op.');
+    if (!password) {
+      setJoinError(
+        'Enter the password for your selected credential to join co-op.',
+      );
       setJoinErrorKind('generic');
       return;
     }
@@ -306,7 +274,8 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     const attempt = (joinAttempt.current = new AbortController());
     const roomCode = parsed;
     try {
-      const auth = await mintToken(joinCoopPassword);
+      const choice = readCoopCredentialChoice();
+      const auth = await mintCoopCredential(choice, password);
       const resolved = await resolveInviteIdentity(roomCode, auth.wireToken);
       const { matchId, campaignId } = resolved;
       const seat: ICampaignSyncSeat = {
@@ -315,12 +284,17 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         role: 'guest',
       };
       attempt.signal.throwIfAborted();
+      const joined = readCoopCampaignToken(matchId);
+      if (joined && joined.playerId !== auth.token.playerId) {
+        throw new LocalSeatRequestError(0, 'IDENTITY_CHANGED');
+      }
       storeCoopCampaignToken({
         matchId,
         playerId: auth.token.playerId,
         wireToken: auth.wireToken,
         displayName: auth.displayName,
       });
+      rememberCoopCredential(matchId, choice, auth.token.playerId);
       transport = connectCampaignSyncTransport({
         expectedCampaignId: campaignId,
         matchId,
@@ -361,11 +335,13 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       transport?.close();
       if (attempt.signal.aborted) return;
       setJoinError(e instanceof Error ? e.message : 'Unknown error');
-      setJoinErrorKind(isVaultIdentityError(e) ? 'vault-identity' : 'generic');
+      setJoinErrorKind(
+        isVaultIdentityRequired(e) ? 'vault-identity' : 'generic',
+      );
     } finally {
       setJoinBusy(false);
     }
-  }, [joinCode, joinCoopPassword, router, store]);
+  }, [joinCode, router, store]);
 
   return (
     <>
@@ -430,8 +406,8 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
               id="create-coop-password"
               data-testid="create-coop-password-input"
               type="password"
-              value={createCoopPassword}
-              onChange={(e) => setCreateCoopPassword(e.target.value)}
+              ref={createPasswordRef}
+              autoComplete="current-password"
               disabled={createCoopBusy}
               className="text-text-theme-primary border-border-theme bg-surface-deep w-full max-w-md rounded border px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
             />
@@ -478,18 +454,19 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
               disabled={joinBusy}
               className="text-text-theme-primary border-border-theme bg-surface-deep w-full rounded border px-3 py-2 font-mono text-lg tracking-widest uppercase focus:border-sky-500 focus:outline-none"
             />
+            <LocalSeatCredentialPanel />
             <label
               htmlFor="join-coop-password"
               className="text-text-theme-secondary mt-4 mb-1 block text-xs tracking-wide uppercase"
             >
-              Co-op guest vault password
+              Selected co-op credential password
             </label>
             <input
               id="join-coop-password"
               data-testid="join-coop-password-input"
               type="password"
-              value={joinCoopPassword}
-              onChange={(e) => setJoinCoopPassword(e.target.value)}
+              ref={joinPasswordRef}
+              autoComplete="current-password"
               disabled={joinBusy}
               className="text-text-theme-primary border-border-theme bg-surface-deep w-full rounded border px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
             />
