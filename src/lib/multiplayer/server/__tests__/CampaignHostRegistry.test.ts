@@ -18,13 +18,15 @@ import {
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
-import type { IMatchMeta } from '../IMatchStore';
+import type { ICampaignHostRegistryEntry } from '../CampaignHostRegistry';
+import type { IMatchMeta, IMatchStore } from '../IMatchStore';
 
 import {
   _resetCampaignHostRegistry,
   CampaignHostRegistry,
   getCampaignHostRegistry,
 } from '../CampaignHostRegistry';
+import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 
 function snapshot() {
@@ -70,6 +72,181 @@ function matchMeta(): IMatchMeta {
     },
   };
 }
+
+describe('CampaignHostRegistry concurrent first joins', () => {
+  const entries = new Set<ICampaignHostRegistryEntry>();
+  let directory: string | null = null;
+  let durableStore: DurableMatchStore | null = null;
+
+  function trackedRegistry(store: IMatchStore) {
+    const registry = new CampaignHostRegistry({ matchStore: store });
+    const register = registry.register;
+    const registration = jest
+      .spyOn(registry, 'register')
+      .mockImplementation(async (...args) => {
+        const entry = await register(...args);
+        entries.add(entry);
+        return entry;
+      });
+    return { registry, registration };
+  }
+
+  afterEach(async () => {
+    entries.forEach((entry) => entry.close());
+    entries.clear();
+    _resetCampaignHostRegistry();
+    _resetActiveCoopHosts();
+    durableStore?.close();
+    durableStore = null;
+    resetSQLiteService();
+    if (directory !== null)
+      await rm(directory, { recursive: true, force: true });
+    directory = null;
+    jest.restoreAllMocks();
+  });
+
+  it.each(['memory', 'durable'] as const)(
+    'shares one pending creation and host for simultaneous first joins (%s)',
+    async (storage) => {
+      let store: IMatchStore;
+      if (storage === 'durable') {
+        directory = await mkdtemp(path.join(tmpdir(), 'campaign-dedupe-'));
+        getSQLiteService({
+          path: path.join(directory, 'campaign.db'),
+        }).initialize();
+        durableStore = new DurableMatchStore({
+          path: path.join(directory, 'matches.db'),
+        });
+        store = durableStore;
+      } else {
+        store = new InMemoryMatchStore({ quiet: true });
+      }
+      await store.createMatch(matchMeta());
+      const read = jest.spyOn(store, 'getMatchMeta');
+      const { registry, registration } = trackedRegistry(store);
+
+      // Same tick, with no await between joins: both enter a cold registry.
+      const first = registry.getOrCreate('match-campaign');
+      const second = registry.getOrCreate('match-campaign');
+      const results = await Promise.allSettled([first, second]);
+
+      expect(results.map((result) => result.status)).toEqual([
+        'fulfilled',
+        'fulfilled',
+      ]);
+      expect(entries.size).toBe(1);
+      expect(registration).toHaveBeenCalledTimes(1);
+      expect(read).toHaveBeenCalledTimes(1);
+      expect(first).toBe(second);
+      const [hostEntry, guestEntry] = await Promise.all([first, second]);
+      expect(hostEntry).not.toBeNull();
+      expect(hostEntry).toBe(guestEntry);
+      expect(registry.get('match-campaign')).toBe(hostEntry);
+      expect(getActiveCoopHost('campaign-registry')).toBe(hostEntry?.host);
+      expect(hostEntry?.syncSession.isPaused()).toBe(true);
+      hostEntry?.syncSession.noteGmConnected();
+      const joined = await guestEntry!.syncSession.joinMember(() => undefined);
+      expect(joined.ok).toBe(true);
+      joined.disconnect();
+      expect(hostEntry?.eventStoreDurability).toBe(
+        storage === 'durable' ? 'journal' : 'ephemeral',
+      );
+    },
+  );
+
+  it('evicts a shared registration rejection and retries without caching it', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta());
+    const { registry, registration } = trackedRegistry(store);
+    const failure = new Error('registration unavailable');
+    registration.mockRejectedValueOnce(failure);
+    const attempts = await Promise.allSettled([
+      registry.getOrCreate('match-campaign'),
+      registry.getOrCreate('match-campaign'),
+    ]);
+    expect(attempts).toEqual([
+      { status: 'rejected', reason: failure },
+      { status: 'rejected', reason: failure },
+    ]);
+    expect(registry.size()).toBe(0);
+    const retry = await registry.getOrCreate('match-campaign');
+    expect(retry?.host.isClosed()).toBe(false);
+    expect(registration).toHaveBeenCalledTimes(2);
+  });
+
+  it('evicts a shared missing-metadata result and allows a later retry', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta());
+    const read = jest.spyOn(store, 'getMatchMeta');
+    read.mockRejectedValueOnce(new Error('metadata unavailable'));
+    const { registry, registration } = trackedRegistry(store);
+    expect(
+      await Promise.all([
+        registry.getOrCreate('match-campaign'),
+        registry.getOrCreate('match-campaign'),
+      ]),
+    ).toEqual([null, null]);
+    expect(registration).not.toHaveBeenCalled();
+    expect(await registry.getOrCreate('match-campaign')).not.toBeNull();
+    expect(read).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps a pending key independent of another campaign session', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta());
+    const other = matchMeta();
+    await store.createMatch({
+      ...other,
+      matchId: 'other-session',
+      coopCampaign: {
+        ...other.coopCampaign!,
+        campaignId: 'other-campaign',
+        state: createEmptyCampaignState('other-campaign'),
+      },
+    });
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const getMeta = store.getMatchMeta.bind(store);
+    const read = jest
+      .spyOn(store, 'getMatchMeta')
+      .mockImplementation(async (key) => {
+        if (key === 'match-campaign') await gate;
+        return getMeta(key);
+      });
+    const { registry } = trackedRegistry(store);
+    const slow = registry.getOrCreate('match-campaign');
+    const fast = registry.getOrCreate('other-session');
+    try {
+      expect(read).toHaveBeenCalledWith('other-session');
+      const entry = await fast;
+      expect(entry?.campaignId).toBe('other-campaign');
+      expect(registry.get('match-campaign')).toBeNull();
+    } finally {
+      release();
+      await Promise.allSettled([slow, fast]);
+    }
+    expect((await slow)?.host).not.toBe((await fast)?.host);
+  });
+
+  it('reuses the existing entry and ignores an absent key without another read', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta());
+    const { registry } = trackedRegistry(store);
+    const read = jest.spyOn(store, 'getMatchMeta');
+    const entry = await registry.getOrCreate('match-campaign');
+    expect(await registry.getOrCreate('match-campaign')).toBe(entry);
+    expect(await registry.getOrCreate(undefined)).toBeNull();
+    expect(read).toHaveBeenCalledTimes(1);
+    registry.dispose('match-campaign');
+    const replacement = await registry.getOrCreate('match-campaign');
+    expect(replacement).not.toBeNull();
+    expect(replacement).not.toBe(entry);
+    expect(entry?.host.isClosed()).toBe(true);
+    expect(read).toHaveBeenCalledTimes(2);
+  });
+});
 
 describe('CampaignHostRegistry', () => {
   afterEach(() => {

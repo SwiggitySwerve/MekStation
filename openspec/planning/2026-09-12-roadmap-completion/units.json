@@ -19674,14 +19674,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "review-required",
+      "baseline": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/mp-campaign-host-dedupe-1-admission-20261019.json"
+        },
+        "red": {
+          "path": "evidence/mp-campaign-host-dedupe-1-red-20261019.json"
+        },
+        "local": {
+          "path": "evidence/mp-campaign-host-dedupe-1-local-20261019.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -19776,6 +19782,33 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-mp-campaign-host-dedupe-1-ruling",
+      "blocks": [
+        "MP-CAMPAIGN-HOST-DEDUPE-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the independently reviewed exact head that deduplicates concurrent campaign-session host creation without caching failures or blocking other keys?",
+      "options": [
+        {
+          "label": "accept reviewed head",
+          "consequence": "Permit bounded source merge and exact-main proof only after independent sensitive review, required CI and exact-head owner ruling.",
+          "effort": "Concurrent RED/GREEN, durable recovery regression, Claude Opus full review and exact-head ruling."
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until concrete findings are fixed and the exact head is reviewed again.",
+          "effort": "Bounded corrections and renewed proof."
+        }
+      ],
+      "agentRecommendation": "Share one in-flight promise per existing registry key, evict all settled attempts, and preserve durable recovery. Acceptance remains pending independent review.",
+      "revertCost": "Reverting restores duplicate campaign hosts under concurrent first joins; no schema or wire migration.",
+      "decision": null,
+      "ruling": null
+    },
     {
       "id": "PK-mp-host-dedupe-1-ruling",
       "blocks": [
