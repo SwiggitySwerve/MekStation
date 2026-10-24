@@ -9653,13 +9653,13 @@
         "migration"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "admitted",
+      "state": "implementing",
       "baseline": "53bc489c0668429ac25a3fbdbe0dd22231615eb9",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/lsc-2o-admission-20261020.json" },
-        "red": null,
+        "red": { "path": "evidence/lsc-2o-red-20261020.json" },
         "local": null,
         "review": null,
         "merge": null,

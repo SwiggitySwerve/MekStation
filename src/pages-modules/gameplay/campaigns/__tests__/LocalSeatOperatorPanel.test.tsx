@@ -98,13 +98,21 @@ function deferred<T>() {
 }
 const button = (name: string) => screen.getByRole('button', { name });
 const input = (name: string) => screen.getByLabelText(name);
-function credentials(primary = 'primary-secret', seat = 'seat-secret') {
+function credentials(
+  primary = 'primary-secret',
+  seat = 'seat-secret',
+  confirm = true,
+) {
   if (!(input('Seat label') as HTMLInputElement).value)
     fireEvent.change(input('Seat label'), { target: { value: 'Scout' } });
   fireEvent.change(input('Primary vault password'), {
     target: { value: primary },
   });
   fireEvent.change(input('New seat password'), { target: { value: seat } });
+  // An active seat shows an explicit re-provision confirmation (LSC-2O).
+  const box = screen.queryByRole('checkbox');
+  if (confirm && box && !(box as HTMLInputElement).checked)
+    fireEvent.click(box);
 }
 function expectCleared() {
   expect(input('Primary vault password')).toHaveValue('');
@@ -523,5 +531,243 @@ describe('LocalSeatOperatorPanel', () => {
     expect(set).not.toHaveBeenCalled();
     expect(remove).not.toHaveBeenCalled();
     expect(clear).not.toHaveBeenCalled();
+  });
+  describe('LSC-2O operator obligations', () => {
+    const reprovision = 'Re-provision seat (new identity)';
+    const provisionButton = () =>
+      screen.getByRole('button', { name: /provision seat/i });
+    const confirmation = () =>
+      screen.getByRole('checkbox', { name: /new identity/i });
+
+    it('O10 refreshes on NOT_REVOCABLE, keeps the seat target and never resubmits', async () => {
+      await openPanel();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      store.writeLocalSeat.mockRejectedValueOnce(
+        failure(
+          'NOT_REVOCABLE',
+          409,
+          'That seat is not active, so nothing was revoked.',
+        ),
+      );
+      store.listLocalSeats.mockResolvedValueOnce([
+        seats()[0],
+        { ...seats()[1], status: 'revoked', generation: 5 },
+      ]);
+      credentials('primary-secret', '');
+      fireEvent.click(button('Revoke seat'));
+      await waitFor(() =>
+        expect(store.listLocalSeats).toHaveBeenCalledTimes(2),
+      );
+      await waitFor(() => expect(provisionButton()).toBeEnabled());
+      expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+      expect(input('Local seat')).toHaveValue('local-seat-2');
+      expect(button('Revoke seat')).toBeDisabled();
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'That seat is not active, so nothing was revoked.',
+      );
+      expectCleared();
+    });
+
+    it('O11 requires explicit confirmation naming the new identity before re-provisioning an active seat', async () => {
+      await openPanel();
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      credentials('primary-secret', 'seat-secret', false);
+      fireEvent.click(button('Provision seat'));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1),
+      );
+      await waitFor(() => expect(provisionButton()).toBeEnabled());
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      expect(button(reprovision)).toBeEnabled();
+      expect(
+        screen.getByRole('checkbox', {
+          name: /new identity.*GM must admit it again.*old player stays a member until removed/i,
+        }),
+      ).not.toBeChecked();
+      credentials('primary-secret', 'seat-secret', false);
+      fireEvent.click(button(reprovision));
+      expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        /confirm the new identity/i,
+      );
+      fireEvent.click(confirmation());
+      credentials('primary-secret', 'seat-secret', false);
+      fireEvent.click(button(reprovision));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(2),
+      );
+      expect(store.writeLocalSeat.mock.calls[1][0]).toMatchObject({
+        action: 'provision',
+        seatId: 'local-seat-2',
+        expectedGeneration: 4,
+      });
+    });
+
+    it('O12 resets the confirmation on seat change and after every outcome and keeps the password field contracts', async () => {
+      await openPanel();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      fireEvent.click(confirmation());
+      expect(confirmation()).toBeChecked();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-1' },
+      });
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      expect(confirmation()).not.toBeChecked();
+      store.writeLocalSeat.mockResolvedValueOnce(outcome(5, seats(0, 5)));
+      credentials();
+      fireEvent.click(button(reprovision));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1),
+      );
+      await waitFor(() => expect(button(reprovision)).toBeEnabled());
+      expect(confirmation()).not.toBeChecked();
+      store.writeLocalSeat.mockRejectedValueOnce(
+        failure('OPERATOR_DENIED', 401, 'Primary vault authorization failed.'),
+      );
+      credentials();
+      fireEvent.click(button(reprovision));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(2),
+      );
+      await waitFor(() => expect(button(reprovision)).toBeEnabled());
+      expect(confirmation()).not.toBeChecked();
+      credentials('primary-secret', 'seat-secret', false);
+      fireEvent.click(button(reprovision));
+      expect(store.writeLocalSeat).toHaveBeenCalledTimes(2);
+      expect(input('Primary vault password')).toHaveAttribute(
+        'autocomplete',
+        'current-password',
+      );
+      expect(input('New seat password')).toHaveAttribute(
+        'autocomplete',
+        'new-password',
+      );
+      expect(input('New seat password')).toHaveAttribute('minlength', '8');
+      expect(input('Primary vault password')).not.toHaveAttribute('name');
+    });
+
+    it.each([
+      ['O13', 0],
+      ['O14', 503],
+    ] as const)(
+      '%s a status %s write outcome refreshes seats before any mutation can be resubmitted',
+      async (_id, status) => {
+        await openPanel();
+        const pendingList = deferred<ISeat[]>();
+        store.writeLocalSeat.mockRejectedValueOnce(
+          failure('REQUEST_FAILED', status, 'Local seat request failed.'),
+        );
+        store.listLocalSeats.mockReturnValueOnce(pendingList.promise);
+        credentials();
+        fireEvent.click(button('Provision seat'));
+        await waitFor(() =>
+          expect(store.listLocalSeats).toHaveBeenCalledTimes(2),
+        );
+        expect(provisionButton()).toBeDisabled();
+        expect(button('Revoke seat')).toBeDisabled();
+        fireEvent.submit(provisionButton().closest('form')!);
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+        await act(async () => pendingList.resolve(seats(1)));
+        await waitFor(() => expect(provisionButton()).toBeEnabled());
+        credentials();
+        fireEvent.click(provisionButton());
+        await waitFor(() =>
+          expect(store.writeLocalSeat).toHaveBeenCalledTimes(2),
+        );
+        expect(store.writeLocalSeat.mock.calls[1][0].expectedGeneration).toBe(
+          1,
+        );
+      },
+    );
+
+    it('O15 keeps every write disabled after a failed unknown-outcome refresh until an explicit successful Retry refresh', async () => {
+      await openPanel();
+      store.writeLocalSeat.mockRejectedValueOnce(
+        failure('REQUEST_FAILED', 0, 'Local seat request failed.'),
+      );
+      store.listLocalSeats.mockRejectedValueOnce(
+        new Error('server-private-detail'),
+      );
+      credentials();
+      fireEvent.click(button('Provision seat'));
+      await waitFor(() =>
+        expect(screen.getByRole('alert')).toHaveTextContent(/retry refresh/i),
+      );
+      expect(screen.getByRole('alert')).not.toHaveTextContent(
+        'server-private-detail',
+      );
+      expect(provisionButton()).toBeDisabled();
+      expect(button('Revoke seat')).toBeDisabled();
+      expect(input('Local seat')).toBeDisabled();
+      fireEvent.submit(provisionButton().closest('form')!);
+      expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+      store.listLocalSeats.mockResolvedValueOnce(seats(7));
+      fireEvent.click(button('Retry refresh'));
+      await waitFor(() => expect(provisionButton()).toBeEnabled());
+      credentials();
+      fireEvent.click(provisionButton());
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(2),
+      );
+      expect(store.writeLocalSeat.mock.calls[1][0].expectedGeneration).toBe(7);
+    });
+
+    it.each([
+      [
+        'OPERATOR_DENIED',
+        401,
+        'Primary vault authorization failed (401).',
+        undefined,
+      ],
+      [
+        'LOCAL_SEAT_THROTTLED',
+        429,
+        'Too many requests (429). Retry-After: 17 seconds.',
+        17,
+      ],
+    ] as const)(
+      'O16 a known %s outcome does not force a refresh and keeps its message',
+      async (code, status, message, retryAfter) => {
+        await openPanel();
+        store.writeLocalSeat.mockRejectedValueOnce(
+          failure(code, status, message, retryAfter),
+        );
+        credentials();
+        fireEvent.click(button('Provision seat'));
+        await waitFor(() =>
+          expect(screen.getByRole('alert')).toHaveTextContent(message),
+        );
+        await waitFor(() => expect(provisionButton()).toBeEnabled());
+        expect(store.listLocalSeats).toHaveBeenCalledTimes(1);
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+        expectCleared();
+      },
+    );
+
+    it.each(['GENERATION_CONFLICT', 'OPERATION_MISMATCH'])(
+      'O16 a %s outcome still refreshes exactly once and never retries the write',
+      async (code) => {
+        await openPanel();
+        store.writeLocalSeat.mockRejectedValueOnce(
+          failure(code, 409, 'Refresh required.'),
+        );
+        store.listLocalSeats.mockResolvedValueOnce(seats(2));
+        credentials();
+        fireEvent.click(button('Provision seat'));
+        await waitFor(() =>
+          expect(store.listLocalSeats).toHaveBeenCalledTimes(2),
+        );
+        await waitFor(() => expect(provisionButton()).toBeEnabled());
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
+      },
+    );
   });
 });
