@@ -19663,7 +19663,20 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-review-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-source-opus-review-20261020.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-owner-ruling-6381509945.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-owner-ruling-6381509945.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-merge-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-mainproof-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-server-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-server-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -19674,10 +19687,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "review-required",
+      "state": "main-verified",
       "baseline": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "f7c147688a4ed5f7538f42710d911efffa535466",
+      "mergeSha": "6d180495883c057a4ed1cb91807cbb76a91a7223",
       "stageReceipts": {
         "admission": {
           "path": "evidence/mp-campaign-host-dedupe-1-admission-20261019.json"
@@ -19688,9 +19701,27 @@
         "local": {
           "path": "evidence/mp-campaign-host-dedupe-1-local-20261019.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/mp-campaign-host-dedupe-1-review-20261019.json",
+          "head": "f7c147688a4ed5f7538f42710d911efffa535466",
+          "reviewedHead": "c3eb20afa28a6d5d630f55511e892e26c2b341cb",
+          "reviewerModel": "claude-opus",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "33e79050864e5c2679e66663e0a919a0220b883907f358f55de8a052198f0d75",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/mp-campaign-host-dedupe-1-merge-20261024.json",
+          "pr": 2313,
+          "head": "f7c147688a4ed5f7538f42710d911efffa535466",
+          "mergeSha": "6d180495883c057a4ed1cb91807cbb76a91a7223"
+        },
+        "mainProof": {
+          "path": "evidence/mp-campaign-host-dedupe-1-mainproof-20261024.json",
+          "mergeCommit": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+          "verdict": "PASS",
+          "runtime": "Main Jest: Tests:       1601 passed, 1601 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -19709,7 +19740,50 @@
         "source": "evidence/l1-followups2-registration-20261019.json",
         "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
         "sourceAdmitted": false
-      }
+      },
+      "reviewedHead": "c3eb20afa28a6d5d630f55511e892e26c2b341cb",
+      "carryForwardRouting20261024": [
+        {
+          "id": "CF-MPCHD-1",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register) with CampaignHostRegistry.test.ts",
+          "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.test.ts",
+          "item": "Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does."
+        },
+        {
+          "id": "CF-MPCHD-2",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.ts runtime lifecycle work",
+          "item": "Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first)."
+        },
+        {
+          "id": "CF-MPCHD-3",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; needs its own finite scope decision",
+          "item": "Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission)."
+        },
+        {
+          "id": "CF-MPCHD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; needs its own scope decision",
+          "item": "Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today."
+        },
+        {
+          "id": "CF-MPCHD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "first unit whose frozen scope touches CampaignHostRegistry.ts beyond type-only imports (to register)",
+          "status": "open registration follow-up; observe at P2CG1H and P2CG2 admission",
+          "item": "CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them."
+        }
+      ]
     },
     {
       "id": "LSC-SALVAGE-1",
@@ -19804,10 +19878,105 @@
           "effort": "Bounded corrections and renewed proof."
         }
       ],
-      "agentRecommendation": "Share one in-flight promise per existing registry key, evict all settled attempts, and preserve durable recovery. Acceptance remains pending independent review.",
+      "agentRecommendation": "Share one in-flight promise per existing registry key, evict all settled attempts, and preserve durable recovery. Independent Opus review APPROVE at c3eb20afa, owner ruling on the merged head f7c147688, and genuine exact-main proof are recorded. CF-MPCHD-1..5 remain explicit open registration follow-ups; no unit currently grants the runtime scope they need.",
       "revertCost": "Reverting restores duplicate campaign hosts under concurrent first joins; no schema or wire migration.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept reviewed head",
+        "at": "2026-10-24T07:34:35Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2313#issuecomment-6381509945"
+      },
+      "ruling": {
+        "ruledHead": "f7c147688a4ed5f7538f42710d911efffa535466",
+        "pr": 2313,
+        "commentId": 6381509945,
+        "author": "SwiggitySwerve",
+        "bodySha256": "82ead69fe0ae9367563e24988437301df266e1796307c5a05a891a31b83a8546"
+      },
+      "carryForwards": [
+        {
+          "id": "CF-MPCHD-1",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register) with CampaignHostRegistry.test.ts",
+          "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.test.ts",
+          "item": "Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does."
+        },
+        {
+          "id": "CF-MPCHD-2",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.ts runtime lifecycle work",
+          "item": "Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first)."
+        },
+        {
+          "id": "CF-MPCHD-3",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; needs its own finite scope decision",
+          "item": "Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission)."
+        },
+        {
+          "id": "CF-MPCHD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; needs its own scope decision",
+          "item": "Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today."
+        },
+        {
+          "id": "CF-MPCHD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "first unit whose frozen scope touches CampaignHostRegistry.ts beyond type-only imports (to register)",
+          "status": "open registration follow-up; observe at P2CG1H and P2CG2 admission",
+          "item": "CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them."
+        }
+      ],
+      "openRegistrationFollowUps": [
+        {
+          "id": "CF-MPCHD-1",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register) with CampaignHostRegistry.test.ts",
+          "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.test.ts",
+          "item": "Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does."
+        },
+        {
+          "id": "CF-MPCHD-2",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.ts runtime lifecycle work",
+          "item": "Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first)."
+        },
+        {
+          "id": "CF-MPCHD-3",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; needs its own finite scope decision",
+          "item": "Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission)."
+        },
+        {
+          "id": "CF-MPCHD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+          "status": "open registration follow-up; needs its own scope decision",
+          "item": "Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today."
+        },
+        {
+          "id": "CF-MPCHD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "first unit whose frozen scope touches CampaignHostRegistry.ts beyond type-only imports (to register)",
+          "status": "open registration follow-up; observe at P2CG1H and P2CG2 admission",
+          "item": "CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them."
+        }
+      ]
     },
     {
       "id": "PK-mp-host-dedupe-1-ruling",

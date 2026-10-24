@@ -3083,3 +3083,20 @@ Root accepts #2318 at d0868008c: the unexecuted normally formatted candidate mea
 A2FP starts planned with F's four verified predecessors and successor F. F starts blocked, keeps its four original predecessors and successor M, and adds FP. FP/F each retain 15 files/500 formatted counted additions and full sensitive cadence. One additional exact-main closure changes the current L1 count 45 -> 46; no checklist status changes. M, final A2, B/H and all independent release gates remain; CF-MPRU2-3 and CF-MPHD-5 stay in final A2. Historical A1/registration/admission receipts and the hook correction remain unchanged.
 
 Registration only. Do not start FP admission until Root merges #2318 and qualifies it. The 374-line ordinary context/runner subtotal is incomplete, not fit proof. If FP still does not fit when drafted, stop and tell Root before proposing a third split; Root is raising size-cap policy with the owner. No source/test leaf, stage receipt, packet, runtime acceptance or task tick is supplied.
+
+
+## MP-CAMPAIGN-HOST-DEDUPE-1 closure (2026-10-24)
+
+Source #2313 is main-verified: reviewed head `c3eb20afa28a6d5d630f55511e892e26c2b341cb`, merged PR head `f7c147688a4ed5f7538f42710d911efffa535466`, merge `6d180495883c057a4ed1cb91807cbb76a91a7223`. The Opus review APPROVE at the reviewed head and the live OWNER-RULING comment 6381509945 are preserved byte-exact: the review as a SHA-256/base64 envelope, the ruling as a raw copy plus envelope. Review: 12033 bytes, SHA-256 `33e79050864e5c2679e66663e0a919a0220b883907f358f55de8a052198f0d75`; ruling: 1329 bytes, SHA-256 `82ead69fe0ae9367563e24988437301df266e1796307c5a05a891a31b83a8546`. The two product files are byte-identical at the reviewed head, the PR head and the merge.
+
+Fresh npm ci and mainProof at clean exact `6d180495`: owned 28/28; multiplayer server 179 suites / 1601 tests; strict root/scripts typecheck PASS, all through heavy-run lane step1-closure. Source CI at the PR head was 33/33 SUCCESS. Original admission/RED/local evidence and product bytes are unchanged by this metadata-only closure. No task tick, browser/build proof or release acceptance is claimed.
+
+CARRY-FORWARD routing (no added source permission):
+
+- CF-MPCHD-1 (Low) -> Root registration follow-up: Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does.
+- CF-MPCHD-2 (Low) -> Root registration follow-up: Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first).
+- CF-MPCHD-3 (Low) -> Root registration follow-up: Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission).
+- CF-MPCHD-4 (Info) -> Root registration follow-up: Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today.
+- CF-MPCHD-5 (Info) -> Root registration follow-up: CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them.
+
+No registered unit grants the CampaignHostRegistry.ts runtime or CampaignHostRegistry.test.ts scope these items need: P2CG1H holds a type-only grant and P2CG2 names the file only in a draft stage census. All five stay explicit open registration follow-ups in the source unit, review receipt and ruling packet. No successors are released: P2CG1H still has blocked predecessors (LSC-2P, L1-SMOKE-A2, L1-SMOKE-B). LSC-2C is not admitted by this closure.
