@@ -9832,12 +9832,12 @@
         "concurrency"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "planned",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "e012028a945df0641089d946877c1192b51e9329",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/lsc-2-implementation-admission.json" },
         "red": null,
         "local": null,
         "review": null,
