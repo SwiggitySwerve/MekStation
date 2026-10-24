@@ -597,6 +597,7 @@ describe('LocalSeatOperatorPanel', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         /confirm the new identity/i,
       );
+      expectCleared();
       fireEvent.click(confirmation());
       credentials('primary-secret', 'seat-secret', false);
       fireEvent.click(button(reprovision));
@@ -605,6 +606,23 @@ describe('LocalSeatOperatorPanel', () => {
       );
       expect(store.writeLocalSeat.mock.calls[1][0]).toMatchObject({
         action: 'provision',
+        seatId: 'local-seat-2',
+        expectedGeneration: 4,
+      });
+    });
+
+    it('O11 revokes an active seat without the re-provision confirmation', async () => {
+      await openPanel();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      credentials('primary-secret', '', false);
+      fireEvent.click(button('Revoke seat'));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1),
+      );
+      expect(store.writeLocalSeat.mock.calls[0][0]).toMatchObject({
+        action: 'revoke',
         seatId: 'local-seat-2',
         expectedGeneration: 4,
       });
@@ -682,6 +700,7 @@ describe('LocalSeatOperatorPanel', () => {
     it.each([
       ['O13', 0],
       ['O14', 503],
+      ['O14', 500],
     ] as const)(
       '%s a status %s write outcome refreshes seats before any mutation can be resubmitted',
       async (_id, status) => {

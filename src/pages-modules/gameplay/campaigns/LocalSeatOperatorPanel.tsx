@@ -78,14 +78,14 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
   }
   async function submit(action: 'provision' | 'revoke') {
     if (working.current || !ready) return;
-    if (action === 'provision' && reprovision && !confirmed) {
-      setMessage('Confirm the new identity before re-provisioning this seat.');
-      return;
-    }
     const operatorPassword = primary.current?.value ?? '';
     const seatPassword = password.current?.value ?? '';
     if (primary.current) primary.current.value = '';
     if (password.current) password.current.value = '';
+    if (action === 'provision' && reprovision && !confirmed) {
+      setMessage('Confirm the new identity before re-provisioning this seat.');
+      return;
+    }
     if (!operatorPassword || (action === 'provision' && !seatPassword)) {
       setMessage(
         'Enter the primary vault password and, to provision, a new seat password.',
@@ -247,10 +247,7 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
               <button
                 className={control}
                 type="button"
-                disabled={
-                  seats.find((seat) => seat.seatId === seatId)?.status !==
-                  'active'
-                }
+                disabled={!reprovision}
                 onClick={() => void submit('revoke')}
               >
                 Revoke seat
