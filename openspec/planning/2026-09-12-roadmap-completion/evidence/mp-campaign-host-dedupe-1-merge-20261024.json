@@ -440,7 +440,6 @@
     "files": [
       "openspec/planning/2026-09-12-roadmap-completion/units.json",
       "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
-      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-source-opus-review-20261020.txt",
       "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-source-opus-review-20261020.bytes.json",
       "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-owner-ruling-6381509945.txt",
       "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-owner-ruling-6381509945.bytes.json",
@@ -452,12 +451,12 @@
       "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-owned-json.bytes.json",
       "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-server-log.bytes.json",
       "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-server-json.bytes.json",
-      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-typecheck-log.bytes.json"
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-6d180495-typecheck-log.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
     ],
     "count": 15,
-    "generatedPage": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
     "capFiles": 15,
     "capCountedAdditions": 500,
-    "scope": "Separate Root-authorized metadata/evidence closure; no product/test edits, no task tick. The regenerated V2.2.0-STEPS.md page is generator output outside the 15 closure leaves."
+    "scope": "Separate Root-authorized metadata/evidence closure; no product/test edits, no task tick. 15 files including the regenerated V2.2.0-STEPS.md page, which is file-counted (no file-count exclusion ruling; stepPlanDecision20261024)."
   }
 }

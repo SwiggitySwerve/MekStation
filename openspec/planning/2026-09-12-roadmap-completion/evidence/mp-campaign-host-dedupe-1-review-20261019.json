@@ -14,7 +14,8 @@
     "authority",
     "concurrency"
   ],
-  "outputPath": "evidence/mp-campaign-host-dedupe-1-source-opus-review-20261020.txt",
+  "outputPath": "evidence/mp-campaign-host-dedupe-1-source-opus-review-20261020.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority: it decodes to the source review, 12033 bytes, sha256 33e79050864e5c2679e66663e0a919a0220b883907f358f55de8a052198f0d75. No plain .txt copy is kept: .gitattributes '* text=auto eol=lf' rewrites the source's final CRLF to LF, which would leave a 12032-byte copy that does not hash to outputSha256.",
   "outputSha256": "33e79050864e5c2679e66663e0a919a0220b883907f358f55de8a052198f0d75",
   "outputBytes": 12033,
   "outputEnvelope": {
@@ -24,6 +25,7 @@
   },
   "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/pr2313-campaign-host-dedupe-review.md",
   "byteExact": true,
+  "byteExactScope": "The envelope decodes to the exact source bytes; the ruling additionally has a raw .txt copy, which is byte-exact.",
   "reviewedHeadNote": "The review covered c3eb20afa. PR head f7c147688 merges origin/main 6675d3f72 and regenerates V2.2.0-STEPS.md; Root verified the two product files are byte-identical, and this closure re-checks the blobs at both commits.",
   "ownerRuling": {
     "ruledHead": "f7c147688a4ed5f7538f42710d911efffa535466",

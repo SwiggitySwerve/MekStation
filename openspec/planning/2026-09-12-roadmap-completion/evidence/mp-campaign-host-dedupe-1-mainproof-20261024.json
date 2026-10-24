@@ -381,6 +381,21 @@
     ],
     "releases": []
   },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes authority and concurrency)",
+    "head": "3939e1e7efc6dd0ea1143a3e254715e4099c8875",
+    "headNote": "HEAD at run time is the parent of the closure-fix commit (3939e1e7e). The working tree held all fix edits except this validatorGithub field; a receipt cannot cite its own commit SHA. The same command was rerun at the final closure head and its exit code and output are reported to Root with the PR update.",
+    "startedAt": "2026-10-24T09:20:08.808Z",
+    "endedAt": "2026-10-24T09:22:24.394Z",
+    "machineGate": "heavy-run.mjs --lane step1-closure --class package",
+    "exit": 0,
+    "output": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
   "limitations": [
     "No task row is ticked.",
     "No new source scope or v2.2.0 release acceptance is supplied.",
