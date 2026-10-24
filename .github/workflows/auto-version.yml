@@ -24,7 +24,7 @@ jobs:
   version-and-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -86,7 +86,8 @@ jobs:
               # the full 4-platform electron + docker release (~60-90 runner
               # minutes), so ordinary merges must not auto-release. "none"
               # leaves the version unchanged, check_tag finds it exists, and
-              # all downstream steps skip. Manual releases: workflow_dispatch.
+              # all downstream steps skip. workflow_dispatch computes a version;
+              # an admin must tag releases manually.
               BUMP_TYPE="none"
             fi
           fi
@@ -129,49 +130,9 @@ jobs:
             echo "Tag $NEW_VERSION already exists, skipping"
             echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Tag $NEW_VERSION does not exist, will create"
+            echo "Tag $NEW_VERSION does not exist; manual admin tagging required"
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Generate release notes
-        id: release_notes
-        if: steps.check_tag.outputs.exists == 'false'
-        run: |
-          LATEST_TAG=${{ steps.get_version.outputs.latest_tag }}
-          NEW_VERSION=${{ steps.new_version.outputs.new_version }}
-
-          # Generate changelog from commits since last tag
-          if [ "$LATEST_TAG" != "v0.0.0" ]; then
-            CHANGELOG=$(git log ${LATEST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges | head -50)
-            COMPARE_URL="**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LATEST_TAG}...${NEW_VERSION}"
-          else
-            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
-            COMPARE_URL="🎉 **Initial Release**"
-          fi
-
-          # Create release notes
-          cat << EOF > release_notes.md
-          ## What's Changed in $NEW_VERSION
-
-          $CHANGELOG
-
-          $COMPARE_URL
-          EOF
-
-          echo "Release notes generated"
-
-      - name: Create and push tag
-        if: steps.check_tag.outputs.exists == 'false'
-        run: |
-          NEW_VERSION=${{ steps.new_version.outputs.new_version }}
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
-          git push origin "$NEW_VERSION"
-
-          echo "✅ Created and pushed tag: $NEW_VERSION"
 
       - name: Summary
         run: |
@@ -182,9 +143,10 @@ jobs:
           echo "| Previous Version | ${{ steps.get_version.outputs.latest_tag }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Bump Type | ${{ steps.bump_type.outputs.bump_type }} |" >> $GITHUB_STEP_SUMMARY
           echo "| New Version | ${{ steps.new_version.outputs.new_version }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Tag Created | ${{ steps.check_tag.outputs.exists == 'false' && '✅ Yes' || '⏭️ Skipped (already exists)' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag Created | No (v* tags are admin-only and must be pushed manually) |" >> $GITHUB_STEP_SUMMARY
 
-          if [ "${{ steps.check_tag.outputs.exists }}" == "false" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🚀 The release workflow will now build and publish artifacts for ${{ steps.new_version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
-          fi
+      - name: Report manual tagging requirement
+        if: steps.bump_type.outputs.bump_type != 'none' && steps.check_tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION=${{ steps.new_version.outputs.new_version }}
+          echo "Tag push skipped: v* tags are admin-only and must be pushed manually. Suggested next version: $NEW_VERSION." >> "$GITHUB_STEP_SUMMARY"

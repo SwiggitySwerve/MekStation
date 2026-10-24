@@ -3048,3 +3048,55 @@ Register planned LSC-2C (adapter), blocked LSC-2O (operator/server carries), the
 CF-LSC2OP-1 routes to C/final UI; -2 to O plus final/packaged three-identity proof; -3 now has named server target O; -4 preserves password purposes with packaged autofill proof in2P; -7 explicitly requires unknown-outcome refresh and write disable on refresh failure in O, preserved by final integration. No original acceptance, primary/bearer controls, H/P2/U38/P2J/installer/human gate or salvage ownership is waived.
 
 Registration only: no C admission commit until Root merges and independently qualifies this docs PR. Null source baselines/heads/stage receipts/ownerGate remain; no packet or future OWNER-RULING is invented. Reports/design remain outside source under `_reports/2026-10-19/lsc-2-fit-sol/`.
+
+
+## MP-REWIND-DICE-1 closure (2026-10-20)
+
+Source #2316 is main-verified: ruled/reviewed head `0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5`, merge `664f8c13f7d59dd3d53212309993fac9a23e655b`. Independent Opus review APPROVE and live OWNER-RULING comment 6301768235 are byte-copied, each with a SHA-256/base64 envelope. Review: 14244 bytes, SHA-256 `69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a`; ruling: 2144 bytes, SHA-256 `bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d`.
+
+Fresh npm ci and mainProof at clean exact `664f8c13f`: owned 2/2; multiplayer server 179 suites / 1595 tests; strict root/scripts typecheck PASS, all through heavy-run lane rewind-dice. Source CI was 32/32 SUCCESS. Original admission/RED/local evidence and product bytes are unchanged by this metadata-only closure. No task tick, browser/build proof or release acceptance is claimed.
+
+CARRY-FORWARD routing (no added source permission):
+
+- CF-MPRD-1 (Low) -> U44: Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file.
+- CF-MPRD-2 (Low) -> U44: Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it.
+- CF-MPRD-3 (Info) -> U44: Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations.
+- CF-MPRD-4 (Info) -> Root registration follow-up: Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix.
+- CF-MPRD-5 (Info) -> Root registration follow-up: Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair.
+
+All three U44 items are in its behavior text. CF-MPRD-4 and CF-MPRD-5 remain open registration follow-ups for Root in the source unit, review receipt and ruling packet; no named finite target unit exists for those repairs. No successors are released: this unit declares no successor or reverse predecessor edge. Unrelated units and in-flight LSC-2/A2F lifecycle edits remain owned by their lanes and must be union-preserved before publication.
+
+## L1-SMOKE-A2F admission sizing stop (2026-10-20)
+
+Root opened F after #2315 merged as a69540e25 with Astra APPROVE and OWNER-RULING comment 6301741730. Fresh fetched Main 664f8c13f7d59dd3d53212309993fac9a23e655b contains that merge; all four predecessors have genuine mainProof PASS, main-verified state and ancestor merges. F remains planned and its prospective source leaves remain absent.
+
+Evidence `evidence/l1-smoke-a2f-admission.json` freezes this two-file documentary manifest, protected controls and the complete active/open-PR census. The unexecuted sizing draft measures 646/500 normal repository oxfmt lines across provisioner, trusted fixture and runner before lifecycle additions (l1-built-server-spectator-context.mjs: 221; l1-built-server-spectator-trusted-fixtures.ts: 272; run-l1-built-server-spectator-fixture-proof.mjs: 153). Its bytes and hashes are retained for reproduction. This measures one candidate, not a lower bound on every implementation; unresolved activation/GM-positive/guard controls are listed explicitly. No source admission, RED, GREEN, packet, runtime acceptance or closure is claimed.
+
+Recommend registering a serial ordinary-provisioning/read-only-witness predecessor, then narrowing the existing A2F to trusted brand/stale-assignment fixtures and final F composition. Preserve F's id and successor A2M, all four original predecessors, every acceptance row and the existing M -> A2 -> B/H obligations. Root must qualify a bounded split or supply a complete normally formatted fitting design before finite source admission resumes. No split, cap change, new edge, acceptance waiver or foreign source fix is made here.
+
+The fresh worktree lacked generated Husky launchers, so the initial documentary commit did not execute pre-commit. Install them with wrapped npm run prepare and requalify this admission stop in a corrective commit that runs the live staged-file hook. No source is admitted.
+
+## A2FP -> narrowed A2F registered under Root ruling (2026-10-20)
+
+Root accepts #2318 at d0868008c: the unexecuted normally formatted candidate measures 646/500 lines (context 221, trusted fixture 272, runner 153). Register A2FP for ordinary provisioning/read-only reachability, activation-aware principal selection and strict CLI/precondition falsifiers; narrow existing A2F to trusted brands/stale assignments, observed non-spectating-GM declaration positive, real-image GM fixture qualification and full F composition. Original F acceptance rows are preserved verbatim with a four-row coverage map. Ruling `evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt` has SHA-256 `040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02`; registration source is `evidence/l1-smoke-a2f-partition-registration-20261020.json`. Main `434fdab1d5b0fbe107435a88985ce3eaaf753033` was union-merged first.
+
+A2FP starts planned with F's four verified predecessors and successor F. F starts blocked, keeps its four original predecessors and successor M, and adds FP. FP/F each retain 15 files/500 formatted counted additions and full sensitive cadence. One additional exact-main closure changes the current L1 count 45 -> 46; no checklist status changes. M, final A2, B/H and all independent release gates remain; CF-MPRU2-3 and CF-MPHD-5 stay in final A2. Historical A1/registration/admission receipts and the hook correction remain unchanged.
+
+Registration only. Do not start FP admission until Root merges #2318 and qualifies it. The 374-line ordinary context/runner subtotal is incomplete, not fit proof. If FP still does not fit when drafted, stop and tell Root before proposing a third split; Root is raising size-cap policy with the owner. No source/test leaf, stage receipt, packet, runtime acceptance or task tick is supplied.
+
+
+## MP-CAMPAIGN-HOST-DEDUPE-1 closure (2026-10-24)
+
+Source #2313 is main-verified: reviewed head `c3eb20afa28a6d5d630f55511e892e26c2b341cb`, merged PR head `f7c147688a4ed5f7538f42710d911efffa535466`, merge `6d180495883c057a4ed1cb91807cbb76a91a7223`. The Opus review APPROVE at the reviewed head and the live OWNER-RULING comment 6381509945 are preserved byte-exact: the review as a SHA-256/base64 envelope, the ruling as a raw copy plus envelope. Review: 12033 bytes, SHA-256 `33e79050864e5c2679e66663e0a919a0220b883907f358f55de8a052198f0d75`; ruling: 1329 bytes, SHA-256 `82ead69fe0ae9367563e24988437301df266e1796307c5a05a891a31b83a8546`. The two product files are byte-identical at the reviewed head, the PR head and the merge.
+
+Fresh npm ci and mainProof at clean exact `6d180495`: owned 28/28; multiplayer server 179 suites / 1601 tests; strict root/scripts typecheck PASS, all through heavy-run lane step1-closure. Source CI at the PR head was 33/33 SUCCESS. Original admission/RED/local evidence and product bytes are unchanged by this metadata-only closure. No task tick, browser/build proof or release acceptance is claimed.
+
+CARRY-FORWARD routing (no added source permission):
+
+- CF-MPCHD-1 (Low) -> Root registration follow-up: Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does.
+- CF-MPCHD-2 (Low) -> Root registration follow-up: Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first).
+- CF-MPCHD-3 (Low) -> Root registration follow-up: Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission).
+- CF-MPCHD-4 (Info) -> Root registration follow-up: Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today.
+- CF-MPCHD-5 (Info) -> Root registration follow-up: CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them.
+
+No registered unit grants the CampaignHostRegistry.ts runtime or CampaignHostRegistry.test.ts scope these items need: P2CG1H holds a type-only grant and P2CG2 names the file only in a draft stage census. All five stay explicit open registration follow-ups in the source unit, review receipt and ruling packet. No successors are released: P2CG1H still has blocked predecessors (LSC-2P, L1-SMOKE-A2, L1-SMOKE-B). LSC-2C is not admitted by this closure.

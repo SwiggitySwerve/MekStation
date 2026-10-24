@@ -1,0 +1,405 @@
+{
+  "unit": "MP-CAMPAIGN-HOST-DEDUPE-1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-24T08:29:38.748Z",
+  "mergeCommit": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+  "runtime": {
+    "playwright": "Main Jest: Tests:       1601 passed, 1601 total",
+    "jest": "179 suites / 1601 tests passed; 0 failed or pending",
+    "owned": "1 suite / 28 tests passed",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci at clean exact merge before any closure edit",
+    "typecheck": "npm run typecheck: exit 0",
+    "schemaNote": "runtime.playwright is the legacy validator field for a Jest proof line; no browser or Playwright run is claimed."
+  },
+  "machineGate": "heavy-run.mjs --lane step1-closure --class jest|package --cwd E:/Projects/Personal/MekStation-wt/step1-closure-20261024 -- <command>",
+  "execution": "Each job checked a clean HEAD at the exact merge before and after execution. Every package/Jest call used heavy-run with a private Jest cache and the idle gate unmodified. No timeout raised, skip guard added, or foreign process stopped.",
+  "proof": {
+    "path": "evidence/mainproof-6d180495-server-log.bytes.json",
+    "payloadSha256": "f9a4ae7c416646d5fba4dacd5e461d5f963b060466dccc51fc9e614029c35d72",
+    "payloadBytes": 1016520,
+    "counts": {
+      "suites": 179,
+      "passedSuites": 179,
+      "tests": 1601,
+      "passed": 1601,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "ownedProof": {
+    "path": "evidence/mainproof-6d180495-owned-log.bytes.json",
+    "payloadSha256": "f133533f433b82556e85600a683b3052a9a1e9d9d484b31626229473b1bdd233",
+    "payloadBytes": 4263,
+    "counts": {
+      "suites": 1,
+      "passedSuites": 1,
+      "tests": 28,
+      "passed": 28,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-6d180495-npm-ci-log.bytes.json",
+      "payloadSha256": "965fa999f267964fc9f4f092a312897e16199d204d7e3d30f6b01c3144038fdd",
+      "payloadBytes": 863
+    },
+    {
+      "path": "evidence/mainproof-6d180495-owned-log.bytes.json",
+      "payloadSha256": "f133533f433b82556e85600a683b3052a9a1e9d9d484b31626229473b1bdd233",
+      "payloadBytes": 4263
+    },
+    {
+      "path": "evidence/mainproof-6d180495-owned-json.bytes.json",
+      "payloadSha256": "563ab8486f55484b451b80b07104a8269cc687474efd346ed3a4cae72b2b5c5e",
+      "payloadBytes": 12064
+    },
+    {
+      "path": "evidence/mainproof-6d180495-server-log.bytes.json",
+      "payloadSha256": "f9a4ae7c416646d5fba4dacd5e461d5f963b060466dccc51fc9e614029c35d72",
+      "payloadBytes": 1016520
+    },
+    {
+      "path": "evidence/mainproof-6d180495-server-json.bytes.json",
+      "payloadSha256": "836bc4516d861da81566a1c13c1b709c6944f175b28a708734e20a5f6cb7efa3",
+      "payloadBytes": 692486
+    },
+    {
+      "path": "evidence/mainproof-6d180495-typecheck-log.bytes.json",
+      "payloadSha256": "5d708a8e487f1274bfdbb87d3e9e7b5510c660c698724ad9e7d12cb5117a9fd0",
+      "payloadBytes": 381
+    }
+  ],
+  "runs": [
+    {
+      "name": "npm-ci",
+      "head": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+      "start": "2026-10-24T07:50:05.033Z",
+      "end": "2026-10-24T07:51:57.932Z",
+      "command": [
+        "cmd",
+        "/c",
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache",
+        ">",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/npm-ci.log",
+        "2>&1"
+      ],
+      "wrapper": [
+        "C:\\nvm4w\\nodejs\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "step1-closure",
+        "--class",
+        "package",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+        "--",
+        "cmd",
+        "/c",
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache",
+        ">",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/npm-ci.log",
+        "2>&1"
+      ],
+      "exit": 0,
+      "exitSource": "heavy/log.jsonl release event for ticket P1-1792827386026-step1-closure.json (exitCode 0, granted after 819007 ms in queue)",
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/npm-ci.log",
+      "logBytes": 863,
+      "logSha256": "965fa999f267964fc9f4f092a312897e16199d204d7e3d30f6b01c3144038fdd"
+    },
+    {
+      "name": "owned",
+      "head": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+      "start": "2026-10-24T07:55:11.458Z",
+      "end": "2026-10-24T07:56:41.329Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/owned.json",
+        "--runTestsByPath",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "step1-closure",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/owned.json",
+        "--runTestsByPath",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/owned.log",
+      "logBytes": 4263,
+      "logSha256": "f133533f433b82556e85600a683b3052a9a1e9d9d484b31626229473b1bdd233"
+    },
+    {
+      "name": "server",
+      "head": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+      "start": "2026-10-24T07:56:41.572Z",
+      "end": "2026-10-24T07:59:53.062Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/server.json",
+        "src/lib/multiplayer/server"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "step1-closure",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/server.json",
+        "src/lib/multiplayer/server"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/server.log",
+      "logBytes": 1016520,
+      "logSha256": "f9a4ae7c416646d5fba4dacd5e461d5f963b060466dccc51fc9e614029c35d72"
+    },
+    {
+      "name": "typecheck",
+      "head": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+      "start": "2026-10-24T07:59:53.449Z",
+      "end": "2026-10-24T08:00:05.925Z",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "step1-closure",
+        "--class",
+        "package",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/step1-closure-20261024",
+        "--",
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-closure/typecheck.log",
+      "logBytes": 381,
+      "logSha256": "5d708a8e487f1274bfdbb87d3e9e7b5510c660c698724ad9e7d12cb5117a9fd0"
+    }
+  ],
+  "sourceIdentities": [
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "reviewedBlob": "a1e6f624fecb517308dacec1d8c0f25f89dc5f2b",
+      "prHeadBlob": "a1e6f624fecb517308dacec1d8c0f25f89dc5f2b",
+      "mergeBlob": "a1e6f624fecb517308dacec1d8c0f25f89dc5f2b"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "reviewedBlob": "d8aef732e7416d093a6bb2a838a50d60371e24da",
+      "prHeadBlob": "d8aef732e7416d093a6bb2a838a50d60371e24da",
+      "mergeBlob": "d8aef732e7416d093a6bb2a838a50d60371e24da"
+    }
+  ],
+  "review": {
+    "path": "evidence/mp-campaign-host-dedupe-1-review-20261019.json",
+    "head": "f7c147688a4ed5f7538f42710d911efffa535466",
+    "reviewedHead": "c3eb20afa28a6d5d630f55511e892e26c2b341cb",
+    "outputSha256": "33e79050864e5c2679e66663e0a919a0220b883907f358f55de8a052198f0d75"
+  },
+  "ownerRuling": {
+    "ruledHead": "f7c147688a4ed5f7538f42710d911efffa535466",
+    "pr": 2313,
+    "commentId": 6381509945,
+    "author": "SwiggitySwerve",
+    "bodySha256": "82ead69fe0ae9367563e24988437301df266e1796307c5a05a891a31b83a8546"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-MPCHD-1",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register) with CampaignHostRegistry.test.ts",
+      "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.test.ts",
+      "item": "Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does."
+    },
+    {
+      "id": "CF-MPCHD-2",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+      "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.ts runtime lifecycle work",
+      "item": "Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first)."
+    },
+    {
+      "id": "CF-MPCHD-3",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+      "status": "open registration follow-up; needs its own finite scope decision",
+      "item": "Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission)."
+    },
+    {
+      "id": "CF-MPCHD-4",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+      "status": "open registration follow-up; needs its own scope decision",
+      "item": "Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today."
+    },
+    {
+      "id": "CF-MPCHD-5",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "first unit whose frozen scope touches CampaignHostRegistry.ts beyond type-only imports (to register)",
+      "status": "open registration follow-up; observe at P2CG1H and P2CG2 admission",
+      "item": "CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them."
+    }
+  ],
+  "successorRelease": {
+    "algorithm": "Only declared dependents of MP-CAMPAIGN-HOST-DEDUPE-1; blocked -> planned requires every predecessor main-verified with PASS mainProof. Independent holds and unrelated units are untouched.",
+    "candidates": [
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "P2CG1G2",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "P2CG1R",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "B14-0",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "LSC-2P",
+            "state": "blocked"
+          },
+          {
+            "id": "L1-SMOKE-A1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "blocked"
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked"
+          },
+          {
+            "id": "P2CG1HP",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          },
+          {
+            "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "eligible": false
+      }
+    ],
+    "releases": []
+  },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes authority and concurrency)",
+    "head": "3939e1e7efc6dd0ea1143a3e254715e4099c8875",
+    "headNote": "HEAD at run time is the parent of the closure-fix commit (3939e1e7e). The working tree held all fix edits except this validatorGithub field; a receipt cannot cite its own commit SHA. The same command was rerun at the final closure head and its exit code and output are reported to Root with the PR update.",
+    "startedAt": "2026-10-24T09:20:08.808Z",
+    "endedAt": "2026-10-24T09:22:24.394Z",
+    "machineGate": "heavy-run.mjs --lane step1-closure --class package",
+    "exit": 0,
+    "output": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "limitations": [
+    "No task row is ticked.",
+    "No new source scope or v2.2.0 release acceptance is supplied.",
+    "CF-MPCHD-1..5 still require Root registration.",
+    "The next step admission (LSC-2C) is not made here."
+  ]
+}

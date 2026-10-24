@@ -1,0 +1,325 @@
+{
+  "unit": "MP-REWIND-DICE-1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-20T21:28:30.908Z",
+  "mergeCommit": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+  "runtime": {
+    "playwright": "Main Jest: Tests:       1595 passed, 1595 total",
+    "jest": "179 suites / 1595 tests passed; 0 failed or pending",
+    "owned": "1 suite / 2 tests passed",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci at clean exact merge before any closure edit",
+    "typecheck": "npm run typecheck: exit 0",
+    "schemaNote": "runtime.playwright is the legacy validator field for a Jest proof line; no browser or Playwright run is claimed."
+  },
+  "machineGate": "heavy-run.mjs --lane rewind-dice --class jest --cwd E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020 -- node E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/run-proof.cjs",
+  "execution": "Each job checked clean HEAD at the exact merge before and after execution. Every package/Jest call used heavy-run with a private Jest cache. No timeout raised, skip guard added, or foreign process stopped.",
+  "proof": {
+    "path": "evidence/mainproof-664f8c13f-server-log.bytes.json",
+    "payloadSha256": "6796fdf4355a10e62fcae72fe0e883d7b1e625746c7b23bfd274f0601e67193a",
+    "payloadBytes": 1026265,
+    "counts": {
+      "suites": 179,
+      "passedSuites": 179,
+      "tests": 1595,
+      "passed": 1595,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "ownedProof": {
+    "path": "evidence/mainproof-664f8c13f-owned-log.bytes.json",
+    "payloadSha256": "4ad8e3741bd16c42a29c6aa217ac50ebd562cad4993616692dcf5139d977b2ac",
+    "payloadBytes": 144705,
+    "counts": {
+      "suites": 1,
+      "passedSuites": 1,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    }
+  },
+  "logs": [
+    {
+      "path": "evidence/mainproof-664f8c13f-npm-ci-log.bytes.json",
+      "payloadSha256": "7d7958b318f3af88d8c8e339c964fe5774713f6f3c5e14651e1cd8a0be80db93",
+      "payloadBytes": 1089
+    },
+    {
+      "path": "evidence/mainproof-664f8c13f-owned-log.bytes.json",
+      "payloadSha256": "4ad8e3741bd16c42a29c6aa217ac50ebd562cad4993616692dcf5139d977b2ac",
+      "payloadBytes": 144705
+    },
+    {
+      "path": "evidence/mainproof-664f8c13f-owned-json.bytes.json",
+      "payloadSha256": "ed6e56526372f1c6f66f370160932674d012ad044e44f816dfdcb2437b172421",
+      "payloadBytes": 1606
+    },
+    {
+      "path": "evidence/mainproof-664f8c13f-server-log.bytes.json",
+      "payloadSha256": "6796fdf4355a10e62fcae72fe0e883d7b1e625746c7b23bfd274f0601e67193a",
+      "payloadBytes": 1026265
+    },
+    {
+      "path": "evidence/mainproof-664f8c13f-server-json.bytes.json",
+      "payloadSha256": "8617d44d5a20f23f8198a12e7defd4a5258e4a3f7742ae0286f96cdaaccbd02a",
+      "payloadBytes": 690891
+    },
+    {
+      "path": "evidence/mainproof-664f8c13f-typecheck-log.bytes.json",
+      "payloadSha256": "ec1d814406ff14d0979d7bf85ccbacd7658b2b32df2fbd053cd38bf20fc28e50",
+      "payloadBytes": 387
+    }
+  ],
+  "runs": [
+    {
+      "name": "npm-ci",
+      "head": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+      "start": "2026-10-20T21:23:51.399Z",
+      "end": "2026-10-20T21:24:41.496Z",
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "rewind-dice",
+        "--class",
+        "package",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+        "--",
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/npm-ci.log",
+      "logBytes": 1089,
+      "logSha256": "7d7958b318f3af88d8c8e339c964fe5774713f6f3c5e14651e1cd8a0be80db93"
+    },
+    {
+      "name": "owned",
+      "head": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+      "start": "2026-10-20T21:24:41.709Z",
+      "end": "2026-10-20T21:25:47.115Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/owned.json",
+        "--runTestsByPath",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "rewind-dice",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/owned.json",
+        "--runTestsByPath",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/owned.log",
+      "logBytes": 144705,
+      "logSha256": "4ad8e3741bd16c42a29c6aa217ac50ebd562cad4993616692dcf5139d977b2ac"
+    },
+    {
+      "name": "server",
+      "head": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+      "start": "2026-10-20T21:25:47.332Z",
+      "end": "2026-10-20T21:27:54.746Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/server.json",
+        "src/lib/multiplayer/server"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "rewind-dice",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/jest-cache",
+        "--json",
+        "--outputFile",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/server.json",
+        "src/lib/multiplayer/server"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/server.log",
+      "logBytes": 1026265,
+      "logSha256": "6796fdf4355a10e62fcae72fe0e883d7b1e625746c7b23bfd274f0601e67193a"
+    },
+    {
+      "name": "typecheck",
+      "head": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+      "start": "2026-10-20T21:27:54.978Z",
+      "end": "2026-10-20T21:28:01.944Z",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "rewind-dice",
+        "--class",
+        "package",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/rewind-dice-closure-20261020",
+        "--",
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/closure/typecheck.log",
+      "logBytes": 387,
+      "logSha256": "ec1d814406ff14d0979d7bf85ccbacd7658b2b32df2fbd053cd38bf20fc28e50"
+    }
+  ],
+  "sourceIdentities": [
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "reviewedBlob": "e8d9c4f1e18d14319380ecdbd714bbdfa86d39fe",
+      "mergeBlob": "e8d9c4f1e18d14319380ecdbd714bbdfa86d39fe"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "reviewedBlob": "360f92b745f3e990cd5140979d0d5290c7110098",
+      "mergeBlob": "360f92b745f3e990cd5140979d0d5290c7110098"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+      "reviewedBlob": "0436b5b935a9ac936bebd8891b3ffc4c85358dc3",
+      "mergeBlob": "0436b5b935a9ac936bebd8891b3ffc4c85358dc3"
+    }
+  ],
+  "review": {
+    "path": "evidence/mp-rewind-dice-1-review-20261019.json",
+    "head": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+    "reviewedHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+    "outputSha256": "69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a"
+  },
+  "ownerRuling": {
+    "ruledHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+    "pr": 2316,
+    "commentId": 6301768235,
+    "author": "SwiggitySwerve",
+    "bodySha256": "bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-MPRD-1",
+      "severity": "Low",
+      "owner": "U44",
+      "target": "next frozen ServerMatchHost.ts owner",
+      "status": "open; receiving-unit admission note",
+      "item": "Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file."
+    },
+    {
+      "id": "CF-MPRD-2",
+      "severity": "Low",
+      "owner": "U44",
+      "target": "U44 / next journal-authority owner",
+      "status": "open; receiving-unit admission note",
+      "item": "Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it."
+    },
+    {
+      "id": "CF-MPRD-3",
+      "severity": "Info",
+      "owner": "U44",
+      "target": "next frozen ServerMatchHostRewindRebuild.ts owner",
+      "status": "open; receiving-unit admission note",
+      "item": "Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations."
+    },
+    {
+      "id": "CF-MPRD-4",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "co-op AI owner, to register",
+      "status": "open registration follow-up; no named registered target unit",
+      "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+    },
+    {
+      "id": "CF-MPRD-5",
+      "severity": "Info",
+      "owner": "Root registration follow-up",
+      "target": "journal-authority owner, to register",
+      "status": "open registration follow-up; no named registered target unit for this divergence repair",
+      "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+    }
+  ],
+  "successorRelease": {
+    "algorithm": "Only declared dependents of MP-REWIND-DICE-1; blocked -> planned requires every predecessor main-verified with PASS mainProof. Independent holds and unrelated units are untouched.",
+    "candidates": [],
+    "releases": []
+  },
+  "limitations": [
+    "No task row is ticked.",
+    "No new source scope or v2.2.0 release acceptance is supplied.",
+    "CF-MPRD-4/5 still require Root registration."
+  ]
+}

@@ -276,6 +276,10 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
 
 export class CampaignHostRegistry {
   private readonly entries = new Map<string, CampaignHostRegistryEntry>();
+  private readonly inFlight = new Map<
+    string,
+    Promise<ICampaignHostRegistryEntry | null>
+  >();
   private readonly matchStore?: IMatchStore;
   private receipts: ICampaignApplicationReceiptPort | null = null;
 
@@ -415,13 +419,29 @@ export class CampaignHostRegistry {
     return live ?? null;
   };
 
-  getOrCreate = async (
+  getOrCreate = (
     matchId: string | undefined,
   ): Promise<ICampaignHostRegistryEntry | null> => {
     const existing = this.get(matchId);
-    if (existing) return existing;
-    if (!matchId) return null;
+    if (existing) return Promise.resolve(existing);
+    if (!matchId) return Promise.resolve(null);
 
+    const pending = this.inFlight.get(matchId);
+    if (pending) return pending;
+
+    // Publish before yielding so first joins share metadata and registration.
+    // Evict every settled attempt, including null and rejection, for retries.
+    const creation = this.createEntry(matchId).finally(() => {
+      if (this.inFlight.get(matchId) === creation)
+        this.inFlight.delete(matchId);
+    });
+    this.inFlight.set(matchId, creation);
+    return creation;
+  };
+
+  private createEntry = async (
+    matchId: string,
+  ): Promise<ICampaignHostRegistryEntry | null> => {
     let meta;
     try {
       meta = await (this.matchStore ?? getDefaultMatchStore()).getMatchMeta(

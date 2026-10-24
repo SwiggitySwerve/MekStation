@@ -10,11 +10,13 @@ on:
         description: 'Tag to release (defaults to latest v*)'
         required: false
         type: string
-  workflow_run:
-    workflows:
-      - Auto Version and Release
-    types:
-      - completed
+      candidate_only:
+        description: 'Build private candidate artifacts without publication'
+        type: boolean
+        default: false
+      qualification_run_id:
+        description: 'Actions run holding v220-qualified bundle for this exact candidate'
+        type: string
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -23,7 +25,6 @@ jobs:
   release-context:
     name: Determine release tag
     runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     outputs:
       tag: ${{ steps.resolve_tag.outputs.tag }}
       ref: ${{ steps.resolve_tag.outputs.ref }}
@@ -38,7 +39,6 @@ jobs:
         id: resolve_tag
         env:
           TAG_INPUT: ${{ inputs.release_tag }}
-          TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
 
@@ -48,14 +48,6 @@ jobs:
             TAG="$TAG_INPUT"
           elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
             TAG="${GITHUB_REF_NAME}"
-          elif [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
-            # GITHUB_TOKEN tag pushes do not trigger push workflows. Resolve
-            # the tag minted at this run's head, even if main has advanced.
-            TAG=$(git tag --points-at "$TRIGGER_SHA" -l 'v*' --sort=-version:refname | sed -n 1p)
-            if [ -z "$TAG" ]; then
-              echo "No version tag at triggering head $TRIGGER_SHA; skipping release."
-              exit 0
-            fi
           else
             # sed -n 1p (not head -n 1): head closes the pipe early and git
             # dies with SIGPIPE under `set -euo pipefail` (exit 141), which
@@ -69,24 +61,6 @@ jobs:
           fi
 
           git rev-parse --verify "refs/tags/${TAG}^{commit}" >/dev/null
-
-          # workflow_run fires on EVERY auto-version completion, including
-          # runs that minted no tag. Without this guard, every merge to main
-          # rebuilt the latest existing tag (~60-90 runner-min each). Only
-          # proceed when the resolved tag points at the exact commit the
-          # triggering auto-version run processed. Empty tag output makes
-          # every downstream job skip via the
-          # startsWith(tag, 'v') conditions.
-          if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
-            TAG_SHA=$(git rev-parse "${TAG}^{commit}" 2>/dev/null || echo "")
-            if [ "$TAG_SHA" != "$TRIGGER_SHA" ]; then
-              echo "Tag $TAG ($TAG_SHA) does not match triggering head ($TRIGGER_SHA) — no new tag minted by this run; skipping release." >&2
-              echo "tag=" >> "$GITHUB_OUTPUT"
-              echo "ref=" >> "$GITHUB_OUTPUT"
-              echo "prev_tag=" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-          fi
 
           # Pick the next older version, including when retrying an older tag.
           PREV_TAG=$(git tag -l 'v*' --sort=-version:refname | awk -v tag="$TAG" '$0 == tag { found = 1; next } found && !printed { print; printed = 1 }')
@@ -428,8 +402,10 @@ jobs:
   docker-push:
     name: Push Docker image
     needs: [release-context, build, docker-build]
+    environment: release
     runs-on: ubuntu-latest
-    if: startsWith(needs.release-context.outputs.tag, 'v')
+    # v2.2 installers are promoted byte-for-byte; unqualified container rebuilds cannot publish.
+    if: startsWith(needs.release-context.outputs.tag, 'v') && !startsWith(needs.release-context.outputs.tag, 'v2.2.') && !inputs.candidate_only
     permissions:
       contents: read
       packages: write
@@ -481,10 +457,12 @@ jobs:
   release:
     # Container publication must not block the installer release.
     needs: [release-context, build]
+    environment: release
     runs-on: ubuntu-latest
-    if: startsWith(needs.release-context.outputs.tag, 'v')
+    if: startsWith(needs.release-context.outputs.tag, 'v') && !inputs.candidate_only
     permissions:
       contents: write
+      actions: read
 
     steps:
       - name: Checkout code
@@ -497,11 +475,30 @@ jobs:
         run: git fetch --tags --force
 
       - name: Download release artifacts
+        if: ${{ !startsWith(needs.release-context.outputs.tag, 'v2.2.') }}
         uses: actions/download-artifact@v8
         with:
           pattern: '*-artifacts'
           path: artifacts
           merge-multiple: true
+
+      - name: Require external qualification for v2.2 publication
+        if: startsWith(needs.release-context.outputs.tag, 'v2.2.')
+        env:
+          QUALIFICATION_RUN: ${{ inputs.qualification_run_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$QUALIFICATION_RUN" =~ ^[1-9][0-9]*$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$QUALIFICATION_RUN" --jq '"\(.head_sha) \(.head_repository.full_name) \(.conclusion)"' | grep -Fx "$(git rev-parse HEAD) $GITHUB_REPOSITORY success"
+
+      - name: Download rehearsed v2.2 artifacts and evidence
+        if: startsWith(needs.release-context.outputs.tag, 'v2.2.')
+        uses: actions/download-artifact@v8
+        with:
+          name: v220-qualified
+          run-id: ${{ inputs.qualification_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: qualification
 
       - name: Generate commit list
         id: commits
@@ -574,11 +571,19 @@ jobs:
           } > release-notes.md
           echo "body_path=release-notes.md" >> "$GITHUB_OUTPUT"
 
+      - name: Refuse unqualified v2.2 publication on the tagged commit
+        if: startsWith(needs.release-context.outputs.tag, 'v2.2.')
+        run: |
+          RC="$(git rev-parse HEAD)"
+          node scripts/qc/generate-v220-steps.mjs --gate-check --candidate-sha "$RC" \
+            --evidence qualification/evidence.json --artifacts qualification/artifacts | grep -Fx "V2.2 GATE PASSED $RC"
+          cp qualification/release-notes.md release-notes.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release-context.outputs.tag }}
-          files: artifacts/**/*
+          files: ${{ startsWith(needs.release-context.outputs.tag, 'v2.2.') && 'qualification/artifacts/*' || 'artifacts/**/*' }}
           fail_on_unmatched_files: true
           body_path: ${{ steps.notes.outputs.body_path }}
           draft: false

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-const unitsDir = 'E:/Projects/MekStation/public/data/units/battlemechs';
+const unitsDir = path.resolve(__dirname, '../public/data/units/battlemechs');
 const idx = JSON.parse(
   fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf-8'),
 );

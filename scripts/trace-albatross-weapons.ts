@@ -13,7 +13,7 @@ import {
 } from '../src/utils/construction/battleValueCalculations';
 
 // Load the unit
-const unitsDir = 'E:/Projects/MekStation/public/data/units/battlemechs';
+const unitsDir = path.resolve(__dirname, '../public/data/units/battlemechs');
 const idx = JSON.parse(
   fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf-8'),
 );
