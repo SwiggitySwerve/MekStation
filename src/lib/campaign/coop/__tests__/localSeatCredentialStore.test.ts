@@ -583,3 +583,297 @@ describe('local seat request adapter', () => {
     },
   );
 });
+
+describe('LSC-2C review-2326 guard coverage', () => {
+  const probeBinding = {
+    matchId: 'match-a',
+    choice: 'seat2',
+    playerId: playerA,
+  } as const;
+  function storeBearer(wire: IPlayerToken, recordPlayerId = wire.playerId) {
+    storeCoopCampaignToken({
+      matchId: 'match-a',
+      playerId: recordPlayerId,
+      wireToken: encodeTokenForWire(wire),
+      displayName: 'Pilot',
+    });
+  }
+  function codeOf(run: () => unknown): string | undefined {
+    try {
+      run();
+    } catch (error) {
+      return (error as { code?: string }).code;
+    }
+    return undefined;
+  }
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    mockFetch.mockReset();
+    global.fetch = mockFetch;
+    jest.spyOn(Date, 'now').mockReturnValue(now);
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  it('R1 replace refuses an already-expired minted bearer and keeps the original', () => {
+    storeBearer(token());
+    api.rememberCoopCredential('match-a', 'seat2', playerA);
+    const expired = token({ expiresAt: new Date(now - 1).toISOString() });
+    expect(
+      codeOf(() =>
+        api.replaceCoopCredential(probeBinding, {
+          wireToken: encodeTokenForWire(expired),
+          token: expired,
+          displayName: 'Pilot',
+        }),
+      ),
+    ).toBe('INVALID_TOKEN');
+    expect(readCoopCampaignToken('match-a')?.wireToken).toBe(
+      encodeTokenForWire(token()),
+    );
+  });
+
+  it('R2 status refuses a stored bearer whose wire principal differs from the binding', () => {
+    storeBearer(token({ playerId: playerB }), playerA);
+    sessionStorage.setItem(bindingKey, JSON.stringify(probeBinding));
+    expect(codeOf(() => api.readCoopCredentialStatus('match-a'))).toBe(
+      'BINDING_REQUIRED',
+    );
+  });
+
+  it('R3 remember refuses a stored record whose wire principal differs', () => {
+    storeBearer(token({ playerId: playerB }), playerA);
+    expect(
+      codeOf(() => api.rememberCoopCredential('match-a', 'seat2', playerA)),
+    ).toBe('BINDING_REQUIRED');
+    expect(sessionStorage.getItem(bindingKey)).toBeNull();
+  });
+
+  it('R4 primary accepts the 6h server cap that seats refuse', async () => {
+    const six = token({
+      expiresAt: new Date(now - 1000 + 6 * 3_600_000).toISOString(),
+    });
+    mockFetch.mockResolvedValue(response(mintBody(six)));
+    await expect(
+      api.mintCoopCredential('primary', 'pw'),
+    ).resolves.toMatchObject({ token: six });
+    await expect(api.mintCoopCredential('seat2', 'pw')).rejects.toMatchObject({
+      code: 'INVALID_TOKEN',
+    });
+  });
+
+  it('R5 refuses a displayName longer than 64', async () => {
+    mockFetch.mockResolvedValue(
+      response({ ...mintBody(), displayName: 'x'.repeat(65) }),
+    );
+    await expect(api.mintCoopCredential('seat2', 'pw')).rejects.toMatchObject({
+      code: 'INVALID_TOKEN',
+    });
+  });
+
+  it('R6 forget without a match removes only the choice', () => {
+    storeBearer(token());
+    api.rememberCoopCredential('match-a', 'seat2', playerA);
+    api.writeCoopCredentialChoice('seat1');
+    api.forgetCoopCredential();
+    expect(localStorage.getItem(choiceKey)).toBeNull();
+    expect(sessionStorage.getItem(bindingKey)).not.toBeNull();
+    expect(readCoopCampaignToken('match-a')).not.toBeNull();
+  });
+
+  it('R7 replace refuses wire/result expiry disagreement', () => {
+    storeBearer(token());
+    api.rememberCoopCredential('match-a', 'seat2', playerA);
+    expect(
+      codeOf(() =>
+        api.replaceCoopCredential(probeBinding, {
+          wireToken: encodeTokenForWire(token()),
+          token: token({ expiresAt: new Date(now + 100_000).toISOString() }),
+          displayName: 'Pilot',
+        }),
+      ),
+    ).toBe('INVALID_TOKEN');
+  });
+
+  it('R8 ignores Retry-After 0 on a throttled mint', async () => {
+    mockFetch.mockResolvedValue(response({}, 429, '0'));
+    await expect(api.mintCoopCredential('seat2', 'pw')).rejects.toMatchObject({
+      code: 'LOCAL_SEAT_THROTTLED',
+      retryAfter: undefined,
+    });
+  });
+
+  it('R9 refuses a zero-lifetime token issued slightly ahead of the browser clock', async () => {
+    const zero = token({
+      issuedAt: new Date(now + 5000).toISOString(),
+      expiresAt: new Date(now + 5000).toISOString(),
+    });
+    mockFetch.mockResolvedValue(response(mintBody(zero)));
+    await expect(api.mintCoopCredential('seat2', 'pw')).rejects.toMatchObject({
+      code: 'INVALID_TOKEN',
+    });
+  });
+});
+
+describe('LSC-2O store obligations', () => {
+  const revokeInput = {
+    action: 'revoke',
+    seatId: 'local-seat-2',
+    expectedGeneration: 2,
+    operatorPassword: 'primary-secret',
+  };
+  const future = (extra: Partial<IPlayerToken> = {}) =>
+    token({
+      issuedAt: new Date(now + 60_000).toISOString(),
+      expiresAt: new Date(now + 60_000 + 3_600_000).toISOString(),
+      ...extra,
+    });
+  const mint = (choice: string, value: IPlayerToken) => {
+    mockFetch.mockResolvedValue(response(mintBody(value)));
+    return Promise.resolve().then(() =>
+      feature('mintCoopCredential', choice, 'seat-secret'),
+    );
+  };
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    mockFetch.mockReset();
+    global.fetch = mockFetch;
+    jest.spyOn(Date, 'now').mockReturnValue(now);
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  it('O09 gives NOT_REVOCABLE its own client message and still collapses unknown server codes', async () => {
+    mockFetch.mockResolvedValue(
+      response(
+        {
+          code: 'NOT_REVOCABLE',
+          error: 'primary-secret',
+          currentGeneration: 9,
+        },
+        409,
+      ),
+    );
+    const refused = await api
+      .writeLocalSeat(revokeInput)
+      .catch((e: Error) => e);
+    expect(refused).toMatchObject({
+      status: 409,
+      code: 'NOT_REVOCABLE',
+      message: 'That seat is not active, so nothing was revoked.',
+    });
+    expect(refused.currentGeneration).toBeUndefined();
+    expect(refused.message).not.toContain('primary-secret');
+    mockFetch.mockResolvedValue(
+      response({ code: 'SOMETHING_ELSE', error: 'primary-secret' }, 409),
+    );
+    await expect(api.writeLocalSeat(revokeInput)).rejects.toMatchObject({
+      status: 409,
+      code: 'REQUEST_FAILED',
+      message: 'Local seat request failed.',
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    ['primary', 401, 'OPERATOR_DENIED', 'Primary vault password was refused.'],
+    [
+      'primary',
+      404,
+      'OPERATOR_IDENTITY_REQUIRED',
+      'Create a primary vault identity in Settings first.',
+    ],
+    ['primary', 403, 'REQUEST_FAILED', 'Local seat request failed.'],
+    ['primary', 500, 'REQUEST_FAILED', 'Local seat request failed.'],
+    ['seat1', 401, 'LOCAL_SEAT_DENIED', 'Local seat credentials were refused.'],
+    ['seat2', 401, 'LOCAL_SEAT_DENIED', 'Local seat credentials were refused.'],
+    ['seat1', 404, 'REQUEST_FAILED', 'Local seat request failed.'],
+    ['seat2', 404, 'REQUEST_FAILED', 'Local seat request failed.'],
+  ])(
+    'O17 maps %s mint HTTP %s to %s without reflecting server text',
+    async (choice, status, code, message) => {
+      mockFetch.mockResolvedValue(
+        response({ error: 'seat-secret', code: 'seat-secret' }, status),
+      );
+      await expect(
+        Promise.resolve().then(() =>
+          feature('mintCoopCredential', choice, 'seat-secret'),
+        ),
+      ).rejects.toMatchObject({ status, code, message });
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each(['primary', 'seat1', 'seat2'])(
+    'O17 keeps the throttle hint for the %s mint',
+    async (choice) => {
+      mockFetch.mockResolvedValue(response({}, 429, '17'));
+      await expect(
+        Promise.resolve().then(() =>
+          feature('mintCoopCredential', choice, 'seat-secret'),
+        ),
+      ).rejects.toMatchObject({
+        status: 429,
+        code: 'LOCAL_SEAT_THROTTLED',
+        retryAfter: 17,
+      });
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each([
+    ['primary', '', 'OPERATOR_DENIED'],
+    ['primary', 'x'.repeat(513), 'OPERATOR_DENIED'],
+    ['seat1', '', 'LOCAL_SEAT_DENIED'],
+    ['seat2', 'x'.repeat(513), 'LOCAL_SEAT_DENIED'],
+  ])(
+    'O17 refuses an invalid %s password length with %s and no request',
+    async (choice, password, code) => {
+      await expect(
+        Promise.resolve().then(() =>
+          feature('mintCoopCredential', choice, password),
+        ),
+      ).rejects.toMatchObject({ status: 401, code });
+      expect(mockFetch).not.toHaveBeenCalled();
+    },
+  );
+
+  it('O18 accepts a primary token issued ahead of the browser clock while seat mints still refuse it', async () => {
+    expect(await mint('primary', future())).toEqual(minted(future()));
+    for (const choice of ['seat1', 'seat2'])
+      await expect(mint(choice, future())).rejects.toMatchObject({
+        code: 'INVALID_TOKEN',
+      });
+  });
+
+  it.each([
+    [
+      'expired',
+      () =>
+        future({
+          issuedAt: new Date(now - 2000).toISOString(),
+          expiresAt: new Date(now - 1).toISOString(),
+        }),
+    ],
+    [
+      'lifetime above 6h',
+      () =>
+        future({
+          issuedAt: new Date(now - 1000).toISOString(),
+          expiresAt: new Date(now - 1000 + 6 * 3_600_000 + 1).toISOString(),
+        }),
+    ],
+    [
+      'scope',
+      () => future({ scope: { kind: 'match', id: 'match-a' } as never }),
+    ],
+    [
+      'issued after expiry',
+      () => future({ expiresAt: new Date(now + 30_000).toISOString() }),
+    ],
+  ])('O18 keeps refusing a primary token with %s', async (_kind, build) => {
+    await expect(mint('primary', build())).rejects.toMatchObject({
+      code: 'INVALID_TOKEN',
+    });
+  });
+});

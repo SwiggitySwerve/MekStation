@@ -1,0 +1,2335 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-2P",
+  "stage": "admission",
+  "date": "20261024",
+  "proofClass": "full",
+  "proofClassNote": "The registered reviewClasses (authority, privacy, replay, idempotency, concurrency), the unit admissionRequires (independent exact-head review and OWNER-RULING before merge) and the packaged runs make the unit full. LSC-2P edits no src/ file, so the only user-reachable path it exercises is the installed app itself; the exact-main proof is the second packaged run.",
+  "evidenceNameNote": "Evidence file names keep the literals frozen in units.json localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-2P.candidateSeams (lsc-2p-admission-20261018.json, lsc-2p-red-20261018.json, lsc-2p-local-20261018.json, lsc-2p-admission-review-20261018.json); the actual admission date is 20261024 (recordedAt). Closure receipts (merge, mainProof, envelopes) follow the LSC-2 and LSC-2O convention with the closure date.",
+  "recordedAt": "2026-10-24T18:16:39.570Z",
+  "baseline": "a7711ad136c70b3380788298414690b589ee8430",
+  "baselineNote": "Exact PR base (origin/main a7711ad13, the merge of #2331). The ledger at this baseline has LSC-2 local-verified and LSC-2P blocked. Commit 1 of this PR closes LSC-2 as main-verified and releases LSC-2P to planned; commit 2 (the parent of the commit adding this receipt, see parentOfAdmissionCommit) registers RC-LSC2P-1. Product bytes of every control file are identical at the baseline and at that parent.",
+  "parentOfAdmissionCommit": "b0b27ef975e8585e5f82ff29c0cedc210cb3e0f2",
+  "authority": "Root rulings recorded at LSC-2P admission, 2026-10-24, in the same PR as the LSC-2 closure (GOAL.md:10 and units.json stepPlanDecision20261024.wip: \"Closure and next admission may share one PR; successor implementation begins only after merge\"). (1) Owner decision 2026-10-24 (~07:10 UTC, _receipts/owner-decisions-20261024b.md item 1): \"Lift the HOLD and drain #2313, then LSC-2C (recommended)\"; Root's record of it: the tsrs HOLD is lifted for roadmap units and Steps 1-9 may proceed one unit at a time under the Step 0 rules (GOAL.md:10, stepPlanDecision20261024); the Windows tsrs re-run is advisory, not a gate. (1a) Owner merge-through order 2026-10-24 (~08:20 UTC, _receipts/owner-decision-mergethrough-20261024.md): \"Merge-through: keep posting the owner ruling and merging each reviewed, CI-green unit ... I stop only when something fails, a step goes over its PR budget, or a decision needs you (recommended)\"; its order names \"Step 2 (LSC-2C, 2O, 2, 2P; budget 8)\"; the standing \"continue with recommended options and fix the issues that come up, publish as needed\" applies. (1b) Tracked text that predates the lift is stale on this point and is not authority for this admission: GOAL.md:10 and DELIVERY.md:10 (\"The tsrs HOLD remains\"), units.json stepPlanDecision20261024.drain (\"No new admission while draining; HOLD still applies\"; the drain ended with #2328) and the generated V2.2.0-STEPS.md header (\"roadmap units remain held\"; the page grants no admission). LSC-2P may not edit those Root-owned texts (lifecycleOwnershipLimit); Root records the lift in a Root-owned follow-up. (2) Predecessors: LSC-2 is main-verified by commit 1 of this PR (PR #2331, reviewed head 56d530b20, merge a7711ad13 = the PR base, owner ruling comment 6387527112); LSC-2P was released blocked -> planned in that commit. (3) Registration: the OWNER-RULING on #2330 (comment 6386308308) folds the proposed LSC-2PE into LSC-2P by a ledger-class registration correction riding in this PR; commit 2 is that correction (RC-LSC2P-1). (4) The Step 0 and Step 1 page rows are pending step-evidence records (draft PR #2327); Root rules that this does not block Step 2 selection because the owner order names Step 2 explicitly (the LSC-2C, LSC-2O and LSC-2 precedents #2326, #2328, #2329, #2330 and #2331 merged while the same rows were pending). (5) The carry-in dispositions, the S5 amendment and the Q1-Q8 resolutions of this receipt are recorded by the admitting worker on Root's brief; Root confirms them at review. Admission only; no implementation ruling or acceptance. No OWNER-RULING comment exists for this PR yet (the sensitive-class OWNER-RULING on the exact LSC-2P implementation head comes later).",
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (closure, registration correction and admission)",
+    "coordinator": "Root (Astra coordinator)"
+  },
+  "specSource": {
+    "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2p-proof-spec.md",
+    "sha256": "a2530ce459c90c434c5cd2a6515e617f761f8d862e139f9993217e4fc371ffe2",
+    "bytes": 47781,
+    "note": "Design-only proof spec written against origin/main 6d180495883c057a4ed1cb91807cbb76a91a7223; reviewed by Opus in the #2331 round-1 report (section 9). Its premises were re-checked against the baseline (specPremiseDrift)."
+  },
+  "specPremiseDrift": {
+    "comparedFrom": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+    "comparedTo": "a7711ad136c70b3380788298414690b589ee8430",
+    "result": "No change in desktop, electron-builder.yml, workflows, playwright.config.ts, scripts/playwright, the auth routes, securitySchemas.ts, server.js, e2eTokenTtlRoute.ts, docs/releases, e2e, package.json or the UAT checklist. Changed since the spec: only the merged LSC-2C/LSC-2O/LSC-2 files (the store, operator panel, entry panel, new credential panel, navigation and their tests), which section 8 of the spec told the admission to re-read; the selector table below does.",
+    "diffStat": [
+      "src/components/campaign/CampaignNavigation.tsx     |    5 +",
+      " .../__tests__/localSeatCredentialStore.test.ts     |  685 ++++++++++++",
+      " src/lib/campaign/coop/localSeatCredentialStore.ts  |  281 +++++",
+      " .../gameplay/campaigns/CampaignCoopEntryPanel.tsx  |  129 +--",
+      " .../campaigns/LocalSeatCredentialPanel.tsx         |  385 +++++++",
+      " .../gameplay/campaigns/LocalSeatOperatorPanel.tsx  |   48 +-",
+      " .../__tests__/CampaignCoopEntryPanel.test.tsx      |  818 +++++++++++++-",
+      " .../__tests__/LocalSeatCredentialPanel.test.tsx    | 1122 ++++++++++++++++++++",
+      " .../__tests__/LocalSeatOperatorPanel.test.tsx      |  356 ++++++-",
+      " 9 files changed, 3678 insertions(+), 151 deletions(-)"
+    ]
+  },
+  "manifest": {
+    "count": 13,
+    "seams": [
+      "playwright.local-seat-packaged.config.ts",
+      "e2e/local-seat-credentials.spec.ts",
+      "docs/releases/v2.2.0-local-seat-proof.md",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json"
+    ],
+    "registrationCorrection": [
+      "scripts/qc/v220-evidence.mjs",
+      "scripts/__tests__/v220-evidence.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
+    ],
+    "statement": "The effective LSC-2P literal manifest is the eight candidate seams of units.json localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-2P plus the five RC-LSC2P-1 leaves (units.json LSC-2P.registrationCorrection20261024). Historical manifests are not rewritten.",
+    "plannedImplementationPrFileSet": {
+      "count": 11,
+      "files": [
+        "playwright.local-seat-packaged.config.ts",
+        "e2e/local-seat-credentials.spec.ts",
+        "docs/releases/v2.2.0-local-seat-proof.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "scripts/qc/v220-evidence.mjs",
+        "scripts/__tests__/v220-evidence.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md"
+      ]
+    },
+    "closurePrExpected": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-merge-<closure date>.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-mainproof-<closure date>.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-source-review-<closure date>.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-owner-ruling-<comment id>.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-<sha9>-logs.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
+    ],
+    "gOwn": "G-OWN freeze: no tracked trace, video, HAR, screenshot or hash-receipt file (Q3). The four registered lifecycle names above keep their 20261018 literals. The closure receipts and envelopes follow the LSC-2 and LSC-2O naming with the closure date; their exact names are frozen at the closure PR. A tracked artifact would need a new freeze and a leaf registration.",
+    "noPackageJsonChange": "No package.json change is registered; the command stays the explicit node scripts/playwright/run-playwright.mjs line."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true
+  },
+  "thisPrCaps": {
+    "note": "This PR (closure + RC-LSC2P-1 + admission): units.json, PROGRESS.md, V2.2.0-STEPS.md, the LSC-2 review, merge and mainProof receipts, the review envelope, the ruling envelope, the combined log envelope and this admission receipt = 10 of 15 files."
+  },
+  "measuredFit": {
+    "files": {
+      "implementationPr": 11,
+      "list": [
+        "playwright.local-seat-packaged.config.ts",
+        "e2e/local-seat-credentials.spec.ts",
+        "docs/releases/v2.2.0-local-seat-proof.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "scripts/qc/v220-evidence.mjs",
+        "scripts/__tests__/v220-evidence.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md"
+      ],
+      "cap": 15,
+      "margin": 4,
+      "note": "The implementation PR carries 11 files: the three registered leaves (config, spec, proof doc), units.json, the RED and local receipts, the regenerated page and the four RC-LSC2P-1 leaves. This admission receipt is already on main by then. The admission-review receipt, the merge and mainProof receipts and their envelopes land in the closure PR (PR 8), which has its own cap."
+    },
+    "countedLines": {
+      "cap": 500,
+      "items": [
+        {
+          "file": "playwright.local-seat-packaged.config.ts",
+          "lines": 37,
+          "basis": "MEASURED on a draft formatted with the repository oxfmt (not committed); sha256 65e7a330da1ee5ba3251454d6d53cc13a724d120166558261301aa88645832f3, 1163 bytes; oxlint 0 warnings, 0 errors"
+        },
+        {
+          "file": "docs/releases/v2.2.0-local-seat-proof.md",
+          "lines": "120-170",
+          "basis": "estimate (spec section 7); counted"
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "lines": "55-75",
+          "basis": "estimate: state transitions, stageReceipts red and local, and the PK packet at GREEN"
+        },
+        {
+          "file": "scripts/qc/v220-evidence.mjs",
+          "lines": 31,
+          "basis": "MEASURED by the fold prototype below"
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+          "lines": 3,
+          "basis": "MEASURED (+3/-4)"
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+          "lines": "8-10",
+          "basis": "estimate (one paragraph describing the kind)"
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+          "lines": 2,
+          "basis": "MEASURED (the generated hash line and the Step 2 row)"
+        }
+      ],
+      "total": {
+        "low": 256,
+        "high": 328
+      },
+      "exempt": [
+        "e2e/local-seat-credentials.spec.ts (test code)",
+        "scripts/__tests__/v220-evidence.test.mjs (test)",
+        "evidence/lsc-2p-red-20261018.json",
+        "evidence/lsc-2p-local-20261018.json"
+      ]
+    },
+    "foldPrototype": {
+      "note": "A throwaway prototype of the RC-LSC2P-1 edits, applied in this worktree and reverted before this commit (git status clean). It registered local-seat-proof in schemas, added a checkEvidenceRecord branch (three distinct pid_ ids with the three choices, installer and installed-exe SHA-256, authority URL and freshAuthority, PASS for S0-S7, timestamped PASS observations, no open defects) and flipped the Step 2 doneTests to the LSC-2P argv command plus a kind:evidence entry. With stand-in files for the argv targets, generate-v220-steps.mjs accepted the plan and regenerated the page (Step 2 row \"not started | manual evidence pending\"); node --test scripts/__tests__/v220-evidence.test.mjs v220-format.test.mjs v220-steps.test.mjs passed 128/128 with NO test edit; validate-roadmap.mjs passed. The new-kind tests (line-exempt) are still to be written in the implementation PR.",
+      "diffSha256": "c399579163075b5249e969c547eef9ed1cea2894af08f12851532732733b7409",
+      "numstat": [
+        "scripts/qc/v220-evidence.mjs +31/-0",
+        "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json +3/-4",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md +2/-2 (generated)"
+      ],
+      "stepsTestTouched": false,
+      "consequence": "scripts/__tests__/v220-steps.test.mjs and generate-v220-steps.mjs need no change, so neither is registered."
+    },
+    "verdict": "FITS. 11 of 15 files (margin 4) and about 256-328 of 500 counted lines (margin at least 172). Re-measure after normal oxfmt at the implementation PR; the proof doc is the uncertain item."
+  },
+  "predecessors": {
+    "LSC-2": {
+      "state": "main-verified (commit 1 of this PR)",
+      "prHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+      "mergeSha": "a7711ad136c70b3380788298414690b589ee8430",
+      "mainProof": {
+        "path": "evidence/lsc-2-mainproof-20261024.json",
+        "verdict": "PASS",
+        "runtime": "Main Jest: Tests: 540 passed, 540 total"
+      }
+    },
+    "LSC-2O": {
+      "state": "main-verified",
+      "mergeSha": "e012028a945df0641089d946877c1192b51e9329",
+      "mainProof": {
+        "path": "evidence/lsc-2o-mainproof-20261024.json",
+        "verdict": "PASS"
+      }
+    },
+    "LSC-2C": {
+      "state": "main-verified",
+      "mergeSha": "59b8af58a9372a74191b253bd02d837f58dc390e",
+      "mainProof": {
+        "path": "evidence/lsc-2c-mainproof-20261024.json",
+        "verdict": "PASS"
+      }
+    },
+    "LSC-2OP": {
+      "state": "main-verified",
+      "mergeSha": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1"
+    }
+  },
+  "acceptance": [
+    "A1 installed-artifact identity and hash (installer SHA-256, installed exe SHA-256, rcSha)",
+    "A2 two players plus a non-playing GM have three distinct public playerIds across isolated profiles through ordinary shipped UI",
+    "A3 stable across reload/reconnect (and authority restart, identity strict)",
+    "A4 renewal and expired-token recovery on the installed app",
+    "A5 operator revoke / re-provision and guest re-claim (S5 amended by G5)",
+    "A6 no E2E identity seeding, manual bearer transfer, global active-row switching or second server; seat selection grants no role; no plaintext password/private-key persistence",
+    "A7 revocation effective at the next mint or renewal, not immediate eviction",
+    "A8 CF-LSC2OP-4 autofill attributes (interactive check recorded as a human gap) and CF-SMOKEA1-7 restart observation"
+  ],
+  "scenarioInventory": {
+    "note": "Frozen from the proof spec section 3 (premises re-checked above). Execution order is file order under test.describe.configure({ mode: \"serial\" }): S0, S1, S2, S4, S5, N1-N4 and N6, S3 (the soak, clocked from the S1 mint time T0), N5, S7. Passwords are generated per run in memory and never written; every POST to /api/multiplayer/auth/* must be caused by a click; tracing, video and screenshots stay off in the config.",
+    "count": 13,
+    "scenarios": [
+      {
+        "id": "S0",
+        "title": "Installed artifact identity and clean single authority (Windows only)",
+        "acceptance": [
+          "A1",
+          "A6"
+        ],
+        "fileOrder": 1,
+        "approxMinutes": 3,
+        "steps": [
+          "Require win32 and LSC2P_INSTALLER, LSC2P_INSTALLER_SHA256, LSC2P_INSTALL_DIR, LSC2P_RC_SHA, LSC2P_RUN_DIR (missing = FAIL, not skip); self-skip only when LSC2P_PACKAGED !== \"1\".",
+          "Stream-hash the installer; cross-check the operator hash; filename must match ^MekStation-.+-win-x64\\.exe$.",
+          "Record Authenticode status (expected NotSigned).",
+          "Exactly one TCP listener on 3001 bound to 127.0.0.1, image path under LSC2P_INSTALL_DIR ending MekStation.exe; no listener on 3600.",
+          "Record installed exe SHA-256 and ProductVersion.",
+          "GET /api/multiplayer/auth/local-seats: two seats, both unprovisioned, generation 0."
+        ],
+        "expect": "Installer and installed-exe hashes recorded by the spec itself; fresh authority.",
+        "failsIf": "win-unpacked or plain node as the listener; more than one listener; non-loopback bind; any active seat (authority not fresh); hash mismatch; port 3600 open.",
+        "uiSurfaceStatus": "Selectors none; PowerShell cmdlets UNVERIFIED (U5).",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S0"
+      },
+      {
+        "id": "S1",
+        "title": "Three identities through the ordinary UI",
+        "acceptance": [
+          "A2",
+          "A6"
+        ],
+        "fileOrder": 2,
+        "approxMinutes": 6,
+        "steps": [
+          "GM profile: /settings -> Vault & Sharing -> Create Your Vault Identity (display name, random password).",
+          "GM: /gameplay/campaigns, create-coop-password-input, \"Create Co-op Campaign\"; capture the 6-character room code.",
+          "GM operator panel \"Manage local seats\": provision local-seat-1 (label \"Player 1\") and local-seat-2 (label \"Player 2\") with Primary vault password + New seat password.",
+          "P1 and P2 profiles: open the join dialog, choose Local seat 1 / Local seat 2 in \"This browser profile joins as\", join with the room code and the seat password.",
+          "Read each public binding {matchId, choice, playerId} from sessionStorage mekstation.coopCredential.joined.<matchId>."
+        ],
+        "expect": "Three pairwise-distinct pid_ ids; seat ids equal the operator list and the public GET; coop-session-badge on all three; host surfaces only on the GM; three screenshots.",
+        "failsIf": "Any two ids equal; GM id equal to a seat id; provisioning or joining needs a non-UI call; a wrong password joins; the run needs /api/e2e/*, a pasted bearer, DB edits or a pre-seeded vault identity.",
+        "uiSurfaceStatus": "Selectors frozen below. The chooser is mounted inside the join dialog (CampaignCoopEntryPanel.tsx:457); the GM create path uses the password box, not the chooser. Guests are admitted by the host when a tactical seat is free; there is no GM admission control (Q8).",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S1"
+      },
+      {
+        "id": "S2",
+        "title": "Reload and reconnect keep identity",
+        "acceptance": [
+          "A3"
+        ],
+        "fileOrder": 3,
+        "approxMinutes": 4,
+        "steps": [
+          "a. page.reload() on each profile: same binding and playerId, no password field, zero mint POSTs (sessionStorage survives reload in the same tab).",
+          "b. Transport drop through page.routeWebSocket pass-through then close the page side: reconnect with the stored bearer, same playerId, no mint POST, no password prompt.",
+          "c. P2 only: a second tab in the same profile has no bearer, keeps the localStorage choice, shows the BINDING_REQUIRED text and an explicit reclaim path; re-mint with the same password gives the same playerId. Never on GM or P1 (their bearers feed S3)."
+        ],
+        "expect": "Same playerIds throughout; a new tab never inherits another tab bearer.",
+        "failsIf": "A playerId changes; a prompt appears after a plain reload; a mint POST without a user submit; a second tab inherits a bearer.",
+        "uiSurfaceStatus": "S2b depends on LSC-2 reconnect behavior and routeWebSocket (U6); if the page-side close does not reconnect, S2b is rewritten as an authority restart (S7 already does one). Probe G-P2.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S2"
+      },
+      {
+        "id": "S3",
+        "title": "Renewal and expiry (real-time soak, tag @soak, about 62 minutes from T0)",
+        "acceptance": [
+          "A4"
+        ],
+        "fileOrder": 7,
+        "approxMinutes": 62,
+        "steps": [
+          "Read expiresAt for GM and P1 with a public-only evaluate (a number, never the token).",
+          "Poll every 15 s with no input: no prompt before expiresAt - 4 min - 5 s and zero mint POSTs before the submit.",
+          "GM: the \"Co-op sign-in renewal and recovery\" region appears within 30 s after expiresAt - 4 min, on the dashboard and one of missions/log/personnel; enter the GM password; expect later expiresAt, same playerId and a new WebSocket (page.on(\"websocket\")) or a reload.",
+          "P1: ignore the prompt until expiresAt + 5 s; expect \"Your co-op sign-in expired. Re-enter its password to recover.\", no auto-mint; reload shows refusal or recovery UI.",
+          "P1 recovery: enter the seat password; same playerId, reconnected transport, working actions."
+        ],
+        "expect": "Absolute mintedAt, promptAppearedAt, renewedAt, expiredObservedAt and recoveredAt per profile.",
+        "failsIf": "Early or absent prompt; any automatic mint; renewal or recovery yields a different playerId without IDENTITY_CHANGED; storage replaced without reconnect; an expired bearer works after reconnect.",
+        "uiSurfaceStatus": "Selectors frozen. Only this test calls test.setTimeout(75 * 60 * 1000); the config stays 30 s (Q2). The machine must not sleep. A lost tab is a FAIL.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S3"
+      },
+      {
+        "id": "S4",
+        "title": "Operator revoke, then re-provision (seat 2)",
+        "acceptance": [
+          "A5",
+          "A7"
+        ],
+        "fileOrder": 4,
+        "approxMinutes": 4,
+        "steps": [
+          "GM operator panel: select local-seat-2, \"Revoke seat\" (enabled only for an active seat): \"Local seat revoke completed.\" and status revoked.",
+          "P2 original tab: reload; still joined as id2 (an issued bearer keeps its lifetime; no immediate eviction).",
+          "P2 new tab: choose Local seat 2 with the old password: \"Local seat credentials were refused.\" (401), exactly one POST.",
+          "GM re-provisions local-seat-2 (label \"Player 2b\", new password): new playerId id2b, higher generation, differs from id2, id1 and the GM id."
+        ],
+        "expect": "Revocation takes effect at the next mint only.",
+        "failsIf": "The revoked seat mints; the live session is evicted at once; re-provision keeps id2; the old password still works.",
+        "uiSurfaceStatus": "Selectors frozen; re-provisioning a revoked seat uses the plain \"Provision seat\" label (inactive seat).",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S4"
+      },
+      {
+        "id": "S5",
+        "title": "Guest reclaim with a new password (CF-LSC2OP-2), amended by G5",
+        "acceptance": [
+          "A5"
+        ],
+        "fileOrder": 5,
+        "approxMinutes": 7,
+        "steps": [
+          "P2 profile: \"Forget choice and match sign-in; return to co-op entry\" (the renewal region renders only inside the four-minute window or on a stored problem; see the IDENTITY_CHANGED gap); expect the three keys removed.",
+          "P2: choose Local seat 2 and join with the new password P2b.",
+          "Active-seat re-provision: with seat 2 active the operator panel shows \"Re-provision seat (new identity)\" and the confirmation checkbox; record the confirmation text and the new playerId id2c.",
+          "Ghost membership: id2 stays a member after re-provision.",
+          "Ordinary removal."
+        ],
+        "expect": "AMENDED by this admission (Q8): the join with the new identity is expected to be REFUSED by the host with campaign-tactical-seats-full while the ghost id2 and P1 hold the two tactical seats, and no ordinary-UI control removes a participant (G5). The spec records \"refused: seats full\" and \"removal UI absent\" as observations and makes no readmission or removal claim. If Root registers a GM removal UI leaf, steps 2-5 become the full sequence.",
+        "failsIf": "Active-seat re-provision proceeds without the confirmation; the old member is silently removed or transferred; the new identity is admitted without a free seat; reclaim leaves any of the three keys behind; a partial forget reports success.",
+        "uiSurfaceStatus": "UNVERIFIED (U10, U11): the join-dialog text for AUTH_REJECTED campaign-tactical-seats-full, and whether the new identity is shown any member surface. The jsdom LS21c proves the refusal, the GM RemoveParticipant intent and the later admission.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S5"
+      },
+      {
+        "id": "N1",
+        "title": "No token transfer (negative)",
+        "acceptance": [
+          "A6"
+        ],
+        "fileOrder": "6a",
+        "approxMinutes": 2,
+        "steps": [
+          "At every checkpoint scan all three profiles for a wire token (URL, text, href, data-*, localStorage, sessionStorage keys other than the two per-match keys).",
+          "Accessible-name scan for copy|export|import|share with token|credential|bearer.",
+          "Harness audit: the spec source must not contain wireToken, sessionStorage.setItem, localStorage.setItem, addInitScript, page.clock, /api/e2e/ (except the N2 block), x-playwright-e2e-run-id, vault-identity or ttlMs."
+        ],
+        "expect": "No bearer outside its own key; no copy/export control.",
+        "failsIf": "Any hit.",
+        "uiSurfaceStatus": "No selector.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 N1"
+      },
+      {
+        "id": "N2",
+        "title": "No test activator (negative)",
+        "acceptance": [
+          "A6"
+        ],
+        "fileOrder": "6b",
+        "approxMinutes": 1,
+        "steps": [
+          "POST /api/e2e/token-ttl, POST /api/e2e/vault-identity, GET /api/e2e/fault, GET /api/e2e/performance-probe and GET /__playwright_e2e_ready__?runId=x return non-200 with and without a guessed run id header.",
+          "NEXT_PUBLIC_E2E_MODE and PLAYWRIGHT_E2E_RUN_ID are not defined in the spec env or the dedicated config."
+        ],
+        "expect": "All probes refused.",
+        "failsIf": "Any 200.",
+        "uiSurfaceStatus": "No selector.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 N2"
+      },
+      {
+        "id": "N3",
+        "title": "No server-wide identity switch (negative)",
+        "acceptance": [
+          "A6"
+        ],
+        "fileOrder": "6c",
+        "approxMinutes": 2,
+        "steps": [
+          "The GM primary renewal returns the same GM playerId as S1.",
+          "/settings in P1 shows the single vault identity status, not a creation form or a selector; no seat label among vault identities.",
+          "Each profile keeps its own choice."
+        ],
+        "expect": "One vault identity; local choices.",
+        "failsIf": "A selector or a changed GM id.",
+        "uiSurfaceStatus": "Settings copy UNVERIFIED against the packaged UI.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 N3"
+      },
+      {
+        "id": "N4",
+        "title": "No implied role (negative)",
+        "acceptance": [
+          "A6"
+        ],
+        "fileOrder": "6d",
+        "approxMinutes": 2,
+        "steps": [
+          "P1 and P2 show zero host-gm-review-surface and host-command-authority-private while the GM shows the host surface.",
+          "A profile that chose a seat but is not admitted has no member surfaces."
+        ],
+        "expect": "Seat selection grants no role.",
+        "failsIf": "Any host surface on a guest.",
+        "uiSurfaceStatus": "Selectors frozen.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 N4"
+      },
+      {
+        "id": "N5",
+        "title": "Denial versus throttle, no auto-retry (negative)",
+        "acceptance": [
+          "A5"
+        ],
+        "fileOrder": "6e",
+        "approxMinutes": 3,
+        "steps": [
+          "After S5 and a 61 s quiet period, one wrong password for seat 2: \"Local seat credentials were refused.\" (401).",
+          "Repeat to the lockout (5 failures): \"Local seat requests are throttled. Retry after N seconds.\" (429 + Retry-After).",
+          "POST count equals user submits; after the lock expires the correct password succeeds."
+        ],
+        "expect": "401 versus 429 distinguished; no retry.",
+        "failsIf": "POST count above submits; a wrong code.",
+        "uiSurfaceStatus": "Selectors frozen.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 N5"
+      },
+      {
+        "id": "N6",
+        "title": "Secrecy and autofill (negative; CF-LSC2OP-4)",
+        "acceptance": [
+          "A6",
+          "A8"
+        ],
+        "fileOrder": "6f",
+        "approxMinutes": 2,
+        "steps": [
+          "Password inputs: autocomplete current-password (primary/renewal/join/create) and new-password (new seat password); unnamed; uncontrolled; empty right after submit.",
+          "Passwords and bearers absent from URLs, DOM text, localStorage, console, page errors, request URLs and every produced artifact (the spec searches its own record and report for each password value before writing)."
+        ],
+        "expect": "Attribute checks automated; the interactive password-manager prompt is a recorded human gap (Step 8).",
+        "failsIf": "A secret anywhere.",
+        "uiSurfaceStatus": "Playwright cannot observe a password-manager prompt.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 N6"
+      },
+      {
+        "id": "S7",
+        "title": "Authority restart (identity strict, recovery record-only)",
+        "acceptance": [
+          "A3",
+          "A8"
+        ],
+        "fileOrder": 8,
+        "approxMinutes": 4,
+        "steps": [
+          "Record seats and bindings; end the installed app gracefully; relaunch with the same command and user-data dir; reload GM, P1, P2."
+        ],
+        "expect": "Seat rows and playerIds unchanged; no silent identity change. RECORDED, NOT ASSERTED: whether the campaign/match host recovered and whether stdout shows the InMemoryPlayerStore dev-only warning (CF-SMOKEA1-7).",
+        "failsIf": "Seats lost or regressed; ids changed; bearers swap identities.",
+        "uiSurfaceStatus": "A needed repair is a separate product owner, not this unit.",
+        "specSection": "_reports/2026-10-24/lsc-2p-proof-spec.md section 3 S7"
+      }
+    ]
+  },
+  "mutantInventory": {
+    "note": "Product-level mutants stay in the LSC-2C/2O/2 unit suites. For LSC-2P the discriminating checks are environment and harness mutants; each must make the spec fail at the named step. R0 is the runtime RED.",
+    "mutants": [
+      {
+        "id": "R0",
+        "kind": "RED",
+        "mutant": "Installer built from the pre-LSC-2 main (0599ea838, no chooser)",
+        "mustFailAt": "S1",
+        "note": "The runtime RED. Needs a second NSIS build of a different commit; the RED receipt records both installer hashes."
+      },
+      {
+        "id": "M1",
+        "mutant": "Launch with NEXT_PUBLIC_E2E_MODE=true and a run id exported (the app inherits the launcher env)",
+        "mustFailAt": "N2"
+      },
+      {
+        "id": "M2",
+        "mutant": "Reuse an old --user-data-dir that has active seats",
+        "mustFailAt": "S0 fresh-authority check"
+      },
+      {
+        "id": "M3",
+        "mutant": "Point LSC2P_INSTALL_DIR at win-unpacked, or run npm start on 3001",
+        "mustFailAt": "S0 listener-path check"
+      },
+      {
+        "id": "M4",
+        "mutant": "Add sessionStorage.setItem to a copy of the spec",
+        "mustFailAt": "N1 harness audit"
+      },
+      {
+        "id": "M5",
+        "mutant": "Write a password into proof-record.json",
+        "mustFailAt": "N6 secret scan"
+      },
+      {
+        "id": "M6",
+        "mutant": "Make the harness submit the renewal before the window opens",
+        "mustFailAt": "S3 \"no early or automatic mint\""
+      },
+      {
+        "id": "M7",
+        "added": "this admission",
+        "mutant": "Fake the browser clock (page.clock) to shorten S3",
+        "mustFailAt": "N1 harness audit (it also forbids the E2E TTL override)",
+        "note": "S3 must be real time (Q1)."
+      },
+      {
+        "id": "M8",
+        "added": "this admission",
+        "mutant": "The spec claims a ghost-removal or readmission success in S5 although no UI control exists",
+        "mustFailAt": "S5 observation check (removal is recorded absent; a \"removed\" claim must fail)",
+        "note": "G5/Q8."
+      },
+      {
+        "id": "M9",
+        "added": "A1",
+        "mutant": "The local-seat-proof checker accepts publicIdentities that repeat a playerId",
+        "mustFailAt": "scripts/__tests__/v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M10",
+        "added": "A1",
+        "mutant": "The checker accepts publicIdentities whose choices are not exactly primary, seat1 and seat2",
+        "mustFailAt": "v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M11",
+        "added": "A1",
+        "mutant": "The checker accepts a record without installer.sha256 or installed.exeSha256 (64 lowercase hex), or with rcSha not 40 lowercase hex",
+        "mustFailAt": "v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M12",
+        "added": "A1",
+        "mutant": "The checker accepts a scenario result other than PASS for S0-S7, or a non-empty defects list",
+        "mustFailAt": "v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M13",
+        "added": "A1",
+        "mutant": "The schemas entry maps local-seat-proof to a step other than 2",
+        "mustFailAt": "generate-v220-steps.mjs --check (Misplaced evidence schema) and v220-steps.test.mjs"
+      }
+    ]
+  },
+  "selectorTable": {
+    "note": "Frozen from the merged LSC-2 source at the baseline. Every row was verified by locating its text in the file; the source is file:line where it was found. The chooser lives inside the join dialog. Copy that contains typographic characters (the em dash in the seat list, the curly quotes in the disclosure) is excluded from assertions.",
+    "count": 59,
+    "rows": [
+      {
+        "surface": "co-op entry",
+        "kind": "button text",
+        "value": "Create Co-op Campaign",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:359"
+      },
+      {
+        "surface": "co-op entry",
+        "kind": "data-testid",
+        "value": "create-coop-campaign-btn",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:356"
+      },
+      {
+        "surface": "co-op entry",
+        "kind": "label",
+        "value": "Co-op host vault password",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:403"
+      },
+      {
+        "surface": "co-op entry",
+        "kind": "data-testid (password input)",
+        "value": "create-coop-password-input",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:407"
+      },
+      {
+        "surface": "co-op entry",
+        "kind": "button text",
+        "value": "Join Co-op Campaign",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:366"
+      },
+      {
+        "surface": "co-op entry",
+        "kind": "data-testid",
+        "value": "join-coop-campaign-btn",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:364"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "data-testid (role=dialog)",
+        "value": "join-coop-dialog",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:422"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "data-testid (room code input)",
+        "value": "join-coop-room-code-input",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:448"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "data-testid (password input)",
+        "value": "join-coop-password-input",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:466"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "data-testid (role=alert)",
+        "value": "join-coop-error",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:476"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "data-testid (cancel)",
+        "value": "join-coop-cancel-btn",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:497"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "data-testid (submit)",
+        "value": "join-coop-submit-btn",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:507"
+      },
+      {
+        "surface": "join dialog",
+        "kind": "mount of the chooser",
+        "value": "<LocalSeatCredentialPanel />",
+        "source": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:457"
+      },
+      {
+        "surface": "chooser",
+        "kind": "region aria-label",
+        "value": "Co-op credential choice",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:110"
+      },
+      {
+        "surface": "chooser",
+        "kind": "label of the select",
+        "value": "This browser profile joins as",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:114"
+      },
+      {
+        "surface": "chooser",
+        "kind": "option labels (values primary, seat1, seat2)",
+        "value": "Primary vault identity / Local seat 1 / Local seat 2",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:22"
+      },
+      {
+        "surface": "chooser",
+        "kind": "button",
+        "value": "Show / refresh local seat availability",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:140"
+      },
+      {
+        "surface": "chooser",
+        "kind": "list aria-label",
+        "value": "Public local seat availability",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:143"
+      },
+      {
+        "surface": "chooser",
+        "kind": "role=alert text",
+        "value": "Ask the operator to provision this seat before signing in.",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:155"
+      },
+      {
+        "surface": "chooser",
+        "kind": "status text after choosing",
+        "value": "Choice saved for the next join. Existing matches keep their joined credential.",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:93"
+      },
+      {
+        "surface": "chooser",
+        "kind": "button",
+        "value": "Forget next-join choice",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:181"
+      },
+      {
+        "surface": "chooser",
+        "kind": "status text after forgetting",
+        "value": "Next-join choice forgotten. Primary is the default. Match sign-ins were not removed.",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:174"
+      },
+      {
+        "surface": "renewal",
+        "kind": "region aria-label",
+        "value": "Co-op sign-in renewal and recovery",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:313"
+      },
+      {
+        "surface": "renewal",
+        "kind": "status text (window)",
+        "value": "Your co-op sign-in expires within four minutes. Renew before continuing.",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:320"
+      },
+      {
+        "surface": "renewal",
+        "kind": "status text (expired)",
+        "value": "Your co-op sign-in expired. Re-enter its password to recover.",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:319"
+      },
+      {
+        "surface": "renewal",
+        "kind": "joined line",
+        "value": "Joined as ",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:330"
+      },
+      {
+        "surface": "renewal",
+        "kind": "label of the password input",
+        "value": "Password for ",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:333"
+      },
+      {
+        "surface": "renewal",
+        "kind": "submit text (window)",
+        "value": "Renew and reload",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:351"
+      },
+      {
+        "surface": "renewal",
+        "kind": "submit text (expired)",
+        "value": "Recover and reload",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:350"
+      },
+      {
+        "surface": "renewal",
+        "kind": "button text (forget)",
+        "value": "Forget choice and match sign-in; return to co-op entry",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:372"
+      },
+      {
+        "surface": "renewal",
+        "kind": "password input attributes",
+        "value": "type=password, autoComplete=current-password, maxLength=512, unnamed, uncontrolled ref",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx:339"
+      },
+      {
+        "surface": "navigation",
+        "kind": "mount of the renewal panel",
+        "value": "<CoopCredentialRenewal matchId={getCoopMatchId(coopSession)} />",
+        "source": "src/components/campaign/CampaignNavigation.tsx:269"
+      },
+      {
+        "surface": "navigation",
+        "kind": "data-testid",
+        "value": "coop-session-badge",
+        "source": "src/components/campaign/CampaignNavigation.tsx:295"
+      },
+      {
+        "surface": "GM surface",
+        "kind": "data-testid (host only)",
+        "value": "host-gm-review-surface",
+        "source": "src/components/campaign/coop/HostGmReviewSurface.tsx:211"
+      },
+      {
+        "surface": "GM surface",
+        "kind": "data-testid (host only, private authority)",
+        "value": "host-command-authority-private",
+        "source": "src/components/campaign/coop/HostGmReviewSurface.tsx:340"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "button",
+        "value": "Manage local seats",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:142"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "list aria-label",
+        "value": "Local seat states",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:158"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "legend",
+        "value": "Local seat credentials",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:181"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "label (select)",
+        "value": "Local seat",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:116"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "label (text input)",
+        "value": "Seat label",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:202"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "label (password, current-password)",
+        "value": "Primary vault password",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:213"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "label (password, new-password)",
+        "value": "New seat password",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:214"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "submit text (inactive seat)",
+        "value": "Provision seat",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:245"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "submit text (active seat)",
+        "value": "Re-provision seat (new identity)",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:244"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "re-provision confirmation (checkbox label starts)",
+        "value": "Re-provisioning gives this seat a new identity.",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:237"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "button (enabled only for an active seat)",
+        "value": "Revoke seat",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:253"
+      },
+      {
+        "surface": "operator panel",
+        "kind": "button",
+        "value": "Retry refresh",
+        "source": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx:68"
+      },
+      {
+        "surface": "messages",
+        "kind": "LOCAL_SEAT_DENIED (401)",
+        "value": "Local seat credentials were refused.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:52"
+      },
+      {
+        "surface": "messages",
+        "kind": "LOCAL_SEAT_THROTTLED (429, plus Retry after N seconds.)",
+        "value": "Local seat requests are throttled.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:53"
+      },
+      {
+        "surface": "messages",
+        "kind": "OPERATOR_DENIED",
+        "value": "Primary vault password was refused.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:49"
+      },
+      {
+        "surface": "messages",
+        "kind": "OPERATOR_IDENTITY_REQUIRED",
+        "value": "Create a primary vault identity in Settings first.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:51"
+      },
+      {
+        "surface": "messages",
+        "kind": "IDENTITY_CHANGED",
+        "value": "This credential now belongs to a different player. Forget this sign-in and reclaim through co-op entry; the GM must admit the new identity.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:48"
+      },
+      {
+        "surface": "messages",
+        "kind": "BINDING_REQUIRED",
+        "value": "The joined credential is unavailable. Forget this sign-in and reclaim through co-op entry.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:46"
+      },
+      {
+        "surface": "messages",
+        "kind": "INVALID_CHOICE",
+        "value": "Saved credential choice is invalid. Forget it and choose again.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:43"
+      },
+      {
+        "surface": "messages",
+        "kind": "INVALID_TOKEN",
+        "value": "The server returned an invalid or expired sign-in.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:44"
+      },
+      {
+        "surface": "storage key (localStorage, next-join choice)",
+        "kind": "mekstation.coopCredential.choice",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:93"
+      },
+      {
+        "surface": "storage key prefix (sessionStorage, public joined binding)",
+        "kind": "mekstation.coopCredential.joined.",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:93"
+      },
+      {
+        "surface": "window constant",
+        "kind": "RENEWAL_WINDOW_MS = 4 * 60 * 1000",
+        "value": "RENEWAL_WINDOW_MS = 4 * 60 * 1000",
+        "source": "src/lib/campaign/coop/localSeatCredentialStore.ts:134"
+      },
+      {
+        "surface": "storage key prefix (sessionStorage, per-match bearer)",
+        "kind": "mekstation.coopCampaign.token.",
+        "source": "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts:15"
+      }
+    ]
+  },
+  "harness": {
+    "architecture": "Mode A. The operator installs the NSIS build and starts the installed app; the spec attaches to http://127.0.0.1:3001 only. Three Playwright chromium.launchPersistentContext profiles (gm, p1, p2) with distinct userDataDirs under LSC2P_RUN_DIR\\profiles; they share only the origin string. No _electron.launch (single-instance lock and a fixed port).",
+    "files": [
+      "playwright.local-seat-packaged.config.ts (one project local-seat-packaged, no webServer, no globalSetup, workers 1, retries 0, timeout 30 s, trace/video/screenshot off, sets LSC2P_PACKAGED=1, json reporter to LSC2P_RUN_DIR)",
+      "e2e/local-seat-credentials.spec.ts (inline helpers only; serial; one top-level test per scenario; @soak on S3; writes only under LSC2P_RUN_DIR)",
+      "docs/releases/v2.2.0-local-seat-proof.md (disclaimer, procedure, the exact command, the JSON record copied verbatim, a per-scenario table, the artifact hash table, known gaps)"
+    ],
+    "environment": [
+      "LSC2P_INSTALLER",
+      "LSC2P_INSTALLER_SHA256",
+      "LSC2P_INSTALL_DIR",
+      "LSC2P_RC_SHA",
+      "LSC2P_RUN_DIR",
+      "LSC2P_PACKAGED (set by the config)"
+    ],
+    "command": "node scripts/playwright/run-playwright.mjs test --config=playwright.local-seat-packaged.config.ts e2e/local-seat-credentials.spec.ts --workers=1",
+    "commandNote": "Not an existing runnable command on main until LSC-2P lands. Fast development loop (not qualifying): append --grep-invert @soak. Prerequisite: npx playwright install chromium.",
+    "nightlyGuard": "Without the LSC2P_PACKAGED self-skip the new spec would run in the nightly full suite on ubuntu; the guard is mandatory and is a RED/mutant item.",
+    "nsisRehearsal": {
+      "status": "NOT REHEARSED at admission",
+      "reason": "No installer exists on this host for the baseline, and building one needs desktop/ dependencies (separate lockfile and ABI rebuild), the electron-builder NSIS toolchain and downloads. That is the implementing worker's first task, before RED, on a throwaway run directory. U1-U3 and U5 stay UNVERIFIED until then.",
+      "procedure": "Spec section 4.4 steps A-E (candidate identity, build x64 NSIS, hash, silent install into a fresh run dir, scrubbed-env launch with --user-data-dir), then section 4.5 teardown.",
+      "buildCommand": "npm ci; npm run electron:build; (cd desktop; npm run rebuild:next-standalone; npx electron-builder --win nsis --x64 --config.extraMetadata.version=2.2.0-lsc2p.1 --publish never)",
+      "confirmedFromSource": "electron-builder.yml names the installer MekStation-<version>-win-x64.exe and sets signExecutable false; release.yml builds --x64 only and passes the version through --config.extraMetadata.version (control hashes below)."
+    },
+    "timeBudgetMinutes": "S0 3, S1 6, S2 4, S4 4, S5 7, S3 until T0 + 62, N5 3, S7 4: about 70-75 in total."
+  },
+  "evidenceRecord": {
+    "kind": "local-seat-proof",
+    "registeredBy": "RC-LSC2P-1 (scripts/qc/v220-evidence.mjs, step 2)",
+    "requiredFields": [
+      "kind",
+      "rcSha (40 hex)",
+      "inputSha256 (added by Root when the external bundle record is composed; it cannot exist before LSC-2P merges)",
+      "installer {filename ^MekStation-.+-win-x64\\.exe$, sha256, sizeBytes, authenticode}",
+      "installed {exeSha256, productVersion, authorityUrl http://127.0.0.1:3001, listener, freshAuthority true}",
+      "publicIdentities (exactly three: primary, seat1, seat2; distinct pid_ ids)",
+      "scenarios (PASS for S0-S7, with timestamps and artifact names)",
+      "observations (timestamped PASS)",
+      "artifacts (filename -> 64 hex SHA-256)",
+      "operator {identity, kind, attestation}",
+      "gaps",
+      "defects (empty)"
+    ],
+    "reprovisionAndRestart": "Also recorded: reprovision.seat2PlayerIds, ghostMembershipObserved, removalUi \"absent\" (G5), restart {seatsUnchanged, idsUnchanged, matchRecovered, inMemoryPlayerStoreWarning}. These are recorded, not checker-asserted.",
+    "artifactsOutsideGit": "proof-record.json, playwright-report.json, timeline.json, s1-gm.png, s1-p1.png, s1-p2.png, s3-renewal-prompt.png, s3-expired.png, s5-reclaim.png, installer.sha256.txt in LSC2P_RUN_DIR; only their SHA-256 values are tracked, in the proof doc.",
+    "chickenAndEgg": "inputSha256 hashes the step definition plus unit states, including LSC-2P itself, so the in-repo doc omits it. The installer-to-commit link is an operator attestation today (U8). The LSC-2P installer is a pre-RC build; Step 8 binds the RC bytes (Q6)."
+  },
+  "carryIn": [
+    {
+      "id": "CF-LSC2OP-2",
+      "directedTo": "LSC-2P",
+      "disposition": "TAKEN with the G5 amendment. The in-repo sequence is proved by LS21c. The packaged proof shows active-seat re-provision with the \"Re-provision seat (new identity)\" label and confirmation, a new distinct playerId and the ghost, then records the host refusal and the absent removal control (S5, Q8)."
+    },
+    {
+      "id": "CF-LSC2OP-4",
+      "directedTo": "LSC-2P",
+      "disposition": "TAKEN as attribute checks (N6). The interactive password-manager prompt is not observable by Playwright and is recorded as a human gap for Step 8."
+    },
+    {
+      "id": "CF-SMOKEA1-7",
+      "directedTo": "LSC-2P",
+      "disposition": "TAKEN as a record-only observation in S7 (InMemoryPlayerStore dev-only warning and match recovery). A needed repair is a separate product owner."
+    },
+    {
+      "id": "LSC2-G5-GHOST-REMOVAL-CONTROL",
+      "directedTo": "LSC-2P",
+      "disposition": "TAKEN: the journey records the removal step as absent and makes no claim; a UI leaf would need an owner answer (Q8)."
+    },
+    {
+      "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+      "directedTo": "LSC-2P journey or CF-LSC2-STORE-RULES",
+      "disposition": "RECORDED in S2c/S5: the per-match forget control renders only inside the four-minute window or on a stored problem, so a same-tab rejoin with a different credential has no reachable forget until then (workaround: a new tab). The packaged journey uses the new-tab path and states the gap; no fix is in scope (fails closed)."
+    },
+    {
+      "id": "CF-LSC2-STORE-RULES",
+      "directedTo": "Root registration follow-up",
+      "disposition": "NOT TAKEN by LSC-2P (store and panels are outside its leaves); open."
+    },
+    {
+      "id": "CF-LSC2-L1-DUP",
+      "directedTo": "Root registration follow-up",
+      "disposition": "NOT TAKEN; open (primary mint client copies outside every LSC leaf)."
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "directedTo": "Root registration follow-up",
+      "disposition": "NOT TAKEN; open."
+    },
+    {
+      "id": "RC-LSC2-1-census-lesson",
+      "directedTo": "every admission census",
+      "disposition": "APPLIED: the census searched importers of the changed modules and the v220 tooling consumers (census.dispositions.consumerFindings)."
+    },
+    {
+      "id": "R2-1 and LS13",
+      "directedTo": "closure receipts of LSC-2",
+      "disposition": "Recorded in the LSC-2 review receipt; not LSC-2P obligations."
+    }
+  ],
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "question": "Real 60-minute TTLs for S3, or a shorter proof?",
+      "disposition": "ADOPTED as the spec recommends: real time, about 62 minutes from T0. Every shortcut needs the E2E TTL override (a banned test activator) or an API-side ttlMs the UI never sends, so it would not be ordinary UI. Mutant M7 enforces it. Root or the owner may override.",
+      "status": "adopted, awaiting Root confirmation"
+    },
+    {
+      "id": "Q2",
+      "question": "Is a per-test test.setTimeout(75 min) acceptable under the unchanged 30-second config timeout?",
+      "disposition": "ADOPTED: the config keeps timeout 30 s; only S3 calls test.setTimeout. Precedent e2e/coop-campaign-two-browser-journey.spec.ts:264 (180 s) and the root config comment that a per-test override is allowed.",
+      "status": "adopted, awaiting Root confirmation"
+    },
+    {
+      "id": "Q3",
+      "question": "Where do evidence artifacts live?",
+      "disposition": "RESOLVED: external bundle. No trace, video, HAR or screenshot is tracked. Only SHA-256 values of proof-record.json, playwright-report.json, timeline.json and the screenshots appear in docs/releases/v2.2.0-local-seat-proof.md. The G-OWN freeze therefore covers the four registered lifecycle names plus the closure receipts, with no raw artifact leaf.",
+      "status": "resolved"
+    },
+    {
+      "id": "Q4",
+      "question": "Mode B (GM driven in the real Electron window over a debugging port)?",
+      "disposition": "OUT. It adds a second loopback port and conflicts with \"attaches only to http://127.0.0.1:3001\". Mode A (three Chromium persistent profiles against the installed authority) is the baseline.",
+      "status": "resolved (out)"
+    },
+    {
+      "id": "Q5",
+      "question": "Who registers LSC-2PE and must it precede LSC-2P admission?",
+      "disposition": "RESOLVED by RC-LSC2P-1 (commit 2 of this PR, before this admission): five exact ownershipExceptions and a registrationCorrection20261024 record on LSC-2P.",
+      "status": "resolved"
+    },
+    {
+      "id": "Q6",
+      "question": "Will Step 8 re-run this command on the RC installer so the hashes bind?",
+      "disposition": "OPEN, routed to Root and Step 8. The LSC-2P record binds a pre-RC installer built from exact main; Step 8 requires identical hashes across rehearsal, human session and publication (V220-EVIDENCE.md). Recommendation: Step 8 re-runs the same command on the RC installer inside its rehearsal. Not a blocker for LSC-2P. The publication checker re-runs only the argv done-tests of steps 3, 5 and 6, and RC-LSC2P-1 forbids publication and checkReleaseEvidence changes, so a checker-enforced Step 8 re-run of the Step 2 command needs a separate registration; otherwise it is a manual Step 8 obligation.",
+      "status": "open (Step 8)"
+    },
+    {
+      "id": "Q7",
+      "question": "Does LSC-2 expose ghost membership and a removal path in the UI?",
+      "disposition": "ANSWERED by the census of the merged LSC-2: NO. No roster or member list and no removal control exists in the campaign UI (RemoveParticipant appears in UI code only in components/campaign/coop/pendingProposalFromWire.ts, which renders proposals). Ghost membership is observable only as the host refusing a new identity with campaign-tactical-seats-full. This is G5; see Q8.",
+      "status": "answered"
+    },
+    {
+      "id": "Q8",
+      "added": "this admission",
+      "question": "S5 cannot reach \"GM readmission\" or \"ghost removal\" in the ordinary UI: the new identity is refused (tactical seats full) and no removal control exists. Accept recording this, or register a GM removal UI leaf (a new product unit and PR)?",
+      "disposition": "RECOMMENDED: accept and record. The packaged claim becomes: re-provision gives a new distinct playerId; the guest reclaims (mint succeeds); the host refuses the new identity while the ghost holds a seat; removal UI is absent; nothing more is claimed. A removal leaf would add at least one PR and break the 8-PR budget of Step 2, so it needs an owner answer. This admission amends S5 accordingly and adds mutant M8.",
+      "status": "OPEN for the owner; gated by G-P0 (recommended wording applied provisionally)"
+    }
+  ],
+  "unverified": [
+    {
+      "id": "U1",
+      "item": "NSIS silent install flags: /S, /D=<dir> last and unquoted, and no auto-launch in silent mode (runAfterFinish is true)",
+      "status": "NOT REHEARSED here; gate G-P1"
+    },
+    {
+      "id": "U2",
+      "item": "--user-data-dir is honoured for the Electron userData path (the DB lives at <userData>/data/mekstation.db) and the launcher env is inherited by the embedded server",
+      "status": "NOT REHEARSED; G-P1"
+    },
+    {
+      "id": "U3",
+      "item": "Uninstaller file name (\"Uninstall MekStation.exe\") and /S teardown",
+      "status": "NOT REHEARSED; G-P1"
+    },
+    {
+      "id": "U4",
+      "item": "No Electron fuse configuration beyond the git grep (desktop/, electron-builder.yml, package.json)",
+      "status": "unchanged at the baseline; not proven absent"
+    },
+    {
+      "id": "U5",
+      "item": "Get-NetTCPConnection owning-process image path check for the Electron-as-node server child",
+      "status": "NOT REHEARSED; G-P1"
+    },
+    {
+      "id": "U6",
+      "item": "routeWebSocket pass-through closes the page-side socket and the app reconnects with the stored bearer",
+      "status": "NOT PROBED; gate G-P2 (else S2b becomes an authority restart)"
+    },
+    {
+      "id": "U7",
+      "item": "LSC-2 reconnect control or behavior after a transport drop",
+      "status": "NOT PROBED; G-P2"
+    },
+    {
+      "id": "U8",
+      "item": "Commit hash embedded in resources/app.asar via --config.extraMetadata.commitSha",
+      "status": "optional hardening; the installer-to-commit link is an operator attestation otherwise"
+    },
+    {
+      "id": "U9",
+      "item": "A windows-latest CI job for the packaged run",
+      "status": "out of scope (no workflow leaf registered); local runs only"
+    },
+    {
+      "id": "U10",
+      "item": "Join-dialog text for AUTH_REJECTED campaign-tactical-seats-full",
+      "status": "NOT PROBED; G-P3"
+    },
+    {
+      "id": "U11",
+      "item": "Whether the refused new identity is shown any member surface",
+      "status": "NOT PROBED; G-P3"
+    },
+    {
+      "id": "U12",
+      "item": "Mark-of-the-Web / SmartScreen on a downloaded installer (unsigned, signExecutable false)",
+      "status": "a locally built file carries no Mark-of-the-Web; authenticode is recorded honestly as NotSigned"
+    },
+    {
+      "id": "U13",
+      "item": "heavy-run lease for a job of about 75 minutes (class playwright LEASE_MIN 45 minutes, class package 30)",
+      "status": "RESOLVED from _locks/README.md: a lease overrun only writes heavy/overdue/<lane>.json for Root; nothing is killed. Tell Root before each 75-minute run."
+    }
+  ],
+  "gates": [
+    {
+      "id": "G-P0",
+      "kind": "ruling before RED",
+      "text": "No RED installer build, packaged run or spec RED commit until Root records rulings on Q1, Q2 and Q8 (in the OWNER-RULING on PR #2332 or a later Root receipt). Q8 is an owner product decision: (a) accept and record; (b) accept and record plus the free-seat readmission scenario S5b (second campaign B, old seat-2 identity joins B, re-provision, new identity joins B into the free seat while the ghost stays); (c) register a GM participant-removal UI unit before LSC-2P RED (Step 2 budget above 8, owner approval); (d) fold a removal UI leaf into LSC-2P by a further registration correction (new fit measurement; conflicts with N2 and G-P6). Under (a) or (b) Root registers the removal control as a named product follow-up with an owner, due before the v2.2.0 human session, and the proof doc states the lock-out. Q2 must be ruled explicitly because the registered behavior says the unit retains the unchanged 30-second test timeout."
+    },
+    {
+      "id": "G-P1",
+      "kind": "probe before RED",
+      "text": "Rehearse the NSIS steps (U1-U3, U5) on a throwaway run directory and record the result in the RED receipt. A step that cannot be made to work stops the unit for a separate registration."
+    },
+    {
+      "id": "G-P2",
+      "kind": "probe before RED",
+      "text": "Settle routeWebSocket pass-through and reconnect (U6, U7) with a scratch probe against the rehearsed install. If the page-side close does not reconnect, S2b is rewritten as an authority restart and the rewrite is recorded."
+    },
+    {
+      "id": "G-P3",
+      "kind": "probe before RED",
+      "text": "Observe the join dialog for campaign-tactical-seats-full and the post-refusal surface (U10, U11) once, record them, and set the S5 assertions to what is actually shown."
+    },
+    {
+      "id": "G-P4",
+      "kind": "review note",
+      "text": "e2e/local-seat-credentials.spec.ts is test code (line-exempt, file-counted) and is estimated at 700-900 lines; the nearest existing spec is 502 lines. Keep helpers inline, one serial describe and one top-level test per scenario. The only clean seam (S3 and S7 into a second spec) needs its own leaf registration, so it is not taken."
+    },
+    {
+      "id": "G-P5",
+      "kind": "process",
+      "text": "Run the real command twice: once for the local packet on the PR head build, once on an installer built from exact merged main for the mainProof (spec section 4.6). Each run takes about 70-75 minutes of real time."
+    },
+    {
+      "id": "G-P6",
+      "kind": "stop rule",
+      "text": "If an unregistered file must change (any src/ file, package.json, a workflow, a second spec file, a tracked artifact), STOP for a separate registration (binding note N2); do not widen scope."
+    },
+    {
+      "id": "G-P7",
+      "kind": "exact-main proof (DELIVERY.md:83)",
+      "text": "Because the unit edits the scripts/qc/v220-evidence.mjs runner, the LSC-2P mainProof also runs at the exact merge: node --test scripts/__tests__/v220-evidence.test.mjs scripts/__tests__/v220-format.test.mjs scripts/__tests__/v220-steps.test.mjs; node scripts/qc/generate-v220-steps.mjs --check; validate-roadmap.mjs plain and --github; and cites each exit code and summary line."
+    }
+  ],
+  "nsisRehearsalStatus": "NOT REHEARSED at admission",
+  "notesForTheImplementingWorker": [
+    "The chooser and the join are in the join dialog; the GM never uses the chooser, so the GM profile primary identity comes from the create path (password box).",
+    "There is no GM admission control: a room-code guest is admitted by the host when a tactical seat is free; the \"GM readmission\" wording in the product copy means a free seat, which needs the ghost removed (G5).",
+    "The renewal region is the only per-match forget control and renders only within the four-minute window or on a stored problem.",
+    "Do not read the wire token anywhere: page.evaluate returns only playerId, choice and expiresAt as a number."
+  ],
+  "controls": [
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "sha256": "a54c276269de054482b423dce15af10882e09f922f7b98e6bf33b3b0337e4b5e",
+      "bytes": 12984
+    },
+    {
+      "path": "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
+      "sha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e",
+      "bytes": 1626
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+      "sha256": "5a81ff621fc18cfb592b48271a9cc121235bf130ef961c2b6aaff0880f655061",
+      "bytes": 12514
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "sha256": "aebadd43e8066c7c80c9342735e534d74db17831370074fceacb7cd752028e60",
+      "bytes": 18600
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "sha256": "0be29ea1fa4bcf74db350b34db217791abe15c2d2348ca778f11705030d0c2ee",
+      "bytes": 8911
+    },
+    {
+      "path": "src/components/campaign/CampaignNavigation.tsx",
+      "sha256": "b69ddead699c50da680ee3c922f2ad1eb2e7e51a3776b1673a7f1dfa2f00d76f",
+      "bytes": 10362
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "sha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "bytes": 3473
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "bytes": 5978
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "sha256": "f331c6a1222e9c46a425e88ee9c2c030ea216c3ab98d79b9a6b70a4535f5a7ca",
+      "bytes": 11866
+    },
+    {
+      "path": "desktop/electron/main.window.ts",
+      "sha256": "040226594f652e5e9672ddb54a3f6fb5fffb0c20db0ab8235853effe498d6ed3",
+      "bytes": 9291
+    },
+    {
+      "path": "desktop/electron/main.server.ts",
+      "sha256": "0a2522a245a543e81637c0b29bb5a55c3b4618fc4330ec46cfe59d7be912f37e",
+      "bytes": 4103
+    },
+    {
+      "path": "desktop/electron/main.lifecycle.ts",
+      "sha256": "4de89ff21c910874c4d26dd2f8532773b5c65a4b9050c9e3b96c4cfaeee8f74b",
+      "bytes": 1892
+    },
+    {
+      "path": "desktop/electron/securityPolicy.ts",
+      "sha256": "bdd40040831d907d060628b4ff485064b970c61444d380b6592b18ab0a47107e",
+      "bytes": 1154
+    },
+    {
+      "path": "electron-builder.yml",
+      "sha256": "da321b6442f7042eb1c04525a78ce858fcecb43151a79f9634f1b86159855063",
+      "bytes": 5170
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "e6d811c24847f4c259fed0f84f5d36af185a537f874fcd27eb3e113d1a284ac1",
+      "bytes": 21121
+    },
+    {
+      "path": ".github/workflows/nightly-validation.yml",
+      "sha256": "248ca4563b16c27a1c77a31adb55d24aa4811b02c720792d3939bbf38c753fb9",
+      "bytes": 19996
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "99149bfbf7f8d2c3a9b35b7a93b569aacd4416bf3da7e4989a08a1294c3d6572",
+      "bytes": 14379
+    },
+    {
+      "path": "scripts/playwright/run-playwright.mjs",
+      "sha256": "b25d7ea88d9e01dee09d29b25cc9a9d51bc56e739eab9d97e22960a4f50cc311",
+      "bytes": 4101
+    },
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+      "bytes": 32625
+    },
+    {
+      "path": "scripts/qc/v220-evidence.mjs",
+      "sha256": "4766f8490f7ce4c4169d0106c40c15ec90eaab23ad5a20651bea9c4f1524896f",
+      "bytes": 10464
+    },
+    {
+      "path": "scripts/qc/generate-v220-steps.mjs",
+      "sha256": "bfe18373d9802d4e89740ac53b9b2cb40532c4275baf4e10d3869981a315c4fe",
+      "bytes": 9599
+    },
+    {
+      "path": "scripts/__tests__/v220-evidence.test.mjs",
+      "sha256": "cf3ed493ed8b31b9c8e728dbdae2fb207c5baeff3c44bb6de6cc8f1090c6d877",
+      "bytes": 28205
+    },
+    {
+      "path": "scripts/__tests__/v220-steps.test.mjs",
+      "sha256": "e8a21e65ad593d7af9ef6ac81ae759cfb20b21ff2e17286137e4a08171af684c",
+      "bytes": 13817
+    },
+    {
+      "path": "playtest/checklists/coop-uat.md",
+      "sha256": "1bac99c94d59b48122646edfded7fa07bbcb9a3c0efc34655ea99f600ab5aabc",
+      "bytes": 13794
+    },
+    {
+      "path": "docs/releases/v2.2.0-topology.md",
+      "sha256": "8aff31421834ee073f014b6489dd487fdb59c40d2b5ba57f1ff6a4d97f76aa31",
+      "bytes": 3788
+    },
+    {
+      "path": "package.json",
+      "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696",
+      "bytes": 35833
+    },
+    {
+      "path": "desktop/package.json",
+      "sha256": "63cf6c1a065519563e6aa119f64edd4c55dd9b77cd61215270a4087944e10ac0",
+      "bytes": 3016
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "sha256": "49036c2f8e4bedcf277c65925fa75fed482765cade9cf5796b449fe58e777edf",
+      "bytes": 7191
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+      "sha256": "9098990609469a2e6cfeb67bde6facd4544d6fbc0ce97b6f2e431617bb01b889",
+      "bytes": 6789
+    }
+  ],
+  "census": {
+    "baseline": "a7711ad136c70b3380788298414690b589ee8430",
+    "ledgerRef": "HEAD",
+    "ledgerRefNote": "The ledger claims are read at HEAD (the parent of this admission commit: it includes commit 1 (LSC-2 closure, LSC-2P released to planned) and commit 2 (RC-LSC2P-1)). Product, desktop, workflow and script bytes are read at the baseline a7711ad136c70b3380788298414690b589ee8430; the two coincide for them.",
+    "observedAt": "2026-10-24T18:10:39.457Z",
+    "manifest": [
+      "playwright.local-seat-packaged.config.ts",
+      "e2e/local-seat-credentials.spec.ts",
+      "docs/releases/v2.2.0-local-seat-proof.md",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json",
+      "scripts/qc/v220-evidence.mjs",
+      "scripts/__tests__/v220-evidence.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
+    ],
+    "leaves": {
+      "playwright.local-seat-packaged.config.ts": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [],
+        "lsc2pClaims": [
+          {
+            "path": "playwright.local-seat-packaged.config.ts",
+            "location": "units.LSC-2P.ownershipExceptions[1]"
+          }
+        ]
+      },
+      "e2e/local-seat-credentials.spec.ts": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U1:complete:e2e",
+          "U1b:complete:e2e",
+          "U1c:complete:e2e",
+          "U1e:complete:e2e",
+          "U1d:complete:e2e",
+          "U2:blocked:e2e",
+          "U2b:blocked:e2e",
+          "U2c:complete:e2e",
+          "U35d:complete:e2e",
+          "U22:complete:e2e",
+          "U86:complete:e2e",
+          "U87:complete:e2e",
+          "U25:planned:e2e",
+          "U27:planned:e2e",
+          "U28:planned:e2e",
+          "U51:planned:e2e",
+          "U52:planned:e2e",
+          "U53:planned:e2e",
+          "U30:planned:e2e",
+          "U31:planned:e2e",
+          "U54:planned:e2e",
+          "U55:planned:e2e",
+          "U57:planned:e2e",
+          "U3:main-verified:e2e",
+          "U6:complete:e2e",
+          "U7:complete:e2e",
+          "FOG-X:blocked:e2e",
+          "COOP-PACK-GEN:blocked:e2e",
+          "LSC-SALVAGE-1:blocked:e2e",
+          "R2.combat:main-verified:e2e",
+          "R2.authority-live:main-verified:e2e",
+          "R2.camp-0:main-verified:e2e",
+          "R2.camp-1:main-verified:e2e",
+          "R2.camp-2:main-verified:e2e",
+          "R2.camp-3:main-verified:e2e",
+          "R2.camp-4:main-verified:e2e",
+          "R2.camp-5:main-verified:e2e",
+          "R2.camp-6:main-verified:e2e",
+          "R2.camp-7:main-verified:e2e",
+          "R2.camp-8:blocked:e2e",
+          "R2.journey:planned:e2e",
+          "R4.matrix:main-verified:e2e",
+          "R4.rewind:planned:e2e",
+          "R5.E1:planned:e2e",
+          "R5.E2:planned:e2e",
+          "R5.E3:planned:e2e",
+          "R5.E4:planned:e2e",
+          "R5.E5:planned:e2e",
+          "R5.E6:planned:e2e",
+          "R5.E7:planned:e2e",
+          "R5.E8:planned:e2e",
+          "R5.E9:planned:e2e",
+          "R5.E10:planned:e2e",
+          "R6.B4:planned:e2e",
+          "R6.B5:planned:e2e",
+          "R6.B6:planned:e2e",
+          "R6.B7:planned:e2e",
+          "R6.umbrella:planned:e2e",
+          "R8.journey:planned:e2e",
+          "R2.combat-browser:main-verified:e2e",
+          "R2.authority-cutover:main-verified:e2e",
+          "R5.fog-restoration:blocked:e2e"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "e2e",
+            "location": "units.LSC-2P.ownershipPaths[0]"
+          }
+        ]
+      },
+      "docs/releases/v2.2.0-local-seat-proof.md": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "R1.references:complete:docs",
+          "R2.authority-live:main-verified:docs/releases"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "docs/releases",
+            "location": "units.LSC-2P.ownershipPaths[1]"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": {
+        "exists": true,
+        "literalClaimCount": 120,
+        "literalClaimNote": "Every unit lists units.json as an ownershipException: the shared ledger writer. Writers are serialized (no two ledger PRs overlap).",
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "location": "units.LSC-2P.ownershipExceptions[0]"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-20261018.json": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": []
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": []
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": []
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json": {
+        "exists": false,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": []
+      },
+      "scripts/qc/v220-evidence.mjs": {
+        "exists": true,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U1:complete:scripts/qc",
+          "U1b:complete:scripts/qc",
+          "U1c:complete:scripts/qc",
+          "U1e:complete:scripts/qc",
+          "U1d:complete:scripts/qc",
+          "U2:blocked:scripts/qc",
+          "U2b:blocked:scripts/qc",
+          "U2c:complete:scripts/qc",
+          "U35h:complete:scripts/qc",
+          "U17c:complete:scripts/qc",
+          "L1-SMOKE-A1:main-verified:scripts",
+          "L1-SMOKE-A2FP:planned:scripts",
+          "L1-SMOKE-A2F:blocked:scripts",
+          "L1-SMOKE-A2M:blocked:scripts",
+          "L1-SMOKE-A2:blocked:scripts",
+          "L1-SMOKE-B:blocked:scripts",
+          "U39:complete:scripts/qc",
+          "U40:complete:scripts/qc",
+          "U60:complete:scripts/qc",
+          "U28:planned:scripts/qc",
+          "U29:complete:scripts/qc",
+          "U53:planned:scripts/qc",
+          "U55:planned:scripts/qc",
+          "U57:planned:scripts/qc",
+          "U3:main-verified:scripts/qc",
+          "U15b:complete:scripts/qc",
+          "U6:complete:scripts/qc",
+          "U7:complete:scripts/qc",
+          "U9:complete:scripts/qc",
+          "U11:complete:scripts/qc",
+          "U12:blocked:scripts/qc",
+          "U12b:complete:scripts/qc",
+          "U13:complete:scripts/qc",
+          "U17:complete:scripts/qc",
+          "U17b:complete:scripts/qc",
+          "U14:complete:scripts/qc",
+          "U9b:complete:scripts/qc",
+          "U63:planned:scripts/qc",
+          "U65:blocked:scripts/qc",
+          "U66:blocked:scripts/qc",
+          "U75:blocked:scripts/qc",
+          "U76:blocked:scripts/qc",
+          "U77:blocked:scripts/qc",
+          "U78:blocked:scripts/qc",
+          "U79:planned:scripts/qc",
+          "U103:planned:scripts/qc",
+          "COOP-PACK-GEN:blocked:scripts/qc",
+          "CF-SMOKEA1-4:blocked:scripts/qc",
+          "R1.ci:main-verified:scripts/qc",
+          "R2.receipts:main-verified:scripts/qc",
+          "R2.triage:main-verified:scripts/qc",
+          "R2.authority-live:main-verified:scripts",
+          "R2.camp-0:main-verified:scripts/qc",
+          "R2.camp-1:main-verified:scripts/qc",
+          "R2.camp-2:main-verified:scripts/qc",
+          "R2.camp-3:main-verified:scripts/qc",
+          "R2.camp-4:main-verified:scripts/qc",
+          "R2.camp-5:main-verified:scripts/qc",
+          "R2.camp-6:main-verified:scripts/qc",
+          "R2.camp-7:main-verified:scripts/qc",
+          "R2.camp-8:blocked:scripts/qc",
+          "R2.journey:planned:scripts/qc",
+          "R4.matrix:main-verified:scripts/qc",
+          "R6.umbrella:planned:scripts/qc",
+          "R7.provenance:planned:scripts/qc",
+          "R6.loop-harness:planned:scripts/qc",
+          "R6.catalog-reproduce:planned:scripts/qc"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "scripts/qc/v220-evidence.mjs",
+            "location": "units.LSC-2P.ownershipExceptions[2]"
+          }
+        ]
+      },
+      "scripts/__tests__/v220-evidence.test.mjs": {
+        "exists": true,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U62:complete:scripts/__tests__",
+          "U35h:complete:scripts/__tests__",
+          "U17c:complete:scripts/__tests__",
+          "L1-SMOKE-A1:main-verified:scripts",
+          "L1-SMOKE-A2FP:planned:scripts",
+          "L1-SMOKE-A2F:blocked:scripts",
+          "L1-SMOKE-A2M:blocked:scripts",
+          "L1-SMOKE-A2:blocked:scripts",
+          "L1-SMOKE-B:blocked:scripts",
+          "U39:complete:scripts/__tests__",
+          "U40:complete:scripts/__tests__",
+          "U29:complete:scripts/__tests__",
+          "U57:planned:scripts/__tests__",
+          "U15b:complete:scripts/__tests__",
+          "U9:complete:scripts/__tests__",
+          "U11:complete:scripts/__tests__",
+          "U12:blocked:scripts/__tests__",
+          "U12b:complete:scripts/__tests__",
+          "U13:complete:scripts/__tests__",
+          "U17:complete:scripts/__tests__",
+          "U17b:complete:scripts/__tests__",
+          "U14:complete:scripts/__tests__",
+          "U9b:complete:scripts/__tests__",
+          "U63:planned:scripts/__tests__",
+          "U64:blocked:scripts/__tests__",
+          "U65:blocked:scripts/__tests__",
+          "U66:blocked:scripts/__tests__",
+          "U67:blocked:scripts/__tests__",
+          "U68:blocked:scripts/__tests__",
+          "U69:blocked:scripts/__tests__",
+          "U70:blocked:scripts/__tests__",
+          "U71:blocked:scripts/__tests__",
+          "U72:blocked:scripts/__tests__",
+          "U74:blocked:scripts/__tests__",
+          "U75:blocked:scripts/__tests__",
+          "U76:blocked:scripts/__tests__",
+          "U77:blocked:scripts/__tests__",
+          "U78:blocked:scripts/__tests__",
+          "U79:planned:scripts/__tests__",
+          "U80:blocked:scripts/__tests__",
+          "U81:blocked:scripts/__tests__",
+          "U82:blocked:scripts/__tests__",
+          "U103:planned:scripts/__tests__",
+          "DF-MECH-RULES:blocked:scripts/__tests__",
+          "DF-MECH-CONFIG:blocked:scripts/__tests__",
+          "DF-MECH-META:blocked:scripts/__tests__",
+          "EQ-ID:blocked:scripts/__tests__",
+          "DF-BLK-ENGINE:blocked:scripts/__tests__",
+          "DF-CATALOG-PIN:blocked:scripts/__tests__",
+          "COOP-PACK-GEN:blocked:scripts/__tests__",
+          "CF-SMOKEA1-4:blocked:scripts/__tests__",
+          "CF-SMOKEA1-6:blocked:scripts/__tests__",
+          "R1.ci:main-verified:scripts/__tests__",
+          "R2.receipts:main-verified:scripts/__tests__",
+          "R2.authority-live:main-verified:scripts",
+          "R6.umbrella:planned:scripts/__tests__",
+          "R9.manifest-sync:complete:scripts/__tests__",
+          "R9.hydration-safety:complete:scripts/__tests__",
+          "R6.loop-harness:planned:scripts/__tests__",
+          "R6.catalog-reproduce:planned:scripts/__tests__",
+          "R6.catalog-publish:blocked:scripts/__tests__",
+          "R6.catalog-consume:blocked:scripts/__tests__",
+          "R6.catalog-untrack:blocked:scripts/__tests__",
+          "R6.df-mech-rules:blocked:scripts/__tests__",
+          "R6.df-mech-center-leg:blocked:scripts/__tests__",
+          "R6.df-mech-metadata:blocked:scripts/__tests__",
+          "R6.df-equipment-identity:blocked:scripts/__tests__",
+          "R6.df-blk-engine:blocked:scripts/__tests__",
+          "R6.df-catalog-repin:blocked:scripts/__tests__"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "scripts/__tests__/v220-evidence.test.mjs",
+            "location": "units.LSC-2P.ownershipExceptions[3]"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json": {
+        "exists": true,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+            "location": "units.LSC-2P.ownershipExceptions[4]"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md": {
+        "exists": true,
+        "literalClaimCount": 0,
+        "literalClaimNote": null,
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+            "location": "units.LSC-2P.ownershipExceptions[5]"
+          }
+        ]
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md": {
+        "exists": true,
+        "literalClaimCount": 4,
+        "literalClaimNote": "Closed units LSC-2C, LSC-2O, LSC-2 and MP-CAMPAIGN-HOST-DEDUPE-1 list the generated page as an ownershipException; all are main-verified. Any ledger PR regenerates it.",
+        "aliasClaims": [
+          "U0:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "P2C:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "U41:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U42:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U59:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U16:complete:openspec/planning/2026-09-12-roadmap-completion",
+          "U85:blocked:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.plan:local-verified:openspec/planning/2026-09-12-roadmap-completion",
+          "R9.close:planned:openspec/planning/2026-09-12-roadmap-completion",
+          "R0.publish:complete:openspec/planning/2026-09-12-roadmap-completion"
+        ],
+        "lsc2pClaims": [
+          {
+            "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "location": "units.LSC-2P.ownershipExceptions[6]"
+          }
+        ]
+      }
+    },
+    "consumerCensus": {
+      "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx": {
+        "exists": true,
+        "sha256": "aebadd43e8066c7c80c9342735e534d74db17831370074fceacb7cd752028e60",
+        "literalClaimOwners": [
+          "P2CG1G2:main-verified",
+          "LSC-2:main-verified",
+          "LSC-2:main-verified",
+          "LSC-2:main-verified",
+          "U101c:planned",
+          "B15-2:blocked",
+          "B15-PRIV:blocked",
+          "R2.authority-live:main-verified",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx": {
+        "exists": true,
+        "sha256": "5a81ff621fc18cfb592b48271a9cc121235bf130ef961c2b6aaff0880f655061",
+        "literalClaimOwners": [
+          "LSC-2:main-verified",
+          "LSC-2:main-verified"
+        ]
+      },
+      "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx": {
+        "exists": true,
+        "sha256": "0be29ea1fa4bcf74db350b34db217791abe15c2d2348ca778f11705030d0c2ee",
+        "literalClaimOwners": [
+          "LSC-2O:main-verified",
+          "LSC-2O:main-verified"
+        ]
+      },
+      "src/components/campaign/CampaignNavigation.tsx": {
+        "exists": true,
+        "sha256": "b69ddead699c50da680ee3c922f2ad1eb2e7e51a3776b1673a7f1dfa2f00d76f",
+        "literalClaimOwners": [
+          "LSC-2:main-verified",
+          "LSC-2:main-verified",
+          "LSC-2:main-verified",
+          "R2.authority-live:main-verified"
+        ]
+      },
+      "src/lib/campaign/coop/localSeatCredentialStore.ts": {
+        "exists": true,
+        "sha256": "a54c276269de054482b423dce15af10882e09f922f7b98e6bf33b3b0337e4b5e",
+        "literalClaimOwners": [
+          "LSC-2C:main-verified",
+          "LSC-2C:main-verified",
+          "LSC-2O:main-verified",
+          "LSC-2O:main-verified"
+        ]
+      },
+      "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts": {
+        "exists": true,
+        "sha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e",
+        "literalClaimOwners": []
+      },
+      "src/pages/api/multiplayer/auth/local-seats.ts": {
+        "exists": true,
+        "sha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+        "literalClaimOwners": [
+          "LSC-2O:main-verified",
+          "LSC-2O:main-verified"
+        ]
+      },
+      "src/pages/api/multiplayer/auth/token.ts": {
+        "exists": true,
+        "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+        "literalClaimOwners": [
+          "B15-AUTH-ORIGIN:blocked",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "src/services/vault/LocalSeatCredentialService.ts": {
+        "exists": true,
+        "sha256": "f331c6a1222e9c46a425e88ee9c2c030ea216c3ab98d79b9a6b70a4535f5a7ca",
+        "literalClaimOwners": [
+          "LSC-2O:main-verified",
+          "LSC-2O:main-verified"
+        ]
+      },
+      "desktop/electron/main.window.ts": {
+        "exists": true,
+        "sha256": "040226594f652e5e9672ddb54a3f6fb5fffb0c20db0ab8235853effe498d6ed3",
+        "literalClaimOwners": [
+          "B15-1:blocked",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "desktop/electron/main.server.ts": {
+        "exists": true,
+        "sha256": "0a2522a245a543e81637c0b29bb5a55c3b4618fc4330ec46cfe59d7be912f37e",
+        "literalClaimOwners": [
+          "B15-1:blocked",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "desktop/electron/main.lifecycle.ts": {
+        "exists": true,
+        "sha256": "4de89ff21c910874c4d26dd2f8532773b5c65a4b9050c9e3b96c4cfaeee8f74b",
+        "literalClaimOwners": []
+      },
+      "desktop/electron/securityPolicy.ts": {
+        "exists": true,
+        "sha256": "bdd40040831d907d060628b4ff485064b970c61444d380b6592b18ab0a47107e",
+        "literalClaimOwners": []
+      },
+      "desktop/package.json": {
+        "exists": true,
+        "sha256": "63cf6c1a065519563e6aa119f64edd4c55dd9b77cd61215270a4087944e10ac0",
+        "literalClaimOwners": [
+          "TS7S2B:main-verified",
+          "TS7S3:main-verified",
+          "TS7S4B:main-verified",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned"
+        ]
+      },
+      "electron-builder.yml": {
+        "exists": true,
+        "sha256": "da321b6442f7042eb1c04525a78ce858fcecb43151a79f9634f1b86159855063",
+        "literalClaimOwners": []
+      },
+      ".github/workflows/release.yml": {
+        "exists": true,
+        "sha256": "e6d811c24847f4c259fed0f84f5d36af185a537f874fcd27eb3e113d1a284ac1",
+        "literalClaimOwners": [
+          "U81:blocked",
+          "R6.loop-harness:planned",
+          "R6.catalog-consume:blocked"
+        ]
+      },
+      ".github/workflows/nightly-validation.yml": {
+        "exists": true,
+        "sha256": "248ca4563b16c27a1c77a31adb55d24aa4811b02c720792d3939bbf38c753fb9",
+        "literalClaimOwners": [
+          "U24b:planned",
+          "R4.S7:main-verified"
+        ]
+      },
+      "playwright.config.ts": {
+        "exists": true,
+        "sha256": "99149bfbf7f8d2c3a9b35b7a93b569aacd4416bf3da7e4989a08a1294c3d6572",
+        "literalClaimOwners": [
+          "U35h:complete",
+          "U24:blocked",
+          "U24b:planned",
+          "U15b:complete",
+          "R4.S7:main-verified",
+          "R6.loop-harness:planned"
+        ]
+      },
+      "scripts/playwright/run-playwright.mjs": {
+        "exists": true,
+        "sha256": "b25d7ea88d9e01dee09d29b25cc9a9d51bc56e739eab9d97e22960a4f50cc311",
+        "literalClaimOwners": []
+      },
+      "server.js": {
+        "exists": true,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+        "literalClaimOwners": [
+          "P2CG1H:blocked",
+          "U101d:planned",
+          "B15-1:blocked",
+          "R2.authority-live:main-verified",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "package.json": {
+        "exists": true,
+        "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696",
+        "literalClaimOwners": [
+          "TS7S2A:main-verified",
+          "TS7S2OD:main-verified",
+          "TS7S3:main-verified",
+          "TS7S4A:main-verified",
+          "TS7S4B:main-verified",
+          "U9:complete",
+          "U12:blocked",
+          "U12b:complete",
+          "U17:complete",
+          "U17b:complete",
+          "U14:complete",
+          "U63:planned",
+          "U75:blocked",
+          "U80:blocked",
+          "U83:blocked",
+          "U84:blocked",
+          "CF-SMOKEA1-4:blocked",
+          "CF-SMOKEA1-6:blocked",
+          "R9.manifest-sync:complete",
+          "R6.loop-harness:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.ts7-toolchain:planned",
+          "R6.catalog-publish:blocked"
+        ]
+      },
+      "playtest/checklists/coop-uat.md": {
+        "exists": true,
+        "sha256": "1bac99c94d59b48122646edfded7fa07bbcb9a3c0efc34655ea99f600ab5aabc",
+        "literalClaimOwners": [
+          "B15-6:blocked",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "docs/releases/v2.2.0-topology.md": {
+        "exists": true,
+        "sha256": "8aff31421834ee073f014b6489dd487fdb59c40d2b5ba57f1ff6a4d97f76aa31",
+        "literalClaimOwners": [
+          "B15-6:blocked",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "e2e/coop-campaign-two-browser-journey.spec.ts": {
+        "exists": true,
+        "sha256": "cf24477281833f67d518bd93a05a17704abba7643f81e5971174f62a8b2e7c19",
+        "literalClaimOwners": [
+          "U96:complete",
+          "P1:blocked",
+          "P2CG1H:blocked",
+          "P2CH:blocked",
+          "P2:blocked",
+          "P2J:blocked",
+          "B15-4J:blocked",
+          "R2.authority-live:main-verified",
+          "R2.multiplayer-client:planned",
+          "R2.campaign-access:planned"
+        ]
+      },
+      "src/pages-modules/api/e2eTokenTtlRoute.ts": {
+        "exists": true,
+        "sha256": "51d42d0dcea6466b93f5dacf7011462e99636de598acc48bcec36ea99ff507f1",
+        "literalClaimOwners": []
+      },
+      "scripts/qc/generate-v220-steps.mjs": {
+        "exists": true,
+        "sha256": "bfe18373d9802d4e89740ac53b9b2cb40532c4275baf4e10d3869981a315c4fe",
+        "literalClaimOwners": []
+      },
+      "scripts/__tests__/v220-steps.test.mjs": {
+        "exists": true,
+        "sha256": "e8a21e65ad593d7af9ef6ac81ae759cfb20b21ff2e17286137e4a08171af684c",
+        "literalClaimOwners": []
+      },
+      "scripts/__tests__/v220-format.test.mjs": {
+        "exists": true,
+        "sha256": "4091f5b050c3730a17101437ca254a5d1fe74c1bf90ddd7ba7b8d45b8f8f5bce",
+        "literalClaimOwners": []
+      },
+      "openspec/planning/2026-09-12-roadmap-completion/v220-step-evidence.json": {
+        "exists": false,
+        "sha256": null,
+        "literalClaimOwners": []
+      }
+    },
+    "stateCounts": {
+      "complete": 96,
+      "blocked": 85,
+      "main-verified": 51,
+      "planned": 37
+    },
+    "relatedUnits": [
+      {
+        "id": "U96",
+        "state": "complete",
+        "ownershipPaths": [
+          "src/lib/multiplayer/server",
+          "src/pages/api/campaigns/[id].ts",
+          "src/stores/campaign/useCampaignStore.dayActions.ts",
+          "src/stores/campaign/useCampaignStore.actions.ts",
+          "src/__tests__/integration/coopMutationPersistence.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
+        ]
+      },
+      {
+        "id": "P1",
+        "state": "blocked",
+        "ownershipPaths": [
+          "src/lib/campaign",
+          "src/lib/multiplayer/server",
+          "src/pages/api/multiplayer/matches/index.ts",
+          "src/lib/api",
+          "src/types/campaign/CampaignSync.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts"
+        ]
+      },
+      {
+        "id": "L1-SMOKE-A2FP",
+        "state": "planned",
+        "predecessors": [
+          "L1-SMOKE-A1",
+          "MP-RECOVERY-UNITS-1",
+          "MP-HOST-DEDUPE-1",
+          "MP-RECOVERY-UNITS-2"
+        ],
+        "ownershipPaths": [
+          "scripts"
+        ]
+      },
+      {
+        "id": "LSC-2",
+        "state": "main-verified",
+        "predecessors": [
+          "LSC-2O"
+        ],
+        "ownershipPaths": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns",
+          "src/components/campaign/CampaignNavigation.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
+        ]
+      },
+      {
+        "id": "LSC-2P",
+        "state": "planned",
+        "predecessors": [
+          "LSC-2"
+        ],
+        "ownershipPaths": [
+          "e2e",
+          "docs/releases"
+        ]
+      },
+      {
+        "id": "P2CG1H",
+        "state": "blocked",
+        "predecessors": [
+          "P2CG1G2",
+          "P2CG1R",
+          "B14-0",
+          "LSC-2P",
+          "L1-SMOKE-A1",
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B",
+          "P2CG1HP",
+          "MP-CAMPAIGN-HOST-DEDUPE-1"
+        ],
+        "ownershipPaths": [
+          "server.js",
+          "src/lib/multiplayer/server",
+          "src/pages-modules/api",
+          "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-two-player-authority.pack1.spec.ts"
+        ]
+      },
+      {
+        "id": "P2CH",
+        "state": "blocked",
+        "predecessors": [
+          "P2CG2"
+        ],
+        "ownershipPaths": [
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/lib/multiplayer/server"
+        ]
+      },
+      {
+        "id": "P2",
+        "state": "blocked",
+        "predecessors": [
+          "P1A",
+          "P1B1",
+          "P1B2",
+          "P1B3",
+          "P1C",
+          "PAI",
+          "P2A",
+          "P2B",
+          "P2CC"
+        ],
+        "ownershipPaths": [
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+          "src/components/campaign/coop",
+          "src/hooks",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "src/lib/campaign/coop/launchCoopMission.ts",
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/pages/multiplayer"
+        ]
+      },
+      {
+        "id": "P2J",
+        "state": "blocked",
+        "predecessors": [
+          "P2",
+          "U38",
+          "LSC-2",
+          "LSC-2P"
+        ],
+        "ownershipPaths": [
+          "e2e/coop-campaign-two-browser-journey.spec.ts"
+        ]
+      },
+      {
+        "id": "B15-4J",
+        "state": "blocked",
+        "predecessors": [
+          "B15-4"
+        ],
+        "ownershipPaths": [
+          "e2e/campaign-flow.spec.ts",
+          "e2e/saved-custom-combat.spec.ts",
+          "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "e2e/gm-campaign-ledger-control-plane.spec.ts",
+          "e2e/campaign-two-device-drive.spec.ts",
+          "e2e/campaign-journal-two-process-convergence.spec.ts"
+        ]
+      },
+      {
+        "id": "B15-6",
+        "state": "blocked",
+        "predecessors": [
+          "B15-PRIV"
+        ],
+        "ownershipPaths": [
+          "README.md",
+          "docker-compose.yml",
+          "playtest/checklists/coop-uat.md",
+          "docs/releases/v2.2.0-topology.md"
+        ]
+      },
+      {
+        "id": "FOG-X",
+        "state": "blocked",
+        "predecessors": [
+          "FOG-H"
+        ],
+        "ownershipPaths": [
+          "e2e",
+          "src/lib/multiplayer/server",
+          "openspec/specs/fog-of-war/spec.md"
+        ]
+      },
+      {
+        "id": "COOP-PACK-GEN",
+        "state": "blocked",
+        "predecessors": [
+          "P2J"
+        ],
+        "ownershipPaths": [
+          "e2e",
+          "scripts/qc",
+          "scripts/__tests__",
+          "src/lib/scenarioPacks/__tests__/coopPackCoverage.test.ts",
+          "openspec/specs/scenario-packs/spec.md"
+        ]
+      },
+      {
+        "id": "LSC-SALVAGE-1",
+        "state": "blocked",
+        "predecessors": [
+          "LSC-2OP"
+        ],
+        "ownershipPaths": [
+          "e2e",
+          "src/stores/campaign",
+          "src/pages/gameplay/campaigns/[id]/salvage.tsx",
+          "src/types/campaign/Salvage.ts"
+        ]
+      }
+    ],
+    "openPullRequests": [
+      {
+        "number": 2327,
+        "head": "c8c4b412d6ca263d8ba575d932a4d85f8ca9bbf4",
+        "title": "chore(roadmap): record Step 1 step evidence",
+        "draft": true,
+        "fileCount": 3,
+        "manifestCollisions": [
+          "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json"
+        ],
+        "consumerTouches": [
+          "openspec/planning/2026-09-12-roadmap-completion/v220-step-evidence.json"
+        ],
+        "aliasTouches": []
+      },
+      {
+        "number": 2113,
+        "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "title": "docs(audits): preserve complete thread-transfer history",
+        "draft": true,
+        "fileCount": 472,
+        "manifestCollisions": [],
+        "consumerTouches": [],
+        "aliasTouches": []
+      }
+    ],
+    "dispositions": {
+      "literalCollisions": "None. No other unit lists any of the eight candidate seams or the four new RC-LSC2P-1 leaves literally. The only literal sharing is units.json (shared ledger writer) and the generated page (closed units).",
+      "aliasOverlaps": "The new files e2e/local-seat-credentials.spec.ts (62 unit/node alias claims on e2e), scripts/qc/v220-evidence.mjs (67 on scripts/qc) and scripts/__tests__/v220-evidence.test.mjs (69 on scripts/__tests__) sit under broad directory aliases held by other units, most planned or blocked. Aliases grant no unnamed leaves (admissionRequires); none of those units has an open PR or an admission, and none names these files. The overlap is recorded, not a collision.",
+      "openWriters": "Open PRs at census time: #2327 (draft; V2.2.0-STEPS.md, v220-steps.json, v220-step-evidence.json) and #2113 (draft audit; 472 files, no manifest or consumer file). #2327 collides with this PR on the generated page and, later, with LSC-2P on v220-steps.json (different hunks: Step 1 versus Step 2). The page conflict is regenerated by whichever merges second; the v220-steps.json hunks do not overlap.",
+      "consumerFindings": "The RC-LSC2-1 lesson was applied: importers of the changed LSC-2 modules were searched, not only sibling tests. LSC-2P changes no src/ file, so the only consumers it can affect are the v220 evidence tooling (scripts/qc/generate-v220-steps.mjs imports v220-evidence.mjs; v220-steps.test.mjs, v220-format.test.mjs and validate-roadmap.test.mjs run against it). The prototype (measuredFit.foldPrototype) ran all three with no test edit."
+    },
+    "fullCensus": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2-closure/census-lsc2p.json",
+      "sha256": "a9000935554f44c4a4d1eeedea8068b40523a0aca107ce033d269fd1ff5224b7",
+      "bytes": 190381,
+      "note": "Outside Git (190 KB of per-unit claim lists); this receipt carries the compact form and the hash."
+    },
+    "censusScript": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2-closure/census-lsc2p.cjs",
+      "sha256": "1d37d9270cc2ae85b0e20da31342789fa543c49ec4db4bf22fb31abb37d975ae"
+    }
+  },
+  "limitations": [
+    "Admission only: no spec, config, doc, tooling or test file exists yet; the config draft and the fold prototype were measured and discarded.",
+    "No NSIS build, install or packaged run was attempted; U1-U3, U5, U6, U10 and U11 are UNVERIFIED and gated.",
+    "Q6 and Q8 are open; Q1-Q2 are adopted pending Root confirmation.",
+    "No PK packet until GREEN.",
+    "No task tick, no release acceptance, no v2.2.0 claim.",
+    "Step 2 reaches complete only with a v220-step-evidence.json entry (V220-EVIDENCE.md:31). That file is created by draft #2327 and is outside the LSC-2P manifest; Root routes the Step 2 entry to the LSC-2P closure PR or a Root page PR and states its budget treatment."
+  ],
+  "amendments": [
+    {
+      "id": "A1",
+      "date": "2026-10-24",
+      "kind": "review fix before merge",
+      "priorAdmissionCommit": "52c1dbd81c0ee16f8c996ec33ab89749dc169c29",
+      "priorReceiptSha256": "abf6db9adf588d03d6ef9a3e4b044ba5f6c4e363ee0ed88e305f2814ea3830e8",
+      "priorReceiptBytes": 109005,
+      "source": {
+        "path": "_reports/2026-10-24/pr2332-verify.md",
+        "section": "F1-F3",
+        "sha256": "5fbad85cfb2402e96b50cbe72ae136a29e8641bbc3f627a0938d4c371315667c",
+        "bytes": 22084
+      },
+      "changes": [
+        "gates: G-P0 inserted first (ruling before RED on Q1, Q2 and Q8)",
+        "openQuestions Q8.status set to \"OPEN for the owner; gated by G-P0 (recommended wording applied provisionally)\"",
+        "mutantInventory.mutants: M9-M13 appended for the folded v220-evidence.mjs checker branch",
+        "gates: G-P7 appended (v220 tooling tests re-run on exact main per DELIVERY.md:83)",
+        "openQuestions Q6.disposition: checker-enforced Step 8 re-run needs a separate registration, else manual",
+        "unverified U13.status resolved from _locks/README.md",
+        "limitations: Step 2 completion record needs a v220-step-evidence.json entry (carrier decided by Root)"
+      ],
+      "unchanged": "units.json, the generated page, the frozen manifest, caps, census, controls, selector table, scenario inventory and measured fit are unchanged. The prior receipt bytes remain at 52c1dbd81c0ee16f8c996ec33ab89749dc169c29."
+    }
+  ]
+}

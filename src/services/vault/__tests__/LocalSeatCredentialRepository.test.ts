@@ -290,7 +290,7 @@ describe('LocalSeatCredentialRepository (LSC-1S)', () => {
     ).toEqual({ n: 1 });
   });
 
-  it('revokes once, refuses a second revoke and an unprovisioned revoke', () => {
+  it('revokes once, then reports not-revocable for a second revoke and an unprovisioned revoke', () => {
     repo().provision(provisionWrite());
     expect(repo().revoke(revokeWrite())).toEqual({
       kind: 'applied',
@@ -304,7 +304,7 @@ describe('LocalSeatCredentialRepository (LSC-1S)', () => {
         revokeWrite({ operationId: 'op-revoke-2', expectedGeneration: 2 }),
       ),
     ).toEqual({
-      kind: 'generation-conflict',
+      kind: 'not-revocable',
       currentGeneration: 2,
     });
     expect(
@@ -316,7 +316,7 @@ describe('LocalSeatCredentialRepository (LSC-1S)', () => {
         }),
       ),
     ).toEqual({
-      kind: 'generation-conflict',
+      kind: 'not-revocable',
       currentGeneration: 0,
     });
   });
@@ -417,5 +417,114 @@ describe('LocalSeatCredentialRepository (LSC-1S)', () => {
         )
         .get(),
     ).toBeUndefined();
+  });
+  describe('LSC-2O distinct not-revocable result', () => {
+    const operationCount = () =>
+      getSQLiteService()
+        .getDatabase()
+        .prepare('SELECT COUNT(*) AS n FROM local_seat_credential_operations')
+        .get();
+
+    it('O01 refuses a fresh revoke of an absent seat at the matching generation without writing', () => {
+      expect(repo().revoke(revokeWrite({ expectedGeneration: 0 }))).toEqual({
+        kind: 'not-revocable',
+        currentGeneration: 0,
+      });
+      expect(repo().get('local-seat-1')).toBeNull();
+      expect(operationCount()).toEqual({ n: 0 });
+    });
+
+    it('O02 refuses a fresh revoke of an already-revoked seat at the matching generation without writing', () => {
+      repo().provision(provisionWrite());
+      repo().revoke(revokeWrite());
+      const before = repo().get('local-seat-1');
+      expect(
+        repo().revoke(
+          revokeWrite({
+            operationId: 'op-revoke-again',
+            fingerprint: fp(10),
+            expectedGeneration: 2,
+          }),
+        ),
+      ).toEqual({ kind: 'not-revocable', currentGeneration: 2 });
+      expect(repo().get('local-seat-1')).toEqual(before);
+      expect(operationCount()).toEqual({ n: 2 });
+    });
+
+    it('O03 keeps generation-conflict for a stale generation on absent, active and revoked seats', () => {
+      expect(repo().revoke(revokeWrite({ expectedGeneration: 3 }))).toEqual({
+        kind: 'generation-conflict',
+        currentGeneration: 0,
+      });
+      repo().provision(provisionWrite());
+      expect(
+        repo().revoke(
+          revokeWrite({
+            operationId: 'op-stale-active',
+            expectedGeneration: 0,
+          }),
+        ),
+      ).toEqual({ kind: 'generation-conflict', currentGeneration: 1 });
+      repo().revoke(revokeWrite());
+      expect(
+        repo().revoke(
+          revokeWrite({
+            operationId: 'op-stale-revoked',
+            expectedGeneration: 1,
+          }),
+        ),
+      ).toEqual({ kind: 'generation-conflict', currentGeneration: 2 });
+      expect(operationCount()).toEqual({ n: 2 });
+    });
+
+    it('O04 looks up the operation id first, so a replayed revoke keeps its original generation', () => {
+      repo().provision(provisionWrite());
+      expect(repo().revoke(revokeWrite())).toEqual({
+        kind: 'applied',
+        generation: 2,
+      });
+      expect(repo().revoke(revokeWrite())).toEqual({
+        kind: 'replayed',
+        generation: 2,
+      });
+      repo().provision(
+        provisionWrite({
+          operationId: 'op-reprovision',
+          fingerprint: fp(5),
+          expectedGeneration: 2,
+        }),
+      );
+      expect(repo().revoke(revokeWrite())).toEqual({
+        kind: 'replayed',
+        generation: 2,
+      });
+      expect(repo().get('local-seat-1')).toMatchObject({
+        generation: 3,
+        revokedAt: null,
+      });
+    });
+
+    it('O05 still refuses an operation id reused with a different kind, seat or fingerprint', () => {
+      repo().provision(provisionWrite());
+      repo().revoke(revokeWrite());
+      expect(repo().revoke(revokeWrite({ fingerprint: fp(11) }))).toEqual({
+        kind: 'operation-mismatch',
+      });
+      expect(
+        repo().revoke(
+          revokeWrite({ seatId: 'local-seat-2', expectedGeneration: 0 }),
+        ),
+      ).toEqual({ kind: 'operation-mismatch' });
+      expect(
+        repo().provision(
+          provisionWrite({
+            operationId: 'op-revoke-1',
+            fingerprint: fp(9),
+            expectedGeneration: 2,
+          }),
+        ),
+      ).toEqual({ kind: 'operation-mismatch' });
+      expect(repo().get('local-seat-1')?.generation).toBe(2);
+    });
   });
 });

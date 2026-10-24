@@ -1,0 +1,253 @@
+{
+  "unit": "LSC-2O",
+  "stage": "review",
+  "recordedAt": "2026-10-24T14:49:36.311Z",
+  "evidenceNameNote": "File name keeps the literal frozen in units.json LSC-2O.registration20261020.prospectiveStageManifest (20261020); the closure date is 20261024 (recordedAt).",
+  "head": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+  "reviewedHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only reviews by a claude-opus-5-5 sub-agent (each report states \"running as claude-opus-5-5\"); Root identifies the reviewer as Opus.",
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "The LSC-2O admission receipt contributor field names claude-sonnet-5-5 (implementation worker); the RED and local receipts name no model.",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "ownerDisposition": "ACCEPT at c1b97a3141a3b7dc1cc2b394a28bad41461c5220 (OWNER-RULING comment 6385425980); round-2 findings F1-F5 applied in c1b97a314 and approved by round 3; round-3 N1 and N2 recorded below; I2, CF-LSC2OP-2/4 packaged proof and CF-LSC2C-2R routed",
+  "classes": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency",
+    "migration"
+  ],
+  "outputPath": "evidence/lsc-2o-source-review-20261024.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority. Its top-level payload decodes to the round-3 exact-head review, 9868 bytes, sha256 e278254d900f62d579f5f0811989ff310d8ab63d847a3405a8af4c6ee042c324. The round-1 and round-2 reports are additionalPayloads in the same envelope (one file keeps the whole PR within the 15-file cap), each an exact byte copy. No plain .txt copy is kept: .gitattributes text=auto eol=lf rewrites line endings, so a checked-out copy would not be a proven byte copy (the round-1 report contains CR bytes).",
+  "outputSha256": "e278254d900f62d579f5f0811989ff310d8ab63d847a3405a8af4c6ee042c324",
+  "outputBytes": 9868,
+  "outputEnvelope": {
+    "path": "evidence/lsc-2o-source-review-20261024.bytes.json",
+    "payloadSha256": "e278254d900f62d579f5f0811989ff310d8ab63d847a3405a8af4c6ee042c324",
+    "payloadBytes": 9868
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2329-review-r3.md",
+  "byteExact": true,
+  "rounds": [
+    {
+      "round": 1,
+      "scope": "admission (12fe30738), later amended by d0bccb4b9 (amendment A1)",
+      "reviewedHead": "12fe30738637daa835c113e8961b64e163370c82",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES",
+      "sha256": "d3c71dfaaf0c723c612503b15f8aaccec55c08e96491fe51e6cfbc87d0f7f609",
+      "bytes": 19754,
+      "hasCR": true,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2329-review.md",
+      "envelopeLocation": "additionalPayloads[0] of lsc-2o-source-review-20261024.bytes.json",
+      "findings": [
+        {
+          "id": "1",
+          "severity": "Medium (merge precondition)",
+          "disposition": "resolved: admission is the first commit of the implementation PR #2329 (Root PR-budget decision); Step 2 stays at 8 PRs"
+        },
+        {
+          "id": "2",
+          "severity": "Medium",
+          "disposition": "fixed by amendment A1 (d0bccb4b9): HOLD lift attributed to the ~07:10 UTC owner decision, merge-through order moved to clause (1a), stale tracked HOLD text named in (1b)"
+        },
+        {
+          "id": "3",
+          "severity": "Low",
+          "disposition": "fixed: placeholder packet removed from the admission; PK-lsc-2o-ruling was re-added at GREEN with a real recommendation"
+        },
+        {
+          "id": "4",
+          "severity": "Low",
+          "disposition": "fixed: proofClass \"full\" recorded in the admission receipt"
+        },
+        {
+          "id": "5",
+          "severity": "Info",
+          "disposition": "per-PR file-count reading kept (precedent #2309/#2314/#2325/#2328); the page was added to LSC-2O ownershipExceptions at this closure"
+        },
+        {
+          "id": "6-8",
+          "severity": "Info",
+          "disposition": "informational; no action"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "scope": "implementation (5c58412fa)",
+      "reviewedHead": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES (all LOW)",
+      "sha256": "12341c65d594b3f50d994abd702b926f7e5d56aa79d8a6652b8bf3090368ba94",
+      "bytes": 25601,
+      "hasCR": false,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2329-review-r2.md",
+      "envelopeLocation": "additionalPayloads[1] of lsc-2o-source-review-20261024.bytes.json",
+      "findings": [
+        {
+          "id": "F1",
+          "severity": "Low",
+          "disposition": "applied in c1b97a314: the unconfirmed re-provision refusal now runs after both password inputs are cleared; O11 asserts expectCleared()"
+        },
+        {
+          "id": "F2",
+          "severity": "Low",
+          "disposition": "applied in c1b97a314: Revoke uses disabled={!reprovision}"
+        },
+        {
+          "id": "F3",
+          "severity": "Low",
+          "disposition": "applied in c1b97a314: O14 status-500 row (kills mutant X3)"
+        },
+        {
+          "id": "F4",
+          "severity": "Low",
+          "disposition": "applied in c1b97a314: \"O11 revokes an active seat without the re-provision confirmation\" (kills mutant X5)"
+        },
+        {
+          "id": "F5",
+          "severity": "Low",
+          "disposition": "applied in c1b97a314: \"five\" corrected to \"six\"; RED test hash recorded"
+        },
+        {
+          "id": "I1",
+          "severity": "Info",
+          "disposition": "equivalent mutant; no test needed"
+        },
+        {
+          "id": "I2",
+          "severity": "Info",
+          "disposition": "routed to LSC-2 (unknown-outcome alert wording)"
+        },
+        {
+          "id": "I3-I5",
+          "severity": "Info",
+          "disposition": "informational"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "scope": "narrow delta 5c58412fa..c1b97a314",
+      "reviewedHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+      "verdict": "APPROVE",
+      "sha256": "e278254d900f62d579f5f0811989ff310d8ab63d847a3405a8af4c6ee042c324",
+      "bytes": 9868,
+      "hasCR": false,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2329-review-r3.md",
+      "envelopeLocation": "top-level payload of lsc-2o-source-review-20261024.bytes.json",
+      "findings": [
+        {
+          "id": "N1",
+          "severity": "Low (receipt wording)",
+          "disposition": "recorded in receiptQualifications; the local receipt is not edited"
+        },
+        {
+          "id": "N2",
+          "severity": "Info (receipt wording)",
+          "disposition": "recorded in receiptQualifications; the exact-head proof is in the merge and mainProof receipts"
+        },
+        {
+          "id": "N3",
+          "severity": "Info",
+          "disposition": "not verified by the reviewer; CI is green and the delta does not touch the v220 files"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "5c58412fa38758660bb8f57c7fd03b047e53fee3..c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "files": 3,
+    "summary": "F1-F5 and nothing else: LocalSeatOperatorPanel.tsx, its test and evidence/lsc-2o-local-20261020.json; units.json, V2.2.0-STEPS.md, the admission receipt and the RED receipt are byte-unchanged",
+    "ownedGuards": "246/246 (7 suites)",
+    "panelSuite": "35/35",
+    "survivorMutantsKilled": [
+      "X3",
+      "X5"
+    ],
+    "ci": "33/33 SUCCESS at c1b97a3141a3b7dc1cc2b394a28bad41461c5220"
+  },
+  "receiptQualifications": [
+    {
+      "id": "N1",
+      "target": "evidence/lsc-2o-local-20261020.json testAmendmentAfterRed.change",
+      "qualification": "The sentence \"All six RED-failing panel tests plus the O-series stay byte-identical.\" is superseded and no longer true: after RED, the round-2 fixes changed the RED test \"O11 requires explicit confirmation naming the new identity before re-provisioning an active seat\" (it gained expectCleared() after the refusal alert) and the O13/O14 it.each (it gained the status-500 row), and added \"O11 revokes an active seat without the re-provision confirmation\". The same local receipt states the truth in testByteChange, redTestSha256 (3bdae0d86ddffab03d0c3dd3b3a5f8549a61aba820ae8d8fc2de011eaa77e85f, 28699 bytes) and reviewerDirectedFixesAfterGreen F1/F3. The RED receipt and the RED test hash are intact; the amended bytes are not claimed to be the RED bytes. The local receipt is not edited by this closure."
+    },
+    {
+      "id": "N2",
+      "target": "evidence/lsc-2o-local-20261020.json runtime.*.head, mutants.newCode.head and runtime.headNote",
+      "qualification": "Those fields name 5c58412fa and call it \"the tree before the round-2 fix commit\". The runs were of the fixed working tree on top of 5c58412fa (the 246-test count cannot come from the 244-test tree of 5c58412fa); this follows the parent-commit convention because a receipt cannot name its own commit. The exact-head and exact-main proof is carried by the merge receipt (head c1b97a314) and the mainProof receipt (clean exact main e012028a9), not by those fields."
+    },
+    {
+      "id": "N3",
+      "target": "PR body \"v220 tests 128/128\"",
+      "qualification": "Not verified by the round-3 reviewer; this closure re-runs scripts/__tests__/v220-*.test.mjs and reports its own count in the PR."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "reviewedHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "pr": 2329,
+    "commentId": 6385425980,
+    "author": "SwiggitySwerve",
+    "bodySha256": "35c760c876dacb4fc3c27d1f7048521d51af21f4cd98e99afbcb45c501383bad",
+    "at": "2026-10-24T14:31:03Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2329#issuecomment-6385425980",
+    "bodyBytes": 2215,
+    "envelope": {
+      "path": "evidence/lsc-2o-owner-ruling-6385425980.bytes.json",
+      "payloadSha256": "35c760c876dacb4fc3c27d1f7048521d51af21f4cd98e99afbcb45c501383bad",
+      "payloadBytes": 2215
+    },
+    "copyEqualsLive": true,
+    "copyEqualsRootSource": true,
+    "rootSource": "E:/Projects/Personal/MekStation-wt/_receipts/pr2329-owner-ruling-c1b97a314.md",
+    "label": "owner-ruled"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-LSC2C-2",
+      "severity": "Low",
+      "owner": "LSC-2",
+      "target": "LSC-2 (CampaignCoopEntryPanel.tsx integration)",
+      "status": "routed correction: LSC-2O took L-2 and the store side of L-3 (option B); LSC-2 keeps L-1 and the panel-side L-3 acceptance",
+      "item": "Routing correction (supersedes the L-2/L-3 clauses of CF-LSC2C-2 in the LSC-2C records, which stay unedited): L-2 (primary 401 -> OPERATOR_DENIED, 404 -> OPERATOR_IDENTITY_REQUIRED) and the store side of L-3 (skip only the future-issuedAt 10s check for the primary choice) are DONE in LSC-2O. LSC-2 keeps L-1 (adopt mintCoopCredential(primary, ...) in CampaignCoopEntryPanel and delete the panel mintToken; multiplayerPage.helpers.mintToken is outside LSC-2 files) and the panel-side L-3 acceptance (explicitly accept or keep the primary clock behavior now that the store skips the future-drift check for primary)."
+    },
+    {
+      "id": "CF-LSC2OP-2",
+      "severity": "Info",
+      "owner": "LSC-2P",
+      "target": "LSC-2 final UI integration; LSC-2P packaged proof",
+      "status": "partly done: relabel and confirmation delivered by LSC-2O",
+      "item": "Active-seat re-provision is relabelled and gated by an explicit confirmation (LSC-2O). LSC-2 retains new identity, GM readmission and ghost membership in the ordinary UI; LSC-2P owns the packaged proof and the CF-LSC2OP-4 password-manager/autofill proof."
+    },
+    {
+      "id": "review-r2-I2",
+      "severity": "Info",
+      "owner": "LSC-2",
+      "target": "LSC-2 final UI integration of CF-LSC2OP-7",
+      "status": "routed",
+      "item": "After an unknown outcome the operator alert reads \"Local seat request failed.\" although the write may have applied. Consider \"The result is unknown; the seats were refreshed. Check them before submitting again.\" in the final UI."
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+      "status": "open registration follow-up; no registered unit grants those leaves for this change",
+      "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+    }
+  ],
+  "openRegistrationFollowUps": [
+    {
+      "id": "CF-LSC2C-2R",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+      "status": "open registration follow-up; no registered unit grants those leaves for this change",
+      "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+    }
+  ]
+}

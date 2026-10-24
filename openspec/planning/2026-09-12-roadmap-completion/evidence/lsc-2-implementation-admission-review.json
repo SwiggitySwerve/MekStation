@@ -1,0 +1,268 @@
+{
+  "unit": "LSC-2",
+  "stage": "review",
+  "recordedAt": "2026-10-24T18:01:07.485Z",
+  "evidenceNameNote": "File name keeps the literal frozen in units.json LSC-2.registration20261020.prospectiveStageManifest (lsc-2-implementation-*, no date literal); the closure date is 20261024 (recordedAt).",
+  "head": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+  "reviewedHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only reviews by a claude-opus-5-5 sub-agent (each report states \"running as claude-opus-5-5\"); Root identifies the reviewer as Opus.",
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "The LSC-2 admission receipt contributor field names claude-sonnet-5-5 (implementation worker).",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE",
+  "ownerDisposition": "ACCEPT at 56d530b207e00173ae9e5d127ca7cf127fed47e4 (OWNER-RULING comment 6387527112); round-1 findings F1-F6 applied in 877a1d83e and 56d530b20 and approved by round 2; R2-1 recorded below; F5/F6 and CF-LSC2-L1-DUP routed",
+  "classes": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "outputPath": "evidence/lsc-2-source-review-20261024.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority. Its top-level payload decodes to the round-2 exact-head review, 12808 bytes, sha256 b69f3736978d64604eb6c542a341ff705ff73ce14e27b635e9ea66ed65b35cea. The round-1 report and pr2330-verify.md are additionalPayloads in the same envelope (one file keeps the PR within the 15-file cap), each an exact byte copy. No plain .md copy is kept: .gitattributes text=auto eol=lf rewrites line endings, so a checked-out copy would not be a proven byte copy (all three reports contain CR bytes).",
+  "outputSha256": "b69f3736978d64604eb6c542a341ff705ff73ce14e27b635e9ea66ed65b35cea",
+  "outputBytes": 12808,
+  "outputEnvelope": {
+    "path": "evidence/lsc-2-source-review-20261024.bytes.json",
+    "payloadSha256": "b69f3736978d64604eb6c542a341ff705ff73ce14e27b635e9ea66ed65b35cea",
+    "payloadBytes": 12808
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2331-review-r2.md",
+  "byteExact": true,
+  "effectiveManifest": {
+    "statement": "The effective LSC-2 literal manifest is the 2026-10-20 prospectiveStageManifest (units.json LSC-2.registration20261020.prospectiveStageManifest, 10 files) plus the RC-LSC2-1 leaf (units.json LSC-2.registrationCorrection20261024), 11 files. Historical receipts and manifests are not rewritten. PR #2331 carried 10 of them (the admission receipt was already on main from #2330); this closure PR carries the reserved review receipt, which is the tenth manifest leaf.",
+    "files": [
+      "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "src/components/campaign/CampaignNavigation.tsx",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission-review.json",
+      "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
+    ],
+    "count": 11
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "scope": "implementation (GREEN) at 0985808d3d45032907c8603d23ea442a25e81aee",
+      "reviewedHead": "0985808d3d45032907c8603d23ea442a25e81aee",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES (STOP on F1, ruled by Root)",
+      "sha256": "b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793",
+      "bytes": 32343,
+      "hasCR": true,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2331-review.md",
+      "envelopeLocation": "additionalPayloads[0] of lsc-2-source-review-20261024.bytes.json",
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "FIXED after Root registered the leaf (RC-LSC2-1): live token mock, expiresAt on every mint body, join bodies name pid_host, and the 404 test asserts the invite fetch so it cannot pass on a mint refusal (+19/-9, test-only). 7/7 at the fix head; the other two consumers index.multiCampaign and index.legacyAdoption also pass."
+        },
+        {
+          "id": "F2",
+          "disposition": "FIXED: entry tests \"LS13 join with an invalid stored choice mints nothing and shows the stored-choice message\" and \"LS08 a second join for the same match with the same identity is not refused\" (preserve tests added after RED). P03 and P04 are KILLED (variants R-P03, R-P04)."
+        },
+        {
+          "id": "F3",
+          "disposition": "FIXED: CampaignNavigation calls getCoopMatchId(coopSession); +5/-0 against base; CampaignNavigation.test.tsx untouched."
+        },
+        {
+          "id": "F4",
+          "disposition": "FIXED here: red hash/size corrected, real status lines embedded, attempts and direct tsc runs recorded (attempts below)."
+        },
+        {
+          "id": "F5",
+          "disposition": "NAMED FOLLOW-UP CF-LSC2-STORE-RULES (see followUps). Not changed: localSeatCredentialStore.ts is a frozen control."
+        },
+        {
+          "id": "F6",
+          "disposition": "NAMED FOLLOW-UP (see followUps); fails closed; LS16 is frozen; routes to LSC-2P or the same follow-up. No change."
+        },
+        {
+          "id": "F7",
+          "disposition": "INFO, no change (low impact or unreachable)."
+        },
+        {
+          "id": "F8",
+          "disposition": "INFO, no change."
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "scope": "narrow delta 0985808d3d45032907c8603d23ea442a25e81aee..56d530b207e00173ae9e5d127ca7cf127fed47e4 (RC-LSC2-1 + F1-F6)",
+      "reviewedHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+      "verdict": "APPROVE",
+      "sha256": "b69f3736978d64604eb6c542a341ff705ff73ce14e27b635e9ea66ed65b35cea",
+      "bytes": 12808,
+      "hasCR": true,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2331-review-r2.md",
+      "envelopeLocation": "top-level payload of lsc-2-source-review-20261024.bytes.json",
+      "findings": [
+        {
+          "id": "R2-1",
+          "severity": "LOW (receipt label)",
+          "disposition": "recorded in receiptQualifications; the local receipt is not edited"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "0985808d3d45032907c8603d23ea442a25e81aee..56d530b207e00173ae9e5d127ca7cf127fed47e4",
+    "files": 6,
+    "summary": "RC-LSC2-1 (units.json + page) and the F1-F6 fixes only: index.coop.test.tsx (+19/-9), CampaignNavigation.tsx (getCoopMatchId), CampaignCoopEntryPanel.test.tsx (+53), the local receipt and the page; the admission and RED receipts are byte-unchanged",
+    "tests": "27 suites, 540/540 (entry 57/57, credential 25/25, index.coop 7/7)",
+    "survivorMutantsKilled": [
+      "P03",
+      "P04"
+    ],
+    "ci": "33/33 SUCCESS at 56d530b207e00173ae9e5d127ca7cf127fed47e4 (run 40116815980)"
+  },
+  "receiptQualifications": [
+    {
+      "id": "R2-1",
+      "target": "evidence/lsc-2-implementation-local.json proofLogs.greenOwnedGuardsRegression.path",
+      "qualification": "The path should read _reports/2026-10-24/lsc-2/green-final2.log (sha256 506da4995d58..., 120058 bytes). green-final.log is the superseded round-1 GREEN log (016ff304b549..., 115674 bytes). The recorded fullLogBytes and fullLogSha256 already bind the right log and the embedded data is correct; only the path label is stale. The local receipt is not edited."
+    },
+    {
+      "id": "LS13",
+      "target": "LSC-2 admission test inventory LS13 (\"bad stored value falls back to primary\")",
+      "qualification": "LS13 pins that a bad stored choice is never used, not that it falls back to primary. The frozen store throws INVALID_CHOICE with \"Forget it and choose again\"; the chooser is disabled with that message, a join refuses with the same message and mints nothing (pinned by the join test added after review), and \"Forget next-join choice\" returns the choice to primary. A silent display or mint fallback would substitute the primary GM identity for a profile that chose a seat. Reviewer ruling: acceptable, no admission amendment needed; record as a qualification at closure."
+    },
+    {
+      "id": "RED-RAWLOG",
+      "target": "evidence/lsc-2-implementation-red.json rawLog",
+      "qualification": "The RED receipt rawLog embeds a one-byte newline instead of the status lines (redReceiptRawLogDefect in the local receipt). The RED receipt is byte-frozen and unedited; the full RED log is outside Git with the sha256 the local receipt records, and the reviewer re-ran RED (51 failed / 29 passed, 80/80 statuses matching)."
+    },
+    {
+      "id": "EFFECTIVE-MANIFEST",
+      "target": "units.json LSC-2.registration20261020.prospectiveStageManifest",
+      "qualification": "Read together with registrationCorrection20261024 (RC-LSC2-1): the effective manifest has 11 files; see effectiveManifest."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+    "reviewedHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+    "pr": 2331,
+    "commentId": 6387527112,
+    "author": "SwiggitySwerve",
+    "bodySha256": "293659e6e36e9e0a46a43486f3846757f8dc12c9afb31d2a29ac71ba4acd77fd",
+    "at": "2026-10-24T17:49:15Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2331#issuecomment-6387527112",
+    "bodyBytes": 2477,
+    "envelope": {
+      "path": "evidence/lsc-2-owner-ruling-6387527112.bytes.json",
+      "payloadSha256": "293659e6e36e9e0a46a43486f3846757f8dc12c9afb31d2a29ac71ba4acd77fd",
+      "payloadBytes": 2477
+    },
+    "copyEqualsLive": true,
+    "copyEqualsRootSource": true,
+    "rootSource": "E:/Projects/Personal/MekStation-wt/_receipts/pr2331-owner-ruling-56d530b20.md",
+    "label": "owner-ruled"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-LSC2-L1-DUP",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "src/pages-modules/multiplayer/multiplayerPage.helpers.ts (mintToken with its lobby/spectate callers) and the local mintToken in src/pages/multiplayer/index.tsx; no registered unit owns them",
+      "status": "open registration follow-up; named under hard invariant 11 and left by LSC-2",
+      "item": "Consolidate the two remaining primary mint client copies onto mintCoopCredential or a shared helper."
+    },
+    {
+      "id": "CF-LSC2-STORE-RULES",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/campaign/coop/localSeatCredentialStore.ts (frozen control) and its panel callers",
+      "status": "open registration follow-up (review F5)",
+      "item": "Three rules live in presentation because the store is frozen: the choice-to-seat-id mapping (LocalSeatCredentialPanel.tsx and the store mint body), the renewal-window and expiry classification in CoopCredentialRenewal, and the join-time never-replace-a-bearer-with-a-different-identity guard in CampaignCoopEntryPanel.tsx (mirrors replaceCoopCredential IDENTITY_CHANGED). The store should export seatIdForChoice, a renewal-state classifier and a join-time bearer-adoption guard, and the panels call them."
+    },
+    {
+      "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+      "severity": "Low",
+      "owner": "LSC-2P journey or CF-LSC2-STORE-RULES",
+      "target": "LSC-2P packaged journey record; CampaignCoopEntryPanel.tsx and CoopCredentialRenewal (LS16 is frozen)",
+      "status": "open gap (review F6); fails closed, not a security issue",
+      "item": "At entry, the IDENTITY_CHANGED message says to forget the sign-in and reclaim through co-op entry, but the only per-match forget control is inside CoopCredentialRenewal, which renders nothing while the bearer has more than four minutes left. In the same tab a user who rejoins a match with a different credential has no reachable forget until the window opens (workaround: a new tab). LSC-2P records the journey consequence; a fix needs a registered owner."
+    },
+    {
+      "id": "LSC2-G5-GHOST-REMOVAL-CONTROL",
+      "severity": "Info",
+      "owner": "LSC-2P",
+      "target": "LSC-2P packaged journey step \"ghost retained until ordinary removal\"",
+      "status": "routed (admission G5, review G5 ruling)",
+      "item": "No ordinary-UI GM ghost-removal control exists and LSC-2 adds none (RemoveParticipant reaches the host only through the transport intent, hosted by LS21c). LSC-2P records the step as absent and does not claim it, unless a UI leaf is registered."
+    },
+    {
+      "id": "CF-LSC2OP-2",
+      "severity": "Info",
+      "owner": "LSC-2P",
+      "target": "LSC-2P packaged proof",
+      "status": "in-repo sequence delivered by LSC-2 (LS21); packaged proof open",
+      "item": "LSC-2 proves re-provision, new playerId, refusal while the ghost holds a seat, GM RemoveParticipant, then admission in jsdom with real routes and SQLite. LSC-2P proves the same sequence on the installed app and records the ghost-removal step per G5."
+    },
+    {
+      "id": "CF-LSC2OP-4",
+      "severity": "Info",
+      "owner": "LSC-2P",
+      "target": "LSC-2P packaged password-manager/autofill check",
+      "status": "inputs delivered (current-password/new-password); packaged check open",
+      "item": "LSC-2 renders create, join and renewal password inputs as uncontrolled unnamed type=password with autocomplete current-password. LSC-2P records the packaged password-manager/autofill observation (manual, not observable by Playwright; stated as a gap)."
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+      "status": "open registration follow-up; no registered unit grants those leaves",
+      "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper, so the client adapter imports them instead of mirroring them. Unchanged by LSC-2."
+    },
+    {
+      "id": "review-r2-I2",
+      "severity": "Info",
+      "owner": "closed",
+      "target": "LocalSeatOperatorPanel.tsx unknown-outcome wording",
+      "status": "closed, not taken (Root ruling on #2330)",
+      "item": "The operator alert wording after an unknown outcome stays informational; LSC-2 did not take it."
+    },
+    {
+      "id": "RC-LSC2-1-census-lesson",
+      "severity": "Info",
+      "owner": "every admission census (Root)",
+      "target": "admission census method",
+      "status": "process lesson",
+      "item": "The LSC-2 census missed src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, a page-level consumer of CampaignCoopEntryPanel whose stale mint fixtures failed CI. A census of a component change must also search importers and page-level tests of every changed module, not only its sibling tests. Registered after the fact as RC-LSC2-1."
+    }
+  ],
+  "openRegistrationFollowUps": [
+    {
+      "id": "CF-LSC2-L1-DUP",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "src/pages-modules/multiplayer/multiplayerPage.helpers.ts (mintToken with its lobby/spectate callers) and the local mintToken in src/pages/multiplayer/index.tsx; no registered unit owns them",
+      "status": "open registration follow-up; named under hard invariant 11 and left by LSC-2",
+      "item": "Consolidate the two remaining primary mint client copies onto mintCoopCredential or a shared helper."
+    },
+    {
+      "id": "CF-LSC2-STORE-RULES",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/campaign/coop/localSeatCredentialStore.ts (frozen control) and its panel callers",
+      "status": "open registration follow-up (review F5)",
+      "item": "Three rules live in presentation because the store is frozen: the choice-to-seat-id mapping (LocalSeatCredentialPanel.tsx and the store mint body), the renewal-window and expiry classification in CoopCredentialRenewal, and the join-time never-replace-a-bearer-with-a-different-identity guard in CampaignCoopEntryPanel.tsx (mirrors replaceCoopCredential IDENTITY_CHANGED). The store should export seatIdForChoice, a renewal-state classifier and a join-time bearer-adoption guard, and the panels call them."
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+      "status": "open registration follow-up; no registered unit grants those leaves",
+      "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper, so the client adapter imports them instead of mirroring them. Unchanged by LSC-2."
+    }
+  ]
+}

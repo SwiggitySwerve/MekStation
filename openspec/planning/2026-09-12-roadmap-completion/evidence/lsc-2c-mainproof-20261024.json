@@ -1,0 +1,432 @@
+{
+  "unit": "LSC-2C",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-24T11:01:28.238Z",
+  "mergeCommit": "59b8af58a9372a74191b253bd02d837f58dc390e",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+  "runtime": {
+    "playwright": "Main Jest: Tests: 280 passed, 280 total",
+    "jest": "owned plus guards: Tests: 97 passed, 97 total (Test Suites: 3 passed, 3 total); regression: Tests: 280 passed, 280 total (Test Suites: 14 passed, 14 total)",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci at clean exact merge before any closure edit",
+    "typecheck": "npm run typecheck: exit 0",
+    "schemaNote": "runtime.playwright is the legacy validator field for a Jest proof line; no browser or Playwright run is claimed."
+  },
+  "machineGate": "heavy-run.mjs --lane lsc-2c-closure --class jest|build --cwd E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024 -- <command>",
+  "execution": "Each job checked a clean HEAD at the exact merge before and after execution. Every npm/Jest call used heavy-run with a private Jest cache and the idle gate unmodified (no HEAVY_IDLE_CMD). No timeout raised, skip guard added, or foreign process stopped.",
+  "suiteManifest": {
+    "ownedGuards": [
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+    ],
+    "regression": [
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+      "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+      "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+      "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+      "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+    ]
+  },
+  "logs": [
+    {
+      "name": "install",
+      "path": "evidence/mainproof-59b8af58a-install.bytes.json",
+      "payloadSha256": "5f072e3bf067093ca77161c3575f2df7f2e9e8750c20a2bddfa1ca96638771e0",
+      "payloadBytes": 864,
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "owned-guards",
+      "path": "evidence/mainproof-59b8af58a-owned-guards.bytes.json",
+      "payloadSha256": "0989d1029c10908584365978fc1fb68cd30e131d791e13f7ffd309dd47aee503",
+      "payloadBytes": 573,
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "regression",
+      "path": "evidence/mainproof-59b8af58a-regression.bytes.json",
+      "payloadSha256": "42284dde6d57d2194975f03cbe972e6172a17fa8fd74ad22a8168177cc93c203",
+      "payloadBytes": 3215,
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "typecheck",
+      "path": "evidence/mainproof-59b8af58a-typecheck.bytes.json",
+      "payloadSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+      "payloadBytes": 174,
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "run-proof",
+      "path": "evidence/mainproof-59b8af58a-run-proof.bytes.json",
+      "payloadSha256": "1c3d143fbba1c34ed5faa648d906080e264b8352f280e7d25b959b4ee2f12cb1",
+      "payloadBytes": 4101,
+      "exitCode": null
+    }
+  ],
+  "runs": [
+    {
+      "name": "install",
+      "head": "59b8af58a9372a74191b253bd02d837f58dc390e",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+      "start": "2026-10-24T10:41:30.646Z",
+      "end": "2026-10-24T10:55:57.934Z",
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2c-closure",
+        "--class",
+        "build",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+        "--",
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/install.log",
+      "logBytes": 864,
+      "logSha256": "5f072e3bf067093ca77161c3575f2df7f2e9e8750c20a2bddfa1ca96638771e0"
+    },
+    {
+      "name": "owned-guards",
+      "head": "59b8af58a9372a74191b253bd02d837f58dc390e",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+      "start": "2026-10-24T10:55:58.506Z",
+      "end": "2026-10-24T10:57:02.680Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2c-closure",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/owned-guards.log",
+      "logBytes": 573,
+      "logSha256": "0989d1029c10908584365978fc1fb68cd30e131d791e13f7ffd309dd47aee503"
+    },
+    {
+      "name": "regression",
+      "head": "59b8af58a9372a74191b253bd02d837f58dc390e",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+      "start": "2026-10-24T10:57:02.867Z",
+      "end": "2026-10-24T10:57:12.838Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2c-closure",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/regression.log",
+      "logBytes": 3215,
+      "logSha256": "42284dde6d57d2194975f03cbe972e6172a17fa8fd74ad22a8168177cc93c203"
+    },
+    {
+      "name": "typecheck",
+      "head": "59b8af58a9372a74191b253bd02d837f58dc390e",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+      "start": "2026-10-24T10:57:13.013Z",
+      "end": "2026-10-24T10:57:20.272Z",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2c-closure",
+        "--class",
+        "build",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2c-closure-20261024",
+        "--",
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2c-closure/typecheck.log",
+      "logBytes": 174,
+      "logSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
+    }
+  ],
+  "sourceIdentities": [
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "reviewedBlob": "de74f5dcdb4dc4b97ed31c9ee6277ef24c95c3fe",
+      "prHeadBlob": "de74f5dcdb4dc4b97ed31c9ee6277ef24c95c3fe",
+      "mergeBlob": "de74f5dcdb4dc4b97ed31c9ee6277ef24c95c3fe"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "reviewedBlob": "32c813c4726f8bfabea7543f10e39498f3398efb",
+      "prHeadBlob": "32c813c4726f8bfabea7543f10e39498f3398efb",
+      "mergeBlob": "32c813c4726f8bfabea7543f10e39498f3398efb"
+    }
+  ],
+  "leavesAtMerge": [
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "localReceiptSha256": "2b52b82a95fc2d5bc68bff865fb69fe76f270289fe7f948770fb5218c1bc12d4",
+      "headSha256": "2b52b82a95fc2d5bc68bff865fb69fe76f270289fe7f948770fb5218c1bc12d4",
+      "mergeSha256": "2b52b82a95fc2d5bc68bff865fb69fe76f270289fe7f948770fb5218c1bc12d4"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "localReceiptSha256": "3c10f291ec3e5d8b54ec910e4412701636d16bf87887126c59bd6b7930222db0",
+      "headSha256": "3c10f291ec3e5d8b54ec910e4412701636d16bf87887126c59bd6b7930222db0",
+      "mergeSha256": "3c10f291ec3e5d8b54ec910e4412701636d16bf87887126c59bd6b7930222db0"
+    }
+  ],
+  "review": {
+    "path": "evidence/lsc-2c-admission-review-20261020.json",
+    "head": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+    "reviewedHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+    "outputSha256": "ca1cb8df7b5a0b259a7314c83883ee6f95c56657960a915b41ec80f5514cae4e"
+  },
+  "ownerRuling": {
+    "ruledHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+    "reviewedHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+    "pr": 2326,
+    "commentId": 6383180420,
+    "author": "SwiggitySwerve",
+    "bodySha256": "dcbed35bf330768756dc642886fbb6c7758281580821f7c0f547b615184fd73a"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-LSC2C-1",
+      "severity": "Medium",
+      "owner": "LSC-2O",
+      "target": "LSC-2O frozen admission; LSC-2O already owns src/lib/campaign/coop/localSeatCredentialStore.ts and its test (not admitted by this closure)",
+      "status": "routed; LSC-2O is released to planned only",
+      "item": "Pin the ten guards the owned suite leaves unpinned (review M-1/F2; probes M1-M7, M9, M10): replace-path expiry and wire/result expiry agreement, status and remember playerId agreement, the primary 6h cap, displayName 64, issued<=expires, forget without a match, and Retry-After 0. Append the verified review block (R1-R9, 61/61, kills 13/13), run oxfmt --write on the test, and add it to the LSC-2O mutation inventory. Optional nit N-1: drop the no-op finally { password = \"\" } in mintCoopCredential."
+    },
+    {
+      "id": "CF-LSC2C-2",
+      "severity": "Low",
+      "owner": "LSC-2",
+      "target": "LSC-2 (CampaignCoopEntryPanel.tsx integration)",
+      "status": "routed; LSC-2 stays blocked on LSC-2O",
+      "item": "L-1: replace CampaignCoopEntryPanel.mintToken with mintCoopCredential(primary, ...) and delete mintToken (multiplayerPage.helpers.mintToken is a further pre-existing caller). L-2: map a primary 401 (Invalid password) to a wrong-password message and a 404 (no vault identity) to OPERATOR_IDENTITY_REQUIRED instead of LOCAL_SEAT_DENIED/REQUEST_FAILED. L-3: keep or explicitly accept the 10s browser-clock drift check on primary tokens; the current panel has none, and /auth/token is not loopback-only."
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+      "status": "open registration follow-up; no registered unit grants those leaves for this change",
+      "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+    }
+  ],
+  "successorRelease": {
+    "algorithm": "Only declared dependents of LSC-2C; blocked -> planned requires every predecessor main-verified with PASS mainProof. Release only; no admission, no routing text, no other field of the successor changes. Independent holds and unrelated units are untouched.",
+    "candidates": [
+      {
+        "id": "LSC-2O",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "LSC-2C",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "eligible": true
+      }
+    ],
+    "releases": [
+      "LSC-2O"
+    ]
+  },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes authority, privacy, replay, idempotency and concurrency)",
+    "head": "59b8af58a9372a74191b253bd02d837f58dc390e",
+    "headNote": "HEAD at run time is the parent of the closure commit (59b8af58a). The working tree held all closure edits except this validatorGithub field; a receipt cannot cite its own commit SHA. The same command is rerun at the final closure head and its exit code and output are reported to Root with the PR.",
+    "startedAt": "2026-10-24T11:16:46.466Z",
+    "endedAt": "2026-10-24T11:18:28.736Z",
+    "machineGate": "heavy-run.mjs --lane lsc-2c-closure --class build (one ticket for the whole closure check set)",
+    "exit": 0,
+    "output": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "limitations": [
+    "No task row is ticked.",
+    "No new source scope or v2.2.0 release acceptance is supplied; no browser, packaged or UI proof is claimed.",
+    "CF-LSC2C-2R still requires Root registration.",
+    "LSC-2O is released to planned only; its admission (re-fetch, census, Root gate) is a separate PR."
+  ]
+}

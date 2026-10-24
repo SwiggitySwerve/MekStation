@@ -859,6 +859,70 @@ describe('LocalSeatCredentialService operator writes (LSC-1S)', () => {
     expect(svc.listSeats()[1].status).toBe('unprovisioned');
   });
 
+  it('O06 reports not-revocable without detail, keeps the generation-conflict detail and never blocks a provision', async () => {
+    make();
+    const revokeAt = (
+      operationId: string,
+      expectedGeneration: number,
+      seatId: SeatId = 'local-seat-1',
+    ) =>
+      svc.revoke({
+        operatorPassword: OPERATOR,
+        seatId,
+        expectedGeneration,
+        operationId,
+      });
+    const absent = await code(revokeAt('op-absent', 0));
+    expect(absent.code).toBe('not-revocable');
+    expect(absent.detail).toEqual({});
+    await provision('local-seat-1');
+    await revokeAt('op-revoke-ok', 1);
+    const twice = await code(revokeAt('op-revoke-twice', 2));
+    expect(twice.code).toBe('not-revocable');
+    expect(twice.detail).toEqual({});
+    expect(await code(revokeAt('op-revoke-stale', 1))).toMatchObject({
+      code: 'generation-conflict',
+      detail: { currentGeneration: 2 },
+    });
+    nowMs += 60_000;
+    await expect(
+      provision('local-seat-1', 2, 'op-reprovision'),
+    ).resolves.toMatchObject({ generation: 3 });
+    expect(svc.listSeats()[0]).toMatchObject({
+      status: 'active',
+      generation: 3,
+    });
+  });
+
+  it('O07 verifies the operator and consumes the window before a not-revocable result, recording nothing', async () => {
+    make();
+    const revokeAbsent = (operatorPassword: string, operationId: string) =>
+      svc.revoke({
+        operatorPassword,
+        seatId: 'local-seat-2',
+        expectedGeneration: 0,
+        operationId,
+      });
+    expect((await code(revokeAbsent('wrong', 'op-nr-wrong'))).code).toBe(
+      'operator-denied',
+    );
+    for (let i = 0; i < 4; i += 1) {
+      expect((await code(revokeAbsent(OPERATOR, `op-nr-${i}`))).code).toBe(
+        'not-revocable',
+      );
+    }
+    expect(operator).toHaveBeenCalledTimes(5);
+    expect((await code(revokeAbsent(OPERATOR, 'op-nr-late'))).code).toBe(
+      'throttled',
+    );
+    expect(operator).toHaveBeenCalledTimes(5);
+    expect(
+      getSQLiteService()
+        .getDatabase()
+        .prepare('SELECT COUNT(*) AS n FROM local_seat_credential_operations')
+        .get(),
+    ).toEqual({ n: 0 });
+  });
   it('revoke keeps the lock; re-provision clears it and rotates the player identity (CF-LSC0-8)', async () => {
     make();
     const before = (await provision('local-seat-1')).seats[0];

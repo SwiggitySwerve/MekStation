@@ -362,6 +362,49 @@ describe('/api/multiplayer/auth/local-seats', () => {
     expect(revoke.json.code).toBe('OPERATION_MISMATCH');
   });
 
+  it('O08 reports a distinct sanitized NOT_REVOCABLE refusal and keeps the conflict codes for stale requests', async () => {
+    await seedPrimary();
+    expect((await call('POST', provisionBody())).status).toBe(200);
+    const revokeBody = (overrides: Record<string, unknown> = {}) => ({
+      action: 'revoke',
+      operatorPassword: OPERATOR,
+      seatId: 'local-seat-1',
+      expectedGeneration: 1,
+      operationId: 'op-revoke-1',
+      ...overrides,
+    });
+    expect((await call('POST', revokeBody())).status).toBe(200);
+    const again = await call(
+      'POST',
+      revokeBody({ expectedGeneration: 2, operationId: 'op-revoke-2' }),
+    );
+    expect(again.status).toBe(409);
+    expect(again.json).toEqual({
+      error: 'Local seat request refused',
+      code: 'NOT_REVOCABLE',
+    });
+    expect(again.res.getHeader('Cache-Control')).toBe('no-store');
+    expect(JSON.stringify(again.json)).not.toContain(OPERATOR);
+    const absent = await call(
+      'POST',
+      revokeBody({
+        seatId: 'local-seat-2',
+        expectedGeneration: 0,
+        operationId: 'op-revoke-3',
+      }),
+    );
+    expect(absent.status).toBe(409);
+    expect(absent.json.code).toBe('NOT_REVOCABLE');
+    const stale = await call(
+      'POST',
+      revokeBody({ expectedGeneration: 1, operationId: 'op-revoke-4' }),
+    );
+    expect(stale.status).toBe(409);
+    expect(stale.json).toMatchObject({
+      code: 'GENERATION_CONFLICT',
+      currentGeneration: 2,
+    });
+  });
   it('R2-13/CF-LSC1S-1: forwards only validated credentials to the singleton', async () => {
     const prototype = LocalSeatCredentialService.prototype as unknown as {
       mint(input: unknown): Promise<unknown>;

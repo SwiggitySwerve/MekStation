@@ -11,6 +11,17 @@ import {
 const control =
   'border-border-theme bg-surface-deep rounded border px-3 py-2 disabled:opacity-50';
 
+/** Unknown outcomes (network/5xx) and stale or absent seats need fresh state first. */
+function needsRefresh(error: LocalSeatRequestError): boolean {
+  if (error.status === 0 || error.status >= 500) return true;
+  return (
+    error.status === 409 &&
+    ['GENERATION_CONFLICT', 'OPERATION_MISMATCH', 'NOT_REVOCABLE'].includes(
+      error.code,
+    )
+  );
+}
+
 export function LocalSeatOperatorPanel(): React.ReactElement {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -21,6 +32,9 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
   const [expectedGeneration, setExpectedGeneration] = useState(0);
   const [label, setLabel] = useState('');
   const [message, setMessage] = useState('');
+  const [confirmed, setConfirmed] = useState(false);
+  const reprovision =
+    seats.find((seat) => seat.seatId === seatId)?.status === 'active';
   const primary = useRef<HTMLInputElement>(null);
   const password = useRef<HTMLInputElement>(null);
   const work = (value: boolean) => {
@@ -31,6 +45,7 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
     setSeatId(seat.seatId);
     setExpectedGeneration(seat.generation);
     setLabel(seat.label ?? '');
+    setConfirmed(false);
     if (primary.current) primary.current.value = '';
     if (password.current) password.current.value = '';
   };
@@ -67,6 +82,10 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
     const seatPassword = password.current?.value ?? '';
     if (primary.current) primary.current.value = '';
     if (password.current) password.current.value = '';
+    if (action === 'provision' && reprovision && !confirmed) {
+      setMessage('Confirm the new identity before re-provisioning this seat.');
+      return;
+    }
     if (!operatorPassword || (action === 'provision' && !seatPassword)) {
       setMessage(
         'Enter the primary vault password and, to provision, a new seat password.',
@@ -84,6 +103,7 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
     }
     work(true);
     setMessage('');
+    setConfirmed(false);
     try {
       const base = { seatId, expectedGeneration, operatorPassword };
       const result = await writeLocalSeat(
@@ -100,12 +120,7 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
           ? error.message
           : 'Unable to update local seat.';
       setMessage(detail);
-      if (
-        error instanceof LocalSeatRequestError &&
-        error.status === 409 &&
-        (error.code === 'GENERATION_CONFLICT' ||
-          error.code === 'OPERATION_MISMATCH')
-      ) {
+      if (error instanceof LocalSeatRequestError && needsRefresh(error)) {
         await refresh(detail);
       }
     } finally {
@@ -212,16 +227,27 @@ export function LocalSeatOperatorPanel(): React.ReactElement {
                   />
                 </label>
               ))}
+              {reprovision && (
+                <label className="block">
+                  <input
+                    type="checkbox"
+                    checked={confirmed}
+                    onChange={(event) => setConfirmed(event.target.checked)}
+                  />{' '}
+                  Re-provisioning gives this seat a new identity. The GM must
+                  admit it again and the old player stays a member until
+                  removed.
+                </label>
+              )}
               <button className={control} type="submit">
-                Provision seat
+                {reprovision
+                  ? 'Re-provision seat (new identity)'
+                  : 'Provision seat'}
               </button>
               <button
                 className={control}
                 type="button"
-                disabled={
-                  seats.find((seat) => seat.seatId === seatId)?.status !==
-                  'active'
-                }
+                disabled={!reprovision}
                 onClick={() => void submit('revoke')}
               >
                 Revoke seat

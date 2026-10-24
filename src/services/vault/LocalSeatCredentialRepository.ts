@@ -38,6 +38,7 @@ export type LocalSeatWriteResult =
   | { readonly kind: 'applied'; readonly generation: number }
   | { readonly kind: 'replayed'; readonly generation: number }
   | { readonly kind: 'operation-mismatch' }
+  | { readonly kind: 'not-revocable'; readonly currentGeneration: number }
   | {
       readonly kind: 'generation-conflict';
       readonly currentGeneration: number;
@@ -198,9 +199,11 @@ export class LocalSeatCredentialRepository {
       }
       const current = this.get(write.seatId);
       const currentGeneration = current?.generation ?? 0;
-      const revocable = kind === 'provision' || current?.revokedAt === null;
-      if (currentGeneration !== write.expectedGeneration || !revocable) {
+      if (currentGeneration !== write.expectedGeneration) {
         return { kind: 'generation-conflict', currentGeneration };
+      }
+      if (kind === 'revoke' && current?.revokedAt !== null) {
+        return { kind: 'not-revocable', currentGeneration };
       }
       const generation = currentGeneration + 1;
       if (apply(db, generation) !== 1) {
