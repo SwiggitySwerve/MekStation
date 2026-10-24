@@ -1,16 +1,27 @@
 #!/usr/bin/env node
-import { createHash } from 'node:crypto';
 // Owns the L1 outcome crosswalk and its deterministic owner view, never admissions.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const directory = 'openspec/planning/2026-09-12-roadmap-completion';
-export const sha256 = (bytes) =>
-  createHash('sha256').update(bytes).digest('hex');
-export const requireThat = (condition, message) => {
-  if (!condition) throw new Error(message);
-};
+import {
+  directory,
+  sha256,
+  requireThat,
+  verifyReference,
+  closed,
+  checkReleaseEvidence,
+  checkEvidenceRecord,
+  sameArtifacts,
+  proofImplemented,
+  stepInputSha,
+  evidenceStep,
+  readRecord,
+} from './v220-evidence.mjs';
+import { observe } from './v220-observe.mjs';
+export { directory, sha256, requireThat, verifyReference, closed };
+export { stepInputSha, observe };
+
 export function validate(plan, ledger, root, evidence = {}) {
   const checklist = ledger.l1ReleaseChecklist20261018;
   const units = new Map(ledger.units.map((u) => [u.id, u]));
@@ -45,6 +56,10 @@ export function validate(plan, ledger, root, evidence = {}) {
         );
       } else if (proof.kind === 'evidence') {
         requireThat(proof.schema, 'Missing evidence schema');
+        requireThat(
+          evidenceStep(proof.schema) === s.id,
+          'Misplaced evidence schema',
+        );
       } else {
         const argv = proof.argv;
         requireThat(Array.isArray(argv) && argv.length > 1, 'Missing argv');
@@ -127,39 +142,45 @@ export function validate(plan, ledger, root, evidence = {}) {
   for (const id of assignments.keys()) visit(id);
   for (const s of plan.steps) {
     if (evidence.steps?.[s.id]?.state !== 'complete') continue;
+    const ids = s.id < 7 ? [...s.units, ...s.witnesses] : checklist.closures;
     requireThat(
-      [...s.units, ...s.witnesses].every((id) => closed(units.get(id), root)) &&
+      ids.every((id) => closed(units.get(id), root)) &&
         s.gates.every((g) => evidence.gates?.[g]?.status === 'accepted') &&
         evidence.steps[s.id].doneTest === 'PASS' &&
-        !s.doneTests.some((p) => p.status) &&
-        s.doneTests.some((p) => !p.baseline) &&
+        proofImplemented(s) &&
         evidence.steps[s.id].reference,
       `Complete without closures, gates and evidence: ${s.id}`,
     );
-    verifyReference(root, evidence.steps[s.id].reference);
+    verifyReference(root, evidence.steps[s.id].reference, directory + '/');
+    for (const gate of s.gates)
+      verifyReference(root, evidence.gates[gate].reference, directory + '/');
+    const manual = {};
+    for (const proof of s.doneTests.filter((p) => p.kind === 'evidence')) {
+      const ref = evidence.steps[s.id].records?.[proof.schema];
+      const record = readRecord(root, ref, directory + '/');
+      manual[proof.schema] = record;
+      checkEvidenceRecord(proof.schema, record, {
+        root,
+        bundle: path.dirname(path.resolve(root, ref.path)),
+        ledger,
+        plan,
+        rcSha: evidence.rcSha,
+      });
+    }
+    if (manual['installer-rehearsal'])
+      requireThat(
+        sameArtifacts(
+          manual['installer-rehearsal'].artifacts,
+          manual['human-session']?.artifacts,
+        ),
+        'Session differs from rehearsal',
+      );
   }
-}
-export function verifyReference(root, ref) {
-  requireThat(
-    ref?.path &&
-      /^[a-f0-9]{64}$/.test(ref.sha256) &&
-      sha256(fs.readFileSync(path.resolve(root, ref.path))) === ref.sha256,
-    'Missing or stale evidence reference',
-  );
-}
-export function closed(unit, root) {
-  const proof = unit?.stageReceipts?.mainProof;
-  if (
-    !['main-verified', 'complete', 'archived'].includes(unit?.state) ||
-    proof?.verdict !== 'PASS' ||
-    proof.mergeCommit !== unit.mergeSha ||
-    !proof.path
-  )
-    return false;
-  const file = path.join(root, directory, proof.path);
-  if (!fs.existsSync(file)) return false;
-  const record = JSON.parse(fs.readFileSync(file));
-  return record.verdict === 'PASS' && record.mergeCommit === unit.mergeSha;
+  for (const [id, proof] of Object.entries(evidence.steps ?? {}))
+    requireThat(
+      proof.inputSha256 === stepInputSha(plan, ledger, Number(id)),
+      `Stale evidence inputs: step ${id}`,
+    );
 }
 export function render(plan, ledger, inputSha, evidence = {}) {
   const rows = plan.steps.map((s) => {
@@ -209,10 +230,27 @@ export function main(
     ? JSON.parse(fs.readFileSync(evidencePath))
     : {};
   const pageSha = sha256(planText + ledgerText);
-  const inputSha = sha256(planText + ledgerText + read('package.json'));
-  if (Object.keys(evidence).length)
-    requireThat(evidence.inputSha256 === inputSha, 'Stale evidence inputs');
   validate(plan, ledger, root, evidence);
+  const option = (name) => args[args.indexOf(name) + 1];
+  if (args.includes('--gate-check')) {
+    const file = path.resolve(option('--evidence'));
+    checkReleaseEvidence(JSON.parse(fs.readFileSync(file)), {
+      root,
+      bundle: path.dirname(file),
+      ledger,
+      plan,
+      rcSha: option('--candidate-sha'),
+      artifacts: option('--artifacts'),
+    });
+    console.log(`V2.2 GATE PASSED ${option('--candidate-sha')}`);
+  }
+  if (args.includes('--observe'))
+    console.log(
+      `Observation ${new Date().toISOString()}\n${observe(
+        args.filter((a) => a.includes('=')),
+        root,
+      )}`,
+    );
   const page = render(plan, ledger, pageSha, evidence),
     output = path.join(root, directory, 'V2.2.0-STEPS.md');
   if (args.includes('--write')) fs.writeFileSync(output, page);

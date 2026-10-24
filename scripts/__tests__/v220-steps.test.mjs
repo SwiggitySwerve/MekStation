@@ -9,6 +9,8 @@ import {
   main,
   render,
   sha256,
+  stepInputSha,
+  observe,
   validate,
 } from '../qc/generate-v220-steps.mjs';
 
@@ -182,17 +184,22 @@ function completeFixture(t) {
       JSON.stringify({ verdict: 'PASS', mergeCommit: u.mergeSha }),
     );
   }
-  fs.writeFileSync(path.join(f.root, 'ref.txt'), 'proof');
+  fs.writeFileSync(path.join(f.dir, 'evidence/ref.txt'), 'proof');
   f.evidence = {
     gates: { gate: { status: 'accepted' } },
     steps: {
       2: {
         state: 'complete',
+        inputSha256: stepInputSha(f.plan, f.ledger, 2),
         doneTest: 'PASS',
-        reference: { path: 'ref.txt', sha256: sha256('proof') },
+        reference: {
+          path: `${directory}/evidence/ref.txt`,
+          sha256: sha256('proof'),
+        },
       },
     },
   };
+  f.evidence.gates.gate.reference = { ...f.evidence.steps[2].reference };
   return f;
 }
 
@@ -279,9 +286,123 @@ test('hash-bound evidence cannot be stale', (t) => {
   const f = fixture(t);
   fs.writeFileSync(
     path.join(f.dir, 'v220-step-evidence.json'),
-    JSON.stringify({ inputSha256: sha256('wrong') }),
+    JSON.stringify({ steps: { 1: { inputSha256: sha256('wrong') } } }),
   );
   assert.throws(() => main(['--write'], f.root), /Stale evidence/);
+});
+
+test('step evidence survives unrelated ledger and package edits', (t) => {
+  const f = fixture(t);
+  const evidence = {
+    steps: {
+      1: {
+        state: 'execution only',
+        doneTest: 'NOT RUN',
+        inputSha256: stepInputSha(f.plan, f.ledger, 1),
+      },
+    },
+  };
+  fs.writeFileSync(
+    path.join(f.dir, 'v220-step-evidence.json'),
+    JSON.stringify(evidence),
+  );
+  main(['--write'], f.root);
+  f.ledger.units.push({
+    id: 'UNRELATED',
+    state: 'planned',
+    mergeSha: 'a'.repeat(40),
+  });
+  f.plan.steps[9].scope = 'Unrelated scope edit';
+  f.save();
+  fs.writeFileSync(
+    path.join(f.root, 'package.json'),
+    '{"scripts":{"changed":"other"}}',
+  );
+  main(['--write'], f.root);
+  main(['--check'], f.root);
+  f.ledger.units[0].mergeSha = 'b'.repeat(40);
+  f.save();
+  assert.throws(
+    () => main(['--write'], f.root),
+    /Stale evidence inputs: step 1/,
+  );
+});
+
+test('unknown and misplaced evidence schema names fail closed', (t) => {
+  const f = fixture(t);
+  f.plan.steps[0].doneTests = [{ kind: 'evidence', schema: 'imaginary' }];
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Unknown evidence schema/,
+  );
+  f.plan.steps[0].doneTests[0].schema = 'human-session';
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Misplaced evidence schema/,
+  );
+});
+
+test('observer reads supplied worktrees and refuses missing or conflicting observations', (t) => {
+  const f = fixture(t);
+  const run = (command, argv) =>
+    command === 'gh'
+      ? JSON.stringify([
+          {
+            number: 2313,
+            headRefName: 'topic',
+            headRefOid: 'head',
+            reviewDecision: 'REVIEW_REQUIRED',
+          },
+        ])
+      : argv.includes('status')
+        ? ''
+        : argv.includes('HEAD')
+          ? 'head'
+          : argv.includes('origin/main')
+            ? 'main'
+            : 'topic';
+  f.ledger.units[0].state = 'local-verified';
+  f.ledger.units[0].stageReceipts = { local: { path: 'local.json' } };
+  fs.writeFileSync(path.join(f.dir, 'local.json'), '{}');
+  f.save();
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, run),
+    /PR #2313 head; open; review REVIEW_REQUIRED/,
+  );
+  assert.match(
+    observe(['A=wrong=' + f.root], f.root, run),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, (cmd, argv) =>
+      argv.includes('HEAD') ? 'changed' : run(cmd, argv),
+    ),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, (cmd, argv) =>
+      argv.includes('status') ? ' M tracked-file' : run(cmd, argv),
+    ),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  fs.rmSync(path.join(f.dir, 'local.json'));
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, run),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  f.ledger.units[0].state = 'planned';
+  f.save();
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, run),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  assert.match(observe([], f.root, run), /UNKNOWN - DO NOT SELECT/);
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, () => {
+      throw Error('offline');
+    }),
+    /UNKNOWN - DO NOT SELECT/,
+  );
 });
 
 test('reject open witness', (t) => {
@@ -336,6 +457,7 @@ test('closed predecessors can appear in later historical display groups', (t) =>
   const f = completeFixture(t);
   f.plan.steps[1].units = ['B'];
   f.plan.steps[2].units = ['A'];
+  f.evidence.steps[2].inputSha256 = stepInputSha(f.plan, f.ledger, 2);
   validate(f.plan, f.ledger, f.root, f.evidence);
 });
 
