@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import {
   directory,
   main,
+  observe,
   render,
   sha256,
   validate,
@@ -140,7 +141,7 @@ test('future proof is explicit; cannot complete without closure, gates and evide
         validate(f.plan, f.ledger, f.root, {
           steps: { [step]: { state: 'complete', doneTest: 'PASS' } },
         }),
-      /Complete without/,
+      /Complete without|required closures/,
     );
 });
 
@@ -151,4 +152,55 @@ test('hash-bound evidence cannot be stale', (t) => {
     JSON.stringify({ inputSha256: sha256('wrong') }),
   );
   assert.throws(() => main(['--write'], f.root), /Stale evidence/);
+});
+
+test('npm scripts cannot hide a missing file target, and node targets need no extension', (t) => {
+  const f = fixture(t);
+  fs.writeFileSync(
+    path.join(f.root, 'package.json'),
+    JSON.stringify({ scripts: { test: 'node scripts/absent.mjs' } }),
+  );
+  f.plan.steps[0].doneTests = [{ argv: ['npm', 'run', 'test'] }];
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Missing command target scripts\/absent.mjs/,
+  );
+  f.plan.steps[0].doneTests = [{ argv: ['node', 'absent'] }];
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Missing command target absent/,
+  );
+});
+
+test('observation fails closed on missing access, branch or PR head conflict', (t) => {
+  const f = fixture(t);
+  const run = (command, argv) =>
+    command === 'gh'
+      ? JSON.stringify([
+          { number: 1, headRefName: 'topic', headRefOid: 'head' },
+        ])
+      : argv.includes('status')
+        ? ''
+        : argv.includes('HEAD')
+          ? 'head\n'
+          : 'topic\n';
+  assert.match(observe(['A=topic=' + f.root], f.root, run), /PR #1 head/);
+  assert.match(
+    observe(['A=wrong=' + f.root], f.root, run),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, (cmd, argv) =>
+      cmd === 'gh'
+        ? '[{"headRefName":"topic","headRefOid":"changed"}]'
+        : run(cmd, argv),
+    ),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  assert.match(
+    observe([], f.root, () => {
+      throw Error('offline');
+    }),
+    /UNKNOWN - DO NOT SELECT/,
+  );
 });

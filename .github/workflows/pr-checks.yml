@@ -166,6 +166,7 @@ jobs:
         run: |
           node scripts/qc/generate-v220-steps.mjs --check
           node --test scripts/__tests__/v220-steps.test.mjs
+          node --test scripts/__tests__/v220-evidence.test.mjs
 
   typecheck:
     name: Type Check

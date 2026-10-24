@@ -1,0 +1,33 @@
+# V2.2.0 evidence contracts
+
+`scripts/qc/v220-evidence.mjs` owns these required fields and refusal checks. These are evidence contracts, not acceptance records. Root verifies actual observations and human identity; a schema cannot authenticate an attestation. No gate is accepted by this document.
+
+Every reference is `{ "path": "relative/file", "sha256": "64 lowercase hex" }`; paths stay inside the bundle and hashes bind actual bytes. Closure references instead resolve against the tagged repository. Every candidate record carries `kind` and the same 40-hex `rcSha`. `observations` is a nonempty array of `{timestamp, status: "PASS", description}` with ISO timestamps. Preserve failed attempts separately; acceptance contains their closed defects and successful retests.
+
+## Step 7: closure-rewind
+
+Required fields: `kind: "closure-rewind"`, `rcSha`, `closures`, `reruns`, `rewind`.
+
+- `closures`: exactly one `{unit, reference}` for every checklist unit (currently 46). Reference the unit's existing `stageReceipts.mainProof.path`, prefixed with the planning directory. The checker reopens PASS receipts, compares merge identities, requires terminal ledger state and checks each merge is an ancestor of the candidate. Run the unchanged roadmap validator separately for its full historical receipt contract.
+- `reruns`: references to JSON records `{rcSha, verdict: "PASS", argv}`. Cover every exact command registered in steps 3, 5 and 6: combined spectator proof, campaign journey, ownership proof and terminal P2J journey. Missing proofs must first be implemented by their owning units; baseline success alone never qualifies a release.
+- `rewind`: `command`, `observations`, and separate `persisted`, `broadcast`, `replay` references witnessing real post-rewind dice production, capture and faithful replay on this RC.
+
+## Step 8: two separate records
+
+Both `installer-rehearsal` and `human-session` require `kind`, `rcSha`, `artifacts` (filename-to-SHA256 map), `operator: {identity, kind, attestation}`, `checklist: "playtest/checklists/coop-uat.md"`, `observations`, and `defects`. Each defect requires `id`, `status: "closed"`, and `retest: {timestamp, reference}`. An empty defects array explicitly records no defects. Use the existing session template and update the checklist's prerequisite gap after LSC qualification; this task changes neither historical checklist nor session evidence.
+
+The human record additionally requires `operator.kind: "human"` and a nonempty `humanAttestation`. Label one human driving three seats accurately. An agent's rehearsal, even with identical artifact hashes and PASS observations, cannot satisfy this record. Both runs must attest installer smoke and the current three-seat checklist.
+
+## Step 9: publication
+
+Required fields: `kind: "publication"`, `rcSha`, `acceptedGates` (all eight checklist IDs exactly once), `artifacts`, `rehearsal` (reference to the installer record), and `releaseNotes` (reference whose path is `release-notes.md`). The notes must disclose same-host/loopback operation, no remote proxy/tunnel support, Docker HOSTNAME admission refusal and unsupported hosting, unavailable multiplayer fog, and same-server co-op lobby visibility. The checker requires identical rehearsal, human-session and publication hashes, then hashes the actual files being uploaded. No rebuild can substitute for the rehearsed bytes. Record the resulting release URL and actual publication observation after publication; a preflight PASS alone does not complete step 9.
+
+## Bundle and commands
+
+An external Actions artifact named `v220-qualified` contains `evidence.json`, the four separate record JSON files, referenced proof files, `release-notes.md`, and `artifacts/` with exactly the rehearsed installer files. `evidence.json` requires `rcSha`, `records` mapping the four kinds above to references, and `gates` mapping all eight checklist IDs to `{status: "accepted", reference}`. Root owns acceptance and provenance. The workflow downloads the explicit `qualification_run_id`; the artifact lives outside Git so adding acceptance evidence does not move the candidate. The qualified-bundle producer belongs to later acceptance work; this task invents no acceptance or artifact.
+
+Run `node scripts/qc/generate-v220-steps.mjs --gate-check --candidate-sha <tagged-commit> --evidence <bundle>/evidence.json --artifacts <bundle>/artifacts`. It refuses missing evidence and incomplete proofs. `release.yml` checks out the tag, invokes this command and uploads those same files. Dispatch with `candidate_only: true` for private build artifacts. v2.2 container publication is withheld because that path rebuilds unqualified bytes; ordinary non-v2.2 releases retain their existing behavior.
+
+For the owner page, optional `v220-step-evidence.json` binds `inputSha256` (the page's map/ledger/package digest), `steps` and `gates`. Each complete step requires `state: "complete"`, `doneTest: "PASS"`, a hashed `reference`, and `records` mapping its evidence-schema names to references; gates require accepted status and references. `--check` reopens the appropriate schema records. Step 0's `step0-observation` record requires `timestamp`, `mainSha`, `pr2313.head`, and `lsc2c: {head, state: "local-verified", branch: "codex/lsc-2c-sol-20261020"}`. Local evidence cannot substitute for any unit's main closure.
+
+Refresh observations with `--observe UNIT=BRANCH=ABSOLUTE_WORKTREE ...`; the timestamped overlay stays on stdout. Missing access or conflicting heads prints `UNKNOWN - DO NOT SELECT`. Root must reconcile it before admission. No committed snapshot reserves work.

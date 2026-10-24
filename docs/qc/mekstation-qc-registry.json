@@ -1515,8 +1515,14 @@
       ],
       "specRefs": ["openspec/README.md"],
       "activeChangeRefs": [],
-      "tests": ["all", "scripts/__tests__/tsrs-side-check.test.ts"],
+      "tests": [
+        "all",
+        "scripts/__tests__/tsrs-side-check.test.ts",
+        "scripts/__tests__/v220-steps.test.mjs",
+        "scripts/__tests__/v220-evidence.test.mjs"
+      ],
       "commands": [
+        "node scripts/qc/generate-v220-steps.mjs --check",
         "npm.cmd run qc:openspec-ci:validate",
         "npx.cmd openspec validate --all --strict",
         "npm.cmd run lint",
