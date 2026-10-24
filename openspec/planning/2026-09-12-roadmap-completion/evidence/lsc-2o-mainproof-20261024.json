@@ -1,0 +1,916 @@
+{
+  "unit": "LSC-2O",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-24T14:49:36.311Z",
+  "mergeCommit": "e012028a945df0641089d946877c1192b51e9329",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+  "runtime": {
+    "playwright": "Main Jest: Tests: 174 passed, 174 total",
+    "jest": "owned plus guards: Tests: 246 passed, 246 total (Test Suites: 7 passed, 7 total); regression: Tests: 174 passed, 174 total (Test Suites: 11 passed, 11 total)",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci at clean exact merge before any closure edit",
+    "typecheck": "npm run typecheck: exit 0",
+    "build": "npm run build (heavy-run lane lsc-2o-closure, class build): exit 0, then node .next/standalone/server.js for the smoke",
+    "smoke": "Built standalone server on 127.0.0.1:3641 with an isolated durable store: a fresh revoke of an already-revoked seat and of an absent seat at the matching generation returned 409 NOT_REVOCABLE; a stale generation returned 409 GENERATION_CONFLICT; a replay of the earlier successful revoke returned 200; the sixth operator attempt inside the window returned 429 LOCAL_SEAT_THROTTLED; a foreign Host returned 403.",
+    "schemaNote": "runtime.playwright is the legacy validator field for a Jest proof line; no browser or Playwright run is claimed."
+  },
+  "proofClass": "full",
+  "machineGate": "heavy-run.mjs --lane lsc-2o-closure --class jest|build --cwd E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024 -- <command>",
+  "execution": "Each job checked a clean HEAD at the exact merge before and after execution. Every npm/Jest call used heavy-run with a private Jest cache and the idle gate unmodified (no HEAVY_IDLE_CMD). Node v22.22.0 was first on PATH, so the child processes use it as well. No timeout raised, skip guard added, or foreign process stopped.",
+  "ancestry": {
+    "mergeSha": "e012028a945df0641089d946877c1192b51e9329",
+    "originMain": "e012028a945df0641089d946877c1192b51e9329",
+    "isAncestorOfOriginMain": true,
+    "checkedAt": "2026-10-24T14:49:36.311Z"
+  },
+  "suiteManifest": {
+    "ownedGuards": [
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "src/__tests__/api/localSeatCredentials.test.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+    ],
+    "regression": [
+      "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+      "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+      "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+      "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+      "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+      "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+      "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts"
+    ]
+  },
+  "logs": [
+    {
+      "name": "install",
+      "path": "evidence/mainproof-e012028a9-install.bytes.json",
+      "payloadSha256": "5f072e3bf067093ca77161c3575f2df7f2e9e8750c20a2bddfa1ca96638771e0",
+      "payloadBytes": 864,
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "owned-guards",
+      "path": "evidence/mainproof-e012028a9-owned-guards.bytes.json",
+      "payloadSha256": "53070946e641a1b962b19a76fd7fbcfb43dad66f230a2bb704ddeca35601f3cf",
+      "payloadBytes": 1142,
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/jest-cache",
+        "--runTestsByPath",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "regression",
+      "path": "evidence/mainproof-e012028a9-regression.bytes.json",
+      "payloadSha256": "719077aebb3472535ec0601edf61d81e623cd62c36131d5ebc982334dafe483d",
+      "payloadBytes": 2826,
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "typecheck",
+      "path": "evidence/mainproof-e012028a9-typecheck.bytes.json",
+      "payloadSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+      "payloadBytes": 174,
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "run-proof",
+      "path": "evidence/mainproof-e012028a9-run-proof.bytes.json",
+      "payloadSha256": "1c5d70da36f838ab3d1184f16b21297ed6cd4ff6e2d0c4095f6e3c4f4a6e1ae3",
+      "payloadBytes": 4767,
+      "exitCode": null
+    }
+  ],
+  "runs": [
+    {
+      "name": "install",
+      "head": "e012028a945df0641089d946877c1192b51e9329",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+      "start": "2026-10-24T14:35:14.450Z",
+      "end": "2026-10-24T14:36:02.539Z",
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2o-closure",
+        "--class",
+        "build",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+        "--",
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund",
+        "--prefer-offline",
+        "--cache",
+        "E:/Projects/Personal/MekStation-wt/_npm-cache"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/install.log",
+      "logBytes": 864,
+      "logSha256": "5f072e3bf067093ca77161c3575f2df7f2e9e8750c20a2bddfa1ca96638771e0"
+    },
+    {
+      "name": "owned-guards",
+      "head": "e012028a945df0641089d946877c1192b51e9329",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+      "start": "2026-10-24T14:36:02.822Z",
+      "end": "2026-10-24T14:37:04.331Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/jest-cache",
+        "--runTestsByPath",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2o-closure",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/jest-cache",
+        "--runTestsByPath",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/owned-guards.log",
+      "logBytes": 1142,
+      "logSha256": "53070946e641a1b962b19a76fd7fbcfb43dad66f230a2bb704ddeca35601f3cf"
+    },
+    {
+      "name": "regression",
+      "head": "e012028a945df0641089d946877c1192b51e9329",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+      "start": "2026-10-24T14:37:04.501Z",
+      "end": "2026-10-24T14:37:11.582Z",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2o-closure",
+        "--class",
+        "jest",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+        "--",
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--cacheDirectory",
+        "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/jest-cache",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/regression.log",
+      "logBytes": 2826,
+      "logSha256": "719077aebb3472535ec0601edf61d81e623cd62c36131d5ebc982334dafe483d"
+    },
+    {
+      "name": "typecheck",
+      "head": "e012028a945df0641089d946877c1192b51e9329",
+      "node": "v22.22.0",
+      "worktree": "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+      "start": "2026-10-24T14:37:11.884Z",
+      "end": "2026-10-24T14:37:19.085Z",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "wrapper": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+        "--lane",
+        "lsc-2o-closure",
+        "--class",
+        "build",
+        "--cwd",
+        "E:/Projects/Personal/MekStation-wt/lsc-2o-closure-20261024",
+        "--",
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2o-closure/typecheck.log",
+      "logBytes": 174,
+      "logSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
+    }
+  ],
+  "build": {
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exit": 0,
+    "heavyRunClass": "build",
+    "note": "The build log is webpack progress output (not preserved byte-for-byte); the heavy-run release event recorded exitCode 0 after 121 s. The tracked tree stayed clean (git status --porcelain empty) after the build and the smoke."
+  },
+  "smoke": {
+    "head": "e012028a945df0641089d946877c1192b51e9329",
+    "node": "v22.22.0",
+    "port": 3641,
+    "hostname": "127.0.0.1",
+    "server": "node .next/standalone/server.js (npm run build output)",
+    "env": {
+      "DATABASE_PATH": "<scratch>/smoke-runtime/mekstation.db",
+      "MULTIPLAYER_STORE": "durable",
+      "NODE_ENV": "production"
+    },
+    "ok": true,
+    "results": [
+      {
+        "name": "create-primary-identity",
+        "method": "POST",
+        "url": "/api/vault/identity",
+        "request": {
+          "displayName": "Smoke GM",
+          "password": "[redacted]"
+        },
+        "status": 201,
+        "response": {
+          "success": true,
+          "publicIdentity": {
+            "displayName": "Smoke GM",
+            "publicKey": "DMDew9IIp//vcFR+cfRfMydFjKBXsJI3yWvEw0N1FLI=",
+            "friendCode": "BVAP-7S8U-BCV9-955S"
+          }
+        },
+        "expectStatus": [
+          200,
+          201
+        ],
+        "ok": true
+      },
+      {
+        "name": "list-seats-initial",
+        "method": "GET",
+        "url": "/api/multiplayer/auth/local-seats",
+        "status": 200,
+        "cacheControl": "no-store",
+        "response": {
+          "seats": [
+            {
+              "seatId": "local-seat-1",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            },
+            {
+              "seatId": "local-seat-2",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            }
+          ]
+        },
+        "expectStatus": 200,
+        "ok": true
+      },
+      {
+        "name": "provision",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "provision",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "password": "[redacted]",
+          "label": "Smoke seat",
+          "expectedGeneration": 0,
+          "operationId": "smoke-provision-1"
+        },
+        "status": 200,
+        "cacheControl": "no-store",
+        "response": {
+          "replayed": false,
+          "generation": 1,
+          "seats": [
+            {
+              "seatId": "local-seat-1",
+              "status": "active",
+              "label": "Smoke seat",
+              "playerId": "pid_2dH3iqmRBfcPyufcPTxDKHEV2YHv",
+              "generation": 1,
+              "lockedUntil": null
+            },
+            {
+              "seatId": "local-seat-2",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            }
+          ]
+        },
+        "expectStatus": 200,
+        "ok": true
+      },
+      {
+        "name": "list-seats-after-provision",
+        "method": "GET",
+        "url": "/api/multiplayer/auth/local-seats",
+        "status": 200,
+        "cacheControl": "no-store",
+        "response": {
+          "seats": [
+            {
+              "seatId": "local-seat-1",
+              "status": "active",
+              "label": "Smoke seat",
+              "playerId": "pid_2dH3iqmRBfcPyufcPTxDKHEV2YHv",
+              "generation": 1,
+              "lockedUntil": null
+            },
+            {
+              "seatId": "local-seat-2",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            }
+          ]
+        },
+        "expectStatus": 200,
+        "ok": true
+      },
+      {
+        "name": "revoke-active-seat",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 1,
+          "operationId": "smoke-revoke-1"
+        },
+        "status": 200,
+        "cacheControl": "no-store",
+        "response": {
+          "replayed": false,
+          "generation": 2,
+          "seats": [
+            {
+              "seatId": "local-seat-1",
+              "status": "revoked",
+              "label": "Smoke seat",
+              "playerId": "pid_2dH3iqmRBfcPyufcPTxDKHEV2YHv",
+              "generation": 2,
+              "lockedUntil": null
+            },
+            {
+              "seatId": "local-seat-2",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            }
+          ]
+        },
+        "expectStatus": 200,
+        "ok": true
+      },
+      {
+        "name": "list-seats-after-revoke",
+        "method": "GET",
+        "url": "/api/multiplayer/auth/local-seats",
+        "status": 200,
+        "cacheControl": "no-store",
+        "response": {
+          "seats": [
+            {
+              "seatId": "local-seat-1",
+              "status": "revoked",
+              "label": "Smoke seat",
+              "playerId": "pid_2dH3iqmRBfcPyufcPTxDKHEV2YHv",
+              "generation": 2,
+              "lockedUntil": null
+            },
+            {
+              "seatId": "local-seat-2",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            }
+          ]
+        },
+        "expectStatus": 200,
+        "ok": true
+      },
+      {
+        "name": "revoke-already-revoked-matching-generation",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 2,
+          "operationId": "smoke-revoke-2"
+        },
+        "status": 409,
+        "cacheControl": "no-store",
+        "response": {
+          "error": "Local seat request refused",
+          "code": "NOT_REVOCABLE"
+        },
+        "expectStatus": 409,
+        "expectCode": "NOT_REVOCABLE",
+        "ok": true
+      },
+      {
+        "name": "revoke-stale-generation",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 1,
+          "operationId": "smoke-revoke-3"
+        },
+        "status": 409,
+        "cacheControl": "no-store",
+        "response": {
+          "error": "Local seat request refused",
+          "code": "GENERATION_CONFLICT",
+          "currentGeneration": 2
+        },
+        "expectStatus": 409,
+        "expectCode": "GENERATION_CONFLICT",
+        "ok": true
+      },
+      {
+        "name": "revoke-absent-seat-matching-generation",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-2",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 0,
+          "operationId": "smoke-revoke-4"
+        },
+        "status": 409,
+        "cacheControl": "no-store",
+        "response": {
+          "error": "Local seat request refused",
+          "code": "NOT_REVOCABLE"
+        },
+        "expectStatus": 409,
+        "expectCode": "NOT_REVOCABLE",
+        "ok": true
+      },
+      {
+        "name": "sixth-operator-attempt-in-window-throttled",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 1,
+          "operationId": "smoke-revoke-1"
+        },
+        "status": 429,
+        "cacheControl": "no-store",
+        "retryAfter": "60",
+        "response": {
+          "error": "Local seat request throttled",
+          "code": "LOCAL_SEAT_THROTTLED"
+        },
+        "expectStatus": 429,
+        "expectCode": "LOCAL_SEAT_THROTTLED",
+        "ok": true
+      },
+      {
+        "name": "replay-earlier-successful-revoke",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 1,
+          "operationId": "smoke-revoke-1"
+        },
+        "status": 200,
+        "cacheControl": "no-store",
+        "response": {
+          "replayed": true,
+          "generation": 2,
+          "seats": [
+            {
+              "seatId": "local-seat-1",
+              "status": "revoked",
+              "label": "Smoke seat",
+              "playerId": "pid_2dH3iqmRBfcPyufcPTxDKHEV2YHv",
+              "generation": 2,
+              "lockedUntil": null
+            },
+            {
+              "seatId": "local-seat-2",
+              "status": "unprovisioned",
+              "label": null,
+              "playerId": null,
+              "generation": 0,
+              "lockedUntil": null
+            }
+          ]
+        },
+        "expectStatus": 200,
+        "ok": true
+      },
+      {
+        "name": "foreign-host-refused",
+        "method": "POST",
+        "url": "/api/multiplayer/auth/local-seats",
+        "request": {
+          "action": "revoke",
+          "seatId": "local-seat-1",
+          "operatorPassword": "[redacted]",
+          "expectedGeneration": 2,
+          "operationId": "smoke-revoke-5"
+        },
+        "status": 403,
+        "cacheControl": "no-store",
+        "response": {
+          "error": "Local seats are same-host only"
+        },
+        "expectStatus": 403,
+        "ok": true
+      }
+    ],
+    "harnessNote": "Two earlier attempts of this harness failed on its own step expectations (the sixth operator attempt in the 60 s window was throttled before the replay step; the foreign-host step reused the loopback Host). Neither was a product failure; the harness was corrected and the passing run is recorded here. Passwords in request bodies are redacted in the record."
+  },
+  "sourceIdentities": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "reviewedBlob": "42723e55914809f0991f8c13b130a69274066f1d",
+      "prHeadBlob": "42723e55914809f0991f8c13b130a69274066f1d",
+      "mergeBlob": "42723e55914809f0991f8c13b130a69274066f1d"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "reviewedBlob": "442ffd87bdfe3df8208423453387fb322f875039",
+      "prHeadBlob": "442ffd87bdfe3df8208423453387fb322f875039",
+      "mergeBlob": "442ffd87bdfe3df8208423453387fb322f875039"
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "reviewedBlob": "4f427ea1b9b4fc184f29bd33089b4c0290939216",
+      "prHeadBlob": "4f427ea1b9b4fc184f29bd33089b4c0290939216",
+      "mergeBlob": "4f427ea1b9b4fc184f29bd33089b4c0290939216"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "reviewedBlob": "6d3f7e74802ad7a7e0c610fff85316fdcf6d1332",
+      "prHeadBlob": "6d3f7e74802ad7a7e0c610fff85316fdcf6d1332",
+      "mergeBlob": "6d3f7e74802ad7a7e0c610fff85316fdcf6d1332"
+    },
+    {
+      "path": "src/__tests__/api/localSeatCredentials.test.ts",
+      "reviewedBlob": "21ea317fdc8f8d1ced2b8b33b09d29a3e377c77a",
+      "prHeadBlob": "21ea317fdc8f8d1ced2b8b33b09d29a3e377c77a",
+      "mergeBlob": "21ea317fdc8f8d1ced2b8b33b09d29a3e377c77a"
+    },
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "reviewedBlob": "dc18dd5b42e7b142c3ddab77dcc9a2c20196dc35",
+      "prHeadBlob": "dc18dd5b42e7b142c3ddab77dcc9a2c20196dc35",
+      "mergeBlob": "dc18dd5b42e7b142c3ddab77dcc9a2c20196dc35"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "reviewedBlob": "33748821c1320c9caf5b7ac920e8df2fef655940",
+      "prHeadBlob": "33748821c1320c9caf5b7ac920e8df2fef655940",
+      "mergeBlob": "33748821c1320c9caf5b7ac920e8df2fef655940"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "reviewedBlob": "11dd8b616a2bcc796954d993be978a1aab4b53c3",
+      "prHeadBlob": "11dd8b616a2bcc796954d993be978a1aab4b53c3",
+      "mergeBlob": "11dd8b616a2bcc796954d993be978a1aab4b53c3"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "reviewedBlob": "a4e716ef62db398248500f783901ebc62acc56dc",
+      "prHeadBlob": "a4e716ef62db398248500f783901ebc62acc56dc",
+      "mergeBlob": "a4e716ef62db398248500f783901ebc62acc56dc"
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "reviewedBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
+      "prHeadBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
+      "mergeBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b"
+    }
+  ],
+  "leavesAtMerge": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "headBlob": "42723e55914809f0991f8c13b130a69274066f1d",
+      "mergeBlob": "42723e55914809f0991f8c13b130a69274066f1d",
+      "mergeSha256": "4d6721dcc52acdecc0f104d57792ac77343c50b9c2913096137670a50def92da",
+      "localReceiptSha256": "4d6721dcc52acdecc0f104d57792ac77343c50b9c2913096137670a50def92da"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "headBlob": "442ffd87bdfe3df8208423453387fb322f875039",
+      "mergeBlob": "442ffd87bdfe3df8208423453387fb322f875039",
+      "mergeSha256": "c9d9fc252c580e8b1a1aa95ae6047564fd609c701f2f30569b7d5df92f9da57a",
+      "localReceiptSha256": "c9d9fc252c580e8b1a1aa95ae6047564fd609c701f2f30569b7d5df92f9da57a"
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "headBlob": "4f427ea1b9b4fc184f29bd33089b4c0290939216",
+      "mergeBlob": "4f427ea1b9b4fc184f29bd33089b4c0290939216",
+      "mergeSha256": "f331c6a1222e9c46a425e88ee9c2c030ea216c3ab98d79b9a6b70a4535f5a7ca",
+      "localReceiptSha256": "f331c6a1222e9c46a425e88ee9c2c030ea216c3ab98d79b9a6b70a4535f5a7ca"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "headBlob": "6d3f7e74802ad7a7e0c610fff85316fdcf6d1332",
+      "mergeBlob": "6d3f7e74802ad7a7e0c610fff85316fdcf6d1332",
+      "mergeSha256": "63c190be62b3bbd6746cdb8100be8df1f126383d4b4142d8186154bff187f690",
+      "localReceiptSha256": "63c190be62b3bbd6746cdb8100be8df1f126383d4b4142d8186154bff187f690"
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "headBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
+      "mergeBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
+      "mergeSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "localReceiptSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02"
+    },
+    {
+      "path": "src/__tests__/api/localSeatCredentials.test.ts",
+      "headBlob": "21ea317fdc8f8d1ced2b8b33b09d29a3e377c77a",
+      "mergeBlob": "21ea317fdc8f8d1ced2b8b33b09d29a3e377c77a",
+      "mergeSha256": "003337f05022e2b46e5972e23e525bbe37526ecd0854dca648da7e70cb8fde1e",
+      "localReceiptSha256": "003337f05022e2b46e5972e23e525bbe37526ecd0854dca648da7e70cb8fde1e"
+    },
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "headBlob": "dc18dd5b42e7b142c3ddab77dcc9a2c20196dc35",
+      "mergeBlob": "dc18dd5b42e7b142c3ddab77dcc9a2c20196dc35",
+      "mergeSha256": "a54c276269de054482b423dce15af10882e09f922f7b98e6bf33b3b0337e4b5e",
+      "localReceiptSha256": "a54c276269de054482b423dce15af10882e09f922f7b98e6bf33b3b0337e4b5e"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "headBlob": "33748821c1320c9caf5b7ac920e8df2fef655940",
+      "mergeBlob": "33748821c1320c9caf5b7ac920e8df2fef655940",
+      "mergeSha256": "2613c36ec2d0c27d009cf8c95cabf967526acea3593f9a8721b45c2f6eefa673",
+      "localReceiptSha256": "2613c36ec2d0c27d009cf8c95cabf967526acea3593f9a8721b45c2f6eefa673"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "headBlob": "11dd8b616a2bcc796954d993be978a1aab4b53c3",
+      "mergeBlob": "11dd8b616a2bcc796954d993be978a1aab4b53c3",
+      "mergeSha256": "0be29ea1fa4bcf74db350b34db217791abe15c2d2348ca778f11705030d0c2ee",
+      "localReceiptSha256": "0be29ea1fa4bcf74db350b34db217791abe15c2d2348ca778f11705030d0c2ee"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "headBlob": "a4e716ef62db398248500f783901ebc62acc56dc",
+      "mergeBlob": "a4e716ef62db398248500f783901ebc62acc56dc",
+      "mergeSha256": "91c79b164cba5de5ba197643ab5de245c7d0d7b80862eb51ec1a20f3fb0292c8",
+      "localReceiptSha256": "91c79b164cba5de5ba197643ab5de245c7d0d7b80862eb51ec1a20f3fb0292c8"
+    }
+  ],
+  "review": {
+    "path": "evidence/lsc-2o-admission-review-20261020.json",
+    "head": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "reviewedHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "outputSha256": "e278254d900f62d579f5f0811989ff310d8ab63d847a3405a8af4c6ee042c324"
+  },
+  "ownerRuling": {
+    "ruledHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "reviewedHead": "c1b97a3141a3b7dc1cc2b394a28bad41461c5220",
+    "pr": 2329,
+    "commentId": 6385425980,
+    "author": "SwiggitySwerve",
+    "bodySha256": "35c760c876dacb4fc3c27d1f7048521d51af21f4cd98e99afbcb45c501383bad"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-LSC2C-2",
+      "severity": "Low",
+      "owner": "LSC-2",
+      "target": "LSC-2 (CampaignCoopEntryPanel.tsx integration)",
+      "status": "routed correction: LSC-2O took L-2 and the store side of L-3 (option B); LSC-2 keeps L-1 and the panel-side L-3 acceptance",
+      "item": "Routing correction (supersedes the L-2/L-3 clauses of CF-LSC2C-2 in the LSC-2C records, which stay unedited): L-2 (primary 401 -> OPERATOR_DENIED, 404 -> OPERATOR_IDENTITY_REQUIRED) and the store side of L-3 (skip only the future-issuedAt 10s check for the primary choice) are DONE in LSC-2O. LSC-2 keeps L-1 (adopt mintCoopCredential(primary, ...) in CampaignCoopEntryPanel and delete the panel mintToken; multiplayerPage.helpers.mintToken is outside LSC-2 files) and the panel-side L-3 acceptance (explicitly accept or keep the primary clock behavior now that the store skips the future-drift check for primary)."
+    },
+    {
+      "id": "CF-LSC2OP-2",
+      "severity": "Info",
+      "owner": "LSC-2P",
+      "target": "LSC-2 final UI integration; LSC-2P packaged proof",
+      "status": "partly done: relabel and confirmation delivered by LSC-2O",
+      "item": "Active-seat re-provision is relabelled and gated by an explicit confirmation (LSC-2O). LSC-2 retains new identity, GM readmission and ghost membership in the ordinary UI; LSC-2P owns the packaged proof and the CF-LSC2OP-4 password-manager/autofill proof."
+    },
+    {
+      "id": "review-r2-I2",
+      "severity": "Info",
+      "owner": "LSC-2",
+      "target": "LSC-2 final UI integration of CF-LSC2OP-7",
+      "status": "routed",
+      "item": "After an unknown outcome the operator alert reads \"Local seat request failed.\" although the write may have applied. Consider \"The result is unknown; the seats were refreshed. Check them before submitting again.\" in the final UI."
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "severity": "Low",
+      "owner": "Root registration follow-up",
+      "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+      "status": "open registration follow-up; no registered unit grants those leaves for this change",
+      "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+    }
+  ],
+  "successorRelease": {
+    "algorithm": "Only declared dependents of LSC-2O; blocked -> planned requires every predecessor main-verified with PASS mainProof. Release only; no admission, no routing text, no other field of the successor changes in this commit. Independent holds and unrelated units are untouched.",
+    "candidates": [
+      {
+        "id": "LSC-2",
+        "state": "blocked",
+        "prerequisites": [
+          {
+            "id": "LSC-2O",
+            "state": "main-verified",
+            "mainProof": "PASS"
+          }
+        ],
+        "eligible": true
+      }
+    ],
+    "releases": [
+      "LSC-2"
+    ]
+  },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes authority, privacy, replay, idempotency, concurrency and migration)",
+    "head": "e012028a945df0641089d946877c1192b51e9329",
+    "headNote": "HEAD at run time is the parent of the closure commit (e012028a9). The working tree held all closure edits except this validatorGithub field; a receipt cannot cite its own commit SHA. The same command is rerun at the final PR head and its exit code and output are reported to Root with the PR.",
+    "startedAt": "2026-10-24T14:50:23.8365903Z",
+    "endedAt": "2026-10-24T14:52:02.6367699Z",
+    "machineGate": "run directly (network call to GitHub; not a heavy-run job)",
+    "exit": 0,
+    "output": "ROADMAP VALIDATION PASSED: 93 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "limitations": [
+    "No task row is ticked.",
+    "No new source scope or v2.2.0 release acceptance is supplied; no browser, packaged or UI proof is claimed (LSC-2P owns packaged proof).",
+    "CF-LSC2C-2R still requires Root registration.",
+    "LSC-2 is released to planned in commit 1 and admitted in commit 2 of the same PR; its implementation starts only after this PR merges."
+  ]
+}

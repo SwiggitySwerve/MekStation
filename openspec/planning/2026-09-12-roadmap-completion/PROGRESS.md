@@ -3115,3 +3115,19 @@ CARRY-FORWARD routing (no added source permission):
 - CF-LSC2C-2R (Low) -> Root registration follow-up: Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11).
 
 LSC-2O is released from blocked to planned (release only). Its admission needs its own Root gate and PR; CF-LSC2C-1 goes into its mutation inventory there. LSC-2 stays blocked on LSC-2O. CF-LSC2C-2R remains an open Root registration follow-up.
+
+
+## LSC-2O closure (2026-10-24)
+
+Source #2329 is main-verified: reviewed and merged PR head `c1b97a3141a3b7dc1cc2b394a28bad41461c5220`, merge `e012028a945df0641089d946877c1192b51e9329`. The three Opus reviews (admission APPROVE-WITH-IN-PR-FIXES, implementation APPROVE-WITH-IN-PR-FIXES, delta APPROVE) and the live OWNER-RULING comment 6385425980 are byte-copied as SHA-256/base64 envelopes. Final review: 9868 bytes, SHA-256 `e278254d900f62d579f5f0811989ff310d8ab63d847a3405a8af4c6ee042c324`; ruling: 2215 bytes, SHA-256 `35c760c876dacb4fc3c27d1f7048521d51af21f4cd98e99afbcb45c501383bad`. All ten registered leaves are byte-identical at the head and the merge, and the merge has ordered parent2 equal to the head.
+
+Fresh npm ci and mainProof at clean exact `e012028a9`: owned plus guards Tests: 246 passed, 246 total (Test Suites: 7 passed, 7 total); regression Tests: 174 passed, 174 total (Test Suites: 11 passed, 11 total); typecheck PASS; a built-server smoke returned 409 NOT_REVOCABLE for a fresh revoke of a revoked and an absent seat, all through heavy-run lane lsc-2o-closure. Source CI at the PR head was 33/33 SUCCESS. The review-round-3 notes N1 and N2 on the local receipt wording are recorded in the review receipt; the local receipt is unchanged. No task tick, browser/packaged proof or release acceptance is claimed.
+
+CARRY-FORWARD routing (no added source permission):
+
+- CF-LSC2C-2 (Low) -> LSC-2: Routing correction (supersedes the L-2/L-3 clauses of CF-LSC2C-2 in the LSC-2C records, which stay unedited): L-2 (primary 401 -> OPERATOR_DENIED, 404 -> OPERATOR_IDENTITY_REQUIRED) and the store side of L-3 (skip only the future-issuedAt 10s check for the primary choice) are DONE in LSC-2O. LSC-2 keeps L-1 (adopt mintCoopCredential(primary, ...) in CampaignCoopEntryPanel and delete the panel mintToken; multiplayerPage.helpers.mintToken is outside LSC-2 files) and the panel-side L-3 acceptance (explicitly accept or keep the primary clock behavior now that the store skips the future-drift check for primary).
+- CF-LSC2OP-2 (Info) -> LSC-2P: Active-seat re-provision is relabelled and gated by an explicit confirmation (LSC-2O). LSC-2 retains new identity, GM readmission and ghost membership in the ordinary UI; LSC-2P owns the packaged proof and the CF-LSC2OP-4 password-manager/autofill proof.
+- review-r2-I2 (Info) -> LSC-2: After an unknown outcome the operator alert reads "Local seat request failed." although the write may have applied. Consider "The result is unknown; the seats were refreshed. Check them before submitting again." in the final UI.
+- CF-LSC2C-2R (Low) -> Root registration follow-up: Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11).
+
+LSC-2 is released from blocked to planned by this closure and admitted by the second commit of the same PR; its implementation starts only after this PR merges. CF-LSC2C-2R remains an open Root registration follow-up.
