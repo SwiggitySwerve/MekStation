@@ -55,6 +55,7 @@ const messages: Record<string, string> = {
     'Seat changed. Review the refreshed seat and submit again.',
   OPERATION_MISMATCH:
     'Operation was refused. Review the refreshed seat and submit again.',
+  NOT_REVOCABLE: 'That seat is not active, so nothing was revoked.',
 };
 export class LocalSeatRequestError extends Error {
   constructor(
@@ -238,6 +239,17 @@ export function forgetCoopCredential(matchId?: string): void {
   if (failed) throw new LocalSeatRequestError(0, 'STORAGE_UNAVAILABLE');
 }
 
+const deniedCode = (choice: CoopCredentialChoice) =>
+  choice === 'primary' ? 'OPERATOR_DENIED' : 'LOCAL_SEAT_DENIED';
+
+function mintFailureCode(choice: CoopCredentialChoice, status: number): string {
+  if (status === 429) return 'LOCAL_SEAT_THROTTLED';
+  if (status === 401) return deniedCode(choice);
+  if (status === 404 && choice === 'primary')
+    return 'OPERATOR_IDENTITY_REQUIRED';
+  return 'REQUEST_FAILED';
+}
+
 /** One request per explicit submit; no retry, no response/error text reflection. */
 export async function mintCoopCredential(
   choice: CoopCredentialChoice,
@@ -246,7 +258,7 @@ export async function mintCoopCredential(
   if (!isCoopCredentialChoice(choice))
     throw new LocalSeatRequestError(0, 'INVALID_CHOICE');
   if (!password || password.length > 512)
-    throw new LocalSeatRequestError(401, 'LOCAL_SEAT_DENIED');
+    throw new LocalSeatRequestError(401, deniedCode(choice));
   try {
     const response = await fetch(
       choice === 'primary'
@@ -272,11 +284,7 @@ export async function mintCoopCredential(
       const retry = Number(response.headers.get('Retry-After'));
       throw new LocalSeatRequestError(
         response.status,
-        response.status === 401
-          ? 'LOCAL_SEAT_DENIED'
-          : response.status === 429
-            ? 'LOCAL_SEAT_THROTTLED'
-            : 'REQUEST_FAILED',
+        mintFailureCode(choice, response.status),
         response.status === 429 && Number.isSafeInteger(retry) && retry > 0
           ? retry
           : undefined,
@@ -296,7 +304,7 @@ export async function mintCoopCredential(
       token.expiresAt !== body.expiresAt ||
       !Number.isFinite(issued) ||
       !Number.isFinite(expires) ||
-      issued > Date.now() + 10_000 ||
+      (choice !== 'primary' && issued > Date.now() + 10_000) ||
       expires <= Date.now() ||
       expires <= issued ||
       expires - issued > (choice === 'primary' ? 6 : 1) * 60 * 60 * 1000 ||
@@ -311,8 +319,6 @@ export async function mintCoopCredential(
   } catch (error) {
     if (error instanceof LocalSeatRequestError) throw error;
     throw new LocalSeatRequestError(0, 'REQUEST_FAILED');
-  } finally {
-    password = '';
   }
 }
 

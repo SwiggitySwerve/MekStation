@@ -97,6 +97,11 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 const button = (name: string) => screen.getByRole('button', { name });
+// The provision button reads "Re-provision seat (new identity)" for an active seat.
+const provisionButton = () =>
+  screen.getByRole('button', { name: /provision seat/i });
+const actionButton = (action: string) =>
+  action === 'Provision seat' ? provisionButton() : button(action);
 const input = (name: string) => screen.getByLabelText(name);
 function credentials(
   primary = 'primary-secret',
@@ -121,7 +126,7 @@ function expectCleared() {
 async function openPanel() {
   render(<LocalSeatOperatorPanel />);
   fireEvent.click(button('Manage local seats'));
-  await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+  await waitFor(() => expect(provisionButton()).toBeEnabled());
 }
 
 beforeEach(() => {
@@ -161,7 +166,7 @@ describe('LocalSeatOperatorPanel', () => {
       expect(input('New seat password')).toHaveAttribute('minlength', '8');
       credentials('primary-secret', password);
       fireEvent.change(input('Seat label'), { target: { value: label } });
-      fireEvent.submit(button('Provision seat').closest('form')!);
+      fireEvent.submit(provisionButton().closest('form')!);
       expect(store.writeLocalSeat).not.toHaveBeenCalled();
       expect(screen.getByRole('alert')).toHaveTextContent(
         'Provisioning needs a seat label (1-64 characters) and a new seat password of at least 8 characters.',
@@ -182,14 +187,14 @@ describe('LocalSeatOperatorPanel', () => {
       );
       store.listLocalSeats.mockResolvedValueOnce(seats(3, 9));
       credentials();
-      fireEvent.click(button('Provision seat'));
+      fireEvent.click(provisionButton());
       await waitFor(() =>
         expect(store.listLocalSeats).toHaveBeenCalledTimes(2),
       );
-      await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+      await waitFor(() => expect(provisionButton()).toBeEnabled());
       expect(input('Local seat')).toHaveValue('local-seat-2');
       credentials();
-      fireEvent.click(button('Provision seat'));
+      fireEvent.click(provisionButton());
       await waitFor(() =>
         expect(store.writeLocalSeat).toHaveBeenCalledTimes(2),
       );
@@ -222,7 +227,7 @@ describe('LocalSeatOperatorPanel', () => {
       ]),
     );
     fireEvent.click(button('Revoke seat'));
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     await waitFor(() => expect(button('Revoke seat')).toBeDisabled());
     expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
   });
@@ -238,7 +243,7 @@ describe('LocalSeatOperatorPanel', () => {
       screen.queryByLabelText('Primary vault password'),
     ).not.toBeInTheDocument();
     fireEvent.click(button('Manage local seats'));
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     expect(store.listLocalSeats).toHaveBeenCalledTimes(1);
     const rows = within(
       screen.getByRole('list', { name: 'Local seat states' }),
@@ -276,7 +281,7 @@ describe('LocalSeatOperatorPanel', () => {
     await openPanel();
     credentials();
     fireEvent.change(input('Seat label'), { target: { value: 'Scout' } });
-    fireEvent.click(button('Provision seat'));
+    fireEvent.click(provisionButton());
     expectCleared();
     expect(store.writeLocalSeat).toHaveBeenCalledWith({
       action: 'provision',
@@ -292,7 +297,7 @@ describe('LocalSeatOperatorPanel', () => {
     expectCleared();
     expect(screen.getByRole('list')).toHaveTextContent('generation: 2');
     credentials('primary-again', 'replacement');
-    fireEvent.click(button('Provision seat'));
+    fireEvent.click(provisionButton());
     await waitFor(() => expect(store.writeLocalSeat).toHaveBeenCalledTimes(2));
     expect(store.writeLocalSeat.mock.calls[1][0].expectedGeneration).toBe(1);
   });
@@ -304,8 +309,8 @@ describe('LocalSeatOperatorPanel', () => {
     });
     await openPanel();
     credentials();
-    fireEvent.click(button('Provision seat'));
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    fireEvent.click(provisionButton());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     fireEvent.change(input('Local seat'), {
       target: { value: 'local-seat-2' },
     });
@@ -318,12 +323,12 @@ describe('LocalSeatOperatorPanel', () => {
       seatId: 'local-seat-2',
       expectedGeneration: 8,
     });
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     fireEvent.change(input('Local seat'), {
       target: { value: 'local-seat-1' },
     });
     credentials();
-    fireEvent.click(button('Provision seat'));
+    fireEvent.click(provisionButton());
     await waitFor(() => expect(store.writeLocalSeat).toHaveBeenCalledTimes(3));
     expect(store.writeLocalSeat.mock.calls[2][0].expectedGeneration).toBe(2);
   });
@@ -343,7 +348,7 @@ describe('LocalSeatOperatorPanel', () => {
       store.writeLocalSeat.mockReturnValueOnce(pending.promise);
       await openPanel();
       credentials();
-      fireEvent.click(button('Provision seat'));
+      fireEvent.click(provisionButton());
       expectCleared();
       await act(async () =>
         pending.reject(failure(code, status, message, retryAfter)),
@@ -351,7 +356,7 @@ describe('LocalSeatOperatorPanel', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(message);
       expectCleared();
       expect(store.listLocalSeats).toHaveBeenCalledTimes(1);
-      expect(button('Provision seat')).toBeEnabled();
+      expect(provisionButton()).toBeEnabled();
     },
   );
 
@@ -363,7 +368,7 @@ describe('LocalSeatOperatorPanel', () => {
         target: { value: 'local-seat-2' },
       });
       credentials('', 'seat-secret');
-      fireEvent.click(button(action));
+      fireEvent.click(actionButton(action));
       expect(store.writeLocalSeat).not.toHaveBeenCalled();
       expectCleared();
       expect(screen.getByRole('alert')).toHaveTextContent(
@@ -375,7 +380,7 @@ describe('LocalSeatOperatorPanel', () => {
   it('requires a new seat password to provision and clears the supplied primary password', async () => {
     await openPanel();
     credentials('primary-secret', '');
-    fireEvent.click(button('Provision seat'));
+    fireEvent.click(provisionButton());
     expect(store.writeLocalSeat).not.toHaveBeenCalled();
     expectCleared();
   });
@@ -393,8 +398,8 @@ describe('LocalSeatOperatorPanel', () => {
         );
         store.listLocalSeats.mockResolvedValueOnce(seats(freshGeneration, 8));
         credentials();
-        fireEvent.click(button(action));
-        await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+        fireEvent.click(actionButton(action));
+        await waitFor(() => expect(provisionButton()).toBeEnabled());
         expect(store.listLocalSeats).toHaveBeenCalledTimes(beforeList + 1);
         expect(store.writeLocalSeat).toHaveBeenCalledTimes(beforeWrite + 1);
         expect(screen.getByRole('alert')).toHaveTextContent(
@@ -402,7 +407,7 @@ describe('LocalSeatOperatorPanel', () => {
         );
         expectCleared();
         credentials();
-        fireEvent.click(button(action));
+        fireEvent.click(actionButton(action));
         await waitFor(() =>
           expect(store.writeLocalSeat).toHaveBeenCalledTimes(beforeWrite + 2),
         );
@@ -410,7 +415,7 @@ describe('LocalSeatOperatorPanel', () => {
           store.writeLocalSeat.mock.calls[beforeWrite + 1][0]
             .expectedGeneration,
         ).toBe(freshGeneration);
-        await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+        await waitFor(() => expect(provisionButton()).toBeEnabled());
       }
     },
   );
@@ -424,23 +429,23 @@ describe('LocalSeatOperatorPanel', () => {
       new Error('server-private-detail'),
     );
     credentials();
-    fireEvent.click(button('Provision seat'));
+    fireEvent.click(provisionButton());
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent(/retry refresh/i),
     );
     expect(screen.getByRole('alert')).not.toHaveTextContent(
       'server-private-detail',
     );
-    expect(button('Provision seat')).toBeDisabled();
+    expect(provisionButton()).toBeDisabled();
     expect(button('Revoke seat')).toBeDisabled();
     expect(input('Local seat')).toBeDisabled();
-    fireEvent.submit(button('Provision seat').closest('form')!);
+    fireEvent.submit(provisionButton().closest('form')!);
     expect(store.writeLocalSeat).toHaveBeenCalledTimes(1);
     store.listLocalSeats.mockResolvedValueOnce(seats(7));
     fireEvent.click(button('Retry refresh'));
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     credentials();
-    fireEvent.click(button('Provision seat'));
+    fireEvent.click(provisionButton());
     await waitFor(() => expect(store.writeLocalSeat).toHaveBeenCalledTimes(2));
     expect(store.writeLocalSeat.mock.calls[1][0].expectedGeneration).toBe(7);
   });
@@ -456,12 +461,12 @@ describe('LocalSeatOperatorPanel', () => {
         /unable to load local seats/i,
       ),
     );
-    expect(button('Provision seat')).toBeDisabled();
+    expect(provisionButton()).toBeDisabled();
     expect(screen.getByRole('alert')).not.toHaveTextContent(
       'private list failure',
     );
     fireEvent.click(button('Retry refresh'));
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     expect(store.listLocalSeats).toHaveBeenCalledTimes(2);
   });
 
@@ -495,7 +500,7 @@ describe('LocalSeatOperatorPanel', () => {
     store.writeLocalSeat.mockReturnValueOnce(pending.promise);
     await openPanel();
     credentials();
-    const form = button('Provision seat').closest('form')!;
+    const form = provisionButton().closest('form')!;
     act(() => {
       fireEvent.submit(form);
       fireEvent.submit(form);
@@ -508,7 +513,7 @@ describe('LocalSeatOperatorPanel', () => {
     }
     expectCleared();
     await act(async () => pending.resolve(outcome()));
-    expect(button('Provision seat')).toBeEnabled();
+    expect(provisionButton()).toBeEnabled();
   });
 
   it('disables controls during list loading and never writes browser storage', async () => {
@@ -525,8 +530,8 @@ describe('LocalSeatOperatorPanel', () => {
       expect(control).toBeDisabled();
     await act(async () => pending.resolve(seats()));
     credentials();
-    fireEvent.click(button('Provision seat'));
-    await waitFor(() => expect(button('Provision seat')).toBeEnabled());
+    fireEvent.click(provisionButton());
+    await waitFor(() => expect(provisionButton()).toBeEnabled());
     fireEvent.click(button('Manage local seats'));
     expect(set).not.toHaveBeenCalled();
     expect(remove).not.toHaveBeenCalled();
@@ -534,8 +539,6 @@ describe('LocalSeatOperatorPanel', () => {
   });
   describe('LSC-2O operator obligations', () => {
     const reprovision = 'Re-provision seat (new identity)';
-    const provisionButton = () =>
-      screen.getByRole('button', { name: /provision seat/i });
     const confirmation = () =>
       screen.getByRole('checkbox', { name: /new identity/i });
 
@@ -604,6 +607,28 @@ describe('LocalSeatOperatorPanel', () => {
         action: 'provision',
         seatId: 'local-seat-2',
         expectedGeneration: 4,
+      });
+    });
+
+    it('O11 provisions a revoked seat without a confirmation', async () => {
+      store.listLocalSeats.mockResolvedValueOnce([
+        seats()[0],
+        { ...seats()[1], status: 'revoked', generation: 5 },
+      ]);
+      await openPanel();
+      fireEvent.change(input('Local seat'), {
+        target: { value: 'local-seat-2' },
+      });
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      credentials('primary-secret', 'seat-secret', false);
+      fireEvent.click(button('Provision seat'));
+      await waitFor(() =>
+        expect(store.writeLocalSeat).toHaveBeenCalledTimes(1),
+      );
+      expect(store.writeLocalSeat.mock.calls[0][0]).toMatchObject({
+        action: 'provision',
+        seatId: 'local-seat-2',
+        expectedGeneration: 5,
       });
     });
 
