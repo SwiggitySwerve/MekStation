@@ -1,0 +1,69 @@
+{
+  "steps": {
+    "1": {
+      "state": "complete",
+      "doneTest": "PASS",
+      "inputSha256": "dfaa5a65450405d3093ed6417c5326d170b0125ddf0927deeea63bc4f1c95716",
+      "reference": {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-mainproof-20261024.json",
+        "sha256": "3976a731da2d5720efc8a968d78c0741f6d2dd430105de46879b9a3474991474"
+      },
+      "observation": {
+        "note": "Local observation of the registered done-test on exact main. It does not replace the ledger closure; the generator does not read these fields.",
+        "argv": [
+          "npm.cmd",
+          "run",
+          "test",
+          "--",
+          "--watchAll=false",
+          "--runTestsByPath",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+          "--runInBand"
+        ],
+        "mainSha": "54cca95c7ffc5d03639157b1488bd65bcf4b49a8",
+        "containsMerges": {
+          "implementation": "6d180495883c057a4ed1cb91807cbb76a91a7223",
+          "closure": "e636edf43"
+        },
+        "workingTree": "Clean exact main except the uncommitted v220-steps.json done-test edit; the test file blob is d8aef732e7416d093a6bb2a838a50d60371e24da at main.",
+        "node": "v22.22.0",
+        "start": "2026-10-24T10:16:07.774Z",
+        "end": "2026-10-24T10:17:08.755Z",
+        "timeSource": "heavy/log.jsonl grant and release events for ticket P1-1792836819177-step1-evidence.json",
+        "exitCode": 0,
+        "suites": {
+          "passed": 1,
+          "total": 1
+        },
+        "tests": {
+          "passed": 28,
+          "total": 28
+        },
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/step1-evidence/done-test.log",
+          "bytes": 3736,
+          "sha256": "9e09b144b39e3887ad7d4f788f19c4c2d46b9a79b2a064e2d625f10ba8c1d97a",
+          "repoCopy": false
+        },
+        "covers": {
+          "concurrent same-key identity": [
+            "shares one pending creation and host for simultaneous first joins (memory)",
+            "shares one pending creation and host for simultaneous first joins (durable)"
+          ],
+          "rejection cleanup and retry": [
+            "evicts a shared registration rejection and retries without caching it",
+            "evicts a shared missing-metadata result and allows a later retry"
+          ],
+          "distinct-key isolation": [
+            "keeps a pending key independent of another campaign session"
+          ],
+          "existing-host reuse": [
+            "reuses the existing entry and ignores an absent key without another read"
+          ]
+        },
+        "priorObservation": "Same command, 28/28 at 6d180495883c057a4ed1cb91807cbb76a91a7223, recorded in the referenced mainProof receipt ownedProof."
+      }
+    }
+  },
+  "gates": {}
+}

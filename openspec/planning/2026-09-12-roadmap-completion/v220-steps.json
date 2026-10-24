@@ -36,9 +36,7 @@
       "gates": [],
       "doneTests": [
         {
-          "status": "PROOF NOT IMPLEMENTED",
-          "plannedIn": "MP-CAMPAIGN-HOST-DEDUPE-1",
-          "description": "The dedupe cases in CampaignHostRegistry.test.ts exist only on #2313 (main has the file without them); run on exact merged main, then close."
+          "argv": ["npm.cmd", "run", "test", "--", "--watchAll=false", "--runTestsByPath", "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts", "--runInBand"]
         }
       ],
       "scope": "Finish #2313; no match-registry redesign.",
