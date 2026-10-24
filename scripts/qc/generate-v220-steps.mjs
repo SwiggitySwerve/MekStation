@@ -13,10 +13,14 @@ import {
   checkReleaseEvidence,
   checkEvidenceRecord,
   sameArtifacts,
+  proofImplemented,
+  stepInputSha,
+  evidenceStep,
+  readRecord,
 } from './v220-evidence.mjs';
 import { observe } from './v220-observe.mjs';
-export { observe } from './v220-observe.mjs';
-export { directory, sha256 } from './v220-evidence.mjs';
+export { directory, sha256, requireThat, verifyReference, closed };
+export { stepInputSha, observe };
 
 export function validate(plan, ledger, root, evidence = {}) {
   const checklist = ledger.l1ReleaseChecklist20261018;
@@ -34,7 +38,6 @@ export function validate(plan, ledger, root, evidence = {}) {
       'Invalid step',
     );
     requireThat(!('state' in s), 'Lifecycle state belongs in the ledger');
-    requireThat(s.doneTests.length > 0, 'Missing done-test');
     for (const id of [...s.witnesses, ...s.units]) {
       requireThat(
         checklist.closures.includes(id) && units.has(id),
@@ -43,6 +46,8 @@ export function validate(plan, ledger, root, evidence = {}) {
       requireThat(!assignments.has(id), `Duplicate unit ${id}`);
       assignments.set(id, index);
     }
+    for (const id of s.witnesses)
+      requireThat(closed(units.get(id), root), `Open witness ${id}`);
     for (const proof of s.doneTests) {
       if (proof.status === 'PROOF NOT IMPLEMENTED') {
         requireThat(
@@ -51,6 +56,10 @@ export function validate(plan, ledger, root, evidence = {}) {
         );
       } else if (proof.kind === 'evidence') {
         requireThat(proof.schema, 'Missing evidence schema');
+        requireThat(
+          evidenceStep(proof.schema) === s.id,
+          'Misplaced evidence schema',
+        );
       } else {
         const argv = proof.argv;
         requireThat(Array.isArray(argv) && argv.length > 1, 'Missing argv');
@@ -133,27 +142,22 @@ export function validate(plan, ledger, root, evidence = {}) {
   for (const id of assignments.keys()) visit(id);
   for (const s of plan.steps) {
     if (evidence.steps?.[s.id]?.state !== 'complete') continue;
-    if (s.id >= 7)
-      requireThat(
-        checklist.closures.every((id) => closed(units.get(id), root)),
-        'Release step lacks required closures',
-      );
+    const ids = s.id < 7 ? [...s.units, ...s.witnesses] : checklist.closures;
     requireThat(
-      [...s.units, ...s.witnesses].every((id) => closed(units.get(id), root)) &&
+      ids.every((id) => closed(units.get(id), root)) &&
         s.gates.every((g) => evidence.gates?.[g]?.status === 'accepted') &&
         evidence.steps[s.id].doneTest === 'PASS' &&
-        !s.doneTests.some((p) => p.status) &&
+        proofImplemented(s) &&
         evidence.steps[s.id].reference,
       `Complete without closures, gates and evidence: ${s.id}`,
     );
-    verifyReference(root, evidence.steps[s.id].reference);
+    verifyReference(root, evidence.steps[s.id].reference, directory + '/');
     for (const gate of s.gates)
-      verifyReference(root, evidence.gates[gate].reference);
+      verifyReference(root, evidence.gates[gate].reference, directory + '/');
     const manual = {};
     for (const proof of s.doneTests.filter((p) => p.kind === 'evidence')) {
       const ref = evidence.steps[s.id].records?.[proof.schema];
-      verifyReference(root, ref);
-      const record = JSON.parse(fs.readFileSync(path.resolve(root, ref.path)));
+      const record = readRecord(root, ref, directory + '/');
       manual[proof.schema] = record;
       checkEvidenceRecord(proof.schema, record, {
         root,
@@ -172,6 +176,11 @@ export function validate(plan, ledger, root, evidence = {}) {
         'Session differs from rehearsal',
       );
   }
+  for (const [id, proof] of Object.entries(evidence.steps ?? {}))
+    requireThat(
+      proof.inputSha256 === stepInputSha(plan, ledger, Number(id)),
+      `Stale evidence inputs: step ${id}`,
+    );
 }
 export function render(plan, ledger, inputSha, evidence = {}) {
   const rows = plan.steps.map((s) => {
@@ -204,13 +213,14 @@ export function render(plan, ledger, inputSha, evidence = {}) {
     );
     return `| ${s.id}. ${s.name} | ${state} | ${status} | ${states} | ${s.gates.join(', ') || 'none'} |`;
   });
-  return `# V2.2.0 steps\n\nGenerated from v220-steps.json, units.json and package.json; source SHA256: ${inputSha}.\n\nHOLD: roadmap units remain held. This page grants no admission. Root reconciles live observations before selection. Baselines are not completion signals. No local PASS closes a step.\n\n| Step | State | Done-test | Main ledger state | Gates |\n| --- | --- | --- | --- | --- |\n${rows.join('\n')}\n`;
+  return `# V2.2.0 steps\n\nGenerated from v220-steps.json and units.json; source SHA256: ${inputSha}.\n\nHOLD: roadmap units remain held. This page grants no admission. Root reconciles live observations before selection. Baselines are not completion signals. No local PASS closes a step.\n\n| Step | State | Done-test | Main ledger state | Gates |\n| --- | --- | --- | --- | --- |\n${rows.join('\n')}\n`;
 }
 export function main(
   args,
   root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
 ) {
-  const read = (name) => fs.readFileSync(path.join(root, name), 'utf8');
+  const read = (name) =>
+    fs.readFileSync(path.join(root, name), 'utf8').replace(/\r\n/g, '\n');
   const planText = read(`${directory}/v220-steps.json`),
     ledgerText = read(`${directory}/units.json`);
   const plan = JSON.parse(planText),
@@ -219,9 +229,7 @@ export function main(
   const evidence = fs.existsSync(evidencePath)
     ? JSON.parse(fs.readFileSync(evidencePath))
     : {};
-  const inputSha = sha256(planText + ledgerText + read('package.json'));
-  if (Object.keys(evidence).length)
-    requireThat(evidence.inputSha256 === inputSha, 'Stale evidence inputs');
+  const pageSha = sha256(planText + ledgerText);
   validate(plan, ledger, root, evidence);
   const option = (name) => args[args.indexOf(name) + 1];
   if (args.includes('--gate-check')) {
@@ -242,12 +250,12 @@ export function main(
         root,
       )}`,
     );
-  const page = render(plan, ledger, inputSha, evidence),
+  const page = render(plan, ledger, pageSha, evidence),
     output = path.join(root, directory, 'V2.2.0-STEPS.md');
   if (args.includes('--write')) fs.writeFileSync(output, page);
   if (args.includes('--check'))
     requireThat(
-      fs.existsSync(output) && fs.readFileSync(output, 'utf8') === page,
+      fs.existsSync(output) && read(`${directory}/V2.2.0-STEPS.md`) === page,
       'Stale committed page',
     );
 }

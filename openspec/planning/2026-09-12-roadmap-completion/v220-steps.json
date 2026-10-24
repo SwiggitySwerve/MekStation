@@ -38,7 +38,7 @@
         {
           "status": "PROOF NOT IMPLEMENTED",
           "plannedIn": "MP-CAMPAIGN-HOST-DEDUPE-1",
-          "description": "CampaignHostRegistry.test.ts exists on #2313 only; run on exact merged main, then close."
+          "description": "The dedupe cases in CampaignHostRegistry.test.ts exist only on #2313 (main has the file without them); run on exact merged main, then close."
         }
       ],
       "scope": "Finish #2313; no match-registry redesign.",
@@ -55,7 +55,7 @@
         {
           "status": "PROOF NOT IMPLEMENTED",
           "plannedIn": "LSC-2P",
-          "description": "Installed Electron: three UI identities, reload, renewal, revoke, reclaim; artifact-bound acceptance."
+          "description": "Installed Electron: three UI identities, reload, renewal, revoke, reclaim; EVIDENCE FILE NOT YET DEFINED carrying the artifact hash."
         }
       ],
       "scope": "One installed authority; no token transfer, test activator or implied roles.",
@@ -72,7 +72,7 @@
         {
           "status": "PROOF NOT IMPLEMENTED",
           "plannedIn": "L1-SMOKE-B",
-          "description": "Combined built-server matrix including fog refusals, restart and captured rolls; A1 alone cannot pass."
+          "description": "Combined built-server matrix including fog refusals, restart and captured rolls; A1 alone cannot pass. Invocation frozen at admission."
         }
       ],
       "scope": "Proof leaves only; no containment changes.",

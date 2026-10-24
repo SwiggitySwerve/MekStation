@@ -3,17 +3,49 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+const text = (value) => typeof value === 'string' && value.trim();
+
 export const directory = 'openspec/planning/2026-09-12-roadmap-completion';
 export const sha256 = (bytes) =>
   createHash('sha256').update(bytes).digest('hex');
 export const requireThat = (condition, message) => {
   if (!condition) throw new Error(message);
 };
-export function verifyReference(root, ref) {
-  const relative = path.relative(root, path.resolve(root, ref?.path ?? ''));
+export const schemas = {
+  'step0-observation': 0,
+  'closure-rewind': 7,
+  'installer-rehearsal': 8,
+  'human-session': 8,
+  publication: 9,
+};
+export function evidenceStep(schema) {
   requireThat(
-    relative && !relative.startsWith('..') && !path.isAbsolute(relative),
-    'Evidence escapes its bundle',
+    Object.hasOwn(schemas, schema),
+    `Unknown evidence schema ${schema}`,
+  );
+  return schemas[schema];
+}
+export function stepInputSha(plan, ledger, id) {
+  const step = plan.steps.find((s) => s.id === id);
+  requireThat(step, `Unknown step ${id}`);
+  const ids =
+    id >= 7
+      ? ledger.l1ReleaseChecklist20261018.closures
+      : [...(step.units ?? []), ...(step.witnesses ?? [])];
+  const snapshot = ids.map((id) => {
+    const u = ledger.units.find((u) => u.id === id);
+    return [id, u?.state, u?.mergeSha ?? null];
+  });
+  return sha256(JSON.stringify([step, snapshot]));
+}
+export function verifyReference(root, ref, prefix = '') {
+  requireThat(
+    typeof ref?.path === 'string' &&
+      ref.path.startsWith(prefix) &&
+      !path.win32.parse(ref.path).root &&
+      !path.posix.isAbsolute(ref.path) &&
+      !ref.path.split(/[\\/]/).includes('..'),
+    'Unsafe evidence reference path',
   );
   requireThat(
     ref?.path &&
@@ -21,6 +53,10 @@ export function verifyReference(root, ref) {
       sha256(fs.readFileSync(path.resolve(root, ref.path))) === ref.sha256,
     'Missing or stale evidence reference',
   );
+}
+export function readRecord(root, ref, prefix = '') {
+  verifyReference(root, ref, prefix);
+  return JSON.parse(fs.readFileSync(path.resolve(root, ref.path)));
 }
 export function closed(unit, root) {
   const proof = unit?.stageReceipts?.mainProof;
@@ -39,40 +75,24 @@ export function closed(unit, root) {
 
 // Completeness and binding checks; Root still verifies the truth of human attestations.
 export function checkReleaseEvidence(manifest, context) {
-  const {
-    root,
-    bundle,
-    ledger,
-    plan,
-    rcSha,
-    artifacts,
-    git = execFileSync,
-  } = context;
+  const { bundle, ledger, plan, rcSha, artifacts } = context;
   requireThat(
     /^[a-f0-9]{40}$/.test(rcSha) && manifest.rcSha === rcSha,
     'Wrong candidate SHA',
   );
-  const load = (ref) => {
-    verifyReference(bundle, ref);
-    return JSON.parse(fs.readFileSync(path.resolve(bundle, ref.path)));
-  };
+  const load = (ref) => readRecord(bundle, ref);
   const records = Object.fromEntries(
-    [
-      'closure-rewind',
-      'installer-rehearsal',
-      'human-session',
-      'publication',
-    ].map((kind) => {
-      const record = load(manifest.records?.[kind]);
-      requireThat(
-        record.kind === kind && record.rcSha === rcSha,
-        `Wrong candidate or record: ${kind}`,
-      );
-      return [kind, record];
-    }),
+    Object.keys(schemas)
+      .filter((kind) => schemas[kind] >= 7)
+      .map((kind) => {
+        const record = load(manifest.records?.[kind]);
+        return [kind, record];
+      }),
   );
   requireThat(
-    new Set(Object.values(manifest.records).map((ref) => ref.path)).size === 4,
+    Object.keys(manifest.records).length === Object.keys(records).length &&
+      new Set(Object.values(manifest.records).map((ref) => ref.path)).size ===
+        Object.keys(records).length,
     'Records must be separate',
   );
   const gates = ledger.l1ReleaseChecklist20261018.checklist.map((g) => g.id);
@@ -83,13 +103,11 @@ export function checkReleaseEvidence(manifest, context) {
   );
   for (const id of gates) verifyReference(bundle, manifest.gates[id].reference);
   requireThat(
-    !plan.steps.some((s) =>
-      s.doneTests.some((p) => p.status === 'PROOF NOT IMPLEMENTED'),
-    ),
+    plan.steps.every(proofImplemented),
     'Release proof not implemented',
   );
   for (const [kind, record] of Object.entries(records))
-    checkEvidenceRecord(kind, record, { ...context, git });
+    checkEvidenceRecord(kind, record, context);
   const expected = records['installer-rehearsal'].artifacts;
   for (const kind of ['human-session', 'publication']) {
     const actual = records[kind].artifacts;
@@ -108,6 +126,9 @@ export function checkReleaseEvidence(manifest, context) {
   );
 }
 
+export const proofImplemented = (s) =>
+  !s.doneTests.some((p) => p.status) && s.doneTests.some((p) => !p.baseline);
+
 export const sameArtifacts = (expected, actual) =>
   actual &&
   Object.keys(actual).length === Object.keys(expected).length &&
@@ -115,6 +136,10 @@ export const sameArtifacts = (expected, actual) =>
 
 export function checkEvidenceRecord(kind, record, context) {
   const { root, bundle, ledger, plan, rcSha, git = execFileSync } = context;
+  requireThat(
+    record.inputSha256 === stepInputSha(plan, ledger, evidenceStep(kind)),
+    'Stale evidence inputs',
+  );
   requireThat(record.kind === kind, 'Wrong evidence schema');
   if (kind === 'step0-observation') {
     requireThat(
@@ -139,10 +164,7 @@ export function checkEvidenceRecord(kind, record, context) {
         Object.values(record.artifacts).every((h) => /^[a-f0-9]{64}$/.test(h)),
       'Missing artifact SHA256',
     );
-  const load = (ref) => {
-    verifyReference(bundle, ref);
-    return JSON.parse(fs.readFileSync(path.resolve(bundle, ref.path)));
-  };
+  const load = (ref) => readRecord(bundle, ref);
   const gates = ledger.l1ReleaseChecklist20261018.checklist.map((g) => g.id);
   const observations = (record) =>
     requireThat(
@@ -153,7 +175,7 @@ export function checkEvidenceRecord(kind, record, context) {
             /^\d{4}-\d\d-\d\dT/.test(o.timestamp) &&
             Number.isFinite(Date.parse(o.timestamp)) &&
             o.status === 'PASS' &&
-            o.description,
+            text(o.description),
         ),
       'Missing timestamped PASS observations',
     );
@@ -173,20 +195,23 @@ export function checkEvidenceRecord(kind, record, context) {
           ref?.path === `${directory}/${unit.stageReceipts.mainProof.path}`,
         `Missing closure ${id}`,
       );
-      verifyReference(root, ref);
+      verifyReference(root, ref, directory + '/');
       git('git', ['merge-base', '--is-ancestor', unit.mergeSha, rcSha], {
         cwd: root,
       });
     }
     const commands = plan.steps
       .filter((s) => [3, 5, 6].includes(s.id))
-      .flatMap((s) => s.doneTests.filter((p) => p.argv).map((p) => p.argv));
+      .flatMap((s) =>
+        s.doneTests.filter((p) => p.argv).map((p) => [s.id, p.argv]),
+      );
     const reruns = (qualification.reruns ?? []).map(load);
     requireThat(
       commands.length >= 4 &&
-        commands.every((argv) =>
+        commands.every(([id, argv]) =>
           reruns.some(
             (p) =>
+              p.inputSha256 === stepInputSha(plan, ledger, id) &&
               p.rcSha === rcSha &&
               p.verdict === 'PASS' &&
               JSON.stringify(p.argv) === JSON.stringify(argv),
@@ -194,17 +219,15 @@ export function checkEvidenceRecord(kind, record, context) {
         ),
       'Missing exact RC rerun',
     );
-    requireThat(record.rewind?.command, 'Missing rewind command');
+    requireThat(text(record.rewind?.command), 'Missing rewind command');
     observations(record.rewind);
     for (const key of ['persisted', 'broadcast', 'replay'])
       verifyReference(bundle, record.rewind[key]);
   } else if (['installer-rehearsal', 'human-session'].includes(kind)) {
     requireThat(
       record.checklist === 'playtest/checklists/coop-uat.md' &&
-        typeof record.operator?.identity === 'string' &&
-        record.operator.identity.trim() &&
-        typeof record.operator.attestation === 'string' &&
-        record.operator.attestation.trim(),
+        text(record.operator?.identity) &&
+        text(record.operator.attestation),
       'Missing operator attestation or checklist',
     );
     requireThat(
@@ -213,9 +236,7 @@ export function checkEvidenceRecord(kind, record, context) {
     );
     if (kind === 'human-session')
       requireThat(
-        record.operator.kind === 'human' &&
-          typeof record.humanAttestation === 'string' &&
-          record.humanAttestation.trim(),
+        record.operator.kind === 'human' && text(record.humanAttestation),
         'Absent human attestation; agent rehearsal cannot qualify',
       );
     observations(record);

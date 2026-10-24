@@ -9,6 +9,8 @@ import {
   checkEvidenceRecord,
   directory,
   sha256,
+  stepInputSha,
+  verifyReference,
 } from '../qc/v220-evidence.mjs';
 
 function fixture(t) {
@@ -68,7 +70,10 @@ function fixture(t) {
     ['node', 'terminal.mjs'],
   ];
   const plan = {
-    steps: Array.from({ length: 10 }, (_, id) => ({ id, doneTests: [] })),
+    steps: Array.from({ length: 10 }, (_, id) => ({
+      id,
+      doneTests: [{ argv: ['node', 'proof.mjs'] }],
+    })),
   };
   plan.steps[3].doneTests = [{ argv: commands[0] }];
   plan.steps[5].doneTests = commands.slice(1, 3).map((argv) => ({ argv }));
@@ -92,7 +97,12 @@ function fixture(t) {
       rcSha,
       closures: [{ unit: 'A', reference: closure }],
       reruns: commands.map((argv, i) =>
-        ref(`rerun-${i}.json`, { rcSha, verdict: 'PASS', argv }),
+        ref(`rerun-${i}.json`, {
+          rcSha,
+          verdict: 'PASS',
+          argv,
+          inputSha256: stepInputSha(plan, ledger, [3, 5, 5, 6][i]),
+        }),
       ),
       rewind: {
         command: 'real post-rewind dice command',
@@ -144,6 +154,12 @@ function fixture(t) {
       gateIds.map((id) => [id, { status: 'accepted', reference: raw }]),
     ),
   };
+  for (const [kind, record] of Object.entries(records))
+    record.inputSha256 = stepInputSha(
+      plan,
+      ledger,
+      kind === 'closure-rewind' ? 7 : kind === 'publication' ? 9 : 8,
+    );
   const save = () => {
     records.publication.rehearsal = ref(
       'installer-rehearsal.json',
@@ -169,6 +185,180 @@ function fixture(t) {
 test('qualified fixture promotes the exact rehearsed bytes', (t) => {
   const f = fixture(t);
   assert.doesNotThrow(() => checkReleaseEvidence(f.manifest, f.context));
+});
+
+test('record bindings ignore unrelated ledger, step and package edits', (t) => {
+  const f = fixture(t);
+  f.ledger.units.push({
+    id: 'OTHER',
+    state: 'implementing',
+    mergeSha: '2'.repeat(40),
+  });
+  f.ledger.unrelatedDecision = { status: 'new' };
+  f.plan.steps[1].scope = 'Other step';
+  fs.writeFileSync(path.join(f.root, 'package.json'), '{"version":"changed"}');
+  f.save();
+  assert.doesNotThrow(() => checkReleaseEvidence(f.manifest, f.context));
+  f.plan.steps[8].scope = 'Changed acceptance';
+  assert.throws(
+    () => checkReleaseEvidence(f.manifest, f.context),
+    /Stale evidence inputs/,
+  );
+});
+
+for (const [name, proof] of [
+  [
+    'baseline-only',
+    {
+      argv: ['node', 'proof.mjs'],
+      baseline: 'baseline, not completion signal',
+    },
+  ],
+  ['unknown status', { argv: ['node', 'proof.mjs'], status: 'MAYBE' }],
+])
+  test(`publication refuses ${name} proof`, (t) => {
+    const f = fixture(t);
+    f.plan.steps[2].doneTests = [proof];
+    assert.throws(
+      () => checkReleaseEvidence(f.manifest, f.context),
+      /Release proof not implemented/,
+    );
+  });
+
+for (const [name, mutate, error] of [
+  [
+    'missing input binding',
+    (f) => delete f.records['human-session'].inputSha256,
+    /Stale evidence inputs/,
+  ],
+  [
+    'wrong input binding',
+    (f) => (f.records['closure-rewind'].inputSha256 = '0'.repeat(64)),
+    /Stale evidence inputs/,
+  ],
+  [
+    'changed relevant merge',
+    (f) => (f.ledger.units[0].mergeSha = '2'.repeat(40)),
+    /Stale evidence inputs/,
+  ],
+  [
+    'missing artifact hashes',
+    (f) => delete f.records['installer-rehearsal'].artifacts,
+    /Missing artifact SHA256/,
+  ],
+  [
+    'invalid artifact SHA256',
+    (f) =>
+      (f.records['installer-rehearsal'].artifacts = {
+        'installer.exe': 'wrong',
+      }),
+    /Missing artifact SHA256/,
+  ],
+  [
+    'missing operator identity',
+    (f) => delete f.records['human-session'].operator.identity,
+    /operator attestation or checklist/,
+  ],
+  [
+    'missing operator attestation',
+    (f) => delete f.records['installer-rehearsal'].operator.attestation,
+    /operator attestation or checklist/,
+  ],
+  [
+    'wrong checklist',
+    (f) => (f.records['human-session'].checklist = 'obsolete.md'),
+    /operator attestation or checklist/,
+  ],
+  [
+    'missing observations',
+    (f) => (f.records['human-session'].observations = []),
+    /timestamped PASS/,
+  ],
+  [
+    'invalid observation timestamp',
+    (f) =>
+      (f.records['installer-rehearsal'].observations = [
+        { timestamp: 'invalid', status: 'PASS', description: 'x' },
+      ]),
+    /timestamped PASS/,
+  ],
+  [
+    'missing defects ledger',
+    (f) => delete f.records['human-session'].defects,
+    /Open or un-retested/,
+  ],
+  [
+    'missing defect retest',
+    (f) =>
+      (f.records['installer-rehearsal'].defects = [
+        { id: 'bug', status: 'closed' },
+      ]),
+    /Open or un-retested/,
+  ],
+  [
+    'extra unknown record',
+    (f) => (f.manifest.records.unknown = f.manifest.records.publication),
+    /Records must be separate/,
+  ],
+  [
+    'merged record paths',
+    (f) =>
+      (f.manifest.records['human-session'] =
+        f.manifest.records['installer-rehearsal']),
+    /Records must be separate/,
+  ],
+  [
+    'wrong rehearsal candidate',
+    (f) => (f.records['installer-rehearsal'].rcSha = '2'.repeat(40)),
+    /Wrong candidate/,
+  ],
+])
+  test(`record refuses ${name}`, (t) => {
+    const f = fixture(t);
+    mutate(f);
+    f.save();
+    // save() rewrites the four canonical records; apply manifest-only mutations afterward.
+    if (name === 'extra unknown record' || name === 'merged record paths')
+      mutate(f);
+    assert.throws(() => checkReleaseEvidence(f.manifest, f.context), error);
+  });
+
+test('unknown record schemas and traversal or absolute references are refused', (t) => {
+  const f = fixture(t);
+  assert.throws(
+    () => checkEvidenceRecord('unknown', {}, f.context),
+    /Unknown evidence schema/,
+  );
+  const good = f.ref('reference.txt', 'bytes');
+  verifyReference(f.bundle, good);
+  for (const value of [
+    path.join(f.bundle, 'reference.txt'),
+    '/etc/reference.txt',
+    'C:\\reference.txt',
+    'C:reference.txt',
+    '\\\\server\\share\\reference.txt',
+    '../reference.txt',
+    'nested/../reference.txt',
+    'nested\\..\\reference.txt',
+  ]) {
+    assert.throws(
+      () => verifyReference(f.bundle, { ...good, path: value }),
+      /Unsafe evidence reference path/,
+    );
+  }
+  assert.throws(
+    () => verifyReference(f.bundle, good, directory + '/'),
+    /Unsafe evidence reference path/,
+  );
+});
+
+test('reruns bind their own step inputs and argv', (t) => {
+  const f = fixture(t);
+  f.plan.steps[3].scope = 'Changed spectator proof';
+  assert.throws(
+    () => checkReleaseEvidence(f.manifest, f.context),
+    /Missing exact RC rerun/,
+  );
 });
 
 for (const [name, mutate, error] of [
@@ -209,7 +399,14 @@ for (const [name, mutate, error] of [
   ],
   [
     'unclosed ledger unit',
-    (f) => (f.ledger.units[0].state = 'planned'),
+    (f) => {
+      f.ledger.units[0].state = 'planned';
+      f.records['closure-rewind'].inputSha256 = stepInputSha(
+        f.plan,
+        f.ledger,
+        7,
+      );
+    },
     /Missing closure A/,
   ],
   [
@@ -287,13 +484,17 @@ test('reference hashes and record separation are enforced', (t) => {
   );
 });
 
-test('Step 0 observation requires both recorded in-flight deliveries', () => {
+test('Step 0 observation requires both deliveries', (t) => {
+  const f = fixture(t);
   assert.throws(
     () =>
       checkEvidenceRecord(
         'step0-observation',
-        { kind: 'step0-observation' },
-        {},
+        {
+          kind: 'step0-observation',
+          inputSha256: stepInputSha(f.plan, f.ledger, 0),
+        },
+        f.context,
       ),
     /Incomplete Step 0/,
   );

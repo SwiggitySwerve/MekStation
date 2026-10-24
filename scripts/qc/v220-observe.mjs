@@ -8,51 +8,40 @@ import { directory, requireThat } from './v220-evidence.mjs';
 export function observe(specs, root, run = execFileSync) {
   const unknown = 'UNKNOWN - DO NOT SELECT';
   try {
+    const call = (command, argv) =>
+      run(command, argv, { cwd: root, encoding: 'utf8' }).trim();
+    const git = (cwd, ...args) => call('git', ['-C', cwd, ...args]);
+    const fields = 'number,headRefName,headRefOid,url,reviewDecision';
     const prs = JSON.parse(
-      run(
-        'gh',
-        [
-          'pr',
-          'list',
-          '--state',
-          'open',
-          '--limit',
-          '1000',
-          '--json',
-          'number,headRefName,headRefOid,url',
-        ],
-        { cwd: root, encoding: 'utf8' },
-      ),
+      call('gh', [
+        'pr',
+        'list',
+        '--state=open',
+        '--limit=1000',
+        '--json=' + fields,
+      ]),
     );
     requireThat(
       specs.length > 0,
       'Explicit unit=branch=worktree observations required',
     );
-    const mainSha = run('git', ['rev-parse', 'origin/main'], {
-      cwd: root,
-      encoding: 'utf8',
-    }).trim();
+    const mainSha = git(root, 'rev-parse', 'origin/main');
     return (
       `Observed main ${mainSha}\n` +
       specs
         .map((spec) => {
           const [unit, branch, worktree] = spec.split('=');
-          const head = run('git', ['-C', worktree, 'rev-parse', 'HEAD'], {
-            encoding: 'utf8',
-          }).trim();
-          const actual = run(
-            'git',
-            ['-C', worktree, 'branch', '--show-current'],
-            { encoding: 'utf8' },
-          ).trim();
+          const head = git(worktree, 'rev-parse', 'HEAD');
+          const actual = git(worktree, 'branch', '--show-current');
           const local = JSON.parse(
             fs.readFileSync(path.join(worktree, directory, 'units.json')),
           ).units.find((u) => u.id === unit);
-          const dirt = run(
-            'git',
-            ['-C', worktree, 'status', '--porcelain', '--untracked-files=no'],
-            { encoding: 'utf8' },
-          ).trim();
+          const dirt = git(
+            worktree,
+            'status',
+            '--porcelain',
+            '--untracked-files=no',
+          );
           const receipt = local?.stageReceipts?.local;
           const missingReceipt =
             !['planned', 'blocked'].includes(local?.state) &&
@@ -67,7 +56,7 @@ export function observe(specs, root, run = execFileSync) {
             pr.length > 1 ||
             (local?.state === 'review-required' && !pr.length) ||
             (pr[0] && pr[0].headRefOid !== head);
-          return `${unit}: ${conflict ? unknown : `branch ${branch}; head ${head}; local ${local.state}; PR ${pr[0] ? `#${pr[0].number} ${pr[0].headRefOid}` : 'none'}`}`;
+          return `${unit}: ${conflict ? unknown : `branch ${branch}; head ${head}; local ${local.state}; PR ${pr[0] ? `#${pr[0].number} ${pr[0].headRefOid}; open; review ${pr[0].reviewDecision || 'pending'}` : 'none'}`}`;
         })
         .join('\n')
     );

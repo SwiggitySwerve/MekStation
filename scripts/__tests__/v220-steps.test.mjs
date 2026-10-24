@@ -7,9 +7,10 @@ import { test } from 'node:test';
 import {
   directory,
   main,
-  observe,
   render,
   sha256,
+  stepInputSha,
+  observe,
   validate,
 } from '../qc/generate-v220-steps.mjs';
 
@@ -56,6 +57,32 @@ function fixture(t) {
   save();
   return { root, plan, ledger, dir, save };
 }
+
+test('generated page stays fresh with LF or CRLF inputs and output', (t) => {
+  const f = fixture(t);
+  const files = [
+    `${directory}/v220-steps.json`,
+    `${directory}/units.json`,
+    'package.json',
+  ];
+  for (const name of files) {
+    const file = path.join(f.root, name);
+    fs.writeFileSync(
+      file,
+      JSON.stringify(JSON.parse(fs.readFileSync(file)), null, 2) + '\n',
+    );
+  }
+  main(['--write'], f.root);
+  main(['--check'], f.root);
+  for (const name of [...files, `${directory}/V2.2.0-STEPS.md`]) {
+    const file = path.join(f.root, name);
+    fs.writeFileSync(
+      file,
+      fs.readFileSync(file, 'utf8').replace(/\n/g, '\r\n'),
+    );
+  }
+  main(['--check'], f.root);
+});
 
 test('valid map; deterministic page; stale page is refused by --check', (t) => {
   const f = fixture(t);
@@ -124,7 +151,7 @@ for (const [name, mutate, error] of [
     assert.throws(() => validate(f.plan, f.ledger, f.root), error);
   });
 
-test('future proof is explicit; cannot complete without closure, gates and evidence', (t) => {
+test('future proof stays explicitly unimplemented', (t) => {
   const f = fixture(t);
   f.plan.steps[1].doneTests = [
     {
@@ -135,72 +162,329 @@ test('future proof is explicit; cannot complete without closure, gates and evide
   ];
   validate(f.plan, f.ledger, f.root);
   assert.match(render(f.plan, f.ledger, 'hash'), /NOT IMPLEMENTED/);
-  for (const step of [1, 9, 0])
-    assert.throws(
-      () =>
-        validate(f.plan, f.ledger, f.root, {
-          steps: { [step]: { state: 'complete', doneTest: 'PASS' } },
-        }),
-      /Complete without|required closures/,
-    );
 });
+
+function completeFixture(t) {
+  const f = fixture(t);
+  f.plan.steps[9].gates = [];
+  f.plan.steps[2].gates = ['gate'];
+  fs.mkdirSync(path.join(f.dir, 'evidence'), { recursive: true });
+  for (const u of f.ledger.units) {
+    u.state = 'main-verified';
+    u.mergeSha = 'a'.repeat(40);
+    u.stageReceipts = {
+      mainProof: {
+        verdict: 'PASS',
+        mergeCommit: u.mergeSha,
+        path: `evidence/${u.id}.json`,
+      },
+    };
+    fs.writeFileSync(
+      path.join(f.dir, 'evidence', `${u.id}.json`),
+      JSON.stringify({ verdict: 'PASS', mergeCommit: u.mergeSha }),
+    );
+  }
+  fs.writeFileSync(path.join(f.dir, 'evidence/ref.txt'), 'proof');
+  f.evidence = {
+    gates: { gate: { status: 'accepted' } },
+    steps: {
+      2: {
+        state: 'complete',
+        inputSha256: stepInputSha(f.plan, f.ledger, 2),
+        doneTest: 'PASS',
+        reference: {
+          path: `${directory}/evidence/ref.txt`,
+          sha256: sha256('proof'),
+        },
+      },
+    },
+  };
+  f.evidence.gates.gate.reference = { ...f.evidence.steps[2].reference };
+  return f;
+}
+
+test('a fully proven step may complete', (t) => {
+  const f = completeFixture(t);
+  validate(f.plan, f.ledger, f.root, f.evidence);
+});
+
+for (const [name, mutate, error] of [
+  [
+    'unclosed unit',
+    (f) => (f.ledger.units[1].state = 'blocked'),
+    /Complete without/,
+  ],
+  [
+    'main proof for another merge',
+    (f) =>
+      (f.ledger.units[1].stageReceipts.mainProof.mergeCommit = 'b'.repeat(40)),
+    /Complete without/,
+  ],
+  [
+    'ledger merge changed',
+    (f) => (f.ledger.units[1].mergeSha = 'b'.repeat(40)),
+    /Complete without/,
+  ],
+  [
+    'receipt file names another merge',
+    (f) =>
+      fs.writeFileSync(
+        path.join(f.dir, 'evidence/B.json'),
+        JSON.stringify({ verdict: 'PASS', mergeCommit: 'b'.repeat(40) }),
+      ),
+    /Complete without/,
+  ],
+  [
+    'gate not accepted',
+    (f) => (f.evidence.gates.gate.status = 'pending'),
+    /Complete without/,
+  ],
+  [
+    'done-test not PASS',
+    (f) => (f.evidence.steps[2].doneTest = 'FAIL'),
+    /Complete without/,
+  ],
+  [
+    'proof not implemented',
+    (f) =>
+      f.plan.steps[2].doneTests.push({
+        status: 'PROOF NOT IMPLEMENTED',
+        plannedIn: 'B',
+        description: 'x',
+      }),
+    /Complete without/,
+  ],
+  [
+    'baseline only',
+    (f) =>
+      (f.plan.steps[2].doneTests = [
+        {
+          argv: ['node', 'proof.mjs'],
+          baseline: 'baseline, not completion signal',
+        },
+      ]),
+    /Complete without/,
+  ],
+  [
+    'missing reference',
+    (f) => delete f.evidence.steps[2].reference,
+    /Complete without/,
+  ],
+  [
+    'stale reference',
+    (f) => (f.evidence.steps[2].reference.sha256 = sha256('other')),
+    /stale evidence reference/,
+  ],
+])
+  test(`complete refused: ${name}`, (t) => {
+    const f = completeFixture(t);
+    mutate(f);
+    assert.throws(() => validate(f.plan, f.ledger, f.root, f.evidence), error);
+  });
 
 test('hash-bound evidence cannot be stale', (t) => {
   const f = fixture(t);
   fs.writeFileSync(
     path.join(f.dir, 'v220-step-evidence.json'),
-    JSON.stringify({ inputSha256: sha256('wrong') }),
+    JSON.stringify({ steps: { 1: { inputSha256: sha256('wrong') } } }),
   );
   assert.throws(() => main(['--write'], f.root), /Stale evidence/);
 });
 
-test('npm scripts cannot hide a missing file target, and node targets need no extension', (t) => {
+test('step evidence survives unrelated ledger and package edits', (t) => {
   const f = fixture(t);
+  const evidence = {
+    steps: {
+      1: {
+        state: 'execution only',
+        doneTest: 'NOT RUN',
+        inputSha256: stepInputSha(f.plan, f.ledger, 1),
+      },
+    },
+  };
+  fs.writeFileSync(
+    path.join(f.dir, 'v220-step-evidence.json'),
+    JSON.stringify(evidence),
+  );
+  main(['--write'], f.root);
+  f.ledger.units.push({
+    id: 'UNRELATED',
+    state: 'planned',
+    mergeSha: 'a'.repeat(40),
+  });
+  f.plan.steps[9].scope = 'Unrelated scope edit';
+  f.save();
   fs.writeFileSync(
     path.join(f.root, 'package.json'),
-    JSON.stringify({ scripts: { test: 'node scripts/absent.mjs' } }),
+    '{"scripts":{"changed":"other"}}',
   );
-  f.plan.steps[0].doneTests = [{ argv: ['npm', 'run', 'test'] }];
+  main(['--write'], f.root);
+  main(['--check'], f.root);
+  f.ledger.units[0].mergeSha = 'b'.repeat(40);
+  f.save();
   assert.throws(
-    () => validate(f.plan, f.ledger, f.root),
-    /Missing command target scripts\/absent.mjs/,
-  );
-  f.plan.steps[0].doneTests = [{ argv: ['node', 'absent'] }];
-  assert.throws(
-    () => validate(f.plan, f.ledger, f.root),
-    /Missing command target absent/,
+    () => main(['--write'], f.root),
+    /Stale evidence inputs: step 1/,
   );
 });
 
-test('observation fails closed on missing access, branch or PR head conflict', (t) => {
+test('unknown and misplaced evidence schema names fail closed', (t) => {
+  const f = fixture(t);
+  f.plan.steps[0].doneTests = [{ kind: 'evidence', schema: 'imaginary' }];
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Unknown evidence schema/,
+  );
+  f.plan.steps[0].doneTests[0].schema = 'human-session';
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Misplaced evidence schema/,
+  );
+});
+
+test('observer reads supplied worktrees and refuses missing or conflicting observations', (t) => {
   const f = fixture(t);
   const run = (command, argv) =>
     command === 'gh'
       ? JSON.stringify([
-          { number: 1, headRefName: 'topic', headRefOid: 'head' },
+          {
+            number: 2313,
+            headRefName: 'topic',
+            headRefOid: 'head',
+            reviewDecision: 'REVIEW_REQUIRED',
+          },
         ])
       : argv.includes('status')
         ? ''
         : argv.includes('HEAD')
-          ? 'head\n'
-          : 'topic\n';
-  assert.match(observe(['A=topic=' + f.root], f.root, run), /PR #1 head/);
+          ? 'head'
+          : argv.includes('origin/main')
+            ? 'main'
+            : 'topic';
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, run),
+    /PR #2313 head; open; review REVIEW_REQUIRED/,
+  );
   assert.match(
     observe(['A=wrong=' + f.root], f.root, run),
     /UNKNOWN - DO NOT SELECT/,
   );
   assert.match(
     observe(['A=topic=' + f.root], f.root, (cmd, argv) =>
-      cmd === 'gh'
-        ? '[{"headRefName":"topic","headRefOid":"changed"}]'
-        : run(cmd, argv),
+      argv.includes('HEAD') ? 'changed' : run(cmd, argv),
     ),
     /UNKNOWN - DO NOT SELECT/,
   );
   assert.match(
-    observe([], f.root, () => {
+    observe(['A=topic=' + f.root], f.root, (cmd, argv) =>
+      argv.includes('status') ? ' M tracked-file' : run(cmd, argv),
+    ),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  f.ledger.units[0].state = 'local-verified';
+  f.save();
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, run),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  assert.match(observe([], f.root, run), /UNKNOWN - DO NOT SELECT/);
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, () => {
       throw Error('offline');
     }),
     /UNKNOWN - DO NOT SELECT/,
   );
 });
+
+test('reject open witness', (t) => {
+  const f = fixture(t);
+  f.plan.steps[1].units = [];
+  f.plan.steps[1].witnesses = ['A'];
+  assert.throws(() => validate(f.plan, f.ledger, f.root), /Open witness A/);
+});
+
+test('package.json edits alone do not stale the page', (t) => {
+  const f = fixture(t);
+  main(['--write'], f.root);
+  fs.writeFileSync(
+    path.join(f.root, 'package.json'),
+    '{"scripts":{"test":"node proof.mjs","other":"x"}}',
+  );
+  main(['--check'], f.root);
+});
+
+test('adopted budgets and gate placement stay fixed', () => {
+  const plan = JSON.parse(
+    fs.readFileSync(path.join(directory, 'v220-steps.json')),
+  );
+  assert.deepEqual(
+    plan.steps.map((s) => [s.prBudget, s.gates]),
+    [
+      [2, []],
+      [2, []],
+      [8, []],
+      [10, ['built-server-spectator-smoke']],
+      [16, []],
+      [4, []],
+      [2, ['three-context-entry']],
+      [1, ['closures', 'automated-rc', 'live-gm-rewind-dice']],
+      [1, ['installer-rehearsal', 'human-session']],
+      [1, ['release-notes']],
+    ],
+  );
+});
+
+test('duplicate gate cannot replace an omitted gate', (t) => {
+  const f = fixture(t);
+  f.ledger.l1ReleaseChecklist20261018.checklist.push({ id: 'other' });
+  f.plan.steps[9].gates = ['gate', 'gate'];
+  assert.throws(
+    () => validate(f.plan, f.ledger, f.root),
+    /Unmapped or unknown gates/,
+  );
+});
+
+test('closed predecessors can appear in later historical display groups', (t) => {
+  const f = completeFixture(t);
+  f.plan.steps[1].units = ['B'];
+  f.plan.steps[2].units = ['A'];
+  f.evidence.steps[2].inputSha256 = stepInputSha(f.plan, f.ledger, 2);
+  validate(f.plan, f.ledger, f.root, f.evidence);
+});
+
+test('registration20261016 predecessors constrain execution order', (t) => {
+  const f = fixture(t);
+  f.ledger.units[1].predecessors = [];
+  f.ledger.units[1].registration20261016 = { predecessors: ['A'] };
+  f.plan.steps[1].units = ['B'];
+  f.plan.steps[2].units = ['A'];
+  assert.throws(() => validate(f.plan, f.ledger, f.root), /Predecessor order/);
+});
+
+for (const [name, mutate, error] of [
+  ['step count', (p) => p.steps.pop(), /Expected steps/],
+  ['step budget', (p) => (p.steps[0].prBudget = 0), /Invalid step/],
+  [
+    'proof owner',
+    (p) =>
+      (p.steps[0].doneTests = [
+        { status: 'PROOF NOT IMPLEMENTED', description: 'x' },
+      ]),
+    /Missing proof owner/,
+  ],
+  [
+    'evidence schema',
+    (p) => (p.steps[0].doneTests = [{ kind: 'evidence' }]),
+    /Missing evidence schema/,
+  ],
+  [
+    'command interpreter',
+    (p) => (p.steps[0].doneTests = [{ argv: ['python', 'proof.mjs'] }]),
+    /Unsupported command/,
+  ],
+])
+  test(`reject malformed ${name}`, (t) => {
+    const f = fixture(t);
+    mutate(f.plan);
+    assert.throws(() => validate(f.plan, f.ledger, f.root), error);
+  });
