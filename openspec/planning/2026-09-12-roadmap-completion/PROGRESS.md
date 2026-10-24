@@ -1,3 +1,18 @@
+## 2026-10-24 tsrs HOLD lift and follow-up registration (docs only)
+
+Recorded the owner's lift of the tsrs HOLD (owner-decisions-20261024b.md item 1) as the dated `holdLiftAmendment20261024`. `stepPlanDecision20261024` is retained unchanged; GOAL.md:10, DELIVERY.md:10 and the V2.2.0-STEPS.md header source (generate-v220-steps.mjs) now say the HOLD was lifted and the Windows tsrs re-run is advisory.
+
+Registered five blocked follow-up units ([evidence](evidence/root-registration-20261024.json), SHA-256 14b921526326fa60751b2a7c9cf87f77e4511799a213cfc1dbca1bc855f65e82) on 1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a; none is admitted and --next is unchanged:
+
+- LSC-GM-REMOVE-1: the GM remove-member control (Q8, owner decision 4). It must land before the v2.2.0 human session; Root adds its closure and step placement in the next step-plan change, because v220-steps.json is outside this PR.
+- MP-CAMPAIGN-HOST-LIFECYCLE-1: CF-MPCHD-1..5.
+- MP-REWIND-DICE-2: CF-MPRD-4 and CF-MPRD-5.
+- LSC-CONSOLIDATE-1: CF-LSC2C-2R and CF-LSC2-L1-DUP, then LSC-STORE-RULES-1: CF-LSC2-STORE-RULES and the IDENTITY_CHANGED recovery gap.
+
+P2CG1H and P2CG2 gain one admission note for CF-MPCHD-5. No unit state, receipt, cap, ownership entry or closed-unit record changes. L1 closure accounting stays at 46.
+
+---
+
 ## 2026-10-20 LSC-2OP main-verified; only LSC-2 released
 
 #2309 merged at 0372f9d1dc51af9b463f93b2d9e2151892b8a0e1, ruled head 34cb0eb1e15805267c25ffcbe48ed5f3df8e241b; Opus reviewed 05da7d97b71e7fdb3617bd060af0c07de4cc6964 as REQUEST CHANGES. Root diffed the single F1/F2/T1/F3/F5 fix commit, accepted it in live comment6300739754 and merged after32/32 exact-head CI. No second full review or revised Opus verdict is claimed.

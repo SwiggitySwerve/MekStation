@@ -1,13 +1,13 @@
 # Delivery, verification, and cleanup contract
 > **Status:** Active; named CNI0 bootstrap only
 > **Created:** 2026-09-15
-> **Updated:** 2026-10-17
+> **Updated:** 2026-10-24
 
 This roadmap is authorized by the user's 2026-09-12 request for implementation, verification, incremental PRs, merging, cleanup, and completion. The parent owns decomposition, integration, acceptance, and Git delivery. Workers own only their assigned files or evidence question.
 
 ## One bounded change at a time
 
-For L1/v2.2.0 selection and WIP, follow GOAL.md and `stepPlanDecision20261024`; [V2.2.0-STEPS.md](V2.2.0-STEPS.md) is generated from the separate step map. Outside L1 the existing selection rule below remains unchanged. The tsrs HOLD remains in force.
+For L1/v2.2.0 selection and WIP, follow GOAL.md and `stepPlanDecision20261024`; [V2.2.0-STEPS.md](V2.2.0-STEPS.md) is generated from the separate step map. Outside L1 the existing selection rule below remains unchanged. The tsrs HOLD was lifted for roadmap units on 2026-10-24 (`holdLiftAmendment20261024`); the Windows tsrs re-run is advisory, not a gate.
 
 1. Admit the next slice from `roadmap.json`: verify dependencies against current source, the active package, required predecessor receipts, and fetched `origin/main`. Capture the exact baseline commit, file ownership, intended behavior, and acceptance command. Inspect open PRs and existing worktree ownership before starting another worker.
 2. Resolve missing or contradictory requirements in a small spec change before implementation. A roadmap is not an apply-ready OpenSpec delta. Existing product/package task/PR caps still apply; use the stricter applicable cap if product packages overlap. The named native ordinary planning/correction/evidence tasks use registration.planningSizing instead of default or stricter manual aggregate addition ceilings; finite file scope and all executable canonical-unit/product contracts remain. Default new slices target one behavior, no more than 15 files and 500 non-generated changed lines; those 500 are product lines only, and test lines are reported separately and never count (owner decision OD-line-cap-product-lines, 2026-09-23). The cap counting rule (U41): a unit's counted lines are the added lines `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` reports (the squash commit against its parent on main), skipping the ledger's evidence/ directory, generated files (package-lock.json, .next/, __snapshots__/ and *.snap, public/data/, src/types/contracts/generated/) and test files (__tests__/, e2e/, *.test.* and *.spec.*), and `validate-roadmap.mjs --git` fails a unit whose count exceeds its `caps.maxNonGeneratedLines` unless its `capException.countedLines` records that exact count. The history/effect packages explicitly permit 1000 lines; that is a ceiling, not a target. Split larger work into buildable prefixes with no forward dependency.
