@@ -10,7 +10,8 @@ export function observe(specs, root, run = execFileSync) {
   try {
     const call = (command, argv) =>
       run(command, argv, { cwd: root, encoding: 'utf8' }).trim();
-    const git = (cwd, ...args) => call('git', ['-C', cwd, ...args]);
+    const git = (cwd, ...args) =>
+      call('git', ['--no-optional-locks', '-C', cwd, ...args]);
     const fields = 'number,headRefName,headRefOid,url,reviewDecision';
     const prs = JSON.parse(
       call('gh', [
@@ -44,7 +45,7 @@ export function observe(specs, root, run = execFileSync) {
           );
           const receipt = local?.stageReceipts?.local;
           const missingReceipt =
-            !['planned', 'blocked'].includes(local?.state) &&
+            local?.state !== 'blocked' &&
             (!receipt?.path ||
               !fs.existsSync(path.join(worktree, directory, receipt.path)));
           const pr = prs.filter((p) => p.headRefName === branch);

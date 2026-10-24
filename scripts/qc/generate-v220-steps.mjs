@@ -164,7 +164,7 @@ export function validate(plan, ledger, root, evidence = {}) {
         bundle: path.dirname(path.resolve(root, ref.path)),
         ledger,
         plan,
-        rcSha: record.rcSha,
+        rcSha: evidence.rcSha,
       });
     }
     if (manual['installer-rehearsal'])
@@ -242,6 +242,7 @@ export function main(
       rcSha: option('--candidate-sha'),
       artifacts: option('--artifacts'),
     });
+    console.log(`V2.2 GATE PASSED ${option('--candidate-sha')}`);
   }
   if (args.includes('--observe'))
     console.log(

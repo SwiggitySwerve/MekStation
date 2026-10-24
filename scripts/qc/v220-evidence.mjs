@@ -19,10 +19,7 @@ export const schemas = {
   publication: 9,
 };
 export function evidenceStep(schema) {
-  requireThat(
-    Object.hasOwn(schemas, schema),
-    `Unknown evidence schema ${schema}`,
-  );
+  requireThat(Object.hasOwn(schemas, schema), 'Unknown evidence schema');
   return schemas[schema];
 }
 export function stepInputSha(plan, ledger, id) {
@@ -49,6 +46,8 @@ export function verifyReference(root, ref, prefix = '') {
   );
   requireThat(
     ref?.path &&
+      fs.realpathSync(path.resolve(root, ref.path)) ===
+        path.resolve(fs.realpathSync(root), ref.path) &&
       /^[a-f0-9]{64}$/.test(ref.sha256) &&
       sha256(fs.readFileSync(path.resolve(root, ref.path))) === ref.sha256,
     'Missing or stale evidence reference',
@@ -84,10 +83,7 @@ export function checkReleaseEvidence(manifest, context) {
   const records = Object.fromEntries(
     Object.keys(schemas)
       .filter((kind) => schemas[kind] >= 7)
-      .map((kind) => {
-        const record = load(manifest.records?.[kind]);
-        return [kind, record];
-      }),
+      .map((kind) => [kind, load(manifest.records?.[kind])]),
   );
   requireThat(
     Object.keys(manifest.records).length === Object.keys(records).length &&
@@ -180,16 +176,15 @@ export function checkEvidenceRecord(kind, record, context) {
       'Missing timestamped PASS observations',
     );
   if (kind === 'closure-rewind') {
-    const qualification = record;
     const ids = ledger.l1ReleaseChecklist20261018.closures;
     requireThat(
-      qualification.closures?.length === ids.length &&
-        new Set(qualification.closures.map((c) => c.unit)).size === ids.length,
+      record.closures?.length === ids.length &&
+        new Set(record.closures.map((c) => c.unit)).size === ids.length,
       'Missing closure references',
     );
     for (const id of ids) {
       const unit = ledger.units.find((u) => u.id === id);
-      const ref = qualification.closures.find((c) => c.unit === id)?.reference;
+      const ref = record.closures.find((c) => c.unit === id)?.reference;
       requireThat(
         closed(unit, root) &&
           ref?.path === `${directory}/${unit.stageReceipts.mainProof.path}`,
@@ -205,7 +200,7 @@ export function checkEvidenceRecord(kind, record, context) {
       .flatMap((s) =>
         s.doneTests.filter((p) => p.argv).map((p) => [s.id, p.argv]),
       );
-    const reruns = (qualification.reruns ?? []).map(load);
+    const reruns = (record.reruns ?? []).map(load);
     requireThat(
       commands.length >= 4 &&
         commands.every(([id, argv]) =>
@@ -225,11 +220,12 @@ export function checkEvidenceRecord(kind, record, context) {
       verifyReference(bundle, record.rewind[key]);
   } else if (['installer-rehearsal', 'human-session'].includes(kind)) {
     requireThat(
-      record.checklist === 'playtest/checklists/coop-uat.md' &&
+      record.checklist?.path === 'playtest/checklists/coop-uat.md' &&
         text(record.operator?.identity) &&
         text(record.operator.attestation),
       'Missing operator attestation or checklist',
     );
+    verifyReference(root, record.checklist);
     requireThat(
       ['human', 'agent'].includes(record.operator.kind),
       'Missing operator kind',
@@ -276,14 +272,14 @@ export function checkEvidenceRecord(kind, record, context) {
       'utf8',
     );
     for (const limit of [
-      /same-host/i,
-      /loopback/i,
-      /no[^\n]*proxy[^\n]*tunnel/i,
-      /Docker[^\n]*HOSTNAME[^\n]*refus/i,
-      /unsupported[^\n]*host/i,
-      /fog-of-war is unavailable in multiplayer in this release/i,
-      /co-op sessions are currently listed in the lobby browser to other users of the same server \(fixed by B15-PRIV\)/i,
+      'The server enforces loopback binding.',
+      'Do not expose the port through a reverse proxy or tunnel.',
+      'Remote play is not a supported configuration in this release.',
+      "fail the server's HOSTNAME admission check",
+      'Docker hosting is unsupported',
+      'fog-of-war is unavailable in multiplayer in this release',
+      'co-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)',
     ])
-      requireThat(limit.test(notes), 'Missing release-note limit');
+      requireThat(notes.includes(limit), 'Missing release-note limit');
   } else throw new Error('Unknown evidence schema');
 }

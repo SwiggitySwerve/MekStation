@@ -361,6 +361,10 @@ test('observer reads supplied worktrees and refuses missing or conflicting obser
           : argv.includes('origin/main')
             ? 'main'
             : 'topic';
+  f.ledger.units[0].state = 'local-verified';
+  f.ledger.units[0].stageReceipts = { local: { path: 'local.json' } };
+  fs.writeFileSync(path.join(f.dir, 'local.json'), '{}');
+  f.save();
   assert.match(
     observe(['A=topic=' + f.root], f.root, run),
     /PR #2313 head; open; review REVIEW_REQUIRED/,
@@ -381,7 +385,12 @@ test('observer reads supplied worktrees and refuses missing or conflicting obser
     ),
     /UNKNOWN - DO NOT SELECT/,
   );
-  f.ledger.units[0].state = 'local-verified';
+  fs.rmSync(path.join(f.dir, 'local.json'));
+  assert.match(
+    observe(['A=topic=' + f.root], f.root, run),
+    /UNKNOWN - DO NOT SELECT/,
+  );
+  f.ledger.units[0].state = 'planned';
   f.save();
   assert.match(
     observe(['A=topic=' + f.root], f.root, run),

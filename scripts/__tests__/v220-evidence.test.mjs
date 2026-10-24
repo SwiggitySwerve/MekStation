@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { validate } from '../qc/generate-v220-steps.mjs';
 import {
   checkReleaseEvidence,
   checkEvidenceRecord,
@@ -28,6 +30,11 @@ function fixture(t) {
   };
   const ref = (name, value) => write(bundle, name, value);
   const raw = ref('rewind.txt', 'persisted broadcast replay observed');
+  const checklist = write(
+    root,
+    'playtest/checklists/coop-uat.md',
+    'three-seat script',
+  );
   const closure = write(root, `${directory}/evidence/a.json`, {
     unit: 'A',
     verdict: 'PASS',
@@ -89,7 +96,7 @@ function fixture(t) {
   write(artifacts, 'installer.exe', 'exact rehearsed bytes');
   const notes = ref(
     'release-notes.md',
-    'same-host loopback; no remote proxy or tunnel support\nDocker HOSTNAME admission refusal; unsupported hosting\nfog-of-war is unavailable in multiplayer in this release\nco-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)\n',
+    "The server enforces loopback binding. Do not expose the port through a reverse proxy or tunnel. Remote play is not a supported configuration in this release.\nCurrent Docker configurations fail the server's HOSTNAME admission check. Docker hosting is unsupported.\nfog-of-war is unavailable in multiplayer in this release\nco-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)\n",
   );
   const records = {
     'closure-rewind': {
@@ -120,7 +127,7 @@ function fixture(t) {
         kind: 'agent',
         attestation: 'Rehearsed the specified artifact',
       },
-      checklist: 'playtest/checklists/coop-uat.md',
+      checklist,
       artifacts: hashes,
       observations,
       defects: [],
@@ -134,7 +141,7 @@ function fixture(t) {
         attestation: 'One person drove three seats',
       },
       humanAttestation: 'I personally completed these actions',
-      checklist: 'playtest/checklists/coop-uat.md',
+      checklist,
       artifacts: { ...hashes },
       observations,
       defects: [],
@@ -503,7 +510,9 @@ test('Step 0 observation requires both deliveries', (t) => {
 test('workflow gates tagged commit before publication and permits private builds', () => {
   const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
   assert.match(workflow, /candidate_only/);
-  assert.match(workflow, /--candidate-sha "\$\(git rev-parse HEAD\)"/);
+  assert.match(workflow, /RC="\$\(git rev-parse HEAD\)"/);
+  assert.match(workflow, /grep -Fx "V2\.2 GATE PASSED \$RC"/);
+  assert.match(workflow, /head_repository\.full_name/);
   assert.match(workflow, /qualification\/artifacts\/\*/);
   assert.match(workflow, /actions: read/);
   assert.ok(
@@ -513,5 +522,345 @@ test('workflow gates tagged commit before publication and permits private builds
   assert.match(
     workflow,
     /!startsWith\(needs.release-context.outputs.tag, 'v2\.2\.'\)/,
+  );
+});
+
+// Review regression fixtures (PR #2322 review).
+
+const H = 'human-session',
+  R = 'installer-rehearsal',
+  C = 'closure-rewind',
+  P = 'publication';
+const rerun = (f, i) =>
+  JSON.parse(fs.readFileSync(path.join(f.bundle, `rerun-${i}.json`)));
+const notesText = (f) =>
+  fs.readFileSync(path.join(f.bundle, 'release-notes.md'), 'utf8');
+for (const [name, mutate, error, after] of [
+  [
+    'relevant unit state changed',
+    (f) => (f.ledger.units[0].state = 'archived'),
+    /Stale evidence inputs/,
+  ],
+  [
+    'gate pending',
+    () => {},
+    /Missing accepted gate/,
+    (f) => (f.manifest.gates.closures.status = 'pending'),
+  ],
+  [
+    'gate reference stale',
+    () => {},
+    /stale evidence/,
+    (f) =>
+      (f.manifest.gates.closures.reference = {
+        ...f.manifest.gates.closures.reference,
+        sha256: '0'.repeat(64),
+      }),
+  ],
+  [
+    'human-session hashes differ',
+    (f) => (f.records[H].artifacts = { 'installer.exe': '3'.repeat(64) }),
+    /Mismatched artifact hashes/,
+  ],
+  [
+    'rehearsed file absent',
+    (f) => fs.rmSync(path.join(f.artifacts, 'installer.exe')),
+    /Published bytes differ/,
+  ],
+  [
+    'human file holds rehearsal kind',
+    (f) => (f.records[H].kind = R),
+    /Wrong evidence schema/,
+  ],
+  [
+    'empty artifacts',
+    (f) => {
+      for (const k of [R, H, P]) f.records[k].artifacts = {};
+    },
+    /Missing artifact SHA256/,
+  ],
+  [
+    'non-ISO timestamp',
+    (f) =>
+      (f.records[R].observations = [
+        { timestamp: '1', status: 'PASS', description: 'x' },
+      ]),
+    /timestamped PASS/,
+  ],
+  [
+    'impossible timestamp',
+    (f) =>
+      (f.records[R].observations = [
+        { timestamp: '2026-13-45T00:00:00Z', status: 'PASS', description: 'x' },
+      ]),
+    /timestamped PASS/,
+  ],
+  [
+    'FAIL observation',
+    (f) =>
+      (f.records[H].observations = [
+        { ...f.records[H].observations[0], status: 'FAIL' },
+      ]),
+    /timestamped PASS/,
+  ],
+  [
+    'blank observation',
+    (f) =>
+      (f.records[H].observations = [
+        { ...f.records[H].observations[0], description: ' ' },
+      ]),
+    /timestamped PASS/,
+  ],
+  [
+    'closure reference to another file',
+    (f) => (f.records[C].closures[0].reference = f.ref('other.json', '{}')),
+    /Missing closure A/,
+  ],
+  [
+    'closure reference stale',
+    (f) =>
+      (f.records[C].closures[0].reference = {
+        ...f.records[C].closures[0].reference,
+        sha256: '0'.repeat(64),
+      }),
+    /stale evidence/,
+  ],
+  [
+    'rerun on another candidate',
+    (f) =>
+      (f.records[C].reruns[0] = f.ref('rerun-0.json', {
+        ...rerun(f, 0),
+        rcSha: '2'.repeat(40),
+      })),
+    /Missing exact RC rerun/,
+  ],
+  [
+    'failed rerun',
+    (f) =>
+      (f.records[C].reruns[0] = f.ref('rerun-0.json', {
+        ...rerun(f, 0),
+        verdict: 'FAIL',
+      })),
+    /Missing exact RC rerun/,
+  ],
+  [
+    'rerun repeats one argv',
+    (f) => (f.records[C].reruns[2] = f.ref('rerun-2.json', rerun(f, 1))),
+    /Missing exact RC rerun/,
+  ],
+  [
+    'rewind without observations',
+    (f) => (f.records[C].rewind.observations = []),
+    /timestamped PASS/,
+  ],
+  [
+    'rewind without replay',
+    (f) => delete f.records[C].rewind.replay,
+    /Unsafe evidence reference path/,
+  ],
+  [
+    'unknown operator kind',
+    (f) => (f.records[R].operator.kind = 'robot'),
+    /Missing operator kind/,
+  ],
+  [
+    'open defect with retest',
+    (f) =>
+      (f.records[R].defects = [
+        {
+          id: 'd',
+          status: 'open',
+          retest: {
+            timestamp: '2026-10-24T00:00:00Z',
+            reference: f.ref('retest.txt', 'r'),
+          },
+        },
+      ]),
+    /Open or un-retested/,
+  ],
+  [
+    'closed defect without retest time',
+    (f) =>
+      (f.records[R].defects = [
+        {
+          id: 'd',
+          status: 'closed',
+          retest: { reference: f.ref('retest.txt', 'r') },
+        },
+      ]),
+    /Open or un-retested/,
+  ],
+  [
+    'retest reference stale',
+    (f) =>
+      (f.records[R].defects = [
+        {
+          id: 'd',
+          status: 'closed',
+          retest: {
+            timestamp: '2026-10-24T00:00:00Z',
+            reference: { ...f.ref('retest.txt', 'r'), sha256: '0'.repeat(64) },
+          },
+        },
+      ]),
+    /stale evidence/,
+  ],
+  [
+    'notes checked from another file',
+    (f) => (f.records[P].releaseNotes = f.ref('notes.md', notesText(f))),
+    /Wrong release-note file/,
+  ],
+  [
+    'duplicate accepted gate',
+    (f) =>
+      (f.records[P].acceptedGates = [
+        ...f.records[P].acceptedGates.slice(0, 7),
+        'closures',
+      ]),
+    /Publication gates differ/,
+  ],
+  [
+    'notes reference stale',
+    (f) =>
+      (f.records[P].releaseNotes = {
+        path: 'release-notes.md',
+        sha256: '0'.repeat(64),
+      }),
+    /stale evidence/,
+  ],
+  [
+    'affirmative contradiction of the limits',
+    (f) =>
+      (f.records[P].releaseNotes = f.ref(
+        'release-notes.md',
+        'Now supports remote proxy and tunnel hosting; same-host loopback optional. Docker HOSTNAME refusal removed; unsupported hosts: none.\nfog-of-war is unavailable in multiplayer in this release\nco-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)\n',
+      )),
+    /Missing release-note limit/,
+  ],
+  ...[
+    'loopback binding',
+    'reverse proxy or tunnel',
+    'Remote play',
+    'HOSTNAME admission',
+    'Docker hosting',
+    'fog-of-war',
+    'B15-PRIV',
+  ].map((word) => [
+    `notes omit "${word}"`,
+    (f) =>
+      (f.records[P].releaseNotes = f.ref(
+        'release-notes.md',
+        notesText(f).split(word).join('XX'),
+      )),
+    /Missing release-note limit/,
+  ]),
+  [
+    'session against changed checklist bytes',
+    () => {},
+    /stale evidence/,
+    (f) =>
+      fs.writeFileSync(
+        path.join(f.root, 'playtest/checklists/coop-uat.md'),
+        'stale two-window script',
+      ),
+  ],
+])
+  test(`review refuses ${name}`, (t) => {
+    const f = fixture(t);
+    mutate(f);
+    f.save();
+    after?.(f);
+    assert.throws(() => checkReleaseEvidence(f.manifest, f.context), error);
+  });
+
+test('review: references cannot traverse a junction or symlink out of the bundle', (t) => {
+  const f = fixture(t);
+  const outside = path.join(f.root, 'outside');
+  fs.mkdirSync(outside);
+  fs.writeFileSync(path.join(outside, 'secret.txt'), 'outside bytes');
+  fs.symlinkSync(outside, path.join(f.bundle, 'jdir'), 'junction');
+  assert.throws(
+    () =>
+      verifyReference(f.bundle, {
+        path: 'jdir/secret.txt',
+        sha256: sha256('outside bytes'),
+      }),
+    /Missing or stale evidence reference/,
+  );
+});
+
+test('review: gate-check CLI refuses a missing bundle without the pass sentinel', () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      'scripts/qc/generate-v220-steps.mjs',
+      '--gate-check',
+      '--candidate-sha',
+      '1'.repeat(40),
+      '--evidence',
+      path.join(os.tmpdir(), 'v220-missing', 'evidence.json'),
+      '--artifacts',
+      os.tmpdir(),
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.notEqual(result.status, 0);
+  assert.doesNotMatch(result.stdout, /GATE PASSED/);
+});
+
+test('review: owner-page records must share the page candidate', (t) => {
+  const f = fixture(t);
+  const plan = {
+    steps: Array.from({ length: 10 }, (_, id) => ({
+      id,
+      name: 's',
+      scope: 's',
+      prBudget: 1,
+      userVisible: false,
+      units: [],
+      witnesses: [],
+      gates: [],
+      doneTests: [{ argv: ['node', 'proof.mjs'] }],
+    })),
+  };
+  plan.steps[1].units = ['A'];
+  plan.steps[9].gates = f.ledger.l1ReleaseChecklist20261018.checklist.map(
+    (g) => g.id,
+  );
+  plan.steps[8].doneTests = [
+    { kind: 'evidence', schema: R },
+    { kind: 'evidence', schema: H },
+  ];
+  fs.writeFileSync(path.join(f.root, 'proof.mjs'), '');
+  const dir = path.join(f.root, directory, 'evidence');
+  const put = (name, value) => {
+    const bytes = typeof value === 'string' ? value : JSON.stringify(value);
+    fs.writeFileSync(path.join(dir, name), bytes);
+    return { path: `${directory}/evidence/${name}`, sha256: sha256(bytes) };
+  };
+  const record = (kind, rcSha) => ({
+    ...f.records[kind],
+    rcSha,
+    inputSha256: stepInputSha(plan, f.ledger, 8),
+  });
+  const evidence = (humanSha) => ({
+    rcSha: '1'.repeat(40),
+    steps: {
+      8: {
+        state: 'complete',
+        doneTest: 'PASS',
+        inputSha256: stepInputSha(plan, f.ledger, 8),
+        reference: put('s8.txt', 'ok'),
+        records: {
+          [R]: put('r.json', record(R, '1'.repeat(40))),
+          [H]: put('h.json', record(H, humanSha)),
+        },
+      },
+    },
+  });
+  validate(plan, f.ledger, f.root, evidence('1'.repeat(40)));
+  assert.throws(
+    () => validate(plan, f.ledger, f.root, evidence('2'.repeat(40))),
+    /Wrong candidate SHA/,
   );
 });

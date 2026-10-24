@@ -517,7 +517,10 @@ jobs:
         if: startsWith(needs.release-context.outputs.tag, 'v2.2.')
         env:
           QUALIFICATION_RUN: ${{ inputs.qualification_run_id }}
-        run: '[[ "$QUALIFICATION_RUN" =~ ^[1-9][0-9]*$ ]]'
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [[ "$QUALIFICATION_RUN" =~ ^[1-9][0-9]*$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$QUALIFICATION_RUN" --jq '"\(.head_sha) \(.head_repository.full_name) \(.conclusion)"' | grep -Fx "$(git rev-parse HEAD) $GITHUB_REPOSITORY success"
 
       - name: Download rehearsed v2.2 artifacts and evidence
         if: startsWith(needs.release-context.outputs.tag, 'v2.2.')
@@ -602,9 +605,9 @@ jobs:
       - name: Refuse unqualified v2.2 publication on the tagged commit
         if: startsWith(needs.release-context.outputs.tag, 'v2.2.')
         run: |
-          node scripts/qc/generate-v220-steps.mjs --gate-check \
-            --candidate-sha "$(git rev-parse HEAD)" \
-            --evidence qualification/evidence.json --artifacts qualification/artifacts
+          RC="$(git rev-parse HEAD)"
+          node scripts/qc/generate-v220-steps.mjs --gate-check --candidate-sha "$RC" \
+            --evidence qualification/evidence.json --artifacts qualification/artifacts | grep -Fx "V2.2 GATE PASSED $RC"
           cp qualification/release-notes.md release-notes.md
 
       - name: Create Release
