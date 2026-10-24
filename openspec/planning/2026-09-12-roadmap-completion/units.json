@@ -9817,7 +9817,8 @@
         "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
         "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
         "src/pages-modules/gameplay/campaigns",
-        "src/components/campaign/CampaignNavigation.tsx"
+        "src/components/campaign/CampaignNavigation.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json"
@@ -9880,7 +9881,8 @@
         "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
         "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
         "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
-        "src/components/campaign/CampaignNavigation.tsx"
+        "src/components/campaign/CampaignNavigation.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
       ],
       "registration20261020": {
         "source": "evidence/lsc-2-split-registration-20261020.json",
@@ -9937,6 +9939,16 @@
           "lifecycleReserve": 60,
           "planningTotal": 475
         }
+      },
+      "registrationCorrection20261024": {
+        "id": "RC-LSC2-1",
+        "date": "2026-10-24",
+        "authority": "Root registration correction. Root ruling on the STOP (F1) in the Opus review of PR #2331 at 0985808d3, report _reports/2026-10-24/pr2331-review.md (sha256 b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793), under the owner's standing instruction 'continue with recommended options and fix the issues that come up' and to keep Step 2 within 8 PRs; DELIVERY.md allows a registration correction to ride with the unit.",
+        "grant": "Test leaf src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx only, for fixtures.",
+        "reason": "Census miss: a page-level consumer of CampaignCoopEntryPanel whose stale mint fixtures (an expired fixed-date token, mint bodies with no expiresAt, join bodies naming another player) the frozen shared mint adapter refuses. CI Unit Tests (3/6) on 0985808d3 failed 2 of its 7 tests. Behavior-preserving: 7/7 at base 0599ea838 and at the fixed head.",
+        "scope": "Test data and one added assertion only. No product change. Caps unchanged (15 files, 500 counted lines).",
+        "source": { "path": "_reports/2026-10-24/pr2331-review.md", "section": "F1", "sha256": "b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793" },
+        "noProductScope": true
       }
     },
     {
