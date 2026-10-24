@@ -509,6 +509,12 @@ test('Step 0 observation requires both deliveries', (t) => {
 
 test('workflow gates tagged commit before publication and permits private builds', () => {
   const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
+  const releaseJob = workflow.match(
+    /^  release:\r?\n[\s\S]*?(?=^  \S|$(?![\s\S]))/m,
+  )?.[0];
+  assert.ok(releaseJob, 'release job must exist');
+  assert.match(releaseJob, /^    needs: \[release-context, build\]$/m);
+  assert.match(releaseJob, /^    environment: release$/m);
   assert.match(workflow, /candidate_only/);
   assert.match(workflow, /RC="\$\(git rev-parse HEAD\)"/);
   assert.match(workflow, /grep -Fx "V2\.2 GATE PASSED \$RC"/);
@@ -524,6 +530,74 @@ test('workflow gates tagged commit before publication and permits private builds
     /!startsWith\(needs.release-context.outputs.tag, 'v2\.2\.'\)/,
   );
 });
+
+test('auto-version reports admin-only manual tagging without creating tags', () => {
+  const workflow = fs.readFileSync(
+    '.github/workflows/auto-version.yml',
+    'utf8',
+  );
+  assert.doesNotMatch(workflow, /git\s+(?:push\b|tag\s+-a\b)/);
+  assert.doesNotMatch(
+    workflow,
+    /contents: write|Created and pushed tag|✅ Yes/,
+  );
+  assert.match(workflow, /v\* tags are admin-only and must be pushed manually/);
+  assert.match(workflow, /Tag Created \| No/);
+  assert.match(
+    workflow,
+    /if: steps\.bump_type\.outputs\.bump_type != 'none' && steps\.check_tag\.outputs\.exists == 'false'/,
+  );
+});
+
+for (const [event, subject, input, expected] of [
+  ['push', 'chore(ci): require approval for publication', 'patch', 'none'],
+  [
+    'workflow_dispatch',
+    'chore(ci): require approval for publication',
+    'minor',
+    'minor',
+  ],
+  ['push', '[patch] approved version computation', 'patch', 'patch'],
+]) {
+  test(`auto-version computes ${expected} for ${event}`, (t) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'manual-tags-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const output = path.join(root, 'output');
+    const workflow = fs.readFileSync(
+      '.github/workflows/auto-version.yml',
+      'utf8',
+    );
+    const script = workflow.match(
+      /id: bump_type\r?\n        run: \|\r?\n([\s\S]*?)(?=\r?\n      - name:)/,
+    )?.[1];
+    assert.ok(script, 'version computation step must exist');
+    const result = spawnSync(
+      process.platform === 'win32'
+        ? 'C:/Program Files/Git/bin/bash.exe'
+        : 'bash',
+      [
+        '-c',
+        'git() { printf "%s\\n" "$SUBJECT"; };\n' +
+          script
+            .replaceAll('${{ github.event_name }}', event)
+            .replaceAll('${{ inputs.bump_type }}', input),
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          SUBJECT: subject,
+          GITHUB_OUTPUT: output.replaceAll('\\', '/'),
+        },
+      },
+    );
+    assert.equal(result.status, 0, result.stderr || result.error?.message);
+    assert.match(
+      fs.readFileSync(output, 'utf8'),
+      new RegExp(`bump_type=${expected}\\b`),
+    );
+  });
+}
 
 // Review regression fixtures (PR #2322 review).
 

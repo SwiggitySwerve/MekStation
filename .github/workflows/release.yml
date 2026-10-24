@@ -489,6 +489,7 @@ jobs:
   release:
     # Container publication must not block the installer release.
     needs: [release-context, build]
+    environment: release
     runs-on: ubuntu-latest
     if: startsWith(needs.release-context.outputs.tag, 'v') && !inputs.candidate_only
     permissions:
