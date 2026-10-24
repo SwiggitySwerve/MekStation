@@ -9817,7 +9817,8 @@
         "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
         "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
         "src/pages-modules/gameplay/campaigns",
-        "src/components/campaign/CampaignNavigation.tsx"
+        "src/components/campaign/CampaignNavigation.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
       ],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json"
@@ -9832,14 +9833,14 @@
         "concurrency"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "admitted",
+      "state": "local-verified",
       "baseline": "e012028a945df0641089d946877c1192b51e9329",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/lsc-2-implementation-admission.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/lsc-2-implementation-red.json" },
+        "local": { "path": "evidence/lsc-2-implementation-local.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -9880,7 +9881,8 @@
         "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
         "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
         "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
-        "src/components/campaign/CampaignNavigation.tsx"
+        "src/components/campaign/CampaignNavigation.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
       ],
       "registration20261020": {
         "source": "evidence/lsc-2-split-registration-20261020.json",
@@ -9937,6 +9939,16 @@
           "lifecycleReserve": 60,
           "planningTotal": 475
         }
+      },
+      "registrationCorrection20261024": {
+        "id": "RC-LSC2-1",
+        "date": "2026-10-24",
+        "authority": "Root registration correction. Root ruling on the STOP (F1) in the Opus review of PR #2331 at 0985808d3, report _reports/2026-10-24/pr2331-review.md (sha256 b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793), under the owner's standing instruction 'continue with recommended options and fix the issues that come up' and to keep Step 2 within 8 PRs; DELIVERY.md allows a registration correction to ride with the unit.",
+        "grant": "Test leaf src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx only, for fixtures.",
+        "reason": "Census miss: a page-level consumer of CampaignCoopEntryPanel whose stale mint fixtures (an expired fixed-date token, mint bodies with no expiresAt, join bodies naming another player) the frozen shared mint adapter refuses. CI Unit Tests (3/6) on 0985808d3 failed 2 of its 7 tests. Behavior-preserving: 7/7 at base 0599ea838 and at the fixed head.",
+        "scope": "Test data and one added assertion only. No product change. Caps unchanged (15 files, 500 counted lines).",
+        "source": { "path": "_reports/2026-10-24/pr2331-review.md", "section": "F1", "sha256": "b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793" },
+        "noProductScope": true
       }
     },
     {
@@ -21564,6 +21576,33 @@
           "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
         }
       ]
+    },
+    {
+      "id": "PK-lsc-2-ruling",
+      "blocks": [
+        "LSC-2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the bounded LSC-2 co-op credential chooser, renewal and recovery mount, and shared-adapter create path after independent exact-head sensitive review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge followed by exact-main proof and closure; release only LSC-2P after genuine verification.",
+          "effort": "Independent review, current CI and main proof"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete findings within scope/caps, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING on the exact head. Review should cover: the in-repo three-identity proof (LS21: real routes, SQLite, client transport and the production membership port, with the GM RemoveParticipant and reconnect paths settled by the G4 scratch probe); L-1 taken with the two remaining mintToken copies named (CF-LSC2-L1-DUP) and the panel-side L-3 accepted; the LS08 different-identity join guard (and its same-identity rejoin test), the LS13 invalid-choice behavior (a qualification, not a falls-back-to-primary) and the reload/navigate seams, which differ from the sizing draft; CF-LSC2OP-1/2/4/7 and the 21 mutant obligations (all variants killed). Review round 1 (Opus) found CI Unit Tests 3/6 red in the unregistered consumer index.coop.test.tsx; RC-LSC2-1 registers it as a fixture-only test leaf and the fixes (fixtures, two entry tests, getCoopMatchId in CampaignNavigation) ride in this PR. Store-owned rules held in presentation while the store is frozen are the open follow-up CF-LSC2-STORE-RULES. I2 closes not taken. LSC-2P keeps the packaged journey, password-manager proof and the absent ordinary-UI ghost-removal control (G5). Retain all operator, final UI and packaged gates.",
+      "revertCost": "Revert the registered leaves (six with RC-LSC2-1) and the unit's own lifecycle; the local-seat store, operator panel, routes, local_seat_credentials schema (v33), primary auth and bearer store are unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",

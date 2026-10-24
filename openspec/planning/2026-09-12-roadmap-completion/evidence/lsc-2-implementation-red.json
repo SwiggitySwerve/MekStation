@@ -1,0 +1,1066 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-2",
+  "stage": "red",
+  "date": "20261024",
+  "evidenceNameNote": "Evidence file names keep the literals frozen in units.json LSC-2.registration20261020.prospectiveStageManifest (lsc-2-implementation-*, no date literal); the actual date is 20261024 (recordedAt).",
+  "recordedAt": "2026-10-24T16:32:55.134Z",
+  "baseline": "0599ea8383abb1066562e708d95c19e06bb1553b",
+  "headBeforeRed": "5788aacd28a86679b07f0f3543147d07215427df",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission.json",
+    "amendedBy": "A1 (commit 3c074559a, PR #2330)"
+  },
+  "preRedCommit": {
+    "sha": "5788aacd28a86679b07f0f3543147d07215427df",
+    "note": "test-only commit before RED: entry-panel mint fixtures made valid for the shared adapter (LS10 rewrite-first set). The amended entry file passes 24/24 at the baseline and at the sizing draft, so none of those 24 tests is a RED failure."
+  },
+  "productUnchanged": [
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "sha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa",
+      "bytes": 18916,
+      "equalsBaseline": true
+    },
+    {
+      "path": "src/components/campaign/CampaignNavigation.tsx",
+      "sha256": "fedb11001f50bde6dfcae237b547ad621c8292f0b187799f942115ad24b9d07c",
+      "bytes": 10083,
+      "equalsBaseline": true
+    }
+  ],
+  "inertStub": {
+    "path": "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+    "sha256": "39d0dea95efb995d71f61fba0c127197ab7539c230f4dcb3d6c9492de4c0aab4",
+    "bytes": 516,
+    "note": "New registered leaf, present only as an inert stub (both exports render null) so component tests fail on assertions rather than on a missing module; the GREEN commit replaces it. Disclosed as the admission redPlan allows."
+  },
+  "tests": [
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "sha256": "0232440be5500038108acddde3d7e0723e8f282cf758a48c066a5c9731624133",
+      "bytes": 46782,
+      "addedVsBaseline": 734,
+      "deletedVsBaseline": 31
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "sha256": "690fc752656b707576093f6653e5a192435e6e5704ceace4610c465188ed89e4",
+      "bytes": 38699,
+      "addedVsBaseline": 1116,
+      "deletedVsBaseline": 0,
+      "note": "new file"
+    }
+  ],
+  "runtime": {
+    "startedAt": "2026-10-24T10:31:04.3306604-06:00",
+    "head": "5788aacd28a86679b07f0f3543147d07215427df",
+    "node": "v22.22.0",
+    "command": [
+      "node",
+      "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
+      "--lane",
+      "lsc-2",
+      "--class",
+      "jest",
+      "--cwd",
+      "E:/Projects/Personal/MekStation-wt/lsc-2-20261024",
+      "--",
+      "npx",
+      "jest",
+      "--selectProjects",
+      "unit",
+      "--runTestsByPath",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "--coverage=false",
+      "--verbose",
+      "--json"
+    ],
+    "lane": "lsc-2",
+    "class": "jest",
+    "exitCode": 1,
+    "summary": "Tests: 51 failed, 29 passed, 80 total",
+    "suites": "Test Suites: 2 failed, 2 total"
+  },
+  "summary": "51 behavioral failures in the two owned suites against the unchanged product bytes (CampaignCoopEntryPanel.tsx and CampaignNavigation.tsx hash-equal to baseline; LocalSeatCredentialPanel.tsx an inert stub). Every failure is a runtime assertion (missing region/combobox/label/button, wrong request, wrong message, input not cleared); there is no missing module, import error, TypeError or suite-load failure. The 5 new tests that pass are preserve or hosting tests whose evidence is a mutant kill at GREEN; 24 are the existing fixture-amended entry tests.",
+  "counts": {
+    "redFailing": 51,
+    "newPreservePassingAtBaseline": 5,
+    "existingFixtureAmendedPassing": 24,
+    "totalFailed": 51,
+    "total": 80
+  },
+  "classification": [
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LocalSeatCredentialPanel chooser (LS12-LS15) LS12 offers primary and both local seats, defaults to primary, stores only the public choice and refreshes with a GET",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op credential choice\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LocalSeatCredentialPanel chooser (LS12-LS15) LS13 shows a sanitized message for storage failures and mints nothing",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LocalSeatCredentialPanel chooser (LS12-LS15) LS13 never uses a bad stored choice; forgetting it returns to primary",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(received).toContain(expected) // indexOf"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LocalSeatCredentialPanel chooser (LS12-LS15) LS14 forgetting the next-join choice resets to primary and removes no match bearer",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LocalSeatCredentialPanel chooser (LS12-LS15) LS15 discloses the trust limits, the readmission and the old bearer lifetime without claiming eviction",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op credential choice\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal window and recovery (LS16) LS16 renders nothing without a binding or outside four minutes, prompts inside it, recovers after expiry and never mints by itself",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS17 primary renewal mints with the joined choice, replaces the bearer, closes the transport and reloads",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Primary vault identity"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS17 seat1 renewal mints with the joined choice, replaces the bearer, closes the transport and reloads",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 1"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS17 seat2 renewal mints with the joined choice, replaces the bearer, closes the transport and reloads",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 2"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS18 refuses a renewal that returns a different playerId and keeps the bearer and transport",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 1"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS19 forget removes this match binding, bearer and choice, closes its transport, navigates to co-op entry and revokes nothing",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"button\" and name \"Forget choice and match sign-in; return to co-op entry\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 denied seat shows a distinct sanitized message, sends one request per submit and clears the password first",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 1"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 denied primary shows a distinct sanitized message, sends one request per submit and clears the password first",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Primary vault identity"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 throttled shows a distinct sanitized message, sends one request per submit and clears the password first",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 1"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 server error shows a distinct sanitized message, sends one request per submit and clears the password first",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 1"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 network failure shows a distinct sanitized message, sends one request per submit and clears the password first",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find a label with the text of: Password for Local seat 2"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CampaignNavigation mounts renewal and recovery (LS22) LS22 dashboard surface mounts the renewal for host and guest sessions only",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CampaignNavigation mounts renewal and recovery (LS22) LS22 missions surface mounts the renewal for host and guest sessions only",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CampaignNavigation mounts renewal and recovery (LS22) LS22 launch surface mounts the renewal for host and guest sessions only",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CampaignNavigation mounts renewal and recovery (LS22) LS22 starmap surface mounts the renewal for host and guest sessions only",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CampaignNavigation mounts renewal and recovery (LS22) LS22 log surface mounts the renewal for host and guest sessions only",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "CampaignNavigation mounts renewal and recovery (LS22) LS22 personnel surface mounts the renewal for host and guest sessions only",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LS21 three identities on one authority LS21a gives two players and a non-playing GM three distinct stable identities that all reach one authority",
+      "statusAtBaseline": "passed",
+      "class": "PRESERVE: passes at baseline; evidence is the mutant kill at GREEN",
+      "killsMutants": [
+        "L2-M20"
+      ]
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LS21 three identities on one authority LS21b renews and recovers the same seat identity through the real routes",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op sign-in renewal and recovery\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "title": "LS21 three identities on one authority LS21c reclaim after re-provision yields a new identity that is refused while the ghost holds a seat, then admitted after the GM removes the ghost",
+      "statusAtBaseline": "passed",
+      "class": "PRESERVE: passes at baseline; evidence is the mutant kill at GREEN",
+      "killsMutants": [
+        "L2-M21"
+      ]
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances opens the mounted operator controls without changing initial create/join requests",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances discloses the one-click co-op defaults near the create control",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances links to vault settings after a create token-mint failure",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances links to vault settings after a join token-mint failure",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances keeps the join error generic when invite lookup fails after minting",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances persists the host campaign to the server before registering the match",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances fails creation closed when the server save is not accepted",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel onboarding affordances keeps an empty create password error generic",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) resolves campaign identity with the minted bearer, never match metadata",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) binds the guest creator to the resolved campaign and adopts its snapshot",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) opens no socket for an identity with a missing campaignId",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) opens no socket for an identity with an empty campaignId",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) opens no socket for an identity with a non-string campaignId",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) opens no socket for an identity with an unknown status",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) treats a 400 identity refusal as final: no socket and no anonymous fallback (CF-G2A-5)",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) treats a 401 identity refusal as final: no socket and no anonymous fallback (CF-G2A-5)",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) treats a 404 identity refusal as final: no socket and no anonymous fallback (CF-G2A-5)",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) adopts nothing from a snapshot whose event names another campaign",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) adopts nothing from a snapshot whose state names another campaign",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) completes the join on a bound replacement B with no further render",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) never adopts or closes a foreign replacement",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) a stale timeout closes only its own transport, never a bound B",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) adopts nothing when the seat is replaced between its snapshot and adoption",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1) adopts nothing after the panel unmounts mid-join",
+      "statusAtBaseline": "passed",
+      "class": "EXISTING: pre-RED fixture-amended test, passes at baseline and at the sizing draft (LS10)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS01 mounts the credential chooser in the join panel; opening or changing it mints nothing and stores only the public choice",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co-op credential choice\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS02 join with primary mints through the matching route and grants no role",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(received).toEqual(expected) // deep equality"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS02 join with seat1 mints through the matching route and grants no role",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS02 join with seat2 mints through the matching route and grants no role",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS03 create-host mints once through the shared adapter, sends the same bearer to the match route and binds choice primary",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(received).toMatchObject(expected)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS04 create with primary and status 404 shows the mapped sanitized message (vault link: Create a primary vault identity in Settings first.)",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveTextContent()"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS04 create with primary and status 401 shows the mapped sanitized message (vault link: Primary vault password was refused.)",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveTextContent()"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS04 join with primary and status 404 shows the mapped sanitized message (vault link: Create a primary vault identity in Settings first.)",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveTextContent()"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS04 join with primary and status 401 shows the mapped sanitized message (vault link: Primary vault password was refused.)",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveTextContent()"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS04 join with seat1 and status 401 shows the mapped sanitized message (vault link: Local seat credentials were refused.)",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat1 mint failure 401 is distinct and sanitized and is never retried automatically",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat1 mint failure 429 is distinct and sanitized and is never retried automatically",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat2 mint failure 503 is distinct and sanitized and is never retried automatically",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS05 primary mint failure 500 is distinct and sanitized and is never retried automatically",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveTextContent()"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS05 primary mint failure 429 is distinct and sanitized and is never retried automatically",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveTextContent()"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat1 mint failure status 0 is distinct and sanitized and is never retried automatically",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS06 keeps create and join passwords in uncontrolled unnamed password inputs cleared before the first await",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(element).toHaveAttribute(\"autocomplete\", \"current-password\") // element.getAttribute(\"autocomplete\") === \"current-password\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS06 clears the join password before the first await on success",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) accepts a primary token issued 30 s ahead of the browser clock",
+      "statusAtBaseline": "passed",
+      "class": "PRESERVE: passes at baseline; evidence is the mutant kill at GREEN",
+      "killsMutants": [
+        "L2-M05"
+      ]
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses the same token through seat1 with no stored bearer",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses the same token through seat2 with no stored bearer",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses an expired token for primary",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: Unable to find an element by: [data-testid=\"join-coop-error\"]"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses an expired token for seat1",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a token that outlives the lifetime cap for primary",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: Unable to find an element by: [data-testid=\"join-coop-error\"]"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a token that outlives the lifetime cap for seat1",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a one-hour-plus seat token for seat1",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a body that disagrees with its token for primary",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "Error: Unable to find an element by: [data-testid=\"join-coop-error\"]"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a body that disagrees with its token for seat1",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS08 records the public binding and per-match bearer on join and refuses a different identity for the same match",
+      "statusAtBaseline": "failed",
+      "class": "RED: fails at baseline on a runtime assertion",
+      "firstAssertion": "TestingLibraryElementError: Unable to find an accessible element with the role \"combobox\" and name \"This browser profile joins as\""
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS09 keeps the primary host create request, host session and navigation unchanged",
+      "statusAtBaseline": "passed",
+      "class": "PRESERVE: passes at baseline; evidence is the mutant kill at GREEN",
+      "killsMutants": [],
+      "note": "preserve test with no registered mutant (the existing create-flow tests also pin it)"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "title": "CampaignCoopEntryPanel credential choice (LSC-2) LS11 refreshes seats after an unknown-outcome write before any second write, through the mounted operator panel",
+      "statusAtBaseline": "passed",
+      "class": "PRESERVE: passes at baseline; evidence is the mutant kill at GREEN",
+      "killsMutants": [
+        "L2-M18"
+      ]
+    }
+  ],
+  "failedAssertions": [
+    "LocalSeatCredentialPanel chooser (LS12-LS15) LS12 offers primary and both local seats, defaults to primary, stores only the public choice and refreshes with a GET",
+    "LocalSeatCredentialPanel chooser (LS12-LS15) LS13 shows a sanitized message for storage failures and mints nothing",
+    "LocalSeatCredentialPanel chooser (LS12-LS15) LS13 never uses a bad stored choice; forgetting it returns to primary",
+    "LocalSeatCredentialPanel chooser (LS12-LS15) LS14 forgetting the next-join choice resets to primary and removes no match bearer",
+    "LocalSeatCredentialPanel chooser (LS12-LS15) LS15 discloses the trust limits, the readmission and the old bearer lifetime without claiming eviction",
+    "CoopCredentialRenewal window and recovery (LS16) LS16 renders nothing without a binding or outside four minutes, prompts inside it, recovers after expiry and never mints by itself",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS17 primary renewal mints with the joined choice, replaces the bearer, closes the transport and reloads",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS17 seat1 renewal mints with the joined choice, replaces the bearer, closes the transport and reloads",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS17 seat2 renewal mints with the joined choice, replaces the bearer, closes the transport and reloads",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS18 refuses a renewal that returns a different playerId and keeps the bearer and transport",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS19 forget removes this match binding, bearer and choice, closes its transport, navigates to co-op entry and revokes nothing",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 denied seat shows a distinct sanitized message, sends one request per submit and clears the password first",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 denied primary shows a distinct sanitized message, sends one request per submit and clears the password first",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 throttled shows a distinct sanitized message, sends one request per submit and clears the password first",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 server error shows a distinct sanitized message, sends one request per submit and clears the password first",
+    "CoopCredentialRenewal explicit renewal (LS17-LS20) LS20 network failure shows a distinct sanitized message, sends one request per submit and clears the password first",
+    "CampaignNavigation mounts renewal and recovery (LS22) LS22 dashboard surface mounts the renewal for host and guest sessions only",
+    "CampaignNavigation mounts renewal and recovery (LS22) LS22 missions surface mounts the renewal for host and guest sessions only",
+    "CampaignNavigation mounts renewal and recovery (LS22) LS22 launch surface mounts the renewal for host and guest sessions only",
+    "CampaignNavigation mounts renewal and recovery (LS22) LS22 starmap surface mounts the renewal for host and guest sessions only",
+    "CampaignNavigation mounts renewal and recovery (LS22) LS22 log surface mounts the renewal for host and guest sessions only",
+    "CampaignNavigation mounts renewal and recovery (LS22) LS22 personnel surface mounts the renewal for host and guest sessions only",
+    "LS21 three identities on one authority LS21b renews and recovers the same seat identity through the real routes",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS01 mounts the credential chooser in the join panel; opening or changing it mints nothing and stores only the public choice",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS02 join with primary mints through the matching route and grants no role",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS02 join with seat1 mints through the matching route and grants no role",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS02 join with seat2 mints through the matching route and grants no role",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS03 create-host mints once through the shared adapter, sends the same bearer to the match route and binds choice primary",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS04 create with primary and status 404 shows the mapped sanitized message (vault link: Create a primary vault identity in Settings first.)",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS04 create with primary and status 401 shows the mapped sanitized message (vault link: Primary vault password was refused.)",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS04 join with primary and status 404 shows the mapped sanitized message (vault link: Create a primary vault identity in Settings first.)",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS04 join with primary and status 401 shows the mapped sanitized message (vault link: Primary vault password was refused.)",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS04 join with seat1 and status 401 shows the mapped sanitized message (vault link: Local seat credentials were refused.)",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat1 mint failure 401 is distinct and sanitized and is never retried automatically",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat1 mint failure 429 is distinct and sanitized and is never retried automatically",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat2 mint failure 503 is distinct and sanitized and is never retried automatically",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS05 primary mint failure 500 is distinct and sanitized and is never retried automatically",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS05 primary mint failure 429 is distinct and sanitized and is never retried automatically",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS05 seat1 mint failure status 0 is distinct and sanitized and is never retried automatically",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS06 keeps create and join passwords in uncontrolled unnamed password inputs cleared before the first await",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS06 clears the join password before the first await on success",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses the same token through seat1 with no stored bearer",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses the same token through seat2 with no stored bearer",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses an expired token for primary",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses an expired token for seat1",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a token that outlives the lifetime cap for primary",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a token that outlives the lifetime cap for seat1",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a one-hour-plus seat token for seat1",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a body that disagrees with its token for primary",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS07 primary clock behavior (CF-LSC2C-2/L-3 panel side) refuses a body that disagrees with its token for seat1",
+    "CampaignCoopEntryPanel credential choice (LSC-2) LS08 records the public binding and per-match bearer on join and refuses a different identity for the same match"
+  ],
+  "rawLog": {
+    "encoding": "base64",
+    "note": "Verbose jest status lines only (PASS/FAIL, per-test marks, summary); the full log with DOM dumps is not embedded.",
+    "fullLogBytes": 627686,
+    "fullLogSha256": "94a8b03c502819b3685eb0417af6cd541b241b7faa0d27f5b0b640f519e349c2",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "data": "Cg=="
+  },
+  "mutantPlan": [
+    {
+      "id": "L2-M01",
+      "obligation": "Create path keeps a panel-local mint (L-1 reverted)",
+      "killedBy": [
+        "LS03"
+      ],
+      "killerStatusAtBaseline": {
+        "LS03": {
+          "tests": 1,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M02",
+      "obligation": "Join ignores the saved choice and always mints primary",
+      "killedBy": [
+        "LS02"
+      ],
+      "killerStatusAtBaseline": {
+        "LS02": {
+          "tests": 3,
+          "failedAtBaseline": 3,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M03",
+      "obligation": "Seat choice mints against /api/multiplayer/auth/token",
+      "killedBy": [
+        "LS02"
+      ],
+      "killerStatusAtBaseline": {
+        "LS02": {
+          "tests": 3,
+          "failedAtBaseline": 3,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M04",
+      "obligation": "Choice adds a role/seat-kind field to a request or stored value",
+      "killedBy": [
+        "LS02"
+      ],
+      "killerStatusAtBaseline": {
+        "LS02": {
+          "tests": 3,
+          "failedAtBaseline": 3,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M05",
+      "obligation": "Panel re-adds a 10 s future-drift check on primary tokens",
+      "killedBy": [
+        "LS07"
+      ],
+      "killerStatusAtBaseline": {
+        "LS07": {
+          "tests": 10,
+          "failedAtBaseline": 9,
+          "passedAtBaseline": 1
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M06",
+      "obligation": "Seat mints accept a token issued more than 10 s ahead (store guard)",
+      "killedBy": [
+        "LS07"
+      ],
+      "killerStatusAtBaseline": {
+        "LS07": {
+          "tests": 10,
+          "failedAtBaseline": 9,
+          "passedAtBaseline": 1
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M07",
+      "obligation": "Password left in the input after an await or on an error",
+      "killedBy": [
+        "LS06"
+      ],
+      "killerStatusAtBaseline": {
+        "LS06": {
+          "tests": 2,
+          "failedAtBaseline": 2,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M08",
+      "obligation": "Password kept in React state or web storage",
+      "killedBy": [
+        "LS06"
+      ],
+      "killerStatusAtBaseline": {
+        "LS06": {
+          "tests": 2,
+          "failedAtBaseline": 2,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M09",
+      "obligation": "Automatic retry of a mint on 429 or 5xx",
+      "killedBy": [
+        "LS05",
+        "LS20"
+      ],
+      "killerStatusAtBaseline": {
+        "LS05": {
+          "tests": 6,
+          "failedAtBaseline": 6,
+          "passedAtBaseline": 0
+        },
+        "LS20": {
+          "tests": 10,
+          "failedAtBaseline": 10,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M10",
+      "obligation": "Retry-After dropped from the throttled message",
+      "killedBy": [
+        "LS05",
+        "LS20"
+      ],
+      "killerStatusAtBaseline": {
+        "LS05": {
+          "tests": 6,
+          "failedAtBaseline": 6,
+          "passedAtBaseline": 0
+        },
+        "LS20": {
+          "tests": 10,
+          "failedAtBaseline": 10,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M11",
+      "obligation": "Renewal prompt window changed (never shown, or shown at five minutes)",
+      "killedBy": [
+        "LS16"
+      ],
+      "killerStatusAtBaseline": {
+        "LS16": {
+          "tests": 1,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M12",
+      "obligation": "Renewal mints automatically on entering the window",
+      "killedBy": [
+        "LS16"
+      ],
+      "killerStatusAtBaseline": {
+        "LS16": {
+          "tests": 1,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M13",
+      "obligation": "Renewal uses the next-join choice instead of the joined choice",
+      "killedBy": [
+        "LS17"
+      ],
+      "killerStatusAtBaseline": {
+        "LS17": {
+          "tests": 10,
+          "failedAtBaseline": 10,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M14",
+      "obligation": "Renewal replaces storage but neither closes the transport nor reloads",
+      "killedBy": [
+        "LS17"
+      ],
+      "killerStatusAtBaseline": {
+        "LS17": {
+          "tests": 10,
+          "failedAtBaseline": 10,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M15",
+      "obligation": "Renewal accepts a replacement playerId silently",
+      "killedBy": [
+        "LS18"
+      ],
+      "killerStatusAtBaseline": {
+        "LS18": {
+          "tests": 1,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M16",
+      "obligation": "Forget leaves the bearer or binding in storage",
+      "killedBy": [
+        "LS19"
+      ],
+      "killerStatusAtBaseline": {
+        "LS19": {
+          "tests": 1,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M17",
+      "obligation": "Navigation mounts the renewal for host sessions only (guest hostMatchId missing)",
+      "killedBy": [
+        "LS22"
+      ],
+      "killerStatusAtBaseline": {
+        "LS22": {
+          "tests": 6,
+          "failedAtBaseline": 6,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M18",
+      "obligation": "Entry panel bypasses the operator panel unknown-outcome refresh",
+      "killedBy": [
+        "LS11"
+      ],
+      "killerStatusAtBaseline": {
+        "LS11": {
+          "tests": 1,
+          "failedAtBaseline": 0,
+          "passedAtBaseline": 1
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M19",
+      "obligation": "Disclosure drops the old-bearer-lifetime or GM-readmission clause",
+      "killedBy": [
+        "LS15"
+      ],
+      "killerStatusAtBaseline": {
+        "LS15": {
+          "tests": 5,
+          "failedAtBaseline": 5,
+          "passedAtBaseline": 0
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M20",
+      "obligation": "Three-identity fixture yields equal playerIds for two choices",
+      "killedBy": [
+        "LS21"
+      ],
+      "killerStatusAtBaseline": {
+        "LS21": {
+          "tests": 3,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 2
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    },
+    {
+      "id": "L2-M21",
+      "obligation": "Reclaim removes the ghost membership automatically, or admits the new playerId past the two-seat limit while the ghost is bound",
+      "killedBy": [
+        "LS21"
+      ],
+      "killerStatusAtBaseline": {
+        "LS21": {
+          "tests": 3,
+          "failedAtBaseline": 1,
+          "passedAtBaseline": 2
+        }
+      },
+      "measuredAt": "GREEN (local receipt): the mutated line, the exact baseline and the failing killer are recorded there"
+    }
+  ],
+  "g4Probe": {
+    "gap": "manifestGaps G4 (RemoveParticipant host path and transport reconnect unproven in jsdom); Root ruling G4: probe before RED.",
+    "result": "PASS: both hosted in jsdom inside the two registered test leaves; no STOP.",
+    "scratchOnly": true,
+    "probeFile": {
+      "path": "_reports/2026-10-24/lsc-2/g4-probe.test.tsx.txt (was src/__tests__/zz-lsc2-g4-probe/g4.test.tsx, deleted, never committed)",
+      "sha256": "a961bc286d04a0281291add5a22ffd0bccb1981fa4bd06631994e3eca995e253",
+      "bytes": 8574
+    },
+    "run": "unit project (jsdom), 1 test passed, heavy lane lsc-2 class jest, node v22.22.0, on the baseline product",
+    "resultLine": "G4PROBE [{\"gm\":[\"CampaignSnapshot\"],\"s1\":[\"CampaignSnapshot\"],\"s2\":[\"CampaignSnapshot\"]},{\"active\":[\"pid_QZF2:gm\",\"pid_2cGs:player\",\"pid_21N1:player\"]},{\"reconnectSamePid\":true,\"reconnect\":[\"CampaignSnapshot\"],\"errs\":[]},{\"newPid\":true,\"refused\":[\"AUTH_REJECTED:campaign-tactical-seats-full\"],\"kinds\":[\"Error\"]},{\"gmErrs\":[],\"ghostRevoked\":true,\"gmKinds\":[\"CampaignSnapshot\",\"CampaignEvent\"]},{\"admitted\":[\"CampaignSnapshot\"],\"errs\":[],\"activeNow\":[\"pid_QZF2\",\"pid_21N1\",\"pid_3Qzb\"]}]",
+    "showed": [
+      "three distinct playerIds minted through the real /auth/token and /auth/local-seats handlers over a temporary real SQLite file; each reached bindCampaignSyncConnection via the real client connectCampaignSyncTransport (CampaignJoin) and received CampaignSnapshot; active members were gm, player, player",
+      "transport reconnect: close, re-mint, reconnect gives the same playerId, admitted with no error",
+      "after active-seat re-provision the new playerId is refused with AUTH_REJECTED campaign-tactical-seats-full while the ghost and the other player hold both seats",
+      "GM RemoveParticipant through ICampaignSyncTransport.sendHostIntent commits ParticipantRemoved and revokes the ghost; the new playerId is then admitted"
+    ]
+  },
+  "ls21EntryPoints": {
+    "testLeaf": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx (describe \"LS21 three identities on one authority\": LS21a, LS21b, LS21c)",
+    "mint": "mintCoopCredential (frozen adapter) -> real handlers src/pages/api/multiplayer/auth/token.ts and local-seats.ts through a node-mocks-http fetch bridge with a literal loopback Host over a temporary SQLite file",
+    "admission": "bindCampaignSyncConnection (CampaignJoin) -> membership.bind = createCampaignSessionMembershipPort().bind -> bindCampaignSessionParticipant; refusal AUTH_REJECTED campaign-tactical-seats-full; the store result tactical-seats-full is also asserted directly through the port",
+    "gmRemoval": "ICampaignSyncTransport.sendHostIntent({ kind: \"RemoveParticipant\", campaignId, intentId, payload: { participantId, reason } }) -> bindCampaignSyncConnection (CampaignHostIntent) -> CampaignMatchHost.applyHostIntent -> ParticipantRemoved -> membership.revoke = revokeCampaignSessionParticipant; the ghost row stays with revoked_at set (SELECT asserted), not deleted",
+    "reconnect": "a new connectCampaignSyncTransport with the re-minted or stored bearer; stable playerId asserted",
+    "renewalAndRecovery": "the real CoopCredentialRenewal component (LS21b) over the same real routes with a Date-only fake clock at +57 minutes (renewal) and +2 hours (expired recovery)",
+    "statusAtBaseline": "LS21a and LS21c pass at baseline (they use existing server behavior only); LS21b fails at baseline because the renewal component is the inert stub"
+  },
+  "greenDecisionsPinned": [
+    "LS08: a second join for a match that already has a stored bearer of a different playerId is refused with the IDENTITY_CHANGED message before the bearer or binding is replaced. This guard is not in the sizing draft (about 8 counted lines in CampaignCoopEntryPanel.tsx).",
+    "LS13: the pin \"a bad stored value falls back to primary\" is realized as: an invalid stored choice is never used (the chooser is disabled with the frozen INVALID_CHOICE message, nothing mints) and \"Forget next-join choice\" returns the choice to primary. The frozen store throws INVALID_CHOICE by design, and the join reads the choice through the same store, so a silent display-only fallback would disagree with what a join does. Flagged for Root.",
+    "LS16: with no stored binding CoopCredentialRenewal renders nothing (the sizing draft showed a \"joined credential unavailable\" problem); other storage errors still show a sanitized message.",
+    "LS17/LS19: CoopCredentialRenewal takes optional reloadPage and navigatePage props (defaults window.location.reload and window.location.assign) because jsdom cannot observe location changes; CampaignNavigation passes neither."
+  ],
+  "formatting": "Both test files and the stub were run through npx oxfmt --write; oxfmt --check is clean. npm run typecheck passes at this head; oxlint reports only the two pre-existing max-lines warnings in the campaigns directory."
+}

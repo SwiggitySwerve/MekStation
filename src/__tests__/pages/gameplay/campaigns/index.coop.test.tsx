@@ -128,14 +128,17 @@ jest.mock('@/lib/campaign/coop/campaignSyncTransport', () => {
   };
 });
 
+// A live token: the shared mint adapter (LSC-2) refuses expired tokens and
+// bodies that disagree with their token.
+const mockLiveToken = {
+  playerId: 'pid_host',
+  issuedAt: new Date(Date.now() - 1_000).toISOString(),
+  expiresAt: new Date(Date.now() + 50 * 60_000).toISOString(),
+  publicKey: 'pub',
+  signature: 'sig',
+};
 jest.mock('@/types/multiplayer/Player', () => ({
-  decodeTokenFromWire: jest.fn(() => ({
-    playerId: 'pid_host',
-    issuedAt: '2026-06-21T00:00:00.000Z',
-    expiresAt: '2026-06-21T01:00:00.000Z',
-    publicKey: 'pub',
-    signature: 'sig',
-  })),
+  decodeTokenFromWire: jest.fn(() => mockLiveToken),
 }));
 
 // Deterministic room code so the test can assert what `coopSession.roomCode`
@@ -277,6 +280,7 @@ describe('CampaignsListPage — co-op entry points', () => {
             token: 'wire-token',
             playerId: 'pid_host',
             displayName: 'Host Player',
+            expiresAt: mockLiveToken.expiresAt,
           }),
         };
       }
@@ -406,8 +410,9 @@ describe('CampaignsListPage — co-op entry points', () => {
           status: 200,
           json: async () => ({
             token: 'guest-wire-token',
-            playerId: 'pid_guest',
+            playerId: 'pid_host',
             displayName: 'Guest Player',
+            expiresAt: mockLiveToken.expiresAt,
           }),
         };
       }
@@ -492,8 +497,9 @@ describe('CampaignsListPage — co-op entry points', () => {
           status: 200,
           json: async () => ({
             token: 'guest-wire-token',
-            playerId: 'pid_guest',
+            playerId: 'pid_host',
             displayName: 'Guest Player',
+            expiresAt: mockLiveToken.expiresAt,
           }),
         };
       }
@@ -523,6 +529,10 @@ describe('CampaignsListPage — co-op entry points', () => {
     await waitFor(() => {
       expect(screen.getByTestId('join-coop-error')).toBeInTheDocument();
     });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/invites/ZZZZZZ?campaignIdentity=1',
+      expect.anything(),
+    );
     expect(mockCreateGuestMirrorCampaign).not.toHaveBeenCalled();
     expect(mockRouterPush).not.toHaveBeenCalled();
   });
