@@ -23,7 +23,7 @@
         "mainSha": "54cca95c7ffc5d03639157b1488bd65bcf4b49a8",
         "containsMerges": {
           "implementation": "6d180495883c057a4ed1cb91807cbb76a91a7223",
-          "closure": "e636edf43"
+          "closure": "e636edf43ee3c366ada09f10a921ad1612acf2c7"
         },
         "workingTree": "Clean exact main except the uncommitted v220-steps.json done-test edit; the test file blob is d8aef732e7416d093a6bb2a838a50d60371e24da at main.",
         "node": "v22.22.0",
@@ -61,7 +61,7 @@
             "reuses the existing entry and ignores an absent key without another read"
           ]
         },
-        "priorObservation": "Same command, 28/28 at 6d180495883c057a4ed1cb91807cbb76a91a7223, recorded in the referenced mainProof receipt ownedProof."
+        "priorObservation": "Equivalent Jest run of the same test file (node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --watchAll=false --cacheDirectory <private> --json --outputFile <file> --runTestsByPath src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts), 28/28 at 6d180495883c057a4ed1cb91807cbb76a91a7223, recorded in the referenced mainProof receipt (runs[name=owned], ownedProof)."
       }
     }
   },
