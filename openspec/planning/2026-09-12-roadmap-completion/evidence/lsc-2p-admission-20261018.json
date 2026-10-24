@@ -527,6 +527,36 @@
         "mutant": "The spec claims a ghost-removal or readmission success in S5 although no UI control exists",
         "mustFailAt": "S5 observation check (removal is recorded absent; a \"removed\" claim must fail)",
         "note": "G5/Q8."
+      },
+      {
+        "id": "M9",
+        "added": "A1",
+        "mutant": "The local-seat-proof checker accepts publicIdentities that repeat a playerId",
+        "mustFailAt": "scripts/__tests__/v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M10",
+        "added": "A1",
+        "mutant": "The checker accepts publicIdentities whose choices are not exactly primary, seat1 and seat2",
+        "mustFailAt": "v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M11",
+        "added": "A1",
+        "mutant": "The checker accepts a record without installer.sha256 or installed.exeSha256 (64 lowercase hex), or with rcSha not 40 lowercase hex",
+        "mustFailAt": "v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M12",
+        "added": "A1",
+        "mutant": "The checker accepts a scenario result other than PASS for S0-S7, or a non-empty defects list",
+        "mustFailAt": "v220-evidence.test.mjs refusal test"
+      },
+      {
+        "id": "M13",
+        "added": "A1",
+        "mutant": "The schemas entry maps local-seat-proof to a step other than 2",
+        "mustFailAt": "generate-v220-steps.mjs --check (Misplaced evidence schema) and v220-steps.test.mjs"
       }
     ]
   },
@@ -1021,7 +1051,7 @@
     {
       "id": "Q6",
       "question": "Will Step 8 re-run this command on the RC installer so the hashes bind?",
-      "disposition": "OPEN, routed to Root and Step 8. The LSC-2P record binds a pre-RC installer built from exact main; Step 8 requires identical hashes across rehearsal, human session and publication (V220-EVIDENCE.md). Recommendation: Step 8 re-runs the same command on the RC installer inside its rehearsal. Not a blocker for LSC-2P.",
+      "disposition": "OPEN, routed to Root and Step 8. The LSC-2P record binds a pre-RC installer built from exact main; Step 8 requires identical hashes across rehearsal, human session and publication (V220-EVIDENCE.md). Recommendation: Step 8 re-runs the same command on the RC installer inside its rehearsal. Not a blocker for LSC-2P. The publication checker re-runs only the argv done-tests of steps 3, 5 and 6, and RC-LSC2P-1 forbids publication and checkReleaseEvidence changes, so a checker-enforced Step 8 re-run of the Step 2 command needs a separate registration; otherwise it is a manual Step 8 obligation.",
       "status": "open (Step 8)"
     },
     {
@@ -1035,7 +1065,7 @@
       "added": "this admission",
       "question": "S5 cannot reach \"GM readmission\" or \"ghost removal\" in the ordinary UI: the new identity is refused (tactical seats full) and no removal control exists. Accept recording this, or register a GM removal UI leaf (a new product unit and PR)?",
       "disposition": "RECOMMENDED: accept and record. The packaged claim becomes: re-provision gives a new distinct playerId; the guest reclaims (mint succeeds); the host refuses the new identity while the ghost holds a seat; removal UI is absent; nothing more is claimed. A removal leaf would add at least one PR and break the 8-PR budget of Step 2, so it needs an owner answer. This admission amends S5 accordingly and adds mutant M8.",
-      "status": "OPEN for Root/owner (recommendation applied)"
+      "status": "OPEN for the owner; gated by G-P0 (recommended wording applied provisionally)"
     }
   ],
   "unverified": [
@@ -1102,10 +1132,15 @@
     {
       "id": "U13",
       "item": "heavy-run lease for a job of about 75 minutes (class playwright LEASE_MIN 45 minutes, class package 30)",
-      "status": "confirm renewal by heartbeat or request a longer lease before the real run; record in the RED receipt"
+      "status": "RESOLVED from _locks/README.md: a lease overrun only writes heavy/overdue/<lane>.json for Root; nothing is killed. Tell Root before each 75-minute run."
     }
   ],
   "gates": [
+    {
+      "id": "G-P0",
+      "kind": "ruling before RED",
+      "text": "No RED installer build, packaged run or spec RED commit until Root records rulings on Q1, Q2 and Q8 (in the OWNER-RULING on PR #2332 or a later Root receipt). Q8 is an owner product decision: (a) accept and record; (b) accept and record plus the free-seat readmission scenario S5b (second campaign B, old seat-2 identity joins B, re-provision, new identity joins B into the free seat while the ghost stays); (c) register a GM participant-removal UI unit before LSC-2P RED (Step 2 budget above 8, owner approval); (d) fold a removal UI leaf into LSC-2P by a further registration correction (new fit measurement; conflicts with N2 and G-P6). Under (a) or (b) Root registers the removal control as a named product follow-up with an owner, due before the v2.2.0 human session, and the proof doc states the lock-out. Q2 must be ruled explicitly because the registered behavior says the unit retains the unchanged 30-second test timeout."
+    },
     {
       "id": "G-P1",
       "kind": "probe before RED",
@@ -1135,6 +1170,11 @@
       "id": "G-P6",
       "kind": "stop rule",
       "text": "If an unregistered file must change (any src/ file, package.json, a workflow, a second spec file, a tracked artifact), STOP for a separate registration (binding note N2); do not widen scope."
+    },
+    {
+      "id": "G-P7",
+      "kind": "exact-main proof (DELIVERY.md:83)",
+      "text": "Because the unit edits the scripts/qc/v220-evidence.mjs runner, the LSC-2P mainProof also runs at the exact merge: node --test scripts/__tests__/v220-evidence.test.mjs scripts/__tests__/v220-format.test.mjs scripts/__tests__/v220-steps.test.mjs; node scripts/qc/generate-v220-steps.mjs --check; validate-roadmap.mjs plain and --github; and cites each exit code and summary line."
     }
   ],
   "nsisRehearsalStatus": "NOT REHEARSED at admission",
@@ -2263,7 +2303,33 @@
     "No NSIS build, install or packaged run was attempted; U1-U3, U5, U6, U10 and U11 are UNVERIFIED and gated.",
     "Q6 and Q8 are open; Q1-Q2 are adopted pending Root confirmation.",
     "No PK packet until GREEN.",
-    "No task tick, no release acceptance, no v2.2.0 claim."
+    "No task tick, no release acceptance, no v2.2.0 claim.",
+    "Step 2 reaches complete only with a v220-step-evidence.json entry (V220-EVIDENCE.md:31). That file is created by draft #2327 and is outside the LSC-2P manifest; Root routes the Step 2 entry to the LSC-2P closure PR or a Root page PR and states its budget treatment."
   ],
-  "amendments": []
+  "amendments": [
+    {
+      "id": "A1",
+      "date": "2026-10-24",
+      "kind": "review fix before merge",
+      "priorAdmissionCommit": "52c1dbd81c0ee16f8c996ec33ab89749dc169c29",
+      "priorReceiptSha256": "abf6db9adf588d03d6ef9a3e4b044ba5f6c4e363ee0ed88e305f2814ea3830e8",
+      "priorReceiptBytes": 109005,
+      "source": {
+        "path": "_reports/2026-10-24/pr2332-verify.md",
+        "section": "F1-F3",
+        "sha256": "5fbad85cfb2402e96b50cbe72ae136a29e8641bbc3f627a0938d4c371315667c",
+        "bytes": 22084
+      },
+      "changes": [
+        "gates: G-P0 inserted first (ruling before RED on Q1, Q2 and Q8)",
+        "openQuestions Q8.status set to \"OPEN for the owner; gated by G-P0 (recommended wording applied provisionally)\"",
+        "mutantInventory.mutants: M9-M13 appended for the folded v220-evidence.mjs checker branch",
+        "gates: G-P7 appended (v220 tooling tests re-run on exact main per DELIVERY.md:83)",
+        "openQuestions Q6.disposition: checker-enforced Step 8 re-run needs a separate registration, else manual",
+        "unverified U13.status resolved from _locks/README.md",
+        "limitations: Step 2 completion record needs a v220-step-evidence.json entry (carrier decided by Root)"
+      ],
+      "unchanged": "units.json, the generated page, the frozen manifest, caps, census, controls, selector table, scenario inventory and measured fit are unchanged. The prior receipt bytes remain at 52c1dbd81c0ee16f8c996ec33ab89749dc169c29."
+    }
+  ]
 }
