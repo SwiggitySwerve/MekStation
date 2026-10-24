@@ -83,7 +83,7 @@ Choose one. A guard inside the spec is **not** recommended: once U24b retires th
 - **L1-owned paths: no.** The change is `.github/workflows/nightly-validation.yml` only. No unit in `units.json` owns that file.
 - **Related units:**
   - **U24b** (planned) owns `playwright.config.ts` and `scripts/qc/gm-two-player-campaign-core.cjs`, so the preferred fix deliberately avoids both.
-  - **U2b** (blocked) owns these rows' history; draft PR #1886 was the parked U2b run. It was closed as superseded by #1891 (E2E-19) and #1943 (E2E-25).
+  - **U2b** (blocked) owns these rows' history; draft PR #1886 is the parked U2b run.
   - **U25** (planned) owns `e2e` broadly.
 - **Safe now in parallel with B14-0:** yes. B14-0 owns `src/lib/multiplayer/server` and `openspec/specs/fog-of-war/spec.md`, and none of that is touched. Do re-run the armed rows after B14-0 merges: B14-0 adds fog-on refusals on live and replay paths, and E2E-19/25 run fog-off.
 - **Sensitivity:** route the workflow PR as **sensitive (privacy)**. It decides which privacy rows are proven, and under which fixture. Name U2b and U24b in the PR.

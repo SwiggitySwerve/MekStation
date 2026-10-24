@@ -258,4 +258,4 @@ output/
 release-upload*/
 .review/
 /file-analysis-report.txt
-*.tmp.*
+*.tmp.[0-9]*
