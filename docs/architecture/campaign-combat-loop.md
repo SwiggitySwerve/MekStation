@@ -180,4 +180,4 @@ The entry is appended to `campaign.dailyBattleAudit`, persisted alongside the ca
 - `openspec/specs/scenario-generation` — Wave-5 delta added scenario+contract id linkage.
 - `openspec/specs/game-session-management` — Wave-5 delta added bus contract + queue idempotency.
 - `openspec/specs/contract-types` — Wave-5 delta added the `ContractFulfilled` event + contractProcessor closure.
-- `openspec/changes/wire-encounter-to-campaign-round-trip` — the originating change document. Slice 6 closed the §7 / §8.1 / §9 / §11 / §12 task groups; Slice 7 will add §10 integration + E2E tests.
+- `openspec/changes/archive/2026-05-01-wire-encounter-to-campaign-round-trip` — the originating change document. Slice 6 closed the §7 / §8.1 / §9 / §11 / §12 task groups; Slice 7 will add §10 integration + E2E tests.
