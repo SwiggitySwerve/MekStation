@@ -1,0 +1,212 @@
+{
+  "steps": [
+    {
+      "id": 0,
+      "name": "One trustworthy work list",
+      "units": [],
+      "witnesses": [],
+      "gates": [],
+      "doneTests": [
+        {
+          "argv": ["node", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"]
+        },
+        {
+          "argv": ["node", "--test", "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"]
+        },
+        {
+          "argv": ["node", "scripts/qc/generate-v220-steps.mjs", "--check"]
+        },
+        {
+          "argv": ["node", "--test", "scripts/__tests__/v220-steps.test.mjs"]
+        },
+        {
+          "kind": "evidence",
+          "schema": "step0-observation"
+        }
+      ],
+      "scope": "Non-unit only; preserve source heads and historical receipts.",
+      "prBudget": 2,
+      "userVisible": false
+    },
+    {
+      "id": 1,
+      "name": "Simultaneous campaign joins share one host",
+      "units": ["MP-CAMPAIGN-HOST-DEDUPE-1"],
+      "witnesses": ["MP-HOST-DEDUPE-1"],
+      "gates": [],
+      "doneTests": [
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "MP-CAMPAIGN-HOST-DEDUPE-1",
+          "description": "The dedupe cases in CampaignHostRegistry.test.ts exist only on #2313 (main has the file without them); run on exact merged main, then close."
+        }
+      ],
+      "scope": "Finish #2313; no match-registry redesign.",
+      "prBudget": 2,
+      "userVisible": false
+    },
+    {
+      "id": 2,
+      "name": "Three local seats keep three identities",
+      "units": ["LSC-2C", "LSC-2O", "LSC-2", "LSC-2P"],
+      "witnesses": ["LSC-0", "LSC-1DB", "LSC-1S", "LSC-1", "LSC-2OP"],
+      "gates": [],
+      "doneTests": [
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "LSC-2P",
+          "description": "Installed Electron: three UI identities, reload, renewal, revoke, reclaim; EVIDENCE FILE NOT YET DEFINED carrying the artifact hash."
+        }
+      ],
+      "scope": "One installed authority; no token transfer, test activator or implied roles.",
+      "prBudget": 8,
+      "userVisible": true
+    },
+    {
+      "id": 3,
+      "name": "Spectators cannot receive secrets on the built server",
+      "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2", "L1-SMOKE-B"],
+      "witnesses": ["L1-SMOKE-A1", "B14-0A", "B14-0B", "B14-0", "B14-HEAD", "MP-RECOVERY-UNITS-1", "MP-RECOVERY-UNITS-2"],
+      "gates": ["built-server-spectator-smoke"],
+      "doneTests": [
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "L1-SMOKE-B",
+          "description": "Combined built-server matrix including fog refusals, restart and captured rolls; A1 alone cannot pass. Invocation frozen at admission."
+        }
+      ],
+      "scope": "Proof leaves only; no containment changes.",
+      "prBudget": 10,
+      "userVisible": false
+    },
+    {
+      "id": 4,
+      "name": "Every seat applies state before a mission starts",
+      "units": ["P2CG1H", "P2CG1I1", "P2CG1I2", "P2CG1I3", "P2CG1I4", "P2CG2", "P2CH", "P2C"],
+      "witnesses": ["P2CG1B", "P2CG1C", "P2CG1D", "P2CG1E", "P2CG1F", "P2CG1G1", "P2CG1G2A", "P2CG1G2", "P2CG1R", "P2CG1S", "P2CG1HP"],
+      "gates": [],
+      "doneTests": [
+        {
+          "argv": ["npm", "run", "verify:qc:coop-campaign-journey"],
+          "baseline": "baseline, not completion signal"
+        },
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "P2CG1H",
+          "description": "Boot-install and graph-local port/database proof."
+        },
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "P2CH",
+          "description": "Withhold one valid application ACK: zero creates until every seat converges, then exactly one."
+        }
+      ],
+      "scope": "Readiness mechanism only; no shared-mission client work.",
+      "prBudget": 16,
+      "userVisible": false
+    },
+    {
+      "id": 5,
+      "name": "Both players share one mission and control their own units",
+      "units": ["P2", "U38"],
+      "witnesses": [],
+      "gates": [],
+      "doneTests": [
+        {
+          "argv": ["npm", "run", "verify:qc:coop-campaign-journey"],
+          "baseline": "baseline, not completion signal"
+        },
+        {
+          "argv": ["npm", "run", "test", "--", "--watchAll=false", "--runTestsByPath", "src/lib/multiplayer/server/__tests__/ServerMatchHostUnitOwnership.test.ts", "--runInBand"],
+          "baseline": "baseline, not completion signal"
+        },
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "P2",
+          "description": "Shared match/deploy/rejoin journey."
+        },
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "U38",
+          "description": "Both-direction foreign-unit refusals; current test asserts the exemption to remove."
+        }
+      ],
+      "scope": "Shared launch and server ownership; no broader hardening.",
+      "prBudget": 4,
+      "userVisible": true
+    },
+    {
+      "id": 6,
+      "name": "One real mission completes and its result is kept",
+      "units": ["P2J"],
+      "witnesses": [],
+      "gates": ["three-context-entry"],
+      "doneTests": [
+        {
+          "argv": ["node", "scripts/playwright/run-playwright.mjs", "test", "--project=chromium", "e2e/coop-campaign-two-browser-journey.spec.ts", "--workers=1"],
+          "baseline": "baseline, not completion signal"
+        },
+        {
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "P2J",
+          "description": "GM plus two players, owned move/fire, real combat to Results, outcome once, all-seat reload agreement."
+        }
+      ],
+      "scope": "Test only; no injected result or force-win.",
+      "prBudget": 2,
+      "userVisible": true
+    },
+    {
+      "id": 7,
+      "name": "Freeze and qualify the release candidate",
+      "units": [],
+      "witnesses": ["MP-REWIND-DICE-1"],
+      "gates": ["closures", "automated-rc", "live-gm-rewind-dice"],
+      "doneTests": [
+        {
+          "kind": "evidence",
+          "schema": "closure-rewind"
+        }
+      ],
+      "scope": "Recheck all 46; rerun steps 3, 5, 6 on RC; no product changes after freeze.",
+      "prBudget": 1,
+      "userVisible": false
+    },
+    {
+      "id": 8,
+      "name": "Installer rehearsal, then a human session",
+      "units": [],
+      "witnesses": [],
+      "gates": ["installer-rehearsal", "human-session"],
+      "doneTests": [
+        {
+          "kind": "evidence",
+          "schema": "installer-rehearsal"
+        },
+        {
+          "kind": "evidence",
+          "schema": "human-session"
+        }
+      ],
+      "scope": "Agent rehearsal never substitutes for a human session.",
+      "prBudget": 1,
+      "userVisible": true
+    },
+    {
+      "id": 9,
+      "name": "Publish v2.2.0",
+      "units": [],
+      "witnesses": [],
+      "gates": ["release-notes"],
+      "doneTests": [
+        {
+          "kind": "evidence",
+          "schema": "publication"
+        }
+      ],
+      "scope": "All eight gates; final evidence commits must not move the candidate.",
+      "prBudget": 1,
+      "userVisible": true
+    }
+  ]
+}

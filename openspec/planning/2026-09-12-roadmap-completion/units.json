@@ -28121,5 +28121,17 @@
     "historicalRule": "Supersedes only effective F scope/manifest/interface scheduling from #2315. Original F/A2 acceptance and historical evidence/registrations remain unchanged; this new effective partition controls future admissions. Downstream M/A2/B/H and independent LSC/P2J/installer/human gates stand.",
     "sourceAdmissionBarrier": "Root merges #2318 before FP admission; all stages, actual scope and formatting counts freshly freeze afterward. Sensitive cadence and all unchanged gates apply. No runtime result, packet, closure or task tick is supplied by registration.",
     "overflowRuling": "If FP still does not fit when drafted, stop and tell Root before proposing a third split. Root is raising size-cap policy with the owner."
+  },
+  "stepPlanDecision20261024": {
+    "baseline": "8c3617f44f9609aacd1e85975801b2bed02b6b41",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner 2026-10-24: Set goal to complete the next segment based on 10 steps with verifications and reviews; standing instruction: continue with recommended options and fix the issues that come up, publish as needed. Root reading: Step 0 may proceed during HOLD; ten-step order adopted; no file-count exclusion ruling.",
+    "layer": "L1 / v2.2.0 only",
+    "supersedes": "Scheduling and selector clauses only (order, parallelPermission, selector) of lscParallelLaneAmendment20261018, and the smoke-proof-lane parallel exception of l1SmokeRegistration20261018 as restated in layerRegistration20261017L1.schedulingRule; historical objects and all receipts retained unchanged.",
+    "order": "v220-steps.json; Root selects first eligible unit of first unfinished step; blocked first step stops; --next diagnostic only.",
+    "wip": "One admitted-unfinished unit through closure on main. Closure and next admission may share one PR; successor implementation begins only after merge.",
+    "drain": "#2313, then LSC-2C, then reconcile A2FP. No new admission while draining; HOLD still applies.",
+    "unchanged": "No unit state, receipt, cap, ownership, review, predecessor, proof or HOLD changes. Outside L1 existing selection remains. PLAN.md is Root-owned and untracked."
   }
 }

@@ -141,6 +141,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Check generated work list after formatting
+        run: node --test scripts/__tests__/v220-format.test.mjs
+
   validate-roadmap:
     name: Validate Roadmap Ledger
     runs-on: ubuntu-latest
@@ -162,6 +165,12 @@ jobs:
 
       - name: Validate ledger validator tests
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
+
+      - name: Check v2.2.0 step map and fixtures
+        run: |
+          node scripts/qc/generate-v220-steps.mjs --check
+          node --test scripts/__tests__/v220-steps.test.mjs
+
   typecheck:
     name: Type Check
     needs: [detect-changes, install-deps]
