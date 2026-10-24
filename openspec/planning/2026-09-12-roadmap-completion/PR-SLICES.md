@@ -1,5 +1,7 @@
 # Implementation and PR slices
 
+> **Superseded.** This page is a 2026-09-15 snapshot and is no longer maintained. The current plan is [V2.2.0-STEPS.md](V2.2.0-STEPS.md), generated from `v220-steps.json` and `units.json`; unit state lives in `units.json` and the dependency graph in `roadmap.json`. Kept for history; do not read its item counts as current.
+
 This is a readable view of the current roadmap ledger. Every row is an admission unit and may require several small PRs under DELIVERY.md; broad path scopes are navigation, never blanket worker ownership. Existing source task IDs and exact acceptance text are mapped in roadmap.json.
 
 Independent nodes may proceed in parallel after local roadmap validation. Wave numbers are grouping labels, not an instruction to serialize every lane. Git integration and shared authority/storage changes remain serialized.
