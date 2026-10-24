@@ -28128,7 +28128,7 @@
     "sourceAdmitted": false,
     "authority": "Owner 2026-10-24: Set goal to complete the next segment based on 10 steps with verifications and reviews; standing instruction: continue with recommended options and fix the issues that come up, publish as needed. Root reading: Step 0 may proceed during HOLD; ten-step order adopted; no file-count exclusion ruling.",
     "layer": "L1 / v2.2.0 only",
-    "supersedes": "Scheduling and selector clauses only of lscParallelLaneAmendment20261018; historical object and all receipts retained unchanged.",
+    "supersedes": "Scheduling and selector clauses only (order, parallelPermission, selector) of lscParallelLaneAmendment20261018, and the smoke-proof-lane parallel exception of l1SmokeRegistration20261018 as restated in layerRegistration20261017L1.schedulingRule; historical objects and all receipts retained unchanged.",
     "order": "v220-steps.json; Root selects first eligible unit of first unfinished step; blocked first step stops; --next diagnostic only.",
     "wip": "One admitted-unfinished unit through closure on main. Closure and next admission may share one PR; successor implementation begins only after merge.",
     "drain": "#2313, then LSC-2C, then reconcile A2FP. No new admission while draining; HOLD still applies.",

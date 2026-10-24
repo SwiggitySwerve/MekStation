@@ -35,6 +35,8 @@ export function validate(plan, ledger, root, evidence = {}) {
       requireThat(!assignments.has(id), `Duplicate unit ${id}`);
       assignments.set(id, index);
     }
+    for (const id of s.witnesses)
+      requireThat(closed(units.get(id), root), `Open witness ${id}`);
     for (const proof of s.doneTests) {
       if (proof.status === 'PROOF NOT IMPLEMENTED') {
         requireThat(
@@ -130,6 +132,7 @@ export function validate(plan, ledger, root, evidence = {}) {
         s.gates.every((g) => evidence.gates?.[g]?.status === 'accepted') &&
         evidence.steps[s.id].doneTest === 'PASS' &&
         !s.doneTests.some((p) => p.status) &&
+        s.doneTests.some((p) => !p.baseline) &&
         evidence.steps[s.id].reference,
       `Complete without closures, gates and evidence: ${s.id}`,
     );
@@ -205,11 +208,12 @@ export function main(
   const evidence = fs.existsSync(evidencePath)
     ? JSON.parse(fs.readFileSync(evidencePath))
     : {};
+  const pageSha = sha256(planText + ledgerText);
   const inputSha = sha256(planText + ledgerText + read('package.json'));
   if (Object.keys(evidence).length)
     requireThat(evidence.inputSha256 === inputSha, 'Stale evidence inputs');
   validate(plan, ledger, root, evidence);
-  const page = render(plan, ledger, inputSha, evidence),
+  const page = render(plan, ledger, pageSha, evidence),
     output = path.join(root, directory, 'V2.2.0-STEPS.md');
   if (args.includes('--write')) fs.writeFileSync(output, page);
   if (args.includes('--check'))

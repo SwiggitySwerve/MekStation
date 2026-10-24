@@ -5,7 +5,7 @@ test('committed owner page passes --check after the repository formatter', () =>
   const run = (args) => execFileSync(process.execPath, args, { stdio: 'pipe' });
   const check = ['scripts/qc/generate-v220-steps.mjs', '--check'];
   run(check);
-  // Honor .prettierignore's existing openspec/ exclusion, just as the hook does.
+  // Tripwire for .prettierignore's openspec/ exclusion changing later.
   run([
     'node_modules/oxfmt/bin/oxfmt',
     '--write',

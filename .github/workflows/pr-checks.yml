@@ -165,6 +165,7 @@ jobs:
 
       - name: Validate ledger validator tests
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
+
       - name: Check v2.2.0 step map and fixtures
         run: |
           node scripts/qc/generate-v220-steps.mjs --check
