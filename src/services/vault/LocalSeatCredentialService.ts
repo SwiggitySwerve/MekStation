@@ -41,6 +41,7 @@ export type LocalSeatErrorCode =
   | 'operator-unavailable'
   | 'throttled'
   | 'generation-conflict'
+  | 'not-revocable'
   | 'operation-mismatch'
   | 'internal-error';
 
@@ -353,6 +354,9 @@ export class LocalSeatCredentialService {
   private settle(result: LocalSeatWriteResult): ILocalSeatWriteOutcome {
     if (result.kind === 'operation-mismatch') {
       throw new LocalSeatCredentialError('operation-mismatch');
+    }
+    if (result.kind === 'not-revocable') {
+      throw new LocalSeatCredentialError('not-revocable');
     }
     if (result.kind === 'generation-conflict') {
       throw new LocalSeatCredentialError('generation-conflict', {

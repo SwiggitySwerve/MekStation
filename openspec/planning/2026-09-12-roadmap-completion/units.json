@@ -9653,14 +9653,14 @@
         "migration"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "53bc489c0668429ac25a3fbdbe0dd22231615eb9",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": { "path": "evidence/lsc-2o-admission-20261020.json" },
+        "red": { "path": "evidence/lsc-2o-red-20261020.json" },
+        "local": { "path": "evidence/lsc-2o-local-20261020.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -21415,6 +21415,33 @@
           "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
         }
       ]
+    },
+    {
+      "id": "PK-lsc-2o-ruling",
+      "blocks": [
+        "LSC-2O"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the bounded LSC-2O operator, repository/service/API and client-store changes after independent exact-head sensitive review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge followed by exact-main proof and closure; release only LSC-2 after genuine verification.",
+          "effort": "Independent review, current CI and main proof"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete findings within scope/caps, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING; review must cover CF-LSC2OP-2/3/4/7, CF-LSC2C-1 (nine mutants killed by R1-R9), L-2, the store side of L-3 (option B) and N-1; LSC-2 keeps L-1 and the panel-side L-3 acceptance; CF-LSC2C-2R stays an open Root registration follow-up; retain all operator/final UI/packaged gates.",
+      "revertCost": "Revert the changed owned leaves and own lifecycle; the local_seat_credentials schema (v33), primary auth, bearer store and entry panel remain unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",

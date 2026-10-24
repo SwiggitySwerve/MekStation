@@ -1,0 +1,1164 @@
+{
+  "schemaVersion": 1,
+  "unit": "LSC-2O",
+  "stage": "local",
+  "date": "20261024",
+  "evidenceNameNote": "Evidence file names keep the literals frozen in units.json LSC-2O.registration20261020.prospectiveStageManifest (20261020); the actual admission date is 20261024 (recordedAt).",
+  "recordedAt": "2026-10-24T13:28:52.031Z",
+  "baseline": "53bc489c0668429ac25a3fbdbe0dd22231615eb9",
+  "headBeforeGreenCommit": "64441bfd2f62c00e04834fb680825463b0101ea4",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-admission-20261020.json",
+    "sha256ofAmendedBytes": "b3e9e2e443b7ebd0d2a1414459b5690eac4330f210d35c83ccc4583d592a76be",
+    "note": "amended once by a new commit (amendments[A1]); frozen manifest, caps, acceptance, carry-in, mutation inventory and census unchanged"
+  },
+  "red": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-red-20261020.json",
+    "sha256": "ac581ba909c9ce4b65b47c96620274507573d2ebf495f2b993cfdd4ba431b396",
+    "redFailing": 18,
+    "note": "RED receipt and RED commit bytes are unchanged by this commit"
+  },
+  "sourceAndTests": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "sha256": "4d6721dcc52acdecc0f104d57792ac77343c50b9c2913096137670a50def92da",
+      "bytes": 7326,
+      "added": 5,
+      "deleted": 2,
+      "role": "product"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "sha256": "c9d9fc252c580e8b1a1aa95ae6047564fd609c701f2f30569b7d5df92f9da57a",
+      "bytes": 16953,
+      "added": 112,
+      "deleted": 3,
+      "role": "test"
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "sha256": "f331c6a1222e9c46a425e88ee9c2c030ea216c3ab98d79b9a6b70a4535f5a7ca",
+      "bytes": 11866,
+      "added": 4,
+      "deleted": 0,
+      "role": "product"
+    },
+    {
+      "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "sha256": "63c190be62b3bbd6746cdb8100be8df1f126383d4b4142d8186154bff187f690",
+      "bytes": 35550,
+      "added": 64,
+      "deleted": 0,
+      "role": "test"
+    },
+    {
+      "path": "src/__tests__/api/localSeatCredentials.test.ts",
+      "sha256": "003337f05022e2b46e5972e23e525bbe37526ecd0854dca648da7e70cb8fde1e",
+      "bytes": 14103,
+      "added": 43,
+      "deleted": 0,
+      "role": "test"
+    },
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "sha256": "a54c276269de054482b423dce15af10882e09f922f7b98e6bf33b3b0337e4b5e",
+      "bytes": 12984,
+      "added": 15,
+      "deleted": 9,
+      "role": "product"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "sha256": "2613c36ec2d0c27d009cf8c95cabf967526acea3593f9a8721b45c2f6eefa673",
+      "bytes": 28332,
+      "added": 294,
+      "deleted": 0,
+      "role": "test"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "sha256": "0be29ea1fa4bcf74db350b34db217791abe15c2d2348ca778f11705030d0c2ee",
+      "bytes": 8911,
+      "added": 37,
+      "deleted": 11,
+      "role": "product"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "sha256": "91c79b164cba5de5ba197643ab5de245c7d0d7b80862eb51ec1a20f3fb0292c8",
+      "bytes": 30122,
+      "added": 323,
+      "deleted": 33,
+      "role": "test"
+    }
+  ],
+  "unchangedRegisteredLeaves": [
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "sha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "bytes": 3473,
+      "equalsBaseline": true
+    }
+  ],
+  "testAmendmentAfterRed": {
+    "recordedAt": "2026-10-24T13:28:52.032Z",
+    "files": [
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+    ],
+    "change": "Ten pre-existing panel tests click the provision button after the seat becomes active, whose label is now \"Re-provision seat (new identity)\". They now use a name-agnostic provisionButton() lookup (/provision seat/i) and an actionButton() helper; no assertion on behavior was weakened or removed. One new test, O11 \"provisions a revoked seat without a confirmation\", was added. All six RED-failing panel tests plus the O-series stay byte-identical.",
+    "proof": "The amended panel test file run against the unchanged baseline panel (sha256 ed121f8b...) gives 7 failures out of 35 tests: the six RED panel failures (O10, O11, O12, O13, O14 503/O13 status 0, O15) plus the O14 status-500 row added in the round-2 fix; every pre-existing test and every other preserve test passes at baseline.",
+    "baselineRun": {
+      "summary": "Tests: 7 failed, 28 passed, 35 total",
+      "failedTitles": [
+        "LocalSeatOperatorPanel LSC-2O operator obligations O10 refreshes on NOT_REVOCABLE, keeps the seat target and never resubmits",
+        "LocalSeatOperatorPanel LSC-2O operator obligations O11 requires explicit confirmation naming the new identity before re-provisioning an active seat",
+        "LocalSeatOperatorPanel LSC-2O operator obligations O12 resets the confirmation on seat change and after every outcome and keeps the password field contracts",
+        "LocalSeatOperatorPanel LSC-2O operator obligations O13 a status 0 write outcome refreshes seats before any mutation can be resubmitted",
+        "LocalSeatOperatorPanel LSC-2O operator obligations O14 a status 503 write outcome refreshes seats before any mutation can be resubmitted",
+        "LocalSeatOperatorPanel LSC-2O operator obligations O14 a status 500 write outcome refreshes seats before any mutation can be resubmitted",
+        "LocalSeatOperatorPanel LSC-2O operator obligations O15 keeps every write disabled after a failed unknown-outcome refresh until an explicit successful Retry refresh"
+      ]
+    },
+    "redGreenSameBytes": "All other four test files are byte-identical to the RED commit.",
+    "redTestSha256": "3bdae0d86ddffab03d0c3dd3b3a5f8549a61aba820ae8d8fc2de011eaa77e85f",
+    "redTestBytes": 28699,
+    "testByteChange": "Locator-only amendment after RED plus added preserve tests; original admission and RED receipts remain byte-unchanged; no claim that the amended test bytes were the RED bytes."
+  },
+  "runtime": {
+    "green": {
+      "head": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+      "node": "v22.22.0",
+      "lane": "lsc-2o-admission",
+      "class": "jest",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--runTestsByPath",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+        "src/pages-modules/api/__tests__/matchHistoryFog.test.ts"
+      ],
+      "exitCode": 0,
+      "summary": "Tests: 246 passed, 246 total",
+      "suites": "Test Suites: 7 passed, 7 total",
+      "perSuite": [
+        {
+          "file": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "tests": 33,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/__tests__/api/localSeatCredentials.test.ts",
+          "tests": 32,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "tests": 35,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+          "tests": 19,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "tests": 82,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+          "tests": 31,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+          "tests": 14,
+          "failed": 0,
+          "status": "passed"
+        }
+      ]
+    },
+    "regression": {
+      "head": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+      "node": "v22.22.0",
+      "lane": "lsc-2o-admission",
+      "class": "jest",
+      "command": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--watchAll=false",
+        "--runTestsByPath",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+        "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+        "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts"
+      ],
+      "exitCode": 0,
+      "summary": "Tests: 174 passed, 174 total",
+      "suites": "Test Suites: 11 passed, 11 total",
+      "perSuite": [
+        {
+          "file": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+          "tests": 76,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "tests": 12,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "tests": 24,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+          "tests": 13,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+          "tests": 6,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+          "tests": 11,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "tests": 5,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+          "tests": 5,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
+          "tests": 16,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+          "tests": 4,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+          "tests": 2,
+          "failed": 0,
+          "status": "passed"
+        }
+      ]
+    },
+    "typecheck": {
+      "head": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+      "node": "v22.22.0",
+      "lane": "lsc-2o-admission",
+      "class": "build",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0
+    },
+    "lint": {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "note": "0 errors; the four changed product files have 0 warnings"
+    },
+    "lintUnits": "passed at the RED commit (ceilings unchanged); rerun at the final head",
+    "headNote": "Re-recorded at review-fix head 5c58412fa38758660bb8f57c7fd03b047e53fee3 (the tree before the round-2 fix commit); the GREEN-time runs at 64441bfd2 are superseded."
+  },
+  "mutants": {
+    "newCode": {
+      "node": "v22.22.0",
+      "head": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+      "count": 26,
+      "killed": 26,
+      "results": [
+        {
+          "id": "G1",
+          "what": "not-revocable result kind",
+          "file": "src/services/vault/LocalSeatCredentialRepository.ts",
+          "line": 206,
+          "before": "return { kind: 'not-revocable', currentGeneration };",
+          "after": "return { kind: 'generation-conflict', currentGeneration };",
+          "verdict": "KILLED",
+          "failed": 6,
+          "failedTitles": [
+            "LocalSeatCredentialService operator writes (LSC-1S) O06 reports not-revocable without detail, keeps the generation-conflict detail and never blocks a provision",
+            "LocalSeatCredentialService operator writes (LSC-1S) O07 verifies the operator and consumes the window before a not-revocable result, recording nothing",
+            "/api/multiplayer/auth/local-seats O08 reports a distinct sanitized NOT_REVOCABLE refusal and keeps the conflict codes for stale requests",
+            "LocalSeatCredentialRepository (LSC-1S) revokes once, then reports not-revocable for a second revoke and an unprovisioned revoke",
+            "LocalSeatCredentialRepository (LSC-1S) LSC-2O distinct not-revocable result O01 refuses a fresh revoke of an absent seat at the matching generation without writing"
+          ]
+        },
+        {
+          "id": "G2",
+          "what": "stale generation is checked before not-revocable",
+          "file": "src/services/vault/LocalSeatCredentialRepository.ts",
+          "line": 202,
+          "before": "if (currentGeneration !== write.expectedGeneration) {",
+          "after": "if (\n        currentGeneration !== write.expectedGeneration &&\n        !(kind === 'revoke' && current?.revokedAt !== null)\n      ) {",
+          "verdict": "KILLED",
+          "failed": 3,
+          "failedTitles": [
+            "LocalSeatCredentialService operator writes (LSC-1S) O06 reports not-revocable without detail, keeps the generation-conflict detail and never blocks a provision",
+            "/api/multiplayer/auth/local-seats O08 reports a distinct sanitized NOT_REVOCABLE refusal and keeps the conflict codes for stale requests",
+            "LocalSeatCredentialRepository (LSC-1S) LSC-2O distinct not-revocable result O03 keeps generation-conflict for a stale generation on absent, active and revoked seats"
+          ]
+        },
+        {
+          "id": "G3",
+          "what": "not-revocable never blocks a provision",
+          "file": "src/services/vault/LocalSeatCredentialRepository.ts",
+          "line": 205,
+          "before": "if (kind === 'revoke' && current?.revokedAt !== null) {",
+          "after": "if (current?.revokedAt !== null) {",
+          "verdict": "KILLED",
+          "failed": 48,
+          "failedTitles": [
+            "LSC-1 prospective runtime survivors R2-01/R2-04: ten route-wide attempts precede KDF, including wrong guesses on both seats",
+            "LSC-1 prospective runtime survivors R2-12: a locked seat consumes the mint window but performs no KDF",
+            "LSC-1 prospective runtime survivors R2-12: the mint lock survives a SQLite reopen and a new service",
+            "LSC-1 prospective runtime survivors a successful mint clears the durable failure count and lock",
+            "LSC-1 prospective runtime survivors R2-01/R2-04: ten successful mints across both seats exhaust the shared window until expiry"
+          ]
+        },
+        {
+          "id": "G4",
+          "what": "absent seat revoke is not-revocable",
+          "file": "src/services/vault/LocalSeatCredentialRepository.ts",
+          "line": 205,
+          "before": "if (kind === 'revoke' && current?.revokedAt !== null) {",
+          "after": "if (kind === 'revoke' && current?.revokedAt != null) {",
+          "verdict": "KILLED",
+          "failed": 5,
+          "failedTitles": [
+            "LocalSeatCredentialService operator writes (LSC-1S) O06 reports not-revocable without detail, keeps the generation-conflict detail and never blocks a provision",
+            "LocalSeatCredentialService operator writes (LSC-1S) O07 verifies the operator and consumes the window before a not-revocable result, recording nothing",
+            "/api/multiplayer/auth/local-seats O08 reports a distinct sanitized NOT_REVOCABLE refusal and keeps the conflict codes for stale requests",
+            "LocalSeatCredentialRepository (LSC-1S) revokes once, then reports not-revocable for a second revoke and an unprovisioned revoke",
+            "LocalSeatCredentialRepository (LSC-1S) LSC-2O distinct not-revocable result O01 refuses a fresh revoke of an absent seat at the matching generation without writing"
+          ]
+        },
+        {
+          "id": "G5",
+          "what": "not-revocable carries no detail",
+          "file": "src/services/vault/LocalSeatCredentialService.ts",
+          "line": 359,
+          "before": "throw new LocalSeatCredentialError('not-revocable');",
+          "after": "throw new LocalSeatCredentialError('not-revocable', {\n        currentGeneration: 0,\n      });",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LocalSeatCredentialService operator writes (LSC-1S) O06 reports not-revocable without detail, keeps the generation-conflict detail and never blocks a provision",
+            "/api/multiplayer/auth/local-seats O08 reports a distinct sanitized NOT_REVOCABLE refusal and keeps the conflict codes for stale requests"
+          ]
+        },
+        {
+          "id": "G6",
+          "what": "service maps not-revocable to its own code",
+          "file": "src/services/vault/LocalSeatCredentialService.ts",
+          "line": 359,
+          "before": "throw new LocalSeatCredentialError('not-revocable');",
+          "after": "throw new LocalSeatCredentialError('generation-conflict');",
+          "verdict": "KILLED",
+          "failed": 3,
+          "failedTitles": [
+            "LocalSeatCredentialService operator writes (LSC-1S) O06 reports not-revocable without detail, keeps the generation-conflict detail and never blocks a provision",
+            "LocalSeatCredentialService operator writes (LSC-1S) O07 verifies the operator and consumes the window before a not-revocable result, recording nothing",
+            "/api/multiplayer/auth/local-seats O08 reports a distinct sanitized NOT_REVOCABLE refusal and keeps the conflict codes for stale requests"
+          ]
+        },
+        {
+          "id": "S1",
+          "what": "NOT_REVOCABLE client message",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 58,
+          "before": "NOT_REVOCABLE: 'That seat is not active, so nothing was revoked.',",
+          "after": "NOT_REVOCABLE_X: 'That seat is not active, so nothing was revoked.',",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LSC-2O store obligations O09 gives NOT_REVOCABLE its own client message and still collapses unknown server codes"
+          ]
+        },
+        {
+          "id": "S2",
+          "what": "primary 401 -> OPERATOR_DENIED",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 247,
+          "before": "if (status === 401) return deniedCode(choice);",
+          "after": "if (status === 401) return 'LOCAL_SEAT_DENIED';",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LSC-2O store obligations O17 maps primary mint HTTP 401 to OPERATOR_DENIED without reflecting server text"
+          ]
+        },
+        {
+          "id": "S3",
+          "what": "primary 404 -> OPERATOR_IDENTITY_REQUIRED",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 248,
+          "before": "if (status === 404 && choice === 'primary')",
+          "after": "if (status === 404 && choice === 'never')",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LSC-2O store obligations O17 maps primary mint HTTP 404 to OPERATOR_IDENTITY_REQUIRED without reflecting server text"
+          ]
+        },
+        {
+          "id": "S4",
+          "what": "seat 404 stays REQUEST_FAILED",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 248,
+          "before": "if (status === 404 && choice === 'primary')",
+          "after": "if (status === 404)",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LSC-2O store obligations O17 maps seat1 mint HTTP 404 to REQUEST_FAILED without reflecting server text",
+            "LSC-2O store obligations O17 maps seat2 mint HTTP 404 to REQUEST_FAILED without reflecting server text"
+          ]
+        },
+        {
+          "id": "S5",
+          "what": "empty/over-long primary password -> OPERATOR_DENIED",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 261,
+          "before": "throw new LocalSeatRequestError(401, deniedCode(choice));",
+          "after": "throw new LocalSeatRequestError(401, 'LOCAL_SEAT_DENIED');",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LSC-2O store obligations O17 refuses an invalid primary password length with  and no request",
+            "LSC-2O store obligations O17 refuses an invalid primary password length with xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx and no request"
+          ]
+        },
+        {
+          "id": "S6",
+          "what": "429 stays throttled",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 246,
+          "before": "if (status === 429) return 'LOCAL_SEAT_THROTTLED';",
+          "after": "if (status === 429) return 'REQUEST_FAILED';",
+          "verdict": "KILLED",
+          "failed": 7,
+          "failedTitles": [
+            "LSC-2C public choice and credential adapter C03 sanitizes mint HTTP 429 with retry metadata 17, without retry",
+            "LSC-2C public choice and credential adapter C03 sanitizes mint HTTP 429 with retry metadata -2, without retry",
+            "LSC-2C public choice and credential adapter C03 sanitizes mint HTTP 429 with retry metadata NaN, without retry",
+            "LSC-2C review-2326 guard coverage R8 ignores Retry-After 0 on a throttled mint",
+            "LSC-2O store obligations O17 keeps the throttle hint for the primary mint"
+          ]
+        },
+        {
+          "id": "S7",
+          "what": "primary skips the future-issuedAt check (L-3 option B)",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 307,
+          "before": "(choice !== 'primary' && issued > Date.now() + 10_000) ||",
+          "after": "issued > Date.now() + 10_000 ||",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LSC-2O store obligations O18 accepts a primary token issued ahead of the browser clock while seat mints still refuse it"
+          ]
+        },
+        {
+          "id": "S8",
+          "what": "seat mints keep the future-issuedAt check",
+          "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "line": 307,
+          "before": "(choice !== 'primary' && issued > Date.now() + 10_000) ||",
+          "after": "(false && issued > Date.now() + 10_000) ||",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LSC-2C public choice and credential adapter C14 C15 rejects invalid minted future metadata",
+            "LSC-2O store obligations O18 accepts a primary token issued ahead of the browser clock while seat mints still refuse it"
+          ]
+        },
+        {
+          "id": "P1",
+          "what": "status 0 refreshes",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 16,
+          "before": "if (error.status === 0 || error.status >= 500) return true;",
+          "after": "if (error.status >= 500) return true;",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O13 a status 0 write outcome refreshes seats before any mutation can be resubmitted",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O15 keeps every write disabled after a failed unknown-outcome refresh until an explicit successful Retry refresh"
+          ]
+        },
+        {
+          "id": "P2",
+          "what": "5xx refreshes",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 16,
+          "before": "if (error.status === 0 || error.status >= 500) return true;",
+          "after": "if (error.status === 0 || error.status >= 600) return true;",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O14 a status 503 write outcome refreshes seats before any mutation can be resubmitted",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O14 a status 500 write outcome refreshes seats before any mutation can be resubmitted"
+          ]
+        },
+        {
+          "id": "P3",
+          "what": "NOT_REVOCABLE refreshes",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 19,
+          "before": "['GENERATION_CONFLICT', 'OPERATION_MISMATCH', 'NOT_REVOCABLE'].includes(",
+          "after": "['GENERATION_CONFLICT', 'OPERATION_MISMATCH'].includes(",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O10 refreshes on NOT_REVOCABLE, keeps the seat target and never resubmits"
+          ]
+        },
+        {
+          "id": "P4",
+          "what": "known 4xx outcomes do not force a refresh",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 16,
+          "before": "if (error.status === 0 || error.status >= 500) return true;",
+          "after": "if (error.status === 0 || error.status >= 400) return true;",
+          "verdict": "KILLED",
+          "failed": 4,
+          "failedTitles": [
+            "LocalSeatOperatorPanel shows sanitized OPERATOR_DENIED errors distinctly and clears both secrets",
+            "LocalSeatOperatorPanel shows sanitized THROTTLED errors distinctly and clears both secrets",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O16 a known OPERATOR_DENIED outcome does not force a refresh and keeps its message",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O16 a known LOCAL_SEAT_THROTTLED outcome does not force a refresh and keeps its message"
+          ]
+        },
+        {
+          "id": "P5",
+          "what": "active-seat re-provision needs confirmation",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 85,
+          "before": "if (action === 'provision' && reprovision && !confirmed) {",
+          "after": "if (false) {",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O11 requires explicit confirmation naming the new identity before re-provisioning an active seat",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O12 resets the confirmation on seat change and after every outcome and keeps the password field contracts"
+          ]
+        },
+        {
+          "id": "P6",
+          "what": "confirmation resets on seat change",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 47,
+          "before": "setLabel(seat.label ?? '');\n    setConfirmed(false);",
+          "after": "setLabel(seat.label ?? '');",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O12 resets the confirmation on seat change and after every outcome and keeps the password field contracts"
+          ]
+        },
+        {
+          "id": "P7",
+          "what": "confirmation resets after every outcome",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 105,
+          "before": "setMessage('');\n    setConfirmed(false);\n    try {",
+          "after": "setMessage('');\n    try {",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O12 resets the confirmation on seat change and after every outcome and keeps the password field contracts"
+          ]
+        },
+        {
+          "id": "P9",
+          "what": "plain 500 is an unknown outcome and refreshes",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 16,
+          "before": "if (error.status === 0 || error.status >= 500) return true;",
+          "after": "if (error.status === 0 || error.status > 500) return true;",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O14 a status 500 write outcome refreshes seats before any mutation can be resubmitted"
+          ]
+        },
+        {
+          "id": "P10",
+          "what": "the confirmation never blocks Revoke",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 85,
+          "before": "if (action === 'provision' && reprovision && !confirmed) {",
+          "after": "if (reprovision && !confirmed) {",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "LocalSeatOperatorPanel LSC-2O operator obligations O11 revokes an active seat without the re-provision confirmation"
+          ]
+        },
+        {
+          "id": "P11",
+          "what": "Revoke is enabled only for an active seat",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 250,
+          "before": "disabled={!reprovision}",
+          "after": "disabled={false}",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "LocalSeatOperatorPanel enables Revoke only for an active seat",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O10 refreshes on NOT_REVOCABLE, keeps the seat target and never resubmits"
+          ]
+        },
+        {
+          "id": "P12",
+          "what": "unconfirmed refusal still clears the new seat password",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 84,
+          "before": "if (password.current) password.current.value = '';\n    if (action === 'provision' && reprovision && !confirmed) {",
+          "after": "if (action === 'provision' && reprovision && !confirmed) {",
+          "verdict": "KILLED",
+          "failed": 12,
+          "failedTitles": [
+            "LocalSeatOperatorPanel explains invalid provision label     or password without a request",
+            "LocalSeatOperatorPanel explains invalid provision label xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx or password without a request",
+            "LocalSeatOperatorPanel explains invalid provision label Pilot or password without a request",
+            "LocalSeatOperatorPanel clears secrets before success and retains the submitted outcome generation even with a newer snapshot",
+            "LocalSeatOperatorPanel shows sanitized OPERATOR_DENIED errors distinctly and clears both secrets"
+          ]
+        },
+        {
+          "id": "P8",
+          "what": "only an ACTIVE seat needs confirmation",
+          "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "line": 37,
+          "before": "seatId)?.status === 'active';",
+          "after": "seatId)?.status !== 'unprovisioned';",
+          "verdict": "KILLED",
+          "failed": 3,
+          "failedTitles": [
+            "LocalSeatOperatorPanel enables Revoke only for an active seat",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O10 refreshes on NOT_REVOCABLE, keeps the seat target and never resubmits",
+            "LocalSeatOperatorPanel LSC-2O operator obligations O11 provisions a revoked seat without a confirmation"
+          ]
+        }
+      ],
+      "restored": true,
+      "note": "Re-run after the round-2 fixes; P9 (plain 500) and P10 (confirmation blocking Revoke) are the two Opus round-2 survivors X3 and X5, now KILLED; P11 and P12 are new."
+    },
+    "cfLsc2c1": {
+      "node": "v22.22.0",
+      "head": "64441bfd2f62c00e04834fb680825463b0101ea4",
+      "storeSha256": "a54c276269de054482b423dce15af10882e09f922f7b98e6bf33b3b0337e4b5e",
+      "testSha256": "2613c36ec2d0c27d009cf8c95cabf967526acea3593f9a8721b45c2f6eefa673",
+      "baseline": {
+        "total": 82,
+        "passed": 82,
+        "failed": 0
+      },
+      "results": [
+        {
+          "id": "M1",
+          "kind": "nine",
+          "line": 359,
+          "before": "expiresAt <= Date.now()",
+          "after": "false",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R1 replace refuses an already-expired minted bearer and keeps the original"
+          ]
+        },
+        {
+          "id": "M2",
+          "kind": "nine",
+          "line": 339,
+          "before": "token.playerId !== binding.playerId",
+          "after": "false",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R2 status refuses a stored bearer whose wire principal differs from the binding"
+          ]
+        },
+        {
+          "id": "M3",
+          "kind": "nine",
+          "line": 213,
+          "before": "decoded?.playerId !== playerId",
+          "after": "false",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R3 remember refuses a stored record whose wire principal differs"
+          ]
+        },
+        {
+          "id": "M4",
+          "kind": "nine",
+          "line": 310,
+          "before": "(choice === 'primary' ? 6 : 1)",
+          "after": "(choice === 'primary' ? 1 : 1)",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R4 primary accepts the 6h server cap that seats refuse"
+          ]
+        },
+        {
+          "id": "M5",
+          "kind": "nine",
+          "line": 315,
+          "before": "body.displayName.length > 64",
+          "after": "false",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R5 refuses a displayName longer than 64"
+          ]
+        },
+        {
+          "id": "M6",
+          "kind": "nine",
+          "line": 309,
+          "before": "expires <= issued ||",
+          "after": "false ||",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "R9 refuses a zero-lifetime token issued slightly ahead of the browser clock",
+            "O18 keeps refusing a primary token with issued after expiry"
+          ]
+        },
+        {
+          "id": "M7",
+          "kind": "nine",
+          "line": 227,
+          "before": "if (matchId)",
+          "after": "if (true)",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R6 forget without a match removes only the choice"
+          ]
+        },
+        {
+          "id": "M9",
+          "kind": "nine",
+          "line": 357,
+          "before": "wire.expiresAt !== minted.token.expiresAt ||",
+          "after": "false ||",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R7 replace refuses wire/result expiry disagreement"
+          ]
+        },
+        {
+          "id": "M10",
+          "kind": "nine",
+          "line": 288,
+          "before": "retry > 0",
+          "after": "retry >= 0",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "R8 ignores Retry-After 0 on a throttled mint"
+          ]
+        },
+        {
+          "id": "M8",
+          "kind": "control",
+          "line": 366,
+          "before": "minted.token.playerId !== expected.playerId",
+          "after": "false",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "C12 refuses rotated principal without replacing the original bearer"
+          ]
+        },
+        {
+          "id": "M11",
+          "kind": "control",
+          "line": 307,
+          "before": "(choice !== 'primary' && issued > Date.now() + 10_000) ||",
+          "after": "(choice !== 'primary' && issued > Date.now() + 120_000) ||",
+          "verdict": "KILLED",
+          "failed": 2,
+          "failedTitles": [
+            "C14 C15 rejects invalid minted future metadata",
+            "O18 accepts a primary token issued ahead of the browser clock while seat mints still refuse it"
+          ]
+        },
+        {
+          "id": "M12",
+          "kind": "control",
+          "line": 303,
+          "before": "token.playerId !== body.playerId ||",
+          "after": "false ||",
+          "verdict": "KILLED",
+          "failed": 1,
+          "failedTitles": [
+            "C14 C15 rejects invalid minted player metadata"
+          ]
+        },
+        {
+          "id": "M13",
+          "kind": "control",
+          "line": 157,
+          "before": "throw new LocalSeatRequestError(0, 'INVALID_CHOICE');",
+          "after": "return 'primary';",
+          "verdict": "KILLED",
+          "failed": 4,
+          "failedTitles": [
+            "C06 refuses an invalid saved choice admin",
+            "C06 refuses an invalid saved choice local-seat-1",
+            "C06 refuses an invalid saved choice ",
+            "C06 refuses an invalid saved choice {\"password\":\"seat-secret\"}"
+          ]
+        }
+      ],
+      "note": "All nine CF-LSC2C-1 mutants M1-M7, M9, M10 are KILLED on the GREEN store by the R1-R9 tests (M6 also by O18); the four controls are KILLED. R1-R9 passed at baseline, so this is mutant-kill evidence, not RED evidence. The store and its test are byte-unchanged by the round-2 fixes, so this inventory stands (re-run at the final head in the proof logs).",
+      "restored": true
+    }
+  },
+  "carryInDispositions": [
+    {
+      "id": "CF-LSC2OP-2",
+      "tests": "O11 O12",
+      "result": "active-seat re-provision relabelled \"Re-provision seat (new identity)\" with an explicit confirmation that resets on seat change and after every outcome; revoked and unprovisioned seats provision without it"
+    },
+    {
+      "id": "CF-LSC2OP-7",
+      "tests": "O13 O14 O15 O16",
+      "result": "status 0 and 5xx outcomes refresh seats before any resubmission; failed refresh keeps writes disabled until an explicit Retry refresh; known 401/429 do not force a refresh; both 409 codes keep refreshing"
+    },
+    {
+      "id": "CF-LSC2OP-3",
+      "tests": "O01-O09 O10",
+      "result": "repository not-revocable result at the matching generation, service code without detail, route unchanged (generic mapping yields 409 NOT_REVOCABLE), client message and panel refresh"
+    },
+    {
+      "id": "CF-LSC2OP-4",
+      "result": "preserved: current-password/new-password and minimum-length contracts asserted in O12"
+    },
+    {
+      "id": "CF-LSC2C-1",
+      "tests": "R1-R9",
+      "result": "nine mutants killed"
+    },
+    {
+      "id": "CF-LSC2C-2/L-2",
+      "tests": "O17",
+      "result": "primary 401 -> OPERATOR_DENIED, 404 -> OPERATOR_IDENTITY_REQUIRED, empty/over-long primary password -> OPERATOR_DENIED; seat mapping unchanged"
+    },
+    {
+      "id": "CF-LSC2C-2/L-3-store",
+      "tests": "O18",
+      "result": "option B: only the future-issuedAt (10s) clause is skipped for the primary route; seat mints keep it; every other check unchanged for both"
+    },
+    {
+      "id": "N-1",
+      "result": "no-op finally { password = \"\" } removed (behavior-preserving)"
+    },
+    {
+      "id": "CF-LSC2C-2/routing-correction",
+      "result": "recorded in the admission receipt carryIn; the closure carryForwardRouting must repeat it (L-1 and the panel-side L-3 acceptance stay with LSC-2)"
+    },
+    {
+      "id": "CF-LSC2C-2R",
+      "result": "not taken; open Root registration follow-up"
+    },
+    {
+      "id": "review-r2 I2",
+      "result": "unknown-outcome alert wording routed to LSC-2 final UI integration"
+    }
+  ],
+  "measuredFit": {
+    "files": [
+      {
+        "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+        "added": 5,
+        "deleted": 2,
+        "role": "product"
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "added": 112,
+        "deleted": 3,
+        "role": "test"
+      },
+      {
+        "path": "src/services/vault/LocalSeatCredentialService.ts",
+        "added": 4,
+        "deleted": 0,
+        "role": "product"
+      },
+      {
+        "path": "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "added": 64,
+        "deleted": 0,
+        "role": "test"
+      },
+      {
+        "path": "src/__tests__/api/localSeatCredentials.test.ts",
+        "added": 43,
+        "deleted": 0,
+        "role": "test"
+      },
+      {
+        "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "added": 15,
+        "deleted": 9,
+        "role": "product"
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "added": 294,
+        "deleted": 0,
+        "role": "test"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "added": 37,
+        "deleted": 11,
+        "role": "product"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "added": 323,
+        "deleted": 33,
+        "role": "test"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 32
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "added": 2
+      }
+    ],
+    "productAddedLines": 61,
+    "countedAddedLines": 95,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "normalOxfmtProduct": true,
+    "fileCount": 14,
+    "maxFiles": 15,
+    "fileCountNote": "9 changed source/test leaves + units.json + page + admission + red + local receipts = 14; local-seats.ts is registered but unchanged; the admission review receipt is reserved for the closure PR (not written).",
+    "reservedReviewUnwritten": true,
+    "sizingDraftProductAdditions": 59
+  },
+  "packet": {
+    "id": "PK-lsc-2o-ruling",
+    "decision": "pending Root exact-head OWNER-RULING; no implementation acceptance claimed"
+  },
+  "scope": "Operator re-provision confirmation, refresh-before-resubmit, distinct not-revocable repository/service/API/client code, plus the carried store items. No schema/migration (v33), no primary auth route, token store, securitySchemas or server auth edits, no CampaignCoopEntryPanel/CampaignNavigation (LSC-2), no packaged proof (LSC-2P). LSC-2 stays blocked until LSC-2O closure.",
+  "controls": [
+    {
+      "path": "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
+      "sha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e",
+      "bytes": 1626,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "sha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "bytes": 5978,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "sha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "bytes": 3473,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/lib/api/securitySchemas.ts",
+      "sha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac",
+      "bytes": 7798,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "sha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+      "bytes": 10155,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.localSeatCredentials.migration.ts",
+      "sha256": "36d3e397205b37e91778ed9e00a9bc46be6ffa775e4dc4a9e777471eeb4e25c7",
+      "bytes": 3796,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "sha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa",
+      "bytes": 18916,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/components/campaign/CampaignNavigation.tsx",
+      "sha256": "fedb11001f50bde6dfcae237b547ad621c8292f0b187799f942115ad24b9d07c",
+      "bytes": 10083,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
+      "sha256": "7816cb87b81ff06efb16fdbc50443f984b5631f064e20fe714f9e11a62394855",
+      "bytes": 31590,
+      "equalsAdmission": true
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHistoryFog.test.ts",
+      "sha256": "2d52d2487e0ba31faf26e5d545fac484960bbbcd9af0622bdfd7353459e3ad66",
+      "bytes": 30001,
+      "equalsAdmission": true
+    },
+    {
+      "path": "package.json",
+      "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696",
+      "bytes": 35833,
+      "equalsAdmission": true
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80",
+      "bytes": 656778,
+      "equalsAdmission": true
+    },
+    {
+      "path": "jest.config.js",
+      "sha256": "562e7a320f0547dda21dd2e8ec93e6c68db615f32522de42a293fc58a44b8a76",
+      "bytes": 5413,
+      "equalsAdmission": true
+    },
+    {
+      "path": "jest.setup.js",
+      "sha256": "feab814b62579b60bdd9511646e39d8461391e66885605d61e2a2f7906935e0d",
+      "bytes": 2936,
+      "equalsAdmission": true
+    }
+  ],
+  "proofLogs": {
+    "greenOwnedGuards": {
+      "path": "_reports/2026-10-24/lsc-2o/r2-green-owned-guards.log",
+      "encoding": "base64",
+      "bytes": 1224,
+      "sha256": "22dc095c01beb3f45a440f5eabd5c5c0eeef73c5dbb0cce1ac6aec8100bed40e",
+      "data": "UnVubmluZyBvbmUgcHJvamVjdDogdW5pdApQQVNTIHVuaXQgc3JjL3NlcnZpY2VzL3ZhdWx0L19fdGVzdHNfXy9Mb2NhbFNlYXRDcmVkZW50aWFsU2VydmljZS50ZXN0LnRzClBBU1MgdW5pdCBzcmMvX190ZXN0c19fL2FwaS9sb2NhbFNlYXRDcmVkZW50aWFscy50ZXN0LnRzClBBU1MgdW5pdCBzcmMvcGFnZXMtbW9kdWxlcy9nYW1lcGxheS9jYW1wYWlnbnMvX190ZXN0c19fL0xvY2FsU2VhdE9wZXJhdG9yUGFuZWwudGVzdC50c3gKUEFTUyB1bml0IHNyYy9zZXJ2aWNlcy92YXVsdC9fX3Rlc3RzX18vTG9jYWxTZWF0Q3JlZGVudGlhbFJlcG9zaXRvcnkudGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9sb2NhbFNlYXRDcmVkZW50aWFsU3RvcmUudGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9tdWx0aXBsYXllci9zZXJ2ZXIvX190ZXN0c19fL2IxNEZvZ0NvbnRhaW5tZW50LnRlc3QudHMKUEFTUyB1bml0IHNyYy9wYWdlcy1tb2R1bGVzL2FwaS9fX3Rlc3RzX18vbWF0Y2hIaXN0b3J5Rm9nLnRlc3QudHMKClRlc3QgU3VpdGVzOiA3IHBhc3NlZCwgNyB0b3RhbApUZXN0czogICAgICAgMjQ2IHBhc3NlZCwgMjQ2IHRvdGFsClNuYXBzaG90czogICAwIHRvdGFsClRpbWU6ICAgICAgICAxNC44NjcgcwpSYW4gYWxsIHRlc3Qgc3VpdGVzIHdpdGhpbiBwYXRocyAic3JjL3NlcnZpY2VzL3ZhdWx0L19fdGVzdHNfXy9Mb2NhbFNlYXRDcmVkZW50aWFsUmVwb3NpdG9yeS50ZXN0LnRzIiwgInNyYy9zZXJ2aWNlcy92YXVsdC9fX3Rlc3RzX18vTG9jYWxTZWF0Q3JlZGVudGlhbFNlcnZpY2UudGVzdC50cyIsICJzcmMvX190ZXN0c19fL2FwaS9sb2NhbFNlYXRDcmVkZW50aWFscy50ZXN0LnRzIiwgInNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vbG9jYWxTZWF0Q3JlZGVudGlhbFN0b3JlLnRlc3QudHMiLCAic3JjL3BhZ2VzLW1vZHVsZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL19fdGVzdHNfXy9Mb2NhbFNlYXRPcGVyYXRvclBhbmVsLnRlc3QudHN4IiwgInNyYy9saWIvbXVsdGlwbGF5ZXIvc2VydmVyL19fdGVzdHNfXy9iMTRGb2dDb250YWlubWVudC50ZXN0LnRzIiwgInNyYy9wYWdlcy1tb2R1bGVzL2FwaS9fX3Rlc3RzX18vbWF0Y2hIaXN0b3J5Rm9nLnRlc3QudHMiLgpUZXN0IHJlc3VsdHMgd3JpdHRlbiB0bzogLi5cX3JlcG9ydHNcMjAyNi0xMC0yNFxsc2MtMm9ccjItZ3JlZW4tb3duZWQtZ3VhcmRzLmpzb24K"
+    },
+    "regression": {
+      "path": "_reports/2026-10-24/lsc-2o/r2-green-regression.log",
+      "encoding": "base64",
+      "bytes": 2906,
+      "sha256": "ec504168f26b19fb0a2b314a53384021521cd3a90870cdca319e14fb5a5cd21e",
+      "data": "UnVubmluZyBvbmUgcHJvamVjdDogdW5pdApQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9jYW1wYWlnblN5bmNUcmFuc3BvcnQudGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9sYXVuY2hDb29wTWlzc2lvbi50ZXN0LnRzCiAg4pePIENvbnNvbGUKCiAgICBjb25zb2xlLndhcm4KICAgICAgW0luTWVtb3J5UGxheWVyU3RvcmVdIGRldi1vbmx5IHN0b3JlIGluIHVzZTsgY29uZmlndXJlIGEgcGVyc2lzdGVudCBzdG9yZSBmb3IgcHJvZHVjdGlvbgoKICAgICAgMjYgfCAgICAgaWYgKCFvcHRpb25zLnF1aWV0KSB7CiAgICAgIDI3IHwgICAgICAgLy8gZXNsaW50LWRpc2FibGUtbmV4dC1saW5lIG5vLWNvbnNvbGUKICAgID4gMjggfCAgICAgICBjb25zb2xlLndhcm4oCiAgICAgICAgIHwgICAgICAgICAgICAgICBeCiAgICAgIDI5IHwgICAgICAgICAnW0luTWVtb3J5UGxheWVyU3RvcmVdIGRldi1vbmx5IHN0b3JlIGluIHVzZTsgY29uZmlndXJlIGEgcGVyc2lzdGVudCBzdG9yZSBmb3IgcHJvZHVjdGlvbicsCiAgICAgIDMwIHwgICAgICAgKTsKICAgICAgMzEgfCAgICAgfQoKICAgICAgYXQgbmV3IHdhcm4gKHNyYy9saWIvbXVsdGlwbGF5ZXIvc2VydmVyL0luTWVtb3J5UGxheWVyU3RvcmUudHM6Mjg6MTUpCiAgICAgIGF0IGdldERlZmF1bHRQbGF5ZXJTdG9yZSAoc3JjL2xpYi9tdWx0aXBsYXllci9zZXJ2ZXIvSW5NZW1vcnlQbGF5ZXJTdG9yZS50czoxMzI6MTMpCiAgICAgIGF0IGJvb3RzdHJhcEhvc3RQcm9maWxlIChzcmMvcGFnZXMvYXBpL211bHRpcGxheWVyL21hdGNoZXMvaW5kZXgudHM6MTIxOjMyKQogICAgICBhdCBib290c3RyYXBIb3N0UHJvZmlsZSAoc3JjL3BhZ2VzL2FwaS9tdWx0aXBsYXllci9tYXRjaGVzL2luZGV4LnRzOjMzNzo5KQogICAgICBhdCBwb3N0IChzcmMvbGliL211bHRpcGxheWVyL3NlcnZlci9fX3Rlc3RzX18vY29vcE1pc3Npb25DcmVhdGUuaGFybmVzcy50czo5MzozKQogICAgICBhdCBvcGVuUm91dGVGaXh0dXJlIChzcmMvbGliL211bHRpcGxheWVyL3NlcnZlci9fX3Rlc3RzX18vY29vcE1pc3Npb25DcmVhdGUuaGFybmVzcy50czoxODQ6MjApCiAgICAgIGF0IE9iamVjdC48YW5vbnltb3VzPiAoc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9sYXVuY2hDb29wTWlzc2lvbi50ZXN0LnRzOjM4MDoyMSkKClBBU1MgdW5pdCBzcmMvcGFnZXMtbW9kdWxlcy9nYW1lcGxheS9jYW1wYWlnbnMvX190ZXN0c19fL0NhbXBhaWduQ29vcEVudHJ5UGFuZWwudGVzdC50c3gKUEFTUyB1bml0IHNyYy9zZXJ2aWNlcy9wZXJzaXN0ZW5jZS9fX3Rlc3RzX18vU1FMaXRlU2VydmljZS5sb2NhbFNlYXRDcmVkZW50aWFscy5taWdyYXRpb24udGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9yb29tQ29kZUd1ZXN0SHlkcmF0aW9uLnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vY29tcG9zZUNvb3BFbmNvdW50ZXIudGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9yZWNvbmNpbGVDb29wQmF0dGxlLnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vY2FtcGFpZ25BdXRob3JpdGF0aXZlU3RhdGUudGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9jYW1wYWlnbkF1dGhvcml0YXRpdmVGb2xkLnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vY29vcFJ1bnRpbWVTZXNzaW9uLnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vcmVzb2x2ZU9ySXNzdWVSb29tQ29kZUd1ZXN0R3JhbnQudGVzdC50cwoKVGVzdCBTdWl0ZXM6IDExIHBhc3NlZCwgMTEgdG90YWwKVGVzdHM6ICAgICAgIDE3NCBwYXNzZWQsIDE3NCB0b3RhbApTbmFwc2hvdHM6ICAgMCB0b3RhbApUaW1lOiAgICAgICAgNS4yODMgcwpSYW4gYWxsIHRlc3Qgc3VpdGVzIHdpdGhpbiBwYXRocyAic3JjL3NlcnZpY2VzL3BlcnNpc3RlbmNlL19fdGVzdHNfXy9TUUxpdGVTZXJ2aWNlLmxvY2FsU2VhdENyZWRlbnRpYWxzLm1pZ3JhdGlvbi50ZXN0LnRzIiwgInNyYy9wYWdlcy1tb2R1bGVzL2dhbWVwbGF5L2NhbXBhaWducy9fX3Rlc3RzX18vQ2FtcGFpZ25Db29wRW50cnlQYW5lbC50ZXN0LnRzeCIsICJzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2NhbXBhaWduQXV0aG9yaXRhdGl2ZUZvbGQudGVzdC50cyIsICJzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2NhbXBhaWduQXV0aG9yaXRhdGl2ZVN0YXRlLnRlc3QudHMiLCAic3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9jYW1wYWlnblN5bmNUcmFuc3BvcnQudGVzdC50cyIsICJzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2NvbXBvc2VDb29wRW5jb3VudGVyLnRlc3QudHMiLCAic3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9jb29wUnVudGltZVNlc3Npb24udGVzdC50cyIsICJzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2xhdW5jaENvb3BNaXNzaW9uLnRlc3QudHMiLCAic3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9yZWNvbmNpbGVDb29wQmF0dGxlLnRlc3QudHMiLCAic3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9yZXNvbHZlT3JJc3N1ZVJvb21Db2RlR3Vlc3RHcmFudC50ZXN0LnRzIiwgInNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vcm9vbUNvZGVHdWVzdEh5ZHJhdGlvbi50ZXN0LnRzIi4KVGVzdCByZXN1bHRzIHdyaXR0ZW4gdG86IC4uXF9yZXBvcnRzXDIwMjYtMTAtMjRcbHNjLTJvXHIyLWdyZWVuLXJlZ3Jlc3Npb24uanNvbgo="
+    },
+    "typecheck": {
+      "path": "_reports/2026-10-24/lsc-2o/r2-green-typecheck.wrapper.log",
+      "encoding": "base64",
+      "bytes": 358,
+      "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+      "data": "//4NAAoAPgAgAG0AZQBrAHMAdABhAHQAaQBvAG4ALQBhAHAAcABAADAALgAxAC4AMQAgAHQAeQBwAGUAYwBoAGUAYwBrAA0ACgA+ACAAbgBvAGQAZQAgAG4AbwBkAGUAXwBtAG8AZAB1AGwAZQBzAC8AdAB5AHAAZQBzAGMAcgBpAHAAdAA3AC8AYgBpAG4ALwB0AHMAYwAgAC0ALQBuAG8ARQBtAGkAdAAgAC0ALQBzAGsAaQBwAEwAaQBiAEMAaABlAGMAawAgACYAJgAgAG4AbwBkAGUAIABuAG8AZABlAF8AbQBvAGQAdQBsAGUAcwAvAHQAeQBwAGUAcwBjAHIAaQBwAHQANwAvAGIAaQBuAC8AdABzAGMAIAAtAHAAIABzAGMAcgBpAHAAdABzAC8AdABzAGMAbwBuAGYAaQBnAC4AagBzAG8AbgAgAC0ALQBuAG8ARQBtAGkAdAANAAoADQAKAA=="
+    },
+    "amendedPanelVsBaselinePanel": {
+      "path": "_reports/2026-10-24/lsc-2o/r2-amended-panel-vs-baseline.log",
+      "encoding": "base64",
+      "bytes": 59862,
+      "sha256": "9e0cf6bfa1fd678821850f5ec2a80bd0fe66753a9a27f898be4b1e445e6ba74a",
+      "data": "UnVubmluZyBvbmUgcHJvamVjdDogdW5pdApGQUlMIHVuaXQgc3JjL3BhZ2VzLW1vZHVsZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL19fdGVzdHNfXy9Mb2NhbFNlYXRPcGVyYXRvclBhbmVsLnRlc3QudHN4ICg2LjY1NSBzKQogIExvY2FsU2VhdE9wZXJhdG9yUGFuZWwKICAgIOKImiBtYXNrcyB1bm5hbWVkIHBhc3N3b3Jkcywgc3VwcGxpZXMgYXV0b2ZpbGwgcHVycG9zZXMsIGFuZCBjbGVhcnMgdGhlbSBvbiBzZWF0IHNlbGVjdGlvbiAoODggbXMpCiAgICDiiJogZXhwbGFpbnMgaW52YWxpZCBwcm92aXNpb24gbGFiZWwgICAgIG9yIHBhc3N3b3JkIHdpdGhvdXQgYSByZXF1ZXN0ICgzMCBtcykKICAgIOKImiBleHBsYWlucyBpbnZhbGlkIHByb3Zpc2lvbiBsYWJlbCB4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eCBvciBwYXNzd29yZCB3aXRob3V0IGEgcmVxdWVzdCAoMzEgbXMpCiAgICDiiJogZXhwbGFpbnMgaW52YWxpZCBwcm92aXNpb24gbGFiZWwgUGlsb3Qgb3IgcGFzc3dvcmQgd2l0aG91dCBhIHJlcXVlc3QgKDI2IG1zKQogICAg4oiaIEdFTkVSQVRJT05fQ09ORkxJQ1Qga2VlcHMgc2VhdCAyIHNlbGVjdGVkIGFuZCB0YXJnZXRzIGl0IGFmdGVyIHJlZnJlc2hpbmcgKDQyIG1zKQogICAg4oiaIE9QRVJBVElPTl9NSVNNQVRDSCBrZWVwcyBzZWF0IDIgc2VsZWN0ZWQgYW5kIHRhcmdldHMgaXQgYWZ0ZXIgcmVmcmVzaGluZyAoMzMgbXMpCiAgICDiiJogZW5hYmxlcyBSZXZva2Ugb25seSBmb3IgYW4gYWN0aXZlIHNlYXQgKDQ1IG1zKQogICAg4oiaIGxvYWRzIG9ubHkgb24gb3BlbmluZywgbGlzdHMgYm90aCBzZWF0cywgYW5kIGRpc2Nsb3NlcyBhbGwgdHJ1c3QgYW5kIHJldm9jYXRpb24gbGltaXRzICgyNSBtcykKICAgIOKImiBjbGVhcnMgc2VjcmV0cyBiZWZvcmUgc3VjY2VzcyBhbmQgcmV0YWlucyB0aGUgc3VibWl0dGVkIG91dGNvbWUgZ2VuZXJhdGlvbiBldmVuIHdpdGggYSBuZXdlciBzbmFwc2hvdCAoMzAgbXMpCiAgICDiiJogdXNlcyBzbmFwc2hvdCBnZW5lcmF0aW9ucyBvbiBzZWxlY3Rpb24sIGluY2x1ZGluZyBzZWxlY3RpbmcgYmFjayBhZnRlciBhIHJlcGxheSAoNTAgbXMpCiAgICDiiJogc2hvd3Mgc2FuaXRpemVkIE9QRVJBVE9SX0RFTklFRCBlcnJvcnMgZGlzdGluY3RseSBhbmQgY2xlYXJzIGJvdGggc2VjcmV0cyAoMjYgbXMpCiAgICDiiJogc2hvd3Mgc2FuaXRpemVkIFRIUk9UVExFRCBlcnJvcnMgZGlzdGluY3RseSBhbmQgY2xlYXJzIGJvdGggc2VjcmV0cyAoMzAgbXMpCiAgICDiiJogcmVqZWN0cyBhbiBlbXB0eSBwcmltYXJ5IHBhc3N3b3JkIGZvciBQcm92aXNpb24gc2VhdCB3aXRob3V0IGEgd3JpdGUgKDE5IG1zKQogICAg4oiaIHJlamVjdHMgYW4gZW1wdHkgcHJpbWFyeSBwYXNzd29yZCBmb3IgUmV2b2tlIHNlYXQgd2l0aG91dCBhIHdyaXRlICgxNyBtcykKICAgIOKImiByZXF1aXJlcyBhIG5ldyBzZWF0IHBhc3N3b3JkIHRvIHByb3Zpc2lvbiBhbmQgY2xlYXJzIHRoZSBzdXBwbGllZCBwcmltYXJ5IHBhc3N3b3JkICgyMSBtcykKICAgIOKImiBHRU5FUkFUSU9OX0NPTkZMSUNUIHJlZnJlc2hlcyBvbmNlIHdpdGhvdXQgcmV0cnlpbmcgZWl0aGVyIHdyaXRlIGFjdGlvbiAoNzEgbXMpCiAgICDiiJogT1BFUkFUSU9OX01JU01BVENIIHJlZnJlc2hlcyBvbmNlIHdpdGhvdXQgcmV0cnlpbmcgZWl0aGVyIHdyaXRlIGFjdGlvbiAoNjMgbXMpCiAgICDiiJogYmxvY2tzIGFsbCB3cml0ZXMgYWZ0ZXIgY29uZmxpY3QgcmVmcmVzaCBmYWlscyB1bnRpbCBleHBsaWNpdCBzdWNjZXNzZnVsIHJlZnJlc2ggKDQ3IG1zKQogICAg4oiaIHJlY292ZXJzIGFuIGluaXRpYWwgbGlzdCBmYWlsdXJlIHVzaW5nIGV4cGxpY2l0IHJlZnJlc2ggKDIxIG1zKQogICAg4oiaIHJldm9rZXMgdXNpbmcgcHJpbWFyeSBhdXRob3JpemF0aW9uIG9ubHkgYW5kIHJlbmRlcnMgdGhlIHJldHVybmVkIHJldm9rZWQgc3RhdGUgKDIzIG1zKQogICAg4oiaIGRpc2FibGVzIGV2ZXJ5IGNvbnRyb2wgd2hpbGUgd3JpdGluZyBhbmQgYmxvY2tzIHNhbWUtdGljayBkdXBsaWNhdGUgZm9ybSBzdWJtaXNzaW9uICgyMiBtcykKICAgIOKImiBkaXNhYmxlcyBjb250cm9scyBkdXJpbmcgbGlzdCBsb2FkaW5nIGFuZCBuZXZlciB3cml0ZXMgYnJvd3NlciBzdG9yYWdlICgyMyBtcykKICAgIExTQy0yTyBvcGVyYXRvciBvYmxpZ2F0aW9ucwogICAgICDDlyBPMTAgcmVmcmVzaGVzIG9uIE5PVF9SRVZPQ0FCTEUsIGtlZXBzIHRoZSBzZWF0IHRhcmdldCBhbmQgbmV2ZXIgcmVzdWJtaXRzICgxMDE5IG1zKQogICAgICDDlyBPMTEgcmVxdWlyZXMgZXhwbGljaXQgY29uZmlybWF0aW9uIG5hbWluZyB0aGUgbmV3IGlkZW50aXR5IGJlZm9yZSByZS1wcm92aXNpb25pbmcgYW4gYWN0aXZlIHNlYXQgKDU0IG1zKQogICAgICDiiJogTzExIHJldm9rZXMgYW4gYWN0aXZlIHNlYXQgd2l0aG91dCB0aGUgcmUtcHJvdmlzaW9uIGNvbmZpcm1hdGlvbiAoMjkgbXMpCiAgICAgIOKImiBPMTEgcHJvdmlzaW9ucyBhIHJldm9rZWQgc2VhdCB3aXRob3V0IGEgY29uZmlybWF0aW9uICgyMiBtcykKICAgICAgw5cgTzEyIHJlc2V0cyB0aGUgY29uZmlybWF0aW9uIG9uIHNlYXQgY2hhbmdlIGFuZCBhZnRlciBldmVyeSBvdXRjb21lIGFuZCBrZWVwcyB0aGUgcGFzc3dvcmQgZmllbGQgY29udHJhY3RzICgzNyBtcykKICAgICAgw5cgTzEzIGEgc3RhdHVzIDAgd3JpdGUgb3V0Y29tZSByZWZyZXNoZXMgc2VhdHMgYmVmb3JlIGFueSBtdXRhdGlvbiBjYW4gYmUgcmVzdWJtaXR0ZWQgKDEwMjMgbXMpCiAgICAgIMOXIE8xNCBhIHN0YXR1cyA1MDMgd3JpdGUgb3V0Y29tZSByZWZyZXNoZXMgc2VhdHMgYmVmb3JlIGFueSBtdXRhdGlvbiBjYW4gYmUgcmVzdWJtaXR0ZWQgKDEwMjEgbXMpCiAgICAgIMOXIE8xNCBhIHN0YXR1cyA1MDAgd3JpdGUgb3V0Y29tZSByZWZyZXNoZXMgc2VhdHMgYmVmb3JlIGFueSBtdXRhdGlvbiBjYW4gYmUgcmVzdWJtaXR0ZWQgKDEwMjUgbXMpCiAgICAgIMOXIE8xNSBrZWVwcyBldmVyeSB3cml0ZSBkaXNhYmxlZCBhZnRlciBhIGZhaWxlZCB1bmtub3duLW91dGNvbWUgcmVmcmVzaCB1bnRpbCBhbiBleHBsaWNpdCBzdWNjZXNzZnVsIFJldHJ5IHJlZnJlc2ggKDEwMjUgbXMpCiAgICAgIOKImiBPMTYgYSBrbm93biBPUEVSQVRPUl9ERU5JRUQgb3V0Y29tZSBkb2VzIG5vdCBmb3JjZSBhIHJlZnJlc2ggYW5kIGtlZXBzIGl0cyBtZXNzYWdlICgzNSBtcykKICAgICAg4oiaIE8xNiBhIGtub3duIExPQ0FMX1NFQVRfVEhST1RUTEVEIG91dGNvbWUgZG9lcyBub3QgZm9yY2UgYSByZWZyZXNoIGFuZCBrZWVwcyBpdHMgbWVzc2FnZSAoMzEgbXMpCiAgICAgIOKImiBPMTYgYSBHRU5FUkFUSU9OX0NPTkZMSUNUIG91dGNvbWUgc3RpbGwgcmVmcmVzaGVzIGV4YWN0bHkgb25jZSBhbmQgbmV2ZXIgcmV0cmllcyB0aGUgd3JpdGUgKDI5IG1zKQogICAgICDiiJogTzE2IGEgT1BFUkFUSU9OX01JU01BVENIIG91dGNvbWUgc3RpbGwgcmVmcmVzaGVzIGV4YWN0bHkgb25jZSBhbmQgbmV2ZXIgcmV0cmllcyB0aGUgd3JpdGUgKDMwIG1zKQoKICDil48gTG9jYWxTZWF0T3BlcmF0b3JQYW5lbCDigLogTFNDLTJPIG9wZXJhdG9yIG9ibGlnYXRpb25zIOKAuiBPMTAgcmVmcmVzaGVzIG9uIE5PVF9SRVZPQ0FCTEUsIGtlZXBzIHRoZSBzZWF0IHRhcmdldCBhbmQgbmV2ZXIgcmVzdWJtaXRzCgogICAgZXhwZWN0KGplc3QuZm4oKSkudG9IYXZlQmVlbkNhbGxlZFRpbWVzKGV4cGVjdGVkKQoKICAgIEV4cGVjdGVkIG51bWJlciBvZiBjYWxsczogMgogICAgUmVjZWl2ZWQgbnVtYmVyIG9mIGNhbGxzOiAxCgogICAgSWdub3JlZCBub2RlczogY29tbWVudHMsIHNjcmlwdCwgc3R5bGUKICAgIBtbMzZtPGh0bWw+G1szOW0KICAgICAgG1szNm08aGVhZCAvPhtbMzltCiAgICAgIBtbMzZtPGJvZHk+G1szOW0KICAgICAgICAbWzM2bTxkaXY+G1szOW0KICAgICAgICAgIBtbMzZtPHNlY3Rpb24bWzM5bQogICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAvNTAgbWItNiByb3VuZGVkLWxnIGJvcmRlciBweC00IHB5LTMiG1szOW0KICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgG1szM21hcmlhLWV4cGFuZGVkG1szOW09G1szMm0idHJ1ZSIbWzM5bQogICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgIBtbMG1NYW5hZ2UgbG9jYWwgc2VhdHMbWzBtCiAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgG1szNm08ZGl2G1szOW0KICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ibXQtMyBzcGFjZS15LTMiG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtVGhlIG9wZXJhdG9yIGNhbiBpbXBlcnNvbmF0ZSBlaXRoZXIgbG9jYWwgc2VhdC4gU2hhcmVkIE9TIGFjY2VzcyBpcyBub3QgaXNvbGF0ZWQuG1swbQogICAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgICAgG1swbVJlLXByb3Zpc2lvbmluZyBjcmVhdGVzIGEgbmV3IHBsYXllcklkIGFuZCByZXF1aXJlcyBHTSByZWFkbWlzc2lvbi4bWzBtCiAgICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtUmV2b2NhdGlvbiBhcHBsaWVzIG9ubHkgdG8gdGhlIG5leHQgdG9rZW4gbWludCBvciByZW5ld2FsLiBBbiBleGlzdGluZyBiZWFyZXIgcmVtYWlucyBlZmZlY3RpdmUgdW50aWwgZXhwaXJ5LiBUaGUgcHJpb3IgcHJpbmNpcGFsIHJlbWFpbnMgYSBjYW1wYWlnbiBtZW1iZXIgdW50aWwgZXhwbGljaXRseSByZW1vdmVkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHVsG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtYXJpYS1sYWJlbBtbMzltPRtbMzJtIkxvY2FsIHNlYXQgc3RhdGVzIhtbMzltCiAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGxpPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTE6IHVucHJvdmlzaW9uZWQ7IGxhYmVsOiBub25lOyBwbGF5ZXJJZDogbm9uZTsgZ2VuZXJhdGlvbjogMDsgbG9ja2VkIHVudGlsOiBub3QgbG9ja2VkG1swbQogICAgICAgICAgICAgICAgG1szNm08L2xpPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsaT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0yOiBhY3RpdmU7IGxhYmVsOiBHdW5uZXI7IHBsYXllcklkOiBwbGF5ZXItdHdvOyBnZW5lcmF0aW9uOiA0OyBsb2NrZWQgdW50aWw6IDIwMjYtMTAtMTlUMDM6MDA6MDAuMDAwWhtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9saT4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPC91bD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHAbWzM5bQogICAgICAgICAgICAgICAgG1szM21yb2xlG1szOW09G1szMm0iYWxlcnQiG1szOW0KICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgG1swbVRoYXQgc2VhdCBpcyBub3QgYWN0aXZlLCBzbyBub3RoaW5nIHdhcyByZXZva2VkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtUmV0cnkgcmVmcmVzaBtbMG0KICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgG1szNm08Zm9ybT4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08ZmllbGRzZXQbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ic3BhY2UteS0zIhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsZWdlbmQ+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtTG9jYWwgc2VhdCBjcmVkZW50aWFscxtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08L2xlZ2VuZD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08c2VsZWN0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0ibG9jYWwtc2VhdC0xIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0xG1swbQogICAgICAgICAgICAgICAgICAgICAgG1szNm08L29wdGlvbj4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1szM212YWx1ZRtbMzltPRtbMzJtImxvY2FsLXNlYXQtMiIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMhtbMG0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPC9vcHRpb24+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvc2VsZWN0PhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVNlYXQgbGFiZWwbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbW1heGxlbmd0aBtbMzltPRtbMzJtIjY0IhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXJlcXVpcmVkG1szOW09G1szMm0iIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0iR3VubmVyIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVByaW1hcnkgdmF1bHQgcGFzc3dvcmQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21hdXRvY29tcGxldGUbWzM5bT0bWzMybSJjdXJyZW50LXBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtInBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbU5ldyBzZWF0IHBhc3N3b3JkG1swbQogICAgICAgICAgICAgICAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtYXV0b2NvbXBsZXRlG1szOW09G1szMm0ibmV3LXBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtbWlubGVuZ3RoG1szOW09G1szMm0iOCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0icGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0ic3VibWl0IhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVByb3Zpc2lvbiBzZWF0G1swbQogICAgICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVJldm9rZSBzZWF0G1swbQogICAgICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTwvZmllbGRzZXQ+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvZm9ybT4bWzM5bQogICAgICAgICAgICAbWzM2bTwvZGl2PhtbMzltCiAgICAgICAgICAbWzM2bTwvc2VjdGlvbj4bWzM5bQogICAgICAgIBtbMzZtPC9kaXY+G1szOW0KICAgICAgG1szNm08L2JvZHk+G1szOW0KICAgIBtbMzZtPC9odG1sPhtbMzltCgogICAgICA1NjIgfCAgICAgICBmaXJlRXZlbnQuY2xpY2soYnV0dG9uKCdSZXZva2Ugc2VhdCcpKTsKICAgICAgNTYzIHwgICAgICAgYXdhaXQgd2FpdEZvcigoKSA9PgogICAgPiA1NjQgfCAgICAgICAgIGV4cGVjdChzdG9yZS5saXN0TG9jYWxTZWF0cykudG9IYXZlQmVlbkNhbGxlZFRpbWVzKDIpLAogICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXgogICAgICA1NjUgfCAgICAgICApOwogICAgICA1NjYgfCAgICAgICBhd2FpdCB3YWl0Rm9yKCgpID0+IGV4cGVjdChwcm92aXNpb25CdXR0b24oKSkudG9CZUVuYWJsZWQoKSk7CiAgICAgIDU2NyB8ICAgICAgIGV4cGVjdChzdG9yZS53cml0ZUxvY2FsU2VhdCkudG9IYXZlQmVlbkNhbGxlZFRpbWVzKDEpOwoKICAgICAgYXQgdG9IYXZlQmVlbkNhbGxlZFRpbWVzIChzcmMvcGFnZXMtbW9kdWxlcy9nYW1lcGxheS9jYW1wYWlnbnMvX190ZXN0c19fL0xvY2FsU2VhdE9wZXJhdG9yUGFuZWwudGVzdC50c3g6NTY0OjM4KQogICAgICBhdCBydW5XaXRoRXhwZW5zaXZlRXJyb3JEaWFnbm9zdGljc0Rpc2FibGVkIChub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC9jb25maWcuanM6NDc6MTIpCiAgICAgIGF0IGNoZWNrQ2FsbGJhY2sgKG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L3dhaXQtZm9yLmpzOjEyNDo3NykKICAgICAgYXQgY2hlY2tSZWFsVGltZXJzQ2FsbGJhY2sgKG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L3dhaXQtZm9yLmpzOjExODoxNikKICAgICAgYXQgVGltZW91dC50YXNrIFthcyBfb25UaW1lb3V0XSAobm9kZV9tb2R1bGVzL2pzZG9tL2xpYi9qc2RvbS9icm93c2VyL1dpbmRvdy5qczo1Nzk6MTkpCgogIOKXjyBMb2NhbFNlYXRPcGVyYXRvclBhbmVsIOKAuiBMU0MtMk8gb3BlcmF0b3Igb2JsaWdhdGlvbnMg4oC6IE8xMSByZXF1aXJlcyBleHBsaWNpdCBjb25maXJtYXRpb24gbmFtaW5nIHRoZSBuZXcgaWRlbnRpdHkgYmVmb3JlIHJlLXByb3Zpc2lvbmluZyBhbiBhY3RpdmUgc2VhdAoKICAgIFRlc3RpbmdMaWJyYXJ5RWxlbWVudEVycm9yOiBVbmFibGUgdG8gZmluZCBhbiBhY2Nlc3NpYmxlIGVsZW1lbnQgd2l0aCB0aGUgcm9sZSAiYnV0dG9uIiBhbmQgbmFtZSAiUmUtcHJvdmlzaW9uIHNlYXQgKG5ldyBpZGVudGl0eSkiCgogICAgSGVyZSBhcmUgdGhlIGFjY2Vzc2libGUgcm9sZXM6CgogICAgICBidXR0b246CgogICAgICBOYW1lICJNYW5hZ2UgbG9jYWwgc2VhdHMiOgogICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgIBtbMzNtYXJpYS1leHBhbmRlZBtbMzltPRtbMzJtInRydWUiG1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICBOYW1lICJSZXRyeSByZWZyZXNoIjoKICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICBOYW1lICJQcm92aXNpb24gc2VhdCI6CiAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgG1szM210eXBlG1szOW09G1szMm0ic3VibWl0IhtbMzltCiAgICAgIBtbMzZtLz4bWzM5bQoKICAgICAgTmFtZSAiUmV2b2tlIHNlYXQiOgogICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAbWzM2bS8+G1szOW0KCiAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAgIHBhcmFncmFwaDoKCiAgICAgIE5hbWUgIiI6CiAgICAgIBtbMzZtPHAgLz4bWzM5bQoKICAgICAgTmFtZSAiIjoKICAgICAgG1szNm08cCAvPhtbMzltCgogICAgICBOYW1lICIiOgogICAgICAbWzM2bTxwIC8+G1szOW0KCiAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAgIGxpc3Q6CgogICAgICBOYW1lICJMb2NhbCBzZWF0IHN0YXRlcyI6CiAgICAgIBtbMzZtPHVsG1szOW0KICAgICAgICAbWzMzbWFyaWEtbGFiZWwbWzM5bT0bWzMybSJMb2NhbCBzZWF0IHN0YXRlcyIbWzM5bQogICAgICAbWzM2bS8+G1szOW0KCiAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAgIGxpc3RpdGVtOgoKICAgICAgTmFtZSAiIjoKICAgICAgG1szNm08bGkgLz4bWzM5bQoKICAgICAgTmFtZSAiIjoKICAgICAgG1szNm08bGkgLz4bWzM5bQoKICAgICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICAgYWxlcnQ6CgogICAgICBOYW1lICIiOgogICAgICAbWzM2bTxwG1szOW0KICAgICAgICAbWzMzbXJvbGUbWzM5bT0bWzMybSJhbGVydCIbWzM5bQogICAgICAbWzM2bS8+G1szOW0KCiAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAgIGdyb3VwOgoKICAgICAgTmFtZSAiTG9jYWwgc2VhdCBjcmVkZW50aWFscyI6CiAgICAgIBtbMzZtPGZpZWxkc2V0G1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ic3BhY2UteS0zIhtbMzltCiAgICAgIBtbMzZtLz4bWzM5bQoKICAgICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICAgY29tYm9ib3g6CgogICAgICBOYW1lICJMb2NhbCBzZWF0IjoKICAgICAgG1szNm08c2VsZWN0G1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICBvcHRpb246CgogICAgICBOYW1lICJsb2NhbC1zZWF0LTEiOgogICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTEiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICBOYW1lICJsb2NhbC1zZWF0LTIiOgogICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTIiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICB0ZXh0Ym94OgoKICAgICAgTmFtZSAiU2VhdCBsYWJlbCI6CiAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAbWzMzbW1heGxlbmd0aBtbMzltPRtbMzJtIjY0IhtbMzltCiAgICAgICAgG1szM21yZXF1aXJlZBtbMzltPRtbMzJtIiIbWzM5bQogICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJHdW5uZXIiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKICAgIElnbm9yZWQgbm9kZXM6IGNvbW1lbnRzLCBzY3JpcHQsIHN0eWxlCiAgICAbWzM2bTxib2R5PhtbMzltCiAgICAgIBtbMzZtPGRpdj4bWzM5bQogICAgICAgIBtbMzZtPHNlY3Rpb24bWzM5bQogICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwLzUwIG1iLTYgcm91bmRlZC1sZyBib3JkZXIgcHgtNCBweS0zIhtbMzltCiAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgIBtbMzNtYXJpYS1leHBhbmRlZBtbMzltPRtbMzJtInRydWUiG1szOW0KICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgG1swbU1hbmFnZSBsb2NhbCBzZWF0cxtbMG0KICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgIBtbMzZtPGRpdhtbMzltCiAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJtdC0zIHNwYWNlLXktMyIbWzM5bQogICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgIBtbMG1UaGUgb3BlcmF0b3IgY2FuIGltcGVyc29uYXRlIGVpdGhlciBsb2NhbCBzZWF0LiBTaGFyZWQgT1MgYWNjZXNzIGlzIG5vdCBpc29sYXRlZC4bWzBtCiAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgIBtbMzZtPHA+G1szOW0KICAgICAgICAgICAgICAbWzBtUmUtcHJvdmlzaW9uaW5nIGNyZWF0ZXMgYSBuZXcgcGxheWVySWQgYW5kIHJlcXVpcmVzIEdNIHJlYWRtaXNzaW9uLhtbMG0KICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgIBtbMG1SZXZvY2F0aW9uIGFwcGxpZXMgb25seSB0byB0aGUgbmV4dCB0b2tlbiBtaW50IG9yIHJlbmV3YWwuIEFuIGV4aXN0aW5nIGJlYXJlciByZW1haW5zIGVmZmVjdGl2ZSB1bnRpbCBleHBpcnkuIFRoZSBwcmlvciBwcmluY2lwYWwgcmVtYWlucyBhIGNhbXBhaWduIG1lbWJlciB1bnRpbCBleHBsaWNpdGx5IHJlbW92ZWQuG1swbQogICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAbWzM2bTx1bBtbMzltCiAgICAgICAgICAgICAgG1szM21hcmlhLWxhYmVsG1szOW09G1szMm0iTG9jYWwgc2VhdCBzdGF0ZXMiG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxsaT4bWzM5bQogICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMTogYWN0aXZlOyBsYWJlbDogU2NvdXQ7IHBsYXllcklkOiBwbGF5ZXItb25lOyBnZW5lcmF0aW9uOiAxOyBsb2NrZWQgdW50aWw6IG5vdCBsb2NrZWQbWzBtCiAgICAgICAgICAgICAgG1szNm08L2xpPhtbMzltCiAgICAgICAgICAgICAgG1szNm08bGk+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTI6IGFjdGl2ZTsgbGFiZWw6IEd1bm5lcjsgcGxheWVySWQ6IHBsYXllci10d287IGdlbmVyYXRpb246IDQ7IGxvY2tlZCB1bnRpbDogMjAyNi0xMC0xOVQwMzowMDowMC4wMDBaG1swbQogICAgICAgICAgICAgIBtbMzZtPC9saT4bWzM5bQogICAgICAgICAgICAbWzM2bTwvdWw+G1szOW0KICAgICAgICAgICAgG1szNm08cBtbMzltCiAgICAgICAgICAgICAgG1szM21yb2xlG1szOW09G1szMm0iYWxlcnQiG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzBtTG9jYWwgc2VhdCBwcm92aXNpb24gY29tcGxldGVkLhtbMG0KICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzBtUmV0cnkgcmVmcmVzaBtbMG0KICAgICAgICAgICAgG1szNm08L2J1dHRvbj4bWzM5bQogICAgICAgICAgICAbWzM2bTxmb3JtPhtbMzltCiAgICAgICAgICAgICAgG1szNm08ZmllbGRzZXQbWzM5bQogICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtInNwYWNlLXktMyIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsZWdlbmQ+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQgY3JlZGVudGlhbHMbWzBtCiAgICAgICAgICAgICAgICAbWzM2bTwvbGVnZW5kPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPHNlbGVjdBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTEiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMRtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvb3B0aW9uPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTIiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMhtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvb3B0aW9uPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9zZWxlY3Q+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1TZWF0IGxhYmVsG1swbQogICAgICAgICAgICAgICAgICAbWzM2bTxpbnB1dBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21tYXhsZW5ndGgbWzM5bT0bWzMybSI2NCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtcmVxdWlyZWQbWzM5bT0bWzMybSIiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0iR3VubmVyIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtLz4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbVByaW1hcnkgdmF1bHQgcGFzc3dvcmQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWF1dG9jb21wbGV0ZRtbMzltPRtbMzJtImN1cnJlbnQtcGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJwYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1OZXcgc2VhdCBwYXNzd29yZBtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtYXV0b2NvbXBsZXRlG1szOW09G1szMm0ibmV3LXBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21taW5sZW5ndGgbWzM5bT0bWzMybSI4IhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0icGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJzdWJtaXQiG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1Qcm92aXNpb24gc2VhdBtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1SZXZva2Ugc2VhdBtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvZmllbGRzZXQ+G1szOW0KICAgICAgICAgICAgG1szNm08L2Zvcm0+G1szOW0KICAgICAgICAgIBtbMzZtPC9kaXY+G1szOW0KICAgICAgICAbWzM2bTwvc2VjdGlvbj4bWzM5bQogICAgICAbWzM2bTwvZGl2PhtbMzltCiAgICAbWzM2bTwvYm9keT4bWzM5bQoKICAgICAgIDk3IHwgICByZXR1cm4geyBwcm9taXNlLCByZXNvbHZlLCByZWplY3QgfTsKICAgICAgIDk4IHwgfQogICAgPiAgOTkgfCBjb25zdCBidXR0b24gPSAobmFtZTogc3RyaW5nKSA9PiBzY3JlZW4uZ2V0QnlSb2xlKCdidXR0b24nLCB7IG5hbWUgfSk7CiAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBeCiAgICAgIDEwMCB8IC8vIFRoZSBwcm92aXNpb24gYnV0dG9uIHJlYWRzICJSZS1wcm92aXNpb24gc2VhdCAobmV3IGlkZW50aXR5KSIgZm9yIGFuIGFjdGl2ZSBzZWF0LgogICAgICAxMDEgfCBjb25zdCBwcm92aXNpb25CdXR0b24gPSAoKSA9PgogICAgICAxMDIgfCAgIHNjcmVlbi5nZXRCeVJvbGUoJ2J1dHRvbicsIHsgbmFtZTogL3Byb3Zpc2lvbiBzZWF0L2kgfSk7CgogICAgICBhdCBPYmplY3QuZ2V0RWxlbWVudEVycm9yIChub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC9jb25maWcuanM6Mzc6MTkpCiAgICAgIGF0IG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L3F1ZXJ5LWhlbHBlcnMuanM6NzY6MzgKICAgICAgYXQgbm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3QvcXVlcnktaGVscGVycy5qczo1MjoxNwogICAgICBhdCBub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC9xdWVyeS1oZWxwZXJzLmpzOjk1OjE5CiAgICAgIGF0IGdldEJ5Um9sZSAoc3JjL3BhZ2VzLW1vZHVsZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL19fdGVzdHNfXy9Mb2NhbFNlYXRPcGVyYXRvclBhbmVsLnRlc3QudHN4Ojk5OjQxKQogICAgICBhdCBPYmplY3QuYnV0dG9uIChzcmMvcGFnZXMtbW9kdWxlcy9nYW1lcGxheS9jYW1wYWlnbnMvX190ZXN0c19fL0xvY2FsU2VhdE9wZXJhdG9yUGFuZWwudGVzdC50c3g6NTg4OjE0KQoKICDil48gTG9jYWxTZWF0T3BlcmF0b3JQYW5lbCDigLogTFNDLTJPIG9wZXJhdG9yIG9ibGlnYXRpb25zIOKAuiBPMTIgcmVzZXRzIHRoZSBjb25maXJtYXRpb24gb24gc2VhdCBjaGFuZ2UgYW5kIGFmdGVyIGV2ZXJ5IG91dGNvbWUgYW5kIGtlZXBzIHRoZSBwYXNzd29yZCBmaWVsZCBjb250cmFjdHMKCiAgICBUZXN0aW5nTGlicmFyeUVsZW1lbnRFcnJvcjogVW5hYmxlIHRvIGZpbmQgYW4gYWNjZXNzaWJsZSBlbGVtZW50IHdpdGggdGhlIHJvbGUgImNoZWNrYm94IiBhbmQgbmFtZSBgL25ldyBpZGVudGl0eS9pYAoKICAgIEhlcmUgYXJlIHRoZSBhY2Nlc3NpYmxlIHJvbGVzOgoKICAgICAgYnV0dG9uOgoKICAgICAgTmFtZSAiTWFuYWdlIGxvY2FsIHNlYXRzIjoKICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAbWzMzbWFyaWEtZXhwYW5kZWQbWzM5bT0bWzMybSJ0cnVlIhtbMzltCiAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgIBtbMzZtLz4bWzM5bQoKICAgICAgTmFtZSAiUmV0cnkgcmVmcmVzaCI6CiAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgIBtbMzZtLz4bWzM5bQoKICAgICAgTmFtZSAiUHJvdmlzaW9uIHNlYXQiOgogICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtInN1Ym1pdCIbWzM5bQogICAgICAbWzM2bS8+G1szOW0KCiAgICAgIE5hbWUgIlJldm9rZSBzZWF0IjoKICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICBwYXJhZ3JhcGg6CgogICAgICBOYW1lICIiOgogICAgICAbWzM2bTxwIC8+G1szOW0KCiAgICAgIE5hbWUgIiI6CiAgICAgIBtbMzZtPHAgLz4bWzM5bQoKICAgICAgTmFtZSAiIjoKICAgICAgG1szNm08cCAvPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICBsaXN0OgoKICAgICAgTmFtZSAiTG9jYWwgc2VhdCBzdGF0ZXMiOgogICAgICAbWzM2bTx1bBtbMzltCiAgICAgICAgG1szM21hcmlhLWxhYmVsG1szOW09G1szMm0iTG9jYWwgc2VhdCBzdGF0ZXMiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICBsaXN0aXRlbToKCiAgICAgIE5hbWUgIiI6CiAgICAgIBtbMzZtPGxpIC8+G1szOW0KCiAgICAgIE5hbWUgIiI6CiAgICAgIBtbMzZtPGxpIC8+G1szOW0KCiAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgICAgIGdyb3VwOgoKICAgICAgTmFtZSAiTG9jYWwgc2VhdCBjcmVkZW50aWFscyI6CiAgICAgIBtbMzZtPGZpZWxkc2V0G1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ic3BhY2UteS0zIhtbMzltCiAgICAgIBtbMzZtLz4bWzM5bQoKICAgICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICAgY29tYm9ib3g6CgogICAgICBOYW1lICJMb2NhbCBzZWF0IjoKICAgICAgG1szNm08c2VsZWN0G1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICBvcHRpb246CgogICAgICBOYW1lICJsb2NhbC1zZWF0LTEiOgogICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTEiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICBOYW1lICJsb2NhbC1zZWF0LTIiOgogICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTIiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICB0ZXh0Ym94OgoKICAgICAgTmFtZSAiU2VhdCBsYWJlbCI6CiAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAbWzMzbW1heGxlbmd0aBtbMzltPRtbMzJtIjY0IhtbMzltCiAgICAgICAgG1szM21yZXF1aXJlZBtbMzltPRtbMzJtIiIbWzM5bQogICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJHdW5uZXIiG1szOW0KICAgICAgG1szNm0vPhtbMzltCgogICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQoKICAgIElnbm9yZWQgbm9kZXM6IGNvbW1lbnRzLCBzY3JpcHQsIHN0eWxlCiAgICAbWzM2bTxib2R5PhtbMzltCiAgICAgIBtbMzZtPGRpdj4bWzM5bQogICAgICAgIBtbMzZtPHNlY3Rpb24bWzM5bQogICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwLzUwIG1iLTYgcm91bmRlZC1sZyBib3JkZXIgcHgtNCBweS0zIhtbMzltCiAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgIBtbMzNtYXJpYS1leHBhbmRlZBtbMzltPRtbMzJtInRydWUiG1szOW0KICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgG1swbU1hbmFnZSBsb2NhbCBzZWF0cxtbMG0KICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgIBtbMzZtPGRpdhtbMzltCiAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJtdC0zIHNwYWNlLXktMyIbWzM5bQogICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgIBtbMG1UaGUgb3BlcmF0b3IgY2FuIGltcGVyc29uYXRlIGVpdGhlciBsb2NhbCBzZWF0LiBTaGFyZWQgT1MgYWNjZXNzIGlzIG5vdCBpc29sYXRlZC4bWzBtCiAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgIBtbMzZtPHA+G1szOW0KICAgICAgICAgICAgICAbWzBtUmUtcHJvdmlzaW9uaW5nIGNyZWF0ZXMgYSBuZXcgcGxheWVySWQgYW5kIHJlcXVpcmVzIEdNIHJlYWRtaXNzaW9uLhtbMG0KICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgIBtbMG1SZXZvY2F0aW9uIGFwcGxpZXMgb25seSB0byB0aGUgbmV4dCB0b2tlbiBtaW50IG9yIHJlbmV3YWwuIEFuIGV4aXN0aW5nIGJlYXJlciByZW1haW5zIGVmZmVjdGl2ZSB1bnRpbCBleHBpcnkuIFRoZSBwcmlvciBwcmluY2lwYWwgcmVtYWlucyBhIGNhbXBhaWduIG1lbWJlciB1bnRpbCBleHBsaWNpdGx5IHJlbW92ZWQuG1swbQogICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAbWzM2bTx1bBtbMzltCiAgICAgICAgICAgICAgG1szM21hcmlhLWxhYmVsG1szOW09G1szMm0iTG9jYWwgc2VhdCBzdGF0ZXMiG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxsaT4bWzM5bQogICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMTogdW5wcm92aXNpb25lZDsgbGFiZWw6IG5vbmU7IHBsYXllcklkOiBub25lOyBnZW5lcmF0aW9uOiAwOyBsb2NrZWQgdW50aWw6IG5vdCBsb2NrZWQbWzBtCiAgICAgICAgICAgICAgG1szNm08L2xpPhtbMzltCiAgICAgICAgICAgICAgG1szNm08bGk+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTI6IGFjdGl2ZTsgbGFiZWw6IEd1bm5lcjsgcGxheWVySWQ6IHBsYXllci10d287IGdlbmVyYXRpb246IDQ7IGxvY2tlZCB1bnRpbDogMjAyNi0xMC0xOVQwMzowMDowMC4wMDBaG1swbQogICAgICAgICAgICAgIBtbMzZtPC9saT4bWzM5bQogICAgICAgICAgICAbWzM2bTwvdWw+G1szOW0KICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzBtUmV0cnkgcmVmcmVzaBtbMG0KICAgICAgICAgICAgG1szNm08L2J1dHRvbj4bWzM5bQogICAgICAgICAgICAbWzM2bTxmb3JtPhtbMzltCiAgICAgICAgICAgICAgG1szNm08ZmllbGRzZXQbWzM5bQogICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtInNwYWNlLXktMyIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsZWdlbmQ+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQgY3JlZGVudGlhbHMbWzBtCiAgICAgICAgICAgICAgICAbWzM2bTwvbGVnZW5kPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPHNlbGVjdBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTEiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMRtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvb3B0aW9uPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTIiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMhtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvb3B0aW9uPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9zZWxlY3Q+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1TZWF0IGxhYmVsG1swbQogICAgICAgICAgICAgICAgICAbWzM2bTxpbnB1dBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21tYXhsZW5ndGgbWzM5bT0bWzMybSI2NCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtcmVxdWlyZWQbWzM5bT0bWzMybSIiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0iR3VubmVyIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtLz4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbVByaW1hcnkgdmF1bHQgcGFzc3dvcmQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWF1dG9jb21wbGV0ZRtbMzltPRtbMzJtImN1cnJlbnQtcGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJwYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1OZXcgc2VhdCBwYXNzd29yZBtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtYXV0b2NvbXBsZXRlG1szOW09G1szMm0ibmV3LXBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21taW5sZW5ndGgbWzM5bT0bWzMybSI4IhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0icGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJzdWJtaXQiG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1Qcm92aXNpb24gc2VhdBtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1SZXZva2Ugc2VhdBtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvZmllbGRzZXQ+G1szOW0KICAgICAgICAgICAgG1szNm08L2Zvcm0+G1szOW0KICAgICAgICAgIBtbMzZtPC9kaXY+G1szOW0KICAgICAgICAbWzM2bTwvc2VjdGlvbj4bWzM5bQogICAgICAbWzM2bTwvZGl2PhtbMzltCiAgICAbWzM2bTwvYm9keT4bWzM5bQoKICAgICAgNTQxIHwgICAgIGNvbnN0IHJlcHJvdmlzaW9uID0gJ1JlLXByb3Zpc2lvbiBzZWF0IChuZXcgaWRlbnRpdHkpJzsKICAgICAgNTQyIHwgICAgIGNvbnN0IGNvbmZpcm1hdGlvbiA9ICgpID0+CiAgICA+IDU0MyB8ICAgICAgIHNjcmVlbi5nZXRCeVJvbGUoJ2NoZWNrYm94JywgeyBuYW1lOiAvbmV3IGlkZW50aXR5L2kgfSk7CiAgICAgICAgICB8ICAgICAgICAgICAgICBeCiAgICAgIDU0NCB8CiAgICAgIDU0NSB8ICAgICBpdCgnTzEwIHJlZnJlc2hlcyBvbiBOT1RfUkVWT0NBQkxFLCBrZWVwcyB0aGUgc2VhdCB0YXJnZXQgYW5kIG5ldmVyIHJlc3VibWl0cycsIGFzeW5jICgpID0+IHsKICAgICAgNTQ2IHwgICAgICAgYXdhaXQgb3BlblBhbmVsKCk7CgogICAgICBhdCBPYmplY3QuZ2V0RWxlbWVudEVycm9yIChub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC9jb25maWcuanM6Mzc6MTkpCiAgICAgIGF0IG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L3F1ZXJ5LWhlbHBlcnMuanM6NzY6MzgKICAgICAgYXQgbm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3QvcXVlcnktaGVscGVycy5qczo1MjoxNwogICAgICBhdCBub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC9xdWVyeS1oZWxwZXJzLmpzOjk1OjE5CiAgICAgIGF0IGdldEJ5Um9sZSAoc3JjL3BhZ2VzLW1vZHVsZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL19fdGVzdHNfXy9Mb2NhbFNlYXRPcGVyYXRvclBhbmVsLnRlc3QudHN4OjU0MzoxNCkKICAgICAgYXQgT2JqZWN0LmNvbmZpcm1hdGlvbiAoc3JjL3BhZ2VzLW1vZHVsZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL19fdGVzdHNfXy9Mb2NhbFNlYXRPcGVyYXRvclBhbmVsLnRlc3QudHN4OjY1ODoyMykKCiAg4pePIExvY2FsU2VhdE9wZXJhdG9yUGFuZWwg4oC6IExTQy0yTyBvcGVyYXRvciBvYmxpZ2F0aW9ucyDigLogTzEzIGEgc3RhdHVzIDAgd3JpdGUgb3V0Y29tZSByZWZyZXNoZXMgc2VhdHMgYmVmb3JlIGFueSBtdXRhdGlvbiBjYW4gYmUgcmVzdWJtaXR0ZWQKCiAgICBleHBlY3QoamVzdC5mbigpKS50b0hhdmVCZWVuQ2FsbGVkVGltZXMoZXhwZWN0ZWQpCgogICAgRXhwZWN0ZWQgbnVtYmVyIG9mIGNhbGxzOiAyCiAgICBSZWNlaXZlZCBudW1iZXIgb2YgY2FsbHM6IDEKCiAgICBJZ25vcmVkIG5vZGVzOiBjb21tZW50cywgc2NyaXB0LCBzdHlsZQogICAgG1szNm08aHRtbD4bWzM5bQogICAgICAbWzM2bTxoZWFkIC8+G1szOW0KICAgICAgG1szNm08Ym9keT4bWzM5bQogICAgICAgIBtbMzZtPGRpdj4bWzM5bQogICAgICAgICAgG1szNm08c2VjdGlvbhtbMzltCiAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcC81MCBtYi02IHJvdW5kZWQtbGcgYm9yZGVyIHB4LTQgcHktMyIbWzM5bQogICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAbWzMzbWFyaWEtZXhwYW5kZWQbWzM5bT0bWzMybSJ0cnVlIhtbMzltCiAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgG1swbU1hbmFnZSBsb2NhbCBzZWF0cxtbMG0KICAgICAgICAgICAgG1szNm08L2J1dHRvbj4bWzM5bQogICAgICAgICAgICAbWzM2bTxkaXYbWzM5bQogICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJtdC0zIHNwYWNlLXktMyIbWzM5bQogICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHA+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1UaGUgb3BlcmF0b3IgY2FuIGltcGVyc29uYXRlIGVpdGhlciBsb2NhbCBzZWF0LiBTaGFyZWQgT1MgYWNjZXNzIGlzIG5vdCBpc29sYXRlZC4bWzBtCiAgICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtUmUtcHJvdmlzaW9uaW5nIGNyZWF0ZXMgYSBuZXcgcGxheWVySWQgYW5kIHJlcXVpcmVzIEdNIHJlYWRtaXNzaW9uLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHA+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1SZXZvY2F0aW9uIGFwcGxpZXMgb25seSB0byB0aGUgbmV4dCB0b2tlbiBtaW50IG9yIHJlbmV3YWwuIEFuIGV4aXN0aW5nIGJlYXJlciByZW1haW5zIGVmZmVjdGl2ZSB1bnRpbCBleHBpcnkuIFRoZSBwcmlvciBwcmluY2lwYWwgcmVtYWlucyBhIGNhbXBhaWduIG1lbWJlciB1bnRpbCBleHBsaWNpdGx5IHJlbW92ZWQuG1swbQogICAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgICAgG1szNm08dWwbWzM5bQogICAgICAgICAgICAgICAgG1szM21hcmlhLWxhYmVsG1szOW09G1szMm0iTG9jYWwgc2VhdCBzdGF0ZXMiG1szOW0KICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGk+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMTogdW5wcm92aXNpb25lZDsgbGFiZWw6IG5vbmU7IHBsYXllcklkOiBub25lOyBnZW5lcmF0aW9uOiAwOyBsb2NrZWQgdW50aWw6IG5vdCBsb2NrZWQbWzBtCiAgICAgICAgICAgICAgICAbWzM2bTwvbGk+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGxpPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTI6IGFjdGl2ZTsgbGFiZWw6IEd1bm5lcjsgcGxheWVySWQ6IHBsYXllci10d287IGdlbmVyYXRpb246IDQ7IGxvY2tlZCB1bnRpbDogMjAyNi0xMC0xOVQwMzowMDowMC4wMDBaG1swbQogICAgICAgICAgICAgICAgG1szNm08L2xpPhtbMzltCiAgICAgICAgICAgICAgG1szNm08L3VsPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cBtbMzltCiAgICAgICAgICAgICAgICAbWzMzbXJvbGUbWzM5bT0bWzMybSJhbGVydCIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtTG9jYWwgc2VhdCByZXF1ZXN0IGZhaWxlZC4bWzBtCiAgICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgG1swbVJldHJ5IHJlZnJlc2gbWzBtCiAgICAgICAgICAgICAgG1szNm08L2J1dHRvbj4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPGZvcm0+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGZpZWxkc2V0G1szOW0KICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtInNwYWNlLXktMyIbWzM5bQogICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08bGVnZW5kPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQgY3JlZGVudGlhbHMbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sZWdlbmQ+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1Mb2NhbCBzZWF0G1swbQogICAgICAgICAgICAgICAgICAgIBtbMzZtPHNlbGVjdBtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1szM212YWx1ZRtbMzltPRtbMzJtImxvY2FsLXNlYXQtMSIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMRtbMG0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPC9vcHRpb24+G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPG9wdGlvbhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTIiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTIbWzBtCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bTwvb3B0aW9uPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm08L3NlbGVjdD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1TZWF0IGxhYmVsG1swbQogICAgICAgICAgICAgICAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21tYXhsZW5ndGgbWzM5bT0bWzMybSI2NCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21yZXF1aXJlZBtbMzltPRtbMzJtIiIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM212YWx1ZRtbMzltPRtbMzJtIlNjb3V0IhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVByaW1hcnkgdmF1bHQgcGFzc3dvcmQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21hdXRvY29tcGxldGUbWzM5bT0bWzMybSJjdXJyZW50LXBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtInBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbU5ldyBzZWF0IHBhc3N3b3JkG1swbQogICAgICAgICAgICAgICAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtYXV0b2NvbXBsZXRlG1szOW09G1szMm0ibmV3LXBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtbWlubGVuZ3RoG1szOW09G1szMm0iOCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0icGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0ic3VibWl0IhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVByb3Zpc2lvbiBzZWF0G1swbQogICAgICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21kaXNhYmxlZBtbMzltPRtbMzJtIiIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1SZXZva2Ugc2VhdBtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08L2J1dHRvbj4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08L2ZpZWxkc2V0PhtbMzltCiAgICAgICAgICAgICAgG1szNm08L2Zvcm0+G1szOW0KICAgICAgICAgICAgG1szNm08L2Rpdj4bWzM5bQogICAgICAgICAgG1szNm08L3NlY3Rpb24+G1szOW0KICAgICAgICAbWzM2bTwvZGl2PhtbMzltCiAgICAgIBtbMzZtPC9ib2R5PhtbMzltCiAgICAbWzM2bTwvaHRtbD4bWzM5bQoKICAgICAgNzE0IHwgICAgICAgICBmaXJlRXZlbnQuY2xpY2soYnV0dG9uKCdQcm92aXNpb24gc2VhdCcpKTsKICAgICAgNzE1IHwgICAgICAgICBhd2FpdCB3YWl0Rm9yKCgpID0+CiAgICA+IDcxNiB8ICAgICAgICAgICBleHBlY3Qoc3RvcmUubGlzdExvY2FsU2VhdHMpLnRvSGF2ZUJlZW5DYWxsZWRUaW1lcygyKSwKICAgICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXgogICAgICA3MTcgfCAgICAgICAgICk7CiAgICAgIDcxOCB8ICAgICAgICAgZXhwZWN0KHByb3Zpc2lvbkJ1dHRvbigpKS50b0JlRGlzYWJsZWQoKTsKICAgICAgNzE5IHwgICAgICAgICBleHBlY3QoYnV0dG9uKCdSZXZva2Ugc2VhdCcpKS50b0JlRGlzYWJsZWQoKTsKCiAgICAgIGF0IHRvSGF2ZUJlZW5DYWxsZWRUaW1lcyAoc3JjL3BhZ2VzLW1vZHVsZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL19fdGVzdHNfXy9Mb2NhbFNlYXRPcGVyYXRvclBhbmVsLnRlc3QudHN4OjcxNjo0MCkKICAgICAgYXQgcnVuV2l0aEV4cGVuc2l2ZUVycm9yRGlhZ25vc3RpY3NEaXNhYmxlZCAobm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3QvY29uZmlnLmpzOjQ3OjEyKQogICAgICBhdCBjaGVja0NhbGxiYWNrIChub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC93YWl0LWZvci5qczoxMjQ6NzcpCiAgICAgIGF0IGNoZWNrUmVhbFRpbWVyc0NhbGxiYWNrIChub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC93YWl0LWZvci5qczoxMTg6MTYpCiAgICAgIGF0IFRpbWVvdXQudGFzayBbYXMgX29uVGltZW91dF0gKG5vZGVfbW9kdWxlcy9qc2RvbS9saWIvanNkb20vYnJvd3Nlci9XaW5kb3cuanM6NTc5OjE5KQoKICDil48gTG9jYWxTZWF0T3BlcmF0b3JQYW5lbCDigLogTFNDLTJPIG9wZXJhdG9yIG9ibGlnYXRpb25zIOKAuiBPMTQgYSBzdGF0dXMgNTAzIHdyaXRlIG91dGNvbWUgcmVmcmVzaGVzIHNlYXRzIGJlZm9yZSBhbnkgbXV0YXRpb24gY2FuIGJlIHJlc3VibWl0dGVkCgogICAgZXhwZWN0KGplc3QuZm4oKSkudG9IYXZlQmVlbkNhbGxlZFRpbWVzKGV4cGVjdGVkKQoKICAgIEV4cGVjdGVkIG51bWJlciBvZiBjYWxsczogMgogICAgUmVjZWl2ZWQgbnVtYmVyIG9mIGNhbGxzOiAxCgogICAgSWdub3JlZCBub2RlczogY29tbWVudHMsIHNjcmlwdCwgc3R5bGUKICAgIBtbMzZtPGh0bWw+G1szOW0KICAgICAgG1szNm08aGVhZCAvPhtbMzltCiAgICAgIBtbMzZtPGJvZHk+G1szOW0KICAgICAgICAbWzM2bTxkaXY+G1szOW0KICAgICAgICAgIBtbMzZtPHNlY3Rpb24bWzM5bQogICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAvNTAgbWItNiByb3VuZGVkLWxnIGJvcmRlciBweC00IHB5LTMiG1szOW0KICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgG1szM21hcmlhLWV4cGFuZGVkG1szOW09G1szMm0idHJ1ZSIbWzM5bQogICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgIBtbMG1NYW5hZ2UgbG9jYWwgc2VhdHMbWzBtCiAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgG1szNm08ZGl2G1szOW0KICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ibXQtMyBzcGFjZS15LTMiG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtVGhlIG9wZXJhdG9yIGNhbiBpbXBlcnNvbmF0ZSBlaXRoZXIgbG9jYWwgc2VhdC4gU2hhcmVkIE9TIGFjY2VzcyBpcyBub3QgaXNvbGF0ZWQuG1swbQogICAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgICAgG1swbVJlLXByb3Zpc2lvbmluZyBjcmVhdGVzIGEgbmV3IHBsYXllcklkIGFuZCByZXF1aXJlcyBHTSByZWFkbWlzc2lvbi4bWzBtCiAgICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtUmV2b2NhdGlvbiBhcHBsaWVzIG9ubHkgdG8gdGhlIG5leHQgdG9rZW4gbWludCBvciByZW5ld2FsLiBBbiBleGlzdGluZyBiZWFyZXIgcmVtYWlucyBlZmZlY3RpdmUgdW50aWwgZXhwaXJ5LiBUaGUgcHJpb3IgcHJpbmNpcGFsIHJlbWFpbnMgYSBjYW1wYWlnbiBtZW1iZXIgdW50aWwgZXhwbGljaXRseSByZW1vdmVkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHVsG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtYXJpYS1sYWJlbBtbMzltPRtbMzJtIkxvY2FsIHNlYXQgc3RhdGVzIhtbMzltCiAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPGxpPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTE6IHVucHJvdmlzaW9uZWQ7IGxhYmVsOiBub25lOyBwbGF5ZXJJZDogbm9uZTsgZ2VuZXJhdGlvbjogMDsgbG9ja2VkIHVudGlsOiBub3QgbG9ja2VkG1swbQogICAgICAgICAgICAgICAgG1szNm08L2xpPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsaT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0yOiBhY3RpdmU7IGxhYmVsOiBHdW5uZXI7IHBsYXllcklkOiBwbGF5ZXItdHdvOyBnZW5lcmF0aW9uOiA0OyBsb2NrZWQgdW50aWw6IDIwMjYtMTAtMTlUMDM6MDA6MDAuMDAwWhtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9saT4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPC91bD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHAbWzM5bQogICAgICAgICAgICAgICAgG1szM21yb2xlG1szOW09G1szMm0iYWxlcnQiG1szOW0KICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQgcmVxdWVzdCBmYWlsZWQuG1swbQogICAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1SZXRyeSByZWZyZXNoG1swbQogICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxmb3JtPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxmaWVsZHNldBtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJzcGFjZS15LTMiG1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxlZ2VuZD4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1Mb2NhbCBzZWF0IGNyZWRlbnRpYWxzG1swbQogICAgICAgICAgICAgICAgICAbWzM2bTwvbGVnZW5kPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxhYmVsG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtTG9jYWwgc2VhdBtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTxzZWxlY3QbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPG9wdGlvbhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJsb2NhbC1zZWF0LTEiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAgIBtbMG1sb2NhbC1zZWF0LTEbWzBtCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bTwvb3B0aW9uPhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0ibG9jYWwtc2VhdC0yIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0yG1swbQogICAgICAgICAgICAgICAgICAgICAgG1szNm08L29wdGlvbj4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtPC9zZWxlY3Q+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxhYmVsG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtU2VhdCBsYWJlbBtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTxpbnB1dBtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtbWF4bGVuZ3RoG1szOW09G1szMm0iNjQiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtcmVxdWlyZWQbWzM5bT0bWzMybSIiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdmFsdWUbWzM5bT0bWzMybSJTY291dCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtLz4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1QcmltYXJ5IHZhdWx0IHBhc3N3b3JkG1swbQogICAgICAgICAgICAgICAgICAgIBtbMzZtPGlucHV0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtYXV0b2NvbXBsZXRlG1szOW09G1szMm0iY3VycmVudC1wYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJwYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtLz4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08bGFiZWwbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJibG9jayIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1OZXcgc2VhdCBwYXNzd29yZBtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTxpbnB1dBtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWF1dG9jb21wbGV0ZRtbMzltPRtbMzJtIm5ldy1wYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbW1pbmxlbmd0aBtbMzltPRtbMzJtIjgiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtInBhc3N3b3JkIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szNm0vPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtInN1Ym1pdCIbWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMG1Qcm92aXNpb24gc2VhdBtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08L2J1dHRvbj4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzNtZGlzYWJsZWQbWzM5bT0bWzMybSIiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtUmV2b2tlIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAgIBtbMzZtPC9maWVsZHNldD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPC9mb3JtPhtbMzltCiAgICAgICAgICAgIBtbMzZtPC9kaXY+G1szOW0KICAgICAgICAgIBtbMzZtPC9zZWN0aW9uPhtbMzltCiAgICAgICAgG1szNm08L2Rpdj4bWzM5bQogICAgICAbWzM2bTwvYm9keT4bWzM5bQogICAgG1szNm08L2h0bWw+G1szOW0KCiAgICAgIDcxNCB8ICAgICAgICAgZmlyZUV2ZW50LmNsaWNrKGJ1dHRvbignUHJvdmlzaW9uIHNlYXQnKSk7CiAgICAgIDcxNSB8ICAgICAgICAgYXdhaXQgd2FpdEZvcigoKSA9PgogICAgPiA3MTYgfCAgICAgICAgICAgZXhwZWN0KHN0b3JlLmxpc3RMb2NhbFNlYXRzKS50b0hhdmVCZWVuQ2FsbGVkVGltZXMoMiksCiAgICAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF4KICAgICAgNzE3IHwgICAgICAgICApOwogICAgICA3MTggfCAgICAgICAgIGV4cGVjdChwcm92aXNpb25CdXR0b24oKSkudG9CZURpc2FibGVkKCk7CiAgICAgIDcxOSB8ICAgICAgICAgZXhwZWN0KGJ1dHRvbignUmV2b2tlIHNlYXQnKSkudG9CZURpc2FibGVkKCk7CgogICAgICBhdCB0b0hhdmVCZWVuQ2FsbGVkVGltZXMgKHNyYy9wYWdlcy1tb2R1bGVzL2dhbWVwbGF5L2NhbXBhaWducy9fX3Rlc3RzX18vTG9jYWxTZWF0T3BlcmF0b3JQYW5lbC50ZXN0LnRzeDo3MTY6NDApCiAgICAgIGF0IHJ1bldpdGhFeHBlbnNpdmVFcnJvckRpYWdub3N0aWNzRGlzYWJsZWQgKG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L2NvbmZpZy5qczo0NzoxMikKICAgICAgYXQgY2hlY2tDYWxsYmFjayAobm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3Qvd2FpdC1mb3IuanM6MTI0Ojc3KQogICAgICBhdCBjaGVja1JlYWxUaW1lcnNDYWxsYmFjayAobm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3Qvd2FpdC1mb3IuanM6MTE4OjE2KQogICAgICBhdCBUaW1lb3V0LnRhc2sgW2FzIF9vblRpbWVvdXRdIChub2RlX21vZHVsZXMvanNkb20vbGliL2pzZG9tL2Jyb3dzZXIvV2luZG93LmpzOjU3OToxOSkKCiAg4pePIExvY2FsU2VhdE9wZXJhdG9yUGFuZWwg4oC6IExTQy0yTyBvcGVyYXRvciBvYmxpZ2F0aW9ucyDigLogTzE0IGEgc3RhdHVzIDUwMCB3cml0ZSBvdXRjb21lIHJlZnJlc2hlcyBzZWF0cyBiZWZvcmUgYW55IG11dGF0aW9uIGNhbiBiZSByZXN1Ym1pdHRlZAoKICAgIGV4cGVjdChqZXN0LmZuKCkpLnRvSGF2ZUJlZW5DYWxsZWRUaW1lcyhleHBlY3RlZCkKCiAgICBFeHBlY3RlZCBudW1iZXIgb2YgY2FsbHM6IDIKICAgIFJlY2VpdmVkIG51bWJlciBvZiBjYWxsczogMQoKICAgIElnbm9yZWQgbm9kZXM6IGNvbW1lbnRzLCBzY3JpcHQsIHN0eWxlCiAgICAbWzM2bTxodG1sPhtbMzltCiAgICAgIBtbMzZtPGhlYWQgLz4bWzM5bQogICAgICAbWzM2bTxib2R5PhtbMzltCiAgICAgICAgG1szNm08ZGl2PhtbMzltCiAgICAgICAgICAbWzM2bTxzZWN0aW9uG1szOW0KICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwLzUwIG1iLTYgcm91bmRlZC1sZyBib3JkZXIgcHgtNCBweS0zIhtbMzltCiAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgICAgICAgIBtbMzNtYXJpYS1leHBhbmRlZBtbMzltPRtbMzJtInRydWUiG1szOW0KICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzBtTWFuYWdlIGxvY2FsIHNlYXRzG1swbQogICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgIBtbMzZtPGRpdhtbMzltCiAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtIm10LTMgc3BhY2UteS0zIhtbMzltCiAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgICAgG1swbVRoZSBvcGVyYXRvciBjYW4gaW1wZXJzb25hdGUgZWl0aGVyIGxvY2FsIHNlYXQuIFNoYXJlZCBPUyBhY2Nlc3MgaXMgbm90IGlzb2xhdGVkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHA+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1SZS1wcm92aXNpb25pbmcgY3JlYXRlcyBhIG5ldyBwbGF5ZXJJZCBhbmQgcmVxdWlyZXMgR00gcmVhZG1pc3Npb24uG1swbQogICAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgICAgG1swbVJldm9jYXRpb24gYXBwbGllcyBvbmx5IHRvIHRoZSBuZXh0IHRva2VuIG1pbnQgb3IgcmVuZXdhbC4gQW4gZXhpc3RpbmcgYmVhcmVyIHJlbWFpbnMgZWZmZWN0aXZlIHVudGlsIGV4cGlyeS4gVGhlIHByaW9yIHByaW5jaXBhbCByZW1haW5zIGEgY2FtcGFpZ24gbWVtYmVyIHVudGlsIGV4cGxpY2l0bHkgcmVtb3ZlZC4bWzBtCiAgICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgICAbWzM2bTx1bBtbMzltCiAgICAgICAgICAgICAgICAbWzMzbWFyaWEtbGFiZWwbWzM5bT0bWzMybSJMb2NhbCBzZWF0IHN0YXRlcyIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsaT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0xOiB1bnByb3Zpc2lvbmVkOyBsYWJlbDogbm9uZTsgcGxheWVySWQ6IG5vbmU7IGdlbmVyYXRpb246IDA7IGxvY2tlZCB1bnRpbDogbm90IGxvY2tlZBtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9saT4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGk+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMjogYWN0aXZlOyBsYWJlbDogR3VubmVyOyBwbGF5ZXJJZDogcGxheWVyLXR3bzsgZ2VuZXJhdGlvbjogNDsgbG9ja2VkIHVudGlsOiAyMDI2LTEwLTE5VDAzOjAwOjAwLjAwMFobWzBtCiAgICAgICAgICAgICAgICAbWzM2bTwvbGk+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvdWw+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtcm9sZRtbMzltPRtbMzJtImFsZXJ0IhtbMzltCiAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1Mb2NhbCBzZWF0IHJlcXVlc3QgZmFpbGVkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtUmV0cnkgcmVmcmVzaBtbMG0KICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgG1szNm08Zm9ybT4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08ZmllbGRzZXQbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ic3BhY2UteS0zIhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsZWdlbmQ+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtTG9jYWwgc2VhdCBjcmVkZW50aWFscxtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08L2xlZ2VuZD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08c2VsZWN0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0ibG9jYWwtc2VhdC0xIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0xG1swbQogICAgICAgICAgICAgICAgICAgICAgG1szNm08L29wdGlvbj4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1szM212YWx1ZRtbMzltPRtbMzJtImxvY2FsLXNlYXQtMiIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMhtbMG0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPC9vcHRpb24+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvc2VsZWN0PhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVNlYXQgbGFiZWwbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbW1heGxlbmd0aBtbMzltPRtbMzJtIjY0IhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXJlcXVpcmVkG1szOW09G1szMm0iIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0iU2NvdXQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxhYmVsG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtUHJpbWFyeSB2YXVsdCBwYXNzd29yZBtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTxpbnB1dBtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWF1dG9jb21wbGV0ZRtbMzltPRtbMzJtImN1cnJlbnQtcGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0icGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxhYmVsG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtTmV3IHNlYXQgcGFzc3dvcmQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21hdXRvY29tcGxldGUbWzM5bT0bWzMybSJuZXctcGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21taW5sZW5ndGgbWzM5bT0bWzMybSI4IhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJwYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtLz4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJzdWJtaXQiG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtUHJvdmlzaW9uIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWRpc2FibGVkG1szOW09G1szMm0iIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVJldm9rZSBzZWF0G1swbQogICAgICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTwvZmllbGRzZXQ+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvZm9ybT4bWzM5bQogICAgICAgICAgICAbWzM2bTwvZGl2PhtbMzltCiAgICAgICAgICAbWzM2bTwvc2VjdGlvbj4bWzM5bQogICAgICAgIBtbMzZtPC9kaXY+G1szOW0KICAgICAgG1szNm08L2JvZHk+G1szOW0KICAgIBtbMzZtPC9odG1sPhtbMzltCgogICAgICA3MTQgfCAgICAgICAgIGZpcmVFdmVudC5jbGljayhidXR0b24oJ1Byb3Zpc2lvbiBzZWF0JykpOwogICAgICA3MTUgfCAgICAgICAgIGF3YWl0IHdhaXRGb3IoKCkgPT4KICAgID4gNzE2IHwgICAgICAgICAgIGV4cGVjdChzdG9yZS5saXN0TG9jYWxTZWF0cykudG9IYXZlQmVlbkNhbGxlZFRpbWVzKDIpLAogICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBeCiAgICAgIDcxNyB8ICAgICAgICAgKTsKICAgICAgNzE4IHwgICAgICAgICBleHBlY3QocHJvdmlzaW9uQnV0dG9uKCkpLnRvQmVEaXNhYmxlZCgpOwogICAgICA3MTkgfCAgICAgICAgIGV4cGVjdChidXR0b24oJ1Jldm9rZSBzZWF0JykpLnRvQmVEaXNhYmxlZCgpOwoKICAgICAgYXQgdG9IYXZlQmVlbkNhbGxlZFRpbWVzIChzcmMvcGFnZXMtbW9kdWxlcy9nYW1lcGxheS9jYW1wYWlnbnMvX190ZXN0c19fL0xvY2FsU2VhdE9wZXJhdG9yUGFuZWwudGVzdC50c3g6NzE2OjQwKQogICAgICBhdCBydW5XaXRoRXhwZW5zaXZlRXJyb3JEaWFnbm9zdGljc0Rpc2FibGVkIChub2RlX21vZHVsZXMvQHRlc3RpbmctbGlicmFyeS9kb20vZGlzdC9jb25maWcuanM6NDc6MTIpCiAgICAgIGF0IGNoZWNrQ2FsbGJhY2sgKG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L3dhaXQtZm9yLmpzOjEyNDo3NykKICAgICAgYXQgY2hlY2tSZWFsVGltZXJzQ2FsbGJhY2sgKG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L3dhaXQtZm9yLmpzOjExODoxNikKICAgICAgYXQgVGltZW91dC50YXNrIFthcyBfb25UaW1lb3V0XSAobm9kZV9tb2R1bGVzL2pzZG9tL2xpYi9qc2RvbS9icm93c2VyL1dpbmRvdy5qczo1Nzk6MTkpCgogIOKXjyBMb2NhbFNlYXRPcGVyYXRvclBhbmVsIOKAuiBMU0MtMk8gb3BlcmF0b3Igb2JsaWdhdGlvbnMg4oC6IE8xNSBrZWVwcyBldmVyeSB3cml0ZSBkaXNhYmxlZCBhZnRlciBhIGZhaWxlZCB1bmtub3duLW91dGNvbWUgcmVmcmVzaCB1bnRpbCBhbiBleHBsaWNpdCBzdWNjZXNzZnVsIFJldHJ5IHJlZnJlc2gKCiAgICBleHBlY3QoZWxlbWVudCkudG9IYXZlVGV4dENvbnRlbnQoKQoKICAgIEV4cGVjdGVkIGVsZW1lbnQgdG8gaGF2ZSB0ZXh0IGNvbnRlbnQ6CiAgICAgIC9yZXRyeSByZWZyZXNoL2kKICAgIFJlY2VpdmVkOgogICAgICBMb2NhbCBzZWF0IHJlcXVlc3QgZmFpbGVkLgoKICAgIElnbm9yZWQgbm9kZXM6IGNvbW1lbnRzLCBzY3JpcHQsIHN0eWxlCiAgICAbWzM2bTxodG1sPhtbMzltCiAgICAgIBtbMzZtPGhlYWQgLz4bWzM5bQogICAgICAbWzM2bTxib2R5PhtbMzltCiAgICAgICAgG1szNm08ZGl2PhtbMzltCiAgICAgICAgICAbWzM2bTxzZWN0aW9uG1szOW0KICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwLzUwIG1iLTYgcm91bmRlZC1sZyBib3JkZXIgcHgtNCBweS0zIhtbMzltCiAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAbWzM2bTxidXR0b24bWzM5bQogICAgICAgICAgICAgIBtbMzNtYXJpYS1leHBhbmRlZBtbMzltPRtbMzJtInRydWUiG1szOW0KICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJidXR0b24iG1szOW0KICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAbWzBtTWFuYWdlIGxvY2FsIHNlYXRzG1swbQogICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgIBtbMzZtPGRpdhtbMzltCiAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtIm10LTMgc3BhY2UteS0zIhtbMzltCiAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgICAgG1swbVRoZSBvcGVyYXRvciBjYW4gaW1wZXJzb25hdGUgZWl0aGVyIGxvY2FsIHNlYXQuIFNoYXJlZCBPUyBhY2Nlc3MgaXMgbm90IGlzb2xhdGVkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPHA+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1SZS1wcm92aXNpb25pbmcgY3JlYXRlcyBhIG5ldyBwbGF5ZXJJZCBhbmQgcmVxdWlyZXMgR00gcmVhZG1pc3Npb24uG1swbQogICAgICAgICAgICAgIBtbMzZtPC9wPhtbMzltCiAgICAgICAgICAgICAgG1szNm08cD4bWzM5bQogICAgICAgICAgICAgICAgG1swbVJldm9jYXRpb24gYXBwbGllcyBvbmx5IHRvIHRoZSBuZXh0IHRva2VuIG1pbnQgb3IgcmVuZXdhbC4gQW4gZXhpc3RpbmcgYmVhcmVyIHJlbWFpbnMgZWZmZWN0aXZlIHVudGlsIGV4cGlyeS4gVGhlIHByaW9yIHByaW5jaXBhbCByZW1haW5zIGEgY2FtcGFpZ24gbWVtYmVyIHVudGlsIGV4cGxpY2l0bHkgcmVtb3ZlZC4bWzBtCiAgICAgICAgICAgICAgG1szNm08L3A+G1szOW0KICAgICAgICAgICAgICAbWzM2bTx1bBtbMzltCiAgICAgICAgICAgICAgICAbWzMzbWFyaWEtbGFiZWwbWzM5bT0bWzMybSJMb2NhbCBzZWF0IHN0YXRlcyIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTxsaT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0xOiB1bnByb3Zpc2lvbmVkOyBsYWJlbDogbm9uZTsgcGxheWVySWQ6IG5vbmU7IGdlbmVyYXRpb246IDA7IGxvY2tlZCB1bnRpbDogbm90IGxvY2tlZBtbMG0KICAgICAgICAgICAgICAgIBtbMzZtPC9saT4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08bGk+G1szOW0KICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMjogYWN0aXZlOyBsYWJlbDogR3VubmVyOyBwbGF5ZXJJZDogcGxheWVyLXR3bzsgZ2VuZXJhdGlvbjogNDsgbG9ja2VkIHVudGlsOiAyMDI2LTEwLTE5VDAzOjAwOjAwLjAwMFobWzBtCiAgICAgICAgICAgICAgICAbWzM2bTwvbGk+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvdWw+G1szOW0KICAgICAgICAgICAgICAbWzM2bTxwG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtcm9sZRtbMzltPRtbMzJtImFsZXJ0IhtbMzltCiAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgIBtbMG1Mb2NhbCBzZWF0IHJlcXVlc3QgZmFpbGVkLhtbMG0KICAgICAgICAgICAgICAbWzM2bTwvcD4bWzM5bQogICAgICAgICAgICAgIBtbMzZtPGJ1dHRvbhtbMzltCiAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgIBtbMzNtdHlwZRtbMzltPRtbMzJtImJ1dHRvbiIbWzM5bQogICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAbWzBtUmV0cnkgcmVmcmVzaBtbMG0KICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgG1szNm08Zm9ybT4bWzM5bQogICAgICAgICAgICAgICAgG1szNm08ZmllbGRzZXQbWzM5bQogICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0ic3BhY2UteS0zIhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsZWdlbmQ+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtTG9jYWwgc2VhdCBjcmVkZW50aWFscxtbMG0KICAgICAgICAgICAgICAgICAgG1szNm08L2xlZ2VuZD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbUxvY2FsIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08c2VsZWN0G1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bTxvcHRpb24bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0ibG9jYWwtc2VhdC0xIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzM2bT4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgICAbWzBtbG9jYWwtc2VhdC0xG1swbQogICAgICAgICAgICAgICAgICAgICAgG1szNm08L29wdGlvbj4bWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm08b3B0aW9uG1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1szM212YWx1ZRtbMzltPRtbMzJtImxvY2FsLXNlYXQtMiIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAgICAgG1swbWxvY2FsLXNlYXQtMhtbMG0KICAgICAgICAgICAgICAgICAgICAgIBtbMzZtPC9vcHRpb24+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bTwvc2VsZWN0PhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9sYWJlbD4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTxsYWJlbBtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJsb2NrIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVNlYXQgbGFiZWwbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21jbGFzcxtbMzltPRtbMzJtImJvcmRlci1ib3JkZXItdGhlbWUgYmctc3VyZmFjZS1kZWVwIHJvdW5kZWQgYm9yZGVyIHB4LTMgcHktMiBkaXNhYmxlZDpvcGFjaXR5LTUwIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbW1heGxlbmd0aBtbMzltPRtbMzJtIjY0IhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXJlcXVpcmVkG1szOW09G1szMm0iIhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXZhbHVlG1szOW09G1szMm0iU2NvdXQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxhYmVsG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtUHJpbWFyeSB2YXVsdCBwYXNzd29yZBtbMG0KICAgICAgICAgICAgICAgICAgICAbWzM2bTxpbnB1dBtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbWF1dG9jb21wbGV0ZRtbMzltPRtbMzJtImN1cnJlbnQtcGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0icGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzM2bS8+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08L2xhYmVsPhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPGxhYmVsG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYmxvY2siG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtTmV3IHNlYXQgcGFzc3dvcmQbWzBtCiAgICAgICAgICAgICAgICAgICAgG1szNm08aW5wdXQbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21hdXRvY29tcGxldGUbWzM5bT0bWzMybSJuZXctcGFzc3dvcmQiG1szOW0KICAgICAgICAgICAgICAgICAgICAgIBtbMzNtY2xhc3MbWzM5bT0bWzMybSJib3JkZXItYm9yZGVyLXRoZW1lIGJnLXN1cmZhY2UtZGVlcCByb3VuZGVkIGJvcmRlciBweC0zIHB5LTIgZGlzYWJsZWQ6b3BhY2l0eS01MCIbWzM5bQogICAgICAgICAgICAgICAgICAgICAgG1szM21taW5sZW5ndGgbWzM5bT0bWzMybSI4IhtbMzltCiAgICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJwYXNzd29yZCIbWzM5bQogICAgICAgICAgICAgICAgICAgIBtbMzZtLz4bWzM5bQogICAgICAgICAgICAgICAgICAbWzM2bTwvbGFiZWw+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbXR5cGUbWzM5bT0bWzMybSJzdWJtaXQiG1szOW0KICAgICAgICAgICAgICAgICAgG1szNm0+G1szOW0KICAgICAgICAgICAgICAgICAgICAbWzBtUHJvdmlzaW9uIHNlYXQbWzBtCiAgICAgICAgICAgICAgICAgIBtbMzZtPC9idXR0b24+G1szOW0KICAgICAgICAgICAgICAgICAgG1szNm08YnV0dG9uG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWNsYXNzG1szOW09G1szMm0iYm9yZGVyLWJvcmRlci10aGVtZSBiZy1zdXJmYWNlLWRlZXAgcm91bmRlZCBib3JkZXIgcHgtMyBweS0yIGRpc2FibGVkOm9wYWNpdHktNTAiG1szOW0KICAgICAgICAgICAgICAgICAgICAbWzMzbWRpc2FibGVkG1szOW09G1szMm0iIhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1szM210eXBlG1szOW09G1szMm0iYnV0dG9uIhtbMzltCiAgICAgICAgICAgICAgICAgIBtbMzZtPhtbMzltCiAgICAgICAgICAgICAgICAgICAgG1swbVJldm9rZSBzZWF0G1swbQogICAgICAgICAgICAgICAgICAbWzM2bTwvYnV0dG9uPhtbMzltCiAgICAgICAgICAgICAgICAbWzM2bTwvZmllbGRzZXQ+G1szOW0KICAgICAgICAgICAgICAbWzM2bTwvZm9ybT4bWzM5bQogICAgICAgICAgICAbWzM2bTwvZGl2PhtbMzltCiAgICAgICAgICAbWzM2bTwvc2VjdGlvbj4bWzM5bQogICAgICAgIBtbMzZtPC9kaXY+G1szOW0KICAgICAgG1szNm08L2JvZHk+G1szOW0KICAgIBtbMzZtPC9odG1sPhtbMzltCgogICAgICA3NDQgfCAgICAgICBmaXJlRXZlbnQuY2xpY2soYnV0dG9uKCdQcm92aXNpb24gc2VhdCcpKTsKICAgICAgNzQ1IHwgICAgICAgYXdhaXQgd2FpdEZvcigoKSA9PgogICAgPiA3NDYgfCAgICAgICAgIGV4cGVjdChzY3JlZW4uZ2V0QnlSb2xlKCdhbGVydCcpKS50b0hhdmVUZXh0Q29udGVudCgvcmV0cnkgcmVmcmVzaC9pKSwKICAgICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXgogICAgICA3NDcgfCAgICAgICApOwogICAgICA3NDggfCAgICAgICBleHBlY3Qoc2NyZWVuLmdldEJ5Um9sZSgnYWxlcnQnKSkubm90LnRvSGF2ZVRleHRDb250ZW50KAogICAgICA3NDkgfCAgICAgICAgICdzZXJ2ZXItcHJpdmF0ZS1kZXRhaWwnLAoKICAgICAgYXQgdG9IYXZlVGV4dENvbnRlbnQgKHNyYy9wYWdlcy1tb2R1bGVzL2dhbWVwbGF5L2NhbXBhaWducy9fX3Rlc3RzX18vTG9jYWxTZWF0T3BlcmF0b3JQYW5lbC50ZXN0LnRzeDo3NDY6NDMpCiAgICAgIGF0IHJ1bldpdGhFeHBlbnNpdmVFcnJvckRpYWdub3N0aWNzRGlzYWJsZWQgKG5vZGVfbW9kdWxlcy9AdGVzdGluZy1saWJyYXJ5L2RvbS9kaXN0L2NvbmZpZy5qczo0NzoxMikKICAgICAgYXQgY2hlY2tDYWxsYmFjayAobm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3Qvd2FpdC1mb3IuanM6MTI0Ojc3KQogICAgICBhdCBjaGVja1JlYWxUaW1lcnNDYWxsYmFjayAobm9kZV9tb2R1bGVzL0B0ZXN0aW5nLWxpYnJhcnkvZG9tL2Rpc3Qvd2FpdC1mb3IuanM6MTE4OjE2KQogICAgICBhdCBUaW1lb3V0LnRhc2sgW2FzIF9vblRpbWVvdXRdIChub2RlX21vZHVsZXMvanNkb20vbGliL2pzZG9tL2Jyb3dzZXIvV2luZG93LmpzOjU3OToxOSkKClRlc3QgU3VpdGVzOiAxIGZhaWxlZCwgMSB0b3RhbApUZXN0czogICAgICAgNyBmYWlsZWQsIDI4IHBhc3NlZCwgMzUgdG90YWwKU25hcHNob3RzOiAgIDAgdG90YWwKVGltZTogICAgICAgIDcuMDc3IHMKUmFuIGFsbCB0ZXN0IHN1aXRlcyB3aXRoaW4gcGF0aHMgInNyYy9wYWdlcy1tb2R1bGVzL2dhbWVwbGF5L2NhbXBhaWducy9fX3Rlc3RzX18vTG9jYWxTZWF0T3BlcmF0b3JQYW5lbC50ZXN0LnRzeCIuClRlc3QgcmVzdWx0cyB3cml0dGVuIHRvOiAuLlxfcmVwb3J0c1wyMDI2LTEwLTI0XGxzYy0yb1xyMi1hbWVuZGVkLXBhbmVsLXZzLWJhc2VsaW5lLmpzb24K"
+    }
+  },
+  "reviewerDirectedFixesAfterGreen": {
+    "recordedAt": "2026-10-24T14:01:08.070Z",
+    "reviewedHead": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+    "review": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2329-review-r2.md",
+      "sha256": "12341c65d594b3f50d994abd702b926f7e5d56aa79d8a6652b8bf3090368ba94",
+      "bytes": 25601
+    },
+    "reviewer": "claude-opus-5-5",
+    "verdict": "APPROVE-WITH-IN-PR-FIXES (all LOW)",
+    "fixes": [
+      "F1 panel: the unconfirmed re-provision refusal now runs after both password inputs are cleared; O11 asserts expectCleared() after the refusal alert.",
+      "F2 panel: Revoke is disabled with !reprovision (the active-seat lookup is no longer duplicated).",
+      "F3 test: O14 also covers a plain HTTP 500 (the route internal-error response is an unknown outcome).",
+      "F4 test: new preserve test O11 revokes an active seat with the confirmation unticked (passes at baseline).",
+      "F5 receipt: \"five\" corrected to \"six\" RED panel tests; the RED test hash is recorded and the amended bytes are not claimed to be the RED bytes."
+    ],
+    "survivorsKilled": [
+      "X3 needsRefresh >= 500 -> > 500 (now P9, KILLED)",
+      "X5 confirmation also gating Revoke (now P10, KILLED)"
+    ],
+    "headBeforeFixCommit": "5c58412fa38758660bb8f57c7fd03b047e53fee3",
+    "testByteChange": "Locator-only amendment after RED plus added preserve tests; original admission and RED receipts remain byte-unchanged; no claim that the amended test bytes were the RED bytes.",
+    "originalTests": [
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "sha256": "3bdae0d86ddffab03d0c3dd3b3a5f8549a61aba820ae8d8fc2de011eaa77e85f",
+        "bytes": 28699,
+        "note": "RED commit bytes"
+      }
+    ],
+    "note": "A fix commit voids any OWNER-RULING bound to the earlier head; the closure review and ruling must name the final head."
+  },
+  "headBeforeReviewFixCommit": "5c58412fa38758660bb8f57c7fd03b047e53fee3"
+}
