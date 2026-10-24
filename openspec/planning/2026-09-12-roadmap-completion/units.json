@@ -9484,7 +9484,19 @@
         "src/lib/campaign"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-source-review-20261024.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-owner-ruling-6383180420.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-admission-review-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-merge-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-mainproof-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-59b8af58a-install.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-59b8af58a-owned-guards.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-59b8af58a-regression.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-59b8af58a-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-59b8af58a-run-proof.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9499,10 +9511,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "434fdab1d5b0fbe107435a88985ce3eaaf753033",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+      "mergeSha": "59b8af58a9372a74191b253bd02d837f58dc390e",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-2c-admission-20261020.json"
@@ -9513,9 +9525,28 @@
         "local": {
           "path": "evidence/lsc-2c-local-20261020.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-2c-admission-review-20261020.json",
+          "head": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+          "reviewedHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+          "reviewerModel": "claude-opus",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "ca1cb8df7b5a0b259a7314c83883ee6f95c56657960a915b41ec80f5514cae4e",
+          "verdict": "APPROVE-WITH-IN-PR-FIXES",
+          "ownerDisposition": "ACCEPT at fceb4269c7e8d26153ed5df5033a8efcc3d433a2"
+        },
+        "merge": {
+          "path": "evidence/lsc-2c-merge-20261024.json",
+          "pr": 2326,
+          "head": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+          "mergeSha": "59b8af58a9372a74191b253bd02d837f58dc390e"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-2c-mainproof-20261024.json",
+          "mergeCommit": "59b8af58a9372a74191b253bd02d837f58dc390e",
+          "verdict": "PASS",
+          "runtime": "Main Jest: Tests: 280 passed, 280 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9567,7 +9598,34 @@
           "lifecycleReserve": 60,
           "planningTotal": 327
         }
-      }
+      },
+      "reviewedHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+      "carryForwardRouting20261024": [
+        {
+          "id": "CF-LSC2C-1",
+          "severity": "Medium",
+          "owner": "LSC-2O",
+          "target": "LSC-2O frozen admission; LSC-2O already owns src/lib/campaign/coop/localSeatCredentialStore.ts and its test (not admitted by this closure)",
+          "status": "routed; LSC-2O is released to planned only",
+          "item": "Pin the ten guards the owned suite leaves unpinned (review M-1/F2; probes M1-M7, M9, M10): replace-path expiry and wire/result expiry agreement, status and remember playerId agreement, the primary 6h cap, displayName 64, issued<=expires, forget without a match, and Retry-After 0. Append the verified review block (R1-R9, 61/61, kills 13/13), run oxfmt --write on the test, and add it to the LSC-2O mutation inventory. Optional nit N-1: drop the no-op finally { password = \"\" } in mintCoopCredential."
+        },
+        {
+          "id": "CF-LSC2C-2",
+          "severity": "Low",
+          "owner": "LSC-2",
+          "target": "LSC-2 (CampaignCoopEntryPanel.tsx integration)",
+          "status": "routed; LSC-2 stays blocked on LSC-2O",
+          "item": "L-1: replace CampaignCoopEntryPanel.mintToken with mintCoopCredential(primary, ...) and delete mintToken (multiplayerPage.helpers.mintToken is a further pre-existing caller). L-2: map a primary 401 (Invalid password) to a wrong-password message and a 404 (no vault identity) to OPERATOR_IDENTITY_REQUIRED instead of LOCAL_SEAT_DENIED/REQUEST_FAILED. L-3: keep or explicitly accept the 10s browser-clock drift check on primary tokens; the current panel has none, and /auth/token is not loopback-only."
+        },
+        {
+          "id": "CF-LSC2C-2R",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+          "status": "open registration follow-up; no registered unit grants those leaves for this change",
+          "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+        }
+      ]
     },
     {
       "id": "LSC-2O",
@@ -9595,7 +9653,7 @@
         "migration"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -21305,10 +21363,58 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING; retain all operator/final UI/packaged gates.",
+      "agentRecommendation": "Independent Opus review APPROVE-WITH-IN-PR-FIXES at fceb4269c (F1 text fix recorded in the PR body and merge message; F2 routed to LSC-2O as CF-LSC2C-1), the owner ruling on the merged head and genuine exact-main proof are recorded. CF-LSC2C-2 routes to LSC-2; CF-LSC2C-2R stays an open Root registration follow-up. Retain all operator/final UI/packaged gates.",
       "revertCost": "Revert the two client/test leaves and own lifecycle; primary auth, bearer store and server routes remain unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-24T10:36:18Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2326#issuecomment-6383180420"
+      },
+      "ruling": {
+        "ruledHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+        "reviewedHead": "fceb4269c7e8d26153ed5df5033a8efcc3d433a2",
+        "pr": 2326,
+        "commentId": 6383180420,
+        "author": "SwiggitySwerve",
+        "bodySha256": "dcbed35bf330768756dc642886fbb6c7758281580821f7c0f547b615184fd73a"
+      },
+      "carryForwards": [
+        {
+          "id": "CF-LSC2C-1",
+          "severity": "Medium",
+          "owner": "LSC-2O",
+          "target": "LSC-2O frozen admission; LSC-2O already owns src/lib/campaign/coop/localSeatCredentialStore.ts and its test (not admitted by this closure)",
+          "status": "routed; LSC-2O is released to planned only",
+          "item": "Pin the ten guards the owned suite leaves unpinned (review M-1/F2; probes M1-M7, M9, M10): replace-path expiry and wire/result expiry agreement, status and remember playerId agreement, the primary 6h cap, displayName 64, issued<=expires, forget without a match, and Retry-After 0. Append the verified review block (R1-R9, 61/61, kills 13/13), run oxfmt --write on the test, and add it to the LSC-2O mutation inventory. Optional nit N-1: drop the no-op finally { password = \"\" } in mintCoopCredential."
+        },
+        {
+          "id": "CF-LSC2C-2",
+          "severity": "Low",
+          "owner": "LSC-2",
+          "target": "LSC-2 (CampaignCoopEntryPanel.tsx integration)",
+          "status": "routed; LSC-2 stays blocked on LSC-2O",
+          "item": "L-1: replace CampaignCoopEntryPanel.mintToken with mintCoopCredential(primary, ...) and delete mintToken (multiplayerPage.helpers.mintToken is a further pre-existing caller). L-2: map a primary 401 (Invalid password) to a wrong-password message and a 404 (no vault identity) to OPERATOR_IDENTITY_REQUIRED instead of LOCAL_SEAT_DENIED/REQUEST_FAILED. L-3: keep or explicitly accept the 10s browser-clock drift check on primary tokens; the current panel has none, and /auth/token is not loopback-only."
+        },
+        {
+          "id": "CF-LSC2C-2R",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+          "status": "open registration follow-up; no registered unit grants those leaves for this change",
+          "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+        }
+      ],
+      "openRegistrationFollowUps": [
+        {
+          "id": "CF-LSC2C-2R",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+          "status": "open registration follow-up; no registered unit grants those leaves for this change",
+          "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+        }
+      ]
     },
     {
       "id": "PK-ts7s1a-ruling",

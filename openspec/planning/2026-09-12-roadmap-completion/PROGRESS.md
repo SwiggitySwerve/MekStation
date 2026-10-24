@@ -3100,3 +3100,18 @@ CARRY-FORWARD routing (no added source permission):
 - CF-MPCHD-5 (Info) -> Root registration follow-up: CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them.
 
 No registered unit grants the CampaignHostRegistry.ts runtime or CampaignHostRegistry.test.ts scope these items need: P2CG1H holds a type-only grant and P2CG2 names the file only in a draft stage census. All five stay explicit open registration follow-ups in the source unit, review receipt and ruling packet. No successors are released: P2CG1H still has blocked predecessors (LSC-2P, L1-SMOKE-A2, L1-SMOKE-B). LSC-2C is not admitted by this closure.
+
+
+## LSC-2C closure (2026-10-24)
+
+Source #2326 is main-verified: reviewed and merged PR head `fceb4269c7e8d26153ed5df5033a8efcc3d433a2`, merge `59b8af58a9372a74191b253bd02d837f58dc390e`. The Opus exact-head review (APPROVE-WITH-IN-PR-FIXES) and the live OWNER-RULING comment 6383180420 are byte-copied as SHA-256/base64 envelopes. Review: 24814 bytes, SHA-256 `ca1cb8df7b5a0b259a7314c83883ee6f95c56657960a915b41ec80f5514cae4e`; ruling: 2005 bytes, SHA-256 `dcbed35bf330768756dc642886fbb6c7758281580821f7c0f547b615184fd73a`. The two product files are byte-identical at the head and the merge, and the merge commit message names the duplicate rule copies (review F1).
+
+Fresh npm ci and mainProof at clean exact `59b8af58a`: owned plus guards Tests: 97 passed, 97 total; regression Tests: 280 passed, 280 total (Test Suites: 14 passed, 14 total); typecheck PASS, all through heavy-run lane lsc-2c-closure. Source CI at the PR head was 33/33 SUCCESS. Original admission/RED/local evidence and product bytes are unchanged by this metadata-only closure. No task tick, browser/packaged proof or release acceptance is claimed.
+
+CARRY-FORWARD routing (no added source permission):
+
+- CF-LSC2C-1 (Medium) -> LSC-2O: Pin the ten guards the owned suite leaves unpinned (review M-1/F2; probes M1-M7, M9, M10): replace-path expiry and wire/result expiry agreement, status and remember playerId agreement, the primary 6h cap, displayName 64, issued<=expires, forget without a match, and Retry-After 0. Append the verified review block (R1-R9, 61/61, kills 13/13), run oxfmt --write on the test, and add it to the LSC-2O mutation inventory. Optional nit N-1: drop the no-op finally { password = "" } in mintCoopCredential.
+- CF-LSC2C-2 (Low) -> LSC-2: L-1: replace CampaignCoopEntryPanel.mintToken with mintCoopCredential(primary, ...) and delete mintToken (multiplayerPage.helpers.mintToken is a further pre-existing caller). L-2: map a primary 401 (Invalid password) to a wrong-password message and a 404 (no vault identity) to OPERATOR_IDENTITY_REQUIRED instead of LOCAL_SEAT_DENIED/REQUEST_FAILED. L-3: keep or explicitly accept the 10s browser-clock drift check on primary tokens; the current panel has none, and /auth/token is not loopback-only.
+- CF-LSC2C-2R (Low) -> Root registration follow-up: Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11).
+
+LSC-2O is released from blocked to planned (release only). Its admission needs its own Root gate and PR; CF-LSC2C-1 goes into its mutation inventory there. LSC-2 stays blocked on LSC-2O. CF-LSC2C-2R remains an open Root registration follow-up.
