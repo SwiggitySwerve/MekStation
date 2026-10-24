@@ -430,8 +430,8 @@ test('adopted budgets and gate placement stay fixed', () => {
     plan.steps.map((s) => [s.prBudget, s.gates]),
     [
       [2, []],
-      [2, []],
-      [8, []],
+      [3, []],
+      [12, []],
       [10, ['built-server-spectator-smoke']],
       [16, []],
       [4, []],

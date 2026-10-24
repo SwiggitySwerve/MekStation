@@ -28849,5 +28849,31 @@
     "wip": "One admitted-unfinished unit through closure on main. Closure and next admission may share one PR; successor implementation begins only after merge.",
     "drain": "#2313, then LSC-2C, then reconcile A2FP. No new admission while draining; HOLD still applies.",
     "unchanged": "No unit state, receipt, cap, ownership, review, predecessor, proof or HOLD changes. Outside L1 existing selection remains. PLAN.md is Root-owned and untracked."
+  },
+  "ownerRuling20261024StepsPageFileCap": {
+    "authority": "Owner 2026-10-24, answers recorded by Root in E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261024c.md (sha256 31574a6a99df40b5783e0f9b1119e09c9c24df34cdc6d3bbc9be05e85922dc24).",
+    "receipt": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261024c.md",
+      "sha256": "31574a6a99df40b5783e0f9b1119e09c9c24df34cdc6d3bbc9be05e85922dc24",
+      "note": "Receipt lives outside the repository."
+    },
+    "decisions": {
+      "1": "Step 1 page: \"Allow one extra Step 1 PR: point the done-test at the real command, add the step evidence record, Opus verifies it, then start LSC-2C (recommended)\". Carrier: draft PR #2327.",
+      "2": "File cap: \"Exempt only V2.2.0-STEPS.md from the file count (line count unchanged), recorded as an owner ruling in the ledger (recommended)\".",
+      "3": "Budgets: \"Raise Step 2's budget to 12 and Step 1's to 3, recorded in v220-steps.json through draft PR #2327 with Opus verification, then continue (recommended)\"."
+    },
+    "scope": "V2.2.0-STEPS.md is not counted toward the 15-file per-PR cap; it still counts toward counted lines; no other generated file is exempt.",
+    "budgets": {
+      "step1": {
+        "was": 2,
+        "now": 3
+      },
+      "step2": {
+        "was": 8,
+        "now": 12
+      }
+    },
+    "carrier": "PR #2327",
+    "supersedes": "Counting note in stepPlanDecision20261024.authority (\"no file-count exclusion ruling\") for V2.2.0-STEPS.md only; no unit state, receipt, or historical evidence is changed."
   }
 }

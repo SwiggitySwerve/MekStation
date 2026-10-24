@@ -40,7 +40,7 @@
         }
       ],
       "scope": "Finish #2313; no match-registry redesign.",
-      "prBudget": 2,
+      "prBudget": 3,
       "userVisible": false
     },
     {
@@ -57,7 +57,7 @@
         }
       ],
       "scope": "One installed authority; no token transfer, test activator or implied roles.",
-      "prBudget": 8,
+      "prBudget": 12,
       "userVisible": true
     },
     {

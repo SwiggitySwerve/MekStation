@@ -3,7 +3,7 @@
     "1": {
       "state": "complete",
       "doneTest": "PASS",
-      "inputSha256": "dfaa5a65450405d3093ed6417c5326d170b0125ddf0927deeea63bc4f1c95716",
+      "inputSha256": "e7244d18293d7701784b580a10f4a17a676fb110fab7d91786fa5d82c4e1105a",
       "reference": {
         "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-mainproof-20261024.json",
         "sha256": "3976a731da2d5720efc8a968d78c0741f6d2dd430105de46879b9a3474991474"
