@@ -1290,6 +1290,59 @@ describe('CampaignCoopEntryPanel credential choice (LSC-2)', () => {
     view.unmount();
   });
 
+  it('LS13 join with an invalid stored choice mints nothing and shows the stored-choice message', async () => {
+    window.localStorage.setItem(CHOICE_KEY, 'seat9');
+    route();
+    render(<CampaignCoopEntryPanel />);
+    openJoin();
+    submitJoin('join-secret');
+    expect(await screen.findByTestId('join-coop-error')).toHaveTextContent(
+      'Saved credential choice is invalid. Forget it and choose again.',
+    );
+    expect(mintCalls()).toHaveLength(0);
+    expect(mockEntrySockets).toHaveLength(0);
+    expect(window.sessionStorage.length).toBe(0);
+  });
+
+  it('LS08 a second join for the same match with the same identity is not refused', async () => {
+    route();
+    const view = render(<CampaignCoopEntryPanel />);
+    for (const round of [1, 2]) {
+      openJoin();
+      choose('seat1');
+      submitJoin('join-secret');
+      await waitFor(() => expect(mockEntrySockets).toHaveLength(round));
+      await act(async () => {
+        mockEntrySockets[round - 1].inject({
+          kind: 'CampaignSnapshot',
+          matchId: MATCH,
+          ts: '2026-10-18T00:00:00.000Z',
+          event: {
+            type: 'CampaignSnapshotPublished',
+            campaignId: CAMPAIGN,
+            sequence: -1,
+            ts: '2026-10-18T00:00:00.000Z',
+            authorPlayerId: 'pid_gm',
+            scope: 'campaign',
+            payload: {
+              matchId: MATCH,
+              revision: 0,
+              state: createEmptyCampaignState(CAMPAIGN),
+            },
+          },
+        });
+      });
+      await waitFor(() => expect(mockRouterPush).toHaveBeenCalledTimes(round));
+    }
+    expect(screen.queryByTestId('join-coop-error')).toBeNull();
+    expect(JSON.parse(window.sessionStorage.getItem(BINDING_KEY)!)).toEqual({
+      matchId: MATCH,
+      choice: 'seat1',
+      playerId: 'pid_host',
+    });
+    view.unmount();
+  });
+
   it('LS09 keeps the primary host create request, host session and navigation unchanged', async () => {
     route();
     render(<CampaignCoopEntryPanel />);

@@ -29,6 +29,7 @@ import Link from 'next/link';
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 
 import { canUseCampaignGmControls } from '@/lib/campaign/campaignAuthority';
+import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { CoopCredentialRenewal } from '@/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel';
 
 /**
@@ -265,13 +266,7 @@ export function CampaignNavigation({
   return (
     <div className="border-border-theme mb-6 border-b">
       {coopSession && (
-        <CoopCredentialRenewal
-          matchId={
-            coopSession.mode === 'host'
-              ? coopSession.matchId
-              : coopSession.hostMatchId
-          }
-        />
+        <CoopCredentialRenewal matchId={getCoopMatchId(coopSession)} />
       )}
       <nav
         className="flex flex-wrap items-center gap-1 pb-2"

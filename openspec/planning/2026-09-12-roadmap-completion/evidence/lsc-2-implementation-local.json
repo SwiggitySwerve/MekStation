@@ -4,7 +4,7 @@
   "stage": "local",
   "date": "20261024",
   "evidenceNameNote": "Evidence file names keep the literals frozen in units.json LSC-2.registration20261020.prospectiveStageManifest (lsc-2-implementation-*, no date literal); the actual date is 20261024 (recordedAt).",
-  "recordedAt": "2026-10-24T16:50:04.062Z",
+  "recordedAt": "2026-10-24T17:32:15.300Z",
   "baseline": "0599ea8383abb1066562e708d95c19e06bb1553b",
   "baselineNote": "PR base (origin/main 0599ea838, merge of #2330). The unit ledger baseline e012028a9 has identical product bytes: #2330 changed only evidence, units.json and the generated page.",
   "preRedCommit": "5788aacd28a86679b07f0f3543147d07215427df",
@@ -16,17 +16,25 @@
   },
   "red": {
     "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-red.json",
-    "sha256": "1126ece346d18785af3695af4338ba68dddd93db70293af40b3e1f3bfc8319d0",
-    "bytes": 65028,
+    "sha256": "07cc4bbb5924863008ef890c8d549700fe35cf1f3e1e2f06a97e7d209223a330",
+    "bytes": 65029,
     "redFailing": 51,
-    "note": "RED receipt and RED commit bytes are unchanged by this commit"
+    "note": "RED receipt and RED commit bytes are unchanged. Hash and size are of the committed bytes (git show, untrimmed)."
   },
   "sourceAndTests": [
     {
+      "path": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+      "sha256": "3f0ec204d75d48ff9f325102690d5a561b1e9cff46d3edd8b0dc8f630a3a08e4",
+      "bytes": 18940,
+      "added": 19,
+      "deleted": 9,
+      "role": "test"
+    },
+    {
       "path": "src/components/campaign/CampaignNavigation.tsx",
-      "sha256": "97cdbb96e51c5a6c0114bbe59f112bf527a97e1e5290dff0a0c0cf08eb3e802b",
-      "bytes": 10407,
-      "added": 10,
+      "sha256": "b69ddead699c50da680ee3c922f2ad1eb2e7e51a3776b1673a7f1dfa2f00d76f",
+      "bytes": 10362,
+      "added": 5,
       "deleted": 0,
       "role": "product"
     },
@@ -48,9 +56,9 @@
     },
     {
       "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
-      "sha256": "0232440be5500038108acddde3d7e0723e8f282cf758a48c066a5c9731624133",
-      "bytes": 46782,
-      "added": 734,
+      "sha256": "2d2085a6c74931207ad5ea95547914434ac37e45bdb101dc8013b5718f8cd280",
+      "bytes": 48634,
+      "added": 787,
       "deleted": 31,
       "role": "test"
     },
@@ -66,7 +74,7 @@
   "ledgerAndEvidence": [
     {
       "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
-      "sha256": "6e044647673b745ec7469ed9001f22d6e02c306efd5da7dc30349bea6b45dc0c",
+      "sha256": "d576e4ff5ff1322b81bc2e4dae992af0464bba9b07c43f97318c4855be7e9861",
       "bytes": 2546,
       "added": 2,
       "deleted": 2,
@@ -82,16 +90,25 @@
     },
     {
       "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
-      "sha256": "6efc9bfeee751ccdfaaf87e462179281fce993ef979898089c6c5cb36025d5cd",
-      "bytes": 2227483,
-      "added": 30,
-      "deleted": 3,
+      "sha256": "926736aa4930387654440cf4f165ace0e59d4a3365d3553ee5c476eb397cd5a1",
+      "bytes": 2229433,
+      "added": 44,
+      "deleted": 5,
       "role": "ledger"
     }
   ],
   "unchangedRegisteredLeaves": [],
   "testAmendmentAfterRed": {
     "files": [
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "redSha256": "0232440be5500038108acddde3d7e0723e8f282cf758a48c066a5c9731624133",
+        "redBytes": 46782,
+        "greenSha256": "2d2085a6c74931207ad5ea95547914434ac37e45bdb101dc8013b5718f8cd280",
+        "greenBytes": 48634,
+        "addedVsRed": 53,
+        "deletedVsRed": 0
+      },
       {
         "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
         "redSha256": "690fc752656b707576093f6653e5a192435e6e5704ceace4610c465188ed89e4",
@@ -102,16 +119,16 @@
         "deletedVsRed": 1
       }
     ],
-    "change": "LocalSeatCredentialPanel.test.tsx only: LS17 gained three attribute assertions on the renewal password field (type password, autocomplete current-password, no name; CF-LSC2OP-4), and one unused type import was removed (lint:units ceiling). No assertion was weakened or removed. CampaignCoopEntryPanel.test.tsx is byte-identical to the RED commit.",
-    "note": "The RED receipt keeps the original test hashes; the RED failures it records are against the RED bytes."
+    "change": "LocalSeatCredentialPanel.test.tsx: LS17 gained three attribute assertions on the renewal password field (type password, autocomplete current-password, no name; CF-LSC2OP-4) and one unused type import was removed (lint:units ceiling). CampaignCoopEntryPanel.test.tsx: two preserve tests were added after review round 1 (F2): \"LS13 join with an invalid stored choice mints nothing and shows the stored-choice message\" and \"LS08 a second join for the same match with the same identity is not refused\"; they pass at the baseline-equivalent product behavior only where stated and kill the reviewer mutants P04 and P03. No assertion was weakened or removed. index.coop.test.tsx (RC-LSC2-1) is outside the RED set: fixtures plus one added fetch assertion.",
+    "note": "The RED receipt keeps the original test hashes; the RED failures it records are against the RED bytes. The post-RED additions are preserve tests, never observed RED, and are evidenced by mutant kills."
   },
   "runtime": {
     "green": {
-      "head": "c07106884d95f151a9a1075f70eaf208d89df749 plus the uncommitted GREEN working tree (the GREEN commit)",
+      "head": "the fix tree (the commit that adds this receipt); file bytes are the sha256 values in sourceAndTests",
       "node": "v22.22.0",
       "lane": "lsc-2",
       "class": "jest",
-      "startedAt": "2026-10-24T10:46:16.3809575-06:00",
+      "startedAt": "2026-10-24T11:31:48.9356407-06:00",
       "command": [
         "node",
         "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs",
@@ -151,16 +168,19 @@
         "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
         "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
         "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+        "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.multiCampaign.test.tsx",
+        "src/__tests__/pages/gameplay/campaigns/index.legacyAdoption.test.tsx",
         "--coverage=false",
         "--verbose",
         "--json"
       ],
       "exitCode": 0,
-      "summary": "Tests: 521 passed, 521 total",
-      "suites": "Test Suites: 24 passed, 24 total",
+      "summary": "Tests: 540 passed, 540 total",
+      "suites": "Test Suites: 27 passed, 27 total",
       "owned": {
         "suites": 2,
-        "tests": 80,
+        "tests": 82,
         "files": [
           "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
           "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
@@ -188,8 +208,8 @@
         "note": "with the store and operator-panel suites above these are the seven LSC-2O owned/guard suites; b14FogContainment and matchHistoryFog are in guards"
       },
       "regression": {
-        "suites": 14,
-        "tests": 185,
+        "suites": 17,
+        "tests": 202,
         "files": [
           "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
           "src/__tests__/pages/gameplay/campaigns/activity-feed-cutover.test.tsx",
@@ -204,19 +224,34 @@
           "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
           "src/lib/campaign/coop/__tests__/campaignAuthoritativeFold.test.ts",
           "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
-          "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts"
+          "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.multiCampaign.test.tsx",
+          "src/__tests__/pages/gameplay/campaigns/index.legacyAdoption.test.tsx"
         ]
       },
       "perSuite": [
         {
-          "file": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
-          "tests": 6,
+          "file": "src/__tests__/pages/gameplay/campaigns/index.multiCampaign.test.tsx",
+          "tests": 7,
           "failed": 0,
           "status": "passed"
         },
         {
-          "file": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
-          "tests": 13,
+          "file": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+          "tests": 7,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/__tests__/pages/gameplay/campaigns/index.legacyAdoption.test.tsx",
+          "tests": 3,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+          "tests": 6,
           "failed": 0,
           "status": "passed"
         },
@@ -227,26 +262,50 @@
           "status": "passed"
         },
         {
+          "file": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx",
+          "tests": 4,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/__tests__/integration/pilotXpSpendFromCampaign.test.tsx",
+          "tests": 5,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/services/persistence/__tests__/SQLiteService.localSeatCredentials.migration.test.ts",
+          "tests": 13,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
           "file": "src/components/campaign/__tests__/CampaignNavigation.test.tsx",
           "tests": 10,
           "failed": 0,
           "status": "passed"
         },
         {
-          "file": "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
-          "tests": 4,
-          "failed": 0,
-          "status": "passed"
-        },
-        {
-          "file": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
-          "tests": 82,
+          "file": "src/__tests__/pages/gameplay/campaigns/activity-feed-cutover.test.tsx",
+          "tests": 8,
           "failed": 0,
           "status": "passed"
         },
         {
           "file": "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
           "tests": 76,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
+          "tests": 2,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "tests": 82,
           "failed": 0,
           "status": "passed"
         },
@@ -263,8 +322,8 @@
           "status": "passed"
         },
         {
-          "file": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx",
-          "tests": 4,
+          "file": "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
+          "tests": 11,
           "failed": 0,
           "status": "passed"
         },
@@ -275,32 +334,8 @@
           "status": "passed"
         },
         {
-          "file": "src/lib/campaign/coop/__tests__/composeCoopEncounter.test.ts",
-          "tests": 11,
-          "failed": 0,
-          "status": "passed"
-        },
-        {
-          "file": "src/__tests__/integration/pilotXpSpendFromCampaign.test.tsx",
-          "tests": 5,
-          "failed": 0,
-          "status": "passed"
-        },
-        {
-          "file": "src/__tests__/pages/gameplay/campaigns/activity-feed-cutover.test.tsx",
-          "tests": 8,
-          "failed": 0,
-          "status": "passed"
-        },
-        {
-          "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
-          "tests": 35,
-          "failed": 0,
-          "status": "passed"
-        },
-        {
-          "file": "src/lib/campaign/coop/__tests__/resolveOrIssueRoomCodeGuestGrant.test.ts",
-          "tests": 2,
+          "file": "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+          "tests": 4,
           "failed": 0,
           "status": "passed"
         },
@@ -311,14 +346,20 @@
           "status": "passed"
         },
         {
-          "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
-          "tests": 55,
+          "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "tests": 35,
           "failed": 0,
           "status": "passed"
         },
         {
           "file": "src/lib/multiplayer/server/__tests__/b14FogContainment.test.ts",
           "tests": 31,
+          "failed": 0,
+          "status": "passed"
+        },
+        {
+          "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "tests": 57,
           "failed": 0,
           "status": "passed"
         },
@@ -335,14 +376,14 @@
           "status": "passed"
         },
         {
-          "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
-          "tests": 25,
+          "file": "src/__tests__/api/localSeatCredentials.test.ts",
+          "tests": 32,
           "failed": 0,
           "status": "passed"
         },
         {
-          "file": "src/__tests__/api/localSeatCredentials.test.ts",
-          "tests": 32,
+          "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+          "tests": 25,
           "failed": 0,
           "status": "passed"
         },
@@ -394,7 +435,7 @@
   },
   "mutants": {
     "node": "v22.22.0",
-    "count": 29,
+    "count": 31,
     "obligations": [
       {
         "id": "L2-M01",
@@ -638,8 +679,8 @@
         "allVariantsKilled": true
       }
     ],
-    "killed": 29,
-    "note": "Each variant was applied to a scratch edit of one file, the selected killer tests were run against it, and the file was restored byte-identical (verified by sha256). All 21 admission obligations (L2-M01..M21) have at least one variant and every variant is KILLED. L2-M18 mutates the mounted LocalSeatOperatorPanel gate because the entry panel has no refresh path of its own to bypass. L2-M20 is killed because LS21 cannot mint the second seat when seat 2 uses seat 1 identity (mint refused, a thrown error rather than an equality assertion). L2-M03/M04/M06/M10 and L2-M20/M21 mutate frozen non-leaf files in scratch only; those files are unchanged in the PR.",
+    "killed": 31,
+    "note": "Each variant was applied to a scratch edit of one file, the selected killer tests were run against it, and the file was restored byte-identical (verified by sha256). All 21 admission obligations (L2-M01..M21) have at least one variant and every variant is KILLED. L2-M18 mutates the mounted LocalSeatOperatorPanel gate because the entry panel has no refresh path of its own to bypass. L2-M20 is killed because LS21 cannot mint the second seat when seat 2 uses seat 1 identity (mint refused, a thrown error rather than an equality assertion). L2-M03/M04/M06/M10 and L2-M20/M21 mutate frozen non-leaf files in scratch only; those files are unchanged in the PR. After review round 1 the run was repeated at the fix tree: L2-M17 now mutates the getCoopMatchId call, and the reviewer mutants R-P03 (LS08 guard refuses the same identity) and R-P04 (join mints primary on an invalid choice) are KILLED by the two tests added after RED.",
     "results": [
       {
         "id": "L2-M01",
@@ -1102,8 +1143,8 @@
         ],
         "selection": "-t \"LS22\"",
         "mutatedLines": [
-          "-              : coopSession.hostMatchId",
-          "+              : undefined"
+          "-        <CoopCredentialRenewal matchId={getCoopMatchId(coopSession)} />",
+          "+        <CoopCredentialRenewal matchId={(coopSession.mode === 'host' ? coopSession.matchId : undefined)} />"
         ],
         "result": "KILLED",
         "testsRun": 6,
@@ -1113,6 +1154,51 @@
           "LS22 missions surface mounts the renewal for host and guest sessions only :: TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co",
           "LS22 launch surface mounts the renewal for host and guest sessions only :: TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co",
           "LS22 starmap surface mounts the renewal for host and guest sessions only :: TestingLibraryElementError: Unable to find an accessible element with the role \"region\" and name \"Co"
+        ]
+      },
+      {
+        "id": "R-P03",
+        "variant": "ls08-guard-refuses-same-identity",
+        "file": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "testFiles": [
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+        ],
+        "selection": "-t \"LS08\"",
+        "mutatedLines": [
+          "-      if (joined && joined.playerId !== auth.token.playerId) {",
+          "+      if (joined) {"
+        ],
+        "result": "KILLED",
+        "testsRun": 2,
+        "testsFailed": 1,
+        "failing": [
+          "LS08 a second join for the same match with the same identity is not refused :: Error: expect(received).toHaveLength(expected)"
+        ]
+      },
+      {
+        "id": "R-P04",
+        "variant": "join-mints-primary-on-invalid-choice",
+        "file": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "testFiles": [
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx"
+        ],
+        "selection": "-t \"LS13|LS08\"",
+        "mutatedLines": [
+          "-      const choice = readCoopCredentialChoice();",
+          "+      let choice: ReturnType<typeof readCoopCredentialChoice>;",
+          "+      try {",
+          "+        choice = readCoopCredentialChoice();",
+          "+      } catch (e) {",
+          "+        if (e instanceof LocalSeatRequestError && e.code === 'INVALID_CHOICE')",
+          "+          choice = 'primary';",
+          "+        else throw e;",
+          "+      }"
+        ],
+        "result": "KILLED",
+        "testsRun": 3,
+        "testsFailed": 1,
+        "failing": [
+          "LS13 join with an invalid stored choice mints nothing and shows the stored-choice message :: Error: Unable to find an element by: [data-testid=\"join-coop-error\"]"
         ]
       },
       {
@@ -1233,7 +1319,11 @@
         ]
       }
     ],
-    "runner": "mutants.cjs (scratch, _reports/2026-10-24/lsc-2/scripts)"
+    "runner": "mutants.cjs (scratch, _reports/2026-10-24/lsc-2/scripts)",
+    "reviewerVariants": [
+      "R-P03",
+      "R-P04"
+    ]
   },
   "g4Probe": {
     "result": "PASS: both hosted in jsdom inside the two registered test leaves; no STOP.",
@@ -1336,13 +1426,19 @@
       },
       {
         "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
-        "added": 30,
-        "deleted": 3,
+        "added": 44,
+        "deleted": 5,
         "role": "ledger"
       },
       {
+        "path": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx",
+        "added": 19,
+        "deleted": 9,
+        "role": "test"
+      },
+      {
         "path": "src/components/campaign/CampaignNavigation.tsx",
-        "added": 10,
+        "added": 5,
         "deleted": 0,
         "role": "product"
       },
@@ -1360,7 +1456,7 @@
       },
       {
         "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
-        "added": 734,
+        "added": 787,
         "deleted": 31,
         "role": "test"
       },
@@ -1371,19 +1467,19 @@
         "role": "test"
       }
     ],
-    "productAddedLines": 448,
-    "ledgerAddedLines": 30,
+    "productAddedLines": 443,
+    "ledgerAddedLines": 44,
     "pageAddedLines": 2,
-    "countedAddedLines": 480,
+    "countedAddedLines": 489,
     "maxCountedAddedLines": 500,
     "noDeletionCredit": true,
     "normalOxfmtProduct": true,
-    "fileCount": 9,
+    "fileCount": 10,
     "maxFiles": 15,
-    "fileCountNote": "8 changed files vs origin/main (3 product, 2 tests, units.json, the generated page, the RED receipt) + this local receipt = 9; the admission receipt is already on main and the reserved review receipt lands in the closure PR (not written).",
+    "fileCountNote": "9 changed files vs origin/main (3 product, 3 tests including the RC-LSC2-1 index.coop leaf, units.json, the generated page, the RED receipt) + this local receipt = 10; the admission receipt is already on main and the reserved review receipt lands in the closure PR (not written).",
     "sizingDraftProductAdditions": 428,
-    "deltaVsSizingDraft": 20,
-    "deltaNote": "The LS08 different-identity join guard, the reload/navigate seams, the silent-without-binding rule and the cleanup helpers account for the difference."
+    "deltaVsSizingDraft": 15,
+    "deltaNote": "The LS08 different-identity join guard, the reload/navigate seams, the silent-without-binding rule and the cleanup helpers account for the difference; getCoopMatchId in CampaignNavigation saved 5."
   },
   "packet": {
     "id": "PK-lsc-2-ruling",
@@ -1535,11 +1631,182 @@
       "path": "_reports/2026-10-24/lsc-2/green-final.log",
       "encoding": "base64",
       "note": "PASS/FAIL and summary lines of the verbose run",
-      "bytes": 1,
-      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "data": "Cg==",
-      "fullLogBytes": 115674,
-      "fullLogSha256": "016ff304b549c6ca97294572136d75e704543aec655b61e180ffdf25511f6305"
+      "bytes": 2206,
+      "sha256": "2c20b2ba493592af1f060aaad648adc7638e3eab90168589cb873f24bf97ef75",
+      "data": "UEFTUyB1bml0IHNyYy9fX3Rlc3RzX18vcGFnZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL2luZGV4Lm11bHRpQ2FtcGFpZ24udGVzdC50c3gKUEFTUyB1bml0IHNyYy9fX3Rlc3RzX18vcGFnZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL2luZGV4LmNvb3AudGVzdC50c3gKUEFTUyB1bml0IHNyYy9fX3Rlc3RzX18vcGFnZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL2luZGV4LmxlZ2FjeUFkb3B0aW9uLnRlc3QudHN4ClBBU1MgdW5pdCBzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL3Jvb21Db2RlR3Vlc3RIeWRyYXRpb24udGVzdC50cwpQQVNTIHVuaXQgc3JjL3NlcnZpY2VzL3ZhdWx0L19fdGVzdHNfXy9Mb2NhbFNlYXRDcmVkZW50aWFsUmVwb3NpdG9yeS50ZXN0LnRzClBBU1MgdW5pdCBzcmMvY29tcG9uZW50cy9nYW1lcGxheS9wYWdlcy9jYW1wYWlnbnMvZGFzaGJvYXJkL19fdGVzdHNfXy9DYW1wYWlnbkRhc2hib2FyZFBhZ2UucmVhY3Rpdml0eS50ZXN0LnRzeApQQVNTIHVuaXQgc3JjL19fdGVzdHNfXy9pbnRlZ3JhdGlvbi9waWxvdFhwU3BlbmRGcm9tQ2FtcGFpZ24udGVzdC50c3gKUEFTUyB1bml0IHNyYy9zZXJ2aWNlcy9wZXJzaXN0ZW5jZS9fX3Rlc3RzX18vU1FMaXRlU2VydmljZS5sb2NhbFNlYXRDcmVkZW50aWFscy5taWdyYXRpb24udGVzdC50cwpQQVNTIHVuaXQgc3JjL2NvbXBvbmVudHMvY2FtcGFpZ24vX190ZXN0c19fL0NhbXBhaWduTmF2aWdhdGlvbi50ZXN0LnRzeApQQVNTIHVuaXQgc3JjL19fdGVzdHNfXy9wYWdlcy9nYW1lcGxheS9jYW1wYWlnbnMvYWN0aXZpdHktZmVlZC1jdXRvdmVyLnRlc3QudHN4ClBBU1MgdW5pdCBzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2NhbXBhaWduU3luY1RyYW5zcG9ydC50ZXN0LnRzClBBU1MgdW5pdCBzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL3Jlc29sdmVPcklzc3VlUm9vbUNvZGVHdWVzdEdyYW50LnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vbG9jYWxTZWF0Q3JlZGVudGlhbFN0b3JlLnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vcmVjb25jaWxlQ29vcEJhdHRsZS50ZXN0LnRzClBBU1MgdW5pdCBzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2NhbXBhaWduQXV0aG9yaXRhdGl2ZUZvbGQudGVzdC50cwpQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9jb21wb3NlQ29vcEVuY291bnRlci50ZXN0LnRzClBBU1MgdW5pdCBzcmMvbGliL2NhbXBhaWduL2Nvb3AvX190ZXN0c19fL2NhbXBhaWduQXV0aG9yaXRhdGl2ZVN0YXRlLnRlc3QudHMKUEFTUyB1bml0IHNyYy9saWIvY2FtcGFpZ24vY29vcC9fX3Rlc3RzX18vY29vcFJ1bnRpbWVTZXNzaW9uLnRlc3QudHMKUEFTUyB1bml0IHNyYy9fX3Rlc3RzX18vcGFnZXMvZ2FtZXBsYXkvY2FtcGFpZ25zL21pc3Npb24tbGF1bmNoLmNvb3AudGVzdC50c3gKUEFTUyB1bml0IHNyYy9wYWdlcy1tb2R1bGVzL2dhbWVwbGF5L2NhbXBhaWducy9fX3Rlc3RzX18vTG9jYWxTZWF0T3BlcmF0b3JQYW5lbC50ZXN0LnRzeApQQVNTIHVuaXQgc3JjL2xpYi9tdWx0aXBsYXllci9zZXJ2ZXIvX190ZXN0c19fL2IxNEZvZ0NvbnRhaW5tZW50LnRlc3QudHMKUEFTUyB1bml0IHNyYy9wYWdlcy1tb2R1bGVzL2dhbWVwbGF5L2NhbXBhaWducy9fX3Rlc3RzX18vQ2FtcGFpZ25Db29wRW50cnlQYW5lbC50ZXN0LnRzeApQQVNTIHVuaXQgc3JjL2xpYi9jYW1wYWlnbi9jb29wL19fdGVzdHNfXy9sYXVuY2hDb29wTWlzc2lvbi50ZXN0LnRzClBBU1MgdW5pdCBzcmMvcGFnZXMtbW9kdWxlcy9hcGkvX190ZXN0c19fL21hdGNoSGlzdG9yeUZvZy50ZXN0LnRzClBBU1MgdW5pdCBzcmMvX190ZXN0c19fL2FwaS9sb2NhbFNlYXRDcmVkZW50aWFscy50ZXN0LnRzClBBU1MgdW5pdCBzcmMvcGFnZXMtbW9kdWxlcy9nYW1lcGxheS9jYW1wYWlnbnMvX190ZXN0c19fL0xvY2FsU2VhdENyZWRlbnRpYWxQYW5lbC50ZXN0LnRzeApQQVNTIHVuaXQgc3JjL3NlcnZpY2VzL3ZhdWx0L19fdGVzdHNfXy9Mb2NhbFNlYXRDcmVkZW50aWFsU2VydmljZS50ZXN0LnRzICg1LjQ3OSBzKQpUZXN0IFN1aXRlczogMjcgcGFzc2VkLCAyNyB0b3RhbApUZXN0czogICAgICAgNTQwIHBhc3NlZCwgNTQwIHRvdGFsClNuYXBzaG90czogICAwIHRvdGFsClRpbWU6ICAgICAgICA2LjUwNiBzCg==",
+      "fullLogBytes": 120058,
+      "fullLogSha256": "506da4995d5890245dd100bb3db4bff1129244e35d73287dcbafcd3e38e7b229"
     }
-  }
+  },
+  "greenCommit": "0985808d3d45032907c8603d23ea442a25e81aee",
+  "headBeforeFixCommit": "877a1d83e6cfdc9da0f00868ef0a184dca721b50",
+  "supersedes": {
+    "commit": "0985808d3d45032907c8603d23ea442a25e81aee",
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-local.json",
+    "sha256": "d34cb0069c9bbb6898b61670a59209f55dd67769bc451dbc7e59fcc22482ffda",
+    "bytes": 64853,
+    "note": "First local receipt, regenerated here after review round 1. It recorded the RED receipt hash and size wrongly (1126ece3..., 65028 bytes: the trailing newline was trimmed) and embedded empty log payloads (the logs are UTF-16LE from PowerShell redirection and were decoded as UTF-8). Both are corrected below. The RED receipt itself stays byte-frozen."
+  },
+  "redReceiptRawLogDefect": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-red.json",
+    "defect": "rawLog.data is \"Cg==\" (one newline): the full RED log was UTF-16LE and the status-line filter matched nothing, although rawLog.note says it holds status lines.",
+    "remedy": "The RED receipt is frozen and is not edited. The complete RED log exists outside Git: _reports/2026-10-24/lsc-2/red-final.log, 627686 bytes, sha256 94a8b03c502819b3685eb0417af6cd541b241b7faa0d27f5b0b640f519e349c2. The RED per-test classification in the RED receipt (80 statuses with first assertions) is the RED evidence and was re-run and matched 80/80 by the reviewer at c07106884."
+  },
+  "registrationCorrection": {
+    "id": "RC-LSC2-1",
+    "commit": "877a1d83e6cfdc9da0f00868ef0a184dca721b50",
+    "grant": "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx (test leaf, fixtures only)",
+    "authority": "Root ruling on review F1 under the owner standing instruction; recorded in units.json LSC-2.registrationCorrection20261024. The admission receipt is not amended (frozen); the correction record is the authority."
+  },
+  "reviewRound1": {
+    "reviewer": "claude-opus-5-5 (Opus)",
+    "head": "0985808d3d45032907c8603d23ea442a25e81aee",
+    "verdict": "APPROVE-WITH-IN-PR-FIXES (STOP on F1, ruled by Root)",
+    "report": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/pr2331-review.md",
+      "bytes": 32343,
+      "sha256": "b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793"
+    },
+    "dispositions": [
+      {
+        "id": "F1",
+        "text": "CI Unit Tests (3/6) red: src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx (unregistered consumer, stale mint fixtures), run 40113864969 at 0985808d3, 2 of 7 tests.",
+        "disposition": "FIXED after Root registered the leaf (RC-LSC2-1): live token mock, expiresAt on every mint body, join bodies name pid_host, and the 404 test asserts the invite fetch so it cannot pass on a mint refusal (+19/-9, test-only). 7/7 at the fix head; the other two consumers index.multiCampaign and index.legacyAdoption also pass."
+      },
+      {
+        "id": "F2",
+        "text": "Mutants P03 (LS08 guard refuses the same identity) and P04 (join mints primary on an invalid stored choice) survived the owned suites.",
+        "disposition": "FIXED: entry tests \"LS13 join with an invalid stored choice mints nothing and shows the stored-choice message\" and \"LS08 a second join for the same match with the same identity is not refused\" (preserve tests added after RED). P03 and P04 are KILLED (variants R-P03, R-P04)."
+      },
+      {
+        "id": "F3",
+        "text": "CampaignNavigation re-derived the co-op match id that getCoopMatchId owns (hard invariant 11).",
+        "disposition": "FIXED: CampaignNavigation calls getCoopMatchId(coopSession); +5/-0 against base; CampaignNavigation.test.tsx untouched."
+      },
+      {
+        "id": "F4",
+        "text": "Local receipt inconsistencies (RED hash and size, empty embedded logs, unrecorded attempts and direct tsc runs).",
+        "disposition": "FIXED here: red hash/size corrected, real status lines embedded, attempts and direct tsc runs recorded (attempts below)."
+      },
+      {
+        "id": "F5",
+        "text": "Three small rules live in presentation because the owning store is frozen.",
+        "disposition": "NAMED FOLLOW-UP CF-LSC2-STORE-RULES (see followUps). Not changed: localSeatCredentialStore.ts is a frozen control."
+      },
+      {
+        "id": "F6",
+        "text": "The entry IDENTITY_CHANGED message points to a forget control that is not rendered while the bearer has more than four minutes left.",
+        "disposition": "NAMED FOLLOW-UP (see followUps); fails closed; LS16 is frozen; routes to LSC-2P or the same follow-up. No change."
+      },
+      {
+        "id": "F7",
+        "text": "Surviving mutants P07, P14, P16.",
+        "disposition": "INFO, no change (low impact or unreachable)."
+      },
+      {
+        "id": "F8",
+        "text": "Security, accessibility, modularity, seams.",
+        "disposition": "INFO, no change."
+      }
+    ]
+  },
+  "followUps": [
+    {
+      "id": "CF-LSC2-L1-DUP",
+      "owner": "Root registration follow-up",
+      "text": "Consolidate the two remaining primary mintToken client copies (src/pages-modules/multiplayer/multiplayerPage.helpers.ts with its lobby/spectate callers, and the local copy in src/pages/multiplayer/index.tsx) onto mintCoopCredential or a shared helper. Named under hard invariant 11; no registered unit owns them."
+    },
+    {
+      "id": "CF-LSC2-STORE-RULES",
+      "owner": "Root registration (closure routes it)",
+      "text": "Three small rules live in presentation because localSeatCredentialStore.ts is frozen: (1) the choice-to-seat-id mapping (choice === seat1 ? local-seat-1 : local-seat-2) is in LocalSeatCredentialPanel.tsx and in the store mint body; (2) the renewal-window and expiry classification is in the CoopCredentialRenewal view (it uses the store RENEWAL_WINDOW_MS, so no number is duplicated); (3) the join-time \"never replace a match bearer with a different identity\" guard in CampaignCoopEntryPanel.tsx mirrors replaceCoopCredential IDENTITY_CHANGED. Follow-up: the store exports seatIdForChoice, a renewal-state classifier and a join-time bearer-adoption guard, and the panels call them."
+    },
+    {
+      "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+      "owner": "LSC-2P journey or CF-LSC2-STORE-RULES",
+      "text": "At entry, the IDENTITY_CHANGED message says to forget the sign-in and reclaim through co-op entry, but the only per-match forget control is inside CoopCredentialRenewal, which renders nothing while the bearer has more than four minutes left (pinned by LS16). In the same tab a user who rejoins a match with a different credential has no reachable forget until the window opens (workaround: a new tab). Fails closed; not a security issue."
+    },
+    {
+      "id": "L2-M20-P15",
+      "owner": "closure",
+      "text": "The reviewer variant P15 (LocalSeatCredentialService.mint reports seat 1 playerId for seat 2) is KILLED by LS21a distinctness and LS21c; closure should record it beside the L2-M20 variant, which is killed by a mint refusal."
+    }
+  ],
+  "receiptQualifications": [
+    {
+      "id": "LS13",
+      "text": "LS13 pins that a bad stored choice is never used, not that it falls back to primary. The frozen store throws INVALID_CHOICE with \"Forget it and choose again\"; the chooser is disabled with that message, a join refuses with the same message and mints nothing (pinned by the join test added after review), and \"Forget next-join choice\" returns the choice to primary. A silent display or mint fallback would substitute the primary GM identity for a profile that chose a seat. Reviewer ruling: acceptable, no admission amendment needed; record as a qualification at closure."
+    }
+  ],
+  "attempts": [
+    {
+      "path": "_reports/2026-10-24/lsc-2/green-try1.log",
+      "bytes": 27532,
+      "sha256": "a788bc766105822bd7232502318001cc3e99d25449a272725948168fd182a0c7",
+      "role": "green attempt"
+    },
+    {
+      "path": "_reports/2026-10-24/lsc-2/green-try2.log",
+      "bytes": 37556,
+      "sha256": "d2afd9788f306bd53273b46d825349ebc5016987cbfbd359ee1ef66ab7b99df5",
+      "role": "green attempt"
+    },
+    {
+      "path": "_reports/2026-10-24/lsc-2/green-try3.log",
+      "bytes": 1742,
+      "sha256": "7b0b095079f2e55879ab381deac85a13381503cabeca005abd947cda1ba45ba5",
+      "role": "green attempt"
+    },
+    {
+      "path": "_reports/2026-10-24/lsc-2/flake-1.log",
+      "bytes": 1742,
+      "sha256": "7077036945280b8dd5a5126c6f8eda151b18b7eae72b74173002da68c0130a85",
+      "role": "flake re-run"
+    },
+    {
+      "path": "_reports/2026-10-24/lsc-2/flake-2.log",
+      "bytes": 1742,
+      "sha256": "9ba61f98f10e1b3f2fb9cb30abf1826f2ebd3f8e7b785e2bee07a4d6a1a54c78",
+      "role": "flake re-run"
+    },
+    {
+      "path": "_reports/2026-10-24/lsc-2/flake-3.log",
+      "bytes": 1742,
+      "sha256": "77f0216594281762e67859bf75f921d463fd1da86fe94f8db640f075f41a139f",
+      "role": "flake re-run"
+    },
+    {
+      "path": "_reports/2026-10-24/lsc-2/flake-4.log",
+      "bytes": 1742,
+      "sha256": "ce93d0b2e530b8b29e7cf363367d872d2cc0783998151e54bfd6b5babced8741",
+      "role": "flake re-run"
+    },
+    {
+      "name": "green-try1",
+      "result": "2 failed, 78 passed of 80 (LS16 expected an empty container but the sizing-draft renewal showed a binding problem; LS11 omitted the re-provision confirmation tick)",
+      "fixedBy": "LS16 pin implemented as silence without a binding; LS11 test ticks the confirmation"
+    },
+    {
+      "name": "green-try2",
+      "result": "1 failed, 79 passed (LS16 mounted an unbound component with a default matchId)",
+      "fixedBy": "LS16 uses a render without matchId"
+    },
+    {
+      "name": "flake x4",
+      "result": "80/80 each time (LS21 timing stability)"
+    },
+    {
+      "name": "CI run 40113864969 at 0985808d3",
+      "result": "Unit Tests (3/6) failed 2 of 7 in index.coop.test.tsx; Lint and Test aggregator failed; 31 other checks passed",
+      "fixedBy": "RC-LSC2-1 plus the F1 fixture fix"
+    },
+    {
+      "name": "direct tsc outside heavy-run (2 runs)",
+      "result": "Two direct \"npx tsc --noEmit -p tsconfig.json\" invocations ran outside the heavy-run queue while the tests were being written: the first printed nothing (no errors listed), the second reported TS2345 in LocalSeatCredentialPanel.test.tsx (a rejected Promise typed as Response), fixed by a typed deferred reject. Every later typecheck went through heavy-run (class build). Procedural deviation with no effect on the result."
+    },
+    {
+      "name": "fix-commit re-runs (this receipt)",
+      "result": "27 suites 540/540 (owned 82, index.coop 7, the other two index consumers); 31 mutant variants KILLED (29 original, R-P03, R-P04; the L2-M17 recipe now mutates getCoopMatchId usage); typecheck, lint (0 errors, 85 warnings), format:check, lint:units 17899/17899 pass"
+    }
+  ]
 }
