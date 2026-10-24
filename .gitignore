@@ -251,3 +251,11 @@ swarm-output.json
 
 # Local record-sheet PDF samples written by preview/export verification runs
 output/
+
+# Local agent state, CI staging folders, review scratch and tool reports
+# (found untracked in the root checkout and worktrees by the 2026-10-24 cleanup swarm)
+.omo/
+release-upload*/
+.review/
+/file-analysis-report.txt
+*.tmp.[0-9]*

@@ -1,7 +1,7 @@
 # Aerospace Combat (2D Simplified)
 
 > Phase 7 — Wave 3. Design reference for the 2D aerospace combat subsystem.
-> Source of truth: `openspec/changes/add-aerospace-combat-behavior/`
+> Source of truth: `openspec/changes/archive/2026-04-24-add-aerospace-combat-behavior/`
 
 ## Scope
 
