@@ -509,6 +509,18 @@ test('Step 0 observation requires both deliveries', (t) => {
 
 test('workflow gates tagged commit before publication and permits private builds', () => {
   const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
+  const releaseJob = workflow.match(
+    /^  release:\r?\n[\s\S]*?(?=^  \S|$(?![\s\S]))/m,
+  )?.[0];
+  assert.ok(releaseJob, 'release job must exist');
+  assert.match(releaseJob, /^    needs: \[release-context, build\]$/m);
+  assert.match(releaseJob, /^    environment: release$/m);
+  const dockerPushJob = workflow.match(
+    /^  docker-push:\r?\n[\s\S]*?(?=^  \S|$(?![\s\S]))/m,
+  )?.[0];
+  assert.ok(dockerPushJob, 'docker-push job must exist');
+  assert.match(dockerPushJob, /^    environment: release$/m);
+  assert.doesNotMatch(workflow, /^  workflow_run:/m);
   assert.match(workflow, /candidate_only/);
   assert.match(workflow, /RC="\$\(git rev-parse HEAD\)"/);
   assert.match(workflow, /grep -Fx "V2\.2 GATE PASSED \$RC"/);
@@ -524,6 +536,130 @@ test('workflow gates tagged commit before publication and permits private builds
     /!startsWith\(needs.release-context.outputs.tag, 'v2\.2\.'\)/,
   );
 });
+
+for (const [event, input, expected] of [
+  ['push', '', 'v2.2.0'],
+  ['workflow_dispatch', 'v2.2.0', 'v2.2.0'],
+  ['workflow_dispatch', '', 'v2.2.0-rc.1'],
+]) {
+  test(`release resolves ${event} with tag input ${input || '(empty)'}`, (t) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'release-tags-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const output = path.join(root, 'output');
+    const workflow = fs.readFileSync('.github/workflows/release.yml', 'utf8');
+    const script = workflow.match(
+      /id: resolve_tag[\s\S]*?        run: \|\r?\n([\s\S]*?)(?=\r?\n      - name:)/,
+    )?.[1];
+    assert.ok(script, 'tag resolution step must exist');
+    const result = spawnSync(
+      process.platform === 'win32'
+        ? 'C:/Program Files/Git/bin/bash.exe'
+        : 'bash',
+      [
+        '-c',
+        `set -e
+git init -q
+git -c user.name=Fixture -c user.email=fixture@example.invalid -c commit.gpgsign=false commit --allow-empty -qm fixture
+git config tag.gpgsign false
+git tag v2.1.9
+git tag v2.2.0
+git tag v2.2.0-rc.1
+git remote add origin "$PWD"
+` + script,
+      ],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          TAG_INPUT: input,
+          GITHUB_EVENT_NAME: event,
+          GITHUB_REF_NAME: 'v2.2.0',
+          GITHUB_OUTPUT: output.replaceAll('\\', '/'),
+        },
+      },
+    );
+    assert.equal(result.status, 0, result.stderr || result.error?.message);
+    assert.ok(
+      fs
+        .readFileSync(output, 'utf8')
+        .includes(`tag=${expected}\nref=refs/tags/${expected}\n`),
+    );
+  });
+}
+
+test('auto-version reports admin-only manual tagging without creating tags', () => {
+  const workflow = fs.readFileSync(
+    '.github/workflows/auto-version.yml',
+    'utf8',
+  );
+  assert.doesNotMatch(workflow, /git\s+(?:push\b|tag\s+-a\b)/);
+  assert.doesNotMatch(
+    workflow,
+    /contents: write|Created and pushed tag|✅ Yes/,
+  );
+  assert.match(workflow, /v\* tags are admin-only and must be pushed manually/);
+  assert.match(workflow, /Tag Created \| No/);
+  assert.doesNotMatch(workflow, /Generate release notes|release_notes\.md/);
+  assert.ok(
+    workflow.indexOf('- name: Summary') <
+      workflow.indexOf('- name: Report manual tagging requirement'),
+  );
+  assert.match(
+    workflow,
+    /if: steps\.bump_type\.outputs\.bump_type != 'none' && steps\.check_tag\.outputs\.exists == 'false'/,
+  );
+});
+
+for (const [event, subject, input, expected] of [
+  ['push', 'chore(ci): require approval for publication', 'patch', 'none'],
+  [
+    'workflow_dispatch',
+    'chore(ci): require approval for publication',
+    'minor',
+    'minor',
+  ],
+  ['push', '[patch] approved version computation', 'patch', 'patch'],
+]) {
+  test(`auto-version computes ${expected} for ${event}`, (t) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'manual-tags-'));
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const output = path.join(root, 'output');
+    const workflow = fs.readFileSync(
+      '.github/workflows/auto-version.yml',
+      'utf8',
+    );
+    const script = workflow.match(
+      /id: bump_type\r?\n        run: \|\r?\n([\s\S]*?)(?=\r?\n      - name:)/,
+    )?.[1];
+    assert.ok(script, 'version computation step must exist');
+    const result = spawnSync(
+      process.platform === 'win32'
+        ? 'C:/Program Files/Git/bin/bash.exe'
+        : 'bash',
+      [
+        '-c',
+        'git() { printf "%s\\n" "$SUBJECT"; };\n' +
+          script
+            .replaceAll('${{ github.event_name }}', event)
+            .replaceAll('${{ inputs.bump_type }}', input),
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          SUBJECT: subject,
+          GITHUB_OUTPUT: output.replaceAll('\\', '/'),
+        },
+      },
+    );
+    assert.equal(result.status, 0, result.stderr || result.error?.message);
+    assert.match(
+      fs.readFileSync(output, 'utf8'),
+      new RegExp(`bump_type=${expected}\\b`),
+    );
+  });
+}
 
 // Review regression fixtures (PR #2322 review).
 
