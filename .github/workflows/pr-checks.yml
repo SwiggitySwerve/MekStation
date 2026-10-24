@@ -141,6 +141,9 @@ jobs:
       - name: Check formatting
         run: npm run format:check
 
+      - name: Check generated work list after formatting
+        run: node --test scripts/__tests__/v220-format.test.mjs
+
   validate-roadmap:
     name: Validate Roadmap Ledger
     runs-on: ubuntu-latest

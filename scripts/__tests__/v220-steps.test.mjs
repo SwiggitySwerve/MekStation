@@ -56,6 +56,32 @@ function fixture(t) {
   return { root, plan, ledger, dir, save };
 }
 
+test('generated page stays fresh with LF or CRLF inputs and output', (t) => {
+  const f = fixture(t);
+  const files = [
+    `${directory}/v220-steps.json`,
+    `${directory}/units.json`,
+    'package.json',
+  ];
+  for (const name of files) {
+    const file = path.join(f.root, name);
+    fs.writeFileSync(
+      file,
+      JSON.stringify(JSON.parse(fs.readFileSync(file)), null, 2) + '\n',
+    );
+  }
+  main(['--write'], f.root);
+  main(['--check'], f.root);
+  for (const name of [...files, `${directory}/V2.2.0-STEPS.md`]) {
+    const file = path.join(f.root, name);
+    fs.writeFileSync(
+      file,
+      fs.readFileSync(file, 'utf8').replace(/\n/g, '\r\n'),
+    );
+  }
+  main(['--check'], f.root);
+});
+
 test('valid map; deterministic page; stale page is refused by --check', (t) => {
   const f = fixture(t);
   validate(f.plan, f.ledger, f.root);

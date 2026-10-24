@@ -195,7 +195,8 @@ export function main(
   args,
   root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
 ) {
-  const read = (name) => fs.readFileSync(path.join(root, name), 'utf8');
+  const read = (name) =>
+    fs.readFileSync(path.join(root, name), 'utf8').replace(/\r\n/g, '\n');
   const planText = read(`${directory}/v220-steps.json`),
     ledgerText = read(`${directory}/units.json`);
   const plan = JSON.parse(planText),
@@ -213,7 +214,7 @@ export function main(
   if (args.includes('--write')) fs.writeFileSync(output, page);
   if (args.includes('--check'))
     requireThat(
-      fs.existsSync(output) && fs.readFileSync(output, 'utf8') === page,
+      fs.existsSync(output) && read(`${directory}/V2.2.0-STEPS.md`) === page,
       'Stale committed page',
     );
 }
