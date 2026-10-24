@@ -122,15 +122,26 @@ jest.mock('@/lib/campaign/coop/campaignSyncTransport', () => {
   };
 });
 
+// A live token: the shared mint adapter refuses expired or disagreeing tokens.
+const mockLiveToken = {
+  playerId: 'pid_host',
+  issuedAt: new Date(Date.now() - 1_000).toISOString(),
+  expiresAt: new Date(Date.now() + 50 * 60_000).toISOString(),
+  publicKey: 'public-key',
+  signature: 'signature',
+};
+function mintBody(displayName: string) {
+  return {
+    token: 'wire-token',
+    playerId: mockLiveToken.playerId,
+    displayName,
+    expiresAt: mockLiveToken.expiresAt,
+  };
+}
+
 jest.mock('@/types/multiplayer/Player', () => ({
   ...jest.requireActual('@/types/multiplayer/Player'),
-  decodeTokenFromWire: jest.fn(() => ({
-    playerId: 'pid_host',
-    issuedAt: '2026-07-10T00:00:00.000Z',
-    expiresAt: '2026-07-10T01:00:00.000Z',
-    publicKey: 'public-key',
-    signature: 'signature',
-  })),
+  decodeTokenFromWire: jest.fn(() => mockLiveToken),
 }));
 
 describe('CampaignCoopEntryPanel onboarding affordances', () => {
@@ -206,9 +217,10 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
   it('links to vault settings after a create token-mint failure', async () => {
     mockFetch.mockResolvedValue({
       ok: false,
-      status: 401,
+      status: 404,
+      headers: { get: () => null },
       json: async () => ({ error: 'Vault identity is unavailable' }),
-    } as Response);
+    } as unknown as Response);
 
     render(<CampaignCoopEntryPanel />);
     fireEvent.change(screen.getByTestId('create-coop-password-input'), {
@@ -227,9 +239,10 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
   it('links to vault settings after a join token-mint failure', async () => {
     mockFetch.mockResolvedValue({
       ok: false,
-      status: 401,
+      status: 404,
+      headers: { get: () => null },
       json: async () => ({ error: 'Vault identity is unavailable' }),
-    } as Response);
+    } as unknown as Response);
 
     render(<CampaignCoopEntryPanel />);
     fireEvent.click(screen.getByTestId('join-coop-campaign-btn'));
@@ -255,11 +268,7 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
         return {
           ok: true,
           status: 200,
-          json: async () => ({
-            token: 'wire-token',
-            playerId: 'pid_host',
-            displayName: 'Host',
-          }),
+          json: async () => mintBody('Host'),
         } as Response;
       }
 
@@ -301,11 +310,7 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
         return {
           ok: true,
           status: 200,
-          json: async () => ({
-            token: 'wire-token',
-            playerId: 'pid_host',
-            displayName: 'Host',
-          }),
+          json: async () => mintBody('Host'),
         } as Response;
       }
       if (url === '/api/multiplayer/matches') {
@@ -360,11 +365,7 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
         return {
           ok: true,
           status: 200,
-          json: async () => ({
-            token: 'wire-token',
-            playerId: 'pid_host',
-            displayName: 'Host',
-          }),
+          json: async () => mintBody('Host'),
         } as Response;
       }
       return { ok: false, status: 404, json: async () => ({}) } as Response;
@@ -412,11 +413,7 @@ describe('CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1)', ()
         return {
           ok: true,
           status: 200,
-          json: async () => ({
-            token: 'wire-token',
-            playerId: 'pid_host',
-            displayName: 'Guest',
-          }),
+          json: async () => mintBody('Guest'),
         } as Response;
       }
       if (url.startsWith('/api/multiplayer/invites/ABCDEF')) {
