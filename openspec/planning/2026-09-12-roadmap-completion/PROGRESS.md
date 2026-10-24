@@ -2,14 +2,14 @@
 
 Recorded the owner's lift of the tsrs HOLD (owner-decisions-20261024b.md item 1) as the dated `holdLiftAmendment20261024`. `stepPlanDecision20261024` is retained unchanged; GOAL.md:10, DELIVERY.md:10 and the V2.2.0-STEPS.md header source (generate-v220-steps.mjs) now say the HOLD was lifted and the Windows tsrs re-run is advisory.
 
-Registered five blocked follow-up units ([evidence](evidence/root-registration-20261024.json), SHA-256 4d097f009a4af9db484b89dca6e2a92656763673f22f43efa9f69851e56da034) on 1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a; none is admitted and --next is unchanged:
+Registered five blocked follow-up units ([evidence](evidence/root-registration-20261024.json), SHA-256 29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b) on 1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a; none is admitted and --next is unchanged:
 
-- LSC-GM-REMOVE-1: the GM remove-member control (Q8, owner decision 4). It must land before the v2.2.0 human session; Root adds its closure and step placement in the next step-plan change, because v220-steps.json is outside this PR.
+- LSC-GM-REMOVE-1: the GM remove-member control (Q8, owner decision 4). It must land before the v2.2.0 human session, so it is added to l1ReleaseChecklist20261018.closures (46 -> 47) and assigned to Step 5 in v220-steps.json, the only unit assignment changed in that file. Step 5's prBudget (4) is not changed; the owner must re-rule it before this unit is admitted.
 - MP-CAMPAIGN-HOST-LIFECYCLE-1: CF-MPCHD-1..5.
 - MP-REWIND-DICE-2: CF-MPRD-4 and CF-MPRD-5.
 - LSC-CONSOLIDATE-1: CF-LSC2C-2R and CF-LSC2-L1-DUP, then LSC-STORE-RULES-1: CF-LSC2-STORE-RULES and the IDENTITY_CHANGED recovery gap.
 
-P2CG1H and P2CG2 gain one admission note for CF-MPCHD-5. No unit state, receipt, cap, ownership entry or closed-unit record changes. L1 closure accounting stays at 46.
+P2CG1H and P2CG2 gain one admission note for CF-MPCHD-5. No unit state, receipt, cap, ownership entry or closed-unit record changes. L1 closure accounting moves from 46 to 47 (LSC-GM-REMOVE-1).
 
 ---
 

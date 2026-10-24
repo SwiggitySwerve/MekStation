@@ -266,5 +266,5 @@
       "CF-MPCHD-5": "Observe at admission: the draft stage census names CampaignHostRegistry.ts. This stage grants no line-count split; MP-CAMPAIGN-HOST-LIFECYCLE-1 owns it. Never in flight together."
     }
   },
-  "unchanged": "No product code, unit state, receipt, cap, ownership entry or Step 1-3 assignment changes; v220-steps.json changes only by adding LSC-GM-REMOVE-1 to Step 5; no LSC-2P field changes; no historical evidence byte changes."
+  "unchanged": "No product code, unit state, receipt, cap, ownership entry or Step 1-3 assignment changes; v220-steps.json changes by adding LSC-GM-REMOVE-1 to Step 5, amending the Step 5 scope text and restating the Step 7 closure count; no LSC-2P field changes; no historical evidence byte changes."
 }
