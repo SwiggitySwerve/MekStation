@@ -5,9 +5,13 @@
 
 This is the statement to point `/goal` at. It describes one loop, run one unit at a time, over the unit ledger that rides beside the roadmap of record.
 
+For L1/v2.2.0 only, `stepPlanDecision20261024` and [v220-steps.json](v220-steps.json) govern selection. Root is the sole admission coordinator and selects the first eligible unit in recorded order of the first unfinished step. A blocked first step stops selection; `--next` is diagnostic only. Before admission Root reconciles current main, open PRs, registered worktrees and closure debt; missing or contradictory observations block selection. Every retained predecessor needs genuine main proof and closure, clear ownership and no owner HOLD.
+
+One admitted-unfinished unit occupies WIP through closure on main, including review, merge and proof waits. Closure and the next admission may share one PR; successor implementation starts only after that merge. Drain existing work one unit at a time: #2313, then LSC-2C; reconcile A2FP before new work. Read-only preparation admits nothing. The tsrs HOLD remains; Step 0 advances no unit. The prior parallel-lane scheduling and selector clauses are superseded for L1 only; all other proof, cap, review and ownership requirements remain. Root enforces WIP/selection manually; this generator checks the map, not admission authority.
+
 ## What to loop over
 
-The work list is `units.json`, linked from `roadmap.json` as `unitLedger`. Never pick a unit by reading the file and choosing; ask the validator:
+Outside L1/v2.2.0, the work list is `units.json`, linked from `roadmap.json` as `unitLedger`. Never pick a unit by reading the file and choosing; ask the validator:
 
 ```
 node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next
