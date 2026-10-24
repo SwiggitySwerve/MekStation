@@ -106,7 +106,7 @@
     {
       "id": 5,
       "name": "Both players share one mission and control their own units",
-      "units": ["P2", "U38"],
+      "units": ["P2", "U38", "LSC-GM-REMOVE-1"],
       "witnesses": [],
       "gates": [],
       "doneTests": [
