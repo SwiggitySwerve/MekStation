@@ -1,0 +1,156 @@
+# PR #2313 review - MP-CAMPAIGN-HOST-DEDUPE-1 (fix(multiplayer): deduplicate concurrent campaign host creation)
+
+- Reviewer: review sub-agent (read-only; no GitHub writes)
+- Date: 2026-10-20
+- Exact head reviewed: c3eb20afa28a6d5d630f55511e892e26c2b341cb (re-confirmed unchanged at end of review; mergeStateStatus CLEAN, MERGEABLE)
+- Base: 0372f9d1dc51af9b463f93b2d9e2151892b8a0e1 (origin/main has since moved to 9d56a3969, 20 commits ahead; git merge-tree clean)
+- Worktree: E:/Projects/Personal/MekStation-wt/review-2313-20261020 (detached at head, clean; node_modules junction, package-lock identical to verify-2311)
+- Logs: E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rev-2313/
+
+## Verdict
+
+APPROVE at c3eb20afa28a6d5d630f55511e892e26c2b341cb.
+
+The fix is correct, race-free within the process, and fails over cleanly on null and rejection. No Critical/High/Medium
+findings. All findings are Low/Info and are either declared out of scope by the admission or are evidence-hygiene notes;
+they are routed as carry-forwards rather than in-PR fixes (an in-PR test addition is not possible without touching the
+sealed RED test).
+
+## 1. Scope vs frozen admission
+
+- Changed files (6): CampaignHostRegistry.ts (+23/-3), CampaignHostRegistry.test.ts (+178/-1), units.json (+38/-5),
+  admission/red/local evidence JSONs (+1192/+90/+234). All 6 are in the 7-file admission manifest (the 7th is the
+  reserved, unpopulated review slot). No MatchHostRegistry, campaign host, transport, server.js or store edits.
+- Counting rule (units.json admissionRequires for this unit): "15 unique files / 500 counted additions, no deletion
+  credit; tests/evidence line-exempt but file-counted". Counted additions = 23 (registry) + 38 (units.json) = 61
+  (23 if units.json is treated as metadata). Files = 6 (7 with reserved slot). Well inside 15 / 500.
+- oxfmt --check on both source files: clean.
+- Frozen hashes: CampaignHostRegistry.ts 7293d6b9... and test f2450ac3... are byte-identical at 59004af9c (original
+  admission base) and 0372f9d1d (restack base), so the restack claim "sourceTestAndDependenciesEqualAtBases" holds
+  for the owned files. Test blob d8aef732 (sha256 d1fb1f8d...) identical at RED commit cf6a26270 and at head: GREEN did
+  not touch the sealed test. Registry at head sha256 6ddf15a9... matches local evidence registrySha256.
+- Controls: MatchHostRegistry.ts, bindCampaignSyncConnection.ts, CampaignMatchHost.ts, CampaignSyncSession.ts and
+  server.js blobs at head equal the admission controls. ServerMatchHost.ts and ServerMatchHostRewindRebuild.ts equal
+  the controls at head but have since changed on main (MP-REWIND-DICE-1 dice capture); the main diff does not touch
+  bindCampaignPause/getOrCreate usage. No interaction.
+- Commit order: cf6a26270 (admission + RED, one commit) -> 3be9a3d81 (GREEN source + local evidence + units) ->
+  c39a0d92b / c3eb20afa (restack metadata). Admission recordedAt 19:36Z precedes RED at 20:16Z (commit 20:16:25Z).
+
+## 2. Correctness
+
+src/lib/multiplayer/server/CampaignHostRegistry.ts:422-440
+
+- Check-then-set is atomic: getOrCreate is no longer async; get -> inFlight.get -> createEntry(...) -> .finally(...)
+  -> inFlight.set all run synchronously in one turn. createEntry is an async arrow, so it runs synchronously only up
+  to its first await (getMatchMeta) and cannot re-enter getOrCreate before the set; any synchronous throw inside it
+  (including getDefaultMatchStore()) becomes a rejection, and is in fact caught to null by the existing try/catch.
+- Cleanup: the stored promise is the finally-derived one, so every waiter observes settlement only after eviction;
+  a caller that awaits a null/rejection and retries always starts a fresh attempt. Success, null and rejection all
+  evict (mutants M3/M4/M6 caught).
+- Identity guard (line 435): defensive. No code path can install a newer in-flight promise for a key while an older
+  one is pending (set only happens when the key is absent, delete only in the owner's finally), so the guard is
+  currently unreachable; mutant M5 (unguarded delete) is equivalent and survives by construction. Keep it: it matches
+  MatchHostRegistry and protects any future clear/generation logic.
+- Error propagation: one rejection is shared with every concurrent waiter (probe P5: identical error object to 3
+  waiters, then a clean retry). The internal createEntry promise has a handler (.finally), and every production caller
+  awaits the returned promise (bindCampaignSyncConnection.ts:283, ServerMatchHost.ts:1065, coopMissionCreate.ts:234),
+  so no new unhandled-rejection path.
+- Existing-entry reuse: unchanged (get() before inFlight). Durable recovery/journal: createEntry -> register(rebuilt:
+  true) unchanged; concurrent first joins now share one paused rebuilt host and one durable journal instead of two
+  hosts appending to the same campaign log (RED shows 2 registrations; head shows 1 for memory and durable stores).
+- Returning GM / member join: new test drives noteGmConnected + joinMember on the shared entry; existing "lets the
+  returning GM clear a rebuild pause" still passes.
+- Deadlock check: nothing inside register() awaits getOrCreate for the same key (registerActiveCoopHost is synchronous
+  and register does not await listeners), so sharing cannot self-deadlock.
+
+## 3. Authority / fog
+
+No change to intent resolution, broadcasting, or event visibility. Diff contains no Math.random and no console calls.
+Server-authoritative model unchanged; dedupe is process-local (as documented in local evidence limits).
+
+## 4. Tests and runtime proof at exact head
+
+- Owned (heavy-run lane rev-2313): CampaignHostRegistry.test.ts 28/28 passed (owned-head.log/json).
+- src/lib/multiplayer/server: 179/179 suites, 1600/1600 tests passed, success=true (server-head.log/json). Matches the
+  claimed counts; note the PR's own local evidence was recorded on pre-rebase head 2182c28b0, so this run is the first
+  exact-head runtime proof.
+- lint-units: exit 0. validate-roadmap --git: ROADMAP VALIDATION PASSED.
+- Simultaneity: the main test issues both getOrCreate calls in the same tick with no await between them and asserts
+  promise identity, one register, one metadata read, one entry, for memory and durable stores. The independent-key test
+  gates one key's metadata read and proves the other key's read starts synchronously. These are genuine concurrent
+  tests, not sequential awaits.
+
+## 5. Mutation probes (scratch, reverted; registry sha256 restored to 6ddf15a9...)
+
+Owned suite (mutants-summary.json):
+
+| Mutant | Result | Failing tests |
+| --- | --- | --- |
+| M1 remove in-flight map | CAUGHT | 4 (both concurrent, rejection, null) |
+| M2 evict right after metadata read (delete before settle) | SURVIVED | - |
+| M3 no cleanup on rejection | CAUGHT | rejection retry |
+| M4 no cleanup on null | CAUGHT | missing-metadata retry |
+| M5 unguarded delete | SURVIVED (equivalent) | - |
+| M6 no cleanup on success | CAUGHT | reuse/dispose |
+| M7 one global slot instead of per key | CAUGHT | independent key |
+| M8 publish after a microtask (await between lookup and set) | CAUGHT | 5 |
+| M9 skip existing-entry check | CAUGHT | reuse |
+| M10 inverted guard (cleanup only deletes a different/newer entry) | CAUGHT | 3 |
+
+8 caught / 2 survived (1 equivalent). Supplementary scratch probes (probe-summary.json; HEAD vs M2):
+
+- P1 late joiner arriving while register() is pending shares the creation: PASS at head, FAILS under M2 (so M2 is a
+  real test gap, not an equivalent mutant).
+- P2 dispose() during a pending creation is a no-op; the entry is registered afterwards (pre-existing).
+- P3 _reset() during a pending creation leaves inFlight populated; a post-reset getOrCreate joins the old promise and
+  the entry lands in the reset registry.
+- P4 direct register() racing getOrCreate() still builds two hosts (pre-existing; declared out of scope).
+- P5 shared rejection reaches all waiters with the identical error; retry succeeds.
+
+## 6. Ledger (units.json)
+
+Only MP-CAMPAIGN-HOST-DEDUPE-1 changes (planned -> review-required, baseline 0372f9d1d, admission/red/local receipts;
+review/merge/mainProof/tick null; prHead null) plus one new packet PK-mp-campaign-host-dedupe-1-ruling with decision
+and ruling null. Successor P2CG1H untouched; no releases, no other unit edits.
+
+## Findings
+
+1. Low - test gap: late-joiner window not covered. src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts:129-130
+   only issues same-tick calls. Mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453) survives the owned
+   suite; probe P1 kills it. Production code is correct; add a gated-register late-joiner test in a follow-up.
+2. Low - new lint warning: src/lib/multiplayer/server/CampaignHostRegistry.ts now has 409 counted lines vs the oxlint
+   max-lines warn threshold of 400 (base 0372f9d1d: 0 warnings). Under the FILE_MODULARITY_SPEC hard limit (500 for
+   runtime logic); CI does not deny warnings. Candidate for a later split (e.g., entry class or slot helpers).
+3. Low - _reset() does not clear the new inFlight map: CampaignHostRegistry.ts:487-490 (probe P3). Test-only API and
+   _resetCampaignHostRegistry() drops the whole instance, so production impact is nil, but it diverges from the
+   MatchHostRegistry precedent (MatchHostRegistry.ts:265-267 clears inFlight and bumps a generation).
+4. Low (pre-existing, declared out of scope) - dispose() during a pending creation does not cancel or close the result
+   (CampaignHostRegistry.ts:478-483, probe P2); MatchHostRegistry.closeMatch awaits inFlight first (MatchHostRegistry.ts:257).
+5. Low (pre-existing, declared out of scope) - register() is not deduplicated against getOrCreate (probe P4). The match
+   create route persists meta (src/pages/api/multiplayer/matches/index.ts:344) before awaiting
+   commitCoopCampaignAuthority and register (:353, :358), so a getOrCreate in that window would build a second,
+   rebuilt-paused host. Practically unreachable by clients (matchId/roomCode are only returned in the 201).
+6. Info - getOrCreate returns a closed-but-not-disposed entry (get() has no isClosed check, CampaignHostRegistry.ts:404-407),
+   unlike MatchHostRegistry.ts:135. Pre-existing; coopMissionCreate.ts:238 guards itself.
+7. Info - evidence hygiene: the "frozen" admission JSON was rewritten after RED/GREEN (baseline 59004af9c -> c24bcedbb ->
+   0372f9d1d, restack block added in c39a0d92b/c3eb20afa). Manifest, caps, frozen hashes and design are unchanged and the
+   frozen hashes verify at both bases, so no substantive drift; prefer recording restacks in a separate receipt.
+   Admission and RED share commit cf6a26270, and local evidence shares the GREEN commit; ordering is evidenced by
+   timestamps only.
+8. Info - local evidence census "sourceCountedAdditionsBeforeFinalLifecycle": 58 does not reproduce (61 counted with
+   units.json, 23 without). Inside caps either way; recompute in the review receipt.
+9. Info - local runtime proof was recorded at pre-rebase head 2182c28b0; this review supplies exact-head proof
+   (28/28 owned, 179 suites / 1600 tests). Branch is 20 commits behind current main (clean merge-tree); main changed two
+   control blobs (ServerMatchHost.ts, ServerMatchHostRewindRebuild.ts) without touching the campaign registry path.
+
+## Suggested carry-forwards
+
+- CF-MPCHD-1: add a late-joiner concurrency test (gate register(), join after metadata read) to kill M2.
+- CF-MPCHD-2: campaign registry lifecycle parity with MatchHostRegistry: _reset clears inFlight with a generation
+  guard; dispose awaits/cancels a pending creation and closes its result.
+- CF-MPCHD-3: route direct register() through the same per-key in-flight slot (or make register idempotent across its
+  awaits) so create-route registration cannot race a cold getOrCreate.
+- CF-MPCHD-4: treat closed entries as absent in getOrCreate (mirror MatchHostRegistry isClosed check) under its own
+  scope decision.
+- CF-MPCHD-5: bring CampaignHostRegistry.ts back under the 400-line warn threshold when next touched.
+

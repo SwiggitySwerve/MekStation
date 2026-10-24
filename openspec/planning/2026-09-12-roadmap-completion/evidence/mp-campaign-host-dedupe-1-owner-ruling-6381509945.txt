@@ -1,0 +1,24 @@
+OWNER-RULING f7c147688a4ed5f7538f42710d911efffa535466
+
+#2313 (MP-CAMPAIGN-HOST-DEDUPE-1, Step 1 of the v2.2.0 plan) is ACCEPTED.
+
+Owner authority:
+- "Lift the HOLD and drain #2313, then LSC-2C (recommended)".
+- "continue with recommended options and fix the issues that come up, publish as needed".
+- Rules: GOAL.md:10 and stepPlanDecision20261024 (one unfinished unit through closure).
+
+Review:
+- The Opus review at c3eb20afa returned APPROVE with no blocking findings. First tests at the exact head: 28/28 owned, 179 suites / 1600 tests. Mutants: 8/10 caught. CF-MPCHD-1..5 recorded.
+- f7c147688 merges origin/main 6675d3f72 without conflicts and regenerates V2.2.0-STEPS.md.
+- Root verified:
+  - main is an ancestor of the head;
+  - CampaignHostRegistry.ts and its test are byte-identical to the approved head c3eb20afa;
+  - the PR diff against main is limited to those two files, this unit's units.json entry, its three evidence files and the regenerated page;
+  - generate-v220-steps --check passes;
+  - validate-roadmap passes.
+- Lane-reported: all 268 other units are byte-identical to main.
+- CI at f7c147688: 33/33 SUCCESS; merge state CLEAN.
+
+Next: the closure PR (exact-main proof, review and ruling byte-copies, CF-MPCHD routing). Then LSC-2C.
+
+Merge with --match-head-commit f7c147688a4ed5f7538f42710d911efffa535466.
