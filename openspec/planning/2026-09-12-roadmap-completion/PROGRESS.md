@@ -2,7 +2,7 @@
 
 Recorded the owner's lift of the tsrs HOLD (owner-decisions-20261024b.md item 1) as the dated `holdLiftAmendment20261024`. `stepPlanDecision20261024` is retained unchanged; GOAL.md:10, DELIVERY.md:10 and the V2.2.0-STEPS.md header source (generate-v220-steps.mjs) now say the HOLD was lifted and the Windows tsrs re-run is advisory.
 
-Registered five blocked follow-up units ([evidence](evidence/root-registration-20261024.json), SHA-256 14b921526326fa60751b2a7c9cf87f77e4511799a213cfc1dbca1bc855f65e82) on 1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a; none is admitted and --next is unchanged:
+Registered five blocked follow-up units ([evidence](evidence/root-registration-20261024.json), SHA-256 4d097f009a4af9db484b89dca6e2a92656763673f22f43efa9f69851e56da034) on 1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a; none is admitted and --next is unchanged:
 
 - LSC-GM-REMOVE-1: the GM remove-member control (Q8, owner decision 4). It must land before the v2.2.0 human session; Root adds its closure and step placement in the next step-plan change, because v220-steps.json is outside this PR.
 - MP-CAMPAIGN-HOST-LIFECYCLE-1: CF-MPCHD-1..5.
