@@ -56,7 +56,15 @@
       },
       {
         "id": "G3",
-        "text": "LS21 (the in-repo three-identity integration) must be hosted in the two named test leaves. Hosting risk: a real route handler + SQLite fixture inside a jsdom component test is unproven in this repository. If it cannot be hosted without an unregistered leaf, STOP for a separate registration; do not widen scope."
+        "text": "LS21 (the in-repo three-identity integration) must be hosted in the two named test leaves. Hosting evidence (PR #2330 review, _reports/2026-10-24/pr2330-verify.md Appendix A): a scratch jsdom test in the unit project rendered a component that called mintCoopCredential through a fetch bridge to the real /api/multiplayer/auth/token and /api/multiplayer/auth/local-seats handlers (node-mocks-http, loopback Host) over a temporary real SQLite file, plus CampaignSessionParticipantStore: three distinct playerIds, stable on re-mint, a new playerId after re-provision, the ghost retained, and tactical-seats-full for the new playerId while the ghost holds the seat (1 test passed). The authoritative-host RemoveParticipant path and transport reconnect were not part of that spike. If any part cannot be hosted without an unregistered leaf, STOP for a separate registration; do not widen scope."
+      },
+      {
+        "id": "G4",
+        "text": "Unproven in jsdom: the authoritative-host RemoveParticipant path (bindCampaignSyncConnection.ts:1353-1356 and 1407-1410 refuse a full tactical seat set; types/campaign/CampaignSync.ts:491, CampaignMatchHostIntent.ts:225 and CampaignGmArbiter.ts:700 carry the GM-only removal) and the transport reconnect used by LS21. Before the RED commit the implementing worker settles both with a short scratch probe (not committed) and records the result in the RED receipt. If either cannot be hosted in the two named test leaves, STOP for a separate registration."
+      },
+      {
+        "id": "G5",
+        "text": "No ordinary-UI GM ghost-removal control exists: RemoveParticipant appears in UI code only in components/campaign/coop/pendingProposalFromWire.ts:97, which renders proposals. LSC-2 owns no such leaf and adds none. The LSC-2P packaged journey step \"ghost retained until ordinary removal\" must either record the step as absent and not claim it, or register a UI leaf; LSC-2P notes or registers this."
       }
     ]
   },
@@ -251,7 +259,7 @@
       ],
       "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-admission-review-20261020.json (carryForwards)",
       "obligation": "After an unknown outcome the operator alert reads \"Local seat request failed.\" although the write may have applied; consider clearer wording.",
-      "disposition": "NOT TAKEN inside the frozen LSC-2 file set. The wording lives in LocalSeatOperatorPanel.tsx, a closed LSC-2O leaf that is not among the five registered LSC-2 leaves (the campaigns directory in ownershipPaths grants no unnamed leaf). Open question for Root: register LocalSeatOperatorPanel.tsx (+ its test) as a leaf of LSC-2, or leave the wording as informational. Not silently dropped."
+      "disposition": "NOT TAKEN inside the frozen LSC-2 file set. The wording lives in LocalSeatOperatorPanel.tsx, a closed LSC-2O leaf that is not among the five registered LSC-2 leaves (the campaigns directory in ownershipPaths grants no unnamed leaf). Open question for Root: register LocalSeatOperatorPanel.tsx (+ its test) as a leaf of LSC-2, or leave the wording as informational. Not silently dropped. Review of PR #2330 (F5): the recommended ruling is \"leave informational\"; the refreshed seat list already shows the true state and two more leaves for a string would spend file slots with about 30 lines of margin. LSC-2 does not take I2; LSC-2 closure records it closed, not taken."
     },
     {
       "id": "CF-LSC1S-4/CF-LSC1-3/4/7/CF-LSC0-1/2/3/4/7/10/12/13/14/CF-S-8",
@@ -415,7 +423,7 @@
       "leaf": "LocalSeatCredentialPanel.test.tsx (hosting dependent, manifestGaps G3)",
       "acceptance": "A2",
       "kind": "in-repo integration",
-      "pins": "Two players plus a non-playing GM obtain three distinct public playerIds on one authority, stable across reload/reconnect, renewal and expired recovery; guest reclaim with a new password after re-provision: new playerId -> GM readmission -> ghost membership retained until ordinary removal."
+      "pins": "Two players plus a non-playing GM obtain three distinct public playerIds on one authority, stable across reload/reconnect, renewal and expired recovery. Guest reclaim with a new password after active-seat re-provision yields a new playerId. The old membership (ghost) stays bound and is never removed automatically: while it holds a player seat and the other player seat is bound, the new playerId is refused a seat (store result tactical-seats-full; through the host, AUTH_REJECTED campaign-tactical-seats-full). After the GM's ordinary removal of the ghost through the existing GM-only RemoveParticipant path, the new playerId is admitted; the ghost row stays revoked, not deleted. The RED receipt names the exact removal and admission entry points used."
     },
     {
       "id": "LS22",
@@ -545,6 +553,12 @@
       "obligation": "Three-identity fixture yields equal playerIds for two choices",
       "killedBy": "LS21",
       "role": "new LSC-2 discriminating mutant obligation; runtime RED/mutant results to be measured by the admitting worker, with the mutated line and the exact baseline recorded"
+    },
+    {
+      "id": "L2-M21",
+      "obligation": "Reclaim removes the ghost membership automatically, or admits the new playerId past the two-seat limit while the ghost is bound",
+      "killedBy": "LS21",
+      "role": "new LSC-2 discriminating mutant obligation; runtime RED/mutant results to be measured by the implementing worker, with the mutated line and the exact baseline recorded"
     }
   ],
   "redPlan": "Behavioral RED against the unchanged product bytes at the admission baseline, through existing public boundaries: the mounted CampaignCoopEntryPanel (chooser region, mint routing, error kinds, password handling) and the real CampaignNavigation (renewal mount). Failures must be runtime assertions, not unresolved imports or missing-module errors. The two new exports (LocalSeatCredentialPanel, CoopCredentialRenewal) may exist in the RED commit only as inert stubs that render null, disclosed in the RED receipt, so component tests fail on assertions. Existing tests whose meaning changes are re-written first and must fail against baseline. Preserve-tests (LS07 seat half, LS09, LS11 and the unchanged 7 entry tests) pass at baseline and are evidenced by mutants, not by RED. GREEN must satisfy the same test bytes as RED; any later test edit is recorded with the original hashes, as the LSC-2O precedent did.",
@@ -6223,7 +6237,32 @@
     {
       "id": "review-r2-I2",
       "owner": "Root decision",
-      "text": "Register LocalSeatOperatorPanel.tsx + test under LSC-2, or leave the unknown-outcome wording as informational."
+      "text": "Recommended ruling: leave the unknown-outcome wording informational (LSC-2 does not take it). Registering LocalSeatOperatorPanel.tsx + test under LSC-2 remains the alternative."
+    },
+    {
+      "id": "LSC-2P-ghost-removal-control",
+      "owner": "LSC-2P / Root registration",
+      "severity": "Info",
+      "text": "No ordinary-UI GM ghost-removal control exists (see manifestGaps G5). LSC-2P must note the packaged-journey step as absent or register a UI leaf."
+    }
+  ],
+  "amendments": [
+    {
+      "id": "A1",
+      "kind": "text amendment by a new commit; no history rewrite",
+      "priorAdmissionCommit": "20b09c9a0dae12a0001de7720f88c06d9c80b3ff",
+      "priorReceiptSha256": "5015641e66bd2ac61d3e76861da34484afb39ddaf70be924906334137d32cd98",
+      "priorReceiptBytes": 272641,
+      "source": "_reports/2026-10-24/pr2330-verify.md (Opus review of 20b09c9a0: APPROVE-WITH-IN-PR-FIXES, finding F1; sha256 9994e6a8938d4dd720dbae0d8dced14c2efe1a79a34d470701d06a712ca6b52b, 31222 bytes)",
+      "changes": [
+        "testInventory LS21.pins (the two-player-seat limit blocks readmission while the ghost holds a seat; the GM removes the ghost through RemoveParticipant first, then the new playerId is admitted)",
+        "manifest.manifestGaps G3.text (hosting evidence from the review spike)",
+        "mutationInventory L2-M21 added",
+        "manifest.manifestGaps G4 added (RemoveParticipant host path and transport reconnect unproven in jsdom; scratch probe before the RED commit) and G5 added (no ordinary-UI ghost-removal control; LSC-2P notes or registers it), from review findings F2/F4",
+        "carryIn review-r2-I2 disposition and openRegistrationFollowUps review-r2-I2 text: recommended ruling \"leave informational\", not taken by LSC-2 (review F5)",
+        "openRegistrationFollowUps LSC-2P-ghost-removal-control added"
+      ],
+      "unchanged": "units.json, the generated page, the frozen manifest, caps, acceptance, census, controls and leaf hashes are unchanged. The prior receipt bytes remain at 20b09c9a0dae12a0001de7720f88c06d9c80b3ff."
     }
   ]
 }
