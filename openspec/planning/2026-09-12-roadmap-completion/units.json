@@ -9821,7 +9821,15 @@
         "src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-source-review-20261024.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-owner-ruling-6387527112.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-merge-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-mainproof-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a7711ad13-logs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9833,17 +9841,36 @@
         "concurrency"
       ],
       "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "e012028a945df0641089d946877c1192b51e9329",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+      "mergeSha": "a7711ad136c70b3380788298414690b589ee8430",
       "stageReceipts": {
         "admission": { "path": "evidence/lsc-2-implementation-admission.json" },
         "red": { "path": "evidence/lsc-2-implementation-red.json" },
         "local": { "path": "evidence/lsc-2-implementation-local.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-2-implementation-admission-review.json",
+          "head": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+          "reviewedHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "b69f3736978d64604eb6c542a341ff705ff73ce14e27b635e9ea66ed65b35cea",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 56d530b207e00173ae9e5d127ca7cf127fed47e4"
+        },
+        "merge": {
+          "path": "evidence/lsc-2-merge-20261024.json",
+          "pr": 2331,
+          "head": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+          "mergeSha": "a7711ad136c70b3380788298414690b589ee8430"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-2-mainproof-20261024.json",
+          "mergeCommit": "a7711ad136c70b3380788298414690b589ee8430",
+          "verdict": "PASS",
+          "runtime": "Main Jest: Tests: 540 passed, 540 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9949,7 +9976,82 @@
         "scope": "Test data and one added assertion only. No product change. Caps unchanged (15 files, 500 counted lines).",
         "source": { "path": "_reports/2026-10-24/pr2331-review.md", "section": "F1", "sha256": "b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793" },
         "noProductScope": true
-      }
+      },
+      "reviewedHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+      "carryForwardRouting20261024": [
+        {
+          "id": "CF-LSC2-L1-DUP",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "src/pages-modules/multiplayer/multiplayerPage.helpers.ts (mintToken with its lobby/spectate callers) and the local mintToken in src/pages/multiplayer/index.tsx; no registered unit owns them",
+          "status": "open registration follow-up; named under hard invariant 11 and left by LSC-2",
+          "item": "Consolidate the two remaining primary mint client copies onto mintCoopCredential or a shared helper."
+        },
+        {
+          "id": "CF-LSC2-STORE-RULES",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/campaign/coop/localSeatCredentialStore.ts (frozen control) and its panel callers",
+          "status": "open registration follow-up (review F5)",
+          "item": "Three rules live in presentation because the store is frozen: the choice-to-seat-id mapping (LocalSeatCredentialPanel.tsx and the store mint body), the renewal-window and expiry classification in CoopCredentialRenewal, and the join-time never-replace-a-bearer-with-a-different-identity guard in CampaignCoopEntryPanel.tsx (mirrors replaceCoopCredential IDENTITY_CHANGED). The store should export seatIdForChoice, a renewal-state classifier and a join-time bearer-adoption guard, and the panels call them."
+        },
+        {
+          "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+          "severity": "Low",
+          "owner": "LSC-2P journey or CF-LSC2-STORE-RULES",
+          "target": "LSC-2P packaged journey record; CampaignCoopEntryPanel.tsx and CoopCredentialRenewal (LS16 is frozen)",
+          "status": "open gap (review F6); fails closed, not a security issue",
+          "item": "At entry, the IDENTITY_CHANGED message says to forget the sign-in and reclaim through co-op entry, but the only per-match forget control is inside CoopCredentialRenewal, which renders nothing while the bearer has more than four minutes left. In the same tab a user who rejoins a match with a different credential has no reachable forget until the window opens (workaround: a new tab). LSC-2P records the journey consequence; a fix needs a registered owner."
+        },
+        {
+          "id": "LSC2-G5-GHOST-REMOVAL-CONTROL",
+          "severity": "Info",
+          "owner": "LSC-2P",
+          "target": "LSC-2P packaged journey step \"ghost retained until ordinary removal\"",
+          "status": "routed (admission G5, review G5 ruling)",
+          "item": "No ordinary-UI GM ghost-removal control exists and LSC-2 adds none (RemoveParticipant reaches the host only through the transport intent, hosted by LS21c). LSC-2P records the step as absent and does not claim it, unless a UI leaf is registered."
+        },
+        {
+          "id": "CF-LSC2OP-2",
+          "severity": "Info",
+          "owner": "LSC-2P",
+          "target": "LSC-2P packaged proof",
+          "status": "in-repo sequence delivered by LSC-2 (LS21); packaged proof open",
+          "item": "LSC-2 proves re-provision, new playerId, refusal while the ghost holds a seat, GM RemoveParticipant, then admission in jsdom with real routes and SQLite. LSC-2P proves the same sequence on the installed app and records the ghost-removal step per G5."
+        },
+        {
+          "id": "CF-LSC2OP-4",
+          "severity": "Info",
+          "owner": "LSC-2P",
+          "target": "LSC-2P packaged password-manager/autofill check",
+          "status": "inputs delivered (current-password/new-password); packaged check open",
+          "item": "LSC-2 renders create, join and renewal password inputs as uncontrolled unnamed type=password with autocomplete current-password. LSC-2P records the packaged password-manager/autofill observation (manual, not observable by Playwright; stated as a gap)."
+        },
+        {
+          "id": "CF-LSC2C-2R",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+          "status": "open registration follow-up; no registered unit grants those leaves",
+          "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper, so the client adapter imports them instead of mirroring them. Unchanged by LSC-2."
+        },
+        {
+          "id": "review-r2-I2",
+          "severity": "Info",
+          "owner": "closed",
+          "target": "LocalSeatOperatorPanel.tsx unknown-outcome wording",
+          "status": "closed, not taken (Root ruling on #2330)",
+          "item": "The operator alert wording after an unknown outcome stays informational; LSC-2 did not take it."
+        },
+        {
+          "id": "RC-LSC2-1-census-lesson",
+          "severity": "Info",
+          "owner": "every admission census (Root)",
+          "target": "admission census method",
+          "status": "process lesson",
+          "item": "The LSC-2 census missed src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx, a page-level consumer of CampaignCoopEntryPanel whose stale mint fixtures failed CI. A census of a component change must also search importers and page-level tests of every changed module, not only its sibling tests. Registered after the fact as RC-LSC2-1."
+        }
+      ]
     },
     {
       "id": "LSC-2P",
@@ -9977,7 +10079,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -21599,10 +21701,48 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING on the exact head. Review should cover: the in-repo three-identity proof (LS21: real routes, SQLite, client transport and the production membership port, with the GM RemoveParticipant and reconnect paths settled by the G4 scratch probe); L-1 taken with the two remaining mintToken copies named (CF-LSC2-L1-DUP) and the panel-side L-3 accepted; the LS08 different-identity join guard (and its same-identity rejoin test), the LS13 invalid-choice behavior (a qualification, not a falls-back-to-primary) and the reload/navigate seams, which differ from the sizing draft; CF-LSC2OP-1/2/4/7 and the 21 mutant obligations (all variants killed). Review round 1 (Opus) found CI Unit Tests 3/6 red in the unregistered consumer index.coop.test.tsx; RC-LSC2-1 registers it as a fixture-only test leaf and the fixes (fixtures, two entry tests, getCoopMatchId in CampaignNavigation) ride in this PR. Store-owned rules held in presentation while the store is frozen are the open follow-up CF-LSC2-STORE-RULES. I2 closes not taken. LSC-2P keeps the packaged journey, password-manager proof and the absent ordinary-UI ghost-removal control (G5). Retain all operator, final UI and packaged gates.",
+      "agentRecommendation": "Independent Opus review (two rounds, claude-opus-5-5): implementation at 0985808d3 APPROVE-WITH-IN-PR-FIXES (F1 Root STOP: unregistered consumer index.coop.test.tsx, registered as RC-LSC2-1; F2 two entry tests killing P03/P04; F3 getCoopMatchId; F4 receipts; F5/F6 named follow-ups), delta at 56d530b20 APPROVE. The owner ruling on the merged head (comment 6387527112) and genuine exact-main proof (fresh npm ci; 27 suites 540/540 including index.coop; typecheck; built-server three-identity/401/429/re-provision smoke) are recorded. CF-LSC2-L1-DUP, CF-LSC2-STORE-RULES and CF-LSC2C-2R stay open Root registration follow-ups; the IDENTITY_CHANGED recovery gap, the absent ordinary-UI ghost-removal control (G5) and the packaged password-manager proof go to LSC-2P. Retain all operator, final UI and packaged gates.",
       "revertCost": "Revert the registered leaves (six with RC-LSC2-1) and the unit's own lifecycle; the local-seat store, operator panel, routes, local_seat_credentials schema (v33), primary auth and bearer store are unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-24T17:49:15Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2331#issuecomment-6387527112"
+      },
+      "ruling": {
+        "ruledHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+        "reviewedHead": "56d530b207e00173ae9e5d127ca7cf127fed47e4",
+        "pr": 2331,
+        "commentId": 6387527112,
+        "author": "SwiggitySwerve",
+        "bodySha256": "293659e6e36e9e0a46a43486f3846757f8dc12c9afb31d2a29ac71ba4acd77fd"
+      },
+      "openRegistrationFollowUps": [
+        {
+          "id": "CF-LSC2-L1-DUP",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "src/pages-modules/multiplayer/multiplayerPage.helpers.ts (mintToken with its lobby/spectate callers) and the local mintToken in src/pages/multiplayer/index.tsx; no registered unit owns them",
+          "status": "open registration follow-up; named under hard invariant 11 and left by LSC-2",
+          "item": "Consolidate the two remaining primary mint client copies onto mintCoopCredential or a shared helper."
+        },
+        {
+          "id": "CF-LSC2-STORE-RULES",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/campaign/coop/localSeatCredentialStore.ts (frozen control) and its panel callers",
+          "status": "open registration follow-up (review F5)",
+          "item": "Three rules live in presentation because the store is frozen: the choice-to-seat-id mapping (LocalSeatCredentialPanel.tsx and the store mint body), the renewal-window and expiry classification in CoopCredentialRenewal, and the join-time never-replace-a-bearer-with-a-different-identity guard in CampaignCoopEntryPanel.tsx (mirrors replaceCoopCredential IDENTITY_CHANGED). The store should export seatIdForChoice, a renewal-state classifier and a join-time bearer-adoption guard, and the panels call them."
+        },
+        {
+          "id": "CF-LSC2C-2R",
+          "severity": "Low",
+          "owner": "Root registration follow-up",
+          "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+          "status": "open registration follow-up; no registered unit grants those leaves",
+          "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper, so the client adapter imports them instead of mirroring them. Unchanged by LSC-2."
+        }
+      ]
     },
     {
       "id": "PK-ts7s1a-ruling",
