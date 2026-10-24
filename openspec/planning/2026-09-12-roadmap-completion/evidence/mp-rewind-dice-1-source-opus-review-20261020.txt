@@ -1,0 +1,110 @@
+# PR #2316 review — MP-REWIND-DICE-1 (CF-MPRU2-1)
+
+- **PR:** SwiggitySwerve/MekStation#2316, "fix(multiplayer): capture authoritative dice after GM rewind"
+- **Head verified:** \`0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5\` (detached worktree \`E:/Projects/Personal/MekStation-wt/review-2316-20261020\`)
+- **Base / merge-base:** \`c24bcedbb\`; origin/main is now \`a2e2a7b8d\` (#2309, #2311). Neither touches \`src/lib/multiplayer\`, \`src/engine\` or \`src/utils/gameplay\`. GitHub reports MERGEABLE/CLEAN.
+- **Lane:** rev-2316. Review classes: authority and replay (highest sensitivity).
+- **Reviewer stance:** read-only on GitHub. Nothing was pushed, commented, labelled, approved or merged.
+
+## Verdict: **APPROVE**
+
+There are no blockers. The fix is minimal and correct. After a live GM rewind, the rebuilt \`InteractiveSession\` now draws every die through the host's \`ServerMatchHostCapture\`, and it does so lazily: \`() => host.d6()\` → \`() => this.capture.d6()\`, so every per-intent buffer swap is followed. Production keeps its crypto source across the reset. Hydration and replay draw no entropy. Findings 1–2 are optional in-manifest hardening and do not gate merge.
+
+## Scope and lifecycle checks
+
+| Check | Result |
+|---|---|
+| Changed files ⊆ frozen manifest (7 leaves) | PASS — 6 files changed: 2 product, 1 test, 3 evidence. The review evidence leaf is reserved and not yet written. |
+| Frozen baseline sha256 of the 3 source/test leaves at \`c24bcedbb\` | PASS — all three match the admission (\`2f8ee5f6…\`, \`d9bb7a3b…\`, \`125d95a9…\`). |
+| Unchanged controls (\`matchUnitBootstrap.ts\`, \`CampaignHostRegistry.ts\`, \`src/engine\`, \`server.js\`) | PASS — tree/blob objects are identical at base and head. |
+| Caps (15 files / 500 counted additions) | PASS — 6 files; 20 counted additions (\`ServerMatchHost.ts\` +13, \`ServerMatchHostRewindRebuild.ts\` +7). The test and evidence files are line-exempt. |
+| \`ServerMatchHost.ts\` grant ("only rewindRebuildPort and stable capture wiring") | PASS — the only changes are the port \`d6\`/\`reseedDice\` and one constructor flag (\`seededRewindDice\`) that drives the port. |
+| \`matchUnitBootstrap.ts\` read-only | PASS — it uses the existing optional \`d6Roller\` parameter. |
+| Commit order | PASS — \`63d27a5e4\` (admission, evidence only) → \`3a496dc63\` (RED: test + red evidence) → \`195904d44\` (GREEN: the 2 product files only, test unchanged) → \`0b2e815e4\` (local evidence). |
+| RED genuine | PASS — the red evidence pins the product blobs \`17474172\`/\`8e6fd27c\`, which equal the base blobs in the diff. It records 2/2 runtime assertion failures (roller never called; \`consumed.length > 0\` fails) and no compile or resolution failures. The test sha \`c977763c…\` is sealed and identical at GREEN. |
+| units.json / PROGRESS.md untouched | Yes. This is consistent with "Root owns serialized lifecycle". |
+| CI at head | All 32 checks SUCCESS, including Determinism Audit, Validate Roadmap Ledger, Unit 1–6 and E2E Smoke. |
+
+## Verification run by this reviewer (all wrapped in heavy-run, lane rev-2316)
+
+| Run | Result | Log |
+|---|---|---|
+| \`npm ci\` (class package) | OK, 1078 packages | – |
+| Owned test \`ServerMatchHostRewindRebuild.serverUnits.test.ts\` | **2/2 pass** | \`_reports/2026-10-20/rev-2316/owned.log\` |
+| Server suite \`src/lib/multiplayer/server\` | **179 suites / 1595 tests pass**; matches the lane's claim | \`rev-2316/server.log\`, \`server.json\` |
+| 6 reviewer mutants on owned + \`ServerMatchHost.rewindRebuild\` + \`ServerMatchHost.rewindLiveReplay\` (15 tests) | 4 killed, 2 survived (analysed below) | \`rev-2316/mutants.json\`, \`mutants.cjs\` |
+| Scratch restart probe (untracked, deleted afterwards) | Boot recovery after post-rewind captured play: PASS (details below) | \`rev-2316/probe.log\`, \`probe2.log\` |
+
+### Mutants
+
+| Id | Mutation | Outcome |
+|---|---|---|
+| R1 | \`seededRewindDice = true\`: production reseeds to \`SeededDiceRoller(journalDiceSeed)\`, which is the pre-PR behaviour | **Killed** by the owned test 2 (\`consumed.length > 0\`) |
+| R2 | \`seededRewindDice = false\`: the debug-seed reset is dropped | **Killed** by \`rewindRebuild.test\` "next die roll matches a fresh host seeded with the same seeds" |
+| R3 | Rebuild consumes one host die before hydration | **Killed** by both owned tests (\`not.toHaveBeenCalled\`) |
+| R4 | Production reset no-op (drops \`installFresh()\`) | Survived. This is an **equivalent mutant**: every intent, journal command and opponent drive calls \`installFreshCapture()\` before the engine runs and stamps from that buffer, so the reset-time swap is redundant hygiene. |
+| R5 | Port \`d6\` bound to the capture *object* at port creation: \`((c) => () => c.d6())(this.capture)\` | **Survived** — see finding 1. Production is unaffected because production never replaces \`this.capture\`. In debug-seeded mode the rebuilt session would keep drawing from the discarded capture, and its rolls would be stamped from an empty buffer. |
+| R6 | Port \`d6\` → \`Math.floor(Math.random()*6)+1\` (ambient) | **Killed** by both owned tests |
+
+The lane's own M1–M3 are consistent with R3, R6 and R1 above. The tests fail if the capture is removed, bypassed, made ambient or reseeded in production.
+
+### Restart probe (real boot path, not the test's hand fold)
+
+I added an untracked scratch test, ran it and deleted it; the worktree is clean. It reuses the owned fixture: legacy-compatible host → live rebuild → two \`AdvancePhase\` initiative intents. It then forbids entropy (\`CryptoDiceRoller.prototype.d6\` throws) and calls \`recoverActiveMatches(store)\`, which goes through \`tryFoldActivatedRewindBranch\` → \`ServerMatchHost.recover\`. Results:
+
+- Recovery returned the host with \`failed: []\` and \`blocked: []\`. It served the activated branch.
+- The recovered event ids, the stamped \`rolls\` sequence and \`currentState\` were identical to the pre-restart durable log and live state.
+- No die was drawn during boot.
+
+This closes the "persistence and recovery of the capture across restart" question through the production boot path, not only through \`foldMatchSession\` plus a manual \`ServerMatchHost\` construction.
+
+I also tried to prove the next live command *after* the restart, and a journal-compatible live rebuild. That could not be exercised with this fixture: the opening \`appendCommandBatch\` under mode \`enabled\` records a started fact without a recorded head. Every recovered command therefore fails closed with \`rollback-reader-blocked:missing-journal-head\`, even with no rewind at all (PROBE-C pre-commit). That is a fixture limitation, and it is why the owned test overrides \`rollbackReader: legacy-compatible\`. It is not a product defect attributable to this PR. Post-restart capture on the legacy path is already covered by MP-RECOVERY-UNITS-2 (\`ServerMatchHost.recover\`, \`ServerMatchHost.ts:518-524\`).
+
+## Dice-path analysis (post-rewind reachability)
+
+- **Live legacy path** (\`handleIntent\` → \`ServerMatchHostIntent\`): the rebuilt session's \`d6Roller\` is \`() => host.d6()\` → \`this.capture.d6()\` → the current \`RollCapture\` → \`CryptoDiceRoller\`. \`InteractiveSession\` feeds that one roller to initiative, weapon attacks (\`resolveAllAttacks\`), physical attacks, heat including the MaxTech crit-location roller, End-phase PSRs, movement PSR inputs (\`commands.ts:108/127/178\`) and vibro-claw (\`InteractiveSession.ts:680\`, which no longer falls back to \`this.random\`). This is the same coverage the \`ServerMatchHost.create\` and \`recover\` sessions have. Any residual \`defaultD6Roller\` fallback inside individual resolvers is shared with the non-rewind paths and pre-dates this unit.
+- **Journal-authority path** (\`ServerMatchHostJournalAuthority.ts:155-161\`, \`decideCommandBatch\`): this path already read \`() => this.capture.d6()\`. Before this PR, \`reseedDice\` replaced that capture with \`SeededDiceRoller(journalDiceSeed)\`, where \`journalDiceSeed\` defaults to \`0\`. Post-rewind journal-mode dice were therefore predictable. The PR's \`installFresh()\` branch fixes that as well, though no test exercises it directly (see finding 2).
+- **Double capture / ordering:** in journal mode a die is recorded by both the host \`RollCapture\` and the decide-scoped \`RollCapture\`, but it is drawn once and stamped once, from the decide buffer. The host buffer is discarded at the next \`installFreshCapture\`. In legacy mode, each intent gets \`installFresh\` → engine → \`stampRollsOnNewEvents\` (drain). Hydration consumes nothing, so nothing is stranded between \`reseedDice\` and the first intent. \`replaceSession\` precedes \`reseedDice\`, but the closure resolves lazily, so the order is harmless.
+- **Rewind vs in-flight intents:** \`rebuildFromActivatedBranch\` bumps \`opponentEpoch\` and runs inside \`queueCommand\`, so it serializes behind any in-flight intent. The co-op driver re-checks \`session\` identity and the accepted head immediately before DECIDE (\`CoopOpponentDriver.ts:121-129\`). There is no new race.
+- **Determinism / replay:** \`foldMatchSession\`, \`fromHydratedSession\` and join replay are event-driven. The owned test forbids entropy during fold, hydrate and \`ReplayChunk\`, and asserts that the stored and broadcast \`rolls\` equal the crypto draws.
+- **Fog / authority:** there is no change to the projection, the publication guard or the per-socket replay. Clients still submit intents only. No \`Math.random\`, no \`console\` and no SQLite/browser boundary change was introduced.
+
+## Findings
+
+1. **Low — test gap: debug-seeded post-rewind capture is not asserted** (\`src/lib/multiplayer/server/ServerMatchHost.ts:612-619\`, \`__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts:256\`).
+   - **What happens:** the seeded branch replaces \`this.capture\` with a new object. Mutant R5, which binds the port \`d6\` to the old capture object, survives all 15 rewind tests. \`rewindRebuild.test\` checks only \`d6ForTests()\`, which reads \`this.capture\` directly, not the rebuilt session's draws.
+   - **Impact:** a future refactor could leave a debug-seeded rebuilt session drawing from the discarded capture, with its rolls stamped from an empty buffer.
+   - **Fix (in-manifest):** pick either of these.
+     - (a) Add a seeded variant of test 2: source \`new SeededDiceRoller(new SeededRandom(7))\` with \`diceSeed: 7\`. Assert that the first post-rewind \`InitiativeRolled\` \`rolls\` are non-empty and equal the prefix of a fresh \`SeededDiceRoller(new SeededRandom(7))\` stream.
+     - (b) Avoid object replacement altogether. Give \`ServerMatchHostCapture\` a \`resetSource(roller)\` method and call it from \`reseedDice\`. This keeps one capture identity for the lifetime of the host.
+   - **Not a blocker:** the debug-seed path is gated out of production by \`readDebugDiceSeed\` (\`MatchHostRegistry.ts:118-127\`).
+
+2. **Low — journal-compatible post-rewind dice are fixed but not directly tested** (\`ServerMatchHost.ts:619-622\`; \`ServerMatchHostJournalAuthority.ts:155-161\`).
+   - **What happens:** the owned test forces \`rollbackReader: legacy-compatible\`, so R1 is killed only through the legacy session path. The behavioural change for journal-authority matches is untested: post-rewind decide draws were \`SeededDiceRoller(journalDiceSeed=0)\` and are now crypto.
+   - **Fix:** after the fixture issue in the probe notes above is resolved (a recorded journal head for the opening batch), add a journal-compatible variant that asserts \`CryptoDiceRoller.prototype.d6\` draws equal the stamped \`rolls\` of the first post-rewind decided command.
+   - **Disposition:** acceptable as a carry-forward if the fixture work does not fit this PR.
+
+3. **Info — stale comments describe dice as seeded** (\`src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:172-174\` "then reseed the dice"; \`:195-197\` "fromSessionAsync reseeds from config.seed … same provenance … never Math.random").
+   - **Why it matters:** \`config.seed\` now seeds only the AI \`SeededRandom\`. Dice come from the host capture, and in production \`reseedDice\` resets the capture buffer rather than reseeding.
+   - **Fix:** reword both comments. Optionally rename the port member to \`resetDice\` in a later unit.
+   - **Disposition:** non-blocking.
+
+4. **Info / out of scope (pre-existing, reachable post-rewind) — co-op AI dice are seeded, not crypto** (\`CoopOpponentDriver.ts:130-140\`).
+   - **What happens:** \`driveOpponent()\` runs right after every rebuild. The AI command decides with \`d6Roller: undefined\` and \`diceSeed = sha256([matchId, branchId, events.length, effectiveGeneration, unitId])\`. The rolls are captured, stamped and replay-faithful, but they are deterministic, and possibly predictable by a client that knows the branch id.
+   - **Ruling:** this is a deliberate idempotency design from the co-op unit and is outside this manifest.
+   - **Action:** consider registering a carry-forward to decide whether AI dice should use the host crypto capture, with idempotency carried by the receipt.
+
+5. **Info / out of scope (pre-existing) — the divergence-rebuild session has no \`d6Roller\`** (\`ServerMatchHostJournalAuthority.ts:266-274\`).
+   - **What happens:** after \`projection-divergence\`, the live session is rebuilt with no \`d6Roller\`.
+   - **Impact:** journal hosts decide on capture-backed scratches, so this is mostly latent. If that live session were ever used for legacy-path dice, it would hit the engine default.
+   - **Action:** worth a one-line carry-forward to pass \`d6Roller: journal.d6\`.
+
+## Blockers
+
+None.
+
+## Non-blocking notes for Root
+
+- I reproduced the lane's figures independently: 179 suites / 1595 tests, target 2/2, and the RED shape.
+- The independent exact-head review requirement is satisfied for \`0b2e815e4\` by this report. The OWNER-RULING, the review evidence leaf (\`mp-rewind-dice-1-review-20261019.json\`), exact-main proof and closure remain Root-owned.
+- Reviewer worktree: \`E:/Projects/Personal/MekStation-wt/review-2316-20261020\` (detached at \`0b2e815e4\`, clean; it has a \`node_modules\` from \`npm ci\`).

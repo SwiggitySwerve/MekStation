@@ -1,6 +1,8 @@
 /**
  * MP-RECOVERY-UNITS-2: a real activated journal branch rebuilds without HTTP.
+ * MP-REWIND-DICE-1: live rolls use capture; recovery and replay consume no dice.
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/multiplayer-server/spec.md
+ * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
 import { readFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -8,6 +10,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
@@ -18,12 +21,17 @@ import {
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
 import { resetCanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { SeededD6Roller } from '@/simulation/core';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
-import { GamePhase } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameEventType,
+  GamePhase,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import type { IMatchMeta } from '../IMatchStore';
 import type { IRewindRebuildHost } from '../ServerMatchHostRewindRebuild';
 
+import { CryptoDiceRoller } from '../CryptoDiceRoller';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
@@ -34,12 +42,15 @@ import {
   buildMatchHostBootstrapFromMeta,
   recoverServerInteractiveSession,
 } from '../matchUnitBootstrap';
+import { RollCapture } from '../RollCapture';
+import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 import { rebuildHostFromActivatedBranch } from '../ServerMatchHostRewindRebuild';
 
 const ID = 'recovery2-live-rewind',
   AT = '2026-10-18T00:00:00.000Z';
 let dir: string, store: DurableMatchStore;
 const realFetch = global.fetch;
+const hosts: ServerMatchHost[] = [];
 
 beforeEach(async () => {
   dir = await mkdtemp(path.join(tmpdir(), 'mp-recovery2-live-'));
@@ -61,6 +72,8 @@ beforeEach(async () => {
   }) as typeof fetch;
 });
 afterEach(async () => {
+  await Promise.all(hosts.splice(0).map((host) => host.closeMatch()));
+  jest.restoreAllMocks();
   global.fetch = realFetch;
   resetCanonicalUnitService();
   _setCombatJournalAuthorityModeForTests(null);
@@ -71,7 +84,7 @@ afterEach(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
-it('rebuilds the activated prefix from disk and retains the journal random seed and reset protocol', async () => {
+async function committedFixture() {
   const meta: IMatchMeta = {
     matchId: ID,
     hostPlayerId: 'host',
@@ -142,6 +155,12 @@ it('rebuilds the activated prefix from disk and retains the journal random seed 
   expect(result.kind).toBe('committed');
   if (result.kind !== 'committed') throw new Error('Rewind fixture failed');
 
+  return { meta, initial, prefix, targetRevision, result };
+}
+
+it('rebuilds the activated prefix from disk with the host roller and retains the reset protocol', async () => {
+  const { prefix, targetRevision, result } = await committedFixture();
+  const roller = jest.fn(new SeededD6Roller(4242).asD6Roller());
   resetCanonicalUnitService();
   const fetch = jest.fn(async () => {
     throw new Error('no HTTP listener');
@@ -149,7 +168,8 @@ it('rebuilds the activated prefix from disk and retains the journal random seed 
   global.fetch = fetch as unknown as typeof global.fetch;
   const order: string[] = [];
   let rebuilt: InteractiveSession | undefined;
-  const host: IRewindRebuildHost = {
+  const host: IRewindRebuildHost & { d6: D6Roller } = {
+    d6: roller,
     matchId: ID,
     store,
     journalRandomSeed: 4242,
@@ -197,6 +217,7 @@ it('rebuilds the activated prefix from disk and retains the journal random seed 
     effectiveGeneration: result.effectiveGeneration,
   });
   expect(fetch).not.toHaveBeenCalled();
+  expect(roller).not.toHaveBeenCalled();
   expect(rebuilt!.getSession().events.map((e) => e.id)).toEqual(
     prefix.map((e) => e.id),
   );
@@ -226,7 +247,118 @@ it('rebuilds the activated prefix from disk and retains the journal random seed 
     rebuilt!.advancePhase();
     control.advancePhase();
   }
+  expect(roller).toHaveBeenCalled();
   expect(shape(rebuilt!.getSession().events.slice(prefix.length))).toEqual(
     shape(control.getSession().events.slice(prefix.length)),
   );
+});
+
+it('captures crypto dice after live rewind across intents and replays durable rolls without new entropy', async () => {
+  const { initial, prefix, targetRevision, result } = await committedFixture();
+  const host = new ServerMatchHost(
+    ID,
+    store,
+    await recoverServerInteractiveSession(initial.getSession()),
+    undefined,
+    { recovered: true, rollbackReader: { kind: 'legacy-compatible' } },
+  );
+  hosts.push(host);
+  const crypto = jest.spyOn(CryptoDiceRoller.prototype, 'd6');
+  const capture = jest.spyOn(RollCapture.prototype, 'd6');
+  const frames: { kind: string; event?: IGameEvent; events?: IGameEvent[] }[] =
+    [];
+  const socket: IMatchSocket = {
+    readyState: 1,
+    send: (data: string) => {
+      frames.push(JSON.parse(data));
+    },
+    close: () => {},
+  } as IMatchSocket;
+  host.attachSocket(socket, 'host');
+  await host.handleSessionJoin(socket, 'host');
+  const request = {
+    branchId: result.activatedBranchId,
+    effectiveRevision: targetRevision,
+    effectiveGeneration: result.effectiveGeneration,
+  };
+  await host.rebuildFromActivatedBranch(request);
+  expect(crypto).not.toHaveBeenCalled();
+  expect(host.getSessionForTests().events.map((e) => e.id)).toEqual(
+    prefix.map((e) => e.id),
+  );
+  expect(host.servedBranchId()).toBe(result.activatedBranchId);
+  const seenCaptures = new Set<unknown>();
+  let rolledIntents = 0;
+  for (let step = 0; step < 24 && rolledIntents < 2; step++) {
+    const before = (await store.getEvents(ID)).length;
+    const calls = crypto.mock.results.length;
+    const contexts = capture.mock.contexts.length;
+    const sent = frames.length;
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: ID,
+      playerId: 'host',
+      ts: AT,
+      intent: { kind: 'AdvancePhase' },
+    });
+    const fresh = (await store.getEvents(ID)).slice(before);
+    if (!fresh.some((e) => e.type === GameEventType.InitiativeRolled)) continue;
+    const consumed = crypto.mock.results
+      .slice(calls)
+      .map((r) => r.value as number);
+    expect(consumed.length).toBeGreaterThan(0);
+    expect(consumed.every((n) => Number.isInteger(n) && n >= 1 && n <= 6)).toBe(
+      true,
+    );
+    const rolls = (events: readonly IGameEvent[]) =>
+      events.flatMap((e) => (e.payload as { rolls?: number[] }).rolls ?? []);
+    expect(rolls(fresh)).toEqual(consumed);
+    expect(
+      rolls(
+        frames
+          .slice(sent)
+          .flatMap((f) => (f.kind === 'Event' && f.event ? [f.event] : [])),
+      ),
+    ).toEqual(consumed);
+    for (const context of capture.mock.contexts.slice(contexts))
+      seenCaptures.add(context);
+    rolledIntents++;
+  }
+  expect(rolledIntents).toBe(2);
+  expect(seenCaptures.size).toBe(2);
+  const stored = await store.getEvents(ID);
+  const calls = crypto.mock.calls.length;
+  crypto.mockImplementation(() => {
+    throw new Error('replay must not draw entropy');
+  });
+  const folded = foldMatchSession(ID, stored);
+  expect(folded.currentState).toEqual(host.getSessionForTests().currentState);
+  const recovered = await recoverServerInteractiveSession(
+    folded,
+    undefined,
+    () => {
+      throw new Error('hydrate must not roll');
+    },
+  );
+  expect(recovered.getSession().currentState).toEqual(folded.currentState);
+  const replayHost = new ServerMatchHost(ID, store, recovered, undefined, {
+    recovered: true,
+    rollbackReader: { kind: 'legacy-compatible' },
+  });
+  hosts.push(replayHost);
+  frames.length = 0;
+  replayHost.attachSocket(socket, 'host');
+  await replayHost.handleSessionJoin(socket, 'host');
+  const replay = frames.flatMap((f) =>
+    f.kind === 'ReplayChunk' ? (f.events ?? []) : [],
+  );
+  const expectedRollEvents = stored.filter(
+    (e) => (e.payload as { rolls?: number[] }).rolls?.length,
+  );
+  expect(expectedRollEvents.length).toBe(2);
+  for (const { id, type, payload } of expectedRollEvents)
+    expect(replay).toContainEqual(
+      expect.objectContaining({ id, type, payload }),
+    );
+  expect(crypto.mock.calls.length).toBe(calls);
 });

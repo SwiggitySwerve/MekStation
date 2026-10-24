@@ -8110,7 +8110,10 @@
       "successors": [
         "MP-HOST-DEDUPE-1",
         "L1-SMOKE-A2",
-        "MP-RECOVERY-UNITS-2"
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2F",
+        "L1-SMOKE-A2M",
+        "L1-SMOKE-A2FP"
       ],
       "admissionRequires": "Blocked registration only; no source admission or runtime acceptance. Parent release requires every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Rebase/re-census every open PR and planned/blocked/implementing unit, resolve literal and coarse ownership collisions, and freeze every source/test/helper/lifecycle/evidence leaf before admission. Aliases are navigation only. Caps include lifecycle: 15 unique files / 500 counted additions under U41; tests/evidence are line-exempt but file-counted. Extra scope or overflow requires a separately registered split. NEXT does not enforce these edges. Serialize the owning lane and shared units.json writes through closure; retain required CI, independent exact-head review and exact-main proof. Sensitive work requires a genuine packet before local-verified and OWNER-RULING before merge; null receipts waive nothing. B14/HP lane after B14-0, the holder of the server-directory alias, before host dedupe and HP; B14-HEAD independently feeds HP and is not a recovery/A2 prerequisite. Preferred design is filesystem-backed canonical-unit loading at boot, without changing server.js. Explicit candidate leaves: src/lib/multiplayer/server/MatchHostRegistry.ts, src/lib/multiplayer/server/MatchRecovery.ts, src/lib/multiplayer/server/matchUnitBootstrap.ts, src/lib/multiplayer/server/__tests__/MatchHostRegistry.unitBootstrap.test.ts and src/services/units/NodeCanonicalUnitService.ts. Five candidates plus units.json and four bounded admission/red/local/admission-review receipts make 10 prospective files, not measured fit. NodeCanonicalUnitService.ts has no other planned/blocked/implementing owner at the census baseline. CanonicalUnitService.ts, server.js and src/engine remain read-only controls. Any server.js boot-order edit requires a scope amendment against P2CG1H, U101d and B15-1; any src/engine edit requires a scope amendment against U73. No implicit engine/service-factory write grant. Preserve B14 frozen predicates and completed receipts.",
       "registration20261018": {
@@ -8198,7 +8201,10 @@
       "successors": [
         "P2CG1HP",
         "L1-SMOKE-A2",
-        "MP-CAMPAIGN-HOST-DEDUPE-1"
+        "MP-CAMPAIGN-HOST-DEDUPE-1",
+        "L1-SMOKE-A2F",
+        "L1-SMOKE-A2M",
+        "L1-SMOKE-A2FP"
       ],
       "admissionRequires": "Blocked registration only; no source admission or runtime acceptance. Parent release requires every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Rebase/re-census every open PR and planned/blocked/implementing unit, resolve literal and coarse ownership collisions, and freeze every source/test/helper/lifecycle/evidence leaf before admission. Aliases are navigation only. Caps include lifecycle: 15 unique files / 500 counted additions under U41; tests/evidence are line-exempt but file-counted. Extra scope or overflow requires a separately registered split. NEXT does not enforce these edges. Serialize the owning lane and shared units.json writes through closure; retain required CI, independent exact-head review and exact-main proof. Sensitive work requires a genuine packet before local-verified and OWNER-RULING before merge; null receipts waive nothing. B14/HP lane before HP and H; preserve B14-0/B14-HEAD controls. Candidate source stage: MatchHostRegistry.ts, __tests__/MatchHostRegistry.unitBootstrap.test.ts, units.json and four admission/red/local/admission-review receipts (7 files); freeze exact leaves and measure at admission. Re-census the prior recovery edit and active B14/HP manifests; no directory-wide ownership.",
       "registration20261018": {
@@ -8301,7 +8307,10 @@
       ],
       "successors": [
         "L1-SMOKE-A2",
-        "MP-REWIND-DICE-1"
+        "MP-REWIND-DICE-1",
+        "L1-SMOKE-A2F",
+        "L1-SMOKE-A2M",
+        "L1-SMOKE-A2FP"
       ],
       "admissionRequires": "Planned registration only; no source admission until Root sends GATE OPEN. The sole predecessor is MP-RECOVERY-UNITS-1, which already has genuine exact-main PASS and closure. May run in parallel with MP-HOST-DEDUPE-1 because the exact source/test leaves are disjoint; there is no DEDUPE dependency. Shared metadata writes serialize through the writer queue. After DEDUPE merges, rebase onto its merged Main and re-freeze this exact manifest before further source/admission or merge. No P2CG1HP dependency in either direction: its exact four source/test leaves are disjoint. Rebase/re-census every open PR and active reservation, including U44/U26 and HP, before finite admission. Freeze the exact 11 prospective source/test/helper/lifecycle/evidence leaves in mpRecoveryUnits2Registration20261018; 11/15 is an unmeasured planning count, not fit proof. Tests/evidence are line-exempt but file-counted; aggregate 500 counted additions include lifecycle, without deletion credit. The matchUnitBootstrap.ts helper exception is solely optional d6Roller plumbing required by CF-MPRU-4. The ServerMatchHost.ts grant is recover-only. Preserve engine, server.js, catalog service, registry, existing tests, journal schema and fog controls; register any extra source/helper/test leaf before editing. U44 capability-DB cutover and U26/FOG projection stay out of scope, with no simultaneous shared-file admission. Required RED and discriminating mutants, accepted post-restart co-op action, capture-backed rolls and recorded roll payloads, current CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS/ancestry/closure. No future packet, review, acceptance or source permission is supplied by this registration; null ownerGate and NEXT waive nothing. Persistence uses the existing migration review class; no validator taxonomy edit.",
       "registration20261018": {
@@ -8396,7 +8405,10 @@
       ],
       "successors": [
         "L1-SMOKE-A2",
-        "P2CG1H"
+        "P2CG1H",
+        "L1-SMOKE-A2F",
+        "L1-SMOKE-A2M",
+        "L1-SMOKE-A2FP"
       ],
       "admissionRequires": "Planned, eligible for normal finite admission after this registration merges and independently qualifies. Its sole predecessor P2CG1S already has genuine exact-main PASS/closure; recheck fetched-Main ancestry. No B14-0/B14-HEAD wait for A1 fog-off baseline work. Planned is not admitted. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam.",
       "registration20261018L1Smoke": {
@@ -8431,22 +8443,17 @@
       }
     },
     {
-      "id": "L1-SMOKE-A2",
+      "id": "L1-SMOKE-A2FP",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Create only its four new spectator-matrix proof leaves, importing frozen A1 modules read-only: nine B10 declaration/audience combinations in live and replay, actor/reveal/public positive controls, and reconnect/restart against the same built image and private DB. Re-run the A1 baseline. No A1 module edits, fog-on acceptance or existing product file edits; final post-B14 proof remains B-owned.",
-      "ownershipPaths": [
-        "scripts"
-      ],
+      "behavior": "Ordinary authenticated provisioning and read-only canonical phase/unit/declaration reachability for accepted Move/Attack/Physical on the built image; activation-aware principal selection, a reveal-holding second actor, strict CLI/precondition falsifiers and frozen import-safe callbacks. No trusted GM/stale mutation or full matrix/restart acceptance.",
+      "ownershipPaths": ["scripts"],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
-      "reviewClasses": [
-        "privacy",
-        "authority"
-      ],
+      "reviewClasses": ["privacy", "authority"],
       "caps": {
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
@@ -8471,11 +8478,269 @@
         "MP-HOST-DEDUPE-1",
         "MP-RECOVERY-UNITS-2"
       ],
+      "successors": ["L1-SMOKE-A2F"],
+      "admissionRequires": "Registration only; Root must merge #2318 and qualify it before A2FP admission. Re-fetch/union-merge Main and census literal leaves, all active/planned/blocked reservations, aliases and open PRs before each admission/merge; serialize shared ledger writes with the LSC/product lanes. Require every predecessor genuine main-verified exact-main PASS, ancestry and closure. Freeze every actual source/test/helper/lifecycle/evidence leaf: 15 unique files and 500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 tests/evidence line-exempt but file-counted, no deletion credit/minification/cap waiver. The measured 374-line context/runner subtotal is incomplete and not FP fit proof. If FP still overflows when drafted, stop and tell Root before proposing a third split; Root is raising size-cap policy with the owner. scripts is navigation only; only the effective registeredSourceLeaves are prospective scope. FP -> F -> M -> A2 -> B stay serial through closure. Preserve A1 and frozen predecessors read-only. No source-host calls, fake sockets, /api/e2e, test mode, projection-capability mocks, existing product/helper/config/dependency edits or live-DB mutation. Installed tsx/standalone SQL fixtures run only with the owned server stopped. Node 22, heavy-run, bounded timeouts, owned-PID cleanup and credential/image/listener/store guarantees remain. Full sensitive cadence: finite admission, RED tests-only, GREEN within manifest, genuine privacy/authority packet before local-verified, independent exact-head review, OWNER-RULING, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. Future review/identity/closure leaves require genuine finite G-OWN freeze; this ruling registers scope, not future implementation approval.",
+      "registeredSourceLeaves": [
+        "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "scripts/release/l1-built-server-spectator-context.mjs",
+        "scripts/release/l1-built-server-spectator-reachability.ts",
+        "scripts/release/l1-built-server-spectator-reachability.test.mjs"
+      ],
+      "registration20261020A2FPartition": {
+        "source": "evidence/l1-smoke-a2f-partition-registration-20261020.json",
+        "sourceSha256": "6f27904ba7af8190c4ffd94be1c3ed0bc621b25f05ad8b00b3aaf55e0b35e915",
+        "rulingSha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "Using frozen A1 harness/transport read-only on a real built production image, provision canonical units/positions, authenticated participants and current spectator seats through ordinary APIs/actions. Prove accepted legal phase-ready Move, Attack and Physical commands, correlated declaration events and durable read-only witnesses; never insert sealed declarations or use source-host calls. Select the active phase unit and matching authenticated principal from actual activation order, preserving a still-eligible second actor able to withhold reveal. Missing legal reachability retains explicit unrun rows and stops for Root; no product seam is granted.",
+          "Own the ordinary context, reachability runner and read-only stopped-private-DB phase/unit/declaration witnesses. Validate CLI input structurally and falsify live owning PID, foreign/redirected private DB, unexpected metadata/canonical unit/position/phase/weapon/limb/lock state, missing accepted intent and absent positive/precondition control. Read-only witnesses must leave DB lineage/history unchanged. No trusted brand/stale-assignment mutation is granted to FP.",
+          "Freeze import-safe provisioner, activation-aware phase-ready callbacks, accepted-command checks, read-only witnesses and explicit required-case enumeration for F/M/A2. Use installed tsx or standalone SQL offline with the owned server stopped; no new loader/dependency or existing A1/product/helper/config edit. Preserve A1 command/exit/build/listener/readiness/owned-PID/DB hashes, credential redaction and bounded cleanup; tokens never enter URLs or retained evidence. Tests falsify broken guards and missing accepted-action/precondition controls.",
+          "FP supplies ordinary provisioning/read-only reachability only. Narrowed F must reuse it read-only, add every trusted audience and observed non-spectating-GM positive, and re-execute the full F acceptance before M admission. FP alone accepts no full privacy matrix, co-op restart, captured rolls, concurrent-first-sockets or B/H/RC gate. Require FP genuine exact-main PASS, fetched-Main ancestry and closure before F admission."
+        ],
+        "prospectiveStageManifest": [
+          "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "scripts/release/l1-built-server-spectator-context.mjs",
+          "scripts/release/l1-built-server-spectator-reachability.ts",
+          "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
+        ],
+        "budgetQualification": "No measured complete candidate or fit proof. FP inherits the historical 221+153=374 subtotal before partition/refactoring, read-only witness, activation/CLI/precondition fixes and lifecycle. Every actual aggregate must be measured after normal oxfmt. If FP still does not fit when drafted, stop and tell Root before proposing a third split; policy is being raised with the owner."
+      }
+    },
+    {
+      "id": "L1-SMOKE-A2F",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Trusted brand/stale-assignment fixtures on the built image, all three current spectator audiences, an observed non-spectating-GM correlated declaration positive, fixture-only GM branding qualified against actual recovery/role policy, and full F composition. Reuse frozen A1/FP ordinary provisioning/read-only reachability without edits; preserve all original F acceptance across the serial partition.",
+      "ownershipPaths": ["scripts"],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["privacy", "authority"],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2FP"
+      ],
+      "successors": ["L1-SMOKE-A2M"],
+      "admissionRequires": "Blocked until A2FP and the four original predecessors have genuine exact-main PASS, ancestry and closure. Registration only; Root must merge #2318 and qualify it before A2FP admission. Re-fetch/union-merge Main and census literal leaves, all active/planned/blocked reservations, aliases and open PRs before each admission/merge; serialize shared ledger writes with the LSC/product lanes. Require every predecessor genuine main-verified exact-main PASS, ancestry and closure. Freeze every actual source/test/helper/lifecycle/evidence leaf: 15 unique files and 500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 tests/evidence line-exempt but file-counted, no deletion credit/minification/cap waiver. The measured 374-line context/runner subtotal is incomplete and not FP fit proof. If FP still overflows when drafted, stop and tell Root before proposing a third split; Root is raising size-cap policy with the owner. scripts is navigation only; only the effective registeredSourceLeaves are prospective scope. FP -> F -> M -> A2 -> B stay serial through closure. Preserve A1 and frozen predecessors read-only. No source-host calls, fake sockets, /api/e2e, test mode, projection-capability mocks, existing product/helper/config/dependency edits or live-DB mutation. Installed tsx/standalone SQL fixtures run only with the owned server stopped. Node 22, heavy-run, bounded timeouts, owned-PID cleanup and credential/image/listener/store guarantees remain. Full sensitive cadence: finite admission, RED tests-only, GREEN within manifest, genuine privacy/authority packet before local-verified, independent exact-head review, OWNER-RULING, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. Future review/identity/closure leaves require genuine finite G-OWN freeze; this ruling registers scope, not future implementation approval.",
+      "registeredSourceLeaves": [
+        "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+      ],
+      "registration20261020": {
+        "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+        "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+        "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "Using frozen A1 harness/transport read-only on a real built production image, prove legal phase-ready fixtures for accepted Move, Attack and Physical commands. Keep a second actor able to withhold reveal until negative observations finish. Ordinary authenticated APIs/actions provision positive behavior; stopped-DB fixtures only establish unreachable trusted stale-seat/brand/phase preconditions. Never insert sealed declaration events as a substitute for accepted intents. If reachability needs a product seam, retain explicit unrun rows and stop for a separately registered slice.",
+          "Witness current spectator seats for player brand with stale assignment, GM brand with stale assignment and GM without assignment; GM identity comes from a real durable campaign-session gm row. Provide a separate non-spectating-GM control consistent with the one-active-GM constraint. Preserve trusted metadata, canonical unit/phase preconditions and before/after private DB lineage; refuse a live owning PID, foreign DB or unexpected trusted state.",
+          "Freeze import-safe ordinary provisioner, phase-ready and trusted-audience fixture callbacks plus structural witnesses for A2M/A2. Fixtures use the installed tsx or standalone SQL only while the owned server is stopped. No new dependency/loader or existing A1/source edit. Keep tokens out of URLs and retained evidence, preserve commands/exits/build/listener/readiness/PID/DB hashes, and falsify broken fixture guards and missing accepted-action/precondition controls.",
+          "A2F supplies reusable reachability and trusted-condition proof, not acceptance of the nine-case privacy matrix or co-op restart. All original A2 acceptance remains owed through A2M, final A2 composition and B; genuine exact-main PASS and closure are required before A2M admission."
+        ],
+        "prospectiveStageManifest": [
+          "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "scripts/release/l1-built-server-spectator-context.mjs",
+          "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
+        ],
+        "planningCountedLineBudget": {
+          "provisioningAndFixtures": 370,
+          "runnerAndLifecycle": 80,
+          "total": 450
+        },
+        "budgetQualification": "Unmeasured planning allocation, not fit proof. Freeze and measure all counted additions after normal oxfmt at admission; split again before implementation if either unchanged cap would overflow."
+      },
+      "registration20261020A2FPartition": {
+        "source": "evidence/l1-smoke-a2f-partition-registration-20261020.json",
+        "sourceSha256": "6f27904ba7af8190c4ffd94be1c3ed0bc621b25f05ad8b00b3aaf55e0b35e915",
+        "rulingSha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "Import frozen A1/FP modules read-only. Establish current spectator seats for player brand with stale side assignment, GM brand with stale assignment and GM without assignment, using stopped-owned-private-DB fixtures only for unreachable trusted brand/stale/phase preconditions. GM identity must be witnessed by a real durable campaign_session_participant gm row. Preserve trusted metadata and canonical unit/phase preconditions; refuse live owning PID, foreign/redirected DB or unexpected trusted state and retain before/after private-DB lineage with unchanged combat events.",
+          "Observe an actual correlated unrevealed authoritative declaration on a separate non-spectating-GM socket, consistently with the one-active-GM-per-session constraint. Qualify fixture-only GM branding against the real built image, including recovery and the durable role source; a label, fabricated transport role or durable row alone is not a positive delivery control. Ordinary accepted intents produce positive behavior, never inserted sealed declaration events or source-host/append/broadcast internals.",
+          "Freeze import-safe trusted-audience/mutation callbacks and structural witnesses for M/A2, composing FP ordinary provisioning and activation-aware Move/Attack/Physical reachability with every trusted-condition control in one verified A1 image/private-DB lineage. Keep the second actor able to withhold reveal; re-run all FP required rows, preserve command/exit/build/listener/readiness/PID/DB identity and credential guarantees. Use only installed tsx/standalone SQL offline, with no loader/dependency or existing predecessor/product edits. Falsifiers reject broken guards, missing positive GM/accepted-action/precondition witnesses and omitted inherited rows.",
+          "Full F composition retains all four original F acceptance rows across FP and narrowed F; every row remains owed and original text is preserved in registration20261020 and this evidence. F genuine exact-main PASS, fetched-Main ancestry and closure remain required before M admission. F supplies trusted reachability, not the nine-case privacy matrix or co-op restart; M, final A2 and B retain all original A2 acceptance. CF-MPRU2-3 and CF-MPHD-5 stay final A2-owned; no downstream gate is waived."
+        ],
+        "prospectiveStageManifest": [
+          "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+          "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
+        ],
+        "budgetQualification": "No measured complete candidate or fit proof. FP inherits the historical 221+153=374 subtotal before partition/refactoring, read-only witness, activation/CLI/precondition fixes and lifecycle. Every actual aggregate must be measured after normal oxfmt. If FP still does not fit when drafted, stop and tell Root before proposing a third split; policy is being raised with the owner."
+      }
+    },
+    {
+      "id": "L1-SMOKE-A2M",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "All nine B10 declaration/audience combinations in raw live frames and replay, actor/non-spectating-GM/public/reveal positives, no placeholder/authority-sequence/cursor leak, and withheld-secret controls through reconnect/restart on the same built image/private DB. Reuse frozen A1/A2F and export explicit matrix enumeration/callback for final A2; no co-op restart or concurrency acceptance.",
+      "ownershipPaths": ["scripts"],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["privacy", "authority"],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2F"
+      ],
+      "successors": ["L1-SMOKE-A2"],
+      "admissionRequires": "Registration only, not source admission. Root must merge #2315 and independently qualify this registration before A2F admission. Re-fetch/rebase and census literal leaves, coarse aliases, every active/planned/blocked reservation and open PR before each admission/merge. Require every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Freeze all actual source/test/helper/lifecycle/evidence leaves: 15 unique files and 500 aggregate counted additions after normal repository oxfmt formatting, no deletion credit; tests/evidence are line-exempt but file-counted under U41. Planning budgets are not measured fit; extra leaves or overflow require a separately registered split, never omitted proof. One L1 smoke proof lane may run alongside disjoint L1 product work; A2F -> A2M -> A2 -> B are serial through closure, with shared ledger writes serialized. scripts is navigation only; only registeredSourceLeaves are prospective source scope. Preserve A1 bytes; successors import frozen predecessors read-only. An inadequate interface stops for a separate scope decision. No existing product/helper/config/dependency edits, source-host calls, fake sockets, /api/e2e, production test mode or projection-capability mocks. Offline fixtures write only the private DB while the owned server is stopped. Use Node 22 and heavy-run; retain bounded timeouts, credential redaction, owned-PID cleanup and all A1 identity/store guarantees. Sensitive privacy/authority work requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING before merge, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. This registration ruling is not a future implementation ruling.",
+      "registeredSourceLeaves": [
+        "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+      ],
+      "registration20261020": {
+        "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+        "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+        "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "Using A1 harness and authenticated transport read-only, prove all three declaration kinds (MovementDeclared, AttackDeclared, PhysicalAttackDeclared) for current player-branded spectators with stale side assignment, GM-branded spectators with stale side assignment and GM spectators without stale assignment. Secret sentinel event IDs/payloads must be absent from raw live frames AND replay chunks in each of the nine combinations. Witness trusted seat/brand/assignment preconditions; preserve the A1 fog-off baseline.",
+          "Use actual accepted Intent commands and a second actor to withhold reveal until negative observations finish. Public controls before/after each withheld declaration and bounded synchronization prove delivery remains live. Owning actor sees its unrevealed declaration; non-spectating GM retains policy; eligible authoritative reveals/public facts reach spectators afterward. No hidden placeholders, authority sequence leak or visible delivery-cursor gap.",
+          "Reconnect and restart the same built image against the same private durable DB; retain withheld-secret and positive/public/reveal assertions. Ordinary API provisioning/actions produce positive behavior; offline fixtures only for unreachable trusted stale-seat/brand/phase conditions, with server stopped before DB writes. No source-host calls, append/broadcast internals, fake sockets, /api/e2e, test-mode or projection-capability mocks in the running production server.",
+          "Reuse A2F legal/trusted fixtures and A1 modules read-only. Enumerate all nine declaration/audience rows explicitly; preserve raw-live and replay negatives, actor/non-spectating-GM/public/reveal positives, no placeholder/authority-sequence leak or visible cursor gap, and unchanged image/private DB through reconnect/restart. Node:test falsifiers reject omissions, leaked sentinels, missing controls, premature close and changed identity/DB; inherited A1 failure/cleanup falsifiers remain required.",
+          "Export A2M_REQUIRED_CASES and runMatrixCases(ctx), with no implicit discovery or nested A1 baseline passes. The direct runner composes A1 exactly once plus the full matrix; final A2 imports the same callback/enumeration read-only. Co-op mission restart/captured rolls and concurrent first sockets remain A2-owned. A2M alone does not discharge final post-B14 B or any B/H/RC/installer/human gate."
+        ],
+        "prospectiveStageManifest": [
+          "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+          "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+          "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-review.json"
+        ],
+        "planningCountedLineBudget": {
+          "matrixAndControls": 360,
+          "runnerAndLifecycle": 80,
+          "total": 440
+        },
+        "budgetQualification": "Unmeasured planning allocation, not fit proof. Freeze and measure all counted additions after normal oxfmt at admission; split again before implementation if either unchanged cap would overflow."
+      }
+    },
+    {
+      "id": "L1-SMOKE-A2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "CF-MPRU2-3: ordinary co-op mission provisioning and restart on the same built image/private DB, an accepted post-restart unit action and first captured rolls with faithful replay. CF-MPHD-5: concurrent first authenticated sockets followed by accepted participant actions without store conflict. Final composition re-runs A1 plus every frozen A2M matrix/control row exactly once. Imports A1/A2F/A2M read-only, creates only the retained four A2 leaves, exports the complete callback/enumeration for B; no existing product or predecessor edits and no fog-on acceptance.",
+      "ownershipPaths": [
+        "scripts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2M"
+      ],
       "successors": [
         "L1-SMOKE-B",
         "P2CG1H"
       ],
-      "admissionRequires": "Blocked. Parent releases to planned only after L1-SMOKE-A1, MP-RECOVERY-UNITS-1 and MP-HOST-DEDUPE-1 have genuine exact-main mainProof PASS, fetched-Main ancestry and closure; then normal finite admission. Recovery/dedupe add only the B14-0 prerequisite through the server-directory lane. B14-HEAD is not an A2 prerequisite; it independently gates HP and L1-SMOKE-B. Preserve A1 frozen modules byte-for-byte. One separate L1 smoke proof lane may be admitted alongside the serial L1 product lane because its twelve literal new script leaves are disjoint from every existing L1 product manifest. A1, A2 and B are serial within that proof lane, including closure; no parallel smoke-unit writes and no L2 admission. Rebase and re-census fetched Main before each admission and merge. Serialize shared units.json lifecycle/closure commits with the product lane, change only the owning unit lifecycle, and preserve other-unit bytes; independent worktrees do not waive that shared-file collision. The scripts alias is validator navigation only, never ownership of existing scripts or other future leaves. Registration only; no source admission or runtime proof. Normal finite admission freezes every actual source/test/helper/lifecycle/evidence leaf and measures actual unique files and U41 counted additions. The unchanged 500-counted-added-line cap is the TOTAL per unit across all counted files, including runner, cases, fixtures and units.json lifecycle, not 500 per file; adding files or moving code between them does not increase it. Tests and ledger evidence are line-exempt but file-counted; caps remain 15 actual unique files with no deletion credit. Nine prospective source-stage files per unit and the planning budgets are not measured cap fit. Required extra leaves or aggregate overflow stop for a separately registered narrower successor; never weaken or omit proof rows. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive privacy/authority review requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING and current required CI before merge, then genuine exact-main mainProof PASS, fetched-Main ancestry and closure. ownerGate null is no waiver. NEXT does not enforce ordinary predecessor arrays and gives no admission permission. the admission freeze lists the exact leaf files as the merge-diff allowlist; any other path under the coarse scripts alias fails admission. The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam. CF-SMOKEA1-2: feasibility must include an accepted unit intent after restart on the real image. CF-SMOKEA1-3: Root must record physical-versus-oxfmt-normalized smoke-line counting before admission, then remeasure A2/B budgets without a cap waiver. CF-SMOKEA1-8: account for spectator-refusal broadcasts and game_created absent from late replay; do not mislabel these observed contracts as a leak or gap. MP-RECOVERY-UNITS-2 exact-main PASS, ancestry and closure is also required under the #2296 owner ruling; retain all existing predecessors and frozen A1 controls.",
+      "admissionRequires": "Blocked until A2M and all four original predecessors have genuine exact-main mainProof PASS, ancestry and closure; A2F is transitive through A2M. Registration only, not source admission. Root must merge #2315 and independently qualify this registration before A2F admission. Re-fetch/rebase and census literal leaves, coarse aliases, every active/planned/blocked reservation and open PR before each admission/merge. Require every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Freeze all actual source/test/helper/lifecycle/evidence leaves: 15 unique files and 500 aggregate counted additions after normal repository oxfmt formatting, no deletion credit; tests/evidence are line-exempt but file-counted under U41. Planning budgets are not measured fit; extra leaves or overflow require a separately registered split, never omitted proof. One L1 smoke proof lane may run alongside disjoint L1 product work; A2F -> A2M -> A2 -> B are serial through closure, with shared ledger writes serialized. scripts is navigation only; only registeredSourceLeaves are prospective source scope. Preserve A1 bytes; successors import frozen predecessors read-only. An inadequate interface stops for a separate scope decision. No existing product/helper/config/dependency edits, source-host calls, fake sockets, /api/e2e, production test mode or projection-capability mocks. Offline fixtures write only the private DB while the owned server is stopped. Use Node 22 and heavy-run; retain bounded timeouts, credential redaction, owned-PID cleanup and all A1 identity/store guarantees. Sensitive privacy/authority work requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING before merge, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. This registration ruling is not a future implementation ruling.",
       "registration20261018L1Smoke": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/v220-prep-20261018.txt",
         "sourceSha256": "34c7300287de540411259987de6bc4351203abff66fbb123ac2fcebad30d8f70",
@@ -8506,6 +8771,45 @@
         },
         "budgetQualification": "Unmeasured planning allocation, not fit proof or a per-file cap. Freeze and measure the complete aggregate before admission; if it exceeds 500, split again before implementation.",
         "executionNote": "The scripts lint ceiling has zero headroom (50/50): every new leaf must be lint-clean, with no ceiling increase or unrelated lint cleanup. Each fixtures.ts leaf runs through the already-installed tsx dependency (for example node --import tsx <owned-fixture.ts>) or contains standalone SQL used offline; do not add a loader/dependency or edit src. Fixture generation runs only against the private DB while the owned server is stopped, never as a production test-mode seam."
+      },
+      "registeredSourceLeaves": [
+        "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "scripts/release/l1-built-server-spectator-cases.mjs",
+        "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "scripts/release/l1-built-server-spectator.test.mjs"
+      ],
+      "registration20261020": {
+        "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+        "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+        "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "CF-MPRU2-3: create a real co-op campaign/session/mission through ordinary authenticated APIs, with trusted GM/player membership and durable mission/unit identities; a co-op-marked non-mission record is insufficient. Witness a successful pre-restart action, restart the same verified production image against the same private DB, reconnect, and accept a real unit action without missing/skipped canonical capabilities.",
+          "On the first post-restart dice-producing event, require nonempty captured d6 rolls, canonical persistence and matching live/replay rolls. Bind evidence to the actual accepted intent, mission, build SHA/ID/hashes, new owned PID and same DB lineage. No hard-coded seeded expectation, replay-only success, mocked capability or source-host call substitutes for the accepted action and captured-roll witness.",
+          "CF-MPHD-5: issue concurrent first authenticated socket upgrades to a fresh match in the same round; retain real joins, ReplayStart/Chunk/End and accepted participant actions afterward. Fail on store/sequence/revision conflict, split/lost authority, premature close or absent positive controls. Keep the successful wire/store round as durable evidence.",
+          "The final runner composes A1 baseline exactly once, every A2M_REQUIRED_CASES row via frozen runMatrixCases(ctx), and all co-op/concurrent cases in one verified lineage. Export A2_REQUIRED_CASES/runA2Cases and fixture callbacks for B. Falsifiers reject omitted inherited rows, missing actor/GM/reveal/public/accepted-action/roll controls, credential leaks, changed image/DB and failed commands/cleanup. Imports A1/A2F/A2M read-only and creates only its four registered leaves.",
+          "Preserve all five original A2 acceptance rows through predecessor proof plus the final combined execution. A2 id and successors B/P2CG1H remain unchanged; final post-B14 B combined fog-off matrix/fog-on refusal proof, exact-main/RC and all B/H/LSC/P2J/installer/human gates remain mandatory. No fog-on acceptance or existing product file edit is granted."
+        ],
+        "prospectiveStageManifest": [
+          "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+          "scripts/release/l1-built-server-spectator-cases.mjs",
+          "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "scripts/release/l1-built-server-spectator.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-review.json"
+        ],
+        "planningCountedLineBudget": {
+          "concurrentCoopAndProvisioning": 350,
+          "runnerAndLifecycle": 90,
+          "total": 440
+        },
+        "budgetQualification": "Unmeasured planning allocation, not fit proof. Freeze and measure all counted additions after normal oxfmt at admission; split again before implementation if either unchanged cap would overflow."
       }
     },
     {
@@ -8597,7 +8901,19 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-source-opus-review-20261019.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-owner-ruling-6258459937.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-merge-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-mainproof-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-typecheck-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-validator-log.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic units.json lifecycle fields after accepted registration and normal finite source admission; no other-unit, packet, holder, historical receipt or prerequisite edit. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8612,10 +8928,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "f4a40db2bf5f38f2e76a447a206fc6d5db9b57f0",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+      "mergeSha": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
       "stageReceipts": {
         "admission": {
           "path": "evidence/h-consumer-recovery-admission-20261018.json"
@@ -8626,9 +8942,27 @@
         "local": {
           "path": "evidence/h-consumer-recovery-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/h-consumer-recovery-admission-review-20261018.json",
+          "head": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+          "reviewedHead": "e582634ce9f8f4365200e3ec6ad2cca28c4f88f7",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/p2cg1hp-merge-20261019.json",
+          "pr": 2307,
+          "head": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+          "mergeSha": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3"
+        },
+        "mainProof": {
+          "path": "evidence/p2cg1hp-mainproof-20261019.json",
+          "mergeCommit": "ca92b6a01c07e5038c2d1b3840117af72b0a3ed3",
+          "verdict": "PASS",
+          "runtime": "Source/Main Jest: Tests:       384 passed, 384 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9053,7 +9387,17 @@
         "src/pages-modules/gameplay/campaigns"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-source-opus-review-20261020.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-owner-ruling-6300739754.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-install.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-owned-guards.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-regression.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-typecheck.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-run-proof-cjs.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-merge-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-mainproof-20261020.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9068,10 +9412,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "implementing",
+      "state": "main-verified",
       "baseline": "545073d83c9d23781a75a93565dbdcf87cac5786",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+      "mergeSha": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
       "stageReceipts": {
         "admission": {
           "path": "evidence/lsc-2op-admission-20261018.json"
@@ -9082,9 +9426,28 @@
         "local": {
           "path": "evidence/lsc-2op-local-20261018.json"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-2op-admission-review-20261018.json",
+          "head": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+          "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "2a7359800f0c3014b705039bfa716a7ce6bc31f8e010946389aa428a896db9bc",
+          "verdict": "REQUEST CHANGES",
+          "ownerDisposition": "ACCEPT reviewer-directed fixes at34cb0eb1e15805267c25ffcbe48ed5f3df8e241b"
+        },
+        "merge": {
+          "path": "evidence/lsc-2op-merge-20261020.json",
+          "pr": 2309,
+          "head": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+          "mergeSha": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-2op-mainproof-20261020.json",
+          "mergeCommit": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
+          "verdict": "PASS",
+          "runtime": "Source/Main checks: 3 passed (owned plus guards:103/103; regression:1126/1126 across67 suites; typecheck PASS;0 failed)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9093,7 +9456,7 @@
         "LSC-1"
       ],
       "successors": [
-        "LSC-2",
+        "LSC-2C",
         "LSC-SALVAGE-1"
       ],
       "registration20261018LSC": {
@@ -9109,20 +9472,15 @@
         "N5": "Revocation is effective at the next mint or renewal; already-issued bearers retain their original lifetime, with no immediate eviction or retroactive signature invalidation claim."
       },
       "carryForward20261018": "KNOWN-RED campaign-economy-browser.spec.ts:377: whole-unit salvage adds force membership without roster projection (enemy-atlas absent); resolve unitRef/unitSource/sourceVersion. Candidate E:/Projects/Personal/MekStation-wt/nightly-diag-20261018/baseline-f-salvage.patch (reported 23/23 unit tests, not rerun here) based on #2282 0da8feed0. Release predicate: verify:qc:campaign-economy:browser 12/12. Patch store/type/page/e2e leaves exceed current ownership; admission must rebaseline and explicitly register needed scope/successor within caps, not silently apply it.",
-      "salvageHandoff20261019": "Supersedes earlier LSC-2OP salvage ownership/release wording: LSC-SALVAGE-1 owns the seven-leaf KNOWN-RED repair and 12/12 verify:qc:campaign-economy:browser predicate after v2.2.0. LSC-2OP retains operator-seat acceptance; no browser PASS or repair is claimed."
+      "salvageHandoff20261019": "Supersedes earlier LSC-2OP salvage ownership/release wording: LSC-SALVAGE-1 owns the seven-leaf KNOWN-RED repair and 12/12 verify:qc:campaign-economy:browser predicate after v2.2.0. LSC-2OP retains operator-seat acceptance; no browser PASS or repair is claimed.",
+      "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964"
     },
     {
-      "id": "LSC-2",
+      "id": "LSC-2C",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Implement ordinary co-op entry seat selector, seat choice/mint storage, join path, renewal and expired-token recovery UI against LSC-1; consume the operator setup/revoke UI from LSC-2OP. Retain the in-repo three-identity integration proof: two players plus non-playing GM obtain three distinct non-secret playerIds on one loopback server with isolated profile storage, stable across reload/reconnect, renewal and expired-token recovery. Demonstrate guest re-claim with a new password; no plaintext password/private-key persistence or role grant from seat selection. Use ordinary shipped UI, never E2E identity seeding/global active-row switching/manual token transfer. Revocation is effective at next mint/renewal, with already-issued bearer lifetime explicitly preserved. Packaged spec, dedicated config and installed-server release proof move to the mandatory LSC-2P successor; the in-repo integration proof does not claim packaged acceptance. Both LSC-2 and LSC-2P genuine exact-main PASS, fetched-main ancestry and closure are mandatory before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 human session. Mount the renewal banner in CampaignNavigation.tsx for dashboard/missions/launch/starmap/log/personnel; cover the GM primary bearer and guest seats. Seat mint uses the new local-seats route into the existing per-match token store; coopCampaignAuthTokenStore.ts and primary vault mint stay unchanged. Reset yields a new identity requiring GM re-admission. About 300 counted lines plus lifecycle.",
-      "ownershipPaths": [
-        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
-        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
-        "src/pages-modules/gameplay/campaigns",
-        "src/lib/campaign",
-        "src/components/campaign/CampaignNavigation.tsx"
-      ],
+      "behavior": "Public browser-profile choice and per-match identity binding, sanitized explicit chosen mint/renewal adapter and forget/reclaim primitives; preserve existing operator adapter and bearer store. No UI/role/primary-server changes.",
+      "ownershipPaths": ["src/lib/campaign"],
       "ownershipExceptions": [
         "openspec/planning/2026-09-12-roadmap-completion/units.json"
       ],
@@ -9135,10 +9493,90 @@
         "idempotency",
         "concurrency"
       ],
-      "caps": {
-        "maxFiles": 15,
-        "maxNonGeneratedLines": 500
+      "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
       },
+      "ownerGate": null,
+      "predecessors": ["LSC-2OP"],
+      "successors": ["LSC-2O"],
+      "admissionRequires": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory. 15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split. Re-fetch/rebase and census all literal/ancestor aliases, planned/blocked/active reservations and paginated open-PR files before admission/merge. Serialize C -> O -> LSC-2 through closure; shared store/test and units.json writers cannot overlap. U101/a/c/d, U105, B15-2/B15-PRIV, R2.campaign-access, FOG-H, R7.context/R8.starmap/R2.camp-8 reservations remain; preserve U101c refresh migration and primary auth controls. Aliases grant no unnamed leaves; extra scope needs amendment.",
+      "registeredSourceLeaves": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+      ],
+      "registration20261020": {
+        "source": "evidence/lsc-2-split-registration-20261020.json",
+        "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+        "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "Public per-browser-profile choice primary/seat1/seat2 persists without role, side, membership or ownership grants. Per-match joined public choice/playerId binding is independent of the next-join preference; reload/reconnect preserves it. Strictly validate saved choice, binding and storage failures.",
+          "Mint seats only via existing local-seats action:mint and unchanged primary payload/route for primary; consume sanitized LocalSeatRequestError, distinguish 401 denial from 429 throttle with Retry-After, never auto-retry. Validate playerId/token/expiry agreement and preserve existing per-match bearer storage and verifier/scope/TTL semantics.",
+          "Passwords and private keys remain request-local, absent from React state, persistence, URLs, logs and error reflection. Pin every request URL, denied/throttled/unknown failures and secrecy with runtime tests; preserve all operator adapter behavior and outcome generations.",
+          "Explicit match forget/reclaim removes choice, joined binding and bearer; partial storage failure must not claim success. Renewal refuses silent replacement playerId and rechecks the joined match binding before bearer replacement; reprovision requires ordinary GM readmission. Export a four-minute pre-expiry threshold for prompted UI renewal."
+        ],
+        "carryRoutes": [
+          {
+            "id": "CF-LSC2OP-1",
+            "directedTo": ["LSC-2C", "LSC-2"],
+            "obligation": "Sanitized mint/renewal/recovery code map, 401/429 Retry-After, no automatic mint retry and no secrets in state/storage/URLs/logs."
+          }
+        ],
+        "prospectiveStageManifest": [
+          "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-admission-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-red-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-local-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-admission-review-20261020.json"
+        ],
+        "planningCountedLineBudget": {
+          "measuredDraftProductAdditions": 267,
+          "lifecycleReserve": 60,
+          "planningTotal": 327
+        }
+      }
+    },
+    {
+      "id": "LSC-2O",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Operator active-seat reprovision confirmation, unknown-outcome refresh before resubmit and distinct not-revocable repository/service/server/client code; preserve replay/CAS/windows and same-host guard.",
+      "ownershipPaths": [
+        "src/services/vault",
+        "src/pages/api/multiplayer/auth",
+        "src/__tests__/api",
+        "src/lib/campaign",
+        "src/pages-modules/gameplay/campaigns"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency",
+        "migration"
+      ],
+      "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
       "state": "blocked",
       "baseline": null,
       "prHead": null,
@@ -9153,13 +9591,122 @@
         "tick": null
       },
       "ownerGate": null,
-      "admissionRequires": "LSC-1 exact-main closure is required. Blocked prospective registration only; no source admission. Parent releases to planned only after the predecessor is main-verified (or complete/archived) with genuine exact-main mainProof PASS, fetched-main ancestry and closure. Preserve G2/R/S prerequisites and all B14/HP gates at H. LSC is a separate parallel product lane under lscParallelLaneAmendment20261018; units within each lane remain serial including closure, and shared units.json writes are serialized. NEXT does not enforce ordinary predecessor arrays and supplies no permission. Rebase/re-census fresh Main, active and planned/blocked reservations, aliases and every existing/prospective source/test/helper/lifecycle/evidence leaf before admission; G2 ownership must already be closed; the registered LSC and HP literal manifests are disjoint. Broad aliases grant no extra leaves. Recheck every active PR and reservation; any new literal collision must be resolved before admission. Freeze exact literal manifests and truthful final evidence names at admission from localSeatCredentialsRegistration20261018; candidate seams are not directory-wide permission or measured cap fit. Caps remain 15 actual unique files / 500 counted added lines, no deletion credit; tests and ledger evidence are line-exempt but file-counted under U41. If actual required scope exceeds either cap or needs another leaf, stop and separately register a narrower successor; no omitted proof, cap inflation or unnamed outputs. Later genuine review/identity/closure outputs require the existing separate G-OWN freeze and full census. Sensitive authority/privacy/replay/idempotency/concurrency review, genuine packet before local-verified, independent exact-head review and OWNER-RULING before merge, required CI, then genuine exact-main PASS and closure; ownerGate null is no waiver. Registration supplies no future implementation ruling or runtime acceptance. LSC-2OP genuine exact-main mainProof PASS, fetched-main ancestry and closure is also required. See localSeatCredentialsSplit2Registration20261018 for the amended literals, Root-adopted policy and census. F3 remains a v2.2.0 human-session risk until this renewal/recovery banner lands and closes.",
-      "predecessors": [
-        "LSC-2OP"
+      "predecessors": ["LSC-2C"],
+      "successors": ["LSC-2"],
+      "admissionRequires": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory. 15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split. Re-fetch/rebase and census all literal/ancestor aliases, planned/blocked/active reservations and paginated open-PR files before admission/merge. Serialize C -> O -> LSC-2 through closure; shared store/test and units.json writers cannot overlap. U101/a/c/d, U105, B15-2/B15-PRIV, R2.campaign-access, FOG-H, R7.context/R8.starmap/R2.camp-8 reservations remain; preserve U101c refresh migration and primary auth controls. Aliases grant no unnamed leaves; extra scope needs amendment.",
+      "registeredSourceLeaves": [
+        "src/services/vault/LocalSeatCredentialRepository.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/services/vault/LocalSeatCredentialService.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/pages/api/multiplayer/auth/local-seats.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
       ],
-      "successors": [
-        "LSC-2P"
+      "registration20261020": {
+        "source": "evidence/lsc-2-split-registration-20261020.json",
+        "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+        "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "CF-LSC2OP-2: label or explicitly confirm re-provision of an active seat as identity rotation requiring GM readmission. Keep selected-seat targeting, request-local unnamed password refs, current-password/new-password purposes, minimum lengths and active-only Revoke.",
+          "CF-LSC2OP-7: after an unknown-outcome write (network/status 0 or server 5xx), refresh public seats before permitting any mutation resubmission. No blind replay or automatic write retry; failed refresh disables writes until explicit recovery. Both existing 409 codes retain refresh behavior and stable seat targeting.",
+          "CF-LSC2OP-3: distinguish not-revocable from generation-conflict in repository/service and expose sanitized NOT_REVOCABLE server code to the client. A fresh revoke of an absent/already-revoked seat at the matching generation gets the distinct error; stale generation and operation mismatch retain their own outcomes. Replay lookup remains first, preserving earlier successful operation generation.",
+          "Runtime RED, new discriminating mutants, owned service/repository/API/operator/store suites and B14/match-history guards must pass without weakening same-host Host/Origin/Sec-Fetch-Site, windows, lockout, CAS/atomic replay, secret redaction, revocation-next-mint or already-issued bearer lifetime. No schema/migration/primary-auth edits."
+        ],
+        "carryRoutes": [
+          {
+            "id": "CF-LSC2OP-2",
+            "directedTo": ["LSC-2O", "LSC-2", "LSC-2P"],
+            "obligation": "O fixes active reprovision label/confirmation; final LSC-2 integration and LSC-2P packaged proof retain new identity, GM readmission and ghost membership sequence."
+          },
+          {
+            "id": "CF-LSC2OP-3",
+            "directedTo": ["LSC-2O"],
+            "obligation": "Named server/operator target for distinct not-revocable repository/service/API code and client message; register exact leaves here, freeze before source."
+          },
+          {
+            "id": "CF-LSC2OP-4",
+            "directedTo": ["LSC-2O", "LSC-2", "LSC-2P"],
+            "obligation": "Preserve accepted current-password/new-password attributes; packaged password-manager/autofill proof stays in LSC-2P."
+          },
+          {
+            "id": "CF-LSC2OP-7",
+            "directedTo": ["LSC-2O", "LSC-2"],
+            "obligation": "Explicit acceptance: refresh after unknown-outcome write before resubmission; failed refresh disables writes, never blind replay. O owns the operator fix; final UI integration preserves it."
+          }
+        ],
+        "prospectiveStageManifest": [
+          "src/services/vault/LocalSeatCredentialRepository.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+          "src/services/vault/LocalSeatCredentialService.ts",
+          "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+          "src/pages/api/multiplayer/auth/local-seats.ts",
+          "src/__tests__/api/localSeatCredentials.test.ts",
+          "src/lib/campaign/coop/localSeatCredentialStore.ts",
+          "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+          "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-admission-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-red-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-local-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-admission-review-20261020.json"
+        ],
+        "planningCountedLineBudget": {
+          "measuredDraftProductAdditions": null,
+          "planningProductBudget": 200,
+          "lifecycleReserve": 60,
+          "planningTotal": 260
+        }
+      }
+    },
+    {
+      "id": "LSC-2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Chooser, chosen join, renewal/expired recovery through CampaignNavigation and final three-identity ordinary UI integration. Consume frozen LSC-2C adapter and LSC-2O operator/server semantics; retain every original behavior through the acceptance partition. No packaged acceptance; LSC-2P and all downstream gates stand.",
+      "ownershipPaths": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns",
+        "src/components/campaign/CampaignNavigation.tsx"
       ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "replay",
+        "idempotency",
+        "concurrency"
+      ],
+      "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "admissionRequires": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory. 15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split. Re-fetch/rebase and census all literal/ancestor aliases, planned/blocked/active reservations and paginated open-PR files before admission/merge. Serialize C -> O -> LSC-2 through closure; shared store/test and units.json writers cannot overlap. U101/a/c/d, U105, B15-2/B15-PRIV, R2.campaign-access, FOG-H, R7.context/R8.starmap/R2.camp-8 reservations remain; preserve U101c refresh migration and primary auth controls. Aliases grant no unnamed leaves; extra scope needs amendment. LSC-2C/O must each close on main before this source stage; original behavior, binding notes and carry obligations are retained in the registration evidence. F3 human-session risk stays open until final LSC-2 exact-main closure.",
+      "predecessors": ["LSC-2O"],
+      "successors": ["LSC-2P"],
       "registration20261018LSC": {
         "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/identity-gap-20261018.txt",
         "sourceSha256": "e16d2a29ff0d5196b9b5c3962c9fa53d4272be4e086eea58dc1a225cb4aecc76",
@@ -9171,6 +9718,83 @@
         "N1": "Before admission, census U101, U101a, U101c, U105, B15-2 and FOG-H claims on token.ts, securitySchemas.ts, CampaignCoopEntryPanel.tsx and coopCampaignAuthTokenStore.ts, including all ancestor aliases and planned/blocked reservations.",
         "N2": "Register a separate split for required SQLite migration or Playwright/npm registration leaves; LSC-1DB and LSC-2P implement this split. Any further required leaf needs separate registration even if a spare cap slot exists.",
         "N5": "Revocation is effective at the next mint or renewal; already-issued bearers retain their original lifetime, with no immediate eviction or retroactive signature invalidation claim."
+      },
+      "carryForwards20261020LSC2OP": [
+        {
+          "id": "CF-LSC2OP-1",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-1 (-> LSC-2):** the guest mint, renewal and recovery client consumes LocalSeatRequestError and its code map (LOCAL_SEAT_DENIED 401 vs LOCAL_SEAT_THROTTLED 429 with Retry-After). It must never auto-retry a mint (CF-LSC1-3). It must keep passwords out of state, storage and URLs, with the same T1-style tests.",
+          "disposition": "Retain the reviewer obligation in the receiving unit."
+        },
+        {
+          "id": "CF-LSC2OP-2",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-2 (-> LSC-2/LSC-2P):** give re-provision of an active seat a distinct label or confirmation (F4). The three-identity proof must show re-provision, then the new playerId, then GM readmission, then ghost membership retained until removal.",
+          "disposition": "Retain the reviewer obligation in the receiving unit."
+        }
+      ],
+      "registeredSourceLeaves": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+        "src/components/campaign/CampaignNavigation.tsx"
+      ],
+      "registration20261020": {
+        "source": "evidence/lsc-2-split-registration-20261020.json",
+        "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+        "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+        "sourceAdmitted": false,
+        "layer": "L1",
+        "ownerRulingRequired": true,
+        "acceptance": [
+          "Ordinary shipped co-op entry chooses primary GM identity or either local seat; choice grants no role. Mount chooser, chosen mint/join and public per-match binding through the frozen adapter; primary host mint semantics stay unchanged. Use isolated profile storage and the existing per-match bearer store, never identity seeding, global active-row switching or manual token transfer.",
+          "Retain in-repo three-identity integration: two players plus non-playing GM obtain three distinct public playerIds on one loopback authority, stable across reload/reconnect, renewal and expired recovery. Prove guest reclaim with a new password: active-seat reprovision -> new playerId -> GM readmission -> ghost old membership retained until ordinary removal. CF-LSC2OP-2 UI fix is predecessor proof, not a waiver of this sequence.",
+          "Mount renewal/expired recovery through CampaignNavigation for dashboard/missions/launch/starmap/log/personnel; cover primary GM and guest bearers. Prompt within the canonical four-minute pre-expiry window; never auto-mint/retry. Close/reconnect the transport or explicitly reload with the renewed bearer; storage-only replacement is insufficient.",
+          "Refuse silent mid-session identity replacement and direct explicit forget/reclaim; clear choice, match binding and bearer, preserve role/membership checks. Use uncontrolled unnamed type=password refs, clear immediately before await on success/error, preserve current-password/new-password. Distinguish denial and throttle/Retry-After with sanitized errors and secrecy tests.",
+          "Preserve same-host trust disclosures, operator/shared-OS impersonation risk, local-seat lifetime and revocation effective at next mint/renewal with old bearer lifetime retained; no immediate eviction claim. Consume CF-LSC2OP-7 predecessor refresh/no-blind-replay behavior; final integration cannot bypass unknown-outcome recovery.",
+          "Preserve CF-LSC1S-4, CF-LSC1-3/4/7, CF-LSC0-1/2/3/4/7/10/12/13/14 and CF-S-8 as routed, including primary/verifier parity, fresh census, real windows and later reseat work. Packaged/installed-server three-seat journey, password-manager/autofill verification and release proof stay mandatory in LSC-2P; no packaged acceptance is claimed here.",
+          "Every original LSC-2 behavior/acceptance remains mandatory through C/O predecessor proof plus final ordinary UI integration. LSC-2 keeps its id and every downstream edge; LSC-2/LSC-2P exact-main closures, H/P2/U38/P2J/installer/human gates and salvage ownership remain unchanged."
+        ],
+        "carryRoutes": [
+          {
+            "id": "CF-LSC2OP-1",
+            "directedTo": ["LSC-2C", "LSC-2"],
+            "obligation": "Sanitized mint/renewal/recovery code map, 401/429 Retry-After, no automatic mint retry and no secrets in state/storage/URLs/logs."
+          },
+          {
+            "id": "CF-LSC2OP-2",
+            "directedTo": ["LSC-2O", "LSC-2", "LSC-2P"],
+            "obligation": "O fixes active reprovision label/confirmation; final LSC-2 integration and LSC-2P packaged proof retain new identity, GM readmission and ghost membership sequence."
+          },
+          {
+            "id": "CF-LSC2OP-4",
+            "directedTo": ["LSC-2O", "LSC-2", "LSC-2P"],
+            "obligation": "Preserve accepted current-password/new-password attributes; packaged password-manager/autofill proof stays in LSC-2P."
+          },
+          {
+            "id": "CF-LSC2OP-7",
+            "directedTo": ["LSC-2O", "LSC-2"],
+            "obligation": "Explicit acceptance: refresh after unknown-outcome write before resubmission; failed refresh disables writes, never blind replay. O owns the operator fix; final UI integration preserves it."
+          }
+        ],
+        "prospectiveStageManifest": [
+          "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+          "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+          "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+          "src/components/campaign/CampaignNavigation.tsx",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-red.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-local.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission-review.json"
+        ],
+        "planningCountedLineBudget": {
+          "measuredDraftProductAdditions": 415,
+          "lifecycleReserve": 60,
+          "planningTotal": 475
+        }
       }
     },
     {
@@ -9232,7 +9856,21 @@
         "N2": "Register a separate split for required SQLite migration or Playwright/npm registration leaves; LSC-1DB and LSC-2P implement this split. Any further required leaf needs separate registration even if a spare cap slot exists.",
         "N5": "Revocation is effective at the next mint or renewal; already-issued bearers retain their original lifetime, with no immediate eviction or retroactive signature invalidation claim."
       },
-      "carryForward20261018": "CF-SMOKEA1-7: production standalone reports InMemoryPlayerStore dev-only store in use. Establish intended behavior under local seat credentials and durable identity/reconnect consequences in packaged proof; register a separate product owner if repair is needed."
+      "carryForward20261018": "CF-SMOKEA1-7: production standalone reports InMemoryPlayerStore dev-only store in use. Establish intended behavior under local seat credentials and durable identity/reconnect consequences in packaged proof; register a separate product owner if repair is needed.",
+      "carryForwards20261020LSC2OP": [
+        {
+          "id": "CF-LSC2OP-2",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-2 (-> LSC-2/LSC-2P):** give re-provision of an active seat a distinct label or confirmation (F4). The three-identity proof must show re-provision, then the new playerId, then GM readmission, then ghost membership retained until removal.",
+          "disposition": "Retain the reviewer obligation in the receiving unit."
+        },
+        {
+          "id": "CF-LSC2OP-4",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-4 (-> LSC-2P):** verify password-manager and autofill behaviour on the packaged browser, using current-password/new-password (F5), if F5 is not done in-PR.",
+          "disposition": "F5 autocomplete purposes fixed in-PR; packaged password-manager/autofill verification remains LSC-2P."
+        }
+      ]
     },
     {
       "id": "P2CG1H",
@@ -12980,7 +13618,7 @@
       "id": "U44",
       "node": "R4.S7",
       "taskKeys": [],
-      "behavior": "After the flip, every recovery and rewind journal read takes its database from the match store's capability handle (store.isCapabilityDbAvailable() / capabilityDatabase()), not getSQLiteService(). That covers MatchRecoveryJournalHead, tryFoldActivatedRewindBranch and the rebuild lease hold and release at ServerMatchHostRewindRebuild.ts:135, :219, :254. A match whose head cannot be read is refused, typed; it no longer falls back to headFromLegacyEvents or selectMatchRollbackReader (ServerMatchHost.ts:1457-1466; MatchRecoveryJournalHead.ts:91-94). The S7-d tri-state in matchJournalAuthorityStartedDerived.ts collapses, and the R4.S3 marker table, read port and batch field (R4.S3 residual OQ-2) are deleted under OD-mvp-hard-cutover. Riders: the remaining 'not wired/owed' comments and the stale 'NOT CLAIMED: event-at-a-time' note are rewritten to match main. The stale it.failing at src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts:391-419 is deleted; the passing test at :455 pins the opposite, correct rule. Red-first: a closed capability DB at recovery falls back silently today and is refused typed after. If over cap, the residue deletion becomes a following R4.S7 unit.",
+      "behavior": "After the flip, every recovery and rewind journal read takes its database from the match store's capability handle (store.isCapabilityDbAvailable() / capabilityDatabase()), not getSQLiteService(). That covers MatchRecoveryJournalHead, tryFoldActivatedRewindBranch and the rebuild lease hold and release at ServerMatchHostRewindRebuild.ts:135, :219, :254. A match whose head cannot be read is refused, typed; it no longer falls back to headFromLegacyEvents or selectMatchRollbackReader (ServerMatchHost.ts:1457-1466; MatchRecoveryJournalHead.ts:91-94). The S7-d tri-state in matchJournalAuthorityStartedDerived.ts collapses, and the R4.S3 marker table, read port and batch field (R4.S3 residual OQ-2) are deleted under OD-mvp-hard-cutover. Riders: the remaining 'not wired/owed' comments and the stale 'NOT CLAIMED: event-at-a-time' note are rewritten to match main. The stale it.failing at src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts:391-419 is deleted; the passing test at :455 pins the opposite, correct rule. Red-first: a closed capability DB at recovery falls back silently today and is refused typed after. If over cap, the residue deletion becomes a following R4.S7 unit. CF-MPRU2-2: a rewound-at-boot accepted action is still fenced by rollback-reader-blocked:missing-journal-head after branch activation without a matching command receipt; witness an accepted action when repairing the recovery/cutover path. OBS-MPRU2-1: the next frozen owner of MatchRecovery.ts must assess triple unit derivation at boot. U44 is the recovery/cutover routing point: acknowledge this observation if its admission freezes MatchRecovery.ts, otherwise carry it to that next file owner. This routing note grants no additional source ownership. CF-MPRD-1 (Low): Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file. CF-MPRD-2 (Low): Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it. CF-MPRD-3 (Info): Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations. CF-MPRD-1..3 are routing/admission notes only: retain the existing 15-file/500-counted-addition cap and freeze exact leaves before work; split or forward anything outside that freeze. No source ownership expands under this closure.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/lib/events/journal",
@@ -18891,7 +19529,20 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-source-opus-review-20261020.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-source-opus-review-20261020.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-owner-ruling-6301768235.txt",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-owner-ruling-6301768235.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-merge-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-mainproof-20261020.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-npm-ci-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-owned-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-owned-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-server-log.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-server-json.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-664f8c13f-typecheck-log.bytes.json"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -18902,17 +19553,41 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "main-verified",
+      "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+      "prHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+      "mergeSha": "664f8c13f7d59dd3d53212309993fac9a23e655b",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "admission": {
+          "path": "evidence/mp-rewind-dice-1-admission-20261019.json"
+        },
+        "red": {
+          "path": "evidence/mp-rewind-dice-1-red-20261019.json"
+        },
+        "local": {
+          "path": "evidence/mp-rewind-dice-1-local-20261019.json"
+        },
+        "review": {
+          "path": "evidence/mp-rewind-dice-1-review-20261019.json",
+          "head": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+          "reviewedHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+          "reviewerModel": "claude-opus",
+          "implementerModel": "gpt-6.1-sol",
+          "outputSha256": "69c4361bacf66497dc9b1f167d79f746ecbb64534f6cb538a11e109b6406728a",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/mp-rewind-dice-1-merge-20261020.json",
+          "pr": 2316,
+          "head": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+          "mergeSha": "664f8c13f7d59dd3d53212309993fac9a23e655b"
+        },
+        "mainProof": {
+          "path": "evidence/mp-rewind-dice-1-mainproof-20261020.json",
+          "mergeCommit": "664f8c13f7d59dd3d53212309993fac9a23e655b",
+          "verdict": "PASS",
+          "runtime": "Main Jest: Tests:       1595 passed, 1595 total"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -18930,7 +19605,50 @@
         "source": "evidence/l1-followups2-registration-20261019.json",
         "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
         "sourceAdmitted": false
-      }
+      },
+      "reviewedHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+      "carryForwardRouting20261020": [
+        {
+          "id": "CF-MPRD-1",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHost.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file."
+        },
+        {
+          "id": "CF-MPRD-2",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "U44 / next journal-authority owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it."
+        },
+        {
+          "id": "CF-MPRD-3",
+          "severity": "Info",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHostRewindRebuild.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations."
+        },
+        {
+          "id": "CF-MPRD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "co-op AI owner, to register",
+          "status": "open registration follow-up; no named registered target unit",
+          "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+        },
+        {
+          "id": "CF-MPRD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "journal-authority owner, to register",
+          "status": "open registration follow-up; no named registered target unit for this divergence repair",
+          "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+        }
+      ]
     },
     {
       "id": "MP-CAMPAIGN-HOST-DEDUPE-1",
@@ -19052,7 +19770,15 @@
         "source": "evidence/l1-followups2-registration-20261019.json",
         "sourceSha256": "0cedf55ada9b9a9c4bde019e94872d9a1389dcadc5772f2125ed096ba718f793",
         "sourceAdmitted": false
-      }
+      },
+      "carryForwards20261020LSC2OP": [
+        {
+          "id": "CF-LSC2OP-5",
+          "source": "evidence/lsc-2op-admission-review-20261018.json",
+          "obligation": "- **CF-LSC2OP-5 (-> Root):** register the salvage successor now: the seven leaves, its own caps, and the 12/12 predicate transferred from LSC-2OP. It runs in parallel with LSC-2 and gates v2.2.0 unless the owner waives it.",
+          "disposition": "#2310 registered LSC-SALVAGE-1; preserve its state and recorded release policy. No salvage repair or browser PASS claimed."
+        }
+      ]
     }
   ],
   "packets": [
@@ -20324,6 +21050,50 @@
         "commentId": 6258073974,
         "author": "SwiggitySwerve",
         "bodySha256": "a34031e424d522e53961ff47fe5a089e25899382717e2d203951bb4490293dcf"
+      }
+    },
+    {
+      "id": "PK-lsc-2op-ruling",
+      "blocks": [
+        "LSC-2OP"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept LSC-2OP reviewer-directed fixes at34cb0eb1e after Opus REQUEST CHANGES at05da7d97, exact-head32/32 CI and Root diff?",
+      "options": [
+        {
+          "label": "accept exact reviewer-directed fix head",
+          "consequence": "Permit merge, exact-main proof and closure; release LSC-2 only when all predecessors are main-verified; retain CF-LSC2OP-1..5.",
+          "effort": "Opus review, Root diff, exact-head CI and exact-main runtime proof"
+        },
+        {
+          "label": "request further changes",
+          "consequence": "Hold closure/release pending concrete objections and fresh ruling.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Record the live exact-head owner ruling; retain all downstream obligations and separate packaged acceptance.",
+      "revertCost": "Revert bounded operator UI/store implementation; preserve earlier server credential layers.",
+      "decision": {
+        "option": "accept exact reviewer-directed fix head",
+        "at": "2026-10-20T20:27:05Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2309#issuecomment-6300739754"
+      },
+      "ruling": {
+        "ruledHead": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+        "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+        "pr": 2309,
+        "commentId": 6300739754,
+        "author": "SwiggitySwerve",
+        "bodySha256": "f7276d879b2cf4a32dd7c3d0992ed55450a3da4181ed3908120839a5699affa5"
+      },
+      "openRegistrationFollowUp": {
+        "id": "CF-LSC2OP-3",
+        "owner": "Root",
+        "target": "Separately registered server follow-up; no new source admission"
       }
     },
     {
@@ -23371,6 +24141,142 @@
         "postedBy": "Parent under existing standing owner authorization",
         "deviationDisclosed": "Existing historical head-bound ruling reopened through live GitHub API; no new human response or manual GitHub review. Original literal body bytes are preserved."
       }
+    },
+    {
+      "id": "PK-p2cg1hp-ruling",
+      "blocks": [
+        "P2CG1HP"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the exact HP source head after independent sensitive review, Root-diffed F1 test fix and passing CI?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Permit source merge and exact-main proof; release dependents only when every predecessor is verified. Route CF-HP-1..3, CF-S-1 and CF-MPHD-4 to H and I3 to H/LSC-2.",
+          "effort": "Independent sensitive review, mutation and main proof, exact-head owner ruling"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold merge until concrete defects and proof gaps are fixed and reruled.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Records the existing ACCEPT ruling on aa1b70d8, not a new approval. Preserve distinct reviewedHead e582634c and pending downstream gates.",
+      "revertCost": "Reverting consumer recovery would restore unbounded quiet retries and the false-cut settlement bug; no schema or wire-format migration.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-19T02:37:25Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2307#issuecomment-6258459937"
+      },
+      "ruling": {
+        "ruledHead": "aa1b70d8379e22d6031d7ea5546af53bf0dd370a",
+        "pr": 2307,
+        "commentId": 6258459937,
+        "author": "SwiggitySwerve",
+        "bodySha256": "121486facf69be0a41b63c9056a2ab5c4a27152e5793fe5a29eebfa3e2780266"
+      }
+    },
+    {
+      "id": "PK-mp-rewind-dice-1-ruling",
+      "blocks": [
+        "MP-REWIND-DICE-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the owner accept the exact independently reviewed host-capture wiring after live GM rewind?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Accept the bounded fix and genuine exact-main proof; retain all five routed carry-forwards and release only newly eligible declared successors.",
+          "effort": "Independent Opus sensitive review, source RED/GREEN and mutants, 32 successful source CI checks, exact-head owner ruling and exact-main proof"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold closure until concrete findings and acceptance requirements are satisfied.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Record the existing owner ruling. Route CF-MPRD-1..3 into U44 admission text as the planned host/rebuild routing point; keep CF-MPRD-4 and CF-MPRD-5 as explicit open registration follow-ups for Root. This grants no source scope.",
+      "revertCost": "Reverting restores uncaptured seeded dice after live rewind; no schema or wire migration.",
+      "decision": {
+        "option": "rule the exact source head",
+        "at": "2026-10-20T21:22:18Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2316#issuecomment-6301768235"
+      },
+      "ruling": {
+        "ruledHead": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+        "pr": 2316,
+        "commentId": 6301768235,
+        "author": "SwiggitySwerve",
+        "bodySha256": "bf4e69e52ac4bf900b247c428a0e6f938885cbeb498b3620e606a95c09fcad4d"
+      },
+      "carryForwards": [
+        {
+          "id": "CF-MPRD-1",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHost.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Debug-seeded post-rewind dice lack capture/stamping coverage. The seeded reset replaces the whole capture object; production is unaffected. The next frozen host owner must test dynamic capture after replacement and per-intent swaps, carrying this onward if U44 does not freeze the file."
+        },
+        {
+          "id": "CF-MPRD-2",
+          "severity": "Low",
+          "owner": "U44",
+          "target": "U44 / next journal-authority owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Prove journal-mode post-rewind captured dice with a fixture that records a journal head. Existing owned coverage uses a legacy-compatible fixture; the journal-mode production fix is not independently pinned by it."
+        },
+        {
+          "id": "CF-MPRD-3",
+          "severity": "Info",
+          "owner": "U44",
+          "target": "next frozen ServerMatchHostRewindRebuild.ts owner",
+          "status": "open; receiving-unit admission note",
+          "item": "Refresh stale reseed/config.seed comments in ServerMatchHostRewindRebuild.ts (reviewed lines 172-174 and 195-197). U44 already names this file; carry this onward if its freeze excludes the comment locations."
+        },
+        {
+          "id": "CF-MPRD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "co-op AI owner, to register",
+          "status": "open registration follow-up; no named registered target unit",
+          "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+        },
+        {
+          "id": "CF-MPRD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "journal-authority owner, to register",
+          "status": "open registration follow-up; no named registered target unit for this divergence repair",
+          "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+        }
+      ],
+      "openRegistrationFollowUps": [
+        {
+          "id": "CF-MPRD-4",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "co-op AI owner, to register",
+          "status": "open registration follow-up; no named registered target unit",
+          "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+        },
+        {
+          "id": "CF-MPRD-5",
+          "severity": "Info",
+          "owner": "Root registration follow-up",
+          "target": "journal-authority owner, to register",
+          "status": "open registration follow-up; no named registered target unit for this divergence repair",
+          "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+        }
+      ]
     }
   ],
   "deferrals": [
@@ -26101,7 +27007,7 @@
       "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
     },
     "layer": "L1 / v2.2.0",
-    "unitCount": 41,
+    "unitCount": 46,
     "closures": [
       "P2CG1B",
       "P2CG1C",
@@ -26126,9 +27032,14 @@
       "LSC-1S",
       "LSC-1",
       "LSC-2OP",
+      "LSC-2C",
+      "LSC-2O",
       "LSC-2",
       "LSC-2P",
       "L1-SMOKE-A1",
+      "L1-SMOKE-A2FP",
+      "L1-SMOKE-A2F",
+      "L1-SMOKE-A2M",
       "L1-SMOKE-A2",
       "L1-SMOKE-B",
       "P2CG1H",
@@ -26150,17 +27061,20 @@
       {
         "id": "closures",
         "status": "pending",
-        "requirement": "All 41 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+        "requirement": "All 46 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
       },
       {
         "id": "built-server-spectator-smoke",
         "status": "pending",
         "units": [
           "L1-SMOKE-A1",
+          "L1-SMOKE-A2FP",
+          "L1-SMOKE-A2F",
+          "L1-SMOKE-A2M",
           "L1-SMOKE-A2",
           "L1-SMOKE-B"
         ],
-        "requirement": "L1-SMOKE-A1, L1-SMOKE-A2 and L1-SMOKE-B genuine exact-main PASS, fetched-Main ancestry and closure; B combined fog-off spectator matrix and fog-on refusal smoke runs after B14-HEAD on exact Main before H admission/port installation and any spectator-bearing shipment. Retain the combined smoke on the exact release candidate before shipment; re-run if the candidate differs. A1/A2-only proof, existing one-player packaged-socket smoke, Jest or this registration cannot discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1. See l1SmokeRegistration20261018; independent LSC-2P/P2J/installer/human gates remain."
+        "requirement": "L1-SMOKE-A2FP -> L1-SMOKE-A2F -> L1-SMOKE-A2M -> narrowed L1-SMOKE-A2 must each close with genuine exact-main PASS and ancestry; final A2 re-executes the entire matrix and adds co-op restart/captured rolls and concurrent-first-sockets proof. L1-SMOKE-A1, L1-SMOKE-A2 and L1-SMOKE-B genuine exact-main PASS, fetched-Main ancestry and closure; B combined fog-off spectator matrix and fog-on refusal smoke runs after B14-HEAD on exact Main before H admission/port installation and any spectator-bearing shipment. Retain the combined smoke on the exact release candidate before shipment; re-run if the candidate differs. A1/A2-only proof, existing one-player packaged-socket smoke, Jest or this registration cannot discharge S-SMOKE-1 / B14A-SMOKE-1 / B14B-SMOKE-1. See l1SmokeRegistration20261018; independent LSC-2P/P2J/installer/human gates remain."
       },
       {
         "id": "automated-rc",
@@ -26190,9 +27104,7 @@
       {
         "id": "live-gm-rewind-dice",
         "status": "pending",
-        "units": [
-          "MP-REWIND-DICE-1"
-        ],
+        "units": ["MP-REWIND-DICE-1"],
         "requirement": "Before v2.2.0 ships or claims live GM rewind, require MP-REWIND-DICE-1 exact-main mainProof PASS, fetched-main ancestry and closure; on the exact release candidate witness a real post-rewind dice-producing command, crypto capture stamped into persisted/broadcast events and faithful replay. H/I activation is not this proof."
       }
     ],
@@ -26202,7 +27114,13 @@
       "evidence/council3-c-20261018.txt",
       "evidence/tail-prep-20261018.txt",
       "evidence/b14-prep2-20261018.txt",
-      "evidence/v220-prep-20261018.txt"
+      "evidence/v220-prep-20261018.txt",
+      "evidence/l1-smoke-a2-split-registration-20261020.json",
+      "evidence/l1-smoke-a2-split-root-ruling-20261020.txt",
+      "evidence/lsc-2-split-registration-20261020.json",
+      "evidence/lsc-2-split-root-ruling-20261020.txt",
+      "evidence/l1-smoke-a2f-partition-registration-20261020.json",
+      "evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt"
     ]
   },
   "localSeatCredentialsRegistration20261018": {
@@ -27059,5 +27977,194 @@
     "collisionRule": "Only the named source/test leaves are reserved. MP-RECOVERY-UNITS-2 -> rewind serializes its overlapping host/rebuild/test leaves. Campaign dedupe follows already-main-verified MP-HOST-DEDUPE-1 and precedes H; H retains its type-only grant. U44 capability-DB/rollback-reader work, U26/FOG privacy, U45/src-lib and other ancestor aliases remain separate owners: no simultaneous shared-leaf admission; re-census, rebase/refreeze and obtain a narrow scope amendment for any additional leaf. Salvage follows LSC-2OP; census B15/campaign-store/e2e/roster aliases before admission. All registration/closure writers serialize units.json, roadmap.json and PROGRESS.md; no source admission is granted.",
     "scope": "Four documentation files only. Existing lifecycle, packets, task holders, historical evidence and caps remain unchanged. These follow-up notes do not grant H runtime edits outside its manifest.",
     "authority": "Owner: continue with recommended options and fix the issues that come up, publish as needed. Register three narrow follow-ups; Sol implements, Claude Opus/Astra/Sonnet verifies. This is not a future sensitive OWNER-RULING."
+  },
+  "l1SmokeA2SplitRegistration20261020": {
+    "baseline": "a2e2a7b8d113ad06279ad50f71665339fdeece0e",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+    "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+    "rulingPath": "evidence/l1-smoke-a2-split-root-ruling-20261020.txt",
+    "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+    "units": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+    "initialStates": {
+      "L1-SMOKE-A2F": "planned",
+      "L1-SMOKE-A2M": "blocked",
+      "L1-SMOKE-A2": "blocked"
+    },
+    "order": "L1-SMOKE-A1 + MP-RECOVERY-UNITS-1 + MP-HOST-DEDUPE-1 + MP-RECOVERY-UNITS-2 -> L1-SMOKE-A2F -> L1-SMOKE-A2M -> L1-SMOKE-A2; A2 retains its original four direct predecessors and both B/H successors.",
+    "manifests": {
+      "L1-SMOKE-A2F": [
+        "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "scripts/release/l1-built-server-spectator-context.mjs",
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+      ],
+      "L1-SMOKE-A2M": [
+        "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+      ],
+      "L1-SMOKE-A2": [
+        "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "scripts/release/l1-built-server-spectator-cases.mjs",
+        "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "scripts/release/l1-built-server-spectator.test.mjs"
+      ]
+    },
+    "countPolicy": "500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 generated/test/evidence exclusions remain, every unique file counts, no deletion credit or cap waiver. A1 historical receipt is not reopened; future A2F/A2M/A2/B budgets must be remeasured at their own finite admissions.",
+    "releaseAccounting": {
+      "previous": 41,
+      "total": 43,
+      "addedClosures": ["L1-SMOKE-A2F", "L1-SMOKE-A2M"]
+    },
+    "historicalRule": "Supersedes only effective A2 scope/interface/budget scheduling in the old prospective smoke registration. Original A2 acceptance stays retained through F/M proof plus final A2 composition; historical source hashes/receipts, A1 receipt and downstream B/H gates are unchanged.",
+    "sourceAdmissionBarrier": "Do not start A2F admission until Root merges #2315 and independently qualifies this registration. All stage receipts/baselines/heads/merge fields remain null for F/M/A2; planned is not admitted. Root owns subsequent Astra ledger review, CI, ruling and merge."
+  },
+  "localSeatCredentialsSplit3Registration20261020": {
+    "baseline": "a69540e25389a01ee24b92994f1418d700c0039a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/lsc-2-split-registration-20261020.json",
+    "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+    "rulingPath": "evidence/lsc-2-split-root-ruling-20261020.txt",
+    "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+    "units": [
+      "LSC-2C",
+      "LSC-2O",
+      "LSC-2"
+    ],
+    "initialStates": {
+      "LSC-2C": "planned",
+      "LSC-2O": "blocked",
+      "LSC-2": "blocked"
+    },
+    "order": "LSC-2OP -> LSC-2C -> LSC-2O -> LSC-2 -> unchanged LSC-2 successors",
+    "manifests": {
+      "LSC-2C": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+      ],
+      "LSC-2O": [
+        "src/services/vault/LocalSeatCredentialRepository.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/services/vault/LocalSeatCredentialService.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/pages/api/multiplayer/auth/local-seats.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+      ],
+      "LSC-2": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+        "src/components/campaign/CampaignNavigation.tsx"
+      ]
+    },
+    "countPolicy": "15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split.",
+    "releaseAccounting": {
+      "previous": 43,
+      "total": 45,
+      "addedClosures": [
+        "LSC-2C",
+        "LSC-2O"
+      ]
+    },
+    "historicalRule": "Supersedes only effective prospective LSC-2 scope, stage manifest and serial allocation. Historical receipts/manifests/source hashes are not rewritten. Stopped sizing receipt is immutable; final narrowed LSC-2 gets separately named implementation receipts. Retain all old behavior/notes/carries through explicit partition and final integration. No downstream edge, task holder, prior lifecycle, packet, salvage or packaged proof changes.",
+    "sourceAdmissionBarrier": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory."
+  },
+  "l1SmokeA2FPartitionRegistration20261020": {
+    "baseline": "434fdab1d5b0fbe107435a88985ce3eaaf753033",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/l1-smoke-a2f-partition-registration-20261020.json",
+    "sourceSha256": "6f27904ba7af8190c4ffd94be1c3ed0bc621b25f05ad8b00b3aaf55e0b35e915",
+    "rulingPath": "evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt",
+    "rulingSha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
+    "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+    "initialStates": {
+      "L1-SMOKE-A2FP": "planned",
+      "L1-SMOKE-A2F": "blocked"
+    },
+    "order": "L1-SMOKE-A1 + MP-RECOVERY-UNITS-1 + MP-HOST-DEDUPE-1 + MP-RECOVERY-UNITS-2 -> L1-SMOKE-A2FP -> L1-SMOKE-A2F -> L1-SMOKE-A2M -> L1-SMOKE-A2; F retains four original direct predecessors and M successor. Final A2 keeps CF-MPRU2-3/CF-MPHD-5 and B/H successors.",
+    "predecessors": {
+      "L1-SMOKE-A2FP": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2"
+      ],
+      "L1-SMOKE-A2F": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2FP"
+      ]
+    },
+    "successors": {
+      "L1-SMOKE-A2FP": ["L1-SMOKE-A2F"],
+      "L1-SMOKE-A2F": ["L1-SMOKE-A2M"]
+    },
+    "manifests": {
+      "L1-SMOKE-A2FP": [
+        "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "scripts/release/l1-built-server-spectator-context.mjs",
+        "scripts/release/l1-built-server-spectator-reachability.ts",
+        "scripts/release/l1-built-server-spectator-reachability.test.mjs"
+      ],
+      "L1-SMOKE-A2F": [
+        "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+      ]
+    },
+    "acceptanceCoverage": [
+      {
+        "originalRow": 0,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP ordinary accepted M/A/P reachability, activation-aware principal and reveal holder; F composes these with trusted conditions and re-runs all inherited reachability. Explicit unrun rows if product seam needed; no inserted declarations."
+      },
+      {
+        "originalRow": 1,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP read-only canonical phase/unit/seat and DB/PID/precondition falsifiers; F all three trusted brands/assignments, real durable GM role, separate observed non-spectating-GM declaration positive and unchanged-history lineage on the actual image."
+      },
+      {
+        "originalRow": 2,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP ordinary provisioner/phase-ready/read-only callbacks, strict CLI and positive/guard falsifiers; F trusted-audience callbacks and full F composition. Both preserve all A1 authority, credential, command, image/listener/PID/DB, loader/dependency and offline-only constraints."
+      },
+      {
+        "originalRow": 3,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP ordinary-only partial proof; F retains full F acceptance and exact-main closure before M. Full nine-case privacy and co-op restart stay M/final A2/B-owned; every downstream gate and original A2 row stands."
+      }
+    ],
+    "countPolicy": "15 files/500 aggregate counted additions after normal oxfmt; tests/evidence line-exempt but file-counted, lifecycle counted, no deletion credit or waiver. Historical A1 receipt unchanged.",
+    "releaseAccounting": {
+      "previous": 45,
+      "total": 46,
+      "addedClosures": ["L1-SMOKE-A2FP"]
+    },
+    "historicalRule": "Supersedes only effective F scope/manifest/interface scheduling from #2315. Original F/A2 acceptance and historical evidence/registrations remain unchanged; this new effective partition controls future admissions. Downstream M/A2/B/H and independent LSC/P2J/installer/human gates stand.",
+    "sourceAdmissionBarrier": "Root merges #2318 before FP admission; all stages, actual scope and formatting counts freshly freeze afterward. Sensitive cadence and all unchanged gates apply. No runtime result, packet, closure or task tick is supplied by registration.",
+    "overflowRuling": "If FP still does not fit when drafted, stop and tell Root before proposing a third split. Root is raising size-cap policy with the owner."
+  },
+  "stepPlanDecision20261024": {
+    "baseline": "8c3617f44f9609aacd1e85975801b2bed02b6b41",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner 2026-10-24: Set goal to complete the next segment based on 10 steps with verifications and reviews; standing instruction: continue with recommended options and fix the issues that come up, publish as needed. Root reading: Step 0 may proceed during HOLD; ten-step order adopted; no file-count exclusion ruling.",
+    "layer": "L1 / v2.2.0 only",
+    "supersedes": "Scheduling and selector clauses only (order, parallelPermission, selector) of lscParallelLaneAmendment20261018, and the smoke-proof-lane parallel exception of l1SmokeRegistration20261018 as restated in layerRegistration20261017L1.schedulingRule; historical objects and all receipts retained unchanged.",
+    "order": "v220-steps.json; Root selects first eligible unit of first unfinished step; blocked first step stops; --next diagnostic only.",
+    "wip": "One admitted-unfinished unit through closure on main. Closure and next admission may share one PR; successor implementation begins only after merge.",
+    "drain": "#2313, then LSC-2C, then reconcile A2FP. No new admission while draining; HOLD still applies.",
+    "unchanged": "No unit state, receipt, cap, ownership, review, predecessor, proof or HOLD changes. Outside L1 existing selection remains. PLAN.md is Root-owned and untracked."
   }
 }

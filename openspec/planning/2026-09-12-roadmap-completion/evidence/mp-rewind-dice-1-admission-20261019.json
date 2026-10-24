@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "unit": "MP-REWIND-DICE-1",
+  "stage": "admission",
+  "recordedAt": "2026-10-20T20:12:48.508Z",
+  "baseline": "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+  "authority": "Root implementation assignment dated 2026-10-20: admission, RED, GREEN and PR; closure #2312 released this unit. No merge or review ruling claimed.",
+  "implementerModel": "gpt-6.1-sol",
+  "classes": [
+    "authority",
+    "replay"
+  ],
+  "sensitivity": "highest: multiplayer authority and replay",
+  "manifest": {
+    "files": [
+      "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json"
+    ],
+    "count": 7,
+    "capFiles": 15,
+    "capCountedAdditions": 500,
+    "rule": "Only the three registered source/test leaves and four named evidence leaves. Tests/evidence line-exempt, file-counted; no deletion credit."
+  },
+  "frozen": [
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "exists": true,
+      "sha256": "2f8ee5f6d739d99bda63d56df6063f02cc3a4dedfb3bfe93acc3999b7c9b1007",
+      "bytes": 11927
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "exists": true,
+      "sha256": "d9bb7a3bf6c08bd7cd4b824d4105bf2d42cbf01c0ad798f202482a2674ea2440",
+      "bytes": 65559
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+      "exists": true,
+      "sha256": "125d95a9489123d56ae5f1e09563473c0bc4b2cec32b3ebae7ffa0446acef173",
+      "bytes": 7764
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
+      "exists": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-review-20261019.json",
+      "exists": false
+    }
+  ],
+  "requirements": [
+    "CF-MPRU2-1: inject host capture d6 through the live rewind port into recoverServerInteractiveSession.",
+    "Preserve the crypto-backed source and change per-intent capture buffers; stamp canonical rolls before durable append and broadcast.",
+    "Re-seal the serverUnits test: post-rewind crypto calls equal event rolls, multiple fresh capture buffers, recorded replay draws no fresh randomness.",
+    "Preserve journal activated prefix, lease cleanup, served branch, reset order, cursor/resync, custom units and omitted-helper default parity."
+  ],
+  "census": {
+    "report": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-20/rewind-dice/census.json",
+    "openPrs": [
+      {
+        "number": 2311,
+        "headRefName": "codex/p2cg1hp-closure-20261019"
+      },
+      {
+        "number": 2309,
+        "headRefName": "codex/lsc-2op-prep-sol-20261019"
+      },
+      {
+        "number": 2113,
+        "headRefName": "codex/thread-transfer-history-20261002"
+      },
+      {
+        "number": 1886,
+        "headRefName": "roadmap-u2b-e2e-19-25-rows-20260922"
+      }
+    ],
+    "overlaps": [],
+    "parallel": [
+      "L1-SMOKE-A2: new scripts only",
+      "MP-CAMPAIGN-HOST-DEDUPE-1: CampaignHostRegistry.ts excluded"
+    ],
+    "sharedLedger": "units.json and PROGRESS.md excluded from this manifest. Root owns serialized lifecycle registration; no local-verified state is asserted."
+  },
+  "predecessor": {
+    "id": "MP-RECOVERY-UNITS-2",
+    "node": "R2.authority-live",
+    "taskKeys": [],
+    "behavior": "Complete the narrowly routed #2296 recovery follow-ups: disk-derived co-op/ordinary recovered journal units (CF-MPRU-1), server-only live rewind rebuild (CF-MPRU-3), crypto RollCapture after legacy-path restart (Medium CF-MPRU-4), an unmocked rewound-at-boot fixture (CF-MPRU-2/M8), and custom-unit no-snapshot success/fail-closed coverage (F3/R2/R10). Preserve deterministic replay, journal branch identity, durable custom-unit validation and multiplayer privacy.",
+    "ownershipPaths": [
+      "src/lib/multiplayer/server"
+    ],
+    "registeredSourceLeaves": [
+      "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.recoveryUnits.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts",
+      "src/lib/multiplayer/server/__tests__/MatchRecovery.legacyBranches.test.ts"
+    ],
+    "ownershipPathPolicy": "The server alias is validator navigation only, never directory-wide write permission. Only registeredSourceLeaves are prospective source/test scope; finite admission must freeze them and the named lifecycle/evidence leaves.",
+    "ownershipExceptions": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-review.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-source-fable-review-20261019.txt",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-owner-ruling-6258457894.txt",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-merge-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-recovery-units-2-mainproof-20261019.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-npm-ci-log.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-owned-log.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-owned-json.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-regression-log.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-regression-json.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-typecheck-log.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-1fff48df3-validator-log.bytes.json"
+    ],
+    "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence after accepted registration and finite admission. Every actual leaf counts; no incumbent lifecycle, historical receipt or unrelated packet edits. Shared ledger writes are serialized.",
+    "ciClass": "product",
+    "reviewClasses": [
+      "authority",
+      "replay",
+      "migration"
+    ],
+    "sensitiveBoundaries": [
+      "authority",
+      "replay",
+      "persistence"
+    ],
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "state": "main-verified",
+    "baseline": "eff1c6c185569e201cf0d0f31c94fa2d91c33767",
+    "prHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+    "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+    "stageReceipts": {
+      "admission": {
+        "path": "evidence/mp-recovery-units-2-admission.json"
+      },
+      "red": {
+        "path": "evidence/mp-recovery-units-2-red.json"
+      },
+      "local": {
+        "path": "evidence/mp-recovery-units-2-local.json"
+      },
+      "review": {
+        "path": "evidence/mp-recovery-units-2-review.json",
+        "head": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+        "reviewedHead": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+        "reviewerModel": "claude-fable-5-1",
+        "implementerModel": "gpt-6.1-sol",
+        "outputSha256": "24d2f0b7d00ce7ae50e90ba79bb2109a8930faffb7a55aaca6f6a654578d0236",
+        "verdict": "APPROVE"
+      },
+      "merge": {
+        "path": "evidence/mp-recovery-units-2-merge-20261019.json",
+        "pr": 2306,
+        "head": "8bc3ebfd32a7789f8b4c6c20e1c48f638946b992",
+        "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03"
+      },
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+        "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+      },
+      "tick": null
+    },
+    "ownerGate": null,
+    "predecessors": [
+      "MP-RECOVERY-UNITS-1"
+    ],
+    "successors": [
+      "L1-SMOKE-A2",
+      "MP-REWIND-DICE-1"
+    ],
+    "admissionRequires": "Planned registration only; no source admission until Root sends GATE OPEN. The sole predecessor is MP-RECOVERY-UNITS-1, which already has genuine exact-main PASS and closure. May run in parallel with MP-HOST-DEDUPE-1 because the exact source/test leaves are disjoint; there is no DEDUPE dependency. Shared metadata writes serialize through the writer queue. After DEDUPE merges, rebase onto its merged Main and re-freeze this exact manifest before further source/admission or merge. No P2CG1HP dependency in either direction: its exact four source/test leaves are disjoint. Rebase/re-census every open PR and active reservation, including U44/U26 and HP, before finite admission. Freeze the exact 11 prospective source/test/helper/lifecycle/evidence leaves in mpRecoveryUnits2Registration20261018; 11/15 is an unmeasured planning count, not fit proof. Tests/evidence are line-exempt but file-counted; aggregate 500 counted additions include lifecycle, without deletion credit. The matchUnitBootstrap.ts helper exception is solely optional d6Roller plumbing required by CF-MPRU-4. The ServerMatchHost.ts grant is recover-only. Preserve engine, server.js, catalog service, registry, existing tests, journal schema and fog controls; register any extra source/helper/test leaf before editing. U44 capability-DB cutover and U26/FOG projection stay out of scope, with no simultaneous shared-file admission. Required RED and discriminating mutants, accepted post-restart co-op action, capture-backed rolls and recorded roll payloads, current CI, genuine sensitive packet before local-verified, independent exact-head review and OWNER-RULING before merge, then exact-main PASS/ancestry/closure. No future packet, review, acceptance or source permission is supplied by this registration; null ownerGate and NEXT waive nothing. Persistence uses the existing migration review class; no validator taxonomy edit.",
+    "registration20261018": {
+      "source": "evidence/mp-recovery-units-2-registration-20261018.json",
+      "sourceSha256": "edb4122b57001b69cb9bb3bf25c4f9ee7bf0a85f7c8fb4f81d2f05d617ad5e0b",
+      "sourceAdmitted": false
+    }
+  },
+  "carryForward": {
+    "id": "CF-MPRU2-1",
+    "source": "#2306; _receipts/carry-forward.md",
+    "accepted": true
+  },
+  "pathsMigrated": {
+    "old": ".omo/plans/2026-09-12-roadmap-completion/",
+    "live": "openspec/planning/2026-09-12-roadmap-completion/",
+    "validator": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  },
+  "unchangedControls": [
+    {
+      "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "object": "f9b5576e87e2c532d30a81f179707b5f85174313"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "object": "17883778b99e62b0fe01a5be458c7317b035be90"
+    },
+    {
+      "path": "src/engine",
+      "object": "56cdc6646d1940d7f0dce492db846c060e4de61d"
+    },
+    {
+      "path": "server.js",
+      "object": "7ce8627c35dbc754fa789f70cc701c536f3549e8"
+    }
+  ]
+}

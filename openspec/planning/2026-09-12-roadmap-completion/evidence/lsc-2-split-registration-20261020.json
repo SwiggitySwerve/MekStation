@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "baseline": "a69540e25389a01ee24b92994f1418d700c0039a",
+  "source": "evidence/lsc-2-split-registration-20261020.json",
+  "rulingPath": "evidence/lsc-2-split-root-ruling-20261020.txt",
+  "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+  "rulingBytes": 1808,
+  "rulingSource": "Exact supplied Root ruling text, UTF-8/LF with terminal LF; registration authority under owner standing instruction, not implementation acceptance.",
+  "fitEvidence": "evidence/lsc-2-admission-20261018.json",
+  "fitEvidenceSha256": "2025a221cf5dbb05548c5056a7b0c1a1c138a3292f4a86369cfe692ff46da2c7",
+  "reason": "682/500 normal-oxfmt product lower bound before lifecycle. Approved split267 adapter +415 finalUI; operator/server carry-fixes now named.",
+  "manifests": {
+    "LSC-2C": [
+      "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+    ],
+    "LSC-2O": [
+      "src/services/vault/LocalSeatCredentialRepository.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "src/services/vault/LocalSeatCredentialService.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "src/pages/api/multiplayer/auth/local-seats.ts",
+      "src/__tests__/api/localSeatCredentials.test.ts",
+      "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+    ],
+    "LSC-2": [
+      "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "src/components/campaign/CampaignNavigation.tsx"
+    ]
+  },
+  "prospectiveStageManifests": {
+    "LSC-2C": [
+      "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-admission-20261020.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-red-20261020.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-local-20261020.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2c-admission-review-20261020.json"
+    ],
+    "LSC-2O": [
+      "src/services/vault/LocalSeatCredentialRepository.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+      "src/services/vault/LocalSeatCredentialService.ts",
+      "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+      "src/pages/api/multiplayer/auth/local-seats.ts",
+      "src/__tests__/api/localSeatCredentials.test.ts",
+      "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-admission-20261020.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-red-20261020.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-local-20261020.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2o-admission-review-20261020.json"
+    ],
+    "LSC-2": [
+      "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+      "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+      "src/components/campaign/CampaignNavigation.tsx",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2-implementation-admission-review.json"
+    ]
+  },
+  "acceptance": {
+    "LSC-2C": [
+      "Public per-browser-profile choice primary/seat1/seat2 persists without role, side, membership or ownership grants. Per-match joined public choice/playerId binding is independent of the next-join preference; reload/reconnect preserves it. Strictly validate saved choice, binding and storage failures.",
+      "Mint seats only via existing local-seats action:mint and unchanged primary payload/route for primary; consume sanitized LocalSeatRequestError, distinguish 401 denial from 429 throttle with Retry-After, never auto-retry. Validate playerId/token/expiry agreement and preserve existing per-match bearer storage and verifier/scope/TTL semantics.",
+      "Passwords and private keys remain request-local, absent from React state, persistence, URLs, logs and error reflection. Pin every request URL, denied/throttled/unknown failures and secrecy with runtime tests; preserve all operator adapter behavior and outcome generations.",
+      "Explicit match forget/reclaim removes choice, joined binding and bearer; partial storage failure must not claim success. Renewal refuses silent replacement playerId and rechecks the joined match binding before bearer replacement; reprovision requires ordinary GM readmission. Export a four-minute pre-expiry threshold for prompted UI renewal."
+    ],
+    "LSC-2O": [
+      "CF-LSC2OP-2: label or explicitly confirm re-provision of an active seat as identity rotation requiring GM readmission. Keep selected-seat targeting, request-local unnamed password refs, current-password/new-password purposes, minimum lengths and active-only Revoke.",
+      "CF-LSC2OP-7: after an unknown-outcome write (network/status 0 or server 5xx), refresh public seats before permitting any mutation resubmission. No blind replay or automatic write retry; failed refresh disables writes until explicit recovery. Both existing 409 codes retain refresh behavior and stable seat targeting.",
+      "CF-LSC2OP-3: distinguish not-revocable from generation-conflict in repository/service and expose sanitized NOT_REVOCABLE server code to the client. A fresh revoke of an absent/already-revoked seat at the matching generation gets the distinct error; stale generation and operation mismatch retain their own outcomes. Replay lookup remains first, preserving earlier successful operation generation.",
+      "Runtime RED, new discriminating mutants, owned service/repository/API/operator/store suites and B14/match-history guards must pass without weakening same-host Host/Origin/Sec-Fetch-Site, windows, lockout, CAS/atomic replay, secret redaction, revocation-next-mint or already-issued bearer lifetime. No schema/migration/primary-auth edits."
+    ],
+    "LSC-2": [
+      "Ordinary shipped co-op entry chooses primary GM identity or either local seat; choice grants no role. Mount chooser, chosen mint/join and public per-match binding through the frozen adapter; primary host mint semantics stay unchanged. Use isolated profile storage and the existing per-match bearer store, never identity seeding, global active-row switching or manual token transfer.",
+      "Retain in-repo three-identity integration: two players plus non-playing GM obtain three distinct public playerIds on one loopback authority, stable across reload/reconnect, renewal and expired recovery. Prove guest reclaim with a new password: active-seat reprovision -> new playerId -> GM readmission -> ghost old membership retained until ordinary removal. CF-LSC2OP-2 UI fix is predecessor proof, not a waiver of this sequence.",
+      "Mount renewal/expired recovery through CampaignNavigation for dashboard/missions/launch/starmap/log/personnel; cover primary GM and guest bearers. Prompt within the canonical four-minute pre-expiry window; never auto-mint/retry. Close/reconnect the transport or explicitly reload with the renewed bearer; storage-only replacement is insufficient.",
+      "Refuse silent mid-session identity replacement and direct explicit forget/reclaim; clear choice, match binding and bearer, preserve role/membership checks. Use uncontrolled unnamed type=password refs, clear immediately before await on success/error, preserve current-password/new-password. Distinguish denial and throttle/Retry-After with sanitized errors and secrecy tests.",
+      "Preserve same-host trust disclosures, operator/shared-OS impersonation risk, local-seat lifetime and revocation effective at next mint/renewal with old bearer lifetime retained; no immediate eviction claim. Consume CF-LSC2OP-7 predecessor refresh/no-blind-replay behavior; final integration cannot bypass unknown-outcome recovery.",
+      "Preserve CF-LSC1S-4, CF-LSC1-3/4/7, CF-LSC0-1/2/3/4/7/10/12/13/14 and CF-S-8 as routed, including primary/verifier parity, fresh census, real windows and later reseat work. Packaged/installed-server three-seat journey, password-manager/autofill verification and release proof stay mandatory in LSC-2P; no packaged acceptance is claimed here.",
+      "Every original LSC-2 behavior/acceptance remains mandatory through C/O predecessor proof plus final ordinary UI integration. LSC-2 keeps its id and every downstream edge; LSC-2/LSC-2P exact-main closures, H/P2/U38/P2J/installer/human gates and salvage ownership remain unchanged."
+    ]
+  },
+  "carryRoutes": [
+    {
+      "id": "CF-LSC2OP-1",
+      "directedTo": [
+        "LSC-2C",
+        "LSC-2"
+      ],
+      "obligation": "Sanitized mint/renewal/recovery code map, 401/429 Retry-After, no automatic mint retry and no secrets in state/storage/URLs/logs."
+    },
+    {
+      "id": "CF-LSC2OP-2",
+      "directedTo": [
+        "LSC-2O",
+        "LSC-2",
+        "LSC-2P"
+      ],
+      "obligation": "O fixes active reprovision label/confirmation; final LSC-2 integration and LSC-2P packaged proof retain new identity, GM readmission and ghost membership sequence."
+    },
+    {
+      "id": "CF-LSC2OP-3",
+      "directedTo": [
+        "LSC-2O"
+      ],
+      "obligation": "Named server/operator target for distinct not-revocable repository/service/API code and client message; register exact leaves here, freeze before source."
+    },
+    {
+      "id": "CF-LSC2OP-4",
+      "directedTo": [
+        "LSC-2O",
+        "LSC-2",
+        "LSC-2P"
+      ],
+      "obligation": "Preserve accepted current-password/new-password attributes; packaged password-manager/autofill proof stays in LSC-2P."
+    },
+    {
+      "id": "CF-LSC2OP-7",
+      "directedTo": [
+        "LSC-2O",
+        "LSC-2"
+      ],
+      "obligation": "Explicit acceptance: refresh after unknown-outcome write before resubmission; failed refresh disables writes, never blind replay. O owns the operator fix; final UI integration preserves it."
+    }
+  ],
+  "preservedAcceptance": "Implement ordinary co-op entry seat selector, seat choice/mint storage, join path, renewal and expired-token recovery UI against LSC-1; consume the operator setup/revoke UI from LSC-2OP. Retain the in-repo three-identity integration proof: two players plus non-playing GM obtain three distinct non-secret playerIds on one loopback server with isolated profile storage, stable across reload/reconnect, renewal and expired-token recovery. Demonstrate guest re-claim with a new password; no plaintext password/private-key persistence or role grant from seat selection. Use ordinary shipped UI, never E2E identity seeding/global active-row switching/manual token transfer. Revocation is effective at next mint/renewal, with already-issued bearer lifetime explicitly preserved. Packaged spec, dedicated config and installed-server release proof move to the mandatory LSC-2P successor; the in-repo integration proof does not claim packaged acceptance. Both LSC-2 and LSC-2P genuine exact-main PASS, fetched-main ancestry and closure are mandatory before P2 (Task 18) journey proof, U38 acceptance and the v2.2.0 human session. Mount the renewal banner in CampaignNavigation.tsx for dashboard/missions/launch/starmap/log/personnel; cover the GM primary bearer and guest seats. Seat mint uses the new local-seats route into the existing per-match token store; coopCampaignAuthTokenStore.ts and primary vault mint stay unchanged. Reset yields a new identity requiring GM re-admission. About 300 counted lines plus lifecycle.",
+  "preservedDownstreamEdges": [
+    "LSC-2P"
+  ],
+  "initialStates": {
+    "LSC-2C": "planned",
+    "LSC-2O": "blocked",
+    "LSC-2": "blocked"
+  },
+  "order": "LSC-2OP -> LSC-2C -> LSC-2O -> LSC-2 -> unchanged LSC-2 successors",
+  "budgets": {
+    "LSC-2C": {
+      "measuredDraftProductAdditions": 267,
+      "lifecycleReserve": 60,
+      "planningTotal": 327
+    },
+    "LSC-2O": {
+      "measuredDraftProductAdditions": null,
+      "planningProductBudget": 200,
+      "lifecycleReserve": 60,
+      "planningTotal": 260
+    },
+    "LSC-2": {
+      "measuredDraftProductAdditions": 415,
+      "lifecycleReserve": 60,
+      "planningTotal": 475
+    }
+  },
+  "budgetQualification": "C and finalUI are frozen external sizing drafts, not admitted/compiled/tested; O is an unmeasured planning allocation. All totals require fresh complete formatted fit at their own admissions.",
+  "countPolicy": "15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split.",
+  "censusRule": "Re-fetch/rebase and census all literal/ancestor aliases, planned/blocked/active reservations and paginated open-PR files before admission/merge. Serialize C -> O -> LSC-2 through closure; shared store/test and units.json writers cannot overlap. U101/a/c/d, U105, B15-2/B15-PRIV, R2.campaign-access, FOG-H, R7.context/R8.starmap/R2.camp-8 reservations remain; preserve U101c refresh migration and primary auth controls. Aliases grant no unnamed leaves; extra scope needs amendment.",
+  "sourceAdmissionBarrier": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory.",
+  "releaseAccounting": {
+    "previous": 43,
+    "total": 45,
+    "addedClosures": [
+      "LSC-2C",
+      "LSC-2O"
+    ]
+  },
+  "historicalRule": "Supersedes only effective prospective LSC-2 scope, stage manifest and serial allocation. Historical receipts/manifests/source hashes are not rewritten. Stopped sizing receipt is immutable; final narrowed LSC-2 gets separately named implementation receipts. Retain all old behavior/notes/carries through explicit partition and final integration. No downstream edge, task holder, prior lifecycle, packet, salvage or packaged proof changes."
+}

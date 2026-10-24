@@ -1,0 +1,417 @@
+{
+  "unit": "LSC-2OP",
+  "stage": "merge",
+  "recordedAt": "2026-10-20T20:37:08.915Z",
+  "pr": 2309,
+  "title": "feat(LSC-2OP): add local seat operator controls",
+  "head": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+  "reviewedHead": "05da7d97b71e7fdb3617bd060af0c07de4cc6964",
+  "mergeSha": "0372f9d1dc51af9b463f93b2d9e2151892b8a0e1",
+  "mergedAt": "2026-10-20T20:27:12Z",
+  "mergedBy": "SwiggitySwerve",
+  "ownerRuling": {
+    "ruledHead": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+    "pr": 2309,
+    "commentId": 6300739754,
+    "author": "SwiggitySwerve",
+    "bodySha256": "f7276d879b2cf4a32dd7c3d0992ed55450a3da4181ed3908120839a5699affa5",
+    "bodyBytes": 1593,
+    "at": "2026-10-20T20:27:05Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2309#issuecomment-6300739754",
+    "bodyPath": "evidence/lsc-2op-owner-ruling-6300739754.bytes.json",
+    "encoding": "base64 envelope of exact live GitHub comment body encoded UTF-8; no local ruling file used as source"
+  },
+  "treeIntegration": {
+    "parents": [
+      "c24bcedbb2998bf3eefc6f0c082e2749aedaa6c5",
+      "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b"
+    ],
+    "actualTree": "32672ccc05a35baaafb850bf3769983226d9fdba",
+    "expectedTree": "32672ccc05a35baaafb850bf3769983226d9fdba",
+    "matches": true
+  },
+  "implementationBaseline": "59004af9c186c1cc7326384623c43d9f060cfec5",
+  "census": {
+    "actualFiles": 10,
+    "reservedReviewSlot": 1,
+    "registeredManifest": 11,
+    "countedLines": 345,
+    "byFile": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-20261018.json",
+        "added": 5442,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-local-20261018.json",
+        "added": 3164,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-red-20261018.json",
+        "added": 222,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 11,
+        "deleted": 5
+      },
+      {
+        "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "added": 194,
+        "deleted": 0
+      },
+      {
+        "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "added": 96,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "added": 3,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "added": 235,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "added": 41,
+        "deleted": 0
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "added": 527,
+        "deleted": 0
+      }
+    ]
+  },
+  "leavesAtMerge": [
+    {
+      "path": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+      "localReceiptSha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9",
+      "headSha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9",
+      "mergeSha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+      "localReceiptSha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b",
+      "headSha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b",
+      "mergeSha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "localReceiptSha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa",
+      "headSha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa",
+      "mergeSha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa"
+    },
+    {
+      "path": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+      "localReceiptSha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634",
+      "headSha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634",
+      "mergeSha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+      "localReceiptSha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258",
+      "headSha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258",
+      "mergeSha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+      "localReceiptSha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838",
+      "headSha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838",
+      "mergeSha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+    }
+  ],
+  "admissionControlsAtMerge": [
+    {
+      "path": "src/services/vault/LocalSeatCredentialRepository.ts",
+      "admissionSha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c",
+      "mergeSha256": "9f719a357271506802b02e214991a022f79a6383eacaa7496877ba0553f4193c"
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "admissionSha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd",
+      "mergeSha256": "8a1f93cce5df4d7e3fdef2e092d47d71d9ad2dc0587a3aaf34a31751aa2786cd"
+    },
+    {
+      "path": "src/pages/api/vault/identity/unlock.ts",
+      "admissionSha256": "61c100217d1ffd91dbddb7c1276449debae80cfc9fe9db4b220ed63f1fcee1e2",
+      "mergeSha256": "61c100217d1ffd91dbddb7c1276449debae80cfc9fe9db4b220ed63f1fcee1e2"
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "admissionSha256": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd",
+      "mergeSha256": "117e4d58191a504bad0935d2730c0c5fd6e667918877f9e97e94876f55f676fd"
+    },
+    {
+      "path": "src/services/vault/IdentityRepository.ts",
+      "admissionSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48",
+      "mergeSha256": "621e8c6c077df61fa9d2e953436ccde94e36901a6fc3d3d461f166e0695e0b48"
+    },
+    {
+      "path": "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
+      "admissionSha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e",
+      "mergeSha256": "36a95c02c10deb86f22afc9b3db5caf24fcc9267f158acb3bffe834bf47a320e"
+    },
+    {
+      "path": "src/services/vault/LocalSeatCredentialService.ts",
+      "admissionSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9",
+      "mergeSha256": "4febda0fba66f9bd54570b0a02c9071ae429b7e5b206bebf6cfcebb6e789efe9"
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "admissionSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02",
+      "mergeSha256": "6b828b33b3e080c6eaadc55d563006a0496a394f77f766ed1dd5a1ea87c3bd02"
+    },
+    {
+      "path": "src/lib/api/securitySchemas.ts",
+      "admissionSha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac",
+      "mergeSha256": "f224aa2641cbe95fb10391aaefb710baed1bfca3838b0988f008d1804da5b8ac"
+    },
+    {
+      "path": "src/lib/multiplayer/server/auth.ts",
+      "admissionSha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672",
+      "mergeSha256": "661c7d1cf98a94c6afb9df4525128ebe3a8ac4e39a2bcf5b20ac22a8d6bb2672"
+    }
+  ],
+  "checks": {
+    "head": "34cb0eb1e15805267c25ffcbe48ed5f3df8e241b",
+    "total": 32,
+    "successful": 32,
+    "namesEqualExpected32": true,
+    "jobs": [
+      {
+        "name": "Validate Roadmap Ledger",
+        "id": 118858417745,
+        "conclusion": "success"
+      },
+      {
+        "name": "Install Dependencies",
+        "id": 118858418209,
+        "conclusion": "success"
+      },
+      {
+        "name": "Detect Changes",
+        "id": 118858418240,
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare Build Artifacts",
+        "id": 118858545799,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Smoke Tests",
+        "id": 118858690921,
+        "conclusion": "success"
+      },
+      {
+        "name": "Format Check",
+        "id": 118858690972,
+        "conclusion": "success"
+      },
+      {
+        "name": "Type Check",
+        "id": 118858691012,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (1/6)",
+        "id": 118858691086,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint",
+        "id": 118858691095,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate BV Parity",
+        "id": 118858691113,
+        "conclusion": "success"
+      },
+      {
+        "name": "Schema Bridge",
+        "id": 118858691140,
+        "conclusion": "success"
+      },
+      {
+        "name": "Statistical Proof PR",
+        "id": 118858691187,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Storybook",
+        "id": 118858691192,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (5/6)",
+        "id": 118858691196,
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate Combat Suite",
+        "id": 118858691201,
+        "conclusion": "success"
+      },
+      {
+        "name": "A11y Tests",
+        "id": 118858691228,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (4/6)",
+        "id": 118858691243,
+        "conclusion": "success"
+      },
+      {
+        "name": "E2E Smoke",
+        "id": 118858691282,
+        "conclusion": "success"
+      },
+      {
+        "name": "Determinism Audit",
+        "id": 118858691324,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (6/6)",
+        "id": 118858691336,
+        "conclusion": "success"
+      },
+      {
+        "name": "Customizer Regressions",
+        "id": 118858691359,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Tests",
+        "id": 118858691393,
+        "conclusion": "success"
+      },
+      {
+        "name": "Perf Budget PR",
+        "id": 118858691438,
+        "conclusion": "success"
+      },
+      {
+        "name": "Coverage Floor",
+        "id": 118858691485,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "id": 118858691487,
+        "conclusion": "success"
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "id": 118858691614,
+        "conclusion": "success"
+      },
+      {
+        "name": "Desktop Type Check",
+        "id": 118858691738,
+        "conclusion": "success"
+      },
+      {
+        "name": "Seam Anchors",
+        "id": 118858691776,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / win",
+        "id": 118859736417,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / linux",
+        "id": 118859736424,
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Test / mac",
+        "id": 118859736545,
+        "conclusion": "success"
+      },
+      {
+        "name": "Lint and Test",
+        "id": 118860487484,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "requiredChecks": {
+    "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks",
+    "strict": false,
+    "contexts": [
+      "Lint and Test"
+    ],
+    "contexts_url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks/contexts",
+    "checks": [
+      {
+        "context": "Lint and Test",
+        "app_id": 15368
+      }
+    ]
+  },
+  "mergeCommitCheckRuns": [
+    {
+      "name": "Live Tier Signal",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Push Docker image",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "release",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "build",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Build Docker image",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Prepare Build Artifacts",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Determine release tag",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Publish Live Evidence (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Publish Live Evidence (windows-latest)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "version-and-release",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "chronology": "Live owner ruling2026-10-20T20:27:05Z precedes merge2026-10-20T20:27:12Z."
+}

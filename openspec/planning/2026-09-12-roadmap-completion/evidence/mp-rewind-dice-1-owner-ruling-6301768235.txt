@@ -1,0 +1,17 @@
+OWNER-RULING 0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5
+
+Unit: MP-REWIND-DICE-1 (capture authoritative dice after a GM rewind). PR #2316.
+Opus full sensitive review: APPROVE, no blockers. Report: _reports/2026-10-20/pr2316-mp-rewind-dice-review.md.
+- After a rewind, every die draws through the server crypto capture: initiative, attacks, physical attacks, heat (including the MaxTech critical location), PSRs, movement rolls and vibro-claw. Rebuild and replay draw no dice. The change also fixes the fixed-seed post-rewind dice in journal-mode matches.
+- Scope: 6 of the 7 frozen manifest files, 20 counted lines; do-not-touch files are byte-identical. Commit order is admission, RED, GREEN; RED was 2/2 assertion failures.
+- Proof: server suite 179 suites, 1595/1595; owned tests 2/2. Reviewer mutants: 4 of 6 caught, and the 2 survivors were analysed as harmless or as finding 1. A restart recovery drew no dice. CI 32/32.
+
+Carry-forwards, which the closure routes:
+- CF-MPRD-1 (Low): a debug-seeded host's post-rewind dice are not tested; the seeded branch replaces the whole capture object (ServerMatchHost.ts:612-619). Production is unaffected. Target: the next ServerMatchHost.ts owner.
+- CF-MPRD-2 (Low): the journal-mode post-rewind fix is untested until the test fixture records a journal head. Target: U44, or the next journal-authority owner.
+- CF-MPRD-3 (Info): stale "reseed / config.seed" comments in ServerMatchHostRewindRebuild.ts (lines 172-174 and 195-197). Target: the next owner of that file.
+- CF-MPRD-4 (Info, existing before this PR): co-op AI dice use a hash seed, not crypto (CoopOpponentDriver.ts:130-140). Target: the co-op AI owner, to register.
+- CF-MPRD-5 (Info, existing before this PR): a journal-divergence rebuild runs without a dice roller (ServerMatchHostJournalAuthority.ts:266-274). Target: the journal-authority owner, to register.
+
+RULING: APPROVE and MERGE. The closure follows: mainProof at the merge commit, byte-copied review and ruling, and the CF-MPRD-1..5 routing.
+Authority: the owner's standing instruction, "continue with recommended options and fix the issues that come up, publish as needed".

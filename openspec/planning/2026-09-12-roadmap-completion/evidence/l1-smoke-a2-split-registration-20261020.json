@@ -1,0 +1,1079 @@
+{
+  "schemaVersion": 1,
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "baseline": "a2e2a7b8d113ad06279ad50f71665339fdeece0e",
+  "mergeUnion": {
+    "main": "a2e2a7b8d113ad06279ad50f71665339fdeece0e",
+    "before": "affb35ac74d32fda522e7244a8ec448cc9b2746d",
+    "merge": "605a09ca96f86fd5b83725e577346ba218666665",
+    "parents": [
+      "affb35ac74d32fda522e7244a8ec448cc9b2746d",
+      "a2e2a7b8d113ad06279ad50f71665339fdeece0e"
+    ],
+    "mainLedgerPreservedExceptExistingA2U44Strings": true,
+    "mainProgressPreserved": true,
+    "hooksOn": true,
+    "stagedHashes": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "sha256": "4473c02ebab684e60c46ea43395521d0fe9041ec2c9263e0c42b9caf597651ed"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/h-consumer-recovery-admission-review-20261018.json",
+        "sha256": "c8e01e3c403f2ce9f9ec3d6f8558165f2b77e4c8a9fc54d99d6c6c3a8de0d052"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-20261018.json",
+        "sha256": "f26d1a6ebb0489cf4d5eb023ba1498d65fb5d7cbc4977f83000ee57afc8d8c95"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-local-20261018.json",
+        "sha256": "267231d0e848c6a942f87f16a46e69e24ad0d8481bd3d9ad84e4f80f0bc9b110"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-red-20261018.json",
+        "sha256": "a6eddd3d4dbbaaecd8f06fb056d25a1050771245fbee1e655df8594d8bdc152a"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-npm-ci-log.bytes.json",
+        "sha256": "c275b97e4ff3b2520960cd21b52d5102c20cbeef82f8ffe259d0842d709b8724"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-json.bytes.json",
+        "sha256": "ebf5494fba8b7599af3c778003891a40952358bde0c367348cb1dbb9ebf552af"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-owned-log.bytes.json",
+        "sha256": "44d6f5fa2736030abb70584486d07d4d5d6d2de3806111823ed119172fc2795f"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-json.bytes.json",
+        "sha256": "cf03ae28e41a859761175a665ebac70c9e168520663e99fd671777f21d71f770"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-regression-log.bytes.json",
+        "sha256": "6a3ef19747bd5291232383ad477a21f0e7b2e787ee9e2640d813037a12415121"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-typecheck-log.bytes.json",
+        "sha256": "37e2c3ac646519ba7648ccdb55e8dd305c1e304e903248afebdb7c09ccd997ce"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ca92b6a01-validator-log.bytes.json",
+        "sha256": "da71dfdcb9ee879ce4fef50e74f386b4f30549c2411383239f52c0f6e90bece3"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-mainproof-20261019.json",
+        "sha256": "684176d40d364872091ecc0938547734c9c16b00032dd2c68d12803adc7537fe"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-merge-20261019.json",
+        "sha256": "45ca69f60997063fdf0a448cbaf7106d546bcc353336ab5196f2f334e1394446"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-owner-ruling-6258459937.txt",
+        "sha256": "121486facf69be0a41b63c9056a2ab5c4a27152e5793fe5a29eebfa3e2780266"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1hp-source-opus-review-20261019.txt",
+        "sha256": "a9cec46cb56650953851cbf81946b90e83739e3ad55c0453450309776b4352aa"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "sha256": "6bfe509a3ba1418d6360fd4af971193f79fd339ceb0cba74e3d0f8762c415c78"
+      },
+      {
+        "file": "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "sha256": "edcc24413e2f5edb1315c383fdde607e74d90fbe92d5d7a2f984deb916a37634"
+      },
+      {
+        "file": "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "sha256": "ae31323a2a2b0eac98ad0a118bdaf821128442f4be5d155ed4acd22130a8e6b9"
+      },
+      {
+        "file": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "sha256": "0defd5bd58f7456e54941c2d7bd64e9192f62a5fdce60312c62575b31e5794aa"
+      },
+      {
+        "file": "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "sha256": "ed121f8b275f3bb84c568e3834e57a7bacef4ceb17f43e16dbf8820f3a932f5b"
+      },
+      {
+        "file": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "sha256": "1deb79319a4d01b6fbf9bb6325afd4a54c0d58f06fd79052495ce08622889838"
+      },
+      {
+        "file": "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx",
+        "sha256": "3bf5440bf62a3114383990a05ea4ddf70324e42e720e2d65fd968acbec733258"
+      }
+    ]
+  },
+  "observedAt": "2026-10-20T21:02:41.077Z",
+  "sourcePR": 2315,
+  "ruling": {
+    "source": "Root user message in this implementation thread",
+    "path": "evidence/l1-smoke-a2-split-root-ruling-20261020.txt",
+    "sha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+    "byteLength": 2142,
+    "encoding": "UTF-8, LF, one trailing newline",
+    "authority": "continue with recommended options and fix the issues that come up, publish as needed",
+    "registrationDecisionOnly": true,
+    "futureImplementationRuling": false
+  },
+  "rationale": {
+    "normalizedPartialDraftLines": 624,
+    "cap": 500,
+    "priorReceipt": "evidence/l1-smoke-a2-admission-20261020.json",
+    "priorReceiptSha256": "1a7eaf07ff66af122a49d47ca5865cb5926d212e2d775f7fa39fe7280005ba8a",
+    "priorHead": "affb35ac74d32fda522e7244a8ec448cc9b2746d",
+    "decision": "Root adopts normal oxfmt counting prospectively and approves the serial A2F -> A2M -> narrowed A2 split in this same PR. A1 historical receipt stands unchanged."
+  },
+  "units": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+  "initialStates": {
+    "L1-SMOKE-A2F": "planned",
+    "L1-SMOKE-A2M": "blocked",
+    "L1-SMOKE-A2": "blocked"
+  },
+  "capsPerUnit": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "sensitivityPerUnit": ["privacy", "authority"],
+  "predecessors": {
+    "L1-SMOKE-A2F": [
+      "L1-SMOKE-A1",
+      "MP-RECOVERY-UNITS-1",
+      "MP-HOST-DEDUPE-1",
+      "MP-RECOVERY-UNITS-2"
+    ],
+    "L1-SMOKE-A2M": [
+      "L1-SMOKE-A1",
+      "MP-RECOVERY-UNITS-1",
+      "MP-HOST-DEDUPE-1",
+      "MP-RECOVERY-UNITS-2",
+      "L1-SMOKE-A2F"
+    ],
+    "L1-SMOKE-A2": [
+      "L1-SMOKE-A1",
+      "MP-RECOVERY-UNITS-1",
+      "MP-HOST-DEDUPE-1",
+      "MP-RECOVERY-UNITS-2",
+      "L1-SMOKE-A2M"
+    ]
+  },
+  "successors": {
+    "L1-SMOKE-A2F": ["L1-SMOKE-A2M"],
+    "L1-SMOKE-A2M": ["L1-SMOKE-A2"],
+    "L1-SMOKE-A2": ["L1-SMOKE-B", "P2CG1H"]
+  },
+  "originalFourPredecessors": [
+    {
+      "id": "L1-SMOKE-A1",
+      "state": "main-verified",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+      "mainProof": {
+        "path": "evidence/l1-smoke-a1-mainproof-20261018.json",
+        "mergeCommit": "b16302d76df1ace0589bc334f9249330a25c5278",
+        "verdict": "PASS",
+        "runtime": "Source/Main checks: 10 passed (A1 harness node:test 17/17 at the merge; real --build smoke at the merge PASS 10/10, build exit 0, BUILD_ID 1792360460809, one readiness record per owned process, 2 owned PIDs, port released, 5 tokens redacted, none retained, readonly lineage DB unchanged; validate-roadmap plain/--git PASSED, --next LSC-1DB; validator tests 86/86; lint:units PASS 17896/17899, scripts 50/50; oxlint 0/0 on the four leaves; leaves equal head and local receipt; 32/32 head checks by name; 0 failed)"
+      },
+      "ancestorOfMain": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-1",
+      "state": "main-verified",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-1-mainproof-20261018.json",
+        "mergeCommit": "e69ae02911f11fd0d3bd891c83108414f3098727",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1574 passed, 1574 total"
+      },
+      "ancestorOfMain": true
+    },
+    {
+      "id": "MP-HOST-DEDUPE-1",
+      "state": "main-verified",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "mainProof": {
+        "path": "evidence/mp-host-dedupe-mainproof-20261018.json",
+        "mergeCommit": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1582 passed, 1582 total"
+      },
+      "ancestorOfMain": true
+    },
+    {
+      "id": "MP-RECOVERY-UNITS-2",
+      "state": "main-verified",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+      "mainProof": {
+        "path": "evidence/mp-recovery-units-2-mainproof-20261019.json",
+        "mergeCommit": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+        "verdict": "PASS",
+        "runtime": "Source/Main Jest: Tests:       1591 passed, 1591 total"
+      },
+      "ancestorOfMain": true
+    }
+  ],
+  "manifests": {
+    "L1-SMOKE-A2F": [
+      "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "scripts/release/l1-built-server-spectator-context.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+    ],
+    "L1-SMOKE-A2M": [
+      "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+      "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+      "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+    ],
+    "L1-SMOKE-A2": [
+      "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+      "scripts/release/l1-built-server-spectator-cases.mjs",
+      "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "scripts/release/l1-built-server-spectator.test.mjs"
+    ]
+  },
+  "acceptance": {
+    "L1-SMOKE-A2F": [
+      "Using frozen A1 harness/transport read-only on a real built production image, prove legal phase-ready fixtures for accepted Move, Attack and Physical commands. Keep a second actor able to withhold reveal until negative observations finish. Ordinary authenticated APIs/actions provision positive behavior; stopped-DB fixtures only establish unreachable trusted stale-seat/brand/phase preconditions. Never insert sealed declaration events as a substitute for accepted intents. If reachability needs a product seam, retain explicit unrun rows and stop for a separately registered slice.",
+      "Witness current spectator seats for player brand with stale assignment, GM brand with stale assignment and GM without assignment; GM identity comes from a real durable campaign-session gm row. Provide a separate non-spectating-GM control consistent with the one-active-GM constraint. Preserve trusted metadata, canonical unit/phase preconditions and before/after private DB lineage; refuse a live owning PID, foreign DB or unexpected trusted state.",
+      "Freeze import-safe ordinary provisioner, phase-ready and trusted-audience fixture callbacks plus structural witnesses for A2M/A2. Fixtures use the installed tsx or standalone SQL only while the owned server is stopped. No new dependency/loader or existing A1/source edit. Keep tokens out of URLs and retained evidence, preserve commands/exits/build/listener/readiness/PID/DB hashes, and falsify broken fixture guards and missing accepted-action/precondition controls.",
+      "A2F supplies reusable reachability and trusted-condition proof, not acceptance of the nine-case privacy matrix or co-op restart. All original A2 acceptance remains owed through A2M, final A2 composition and B; genuine exact-main PASS and closure are required before A2M admission."
+    ],
+    "L1-SMOKE-A2M": [
+      "Using A1 harness and authenticated transport read-only, prove all three declaration kinds (MovementDeclared, AttackDeclared, PhysicalAttackDeclared) for current player-branded spectators with stale side assignment, GM-branded spectators with stale side assignment and GM spectators without stale assignment. Secret sentinel event IDs/payloads must be absent from raw live frames AND replay chunks in each of the nine combinations. Witness trusted seat/brand/assignment preconditions; preserve the A1 fog-off baseline.",
+      "Use actual accepted Intent commands and a second actor to withhold reveal until negative observations finish. Public controls before/after each withheld declaration and bounded synchronization prove delivery remains live. Owning actor sees its unrevealed declaration; non-spectating GM retains policy; eligible authoritative reveals/public facts reach spectators afterward. No hidden placeholders, authority sequence leak or visible delivery-cursor gap.",
+      "Reconnect and restart the same built image against the same private durable DB; retain withheld-secret and positive/public/reveal assertions. Ordinary API provisioning/actions produce positive behavior; offline fixtures only for unreachable trusted stale-seat/brand/phase conditions, with server stopped before DB writes. No source-host calls, append/broadcast internals, fake sockets, /api/e2e, test-mode or projection-capability mocks in the running production server.",
+      "Reuse A2F legal/trusted fixtures and A1 modules read-only. Enumerate all nine declaration/audience rows explicitly; preserve raw-live and replay negatives, actor/non-spectating-GM/public/reveal positives, no placeholder/authority-sequence leak or visible cursor gap, and unchanged image/private DB through reconnect/restart. Node:test falsifiers reject omissions, leaked sentinels, missing controls, premature close and changed identity/DB; inherited A1 failure/cleanup falsifiers remain required.",
+      "Export A2M_REQUIRED_CASES and runMatrixCases(ctx), with no implicit discovery or nested A1 baseline passes. The direct runner composes A1 exactly once plus the full matrix; final A2 imports the same callback/enumeration read-only. Co-op mission restart/captured rolls and concurrent first sockets remain A2-owned. A2M alone does not discharge final post-B14 B or any B/H/RC/installer/human gate."
+    ],
+    "L1-SMOKE-A2": [
+      "CF-MPRU2-3: create a real co-op campaign/session/mission through ordinary authenticated APIs, with trusted GM/player membership and durable mission/unit identities; a co-op-marked non-mission record is insufficient. Witness a successful pre-restart action, restart the same verified production image against the same private DB, reconnect, and accept a real unit action without missing/skipped canonical capabilities.",
+      "On the first post-restart dice-producing event, require nonempty captured d6 rolls, canonical persistence and matching live/replay rolls. Bind evidence to the actual accepted intent, mission, build SHA/ID/hashes, new owned PID and same DB lineage. No hard-coded seeded expectation, replay-only success, mocked capability or source-host call substitutes for the accepted action and captured-roll witness.",
+      "CF-MPHD-5: issue concurrent first authenticated socket upgrades to a fresh match in the same round; retain real joins, ReplayStart/Chunk/End and accepted participant actions afterward. Fail on store/sequence/revision conflict, split/lost authority, premature close or absent positive controls. Keep the successful wire/store round as durable evidence.",
+      "The final runner composes A1 baseline exactly once, every A2M_REQUIRED_CASES row via frozen runMatrixCases(ctx), and all co-op/concurrent cases in one verified lineage. Export A2_REQUIRED_CASES/runA2Cases and fixture callbacks for B. Falsifiers reject omitted inherited rows, missing actor/GM/reveal/public/accepted-action/roll controls, credential leaks, changed image/DB and failed commands/cleanup. Imports A1/A2F/A2M read-only and creates only its four registered leaves.",
+      "Preserve all five original A2 acceptance rows through predecessor proof plus the final combined execution. A2 id and successors B/P2CG1H remain unchanged; final post-B14 B combined fog-off matrix/fog-on refusal proof, exact-main/RC and all B/H/LSC/P2J/installer/human gates remain mandatory. No fog-on acceptance or existing product file edit is granted."
+    ]
+  },
+  "originalA2Acceptance": [
+    "Using A1 harness and authenticated transport read-only, prove all three declaration kinds (MovementDeclared, AttackDeclared, PhysicalAttackDeclared) for current player-branded spectators with stale side assignment, GM-branded spectators with stale side assignment and GM spectators without stale assignment. Secret sentinel event IDs/payloads must be absent from raw live frames AND replay chunks in each of the nine combinations. Witness trusted seat/brand/assignment preconditions; preserve the A1 fog-off baseline.",
+    "Use actual accepted Intent commands and a second actor to withhold reveal until negative observations finish. Public controls before/after each withheld declaration and bounded synchronization prove delivery remains live. Owning actor sees its unrevealed declaration; non-spectating GM retains policy; eligible authoritative reveals/public facts reach spectators afterward. No hidden placeholders, authority sequence leak or visible delivery-cursor gap.",
+    "Reconnect and restart the same built image against the same private durable DB; retain withheld-secret and positive/public/reveal assertions. Ordinary API provisioning/actions produce positive behavior; offline fixtures only for unreachable trusted stale-seat/brand/phase conditions, with server stopped before DB writes. No source-host calls, append/broadcast internals, fake sockets, /api/e2e, test-mode or projection-capability mocks in the running production server.",
+    "First prove legal phase-ready fixtures for all three declaration kinds and trusted GM/spectator brands are reachable. If a product seam would be required, retain explicit unrun rows and stop for a separately registered proof slice; no claim of a complete matrix. Harness node:test falsifiers cover missing public controls, leaked sentinel, early socket close, wrong build/listener, failed command propagation and owned-child cleanup.",
+    "Import A1 modules without edits and use only the A2-owned new runner/cases/fixtures/test leaves. Its runner composes A1 baseline and the full A2 matrix, retaining A1 build/process/store/credential evidence guarantees; node:test falsifiers reject an omitted combination, leaked sentinel, missing actor/reveal/public control, premature close and changed image/DB on reconnect/restart. A2 alone does not discharge the final post-B14 smoke."
+  ],
+  "acceptanceCoverage": [
+    {
+      "originalRow": 0,
+      "owners": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+      "retention": "F trusted preconditions; M all nine raw-live/replay negatives; A2 final full matrix composition."
+    },
+    {
+      "originalRow": 1,
+      "owners": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+      "retention": "F legal intent fixtures; M actor/non-spectating-GM/public/reveal and cursor controls; A2 re-executes them."
+    },
+    {
+      "originalRow": 2,
+      "owners": ["L1-SMOKE-A2M", "L1-SMOKE-A2"],
+      "retention": "M withheld-secret/public/reveal reconnect/restart on unchanged image/DB; A2 adds real co-op mission accepted action/captured rolls."
+    },
+    {
+      "originalRow": 3,
+      "owners": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+      "retention": "Reachability first, explicit unrun rows if a product seam is needed, and full falsifiers; no partial matrix claim."
+    },
+    {
+      "originalRow": 4,
+      "owners": ["L1-SMOKE-A2M", "L1-SMOKE-A2"],
+      "retention": "Explicit full row enumeration, A1 baseline once, frozen predecessor callbacks and final B composition; missing rows fail."
+    }
+  ],
+  "unchangedDownstream": {
+    "A2Successors": ["L1-SMOKE-B", "P2CG1H"],
+    "BPredecessors": ["L1-SMOKE-A2", "B14-0", "B14-HEAD"],
+    "HPredecessors": [
+      "P2CG1G2",
+      "P2CG1R",
+      "B14-0",
+      "LSC-2P",
+      "L1-SMOKE-A1",
+      "L1-SMOKE-A2",
+      "L1-SMOKE-B",
+      "P2CG1HP",
+      "MP-CAMPAIGN-HOST-DEDUPE-1"
+    ],
+    "gates": "All retained B/H/RC/LSC/P2J/installer/human gates stay pending and mandatory. Two additional L1 closures raise current checklist 41 -> 43; no task/holder or checkbox tick."
+  },
+  "census": {
+    "baseline": "a2e2a7b8d113ad06279ad50f71665339fdeece0e",
+    "units": 264,
+    "activeUnits": 123,
+    "nodes": 93,
+    "leaves": [
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-context.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator.test.mjs",
+        "exists": false,
+        "containingUnits": [
+          {
+            "id": "L1-SMOKE-A2",
+            "state": "planned",
+            "grants": ["scripts"]
+          },
+          {
+            "id": "L1-SMOKE-B",
+            "state": "blocked",
+            "grants": ["scripts"]
+          }
+        ],
+        "containingNodes": ["R2.authority-live"],
+        "openPRMatches": []
+      }
+    ],
+    "openPRs": [
+      {
+        "headRefName": "work/rewind-dice-20261020",
+        "headRefOid": "0b2e815e40a58f8ffafd97e5aa25b63dbc4fedc5",
+        "number": 2316,
+        "title": "fix(multiplayer): capture authoritative dice after GM rewind",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-1-red-20261019.json",
+          "src/lib/multiplayer/server/ServerMatchHost.ts",
+          "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+          "src/lib/multiplayer/server/__tests__/ServerMatchHostRewindRebuild.serverUnits.test.ts"
+        ]
+      },
+      {
+        "headRefName": "codex/l1-smoke-a2-20261020",
+        "headRefOid": "affb35ac74d32fda522e7244a8ec448cc9b2746d",
+        "number": 2315,
+        "title": "docs(roadmap): stop A2 admission at sizing and propose serial split",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-admission-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefName": "codex/lsc-2op-closure-sol-20261020",
+        "headRefOid": "3b20646fc151b03adc61d9dce681d8a36387b1f3",
+        "number": 2314,
+        "title": "chore(LSC-2OP): verify main operator controls and release LSC-2",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-admission-review-20261018.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-mainproof-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-merge-20261020.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-owner-ruling-6300739754.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2op-source-opus-review-20261020.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-install.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-owned-guards.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-regression.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-run-proof-cjs.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-0372f9d1d-typecheck.bytes.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        ]
+      },
+      {
+        "headRefName": "codex/mp-campaign-host-dedupe-20261019",
+        "headRefOid": "c3eb20afa28a6d5d630f55511e892e26c2b341cb",
+        "number": 2313,
+        "title": "fix(multiplayer): deduplicate concurrent campaign host creation",
+        "files": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-admission-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-local-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-dedupe-1-red-20261019.json",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+          "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+        ]
+      },
+      {
+        "headRefName": "codex/thread-transfer-history-20261002",
+        "headRefOid": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+        "number": 2113,
+        "title": "docs(audits): preserve complete thread-transfer history",
+        "files": [
+          "docs/audits/2026-10-02-thread-transfer/ARCHIVE-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/LOCAL-ONLY-CUSTODY-INDEX.json",
+          "docs/audits/2026-10-02-thread-transfer/PARENT-PLANNING-HANDOFF-DRAFT.md",
+          "docs/audits/2026-10-02-thread-transfer/README.md",
+          "docs/audits/2026-10-02-thread-transfer/START-HERE.md",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-reader-index-review-epoch2.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-content-review-retention-repaired.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-assembled-archive-review-dispatched.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-current-control-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-existing-genuine-patch-engine-rebind-20261002.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-full-historical-archive-parent-byteverified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-genuine-patch-scratch-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-materialized-task-core-parent-qualified.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/thread-transfer-task67-current-remote-custody-rechecked.json.archive.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/current-controls-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0000.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0001.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0002.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0003.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0004.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0005.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0006.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0007.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0008.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0009.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0010.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0011.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0012.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0013.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0014.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0015.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0016.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0017.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0018.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0019.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0020.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0021.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0022.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0023.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0024.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0025.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0026.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0027.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0028.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0029.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0030.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0031.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0032.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0033.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0034.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0035.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0036.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0037.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0038.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0039.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0040.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0041.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0042.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0043.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0044.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0045.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0046.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0047.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0048.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0049.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0050.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0051.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0052.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0053.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0054.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0055.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0056.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0057.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0058.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0059.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0060.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0061.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0062.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0063.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0064.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0065.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0066.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0067.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0068.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0069.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0070.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0071.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0072.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0073.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0074.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0075.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0076.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0077.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0078.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0079.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0080.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0081.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0082.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0083.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0084.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0085.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0086.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0087.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0088.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0089.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0090.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0091.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0092.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0093.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0094.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0095.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0096.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0097.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0098.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0099.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0100.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0101.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0102.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0103.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0104.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0105.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0106.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0107.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0108.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0109.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0110.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0111.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0112.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0113.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0114.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0115.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0116.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0117.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0118.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0119.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0120.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0121.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0122.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0123.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0124.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0125.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0126.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0127.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0128.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0129.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0130.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0131.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0132.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0133.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0134.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0135.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0136.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0137.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0138.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0139.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0140.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0141.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0142.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0143.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0144.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0145.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0146.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0147.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0148.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0149.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0150.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0151.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0152.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0153.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0154.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0155.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0156.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0157.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0158.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0159.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0160.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0161.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0162.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0163.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0164.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0165.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0166.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0167.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0168.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0169.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0170.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0171.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0172.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0173.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0174.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0175.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0176.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0177.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0178.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0179.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0180.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0181.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0182.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0183.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0184.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0185.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0186.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0187.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0188.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0189.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0190.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0191.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0192.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0193.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0194.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0195.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0196.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0197.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0198.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0199.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0200.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0201.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0202.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0203.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0204.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0205.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0206.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0207.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0208.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0209.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0210.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0211.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0212.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0213.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0214.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0215.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0216.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0217.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0218.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0219.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0220.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0221.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0222.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0223.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0224.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0225.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0226.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0227.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0228.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0229.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0230.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0231.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0232.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0233.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0234.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0235.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0236.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0237.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0238.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0239.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0240.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0241.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0242.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0243.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0244.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0245.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0246.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0247.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0248.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0249.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0250.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0251.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0252.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0253.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0254.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0255.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0256.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0257.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0258.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0259.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0260.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0261.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0262.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0263.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0264.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0265.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0266.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0267.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0268.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0269.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0270.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0271.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0272.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0273.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0274.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0275.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0276.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0277.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0278.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0279.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0280.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0281.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0282.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0283.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0284.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0285.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0286.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0287.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0288.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0289.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0290.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0291.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0292.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0293.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0294.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0295.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0296.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0297.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0298.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0299.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0300.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0301.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0302.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0303.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0304.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0305.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0306.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0307.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0308.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0309.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0310.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0311.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0312.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0313.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0314.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0315.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0316.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0317.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0318.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0319.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0320.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0321.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0322.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0323.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0324.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0325.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0326.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0327.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0328.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0329.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0330.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0331.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0332.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0333.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0334.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0335.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0336.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0337.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0338.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0339.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0340.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0341.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0342.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0343.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0344.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0345.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0346.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0347.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0348.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0349.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0350.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0351.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0352.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0353.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0354.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0355.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0356.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0357.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0358.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0359.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0360.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0361.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0362.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0363.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0364.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0365.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0366.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0367.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0368.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0369.json",
+          "docs/audits/2026-10-02-thread-transfer/full-history-archive/chunk-0370.json",
+          "docs/audits/2026-10-02-thread-transfer/historical-153-todos-and-current-override.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-000.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-001.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-002.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-003.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-004.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-005.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-006.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-007.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-008.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-009.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-010.json",
+          "docs/audits/2026-10-02-thread-transfer/p2-source-archive/chunk-011.json",
+          "docs/audits/2026-10-02-thread-transfer/read-archives.mjs"
+        ]
+      },
+      {
+        "headRefName": "roadmap-u2b-e2e-19-25-rows-20260922",
+        "headRefOid": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+        "number": 1886,
+        "title": "wip(e2e): U2b resumed, E2E-19 green under the privacy-pack arm, E2E-25 refused at the candidate anchor (parked again)",
+        "files": [
+          "e2e/gm-two-player-privacy.pack.spec.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260922.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260922.json",
+          "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "scripts/qc/gm-two-player-campaign-core.cjs"
+        ]
+      }
+    ],
+    "classification": "scripts aliases are navigation only, never ownership of existing scripts. F/M are new disjoint leaves; A2 retains its existing four prospective leaves. Shared units/roadmap/progress writes serialize with Main closures; no runtime admission now."
+  },
+  "countPolicy": {
+    "adopted": true,
+    "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+    "rule": "500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 generated/test/evidence exclusions remain, every unique file counts, no deletion credit or cap waiver. A1 historical receipt is not reopened; future A2F/A2M/A2/B budgets must be remeasured at their own finite admissions."
+  },
+  "sourceAdmissionBarrier": "Do not start A2F admission until Root merges #2315 and independently qualifies this registration. All stage receipts/baselines/heads/merge fields remain null for F/M/A2; planned is not admitted. Root owns subsequent Astra ledger review, CI, ruling and merge."
+}

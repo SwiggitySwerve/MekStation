@@ -3886,6 +3886,107 @@
           ]
         },
         "qualification": "Only these exact prospective source/test leaves; no source admission. Existing H type-only grant and all other restrictions stand."
+      },
+      "ownershipPathsAmended20261020L1SmokeSplit": {
+        "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+        "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+        "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+        "units": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+        "restrictions": {
+          "L1-SMOKE-A2F": [
+            "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+            "scripts/release/l1-built-server-spectator-context.mjs",
+            "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+            "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+          ],
+          "L1-SMOKE-A2M": [
+            "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+            "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+            "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+          ],
+          "L1-SMOKE-A2": [
+            "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+            "scripts/release/l1-built-server-spectator-cases.mjs",
+            "scripts/release/l1-built-server-spectator-fixtures.ts",
+            "scripts/release/l1-built-server-spectator.test.mjs"
+          ]
+        },
+        "qualification": "Prospective literal new leaves only, no source admission. A2F/A2M/A2 stay serial through closure; A2/B downstream gates and A1 frozen bytes remain. This amendment supersedes only the old effective A2 scope/interface allocation, not original acceptance. Normal oxfmt counting is adopted; do not start A2F admission before Root merges #2315."
+      },
+      "ownershipPathsAmended20261020LocalSeatSplit": {
+        "source": "evidence/lsc-2-split-registration-20261020.json",
+        "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+        "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+        "units": [
+          "LSC-2C",
+          "LSC-2O",
+          "LSC-2"
+        ],
+        "restrictions": {
+          "LSC-2C": [
+            "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+          ],
+          "LSC-2O": [
+            "src/services/vault/LocalSeatCredentialRepository.ts",
+            "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+            "src/services/vault/LocalSeatCredentialService.ts",
+            "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+            "src/pages/api/multiplayer/auth/local-seats.ts",
+            "src/__tests__/api/localSeatCredentials.test.ts",
+            "src/lib/campaign/coop/localSeatCredentialStore.ts",
+            "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+            "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+          ],
+          "LSC-2": [
+            "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+            "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+            "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+            "src/components/campaign/CampaignNavigation.tsx"
+          ]
+        },
+        "qualification": "Effective prospective literal source/test leaves only, full stage manifests in unit registration20261020. C -> O -> final LSC-2 serial through exact-main closures; original acceptance and downstream gates retained. Supersedes old effective LSC-2 literals; historical registration remains evidence, not extra scope. Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory."
+      },
+      "ownershipPathsAmended20261020A2FPartition": {
+        "source": "evidence/l1-smoke-a2f-partition-registration-20261020.json",
+        "sourceSha256": "6f27904ba7af8190c4ffd94be1c3ed0bc621b25f05ad8b00b3aaf55e0b35e915",
+        "rulingSha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
+        "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "restrictions": {
+          "L1-SMOKE-A2FP": [
+            "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+            "scripts/release/l1-built-server-spectator-context.mjs",
+            "scripts/release/l1-built-server-spectator-reachability.ts",
+            "scripts/release/l1-built-server-spectator-reachability.test.mjs"
+          ],
+          "L1-SMOKE-A2F": [
+            "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+            "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+            "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+          ]
+        },
+        "predecessors": {
+          "L1-SMOKE-A2FP": [
+            "L1-SMOKE-A1",
+            "MP-RECOVERY-UNITS-1",
+            "MP-HOST-DEDUPE-1",
+            "MP-RECOVERY-UNITS-2"
+          ],
+          "L1-SMOKE-A2F": [
+            "L1-SMOKE-A1",
+            "MP-RECOVERY-UNITS-1",
+            "MP-HOST-DEDUPE-1",
+            "MP-RECOVERY-UNITS-2",
+            "L1-SMOKE-A2FP"
+          ]
+        },
+        "successors": {
+          "L1-SMOKE-A2FP": ["L1-SMOKE-A2F"],
+          "L1-SMOKE-A2F": ["L1-SMOKE-A2M"]
+        },
+        "qualification": "Effective prospective literal leaves only. Supersedes earlier effective F source allocation while preserving every acceptance row; FP/F remain serial before M/A2/B. Root merges #2318 before FP admission. Existing A1 and future frozen predecessors are read-only; no source admission, gate waiver or new product seam."
       }
     },
     {
@@ -19383,5 +19484,182 @@
     "collisionRule": "Only the named source/test leaves are reserved. MP-RECOVERY-UNITS-2 -> rewind serializes its overlapping host/rebuild/test leaves. Campaign dedupe follows already-main-verified MP-HOST-DEDUPE-1 and precedes H; H retains its type-only grant. U44 capability-DB/rollback-reader work, U26/FOG privacy, U45/src-lib and other ancestor aliases remain separate owners: no simultaneous shared-leaf admission; re-census, rebase/refreeze and obtain a narrow scope amendment for any additional leaf. Salvage follows LSC-2OP; census B15/campaign-store/e2e/roster aliases before admission. All registration/closure writers serialize units.json, roadmap.json and PROGRESS.md; no source admission is granted.",
     "scope": "Four documentation files only. Existing lifecycle, packets, task holders, historical evidence and caps remain unchanged. These follow-up notes do not grant H runtime edits outside its manifest.",
     "authority": "Owner: continue with recommended options and fix the issues that come up, publish as needed. Register three narrow follow-ups; Sol implements, Claude Opus/Astra/Sonnet verifies. This is not a future sensitive OWNER-RULING."
+  },
+  "l1SmokeA2SplitRegistration20261020": {
+    "baseline": "a2e2a7b8d113ad06279ad50f71665339fdeece0e",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/l1-smoke-a2-split-registration-20261020.json",
+    "sourceSha256": "ddd9f5431152c990e8e7ba17a26499404007611cd754af13266bba4c9c63251c",
+    "rulingPath": "evidence/l1-smoke-a2-split-root-ruling-20261020.txt",
+    "rulingSha256": "ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81",
+    "units": ["L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2"],
+    "initialStates": {
+      "L1-SMOKE-A2F": "planned",
+      "L1-SMOKE-A2M": "blocked",
+      "L1-SMOKE-A2": "blocked"
+    },
+    "order": "L1-SMOKE-A1 + MP-RECOVERY-UNITS-1 + MP-HOST-DEDUPE-1 + MP-RECOVERY-UNITS-2 -> L1-SMOKE-A2F -> L1-SMOKE-A2M -> L1-SMOKE-A2; A2 retains its original four direct predecessors and both B/H successors.",
+    "manifests": {
+      "L1-SMOKE-A2F": [
+        "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "scripts/release/l1-built-server-spectator-context.mjs",
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+      ],
+      "L1-SMOKE-A2M": [
+        "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+      ],
+      "L1-SMOKE-A2": [
+        "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "scripts/release/l1-built-server-spectator-cases.mjs",
+        "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "scripts/release/l1-built-server-spectator.test.mjs"
+      ]
+    },
+    "countPolicy": "500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 generated/test/evidence exclusions remain, every unique file counts, no deletion credit or cap waiver. A1 historical receipt is not reopened; future A2F/A2M/A2/B budgets must be remeasured at their own finite admissions.",
+    "releaseAccounting": {
+      "previous": 41,
+      "total": 43,
+      "addedClosures": ["L1-SMOKE-A2F", "L1-SMOKE-A2M"]
+    },
+    "historicalRule": "Supersedes only effective A2 scope/interface/budget scheduling in the old prospective smoke registration. Original A2 acceptance stays retained through F/M proof plus final A2 composition; historical source hashes/receipts, A1 receipt and downstream B/H gates are unchanged.",
+    "sourceAdmissionBarrier": "Do not start A2F admission until Root merges #2315 and independently qualifies this registration. All stage receipts/baselines/heads/merge fields remain null for F/M/A2; planned is not admitted. Root owns subsequent Astra ledger review, CI, ruling and merge."
+  },
+  "localSeatCredentialsSplit3Registration20261020": {
+    "baseline": "a69540e25389a01ee24b92994f1418d700c0039a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/lsc-2-split-registration-20261020.json",
+    "sourceSha256": "daf7fb797cbb6c375dd39a27c7aaec2d573f1b6d22239d6ac2847d242791fd4a",
+    "rulingPath": "evidence/lsc-2-split-root-ruling-20261020.txt",
+    "rulingSha256": "686e563df508c95237bca7d95ffd8a38c15d0a5c1a079cddee3c95e4558de873",
+    "units": [
+      "LSC-2C",
+      "LSC-2O",
+      "LSC-2"
+    ],
+    "initialStates": {
+      "LSC-2C": "planned",
+      "LSC-2O": "blocked",
+      "LSC-2": "blocked"
+    },
+    "order": "LSC-2OP -> LSC-2C -> LSC-2O -> LSC-2 -> unchanged LSC-2 successors",
+    "manifests": {
+      "LSC-2C": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts"
+      ],
+      "LSC-2O": [
+        "src/services/vault/LocalSeatCredentialRepository.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialRepository.test.ts",
+        "src/services/vault/LocalSeatCredentialService.ts",
+        "src/services/vault/__tests__/LocalSeatCredentialService.test.ts",
+        "src/pages/api/multiplayer/auth/local-seats.ts",
+        "src/__tests__/api/localSeatCredentials.test.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/lib/campaign/coop/__tests__/localSeatCredentialStore.test.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatOperatorPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatOperatorPanel.test.tsx"
+      ],
+      "LSC-2": [
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/__tests__/LocalSeatCredentialPanel.test.tsx",
+        "src/components/campaign/CampaignNavigation.tsx"
+      ]
+    },
+    "countPolicy": "15 actual unique files / 500 aggregate counted additions after normal repository oxfmt, including lifecycle; tests/generated/ledger evidence line-exempt under U41 but file-counted, no deletion credit, cap waiver, compressed formatting or omitted acceptance. Freeze and remeasure at every admission; extra leaves/overflow stop for separately registered split.",
+    "releaseAccounting": {
+      "previous": 43,
+      "total": 45,
+      "addedClosures": [
+        "LSC-2C",
+        "LSC-2O"
+      ]
+    },
+    "historicalRule": "Supersedes only effective prospective LSC-2 scope, stage manifest and serial allocation. Historical receipts/manifests/source hashes are not rewritten. Stopped sizing receipt is immutable; final narrowed LSC-2 gets separately named implementation receipts. Retain all old behavior/notes/carries through explicit partition and final integration. No downstream edge, task holder, prior lifecycle, packet, salvage or packaged proof changes.",
+    "sourceAdmissionBarrier": "Registration only, no source admission or future implementation OWNER-RULING. Do not commit C admission until Root merges and independently qualifies this registration. Each unit runs frozen finite admission, runtime behavioral RED and discriminating mutants, GREEN, genuine sensitive packet before local-verified, independent exact-head review/OWNER-RULING, required CI, merge, genuine exact-main mainProof PASS, fetched-Main ancestry and closure before its successor. Null receipts/ownerGate waive nothing; NEXT is advisory."
+  },
+  "l1SmokeA2FPartitionRegistration20261020": {
+    "baseline": "434fdab1d5b0fbe107435a88985ce3eaaf753033",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/l1-smoke-a2f-partition-registration-20261020.json",
+    "sourceSha256": "6f27904ba7af8190c4ffd94be1c3ed0bc621b25f05ad8b00b3aaf55e0b35e915",
+    "rulingPath": "evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt",
+    "rulingSha256": "040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02",
+    "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+    "initialStates": {
+      "L1-SMOKE-A2FP": "planned",
+      "L1-SMOKE-A2F": "blocked"
+    },
+    "order": "L1-SMOKE-A1 + MP-RECOVERY-UNITS-1 + MP-HOST-DEDUPE-1 + MP-RECOVERY-UNITS-2 -> L1-SMOKE-A2FP -> L1-SMOKE-A2F -> L1-SMOKE-A2M -> L1-SMOKE-A2; F retains four original direct predecessors and M successor. Final A2 keeps CF-MPRU2-3/CF-MPHD-5 and B/H successors.",
+    "predecessors": {
+      "L1-SMOKE-A2FP": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2"
+      ],
+      "L1-SMOKE-A2F": [
+        "L1-SMOKE-A1",
+        "MP-RECOVERY-UNITS-1",
+        "MP-HOST-DEDUPE-1",
+        "MP-RECOVERY-UNITS-2",
+        "L1-SMOKE-A2FP"
+      ]
+    },
+    "successors": {
+      "L1-SMOKE-A2FP": ["L1-SMOKE-A2F"],
+      "L1-SMOKE-A2F": ["L1-SMOKE-A2M"]
+    },
+    "manifests": {
+      "L1-SMOKE-A2FP": [
+        "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "scripts/release/l1-built-server-spectator-context.mjs",
+        "scripts/release/l1-built-server-spectator-reachability.ts",
+        "scripts/release/l1-built-server-spectator-reachability.test.mjs"
+      ],
+      "L1-SMOKE-A2F": [
+        "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs"
+      ]
+    },
+    "acceptanceCoverage": [
+      {
+        "originalRow": 0,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP ordinary accepted M/A/P reachability, activation-aware principal and reveal holder; F composes these with trusted conditions and re-runs all inherited reachability. Explicit unrun rows if product seam needed; no inserted declarations."
+      },
+      {
+        "originalRow": 1,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP read-only canonical phase/unit/seat and DB/PID/precondition falsifiers; F all three trusted brands/assignments, real durable GM role, separate observed non-spectating-GM declaration positive and unchanged-history lineage on the actual image."
+      },
+      {
+        "originalRow": 2,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP ordinary provisioner/phase-ready/read-only callbacks, strict CLI and positive/guard falsifiers; F trusted-audience callbacks and full F composition. Both preserve all A1 authority, credential, command, image/listener/PID/DB, loader/dependency and offline-only constraints."
+      },
+      {
+        "originalRow": 3,
+        "owners": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F"],
+        "allocation": "FP ordinary-only partial proof; F retains full F acceptance and exact-main closure before M. Full nine-case privacy and co-op restart stay M/final A2/B-owned; every downstream gate and original A2 row stands."
+      }
+    ],
+    "countPolicy": "15 files/500 aggregate counted additions after normal oxfmt; tests/evidence line-exempt but file-counted, lifecycle counted, no deletion credit or waiver. Historical A1 receipt unchanged.",
+    "releaseAccounting": {
+      "previous": 45,
+      "total": 46,
+      "addedClosures": ["L1-SMOKE-A2FP"]
+    },
+    "historicalRule": "Supersedes only effective F scope/manifest/interface scheduling from #2315. Original F/A2 acceptance and historical evidence/registrations remain unchanged; this new effective partition controls future admissions. Downstream M/A2/B/H and independent LSC/P2J/installer/human gates stand.",
+    "sourceAdmissionBarrier": "Root merges #2318 before FP admission; all stages, actual scope and formatting counts freshly freeze afterward. Sensitive cadence and all unchanged gates apply. No runtime result, packet, closure or task tick is supplied by registration.",
+    "overflowRuling": "If FP still does not fit when drafted, stop and tell Root before proposing a third split. Root is raising size-cap policy with the owner."
   }
 }

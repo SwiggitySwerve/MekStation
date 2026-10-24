@@ -1,0 +1,18 @@
+ROOT RULING on the A2F sizing stop (#2318 at d0868008c). Your recommendation is ACCEPTED under the owner's standing instruction: "continue with recommended options and fix the issues that come up, publish as needed".
+
+1. Serial split APPROVED, in this order:
+   - A2FP: ordinary provisioning and read-only reachability (the ordinary context plus the runner, about 374 lines). It also covers activation-aware principal selection and the stricter CLI and precondition falsifiers.
+   - A2F (narrowed): trusted brand and stale-assignment fixtures, the observed non-spectating-GM declaration positive, qualifying the fixture-only GM branding against the built image, and the full F composition.
+   A2F keeps its id, its successor A2M and its four original predecessors, and gains A2FP as a predecessor. A2FP takes A2F's four original predecessors. CF-MPRU2-3 and CF-MPHD-5 stay in the narrowed A2. No acceptance row or downstream gate changes.
+
+2. Register the split IN THIS SAME PR, #2318, as you did for #2315:
+   - add A2FP to units.json and roadmap.json with symmetric edges;
+   - partition F's acceptance rows across A2FP and A2F, dropping none;
+   - A2FP starts as planned; A2F starts as blocked;
+   - record your measurements (646/500, broken down as 221/272/153) and this ruling, with its sha256, in the evidence.
+
+3. Union-merge origin/main first. #2317 (the LSC-2 split) may merge before you push, and it touches units.json and roadmap.json.
+
+4. Run validate-roadmap plain, --git and --next (--next should name A2FP), its tests, lint:units and format:check, with hooks ON. Push, update the PR body, post the 32-check comparison and REVIEW_READY, then end your turn. Do not start A2FP's admission until Root merges.
+
+5. If A2FP still doesn't fit when you draft it, stop and tell Root before proposing a third split. Root is raising the size-cap policy with the owner.
