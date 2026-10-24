@@ -24597,33 +24597,6 @@
           "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
         }
       ]
-    },
-    {
-      "id": "PK-lsc-2o-ruling",
-      "blocks": [
-        "LSC-2O"
-      ],
-      "nodes": [
-        "R2.authority-live"
-      ],
-      "taskKeys": [],
-      "question": "Accept the bounded LSC-2O operator, repository/service/API and client-store changes after independent exact-head sensitive review and required CI?",
-      "options": [
-        {
-          "label": "accept after verified review and CI",
-          "consequence": "Permit guarded merge followed by exact-main proof and closure; release only LSC-2 after genuine verification.",
-          "effort": "Independent review, current CI and main proof"
-        },
-        {
-          "label": "request bounded fixes",
-          "consequence": "Hold merge and repair concrete findings within scope/caps, then rerun affected proof.",
-          "effort": "Finding-dependent"
-        }
-      ],
-      "agentRecommendation": "PENDING: placeholder recorded at admission with no decision or ruling. The closing worker replaces this text from the actual independent exact-head review (reviewed head, reviewer model, verdict, fixes) and the owner ruling on that head. Review must cover CF-LSC2OP-2/3/7, CF-LSC2C-1 (nine mutants killed by R1-R9), L-2, the store side of L-3 (option B) and N-1. LSC-2 keeps L-1 and the panel-side L-3 acceptance; CF-LSC2C-2R stays an open Root registration follow-up. Retain all operator/final UI/packaged gates.",
-      "revertCost": "Revert the changed owned leaves and own lifecycle; the local_seat_credentials schema (v33), primary auth, bearer store and entry panel remain unchanged.",
-      "decision": null,
-      "ruling": null
     }
   ],
   "deferrals": [

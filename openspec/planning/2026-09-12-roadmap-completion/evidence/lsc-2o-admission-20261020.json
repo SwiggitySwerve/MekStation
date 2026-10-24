@@ -3,10 +3,11 @@
   "unit": "LSC-2O",
   "stage": "admission",
   "date": "20261024",
+  "proofClass": "full",
   "evidenceNameNote": "Evidence file names keep the literals frozen in units.json LSC-2O.registration20261020.prospectiveStageManifest (20261020); the actual admission date is 20261024 (recordedAt).",
   "recordedAt": "2026-10-24T12:36:38.107Z",
   "baseline": "53bc489c0668429ac25a3fbdbe0dd22231615eb9",
-  "authority": "Root rulings recorded at LSC-2O admission, 2026-10-24, after LSC-2C closure #2328 (merge 53bc489c0668429ac25a3fbdbe0dd22231615eb9). (1) Owner merge-through order 2026-10-24 (~08:20 UTC): \"Merge-through: keep posting the owner ruling and merging each reviewed, CI-green unit, as we've been doing. That covers Step 1's closure, all of Step 2 (LSC-2C, 2O, 2, 2P with their closures...), then Step 3\"; the same order lifted the HOLD to \"drain #2313, then LSC-2C (recommended)\" and the standing \"continue with recommended options and fix the issues that come up, publish as needed\" applies. (2) Drain complete: #2313 closed by #2325; LSC-2C closed by #2328. (3) A2FP reconciled (a2fp-reconcile.md): no prior work exists; A2FP stays planned and unadmitted. (4) The Step 0 and Step 1 page rows are pending step-evidence records (draft PR #2327) held for an owner PR-budget answer; Root rules that this does not block Step 2 selection because the owner order names Step 2 explicitly. (5) Carry-in dispositions of this receipt (CF-LSC2C-1, L-2, store side of L-3, N-1) are Root decisions of the same date. Admission only; no implementation ruling or acceptance, and no OWNER-RULING comment exists for this admission PR (the sensitive-class OWNER-RULING on the exact implementation head comes later).",
+  "authority": "Root rulings recorded at LSC-2O admission, 2026-10-24, after LSC-2C closure #2328 (merge 53bc489c0668429ac25a3fbdbe0dd22231615eb9). (1) Owner decision 2026-10-24 (~07:10 UTC, _receipts/owner-decisions-20261024b.md item 1): \"Lift the HOLD and drain #2313, then LSC-2C (recommended)\"; Root's record of it: the tsrs HOLD is lifted for roadmap units and Steps 1-9 may proceed one unit at a time under the Step 0 rules (GOAL.md:10, stepPlanDecision20261024); the Windows tsrs re-run is advisory, not a gate. (1a) Owner merge-through order 2026-10-24 (~08:20 UTC, _receipts/owner-decision-mergethrough-20261024.md): \"Merge-through: keep posting the owner ruling and merging each reviewed, CI-green unit, as we've been doing. That covers Step 1's closure, all of Step 2 (LSC-2C, 2O, 2, 2P with their closures...), then Step 3\"; the standing \"continue with recommended options and fix the issues that come up, publish as needed\" applies. (1b) Tracked text that predates the lift is stale on this point and is not authority for this admission: GOAL.md:10 and DELIVERY.md:10 (\"The tsrs HOLD remains\"), units.json stepPlanDecision20261024.drain (\"No new admission while draining; HOLD still applies\"; the drain ended with #2328 at 53bc489c0) and the generated V2.2.0-STEPS.md header (\"roadmap units remain held\"; the page still grants no admission). LSC-2O may not edit those Root-owned texts (lifecycleOwnershipLimit); Root records the lift in a Root-owned follow-up. (2) Drain complete: #2313 closed by #2325; LSC-2C closed by #2328. (3) A2FP reconciled (a2fp-reconcile.md): no prior work exists; A2FP stays planned and unadmitted. (4) The Step 0 and Step 1 page rows are pending step-evidence records (draft PR #2327) held for an owner PR-budget answer; Root rules that this does not block Step 2 selection because the owner order names Step 2 explicitly; this matches the lift record (Steps 1-9 proceed one unit at a time) and the LSC-2C precedent (#2326 and #2328 merged while the same rows were pending). (5) Carry-in dispositions of this receipt (CF-LSC2C-1, L-2, store side of L-3, N-1) are Root decisions of the same date. Admission only; no implementation ruling or acceptance, and no OWNER-RULING comment exists for this admission PR (the sensitive-class OWNER-RULING on the exact implementation head comes later).",
   "contributor": {
     "provider": "anthropic",
     "model": "claude-sonnet-5-5",
@@ -7189,5 +7190,22 @@
     },
     "heavyLane": "lsc-2o",
     "node": "22.22.0"
-  }
+  },
+  "amendments": [
+    {
+      "id": "A1",
+      "kind": "text amendment by a new commit; no history rewrite",
+      "priorAdmissionCommit": "12fe30738637daa835c113e8961b64e163370c82",
+      "priorReceiptSha256": "6148544266e000061a85bfc2d9fd3ba377a8ed9a6aa68bb7e54196436ba476fe",
+      "priorReceiptBytes": 312874,
+      "source": "_reports/2026-10-24/pr2329-review.md (Opus review of 12fe30738: APPROVE-WITH-IN-PR-FIXES)",
+      "changes": [
+        "authority clause (1): HOLD lift attributed to the ~07:10 UTC owner decision (owner-decisions-20261024b.md item 1), merge-through order moved to (1a), stale tracked HOLD text named in (1b) (finding 2)",
+        "authority clause (4): lift-record and LSC-2C precedent sentence appended (finding 2)",
+        "proofClass \"full\" added (finding 4; DELIVERY.md:53,57: authority/privacy/replay/idempotency/concurrency/migration review classes and a user-reachable operator route)",
+        "PK-lsc-2o-ruling placeholder removed from units.json; re-added with a real recommendation in the GREEN commit, after PK-lsc-2c-ruling (finding 3)",
+        "Admission stays the first commit of the LSC-2O implementation PR #2329 (Root budget decision; finding 1). Frozen manifest, caps, acceptance, carry-in, mutation inventory, census and leaf hashes are unchanged."
+      ]
+    }
+  ]
 }
