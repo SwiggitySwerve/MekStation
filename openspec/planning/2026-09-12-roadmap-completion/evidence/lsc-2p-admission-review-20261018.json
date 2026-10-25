@@ -1,0 +1,300 @@
+{
+  "unit": "LSC-2P",
+  "stage": "review",
+  "recordedAt": "2026-10-25T23:43:27.893Z",
+  "evidenceNameNote": "File name keeps the literal frozen in units.json localSeatCredentialsRegistration20261018.prospectiveManifests.LSC-2P.candidateSeams (lsc-2p-admission-review-20261018.json); the closure date is 20261025 (recordedAt), as for LSC-2OP (lsc-2op-admission-review-20261018.json).",
+  "head": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+  "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only sub-agent reviews (lanes rev-2335 and round 2); Root identifies the reviewer as Opus. The two reports do not state the model, unlike the LSC-2 reports.",
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "The LSC-2P admission receipt contributor field names claude-sonnet-5-5 (implementation worker).",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE-WITH-IN-PR-FIXES (round 1 and round 2; every fix applied at 63c8fb8aca)",
+  "ownerDisposition": "ACCEPT at 63c8fb8aca3ef45d2738803bd8177e4d8bcbaead (OWNER-RULING comment 6404037472); round-1 findings M-1..M-4 and Low L-3, L-5, L-6 applied in 63c8fb8ac and approved by round 2; P-1 and P-2 (PR body text) applied; L-1, L-2, L-4, L-7, L-8, L-9 and the INFO item routed below",
+  "classes": [
+    "authority",
+    "privacy",
+    "replay",
+    "idempotency",
+    "concurrency"
+  ],
+  "outputPath": "evidence/lsc-2p-source-review-20261025.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority. Its top-level payload decodes to the round-2 narrow-delta review, 8568 bytes, sha256 3e50117317517c91a1a5b73c566f7828de2007f07f4a512deab48c83fa14c2f2. The round-1 report is additionalPayloads[0] (23225 bytes, sha256 47932cbdbfecbfdde480013803105b0606b0931ab5403e4ebfba88ea5a35b866). No plain .md copy is kept: .gitattributes text=auto eol=lf rewrites line endings (the round-2 report contains CR bytes).",
+  "outputSha256": "3e50117317517c91a1a5b73c566f7828de2007f07f4a512deab48c83fa14c2f2",
+  "outputBytes": 8568,
+  "outputEnvelope": {
+    "path": "evidence/lsc-2p-source-review-20261025.bytes.json",
+    "payloadSha256": "3e50117317517c91a1a5b73c566f7828de2007f07f4a512deab48c83fa14c2f2",
+    "payloadBytes": 8568
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/pr2335-review-r2.md",
+  "byteExact": true,
+  "effectiveManifest": {
+    "statement": "The effective LSC-2P manifest is the registered 2026-10-18 candidate seams (config, spec, proof doc, four evidence receipts) plus the five RC-LSC2P-1 leaves (checker, checker test, v220-steps.json, V220-EVIDENCE.md, V2.2.0-STEPS.md), which the registration correction added. PR #2335 carried 11 files; this closure PR carries the reserved review receipt, the merge and mainProof receipts and the three byte envelopes.",
+    "files": [
+      "docs/releases/v2.2.0-local-seat-proof.md",
+      "e2e/local-seat-credentials.spec.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "playwright.local-seat-packaged.config.ts",
+      "scripts/__tests__/v220-evidence.test.mjs",
+      "scripts/qc/v220-evidence.mjs"
+    ],
+    "count": 11
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "scope": "exact head 4d99661bf (GREEN: record, receipts, packet)",
+      "reviewedHead": "4d99661bf511b43c0f53c138c287481314687561",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES",
+      "sha256": "47932cbdbfecbfdde480013803105b0606b0931ab5403e4ebfba88ea5a35b866",
+      "bytes": 23225,
+      "hasCR": false,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/pr2335-review.md",
+      "envelopeLocation": "additionalPayloads[0] of lsc-2p-source-review-20261025.bytes.json",
+      "findings": [
+        {
+          "id": "M-1",
+          "disposition": "FIXED in 63c8fb8ac: the F1 security half (guest whole-record PUT accepted, anonymous DELETE of a live-host campaign answers 204) is in the proof doc, the local receipt and the PK packet; CAMPAIGN-LIVE-WRITE-1 owns it."
+        },
+        {
+          "id": "M-2",
+          "disposition": "FIXED: matchRecovered=no is stated as the any-socket-close heuristic; the log shows the GM and P1 sockets bound after the restart and only P2 original expired bearer refused."
+        },
+        {
+          "id": "M-3",
+          "disposition": "FIXED: runtime filled with 12 checks and log hashes; rcShaNote states the one two-line spec difference with both hashes."
+        },
+        {
+          "id": "M-4",
+          "disposition": "FIXED in text and accepted by the OWNER-RULING: S5b is test-only evidence for Q8(b); campaign B never held the old seat-2 identity."
+        },
+        {
+          "id": "L-1",
+          "disposition": "ROUTED to STEP2-RC-RERUN-1: make the S5a server-log refusal check unconditional (it is skipped when no log files exist)."
+        },
+        {
+          "id": "L-2",
+          "disposition": "ROUTED to STEP2-RC-RERUN-1: record matchRecovered per profile."
+        },
+        {
+          "id": "L-3",
+          "disposition": "FIXED: F4 and F5 are in the proof doc Known gaps."
+        },
+        {
+          "id": "L-4",
+          "disposition": "ACCEPTED by the OWNER-RULING (M6 weak kill); a discriminating mutant for \"no automatic mint\" and \"prompt alone mints nothing\" is routed to STEP2-RC-RERUN-1."
+        },
+        {
+          "id": "L-5",
+          "disposition": "Recorded as an OPEN decision (CF-SMOKEA1-7); see carryForwards."
+        },
+        {
+          "id": "L-6",
+          "disposition": "FIXED: teardown step 9 is its own list item."
+        },
+        {
+          "id": "L-7",
+          "disposition": "ROUTED to STEP2-RC-RERUN-1 (optional): the checker does not check gaps, operator.kind or installer.sha256 against installed.exeSha256; fails closed on everything it does check."
+        },
+        {
+          "id": "L-8",
+          "disposition": "ACCEPTED: the RED runtime receipt was produced after the qualifying run and embeds its raw log and hash."
+        },
+        {
+          "id": "L-9",
+          "disposition": "ACCEPTED: the first installer bytes were not kept; STEP2-RC-RERUN-1 rebuilds. This closure rebuilt the installer from the exact merge (mainProof)."
+        },
+        {
+          "id": "INFO",
+          "disposition": "The committed record names the operator wroll@SwerveStation; the privacy review class applies and the owner is aware."
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "scope": "narrow delta 4d99661bf..63c8fb8ac (docs, receipt, PK packet text)",
+      "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES (PR body text only)",
+      "sha256": "3e50117317517c91a1a5b73c566f7828de2007f07f4a512deab48c83fa14c2f2",
+      "bytes": 8568,
+      "hasCR": true,
+      "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/pr2335-review-r2.md",
+      "envelopeLocation": "top-level payload of lsc-2p-source-review-20261025.bytes.json",
+      "findings": [
+        {
+          "id": "P-1",
+          "disposition": "PR body: final-head proof at 63c8fb8ac added (generate --check 0, validate-roadmap PASSED, v220 130/130, CI run 40237866103). Not a repository change."
+        },
+        {
+          "id": "P-2",
+          "disposition": "PR body: caps line corrected to 339 of 500 counted lines (proof doc 223). Not a repository change."
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "4d99661bf511b43c0f53c138c287481314687561..63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "files": 4,
+    "summary": "docs/releases/v2.2.0-local-seat-proof.md (+8/-4), the V2.2.0-STEPS.md source-hash header, evidence/lsc-2p-local-20261018.json (+180/-5) and units.json (one packet field); no spec, config, checker, checker test, v220-steps.json, src/, package or workflow file changed",
+    "tests": "v220 130/130, generate --check 0, validate-roadmap PASSED (round-2 reviewer, fresh worktree)",
+    "ci": {
+      "run": 40237866103,
+      "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40237866103",
+      "headSha": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+      "event": "pull_request",
+      "conclusion": "success",
+      "jobs": 33,
+      "checks": "33/33 SUCCESS (gh pr checks 2335 and gh run view 40237866103)"
+    }
+  },
+  "receiptQualifications": [
+    {
+      "id": "SPEC-EDIT",
+      "target": "e2e/local-seat-credentials.spec.ts",
+      "qualification": "The first qualifying run used spec bytes sha256 bec680f6... (66272 bytes, = d302868b3); the head and merge spec is f58fe19b... (66166 bytes): one unused two-line helper (same) removed after the run. The OWNER-RULING accepted the edit and required the closure G-P5 rerun on the exact merge to execute the head spec; it did (mainProof packagedRun.specBytes)."
+    },
+    {
+      "id": "R0",
+      "target": "LSC-2P RED",
+      "qualification": "R0 (a RED installer from the pre-LSC-2 main) was not run; accepted by the OWNER-RULING."
+    },
+    {
+      "id": "RUNTIME-RED",
+      "target": "evidence/lsc-2p-red-20261018.json",
+      "qualification": "The checker RED runtime receipt was produced at 19:25Z after the qualifying run by checking out the RED-state checker; its bytes equal main c461273a5 and the raw log is embedded with its hash (L-8)."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "pr": 2335,
+    "commentId": 6404037472,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a19e1e38710a859b9be9e56d2583629f1ed94db41390f3f7a5cf60b362619ae9",
+    "at": "2026-10-25T22:09:15Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2335#issuecomment-6404037472",
+    "bodyBytes": 3254,
+    "envelope": {
+      "path": "evidence/lsc-2p-owner-ruling-6404037472.bytes.json",
+      "payloadSha256": "a19e1e38710a859b9be9e56d2583629f1ed94db41390f3f7a5cf60b362619ae9",
+      "payloadBytes": 3254
+    },
+    "copyEqualsLive": true,
+    "copyEqualsRootSource": true,
+    "rootSource": "E:/Projects/Personal/MekStation-wt/_receipts/pr2335-owner-ruling-63c8fb8ac.md",
+    "label": "owner-ruled"
+  },
+  "acceptedOnTheRecord": [
+    "R0 not run",
+    "post-run spec edit (removal of the uncalled same helper)",
+    "S5b scope (a re-provisioned identity admitted to a free seat; campaign B never held the old seat-2 identity)",
+    "M6 is a weak kill (the renewal control is absent at baseline)",
+    "F1 security half open in this build, owned by CAMPAIGN-LIVE-WRITE-1 (Step 4); this run proves no implied server authority through N4 and S1 only",
+    "matchRecovered \"no\" is a heuristic false reading, not a product defect"
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-SMOKEA1-7",
+      "severity": "Medium",
+      "owner": "Root (open decision)",
+      "target": "src/lib/multiplayer/server/InMemoryPlayerStore.ts and the P2J carry-forward that depends on this answer",
+      "status": "OPEN DECISION for Root; this closure does not rule",
+      "item": "Packaged evidence (both runs): after an authority restart the seats and public playerIds are unchanged (playerIds come from keys and the seat rows live in SQLite) and the production standalone server prints the InMemoryPlayerStore dev-only warning. Identities therefore survive a restart. Player profiles held by InMemoryPlayerStore (display name, avatar, lastSeenAt) are lost on restart. The record field matchRecovered=no is the spec any-socket-close heuristic: after the restart the authority log shows the GM and P1 sockets accepted and bound to campaign A and exactly one upgrade refused with reason=expired (the log does not name the player; the round-1 review attributed it to the P2 original seat-2 bearer, which had expired before the restart, and the second run has the same timeline: minted in S1/S2, expired during the soak, restart after expiry). The reading is inconclusive, not a product defect. Root rules one of: (a) no identity repair needed (identity is durable; profile loss is accepted and disclosed), or (b) register a profile-persistence follow-up unit. P2J depends on the answer. STEP2-RC-RERUN-1 should record recovery per profile.",
+      "optionsForRoot": [
+        "(a) rule \"no identity repair needed\" and disclose the profile loss",
+        "(b) register a profile-persistence follow-up owner for InMemoryPlayerStore"
+      ],
+      "secondRunRestart": {
+        "seatsUnchanged": true,
+        "idsUnchanged": true,
+        "matchRecovered": "no",
+        "inMemoryPlayerStoreWarning": "seen"
+      },
+      "firstRunRestart": {
+        "seatsUnchanged": true,
+        "idsUnchanged": true,
+        "matchRecovered": "no",
+        "inMemoryPlayerStoreWarning": "seen"
+      }
+    },
+    {
+      "id": "LSC2P-F4-NO-AUTO-RECONNECT",
+      "severity": "Medium",
+      "owner": "Root (decide whether F4 needs an owner before the v2.2.0 human session)",
+      "target": "campaign socket client (the app never reconnects a closed campaign socket)",
+      "status": "OPEN decision for Root; disclosed in the proof doc Known gaps",
+      "item": "F4: after a socket drop or an authority restart every player must reload; the app does not reconnect a closed campaign socket by itself. S2 and S7 reload explicitly and assert that nothing is silently re-minted and the same playerId returns. No unit owns an automatic reconnect today."
+    },
+    {
+      "id": "LSC2P-F5-BINDING-REQUIRED-TEXT",
+      "severity": "Low",
+      "owner": "Root (disclosure)",
+      "target": "bare second tab of an installed profile",
+      "status": "disclosed; S2c records and does not assert",
+      "item": "F5: in a bare second tab the BINDING_REQUIRED text does not render and the forget control is unreachable. Admission S2c expected the text; the run records its absence. No unit owns it."
+    },
+    {
+      "id": "LSC2P-F1-SECURITY-HALF",
+      "severity": "High (release-blocking, already owned)",
+      "owner": "CAMPAIGN-LIVE-WRITE-1 (Step 4, blocked)",
+      "target": "PUT /api/campaigns/[id] and DELETE of a live-host campaign",
+      "status": "owned; open in this build",
+      "item": "From a guest profile viewing the HOST badge, the dashboard whole-record save is accepted by PUT /api/campaigns/[id] and an anonymous DELETE of a live-host campaign answers 204; the campaign socket takes the role from the verified bearer and is not affected. LSC-2P proves no implied server authority only through N4 (no host surfaces in the UI) and S1 (three distinct verified principals)."
+    },
+    {
+      "id": "STEP2-RC-RERUN-1-notes",
+      "severity": "Low",
+      "owner": "STEP2-RC-RERUN-1 (blocked)",
+      "target": "e2e/local-seat-credentials.spec.ts and scripts/qc/v220-evidence.mjs at RC time",
+      "status": "routed; spec and checker changes need a new qualifying run, so they are not made in the closure",
+      "items": [
+        "L-1: make the S5a server-log refusal check unconditional (it is skipped when no log files exist).",
+        "L-2 / M-2: record matchRecovered per profile instead of the any-socket-close heuristic.",
+        "L-4: add a discriminating mutant for \"no automatic mint\" and \"prompt alone mints nothing\" (M6 is a weak kill).",
+        "M-4: run the longer S5b sequence (old seat-2 identity joins campaign B, re-provision, new identity takes the remaining seat while the ghost stays) or move it to the LSC-GM-REMOVE-1 proof.",
+        "L-7 (optional): make the checker verify gaps, operator.kind and installer.sha256 against installed.exeSha256.",
+        "L-9: rebuild the installer from the RC commit (the first run installer bytes were not kept) and remove the MULTIPLAYER_DB_PATH override.",
+        "Step 2 reads \"not started | manual evidence pending\" in the generated page until that rerun, as Step 0 does; this is the generator default, not a defect (owner decision 5)."
+      ]
+    },
+    {
+      "id": "LSC2P-F2-F3-F6-F7",
+      "severity": "Info",
+      "owner": "none (recorded in the proof doc Known gaps)",
+      "target": "proof doc Known gaps",
+      "status": "recorded, not fixed (no src/ scope)",
+      "item": "F2: a refused join leaves a stored bearer and binding in that tab. F3: the join dialog never shows the host refusal reason. F6: the update check contacts GitHub at start. F7: agent shells export ELECTRON_RUN_AS_NODE."
+    },
+    {
+      "id": "LSC2P-GM-REMOVE-UI",
+      "severity": "Info",
+      "owner": "LSC-GM-REMOVE-1 (blocked, Step 5; must land before the human session)",
+      "target": "ordinary-UI GM remove-member control",
+      "status": "routed (Q8 option b); removal UI recorded absent in both packaged runs",
+      "item": "No ordinary-UI ghost-removal control exists; S5c records it absent and M8 kills any spec that claims a removal."
+    },
+    {
+      "id": "LSC2P-PASSWORD-MANAGER",
+      "severity": "Info",
+      "owner": "Step 8 human session",
+      "target": "browser password-manager prompt",
+      "status": "human item; Playwright cannot observe it",
+      "item": "N6 verifies the autocomplete attributes (current-password on create, primary and join; new-password on the new seat password). The prompt itself is a human observation (CF-LSC2OP-4)."
+    },
+    {
+      "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+      "severity": "Low",
+      "owner": "LSC-STORE-RULES-1 (blocked, registered 2026-10-24)",
+      "target": "CampaignCoopEntryPanel.tsx and CoopCredentialRenewal",
+      "status": "routed to its registered owner; not exercised by the packaged run",
+      "item": "The IDENTITY_CHANGED recovery gap carried from LSC-2 (admission carry-in) has a registered owner. The packaged spec, proof doc and local receipt do not mention IDENTITY_CHANGED, so the run records no journey consequence for it; the gap stays open with LSC-STORE-RULES-1."
+    }
+  ]
+}
