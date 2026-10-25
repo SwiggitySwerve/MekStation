@@ -1,3 +1,20 @@
+## 2026-10-25 Release-blocking units registered from the quality review (ledger and docs; budget pin)
+
+Recorded the owner's council-plan decisions 1-8 (owner-decisions-20261025.md, sha256 c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4) and the 2026-10-24 d desktop/origin decision (sha256 e1633c49a158f2e76e1ba137c63f79a281a5ad7e6b47da770bde0fc825663eef) verbatim as `ownerRuling20261025ReleaseBlockingSet`; receipts stay outside the repository.
+
+Registered seven blocked release-blocking units and one post-v2.2.0 backlog unit ([evidence](evidence/release-blocking-registration-20261025.json), SHA-256 4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38) on a64cb3fe6d82da8598fcc89341f0db5ecbfec45f; none is admitted and --next is unchanged:
+
+- Step 4 front, in order: API-SAME-HOST-1 (one Host/Origin/Sec-Fetch-Site guard in server.js for every route and the WebSocket upgrade, plus a 1 MiB frame limit; absorbs B15-AUTH-ORIGIN by annotation), CAMPAIGN-LIVE-WRITE-1 (the server decides who may save or delete a live co-op campaign from the verified bearer), DESKTOP-DATA-OWN-1 and -2, DESKTOP-GUARDS-1, and STEP2-RC-RERUN-1 (after LSC-2P closes).
+- Step 7 position 1: RELEASE-PRODUCER-1 (CI produces the v220-qualified bundle on the RC commit).
+- MULTI-WINDOW-SESSION-1: owner decision 6 backlog, outside the closures and in no step.
+- New roadmap node R2.desktop-platform. S5-01 is added to P2CG2 by annotation, with CAMPAIGN-FRAME-ADMIT-1 named as the fallback.
+
+l1ReleaseChecklist20261018.closures goes from 47 to 54. Step 4 prBudget 16 -> 29, Step 5 4 -> 7, Step 7 1 -> 3; the adopted-budgets pin in scripts/__tests__/v220-steps.test.mjs is edited with them, so this PR is product class. Step 2 scope now says "no implied server authority" and lists the HOST badge as a known issue (owner decision 2). Step 3 selection follows LSC-2P closure, not Step 2 completion (owner decision 5). Steps 0-3 carry no unit or doneTest change, so the recorded Step 1 evidence hash still validates. LSC-SALVAGE-1 is not promoted: the co-op host repro did not reproduce (owner decision 3 outcome), so it stays post-v2.2.0 and outside the closures; it gains one annotation recording the result and that its repair must also cover the co-op path.
+
+B15-AUTH-ORIGIN, B15-1, B15-2, B15-3, B15-3R, P2CG1H, P2CG2, LSC-SALVAGE-1, U66 and U81 gain one annotation each. No unit state, receipt, cap, ownership entry, predecessor or successor of an existing unit and no historical evidence changes; LSC-2P is untouched.
+
+---
+
 ## 2026-10-24 tsrs HOLD lift and follow-up registration (docs only)
 
 Recorded the owner's lift of the tsrs HOLD (owner-decisions-20261024b.md item 1) as the dated `holdLiftAmendment20261024`. `stepPlanDecision20261024` is retained unchanged; GOAL.md:10, DELIVERY.md:10 and the V2.2.0-STEPS.md header source (generate-v220-steps.mjs) now say the HOLD was lifted and the Windows tsrs re-run is advisory.

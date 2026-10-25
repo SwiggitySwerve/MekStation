@@ -56,7 +56,7 @@
           "description": "Installed Electron: three UI identities, reload, renewal, revoke, reclaim; EVIDENCE FILE NOT YET DEFINED carrying the artifact hash."
         }
       ],
-      "scope": "One installed authority; no token transfer, test activator or implied roles.",
+      "scope": "One installed authority; no token transfer, test activator or implied server authority. Known issue, disclosed and not fixed in v2.2.0 (owner decision 2): a profile opened on a campaign it does not host can show the HOST badge.",
       "prBudget": 12,
       "userVisible": true
     },
@@ -80,7 +80,7 @@
     {
       "id": 4,
       "name": "Every seat applies state before a mission starts",
-      "units": ["P2CG1H", "P2CG1I1", "P2CG1I2", "P2CG1I3", "P2CG1I4", "P2CG2", "P2CH", "P2C"],
+      "units": ["API-SAME-HOST-1", "CAMPAIGN-LIVE-WRITE-1", "DESKTOP-DATA-OWN-1", "DESKTOP-DATA-OWN-2", "DESKTOP-GUARDS-1", "STEP2-RC-RERUN-1", "P2CG1H", "P2CG1I1", "P2CG1I2", "P2CG1I3", "P2CG1I4", "P2CG2", "P2CH", "P2C"],
       "witnesses": ["P2CG1B", "P2CG1C", "P2CG1D", "P2CG1E", "P2CG1F", "P2CG1G1", "P2CG1G2A", "P2CG1G2", "P2CG1R", "P2CG1S", "P2CG1HP"],
       "gates": [],
       "doneTests": [
@@ -99,8 +99,8 @@
           "description": "Withhold one valid application ACK: zero creates until every seat converges, then exactly one."
         }
       ],
-      "scope": "Readiness mechanism only; no shared-mission client work.",
-      "prBudget": 16,
+      "scope": "Readiness mechanism only; no shared-mission client work. Six release-blocking units run first, in this order (owner decisions 2026-10-24 d and 2026-10-25): the all-routes same-host guard with the WebSocket frame limit, the live co-op campaign write authority, desktop data ownership 1 and 2, the desktop guards, and the Step 2 RC rerun (after LSC-2P closes). They change no co-op readiness behaviour. Campaign-socket admission (S5-01) is part of P2CG2.",
+      "prBudget": 29,
       "userVisible": false
     },
     {
@@ -130,7 +130,7 @@
         }
       ],
       "scope": "Shared launch and server ownership, plus the GM ghost-removal control (LSC-GM-REMOVE-1, owner decision 4); no broader hardening.",
-      "prBudget": 4,
+      "prBudget": 7,
       "userVisible": true
     },
     {
@@ -157,7 +157,7 @@
     {
       "id": 7,
       "name": "Freeze and qualify the release candidate",
-      "units": [],
+      "units": ["RELEASE-PRODUCER-1"],
       "witnesses": ["MP-REWIND-DICE-1"],
       "gates": ["closures", "automated-rc", "live-gm-rewind-dice"],
       "doneTests": [
@@ -166,8 +166,8 @@
           "schema": "closure-rewind"
         }
       ],
-      "scope": "Recheck every l1ReleaseChecklist20261018 closure (47); rerun steps 3, 5, 6 on RC; no product changes after freeze.",
-      "prBudget": 1,
+      "scope": "RELEASE-PRODUCER-1 first, before the freeze; recheck every l1ReleaseChecklist20261018 closure (54); rerun steps 2, 3, 5, 6 on RC (Step 2 joins the list through STEP2-RC-RERUN-1); no product changes after freeze.",
+      "prBudget": 3,
       "userVisible": false
     },
     {
