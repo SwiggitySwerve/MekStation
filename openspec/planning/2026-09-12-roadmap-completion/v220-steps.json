@@ -51,10 +51,9 @@
       "gates": [],
       "doneTests": [
         {
-          "status": "PROOF NOT IMPLEMENTED",
-          "plannedIn": "LSC-2P",
-          "description": "Installed Electron: three UI identities, reload, renewal, revoke, reclaim; EVIDENCE FILE NOT YET DEFINED carrying the artifact hash."
-        }
+          "argv": ["node", "scripts/playwright/run-playwright.mjs", "test", "--config=playwright.local-seat-packaged.config.ts", "e2e/local-seat-credentials.spec.ts", "--workers=1"]
+        },
+        { "kind": "evidence", "schema": "local-seat-proof" }
       ],
       "scope": "One installed authority; no token transfer, test activator or implied server authority. Known issue, disclosed and not fixed in v2.2.0 (owner decision 2): a profile opened on a campaign it does not host can show the HOST badge.",
       "prBudget": 12,

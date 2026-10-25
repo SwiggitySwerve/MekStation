@@ -17,6 +17,7 @@ export const schemas = {
   'installer-rehearsal': 8,
   'human-session': 8,
   publication: 9,
+  'local-seat-proof': 2,
 };
 export function evidenceStep(schema) {
   requireThat(Object.hasOwn(schemas, schema), 'Unknown evidence schema');
@@ -281,5 +282,44 @@ export function checkEvidenceRecord(kind, record, context) {
       'co-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)',
     ])
       requireThat(notes.includes(limit), 'Missing release-note limit');
+  } else if (kind === 'local-seat-proof') {
+    const hex = (v, n) => new RegExp(`^[a-f0-9]{${n}}$`).test(v);
+    const { installer: i, installed: n, publicIdentities: ids } = record;
+    requireThat(
+      /^MekStation-.+-win-x64\.exe$/.test(i?.filename) &&
+        hex(i.sha256, 64) &&
+        i.sizeBytes > 0 &&
+        text(i.authenticode) &&
+        hex(n?.exeSha256, 64) &&
+        text(n.productVersion) &&
+        n.authorityUrl === 'http://127.0.0.1:3001' &&
+        n.freshAuthority === true &&
+        n.listener,
+      'Missing installed-artifact identity',
+    );
+    requireThat(
+      ids?.length === 3 &&
+        ['primary', 'seat1', 'seat2'].every(
+          (c) => ids.filter((x) => x.choice === c).length === 1,
+        ) &&
+        new Set(ids.map((x) => x.playerId)).size === 3 &&
+        ids.every((x) => /^pid_[1-9A-HJ-NP-Za-km-z]+$/.test(x.playerId)),
+      'Public identities must be three distinct players',
+    );
+    requireThat(
+      ['S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7'].every((id) => {
+        const s = record.scenarios?.find((x) => x.id === id);
+        return s?.result === 'PASS' && Number.isFinite(Date.parse(s.endedAt));
+      }),
+      'Every scenario S0-S7 must PASS',
+    );
+    observations(record);
+    requireThat(
+      Array.isArray(record.defects) &&
+        record.defects.length === 0 &&
+        text(record.operator?.identity) &&
+        text(record.operator.attestation),
+      'Open defects or missing operator attestation',
+    );
   } else throw new Error('Unknown evidence schema');
 }
