@@ -1,0 +1,270 @@
+{
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "baseline": "1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a",
+  "observedAt": "2026-10-24T21:07:15.764Z",
+  "authority": "Owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. Owner decisions 2026-10-24 (b) item 1 (lift the tsrs HOLD) and (c) item 4 (register a GM remove-member follow-up before the v2.2.0 human session). Not a future sensitive OWNER-RULING.",
+  "note": "sourceFiles carry the verbatim receipt text as read at registration. carry-forward.md is edited after this PR to mark the settled ROOT OWES lines, so its later bytes differ from the hash recorded here.",
+  "sourceFiles": [
+    {
+      "name": "owner-decisions-20261024b.md",
+      "sha256": "152db0e7758bf0e44445b8669c5c1f49332052d855fe56fc4209441c283928fa",
+      "bytes": 1176,
+      "text": "OWNER DECISIONS 2026-10-24 (~07:10 UTC)\n1. tsrs HOLD LIFTED for roadmap units: \"Lift the HOLD and drain #2313, then LSC-2C (recommended)\". Steps 1-9 may proceed one unit at a time under the Step 0 rules (GOAL.md:10, stepPlanDecision20261024). The Windows tsrs re-run stays advisory and is no longer a gate.\n2. Release protection: \"Tag ruleset with only you allowed, plus the release.yml environment line; releases tagged manually from now on (recommended)\".\n   - Applied by Root: tag ruleset release-tags, id 25772929, active on refs/tags/v*. Rules: creation, update, deletion, non_fast_forward. Bypass: repository admin role only.\n   - Applied by Root: environment \"release\", with required reviewer SwiggitySwerve.\n   - Pending as a small PR: release.yml release job declares environment: release; auto-version tag push documented as admin-only.\n   - Limit, recorded honestly: agents act with the owner's admin token, so the ruleset stops non-admin and bot tag pushes, not the owner's own credentials. The environment protects only jobs that declare it (new commits onward).\n3. Owner asked for a Haiku swarm to assess further repo/worktree/branch/folder cleanup (read-only).\n"
+    },
+    {
+      "name": "owner-decisions-20261024c.md",
+      "sha256": "31574a6a99df40b5783e0f9b1119e09c9c24df34cdc6d3bbc9be05e85922dc24",
+      "bytes": 1310,
+      "text": "# Owner decisions 2026-10-24 (c)\n\nRecorded by Root from the owner's answers in thread 6db2c314 (verbatim selections):\n\n1. Step 1 page: \"Allow one extra Step 1 PR: point the done-test at the real command, add the step evidence record, Opus verifies it, then start LSC-2C (recommended)\". Carrier: draft PR #2327.\n2. File cap: \"Exempt only V2.2.0-STEPS.md from the file count (line count unchanged), recorded as an owner ruling in the ledger (recommended)\".\n3. Budgets: \"Raise Step 2's budget to 12 and Step 1's to 3, recorded in v220-steps.json through draft PR #2327 with Opus verification, then continue (recommended)\".\n4. Q8 (ghost removal / readmission product gap): \"Accept for v2.2.0 and record it. Add a test-only scenario proving readmission works when a seat is free, and register a follow-up unit to add a GM 'remove member' control before the v2.2.0 human session; no extra Step 2 PRs (recommended)\".\n5. Q2 (LSC-2P soak timeout): \"Yes, allow a per-test timeout override for the LSC-2P packaged soak test only (recommended)\".\n6. Execution: \"Try using more sonnet workers to get more done in parallel\".\n\nEffect: LSC-2P gate G-P0 is satisfied (Q8 option b: S5 records the refusal and absent removal UI, plus test-only S5b; Q2 per-test override on the soak test only). Q1 (real-time soak) follows from Q2."
+    },
+    {
+      "name": "carry-forward.md",
+      "sha256": "757d4249e9ac924254e1220ec30e07ccf1d70bd5e09c6f11fbb14703bd8b6679",
+      "bytes": 6725,
+      "text": "# Carry-forward register (Root, created 2026-10-18 under the council 3b BASELINE CARVE-OUT rule)\n\nEach line names a change or finding for a planned or blocked unit. That unit's admission freeze must re-baseline on Main and acknowledge each line.\n\n| Date | Owner unit | Files | Item | Source |\n|---|---|---|---|---|\n| 2026-10-18 | LSC-2OP | src/stores/campaign/campaignBayActions.ts, new salvageUnitEnrollment.ts, src/types/campaign/Salvage.ts, src/pages/gameplay/campaigns/[id]/salvage.tsx, e2e/campaign-economy-browser.spec.ts | KNOWN-RED: campaign-economy-browser.spec.ts:377. Accepting a whole-unit salvage adds force membership with no roster projection, and the checkpoint refuses the save (\"Force <root> references absent roster unit enemy-atlas\"). The candidate also lacks unitRef/unitSource/sourceVersion. A ready patch with 23/23 unit tests is at E:/Projects/Personal/MekStation-wt/nightly-diag-20261018/baseline-f-salvage.patch, based on #2282 at 0da8feed0. It exceeds the carve-out (more than 40 lines, plus new exports). Release predicate: LSC-2OP lands the enrollment and verify:qc:campaign-economy:browser passes 12/12. | baseline-F routing report |\n| 2026-10-18 | B15-3R / B15-3 | src/pages/api/campaigns/[id].ts, campaignRecordJournalTransaction.test.ts | An invalid campaign projection is refused with 500 (deliberate, from U35b). It should be a typed 422 {kind:'invalid-campaign-projection'}. Patch: nightly-diag-20261018/baseline-f-checkpoint-422.patch (10/10 tests). | baseline-F routing report |\n| 2026-10-18 | P2CG1H | e2e/gm-two-player-authority.pack1.spec.ts | Pre-landed by #2283 (when merged): the E2E-08 read-only reader replaces the DB-file hash. P2CG1H's acknowledgement edit must rebase over it, and CF-S-5's role-honesty paragraph stays with P2CG1H. | #2283 |\n| 2026-10-18 | U2b | e2e/gm-two-player-privacy.pack.spec.ts | #1886 (parked) must rebase over #2283's E2E-20/21 sealed-Move rewrite. | #2283 |\n| 2026-10-18 | U25 | e2e/fixtures/sqliteEvidenceReader.ts and 12 call sites | Inherits the read-only reader check. 12 other call sites hash the live DB the same way. Units deploy off-map on small maps (product finding). | #2283 |\n| 2026-10-18 | U24b | .github/workflows/nightly-validation.yml | When the journal ships on by default and the switch is removed, collapse #2279's split E2E-19/25 nightly step back into the full suite. | #2279 / lane C |\n| 2026-10-18 | P2J | e2e/scenario-packs (coop-host-review, coop-guest-proposal) | These are QUARANTINED in recapture (#2279). Lift the quarantine when P2J is main-verified; a guard test enforces this. | #2279 |\n| 2026-10-18 | TBD (P2CG1H or new unit after B14-HEAD; Fable #2287 review to recommend) | src/lib/multiplayer/server (MatchHostRegistry host creation) | PRODUCT BUG: two simultaneous first socket connections to a new lobby match create two server hosts; the later intent fails with a store conflict. Found by L1-SMOKE-A1 (#2287). Matters for 2 players + GM joining at once. | #2287 |\n| 2026-10-18 | backlog (app shell) | e2e/app-shell-route-proof.spec.ts, service worker | CF-2282-1: the desktop dropdown click during the service worker first-install handoff lost client-side navigation in tests. Investigate whether real users can hit it (product race). | #2282 |\n| 2026-10-18 | backlog (replay) | src/components/audit/replay/GameReplayPage.visualization.tsx, replay.attackEffects.test.tsx | CF-2299-1: the standalone replay page renders the full future history (the same defect as the quick-game panel, fixed in #2299). CF-2299-2: effects are not windowed. | #2299 |\n| 2026-10-19 | P2CG1H (scope amendment needed) | src/lib/multiplayer/server/CampaignHostRegistry.ts | CF-MPHD-4: CampaignHostRegistry.getOrCreate has the same check-then-set race as the match registry (fixed in #2303). P2CG1H owns the file next, but only with a type-only grant, so a behaviour amendment or a new unit is needed before H. Co-op campaign joins for 2 players + GM are exposed. | #2303 / HP lane |\n| 2026-10-19 | NEW unit needed (rewind port) or U44 | src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts, rewindRebuildPort | CF-MPRU2-1 (Medium): the live GM-rewind rebuild still rolls uncaptured deterministic dice from SeededD6Roller(0xc0ffee), and its events carry no rolls. Must be fixed before the GM rewind path is claimed for v2.2.0. | #2306 |\n\n- 2026-10-20 (#2311 verify): P2CG1H admission must reconcile the HP verdict label (APPROVE vs APPROVE-WITH-IN-PR-FIXES) and the regression count (383 vs 384).\n- 2026-10-20 (#2312 verify): L1-SMOKE-A2 admission fixes the admissionRequires prefix and restates CF-MPRU2-2, CF-MPRU2-3 and OBS-MPRU2-1 in the target units.\n| 2026-10-20 | L1-SMOKE-A2 | concurrent-first-sockets proof leaf; source freeze required | CF-MPHD-5: lift the positive concurrent-first-sockets round into A2, with accepted participant actions and no store conflict. Restated in A2.behavior; remains owed across the proposed split. | #2303; https://github.com/SwiggitySwerve/MekStation/pull/2315 |\n\n- 2026-10-20 (#2319): ROOT OWES the registration of CF-MPRD-4 (co-op AI dice hash-seeded, CoopOpponentDriver.ts:130-140) and CF-MPRD-5 (journal-divergence rebuild with no dice roller, ServerMatchHostJournalAuthority.ts:266-274). Fold both into the next registration PR.\n\n## 2026-10-20 - #2313 MP-CAMPAIGN-HOST-DEDUPE-1 (Opus APPROVE at c3eb20afa; merge HELD by owner pause)\n- CF-MPCHD-1: test a second join arriving while register() is still running (kills surviving mutant M2 at CampaignHostRegistry.ts:453).\n- CF-MPCHD-2: lifecycle parity with MatchHostRegistry - _reset clears in-flight map behind a generation check; dispose waits/cancels a pending creation and closes its result.\n- CF-MPCHD-3: route direct register() through the same per-key in-flight slot.\n- CF-MPCHD-4: treat closed entries as absent in getOrCreate.\n- CF-MPCHD-5: bring CampaignHostRegistry.ts back under the 400-line oxlint warning (409 now) when next touched.\n- 2026-10-24 (#2325): ROOT OWES the registration of CF-MPCHD-1..5 (closure records them as openRegistrationFollowUp with no target unit). Fold them, with CF-MPRD-4/5, into the next registration PR; CF-MPCHD-5 is to be observed at P2CG1H and P2CG2 admission.\n- Admission notes for closure: frozen admission JSON edited post-RED (baseline/restack; manifest/caps/hashes unchanged); local evidence counted 58 vs reproduced 61.\n- 2026-10-24 (#2329 review finding 2): ROOT OWES a ledger text update recording the tsrs HOLD lift (owner-decisions-20261024b.md item 1) in GOAL.md:10, DELIVERY.md:10, units.json stepPlanDecision20261024.drain ('HOLD still applies') and the V2.2.0-STEPS page header. Fold into the next Root registration PR with CF-MPCHD-1..5, CF-MPRD-4/5 and CF-LSC2C-2R.\n"
+    }
+  ],
+  "holdLift": {
+    "ownerDecision": "Lift the HOLD and drain #2313, then LSC-2C (recommended)",
+    "supersededClause": "#2313, then LSC-2C, then reconcile A2FP. No new admission while draining; HOLD still applies.",
+    "amendedProse": [
+      {
+        "file": "GOAL.md",
+        "line": 10,
+        "removed": "The tsrs HOLD remains; Step 0 advances no unit.",
+        "added": "The tsrs HOLD was lifted for roadmap units on 2026-10-24 (owner decision; holdLiftAmendment20261024): Steps 1-9 proceed one unit at a time under the Step 0 rules, and the Windows tsrs re-run is advisory, not a gate. Step 0 advances no unit."
+      },
+      {
+        "file": "DELIVERY.md",
+        "line": 10,
+        "removed": "The tsrs HOLD remains in force.",
+        "added": "The tsrs HOLD was lifted for roadmap units on 2026-10-24 (holdLiftAmendment20261024); the Windows tsrs re-run is advisory, not a gate."
+      },
+      {
+        "file": "scripts/qc/generate-v220-steps.mjs",
+        "line": 216,
+        "removed": "HOLD: roadmap units remain held. This page grants no admission.",
+        "added": "HOLD lifted 2026-10-24 (holdLiftAmendment20261024): roadmap units proceed one at a time under the Step 0 rules. This page grants no admission."
+      }
+    ]
+  },
+  "closureRecords": {
+    "MP-CAMPAIGN-HOST-DEDUPE-1.carryForwardRouting20261024": [
+      {
+        "id": "CF-MPCHD-1",
+        "severity": "Low",
+        "owner": "Root registration follow-up",
+        "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register) with CampaignHostRegistry.test.ts",
+        "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.test.ts",
+        "item": "Add a late-joiner concurrency test: gate register(), issue a second getOrCreate after the metadata read and prove it shares the pending creation. The owned suite does not kill mutant M2 (evict after metadata read, CampaignHostRegistry.ts:453); review probe P1 does."
+      },
+      {
+        "id": "CF-MPCHD-2",
+        "severity": "Low",
+        "owner": "Root registration follow-up",
+        "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+        "status": "open registration follow-up; no registered unit grants CampaignHostRegistry.ts runtime lifecycle work",
+        "item": "Lifecycle parity with MatchHostRegistry: _reset clears the in-flight map behind a generation guard (probe P3), and dispose awaits or cancels a pending creation and closes its result (probe P2; MatchHostRegistry.closeMatch awaits in-flight first)."
+      },
+      {
+        "id": "CF-MPCHD-3",
+        "severity": "Low",
+        "owner": "Root registration follow-up",
+        "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+        "status": "open registration follow-up; needs its own finite scope decision",
+        "item": "Route direct register() through the same per-key in-flight slot, or make register idempotent across its awaits, so the create-route registration cannot race a cold getOrCreate (probe P4; pre-existing, declared out of scope by the admission)."
+      },
+      {
+        "id": "CF-MPCHD-4",
+        "severity": "Info",
+        "owner": "Root registration follow-up",
+        "target": "the next frozen CampaignHostRegistry.ts runtime owner (to register)",
+        "status": "open registration follow-up; needs its own scope decision",
+        "item": "Treat closed entries as absent in getOrCreate, mirroring the MatchHostRegistry isClosed check. Pre-existing; coopMissionCreate.ts guards itself today."
+      },
+      {
+        "id": "CF-MPCHD-5",
+        "severity": "Info",
+        "owner": "Root registration follow-up",
+        "target": "first unit whose frozen scope touches CampaignHostRegistry.ts beyond type-only imports (to register)",
+        "status": "open registration follow-up; observe at P2CG1H and P2CG2 admission",
+        "item": "CampaignHostRegistry.ts is 409 lines against the oxlint max-lines warn threshold of 400 (0 warnings at base 0372f9d1d). Bring it back under 400 when next touched. P2CG1H holds only a type-only grant and P2CG2 names the file in a draft stage census; neither grants this split, so no routing text was added to them."
+      }
+    ],
+    "MP-REWIND-DICE-1.carryForwardRouting20261020": [
+      {
+        "id": "CF-MPRD-4",
+        "severity": "Info",
+        "owner": "Root registration follow-up",
+        "target": "co-op AI owner, to register",
+        "status": "open registration follow-up; no named registered target unit",
+        "item": "Pre-existing: CoopOpponentDriver.ts:130-140 uses a hash seed for co-op AI dice instead of crypto. Root must register a finite co-op AI owner and scope; this closure grants no source ownership or fix."
+      },
+      {
+        "id": "CF-MPRD-5",
+        "severity": "Info",
+        "owner": "Root registration follow-up",
+        "target": "journal-authority owner, to register",
+        "status": "open registration follow-up; no named registered target unit for this divergence repair",
+        "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
+      }
+    ],
+    "LSC-2C.carryForwardRouting20261024": [
+      {
+        "id": "CF-LSC2C-2R",
+        "severity": "Low",
+        "owner": "Root registration follow-up",
+        "target": "a separately registered unit owning src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts and src/lib/multiplayer/server/auth.ts (to register)",
+        "status": "open registration follow-up; no registered unit grants those leaves for this change",
+        "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper (expiry, issued<expires, 10s drift), so the client adapter imports them instead of mirroring them (review L-1, invariant 11)."
+      }
+    ],
+    "LSC-2.carryForwardRouting20261024": [
+      {
+        "id": "CF-LSC2-L1-DUP",
+        "severity": "Low",
+        "owner": "Root registration follow-up",
+        "target": "src/pages-modules/multiplayer/multiplayerPage.helpers.ts (mintToken with its lobby/spectate callers) and the local mintToken in src/pages/multiplayer/index.tsx; no registered unit owns them",
+        "status": "open registration follow-up; named under hard invariant 11 and left by LSC-2",
+        "item": "Consolidate the two remaining primary mint client copies onto mintCoopCredential or a shared helper."
+      },
+      {
+        "id": "CF-LSC2-STORE-RULES",
+        "severity": "Low",
+        "owner": "Root registration follow-up",
+        "target": "a separately registered unit owning src/lib/campaign/coop/localSeatCredentialStore.ts (frozen control) and its panel callers",
+        "status": "open registration follow-up (review F5)",
+        "item": "Three rules live in presentation because the store is frozen: the choice-to-seat-id mapping (LocalSeatCredentialPanel.tsx and the store mint body), the renewal-window and expiry classification in CoopCredentialRenewal, and the join-time never-replace-a-bearer-with-a-different-identity guard in CampaignCoopEntryPanel.tsx (mirrors replaceCoopCredential IDENTITY_CHANGED). The store should export seatIdForChoice, a renewal-state classifier and a join-time bearer-adoption guard, and the panels call them."
+      },
+      {
+        "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+        "severity": "Low",
+        "owner": "LSC-2P journey or CF-LSC2-STORE-RULES",
+        "target": "LSC-2P packaged journey record; CampaignCoopEntryPanel.tsx and CoopCredentialRenewal (LS16 is frozen)",
+        "status": "open gap (review F6); fails closed, not a security issue",
+        "item": "At entry, the IDENTITY_CHANGED message says to forget the sign-in and reclaim through co-op entry, but the only per-match forget control is inside CoopCredentialRenewal, which renders nothing while the bearer has more than four minutes left. In the same tab a user who rejoins a match with a different credential has no reachable forget until the window opens (workaround: a new tab). LSC-2P records the journey consequence; a fix needs a registered owner."
+      },
+      {
+        "id": "LSC2-G5-GHOST-REMOVAL-CONTROL",
+        "severity": "Info",
+        "owner": "LSC-2P",
+        "target": "LSC-2P packaged journey step \"ghost retained until ordinary removal\"",
+        "status": "routed (admission G5, review G5 ruling)",
+        "item": "No ordinary-UI GM ghost-removal control exists and LSC-2 adds none (RemoveParticipant reaches the host only through the transport intent, hosted by LS21c). LSC-2P records the step as absent and does not claim it, unless a UI leaf is registered."
+      }
+    ]
+  },
+  "lsc2pAdmissionExcerpt": {
+    "file": "evidence/lsc-2p-admission-20261018.json",
+    "sha256": "2954c64ba5498d3e18188780cdf1c93d62128da57f63951b23ee53e00315db30",
+    "atCommit": "dce58bce940374d8b8c61163772cafa73cbff453",
+    "gateGP0": "No RED installer build, packaged run or spec RED commit until Root records rulings on Q1, Q2 and Q8 (in the OWNER-RULING on PR #2332 or a later Root receipt). Q8 is an owner product decision: (a) accept and record; (b) accept and record plus the free-seat readmission scenario S5b (second campaign B, old seat-2 identity joins B, re-provision, new identity joins B into the free seat while the ghost stays); (c) register a GM participant-removal UI unit before LSC-2P RED (Step 2 budget above 8, owner approval); (d) fold a removal UI leaf into LSC-2P by a further registration correction (new fit measurement; conflicts with N2 and G-P6). Under (a) or (b) Root registers the removal control as a named product follow-up with an owner, due before the v2.2.0 human session, and the proof doc states the lock-out. Q2 must be ruled explicitly because the registered behavior says the unit retains the unchanged 30-second test timeout.",
+    "q8": {
+      "id": "Q8",
+      "added": "this admission",
+      "question": "S5 cannot reach \"GM readmission\" or \"ghost removal\" in the ordinary UI: the new identity is refused (tactical seats full) and no removal control exists. Accept recording this, or register a GM removal UI leaf (a new product unit and PR)?",
+      "disposition": "RECOMMENDED: accept and record. The packaged claim becomes: re-provision gives a new distinct playerId; the guest reclaims (mint succeeds); the host refuses the new identity while the ghost holds a seat; removal UI is absent; nothing more is claimed. A removal leaf would add at least one PR and break the 8-PR budget of Step 2, so it needs an owner answer. This admission amends S5 accordingly and adds mutant M8.",
+      "status": "OPEN for the owner; gated by G-P0 (recommended wording applied provisionally)"
+    },
+    "ghostRemovalCarryIn": {
+      "id": "LSC2-G5-GHOST-REMOVAL-CONTROL",
+      "directedTo": "LSC-2P",
+      "disposition": "TAKEN: the journey records the removal step as absent and makes no claim; a UI leaf would need an owner answer (Q8)."
+    }
+  },
+  "registeredUnits": [
+    {
+      "id": "LSC-GM-REMOVE-1",
+      "state": "blocked",
+      "predecessors": [
+        "LSC-2"
+      ],
+      "carryForwards": [
+        "LSC2-G5-GHOST-REMOVAL-CONTROL",
+        "Q8"
+      ],
+      "registeredSourceLeaves": []
+    },
+    {
+      "id": "MP-CAMPAIGN-HOST-LIFECYCLE-1",
+      "state": "blocked",
+      "predecessors": [
+        "MP-CAMPAIGN-HOST-DEDUPE-1"
+      ],
+      "carryForwards": [
+        "CF-MPCHD-1",
+        "CF-MPCHD-2",
+        "CF-MPCHD-3",
+        "CF-MPCHD-4",
+        "CF-MPCHD-5"
+      ],
+      "registeredSourceLeaves": [
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ]
+    },
+    {
+      "id": "MP-REWIND-DICE-2",
+      "state": "blocked",
+      "predecessors": [
+        "MP-REWIND-DICE-1"
+      ],
+      "carryForwards": [
+        "CF-MPRD-4",
+        "CF-MPRD-5"
+      ],
+      "registeredSourceLeaves": [
+        "src/lib/multiplayer/server/CoopOpponentDriver.ts",
+        "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+        "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts"
+      ]
+    },
+    {
+      "id": "LSC-CONSOLIDATE-1",
+      "state": "blocked",
+      "predecessors": [
+        "LSC-2C",
+        "LSC-2"
+      ],
+      "carryForwards": [
+        "CF-LSC2C-2R",
+        "CF-LSC2-L1-DUP"
+      ],
+      "registeredSourceLeaves": [
+        "src/lib/api/securitySchemas.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/lib/multiplayer/server/auth.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+        "src/pages/multiplayer/index.tsx"
+      ]
+    },
+    {
+      "id": "LSC-STORE-RULES-1",
+      "state": "blocked",
+      "predecessors": [
+        "LSC-2",
+        "LSC-CONSOLIDATE-1"
+      ],
+      "carryForwards": [
+        "CF-LSC2-STORE-RULES",
+        "LSC2-F6-IDENTITY-CHANGED-RECOVERY"
+      ],
+      "registeredSourceLeaves": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx"
+      ]
+    }
+  ],
+  "admissionNotes": {
+    "P2CG1H": {
+      "CF-MPCHD-5": "Observe at admission: CampaignHostRegistry.ts was over the 400-line oxlint max-lines warning when MP-CAMPAIGN-HOST-DEDUPE-1 closed (409). H holds only a type-only grant and does not take the split; MP-CAMPAIGN-HOST-LIFECYCLE-1 owns it. Never in flight together."
+    },
+    "P2CG2": {
+      "CF-MPCHD-5": "Observe at admission: the draft stage census names CampaignHostRegistry.ts. This stage grants no line-count split; MP-CAMPAIGN-HOST-LIFECYCLE-1 owns it. Never in flight together."
+    }
+  },
+  "unchanged": "No product code, unit state, receipt, cap, ownership entry or Step 1-3 assignment changes; v220-steps.json changes by adding LSC-GM-REMOVE-1 to Step 5, amending the Step 5 scope text and restating the Step 7 closure count; no LSC-2P field changes; no historical evidence byte changes."
+}
