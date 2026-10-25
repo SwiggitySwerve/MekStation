@@ -10,6 +10,7 @@ import {
   checkReleaseEvidence,
   checkEvidenceRecord,
   directory,
+  evidenceStep,
   sha256,
   stepInputSha,
   verifyReference,
@@ -999,4 +1000,95 @@ test('review: owner-page records must share the page candidate', (t) => {
     () => validate(plan, f.ledger, f.root, evidence('2'.repeat(40))),
     /Wrong candidate SHA/,
   );
+});
+
+function seatProof(f) {
+  const hex = (c) => c.repeat(64);
+  const stamp = '2026-10-24T03:00:00Z';
+  const ids = [
+    { profile: 'gm', choice: 'primary', playerId: 'pid_1gm' },
+    { profile: 'p1', choice: 'seat1', playerId: 'pid_1seatone' },
+    { profile: 'p2', choice: 'seat2', playerId: 'pid_1seattwo' },
+  ];
+  return {
+    kind: 'local-seat-proof',
+    rcSha: f.rcSha,
+    inputSha256: stepInputSha(f.plan, f.ledger, 2),
+    installer: {
+      filename: 'MekStation-2.2.0-lsc2p.1-win-x64.exe',
+      sha256: hex('a'),
+      sizeBytes: 1,
+      authenticode: 'NotSigned',
+    },
+    installed: {
+      exeSha256: hex('b'),
+      productVersion: '2.2.0.0',
+      authorityUrl: 'http://127.0.0.1:3001',
+      listener: { pid: 1, bind: '127.0.0.1' },
+      freshAuthority: true,
+    },
+    publicIdentities: ids,
+    scenarios: ['S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7'].map((id) => ({
+      id,
+      result: 'PASS',
+      startedAt: stamp,
+      endedAt: stamp,
+      observations: [],
+      artifacts: [],
+    })),
+    observations: [
+      { timestamp: stamp, status: 'PASS', description: 'Observed the action' },
+    ],
+    artifacts: { 'timeline.json': hex('c') },
+    operator: { identity: 'test', kind: 'agent', attestation: 'Ran it' },
+    gaps: [],
+    defects: [],
+  };
+}
+
+test('local-seat-proof belongs to step 2 and a complete record passes', (t) => {
+  const f = fixture(t);
+  assert.equal(evidenceStep('local-seat-proof'), 2);
+  assert.doesNotThrow(() =>
+    checkEvidenceRecord('local-seat-proof', seatProof(f), f.context),
+  );
+});
+
+test('local-seat-proof refuses weak identities, hashes, scenarios and defects', (t) => {
+  const f = fixture(t);
+  const refuses = (mutate, pattern) => {
+    const record = seatProof(f);
+    mutate(record);
+    assert.throws(
+      () => checkEvidenceRecord('local-seat-proof', record, f.context),
+      pattern,
+    );
+  };
+  // M9: a repeated playerId
+  refuses(
+    (r) => (r.publicIdentities[2].playerId = 'pid_1gm'),
+    /three distinct/,
+  );
+  // M10: choices that are not exactly primary, seat1 and seat2
+  refuses((r) => (r.publicIdentities[2].choice = 'seat1'), /three distinct/);
+  refuses((r) => r.publicIdentities.pop(), /three distinct/);
+  // M11: missing or malformed hashes and candidate SHA
+  refuses((r) => delete r.installer.sha256, /installed-artifact identity/);
+  refuses(
+    (r) => (r.installed.exeSha256 = 'B'.repeat(64)),
+    /installed-artifact/,
+  );
+  refuses(
+    (r) => (r.installer.filename = 'MekStation-setup.exe'),
+    /installed-artifact/,
+  );
+  refuses((r) => (r.installed.freshAuthority = false), /installed-artifact/);
+  refuses((r) => (r.rcSha = 'A'.repeat(40)), /Wrong candidate SHA/);
+  refuses((r) => (r.artifacts = {}), /Missing artifact SHA256/);
+  // M12: a non-PASS or absent scenario, and open defects
+  refuses((r) => (r.scenarios[3].result = 'FAIL'), /S0-S7 must PASS/);
+  refuses((r) => r.scenarios.pop(), /S0-S7 must PASS/);
+  refuses((r) => (r.defects = [{ scenario: 'S3' }]), /Open defects/);
+  refuses((r) => (r.observations = []), /Missing timestamped PASS/);
+  refuses((r) => (r.inputSha256 = '0'.repeat(64)), /Stale evidence inputs/);
 });
