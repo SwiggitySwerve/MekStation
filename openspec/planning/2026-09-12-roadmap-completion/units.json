@@ -10243,6 +10243,9 @@
         "CF-S-1": "Still open: fog-off HTTP history/export lacks the sealed-choice hold. Acknowledge before activation; preserve privacy refusal, and obtain a separate finite scope amendment if repair needs leaves outside H.",
         "CF-MPHD-3": "getOrCreate ignores meta.status: refuse or recover completed/failed-recovery matches instead of creating a colliding host. H review/admission must route this explicitly; its type-only grant does not permit this behavior change.",
         "I3": "Visual check: empty role=status paragraph renders on every campaign page and may leave a spacing gap. Coordinate H/LSC-2; do not claim a fix or grant extra source leaves here."
+      },
+      "followups20261024": {
+        "CF-MPCHD-5": "Observe at admission: CampaignHostRegistry.ts was over the 400-line oxlint max-lines warning when MP-CAMPAIGN-HOST-DEDUPE-1 closed (409). H holds only a type-only grant and does not take the split; MP-CAMPAIGN-HOST-LIFECYCLE-1 owns it. Never in flight together."
       }
     },
     {
@@ -10557,6 +10560,9 @@
           950
         ],
         "freeze": "Draft source-stage census only; actual finite names and full stage census must be frozen at admission. No stage artifact or runtime proof is created here; later review/identity/closure outputs retain G-OWN freeze and complete census."
+      },
+      "followups20261024": {
+        "CF-MPCHD-5": "Observe at admission: the draft stage census names CampaignHostRegistry.ts. This stage grants no line-count split; MP-CAMPAIGN-HOST-LIFECYCLE-1 owns it. Never in flight together."
       }
     },
     {
@@ -20144,6 +20150,308 @@
           "disposition": "#2310 registered LSC-SALVAGE-1; preserve its state and recorded release policy. No salvage repair or browser PASS claimed."
         }
       ]
+    },
+    {
+      "id": "LSC-GM-REMOVE-1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Q8 / LSC2-G5-GHOST-REMOVAL-CONTROL (owner decision 2026-10-24 item 4; evidence/lsc-2p-admission-20261018.json gates G-P0 and G5, openQuestions Q8): add the ordinary-UI GM remove-member control. A GM can see the campaign participants, including a ghost left behind when a seat is re-provisioned, and remove one through the existing RemoveParticipant intent (host behavior already hosted and proved in jsdom by LS21c; no server rule change), with (Root acceptance criteria, not owner-stated: an explicit confirmation, a visible refusal or unknown-outcome message, and a refreshed participant view) so the freed tactical seat admits the new identity. Must land before the v2.2.0 human session. LSC-2P records the control as absent (S5) and proves free-seat readmission only test-only (S5b); this unit makes the ghost-removal step real and it is not claimed packaged here.",
+      "ownershipPaths": [
+        "src/components/campaign/coop",
+        "src/pages-modules/gameplay/campaigns",
+        "src/lib/campaign"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-gm-remove-1-admission-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-gm-remove-1-red-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-gm-remove-1-local-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-gm-remove-1-review-20261024.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "LSC-2"
+      ],
+      "successors": [],
+      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Candidate surfaces from the LSC-2P census: the GM co-op surface in src/components/campaign/coop, the intent type in src/types/campaign/CampaignSync.ts and host handling in CampaignMatchHostIntent.ts / CampaignGmArbiter.ts (read-only unless a separate registration says otherwise). No source leaf is frozen by this registration; the freeze lists exact leaves and measured fit. It is an L1 closure assigned to Step 5 before the v2.2.0 human session (see rootRegistration20261024.releasePlacement); that placement admits nothing. Step 5's prBudget (4, set for P2 and U38) must be re-ruled by the owner before this unit is admitted.",
+      "registeredSourceLeaves": [],
+      "registration20261024": {
+        "source": "evidence/root-registration-20261024.json",
+        "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+        "sourceAdmitted": false,
+        "carryForwards": [
+          "LSC2-G5-GHOST-REMOVAL-CONTROL",
+          "Q8"
+        ]
+      }
+    },
+    {
+      "id": "MP-CAMPAIGN-HOST-LIFECYCLE-1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "CampaignHostRegistry follow-ups from the MP-CAMPAIGN-HOST-DEDUPE-1 closure: CF-MPCHD-1 late-joiner concurrency test (gate register(), a second getOrCreate after the metadata read shares the pending creation; kills mutant M2); CF-MPCHD-2 lifecycle parity with MatchHostRegistry (_reset clears the in-flight map behind a generation guard; dispose awaits or cancels a pending creation and closes its result); CF-MPCHD-3 route direct register() through the same per-key in-flight slot or make it idempotent across its awaits; CF-MPCHD-4 treat closed entries as absent in getOrCreate; CF-MPCHD-5 bring CampaignHostRegistry.ts back under the 400-line oxlint max-lines warning when touched. Behavioral concurrent tests, no change to MatchHostRegistry.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-lifecycle-1-admission-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-lifecycle-1-red-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-lifecycle-1-local-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-campaign-host-lifecycle-1-review-20261024.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "MP-CAMPAIGN-HOST-DEDUPE-1"
+      ],
+      "successors": [],
+      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Exactly those two leaves; a CF-MPCHD-5 extraction needs its own registered leaf. P2CG1H holds only a type-only grant on CampaignHostRegistry.ts and P2CG2 names it in a draft census: this unit and either of them are never in flight together, and neither grant is widened. CF-MPCHD-3 and CF-MPCHD-4 take their finite scope decision from this registration. CF-MPHD-3 (getOrCreate ignoring meta.status) is the match registry and stays routed to P2CG1H review.",
+      "registeredSourceLeaves": [
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ],
+      "registration20261024": {
+        "source": "evidence/root-registration-20261024.json",
+        "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+        "sourceAdmitted": false,
+        "carryForwards": [
+          "CF-MPCHD-1",
+          "CF-MPCHD-2",
+          "CF-MPCHD-3",
+          "CF-MPCHD-4",
+          "CF-MPCHD-5"
+        ]
+      }
+    },
+    {
+      "id": "MP-REWIND-DICE-2",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Pre-existing uncaptured-dice paths left by MP-REWIND-DICE-1: CF-MPRD-4 CoopOpponentDriver.ts (lines 130-140) seeds co-op AI dice from a digest hash with d6Roller undefined instead of the host crypto-backed capture; CF-MPRD-5 ServerMatchHostJournalAuthority.ts (lines 266-274) rebuilds after journal divergence from SeededRandom without a dice roller. Use the host capture d6 in both, stamp generated rolls into canonical events before persist/broadcast, and keep deterministic replay and the seeded default helpers unchanged where no roller is passed. Behavioral tests prove captured rolls and faithful replay.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-2-admission-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-2-red-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-2-local-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mp-rewind-dice-2-review-20261024.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "MP-REWIND-DICE-1"
+      ],
+      "successors": [],
+      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. The journal-authority test leaf is chosen at the freeze (journalAuthorityRecovery.test.ts is the nearest existing suite). U44 (planned) owns capability-DB and journal work in src/lib/multiplayer/server and src/lib/events/journal: re-census and never run with it in flight; U44 routing is not permission for this divergence repair. If census shows a U44 collision on ServerMatchHostJournalAuthority.ts, split the CF-MPRD-5 half into its own registered successor. U26/FOG projection stays out.",
+      "registeredSourceLeaves": [
+        "src/lib/multiplayer/server/CoopOpponentDriver.ts",
+        "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+        "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts"
+      ],
+      "registration20261024": {
+        "source": "evidence/root-registration-20261024.json",
+        "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+        "sourceAdmitted": false,
+        "carryForwards": [
+          "CF-MPRD-4",
+          "CF-MPRD-5"
+        ]
+      }
+    },
+    {
+      "id": "LSC-CONSOLIDATE-1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Behavior-preserving consolidation left by LSC-2C and LSC-2 (refactor before change; characterization tests first). CF-LSC2C-2R: export PASSWORD_MAX_LENGTH and DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners (src/lib/api/securitySchemas.ts, src/pages/api/multiplayer/auth/token.ts, src/lib/multiplayer/server/auth.ts) plus one pure token time-sanity helper (expiry, issued before expires, 10s drift), and make the client adapter src/lib/campaign/coop/localSeatCredentialStore.ts import them instead of mirroring them (hard invariant 11). CF-LSC2-L1-DUP: collapse the two remaining primary mint client copies, mintToken in src/pages-modules/multiplayer/multiplayerPage.helpers.ts (lobby and spectate callers) and the local mintToken in src/pages/multiplayer/index.tsx, onto mintCoopCredential or one shared helper. No wire, token lifetime, refusal or UI behavior change.",
+      "ownershipPaths": [
+        "src/lib/api",
+        "src/pages/api/multiplayer/auth",
+        "src/lib/multiplayer/server",
+        "src/lib/campaign",
+        "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+        "src/pages/multiplayer/index.tsx"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-consolidate-1-admission-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-consolidate-1-red-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-consolidate-1-local-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-consolidate-1-review-20261024.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "LSC-2C",
+        "LSC-2"
+      ],
+      "successors": [],
+      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Source leaves above plus their existing suites (frozen at the freeze). Browser code may import only browser-safe exports; a server-only module import into a browser component is refused, so the freeze states each export owner. localSeatCredentialStore.ts is shared with LSC-STORE-RULES-1: serialize, this unit first. pages/multiplayer/lobby/[roomCode].tsx and spectate/[matchId].tsx consume multiplayerPage.helpers.mintToken, so any signature change needs them registered; a census must also search importers and page-level tests (RC-LSC2-1 lesson). Split if the leaf count exceeds the cap.",
+      "registeredSourceLeaves": [
+        "src/lib/api/securitySchemas.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/lib/multiplayer/server/auth.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+        "src/pages/multiplayer/index.tsx"
+      ],
+      "registration20261024": {
+        "source": "evidence/root-registration-20261024.json",
+        "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+        "sourceAdmitted": false,
+        "carryForwards": [
+          "CF-LSC2C-2R",
+          "CF-LSC2-L1-DUP"
+        ]
+      }
+    },
+    {
+      "id": "LSC-STORE-RULES-1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "LSC-2 review F5/F6. CF-LSC2-STORE-RULES: move three rules into their owner, src/lib/campaign/coop/localSeatCredentialStore.ts, and have the panels call them: seatIdForChoice (the choice-to-seat-id mapping duplicated in LocalSeatCredentialPanel.tsx and the store mint body), a renewal-state classifier for the renewal-window and expiry decision now made in CoopCredentialRenewal, and a join-time bearer-adoption guard (never replace a bearer with a different identity; the LS08 guard in CampaignCoopEntryPanel.tsx mirroring replaceCoopCredential IDENTITY_CHANGED). LSC2-F6-IDENTITY-CHANGED-RECOVERY: after the entry message tells the user to forget the sign-in and reclaim through co-op entry, a per-match forget control must be reachable in the same tab; today CoopCredentialRenewal renders nothing while the bearer has more than four minutes left (workaround: a new tab). It fails closed, not a security issue.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/pages-modules/gameplay/campaigns"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-store-rules-1-admission-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-store-rules-1-red-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-store-rules-1-local-20261024.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-store-rules-1-review-20261024.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "privacy",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "LSC-2",
+        "LSC-CONSOLIDATE-1"
+      ],
+      "successors": [],
+      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Source leaves above plus their existing suites (the LS08/LS16 pins and the store suite are frozen at the freeze; LS16 is not weakened). CampaignNavigation.tsx renders CoopCredentialRenewal and src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx is a page-level consumer, so census both. LSC-2P owns only e2e and docs/releases and records the F6 journey consequence; this unit takes its fix. Not a v2.2.0 closure unless Root adds it to the step plan.",
+      "registeredSourceLeaves": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx"
+      ],
+      "registration20261024": {
+        "source": "evidence/root-registration-20261024.json",
+        "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+        "sourceAdmitted": false,
+        "carryForwards": [
+          "CF-LSC2-STORE-RULES",
+          "LSC2-F6-IDENTITY-CHANGED-RECOVERY"
+        ]
+      }
     }
   ],
   "packets": [
@@ -27690,7 +27998,7 @@
       "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
     },
     "layer": "L1 / v2.2.0",
-    "unitCount": 46,
+    "unitCount": 47,
     "closures": [
       "P2CG1B",
       "P2CG1C",
@@ -27737,14 +28045,15 @@
       "U38",
       "P2J",
       "MP-REWIND-DICE-1",
-      "MP-CAMPAIGN-HOST-DEDUPE-1"
+      "MP-CAMPAIGN-HOST-DEDUPE-1",
+      "LSC-GM-REMOVE-1"
     ],
     "enforcement": "Documentary record only, inert to validate-roadmap/NEXT like layerRegistration20261017L1. Root owns release checks. No task contract, holder, P2CG1G2 field, release receipt or existing lifecycle changes; no claim that these gates passed.",
     "checklist": [
       {
         "id": "closures",
         "status": "pending",
-        "requirement": "All 46 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
+        "requirement": "All 47 listed units have genuine exact-main mainProof PASS, fetched-main ancestry and closure; preserve original L1 acceptance and H checkpoint. Full B14 privacy acceptance is discharged only when ALL FOUR B14-0A, B14-0B, B14-0 and B14-HEAD have genuine exact-main mainProof PASS, fetched-main ancestry and closure."
       },
       {
         "id": "built-server-spectator-smoke",
@@ -28850,6 +29159,79 @@
     "drain": "#2313, then LSC-2C, then reconcile A2FP. No new admission while draining; HOLD still applies.",
     "unchanged": "No unit state, receipt, cap, ownership, review, predecessor, proof or HOLD changes. Outside L1 existing selection remains. PLAN.md is Root-owned and untracked."
   },
+  "holdLiftAmendment20261024": {
+    "baseline": "1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/root-registration-20261024.json",
+    "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+    "authority": "Owner decision 2026-10-24 (~07:10 UTC), owner-decisions-20261024b.md item 1 (sha256 152db0e7758bf0e44445b8669c5c1f49332052d855fe56fc4209441c283928fa): \"Lift the HOLD and drain #2313, then LSC-2C (recommended)\". Standing instruction: continue with recommended options and fix the issues that come up, publish as needed.",
+    "amends": "stepPlanDecision20261024.drain: its clause \"HOLD still applies\" no longer applies from 2026-10-24. The decision object is retained unchanged as history, as lscParallelLaneAmendment20261018 and l1SmokeRegistration20261018 were amended by later dated objects, never rewritten.",
+    "proseUpdated": [
+      "GOAL.md:10",
+      "DELIVERY.md:10",
+      "scripts/qc/generate-v220-steps.mjs render() header, with V2.2.0-STEPS.md regenerated"
+    ],
+    "effect": "The tsrs HOLD is lifted for roadmap units. Steps 1-9 may proceed one unit at a time under the Step 0 rules. The Windows tsrs re-run stays advisory and is no longer a gate.",
+    "unchanged": "The rest of stepPlanDecision20261024: Root as sole admission coordinator, selection of the first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main, the drain order and \"no new admission while draining\". No unit state, receipt, cap, ownership, review, predecessor or proof requirement changes; v220-steps.json is untouched by this amendment."
+  },
+  "rootRegistration20261024": {
+    "baseline": "1c8a05d1c6c8151432cdeb2a011a2ffd2e4b8d2a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "source": "evidence/root-registration-20261024.json",
+    "sourceSha256": "29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b",
+    "units": [
+      "LSC-GM-REMOVE-1",
+      "MP-CAMPAIGN-HOST-LIFECYCLE-1",
+      "MP-REWIND-DICE-2",
+      "LSC-CONSOLIDATE-1",
+      "LSC-STORE-RULES-1"
+    ],
+    "initialStates": {
+      "LSC-GM-REMOVE-1": "blocked",
+      "MP-CAMPAIGN-HOST-LIFECYCLE-1": "blocked",
+      "MP-REWIND-DICE-2": "blocked",
+      "LSC-CONSOLIDATE-1": "blocked",
+      "LSC-STORE-RULES-1": "blocked"
+    },
+    "order": "MP-CAMPAIGN-HOST-DEDUPE-1 -> MP-CAMPAIGN-HOST-LIFECYCLE-1; MP-REWIND-DICE-1 -> MP-REWIND-DICE-2; LSC-2 -> LSC-GM-REMOVE-1; {LSC-2C, LSC-2} -> LSC-CONSOLIDATE-1 -> LSC-STORE-RULES-1. All five are blocked so --next is unchanged. Layer: LSC-GM-REMOVE-1 is the only L1 closure (Step 5); the other four are post-v2.2.0 backlog outside l1ReleaseChecklist20261018.closures. Edges are recorded on the new units only: closed predecessors keep their closure bytes and gain no successor entry.",
+    "manifests": {
+      "MP-CAMPAIGN-HOST-LIFECYCLE-1": [
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts"
+      ],
+      "MP-REWIND-DICE-2": [
+        "src/lib/multiplayer/server/CoopOpponentDriver.ts",
+        "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+        "src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts"
+      ],
+      "LSC-CONSOLIDATE-1": [
+        "src/lib/api/securitySchemas.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/lib/multiplayer/server/auth.ts",
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/pages-modules/multiplayer/multiplayerPage.helpers.ts",
+        "src/pages/multiplayer/index.tsx"
+      ],
+      "LSC-STORE-RULES-1": [
+        "src/lib/campaign/coop/localSeatCredentialStore.ts",
+        "src/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel.tsx",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx"
+      ]
+    },
+    "grouping": {
+      "LSC-GM-REMOVE-1": "Owner decision 4 (Q8): the GM remove-member control, due before the v2.2.0 human session.",
+      "MP-CAMPAIGN-HOST-LIFECYCLE-1": "CF-MPCHD-1..5, one registry and one test file; routes the openRegistrationFollowUp entries of the MP-CAMPAIGN-HOST-DEDUPE-1 closure.",
+      "MP-REWIND-DICE-2": "CF-MPRD-4 and CF-MPRD-5, the two pre-existing uncaptured-dice paths named by the MP-REWIND-DICE-1 closure.",
+      "LSC-CONSOLIDATE-1": "CF-LSC2C-2R and CF-LSC2-L1-DUP, both behavior-preserving duplicate removal, so they ship before the rule moves.",
+      "LSC-STORE-RULES-1": "CF-LSC2-STORE-RULES and LSC2-F6-IDENTITY-CHANGED-RECOVERY, both in the store owner and its panel callers."
+    },
+    "releasePlacement": "LSC-GM-REMOVE-1 must land before the v2.2.0 human session (owner decision 4), so it is added to l1ReleaseChecklist20261018.closures (46 -> 47) and assigned to Step 5 in v220-steps.json, the only unit assignment changed in that file. Why Step 5: Steps 1-3 are excluded by Root's steer (Step 1 is complete with evidence bound to its units; Steps 2-3 are in flight) and are not reopened; Step 4 is readiness mechanism only; Step 5 (shared mission, seat and unit ownership) is the earliest unfinished step after the excluded ones and the closest scope, since removing a ghost frees the seat. Its prBudget stays 4, set for P2 and U38, and now covers three units; the owner must re-rule Step 5's budget before LSC-GM-REMOVE-1 is admitted (this registration does not change it); Step 6 is test-only and Steps 7-9 freeze the release candidate. The Step 5 scope text now covers the GM ghost-removal control and the Step 7 scope text names the closures list (47); the Step 7 gate reads the checklist closures. The other four units are post-v2.2.0 backlog outside the L1 layer: generate-v220-steps requires a step only for units in the closures list, so they need none, and Step 1 evidence stays valid.",
+    "collisionRule": "Only the named leaves are reserved and none is admitted. MP-CAMPAIGN-HOST-LIFECYCLE-1 and P2CG1H/P2CG2 share CampaignHostRegistry.ts; MP-REWIND-DICE-2 and U44 share src/lib/multiplayer/server; LSC-CONSOLIDATE-1 and LSC-STORE-RULES-1 share localSeatCredentialStore.ts. LSC-GM-REMOVE-1 candidate ownership overlaps P2 (src/components/campaign/coop; also Step 5), U38 (src/lib/campaign), LSC-CONSOLIDATE-1 (src/lib/campaign) and LSC-STORE-RULES-1 (src/lib/campaign and src/pages-modules/gameplay/campaigns); its leaves are not frozen, so each admission re-censuses. No two are ever in flight together, and each admission re-censuses open PRs and registered worktrees.",
+    "scope": "Ledger, prose and evidence only: units.json, GOAL.md, DELIVERY.md, the V2.2.0-STEPS.md header source and its generated page, PROGRESS.md, one evidence file and one unit assignment in v220-steps.json (LSC-GM-REMOVE-1, Step 5), with the Step 5 scope text amended and the Step 7 closure count restated. No product code, unit state, receipt, cap, ownership entry, predecessor or successor of an existing unit changes. P2CG1H and P2CG2 gain one admission note each.",
+    "authority": "Owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. Owner decision 2026-10-24 item 4 (owner-decisions-20261024c.md, sha256 31574a6a99df40b5783e0f9b1119e09c9c24df34cdc6d3bbc9be05e85922dc24): register a follow-up unit for a GM remove-member control before the v2.2.0 human session. Root registers the remaining follow-ups the closure records left to Root. This is not a future sensitive OWNER-RULING, source admission or runtime acceptance."
+  },
   "ownerRuling20261024StepsPageFileCap": {
     "authority": "Owner 2026-10-24, answers recorded by Root in E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261024c.md (sha256 31574a6a99df40b5783e0f9b1119e09c9c24df34cdc6d3bbc9be05e85922dc24).",
     "receipt": {
@@ -28875,5 +29257,17 @@
     },
     "carrier": "PR #2327",
     "supersedes": "Counting note in stepPlanDecision20261024.authority (\"no file-count exclusion ruling\") for V2.2.0-STEPS.md only; no unit state, receipt, or historical evidence is changed."
+  },
+  "ownerRuling20261020SizeCapOptionA": {
+    "baseline": "c461273a50ccefc87545a26655a4eaef7838af6a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner decisions 2026-10-20 (~23:45 UTC) item 2, E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261020.md (sha256 2fb5cb2dce0a4d8b787c0d0fcb277958921ff706f6ba10c5ed89ecc01bf63e00): \"Size cap: option A (\"2 A\"). Test and fixture code are excluded from the 500-line unit cap (file count still applies). Apply in the next registration/policy PR, together with CF-MPRD-4/5. In-flight frozen admissions keep their recorded counting rule.\" This PR carries it with the CF-MPRD-4/5 registration (MP-REWIND-DICE-2). Standing instruction: continue with recommended options and fix the issues that come up, publish as needed.",
+    "ruling": "Option A: test code and fixture code do not count toward caps.maxNonGeneratedLines. The 15-file cap is unchanged and still counts every file, including tests, fixtures and evidence.",
+    "rootInterpretation": "Root interpretation (not owner-stated): the exclusion covers proof-harness test-support leaves, meaning leaves whose only role is to build fixtures or witness state for a proof, such as the read-only DB witness and the *-fixtures.ts leaves of the built-server smoke and A2FP proofs. It never covers runtime or product code, runner and harness entry points that ship behavior, or the ledger lifecycle files. Each admission freeze lists every leaf it treats as test-support, with its path and why, so reviewers can contest the classification. This classification decides A2FP's fit: its draft counts 598 lines under the literal rule and 317 if l1-built-server-spectator-reachability.ts (281 lines, the read-only DB witness) is test-support. A2FP's admission freeze must name that leaf and Root's reason, and the owner may overrule the classification before admission.",
+    "applies": "Admissions frozen after this record merges to main. A2FP (planned) is the first expected user: its draft counts 598 lines under the literal rule and must cite this object, re-run its 13 tests and 20 mutants, and fill its GATE OPEN placeholders before admission.",
+    "frozenAdmissionsKeepRule": "Every admission frozen before this record merges to main, and every merged unit, keeps the counting rule recorded at its freeze. LSC-2P was admitted under the literal rule and is unaffected.",
+    "enforcement": "Not enforced by the validator: UNCOUNTED_FILES in validate-roadmap.mjs still skips only generated files, __tests__/, e2e/, *.test.* and *.spec.* files, so fixture and test-support leaves outside those patterns still count in `--git`. A validator change is a separate scripted PR and is not made here. Until then a unit that relies on this ruling records the exclusion in its admission freeze and its capException.countedLines.",
+    "unchanged": "No unit state, receipt, cap value, ownership entry, predecessor or historical evidence changes. GOAL.md:97 and OD-line-cap-product-lines (2026-09-23) are retained; this extends them to fixtures."
   }
 }

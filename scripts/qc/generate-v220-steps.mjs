@@ -213,7 +213,7 @@ export function render(plan, ledger, inputSha, evidence = {}) {
     );
     return `| ${s.id}. ${s.name} | ${state} | ${status} | ${states} | ${s.gates.join(', ') || 'none'} |`;
   });
-  return `# V2.2.0 steps\n\nGenerated from v220-steps.json and units.json; source SHA256: ${inputSha}.\n\nHOLD: roadmap units remain held. This page grants no admission. Root reconciles live observations before selection. Baselines are not completion signals. No local PASS closes a step.\n\n| Step | State | Done-test | Main ledger state | Gates |\n| --- | --- | --- | --- | --- |\n${rows.join('\n')}\n`;
+  return `# V2.2.0 steps\n\nGenerated from v220-steps.json and units.json; source SHA256: ${inputSha}.\n\nHOLD lifted 2026-10-24 (holdLiftAmendment20261024): roadmap units proceed one at a time under the Step 0 rules. This page grants no admission. Root reconciles live observations before selection. Baselines are not completion signals. No local PASS closes a step.\n\n| Step | State | Done-test | Main ledger state | Gates |\n| --- | --- | --- | --- | --- |\n${rows.join('\n')}\n`;
 }
 export function main(
   args,
