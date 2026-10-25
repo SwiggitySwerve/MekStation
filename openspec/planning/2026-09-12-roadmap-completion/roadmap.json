@@ -9686,6 +9686,26 @@
       "acceptance": ["Deliver only DF-CATALOG-PIN behavior and required proof; genuine exact-main PASS/closure before dependent admission."],
       "owner": "Root; OFF L1/L2 critical path",
       "maxFiles": 15, "maxNonGeneratedLines": 500, "taskKeys": [], "receipt": null
+    },
+    {
+      "id": "R2.desktop-platform",
+      "wave": 2,
+      "title": "Desktop data ownership and IPC hardening (platform quality review S7)",
+      "kind": "implementation",
+      "state": "planned",
+      "dependsOn": ["R2.authority-live"],
+      "ownershipPaths": ["desktop/electron", "desktop/services/local", "desktop/scripts/validate-packaged-security.js", ".github/workflows/pr-checks.yml", "server.js", "src/services/persistence"],
+      "acceptance": ["DESKTOP-DATA-OWN-1 -> DESKTOP-DATA-OWN-2 -> DESKTOP-GUARDS-1; all ordinary caps and genuine exact-main proof", "Every database the packaged server opens lives under userData/data; only the server process copies, restores or deletes those files; the renderer file sandbox excludes them", "Every S7 reproduction in the units is a test that fails before and passes after; no GUI-launch claim is made without a packaged run"],
+      "owner": "parent-managed serialized platform lane",
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "registration": {
+        "evidence": "evidence/release-blocking-registration-20261025.json",
+        "sourceAdmitted": false,
+        "rule": "New planned node owns these exact existing literals so a collision census can see desktop ownership. server.js and src/services/persistence are also owned by R2.authority-live and are not widened there. B15-1 (R2.campaign-access) keeps its four desktop/electron literals; no unit of the two nodes is ever in flight together."
+      }
     }
   ],
   "tasks": [

@@ -1,0 +1,318 @@
+{
+  "id": "release-blocking-registration-20261025",
+  "kind": "registration",
+  "date": "2026-10-25",
+  "author": "Root registration; ledger, prose and evidence only",
+  "baseline": "a64cb3fe6d82da8598fcc89341f0db5ecbfec45f",
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "authority": {
+    "receipts": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025.md",
+        "sha256": "c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4",
+        "note": "Receipt lives outside the repository. Decisions 1-8 (council plan)."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261024d.md",
+        "sha256": "e1633c49a158f2e76e1ba137c63f79a281a5ad7e6b47da770bde0fc825663eef",
+        "note": "Receipt lives outside the repository. Desktop data ownership and origin-check units, release-blocking."
+      }
+    ],
+    "ownerInstruction": "Resume one by one in order",
+    "decisions": {
+      "1": "Release scope: \"Adopt the recommended blocking set (recommended)\". Blocking set: API-SAME-HOST-1 (+1 MiB WebSocket frame limit), DESKTOP-DATA-OWN-1, DESKTOP-DATA-OWN-2, DESKTOP-GUARDS-1, CAMPAIGN-LIVE-WRITE-1, STEP2-RC-RERUN-1, RELEASE-PRODUCER-1, S5-01 folded into P2CG2 as a registration correction; LSC-SALVAGE-1 conditional on decision 3. Everything else is disclosed as known issues and worked after v2.2.0.",
+      "2": "F1 display half (HOST badge): \"Reword Step 2's claim to 'no implied server authority' and list the HOST badge as a known issue (recommended by 2 of 3 proposers)\".",
+      "3": "Salvage: \"Run one co-op host repro now (read-only scratch test); promote LSC-SALVAGE-1 into the release-blocking set only if the next save actually breaks (recommended by 2 of 3)\".",
+      "4": "Budgets: \"Step 4: 16 -> 29 (+3 if salvage is promoted, +2-3 per pre-named split); Step 7: 1 -> 3; Step 5: 4 -> 7 (recommended)\".",
+      "5": "Step 2 evidence binding: \"Keep the rcSha binding: LSC-2P proves the current build now, and STEP2-RC-RERUN-1 reruns Step 2 on the release-candidate build so its record binds the real RC. Step 3 starts once LSC-2P closes, not once Step 2 is marked complete (recommended)\".",
+      "6": "Host in a new window/tab (owner, verbatim): \"We should be able to open multiple windows and have the same state registered and available at all times to interact with different sections if needed. Not blocking\". Root reading: the target behaviour is multi-window shared state and authority for the same identity; it is not release-blocking. For v2.2.0, CAMPAIGN-LIVE-WRITE-1 must not preclude it: a save from a window without the session token is refused with a clear reason on the save card, unsaved changes are kept, and the limitation is disclosed. A post-v2.2.0 follow-up unit (MULTI-WINDOW-SESSION-1) is registered for multi-window shared campaign state and host authority across windows of the same profile.",
+      "7": "RELEASE-PRODUCER-1 placement: \"Step 7, first position, before the release-candidate freeze (recommended by 2 of 3)\".",
+      "8": "Desktop/origin design choices: \"Take all the recommended defaults in the README (recommended)\" (E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/reg-desktop-origin/README.md section 5)."
+    },
+    "receiptNote": "The 20261025 receipt has no line break between items 1 and 2: item 1 ends at \"v2.2.0.\" and item 2 begins \"F1 display half\". The split is this record's; the receipt bytes are covered by its sha256.",
+    "desktopOriginDecision20261024d": "\"Register a desktop data-ownership unit (the server process owns userData/data, uses SQLite's backup API and tightens the IPC sandbox) plus an origin-check unit for all API routes, both release-blocking, sequenced right after Step 3 and before the release-candidate step (recommended)\"",
+    "decision3Outcome": "Decision 3 outcome (Root, 2026-10-25): co-op host repro NOT REPRODUCED (E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/salvage-repro/README.md): production contracts carry salvageRights None, pipeline candidates are born 'awarded' so Accept is disabled; with hand-seeded salvage rights the co-op path does not persist the failure (200/200 in-app, 500 then 200 after reload; unit silently not added). Condition not met: LSC-SALVAGE-1 stays post-v2.2.0 (solo-path repair) and is disclosed; Step 4 budget stays 29. Note for the backlog: the co-op silent drop and 500-on-accept after reload become reachable if contracts ever carry salvage terms.",
+    "standing": "Owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This is not a future sensitive OWNER-RULING, source admission or runtime acceptance."
+  },
+  "inputs": [
+    {
+      "role": "plan",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/council/SYNTHESIS.md",
+      "sha256": "e7ac53e0010a81930e5e2429efb2d4d2b4cf541f018bca17501c7d26d9117282",
+      "note": "Judge-verified council synthesis (option B)."
+    },
+    {
+      "role": "executability",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/council/p3-momus.md",
+      "sha256": "da68dbbe70d39f7ad8c868b6062af4460fab356f972b61c027f84aa8cc60cbd2",
+      "note": "Executability rules F1-F14 and section 2 validator rules."
+    },
+    {
+      "role": "proposer",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/council/p3x-implementer.md",
+      "sha256": "6515ef7efc9e3867da3a4b7508b5ce80ff8484958eaaa3d5930111ff677e0fac",
+      "note": "CAMPAIGN-RECORD-AUTHZ-1 rows, S5-01 fold, RELEASE-PRODUCER-1 file list."
+    },
+    {
+      "role": "proposer",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/council/p3x-planner.md",
+      "sha256": "addb68595420c7c7e1ef3e72fcb0f125abc9175d7bdf569163215eb2260dc7ed",
+      "note": "RELEASE-PRODUCER-1 finding (release.yml:462)."
+    },
+    {
+      "role": "proposer",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/council/p3x-strategist.md",
+      "sha256": "ba12a2c3d8b36c8d715f93bc719d3da30c06547d1b6d708596010145dcfc963e",
+      "note": "STEP2-RC-RERUN-1 and CAMPAIGN-LIVE-WRITE-1 red rows."
+    },
+    {
+      "role": "finding",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/lsc-2p-f1-investigation.md",
+      "sha256": "dbc8d67fd793fcd883ae36f1d78377d4762644107f4952caeca87ba03a469791",
+      "note": "F1: guest profile PUT/DELETE of a live co-op record."
+    },
+    {
+      "role": "finding",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/s5-multiplayer/FINDINGS.md",
+      "sha256": "981c95a8974bf8a9b8d5c9bfbf183bc8df42fa008076bb43e1aded29cf44e2b2",
+      "note": "S5-01 stranger proposals, S5-03 frame limit."
+    },
+    {
+      "role": "finding",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/s7-platform/FINDINGS.md",
+      "sha256": "58dd318b6dd64e086db837e5d6513c5e0eba826b1b60bad388b569c17978c353",
+      "note": "S7 desktop and API findings."
+    },
+    {
+      "role": "finding",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/quality-review/s8-ci/FINDINGS.md",
+      "sha256": "b02771f583c62745d3815ed5b5b52f2823900d6407af9991e1b3b429acbcca9a",
+      "note": "S8-01 and S8-03."
+    },
+    {
+      "role": "design",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/reg-desktop-origin/README.md",
+      "sha256": "ad8986ae82e12680f71ceaa78fa88bf8685cf1ede5a9c02dda5ecf93de56a2b1",
+      "note": "Section 5 defaults adopted by owner decision 8."
+    },
+    {
+      "role": "finding",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/salvage-repro/README.md",
+      "sha256": "7bde98adec6ac1bea90989445703b4f9ddf3cccc46f1c2a8b09f6e61a3a2b4e0",
+      "note": "Owner decision 3 co-op salvage repro: not reproduced."
+    }
+  ],
+  "releaseTest": "A defect blocks v2.2.0 only if it loses data in the installed app, breaks the L1 journey, or makes a stated v2.2.0 claim or registered gate false; severity and age decide nothing. Everything else is disclosed as a known issue and worked after v2.2.0 (owner decision 1).",
+  "units": {
+    "API-SAME-HOST-1": {
+      "step": 4,
+      "order": 1,
+      "covers": [
+        "S7-07",
+        "S5-03"
+      ],
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "leaves": 9,
+      "files": 14,
+      "estimatedCountedLines": 180,
+      "acceptanceRows": [
+        "sameHostGuard.test.ts rule table: accept localhost, 127.0.0.1, [::1] (with and without ports 1 and 65535), equal http or https Origin, Sec-Fetch-Site same-origin, none or absent; refuse evil.example, 127.0.0.1.nip.io, a rebinding Host with a matching Origin, a missing Host, ports 0 and 65536, a mismatched or null Origin, same-site and cross-site; X-Forwarded-Host does not rescue a bad Host; the existing localSeatCredentials rows (146-195) pass unchanged.",
+        "sameHostGuard.routes.test.ts walks src/pages/api, pins the route count (98 today) so a new route fails loudly, runs token, unlock and local-seats with a bad Host and checks the 403 comes before body parsing and KDF, and asserts server.js calls the guard before handle( and before bearer parsing on upgrade.",
+        "Server-entry rows: a 95 MiB frame is refused at the 1 MiB maxPayload on the match and campaign channels (today 5.2 s event-loop block); a foreign Origin upgrade is refused before token verification.",
+        "Packaged-socket validator rows on the unflagged built server: GET /api/health with Host: evil.example is 403; a cross-site urlencoded POST /api/vault/identity is 403 and creates no identity; a foreign-Origin upgrade is refused; the existing create/join/restart journey passes. Local only until DESKTOP-GUARDS-1 wires the validator into CI."
+      ]
+    },
+    "CAMPAIGN-LIVE-WRITE-1": {
+      "step": 4,
+      "order": 2,
+      "covers": [
+        "F1 security half",
+        "S4-03 refusal display"
+      ],
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "leaves": 7,
+      "files": 12,
+      "estimatedCountedLines": 200,
+      "acceptanceRows": [
+        "Live host, PUT with a host-shaped body.coopSession and no bearer: 403 with a typed code (today 200, F1 row); record version unchanged, live host untouched, nothing broadcast.",
+        "Host, same tab, reload while live: bearer still in sessionStorage, PUT 200.",
+        "Host, new window without the token while live: PUT refused with the typed reason; the save card shows it; the dirty flag and unsaved changes are kept (not labelled \"kept locally\"); disclosed.",
+        "App restart, no member reconnected (no live entry): offline path, accepted, pinned. App restart after a guest reconnected (live entry again): refused as in the new-window row.",
+        "Host token expired, same tab: refresh path then 200, or a typed re-unlock refusal; never \"kept locally\".",
+        "Guest profile, host offline (no live entry): PUT and DELETE accepted, pinned as disclosed behaviour.",
+        "Anonymous DELETE while a host is live: refused. Guest mirror save of its own record: unchanged (pinned before the change).",
+        "The rule is keyed on the verified principal, not on a window or tab, so MULTI-WINDOW-SESSION-1 can later bind more windows without changing the route rule (owner decision 6)."
+      ]
+    },
+    "DESKTOP-DATA-OWN-1": {
+      "step": 4,
+      "order": 3,
+      "covers": [
+        "S7-06",
+        "S7-15",
+        "S7-01"
+      ],
+      "reviewClasses": [
+        "authority",
+        "concurrency"
+      ],
+      "leaves": 9,
+      "files": 14,
+      "estimatedCountedLines": 330,
+      "acceptanceRows": [
+        "main.window.security.test.ts: the server env has DATABASE_PATH and MULTIPLAYER_DB_PATH, both absolute and under userData/data, also when the parent environment already sets another MULTIPLAYER_DB_PATH (red today: three env keys, no multiplayer path).",
+        "main.ipc.security.test.ts: after settings:set {backupDirectory: <outside>} read-file and write-file outside the roots are still refused; reading or writing userData/data/mekstation.db is refused.",
+        "main.server.test.ts: stop() sends the shutdown message and resolves when the child exits; after the bounded wait it falls back to killProcessTree; idempotent.",
+        "SQLiteDataControl.test.ts (root Jest, real better-sqlite3): with a second connection open and uncheckpointed writes, checkpointAll leaves each -wal at 0 bytes.",
+        "Recorded observation, not CI: a packaged clean quit leaves no non-empty -wal and no multiplayer-matches.db under the install directory."
+      ]
+    },
+    "DESKTOP-DATA-OWN-2": {
+      "step": 4,
+      "order": 4,
+      "covers": [
+        "S7-02",
+        "S7-03",
+        "S7-04",
+        "S7-05 (settings and point-in-time only)"
+      ],
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "leaves": 10,
+      "files": 15,
+      "estimatedCountedLines": 350,
+      "preNamedSplit": "DESKTOP-DATA-OWN-2B (S7-03 and S7-04), about +2-3 PRs, only by a separate registration correction",
+      "acceptanceRows": [
+        "A snapshot taken while one connection holds WAL data and a writer keeps committing contains every row committed before it began and passes integrity_check (file copy missed 7 of 4,747 rows); a staged restore applied with no open connection passes integrity_check with the snapshot row count.",
+        "BackupService.test.ts: restore never writes *.db, -wal or -shm into the live data directory; an archive entry ../x is refused; create archives snapshot files, not live files.",
+        "createBackup, restoreBackup and clearCache report failure with the error when the service is uninitialised or the server errors; the restore error list is surfaced.",
+        "LocalStorageService.test.ts: clear() removes tracked entries only; mekstation.db and multiplayer-matches.db remain.",
+        "Timer: enableAutoBackup false schedules nothing; the interval equals backupIntervalMinutes (fake timers).",
+        "Not claimed: main-process stall or memory at 10.5 MB."
+      ]
+    },
+    "DESKTOP-GUARDS-1": {
+      "step": 4,
+      "order": 5,
+      "covers": [
+        "S7-12",
+        "A7",
+        "S7-14",
+        "S8-01"
+      ],
+      "reviewClasses": [
+        "authority",
+        "migration"
+      ],
+      "leaves": 8,
+      "files": 13,
+      "estimatedCountedLines": 260,
+      "acceptanceRows": [
+        "A database with migrations.version above the catalog head is refused (or opened read-only); a snapshot exists before the first pending migration.",
+        "Every IPC handler rejects a sender that is not the packaged origin; settings:set rejects a renderer backupDirectory or dataDirectory.",
+        "The packaged-security validator gains the S7-01 case; one green required pr-checks run on the exact head shows both validators executing in Build Test / linux. The claim is static asar checks plus a standalone server boot, not a GUI launch."
+      ]
+    },
+    "STEP2-RC-RERUN-1": {
+      "step": 4,
+      "order": 6,
+      "covers": [
+        "Step 2 rcSha binding",
+        "Step 2 installed proof on the shipped layout"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "leaves": 5,
+      "files": 10,
+      "estimatedCountedLines": 100,
+      "acceptanceRows": [
+        "A closure-rewind case whose reruns omit Step 2 throws \"Missing exact RC rerun\" (red: the list at v220-evidence.mjs:199 is [3, 5, 6]); with [2, 3, 5, 6] and a Step 2 rerun it passes.",
+        "The Step 2 spec and recipe no longer set MULTIPLAYER_DB_PATH; the RC run records both databases under userData.",
+        "Selection rule: Step 3 follows LSC-2P closure, not Step 2 completion (owner decision 5)."
+      ]
+    },
+    "RELEASE-PRODUCER-1": {
+      "step": 7,
+      "order": 1,
+      "covers": [
+        "S8-03"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "leaves": 4,
+      "files": 9,
+      "estimatedCountedLines": 200,
+      "acceptanceRows": [
+        "v220-qualified-producer.test.mjs reads the release.yml consumer (artifact name, head_sha and success checks) and asserts a producer uploads that artifact in the layout the consumer reads (red today: no producer).",
+        "One producer run on the unit merge commit with fixture inputs uploads v220-qualified; checked with gh api .../artifacts.",
+        "Residual: the consumer download first runs at Step 9; a non-publishing rehearsal mode in release.yml is a Step 7 freeze decision, otherwise disclosed in RC evidence."
+      ]
+    }
+  },
+  "p2cgCorrection": {
+    "unit": "P2CG2",
+    "requirement": "S5-01: the campaign socket refuses every frame except CampaignJoin until a join succeeds. A stranger socket that never joined, or was refused at join, committed a SpendFunds 250000 proposal in auto-approve mode (balance 1,000,000 -> 750,000, host received a CampaignEvent) and queued one in host-review. The gate sits at the top of handleInbound (bindCampaignSyncConnection.ts:387, ahead of the CampaignJoin case at :575 and the CampaignProposal case at :630).",
+    "matrixTest": "A frame-kind x socket-state matrix over the Protocol union (CampaignJoin, CampaignGrantJoin, CampaignGrantAck, CampaignProposal, CampaignDecision, CampaignHostIntent, CampaignParticipation, CampaignAck, Heartbeat) x {not joined, refused, revoked, member, host}; a new frame kind without a row fails.",
+    "leafCensus": {
+      "measured": "origin/main a64cb3fe6",
+      "existingLeaves": [
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts (1831 lines; handleInbound at :387)",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts (3731 lines)"
+      ],
+      "registeredStage": "7 source/test leaves + units.json + 4 evidence = 12 files (amended20261018Tail.prospectiveSourceStage); estimatedCountedAdditions [116, 270]",
+      "fit": "Both S5-01 leaves are already in the P2CG2 stage, so the gate and the matrix add 0 files and about 30 counted lines if the matrix goes in the existing bindCampaignSyncConnection.test.ts; a separate matrix test file would make 13 files. Both fit 15 files and 500 lines on the registered estimate. Unmeasured until the admission freeze."
+    },
+    "fallback": "CAMPAIGN-FRAME-ADMIT-1 (named, not registered here): a Step 4 unit immediately before P2CG2, in closures, added to P2CG2 predecessors, about 7 files / 90 lines / 2 PRs. Registered by a separate correction only if the P2CG2 admission freeze measures more than 15 files or 500 counted lines."
+  },
+  "backlog": {
+    "MULTI-WINDOW-SESSION-1": "Owner decision 6: multiple windows share campaign state and host authority for the same identity. Registered, blocked, outside closures, in no step."
+  },
+  "salvage": {
+    "status": "NOT promoted and NOT registered into Step 4 or the closures. Owner decision 3 condition not met.",
+    "outcome": "Co-op host repro (Root, 2026-10-25, E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/salvage-repro/README.md): NOT REPRODUCED. Production contracts carry salvageRights None and pipeline candidates are born awarded (Accept disabled), so the host never gets an acceptable whole-unit candidate; with hand-seeded salvage rights the co-op path does not persist the failure (200/200 in-app with the unit silently not added; 500 on accept after reload, then 200). The solo journal-authority control reproduces A-01 (every later save 500).",
+    "disposition": "LSC-SALVAGE-1 stays post-v2.2.0 (salvageHandoff20261019), outside l1ReleaseChecklist20261018.closures and in no step; Step 4 budget stays 29; closures stay 54.",
+    "backlogNote": "The repair must cover the co-op path too: with salvage-bearing contracts the co-op path silently drops the accepted unit (in-app) or returns 500 on accept after reload; both become reachable if contracts ever carry salvage terms."
+  },
+  "budgets": {
+    "step4": {
+      "was": 16,
+      "now": 29,
+      "plus": "+3 if salvage were promoted (not promoted, decision 3), +2-3 per pre-named split"
+    },
+    "step5": {
+      "was": 4,
+      "now": 7
+    },
+    "step7": {
+      "was": 1,
+      "now": 3
+    },
+    "basis": "Owner decision 4. Pin edit in scripts/__tests__/v220-steps.test.mjs (momus F1), which makes the registration PR product class."
+  },
+  "knownIssuesDisclosed": [
+    "F1 display half: a profile opened on a campaign it does not host can render the HOST badge (owner decision 2: Step 2 claim reworded to \"no implied server authority\").",
+    "Offline-host writes: while a co-op session is not running another profile can overwrite or delete the saved record.",
+    "A new window cannot save a running co-op campaign; the host keeps its original window (owner decision 6; not blocking).",
+    "Spectating is open to any token holder and seats are not released (S5-02); Step 3 claims what spectators receive, not who may spectate.",
+    "S7-09 unthrottled vault sign route; S5-06 open post-battle report store; S7-13 dead settings dialog.",
+    "Backup archive step still runs in main (153-264 ms stall at 10.5 MB, S7-05 residual)."
+  ],
+  "unverified": [
+    "All size figures are estimates until git diff --numstat at each admission freeze.",
+    "Control channel under ELECTRON_RUN_AS_NODE=1 and TRUNCATE checkpoint from a second connection (DESKTOP-DATA-OWN-1 spike).",
+    "Exact spec and recipe lines for the Step 2 override were read on origin/work/lsc-2p-20261024 at 30122d695, not on main.",
+    "Token-refresh behaviour on the record save path (CAMPAIGN-LIVE-WRITE-1 freeze).",
+    "No packaged or built-server unit has closed yet; per-unit cycle times are models, not forecasts."
+  ]
+}
