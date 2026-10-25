@@ -9,6 +9,8 @@ Registered five blocked follow-up units ([evidence](evidence/root-registration-2
 - MP-REWIND-DICE-2: CF-MPRD-4 and CF-MPRD-5.
 - LSC-CONSOLIDATE-1: CF-LSC2C-2R and CF-LSC2-L1-DUP, then LSC-STORE-RULES-1: CF-LSC2-STORE-RULES and the IDENTITY_CHANGED recovery gap.
 
+Recorded owner decision 2026-10-20 item 2 (size cap option A: test and fixture code excluded from the 500-line cap, file count unchanged) as `ownerRuling20261020SizeCapOptionA`, with a Root interpretation for proof-harness test-support leaves; the validator is not changed.
+
 P2CG1H and P2CG2 gain one admission note for CF-MPCHD-5. No unit state, receipt, cap, ownership entry or closed-unit record changes. L1 closure accounting moves from 46 to 47 (LSC-GM-REMOVE-1).
 
 ---

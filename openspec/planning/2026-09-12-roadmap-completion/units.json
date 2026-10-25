@@ -29257,5 +29257,17 @@
     },
     "carrier": "PR #2327",
     "supersedes": "Counting note in stepPlanDecision20261024.authority (\"no file-count exclusion ruling\") for V2.2.0-STEPS.md only; no unit state, receipt, or historical evidence is changed."
+  },
+  "ownerRuling20261020SizeCapOptionA": {
+    "baseline": "c461273a50ccefc87545a26655a4eaef7838af6a",
+    "registrationOnly": true,
+    "sourceAdmitted": false,
+    "authority": "Owner decisions 2026-10-20 (~23:45 UTC) item 2, E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261020.md (sha256 2fb5cb2dce0a4d8b787c0d0fcb277958921ff706f6ba10c5ed89ecc01bf63e00): option A (\"2 A\"). Test and fixture code are excluded from the 500-line unit cap (file count still applies). In-flight frozen admissions keep their recorded counting rule. Standing instruction: continue with recommended options and fix the issues that come up, publish as needed.",
+    "ruling": "Option A: test code and fixture code do not count toward caps.maxNonGeneratedLines. The 15-file cap is unchanged and still counts every file, including tests, fixtures and evidence.",
+    "rootInterpretation": "Root interpretation (not owner-stated): the exclusion covers proof-harness test-support leaves, meaning leaves whose only role is to build fixtures or witness state for a proof, such as the read-only DB witness and the *-fixtures.ts leaves of the built-server smoke and A2FP proofs. It never covers runtime or product code, runner and harness entry points that ship behavior, or the ledger lifecycle files. Each admission freeze lists every leaf it treats as test-support, with its path and why, so reviewers can contest the classification.",
+    "applies": "Admissions frozen after 2026-10-24. A2FP (planned) is the first expected user: its draft counts 598 lines under the literal rule and must cite this object, re-run its 13 tests and 20 mutants, and fill its GATE OPEN placeholders before admission.",
+    "frozenAdmissionsKeepRule": "Every admission frozen before this record, and every merged unit, keeps the counting rule recorded at its freeze. LSC-2P was admitted under the literal rule and is unaffected.",
+    "enforcement": "Not enforced by the validator: UNCOUNTED_FILES in validate-roadmap.mjs still skips only generated files, __tests__/, e2e/, *.test.* and *.spec.* files, so fixture and test-support leaves outside those patterns still count in `--git`. A validator change is a separate scripted PR and is not made here. Until then a unit that relies on this ruling records the exclusion in its admission freeze and its capException.countedLines.",
+    "unchanged": "No unit state, receipt, cap value, ownership entry, predecessor or historical evidence changes. GOAL.md:97 and OD-line-cap-product-lines (2026-09-23) are retained; this extends them to fixtures."
   }
 }
