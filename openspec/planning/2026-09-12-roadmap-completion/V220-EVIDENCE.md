@@ -4,6 +4,10 @@
 
 Every reference is `{ "path": "relative/file", "sha256": "64 lowercase hex" }`; absolute paths, drive paths and any `..` segment are rejected. Paths stay inside the bundle and hashes bind actual bytes; owner-page references must start with the planning directory. Closure references instead resolve against the tagged repository. Every record carries `inputSha256`, computed by `stepInputSha(plan, ledger, stepId)`: its step definition and only its relevant unit IDs, states and merge SHAs (all 46 prerequisite closure units for steps 7-9). Ordinary unrelated ledger or package edits do not stale a record. Every candidate record also carries `kind` and the same 40-hex `rcSha`. Names resolve through the checker's schema registry; unknown or misplaced names fail. `observations` is a nonempty array of `{timestamp, status: "PASS", description}` with ISO timestamps. Preserve failed attempts separately; acceptance contains their closed defects and successful retests.
 
+## Step 2: local-seat-proof
+
+Required fields: `kind: "local-seat-proof"`, `rcSha`, `inputSha256` (added by Root when the external bundle record is composed; it cannot exist before LSC-2P merges), `installer` (`filename` matching `MekStation-*-win-x64.exe`, `sha256`, `sizeBytes`, `authenticode`), `installed` (`exeSha256`, `productVersion`, `authorityUrl: "http://127.0.0.1:3001"`, `listener`, `freshAuthority: true`), `publicIdentities` (exactly three: `primary`, `seat1`, `seat2`, with distinct `pid_` ids), `scenarios` (S0-S7 each `PASS`, with timestamps and artifact names), `observations`, `artifacts` (filename-to-SHA256 map), `operator: {identity, kind, attestation}`, `gaps` and an empty `defects` array. The record also carries `reprovision` and `restart` observations; they are recorded, not asserted. It is produced by `docs/releases/v2.2.0-local-seat-proof.md` and binds a pre-RC installer; Step 8 must bind the RC bytes. Raw artifacts (traces, screenshots, the report) stay outside Git; only their SHA256 values are recorded.
+
 ## Step 7: closure-rewind
 
 Required fields: `kind: "closure-rewind"`, `rcSha`, `closures`, `reruns`, `rewind`.
