@@ -146,8 +146,6 @@ function cfg() {
 }
 
 const now = () => new Date().toISOString();
-const same = (a: string, b: string) =>
-  path.resolve(a).toLowerCase() === path.resolve(b).toLowerCase();
 const under = (child: string | null | undefined, dir: string) =>
   !!child &&
   path

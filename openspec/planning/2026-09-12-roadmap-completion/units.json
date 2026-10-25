@@ -10084,14 +10084,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "state": "local-verified",
       "baseline": "a7711ad136c70b3380788298414690b589ee8430",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/lsc-2p-admission-20261018.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/lsc-2p-red-20261018.json" },
+        "local": { "path": "evidence/lsc-2p-local-20261018.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -22376,6 +22376,33 @@
           "item": "Export PASSWORD_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH and the 6h primary / 1h seat token caps from their owners, plus a pure token time-sanity helper, so the client adapter imports them instead of mirroring them. Unchanged by LSC-2."
         }
       ]
+    },
+    {
+      "id": "PK-lsc-2p-ruling",
+      "blocks": [
+        "LSC-2P"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the installed-Electron local-seat identity proof (three distinct public playerIds, reload, renewal, expired-token recovery, revoke and re-provision) and the local-seat-proof evidence kind that records it, after independent exact-head sensitive review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge followed by exact-main proof and closure; Step 2 stays open until Root composes the Step 2 record at RC time (STEP2-RC-RERUN-1) and Step 3 may start once LSC-2P closes.",
+          "effort": "Independent review, current CI and main proof"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete findings within scope and caps, then rerun the affected proof; a spec change after the packaged run needs a new qualifying run.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING on the exact head. Evidence on file: one qualifying run of the registered command against an installer built from the clean tree at d302868b3 (17 of 17 tests, S3 real-time soak 59 minutes, N4 before S5b, exit 0); the checker kill tests M9-M13 and the packaged mutants M1-M8 and M2 all died at the named step (M6 is a weak kill: the control does not exist yet). Review should cover: (1) the three distinct public playerIds and the no-implied-role claim, which is now worded as no implied server authority; (2) the known issue F1 recorded in S5b, where the re-provisioned guest sees the HOST badge on the first campaign after joining a second one, disclosed and not fixed per owner decision 2, with N4 asserted before S5b changes the profile; (3) the Q8(b) outcome: re-provision gives a new playerId, the host refuses it while the ghost holds a seat (the join dialog shows only the timeout text; the reason appears in the server log), no removal control exists, and S5b is test-only evidence; (4) G-P2: the app does not reconnect a closed socket by itself, S2 asserts no silent re-mint and the same playerId after a reload; (5) CF-SMOKEA1-7: InMemoryPlayerStore warning seen and the match host not recovered after restart, recorded and not asserted; (6) the folded checker (RC-LSC2P-1) refuses repeated ids, wrong choices, missing hashes and non-PASS scenarios; (7) the soak test is the only per-test timeout override (Q2). Not claimed: R0 (a pre-LSC-2 installer was not built), the password-manager prompt (human item), an RC installer (STEP2-RC-RERUN-1 reruns on the RC build and removes the MULTIPLAYER_DB_PATH override), and any Step 2 completion record. Retain all operator, final UI and packaged gates.",
+      "revertCost": "Revert the three registered leaves (config, spec, proof doc), the five RC-LSC2P-1 checker, test and page leaves and the unit lifecycle edits; no src/ file, package.json or workflow changes, so product behavior is unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",
