@@ -9,7 +9,7 @@
   "baselineNote": "PR base is origin/main 79211e5a1 (merge of #2334); the unit ledger baseline a7711ad13 is the admission baseline and is unchanged.",
   "headBeforeGreenCommit": "d302868b3b14ea720107aa66f8bd911cb0cc5968",
   "rcSha": "d302868b3b14ea720107aa66f8bd911cb0cc5968",
-  "rcShaNote": "The installer was built and proved from a clean tree at d302868b3 (merge of origin/main 79211e5a1 into the RED and checker commits). The GREEN commit adds only the proof doc, ledger, receipts and generated page, so the proved product, spec, config and checker bytes equal the head.",
+  "rcShaNote": "The installer was built and proved from a clean tree at d302868b3 (merge of origin/main 79211e5a1 into the RED and checker commits). The GREEN commit adds only the proof doc, ledger, receipts and generated page, and one two-line spec edit, so the proved product, config and checker bytes equal the head. The spec differs by one unused two-line helper (same) removed after the run: run bytes sha256 bec680f6e9bfa42b918ae2f62f6bad6d94af073b3a112033dd2081e75d793c78 (66272 bytes, = d302868b3), head bytes sha256 f58fe19be4deb1e6e166768309496450291dac196f27c83125cd5010ad47ee35 (66166 bytes).",
   "admission": {
     "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-20261018.json"
   },
@@ -36,8 +36,8 @@
     },
     {
       "path": "docs/releases/v2.2.0-local-seat-proof.md",
-      "sha256": "a8c8540c9ccda6514cb137d0ee3f49a4e7b5fd01b3bbef9ff87f65e4d45fdf1d",
-      "bytes": 30360
+      "sha256": "f291ad791171ceedcf1d48ad3ac7ec25b38716fc4962bb53051fc57f6be75a08",
+      "bytes": 32317
     },
     {
       "path": "scripts/qc/v220-evidence.mjs",
@@ -61,7 +61,7 @@
     },
     {
       "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
-      "sha256": "bcdc232d1e27aafba72b62a654ad5dd31fcbc63bb86b1210f566626c8f03b50d",
+      "sha256": "e38efb31d2be663f8be325cf1e5f715ad792e8f9d8523eb22c8b75f34a0c7b27",
       "bytes": 2846
     }
   ],
@@ -368,8 +368,153 @@
     ],
     "R0": "not run: needs a second NSIS build from pre-LSC-2 main 0599ea838"
   },
-  "runtime": {},
-  "finalHeadProof": "See runtime: commands were run on the tree that is committed in the GREEN commit (before the receipts were completed) via heavy-run class jest; validate-roadmap is rerun after this receipt is written.",
+  "runtime": {
+    "head": "4d99661bf511b43c0f53c138c287481314687561",
+    "lane": "lsc-2p",
+    "class": "jest (one ticket for the batch)",
+    "node": "v22.22.0",
+    "summaryLog": {
+      "path": "chk-summary.log",
+      "sha256": "ade031ba3714eea59aa8e13cce1e02d0327b5b1604c94541f1fdc38069419c40",
+      "bytes": 1801
+    },
+    "checks": {
+      "v220tests": {
+        "command": "node --test scripts/__tests__/v220-evidence.test.mjs scripts/__tests__/v220-format.test.mjs scripts/__tests__/v220-steps.test.mjs",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:22:27.3722002Z",
+        "endedAt": "2026-10-25T21:22:34.7233585Z",
+        "summary": "tests 130, pass 130, fail 0",
+        "log": {
+          "sha256": "4f71cfa9ae3d893d651896eff1b78c3ce76131454efda9637ce327be059b0480",
+          "bytes": 41348
+        }
+      },
+      "checkermut": {
+        "command": "node E:\\Projects\\Personal\\MekStation-wt\\_scratch-lsc2p-20261024\\run-checker-mutants.mjs E:\\Projects\\Personal\\MekStation-wt\\lsc-2p-20261024",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:22:34.7258462Z",
+        "endedAt": "2026-10-25T21:23:25.8539743Z",
+        "summary": "M9, M10, M11a, M11b, M11c, M12a, M12b, M13 all killed; baseline restored (exit 0)",
+        "log": {
+          "sha256": "e427b7915585a99b7c45334af436ccb50548a62f5dbf80f86a04597df2fce593",
+          "bytes": 5672
+        }
+      },
+      "gen": {
+        "command": "node scripts/qc/generate-v220-steps.mjs --check",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:23:25.8539743Z",
+        "endedAt": "2026-10-25T21:23:25.9561624Z",
+        "summary": "exit 0 (no output)",
+        "log": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "vr": {
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:23:25.9571431Z",
+        "endedAt": "2026-10-25T21:23:35.8202998Z",
+        "summary": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "log": {
+          "sha256": "0347f5dabe30a8536d2d341d253c3fb1697cea6ea96a53cbf15651e00b71fd6d",
+          "bytes": 156
+        }
+      },
+      "vrgit": {
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:23:35.8212787Z",
+        "endedAt": "2026-10-25T21:23:56.3455340Z",
+        "summary": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "log": {
+          "sha256": "a5bade6ef35b554499da94ee5be3a78e4e2c2b3bb084631a2553df05cd12bb13",
+          "bytes": 4714
+        }
+      },
+      "vrgh": {
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:23:56.3470538Z",
+        "endedAt": "2026-10-25T21:25:54.6275903Z",
+        "summary": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows",
+        "log": {
+          "sha256": "0347f5dabe30a8536d2d341d253c3fb1697cea6ea96a53cbf15651e00b71fd6d",
+          "bytes": 156
+        }
+      },
+      "vrtest": {
+        "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:25:54.6287287Z",
+        "endedAt": "2026-10-25T21:26:10.2819143Z",
+        "summary": "tests 86, pass 86, fail 0",
+        "log": {
+          "sha256": "9b4f2e9b95063b5206677fc42882aa19f3bd65fdce63101fae23d172b5112b0b",
+          "bytes": 33784
+        }
+      },
+      "typecheck": {
+        "command": "npm run typecheck",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:26:10.2819143Z",
+        "endedAt": "2026-10-25T21:26:17.8577986Z",
+        "summary": "exit 0",
+        "log": {
+          "sha256": "8102a14cf3245ac2b0d67c588affb25efaebfcd3485f9a46a751595d9a774951",
+          "bytes": 358
+        }
+      },
+      "lint": {
+        "command": "npm run lint",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:26:17.8583191Z",
+        "endedAt": "2026-10-25T21:26:23.0367416Z",
+        "summary": "Found 85 warnings and 0 errors",
+        "log": {
+          "sha256": "333eceffcf5675b71473c0f85fd638439adb16854cc91a5a2fc13d7b49b0d39c",
+          "bytes": 80508
+        }
+      },
+      "format": {
+        "command": "npm run format:check",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:26:23.0383469Z",
+        "endedAt": "2026-10-25T21:26:44.9910133Z",
+        "summary": "All matched files use the correct format",
+        "log": {
+          "sha256": "880a9ada9167423d4b46368c21fc0474b0e99e7e583611ca483f940754d633ed",
+          "bytes": 366
+        }
+      },
+      "units": {
+        "command": "npm run lint:units",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:26:44.9910133Z",
+        "endedAt": "2026-10-25T21:26:47.6296712Z",
+        "summary": "LINT_UNITS_PASS 17899/17899",
+        "log": {
+          "sha256": "2f70dc4aab9cb8c8d4c8b7a0ed9f814dd1398ac3812b50b5f0523577b28ff3ec",
+          "bytes": 730
+        }
+      },
+      "openspec": {
+        "command": "npx openspec validate --all --strict",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T21:26:47.6296712Z",
+        "endedAt": "2026-10-25T21:27:02.6284080Z",
+        "summary": "Totals: 230 passed, 0 failed (230 items)",
+        "log": {
+          "sha256": "c9dfd01e8e62604b8a34299366873c7b8d4457d8f7aa913979022ab52aeb0a17",
+          "bytes": 14816
+        }
+      }
+    },
+    "note": "Run at the GREEN head 4d99661bf before this review-fix commit; logs are kept outside git. The same light checks were rerun at the review-fix head and are cited in the PR."
+  },
+  "finalHeadProof": "See runtime.checks: the commands run at 4d99661bf, with exit codes, summary lines and log hashes. They are rerun at the review-fix head (cited in the PR).",
   "carryInDispositions": [
     {
       "id": "CF-LSC2OP-2",
@@ -381,15 +526,23 @@
     },
     {
       "id": "CF-SMOKEA1-7",
-      "disposition": "Restart observed in S7: seats and public ids unchanged; the InMemoryPlayerStore dev-only warning was seen and the match host was not recovered (matchRecovered: no). Recorded, not asserted; no product repair is registered here."
+      "disposition": "Restart observed in S7: seats and public ids unchanged and the InMemoryPlayerStore dev-only warning seen. matchRecovered=no comes from the spec any-close heuristic; app-restart-stdout.log shows the GM and P1 sockets accepted and bound to campaign A and only the P2 original seat-2 bearer refused (expired at 19:18:44Z). Inconclusive, not a product defect. Identities survive a restart (keys, seat rows in SQLite); player profiles held by InMemoryPlayerStore are lost. The decision is still open: closure rules no repair or registers a profile-persistence follow-up (P2J depends on it). STEP2-RC-RERUN-1 records recovery per profile."
     },
     {
       "id": "F1",
-      "disposition": "KNOWN ISSUE, disclosed and not fixed in v2.2.0 (owner decision 2): after the re-provisioned guest joins a second campaign, the same profile opened on the first campaign shows the HOST badge and the host review surface (S5b observation 3). N4 is asserted before S5b and passed."
+      "disposition": "KNOWN ISSUE, disclosed and not fixed in v2.2.0 (owner decision 2): after the re-provisioned guest joins a second campaign, the same profile opened on the first campaign shows the HOST badge and the host review surface (S5b observation 3). N4 is asserted before S5b and passed. Security half (F1 investigation 2026-10-24): from that view the dashboard whole-record save is accepted by PUT /api/campaigns/[id] and an anonymous DELETE of a live-host campaign answers 204; the campaign socket is not affected. CAMPAIGN-LIVE-WRITE-1 (release-blocking) owns the fix and it is not in this build. This run checks host surfaces in the UI (N4) and distinct verified principals (S1); it attempts no host action from a guest profile."
     },
     {
       "id": "F2-F8",
       "disposition": "Recorded in the proof doc known gaps and the prep findings: refused join leaves a stored bearer and binding in that tab (F2); the join dialog never shows the host refusal reason (F3); a closed socket is not reconnected (F4); the forget control and BINDING_REQUIRED text are unreachable in a bare second tab (F5); the update check contacts GitHub at start (F6); agent shells export ELECTRON_RUN_AS_NODE (F7). None is fixed here (no src/ scope)."
+    },
+    {
+      "id": "S5b-scope",
+      "disposition": "Campaign B never held the old seat-2 identity: S5b shows a re-provisioned identity admitted where a tactical seat is free, not the admission longer sequence (old identity joins B, re-provision, new identity takes the remaining seat while the ghost stays). The OWNER-RULING should accept the narrowing or move the full sequence to STEP2-RC-RERUN-1."
+    },
+    {
+      "id": "F4-F5",
+      "disposition": "F4: the app does not reconnect a closed campaign socket; players reload after a drop or restart. F5: the BINDING_REQUIRED text does not render in a bare second tab (S2c records, does not assert). Both are in the proof doc Known gaps; Root decides whether F4 needs an owner before the human session."
     }
   ],
   "gateDispositions": [
@@ -476,5 +629,21 @@
       "scripts/__tests__/v220-evidence.test.mjs (+92, test, file-counted)",
       "the red and local receipts (ledger evidence, file-counted)"
     ]
+  },
+  "reviewFixes": {
+    "recordedAt": "2026-10-25T21:53:42.339Z",
+    "reviewedHead": "4d99661bf511b43c0f53c138c287481314687561",
+    "review": "_reports/2026-10-25/pr2335-review.md",
+    "verdict": "APPROVE-WITH-IN-PR-FIXES",
+    "fixes": [
+      "M-1 F1 security half in the doc, the F1 disposition and the packet",
+      "M-2 matchRecovered reading corrected in the doc, the CF-SMOKEA1-7 disposition and the packet",
+      "M-3 runtime filled with log hashes; rcShaNote corrected",
+      "M-4 S5b scope stated in the doc and the packet",
+      "L-3 F4 and F5 added to Known gaps",
+      "L-5 CF-SMOKEA1-7 decision recorded as still open",
+      "L-6 teardown list numbering"
+    ],
+    "note": "No spec, config or checker byte changed; no new packaged run."
   }
 }
