@@ -8633,7 +8633,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "fixturesLeaf": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA",
@@ -8718,7 +8718,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "gmSpectator": "OQ-M1: GM-branded spectator rows assert the sealed content is absent, no placeholder and a contiguous delivery cursor, and record the authority sequence gap as a disclosed known issue; the strict sequence check is not required",
@@ -8844,7 +8844,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "fixturesLeaf": "scripts/release/l1-built-server-spectator-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA",
@@ -8927,7 +8927,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "fixturesLeaf": "scripts/release/l1-built-server-fog-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA",
@@ -20723,7 +20723,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "change": "Variant B: 10 leaves + 5 lifecycle = 15 files. scripts/__tests__/validate-multiplayer-packaged-socket.test.ts is dropped and its rows move into src/__tests__/api/sameHostGuard.routes.test.ts; src/__tests__/api/securityBoundary.test.ts and src/__tests__/api/vault/unlock.test.ts are added (they build requests with a non-loopback or absent Host and fail once token.ts and unlock.ts refuse first).",
@@ -20761,7 +20761,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "change": "Leaves 7 -> 10 (15 files): campaignJournalEffectsFixture.ts, campaignHostIntentServerTime.test-helpers.ts, CampaignDashboardPage.tsx. The host's own DELETE while a live session runs is refused until the session ends.",
@@ -20774,7 +20774,7 @@
       "id": "DESKTOP-DATA-OWN-1",
       "node": "R2.desktop-platform",
       "taskKeys": [],
-      "behavior": "Platform quality review S7 (owner decision 2026-10-24 d item 1; owner decision 2026-10-25 item 8), part 1 of 2. S7-06: the packaged launcher gives the embedded server MULTIPLAYER_DB_PATH=<userData>/data/multiplayer-matches.db beside DATABASE_PATH, so no durable database lives in the install directory and an update or uninstall no longer removes active or retained multiplayer matches; a desktop test asserts that every database path in the server environment resolves under userData. The launcher sets both after it spreads process.env, so an inherited MULTIPLAYER_DB_PATH or DATABASE_PATH cannot move them: the shipped default is used whatever the operator environment holds, which removes the Step 2 proof's dependency on its explicit override (LSC-2P's recipe sets MULTIPLAYER_DB_PATH; the override itself is deleted from that recipe and spec by STEP2-RC-RERUN-1). S7-15: main stops the server through a control channel (a Node IPC channel on the spawned child; not HTTP, so the renderer cannot reach it); the server checkpoints both SQLite files (wal_checkpoint TRUNCATE on a second connection per file, through one new persistence helper, src/services/persistence/SQLiteDataControl.ts) and exits, and the forced process-tree kill remains the bounded fallback. S7-01: the file sandbox roots become main-process constants (userData/backups and a new userData/files); a renderer settings:set of backupDirectory no longer moves them, and userData/data, which holds mekstation.db and multiplayer-matches.db, is outside the sandbox so the renderer can neither read nor overwrite either database. main.cleanup.ts awaits the now-asynchronous EmbeddedServer.stop() at quit; without it main.lifecycle.ts will-quit treats a second stop as out of time and force-kills an in-progress graceful stop. DESKTOP-DATA-OWN-2 removes the userData/backups sandbox root together with the backup feature. The two-call S7-01 reproduction and an inherited-environment row become failing tests first. The control channel and the helper are the foundation for part 2 and add no backup or restore behaviour.",
+      "behavior": "Platform quality review S7 (owner decision 2026-10-24 d item 1; owner decision 2026-10-25 item 8), part 1 of 2. S7-06: the packaged launcher gives the embedded server MULTIPLAYER_DB_PATH=<userData>/data/multiplayer-matches.db beside DATABASE_PATH, so no durable database lives in the install directory and an update or uninstall no longer removes active or retained multiplayer matches; a desktop test asserts that every database path in the server environment resolves under userData. The launcher sets both after it spreads process.env, so an inherited MULTIPLAYER_DB_PATH or DATABASE_PATH cannot move them: the shipped default is used whatever the operator environment holds, which removes the Step 2 proof's dependency on its explicit override (LSC-2P's recipe sets MULTIPLAYER_DB_PATH; the override itself is deleted from that recipe and spec by STEP2-RC-RERUN-1). S7-15: main stops the server through a control channel (a Node IPC channel on the spawned child; not HTTP, so the renderer cannot reach it); the server checkpoints both SQLite files (wal_checkpoint TRUNCATE on a second connection per file, through one new persistence helper, src/services/persistence/SQLiteDataControl.ts) and exits, and the forced process-tree kill remains the bounded fallback. S7-01: the file sandbox roots become main-process constants (userData/backups and a new userData/files); a renderer settings:set of backupDirectory no longer moves them, and userData/data, which holds mekstation.db and multiplayer-matches.db, is outside the sandbox so the renderer can neither read nor overwrite either database. main.cleanup.ts awaits the now-asynchronous EmbeddedServer.stop() at quit; without it main.lifecycle.ts will-quit treats a second stop as out of time and force-kills an in-progress graceful stop. DESKTOP-DATA-OWN-2 removes the userData/backups sandbox root together with the backup feature. The two-call S7-01 reproduction and an inherited-environment row become failing tests first. The control channel and the helper add no backup or restore behaviour; after the backup removal their planned later consumer is the backlog unit DESKTOP-DATA-EXPORT-1.",
       "ownershipPaths": ["desktop/electron", "server.js", "src/services/persistence"],
       "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-1-admission-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-1-red-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-1-local-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-1-review-20261025.json"],
       "ciClass": "product",
@@ -20798,7 +20798,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "change": "Leaf desktop/electron/main.cleanup.ts added (10 leaves, 15 files). The open ELECTRON_RUN_AS_NODE=1 IPC spike is an admission precondition; fallback is a line protocol on stdin (main.server.ts and server.js only).",
@@ -20810,11 +20810,11 @@
       "id": "DESKTOP-DATA-OWN-2",
       "node": "R2.desktop-platform",
       "taskKeys": [],
-      "behavior": "Backup removal (owner decisions 2026-10-25b Q1, answer \"yes and yes\": \"I would guess that we don't need to be making backups and just have things saved properly the first time inside the app ecosystem\"; Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction). Replaces the registered snapshot-backup design: this unit removes every reachable backup path from the desktop app. Removed: the auto-backup timer (main.ts setupPeriodicTasks) and its enableBackups/backupInterval reads, the tray \"Backup Data\" item (main.tray.ts), the create-backup and restore-backup IPC handlers (main.ipc.ts) and the userData/backups file-sandbox root (userData/files stays), the preload createBackup/restoreBackup exposure (preload.ts), the createBackup/restoreBackup actions (main.actions.ts), the BackupService construction and field (main.services.ts, main.ts) and its quit-time cleanup (main.cleanup.ts), and the restore-backup assertion in the packaged validator (validate-packaged-security.js, which now asserts the handlers are absent). Also in main.ipc.ts the service-call 'clearCache' route is removed, so LocalStorageService.clear (S7-03, it deletes mekstation.db) and the clearCache half of S7-04 become unreachable; a renderer service-call 'clearCache' is refused and mekstation.db is untouched. This supersedes the decision-8 default \"'Clear cache' removes only tracked cache entries\" for v2.2.0, because no user surface for clear cache ships (DesktopSettingsDialog is mounted nowhere; src/pages/settings.tsx imports other settings sections and never the dialog). Findings: S7-02, S7-05, the createBackup/restoreBackup half of S7-04, F-3 (forged metadata id) and F-4 (retention never runs) are resolved by removal; S7-03 and the clearCache half of S7-04 are made unreachable, not repaired (LocalStorageService.clear stays as dead code). The only automatic safety copy in v2.2.0 is the pre-upgrade VACUUM INTO copy in DESKTOP-GUARDS-1. A plain user \"Export data\" is the backlog unit DESKTOP-DATA-EXPORT-1. BackupService.ts, BackupService.archive.ts, the unmounted dialog's Backups tab and Clear cache button, the backup settings fields and the Storybook mock are dead code after this unit and go to the backlog unit DESKTOP-BACKUP-DEADCODE-1. Existing archives under userData/backups stay on disk and cannot be restored in v2.2.0 (disclosed). Each removed path becomes a failing test first.",
+      "behavior": "Backup removal (owner decisions 2026-10-25b Q1, answer \"yes and yes\": \"I would guess that we don't need to be making backups and just have things saved properly the first time inside the app ecosystem\"; Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction). Replaces the registered snapshot-backup design: this unit removes every reachable backup path from the desktop app. Removed: the auto-backup timer (main.ts setupPeriodicTasks) and its enableBackups/backupInterval reads, the tray \"Backup Data\" item (main.tray.ts), the create-backup and restore-backup IPC handlers (main.ipc.ts) and the userData/backups file-sandbox root (userData/files stays), the preload createBackup/restoreBackup exposure (preload.ts), the createBackup/restoreBackup actions (main.actions.ts), the BackupService construction and field (main.services.ts, main.ts) and its quit-time cleanup (main.cleanup.ts), and the restore-backup assertion in the packaged validator (validate-packaged-security.js, which now asserts the handlers are absent). Also in main.ipc.ts the service-call 'clearCache' route is removed, so LocalStorageService.clear (S7-03, it deletes mekstation.db) and the clearCache half of S7-04 become unreachable; a renderer service-call 'clearCache' is refused and mekstation.db is untouched. This supersedes the decision-8 default (reg-desktop-origin/README.md section 5 item 8, Clear cache: \"Remove only tracked entries (recommended, cheap)\") for v2.2.0, because no user surface for clear cache ships (DesktopSettingsDialog is mounted nowhere; src/pages/settings.tsx imports other settings sections and never the dialog). Findings: S7-02, S7-05, the createBackup/restoreBackup half of S7-04, F-3 (forged metadata id) and F-4 (retention never runs) are resolved by removal; S7-03 and the clearCache half of S7-04 are made unreachable, not repaired (LocalStorageService.clear stays as dead code). The only automatic safety copy in v2.2.0 is the pre-upgrade VACUUM INTO copy in DESKTOP-GUARDS-1. A plain user \"Export data\" is the backlog unit DESKTOP-DATA-EXPORT-1. BackupService.ts, BackupService.archive.ts, the unmounted dialog's Backups tab and Clear cache button, the backup settings fields and the Storybook mock are dead code after this unit and go to the backlog unit DESKTOP-BACKUP-DEADCODE-1. Existing archives under userData/backups stay on disk and cannot be restored in v2.2.0 (disclosed). Each removed path becomes a failing test first.",
       "ownershipPaths": ["desktop/electron", "desktop/scripts/validate-packaged-security.js"],
       "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-2-admission-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-2-red-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-2-local-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-2-review-20261025.json"],
       "ciClass": "product",
-      "reviewClasses": ["authority"],
+      "reviewClasses": ["authority", "idempotency"],
       "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
       "state": "blocked",
       "baseline": null,
@@ -20835,13 +20835,13 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "change": "Re-scoped from snapshot backup and staged restore to backup removal; id kept (nothing ties an id to its scope, and a rename would touch the Step 4 unit list, two successor lists and the pin tests). Leaves are the 10 of RM-A; 15 files.",
         "findingsResolvedByRemoval": ["S7-02", "S7-05", "S7-04 (createBackup/restoreBackup half)", "F-3 forged metadata id", "F-4 retention never runs"],
         "findingsMadeUnreachableNotRepaired": ["S7-03 (service-call clearCache route removed; LocalStorageService.clear stays as dead code)", "S7-04 (clearCache half)"],
-        "supersedes": "decision-8 default \"Clear cache removes only tracked cache entries\" for v2.2.0; no user surface for clear cache ships",
+        "supersedes": "decision-8 default (reg-desktop-origin/README.md section 5 item 8, Clear cache: \"Remove only tracked entries (recommended, cheap)\") for v2.2.0; no user surface for clear cache ships",
         "retired": ["DESKTOP-DATA-OWN-2B", "DESKTOP-DATA-OWN-2C (never registered)"],
         "safetyCopy": "DESKTOP-GUARDS-1 (VACUUM INTO before migration)",
         "step4PrBudget": 29,
@@ -20866,7 +20866,7 @@
       "ownerGate": null,
       "predecessors": ["DESKTOP-DATA-OWN-2", "API-SAME-HOST-1"],
       "successors": [],
-      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted, and the ledger lifecycle files (units.json plus the admission, red, local and review evidence records) count toward the 15 files, so the source and test leaves listed here are the whole budget of 10. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Fifth of the release-blocking Step 4 units, after DESKTOP-DATA-OWN-2 (the backup feature is gone, so the pre-upgrade safety copy is an inline VACUUM INTO in SQLiteService) and API-SAME-HOST-1 (the packaged-socket validator gains its cross-origin rows there). Exactly ten leaves (listed in registeredSourceLeaves; packaged-ipc-probe.js and packaged-validators-ci.test.ts added by the 2026-10-25b correction; 15 files with the lifecycle files, zero slack). Shared leaves with DESKTOP-DATA-OWN-2: desktop/scripts/validate-packaged-security.js (DATA-OWN-2 removes the restore-backup assertion, this unit adds checks), main.ipc.ts and main.ipc.security.test.ts; the existing edge DESKTOP-DATA-OWN-2 -> DESKTOP-GUARDS-1 serializes them, and the sender-check change is re-applied on the post-removal main.ipc.ts (two fewer channels than the 21 in the prep draft). The workflow edit cannot be proven locally: its proof is one green required pr-checks run on the exact head that shows both validator steps executed (Build Test / win and mac run only when desktop/** changes, which this unit does). If S8 registers its own CI unit for S8-01, the workflow leaf and the validator leaf move there and this unit shrinks to S7-12 and A7. pr-checks.yml is also named by U66, U81, TS7S4A, CF-SMOKEA1-4, L2-GUI-SMOKE and RELEASE-PRODUCER-1: never in flight together; U66 and U81 carry a note.",
+      "admissionRequires": "Registration only; no source admission and no GATE OPEN. Blocked: Root releases it only by selecting it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: 15 unique files / 500 counted additions (U41), no deletion credit; tests and evidence are line-exempt but file-counted, and the ledger lifecycle files (units.json plus the admission, red, local and review evidence records) count toward the 15 files, so the source and test leaves listed here are the whole budget of 10. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Fifth of the release-blocking Step 4 units, after DESKTOP-DATA-OWN-2 (the backup feature is gone, so the pre-upgrade safety copy is an inline VACUUM INTO in SQLiteService) and API-SAME-HOST-1 (the packaged-socket validator gains its cross-origin rows there). Exactly ten leaves (listed in registeredSourceLeaves; packaged-ipc-probe.js and packaged-validators-ci.test.ts added by the 2026-10-25b correction; 15 files with the lifecycle files, zero slack). Shared leaves with DESKTOP-DATA-OWN-2: desktop/scripts/validate-packaged-security.js (DATA-OWN-2 removes the restore-backup assertion, this unit adds checks), main.ipc.ts and main.ipc.security.test.ts; the existing edge DESKTOP-DATA-OWN-2 -> DESKTOP-GUARDS-1 serializes them, and the sender-check change is re-applied on the post-removal main.ipc.ts (two fewer channels than the 21 in the prep draft). The workflow edit cannot be proven locally: its proof is one green pr-checks run on the exact head in which Build Test / linux shows both validator steps executed (that job is not a required check unless the owner adds it) (Build Test / win and mac run only when desktop/** changes, which this unit does). If S8 registers its own CI unit for S8-01, the workflow leaf and the validator leaf move there and this unit shrinks to S7-12 and A7. pr-checks.yml is also named by U66, U81, TS7S4A, CF-SMOKEA1-4, L2-GUI-SMOKE and RELEASE-PRODUCER-1: never in flight together; U66 and U81 carry a note.",
       "registeredSourceLeaves": ["src/services/persistence/SQLiteService.ts", "desktop/electron/main.ipc.ts", "desktop/services/local/SettingsService.ts", "desktop/scripts/validate-packaged-security.js", ".github/workflows/pr-checks.yml", "desktop/electron/__tests__/main.ipc.security.test.ts", "desktop/services/local/__tests__/SettingsService.test.ts", "src/services/persistence/__tests__/SQLiteService.newerSchema.test.ts", "desktop/scripts/packaged-ipc-probe.js", "scripts/__tests__/packaged-validators-ci.test.ts"],
       "registration20261025ReleaseBlocking": {
         "source": "evidence/release-blocking-registration-20261025.json",
@@ -20876,7 +20876,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "change": "Leaves 8 -> 10 (15 files): desktop/scripts/packaged-ipc-probe.js, scripts/__tests__/packaged-validators-ci.test.ts. The pre-upgrade safety copy (VACUUM INTO before migration) stays here as an explicit acceptance row. \"Required CI\" depends on the owner adding Build Test / linux as a required check (not decided; not claimed).",
@@ -20941,7 +20941,7 @@
       },
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "change": "Second proof reworded: the producer run on the unit's merge commit fails closed at the V2.2 gate (no artifact) before an RC exists; the first positive upload happens on the RC."
@@ -20998,7 +20998,7 @@
       "registeredSourceLeaves": [],
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "layer": "post-v2.2.0 backlog, outside l1ReleaseChecklist20261018.closures and in no step",
@@ -21012,7 +21012,7 @@
       "id": "DESKTOP-DATA-EXPORT-1",
       "node": "R2.desktop-platform",
       "taskKeys": [],
-      "behavior": "Post-v2.2.0 backlog (owner decisions 2026-10-25b Q1: \"Put a plain Export data on the backlog\"; Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction): a plain, user-initiated Export data command for the desktop app. The user chooses a folder; the app writes a copy of the user's data there (point-in-time copies of the two databases taken through the server-owned control channel of DESKTOP-DATA-OWN-1, plus the user's saved files). No timer, no retention, no restore, no settings tab: it replaces the removed backup feature only as a manual export. This registration freezes no leaf; candidate surfaces are the desktop menu and IPC, the control channel and SQLiteDataControl.",
+      "behavior": "Post-v2.2.0 backlog (owner decisions 2026-10-25b Q1, proposal approved \"yes\": \"Put a plain \"Export data\" on the backlog.\"; Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction): a plain, user-initiated Export data command for the desktop app. The user chooses a folder; the app writes a copy of the user's data there (point-in-time copies of the two databases taken through the server-owned control channel of DESKTOP-DATA-OWN-1, plus the user's saved files). No timer, no retention, no restore, no settings tab: it replaces the removed backup feature only as a manual export. This registration freezes no leaf; candidate surfaces are the desktop menu and IPC, the control channel and SQLiteDataControl.",
       "ownershipPaths": ["desktop/electron", "src/services/persistence"],
       "ownershipExceptions": ["openspec/planning/2026-09-12-roadmap-completion/units.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-export-1-admission-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-export-1-red-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-export-1-local-20261025.json", "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-export-1-review-20261025.json"],
       "ciClass": "product",
@@ -21030,11 +21030,12 @@
       "registeredSourceLeaves": [],
       "registration20261025bCorrection": {
         "source": "evidence/release-blocking-registration-correction-20261025.json",
-        "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
         "sourceAdmitted": false,
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "layer": "post-v2.2.0 backlog, outside l1ReleaseChecklist20261018.closures and in no step",
-        "ownerQuote": "Put a plain \"Export data\" on the backlog."
+        "approvedProposalQuote": "Put a plain \"Export data\" on the backlog.",
+        "quoteSource": "Q1 proposal text, approved by the owner's \"yes\"; not the owner's own words"
       }
     }
   ],
@@ -28756,7 +28757,7 @@
         "id": "release-notes",
         "status": "pending",
         "requirement": "Actual release notes include the same-host/loopback/no-remote-proxy-or-tunnel topology statement and Docker HOSTNAME admission refusal/unsupported-hosting statement from docs/releases/v2.2.0-topology.md, plus: \"fog-of-war is unavailable in multiplayer in this release\". Do not defer disclosure to post-L1 B15-6. Also include: \"co-op sessions are currently listed in the lobby browser to other users of the same server (fixed by B15-PRIV)\".",
-        "annotation20261025b": "docs/releases/v2.2.0-topology.md carries 5 of the 7 strings that scripts/qc/v220-evidence.mjs (lines 276-282 on cdb5289d2) requires as case-sensitive substrings. It misses \"fog-of-war is unavailable in multiplayer in this release\" (the doc writes \"Fog of war is unavailable in multiplayer in this release.\") and the lobby string. The checker lobby string ends \"(fixed by B15-PRIV)\", but B15-PRIV is blocked and not in the 54 closures, so that string must be reworded before Step 9 or the notes claim a fix that is not in v2.2.0 (a checker change needs a registered unit). Annotation only; no checker, doc or gate text changes. Step 9 lists no unit, so this gate entry carries the note (evidence/release-blocking-registration-correction-20261025.json)."
+        "annotation20261025b": "docs/releases/v2.2.0-topology.md carries 5 of the 7 strings that scripts/qc/v220-evidence.mjs (lines 276-282 on cdb5289d2) requires as case-sensitive substrings. It misses \"fog-of-war is unavailable in multiplayer in this release\" (the doc writes \"Fog of war is unavailable in multiplayer in this release.\") and the lobby string. The checker lobby string ends \"(fixed by B15-PRIV)\", but B15-PRIV is blocked and not in the 54 closures, so before Step 9 either the notes carry it followed by a sentence that the fix is planned after v2.2.0 (release-notes prep, B6), or a registered unit rewords the checker string; otherwise the notes claim a fix that is not in v2.2.0. The choice is made at the Step 9 notes unit. Annotation only; no checker, doc or gate text changes. Step 9 lists no unit, so this gate entry carries the note (evidence/release-blocking-registration-correction-20261025.json)."
       },
       {
         "id": "live-gm-rewind-dice",
@@ -30045,7 +30046,7 @@
     "registrationOnly": true,
     "sourceAdmitted": false,
     "source": "evidence/release-blocking-registration-correction-20261025.json",
-    "sourceSha256": "46369c0ab84536607fece876eabcb83338ca32131c88108f495ec13233343ce1",
+    "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
     "authority": "Owner decisions 2026-10-25b (owner-decisions-20261025b.md, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) Q1 backup removal and Q2 Step 3 rulings, answer \"yes and yes\"; decisions 1-8 of owner-decisions-20261025.md as cited by releaseBlockingRegistration20261025; Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction (the removal authority stays Q1). Receipts live outside the repository; verbatim text in the evidence file.",
     "q1": "Do you want the backup removal (keeping the pre-upgrade safety copy)? Answer: yes",
     "q2": "Are the default rulings in step 3 acceptable? Answer: yes",

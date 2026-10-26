@@ -64,16 +64,18 @@
       "stopReportSha256": "ca1f0e1c43221b35ebd528f241f9b9a0dbb95fe1011f1713ffdb43da5395921f",
       "verbatim": [
         "Root ruling on your STOPPED.md (under the standing instruction \"continue with recommended options and fix the issues that come up\"). Proceed and open the PR with items 1-8.",
-        "Budget correction: Step 4 prBudget 29 covers its 14 units at about 2 PRs each; decision 4 priced each pre-named split at +2-3. So three removal units would overrun 29. Do NOT register RM-B or RM-C as Step 4 units.",
-        "1. DESKTOP-DATA-OWN-2 (keep the id) = RM-A: the 10 leaves (main.ts, main.tray.ts, main.ipc.ts, preload.ts, main.actions.ts, main.services.ts, main.cleanup.ts, validate-packaged-security.js, main.ipc.security.test.ts, main.startup.test.ts) + 5 lifecycle = 15. It runs after DESKTOP-DATA-OWN-1 (predecessor edge). It removes every reachable backup path: timer, tray item, create-backup and restore-backup IPC, preload exposure, the service wiring in main.services.ts, the packaged validator assertion.",
-        "2. Also in DESKTOP-DATA-OWN-2, inside main.ipc.ts (already a leaf, no new file): remove the service-call 'clearCache' route, so LocalStorageService.clear (S7-03) and the clearCache half of S7-04 become unreachable. DesktopSettingsDialog is not mounted anywhere (src/pages/settings.tsx imports other settings sections, never the dialog), so the only path to clearCache is that IPC route. Acceptance row: a renderer service-call 'clearCache' is refused and mekstation.db is untouched. Note on the unit that this supersedes the decision-8 default \"'Clear cache' removes only tracked cache entries\" for v2.2.0, because no user surface for clear cache ships.",
+        "Budget correction: Step 4's prBudget 29 covers its 14 units at about 2 PRs each; decision 4 priced each pre-named split at +2-3. So three removal units would overrun 29. Do NOT register RM-B or RM-C as Step 4 units.",
+        "Ruling:",
+        "1. DESKTOP-DATA-OWN-2 (keep the id) = your RM-A: the 10 leaves (main.ts, main.tray.ts, main.ipc.ts, preload.ts, main.actions.ts, main.services.ts, main.cleanup.ts, validate-packaged-security.js, main.ipc.security.test.ts, main.startup.test.ts) + 5 lifecycle = 15. It runs after DESKTOP-DATA-OWN-1 (predecessor edge). It removes every reachable backup path: timer, tray item, create-backup and restore-backup IPC, preload exposure, the service wiring in main.services.ts, the packaged validator assertion.",
+        "2. Also in DESKTOP-DATA-OWN-2, inside main.ipc.ts (already a leaf, no new file): remove the service-call 'clearCache' route, so LocalStorageService.clear (S7-03) and the clearCache half of S7-04 become unreachable. I confirmed on main that DesktopSettingsDialog is not mounted anywhere (src/pages/settings.tsx imports other settings sections, never the dialog), so the only path to clearCache is that IPC route. Acceptance row: a renderer service-call 'clearCache' is refused and mekstation.db is untouched. Note on the unit that this supersedes the decision-8 default \"'Clear cache' removes only tracked cache entries\" for v2.2.0, because no user surface for clear cache ships.",
         "3. Findings on DESKTOP-DATA-OWN-2: S7-02, S7-05, the createBackup/restoreBackup half of S7-04, F-3 forged id, F-4 retention: resolved by removal. S7-03 and the clearCache half of S7-04: made unreachable by removing the route (not repaired; LocalStorageService.clear remains as dead code).",
-        "4. Register ONE backlog unit (outside closures, no step, like MULTI-WINDOW-SESSION-1), e.g. DESKTOP-BACKUP-DEADCODE-1: delete BackupService.ts and BackupService.archive.ts, the unmounted DesktopSettingsDialog Backups tab and advanced clearCache button (or the whole unmounted dialog), backup settings fields (main.config.ts, BaseTypes.ts, SettingsService.ts and tests), Storybook mock, LocalStorageService.clear. List the RM-B + RM-C census as its leaves and note it may split at admission. Predecessor: DESKTOP-DATA-OWN-2.",
+        "4. Register ONE backlog unit (outside closures, no step, like MULTI-WINDOW-SESSION-1), e.g. DESKTOP-BACKUP-DEADCODE-1: delete BackupService.ts and BackupService.archive.ts, the unmounted DesktopSettingsDialog Backups tab and advanced clearCache button (or the whole unmounted dialog), backup settings fields (main.config.ts, BaseTypes.ts, SettingsService.ts and tests), Storybook mock, LocalStorageService.clear. List your RM-B + RM-C census as its leaves and note it may split at admission. Predecessor: DESKTOP-DATA-OWN-2.",
         "5. The \"Export data\" backlog unit stays as instructed.",
-        "6. Pre-upgrade safety copy stays in DESKTOP-GUARDS-1 as instructed. DESKTOP-GUARDS-1 and DESKTOP-DATA-OWN-2 both touch validate-packaged-security.js: record the shared leaf and an ordering edge or note so they do not collide.",
+        "6. Pre-upgrade safety copy stays in DESKTOP-GUARDS-1 as instructed. DESKTOP-GUARDS-1 and DESKTOP-DATA-OWN-2 both touch validate-packaged-security.js: record the shared leaf and an ordering edge or note so they don't collide.",
         "7. Step 4 prBudget stays 29. Record that the old -2B and proposed -2C splits are retired and no split PRs are needed.",
-        "Cite as \"Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction\"; the authority for removal remains owner-decisions-20261025b.md Q1."
+        "Cite this ruling in the evidence file as \"Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction\"; the authority for removal remains owner-decisions-20261025b.md Q1."
       ],
+      "verbatimScope": "Exact text of Root's message to the reg-correction worker (T3 delegate thread mek-reg-correction-step4-sonnet-20261025-r1, sent 2026-10-26T01:05:38Z UTC), one element per line, copied from the message and kept character-exact (straight ASCII quotes and apostrophes); the operational instructions that follow \"Q1.\" in the last paragraph (proof commands, PR mechanics) are omitted.",
       "removalAuthority": "owner-decisions-20261025b.md Q1 remains the authority for the removal; the Root ruling decides how it is split into units."
     },
     "standing": "Owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This is not a future sensitive OWNER-RULING, source admission or runtime acceptance."
@@ -146,6 +148,12 @@
       "note": "Topology doc versus checker strings."
     },
     {
+      "role": "decision-8-source",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-24/reg-desktop-origin/README.md",
+      "sha256": "ad8986ae82e12680f71ceaa78fa88bf8685cf1ede5a9c02dda5ecf93de56a2b1",
+      "note": "Section 5 item 8 (Clear cache) is the decision-8 default superseded for v2.2.0."
+    },
+    {
       "role": "prior-evidence",
       "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/release-blocking-registration-20261025.json",
       "sha256": "4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38",
@@ -197,7 +205,7 @@
         "F-4 retention never runs (desktop-data prep)": "resolved by removal (listBackups and cleanupOldBackups no longer run)",
         "F-5 unanchored exclusion regex, F-6 renderer-settable backupDirectory": "BackupService.archive.ts and the backupDirectory setting are dead code after this unit; deleted by DESKTOP-BACKUP-DEADCODE-1. DESKTOP-GUARDS-1 still validates backupDirectory/dataDirectory writes while the field exists."
       },
-      "supersedes": "Decision-8 default \"'Clear cache' removes only tracked cache entries\" for v2.2.0: no user surface for clear cache ships (DesktopSettingsDialog is mounted nowhere; src/pages/settings.tsx imports other settings sections and never the dialog; verified by rg on cdb5289d2).",
+      "supersedes": "Decision-8 default (owner decision 8 took the recommended defaults of reg-desktop-origin/README.md section 5; its item 8, Clear cache, reads \"Remove only tracked entries (recommended, cheap)\") for v2.2.0: no user surface for clear cache ships (DesktopSettingsDialog is mounted nowhere; src/pages/settings.tsx imports other settings sections and never the dialog; verified by rg on cdb5289d2).",
       "retired": [
         "DESKTOP-DATA-OWN-2B (S7-03 and S7-04 split): retired, never registered",
         "DESKTOP-DATA-OWN-2C (S7-05 split): never registered"
@@ -239,7 +247,7 @@
       }
     },
     "DESKTOP-DATA-EXPORT-1": {
-      "change": "New post-v2.2.0 backlog unit, blocked, outside closures and in no step: a plain user-initiated Export data command (owner decision 2026-10-25b Q1: \"Put a plain Export data on the backlog\"). No timer, no restore, no retention. Predecessor DESKTOP-DATA-OWN-2. Registration freezes no leaf."
+      "change": "New post-v2.2.0 backlog unit, blocked, outside closures and in no step: a plain user-initiated Export data command (owner decision 2026-10-25b Q1, proposal approved \"yes\": \"Put a plain \"Export data\" on the backlog.\"). No timer, no restore, no retention. Predecessor DESKTOP-DATA-OWN-2. Registration freezes no leaf."
     },
     "API-SAME-HOST-1": {
       "change": "Variant B of the api-same-host prep: drop scripts/__tests__/validate-multiplayer-packaged-socket.test.ts, move its rows into src/__tests__/api/sameHostGuard.routes.test.ts, add src/__tests__/api/securityBoundary.test.ts and src/__tests__/api/vault/unlock.test.ts (both build requests with a non-loopback or absent Host and fail once token.ts and unlock.ts refuse first: 14 failures measured in the prep).",
@@ -299,7 +307,7 @@
   },
   "releaseNotes": {
     "gate": "l1ReleaseChecklist20261018.checklist[release-notes] (the Step 9 gate; Step 9 lists no unit, so the gate entry is the owner of record)",
-    "finding": "docs/releases/v2.2.0-topology.md carries 5 of the 7 strings that scripts/qc/v220-evidence.mjs (lines 276-282 on cdb5289d2) requires as case-sensitive substrings. It misses \"fog-of-war is unavailable in multiplayer in this release\" (the doc writes \"Fog of war is unavailable in multiplayer in this release.\") and the lobby string. The lobby string ends \"(fixed by B15-PRIV)\", but B15-PRIV is blocked and not in the 54 closures, so the checker string must be reworded before Step 9 or the notes will claim a fix that is not in v2.2.0.",
+    "finding": "docs/releases/v2.2.0-topology.md carries 5 of the 7 strings that scripts/qc/v220-evidence.mjs (lines 276-282 on cdb5289d2) requires as case-sensitive substrings. It misses \"fog-of-war is unavailable in multiplayer in this release\" (the doc writes \"Fog of war is unavailable in multiplayer in this release.\") and the lobby string. The lobby string ends \"(fixed by B15-PRIV)\", but B15-PRIV is blocked and not in the 54 closures, so before Step 9 either the notes carry it followed by a sentence that the fix is planned after v2.2.0 (release-notes prep, B6), or a registered unit rewords the checker string; otherwise the notes claim a fix that is not in v2.2.0. The choice is made at the Step 9 notes unit.",
     "disposition": "Annotation only. No checker, doc or gate text is changed here; rewording the checker string needs a registered unit."
   },
   "budgets": {
