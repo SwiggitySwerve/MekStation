@@ -4,6 +4,7 @@ import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 import {
   getCapacityStatus,
+  describeHeatSources,
   getHeatStatus,
   getWeightStatus,
   STAT_STATUS_TEXT_CLASS,
@@ -44,7 +45,7 @@ function StatTile({
       <p className="mt-0.5 text-xl leading-tight font-semibold tabular-nums">
         {children}
       </p>
-      <p className={`${cs.text.secondary} truncate tabular-nums`}>{caption}</p>
+      <p className={`${cs.text.secondary} tabular-nums`}>{caption}</p>
     </div>
   );
 }
@@ -154,7 +155,11 @@ export function BuildSummaryCard({
           <StatTile
             label="Heat"
             testId="overview-stat-heat"
-            caption="at full fire"
+            caption={
+              stats.heatGeneration
+                ? describeHeatSources(stats.heatGeneration)
+                : 'at full fire'
+            }
           >
             <span className={STAT_STATUS_TEXT_CLASS[heatStatus]}>
               {stats.heatGenerated}

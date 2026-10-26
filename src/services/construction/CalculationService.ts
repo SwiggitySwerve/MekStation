@@ -66,11 +66,16 @@ export interface IMechTotals {
 /**
  * Heat profile analysis
  */
-export interface IHeatProfile {
+export interface IHeatGeneration {
+  readonly alphaStrikeHeat: number;
+  readonly movementHeat: number;
+  readonly movementMode: 'running' | 'jumping';
+}
+
+export interface IHeatProfile extends IHeatGeneration {
   readonly heatGenerated: number;
   readonly heatDissipated: number;
   readonly netHeat: number;
-  readonly alphaStrikeHeat: number;
 }
 
 /**
@@ -248,6 +253,8 @@ export class CalculationService implements ICalculationService {
         heatDissipated,
         netHeat: -heatDissipated,
         alphaStrikeHeat: 0,
+        movementHeat: 0,
+        movementMode: 'running',
       };
     }
 
@@ -275,6 +282,8 @@ export class CalculationService implements ICalculationService {
       heatDissipated,
       netHeat: heatGenerated - heatDissipated,
       alphaStrikeHeat,
+      movementHeat,
+      movementMode: jumpingHeat > runningHeat ? 'jumping' : 'running',
     };
   };
 

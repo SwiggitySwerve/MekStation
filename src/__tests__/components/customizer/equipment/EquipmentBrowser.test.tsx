@@ -28,6 +28,8 @@ jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
   getEquipmentLoader: () => ({
     getAmmunitionById: (id: string) =>
       id === 'ac10-ammo' ? { shotsPerTon: 10 } : null,
+    getElectronicsById: () => null,
+    getMiscEquipmentById: () => null,
   }),
 }));
 
@@ -374,8 +376,8 @@ describe('EquipmentBrowser', () => {
   });
 
   it.each([
-    ['ac10-ammo', '10 shots'],
-    ['unknown-ammo', '—'],
+    ['ac10-ammo', '10 shots/t'],
+    ['unknown-ammo', undefined],
   ])('shows only declared ammunition capacity for %s', (id, expected) => {
     (useEquipmentBrowser as jest.Mock).mockReturnValue({
       ...defaultMockHook,
@@ -390,15 +392,24 @@ describe('EquipmentBrowser', () => {
     });
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
     const row = screen.getByRole('listitem');
+    // Damage is reserved for weapons; capacity is its own field.
     expect(
       row.querySelector('[data-catalog-column="damage"]'),
-    ).toHaveTextContent(expected);
+    ).toHaveTextContent('—');
+    const category = row.querySelector('[data-catalog-column="category"]');
+    if (expected) expect(category).toHaveTextContent(expected);
+    else expect(category).not.toHaveTextContent('shots');
     expect(
       row.querySelector('[data-catalog-column="range"]'),
     ).toHaveTextContent('—');
     const stats = within(row).getByTestId('equipment-catalog-stats');
-    if (id === 'ac10-ammo') expect(stats).toHaveTextContent('10 shots');
-    else expect(stats).not.toHaveTextContent('shots');
+    if (id === 'ac10-ammo') {
+      expect(stats).toHaveTextContent('Shots 10');
+      expect(stats).not.toHaveTextContent('Dmg 10');
+    } else {
+      expect(stats).not.toHaveTextContent('Shots');
+      expect(stats).toHaveTextContent('Dmg —');
+    }
   });
 
   it('should display loading state', () => {

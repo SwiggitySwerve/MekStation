@@ -4,6 +4,29 @@ import type { UnitStats } from '../shared/UnitInfoBanner';
 
 import { getWeightStatus } from '../shared/unitStatStatus';
 
+/** Catalog data flags for items whose size is chosen per unit, not fixed. */
+const VARIABLE_SIZE_MARKERS: readonly string[] = [
+  'Variable weight',
+  'Variable critical slots',
+];
+
+/**
+ * True when the catalog weight and slot values are placeholders: the item has
+ * a variable-equipment formula, or the data marks it as variable weight/slots.
+ * The second case covers entries (such as Communications Equipment) that
+ * carry 0 t / 0 slots plus the marker but no formula id.
+ */
+export function isVariableSizeEquipment(
+  equipment: Pick<IEquipmentItem, 'variableEquipmentId' | 'special'>,
+): boolean {
+  return (
+    Boolean(equipment.variableEquipmentId) ||
+    (equipment.special ?? []).some((note) =>
+      VARIABLE_SIZE_MARKERS.includes(note),
+    )
+  );
+}
+
 /** Free tonnage below this reads as "0.0 t free" (weights come in half tons). */
 const WEIGHT_EPSILON = 0.005;
 

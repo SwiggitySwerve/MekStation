@@ -5,6 +5,7 @@ import {
   getCatalogCapacityNotice,
   getCatalogWeightExcess,
   isCatalogWeightExhausted,
+  isVariableSizeEquipment,
 } from '../EquipmentBrowser.model';
 
 describe('catalog capacity annotations', () => {
@@ -126,5 +127,17 @@ describe('catalog capacity annotations', () => {
     expect(counts.get('medium-laser')).toBe(2);
     expect(counts.get('medium-pulse-laser')).toBe(1);
     expect(counts.has('large-laser')).toBe(false);
+  });
+});
+
+describe('isVariableSizeEquipment', () => {
+  it.each([
+    [{ variableEquipmentId: 'masc-is' }, true],
+    [{ special: ['Variable weight', 'Variable critical slots'] }, true],
+    [{ special: ['Variable critical slots'] }, true],
+    [{ special: ['Designates targets'] }, false],
+    [{}, false],
+  ])('classifies %j as variable=%s', (item, expected) => {
+    expect(isVariableSizeEquipment(item)).toBe(expected);
   });
 });

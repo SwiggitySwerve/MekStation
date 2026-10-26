@@ -40,7 +40,7 @@ export function Input({
   const generatedId = React.useId();
   const inputId = id || props.name || (label ? generatedId : undefined);
   const baseClasses =
-    'w-full bg-surface-raised/50 border border-border-theme text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors';
+    'w-full bg-surface-raised/50 border border-[var(--field-border,var(--border-default))] hover:border-border-theme-strong text-text-theme-primary placeholder-text-theme-secondary focus:outline-none transition-colors';
 
   return (
     <div className="w-full">
@@ -82,7 +82,7 @@ export function Select({
   const generatedId = React.useId();
   const selectId = id || props.name || (label ? generatedId : undefined);
   const baseClasses =
-    'w-full bg-surface-raised/50 border border-border-theme rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors min-h-[44px]';
+    'w-full bg-surface-raised/50 border border-[var(--field-border,var(--border-default))] hover:border-border-theme-strong rounded-lg px-4 py-2 text-text-theme-primary focus:outline-none transition-colors min-h-[44px]';
 
   return (
     <div className="w-full">

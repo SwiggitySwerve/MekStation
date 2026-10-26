@@ -211,6 +211,8 @@ export function useUnitEditorRoutingStats(
       heatDissipated: calculations.totalHeatDissipation,
       netHeat: -calculations.totalHeatDissipation,
       alphaStrikeHeat: 0,
+      movementHeat: 0,
+      movementMode: 'running' as const,
     };
     try {
       return registryReady
@@ -272,6 +274,7 @@ export function useUnitEditorRoutingStats(
       unplacedItemCount: slotPlacement.unplacedItems,
       heatGenerated: heatProfile.heatGenerated,
       heatDissipation: heatProfile.heatDissipated,
+      heatGeneration: heatProfile,
       battleValue,
       validationStatus: validation.status,
       errorCount: validation.errorCount,

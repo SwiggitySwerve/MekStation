@@ -17,7 +17,9 @@ jest.mock('@/services/construction/CalculationService', () => ({
       heatGenerated: 29,
       heatDissipated: 10,
       netHeat: 19,
-      alphaStrikeHeat: 29,
+      alphaStrikeHeat: 27,
+      movementHeat: 2,
+      movementMode: 'running',
     }),
   }),
 }));
@@ -91,4 +93,9 @@ test('cold-loaded definitions refresh BV and heat without a unit edit', () => {
   rerender();
   expect(result.current.unitStats.battleValue).toBe(2000);
   expect(result.current.unitStats.heatGenerated).toBe(29);
+  expect(result.current.unitStats.heatGeneration).toMatchObject({
+    alphaStrikeHeat: 27,
+    movementHeat: 2,
+    movementMode: 'running',
+  });
 });

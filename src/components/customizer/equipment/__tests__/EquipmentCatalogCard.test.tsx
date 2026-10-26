@@ -8,6 +8,18 @@ import { EquipmentCategory, type IEquipmentItem } from '@/types/equipment';
 
 import { EquipmentCatalogCard } from '../EquipmentCatalogCard';
 
+jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
+  getEquipmentLoader: () => ({
+    getAmmunitionById: (id: string) =>
+      id === 'ac-2-ammo' ? { shotsPerTon: 45 } : null,
+    getElectronicsById: (id: string) =>
+      id === 'loaded-comms'
+        ? { special: ['Variable weight', 'Variable critical slots'] }
+        : null,
+    getMiscEquipmentById: () => null,
+  }),
+}));
+
 jest.mock('@/utils/equipment/weapons/utilities', () => ({
   getWeaponById: (id: string) =>
     id === 'ac-2'
@@ -75,6 +87,74 @@ it.each([
     expect(stats.children).toHaveLength(6);
   },
 );
+
+it('keeps damage for weapons and shows ammunition capacity as its own field', () => {
+  setup({
+    equipment: {
+      ...laser,
+      id: 'ac-2-ammo',
+      name: 'AC/2 Ammo',
+      category: EquipmentCategory.AMMUNITION,
+    },
+  });
+  const row = screen.getByTestId('equipment-catalog-row');
+  expect(row.querySelector('[data-catalog-column="damage"]')).toHaveTextContent(
+    '—',
+  );
+  expect(
+    row.querySelector('[data-catalog-column="category"]'),
+  ).toHaveTextContent('Ammunition · 45 shots/t');
+  const stats = screen.getByTestId('equipment-catalog-stats');
+  expect(stats).toHaveTextContent('Shots 45');
+  expect(stats).not.toHaveTextContent('Dmg');
+  expect(stats.children).toHaveLength(6);
+});
+
+it('shows variable-size placeholders instead of 0 for items flagged variable without a formula', () => {
+  setup({
+    expanded: true,
+    equipment: {
+      ...laser,
+      id: 'communications-equipment',
+      name: 'Communications Equipment',
+      weight: 0,
+      criticalSlots: 0,
+      special: ['Variable weight', 'Variable critical slots'],
+    },
+  });
+  const row = screen.getByTestId('equipment-catalog-row');
+  expect(row.querySelector('[data-catalog-column="weight"]')).toHaveTextContent(
+    'Variable',
+  );
+  expect(
+    row.querySelector('[data-catalog-column="criticalSlots"]'),
+  ).toHaveTextContent('Variable');
+  expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
+    'Tons Variable',
+  );
+  expect(row).toHaveTextContent('depend on the size chosen');
+});
+
+it('reads variable-size notes from the loaded record when the catalog item omits them', () => {
+  setup({
+    equipment: {
+      ...laser,
+      id: 'loaded-comms',
+      name: 'Communications Equipment',
+      weight: 0,
+      criticalSlots: 0,
+    },
+  });
+  expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
+    'Slots Variable',
+  );
+});
+
+it('repeats no column value in the expanded details', () => {
+  setup({ expanded: true, equipment: { ...laser, id: 'ac-2' } });
+  expect(screen.queryByText('Minimum range')).not.toBeInTheDocument();
+  expect(screen.getByText('Battle value')).toBeInTheDocument();
+});
 
 it('omits mounted and weight annotations when the item is absent and fits exactly', () => {
   setup({ remainingWeight: 0.5 });

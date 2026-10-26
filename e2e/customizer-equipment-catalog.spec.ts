@@ -369,17 +369,19 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   const rangeHeader = catalogHeader(page).locator(
     '[data-catalog-column="range"]',
   );
-  await expect(rangeHeader).toHaveText('Range');
+  await expect(rangeHeader).toHaveText('Range (hex)');
   await expect(rangeHeader).toHaveAttribute(
     'title',
-    'Range (short / medium / long)',
+    'Short / medium / long range in hexes',
   );
   expect((await rangeHeader.boundingBox())!.height).toBeLessThan(20);
+  const ammoRow = rows.filter({ has: details(page, 'AC/10 Ammo') });
+  await expect(ammoRow.locator('[data-catalog-column="damage"]')).toHaveText(
+    '—',
+  );
   await expect(
-    rows
-      .filter({ has: details(page, 'AC/10 Ammo') })
-      .locator('[data-catalog-column="damage"]'),
-  ).toHaveText('10 shots');
+    ammoRow.locator('[data-catalog-column="category"]'),
+  ).toContainText('10 shots/t');
   await page.mouse.move(0, 0);
   await page.screenshot({
     path: testInfo.outputPath('catalog-initial-wide.png'),

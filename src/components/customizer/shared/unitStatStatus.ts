@@ -17,6 +17,8 @@
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
+import type { IHeatGeneration } from '@/services/construction/CalculationService';
+
 import type { ValidationNote } from './buildStatusSummary';
 
 import {
@@ -115,12 +117,19 @@ export function getBudgetFill(used: number, max: number): number {
   return Math.min(1, Math.max(0, used / max));
 }
 
-/** What the two heat numbers mean, e.g. "33 heat at full fire / 22 dissipation". */
+/** Present the subtotals supplied by the heat calculation owner. */
+export function describeHeatSources(generation: IHeatGeneration): string {
+  return `${generation.alphaStrikeHeat} weapons + ${generation.movementHeat} ${generation.movementMode}`;
+}
+
+/** What the generated and dissipated heat numbers include. */
 export function describeHeatBalance(
   generated: number,
   dissipation: number,
+  generation?: IHeatGeneration,
 ): string {
-  return `${generated} heat at full fire / ${dissipation} dissipation`;
+  const sources = generation ? ` (${describeHeatSources(generation)})` : '';
+  return `${generated} heat at full fire${sources} / ${dissipation} dissipation`;
 }
 
 /** Plain-language explanation of running hot, shared by tooltip and panel. */
@@ -129,9 +138,13 @@ export function describeHeatExcess(excess: number): string {
 }
 
 /** Full heat explanation for the readout's tooltip and accessible name. */
-export function describeHeat(generated: number, dissipation: number): string {
+export function describeHeat(
+  generated: number,
+  dissipation: number,
+  generation?: IHeatGeneration,
+): string {
   const excess = getHeatExcess(generated, dissipation);
-  const balance = `${describeHeatBalance(generated, dissipation)}.`;
+  const balance = `${describeHeatBalance(generated, dissipation, generation)}.`;
   return excess > 0 ? `${balance} ${describeHeatExcess(excess)}` : balance;
 }
 
@@ -142,6 +155,7 @@ export function describeHeat(generated: number, dissipation: number): string {
 export function getHeatNote(
   generated: number,
   dissipation: number,
+  generation?: IHeatGeneration,
 ): ValidationNote | null {
   const excess = getHeatExcess(generated, dissipation);
   if (excess === 0) return null;
@@ -150,7 +164,7 @@ export function getHeatNote(
     label: 'Runs hot',
     amount: `+${excess}`,
     heading: `Runs ${excess} heat over dissipation`,
-    message: `Heat ${generated} at full fire vs ${dissipation} dissipation: ${excess} over.`,
+    message: `Heat ${generated} at full fire${generation ? ` (${describeHeatSources(generation)})` : ''} vs ${dissipation} dissipation: ${excess} over.`,
     suggestion:
       'Legal; add heat sinks in Structure to run cool, or fire fewer weapons each turn.',
     action: 'add heat sinks in Cooling',
@@ -165,7 +179,8 @@ export function getHeatNote(
 export function getStatusNotes(
   heatGenerated: number,
   heatDissipation: number,
+  generation?: IHeatGeneration,
 ): ValidationNote[] {
-  const heatNote = getHeatNote(heatGenerated, heatDissipation);
+  const heatNote = getHeatNote(heatGenerated, heatDissipation, generation);
   return heatNote ? [heatNote] : [];
 }

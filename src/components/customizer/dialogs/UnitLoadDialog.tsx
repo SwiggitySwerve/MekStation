@@ -335,7 +335,7 @@ export function UnitLoadDialog({
       )}
 
       {/* Search and filters */}
-      <div className="[&_input]:!border-border-theme [&_select]:!border-border-theme contents">
+      <div className="contents">
         <UnitSearchFilters
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

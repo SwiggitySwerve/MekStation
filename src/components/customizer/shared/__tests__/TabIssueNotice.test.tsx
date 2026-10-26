@@ -38,4 +38,26 @@ describe('TabIssueNotice', () => {
       '2 errors: A; B',
     );
   });
+
+  it.each([
+    ['1 warning: Runs hot', 'Runs hot', true],
+    ['1 warning: Runs hot', undefined, false],
+    ['2 warnings: Runs hot; Unplaced equipment', 'Runs hot', false],
+    ['1 warning: Unplaced equipment', 'Runs hot', false],
+  ] as const)(
+    'suppresses %s on phones only when already named (%s)',
+    (summary, statusRowIssue, hidden) => {
+      render(
+        <TabIssueNotice
+          notice={{ severity: 'warning', summary }}
+          onShowAll={jest.fn()}
+          statusRowIssue={statusRowIssue}
+        />,
+      );
+      const notice = screen.getByTestId('tab-issue-notice');
+      if (hidden) expect(notice).toHaveClass('max-sm:hidden');
+      else expect(notice).not.toHaveClass('max-sm:hidden');
+      expect(notice).not.toHaveClass('hidden');
+    },
+  );
 });

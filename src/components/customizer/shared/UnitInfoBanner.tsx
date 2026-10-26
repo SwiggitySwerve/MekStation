@@ -11,6 +11,8 @@
 
 import React, { useId, useState } from 'react';
 
+import type { IHeatGeneration } from '@/services/construction/CalculationService';
+
 import { AppIcon } from '@/components/ui/AppIcon';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
@@ -58,6 +60,7 @@ export interface UnitStats {
   unplacedItemCount?: number;
   heatGenerated: number;
   heatDissipation: number;
+  heatGeneration?: IHeatGeneration;
   battleValue?: number;
   validationStatus: ValidationStatus;
   errorCount: number;
@@ -143,7 +146,11 @@ export function UnitInfoBanner({
             max={stats.heatDissipation}
             status={getHeatStatus(stats.heatGenerated, stats.heatDissipation)}
             caption="gen / diss"
-            title={describeHeat(stats.heatGenerated, stats.heatDissipation)}
+            title={describeHeat(
+              stats.heatGenerated,
+              stats.heatDissipation,
+              stats.heatGeneration,
+            )}
           />
           <BudgetStat
             label="Armor"
@@ -254,10 +261,14 @@ export function UnitInfoBanner({
             aria-expanded={showReadouts}
             aria-controls={readoutsId}
             aria-label={
-              showReadouts ? 'Hide all unit readouts' : 'Show all unit readouts'
+              showReadouts
+                ? 'Fewer stats (Armor, Movement, BV)'
+                : 'More stats (Armor, Movement, BV)'
             }
             title={
-              showReadouts ? 'Hide all unit readouts' : 'Show all unit readouts'
+              showReadouts
+                ? 'Fewer stats (Armor, Movement, BV)'
+                : 'More stats (Armor, Movement, BV)'
             }
             onClick={() => setShowReadouts((value) => !value)}
           >

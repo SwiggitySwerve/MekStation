@@ -43,7 +43,12 @@ jest.mock('@/hooks/useUnitCalculations', () => ({
     gyroWeight: 3,
     structureWeight: 5,
     cockpitWeight: 3,
-    heatSinkWeight: 0,
+    heatSinkWeight: 12,
+    freeHeatSinks: 10,
+    heatSinksRequiringWeight: 12,
+    integralHeatSinks: 12,
+    externalHeatSinks: 10,
+    totalHeatDissipation: 22,
     totalWeight: 21,
   })),
 }));
@@ -60,7 +65,7 @@ describe('StructureTab', () => {
     internalStructureType: 'Standard',
     cockpitType: 'Standard',
     heatSinkType: 'Single',
-    heatSinkCount: 10,
+    heatSinkCount: 22,
     configuration: 'Biped',
     setTonnage: jest.fn(),
     setWalkMP: jest.fn(),
@@ -125,6 +130,12 @@ describe('StructureTab', () => {
     const heading = screen.getByRole('heading', { name: 'Cooling' });
     const stats = screen.getByTestId('structure-heat-sink-stats');
     expect(heading.parentElement).toContainElement(stats);
+    expect(stats).toHaveTextContent(/22\s*dissipation/);
+    expect(
+      screen.getByTestId('structure-heat-sink-weight-help'),
+    ).toHaveTextContent(
+      '22 heat sinks \u00b7 10 free with engine, 12 weigh 12 t',
+    );
   });
 
   it('merges base and final mobility into one column with helper text', () => {

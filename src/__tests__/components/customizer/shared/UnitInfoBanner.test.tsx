@@ -138,7 +138,15 @@ describe('UnitInfoBanner', () => {
   it('shows running hot in the warning hue, value and bar, without a duplicate pill', () => {
     render(
       <UnitInfoBanner
-        stats={createStats({ heatGenerated: 33, heatDissipation: 22 })}
+        stats={createStats({
+          heatGenerated: 33,
+          heatDissipation: 22,
+          heatGeneration: {
+            alphaStrikeHeat: 31,
+            movementHeat: 2,
+            movementMode: 'running',
+          },
+        })}
         compact
       />,
     );
@@ -156,11 +164,11 @@ describe('UnitInfoBanner', () => {
       (heat.querySelector('.budgetFill') as HTMLElement).style.background,
     ).toContain('--warning');
     expect(heat).toHaveAccessibleName(
-      'Heat: 33 / 22. 33 heat at full fire / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
+      'Heat: 33 / 22. 33 heat at full fire (31 weapons + 2 running) / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
     );
     expect(heat).toHaveAttribute('tabindex', '0');
     expect(heat).toHaveAccessibleDescription(
-      '33 heat at full fire / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
+      '33 heat at full fire (31 weapons + 2 running) / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
     );
   });
 
@@ -232,7 +240,15 @@ describe('UnitInfoBanner', () => {
   it('groups the budget readouts as the emphasized capacity group with fill bars', () => {
     render(
       <UnitInfoBanner
-        stats={createStats({ heatGenerated: 33, heatDissipation: 22 })}
+        stats={createStats({
+          heatGenerated: 33,
+          heatDissipation: 22,
+          heatGeneration: {
+            alphaStrikeHeat: 31,
+            movementHeat: 2,
+            movementMode: 'running',
+          },
+        })}
         compact
       />,
     );
@@ -283,7 +299,7 @@ describe('UnitInfoBanner', () => {
       />,
     );
     const toggle = screen.getByRole('button', {
-      name: 'Show all unit readouts',
+      name: 'More stats (Armor, Movement, BV)',
     });
     const readouts = document.getElementById(
       toggle.getAttribute('aria-controls')!,
@@ -292,7 +308,7 @@ describe('UnitInfoBanner', () => {
     expect(readouts).not.toHaveClass('readoutsDetailsOpen');
     fireEvent.click(toggle);
     expect(
-      screen.getByRole('button', { name: 'Hide all unit readouts' }),
+      screen.getByRole('button', { name: 'Fewer stats (Armor, Movement, BV)' }),
     ).toHaveAttribute('aria-expanded', 'true');
     expect(readouts).toHaveClass('readoutsDetailsOpen');
     expect(screen.getByRole('button', { name: 'Valid' })).toBeInTheDocument();

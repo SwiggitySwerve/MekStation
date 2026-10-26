@@ -126,6 +126,21 @@ export function CustomizerTabs({
   const rootRef = useRef<HTMLDivElement>(null);
   const sectionsId = useId();
   const currentIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  const otherTabCounts = tabs.reduce(
+    (total, tab) => {
+      if (tab.id === activeTab) return total;
+      const counts = validationCounts?.[tab.id as keyof ValidationCountsByTab];
+      return {
+        errors: total.errors + (counts?.errors ?? 0),
+        warnings: total.warnings + (counts?.warnings ?? 0),
+        infos: 0,
+      };
+    },
+    { errors: 0, warnings: 0, infos: 0 },
+  );
+  const otherIssuesId = `${sectionsId}-other-issues`;
+  const hasOtherIssues =
+    otherTabCounts.errors > 0 || otherTabCounts.warnings > 0;
 
   const closeSections = (): void => {
     setSectionsOpen(false);
@@ -235,6 +250,9 @@ export function CustomizerTabs({
         aria-label={`Section: ${tabs[currentIndex]?.label ?? 'Choose section'}, ${currentIndex + 1} of ${tabs.length}`}
         aria-expanded={sectionsOpen}
         aria-controls={sectionsId}
+        aria-describedby={
+          hasOtherIssues ? `${otherIssuesId}-label ${otherIssuesId}` : undefined
+        }
         disabled={readOnly}
         onClick={() => setSectionsOpen((open) => !open)}
       >
@@ -242,6 +260,21 @@ export function CustomizerTabs({
         <span className="text-text-theme-secondary">
           · {currentIndex + 1} of {tabs.length}
         </span>
+        {hasOtherIssues && (
+          <span id={`${otherIssuesId}-label`} className="sr-only">
+            Issues on other tabs:
+          </span>
+        )}
+        {hasOtherIssues && (
+          <SectionValidationBadge
+            tabId="other-tabs"
+            label="Other tabs"
+            counts={otherTabCounts}
+            issueLines={[]}
+            validationId={otherIssuesId}
+            onTooltipChange={setBadgeTooltip}
+          />
+        )}
         <AppIcon
           name={sectionsOpen ? 'chevron-up' : 'chevron-down'}
           size="inline"

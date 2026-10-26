@@ -73,7 +73,7 @@ export function FieldLabel({
  * with no partial line peeking into its padding.
  */
 const TEXTAREA_FRAME =
-  'relative w-full rounded border border-border-theme bg-[var(--field-surface,var(--surface-deep))] py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent';
+  'relative w-full rounded border border-[var(--field-border,var(--border-default))] hover:border-border-theme-strong bg-[var(--field-surface,var(--surface-deep))] py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent';
 
 const TEXTAREA_BASE =
   'block w-full resize-none overflow-y-hidden rounded-none border-0 bg-transparent px-3 py-0 text-text-theme-primary shadow-none focus:shadow-none focus:outline-none disabled:bg-transparent';

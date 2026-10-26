@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { BUILD_STATUS_KIND_TEXT_CLASS } from '@/components/customizer/shared/BuildStatusLabel';
@@ -145,6 +145,52 @@ describe('ValidationSummary readout warnings', () => {
     ]);
     expect(dialog).toHaveTextContent('Overweight');
     expect(dialog).toHaveTextContent(heatNote.message);
+  });
+
+  it('puts the unit name above the heading and the counts in whole chips', () => {
+    render(
+      <ValidationSummary
+        validation={withOneError()}
+        unitName="Atlas AS7-D (Danielle) with a very long name"
+        notes={[heatNote]}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /show issues/ }));
+    const dialog = screen.getByRole('dialog');
+    const title = within(dialog).getByRole('heading', { level: 3 });
+    const unit = within(title).getByText(
+      'Atlas AS7-D (Danielle) with a very long name',
+    );
+    expect(unit).toHaveAttribute('title', unit.textContent);
+    expect(unit).toHaveClass('truncate');
+    expect(within(title).getByText('Build status')).toBeInTheDocument();
+    // The verdict is its own label; each count is one unbreakable chip.
+    const summary = dialog.querySelector('[id$="-summary"]')!;
+    expect(summary).toHaveTextContent('Not legal');
+    const chips = Array.from(
+      summary.querySelectorAll('[data-build-status-part]'),
+    );
+    expect(chips.map((chip) => chip.textContent)).toEqual([
+      '1 error',
+      '1 warning',
+    ]);
+    for (const chip of chips) expect(chip).toHaveClass('whitespace-nowrap');
+    expect(summary).toHaveClass('flex-wrap');
+  });
+
+  it('keeps the Go to buttons quiet: text and arrow, no fill', () => {
+    render(
+      <ValidationSummary
+        validation={withOneError()}
+        unitName="Atlas"
+        notes={[heatNote]}
+        onNavigate={jest.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /show issues/ }));
+    const fix = screen.getByRole('button', { name: /Go to Structure/ });
+    expect(fix).toHaveClass('border-transparent', 'min-h-11');
+    expect(fix).not.toHaveClass('bg-surface-raised');
   });
 
   it('shows every group as shape and count on phone and lists them in its panel', () => {

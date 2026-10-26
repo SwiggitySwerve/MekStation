@@ -24,19 +24,24 @@ interface TabIssueNoticeProps {
   /** Opens the build status panel. */
   readonly onShowAll: () => void;
   readonly className?: string;
+  /** Issue already named in full by the phone status row. */
+  readonly statusRowIssue?: string;
 }
 
 export function TabIssueNotice({
   notice,
   onShowAll,
   className = '',
+  statusRowIssue,
 }: TabIssueNoticeProps): React.ReactElement {
+  const repeatedOnPhone =
+    statusRowIssue && notice.summary === `1 warning: ${statusRowIssue}`;
   return (
     <section
       aria-label="Issues on this tab"
       data-testid="tab-issue-notice"
       data-severity={notice.severity}
-      className={`bg-surface-base border-border-theme-subtle flex shrink-0 flex-wrap items-center gap-x-3 border-b py-1 pr-1 pl-3 sm:pl-4 ${className}`}
+      className={`bg-surface-base border-border-theme-subtle flex shrink-0 flex-wrap items-center gap-x-3 border-b py-1 pr-1 pl-3 sm:pl-4 ${repeatedOnPhone ? 'max-sm:hidden' : ''} ${className}`}
     >
       <p className="flex min-w-0 flex-1 basis-60 items-start gap-2 text-sm leading-5">
         <span className="mt-0.5 flex shrink-0">

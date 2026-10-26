@@ -36,8 +36,8 @@ its separate Preview-before-Fluff order.
 
 - **WHEN** the viewport is narrower than 640px
 - **THEN** a 48px-tall row SHALL place the section selector on the left and undo/redo on the right, with at least 44px touch targets
-- **AND** the selector SHALL show the full current section label and its position among the available sections
-- **AND** opening the selector SHALL disclose all section labels, the selected section, and the existing per-section validation counts
+- **AND** the selector SHALL show the full current section label and its position among the available sections, plus the error and warning counts on other tabs using the same shape-and-number badges as wide tabs and an accessible description naming the counts
+- **AND** opening the selector SHALL disclose all section labels, the selected section, and the existing per-section validation counts with the same shape-and-number badges and accessible names as wide tabs
 - **AND** selecting a section SHALL use the existing tab change handler and close the disclosure
 - **AND** Escape SHALL close the disclosure and restore focus to its trigger; outside pointer interaction or focus leaving the disclosure SHALL also close it
 - **AND** save details SHALL be available in the build-status panel, with a failed browser draft write also shown in a visible red banner with Retry
@@ -58,11 +58,17 @@ its separate Preview-before-Fluff order.
 #### Scenario: Active tab explains its badge
 
 - **WHEN** the active section has an error or warning badge and is not Overview or Preview
-- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`
+- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the full-width status row, while remaining visible on desktop and whenever the status row only counts the issues
 - **AND** a "Show all issues" button in the notice opens the build status panel
 - **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues, and on Critical Slots while its "items to place" banner is showing (the banner already states the issue and its action); it returns once nothing is waiting to be placed
 
 ---
+
+#### Scenario: Form controls share one calm border
+
+- **WHEN** an input, select or textarea renders in the customizer or its dialogs (Structure, Fluff, Overview Identity, Add unit)
+- **THEN** its outline uses the shared `--field-border` token, a mix of the theme's default and strong border colors that stays at least 3:1 against the card surface (WCAG 1.4.11; 3.18:1 on the default theme), so a field never reads louder than its card title
+- **AND** the brighter strong border appears only on hover and the accent border and ring only on focus, set once in the shared form-control rules rather than per component
 
 ### Requirement: Tab Component Props
 
@@ -180,6 +186,7 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **THEN** the Cooling panel (Heat sink type, Installed stepper, and the OmniMech base chassis control when applicable) is a separate card below Mobility in the right column, not part of the Chassis panel
 - **AND** the heat sink summary (heat sinks in the engine, external heat sinks, total dissipation) is shown as a right-aligned stat in the Cooling panel header
 - **AND** it is not repeated as a separate row below the Installed stepper
+- **AND** a Cooling helper SHALL explain the installed count, the weight-free sinks supplied with the engine, the count that adds weight, and its tonnage (e.g., "22 heat sinks · 10 free with engine, 12 weigh 12 t"), using the existing heat sink calculation owner
 
 #### Scenario: Weight strip labels its subtotal
 
@@ -322,8 +329,9 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 
 - **WHEN** the Fluff tab renders in a container at least 64rem wide
 - **THEN** a compact Sections index is the first card of the right column, listing Overview, Capabilities, History, Deployment, Variants, Notable Units, Battlefield Role and Manufacturing in that order
-- **AND** each link shows a muted word count or "Empty" based on the current field text
-- **AND** in narrower containers a labelled "Jump to section" select appears at the top of the tab with the same destinations and text status
+- **AND** each row reads as a link: primary-color label that underlines and tints on hover and keyboard focus, with a trailing chevron that takes the accent color then; activating it keeps the jump and focus behavior
+- **AND** each narrative and Manufacturing row shows a word count and the Battlefield Role row shows the chosen role itself (e.g., "Juggernaut"); a section with no text (or no role) shows "Empty" in a dimmer tone than rows that have content
+- **AND** in narrower containers a labelled "Jump to section" select appears at the top of the tab with the same destinations and text status (word count, the role value, or "Empty")
 - **AND** activating a destination scrolls its field into view and focuses it, or focuses its containing section when the field is disabled
 - **AND** the index does not change stored narrative, role or manufacturing values
 

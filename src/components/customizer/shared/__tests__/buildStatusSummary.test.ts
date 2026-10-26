@@ -21,6 +21,7 @@ describe('getBuildStatusSummary', () => {
     const summary = getBuildStatusSummary(counts(1, 1, 1), []);
     expect(summary.state).toBe('error');
     expect(summary.legal).toBe(false);
+    expect(summary.verdict).toBe('Not legal');
     expect(summary.headline).toBe('1 error \u00b7 1 warning \u00b7 1 note');
     expect(summary.panelHeading).toBe(
       'Not legal \u00b7 1 error \u00b7 1 warning \u00b7 1 note',
@@ -88,6 +89,7 @@ describe('getBuildStatusSummary', () => {
     expect(summary.state).toBe('ready');
     expect(summary.parts).toEqual([]);
     expect(summary.headline).toBe('Ready');
+    expect(summary.verdict).toBe('Legal');
     expect(summary.panelHeading).toBe('Legal \u00b7 Ready');
   });
 

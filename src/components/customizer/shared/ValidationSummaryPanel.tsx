@@ -1,14 +1,14 @@
 ﻿import React from 'react';
 import { createPortal } from 'react-dom';
 
-import { BuildStateIcon } from './BuildStatusLabel';
-import { type BuildState, type BuildStatusSummary } from './buildStatusSummary';
+import { type BuildStatusSummary } from './buildStatusSummary';
 import { type StatusPanelLayout } from './statusPanelLayout';
 import {
   ValidationGroupHeading,
   ValidationIssueRow,
   ValidationNoteRow,
   ValidationPanelHeader,
+  ValidationSummaryLine,
   type FixDestination,
   type ValidationIssue,
   type ValidationNote,
@@ -26,7 +26,6 @@ interface ValidationSummaryPanelProps {
   id: string;
   panelRef: React.RefObject<HTMLDivElement | null>;
   layout: StatusPanelLayout;
-  state: BuildState;
   summary: BuildStatusSummary;
   unitName: string;
   notes: readonly ValidationNote[];
@@ -52,7 +51,6 @@ export function ValidationSummaryPanel({
   id,
   panelRef,
   layout,
-  state,
   summary,
   unitName,
   notes,
@@ -117,17 +115,11 @@ export function ValidationSummaryPanel({
         )}
         <ValidationPanelHeader
           titleId={`${id}-title`}
-          title={`${unitName} \u00b7 Build status`}
+          unitName={unitName}
           onClose={onCloseButton}
         />
         <div className="min-h-0 overflow-y-auto overscroll-contain">
-          <p
-            id={`${id}-summary`}
-            className="border-border-theme flex items-center gap-2 border-b px-4 py-3 text-base leading-6 font-semibold"
-          >
-            <BuildStateIcon state={state} />
-            {summary.panelHeading}
-          </p>
+          <ValidationSummaryLine id={`${id}-summary`} summary={summary} />
           {RULE_GROUPS.map(({ severity, title }) => {
             const group = shown.filter((item) => item.severity === severity);
             const readouts = severity === READOUT_GROUP ? notes : [];

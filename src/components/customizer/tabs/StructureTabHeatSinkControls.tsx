@@ -55,6 +55,15 @@ export function HeatSinkSection({
         handleHeatSinkCountChange={handleHeatSinkCountChange}
       />
 
+      <p
+        className={`${cs.text.secondary} m-0`}
+        data-testid="structure-heat-sink-weight-help"
+      >
+        {heatSinkCount} heat sinks {'\u00b7'} {calculations.freeHeatSinks} free
+        with engine, {calculations.heatSinksRequiringWeight} weigh{' '}
+        {calculations.heatSinkWeight} t
+      </p>
+
       {isOmni && (
         <BaseChassisHeatSinkControl
           readOnly={readOnly}

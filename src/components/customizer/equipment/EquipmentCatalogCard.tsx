@@ -11,6 +11,7 @@ import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
 import {
   describeCatalogWeightExcess,
   getCatalogWeightExcess,
+  isVariableSizeEquipment,
 } from './EquipmentBrowser.model';
 import { CatalogAddAction } from './EquipmentCatalogCardActions';
 
@@ -47,10 +48,18 @@ export function EquipmentCatalogCard({
     ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
     : '—';
   const minimumRange = weapon?.ranges?.minimum || '—';
-  const damage =
-    weapon?.damage ??
-    (shotsPerTon === undefined ? '—' : `${shotsPerTon} shots`);
-  const variable = Boolean(equipment.variableEquipmentId);
+  // Damage belongs to weapons; ammunition shows its capacity as its own field.
+  const damage = weapon?.damage ?? '—';
+  // The browser's unified item drops the data's "Variable weight/slots"
+  // notes, so read them from the loaded electronics/misc record.
+  const loader = getEquipmentLoader();
+  const variable = isVariableSizeEquipment({
+    variableEquipmentId: equipment.variableEquipmentId,
+    special:
+      equipment.special ??
+      loader.getElectronicsById(equipment.id)?.special ??
+      loader.getMiscEquipmentById(equipment.id)?.special,
+  });
   const weightExcess = getCatalogWeightExcess(equipment, remainingWeight);
   const weightNote =
     weightExcess === null
@@ -102,17 +111,22 @@ export function EquipmentCatalogCard({
               className={`hidden lg:block ${workbenchStyles.catalogMeta}`}
             >
               {equipment.category}
+              {shotsPerTon !== undefined && ` · ${shotsPerTon} shots/t`}
             </span>
           </span>
           <span
             className={workbenchStyles.catalogMobileStats}
             data-testid="equipment-catalog-stats"
           >
-            <span
-              title={shotsPerTon === undefined ? undefined : 'Shots per ton'}
-            >
-              <span>Dmg</span> <span>{damage}</span>
-            </span>
+            {shotsPerTon === undefined ? (
+              <span>
+                <span>Dmg</span> <span>{damage}</span>
+              </span>
+            ) : (
+              <span title="Shots per ton">
+                <span>Shots</span> <span>{shotsPerTon}</span>
+              </span>
+            )}
             <span>
               <span>Range</span> <span>{range.replaceAll(' ', '')}</span>
             </span>
@@ -139,7 +153,6 @@ export function EquipmentCatalogCard({
         <span
           data-catalog-column="damage"
           className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
-          title={shotsPerTon === undefined ? undefined : 'Shots per ton'}
         >
           {damage}
         </span>
@@ -197,12 +210,12 @@ export function EquipmentCatalogCard({
               suffix=" C-bills"
             />
             <Detail label="Battle value" value={equipment.battleValue} />
-            <Detail label="Minimum range" value={minimumRange} />
           </dl>
           {variable && (
             <p className="text-text-theme-secondary col-span-full text-xs">
-              Weight and slots are calculated for this unit when added. Check
-              the loadout for the resulting values.
+              {equipment.variableEquipmentId
+                ? 'Weight and slots are calculated for this unit when added. Check the loadout for the resulting values.'
+                : 'Weight and slots depend on the size chosen for this unit; the catalog has no fixed values for this item.'}
             </p>
           )}
         </div>

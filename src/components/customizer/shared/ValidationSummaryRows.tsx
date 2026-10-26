@@ -10,11 +10,18 @@ import {
 } from '@/types/validation/UnitValidationInterfaces';
 import { getTabLabel } from '@/utils/validation/validationNavigation';
 
-import { BUILD_STATUS_KIND_TEXT_CLASS, SeverityIcon } from './BuildStatusLabel';
+import {
+  BUILD_STATE_TINT_CLASS,
+  BUILD_STATUS_KIND_TEXT_CLASS,
+  BuildStateIcon,
+  SeverityIcon,
+} from './BuildStatusLabel';
 import {
   BUILD_STATUS_GROUPS,
+  BUILD_STATUS_SEPARATOR,
   noteText,
   type BuildStatusKind,
+  type BuildStatusSummary,
   type ValidationNote,
 } from './buildStatusSummary';
 import { type ValidationIconSeverity } from './ValidationIssueIcon';
@@ -105,29 +112,39 @@ export function describeIssue(error: IUnitValidationError): {
   };
 }
 
+/**
+ * Panel header on two lines: the unit's name small and muted (one line,
+ * ellipsis, full name in the tooltip), then the "Build status" heading. The
+ * narrow docked drawer never wraps a separator onto a line of its own.
+ */
 export function ValidationPanelHeader({
   titleId,
-  title,
+  unitName,
   onClose,
 }: {
   titleId: string;
-  title: string;
+  unitName: string;
   onClose: () => void;
 }): React.ReactElement {
   return (
     <div className="border-border-theme flex min-h-11 shrink-0 items-center justify-between gap-2 border-b pl-4">
-      <h3
-        id={titleId}
-        className="text-text-theme-secondary min-w-0 py-1 text-xs leading-4 font-semibold tracking-wider break-words uppercase"
-      >
-        {title}
+      <h3 id={titleId} className="min-w-0 py-1.5">
+        <span
+          title={unitName}
+          className="text-text-theme-muted block truncate text-xs leading-4"
+        >
+          {unitName}
+        </span>{' '}
+        <span className="text-text-theme-primary block text-sm leading-5 font-semibold">
+          Build status
+        </span>
       </h3>
       <button
         type="button"
         data-validation-close
         aria-label="Close validation issues"
         onClick={onClose}
-        className="focus-visible:outline-accent hover:bg-surface-raised min-h-11 min-w-11 rounded text-lg focus-visible:outline-2"
+        className="focus-visible:outline-accent hover:bg-surface-raised min-h-11 min-w-11 shrink-0 rounded text-lg focus-visible:outline-2"
       >
         <AppIcon name="close" size="inline" aria-hidden="true" />
       </button>
@@ -135,6 +152,56 @@ export function ValidationPanelHeader({
   );
 }
 
+/** The chips under the verdict: each count (or the lone readout) is one unit. */
+function summaryChips(
+  summary: BuildStatusSummary,
+): { kind: BuildStatusKind | 'ready'; text: string }[] {
+  if (summary.state === 'ready') return [{ kind: 'ready', text: 'Ready' }];
+  if (summary.headlineNote)
+    return [{ kind: summary.state as BuildStatusKind, text: summary.headline }];
+  return summary.parts.map(({ kind, text }) => ({ kind, text }));
+}
+
+/**
+ * The panel's verdict line: a "Not legal" / "Legal" label plus one chip per
+ * count. Chips never break inside; when the panel is narrow they wrap as
+ * whole units. The hidden separators keep the accessible text equal to the
+ * summary heading ("Not legal \u00b7 1 error \u00b7 2 warnings").
+ */
+export function ValidationSummaryLine({
+  id,
+  summary,
+}: {
+  id: string;
+  summary: BuildStatusSummary;
+}): React.ReactElement {
+  return (
+    <p
+      id={id}
+      className="border-border-theme flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-3"
+    >
+      <span className="flex items-center gap-2 text-base leading-6 font-semibold">
+        <BuildStateIcon state={summary.state} />
+        {summary.verdict}
+      </span>
+      {summaryChips(summary).map((chip) => (
+        <React.Fragment key={chip.kind}>
+          <span className="sr-only">{BUILD_STATUS_SEPARATOR}</span>
+          <span
+            data-build-status-part={chip.kind}
+            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs leading-5 font-medium whitespace-nowrap ${BUILD_STATE_TINT_CLASS[chip.kind]} ${
+              chip.kind === 'ready'
+                ? 'text-text-theme-primary'
+                : BUILD_STATUS_KIND_TEXT_CLASS[chip.kind]
+            }`}
+          >
+            {chip.text}
+          </span>
+        </React.Fragment>
+      ))}
+    </p>
+  );
+}
 /**
  * Label above each severity group in the panel: the group name in its
  * severity color, then the one-line meaning of the group.
@@ -167,7 +234,11 @@ export interface FixDestination {
   onSelect: () => void;
 }
 
-/** Secondary 44px button that takes the user to a tab that can fix an item. */
+/**
+ * Quiet 44px text button (label and arrow, no fill or outline until hover or
+ * focus) that takes the user to a tab that can fix an item. It stays lighter
+ * than the issue text above it.
+ */
 function FixButton({
   destination,
   describedBy,
@@ -181,7 +252,7 @@ function FixButton({
       data-validation-fix={destination.tabId}
       aria-describedby={describedBy}
       onClick={destination.onSelect}
-      className="border-border-theme-strong bg-surface-raised text-text-theme-primary hover:bg-surface-base focus-visible:outline-accent inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="text-text-theme-secondary hover:border-border-theme-strong hover:bg-surface-raised hover:text-text-theme-primary focus-visible:outline-accent -ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-md border border-transparent !px-2 !py-0 text-sm font-normal focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       Go to {getTabLabel(destination.tabId)}
       <AppIcon name="arrow-right" size="inline" aria-hidden="true" />
@@ -238,7 +309,7 @@ function BuildStatusItem({
           </p>
         )}
         {destinations.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-1 flex flex-wrap gap-x-2">
             {destinations.map((destination) => (
               <FixButton
                 key={destination.tabId}

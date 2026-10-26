@@ -15,12 +15,22 @@
 .workbench select,
 .workbench textarea {
   min-height: var(--workbench-control-height);
-  /* Inset field: a touch darker than the card it sits on, with a clear
-     border, so inputs never blend into card surfaces. */
+  /* Inset field: a touch darker than the card it sits on. The outline is the
+     calm --field-border token (>= 3:1 on the card); the brighter border-strong
+     appears only on hover and the accent on focus-visible. */
   background-color: var(--field-surface);
   color: var(--text-primary);
-  border-color: var(--border-strong);
+  border-color: var(--field-border);
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.22);
+}
+
+.workbench
+  input:where(
+    :not([type='checkbox'], [type='radio'], [type='range'])
+  ):hover:where(:not(:disabled)),
+.workbench select:hover:where(:not(:disabled)),
+.workbench textarea:hover:where(:not(:disabled)) {
+  border-color: var(--border-strong);
 }
 
 .workbench
@@ -702,9 +712,12 @@
     );
   }
 
-  /* Room after the last control so it never sits flush on the bar. */
+  /* Keep the final legend or control clear of the fixed Loadout bar even
+     when a full-height tab has its own content flow. */
   .workspaceScroll {
-    padding-bottom: 16px;
+    padding-bottom: calc(
+      var(--loadout-bar-height) + env(safe-area-inset-bottom, 0px) + 16px
+    );
   }
 }
 

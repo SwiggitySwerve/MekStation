@@ -234,10 +234,10 @@ export function UnitEditorWithRouting({
     return () => observer?.disconnect();
   }, [activeTabId, unitId, validationTarget, selectedEquipmentId]);
 
-  const { heatGenerated, heatDissipation } = unitStats;
+  const { heatGenerated, heatDissipation, heatGeneration } = unitStats;
   const statusNotes = useMemo(
-    () => getStatusNotes(heatGenerated, heatDissipation),
-    [heatGenerated, heatDissipation],
+    () => getStatusNotes(heatGenerated, heatDissipation, heatGeneration),
+    [heatGenerated, heatDissipation, heatGeneration],
   );
   const tabIssueCounts = useMemo(
     () => addStatusNotesToTabCounts(validationNav.errorsByTab, statusNotes),
@@ -357,6 +357,13 @@ export function UnitEditorWithRouting({
               <TabIssueNotice
                 notice={tabIssueNotice}
                 onShowAll={showAllIssues}
+                statusRowIssue={
+                  validation.errorCount === 0 &&
+                  validation.warningCount === 0 &&
+                  statusNotes.length === 1
+                    ? statusNotes[0].label
+                    : undefined
+                }
               />
             )}
             <div

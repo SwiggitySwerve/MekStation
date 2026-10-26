@@ -23,6 +23,8 @@ export interface StructureTabCalculations {
   readonly totalStructuralWeight: number;
   readonly integralHeatSinks: number;
   readonly externalHeatSinks: number;
+  readonly freeHeatSinks: number;
+  readonly heatSinksRequiringWeight: number;
   readonly totalHeatDissipation: number;
 }
 

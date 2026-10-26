@@ -4,9 +4,14 @@ import React from 'react';
 import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { customizerStyles as cs } from '@/components/customizer/styles';
+import { AppIcon } from '@/components/ui/AppIcon';
 
 import { fieldId } from './FluffFields';
-import { NARRATIVE_FIELDS, sectionWordCount } from './fluffSections';
+import {
+  NARRATIVE_FIELDS,
+  sectionRoleValue,
+  sectionWordCount,
+} from './fluffSections';
 
 interface FluffSectionIndexProps {
   fluff: ISerializedFluff;
@@ -30,7 +35,7 @@ export function FluffSectionIndex({
     {
       id: 'fluff-role',
       label: 'Battlefield Role',
-      status: sectionWordCount(role),
+      status: sectionRoleValue(role),
     },
     {
       id: 'fluff-manufacturer',
@@ -64,7 +69,7 @@ export function FluffSectionIndex({
           </option>
           {sections.map(({ id, label, status }) => (
             <option key={id} value={id}>
-              {label} · {status}
+              {label} · {status.text}
             </option>
           ))}
         </select>
@@ -86,12 +91,27 @@ export function FluffSectionIndex({
                 event.preventDefault();
                 onJump(id);
               }}
-              className="text-text-theme-secondary hover:bg-surface-raised focus-visible:ring-accent flex min-h-11 min-w-0 items-center justify-between gap-3 rounded px-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              className="group text-text-theme-primary hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:ring-accent flex min-h-11 min-w-0 items-center gap-2 rounded px-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
             >
-              <span className="min-w-0">{label}</span>
-              <span className="text-text-theme-muted shrink-0 text-xs tabular-nums">
-                {status}
+              <span className="min-w-0 flex-1 group-hover:underline group-focus-visible:underline">
+                {label}
               </span>
+              <span
+                title={status.text}
+                className={`max-w-[9rem] truncate text-xs tabular-nums ${
+                  status.empty
+                    ? 'text-text-theme-muted/70'
+                    : 'text-text-theme-secondary'
+                }`}
+              >
+                {status.text}
+              </span>
+              <AppIcon
+                name="chevron-right"
+                size="inline"
+                aria-hidden="true"
+                className="text-text-theme-muted group-hover:text-accent group-focus-visible:text-accent shrink-0"
+              />
             </a>
           </li>
         ))}

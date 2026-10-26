@@ -30,7 +30,8 @@ The Equipment Browser SHALL include all equipment types from the equipment datab
 
 - **WHEN** physical weapon is displayed in equipment table
 - **THEN** variable weight and critical slots are labeled Variable rather than presented as fixed zero values
-- **AND** expanded details explain that values are calculated for the active unit when added
+- **AND** items the data flags as variable weight or slots (such as Communications Equipment, which carries 0 t / 0 slots and no formula id) also show Variable instead of 0
+- **AND** expanded details explain that values are calculated for the active unit when added when a variable-equipment formula exists, and otherwise that weight and slots depend on the size chosen for the unit
 - **AND** Add or Add and place uses the existing construction calculations
 
 ### Requirement: Equipment Table Display
@@ -43,9 +44,10 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 - **THEN** Name, Dmg, Range, Min, Heat, Tons, Slots, and Add occupy eight aligned content columns, with Type as secondary text directly under Name
 - **AND** rows use hairline dividers and a 4px category accent instead of full card borders
 - **AND** the table spans the full catalog width: Name uses a minmax(220px, 420px) track, numeric columns use fixed 52–108px right-aligned tracks with tabular figures, and Add with the ellipsis control is pinned to the right edge; spare space forms a gutter between Slots and the actions, with 12px gaps inside the comparison block
-- **AND** the Range header stays on one line with an accessible description of short / medium / long
+- **AND** the Range header reads "Range (hex)" on one line, with a tooltip and accessible label describing short / medium / long range in hexes
 - **AND** only the active Name, Tons, or Slots sort shows a filled directional arrow in the accent color; inactive arrows appear faintly on hover or keyboard focus, with pressed state and direction conveyed by accessible names; combat statistics remain plain headers
 - **AND** damage, range, minimum range, and heat use the existing weapon lookup and display a dash for non-weapons; Min also displays a dash when minimum range is zero or unavailable
+- **AND** damage is reserved for weapons: an ammunition row keeps a dash in the Dmg column and shows its existing shots-per-ton value as `N shots/t` in the secondary line under Name
 - **AND** both desktop and phone detail toggles have a visible chevron
 - **AND** the sticky header remains in the same scroll region as the catalog rows
 - **AND** bottom list padding and row scroll margins allow the final row to be fully visible above pagination: after scrolling to the end at 1440?900 and 390?844, its bottom is no lower than the footer top
@@ -201,7 +203,7 @@ The Equipment Browser SHALL expose available weapon range data in an expandable 
 
 - **WHEN** the user expands a weapon row with range data
 - **THEN** details show Range (S / M / L) using the short, medium, and long values
-- **AND** a nonzero minimum range is shown separately
+- **AND** values already shown in the row columns, such as minimum range, are not repeated in the expanded details
 - **AND** these details remain available on desktop and narrow viewports
 
 #### Scenario: Equipment without weapon ranges
@@ -624,8 +626,8 @@ The catalog SHALL use translucent category-colored row backgrounds with opaque r
 - **WHEN** the catalog first appears or is scrolled on desktop or phone
 - **THEN** the list clips at its own edge above a visible gap before the pagination footer; rows never draw beneath the footer
 - **AND** a 32px gradient to the list background softens the bottom edge while more content is below; it disappears at the end and when the list fits
-- **AND** the desktop Range header stays on one line with short / medium / long explained by its tooltip and accessible label
-- **AND** ammunition with existing shots-per-ton data shows `N shots` in the damage column and phone stats, with a `Shots per ton` tooltip; unavailable combat values remain `?`
+- **AND** the desktop Range header ("Range (hex)") stays on one line with short / medium / long explained by its tooltip and accessible label
+- **AND** ammunition with existing shots-per-ton data shows `N shots/t` in the desktop secondary line and a `Shots N` field (replacing Dmg, with a `Shots per ton` tooltip) in the phone stats; the Dmg column is never used for shot capacity; unavailable combat values remain `?`
 
 ### Requirement: Add and place from catalog
 
@@ -671,7 +673,7 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Phone comparison
 
 - **WHEN** browsing on a phone
-- **THEN** names use 16px text with the Add actions beside the name and stats; stats use a two-column grid at 14px with Dmg, Range, Min, Heat, Tons, and Slots label/value pairs; each pair stays unbroken
+- **THEN** names use 16px text with the Add actions beside the name and stats; stats use a two-column grid at 14px with Dmg (Shots for ammunition), Range, Min, Heat, Tons, and Slots label/value pairs; each pair stays unbroken
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
 - **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
 - **AND** the Filters label shows only an active-filter count on phones and names the criteria on wider screens

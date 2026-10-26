@@ -94,6 +94,11 @@ describe('OverviewTab', () => {
       criticalSlotsUsed: 62,
       criticalSlotsTotal: 78,
       heatGenerated: 33,
+      heatGeneration: {
+        alphaStrikeHeat: 31,
+        movementHeat: 2,
+        movementMode: 'running',
+      },
       heatDissipation: 22,
       battleValue: 1768,
       validationStatus: 'valid',
@@ -278,6 +283,7 @@ describe('OverviewTab', () => {
     );
     // The Heat readout shows the numbers; the readiness row says what they mean.
     const heatTile = screen.getByTestId('overview-stat-heat');
+    expect(heatTile).toHaveTextContent('31 weapons + 2 running');
     expect(heatTile).toHaveTextContent('33 / 22 dissipation');
     expect(heatTile).not.toHaveTextContent('over');
 

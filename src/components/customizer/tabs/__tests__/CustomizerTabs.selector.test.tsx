@@ -9,6 +9,7 @@ function Sections() {
   const [activeTab, setActiveTab] = useState('armor');
   const counts = createEmptyValidationCounts();
   counts.structure.errors = 2;
+  counts.equipment.warnings = 1;
   return (
     <>
       <CustomizerTabs
@@ -29,6 +30,14 @@ it('opens all seven full labels, retains validation counts and focuses the selec
     name: 'Section: Armor, 3 of 7',
   });
   expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  expect(
+    within(trigger).getByRole('img', {
+      name: 'Other tabs: 2 errors, 1 warning',
+    }),
+  ).toHaveTextContent('21');
+  expect(trigger).toHaveAccessibleDescription(
+    'Issues on other tabs: 2 errors, 1 warning',
+  );
   fireEvent.click(trigger);
   expect(trigger).toHaveAttribute('aria-expanded', 'true');
   expect(
@@ -38,6 +47,11 @@ it('opens all seven full labels, retains validation counts and focuses the selec
   expect(
     within(screen.getByRole('tab', { name: 'Structure' })).getByRole('img', {
       name: 'Structure: 2 errors',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByRole('tab', { name: 'Equipment' })).getByRole('img', {
+      name: 'Equipment: 1 warning',
     }),
   ).toBeInTheDocument();
 });
@@ -54,6 +68,14 @@ it.each(DEFAULT_CUSTOMIZER_TABS)(
     });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveFocus();
+    const badge = within(trigger).getByRole('img');
+    expect(badge).toHaveAccessibleName(
+      id === 'structure'
+        ? 'Other tabs: 1 warning'
+        : id === 'equipment'
+          ? 'Other tabs: 2 errors'
+          : 'Other tabs: 2 errors, 1 warning',
+    );
     expect(screen.getByRole('tab', { name: label })).toHaveAttribute(
       'aria-selected',
       'true',

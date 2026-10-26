@@ -316,7 +316,6 @@ export function ValidationSummary({
           id={id}
           panelRef={panel}
           layout={layout}
-          state={state}
           summary={summary}
           unitName={unitName}
           notes={notes}

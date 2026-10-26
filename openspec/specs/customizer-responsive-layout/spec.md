@@ -79,6 +79,7 @@ Tab content layouts SHALL adapt to available horizontal space.
 - **OR** viewport width is below 768px without sidebar
 - **THEN** two-column content layouts stack to single column
 - **AND** all content remains accessible via scrolling
+- **AND** below 640px tab content SHALL reserve bottom padding for the collapsed Loadout bar height plus the safe-area inset, so the final summary legend or control can scroll fully clear of the bar
 
 #### Scenario: Two column on wide viewports
 

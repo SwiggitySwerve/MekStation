@@ -111,6 +111,8 @@ export interface BuildStatusSummary {
   readonly headline: string;
   /** The single readout item the headline names, when it names one. */
   readonly headlineNote?: ValidationNote;
+  /** "Legal" or "Not legal": the verdict the panel leads with. */
+  readonly verdict: 'Legal' | 'Not legal';
   /** Panel heading: "Not legal \u00b7 <headline>" or "Legal \u00b7 <headline>". */
   readonly panelHeading: string;
 }
@@ -167,13 +169,15 @@ export function getBuildStatusSummary(
       ? parts.map((part) => part.text).join(BUILD_STATUS_SEPARATOR)
       : 'Ready';
   const legal = totals.error === 0;
+  const verdict = legal ? 'Legal' : 'Not legal';
   return {
     state,
     legal,
     parts,
     headline,
     headlineNote,
-    panelHeading: `${legal ? 'Legal' : 'Not legal'}${BUILD_STATUS_SEPARATOR}${headline}`,
+    verdict,
+    panelHeading: `${verdict}${BUILD_STATUS_SEPARATOR}${headline}`,
   };
 }
 

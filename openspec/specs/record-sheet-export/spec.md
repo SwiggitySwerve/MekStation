@@ -352,7 +352,7 @@ The system SHALL render a weapons and equipment table with combat statistics.
 - **WHEN** the BattleMech equipment table renders
 - **THEN** display abbreviated columns: Qty, Type, Loc, Ht, Dmg, Min, Sht, Med, Lng
 - **AND** include damage type codes: [DE]=Direct Energy, [DB]=Direct Ballistic, [M,C,S]=Missile
-- **AND** ammunition shows shots remaining in parentheses
+- **AND** ammunition shows shots remaining in parentheses; the count comes from the unit's ammo count or, when absent, the ammunition catalog's shots per ton (exact id or name match only), and an unknown bin shows a dash
 - **AND** skeleton non-mech tables omit Heat/Min and use Qty, Type, Loc, Dmg, Sht, Med, Lng
 
 #### Scenario: Equipment table positioning

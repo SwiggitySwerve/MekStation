@@ -232,7 +232,7 @@ The system SHALL provide a dialog for loading existing units into tabs.
 - **THEN** modal appears with search input at top
 - **AND** filter options for tech base and weight class
 - **AND** scrollable list of units below
-- **AND** search and filter controls use the standard input border color, retaining their focus rings and 44px touch targets
+- **AND** search and filter controls use the shared field border (hover brightens it), retaining their focus rings and 44px touch targets
 
 #### Scenario: Default library name ordering
 

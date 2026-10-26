@@ -31,7 +31,7 @@ describe('FluffTab', () => {
       'DeploymentEmpty',
       'VariantsEmpty',
       'Notable UnitsEmpty',
-      'Battlefield Role2 words',
+      'Battlefield RoleFire Support',
       'Manufacturing4 words',
     ]);
     expect(screen.getByLabelText('Manufacturer')).toHaveValue('Field Refit');
@@ -46,6 +46,45 @@ describe('FluffTab', () => {
       within(nav).getByRole('link', { name: 'History 1 word' }),
     ).toBeInTheDocument();
     expect(onFluffChange).not.toHaveBeenCalled();
+  });
+
+  it('styles each Sections row as a link and dims Empty rows', () => {
+    render(
+      <FluffTab
+        role="Juggernaut"
+        fluff={{ overview: 'Two words' }}
+        onFluffChange={jest.fn()}
+      />,
+    );
+    const nav = screen.getByRole('navigation', { name: 'Sections' });
+    const links = within(nav).getAllByRole('link');
+    for (const link of links) {
+      expect(link).toHaveClass('group', 'hover:bg-surface-raised');
+      expect(link.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    }
+    expect(within(nav).getByText('Juggernaut')).toBeInTheDocument();
+    expect(within(nav).getByText('Juggernaut')).not.toHaveClass(
+      'text-text-theme-muted/70',
+    );
+    expect(within(nav).getByText('2 words')).not.toHaveClass(
+      'text-text-theme-muted/70',
+    );
+    expect(within(nav).getAllByText('Empty')[0]).toHaveClass(
+      'text-text-theme-muted/70',
+    );
+    expect(
+      within(nav).getByRole('link', { name: 'Battlefield Role Juggernaut' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows Empty for an unset role row', () => {
+    render(<FluffTab fluff={{}} onFluffChange={jest.fn()} />);
+    expect(
+      within(screen.getByRole('navigation', { name: 'Sections' })).getByRole(
+        'link',
+        { name: 'Battlefield Role Empty' },
+      ),
+    ).toBeInTheDocument();
   });
 
   it('scrolls and focuses the destination from links and the jump select', () => {

@@ -190,10 +190,10 @@ function EquipmentBrowserContent({
             <span data-catalog-column="damage">Dmg</span>
             <span
               data-catalog-column="range"
-              title="Range (short / medium / long)"
-              aria-label="Range (short / medium / long)"
+              title="Short / medium / long range in hexes"
+              aria-label="Range in hexes (short / medium / long)"
             >
-              Range
+              Range (hex)
             </span>
             <span data-catalog-column="minimumRange" title="Minimum range">
               Min

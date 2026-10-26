@@ -169,7 +169,10 @@ test('workbench preserves readable metrics and a stable scrolling workspace @cus
     await expect(page.getByTestId(`unit-info-stat-${id}`)).toBeVisible();
   await expect(page.getByTestId('unit-info-stat-walk')).toBeHidden();
   await page
-    .getByRole('button', { name: 'Show all unit readouts', exact: true })
+    .getByRole('button', {
+      name: 'More stats (Armor, Movement, BV)',
+      exact: true,
+    })
     .click();
   const mobile = await bounds(page);
   expect(mobile.documentOverflow).toBe(0);
@@ -615,6 +618,63 @@ test('critical locations fit below pinned tools and offer one phone location pil
         element.scrollWidth <= element.clientWidth,
     ),
   ).toBe(true);
+});
+
+test('heat explanations reconcile and phone navigation keeps issue badges @customizer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/customizer');
+  await loadUnit(page);
+  await page.getByRole('tab', { name: 'Overview', exact: true }).click();
+  const heat = page.getByTestId('overview-stat-heat');
+  await expect(heat).toContainText(/\d+ weapons \+ \d+ running/);
+  const sources = (await heat.innerText()).match(
+    /\d+ weapons \+ \d+ running/,
+  )![0];
+  await expect(page.getByTestId('unit-info-stat-heat')).toHaveAttribute(
+    'title',
+    expect.stringContaining(sources),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  const selector = page.getByRole('button', { name: /^Section:/ });
+  await expect(
+    selector.getByRole('img', { name: 'Other tabs: 1 warning' }),
+  ).toBeVisible();
+  await selector.click();
+  const structure = page.getByRole('tab', { name: 'Structure', exact: true });
+  await expect(
+    structure.getByRole('img', { name: 'Structure: 1 warning' }),
+  ).toBeVisible();
+  await expect(structure.locator('[data-section-badge="warning"]')).toHaveText(
+    '1',
+  );
+  await structure.click();
+  await expect(page.getByTestId('tab-issue-notice')).toBeHidden();
+  await expect(
+    page.getByTestId('structure-heat-sink-weight-help'),
+  ).toContainText(/\d+ heat sinks · 10 free with engine, \d+ weigh \d+ t/);
+  await expect(
+    page.getByRole('button', {
+      name: 'More stats (Armor, Movement, BV)',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await selector.click();
+  await page.getByRole('tab', { name: 'Overview', exact: true }).click();
+  const legendEnd = page
+    .getByTestId('overview-tonnage-breakdown')
+    .locator('li')
+    .last();
+  await legendEnd.scrollIntoViewIfNeeded();
+  const legendBox = (await legendEnd.boundingBox())!;
+  const loadoutBox = (await page
+    .getByRole('button', { name: 'Expand loadout', exact: true })
+    .boundingBox())!;
+  expect(legendBox.y + legendBox.height).toBeLessThanOrEqual(loadoutBox.y);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole('tab', { name: 'Structure', exact: true }).click();
+  await expect(page.getByTestId('tab-issue-notice')).toBeVisible();
 });
 
 test('active section remains visible after viewport resize @customizer', async ({
