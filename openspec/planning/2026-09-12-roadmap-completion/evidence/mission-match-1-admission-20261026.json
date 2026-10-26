@@ -1,0 +1,520 @@
+{
+  "schemaVersion": 1,
+  "unit": "MISSION-MATCH-1",
+  "stage": "admission",
+  "date": "2026-10-26",
+  "proofClass": "full",
+  "proofClassNote": "Registered reviewClasses authority and privacy and admissionRequires (finite admission, RED tests-only, behavior-preserving refactor, privacy/authority packet, independent exact-head review, OWNER-RULING, CI, exact-main PASS, closure) make the unit full. It edits product code (membership, spectator seats, the spectate route, sealed delivery) on the authoritative multiplayer server. Its own proof is Jest (real route, real host, SQLite); the built-image proof of the live rows belongs to the A2M matrix (resolutions.R1) and the Step 2/3 RC rerun, and the A2F built runner is rerun as a neighbour proof (G-M6).",
+  "evidenceNameNote": "Date-suffixed name per the registered ownershipExceptions of MISSION-MATCH-1; no earlier receipt with this name exists. The red, local and review literals (mission-match-1-red-20261026.json, -local-, -review-) are registered and free. Closure receipts (merge, mainproof, ruling and review envelopes, log envelope) are frozen at the closure PR.",
+  "recordedAt": "2026-10-26T21:50:50.884Z",
+  "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+  "baselineNote": "Admission baseline is the fetched origin/main at f917a5259 (the #2341 merge, L1-SMOKE-A2F). This receipt is commit 3 of the A2F closure PR (placement P2): commit 1 closes A2F (231f5afe4), commit 2 registers MISSION-MATCH-1 (ff5d09ee0, the parent of this admission commit). The census, fit and baselines were measured at f917a5259 with the commit-2 ledger. Implementation starts only after this PR merges; re-fetch and union-merge main before RED (G-M0).",
+  "authority": {
+    "summary": "Root and owner authority for MISSION-MATCH-1 admission. Admission only; no implementation ruling or acceptance. AUTH-1 to AUTH-6 are settled.",
+    "clauses": [
+      {
+        "id": "AUTH-1",
+        "kind": "owner decision, scope",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-26 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md, sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 2, verbatim (the owner answered: \"then yes, lets go and fix the 2 bugs and other recommendations as we're going through\"):\n1. Register MISSION-MATCH-1 as one release-blocking unit in Step 3, right after L1-SMOKE-A2F closes and before A2M. It fixes two co-op mission match defects:\n   a. Spectate lockout: the first POST /api/multiplayer/matches/:id/spectate on a seat-less co-op mission match switches membership from roster mode to seat mode and locks out the GM and players (confirmed by a scratch test through the real routes against SQLite; report _reports/2026-10-26/spectate-roster-probe/). Fix: MatchSeatMembershipSource.lookupMembership keeps roster mode when the match has no seats or only spectator seats; a rostered player asking to spectate its own seat-less match gets 409. S5-02 (the spectate door checks no membership) stays open.\n   b. Sealed-declaration owner: MatchWireSealedChoices treats the first sideAssignments entry for a side as its only owner, so with two players on one side the other player's own Move/Attack/Physical declarations are withheld from it until the reveal and shown live to the first-listed teammate (source reading; report _reports/2026-10-26/stale-owner-reachability.md). Fix: one owning function sideOfPlayer(assignments, playerId); sealed delivery uses it. Policy: teammates on a side see each other's sealed declarations live.\n2. Step 3 prBudget 10 -> 12. Step 4 stays 29. If A2 must split, Root returns to the owner (Step 3 would need 14)."
+      },
+      {
+        "id": "AUTH-2",
+        "kind": "registration",
+        "status": "SETTLED",
+        "text": "Registered blocked by commit ff5d09ee0 of this PR: node R2.authority-live, ownershipPaths src/lib/multiplayer/server (an existing roadmap literal), ten registeredSourceLeaves, reviewClasses authority and privacy, acceptance MM1-MM7; Step 3 prBudget 10 -> 12 (v220-steps.json and its pinned test); closures 54 -> 55. units.json ownerRuling20261026MissionMatch quotes AUTH-1 with the same sha256."
+      },
+      {
+        "id": "AUTH-3",
+        "kind": "predecessor closed",
+        "status": "SETTLED",
+        "text": "L1-SMOKE-A2F is main-verified by commit 231f5afe4 of this PR: OWNER-RULING comment 6427223735 accepted 2815c144f, merged f917a5259, exact-main built run PASS (8 cases, 22 processes, 21-call witness sequence). GATE OPEN for this admission is conditional on this PR merging (the Root brief to the implementation worker of this PR names the registration as commit 2 and this admission as commit 3, the #2336 and #2339 riding pattern)."
+      },
+      {
+        "id": "AUTH-4",
+        "kind": "carry-in from the #2341 ruling",
+        "status": "SETTLED (resolutions R1-R3)",
+        "text": "OWNER-RULING 2815c144f (comment 6427223735; Root copy sha256 3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541), verbatim:\nAccepted on the record:\n- A2F's own stale rows show the sealed-owner product defect on replay (the acting player's replay after restart lacks its own declaration); owned by MISSION-MATCH-1.\n- The live stale-first case is deferred to MISSION-MATCH-1 plus the RC rerun; at MISSION-MATCH-1 admission name the built-image owner of that row (A2M's matrix), add a replay/reconnect variant, and rerun the A2F built runner as a neighbour proof.\n\nClosure PR requires: exact-main built run with the 21-call witness check, A1/A2FP/A2F test reruns, capException equal to the real squash count, the closure receipts, and the MISSION-MATCH-1 registration and admission (regenerate the registration patch on the new main; splice, do not collapse, the A2M predecessors and closures lists)."
+      },
+      {
+        "id": "AUTH-5",
+        "kind": "Root rulings 2026-10-26",
+        "status": "SETTLED",
+        "text": "carry-forward.md, section \"2026-10-26 Root rulings\", verbatim:\n- GM viewer role on co-op mission matches (meta.coopCampaign absent, so the real mission GM is a player-role viewer): option (a). A2M keeps its fixture-branded GM matrix and DISCLOSES the real mission GM's player role as a known issue (release notes + A2M admission). No GM fix unit in Step 3. Source: _reports/2026-10-26/prep/a2m-a2-refresh/README.md.\n- A2 cap watch: refresh measures option A 491-506 (literal 611-626); fits only if A2 lifecycle additions stay <= 56 lines. If the A2 admission freeze measures option A > 500, Root stops and asks the owner (split would take Step 3 to 14).\n- A2 setup fix: the refresh's draft patch corrects A2's invalid lobby-spectate setup; apply at A2 admission.\nA2M keeps the GM disclosure and the A2 cap watch; MISSION-MATCH-1 does not touch GM role derivation (exclusions)."
+      },
+      {
+        "id": "AUTH-6",
+        "kind": "workers and size cap",
+        "status": "SETTLED",
+        "text": "Workers on Sonnet or Sol priority tier (owner, 2026-10-26, as stated in the #2341 OWNER-RULING; the owner's words in carry-forward.md: 'use sonnet or Sol Fast instead for workers'). Root's notes, not owner words: no Sol ultrafast (repeated 429s on 2026-10-26); reviews stay on Opus. Size cap: all nine source/spec leaves are product code and count; only the permanent test leaf is line-exempt (U41 UNCOUNTED_FILES). Option A (ownerRuling20261020SizeCapOptionA) is not needed and is not claimed."
+      }
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (A2F closure, MISSION-MATCH-1 registration and admission)",
+    "coordinator": "Root (Astra coordinator)"
+  },
+  "predecessors": {
+    "L1-SMOKE-A2F": "main-verified by commit 231f5afe4 of this PR (merge f917a5259); the other A2F predecessors were already main-verified",
+    "successor": "L1-SMOKE-A2M stays blocked until this unit is main-verified (A2M.predecessors)"
+  },
+  "acceptance": {
+    "source": "units.json MISSION-MATCH-1.registration20261026MissionMatch.acceptance",
+    "rows": [
+      "MM1",
+      "MM2",
+      "MM3",
+      "MM4",
+      "MM5 (amended at this admission by resolutions.R2: replay/reconnect variant)",
+      "MM6",
+      "MM7 (mutants: at least 12 killed; the replay variant adds M17)"
+    ],
+    "note": "The draft acceptance rows were registered unchanged in commit 2. This admission amends MM5 only."
+  },
+  "manifest": {
+    "sourceLeaves": [
+      "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+      "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+      "src/lib/multiplayer/server/sideAssignments.ts",
+      "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+      "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+      "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "openspec/specs/multiplayer-server/spec.md"
+    ],
+    "sourceLeafCount": 10,
+    "lifecycleConvention": "The registration convention counts ten leaves plus five lifecycle records (units.json, admission, red, local, review) as 15 of 15 files, although the admission and review receipts ride other PRs.",
+    "implementationPrFiles": [
+      "10 source/spec/test leaves",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json"
+    ],
+    "implementationPrFileCount": 14,
+    "implementationPrFileNote": "14 counted files plus the generated page V2.2.0-STEPS.md (exempt from the file count by ownerRuling20261024StepsPageFileCap). One file of slack is reserved for an amendment receipt (the A2F precedent). The registered ownershipExceptions list PROGRESS.md and the page so the merge check accepts them. A second extra file stops the unit for a separately registered split.",
+    "closurePrExpected": [
+      "evidence/mission-match-1-review-20261026.json (reserved literal)",
+      "evidence/mission-match-1-merge-<closure date>.json",
+      "evidence/mission-match-1-mainproof-<closure date>.json",
+      "evidence/mission-match-1-source-review-<closure date>.bytes.json",
+      "evidence/mission-match-1-owner-ruling-<comment id>.bytes.json",
+      "evidence/mainproof-<sha9>-logs.bytes.json",
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md (exempt)"
+    ],
+    "closurePrNote": "The five closure names after the reserved review literal are added to ownershipExceptions by the closure PR, as for A2FP and A2F."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "testsAndEvidenceLineExempt": "U41 UNCOUNTED_FILES (__tests__, *.test.*, evidence directory)",
+    "v2220StepsPageFileExempt": true
+  },
+  "measuredFit": {
+    "basis": "MEASURED 2026-10-26 at f917a5259 (ledger of commit 2): the four prep patches 01..04 applied in order to a clean worktree with a real npm ci, counted with git diff --numstat HEAD (intent-to-add for the new file). The leaves were restored byte for byte afterwards (git status empty). Raw logs stay outside Git (fit.json, red/green/neighbors json and logs).",
+    "leaves": [
+      {
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "newFile": false,
+        "baselineSha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c",
+        "draftSha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+        "draftBytes": 8170,
+        "draftLines": 238,
+        "added": 15,
+        "deleted": 5,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "newFile": false,
+        "baselineSha256": "8cfa2eb2ab260ee9030b859932bba6638ade1c5509ed305c86e658dec8212a74",
+        "draftSha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+        "draftBytes": 5264,
+        "draftLines": 162,
+        "added": 4,
+        "deleted": 0,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "newFile": false,
+        "baselineSha256": "490425c75b3b263bbca5ce75af914def2977f568ce3fd80667c909d9be368781",
+        "draftSha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+        "draftBytes": 5517,
+        "draftLines": 178,
+        "added": 6,
+        "deleted": 1,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/sideAssignments.ts",
+        "newFile": true,
+        "baselineSha256": null,
+        "draftSha256": "2715fd2a6cd2ae1d33441d3cadc2dd518466a4d7f20532307ba8b2a08380d5a3",
+        "draftBytes": 507,
+        "draftLines": 15,
+        "added": 15,
+        "deleted": 0,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "newFile": false,
+        "baselineSha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120",
+        "draftSha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+        "draftBytes": 6051,
+        "draftLines": 184,
+        "added": 3,
+        "deleted": 3,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "newFile": false,
+        "baselineSha256": "584698b14ffdd7d4ad29221c7fa7f460581684592d41fe45af530617c70ced3e",
+        "draftSha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+        "draftBytes": 22310,
+        "draftLines": 618,
+        "added": 2,
+        "deleted": 3,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "newFile": false,
+        "baselineSha256": "bb88b92ebebc0b88edf4bc0a43a5963ae78d3797d638aad3097eca81e4dbbae2",
+        "draftSha256": "6bee83b5ce76ef5e558d3f0f817804ec440d20ba0d3318ce6bb68be455302b48",
+        "draftBytes": 10409,
+        "draftLines": 366,
+        "added": 3,
+        "deleted": 4,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "newFile": false,
+        "baselineSha256": "f412c58e87df8268bd3f14b4f87e748e475a9549c0e3a485e9f3158a80507389",
+        "draftSha256": "d28c7c47dbbee14764e9ed1d5086cbc4cc219bb27f3c898b4850495bc910178f",
+        "draftBytes": 5976,
+        "draftLines": 196,
+        "added": 5,
+        "deleted": 6,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed"
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "newFile": false,
+        "baselineSha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4",
+        "draftSha256": "b47554540e65642e1826e50efb502042bc6294076beff38329a293f59c74244c",
+        "draftBytes": 35195,
+        "draftLines": 1050,
+        "added": 473,
+        "deleted": 3,
+        "counted": false,
+        "lineExempt": true,
+        "hashNote": "PRE-VARIANT: the replay/reconnect variant (resolutions.R2) adds rows to this leaf at RED; its final hash is frozen by the RED commit and recorded in the red receipt"
+      },
+      {
+        "file": "openspec/specs/multiplayer-server/spec.md",
+        "newFile": false,
+        "baselineSha256": "66ec01dab4bdeeb5bc6c8241bfd0a272fcdc9f2383409693436271b10d53563b",
+        "draftSha256": "8e8a03f67bfc64fd248b6c22ae62ee2bad9678331d7e43bb584dce762f9f613c",
+        "draftBytes": 50219,
+        "draftLines": 1081,
+        "added": 37,
+        "deleted": 3,
+        "counted": true,
+        "lineExempt": false,
+        "hashNote": "LF form as committed (.gitattributes eol=lf); the prep draft recorded the working-copy hash a2208a37... that carried CR bytes and is superseded by this value"
+      }
+    ],
+    "countedAdditions": 90,
+    "countedAdditionsNote": "Sum of added lines over the nine counted leaves (15+4+6+15+3+2+3+5+37); the test leaf adds 473 exempt lines (+3 deleted). Deletions give no credit.",
+    "lifecycleEstimate": {
+      "lines": [
+        56,
+        80
+      ],
+      "basis": "A2F implementation PR lifecycle actual: units.json +43, PROGRESS.md +11, page +2 = 56; bounded at 80."
+    },
+    "estimatedCountedTotal": [
+      146,
+      170
+    ],
+    "cap": 500,
+    "verdict": "FITS on lines with a large margin (330 to 354 lines of slack). Files: 14 of 15 in the implementation PR (15 of 15 under the registration convention), see manifest. The replay/reconnect variant adds exempt test lines only.",
+    "retention": "No size-cap exception is expected: the literal count is far below 500, so no capException is recorded."
+  },
+  "prepVersusCurrent": {
+    "prepBaseline": "82d7a0f0326aef3e9e7e27ff88b2fdb2b049ac66",
+    "currentBaseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "baselineHashesEqualOnMain": true,
+    "leavesChangedOnMainSincePrep": [],
+    "neighborDirsChangedOnMainSincePrep": [],
+    "statement": "None of the ten leaves, nor anything under src/lib/multiplayer, src/pages/api/multiplayer, visibility.ts or the multiplayer-server spec, changed between 82d7a0f03 (prep base) and f917a5259, so the prep patches apply unchanged and the draft hashes below were reproduced."
+  },
+  "draftPatches": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/mission-match-1/draft/01-red-tests.patch",
+      "sha256": "3cbac1a8f0491cb4f817c822463d4fbbff96c2c4e5c01d7b6361a1735b35f89b",
+      "bytes": 13536
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/mission-match-1/draft/02-side-refactor.patch",
+      "sha256": "7ddad650491df34ba10fd56ceaca02eb0907b44aba6d5dfa422eb83d97e79381",
+      "bytes": 9408
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/mission-match-1/draft/03-behavior-fixes.patch",
+      "sha256": "f71e75b4aa54d0e50e777841c146f805a0eed8a89fd1c63c097632445a3d0a42",
+      "bytes": 4744
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/mission-match-1/draft/04-rules.patch",
+      "sha256": "70d1f3c8d334ff014437b8006c87e673c456a893159c8afe3b69c08e9fe51528",
+      "bytes": 4744
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/mission-match-1/draft/combined-main.patch",
+      "sha256": "4b0c15cad9539fc0e6bf7e5835b8bd5bc38d48587aa68ad074a7c4990823b948",
+      "bytes": 31336
+    }
+  ],
+  "testInventory": {
+    "run": "Executed 2026-10-26 at f917a5259 through heavy-run (lane a2f-closure, class jest), Node v22.22.0: node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --silent --runTestsByPath src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts (and the neighbour set).",
+    "redOnMain": {
+      "failed": 9,
+      "passed": 8,
+      "total": 17,
+      "note": "tests-only patch 01 on unchanged main: nine failures, eight controls pass"
+    },
+    "sideRefactorCompatibility": {
+      "passed": 9,
+      "failed": 0,
+      "suites": 3,
+      "note": "patch 02 (behavior-preserving sideOfPlayer extraction) with the compatibility, command, Forfeit and timeout rows across the three neighbour suites"
+    },
+    "greenFinal": {
+      "passed": 23,
+      "failed": 0,
+      "total": 23
+    },
+    "neighbors": {
+      "suites": 17,
+      "passed": 223,
+      "failed": 0,
+      "pattern": "multiplayer/server/(authorization/__tests__|__tests__/(spectatorSeats|ServerMatchHost.spectator|matchmaking.integration|sealedChoiceDelivery|handleRoomCodeGuestJoin|joinableLobbies|coopMissionCreate|fogOfWar|ServerMatchHost.fogOfWarIntegration|reconnectionFlow|ServerMatchHostUnitOwnership))|utils/gameplay/__tests__/visibility.test"
+    },
+    "staticChecks": {
+      "oxfmt": "exit 0 on the nine ts leaves",
+      "oxlint": "exit 0 on the nine ts leaves",
+      "tsc": "exit 0 (touched-file tsc including imported dependencies)",
+      "note": "spec.md and the ledger are in .oxfmtignore; .md and .json are not formatted"
+    }
+  },
+  "mutantInventory": {
+    "prep": "16 of 16 killed in the prep (M01-M16; mutants-results.json sha256 9f662cac8a84ef8098f9a1f7c96d3feed88b91ae4c84e782e0fd00d839ef2c84); not rerun at this admission. Rerun at RED and GREEN against the frozen leaves.",
+    "required": "At least 12 discriminating kills at GREEN (admissionRequires), no compile-only or missing-module kill counted.",
+    "added": "M17 (replay path): applied as a throwaway mutant at the call site in src/lib/multiplayer/server/ServerMatchHostReplay.ts (sealedChoiceAudienceContext, which builds the audience context for replay; live delivery shares createMatchWireSealedChoiceAudienceContext, so a replay-only mutation must change the call site, not the leaf): the returned context's isActorOwnedByViewer uses the first sideAssignments entry for the unit's side, the pre-fix rule on the replay path only. ServerMatchHostReplay.ts is not one of the ten frozen leaves and mutants are never committed, so the file count stays 14 of 15. It must be killed by the MM5 replay/reconnect variant (resolutions.R2). Survivors are disclosed in the local receipt."
+  },
+  "redPlan": {
+    "order": [
+      "RED: the permanent suite additions only (patch 01 shape plus the MM5 replay/reconnect variant), no production file; fails on main with nine plus the variant failures and the controls pass; a no-op stand-in must also fail the variant (A1 and A2FP precedent)",
+      "REFACTOR: sideOfPlayer extraction (patch 02), compatibility rows green before any behavior change",
+      "GREEN: behavior fixes (patch 03) and the canonical rules (patch 04) within the manifest",
+      "LIFECYCLE: red and local receipts, units.json, PROGRESS.md, page"
+    ],
+    "noImplementationBeforeMerge": "No leaf is edited by this PR. The draft patches stay outside Git until RED."
+  },
+  "census": {
+    "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "ledgerRef": "ff5d09ee08f0acdfddf0baf17784b9b5eeb5c911",
+    "observedAt": "2026-10-26T21:37:34.011Z",
+    "openPrs": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2f-closure\\census-prs.json",
+      "sha256": "69d78d246a85063a3a9fdaafb51f0d53b2869f24378dea3e4cffcec0131e5860",
+      "bytes": 10029,
+      "count": 1,
+      "list": [
+        {
+          "number": 2113,
+          "head": "codex/thread-transfer-history-20261002",
+          "draft": true,
+          "changedFiles": 472
+        }
+      ],
+      "fullFileListSha256": "12385e37c272e9682a43fa371b6d53b655e972d3754fa0d630c3e950f61a6b75",
+      "disposition": "One open PR, draft #2113 (codex/thread-transfer-history-20261002, 472 changed files; the full list was read through the pulls files API). None of its files is a MISSION-MATCH-1 leaf, lies under src/lib/multiplayer/server, src/pages/api/multiplayer or openspec/specs/multiplayer-server, matches visibility.ts, or touches openspec/planning. No collision. The A2F closure PR (this PR) is not yet open at the time of the census."
+    },
+    "worktrees": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2f-closure\\census-worktrees.json",
+      "sha256": "c13f9fd4419602920a5fd4e5f3e4c79b1a28363546459241114f0d50738b02f5",
+      "bytes": 7012,
+      "registered": 16,
+      "method": "git worktree list --porcelain; per worktree HEAD: merge-base with origin/main, then git diff --name-only mergeBase HEAD. Objects only: no git status or index read inside other worktrees, so uncommitted edits are not seen.",
+      "disposition": "16 registered worktrees (2 detached, 3 locked, no error): at the commit level none differs from its merge-base with origin/main in any MISSION-MATCH-1 leaf or under src/lib/multiplayer/server, src/pages/api/multiplayer, visibility.ts or the multiplayer-server spec. Uncommitted edits inside other worktrees are not visible to this method and are not claimed absent; a2f-impl-20261026 (read only, at 2815c144f, merged) is the A2F worktree."
+    },
+    "ledger": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2f-closure\\census-ledger.json",
+      "sha256": "e04934c4f15f67ba4d97f6170c38a0fe6ef4f2c39c65546795dfced53614fca0",
+      "bytes": 45299,
+      "units": 285,
+      "inFlightClaimants": [],
+      "exactUnfinishedClaims": [],
+      "aliasOnlyUnfinishedClaimants": [
+        "P1B",
+        "P1",
+        "P2CE",
+        "P2CG1",
+        "P2CG1H",
+        "P2CG1I2",
+        "P2CG1I3",
+        "P2CG1I4",
+        "P2CG2",
+        "P2CH",
+        "U38",
+        "U24",
+        "U24b",
+        "U44",
+        "U45",
+        "U26",
+        "U46",
+        "U47",
+        "U48",
+        "U49",
+        "U56",
+        "U101",
+        "U104",
+        "U105",
+        "U101a",
+        "U101d",
+        "FOG-K",
+        "FOG-B",
+        "FOG-L",
+        "FOG-R",
+        "FOG-H",
+        "FOG-X",
+        "MP-CAMPAIGN-HOST-LIFECYCLE-1",
+        "MP-REWIND-DICE-2",
+        "LSC-CONSOLIDATE-1"
+      ],
+      "disposition": "No in-flight unit claims any leaf and no unfinished unit claims a leaf literally. 35 unfinished units (planned, blocked or owner-gated) hold only the coarse parent-path aliases src/lib, src/lib/multiplayer/server and src/pages/api/multiplayer; aliases are navigation only and grant no leaf. Admission freezes the exact leaves, so none of those units can start on them while this unit is admitted (one admitted-unfinished unit through closure)."
+    }
+  },
+  "gates": [
+    {
+      "id": "G-M0",
+      "kind": "ruling before RED",
+      "text": "No RED commit before this PR merges to main. Then re-fetch and union-merge main, re-verify the ten baseline sha256 values in measuredFit.leaves against the merged tree, and re-run the open-PR and worktree census (A2F closure left them clean at this admission)."
+    },
+    {
+      "id": "G-M1",
+      "kind": "RED",
+      "text": "Tests-only commit. On main it fails with the nine expected failures plus the MM5 replay/reconnect variant, the controls pass, and a no-op stand-in for the new behavior fails the variant. The test leaf hash is frozen here (red receipt). The red receipt records the diff from the admission draft b47554540e65642e1826e50efb502042bc6294076beff38329a293f59c74244c and shows that it only adds the MM5 replay/reconnect variant rows; no existing row is edited or removed."
+    },
+    {
+      "id": "G-M2",
+      "kind": "refactor",
+      "text": "The sideOfPlayer extraction and its consumers (command gate, forfeit, grace expiry) land behavior-preserving and green on the compatibility rows before any behavior change."
+    },
+    {
+      "id": "G-M3",
+      "kind": "GREEN",
+      "text": "Fixes and rules within the ten leaves; focused suite and the 17-suite neighbour set pass; touched-file tsc, oxfmt and oxlint exit 0."
+    },
+    {
+      "id": "G-M4",
+      "kind": "mutants",
+      "text": "At least 12 killed by named assertions, the prep M01-M16 plus M17 (replay path); survivors disclosed."
+    },
+    {
+      "id": "G-M5",
+      "kind": "privacy/authority packet",
+      "text": "Genuine PK packet before local-verified (agentRecommendation not a placeholder)."
+    },
+    {
+      "id": "G-M6",
+      "kind": "neighbour proof",
+      "text": "MISSION-MATCH-1 edits MatchWireSealedChoices.ts, which the A2F stale rows exercise. Rerun the A2F built runner on the GREEN head: node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=<head> --output=<abs-new-dir> (heavy-run class build). All eight cases must pass and the 21-call offline witness sequence (CF-A2FP-1) must match; at most one disclosed rerun (CF-A2FP-2) only if the 15 s readiness probe is the sole failure. Repeat at the closure exact-main run. A2F frozen comments and test name that describe the first-entry rule become historical; the stale rows stay discriminating because the spectator guard still precedes ownership."
+    },
+    {
+      "id": "G-M7",
+      "kind": "review and merge",
+      "text": "Independent exact-head authority and privacy review, required CI, OWNER-RULING on the exact head, merge with --match-head-commit, then the exact-main run (focused suite, neighbour set, the A2F built runner) and closure."
+    },
+    {
+      "id": "G-M8",
+      "kind": "cap",
+      "text": "Re-measure the real squash diff after the lifecycle edit; counted lines above 500 or a 16th file stops the unit for Root (no option A, no capException expected). validate-roadmap --git is the check at the closure."
+    }
+  ],
+  "resolutions": {
+    "R1": {
+      "item": "#2341 ruling: name the built-image owner of the live stale-first row",
+      "decision": "The built-image owner is the L1-SMOKE-A2M matrix, whose live legs import prepareAudience from A2F and run after this unit. MISSION-MATCH-1 owns Jest rows only (MM5, including stale side assignments). A2M admission must carry the row; the Step 2/3 RC rerun repeats it. Recorded on A2M.registration20261026MissionMatch.liveStaleFirst and A2F.closureCarryForward20261026.CF-A2F-1."
+    },
+    "R2": {
+      "item": "#2341 ruling: add a replay/reconnect variant to MM5",
+      "decision": "MM5 is amended in units.json (MM5 text and admission20261026): after the non-first teammate declares, a reconnect/replay of the declaring teammate and of the first-listed teammate carries the declaration; the replay of an opposing player and of a spectator seat, including a stale side assignment, carries only the public locked frame until the reveal. The replay path already shares MatchWireSealedChoices through ServerMatchHostReplay.ts, so no leaf is added; the variant lives in the existing test leaf and adds exempt lines only. M17 must kill a first-entry owner on the replay path."
+    },
+    "R3": {
+      "item": "#2341 ruling: rerun the A2F built runner as a neighbour proof",
+      "decision": "Gate G-M6, at GREEN (local stage) and at the closure exact-main run; recorded on A2F.closureCarryForward20261026.CF-A2F-3."
+    },
+    "fileCount": "Convention 15 of 15; actual implementation PR 14 plus the exempt page (manifest). No extra leaf is granted.",
+    "testHash": "The test leaf is frozen pre-variant here and finally at RED.",
+    "noSpec": "The canonical rules text (patch 04) is part of the spec leaf; no second spec file."
+  },
+  "carryIn": [
+    "CF-A2F-1 (live stale-first row): resolutions.R1",
+    "CF-A2F-2 (actor replay defect): MM5 replay/reconnect variant, resolutions.R2",
+    "CF-A2F-3 (neighbour rerun): gate G-M6",
+    "CF-A2FP-1: the A2F neighbour rerun checks the 21-call op sequence",
+    "CF-A2FP-2: one disclosed rerun if only the 15 s readiness probe fails (routed to the first unit that must amend the A1 harness; this unit does not)",
+    "Mission GM viewer role (carry-forward option a): not fixed here; A2M discloses it",
+    "A2 cap watch: carried on ownerRuling20261026MissionMatch"
+  ],
+  "exclusions": [
+    "S5-02 access-to-spectate policy remains open",
+    "Mission GM-role derivation deferred to A2M admission",
+    "Fog per-side owner semantics and fog admission unchanged",
+    "Per-unit command ownership remains U38"
+  ],
+  "openQuestions": [
+    "None block the admission. Root may confirm the file-count reading (14 of 15 actual, 15 of 15 by convention).",
+    "--next prints U25 on the final head of this PR (U44 before the A2F closure, U24b between the closure and this admission); it is advisory and grants no admission."
+  ],
+  "limitations": [
+    "Admission only; no leaf is edited. The draft patches and logs live outside Git (paths and sha256 in draftPatches and census); the leaf bytes are reproduced by applying the patches to f917a5259.",
+    "Jest evidence is source/SQLite preparation, not a built-image or browser proof; the live rows are the A2M matrix and the RC rerun.",
+    "The spec.md draft hash in the prep admission draft carried CR bytes; the LF form above is what git stores.",
+    "The test leaf hash is pre-variant and changes at RED.",
+    "The worktree census cannot see uncommitted edits in other worktrees.",
+    "Lifecycle line counts are estimated from the A2F actual and can move with the real edit."
+  ],
+  "parentOfAdmissionCommit": "ff5d09ee08f0acdfddf0baf17784b9b5eeb5c911"
+}

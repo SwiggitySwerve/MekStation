@@ -1,0 +1,157 @@
+{
+  "unit": "L1-SMOKE-A2F",
+  "stage": "merge",
+  "recordedAt": "2026-10-26T21:27:05.715Z",
+  "pr": 2341,
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2341",
+  "head": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+  "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+  "mergeSha": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+  "mergedAt": "2026-10-26T21:01:23Z",
+  "mergedBy": "SwiggitySwerve",
+  "baseline": "35fa2fb9c892ed6585057dcacf40de87670a0456",
+  "baselineNote": "The admission baseline (35fa2fb9c, the #2338 merge) differs from the PR base 1bc225189: #2339 (74490560b, A2FP closure and A2F admission), #2340 and others merged first. The PR merged main 1bc225189 into its branch (6174b05be); 1bc225189 is parent 1 of the merge commit. None of the intervening merges touches an A2F leaf or a control file.",
+  "prBaseRefOid": "1bc225189d55ac11df929c0a6b122149770c89c0",
+  "parents": [
+    "1bc225189d55ac11df929c0a6b122149770c89c0",
+    "2815c144fddf519bfd0fc4da7386065d2e54c2a4"
+  ],
+  "mainBeforeMerge": "1bc225189d55ac11df929c0a6b122149770c89c0",
+  "mergedTree": "16ded0990a3853dddcf918da39922c18ebb2f08f",
+  "reconstructedTree": "16ded0990a3853dddcf918da39922c18ebb2f08f",
+  "integrationClean": true,
+  "topology": "two-parent merge commit; ordered parent2 equals the exact ruled head; the merged tree equals git merge-tree --write-tree of the two parents and equals the tree of the PR head (16ded0990)",
+  "treeEqualsPrHeadTree": true,
+  "mergeCommitMessageSha256": "34994fa685bce0b4a0f1705e0918695730f01d5823b77bc4b70c2088b5fd4e84",
+  "mergeCommitMessageBytes": 131,
+  "mergeCommitMessageNote": "sha256 of the raw message bytes from git cat-file commit (after the header block and the blank separator), hashed in Node without text conversion.",
+  "mergeCommand": "Merged with --match-head-commit 2815c144fddf519bfd0fc4da7386065d2e54c2a4 (OWNER-RULING comment 6427223735).",
+  "sourceIdentities": [
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+      "reviewedBlob": "5ad4186f7709cfec3f78df22f99e5d3675bb7bd3",
+      "prHeadBlob": "5ad4186f7709cfec3f78df22f99e5d3675bb7bd3",
+      "mergeBlob": "5ad4186f7709cfec3f78df22f99e5d3675bb7bd3",
+      "greenBlob": "5ad4186f7709cfec3f78df22f99e5d3675bb7bd3"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "reviewedBlob": "31d908b985817e3760f4b805d033023f4a760399",
+      "prHeadBlob": "31d908b985817e3760f4b805d033023f4a760399",
+      "mergeBlob": "31d908b985817e3760f4b805d033023f4a760399",
+      "greenBlob": "31d908b985817e3760f4b805d033023f4a760399"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "reviewedBlob": "86e6b865df4cfdcc121a2371dd83bf8dfb2bda9c",
+      "prHeadBlob": "86e6b865df4cfdcc121a2371dd83bf8dfb2bda9c",
+      "mergeBlob": "86e6b865df4cfdcc121a2371dd83bf8dfb2bda9c",
+      "greenBlob": "86e6b865df4cfdcc121a2371dd83bf8dfb2bda9c"
+    }
+  ],
+  "commits": [
+    {
+      "oid": "f9bc1fb54adfea906f479e883d619867654b4c69",
+      "headline": "docs(roadmap): amend L1-SMOKE-A2F admission (stale rows after the dec…"
+    },
+    {
+      "oid": "6174b05be276bc443bc5baa7cd1405f694e5a4aa",
+      "headline": "Merge remote-tracking branch 'origin/main' into work/a2f-impl-20261026"
+    },
+    {
+      "oid": "23ce3724921339eb8683f916f28719ed9545e84b",
+      "headline": "docs(roadmap): route A2M matrix mutants out of A2F"
+    },
+    {
+      "oid": "0aa3278417d819e3c8c8c63a2113fb352eac914f",
+      "headline": "test(release): add A2F trusted audience falsifiers (RED)"
+    },
+    {
+      "oid": "35a5394513ece07be198653697b75a20b1a4ed4a",
+      "headline": "test(release): prove trusted A2F audiences on the built server (GREEN)"
+    },
+    {
+      "oid": "945af26365c04166f5f2a372595e5859c0f697a1",
+      "headline": "docs(roadmap): record A2F local proof and owner decision packet"
+    },
+    {
+      "oid": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+      "headline": "docs(roadmap): record the compiling P2 mutant kill and review wording…"
+    }
+  ],
+  "sourceCensus": {
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-amendment-20261026.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs"
+    ],
+    "note": "gh pr view 2341 files; 9 files"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "files": 9,
+    "nonEvidenceFiles": 6,
+    "filesNote": "the generated page is exempt from the file count (ownerRuling20261024StepsPageFileCap), so 5 of 15 counted files plus the evidence receipts, which the plan counts as files",
+    "counted": 533,
+    "optionACounted": 330,
+    "capExceptionNeeded": true,
+    "measuredOn": "git diff --numstat --no-renames 1bc225189d55ac11df929c0a6b122149770c89c0 f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "tool": "validate-roadmap.mjs:705-727 semantics (UNCOUNTED_FILES, evidence directory skipped)"
+  },
+  "ownerRuling": {
+    "ruledHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+    "pr": 2341,
+    "commentId": 6427223735,
+    "author": "SwiggitySwerve",
+    "bodySha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541",
+    "at": "2026-10-26T21:01:16Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2341#issuecomment-6427223735",
+    "bodyBytes": 4223,
+    "envelope": {
+      "path": "evidence/l1-smoke-a2f-owner-ruling-6427223735.bytes.json",
+      "payloadSha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541",
+      "payloadBytes": 4223
+    },
+    "rootCopy": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/pr2341-owner-ruling-2815c144f.md",
+      "sha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541",
+      "equalsLive": true
+    }
+  },
+  "ci": {
+    "run": 40399623473,
+    "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40399623473",
+    "headSha": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "event": "pull_request",
+    "conclusion": "success",
+    "jobs": 33,
+    "checks": "33/33 SUCCESS at the ruled head 2815c144f (gh pr checks 2341; PR Checks run 40399623473). At 945af2636 one Seam Anchors e2e (seam-fresh-construction-no-instant-defeat) failed and passed on rerun of the same commit; the PR touches no app or e2e code (recorded as a flake in the OWNER-RULING)."
+  },
+  "reviewRounds": [
+    {
+      "round": 1,
+      "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES",
+      "report": "evidence/l1-smoke-a2f-source-review-20261026.bytes.json",
+      "findings": "F1 (compiling P2 mutant run on the built image; required), F2 (budget wording; optional)"
+    },
+    {
+      "round": 2,
+      "reviewedHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+      "verdict": "Root delta check (not a second Opus round)",
+      "scope": "4 files +37/-8 against 945af2636; no script or product change; countedLines 533 and option A 330 re-measured"
+    }
+  ],
+  "mergeNotes": [
+    "The merge commit tree equals the ruled head tree, so every leaf at the merge is byte-identical to the ruled head (leavesAtMerge in the mainProof receipt).",
+    "Leaf blobs at 945af2636 (the Opus-reviewed head), the GREEN commit 35a539451, the ruled head 2815c144f and the merge are identical (sourceIdentities)."
+  ]
+}
