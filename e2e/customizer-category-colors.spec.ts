@@ -120,8 +120,9 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await expect(mounted).toBeVisible();
   await page.mouse.move(0, 0);
   // Mounted slots keep the category edge used by the catalog and loadout.
+  // Slots animate colour changes; wait for the settled accent before sampling.
+  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   const mountedPaint = await paint(mounted);
-  expect(await accent(mounted)).toBe(colors['Small Laser']);
   expect(mountedPaint.background).not.toBe('rgba(0, 0, 0, 0)');
   const engine = page
     .getByRole('gridcell', { name: /: .*Engine$|: Engine$/ })
@@ -135,11 +136,11 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await page.reload();
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
-  expect(await accent(mounted)).toBe(colors['Small Laser']);
+  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
-  expect(await accent(mounted)).toBe(colors['Small Laser']);
+  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

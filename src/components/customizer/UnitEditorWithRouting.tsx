@@ -5,7 +5,6 @@ import type { IUnitValidationError } from '@/types/validation/UnitValidationInte
 import { ErrorBoundary } from '@/components/common';
 import { CampaignRefitCommandBar } from '@/components/customizer/campaign/CampaignRefitCommandBar';
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
-import { BrowserDraftStatus } from '@/components/customizer/shared/BrowserDraftStatus';
 import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import {
@@ -261,14 +260,6 @@ export function UnitEditorWithRouting({
               ) : undefined
             }
           />
-          {isMobile && (
-            <BrowserDraftStatus
-              unitId={unitId}
-              compact
-              onlyWhenFailed
-              className="border-border-theme flex w-full border-t px-3 text-[13px]"
-            />
-          )}
         </div>
         <div
           className={`${workbenchStyles.sectionBar} bg-surface-base border-border-theme flex h-12 shrink-0 items-center gap-1 border-b px-1`}
@@ -283,6 +274,9 @@ export function UnitEditorWithRouting({
             className="min-w-0 flex-1 !border-b-0"
           />
           <div ref={setToolbarTarget} className="flex shrink-0 items-center" />
+          {isMobile && (
+            <UnitSaveSummary unitId={unitId} className="min-w-0 flex-1 px-2" />
+          )}
           <UnitEditStatusSlot
             className={`${workbenchStyles.editStatusSlot} border-border-theme shrink-0 md:border-l md:pl-2`}
           />

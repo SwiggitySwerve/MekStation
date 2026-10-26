@@ -294,6 +294,14 @@
   background: color-mix(in srgb, var(--surface-raised) 55%, transparent);
 }
 
+/* Phone layouts show build status in the metrics row; never let the desktop
+   control overflow while the device-type hook catches up after a resize. */
+@media (max-width: 767px) {
+  .statusControl {
+    display: none;
+  }
+}
+
 /* Keep receipts readable at every width; a dot alone cannot explain save state. */
 .editStatusSlot {
   display: flex;
@@ -323,20 +331,20 @@
   display: none;
 }
 
-/* Phone navigation fills the row; undo/redo stay on the same row at its end. */
+/* Phone navigation owns the whole first row; tools/history wrap below it. */
 @media (max-width: 639px) {
   .sectionBar {
     height: auto;
+    flex-wrap: wrap;
     padding-block: 4px;
   }
 
   .sectionBar > :first-child {
-    flex: 1 1 0%;
-    min-width: 0;
+    flex: 1 0 100%;
   }
 
   .sectionBar .editStatusSlot {
-    margin-left: 0;
+    margin-left: auto;
   }
 
   .sectionSelector {

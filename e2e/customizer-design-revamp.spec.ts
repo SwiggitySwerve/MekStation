@@ -49,9 +49,18 @@ async function expectFittedPreview(page: Page) {
     name: 'Record sheet zoom controls',
   });
   await expect(controls).toBeInViewport({ ratio: 1 });
-  await expect(canvas).toBeInViewport({ ratio: 1 });
   const paper = (await canvas.boundingBox())!;
   const footer = (await controls.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  if (viewport.width < 640) {
+    // Phones open the sheet fitted to width so it stays legible; the full
+    // width is visible and the rest of the page scrolls above the controls.
+    expect(paper.x).toBeGreaterThanOrEqual(0);
+    expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
+    expect(paper.y).toBeLessThan(footer.y);
+    return;
+  }
+  await expect(canvas).toBeInViewport({ ratio: 1 });
   expect(paper.y + paper.height).toBeLessThanOrEqual(footer.y);
 }
 

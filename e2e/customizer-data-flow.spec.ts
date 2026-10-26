@@ -171,9 +171,8 @@ test('all tabs read the current unit and configuration @customizer', async ({
   expect(download.suggestedFilename()).toMatch(/[.]pdf$/i);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('tab', { name: 'Overview', exact: true }).click();
-  await page.getByRole('tab', { name: 'Overview', exact: true }).focus();
-  for (const tab of [
+  // Phones switch sections through the section selector, not the tab strip.
+  const sections = [
     'Overview',
     'Structure',
     'Armor',
@@ -181,20 +180,23 @@ test('all tabs read the current unit and configuration @customizer', async ({
     'Critical Slots',
     'Fluff',
     'Preview',
-  ]) {
-    if (tab !== 'Overview') await page.keyboard.press('ArrowRight');
-    await expect(
-      page.getByRole('tab', { name: tab, exact: true }),
-    ).toBeFocused();
-    await expect(
-      page.getByRole('tab', { name: tab, exact: true }),
-    ).toHaveAttribute('aria-selected', 'true');
+  ];
+  for (const tab of sections) {
+    const selector = page.getByRole('button', { name: /^Section:/ });
+    await selector.click();
+    await page.getByRole('tab', { name: tab, exact: true }).click();
+    // The selector closes after a choice and names the active section.
+    await expect(selector).toHaveAccessibleName(
+      `Section: ${tab}, ${sections.indexOf(tab) + 1} of 7`,
+    );
+    await expect(page.getByRole('tabpanel')).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
   }
+  await page.getByRole('button', { name: /^Section:/ }).click();
   await page.getByRole('tab', { name: 'Structure', exact: true }).click();
   await page.screenshot({
     path: testInfo.outputPath('structure-mobile.png'),

@@ -188,7 +188,7 @@ test('save, reload and restore history retain exact library versions and undo on
     await expect
       .poll(async () => (await draft(page)).librarySave?.id)
       .toBe(receipt.id);
-    await expect(page.getByText(/Last library save v1/)).toBeVisible();
+    await expect(page.getByText(/library v1\b/).first()).toBeVisible();
     await page.getByLabel('Clan name', { exact: true }).fill('Recovery Two');
     const second = await saveLibrary(page);
     expect(second.id).toBe(receipt.id);
@@ -204,7 +204,7 @@ test('save, reload and restore history retain exact library versions and undo on
       .getByRole('tab', { name: `Atlas ${variant}`, exact: true })
       .click();
     await page.reload();
-    await expect(page.getByText(/Last library save v2/)).toBeVisible();
+    await expect(page.getByText(/library v2\b/).first()).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Undo', exact: true }),
     ).toBeDisabled();
@@ -288,7 +288,7 @@ test('save, reload and restore history retain exact library versions and undo on
       v1,
     );
     await page.reload();
-    await expect(page.getByText(/Last library save v3/)).toBeVisible();
+    await expect(page.getByText(/library v3\b/).first()).toBeVisible();
     await openHistory(page);
     const latestDialog = page.getByRole('dialog');
     await latestDialog.getByRole('button', { name: /^v3(?: |$)/ }).click();
