@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { EquipmentCategory } from '@/types/equipment';
-import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
+import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 
 import { CATEGORY_FILTERS, CATEGORY_LABELS } from './equipmentConstants';
 
@@ -33,13 +33,8 @@ export function CategoryFilterBar({
     <div className={`${containerClass} ${className}`}>
       {CATEGORY_FILTERS.map(({ category, label, icon }) => {
         const isActive = category === activeCategory;
-        const colors =
-          category === 'ALL'
-            ? { bg: 'bg-accent', text: 'text-white', border: 'border-accent' }
-            : getCategoryColorsLegacy(category as EquipmentCategory);
-
         const activeClass = isActive
-          ? `${colors.bg} text-white ring-1 ring-white/20`
+          ? 'bg-accent/10 text-accent ring-accent ring-1'
           : compact
             ? 'bg-surface-raised/60 text-text-theme-secondary hover:bg-surface-raised'
             : 'bg-surface-raised/60 text-text-theme-secondary';
@@ -59,7 +54,15 @@ export function CategoryFilterBar({
             aria-label={title}
             aria-pressed={isActive}
           >
-            <AppIcon name={icon} size="control" aria-hidden="true" />
+            <span className="relative inline-flex">
+              <AppIcon name={icon} size="control" aria-hidden="true" />
+              {category !== 'ALL' && (
+                <span
+                  aria-hidden="true"
+                  className={`absolute -right-0.5 -bottom-0.5 h-1.5 w-1.5 rounded-full ${getCategoryIndicatorClass(category as EquipmentCategory)}`}
+                />
+              )}
+            </span>
             {showLabels && <span className="xs:inline hidden">{label}</span>}
           </button>
         );

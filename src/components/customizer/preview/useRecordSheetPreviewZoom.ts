@@ -28,6 +28,14 @@ export function useRecordSheetPreviewZoom(
   const modeRef = React.useRef(mode);
   modeRef.current = mode;
 
+  // Pick the phone presentation after mount so server and client markup agree.
+  // Subsequent resizing preserves the user's chosen fit mode or manual zoom.
+  React.useEffect(() => {
+    if (window.matchMedia('(max-width: 639px)').matches) {
+      setMode('fit-width');
+    }
+  }, []);
+
   const applyFit = React.useCallback(
     (selected: RecordSheetPreviewZoomMode) => {
       const container = containerRef.current;

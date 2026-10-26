@@ -81,32 +81,34 @@ async function expectColumnsAligned(page: Page, row: Locator) {
       `${column} center`,
     ).toBeLessThanOrEqual(2);
   }
-  const sortLabels = await catalogHeader(page).evaluate(
-    (element, columns) => {
-      const centers: Record<string, { span: number; cell: number }> = {};
-      for (const column of columns) {
-        const cell = element.querySelector(`[data-catalog-column="${column}"]`);
-        if (!cell) throw new Error(`missing data-catalog-column=${column}`);
-        const span = cell.querySelector('span');
-        if (!span) throw new Error(`missing sort label span for ${column}`);
-        const spanBox = span.getBoundingClientRect();
-        const cellBox = cell.getBoundingClientRect();
-        centers[column] = {
-          span: spanBox.x + spanBox.width / 2,
-          cell: cellBox.x + cellBox.width / 2,
-        };
-      }
-      return centers;
-    },
-    [...SORT_LABEL_COLUMNS],
-  );
-  for (const column of SORT_LABEL_COLUMNS) {
+  // Name reads left-aligned; numeric columns read right-aligned, so each sort
+  // label shares the edge its values align to.
+  const edges = async (root: Locator) =>
+    root.evaluate(
+      (element, columns) => {
+        const result: Record<string, { left: number; right: number }> = {};
+        for (const column of columns) {
+          const cell = element.querySelector(
+            `[data-catalog-column="${column}"]`,
+          );
+          if (!cell) throw new Error(`missing data-catalog-column=${column}`);
+          const text = cell.querySelector('span') ?? cell;
+          const box = text.getBoundingClientRect();
+          result[column] = { left: box.left, right: box.right };
+        }
+        return result;
+      },
+      [...SORT_LABEL_COLUMNS],
+    );
+  const labelEdges = await edges(catalogHeader(page));
+  const rowEdges = await edges(row);
+  expect(
+    Math.abs(labelEdges.name.left - rowEdges.name.left),
+    'name sort label to row',
+  ).toBeLessThanOrEqual(2);
+  for (const column of ['weight', 'criticalSlots'] as const) {
     expect(
-      Math.abs(sortLabels[column].span - sortLabels[column].cell),
-      `${column} sort label`,
-    ).toBeLessThanOrEqual(2);
-    expect(
-      Math.abs(sortLabels[column].span - rowCenters[column]),
+      Math.abs(labelEdges[column].right - rowEdges[column].right),
       `${column} sort label to row`,
     ).toBeLessThanOrEqual(2);
   }

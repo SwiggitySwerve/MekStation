@@ -3,25 +3,12 @@ import React, { useId } from 'react';
 import type { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 
 import {
-  darkenColor,
   getArmorStatusColor,
-  getMegaMekStatusColor,
   lightenColor,
   MEGAMEK_COLORS,
 } from '../shared/ArmorFills';
 
-export function getBipedArmorInk(
-  variant: ArmorDiagramVariant,
-  statusColor: string,
-): { primary: string; secondary: string } {
-  if (variant === 'megamek')
-    return { primary: '#211c14', secondary: '#443721' };
-  if (variant === 'neon-operator')
-    return { primary: lightenColor(statusColor, 0.35), secondary: '#d1fae5' };
-  if (variant === 'tactical-hud')
-    return { primary: '#a5f3fc', secondary: '#cffafe' };
-  return { primary: '#ffffff', secondary: '#f1f5f9' };
-}
+export const BIPED_ARMOR_INK = { primary: '#ffffff', secondary: '#e2e8f0' };
 
 interface BipedArmorSurfaceProps {
   path: string;
@@ -60,17 +47,8 @@ export function BipedArmorSurface({
   const isHud = variant === 'tactical-hud';
   const isMetal = variant === 'premium-material';
   const isPaper = variant === 'megamek';
-  const filledColor = isPaper
-    ? getMegaMekStatusColor(current, maximum)
-    : isGlow
-      ? darkenColor(status, 0.42)
-      : isHud
-        ? darkenColor(status, 0.42)
-        : isMetal
-          ? darkenColor(status, 0.08)
-          : darkenColor(status, 0.25);
   const emptyColor = isPaper
-    ? '#f3ebd0'
+    ? '#1c1b18'
     : isGlow
       ? '#020b12'
       : isHud
@@ -78,12 +56,7 @@ export function BipedArmorSurface({
         : isMetal
           ? '#101d2c'
           : '#0b1620';
-  const stroke =
-    selected || focused
-      ? 'var(--accent-primary)'
-      : isPaper
-        ? MEGAMEK_COLORS.OUTLINE
-        : lightenColor(status, 0.12);
+  const stroke = selected || focused ? 'var(--accent-primary)' : status;
 
   return (
     <>
@@ -91,8 +64,8 @@ export function BipedArmorSurface({
         <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={emptyColor} />
           <stop offset={boundary} stopColor={emptyColor} />
-          <stop offset={boundary} stopColor={filledColor} />
-          <stop offset="1" stopColor={filledColor} />
+          <stop offset={boundary} stopColor={status} stopOpacity="0.2" />
+          <stop offset="1" stopColor={status} stopOpacity="0.2" />
         </linearGradient>
         <clipPath id={fillClipId} clipPathUnits="objectBoundingBox">
           <rect x="0" y={boundary} width="1" height={ratio} />
@@ -157,9 +130,7 @@ export function BipedArmorSurface({
         d={path}
         fill={`url(#${fillId})`}
         stroke={stroke}
-        strokeWidth={
-          preview ? 5 : selected || focused ? 3 : isGlow ? 2.5 : 1.75
-        }
+        strokeWidth={preview ? 5 : selected || focused ? 3 : 2}
         strokeDasharray={
           focused && !selected ? '5 3' : isHud ? '3 2' : undefined
         }
@@ -172,6 +143,7 @@ export function BipedArmorSurface({
         <path
           d={path}
           fill={`url(#${textureId})`}
+          opacity="0.3"
           clipPath={`url(#${fillClipId})`}
           pointerEvents="none"
           aria-hidden="true"

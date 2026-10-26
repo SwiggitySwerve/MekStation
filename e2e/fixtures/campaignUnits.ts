@@ -84,8 +84,9 @@ export async function expectCanonicalAtlasStoredConfiguration(
 export async function expectCanonicalAtlasCustomizerStats(
   page: Page,
 ): Promise<void> {
-  await expect(page.getByTestId('unit-info-stat-tonnage')).toContainText(
-    `${CANONICAL_ATLAS_AS7_D_EXPECTED_STATS.tonnage}`,
+  // Tonnage reads as the weight cap ("used / 100t").
+  await expect(page.getByTestId('unit-info-stat-weight')).toContainText(
+    `/${CANONICAL_ATLAS_AS7_D_EXPECTED_STATS.tonnage}t`,
   );
   await expect(page.getByTestId('unit-info-stat-engine')).toContainText(
     `${CANONICAL_ATLAS_AS7_D_EXPECTED_STATS.engineRating}`,

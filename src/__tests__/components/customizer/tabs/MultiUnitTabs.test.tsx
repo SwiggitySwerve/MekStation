@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import React from 'react';
 
+import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import {
   MultiUnitTabs,
   TargetedSaveUnitDialog,
@@ -307,6 +308,46 @@ describe('MultiUnitTabs', () => {
       );
 
       expect(screen.getByTestId('tab-bar')).toBeInTheDocument();
+    });
+
+    it('hosts edit history in a layout slot and keeps its own row without one', () => {
+      mockGetUnitStore.mockReturnValue(
+        createNewUnitStore({
+          name: 'Slot Mech',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        }),
+      );
+      const { rerender } = renderWithToast(
+        <MultiUnitTabs>
+          <div>Vehicle editor</div>
+        </MultiUnitTabs>,
+      );
+      expect(screen.queryByTestId('unit-edit-status-slot')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Undo' })).toHaveTextContent(
+        'Undo',
+      );
+      expect(screen.getByText('Not saved to library')).toBeInTheDocument();
+
+      rerender(
+        <ToastProvider>
+          <MultiUnitTabs>
+            <UnitEditStatusSlot />
+          </MultiUnitTabs>
+        </ToastProvider>,
+      );
+      const slot = screen.getByTestId('unit-edit-status-slot');
+      expect(
+        screen.getAllByRole('group', { name: 'Edit history' }),
+      ).toHaveLength(1);
+      expect(slot).toContainElement(
+        screen.getByRole('group', { name: 'Edit history' }),
+      );
+      expect(screen.getByRole('button', { name: 'Undo' })).toHaveTextContent(
+        '',
+      );
+      // The slot hosts history only; its editor shows save state itself.
+      expect(screen.queryByText('Not saved to library')).toBeNull();
     });
 
     it('should render children content', () => {

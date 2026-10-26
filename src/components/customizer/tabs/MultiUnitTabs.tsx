@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
-import React, { type ComponentType } from 'react';
+import React, { useState, type ComponentType } from 'react';
+import { createPortal } from 'react-dom';
 
 import type { ExportDialogProps } from '@/components/vault/ExportDialog';
 import type { ImportDialogProps } from '@/components/vault/ImportDialog';
@@ -19,9 +20,9 @@ import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { UnitStoreContext } from '@/stores/useUnitStore';
 
 import { CustomizerCommandBar } from '../CustomizerCommandBar';
-import { BrowserDraftStatus } from '../shared/BrowserDraftStatus';
 import { UnitEditControls } from '../shared/UnitEditControls';
-import { UnitSaveStatus } from '../shared/UnitSaveStatus';
+import { UnitEditStatusSlotContext } from '../shared/UnitEditStatusSlot';
+import { UnitSaveSummary } from '../shared/UnitSaveSummary';
 
 // Lazy-load the two heaviest vault dialogs (~360 + ~300 LOC pulling
 // CSV/JSON parsers, Zod, and Toast plumbing). They only mount when
@@ -108,6 +109,9 @@ export function MultiUnitTabs({
   className = '',
 }: MultiUnitTabsProps): React.ReactElement {
   const { showToast } = useToast();
+  const [editStatusHost, setEditStatusHost] = useState<HTMLElement | null>(
+    null,
+  );
   const {
     tabs,
     activeTabId,
@@ -230,15 +234,23 @@ export function MultiUnitTabs({
         </div>
       </CustomizerCommandBar>
 
-      {activeTabId && (
-        <div className="border-border-theme-subtle bg-surface-base flex min-h-11 min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-b px-2 py-1">
-          <UnitEditControls unitId={activeTabId} />
-          <BrowserDraftStatus unitId={activeTabId} />
-          <UnitSaveStatus unitId={activeTabId} />
-        </div>
-      )}
+      {activeTabId &&
+        (editStatusHost ? (
+          // The hosting editor shows save state beside its validation status.
+          createPortal(
+            <UnitEditControls unitId={activeTabId} compact />,
+            editStatusHost,
+          )
+        ) : (
+          <div className="border-border-theme-subtle bg-surface-base flex min-h-11 min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-b px-2 py-1">
+            <UnitEditControls unitId={activeTabId} />
+            <UnitSaveSummary unitId={activeTabId} />
+          </div>
+        ))}
 
-      <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
+      <UnitEditStatusSlotContext.Provider value={setEditStatusHost}>
+        <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
+      </UnitEditStatusSlotContext.Provider>
 
       <NewTabModal
         isOpen={isNewTabModalOpen}

@@ -2,11 +2,11 @@
  * Bottom Sheet Tray Component
  *
  * Mobile-optimized equipment tray with two states:
- * 1. Collapsed: Compact status bar showing Weight, Slots, Heat, BV
+ * 1. Collapsed: Loadout bar with equipment count (the unit header owns the stats)
  * 2. Expanded: Full-screen equipment list with category filters
  *
  * Features:
- * - Always-visible stats bar at bottom
+ * - Always-visible loadout bar at bottom
  * - Full-screen expansion for detailed equipment management
  * - Category filtering (Energy, Ballistic, Missile, etc.)
  * - Only shows removable equipment (filters structural items)
@@ -204,6 +204,7 @@ export function BottomSheetTray({
           stats={computedStats}
           isExpanded={isExpanded}
           onToggle={handleToggle}
+          showStats={false}
         />
       </div>
 

@@ -118,10 +118,7 @@ export function SystemSelects({
     <div className="space-y-4">
       <section aria-labelledby="drive-system-heading">
         <div className="mb-2 flex items-baseline justify-between gap-3">
-          <h4
-            id="drive-system-heading"
-            className="text-text-theme-secondary text-xs font-semibold tracking-[0.16em] uppercase"
-          >
+          <h4 id="drive-system-heading" className={cs.text.subsection}>
             Drive system
           </h4>
           <span className={cs.text.secondary}>Engine output and balance</span>
@@ -139,7 +136,7 @@ export function SystemSelects({
       <section aria-labelledby="chassis-systems-heading">
         <h4
           id="chassis-systems-heading"
-          className="text-text-theme-secondary mb-2 text-xs font-semibold tracking-[0.16em] uppercase"
+          className={`${cs.text.subsection} mb-2`}
         >
           Chassis systems
         </h4>
@@ -192,7 +189,7 @@ function LabeledSelect({
   const id = `${label.toLowerCase()}-select`;
 
   return (
-    <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
+    <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)]">
       <label className={`${cs.text.label} font-medium`} htmlFor={id}>
         {label}
       </label>
@@ -210,7 +207,9 @@ function LabeledSelect({
           </option>
         ))}
       </select>
-      <span className={`${cs.text.secondary} text-right tabular-nums`}>
+      <span
+        className={`${cs.text.secondary} col-start-2 tabular-nums sm:col-start-auto sm:text-right`}
+      >
         {meta}
       </span>
     </div>
@@ -228,7 +227,7 @@ export function EngineRatingSummary({
     <div className="border-border-theme-subtle grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3 border-t pt-3">
       <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
       <span
-        className={`text-sm tabular-nums ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.valueHighlight}`}
+        className={`text-sm tabular-nums ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.value}`}
       >
         {engineRating}
       </span>

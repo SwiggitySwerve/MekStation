@@ -15,7 +15,7 @@
 
 const panel = {
   /** Main content panel - bg-surface-base with border */
-  main: 'bg-surface-base rounded-lg border border-border-theme-subtle p-4',
+  main: 'bg-surface-base rounded-lg border border-border-theme p-4',
 
   /** Compact summary bar at top of tabs */
   summary:
@@ -34,6 +34,13 @@ const panel = {
 // =============================================================================
 
 const text = {
+  /** Card title - one size for every card/section heading across tabs */
+  cardTitle: 'text-lg font-semibold text-text-theme-primary',
+
+  /** Sub-section label inside a card (CHASSIS, DRIVE SYSTEM, SYSTEM MANUFACTURERS) */
+  subsection:
+    'text-xs font-semibold tracking-wider uppercase text-text-theme-secondary',
+
   /** Section/panel title */
   sectionTitle:
     'text-sm font-semibold tracking-wide text-text-theme-primary mb-4',
@@ -65,23 +72,23 @@ const text = {
 // =============================================================================
 
 const input = {
-  /** Base input styles (without width) */
-  base: 'px-3 py-2 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+  /** Base input styles (without width). Fields are inset (surface-deep) so they read apart from card surfaces. */
+  base: 'px-3 py-2 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
 
   /** Full-width input */
-  full: 'w-full px-3 py-2 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+  full: 'w-full px-3 py-2 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
 
   /** Compact input (smaller padding) */
   compact:
-    'px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm',
+    'px-2 py-1.5 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm',
 
   /** Full-width compact input */
   fullCompact:
-    'w-full px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm',
+    'w-full px-2 py-1.5 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm',
 
   /** Centered number input (for stepper controls) */
   number:
-    'min-h-11 min-w-11 px-2 py-1 bg-surface-raised border border-border-theme text-text-theme-primary text-sm text-center',
+    'min-h-11 min-w-11 px-2 py-1 bg-surface-deep border border-border-theme text-text-theme-primary text-sm text-center',
 
   /** Hide number input spinners - append to number inputs */
   noSpinners:
@@ -94,15 +101,15 @@ const input = {
 
 const select = {
   /** Full-width select */
-  full: 'w-full px-3 py-2 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+  full: 'w-full pl-3 pr-9 py-2 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm truncate focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
 
-  /** Compact select (smaller padding) */
+  /** Compact select (smaller padding; right padding keeps text clear of the arrow) */
   compact:
-    'w-full px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm',
+    'w-full pl-2 pr-8 py-1.5 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm truncate',
 
   /** Inline select (no full width) */
   inline:
-    'px-2 py-1.5 bg-surface-raised border border-border-theme rounded text-text-theme-primary text-sm',
+    'pl-2 pr-8 py-1.5 bg-surface-deep border border-border-theme rounded text-text-theme-primary text-sm',
 } as const;
 
 // =============================================================================
@@ -178,7 +185,7 @@ const layout = {
   statRow: 'flex items-center gap-2',
 
   /** Divider/separator */
-  divider: 'pt-3 mt-1 border-t border-border-theme-subtle',
+  divider: 'pt-3 mt-1 border-t border-border-theme',
 
   /** Vertical divider */
   dividerV: 'pl-4 border-l border-border-theme',

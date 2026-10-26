@@ -231,6 +231,31 @@ describe('UnitLoadDialog', () => {
     });
   });
 
+  it('selects a catalog row by keyboard and loads the selected unit', async () => {
+    const user = userEvent.setup();
+    render(<UnitLoadDialog {...defaultProps} />);
+    const row = await screen.findByRole('row', { name: /Atlas/ });
+    expect(screen.getByRole('button', { name: 'Load Unit' })).toBeDisabled();
+    row.focus();
+    await user.keyboard(' ');
+    expect(row).toHaveAttribute('aria-selected', 'true');
+    await user.click(screen.getByRole('button', { name: 'Load Unit' }));
+    expect(defaultProps.onLoadUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'atlas-as7-d' }),
+      'canonical',
+    );
+  });
+
+  it('loads a catalog row on double-click', async () => {
+    const user = userEvent.setup();
+    render(<UnitLoadDialog {...defaultProps} />);
+    await user.dblClick(await screen.findByRole('row', { name: /Atlas/ }));
+    expect(defaultProps.onLoadUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'atlas-as7-d' }),
+      'canonical',
+    );
+  });
+
   it('should call onCancel when cancel button is clicked', async () => {
     const user = userEvent.setup();
     render(<UnitLoadDialog {...defaultProps} />);

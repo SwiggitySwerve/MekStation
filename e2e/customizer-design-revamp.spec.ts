@@ -126,14 +126,20 @@ test('mobile keeps identity and tab navigation available across all surfaces @cu
     .getByRole('button', { name: 'Close loadout', exact: true })
     .click();
   for (const label of tabs) {
+    const selector = page.getByRole('button', { name: /^Section:/ });
+    await selector.click();
     const tab = page.getByRole('tab', { name: label, exact: true });
     await tab.click();
-    await expect(tab).toHaveAttribute('aria-selected', 'true');
+    await expect(selector).toHaveAccessibleName(
+      `Section: ${label}, ${tabs.indexOf(label) + 1} of 7`,
+    );
+    await expect(selector).toHaveAttribute('aria-expanded', 'false');
+    await expect(selector).toBeFocused();
     await expect(
       page.getByRole('region', { name: 'Unit status', exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByRole('group', { name: 'Movement', exact: true }),
+      page.getByRole('group', { name: 'Capacity', exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole('button', {

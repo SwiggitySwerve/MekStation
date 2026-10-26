@@ -6,13 +6,13 @@
  * @spec openspec/specs/color-system/spec.md
  */
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { TechBase } from '@/types/enums/TechBase';
 import {
-  EQUIPMENT_COLORS,
-  EquipmentColorType,
+  EQUIPMENT_CATEGORY_COLORS,
+  HEATSINK_COLORS,
 } from '@/utils/colors/equipmentColors';
 import { SLOT_COLORS, SystemComponentType } from '@/utils/colors/slotColors';
 import { TECH_BASE_COLORS } from '@/utils/colors/techBaseColors';
@@ -32,10 +32,8 @@ interface ColorSwatchProps {
 function ColorSwatch({ bgClass, label }: ColorSwatchProps) {
   return (
     <div className="flex items-center gap-2">
-      <div
-        className={`h-4 w-4 rounded ${bgClass} border-border-theme-strong border`}
-      />
-      <span className="text-text-theme-primary text-xs">{label}</span>
+      <div className={`h-5 w-7 shrink-0 rounded border ${bgClass}`} />
+      <span className="text-text-theme-primary text-sm">{label}</span>
     </div>
   );
 }
@@ -48,22 +46,20 @@ export function ColorLegend({
   className = '',
 }: ColorLegendProps): React.ReactElement {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const panelId = useId();
 
   const systemComponents: { type: SystemComponentType; label: string }[] = [
     { type: 'engine', label: 'Engine' },
     { type: 'gyro', label: 'Gyro' },
     { type: 'actuator', label: 'Actuators' },
-    { type: 'cockpit', label: 'Cockpit/Sensors' },
+    { type: 'cockpit', label: 'Cockpit / life support / sensors' },
+    { type: 'structure', label: 'Endo / Ferro (unhittable)' },
     { type: 'empty', label: 'Empty Slot' },
   ];
 
-  const equipmentTypes: { type: EquipmentColorType; label: string }[] = [
-    { type: 'weapon', label: 'Weapons' },
-    { type: 'ammunition', label: 'Ammunition' },
-    { type: 'heatsink', label: 'Heat Sinks' },
-    { type: 'electronics', label: 'Electronics' },
-    { type: 'physical', label: 'Physical Weapons' },
-    { type: 'misc', label: 'Other Equipment' },
+  const equipmentTypes = [
+    ...Object.values(EQUIPMENT_CATEGORY_COLORS),
+    { ...HEATSINK_COLORS, label: 'Heat Sinks' },
   ];
 
   const techBases = [
@@ -72,12 +68,16 @@ export function ColorLegend({
   ];
 
   return (
-    <div
-      className={`bg-surface-base border-border-theme rounded-lg border ${className}`}
-    >
+    <div className={`bg-surface-base relative ${className}`}>
       <button
+        type="button"
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setIsExpanded(false);
+        }}
         onClick={() => setIsExpanded(!isExpanded)}
-        className="text-text-theme-primary hover:text-text-theme-primary flex w-full items-center justify-between px-3 py-2 text-sm transition-colors"
+        className="text-text-theme-primary hover:text-text-theme-primary focus-visible:outline-accent flex min-h-11 w-full items-center justify-between gap-2 px-3 py-2 text-sm transition-colors focus-visible:outline-2"
       >
         <span className="font-medium">Color Legend</span>
         <span
@@ -88,7 +88,14 @@ export function ColorLegend({
       </button>
 
       {isExpanded && (
-        <div className="border-border-theme space-y-4 border-t px-3 pt-3 pb-3">
+        <div
+          id={panelId}
+          className="border-border-theme bg-surface-base absolute top-full right-0 z-20 max-h-[60dvh] w-[32rem] max-w-[calc(100vw-2rem)] space-y-4 overflow-y-auto rounded-lg border p-3 shadow-xl"
+        >
+          <p className="text-text-theme-secondary text-xs">
+            Wide accents identify equipment; thin muted accents identify fixed
+            systems. Dashed slots are empty or unhittable.
+          </p>
           {/* System Components */}
           <div>
             <h4 className="text-text-theme-secondary mb-2 text-xs font-semibold uppercase">
@@ -98,7 +105,7 @@ export function ColorLegend({
               {systemComponents.map(({ type, label }) => (
                 <ColorSwatch
                   key={type}
-                  bgClass={SLOT_COLORS[type].bg}
+                  bgClass={`${SLOT_COLORS[type].bg} ${SLOT_COLORS[type].border}`}
                   label={label}
                 />
               ))}
@@ -111,10 +118,10 @@ export function ColorLegend({
               Equipment Types
             </h4>
             <div className="grid grid-cols-2 gap-1">
-              {equipmentTypes.map(({ type, label }) => (
+              {equipmentTypes.map(({ accentBorder, label }) => (
                 <ColorSwatch
-                  key={type}
-                  bgClass={EQUIPMENT_COLORS[type].bg}
+                  key={label}
+                  bgClass={`bg-surface-raised border-border-theme border-l-4 ${accentBorder}`}
                   label={label}
                 />
               ))}

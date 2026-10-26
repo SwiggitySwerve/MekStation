@@ -61,7 +61,11 @@ export function GlobalLoadoutTray({
   isOmni = false,
   className = '',
 }: GlobalLoadoutTrayProps): React.ReactElement {
-  const [unassignedExpanded, setUnassignedExpanded] = useState(true);
+  // null = follow the content: open while something is unassigned, otherwise
+  // a quiet collapsed header. Any explicit toggle then wins.
+  const [unassignedOverride, setUnassignedOverride] = useState<boolean | null>(
+    null,
+  );
   const [mountedExpanded, setMountedExpanded] = useState(true);
   const [fixedExpanded, setFixedExpanded] = useState(false);
   const [grouping, setGrouping] = useState<GroupingMode>('category');
@@ -135,6 +139,8 @@ export function GlobalLoadoutTray({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isActionsOpen]);
+
+  const unassignedExpanded = unassignedOverride ?? unassigned.length > 0;
 
   const handleSelect = useCallback(
     (id: string | null) => {
@@ -252,10 +258,10 @@ export function GlobalLoadoutTray({
           title="Expand loadout"
         >
           <AppIcon name="chevrons-left" size="toolbar" />
-          <span className="bg-surface-raised text-text-theme-secondary min-w-6 rounded-full px-1.5 py-0.5 text-center text-[10px] tabular-nums">
+          <span className="bg-surface-raised text-text-theme-secondary min-w-6 rounded-full px-1.5 py-0.5 text-center text-xs tabular-nums">
             {equipmentCount}
           </span>
-          <span className="mt-1 rotate-180 text-[10px] tracking-[0.18em] [writing-mode:vertical-rl]">
+          <span className="mt-1 rotate-180 text-xs tracking-[0.18em] [writing-mode:vertical-rl]">
             LOADOUT
           </span>
         </button>
@@ -311,7 +317,7 @@ export function GlobalLoadoutTray({
                 className="text-text-theme-secondary/50 mx-auto mb-2"
               />
               <p className="text-text-theme-primary text-xs">No equipment</p>
-              <p className="text-text-theme-secondary mt-1 text-[10px]">
+              <p className="text-text-theme-secondary mt-1 text-xs">
                 Add equipment from the Equipment tab.
               </p>
             </div>
@@ -321,16 +327,21 @@ export function GlobalLoadoutTray({
                 title="Unassigned"
                 count={unassigned.length}
                 isExpanded={unassignedExpanded}
-                onToggle={() => setUnassignedExpanded((current) => !current)}
-                titleColor="text-accent"
+                onToggle={() => setUnassignedOverride(!unassignedExpanded)}
+                titleColor={
+                  unassigned.length > 0
+                    ? 'text-accent'
+                    : 'text-text-theme-secondary'
+                }
                 isDropZone
+                dropLabel="Drop to unassign"
                 onDrop={handleDropToUnassigned}
               >
                 {unassigned.length === 0 ? (
                   <div
                     className={`${trayStyles.padding.row} text-text-theme-secondary flex min-h-9 items-center py-1 ${trayStyles.text.secondary}`}
                   >
-                    Drop equipment here to unassign
+                    Nothing unassigned. Drop an item here to unassign it.
                   </div>
                 ) : (
                   renderGroups(groupedUnassigned)

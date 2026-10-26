@@ -58,48 +58,45 @@ export interface SlotColorDefinition {
 /**
  * System component slot colors
  *
- * - Engine: orange (bg-orange-600)
- * - Gyro: purple (bg-purple-600)
- * - Actuator: blue (bg-blue-600)
- * - Cockpit/Life Support/Sensors: yellow (bg-yellow-600)
- * - Empty: gray with dashed border (bg-gray-600)
+ * Fixed systems use quiet neutral surfaces with thin, muted accents.
+ * Equipment uses stronger category edges; unhittables keep dashed borders.
  */
 export const SLOT_COLORS: Record<SystemComponentType, SlotColorDefinition> = {
   engine: {
-    bg: 'bg-orange-600',
-    border: 'border-orange-700',
-    text: 'text-white',
-    hoverBg: 'hover:bg-orange-500',
+    bg: 'bg-surface-base',
+    border: 'border-border-theme-subtle border-l-2 border-l-orange-400/35',
+    text: 'text-text-theme-secondary',
+    hoverBg: 'hover:bg-surface-raised',
   },
   gyro: {
-    bg: 'bg-purple-600',
-    border: 'border-purple-700',
-    text: 'text-white',
-    hoverBg: 'hover:bg-purple-500',
+    bg: 'bg-surface-base',
+    border: 'border-border-theme-subtle border-l-2 border-l-purple-400/35',
+    text: 'text-text-theme-secondary',
+    hoverBg: 'hover:bg-surface-raised',
   },
   actuator: {
-    bg: 'bg-blue-600',
-    border: 'border-blue-700',
-    text: 'text-white',
-    hoverBg: 'hover:bg-blue-500',
+    bg: 'bg-surface-base',
+    border: 'border-border-theme-subtle border-l-2 border-l-blue-400/35',
+    text: 'text-text-theme-secondary',
+    hoverBg: 'hover:bg-surface-raised',
   },
   cockpit: {
-    bg: 'bg-yellow-600',
-    border: 'border-yellow-700',
-    text: 'text-black',
-    hoverBg: 'hover:bg-yellow-500',
+    bg: 'bg-surface-base',
+    border: 'border-border-theme-subtle border-l-2 border-l-slate-400/60',
+    text: 'text-text-theme-secondary',
+    hoverBg: 'hover:bg-surface-raised',
   },
   lifesupport: {
-    bg: 'bg-yellow-600',
-    border: 'border-yellow-700',
-    text: 'text-black',
-    hoverBg: 'hover:bg-yellow-500',
+    bg: 'bg-surface-base',
+    border: 'border-border-theme-subtle border-l-2 border-l-slate-400/60',
+    text: 'text-text-theme-secondary',
+    hoverBg: 'hover:bg-surface-raised',
   },
   sensors: {
-    bg: 'bg-yellow-600',
-    border: 'border-yellow-700',
-    text: 'text-black',
-    hoverBg: 'hover:bg-yellow-500',
+    bg: 'bg-surface-base',
+    border: 'border-border-theme-subtle border-l-2 border-l-slate-400/60',
+    text: 'text-text-theme-secondary',
+    hoverBg: 'hover:bg-surface-raised',
   },
   // Endo Steel - unhittable structural slots (light faded gray with dashed border)
   structure: {

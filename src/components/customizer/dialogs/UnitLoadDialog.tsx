@@ -148,7 +148,7 @@ function UnitSearchFilters({
   weightClassFilter: WeightClass | 'all';
 }) {
   return (
-    <div className="border-border-theme-subtle space-y-3 border-b p-4">
+    <div className="border-border-theme-subtle shrink-0 space-y-3 border-b p-4">
       <div className="relative">
         <AppIcon
           name="search"
@@ -161,12 +161,14 @@ function UnitSearchFilters({
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Search by chassis or variant..."
+          aria-label="Search by chassis or variant"
           className={cs.dialog.inputSearch}
         />
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 [&>select]:min-w-0">
         <select
+          aria-label="Unit source"
           value={sourceFilter}
           onChange={(event) =>
             setSourceFilter(event.target.value as UnitSource)
@@ -179,6 +181,7 @@ function UnitSearchFilters({
         </select>
 
         <select
+          aria-label="Tech base"
           value={techBaseFilter}
           onChange={(event) =>
             setTechBaseFilter(event.target.value as TechBase | 'all')
@@ -191,11 +194,12 @@ function UnitSearchFilters({
         </select>
 
         <select
+          aria-label="Weight class"
           value={weightClassFilter}
           onChange={(event) =>
             setWeightClassFilter(event.target.value as WeightClass | 'all')
           }
-          className={cs.dialog.selectFilter}
+          className={`${cs.dialog.selectFilter} col-span-2 sm:w-auto`}
         >
           <option value="all">All Weight Classes</option>
           <option value={WeightClass.LIGHT}>Light (20-35t)</option>
@@ -345,10 +349,13 @@ export function UnitLoadDialog({
       isOpen={isOpen}
       ariaLabelledBy={titleId}
       onClose={onCancel}
-      className="mx-4 flex max-h-[80vh] w-full max-w-6xl flex-col"
+      fullScreenOnMobile
+      className="flex w-full flex-col sm:mx-4 sm:max-h-[80vh] sm:max-w-6xl"
     >
       {/* Header */}
-      <div className={cs.dialog.header}>
+      <div
+        className={`${cs.dialog.header} shrink-0 [&>button]:min-h-11 [&>button]:min-w-11`}
+      >
         <h3 id={titleId} className={cs.dialog.headerTitle}>
           {onCreateBlankUnit ? 'Add unit' : 'Load Unit from Library'}
         </h3>
@@ -356,16 +363,16 @@ export function UnitLoadDialog({
       </div>
 
       {onCreateBlankUnit && (
-        <div className="bg-surface-raised border-border-theme-subtle flex shrink-0 flex-wrap items-center justify-between gap-3 border-b p-4">
-          <div>
+        <div className="bg-surface-raised border-border-theme-subtle flex shrink-0 items-center justify-between gap-2 border-b p-4 sm:gap-3">
+          <div className="min-w-0">
             <button
               type="button"
               onClick={onCreateBlankUnit}
-              className={`${cs.dialog.btnPrimary} min-h-11`}
+              className={`${cs.dialog.btnPrimary} min-h-11 max-sm:px-3 max-sm:text-xs`}
             >
               New blank unit
             </button>
-            <p className="text-text-theme-secondary mt-2 text-sm">
+            <p className="text-text-theme-secondary mt-2 hidden text-sm sm:block">
               50-ton Inner Sphere BattleMech. Change settings in the editor.
             </p>
           </div>
@@ -373,7 +380,7 @@ export function UnitLoadDialog({
             <button
               type="button"
               onClick={onConfigureNewUnit}
-              className={`${cs.dialog.btnGhost} min-h-11`}
+              className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base min-h-11 rounded border max-sm:px-3 max-sm:text-xs`}
             >
               Choose starting settings
             </button>
@@ -381,7 +388,7 @@ export function UnitLoadDialog({
         </div>
       )}
       {onCreateBlankUnit && (
-        <p className="text-text-theme-secondary shrink-0 px-4 pt-3 text-sm">
+        <p className="text-text-theme-secondary hidden shrink-0 px-4 pt-3 text-sm sm:block">
           Or start from a catalog unit. Official units and saved designs open as
           editable copies.
         </p>
@@ -400,7 +407,7 @@ export function UnitLoadDialog({
       />
 
       {/* Unit table */}
-      <div className="min-h-0 flex-1 overflow-auto">
+      <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
         {loadError ? (
           <div className="space-y-3 p-4" role="alert">
             <p>{loadError}</p>
@@ -423,20 +430,25 @@ export function UnitLoadDialog({
       </div>
 
       {/* Footer */}
-      <div className={cs.dialog.footerBetween}>
+      <div
+        className={`${cs.dialog.footerBetween} bg-surface-base shrink-0 gap-3 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]`}
+      >
         <span className="text-text-theme-secondary text-sm">
           {filteredUnits.length} unit{filteredUnits.length !== 1 ? 's' : ''}{' '}
           found
         </span>
-        <div className="flex items-center gap-2">
-          <button onClick={onCancel} className={cs.dialog.btnGhost}>
+        <div className="flex flex-1 items-center justify-end gap-2 sm:flex-none">
+          <button
+            onClick={onCancel}
+            className={`${cs.dialog.btnGhost} hidden sm:block`}
+          >
             Cancel
           </button>
           <button
             onClick={handleLoad}
             disabled={!selectedUnit || isLoadingUnit}
             aria-busy={isLoadingUnit}
-            className={cs.dialog.btnPrimary}
+            className={`${cs.dialog.btnPrimary} w-full sm:w-auto`}
           >
             {isLoadingUnit ? 'Loading Unit…' : 'Load Unit'}
           </button>

@@ -8,9 +8,20 @@
 .workbench select,
 .workbench textarea {
   min-height: var(--workbench-control-height);
-  background-color: var(--surface-raised);
+  /* Inset field: darker than the card (surface-base) it sits on, with a
+     visible border, so inputs never blend into card surfaces. */
+  background-color: var(--surface-deep);
   color: var(--text-primary);
+  border-color: var(--border-strong);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+.workbench
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):disabled,
+.workbench select:disabled,
+.workbench textarea:disabled {
   border-color: var(--border-default);
+  box-shadow: none;
 }
 
 .workbench input:focus-visible,
@@ -45,7 +56,7 @@
 
 .readoutHeading {
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -73,15 +84,23 @@
 
 .catalogColumns {
   grid-template-columns:
-    minmax(0, 1fr) minmax(80px, 0.55fr)
-    56px 48px 40px 44px;
+    minmax(0, 1fr) minmax(88px, 0.5fr)
+    64px 64px 52px 44px;
   align-items: center;
   justify-items: stretch;
   column-gap: 0.75rem;
   box-sizing: border-box;
   min-height: 44px;
   padding-inline: 12px;
-  text-align: center;
+  text-align: left;
+}
+
+/* Numeric tracks read right-aligned so digits line up down the column. */
+.catalogColumns > [data-catalog-column='weight'],
+.catalogColumns > [data-catalog-column='criticalSlots'],
+.catalogColumns > [data-catalog-column='heat'] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .catalogHeader {
@@ -93,34 +112,57 @@
   min-height: 44px;
   background-color: var(--surface-deep);
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-default);
-  /* Match row card side borders so header and value tracks share the same inset. */
-  border-left: 1px solid transparent;
+  /* Match row card borders (4px category accent on the left) so header and
+     value tracks share the same inset. */
+  border-left: 4px solid transparent;
   border-right: 1px solid transparent;
 }
 
 .catalogSortButton {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  display: flex;
   align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
   width: 100%;
   min-width: 0;
+  font-size: 0.75rem;
+}
+
+.catalogHeader .catalogSortButton {
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+/* Right-aligned numeric headers put the sort indicator before the label so
+   the label edge matches the value edge and never crowds the next header. */
+.catalogHeader > .catalogSortButton[data-catalog-column='weight'],
+.catalogHeader > .catalogSortButton[data-catalog-column='criticalSlots'] {
+  flex-direction: row-reverse;
 }
 
 .catalogSortLabel {
-  grid-column: 2;
-  justify-self: center;
-  text-align: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .catalogSortArrow {
-  grid-column: 3;
-  justify-self: start;
   display: inline-flex;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.catalogSortButton[aria-pressed='true'] .catalogSortArrow {
+  color: var(--accent-primary);
+  opacity: 1;
 }
 
 .catalogAddHit {
@@ -156,9 +198,23 @@
   min-height: 48px;
 }
 
+.compactBar {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 8px;
+}
+
+.compactBar > .readouts {
+  min-width: 0;
+  flex: 1 1 0%;
+}
+
 .compactMetrics .readouts {
   display: grid;
-  grid-template-columns: minmax(0, 4fr) repeat(2, minmax(0, 3fr));
+  /* Columns follow stat counts (capacity 4, movement 4, BV 1) so every stat
+     cell, and so every group gap, has the same width. */
+  grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 1fr);
   align-items: center;
   min-height: 48px;
   padding: 0;
@@ -166,7 +222,7 @@
 }
 
 .compactMetrics .readoutsWithRunPlus {
-  grid-template-columns: minmax(0, 5fr) repeat(2, minmax(0, 3fr));
+  grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 1fr);
 }
 
 .compactMetrics .readoutGroup {
@@ -191,31 +247,311 @@
   white-space: nowrap;
 }
 
-.compactMetrics [data-testid^='unit-info-stat-'] > :last-child {
-  font-size: 14px;
-  line-height: 20px;
-}
-
 .compactMetrics .readoutGroup > div {
   grid-auto-columns: minmax(min-content, 1fr);
   gap: 0;
 }
 
+/* Budget readouts lead; a 3px bar shows use against the cap by state. */
+.budgetTrack {
+  display: block;
+  width: 100%;
+  min-width: 40px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-secondary) 22%, transparent);
+}
+
+.budgetFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+}
+
+.budgetFill[data-status='warning'] {
+  background: var(--color-orange-400, #fb923c);
+}
+
+.budgetFill[data-status='error'] {
+  background: var(--color-red-400, #f87171);
+}
+
+.secondaryStat {
+  opacity: 0.92;
+}
+
+/* One status control: rule result first, then the save line. */
+.statusControl {
+  display: flex;
+  min-width: 0;
+  flex-shrink: 1;
+  align-items: center;
+  gap: 4px;
+  padding-right: 12px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface-raised) 55%, transparent);
+}
+
+/* Keep receipts readable at every width; a dot alone cannot explain save state. */
+.editStatusSlot {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Overflow cues: a fade plus chevron on each edge that has hidden tabs. */
+.sectionFadeLeft,
+.sectionFadeRight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  width: 44px;
+  align-items: center;
+  border: 0;
+  padding: 0 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.sectionSelector,
+.sectionSelected {
+  display: none;
+}
+
+/* Phone navigation fills the row; undo/redo stay on the same row at its end. */
+@media (max-width: 639px) {
+  .sectionBar {
+    height: auto;
+    padding-block: 4px;
+  }
+
+  .sectionBar > :first-child {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+
+  .sectionBar .editStatusSlot {
+    margin-left: 0;
+  }
+
+  .sectionSelector {
+    display: flex;
+    width: 100%;
+    height: 48px;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 0 12px;
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sectionSelector:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: -2px;
+  }
+
+  .sectionTablist {
+    display: none;
+  }
+
+  .sectionTablist[data-sections-open='true'] {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline: 0;
+    z-index: 40;
+    display: flex;
+    max-height: min(352px, 55dvh);
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: auto;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 4px;
+    background: var(--surface-raised);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+  }
+
+  .sectionTablist .sectionTab {
+    width: 100%;
+    justify-content: flex-start;
+    border: 0;
+    border-radius: 4px;
+    padding-inline: 12px;
+  }
+
+  .sectionTablist .sectionTab > span:first-of-type {
+    font-size: 14px;
+  }
+
+  .sectionSelected {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
+  .sectionFadeLeft,
+  .sectionFadeRight {
+    display: none;
+  }
+}
+
+.sectionFadeLeft {
+  left: 0;
+  justify-content: flex-start;
+  background: linear-gradient(to right, var(--surface-base) 50%, transparent);
+}
+
+.sectionFadeRight {
+  right: 0;
+  justify-content: flex-end;
+  background: linear-gradient(to left, var(--surface-base) 50%, transparent);
+}
+
+@media (hover: hover) {
+  .sectionFadeLeft:hover,
+  .sectionFadeRight:hover {
+    color: var(--text-primary);
+  }
+}
+
+@media (hover: hover) {
+  .sectionTab[aria-selected='false']:not(:disabled):hover {
+    color: var(--text-primary);
+  }
+}
+
+.explainedStat {
+  position: relative;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.explainedStat:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+.statTooltip {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 50;
+  width: 240px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: left;
+  white-space: normal;
+}
+
+.explainedStat:focus .statTooltip {
+  display: block;
+}
+
+@media (hover: hover) {
+  .explainedStat:hover .statTooltip {
+    display: block;
+  }
+}
+
+/* Phone: one row of key capacity stats; the rest open beneath it on demand. */
 @media (max-width: 767px) {
+  .compactMetrics {
+    padding: 0 4px;
+  }
+
+  .compactBar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0 2px;
+  }
+
+  /* Top-aligned so they stay level with the first budget row when the
+     expanded readouts wrap Armor onto a second line. */
+  .compactStatus {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    min-width: 0;
+    margin-top: 2px;
+  }
+
+  .compactToggle {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+    margin-top: 2px;
+  }
+
+  /* The tooltip and accessible name carry "over"; the pill keeps "+11". */
+  .excessWord {
+    display: none;
+  }
+
   .compactMetrics .readouts {
-    grid-template-columns: 1fr;
-    gap: 0;
-    padding: 4px 0;
+    display: contents;
   }
 
   .compactMetrics .readoutGroup {
-    min-height: 38px;
+    grid-column: 1 / -1;
+    min-height: 44px;
     justify-content: center;
+    border-top: 1px solid var(--border-default);
   }
 
   .compactMetrics .readoutGroup + .readoutGroup {
     border-left: 0;
-    padding-left: 0;
+  }
+
+  .compactMetrics .readoutGroupKey {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 48px;
+    border-top: 0;
+  }
+
+  .compactMetrics .readoutGroupKey > div {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 4px;
+  }
+
+  .compactMetrics .budgetValue {
+    font-size: 15px;
+  }
+
+  /* Expanded: movement and BV share one row beneath the budget row. */
+  .compactMetrics .readoutGroup:not(.readoutGroupKey) {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .compactMetrics .readoutGroup.readoutGroupAside {
+    grid-column: 2 / -1;
+    border-left: 1px solid var(--border-default);
+  }
+
+  .compactMetrics
+    .readouts:not(.readoutsDetailsOpen)
+    .readoutGroup:not(.readoutGroupKey),
+  .compactMetrics .readouts:not(.readoutsDetailsOpen) [data-phone-detail] {
+    display: none;
   }
 }
 

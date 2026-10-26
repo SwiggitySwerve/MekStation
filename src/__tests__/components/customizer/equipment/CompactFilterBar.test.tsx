@@ -103,7 +103,8 @@ describe('CompactFilterBar', () => {
       const energyButton = screen
         .getByRole('button', { name: 'Energy' })
         .closest('button');
-      expect(energyButton).toHaveClass('ring-1');
+      expect(energyButton).toHaveClass('border-accent', 'text-accent');
+      expect(energyButton).toHaveAttribute('aria-pressed', 'true');
     });
   });
 
@@ -123,7 +124,28 @@ describe('CompactFilterBar', () => {
           hideOneShot={true}
         />,
       );
-      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.getByText('(2)')).toBeInTheDocument();
+    });
+
+    it('shows availability as its own chip, not inside the Filters label', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          hideUnavailable={true}
+          availabilitySummary="Inner Sphere · up to 3028"
+        />,
+      );
+      expect(screen.getByText('Inner Sphere · up to 3028')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Visibility filters' }),
+      ).not.toHaveTextContent('Inner Sphere');
+    });
+
+    it('labels the help popover in plain words', () => {
+      render(<CompactFilterBar {...defaultProps} />);
+      expect(
+        screen.getByRole('button', { name: 'How to add equipment' }),
+      ).toHaveTextContent('How to add');
     });
 
     it('should toggle hide filters when clicked', async () => {

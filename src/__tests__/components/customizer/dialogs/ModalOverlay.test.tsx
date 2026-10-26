@@ -88,6 +88,34 @@ describe('ModalOverlay native ownership', () => {
     );
   }
 
+  it('portals a responsive fullscreen dialog and retains focus, escape and scroll locking', async () => {
+    const onClose = jest.fn();
+    const user = userEvent.setup();
+    const view = render(
+      <ModalOverlay
+        isOpen
+        fullScreenOnMobile
+        onClose={onClose}
+        ariaLabelledBy="mobile-title"
+      >
+        <h2 id="mobile-title">Add unit</h2>
+        <button>First action</button>
+        <button>Last action</button>
+      </ModalOverlay>,
+    );
+    const dialog = screen.getByRole('dialog', { name: 'Add unit' });
+    expect(view.container).not.toContainElement(dialog);
+    expect(document.body).toContainElement(dialog);
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(screen.getByRole('button', { name: 'First action' })).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(screen.getByRole('button', { name: 'Last action' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledTimes(1);
+    view.unmount();
+    expect(document.body.style.overflow).toBe('scroll');
+  });
+
   it.each(['parent-first', 'child-first'] as const)(
     'restores original overflow after %s release',
     (order) => {

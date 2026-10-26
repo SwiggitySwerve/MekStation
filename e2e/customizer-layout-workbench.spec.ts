@@ -84,14 +84,17 @@ test('workbench preserves readable metrics and a stable scrolling workspace @cus
       .getByRole('group', { name: 'Edit history', exact: true })
       .boundingBox();
     expect(editControls?.height).toBe(44);
-    expect(before.metrics.y).toBeGreaterThanOrEqual(
-      editControls!.y + editControls!.height,
+    // Edit history shares the section bar instead of adding its own band.
+    expect(editControls!.y).toBeGreaterThanOrEqual(before.section.y);
+    expect(editControls!.y + editControls!.height).toBeLessThanOrEqual(
+      before.section.y + before.section.height,
     );
     expect(before.workspace.y).toBe(before.section.y + before.section.height);
     expect(before.workspace.height).toBe(viewport.height - before.workspace.y);
     expect(before.documentOverflow).toBe(0);
     const readouts = page.locator('[data-testid^="unit-info-stat-"]');
-    await expect(readouts).toHaveCount(10);
+    // Tonnage is the weight cap, so the strip has nine readouts.
+    await expect(readouts).toHaveCount(9);
     for (const metric of await readouts.all()) {
       await expect(metric).toBeVisible();
       expect(
@@ -143,6 +146,16 @@ test('workbench preserves readable metrics and a stable scrolling workspace @cus
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
+  const collapsed = await bounds(page);
+  expect(collapsed.documentOverflow).toBe(0);
+  // Phone keeps one row of key capacity readouts; the rest open on demand.
+  expect(collapsed.metrics.height).toBe(48);
+  for (const id of ['weight', 'slots', 'heat'])
+    await expect(page.getByTestId(`unit-info-stat-${id}`)).toBeVisible();
+  await expect(page.getByTestId('unit-info-stat-walk')).toBeHidden();
+  await page
+    .getByRole('button', { name: 'Show all unit readouts', exact: true })
+    .click();
   const mobile = await bounds(page);
   expect(mobile.documentOverflow).toBe(0);
   for (const metric of await page
@@ -355,18 +368,20 @@ test('active section remains visible after viewport resize @customizer', async (
     page.getByRole('tab', { name: 'Critical Slots', exact: true }),
   ).toHaveAttribute('aria-selected', 'true');
   await page.setViewportSize({ width: 390, height: 844 });
+  const selector = page.getByRole('button', {
+    name: 'Section: Critical Slots, 5 of 7',
+  });
+  await expect(selector).toBeInViewport({ ratio: 1 });
+  const selectorBox = (await selector.boundingBox())!;
+  expect(selectorBox.width).toBeGreaterThanOrEqual(380);
+  expect(selectorBox.height).toBe(48);
+  await selector.click();
   const active = page.getByRole('tab', { name: 'Critical Slots', exact: true });
-  await expect
-    .poll(async () => {
-      const tab = await active.boundingBox();
-      const list = await page
-        .getByRole('tablist', { name: 'Unit configuration tabs' })
-        .boundingBox();
-      return (
-        tab!.x >= list!.x && tab!.x + tab!.width <= list!.x + list!.width + 1
-      );
-    })
-    .toBe(true);
+  await expect(active).toBeInViewport({ ratio: 1 });
+  await expect(active).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(selector).toBeFocused();
+  await expect(selector).toHaveAttribute('aria-expanded', 'false');
 });
 
 test('unit switching never attributes another draft validation to the selected unit @customizer', async ({
@@ -489,8 +504,8 @@ test('unit switching never attributes another draft validation to the selected u
   await expect(
     page
       .getByRole('region', { name: 'Unit status' })
-      .getByTestId('unit-info-stat-tonnage'),
-  ).toContainText('20');
+      .getByTestId('unit-info-stat-weight'),
+  ).toContainText('/20t');
   await expect(locustErrors).toBeVisible();
   await locustErrors.click();
   expect(

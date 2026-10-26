@@ -12,6 +12,8 @@ interface AllocationSectionProps {
   children: React.ReactNode;
   titleColor?: string;
   isDropZone?: boolean;
+  /** Short tooltip and drag-over label describing what dropping here does. */
+  dropLabel?: string;
   onDrop?: (equipmentId: string) => void;
 }
 
@@ -23,6 +25,7 @@ export function GlobalLoadoutTrayAllocationSection({
   children,
   titleColor = 'text-text-theme-secondary',
   isDropZone = false,
+  dropLabel = 'Drop here',
   onDrop,
 }: AllocationSectionProps): React.ReactElement {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -53,6 +56,10 @@ export function GlobalLoadoutTrayAllocationSection({
     }
   };
 
+  // An empty, collapsed section is just a quiet header; it still accepts
+  // drops because the drag handlers live on the whole section.
+  const isQuiet = count === 0 && !isExpanded && !isDragOver;
+
   return (
     <section
       className={`border-border-theme border-b transition-colors ${
@@ -66,12 +73,15 @@ export function GlobalLoadoutTrayAllocationSection({
         type="button"
         onClick={onToggle}
         aria-expanded={isExpanded}
-        className={`${trayStyles.sectionRow} focus-visible:ring-accent focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset`}
+        title={isDropZone ? dropLabel : undefined}
+        className={`${isQuiet ? trayStyles.sectionRowQuiet : trayStyles.sectionRow} focus-visible:ring-accent focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset`}
       >
         <span
-          className={`${trayStyles.text.primary} min-w-0 truncate font-medium ${titleColor}`}
+          className={`${trayStyles.text.primary} min-w-0 truncate font-medium ${
+            isDragOver ? 'text-accent' : titleColor
+          }`}
         >
-          {title}
+          {isDragOver ? dropLabel : title}
         </span>
         <span className={`flex shrink-0 items-center ${trayStyles.gap}`}>
           <span

@@ -207,6 +207,7 @@ test('catalog copies mount, move and persist independently @customizer', async (
     )?.location,
   ).toBe('Left Arm');
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole('button', { name: /^Section:/ }).click();
   await page.getByRole('tab', { name: 'Equipment', exact: true }).click();
   // Catalog filters are session-global, not persisted across a page reload.
   await expect(search).toHaveValue('');
@@ -216,6 +217,7 @@ test('catalog copies mount, move and persist independently @customizer', async (
   ).toBeVisible();
   await search.fill('Small Laser');
   await add.click();
+  await page.getByRole('button', { name: /^Section:/ }).click();
   await page.getByRole('tab', { name: 'Critical Slots', exact: true }).click();
   await page
     .getByRole('button', { name: 'Expand loadout', exact: true })

@@ -24,7 +24,7 @@ import { SlotContextMenuShell } from './SlotContextMenuShell';
 import {
   getOccupiedSpanClasses,
   getSingleSlotDisplayName,
-  getSlotMarkerClasses,
+  getSlotSizeClasses,
   getSlotStateClasses,
 } from './SlotVisualHelpers';
 
@@ -286,7 +286,7 @@ export const SlotRow = memo(function SlotRow({
         draggable={canDrag}
         aria-label={getSlotAriaLabel(slot)}
         aria-selected={isSelected}
-        className={`focus-visible:ring-accent my-0.5 flex min-h-8 items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${compact ? 'px-1 py-0.5 text-[10px] sm:text-xs' : 'px-1 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-sm'} `}
+        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)}`}
         onClick={onClick}
         onDoubleClick={() => handleSlotDoubleClick({ canUnassign, onRemove })}
         onContextMenu={(e) =>
@@ -329,11 +329,7 @@ export const SlotRow = memo(function SlotRow({
       >
         <span
           aria-hidden="true"
-          className={`mr-1 h-4 w-1 flex-shrink-0 rounded-full ${getSlotMarkerClasses(slot)}`}
-        />
-        <span
-          aria-hidden="true"
-          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-[10px] text-inherit tabular-nums"
+          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
         >
           {slot.index + 1}
         </span>

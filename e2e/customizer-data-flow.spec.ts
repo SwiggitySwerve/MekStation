@@ -94,7 +94,8 @@ test('all tabs read the current unit and configuration @customizer', async ({
     /^BV\s*0$/,
   );
   await expect(page.getByTestId('unit-info-stat-heat')).not.toHaveText(
-    /^HEAT\s*0\s*\/\s*20$/,
+    // Generated heat follows the label and the optional 'gen / diss' caption.
+    /(?:HEAT|diss)\s*0\s*\/\s*20(?!\d)/,
   );
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
   const initial = await readDraft(page);

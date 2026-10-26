@@ -275,7 +275,7 @@ describe('EquipmentBrowser', () => {
 
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
-    expect(screen.getByText(/IS \/ ≤3050/)).toBeInTheDocument();
+    expect(screen.getByText('Inner Sphere · up to 3050')).toBeInTheDocument();
   });
   it('allows keyboard inspection in read-only mode but cannot add equipment', async () => {
     const user = userEvent.setup();

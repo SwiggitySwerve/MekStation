@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 
-import { CustomizerTools } from '../CustomizerToolbarContext';
+import { ColorLegend } from '../shared/ColorLegend';
 
 export interface CriticalSlotsToolbarProps {
   readonly autoFillUnhittables: boolean;
@@ -21,6 +21,7 @@ export interface CriticalSlotsToolbarProps {
   readonly placementIssues?: readonly { instanceId: string; message: string }[];
   readonly onSelectIssue?: (id: string) => void;
   readonly notice?: string;
+  readonly hasMoreLocationsBelow?: boolean;
 }
 
 export function CriticalSlotsToolbar({
@@ -35,6 +36,7 @@ export function CriticalSlotsToolbar({
   placementIssues = [],
   onSelectIssue,
   notice,
+  hasMoreLocationsBelow = false,
 }: CriticalSlotsToolbarProps): React.ReactElement {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -98,7 +100,7 @@ export function CriticalSlotsToolbar({
     },
   ];
   return (
-    <CustomizerTools>
+    <div className="border-border-theme-subtle bg-surface-base flex shrink-0 items-center gap-2 border-b px-3">
       <button
         ref={trigger}
         type="button"
@@ -110,6 +112,12 @@ export function CriticalSlotsToolbar({
       >
         Tools <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
       </button>
+      {hasMoreLocationsBelow && (
+        <span className="text-text-theme-secondary hidden text-xs sm:block">
+          Scroll for more locations
+        </span>
+      )}
+      <ColorLegend className="ml-auto shrink-0" />
       {open &&
         createPortal(
           <div
@@ -186,6 +194,6 @@ export function CriticalSlotsToolbar({
           </div>,
           document.body,
         )}
-    </CustomizerTools>
+    </div>
   );
 }

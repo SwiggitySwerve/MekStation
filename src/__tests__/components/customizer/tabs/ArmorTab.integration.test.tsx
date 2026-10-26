@@ -24,6 +24,38 @@ beforeEach(() => {
   useCustomizerSettingsStore.getState().resetToDefaults();
 });
 
+test('labels tonnage points, allocated capacity, and unallocated excess distinctly', () => {
+  const store = createNewUnitStore({
+    name: 'Atlas armor summary',
+    tonnage: 100,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  store.getState().setArmorTonnage(19.5);
+  store.getState().autoAllocateArmor();
+  const before = store.getState().armorAllocation;
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  expect(screen.getByText('312 pts from 19.5 t')).toBeInTheDocument();
+  expect(screen.getByText('307 / 307 max')).toBeInTheDocument();
+  expect(
+    within(screen.getByTestId('armor-diagram')).getByText('5 points'),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText('Unallocated Armor Points').parentElement,
+  ).toHaveTextContent('5');
+  expect(
+    screen.getByRole('button', { name: 'Auto Allocate (0 pts)' }),
+  ).toBeDisabled();
+  expect(
+    screen.getByText('All allocatable points assigned'),
+  ).toBeInTheDocument();
+  expect(store.getState().armorAllocation).toBe(before);
+});
+
 test('real armor actions enforce shared cap and update the selected SVG values', () => {
   const store = makeStore();
   render(
@@ -84,7 +116,9 @@ test('draft appearance changes can revert or save without mutating armor', () =>
       <ArmorTab />
     </UnitStoreContext.Provider>,
   );
-  expect(screen.getByText('Front view · rear inset')).toBeInTheDocument();
+  expect(
+    screen.getByText('Front view · rear armor shown inside torso'),
+  ).toBeInTheDocument();
   act(() =>
     useCustomizerSettingsStore
       .getState()
@@ -92,12 +126,16 @@ test('draft appearance changes can revert or save without mutating armor', () =>
   );
   expect(screen.getByText('HUD')).toBeInTheDocument();
   act(() => useCustomizerSettingsStore.getState().revertCustomizer());
-  expect(screen.getByText('Front view · rear inset')).toBeInTheDocument();
+  expect(
+    screen.getByText('Front view · rear armor shown inside torso'),
+  ).toBeInTheDocument();
   act(() => {
     useCustomizerSettingsStore.getState().setDraftArmorDiagramMode('schematic');
     useCustomizerSettingsStore.getState().saveCustomizer();
   });
-  expect(screen.queryByText('Front view · rear inset')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Front view · rear armor shown inside torso'),
+  ).not.toBeInTheDocument();
   expect(useCustomizerSettingsStore.getState().armorDiagramMode).toBe(
     'schematic',
   );
@@ -117,5 +155,30 @@ test.each([
     </UnitStoreContext.Provider>,
   );
   expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
-  expect(screen.queryByText('Front view · rear inset')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Front view · rear armor shown inside torso'),
+  ).not.toBeInTheDocument();
 });
+
+test.each([0, 10])(
+  'auto allocation remains available for a nonzero delta at %s tons',
+  (armorTonnage) => {
+    const store = makeStore();
+    store.getState().setArmorTonnage(armorTonnage);
+    render(
+      <UnitStoreContext.Provider value={store}>
+        <ArmorTab />
+      </UnitStoreContext.Provider>,
+    );
+    const allocate = screen.getByRole('button', { name: /Auto Allocate/ });
+    expect(allocate).toBeEnabled();
+    expect(
+      screen.queryByText('All allocatable points assigned'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(allocate);
+    expect(allocate).toBeDisabled();
+    expect(allocate).toHaveAccessibleDescription(
+      'All allocatable points assigned',
+    );
+  },
+);

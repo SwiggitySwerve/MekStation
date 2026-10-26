@@ -298,7 +298,7 @@ test('save, reload and restore history retain exact library versions and undo on
     await latestDialog.getByRole('button', { name: /Restore.*v3/i }).click();
     await expect(latestDialog).toBeHidden();
     expect((await draft(page)).isModified).toBe(false);
-    await expect(page.getByText(/Matches library save/)).toBeVisible();
+    await expect(page.getByText(/Saved to library/)).toBeVisible();
     await page.evaluate(() => {
       const original = Storage.prototype.setItem;
       const currentKey = `megamek-unit-${location.pathname.split('/')[2]}`;
@@ -315,7 +315,7 @@ test('save, reload and restore history retain exact library versions and undo on
     });
     await page.getByLabel('Clan name', { exact: true }).fill('Browser Retry');
     await expect(
-      page.getByText('Draft save failed', { exact: true }),
+      page.getByText('Draft save failed in this browser', { exact: true }),
     ).toBeVisible();
     await page.evaluate(() => {
       (
@@ -325,7 +325,9 @@ test('save, reload and restore history retain exact library versions and undo on
     await page
       .getByRole('button', { name: 'Retry browser draft', exact: true })
       .click();
-    await expect(page.getByText('Draft saved', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('Draft saved in this browser', { exact: true }),
+    ).toBeVisible();
     expect((await draft(page)).clanName).toBe('Browser Retry');
     expect((await (await page.request.get(url)).json()).currentVersion).toBe(3);
     await undo(page);
