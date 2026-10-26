@@ -140,10 +140,14 @@
     "movedToA2M": [
       "P1 (delete the spectator guard, MatchWireSealedChoices.ts:77)",
       "P4 (replay path unprojected)",
-      "P6 (shouldRemoveAuthorityFieldForRole keeps sequence for every role)"
+      "P6 (shouldRemoveAuthorityFieldForRole keeps sequence for every role)",
+      "R6 (A2M runRow skips the live barrier wait)",
+      "R7 (A2M runRow skips prepareAudience)",
+      "R8 (A2M reveal leg skipped)"
     ],
-    "note": "Owner decisions 2026-10-26 item 3: watcher-visibility mutants are A2M's. The amended stale rows do assert watcher invisibility on the replay, so P1 and P4 may die in A2F as well; the local receipt reports them as informational and A2F does not claim them. P2, P3 and P5 and R1 to R8 stay owed to A2F.",
-    "deferredLive": "The live stale-first case (the stale assignment present BEFORE the actor acts, with live delivery to a watcher) is deferred to MISSION-MATCH-1 plus the Step 2/3 release-candidate rerun. A2F does not claim it."
+    "note": "Owner decisions 2026-10-26 item 3: watcher-visibility mutants are A2M's. The amended stale rows do assert watcher invisibility on the replay, so P1 and P4 may die in A2F as well; the local receipt reports them as informational and A2F does not claim them. P2, P3 and P5 and R1 to R5 stay owed to A2F. R6-R8 move to A2M: the prep specification targets A2M runRow and its reveal leg, which A2F does not contain.",
+    "deferredLive": "The live stale-first case (the stale assignment present BEFORE the actor acts, with live delivery to a watcher) is deferred to MISSION-MATCH-1 plus the Step 2/3 release-candidate rerun. A2F does not claim it.",
+    "rootClarification20261026": "Root ruling 2026-10-26 in the takeover thread under the standing instruction and owner-decisions-20261026.md item 3 (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc): R1-R5 belong to A2F; R6-R8 move to A2M with P1/P4/P6 because they target its matrix runner runRow and reveal leg. Source: E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2f-a2m/mutants.md section 3."
   },
   "carryIn": "Unchanged from the admission: CF-A2FP-1 (check the offline witness op sequence in the run evidence; the amended stale rows add prepare and declared calls), CF-A2FP-2 (one disclosed rerun only for the 15 s readiness probe of the frozen A1 harness), OQ-M1 is A2M scope.",
   "limitations": [
