@@ -8582,7 +8582,13 @@
       "behavior": "Trusted brand/stale-assignment fixtures on the built image, all three current spectator audiences, an observed non-spectating-GM correlated declaration positive, fixture-only GM branding qualified against actual recovery/role policy, and full F composition. Reuse frozen A1/FP ordinary provisioning/read-only reachability without edits; preserve all original F acceptance across the serial partition.",
       "ownershipPaths": ["scripts"],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8591,12 +8597,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "35fa2fb9c892ed6585057dcacf40de87670a0456",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/l1-smoke-a2f-admission-20261026.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -8684,6 +8690,15 @@
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "fixturesLeaf": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA",
         "evidenceName": "the admission receipt uses a date-suffixed name (l1-smoke-a2f-admission-<date>.json); evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical"
+      },
+      "admission20261026": {
+        "date": "2026-10-26",
+        "receipt": "evidence/l1-smoke-a2f-admission-20261026.json",
+        "authority": "Root brief to the implementation worker of the A2FP closure PR (A2F admission as commit 2, the #2336 riding pattern); owner decision 2026-10-25 item 5 (Step 3 order); owner decisions 2026-10-25 (b) Q2 item 1 (fixtures leaf is test-support), answer \"yes and yes\".",
+        "placement": "P2: the admission rides the A2FP closure PR; implementation starts only after that PR merges.",
+        "evidenceName": "evidence/l1-smoke-a2f-admission-20261026.json (date-suffixed; evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical). The red, local and review literals are unchanged.",
+        "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four evidence names (admission-20261026, red, local, review).",
+        "sizeCap": "ownerRuling20261020SizeCapOptionA with trusted-fixtures.ts as test-support (owner-confirmed 2026-10-25); measured fit in the receipt: leaves 419 literal / 216 option A plus an estimated lifecycle of 48 to 80 lines against the cap of 500."
       }
     },
     {

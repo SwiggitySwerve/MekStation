@@ -1,3 +1,16 @@
+## 2026-10-26 L1-SMOKE-A2F admitted (Step 3 unit 2; ledger and evidence only)
+
+Admits L1-SMOKE-A2F on baseline 35fa2fb9c, after the A2FP closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. The admission receipt has the date-suffixed name [l1-smoke-a2f-admission-20261026.json](evidence/l1-smoke-a2f-admission-20261026.json), because evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical.
+
+- Authority: owner decision 5 (Step 3 order), the size-cap rule ownerRuling20261020SizeCapOptionA with trusted-fixtures.ts as test-support (owner-confirmed in owner-decisions-20261025b.md Q2 item 1), the #2337 annotation on A2F, and the Q-F3 interface that landed in A2FP. The GM spectator sequence rule (OQ-M1) is A2M scope. No PK packet until GREEN.
+- Fresh census at 35fa2fb9c with the commit-1 ledger: no literal collision on the three leaves, no open PR touching a leaf or consumer, the `scripts` alias grants nothing. The controls are byte-identical to the prep hashes.
+- Measured fit: leaves 419 literal (216 runner + 203 fixtures) and 216 option A, plus an estimated lifecycle of 48 to 80 lines (A2FP actual: units.json +36, PROGRESS.md +10, page +2). It fits under both counting rules, the literal rule even at the 80-line high bound (499 of 500); capException is recorded only if the real literal count exceeds 500. Files: 8, 7 counted of 15.
+- Tests and mutants re-run on the draft leaves at 35fa2fb9c through heavy-run: # tests 12; # pass 12; # fail 0. Killed: F-M1, F-M2, F-M3, F-M4, F-M5, F-M8, F-M9, F-M10, F-M11, F-M12, F-M13, F-M14, F-M15, F-M16. Not killed: F-M6 (see the receipt). R1-R8 and P1-P6 need a built image and are owed at RED and GREEN.
+- Owed before RED: the G-F1 built-image probe (stale-first metadata keeps actor commands accepted; the participant table exists; the GM role flips only through the durable rows). A failed probe stops the unit for a separate registration.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md and the four evidence names; the new scripts/release leaves need `git add -f`. CF-A2FP-1 and CF-A2FP-2 are carried into the receipt.
+
+---
+
 ## 2026-10-26 L1-SMOKE-A2FP closed; main-verified (exact-main built-image proof); Step 3 PR 2 of 10
 
 Closes L1-SMOKE-A2FP (PR #2338, ruled and merged head c22976276, merge 35fa2fb9c) as main-verified. The OWNER-RULING (comment 6406917550) accepted that exact head; the merge tree equals the ruled head tree, so the four leaves are byte-identical to the reviewed bytes.

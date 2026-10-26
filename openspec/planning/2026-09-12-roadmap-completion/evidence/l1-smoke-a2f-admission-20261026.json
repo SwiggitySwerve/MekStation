@@ -1,0 +1,891 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2F",
+  "stage": "admission",
+  "date": "20261026",
+  "proofClass": "full",
+  "proofClassNote": "Registered reviewClasses privacy and authority and admissionRequires (finite admission, RED tests-only, privacy/authority packet, independent exact-head review, OWNER-RULING, CI, exact-main PASS, closure) make the unit full. A2F edits no src/ file and no existing script; the user-reachable path it exercises is the built production server. Exact-main proof is the built-image run at the merge commit.",
+  "evidenceNameNote": "The registered prospective manifest names evidence/l1-smoke-a2f-admission.json, but that file is the #2318 sizing-stop receipt on main (sha256 d5dca85a0eca6420a7032302b206c5bbebd71de30f2ee731ec57fddd5c554cb9) and stays byte-identical. This receipt therefore has the date-suffixed name evidence/l1-smoke-a2f-admission-20261026.json (as the LSC units); the red, local and review literals (l1-smoke-a2f-red.json, -local.json, -review.json) are free on main and are kept. Closure receipts (merge, mainproof, ruling and review envelopes, log envelope) follow the A2FP convention with the closure date and are frozen at the closure PR. Ruled by Root in the #2337 annotation (registration20261025bCorrection).",
+  "recordedAt": "2026-10-26T02:58:50.208Z",
+  "baseline": "35fa2fb9c892ed6585057dcacf40de87670a0456",
+  "baselineNote": "Admission baseline is the fetched origin/main at 35fa2fb9c (the #2338 merge, A2FP). This receipt rides the A2FP closure PR (placement P2): commit 1 closes A2FP, commit 2 is this admission (parent 951c204711e74a7225f0a66290a8f1dc2476ff73). The census, controls and fit below were measured at 35fa2fb9c with the ledger of commit 1. Re-fetch and union-merge main before the implementation RED (admissionRequires).",
+  "authority": {
+    "summary": "Root rulings recorded at L1-SMOKE-A2F admission. Admission only; no implementation ruling or acceptance. AUTH-1 to AUTH-8 are settled.",
+    "clauses": [
+      {
+        "id": "AUTH-1",
+        "kind": "Step 3 order",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-25 item 5 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025.md, sha256 c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4): \"Step 3 starts once LSC-2P closes, not once Step 2 is marked complete (recommended)\". GOAL.md:10 keeps one admitted-unfinished unit and Step 3 serial through closure (A2FP -> A2F -> A2M -> A2 -> B). Merge-through order and the \"Resume one by one in order\" instruction apply."
+      },
+      {
+        "id": "AUTH-2",
+        "kind": "GATE OPEN / predecessor",
+        "status": "SETTLED (this Root brief)",
+        "text": "The Root brief to the implementation worker of the A2FP closure PR (thread, 2026-10-26) names this admission as commit 2 of the A2FP closure PR, the same riding pattern as #2336 (LSC-2P closure plus A2FP admission). It answers the #2318 owner-ruling hold (A2F admission waits for A2FP closure). A2FP closes in commit 1 of this PR: state main-verified, prHead c2297627622e054938ed677a3e282c0b844d7705, mergeSha 35fa2fb9c892ed6585057dcacf40de87670a0456 (ancestry exit 0), mainProof PASS (evidence/l1-smoke-a2fp-mainproof-20261026.json: built-image run at the clean exact merge, accepted-Move, accepted-Attack, accepted-Physical, witness sequence ready,declared,ready,declared,ready,ready,declared). No admitted-unfinished unit remains once this PR merges; A2F implementation starts only after this PR merges to main."
+      },
+      {
+        "id": "AUTH-3",
+        "kind": "size-cap policy",
+        "status": "SETTLED",
+        "text": "units.json ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-20 item 2, E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261020.md, sha256 2fb5cb2dce0a4d8b787c0d0fcb277958921ff706f6ba10c5ed89ecc01bf63e00): \"Size cap: option A (\\\"2 A\\\"). Test and fixture code are excluded from the 500-line unit cap (file count still applies).\" Not enforced by the validator (UNCOUNTED_FILES skips only generated files, __tests__/, e2e/, *.test.* and *.spec.*), so capException records the literal count when the unit would exceed the cap. Confirmed for this unit by the owner on 2026-10-25 (owner-decisions-20261025b.md, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2, Q2 item 1, answer \"yes and yes\"): \"the reachability helper and the fixture files count as test-support (lets A2FP, A2F, A2 and B fit)\". Recorded on main in evidence/release-blocking-registration-correction-20261025.json (units.L1-SMOKE-A2F): scripts/release/l1-built-server-spectator-trusted-fixtures.ts counts as proof-harness test-support under option A.",
+        "testSupportLeaves": [
+          {
+            "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+            "formattedLines": 203,
+            "reason": "Builds and witnesses trusted brand and stale-assignment state in the stopped private DB for a proof; ships no behavior, is reachable only through ctx.prepareOffline after the owned server stopped (its only writes are the fixture mutation itself, guarded by pre and post witnesses). Owner-confirmed.",
+            "validatorCounts": true,
+            "optionACounts": false
+          },
+          {
+            "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+            "formattedLines": 415,
+            "reason": "Test file: already line-exempt under U41 (*.test.*) and file-counted.",
+            "validatorCounts": false,
+            "optionACounts": false
+          }
+        ],
+        "countedLeaves": [
+          {
+            "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+            "formattedLines": 216,
+            "reason": "Counted. Runner entry point that drives production HTTP and sockets."
+          }
+        ]
+      },
+      {
+        "id": "AUTH-4",
+        "kind": "serial split rulings",
+        "status": "SETTLED",
+        "text": "A2 into A2F -> A2M -> A2 (#2315, evidence/l1-smoke-a2-split-root-ruling-20261020.txt, sha256 ac4730c6c143dc894729cc9cb1624144ffc0276297365a2e77a0ca660cc1cd81) and A2F into A2FP -> A2F (#2318, evidence/l1-smoke-a2f-partition-root-ruling-20261020.txt, sha256 040f76b7696c0dfcdeb888468c54f1dd372d15b27d6de532ab94cb140e84bb02). Acceptance rows are partitioned, none dropped."
+      },
+      {
+        "id": "AUTH-5",
+        "kind": "standing instruction",
+        "status": "SETTLED",
+        "text": "Standing owner instruction: \"continue with recommended options and fix the issues that come up, publish as needed\"; \"Resume one by one in order\" (2026-10-25)."
+      },
+      {
+        "id": "AUTH-6",
+        "kind": "interface (A2FP freeze)",
+        "status": "SETTLED (landed in #2338)",
+        "text": "The Q-F3 interface change (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) is part of the A2FP frozen leaves and is on main at 35fa2fb9c (blobs equal the amended hashes in the A2FP admission). A2F imports them read-only; no A2FP leaf is edited. The trusted branch of the witness is covered by the A2FP trusted-flag test and killed M22; A2F adds its own coverage through the prepare ops."
+      },
+      {
+        "id": "AUTH-7",
+        "kind": "registration annotation",
+        "status": "SETTLED on main (#2337)",
+        "text": "units.json L1-SMOKE-A2F.registration20261025bCorrection (evidence/release-blocking-registration-correction-20261025.json, sha256 32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1): fixtures leaf counts as proof-harness test-support under option A; the admission receipt uses a date-suffixed evidence name. Root ruling 2026-10-25 under the standing instruction; owner decisions 2026-10-25 (b) answer \"yes and yes\"."
+      },
+      {
+        "id": "AUTH-8",
+        "kind": "GM spectator rule belongs to A2M",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-25 (b) Q2 item 2: \"GM spectator view: check that the sealed event's content is hidden and list the sequence-number gap as a known issue; do not require the strict sequence check (OQ-M1).\" This is A2M scope. A2F supplies the trusted GM and stale-assignment fixtures and one observed non-spectating-GM correlated declaration positive; it asserts nothing about the authority sequence of a GM-branded spectator."
+      }
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (A2FP closure and A2F admission)",
+    "coordinator": "Root (Astra coordinator)"
+  },
+  "predecessors": {
+    "L1-SMOKE-A1": {
+      "state": "main-verified",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278"
+    },
+    "MP-RECOVERY-UNITS-1": {
+      "state": "main-verified",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727"
+    },
+    "MP-HOST-DEDUPE-1": {
+      "state": "main-verified",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0"
+    },
+    "MP-RECOVERY-UNITS-2": {
+      "state": "main-verified",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03"
+    },
+    "L1-SMOKE-A2FP": {
+      "state": "main-verified (commit 1 of this PR)",
+      "prHead": "c2297627622e054938ed677a3e282c0b844d7705",
+      "mergeSha": "35fa2fb9c892ed6585057dcacf40de87670a0456",
+      "mainProof": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-mainproof-20261026.json"
+    },
+    "note": "Read from units.json at 35fa2fb9c with the commit-1 ledger on 2026-10-26. Verified with validate-roadmap --git (ancestry of each merge in origin/main) in the final-head proof of this PR."
+  },
+  "acceptance": [
+    {
+      "row": 1,
+      "text": "Trusted stale-assignment and brand fixtures for player brand with stale assignment, GM brand with stale assignment, GM without assignment; GM identity from a real durable campaign_session_participant gm row; refuse live PID, foreign/redirected DB, unexpected state; before/after lineage with unchanged combat events.",
+      "cases": [
+        "trusted-player-stale",
+        "trusted-gm-stale",
+        "trusted-gm-unassigned"
+      ],
+      "leaf": "trusted-fixtures.ts (prepare, ready, declared) + runner prepareAudience/trustedOp/established",
+      "falsifiers": "fixture.test.mjs prepare/refusal tests"
+    },
+    {
+      "row": 2,
+      "text": "Observed correlated unrevealed declaration on a separate non-spectating-GM socket; qualify fixture-only GM branding against the real built image, including recovery and the durable role source.",
+      "cases": [
+        "trusted-gm-participant",
+        "gm-brand-recovered"
+      ],
+      "leaf": "runner gmCase (brand-first live positive; brand-after replay differential across a restart)"
+    },
+    {
+      "row": 3,
+      "text": "Frozen import-safe trusted-audience callbacks composing FP in one A1 image/private-DB lineage; re-run all FP rows; falsifiers reject broken guards, missing GM/accepted-action witnesses and omitted inherited rows.",
+      "cases": [
+        "accepted-Move",
+        "accepted-Attack",
+        "accepted-Physical (via runReachabilityCases)"
+      ],
+      "leaf": "runner F_REQUIRED_CASES / AUDIENCES / prepareAudience / trustedOp / joinWatcher exports"
+    },
+    {
+      "row": 4,
+      "text": "F supplies trusted reachability, not the nine-case matrix or co-op restart; CF-MPRU2-3 and CF-MPHD-5 stay A2.",
+      "note": "No A2 row is touched."
+    }
+  ],
+  "proofClassAndShape": {
+    "runner": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=<40-hex> --output=<abs-new-dir> [--repo-root=<abs>]",
+    "invocationFrozenAtAdmission": true,
+    "node": "22 (v22.22.0), heavy-run class build for the build, class jest for the run (the implementer's own lane); the runner sets limits.casesMs to 900000 explicitly",
+    "exports": [
+      "AUDIENCES",
+      "F_REQUIRED_CASES",
+      "TRUSTED",
+      "trustedOp",
+      "prepareAudience",
+      "established",
+      "joinWatcher",
+      "sees",
+      "lockedFor",
+      "runTrustedCases",
+      "inspect",
+      "prepare",
+      "TrustedRequest"
+    ],
+    "requiredCases": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical",
+      "trusted-player-stale",
+      "trusted-gm-stale",
+      "trusted-gm-unassigned",
+      "trusted-gm-participant",
+      "gm-brand-recovered"
+    ],
+    "note": "Order of rows: the three A2FP rows (accepted-Move, accepted-Attack, accepted-Physical via runReachabilityCases) then trusted-player-stale, trusted-gm-stale, trusted-gm-unassigned, trusted-gm-participant, gm-brand-recovered. The run-level behavior is measured only by the built-image run (not run at admission, B7 analogue open): the A2FP exact-main run is the latest built-image evidence for the shared leaves; the F runner is exercised for the first time at the local stage and at the exact merge."
+  },
+  "manifest": {
+    "count": 10,
+    "files": [
+      "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-20261026.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
+    ],
+    "exemptFromFileCount": [
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md (generated page; exempt per ownerRuling20261024StepsPageFileCap)"
+    ],
+    "plannedImplementationPrFileSet": {
+      "count": 8,
+      "note": "Three leaves + units.json + PROGRESS.md + red + local receipts = 7 counted files plus the exempt page. The admission receipt is already on main (placement P2), the review receipt lands in the closure PR. Cap 15."
+    },
+    "closurePrExpected": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-merge-<closure date>.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-mainproof-<closure date>.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-source-review-<closure date>.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-owner-ruling-<comment id>.bytes.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-<sha9>-logs.bytes.json",
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md (exempt)"
+    ],
+    "gOwn": "G-OWN: no tracked trace/log/screenshot/DB file. Raw run output (evidence.jsonl, server logs, summary.json, manifest.json) is archived as one combined bytes envelope in the closure PR, as A2FP. Names frozen at the closure PR.",
+    "noExtraLeaves": "No helper, config, package.json or product edit. The A1 files and the four A2FP leaves are read-only.",
+    "ownershipExceptionsNeeded": {
+      "status": "APPLIED in this admission commit",
+      "applied": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
+      ],
+      "finding": "units.json L1-SMOKE-A2F.ownershipExceptions listed only units.json. validate-roadmap.mjs:714-720 fails a merge that touches a file outside ownershipPaths (scripts) and ownershipExceptions, except under evidence/. The implementation PR regenerates V2.2.0-STEPS.md and the closure edits PROGRESS.md; A2FP carries both in ownershipExceptions. The admission extends A2F.ownershipExceptions with PROGRESS.md, V2.2.0-STEPS.md and the four literal evidence names plus the date-suffixed admission name. These added lines are in the admission commit (parent of the implementation) and are not counted again.",
+      "note": "The closure names (merge, mainproof, source review, owner ruling, log envelope) are added to ownershipExceptions in the closure PR, when their names are frozen (G-OWN)."
+    },
+    "gitignoreFinding": ".gitignore:38 `scripts/**` ignores new files under scripts/release (the tracked A1 and A2FP leaves were force-added). The three A2F leaves must be added with `git add -f`; a plain `git add` silently skips them and reports a clean tree. A .gitignore edit is outside the frozen manifest and is not proposed."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "sizeCapRule": "ownerRuling20261020SizeCapOptionA (AUTH-3)",
+    "v2220StepsPageFileExempt": true
+  },
+  "measuredFit": {
+    "basis": "MEASURED 2026-10-26 at 35fa2fb9c: the draft leaf bytes (prep a2f-a2m, formatted with `node node_modules/oxfmt/bin/oxfmt --write --config .oxfmtrc.json`; scripts/ is in .oxfmtignore, so format:check does not apply it; `oxfmt --check` on the three leaves reports all formatted) committed in a throwaway commit (git add -f) and counted with measure-cap.cjs against 35fa2fb9c. Lines are git numstat lines. The lifecycle edit is NOT measured: it is estimated from the A2FP actual (units.json +36, PROGRESS.md +10, page +2 = 48) and bounded at 80.",
+    "leaves": [
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "formattedLines": 216,
+        "bytesFormatted": 7182,
+        "sha256Formatted": "fd495f277a888c9deecca717972d7332e1e3cdd2b2961dd79e7ebcee22fbc617",
+        "validatorCounts": true,
+        "optionACounts": true
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "formattedLines": 203,
+        "bytesFormatted": 6851,
+        "sha256Formatted": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+        "validatorCounts": true,
+        "optionACounts": false,
+        "note": "trusted-state fixture classified as test-support (AUTH-3, owner-confirmed)"
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "formattedLines": 415,
+        "bytesFormatted": 16275,
+        "sha256Formatted": "daf7014e402995e5d6a1596eccb27df1dfb0591a167f33f610f8244836d0ff76",
+        "validatorCounts": false,
+        "optionACounts": false,
+        "note": "test file (node:test falsifiers)"
+      }
+    ],
+    "leafTotals": {
+      "validatorLiteral": 419,
+      "optionA": 216
+    },
+    "measureCapRows": [
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "added": 415,
+        "validatorCounts": false,
+        "optionAExempt": false
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "added": 203,
+        "validatorCounts": true,
+        "optionAExempt": true
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "added": 216,
+        "validatorCounts": true,
+        "optionAExempt": false
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "S-literal",
+        "rule": "validate-roadmap.mjs UNCOUNTED_FILES as written (only generated files, __tests__/, e2e/, *.test.* and *.spec.*, evidence exempt)",
+        "leaves": 419,
+        "withLifecycleLow": 467,
+        "withLifecycleHigh": 499,
+        "cap": 500,
+        "verdict": "FITS"
+      },
+      {
+        "id": "S-optionA",
+        "rule": "ownerRuling20261020SizeCapOptionA with trusted-fixtures.ts as test-support (AUTH-3)",
+        "leaves": 216,
+        "withLifecycleLow": 264,
+        "withLifecycleHigh": 296,
+        "cap": 500,
+        "verdict": "FITS (margin 204 to 236)"
+      }
+    ],
+    "files": {
+      "count": 8,
+      "counted": 7,
+      "cap": 15,
+      "margin": 7,
+      "note": "Three leaves + units.json + PROGRESS.md + red + local receipts = 7 counted files; V2.2.0-STEPS.md is exempt from the file count. All files count, tests and evidence included."
+    },
+    "verdict": "FITS under option A (margin 204 to 236) and, at the A2FP-actual lifecycle, under the literal rule too (467 of 500). capException is needed only if the real literal count exceeds 500."
+  },
+  "testInventory": {
+    "runner": "node --test scripts/release/l1-built-server-spectator-fixture.test.mjs (node:test, no build, no Jest; builds throwaway private DBs with the production DurableMatchStore + InteractiveSession through tsx, copying the A2FP test builder plus the production participant migration)",
+    "count": 12,
+    "note": "MEASURED 2026-10-26 on the draft leaves at origin/main 35fa2fb9c in a scratch worktree through heavy-run (lane a2fp-closure, class jest): [\"# tests 12\",\"# pass 12\",\"# fail 0\"], failing: []. Logs and the results JSON stay outside Git under E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/a2fp-closure/f-admission/ (sha256 of f-mutants-admission.json: ef87176010233b61baa469ce0713305920ee53ad1c6356bd274d9f8e52018c5a). node:test, not Jest, so not CI-wired (as A1 and A2FP).",
+    "tests": [
+      "ok 1 - ready on an ordinary DB reports the unbranded watcher and leaves the DB bytes alone",
+      "ok 2 - prepare player-stale: establishes exactly the audience, with the combat history byte-identical",
+      "ok 3 - prepare gm-stale: establishes exactly the audience, with the combat history byte-identical",
+      "ok 4 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-identical",
+      "ok 5 - prepare gm-participant brands the idle participant, never the acting one or the watcher",
+      "ok 6 - prepare after the declaration brands the same principal without touching the sealed history",
+      "ok 7 - prepare refuses a moved history, a second branding, a live PID, a foreign DB and a missing participant table",
+      "ok 8 - an appended stale assignment is not the product owner: the witness exposes the ineffective ordering",
+      "ok 9 - the CLI refuses structurally invalid trusted requests",
+      "ok 10 - the enumeration is frozen, unique and re-uses every A2FP row without re-registering it",
+      "ok 11 - established rejects a vacuous fixture: wrong brand, ineffective stale, missing marker or the wrong seat",
+      "ok 12 - prepare refuses a stray active gm row even without a co-op marker"
+    ],
+    "gaps": [
+      "The run-level cases (unbranded participant sees nothing, GM brand survives restart, composed A2FP rows) are exercised only by the built-image run.",
+      "Runner-level mutants R1-R8 and product mutants P1-P6 need a built image (owed at RED and GREEN).",
+      "F-M6 survives by construction (prepare writes no event)."
+    ]
+  },
+  "mutantInventory": {
+    "note": "RESULTS of the 2026-10-26 run on the draft leaves at 35fa2fb9c (prep mutants.md section 2, f-run-all/f-run-final with every mutant enabled). Each mutant is a single text edit to one leaf in a scratch worktree, run against the named tests, restored in finally.",
+    "baseline": {
+      "full": {
+        "status": 0,
+        "summary": [
+          "# tests 12",
+          "# pass 12",
+          "# fail 0"
+        ],
+        "fails": []
+      },
+      "control": {
+        "status": 0,
+        "fails": []
+      }
+    },
+    "mutants": [
+      {
+        "name": "F-M1 stale assignment appended last",
+        "pattern": "prepare player-stale",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare player-stale: establishes exactly the audience, with the combat history byte-iden"
+      },
+      {
+        "name": "F-M2 gm row never inserted",
+        "pattern": "prepare gm-unassigned",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+      },
+      {
+        "name": "F-M3 co-op marker never written",
+        "pattern": "prepare gm-unassigned",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+      },
+      {
+        "name": "F-M4 gm row bound to the host",
+        "pattern": "prepare gm-unassigned",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+      },
+      {
+        "name": "F-M5 GM may be the acting participant",
+        "pattern": "prepare gm-participant",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-participant brands the idle participant, never the acting one or the watcher"
+      },
+      {
+        "name": "F-M6 combat-history re-check removed",
+        "pattern": "prepare gm-unassigned",
+        "result": "SURVIVED",
+        "failing": 0,
+        "first": null
+      },
+      {
+        "name": "F-M8 witness refuses the co-op marker even when trusted",
+        "pattern": "prepare gm-unassigned",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+      },
+      {
+        "name": "F-M9 witness owner = first assignment of the side",
+        "pattern": "prepare gm-stale",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-stale: establishes exactly the audience, with the combat history byte-identica"
+      },
+      {
+        "name": "F-M10 established ignores the brand",
+        "pattern": "established rejects",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - established rejects a vacuous fixture: wrong brand, ineffective stale, missing marker or "
+      },
+      {
+        "name": "F-M11 gm-brand-recovered dropped from the enumeration",
+        "pattern": "enumeration is frozen",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - the enumeration is frozen, unique and re-uses every A2FP row without re-registering it"
+      },
+      {
+        "name": "F-M12 established ignores stale effectiveness",
+        "pattern": "established rejects",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - established rejects a vacuous fixture: wrong brand, ineffective stale, missing marker or "
+      },
+      {
+        "name": "F-M13 trusted-state-present check removed",
+        "pattern": "prepare refuses",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 2 - prepare refuses a stray active gm row even without a co-op marker"
+      },
+      {
+        "name": "F-M14 participant-table guard removed",
+        "pattern": "prepare refuses",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare refuses a moved history, a second branding, a live PID, a foreign DB and a missin"
+      },
+      {
+        "name": "F-M15 ready-anchor check removed",
+        "pattern": "prepare refuses",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare refuses a moved history, a second branding, a live PID, a foreign DB and a missin"
+      },
+      {
+        "name": "F-M16 subject seat-kind check removed",
+        "pattern": "prepare gm-participant",
+        "result": "KILLED",
+        "failing": 1,
+        "first": "not ok 1 - prepare gm-participant brands the idle participant, never the acting one or the watcher"
+      }
+    ],
+    "obligationsOnBuiltImage": "R1-R8 (runner-level) and P1-P6 (product build mutants) from prep mutants.md section 3 are owed at RED/GREEN and are not run at admission; F-M13 and F-M6 results above decide the survivors list."
+  },
+  "redPlan": "Tests-only RED commit: add l1-built-server-spectator-fixture.test.mjs against absent trusted-fixtures and runner leaves; on main it fails at import (ERR_MODULE_NOT_FOUND for l1-built-server-spectator-trusted-fixtures.ts), a weak RED declared in advance (the A1 and A2FP precedent for new-leaf units). Guard-level RED comes from the F-M mutants against the green leaves and from the vacuous stand-in run owed at RED (a scratch runner whose ctx.check never throws must fail the file). GREEN adds the two source leaves within the frozen manifest. Use git add -f (scripts/** is ignored).",
+  "carryIn": [
+    "startHex is ignored by the product; mapRadius >= 7 is needed; initiative is random so the acting principal is read from the history (A2FP facts, census.md section 5).",
+    "DISCRIMINATION (new): the product reads the FIRST sideAssignments entry of a side as its owner (MatchWireSealedChoices.ts:86-89). A stale assignment appended AFTER the real owner (the #2318 draft did this) never wins that lookup, so the stale rows would not fail even with the spectator guard (line 77) deleted. prepare therefore puts the stale assignment FIRST for the ACTIVE side and refuses unless staleEffective is true.",
+    "ROLE POLICY: gm only when meta.coopCampaign.campaignId is set AND an active campaign_session_participant row (campaign_id, session_id, participant_id, seat gm) exists (MatchSeatMembershipSource.ts:105-124). The row lives in the SQLiteService DB; the harness points DATABASE_PATH and MULTIPLAYER_DB_PATH at the same file and server.js:463-464 runs SQLiteService.initialize(), so migration 17 creates the table on first boot (unverified on a built image; ready/prepare refuse with \"participant table missing\" otherwise).",
+    "PRODUCTION GM SEAT: co-op creation seats the GM host as a spectator-kind seat (src/pages/api/multiplayer/matches/index.ts:172-178). The GM-branded spectator rows are the real GM configuration; the non-spectating (human-seated) GM is a policy probe.",
+    "The fixture-only co-op marker disables the foreign-unit guard (ServerMatchHostIntent.ts:566) and is read by CampaignHostRegistry.createEntry (CampaignHostRegistry.ts:442-475) only on campaign-sync sockets, which no A2 leaf opens; the tactical recovery path does not read it (rg coopCampaign src/lib/multiplayer/server shows no MatchHostRegistry/recovery reader).",
+    "Capability tables are not in the match file: DurableMatchStore.ts:614-620.",
+    "CF-A2FP-1 (new, from the A2FP review): a runner that skips an offline witness but keeps a value would pass. The F closure receipt must check the offline op sequence of its own run in evidence.jsonl (the three A2FP rows contribute ready,declared,ready,declared,ready,ready,declared; the trusted rows add their prepare and ready/declared calls) and the F runner must not skip a witness call by design.",
+    "CF-A2FP-2 (new, from the A2FP review): the 15 s readiness probe at scripts/release/run-l1-built-server-smoke.mjs:134 is in the frozen A1 harness and no registered unit owns it (routed to Root in units.json A2FP.carryForwardRouting20261026). The F run restarts the server more often than A2FP (8 matches); a failure limited to that probe timeout may be re-run once with both runs disclosed; any other failure, or a second probe timeout, stops for Root.",
+    "CF-A2FP survivors: M23 (stale-first assignment lookup) belongs to A2F: prepare puts the stale assignment FIRST for the active side and the F-M9 mutant exercises it through the witness (killed); the A2FP file has no fixture for it.",
+    "OQ-M1 (owner Q2 item 2) is A2M scope, not A2F."
+  ],
+  "census": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2fp-closure\\census-a2f.json",
+    "sha256": "dc7ef3d0a07f6ecca0f2af9211fba8fa72b54807e6d53d8a855ef7b2fbbd2e3b",
+    "bytes": 360059,
+    "script": "census-a2f-a2m.cjs",
+    "scriptSha256": "6699e65df0f0e60c32503c9bd3beb5ec659781473295933db49af582672c4756",
+    "observedAt": "2026-10-26T02:57:59.976Z",
+    "baseline": "35fa2fb9c892ed6585057dcacf40de87670a0456",
+    "ledgerRef": "951c204711e74a7225f0a66290a8f1dc2476ff73",
+    "prs": 1,
+    "note": "Fresh census run on 2026-10-26 against 35fa2fb9c (product bytes) and the commit-1 ledger (ledger claims, so A2FP main-verified is visible). The raw JSON stays outside Git; its sha256 binds it.",
+    "dispositions": {
+      "literalCollisions": "Literal claims on the three A2F leaves: [[\"scripts/release/run-l1-built-server-spectator-trusted-proof.mjs\",[\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registeredSourceLeaves[0]\"]],[\"scripts/release/l1-built-server-spectator-trusted-fixtures.ts\",[\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registeredSourceLeaves[1]\",\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registration20261020[2]\"]],[\"scripts/release/l1-built-server-spectator-fixture.test.mjs\",[\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registeredSourceLeaves[2]\",\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registration20261020[3]\"]]]. Every claim is A2F's own (live registeredSourceLeaves plus the historical registration20261020 list); no other unit claims a leaf. A2F registration20261020[0],[1] still list context.mjs and fixture-proof.mjs (A2FP's, now on main): a historical echo, not a live reservation.",
+      "openPullRequests": [
+        {
+          "number": 2113,
+          "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+          "title": "docs(audits): preserve complete thread-transfer history",
+          "draft": true,
+          "files": 472,
+          "manifestCollisions": [],
+          "consumerTouches": [],
+          "aliasTouches": []
+        }
+      ],
+      "aliasOverlaps": "The `scripts` navigation alias is held by many units (A1, A2FP, A2F, A2M, A2, B and broad nodes); aliases grant no unnamed leaves (admissionRequires). Collision result of the census: manifest collisions [], consumer touches [], alias touches [].",
+      "aliasClaimsPerLeaf": {
+        "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs": [
+          "L1-SMOKE-A1 (main-verified) scripts",
+          "L1-SMOKE-A2FP (main-verified) scripts",
+          "L1-SMOKE-A2F (blocked) scripts",
+          "L1-SMOKE-A2M (blocked) scripts",
+          "L1-SMOKE-A2 (blocked) scripts",
+          "L1-SMOKE-B (blocked) scripts",
+          "STEP2-RC-RERUN-1 (blocked) scripts",
+          "R2.authority-live (main-verified) scripts"
+        ],
+        "scripts/release/l1-built-server-spectator-trusted-fixtures.ts": [
+          "L1-SMOKE-A1 (main-verified) scripts",
+          "L1-SMOKE-A2FP (main-verified) scripts",
+          "L1-SMOKE-A2F (blocked) scripts",
+          "L1-SMOKE-A2M (blocked) scripts",
+          "L1-SMOKE-A2 (blocked) scripts",
+          "L1-SMOKE-B (blocked) scripts",
+          "STEP2-RC-RERUN-1 (blocked) scripts",
+          "R2.authority-live (main-verified) scripts"
+        ],
+        "scripts/release/l1-built-server-spectator-fixture.test.mjs": [
+          "L1-SMOKE-A1 (main-verified) scripts",
+          "L1-SMOKE-A2FP (main-verified) scripts",
+          "L1-SMOKE-A2F (blocked) scripts",
+          "L1-SMOKE-A2M (blocked) scripts",
+          "L1-SMOKE-A2 (blocked) scripts",
+          "L1-SMOKE-B (blocked) scripts",
+          "STEP2-RC-RERUN-1 (blocked) scripts",
+          "R2.authority-live (main-verified) scripts"
+        ]
+      },
+      "consumerFindings": "No src/ consumer changes. scripts/release has no CI wiring and is excluded from oxlint, oxfmt and tsconfig; the three leaves are new, so there are no importers. The A2FP leaves (now on main) and the frozen A1 leaves are imported read-only.",
+      "stateCounts": {
+        "complete": 96,
+        "blocked": 100,
+        "main-verified": 53,
+        "planned": 35
+      },
+      "relatedUnits": [
+        {
+          "id": "L1-SMOKE-A1",
+          "state": "main-verified",
+          "predecessors": [
+            "P2CG1S"
+          ],
+          "ownershipPaths": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2FP",
+          "state": "main-verified",
+          "predecessors": [
+            "L1-SMOKE-A1",
+            "MP-RECOVERY-UNITS-1",
+            "MP-HOST-DEDUPE-1",
+            "MP-RECOVERY-UNITS-2"
+          ],
+          "ownershipPaths": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2F",
+          "state": "blocked",
+          "predecessors": [
+            "L1-SMOKE-A1",
+            "MP-RECOVERY-UNITS-1",
+            "MP-HOST-DEDUPE-1",
+            "MP-RECOVERY-UNITS-2",
+            "L1-SMOKE-A2FP"
+          ],
+          "ownershipPaths": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2M",
+          "state": "blocked",
+          "predecessors": [
+            "L1-SMOKE-A1",
+            "MP-RECOVERY-UNITS-1",
+            "MP-HOST-DEDUPE-1",
+            "MP-RECOVERY-UNITS-2",
+            "L1-SMOKE-A2F"
+          ],
+          "ownershipPaths": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2",
+          "state": "blocked",
+          "predecessors": [
+            "L1-SMOKE-A1",
+            "MP-RECOVERY-UNITS-1",
+            "MP-HOST-DEDUPE-1",
+            "MP-RECOVERY-UNITS-2",
+            "L1-SMOKE-A2M"
+          ],
+          "ownershipPaths": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-B",
+          "state": "blocked",
+          "predecessors": [
+            "L1-SMOKE-A2",
+            "B14-0",
+            "B14-HEAD"
+          ],
+          "ownershipPaths": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "LSC-2P",
+          "state": "main-verified",
+          "predecessors": [
+            "LSC-2"
+          ],
+          "ownershipPaths": [
+            "e2e",
+            "docs/releases"
+          ]
+        },
+        {
+          "id": "P2CG1H",
+          "state": "blocked",
+          "predecessors": [
+            "P2CG1G2",
+            "P2CG1R",
+            "B14-0",
+            "LSC-2P",
+            "L1-SMOKE-A1",
+            "L1-SMOKE-A2",
+            "L1-SMOKE-B",
+            "P2CG1HP",
+            "MP-CAMPAIGN-HOST-DEDUPE-1"
+          ],
+          "ownershipPaths": [
+            "server.js",
+            "src/lib/multiplayer/server",
+            "src/pages-modules/api",
+            "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+            "e2e/coop-campaign-two-browser-journey.spec.ts",
+            "e2e/gm-two-player-authority.pack1.spec.ts"
+          ]
+        },
+        {
+          "id": "CF-SMOKEA1-4",
+          "state": "blocked",
+          "predecessors": [
+            "L1-SMOKE-B"
+          ],
+          "ownershipPaths": [
+            ".gitignore",
+            "package.json",
+            ".github/workflows/pr-checks.yml",
+            "scripts/qc",
+            "scripts/__tests__"
+          ]
+        }
+      ]
+    }
+  },
+  "controls": [
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "bytes": 16500,
+      "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "bytes": 15615,
+      "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+    },
+    {
+      "path": "scripts/release/l1-built-server-fixtures.ts",
+      "bytes": 3309,
+      "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+    },
+    {
+      "path": "scripts/release/l1-built-server-smoke.test.mjs",
+      "bytes": 25830,
+      "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+    },
+    {
+      "path": "server.js",
+      "bytes": 32625,
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "package.json",
+      "bytes": 35833,
+      "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 656778,
+      "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80"
+    },
+    {
+      "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+      "bytes": 5331,
+      "sha256": "490425c75b3b263bbca5ce75af914def2977f568ce3fd80667c909d9be368781"
+    },
+    {
+      "path": "src/pages/api/multiplayer/matches/index.ts",
+      "bytes": 11957,
+      "sha256": "b2cce8463b107b2c8b7a71f6582eacc0eb4e06976467703c5347a429400f481d"
+    },
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "bytes": 7786,
+      "sha256": "010dd429f935181c088478db5f120618dac9fc21f9525af8aec22a3d1315d81c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "bytes": 6072,
+      "sha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+      "bytes": 9592,
+      "sha256": "f19a5df823c5daa366f64dc639043287d57c5406279deb26501779648143acf5"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/ViewerAudienceProjector.ts",
+      "bytes": 7612,
+      "sha256": "c454cf29aae336223c2a9915db8135c333a71fff020af6064d0fcbde7ab021ff"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireAudienceCatalog.ts",
+      "bytes": 7447,
+      "sha256": "0a5504c5cfd528ee058ad9c71be1939b6123a5a93c22a905445a2593d46d11d8"
+    },
+    {
+      "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+      "bytes": 5091,
+      "sha256": "8cfa2eb2ab260ee9030b859932bba6638ade1c5509ed305c86e658dec8212a74"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "bytes": 22306,
+      "sha256": "584698b14ffdd7d4ad29221c7fa7f460581684592d41fe45af530617c70ced3e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/durableCapabilityPorts.ts",
+      "bytes": 3577,
+      "sha256": "05751e964fb5febdb7d402f0f9af5c22e31ca6cea594601b2152c38582086f50"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.sessionParticipants.migration.ts",
+      "bytes": 2650,
+      "sha256": "d29f30a4c556cddc68e901666a3b18583323dfe1bca2bd20433836abf1f4f602"
+    },
+    {
+      "path": "src/utils/gameplay/gameSessionActivation.ts",
+      "bytes": 2630,
+      "sha256": "c6352e4c357d7dcc04fa16e290c4b80346bf2b866b1cd136f9eeb1423a776a1e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "bytes": 53627,
+      "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
+    }
+  ],
+  "controlsNote": "sha256/bytes re-hashed 2026-10-26 from the git objects at 35fa2fb9c; every listed control is byte-identical to the prep (79211e5a1) values. Ledger and tool files edited by later PRs are listed in controlsChanged and are not controls for the leaves. Re-hash at the implementation baseline; any change must be explained (byte-equal at admission baseline and PR head).",
+  "a2fpLeavesOnMain": [
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "blob": "cb2faa8108e777a72a616abe45f09fab5c1f2ada",
+      "bytes": 2638,
+      "sha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-context.mjs",
+      "blob": "bd7b27407dc505c42b9c100d6a4e31ebb33fb7cc",
+      "bytes": 7932,
+      "sha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+      "blob": "8b1d4ac217ad1bb62c871bad466d1b5e45b54fb2",
+      "bytes": 9448,
+      "sha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+      "blob": "c638e8189dae434cc355aa66ab5d896e3c72a9e1",
+      "bytes": 16540,
+      "sha256": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894"
+    }
+  ],
+  "gates": [
+    {
+      "id": "G-F0",
+      "kind": "ruling before RED",
+      "text": "SATISFIED at admission: A2FP is closed on main with the interface asks (AUTH-2, AUTH-6); Q-F1 (evidence name) and Q-F2 (test-support classification of trusted-fixtures.ts) are ruled (AUTH-3, AUTH-7). No RED commit before this PR merges to main."
+    },
+    {
+      "id": "G-F1",
+      "kind": "probe before RED",
+      "text": "On the built image, prepare one stale-first match and one GM-branded match and record that actor commands are still accepted, the participant table exists, and GM role flips only through the durable rows. A probe failure stops the unit for a separate registration (no product seam is granted). Not run at admission."
+    },
+    {
+      "id": "G-F2",
+      "kind": "process",
+      "text": "Tell Root before the built run: 8 matches, about 8-10 minutes, casesMs 900000 set explicitly; class build with --build is a 15 minute lease (the A2FP run took about 2 minutes of cases after a 4 minute build)."
+    },
+    {
+      "id": "G-F3",
+      "kind": "exact-main",
+      "text": "Re-run the A1 smoke test and the A2FP test file at the exact merge (shared FP helpers are consumed read-only; no shared helper is edited), and the F built-image runner with --build; check the offline witness op sequence (CF-A2FP-1); validate-roadmap --github cited (sensitive classes, DELIVERY.md:83)."
+    },
+    {
+      "id": "G-F4",
+      "kind": "privacy/authority packet",
+      "text": "Genuine PK packet before local-verified (agentRecommendation not a placeholder)."
+    },
+    {
+      "id": "G-F5",
+      "kind": "cap record",
+      "text": "Re-measure the real squash diff with measure-cap.cjs; record capException in units.json only if the literal validator count exceeds 500 (the literal estimate fits, see measuredFit); validate-roadmap --git is the check at the closure."
+    },
+    {
+      "id": "G-F6",
+      "kind": "built-image run of the new runner",
+      "text": "The local stage runs the F runner with --build on the final leaves; the exact-main proof runs it again at the merge commit."
+    }
+  ],
+  "openQuestions": [
+    "B7 analogue: the F runner has never run in a built image (G-F1 probe and the local run settle it).",
+    "OQ-M2 and OQ-M3 are A2M admission questions.",
+    "CF-A2FP-2 owner (Root decision)."
+  ],
+  "limitations": [
+    "Admission only. The leaf bytes live outside Git (prep a2f-a2m draft/scripts/release; formatted; hashes in measuredFit) and need `git add -f` when committed at the implementation RED/GREEN.",
+    "Run-level behaviors of the runner (unbranded participant sees nothing, GM brand survives restart) are exercised only by the built-image run; node:test covers the offline fixture, the enumeration and the established() guard.",
+    "No oxlint pass: scripts/ is outside .oxlintrc.json; oxfmt was applied explicitly.",
+    "The built-image behavior of stale-first metadata and of the GM role flip after restart is unverified (G-F1).",
+    "countedLines and the lifecycle line counts are estimated from the A2FP actual (units.json +36, PROGRESS.md +10, page +2) and can move with the real lifecycle edit.",
+    "The census JSON and the test/mutant logs are outside Git; their sha256 values are recorded where they matter."
+  ],
+  "capException": {
+    "rule": "validate-roadmap.mjs:723-726 fails a merged unit when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, where counted is the sum of added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` over files outside evidence/ and outside UNCOUNTED_FILES. It does not know option A.",
+    "needed": false,
+    "consequence": "The literal estimate (467 to 499) stays within 500 even at the high bound (margin 1); the implementation PR re-measures its real squash diff and records capException.countedLines = the literal validator count (and optionACountedLines beside it) if and only if the literal count exceeds 500.",
+    "tool": "prep/a2fp/draft/measure-cap.cjs <repo> <head> <parent> --testsupport=<path>",
+    "toolSha256": "586df8ce4b897468a175ddb206da6abcfdd7ca297f7a945041cb9faa0eaf8858"
+  },
+  "parentOfAdmissionCommit": "951c204711e74a7225f0a66290a8f1dc2476ff73",
+  "placement": {
+    "choice": "P2",
+    "statement": "The admission rides the A2FP closure PR (GOAL.md:10 and stepPlanDecision20261024.wip: closure and the next admission may share one PR; successor implementation starts only after the PR merges). Step 3 then needs exactly 10 PRs (A2FP, A2F, A2M, A2, B and their closures), as budgeted in v220-steps.json; this PR is PR 2 of 10."
+  },
+  "resolutions": {
+    "Q-F1": "Date-suffixed evidence name (evidenceNameNote); the #2318 stop receipt stays byte-identical.",
+    "Q-F2": "trusted-fixtures.ts is test-support under option A, owner-confirmed (AUTH-3).",
+    "Q-F3": "Landed in A2FP (#2338).",
+    "Q-F4": "Accepted: the stale assignment is placed FIRST for the ACTIVE side, prepare refuses unless staleEffective, and the A2FP witness reads the acting principal from the participants own assignment rows (landed in A2FP). G-F1 verifies on a built image.",
+    "Q-F5": "Kept: the GM-branded spectator rows are the real GM path; the non-spectating GM is a policy probe (gm-participant).",
+    "packet": "No placeholder packet at admission; the genuine PK-l1-smoke-a2f-ruling is created at GREEN/local.",
+    "lessonsApplied": [
+      "#2329 F1 PR budget: admission rides the previous closure PR (scheme P2), no stand-alone admission PR",
+      "#2329 F2 HOLD/gate attribution cited separately (AUTH-1, AUTH-5)",
+      "#2329 F4 proofClass recorded",
+      "#2331 F1 census lists importers and CI wiring (census.md section 4)",
+      "#2332 G-P0 rulings gated before RED (G-F0, G-M0)",
+      "#2333 R2-M1 owner text quoted verbatim, Root interpretation labelled"
+    ]
+  }
+}
