@@ -44,20 +44,26 @@ export function describeCatalogWeightExcess(excess: number): string {
   return `exceeds free weight by ${excess.toFixed(1)} t`;
 }
 
+/** Where the unit stands against its tonnage limit. */
+export type CatalogCapacityState = 'free' | 'full' | 'over';
+
 export interface ICatalogCapacityNotice {
-  /** Free tonnage, or the notice that nothing is free. */
+  /** Free tonnage, or what to do about running out of it. */
   readonly weightText: string;
   /** Same meaning in fewer words, for a phone-width summary line. */
   readonly compactWeightText: string;
   readonly slotsText: string;
-  /** True when no tonnage is free (or the unit is over), shown as a warning. */
-  readonly exhausted: boolean;
+  /**
+   * `free`: plain text. `full`: exactly at the limit, a legal state shown as
+   * neutral text. `over`: the only state shown as a warning callout.
+   */
+  readonly state: CatalogCapacityState;
 }
 
 /**
  * Capacity summary shown beside the result count above the catalog list.
- * With exactly 0.0 t free it says what adding anything will do; a deficit
- * stays a negative number, as in the unit summary.
+ * Exactly 0.0 t free is a legal, full unit and reads as neutral status; only
+ * a deficit is an error and names the fix.
  */
 export function getCatalogCapacityNotice(capacity: {
   remainingWeight: number;
@@ -65,15 +71,28 @@ export function getCatalogCapacityNotice(capacity: {
 }): ICatalogCapacityNotice {
   const { remainingWeight, remainingSlots } = capacity;
   const slotsText = `${remainingSlots} ${remainingSlots === 1 ? 'slot' : 'slots'} free`;
-  const full = Math.abs(remainingWeight) <= WEIGHT_EPSILON;
-  const weightText = `${(full ? 0 : remainingWeight).toFixed(1)} t free`;
+  if (remainingWeight < -WEIGHT_EPSILON) {
+    const overText = `Over by ${(-remainingWeight).toFixed(1)} t`;
+    return {
+      weightText: `${overText} \u2014 remove equipment or armor`,
+      compactWeightText: overText,
+      slotsText,
+      state: 'over',
+    };
+  }
+  const weightText = `${(remainingWeight > WEIGHT_EPSILON ? remainingWeight : 0).toFixed(1)} t free`;
+  if (remainingWeight > WEIGHT_EPSILON)
+    return {
+      weightText,
+      compactWeightText: weightText,
+      slotsText,
+      state: 'free',
+    };
   return {
-    weightText: full
-      ? `${weightText} — no tonnage left; anything with weight makes the unit overweight`
-      : weightText,
-    compactWeightText: full ? `${weightText} — no tonnage left` : weightText,
+    weightText: `${weightText} \u00B7 unit is at its tonnage limit`,
+    compactWeightText: `${weightText} \u00B7 at tonnage limit`,
     slotsText,
-    exhausted: isCatalogWeightExhausted(remainingWeight),
+    state: 'full',
   };
 }
 export function getCatalogCapacity(

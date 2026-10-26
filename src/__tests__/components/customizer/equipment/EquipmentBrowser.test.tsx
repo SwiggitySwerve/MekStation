@@ -202,7 +202,7 @@ describe('EquipmentBrowser', () => {
       </EquipmentBrowserUnitContext.Provider>,
     );
     expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
-      '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
+      '0.0 t free · unit is at its tonnage limit',
     );
     expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\+\d+\.\d t over/)).not.toBeInTheDocument();

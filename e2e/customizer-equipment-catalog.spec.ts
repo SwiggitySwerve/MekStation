@@ -473,25 +473,22 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await expect(
     firstRow.getByRole('button', { name: /^Add options for / }),
   ).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  // The Atlas has no free tonnage: one notice above the list, no per-row chip.
-  await expect(page.getByTestId('equipment-catalog-capacity')).toContainText(
-    '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
+  // The Atlas is exactly at its limit: a legal state, so one neutral line
+  // above the list (no warning callout, no border) and no per-row chip.
+  const capacity = page.getByTestId('equipment-catalog-capacity');
+  await expect(capacity).toContainText(
+    '0.0 t free \u00B7 unit is at its tonnage limit',
   );
-  await expect(page.getByTestId('equipment-catalog-capacity')).toHaveCSS(
-    'font-size',
-    '14px',
-  );
-  await expect(
-    page
-      .getByTestId('equipment-catalog-capacity')
-      .locator('[data-icon-name="warning"]'),
-  ).toBeVisible();
+  await expect(capacity).toHaveAttribute('data-capacity-state', 'full');
+  await expect(capacity).toHaveCSS('border-top-width', '0px');
+  await expect(capacity.locator('[data-icon-name]')).toHaveCount(0);
   await expect(rows.filter({ hasText: /\+\d+(\.\d)? t over/ })).toHaveCount(0);
-  // Names sort naturally: AC/2, AC/5, AC/10, AC/15 Ammo, AC/20.
+  // Names sort naturally; orphan AC/15 ammunition has no catalog weapon.
   const visibleNames = await Promise.all(
     (await rows.all()).map((candidate) => rowName(candidate)),
   );
-  const acOrder = ['AC/2', 'AC/5', 'AC/10', 'AC/15 Ammo', 'AC/20'].map((name) =>
+  expect(visibleNames).not.toContain('AC/15 Ammo');
+  const acOrder = ['AC/2', 'AC/5', 'AC/10', 'AC/20'].map((name) =>
     visibleNames.indexOf(name),
   );
   expect(acOrder.every((index) => index >= 0)).toBe(true);

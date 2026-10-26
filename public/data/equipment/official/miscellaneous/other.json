@@ -14,7 +14,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2464,
+      "introductionYear": 2471,
       "special": ["Variable weight"]
     },
     {
@@ -27,7 +27,7 @@
       "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3067,
+      "introductionYear": 3068,
       "special": ["Variable weight"]
     },
     {
@@ -41,7 +41,8 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3020,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 3069
     },
     {
       "id": "primitive-prototype-jump-jet",
@@ -54,19 +55,20 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2464,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 2471
     },
     {
       "id": "extended-jump-jet-system",
       "name": "Extended Jump Jet System",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3145,
+      "introductionYear": 3079,
       "special": ["Variable weight"]
     },
     {
@@ -79,20 +81,20 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3065,
+      "introductionYear": 3066,
       "special": ["Variable weight"]
     },
     {
       "id": "protomek-myomer-booster",
       "name": "Protomek Myomer Booster",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3066,
+      "introductionYear": 3068,
       "special": ["Variable weight"]
     },
     {
@@ -112,13 +114,13 @@
       "id": "protomechpartialwing",
       "name": "ProtoMech Partial Wing",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3145,
+      "introductionYear": 3085,
       "special": ["Variable weight"]
     },
     {
@@ -131,7 +133,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3078,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
@@ -144,20 +146,20 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2430,
+      "introductionYear": 2440,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "quadvee-wheels",
       "name": "QuadVee Wheels",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3130,
+      "introductionYear": 3135,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -170,7 +172,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 0,
-      "introductionYear": 3072,
+      "introductionYear": 3096,
       "special": []
     },
     {
@@ -196,7 +198,7 @@
       "criticalSlots": 0,
       "costCBills": 1500,
       "battleValue": 0,
-      "introductionYear": 2390,
+      "introductionYear": 2400,
       "special": []
     },
     {
@@ -209,7 +211,7 @@
       "criticalSlots": 0,
       "costCBills": 800,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2305,
       "special": []
     },
     {
@@ -222,7 +224,7 @@
       "criticalSlots": 0,
       "costCBills": 1400,
       "battleValue": 0,
-      "introductionYear": 2390,
+      "introductionYear": 2300,
       "special": []
     },
     {
@@ -235,7 +237,7 @@
       "criticalSlots": 0,
       "costCBills": 1600,
       "battleValue": 0,
-      "introductionYear": 2305,
+      "introductionYear": 2310,
       "special": []
     },
     {
@@ -248,7 +250,7 @@
       "criticalSlots": 0,
       "costCBills": 2880,
       "battleValue": 0,
-      "introductionYear": 2810,
+      "introductionYear": 2820,
       "special": []
     },
     {
@@ -261,8 +263,10 @@
       "criticalSlots": 0,
       "costCBills": 25,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 1950,
+      "special": [],
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950
     },
     {
       "id": "clothing-leather-synthetic-hide",
@@ -274,8 +278,10 @@
       "criticalSlots": 0,
       "costCBills": 100,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 1950,
+      "special": [],
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950
     },
     {
       "id": "clothing-light-e-g-summer-wear-none",
@@ -287,8 +293,10 @@
       "criticalSlots": 0,
       "costCBills": 15,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 1950,
+      "special": [],
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950
     },
     {
       "id": "engineering-suit",
@@ -300,7 +308,7 @@
       "criticalSlots": 0,
       "costCBills": 7500,
       "battleValue": 0,
-      "introductionYear": 2340,
+      "introductionYear": 2350,
       "special": []
     },
     {
@@ -339,7 +347,7 @@
       "criticalSlots": 0,
       "costCBills": 15000,
       "battleValue": 0,
-      "introductionYear": 2315,
+      "introductionYear": 2325,
       "special": []
     },
     {
@@ -352,7 +360,7 @@
       "criticalSlots": 0,
       "costCBills": 150,
       "battleValue": 0,
-      "introductionYear": 2200,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -365,7 +373,7 @@
       "criticalSlots": 0,
       "costCBills": 225,
       "battleValue": 0,
-      "introductionYear": 2230,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -378,7 +386,7 @@
       "criticalSlots": 0,
       "costCBills": 100,
       "battleValue": 0,
-      "introductionYear": 2350,
+      "introductionYear": 2355,
       "special": []
     },
     {
@@ -391,7 +399,7 @@
       "criticalSlots": 0,
       "costCBills": 20000,
       "battleValue": 0,
-      "introductionYear": 2690,
+      "introductionYear": 2790,
       "special": []
     },
     {
@@ -404,8 +412,10 @@
       "criticalSlots": 0,
       "costCBills": 500,
       "battleValue": 0,
-      "introductionYear": 2680,
-      "special": []
+      "introductionYear": 2500,
+      "special": [],
+      "extinctionYear": 2850,
+      "reintroductionYear": 3050
     },
     {
       "id": "mechwarrior-cooling-vest-only",
@@ -417,7 +427,7 @@
       "criticalSlots": 0,
       "costCBills": 200,
       "battleValue": 0,
-      "introductionYear": 2440,
+      "introductionYear": 2460,
       "special": []
     },
     {
@@ -430,7 +440,7 @@
       "criticalSlots": 0,
       "costCBills": 5800,
       "battleValue": 0,
-      "introductionYear": 3045,
+      "introductionYear": 3047,
       "special": []
     },
     {
@@ -443,7 +453,7 @@
       "criticalSlots": 0,
       "costCBills": 1800,
       "battleValue": 0,
-      "introductionYear": 3044,
+      "introductionYear": 3045,
       "special": []
     },
     {
@@ -456,7 +466,7 @@
       "criticalSlots": 0,
       "costCBills": 920,
       "battleValue": 0,
-      "introductionYear": 3062,
+      "introductionYear": 3065,
       "special": []
     },
     {
@@ -469,8 +479,10 @@
       "criticalSlots": 0,
       "costCBills": 50,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 1950,
+      "special": [],
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950
     },
     {
       "id": "snowsuit",
@@ -482,8 +494,10 @@
       "criticalSlots": 0,
       "costCBills": 70,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 1950,
+      "special": [],
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950
     },
     {
       "id": "spacesuit",
@@ -495,8 +509,10 @@
       "criticalSlots": 0,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 2100,
+      "special": [],
+      "extinctionYear": 2100,
+      "reintroductionYear": 2100
     },
     {
       "id": "spacesuit-combat",
@@ -508,8 +524,10 @@
       "criticalSlots": 0,
       "costCBills": 7000,
       "battleValue": 0,
-      "introductionYear": 2200,
-      "special": []
+      "introductionYear": 2100,
+      "special": [],
+      "extinctionYear": 2200,
+      "reintroductionYear": 2100
     },
     {
       "id": "capellan-confederation-armor-kit-3050",
@@ -521,20 +539,20 @@
       "criticalSlots": 0,
       "costCBills": 450,
       "battleValue": 0,
-      "introductionYear": 3045,
+      "introductionYear": 3050,
       "special": []
     },
     {
       "id": "clan-armor-kit-all",
       "name": "Clan Armor Kit (All)",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 5560,
       "battleValue": 0,
-      "introductionYear": 5560,
+      "introductionYear": 2900,
       "special": []
     },
     {
@@ -547,7 +565,7 @@
       "criticalSlots": 0,
       "costCBills": 4280,
       "battleValue": 0,
-      "introductionYear": 2825,
+      "introductionYear": 2830,
       "special": []
     },
     {
@@ -560,7 +578,7 @@
       "criticalSlots": 0,
       "costCBills": 360,
       "battleValue": 0,
-      "introductionYear": 2620,
+      "introductionYear": 2625,
       "special": []
     },
     {
@@ -573,8 +591,9 @@
       "criticalSlots": 0,
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2325,
-      "special": []
+      "introductionYear": 2330,
+      "special": [],
+      "extinctionYear": 3035
     },
     {
       "id": "fed-suns-fed-commonwealth-infantry-kit-3030-3066",
@@ -586,8 +605,9 @@
       "criticalSlots": 0,
       "costCBills": 1040,
       "battleValue": 0,
-      "introductionYear": 3025,
-      "special": []
+      "introductionYear": 3030,
+      "special": [],
+      "extinctionYear": 3070
     },
     {
       "id": "fed-suns-infantry-kit-3067",
@@ -599,7 +619,7 @@
       "criticalSlots": 0,
       "costCBills": 2080,
       "battleValue": 0,
-      "introductionYear": 3065,
+      "introductionYear": 3067,
       "special": []
     },
     {
@@ -612,7 +632,7 @@
       "criticalSlots": 0,
       "costCBills": 360,
       "battleValue": 0,
-      "introductionYear": 3035,
+      "introductionYear": 3040,
       "special": []
     },
     {
@@ -625,8 +645,9 @@
       "criticalSlots": 0,
       "costCBills": 950,
       "battleValue": 0,
-      "introductionYear": 2280,
-      "special": []
+      "introductionYear": 2290,
+      "special": [],
+      "extinctionYear": 3050
     },
     {
       "id": "free-worlds-league-infantry-kit-3035",
@@ -638,7 +659,7 @@
       "criticalSlots": 0,
       "costCBills": 360,
       "battleValue": 0,
-      "introductionYear": 3030,
+      "introductionYear": 3035,
       "special": []
     },
     {
@@ -651,8 +672,9 @@
       "criticalSlots": 0,
       "costCBills": 650,
       "battleValue": 0,
-      "introductionYear": 2420,
-      "special": []
+      "introductionYear": 2425,
+      "special": [],
+      "extinctionYear": 3067
     },
     {
       "id": "lyran-alliance-lyran-commonwealth-3060-infantry-kit",
@@ -664,7 +686,7 @@
       "criticalSlots": 0,
       "costCBills": 730,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -677,7 +699,7 @@
       "criticalSlots": 0,
       "costCBills": 400,
       "battleValue": 0,
-      "introductionYear": 2600,
+      "introductionYear": 2610,
       "special": []
     },
     {
@@ -690,7 +712,7 @@
       "criticalSlots": 0,
       "costCBills": 1580,
       "battleValue": 0,
-      "introductionYear": 3045,
+      "introductionYear": 3049,
       "special": []
     },
     {
@@ -703,7 +725,7 @@
       "criticalSlots": 0,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2570,
+      "introductionYear": 2575,
       "special": []
     },
     {
@@ -716,7 +738,7 @@
       "criticalSlots": 0,
       "costCBills": 370,
       "battleValue": 0,
-      "introductionYear": 3045,
+      "introductionYear": 3047,
       "special": []
     },
     {
@@ -729,8 +751,9 @@
       "criticalSlots": 0,
       "costCBills": 4300,
       "battleValue": 0,
-      "introductionYear": 3053,
-      "special": []
+      "introductionYear": 3055,
+      "special": [],
+      "extinctionYear": 3081
     },
     {
       "id": "generic-infantry-kit",
@@ -742,7 +765,7 @@
       "criticalSlots": 0,
       "costCBills": 330,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -755,7 +778,7 @@
       "criticalSlots": 0,
       "costCBills": 500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -768,7 +791,7 @@
       "criticalSlots": 0,
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -781,8 +804,10 @@
       "criticalSlots": 0,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2785,
-      "special": []
+      "introductionYear": 2800,
+      "special": [],
+      "extinctionYear": 2845,
+      "reintroductionYear": 3045
     },
     {
       "id": "sneak-suit-camo",
@@ -794,7 +819,7 @@
       "criticalSlots": 0,
       "costCBills": 7000,
       "battleValue": 0,
-      "introductionYear": 2430,
+      "introductionYear": 2450,
       "special": []
     },
     {
@@ -807,7 +832,7 @@
       "criticalSlots": 0,
       "costCBills": 7000,
       "battleValue": 0,
-      "introductionYear": 2430,
+      "introductionYear": 2450,
       "special": []
     },
     {
@@ -820,7 +845,7 @@
       "criticalSlots": 0,
       "costCBills": 7000,
       "battleValue": 0,
-      "introductionYear": 2430,
+      "introductionYear": 2450,
       "special": []
     },
     {
@@ -833,7 +858,7 @@
       "criticalSlots": 0,
       "costCBills": 21000,
       "battleValue": 0,
-      "introductionYear": 2445,
+      "introductionYear": 2460,
       "special": []
     },
     {
@@ -846,7 +871,7 @@
       "criticalSlots": 0,
       "costCBills": 21000,
       "battleValue": 0,
-      "introductionYear": 2445,
+      "introductionYear": 2460,
       "special": []
     },
     {
@@ -859,7 +884,7 @@
       "criticalSlots": 0,
       "costCBills": 21000,
       "battleValue": 0,
-      "introductionYear": 2445,
+      "introductionYear": 2460,
       "special": []
     },
     {
@@ -872,7 +897,7 @@
       "criticalSlots": 0,
       "costCBills": 28000,
       "battleValue": 0,
-      "introductionYear": 2465,
+      "introductionYear": 2475,
       "special": []
     },
     {
@@ -885,7 +910,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3071,
+      "introductionYear": 3083,
       "special": ["Variable weight"]
     },
     {
@@ -898,7 +923,7 @@
       "criticalSlots": 2,
       "costCBills": 120000,
       "battleValue": 5,
-      "introductionYear": 3071,
+      "introductionYear": 3084,
       "special": []
     },
     {
@@ -924,7 +949,7 @@
       "criticalSlots": 4,
       "costCBills": 110000,
       "battleValue": 11,
-      "introductionYear": 3057,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -937,7 +962,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3015,
+      "introductionYear": 3022,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -950,7 +975,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3064,
+      "introductionYear": 3083,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -976,7 +1001,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2420,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -989,7 +1014,7 @@
       "criticalSlots": 3,
       "costCBills": 50000,
       "battleValue": 50,
-      "introductionYear": 2300,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -1002,7 +1027,7 @@
       "criticalSlots": 5,
       "costCBills": 100000,
       "battleValue": 135,
-      "introductionYear": 2300,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -1015,7 +1040,7 @@
       "criticalSlots": 7,
       "costCBills": 300000,
       "battleValue": 263,
-      "introductionYear": 2300,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -1028,7 +1053,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 4,
-      "introductionYear": 3051,
+      "introductionYear": 3082,
       "special": []
     },
     {
@@ -1041,20 +1066,20 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3058,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
       "id": "talons",
       "name": "Talons",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3145,
+      "introductionYear": 3087,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -1067,7 +1092,7 @@
       "criticalSlots": 1,
       "costCBills": 150000,
       "battleValue": 12,
-      "introductionYear": 2300,
+      "introductionYear": 3091,
       "special": []
     },
     {
@@ -1080,7 +1105,7 @@
       "criticalSlots": 2,
       "costCBills": 400000,
       "battleValue": 17,
-      "introductionYear": 2300,
+      "introductionYear": 3091,
       "special": []
     },
     {
@@ -1093,7 +1118,7 @@
       "criticalSlots": 4,
       "costCBills": 750000,
       "battleValue": 24,
-      "introductionYear": 2300,
+      "introductionYear": 3091,
       "special": []
     },
     {
@@ -1106,7 +1131,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1119,7 +1144,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1132,7 +1157,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1145,8 +1170,10 @@
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2452,
-      "special": []
+      "introductionYear": 2476,
+      "special": [],
+      "extinctionYear": 2840,
+      "reintroductionYear": 3036
     },
     {
       "id": "case-p-prototype",
@@ -1159,7 +1186,8 @@
       "costCBills": 150000,
       "battleValue": 0,
       "introductionYear": 2452,
-      "special": []
+      "special": [],
+      "extinctionYear": 2476
     },
     {
       "id": "caseii",
@@ -1197,8 +1225,10 @@
       "criticalSlots": 0,
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 2625,
-      "special": []
+      "introductionYear": 2631,
+      "special": [],
+      "extinctionYear": 2850,
+      "reintroductionYear": 3030
     },
     {
       "id": "mass",
@@ -1210,7 +1240,7 @@
       "criticalSlots": 1,
       "costCBills": 4000,
       "battleValue": 9,
-      "introductionYear": 3048,
+      "introductionYear": 3083,
       "special": []
     },
     {
@@ -1223,7 +1253,7 @@
       "criticalSlots": 0,
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 3052,
+      "introductionYear": 3055,
       "special": []
     },
     {
@@ -1236,7 +1266,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
@@ -1249,7 +1279,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
@@ -1262,7 +1292,7 @@
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 3125,
+      "introductionYear": 3140,
       "special": []
     },
     {
@@ -1275,7 +1305,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
@@ -1288,7 +1318,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
@@ -1301,8 +1331,10 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2755,
-      "special": ["Variable weight"]
+      "introductionYear": 2100,
+      "special": ["Variable weight"],
+      "extinctionYear": 2780,
+      "reintroductionYear": 3077
     },
     {
       "id": "improvedshieldedaerosrcs",
@@ -1314,8 +1346,10 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2755,
-      "special": ["Variable weight"]
+      "introductionYear": 2100,
+      "special": ["Variable weight"],
+      "extinctionYear": 2780,
+      "reintroductionYear": 3077
     },
     {
       "id": "eliteshieldedaerosrcs",
@@ -1327,8 +1361,10 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2755,
-      "special": ["Variable weight"]
+      "introductionYear": 2100,
+      "special": ["Variable weight"],
+      "extinctionYear": 2780,
+      "reintroductionYear": 3077
     },
     {
       "id": "caspardronecontrolsystem",
@@ -1341,7 +1377,8 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2695,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 2780
     },
     {
       "id": "improvedcaspardronecontrolsystem",
@@ -1354,7 +1391,8 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2695,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 2780
     },
     {
       "id": "caspariidronecontrolsystem",
@@ -1367,7 +1405,9 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3064,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 3078,
+      "reintroductionYear": 3082
     },
     {
       "id": "improvedcaspariidronecontrolsystem",
@@ -1380,7 +1420,9 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3064,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 3078,
+      "reintroductionYear": 3082
     },
     {
       "id": "autotacticalanalysiscomputer",
@@ -1393,7 +1435,8 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2700,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 2780
     },
     {
       "id": "directtacticalanalysissystem",
@@ -1406,7 +1449,9 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3072,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 3078,
+      "reintroductionYear": 3082
     },
     {
       "id": "sdsselfdestructsystem",
@@ -1419,7 +1464,8 @@
       "costCBills": 1000000,
       "battleValue": 0,
       "introductionYear": 2695,
-      "special": ["Variable weight"]
+      "special": ["Variable weight"],
+      "extinctionYear": 2780
     },
     {
       "id": "sdsjammersystem",
@@ -1432,7 +1478,8 @@
       "costCBills": 800000000,
       "battleValue": 0,
       "introductionYear": 2776,
-      "special": []
+      "special": [],
+      "extinctionYear": 2780
     },
     {
       "id": "combatvehicleescapepod",
@@ -1444,7 +1491,7 @@
       "criticalSlots": 0,
       "costCBills": 10000,
       "battleValue": 0,
-      "introductionYear": 3038,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -1457,7 +1504,7 @@
       "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 0,
-      "introductionYear": 2430,
+      "introductionYear": 2445,
       "special": []
     },
     {
@@ -1470,7 +1517,7 @@
       "criticalSlots": 0,
       "costCBills": 25000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1483,7 +1530,7 @@
       "criticalSlots": 0,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1496,7 +1543,7 @@
       "criticalSlots": 0,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1509,7 +1556,7 @@
       "criticalSlots": 0,
       "costCBills": 6000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1522,7 +1569,7 @@
       "criticalSlots": 1,
       "costCBills": 10000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1535,7 +1582,7 @@
       "criticalSlots": 1,
       "costCBills": 51000,
       "battleValue": 0,
-      "introductionYear": 2586,
+      "introductionYear": 2590,
       "special": []
     },
     {
@@ -1549,7 +1596,8 @@
       "costCBills": 60000,
       "battleValue": 0,
       "introductionYear": 2586,
-      "special": []
+      "special": [],
+      "extinctionYear": 2590
     },
     {
       "id": "lookdownradar",
@@ -1561,7 +1609,7 @@
       "criticalSlots": 1,
       "costCBills": 400000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1574,7 +1622,7 @@
       "criticalSlots": 1,
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -1587,7 +1635,7 @@
       "criticalSlots": 1,
       "costCBills": 550000,
       "battleValue": 0,
-      "introductionYear": 3045,
+      "introductionYear": 3055,
       "special": []
     },
     {
@@ -1600,7 +1648,7 @@
       "criticalSlots": 1,
       "costCBills": 150000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -1613,7 +1661,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -1639,8 +1687,10 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 0,
-      "introductionYear": 2592,
-      "special": []
+      "introductionYear": 2598,
+      "special": [],
+      "extinctionYear": 2855,
+      "reintroductionYear": 3035
     },
     {
       "id": "artemisivproto",
@@ -1653,7 +1703,9 @@
       "costCBills": 100000,
       "battleValue": 0,
       "introductionYear": 2592,
-      "special": []
+      "special": [],
+      "extinctionYear": 2612,
+      "reintroductionYear": 3035
     },
     {
       "id": "artemisv",
@@ -1678,7 +1730,7 @@
       "criticalSlots": 1,
       "costCBills": 125000,
       "battleValue": 0,
-      "introductionYear": 3065,
+      "introductionYear": 3071,
       "special": []
     },
     {
@@ -1691,7 +1743,7 @@
       "criticalSlots": 1,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2305,
+      "introductionYear": 2315,
       "special": []
     },
     {
@@ -1704,7 +1756,7 @@
       "criticalSlots": 1,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1717,7 +1769,7 @@
       "criticalSlots": 1,
       "costCBills": 3000,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -1730,7 +1782,7 @@
       "criticalSlots": 1,
       "costCBills": 6000,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -1744,7 +1796,8 @@
       "costCBills": 18000,
       "battleValue": 0,
       "introductionYear": 2559,
-      "special": []
+      "special": [],
+      "extinctionYear": 2567
     },
     {
       "id": "double-heat-sink-freezers",
@@ -1757,7 +1810,8 @@
       "costCBills": 30000,
       "battleValue": 0,
       "introductionYear": 3022,
-      "special": []
+      "special": [],
+      "extinctionYear": 3040
     },
     {
       "id": "radical-heat-sink-system",
@@ -1769,7 +1823,7 @@
       "criticalSlots": 3,
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3122,
       "special": []
     },
     {
@@ -1782,7 +1836,7 @@
       "criticalSlots": 6,
       "costCBills": 50000,
       "battleValue": 8,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1795,7 +1849,7 @@
       "criticalSlots": 2,
       "costCBills": 40000,
       "battleValue": 5,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1808,7 +1862,7 @@
       "criticalSlots": 4,
       "costCBills": 75000,
       "battleValue": 10,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1821,7 +1875,7 @@
       "criticalSlots": 12,
       "costCBills": 100000,
       "battleValue": 20,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1834,7 +1888,7 @@
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 10,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1847,7 +1901,7 @@
       "criticalSlots": 5,
       "costCBills": 100000,
       "battleValue": 7,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1860,7 +1914,7 @@
       "criticalSlots": 4,
       "costCBills": 75000,
       "battleValue": 5,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1873,7 +1927,7 @@
       "criticalSlots": 7,
       "costCBills": 100000,
       "battleValue": 9,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1886,7 +1940,7 @@
       "criticalSlots": 2,
       "costCBills": 100000,
       "battleValue": 67,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1899,7 +1953,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -1912,7 +1966,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -1925,7 +1979,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -1938,7 +1992,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -1951,7 +2005,7 @@
       "criticalSlots": 1,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1964,7 +2018,7 @@
       "criticalSlots": 1,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -1977,7 +2031,7 @@
       "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -1990,7 +2044,7 @@
       "criticalSlots": 8,
       "costCBills": 100000,
       "battleValue": 5,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2003,7 +2057,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -2016,7 +2070,7 @@
       "criticalSlots": 3,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2029,7 +2083,7 @@
       "criticalSlots": 1,
       "costCBills": 7500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -2042,7 +2096,7 @@
       "criticalSlots": 4,
       "costCBills": 10000,
       "battleValue": 6,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2055,7 +2109,7 @@
       "criticalSlots": 0,
       "costCBills": 25000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2068,7 +2122,7 @@
       "criticalSlots": 5,
       "costCBills": 100000,
       "battleValue": 6,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2081,7 +2135,7 @@
       "criticalSlots": 2,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2400,
+      "introductionYear": 2415,
       "special": []
     },
     {
@@ -2094,7 +2148,7 @@
       "criticalSlots": 1,
       "costCBills": 75000,
       "battleValue": 5,
-      "introductionYear": 2312,
+      "introductionYear": 2320,
       "special": []
     },
     {
@@ -2107,7 +2161,7 @@
       "criticalSlots": 5,
       "costCBills": 110000,
       "battleValue": 8,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2185,7 +2239,7 @@
       "criticalSlots": 0,
       "costCBills": 100000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
@@ -2211,7 +2265,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2520,
+      "introductionYear": 2529,
       "special": ["Variable weight"]
     },
     {
@@ -2224,8 +2278,10 @@
       "criticalSlots": 1,
       "costCBills": 3000,
       "battleValue": 0,
-      "introductionYear": 3000,
-      "special": []
+      "introductionYear": 2575,
+      "special": [],
+      "extinctionYear": 2820,
+      "reintroductionYear": 3073
     },
     {
       "id": "mine",
@@ -2237,7 +2293,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 4,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2250,7 +2306,7 @@
       "criticalSlots": 1,
       "costCBills": 20000,
       "battleValue": 8,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2263,7 +2319,7 @@
       "criticalSlots": 0,
       "costCBills": 15000,
       "battleValue": 200,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -2276,7 +2332,7 @@
       "criticalSlots": 1,
       "costCBills": 40000,
       "battleValue": 30,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2302,7 +2358,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3080,
       "special": ["Variable weight"]
     },
     {
@@ -2315,7 +2371,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -2328,7 +2384,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -2341,7 +2397,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable critical slots"]
     },
     {
@@ -2354,7 +2410,7 @@
       "criticalSlots": 1,
       "costCBills": 2000,
       "battleValue": 19,
-      "introductionYear": 3069,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -2367,8 +2423,10 @@
       "criticalSlots": 6,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 2630,
+      "special": [],
+      "extinctionYear": 2790,
+      "reintroductionYear": 3099
     },
     {
       "id": "collapsiblecommandmodule",
@@ -2380,7 +2438,7 @@
       "criticalSlots": 12,
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 2700,
+      "introductionYear": 2710,
       "special": []
     },
     {
@@ -2393,7 +2451,7 @@
       "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2406,7 +2464,7 @@
       "criticalSlots": 0,
       "costCBills": 2000,
       "battleValue": 0,
-      "introductionYear": 2000,
+      "introductionYear": 2300,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -2419,33 +2477,33 @@
       "criticalSlots": 1,
       "costCBills": 120000,
       "battleValue": 0,
-      "introductionYear": 3067,
+      "introductionYear": 3115,
       "special": []
     },
     {
       "id": "harjel-repair-systems-harjel-ii",
       "name": "HarJel Repair Systems (HarJel II)",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "STANDARD",
       "weight": 2,
       "criticalSlots": 1,
       "costCBills": 240000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3120,
       "special": []
     },
     {
       "id": "harjel-repair-systems-harjel-iii",
       "name": "HarJel Repair Systems (HarJel III)",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "STANDARD",
       "weight": 3,
       "criticalSlots": 2,
       "costCBills": 360000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3137,
       "special": []
     },
     {
@@ -2458,7 +2516,7 @@
       "criticalSlots": 0,
       "costCBills": 150000,
       "battleValue": 0,
-      "introductionYear": 2540,
+      "introductionYear": 3059,
       "special": []
     },
     {
@@ -2471,7 +2529,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -2484,8 +2542,10 @@
       "criticalSlots": 7,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": []
+      "introductionYear": 2630,
+      "special": [],
+      "extinctionYear": 2790,
+      "reintroductionYear": 3110
     },
     {
       "id": "paramedic-equipment",
@@ -2497,7 +2557,7 @@
       "criticalSlots": 1,
       "costCBills": 7500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2510,7 +2570,7 @@
       "criticalSlots": 0,
       "costCBills": 500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2523,7 +2583,7 @@
       "criticalSlots": 1,
       "costCBills": 2000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2536,7 +2596,7 @@
       "criticalSlots": 0,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2348,
+      "introductionYear": 2351,
       "special": []
     },
     {
@@ -2549,7 +2609,7 @@
       "criticalSlots": 0,
       "costCBills": 3000,
       "battleValue": 0,
-      "introductionYear": 2348,
+      "introductionYear": 2353,
       "special": []
     },
     {
@@ -2562,7 +2622,7 @@
       "criticalSlots": 0,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2348,
+      "introductionYear": 2355,
       "special": []
     },
     {
@@ -2575,7 +2635,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2348,
+      "introductionYear": 2353,
       "special": []
     },
     {
@@ -2588,7 +2648,7 @@
       "criticalSlots": 7,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3085,
       "special": []
     },
     {
@@ -2601,46 +2661,46 @@
       "criticalSlots": 0,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
       "id": "protomagneticclamp",
       "name": "Magnetic Clamps System",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3080,
       "special": ["Variable weight"]
     },
     {
       "id": "protomech-melee-weapon",
       "name": "ProtoMech Melee Weapon",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3077,
       "special": []
     },
     {
       "id": "protomech-quad-melee-system",
       "name": "ProtoMech Quad Melee System",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "weight": 1,
       "criticalSlots": 1,
       "costCBills": 70000,
       "battleValue": 0,
-      "introductionYear": 7000,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -2653,7 +2713,7 @@
       "criticalSlots": 50,
       "costCBills": 1000000000,
       "battleValue": 0,
-      "introductionYear": 2645,
+      "introductionYear": 2655,
       "special": []
     },
     {
@@ -2666,7 +2726,7 @@
       "criticalSlots": 12,
       "costCBills": 4000000000,
       "battleValue": 0,
-      "introductionYear": 2740,
+      "introductionYear": 2751,
       "special": []
     },
     {
@@ -2757,7 +2817,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3070,
+      "introductionYear": 3108,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
@@ -2770,7 +2830,7 @@
       "criticalSlots": 12,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3035,
+      "introductionYear": 3045,
       "special": []
     },
     {
@@ -2784,7 +2844,8 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3028,
-      "special": []
+      "special": [],
+      "extinctionYear": 3050
     },
     {
       "id": "environmental-sealing-mech",
@@ -2796,7 +2857,7 @@
       "criticalSlots": 8,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2350,
       "special": ["Variable weight"]
     },
     {
@@ -2809,7 +2870,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2470,
+      "introductionYear": 2472,
       "special": []
     },
     {
@@ -2822,7 +2883,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2470,
+      "introductionYear": 2472,
       "special": ["Variable weight"]
     },
     {
@@ -2835,7 +2896,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2470,
+      "introductionYear": 2474,
       "special": ["Variable weight"]
     },
     {
@@ -2848,7 +2909,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2470,
+      "introductionYear": 2471,
       "special": []
     },
     {
@@ -2874,7 +2935,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2887,7 +2948,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2900,7 +2961,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2913,7 +2974,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2926,7 +2987,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2470,
+      "introductionYear": 2471,
       "special": []
     },
     {
@@ -2939,7 +3000,7 @@
       "criticalSlots": 8,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -2952,7 +3013,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2965,7 +3026,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2978,7 +3039,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -2991,7 +3052,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3017,7 +3078,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3030,7 +3091,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3043,7 +3104,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3056,7 +3117,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3069,7 +3130,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3082,7 +3143,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3095,7 +3156,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3108,7 +3169,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3121,7 +3182,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3134,7 +3195,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3082,
       "special": ["Variable weight"]
     },
     {
@@ -3147,7 +3208,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3145,
+      "introductionYear": 3082,
       "special": ["Variable weight"]
     },
     {
@@ -3160,7 +3221,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3079,
       "special": ["Variable weight"]
     },
     {
@@ -3173,7 +3234,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3079,
       "special": ["Variable weight"]
     },
     {
@@ -3186,7 +3247,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     },
     {
@@ -3199,7 +3260,7 @@
       "criticalSlots": 1,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -3212,7 +3273,7 @@
       "criticalSlots": 1,
       "costCBills": 10000,
       "battleValue": 0,
-      "introductionYear": 2712,
+      "introductionYear": 2715,
       "special": []
     },
     {
@@ -3225,7 +3286,7 @@
       "criticalSlots": 1,
       "costCBills": 500,
       "battleValue": 0,
-      "introductionYear": 2740,
+      "introductionYear": 2744,
       "special": []
     },
     {
@@ -3251,7 +3312,7 @@
       "criticalSlots": 1,
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -3264,7 +3325,7 @@
       "criticalSlots": 1,
       "costCBills": 3000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3277,7 +3338,7 @@
       "criticalSlots": 1,
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3290,7 +3351,7 @@
       "criticalSlots": 1,
       "costCBills": 500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3303,7 +3364,7 @@
       "criticalSlots": 1,
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -3329,7 +3390,7 @@
       "criticalSlots": 0,
       "costCBills": 2500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -3394,7 +3455,7 @@
       "criticalSlots": 0,
       "costCBills": 2500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -3407,7 +3468,7 @@
       "criticalSlots": 0,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2410,
+      "introductionYear": 2415,
       "special": []
     },
     {
@@ -3420,7 +3481,7 @@
       "criticalSlots": 0,
       "costCBills": 12500,
       "battleValue": 1,
-      "introductionYear": 3053,
+      "introductionYear": 3055,
       "special": []
     },
     {
@@ -3433,7 +3494,7 @@
       "criticalSlots": 0,
       "costCBills": 31250,
       "battleValue": 1,
-      "introductionYear": 3053,
+      "introductionYear": 3055,
       "special": []
     },
     {
@@ -3446,7 +3507,7 @@
       "criticalSlots": 0,
       "costCBills": 7500,
       "battleValue": 0,
-      "introductionYear": 3055,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -3459,7 +3520,7 @@
       "criticalSlots": 0,
       "costCBills": 15000,
       "battleValue": 1,
-      "introductionYear": 3053,
+      "introductionYear": 3054,
       "special": []
     },
     {
@@ -3472,7 +3533,7 @@
       "criticalSlots": 0,
       "costCBills": 30000,
       "battleValue": 1,
-      "introductionYear": 3053,
+      "introductionYear": 3054,
       "special": []
     },
     {
@@ -3485,7 +3546,7 @@
       "criticalSlots": 2,
       "costCBills": 10000,
       "battleValue": 0,
-      "introductionYear": 3052,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -3498,33 +3559,33 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": []
     },
     {
       "id": "vtol-ba",
       "name": "VTOL [BA]",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3052,
+      "introductionYear": 3060,
       "special": []
     },
     {
       "id": "umu-ba",
       "name": "UMU [BA]",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2840,
+      "introductionYear": 3059,
       "special": []
     },
     {
@@ -3537,7 +3598,7 @@
       "criticalSlots": 2,
       "costCBills": 75000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3051,
       "special": []
     },
     {
@@ -3550,7 +3611,7 @@
       "criticalSlots": 2,
       "costCBills": 2500,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -3570,13 +3631,13 @@
       "id": "ba-myomer-booster",
       "name": "BA Myomer Booster",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "weight": 0,
       "criticalSlots": 3,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3145,
+      "introductionYear": 3072,
       "special": ["Variable weight"]
     },
     {
@@ -3589,7 +3650,7 @@
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 3051,
+      "introductionYear": 3053,
       "special": []
     },
     {
@@ -3654,7 +3715,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -3667,7 +3728,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 2100,
       "special": []
     },
     {
@@ -3693,7 +3754,7 @@
       "criticalSlots": 2,
       "costCBills": 20000,
       "battleValue": 8,
-      "introductionYear": 3057,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -3706,7 +3767,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2720,
       "special": ["Variable weight"]
     },
     {
@@ -3784,7 +3845,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2680,
+      "introductionYear": 2684,
       "special": []
     },
     {
@@ -3797,7 +3858,7 @@
       "criticalSlots": 1,
       "costCBills": 6000,
       "battleValue": 5,
-      "introductionYear": 3060,
+      "introductionYear": 3064,
       "special": ["anti-infantry", "one-shot"]
     },
     {
@@ -3810,7 +3871,7 @@
       "criticalSlots": 1,
       "costCBills": 20000,
       "battleValue": 8,
-      "introductionYear": 2750,
+      "introductionYear": 1950,
       "special": ["one-shot"]
     },
     {
@@ -3849,7 +3910,7 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2000,
+      "introductionYear": 1950,
       "special": ["industrial"]
     },
     {
@@ -3862,7 +3923,7 @@
       "criticalSlots": 3,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2000,
+      "introductionYear": 1950,
       "special": ["industrial"]
     },
     {
@@ -3875,7 +3936,7 @@
       "criticalSlots": 1,
       "costCBills": 10000,
       "battleValue": 5,
-      "introductionYear": 3065,
+      "introductionYear": 1950,
       "special": ["smoke"]
     },
     {

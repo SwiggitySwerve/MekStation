@@ -15,11 +15,10 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2740,
-      "special": [
-        "Double running speed for one turn",
-        "Risk of leg damage"
-      ],
-      "variableEquipmentId": "masc-is"
+      "special": ["Double running speed for one turn", "Risk of leg damage"],
+      "variableEquipmentId": "masc-is",
+      "extinctionYear": 2795,
+      "reintroductionYear": 3035
     },
     {
       "id": "clan-masc",
@@ -32,10 +31,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2827,
-      "special": [
-        "Double running speed for one turn",
-        "Risk of leg damage"
-      ],
+      "special": ["Double running speed for one turn", "Risk of leg damage"],
       "variableEquipmentId": "masc-clan"
     },
     {
@@ -48,11 +44,8 @@
       "criticalSlots": 1,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3068,
-      "special": [
-        "+1 running MP",
-        "Risk of engine damage"
-      ],
+      "introductionYear": 2100,
+      "special": ["+1 running MP", "Risk of engine damage"],
       "variableEquipmentId": "supercharger"
     }
   ]

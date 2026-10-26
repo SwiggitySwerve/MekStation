@@ -697,18 +697,19 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 
 - **WHEN** a BattleMech catalog is open
 - **THEN** the result-count line also shows remaining tonnage to one decimal place and remaining slots from the existing unit summary, such as `182 items · 4.0 t free · 16 slots free`
-- **AND** deficits remain negative rather than being hidden, such as `-2.0 t free`
+- **AND** a deficit is stated as the overage with its fix, such as `Over by 7.0 t — remove equipment or armor` (see Tonnage limit states)
 - **AND** a row already present in the loadout shows `×N mounted` as plain muted text of at least 13px beside its name, counting exact equipment IDs including unassigned instances, not as a miniature pill
 - **AND** secondary row metadata such as shots per ton uses at least 13px text
 - **AND** standalone browsing without a BattleMech context omits these annotations
 
-#### Scenario: No tonnage free
+#### Scenario: Tonnage limit states
 
-- **GIVEN** the unit has exactly 0.0 t free
+- **GIVEN** the unit has exactly 0.0 t free, a legal, exactly-full unit
 - **WHEN** the catalog renders
-- **THEN** the capacity line reads `0.0 t free — no tonnage left; anything with weight makes the unit overweight` in a compact bordered callout with a warning icon, warning-surface background, and 14px text, instead of the plain capacity text, and no individual row carries an over-weight marker
-- **AND** the same callout treatment applies to negative free tonnage, preserving the deficit value
-- **AND** on phones the line is shortened to `0.0 t free — no tonnage left` so it stays on one row
+- **THEN** the capacity line reads `0.0 t free · unit is at its tonnage limit` as neutral secondary text, with no warning color, border, or icon, and no individual row carries an over-weight marker
+- **AND** on phones the line is shortened to `0.0 t free · at tonnage limit` so it stays on one row
+- **AND** only when free tonnage is negative does the line become a compact bordered callout with an error icon, error text and tint matching the over-weight header value, and 14px text, reading `Over by 7.0 t — remove equipment or armor` (`Over by 7.0 t` on phones)
+- **AND** the comparison against zero lives in `getCatalogCapacityNotice` in `EquipmentBrowser.model.ts`, which treats magnitudes up to 0.005 t as exactly full
 
 #### Scenario: Equipment exceeds remaining tonnage
 

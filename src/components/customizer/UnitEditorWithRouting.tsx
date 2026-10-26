@@ -20,6 +20,7 @@ import {
 } from '@/components/customizer/shared/UnitSaveSummary';
 import { getStatusNotes } from '@/components/customizer/shared/unitStatStatus';
 import { ValidationSummary } from '@/components/customizer/shared/ValidationSummary';
+import { getEquipmentNeedingPlacement } from '@/components/customizer/tabs/CriticalSlotsTab.placement';
 import {
   CustomizerTabs,
   DEFAULT_CUSTOMIZER_TABS,
@@ -248,8 +249,21 @@ export function UnitEditorWithRouting({
   );
   // Overview lists every issue in its readiness rows and Preview is not an
   // editing surface, so the notice appears on the other tabs only.
+  // Critical Slots shows its own "to place" banner for the same problem, so
+  // the notice stays out of the way while that banner is visible.
+  const placementBannerShowing =
+    activeTabId === 'criticals' &&
+    getEquipmentNeedingPlacement(
+      equipment,
+      configuration,
+      engineType,
+      gyroType,
+      armActuators,
+    ).length > 0;
   const tabIssueNotice =
-    activeTabId === 'overview' || activeTabId === 'preview'
+    activeTabId === 'overview' ||
+    activeTabId === 'preview' ||
+    placementBannerShowing
       ? null
       : getTabIssueNotice(
           tabIssueCounts[activeTabId],

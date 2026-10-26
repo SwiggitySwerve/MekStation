@@ -204,7 +204,7 @@ The system SHALL render a live preview of the record sheet in the browser from t
 
 ### Requirement: Zoom Controls
 
-The system SHALL provide zoom controls in the preview toolbar, beside the paper size and the Print and Download PDF actions, with Current zoom output, Zoom in, Zoom out, and a segmented Fit page / Fit width / 100% control whose active mode is marked pressed.
+The system SHALL provide zoom controls in the preview toolbar, beside the paper size and the Print and Download PDF actions, with Current zoom output, Zoom in, Zoom out, and one zoom control arranged as Zoom out / Zoom options / Zoom in; Zoom options opens a Fit page / Fit width / 100% menu.
 
 **Rationale**: Users need durable manual zoom and explicit fit modes that do not fight each other on resize.
 
@@ -213,14 +213,14 @@ The system SHALL provide zoom controls in the preview toolbar, beside the paper 
 #### Scenario: Zoom control display
 
 - **WHEN** preview is displayed
-- **THEN** show zoom controls in the toolbar above the sheet, labeled Current zoom, Zoom in, Zoom out, Fit page, Fit width, and 100%
-- **AND** Current zoom reports the displayed percentage, such as "150%", labelled "Zoom 150%" from 640px up so it does not read as a mode beside the pressed "Fit width" segment (phones show the percentage alone); the pressed segment names the active mode
-- **AND** exactly one of Fit page, Fit width and 100% has `aria-pressed="true"` while that mode is active, and none is pressed after a manual zoom
+- **THEN** show Zoom out, Zoom options and Zoom in in the toolbar above the sheet; Zoom options opens menu items named Fit page, Fit width and 100%
+- **AND** the middle button combines the current mode with the Current zoom percentage, such as "Fit width · 150%" or "Fit page · 85%"; actual size and manual zoom show only the percentage, such as "100%" or "165%", on phones and desktop alike
+- **AND** the menu uses radio menu items with `aria-checked="true"` on the active fit or actual-size choice, and none checked after manual zoom; opening focuses the active item (or first item), arrow keys and Home/End move focus, Escape closes and restores focus, and choosing an item closes the menu and restores focus
 - **AND** the paper size select, the zoom controls, Print and Download PDF share one 44px control height and baseline
 - **AND** a caption under the sheet names the paper size and page count, for example "Letter · 1 page"
-- **AND** the Current zoom readout is plain tabular text between the Zoom out and Zoom in buttons, with no pill or background, so only the pressed fit segment is highlighted
-- **AND** below 640px the toolbar is exactly two rows of controls at least 44px tall, each with a visible text label: row one holds Zoom out, the percentage, Zoom in and the segmented Fit page / Fit width / 100% control; row two holds a "Paper: Letter" select (a labelled control over the native select, still named Paper Size:), Print and Download PDF (icon plus text)
-- **AND** the phone sheet starts no lower than about 300px from the top of a 390x844 screen, and the viewer keeps a 24px gutter on every side of the sheet (12px above it on phones), including on its right edge when the sheet is zoomed past the viewer width
+- **AND** Current zoom remains an accessible output containing only the displayed percentage inside the middle button; the middle button has accessible name "Zoom options"
+- **AND** below 640px the toolbar is exactly two rows of controls at least 44px tall, each with a visible text label: row one holds Zoom out, the combined mode-and-percentage menu button, and Zoom in; row two holds a "Paper: Letter" select (a labelled control over the native select, still named Paper Size:), Print and Download PDF (icon plus text)
+- **AND** the phone sheet starts no lower than about 340px from the top of a 390x844 screen, and the viewer keeps a 24px gutter on every side of the sheet (12px above it on phones), including on its right edge when the sheet is zoomed past the viewer width
 - **AND** on phones, while the zoom is below 90%, a hint under the sheet reads "Zoom in or pinch to read details"; desktop never shows it
 
 #### Scenario: Zoom in/out

@@ -2,8 +2,8 @@
  * Fluff narrative card
  *
  * The long-form unit text, stacked in one reading column. Text is 16px on a
- * 24px line height and the card is capped near 75 characters per line. Long
- * fields collapse to whole lines with a "Show all" button under the box.
+ * 24px line height and the card is capped near 75 characters per line. Every
+ * field grows to show its full text.
  *
  * @spec openspec/specs/customizer-tabs/spec.md
  */
@@ -24,12 +24,11 @@ const NARRATIVE_PLACEHOLDERS: Partial<Record<NarrativeField, string>> = {
 };
 
 /**
- * 16px text on a 24px (1.5) line height, at least 3 lines. Long text collapses
- * to 8 whole lines (6 on a phone-width editor); the frame around the textarea
- * supplies the box.
+ * 16px text on a 24px (1.5) line height, at least 3 lines. The frame around
+ * the textarea supplies the box.
  */
 const NARRATIVE_TEXTAREA =
-  'min-h-18 text-base leading-6 placeholder:text-text-theme-muted placeholder:italic [--fluff-line-cap:6] @[30rem]:[--fluff-line-cap:8]';
+  'min-h-18 text-base leading-6 placeholder:text-text-theme-muted placeholder:italic';
 
 interface FluffNarrativeCardProps {
   fluff: ISerializedFluff;
@@ -62,7 +61,6 @@ export function FluffNarrativeCard({
                 showOptional={!disabled && value === ''}
               />
               <AutoSizeTextarea
-                fieldLabel={label}
                 id={fieldId(field)}
                 rows={3}
                 value={value}

@@ -26,9 +26,9 @@ const styles = {
   label:
     'text-xs leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wide',
   /** One value size for every metric, budget or not. */
-  value: 'text-base leading-6 font-bold sm:text-lg',
+  value: 'text-base leading-6 font-bold max-md:text-lg! sm:text-lg',
   status: STAT_STATUS_TEXT_CLASS,
-  muted: 'text-xs text-text-theme-secondary',
+  muted: 'text-[13px] text-text-theme-secondary',
   box: 'flex min-w-0 flex-col items-center gap-0.5 text-center tabular-nums',
 } as const;
 

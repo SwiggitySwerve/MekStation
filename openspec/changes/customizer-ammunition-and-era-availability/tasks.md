@@ -10,3 +10,9 @@
 - [x] Verify shared registry aliases and real-loader regressions for Danielle, Clan omnipod, guidance capability, half bins, and serialized-bin deduplication.
 - [x] Measure all canonical unit files before and after the alias fix, and document remaining token kinds and catalog gaps.
 - [x] Run unit/equipment/conversion/validation Jest suites, TypeScript, lint, formatting, and strict OpenSpec validation; audit affected e2e assertions.
+
+## Full catalog availability follow-up
+
+- [x] Synchronize all source-matched catalog availability and exclusive tech bases from the pinned MegaMek revision; report coverage and identity gaps.
+- [x] Hide orphan ammunition through the compatibility owner and test source-backed historical availability and filter independence.
+- [x] Verify the requested Jest folders, TypeScript, lint, formatting, strict OpenSpec, and affected e2e assertions.

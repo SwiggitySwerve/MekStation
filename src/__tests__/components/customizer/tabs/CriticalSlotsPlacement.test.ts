@@ -3,6 +3,7 @@ import React from 'react';
 
 import { slotsToCritEntries } from '@/components/customizer/critical-slots';
 import { useCriticalSlotsTabLogic } from '@/components/customizer/tabs/CriticalSlotsTab.logic';
+import { getEquipmentNeedingPlacement } from '@/components/customizer/tabs/CriticalSlotsTab.placement';
 import {
   buildAssignableSlots,
   handleEquipmentDropAction,
@@ -246,4 +247,32 @@ test('manual compaction moves pod equipment around fixed Omni slots', () => {
   expect(
     store.getState().equipment.find((item) => item.instanceId === pod)?.slots,
   ).toEqual([4]);
+});
+
+test('equipment needing placement matches what the tab banner lists', () => {
+  const store = createNewUnitStore({
+    name: 'Banner',
+    tonnage: 50,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  const placed = store.getState().addEquipment(laser);
+  const loose = store.getState().addEquipment({ ...laser, name: 'Loose' });
+  store.getState().updateEquipmentLocation(placed, MechLocation.LEFT_ARM, [4]);
+  const { equipment, configuration, engineType, gyroType, armActuators } =
+    store.getState();
+  const needing = getEquipmentNeedingPlacement(
+    equipment,
+    configuration,
+    engineType,
+    gyroType,
+    armActuators,
+  );
+  expect(needing.map((item) => item.instanceId)).toEqual([loose]);
+  const wrapper = ({ children }: { children: React.ReactNode }) =>
+    React.createElement(UnitStoreContext.Provider, { value: store }, children);
+  const { result } = renderHook(
+    () => useCriticalSlotsTabLogic({ readOnly: false }),
+    { wrapper },
+  );
+  expect(result.current.unassignedEquipment).toEqual(needing);
 });

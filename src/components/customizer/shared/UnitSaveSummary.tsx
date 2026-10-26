@@ -131,7 +131,6 @@ function UnitSaveLinesView({
         data-save-lines
         className="text-text-theme-secondary inline-flex min-w-0 items-center gap-1 whitespace-nowrap"
       >
-        {settled && <SettledCheck />}
         <span className="min-w-0 truncate">{unitSaveLine(state.lines)}</span>
       </span>
     );
@@ -190,7 +189,7 @@ export function UnitSaveLabel({
       data-testid="unit-save-label"
       data-state={state.library.state}
       title={saveStateTitle(state)}
-      className={`max-w-56 min-w-0 ${className}`}
+      className={`max-w-56 min-w-0 text-[13px] leading-5 ${className}`}
     >
       <UnitSaveLinesView unitId={unitId} state={state} layout="inline" />
     </span>

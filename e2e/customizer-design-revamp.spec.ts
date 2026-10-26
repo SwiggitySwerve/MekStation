@@ -49,14 +49,12 @@ async function expectFittedPreview(page: Page) {
     name: 'Record sheet zoom controls',
   });
   await expect(controls).toBeInViewport({ ratio: 1 });
-  // The active zoom mode is visibly pressed, and the sheet is captioned.
+  // One control names both the mode and percentage.
   await expect(
-    controls.getByRole('button', { name: 'Fit width', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
-  // The readout is the percentage (labelled Zoom on desktop); the pressed
-  // segment names the mode.
+    controls.getByRole('button', { name: 'Zoom options', exact: true }),
+  ).toHaveText(/Fit width \u00b7 \d+%/);
   await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
-    /^(Zoom )?\d+%$/,
+    /^\d+%$/,
   );
   // The caption names the paper and page count; the zoom lives in the toolbar.
   await expect(page.getByTestId('preview-sheet-caption')).toHaveText(
@@ -73,6 +71,16 @@ async function expectFittedPreview(page: Page) {
   expect(paper.width).toBeLessThanOrEqual(921);
   expect(paper.y).toBeGreaterThanOrEqual(toolbar.y + toolbar.height);
   if (viewport.width < 640) {
+    const statusRegion = page.getByRole('region', { name: 'Unit status' });
+    const capacity = (await statusRegion
+      .getByRole('group', { name: 'Capacity', exact: true })
+      .boundingBox())!;
+    const buildStatus = statusRegion.locator('[data-build-status]');
+    const statusBox = (await buildStatus.boundingBox())!;
+    expect(statusBox.y).toBe(capacity.y + capacity.height);
+    expect(statusBox.height).toBe(44);
+    expect(statusBox.width).toBe(viewport.width - 8);
+    await expect(buildStatus).toHaveCSS('font-size', '14px');
     // Phones: exactly two toolbar rows, every control 44px tall with a
     // visible text label, the sheet starting high, and a readability hint.
     const rows = await page
@@ -98,7 +106,7 @@ async function expectFittedPreview(page: Page) {
       expect(row.height).toBeGreaterThanOrEqual(44);
       expect(row.text.length).toBeGreaterThan(0);
     }
-    expect(paper.y).toBeLessThanOrEqual(300);
+    expect(paper.y).toBeLessThanOrEqual(340);
     await expect(page.getByTestId('preview-sheet-hint')).toHaveText(
       'Zoom in or pinch to read details',
     );

@@ -7,10 +7,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "INTRODUCTORY",
-      "compatibleWeaponIds": [
-        "machine-gun",
-        "clan-machine-gun"
-      ],
+      "compatibleWeaponIds": ["machine-gun", "clan-machine-gun"],
       "shotsPerTon": 200,
       "weight": 1,
       "criticalSlots": 1,
@@ -26,10 +23,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "INTRODUCTORY",
-      "compatibleWeaponIds": [
-        "machine-gun",
-        "clan-machine-gun"
-      ],
+      "compatibleWeaponIds": ["machine-gun", "clan-machine-gun"],
       "shotsPerTon": 100,
       "weight": 0.5,
       "criticalSlots": 1,
@@ -45,9 +39,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "light-machine-gun"
-      ],
+      "compatibleWeaponIds": ["light-machine-gun"],
       "shotsPerTon": 200,
       "weight": 1,
       "criticalSlots": 1,
@@ -63,9 +55,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "heavy-machine-gun"
-      ],
+      "compatibleWeaponIds": ["heavy-machine-gun"],
       "shotsPerTon": 100,
       "weight": 1,
       "criticalSlots": 1,
@@ -88,7 +78,7 @@
       "costPerTon": 1000,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -105,7 +95,7 @@
       "costPerTon": 500,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 2300,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -122,7 +112,7 @@
       "costPerTon": 500,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 3064,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -139,7 +129,7 @@
       "costPerTon": 250,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3064,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -156,7 +146,7 @@
       "costPerTon": 1000,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 3063,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -173,7 +163,7 @@
       "costPerTon": 500,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3063,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -181,7 +171,7 @@
       "name": "Heavy Machine Gun Ammo",
       "category": "Machine Gun",
       "variant": "High Explosive",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -190,7 +180,7 @@
       "costPerTon": 0,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -198,7 +188,7 @@
       "name": "Machine Gun Ammo",
       "category": "Machine Gun",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 200,
@@ -207,7 +197,7 @@
       "costPerTon": 0,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -215,7 +205,7 @@
       "name": "Light Machine Gun Ammo",
       "category": "Machine Gun",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 200,
@@ -224,7 +214,7 @@
       "costPerTon": 0,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     }
   ],

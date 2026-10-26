@@ -3,6 +3,7 @@ import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import {
   createAmmoWeaponMatcher,
   isOneShotEquipment,
+  isWeaponCategory,
 } from '@/utils/equipment/ammunitionCompatibility';
 import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
@@ -46,6 +47,15 @@ export function filterEquipment(
   unitContext: UnitContext,
   sort: SortState,
 ): IEquipmentItem[] {
+  const availableEquipment = equipment.filter((item) =>
+    matchesCatalogRestrictions(item, filters, unitContext),
+  );
+  const matchesAvailableWeapon = createAmmoWeaponMatcher(
+    availableEquipment
+      .filter((item) => isWeaponCategory(item.category))
+      .map((item) => item.id),
+    equipment,
+  );
   const matchesMountedWeapon = createAmmoWeaponMatcher(
     unitContext.unitWeaponIds,
     equipment,
@@ -54,13 +64,14 @@ export function filterEquipment(
     unitContext.unitYear !== null ||
     unitContext.unitTechBase !== null ||
     unitContext.unitWeaponIds.length > 0;
-  return equipment
+  return availableEquipment
     .filter((item) => matchesSearch(item, filters.search))
-    .filter((item) => matchesTechBase(item, filters.techBase))
     .filter((item) => matchesCategory(item, filters))
-    .filter((item) => matchesPrototypeFilter(item, filters.hidePrototype))
-    .filter((item) => matchesOneShotFilter(item, filters.hideOneShot))
-    .filter((item) => matchesAvailability(item, filters, unitContext))
+    .filter(
+      (item) =>
+        item.category !== EquipmentCategory.AMMUNITION ||
+        matchesAvailableWeapon(item),
+    )
     .filter(
       (item) =>
         !filters.hideAmmoWithoutWeapon ||
@@ -70,6 +81,21 @@ export function filterEquipment(
     )
     .filter((item) => matchesNumericFilters(item, filters))
     .sort((first, second) => compareEquipment(first, second, sort));
+}
+
+/** Weapon eligibility is independent of ammunition search, size and category. */
+function matchesCatalogRestrictions(
+  item: IEquipmentItem,
+  filters: EquipmentFilters,
+  unitContext: UnitContext,
+): boolean {
+  return (
+    matchesTechBase(item, filters.techBase) &&
+    matchesPrototypeFilter(item, filters.hidePrototype) &&
+    matchesOneShotFilter(item, filters.hideOneShot) &&
+    matchesAvailability(item, filters, unitContext) &&
+    (filters.maxYear === null || isAvailableInYear(item, filters.maxYear))
+  );
 }
 
 function exclusiveEquipmentCategories(
@@ -169,8 +195,7 @@ function matchesNumericFilters(
   return (
     (filters.maxWeight === null || item.weight <= filters.maxWeight) &&
     (filters.maxCriticalSlots === null ||
-      item.criticalSlots <= filters.maxCriticalSlots) &&
-    (filters.maxYear === null || isAvailableInYear(item, filters.maxYear))
+      item.criticalSlots <= filters.maxCriticalSlots)
   );
 }
 

@@ -73,14 +73,11 @@ export function FluffSectionIndex({
   }
 
   return (
-    <nav
-      aria-labelledby="fluff-sections-heading"
-      className={`${cs.panel.main} hidden @[64rem]:block`}
-    >
+    <nav aria-labelledby="fluff-sections-heading" className={cs.panel.main}>
       <h3 id="fluff-sections-heading" className={`${cs.text.cardTitle} mb-2`}>
         Sections
       </h3>
-      <ul>
+      <ul className="@[24rem]:grid @[24rem]:grid-flow-col @[24rem]:grid-rows-4 @[24rem]:gap-x-3">
         {sections.map(({ id, label, status }) => (
           <li key={id}>
             <a

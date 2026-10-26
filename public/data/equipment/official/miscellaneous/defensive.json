@@ -15,10 +15,9 @@
       "costCBills": 100000,
       "battleValue": 32,
       "introductionYear": 2617,
-      "special": [
-        "Intercepts incoming missiles",
-        "Requires ammo"
-      ]
+      "special": ["Intercepts incoming missiles", "Requires ammo"],
+      "extinctionYear": 2835,
+      "reintroductionYear": 3045
     },
     {
       "id": "clan-ams",
@@ -31,10 +30,7 @@
       "costCBills": 100000,
       "battleValue": 32,
       "introductionYear": 2831,
-      "special": [
-        "Intercepts incoming missiles",
-        "Requires ammo"
-      ]
+      "special": ["Intercepts incoming missiles", "Requires ammo"]
     },
     {
       "id": "laser-ams",
@@ -80,7 +76,7 @@
       "criticalSlots": 14,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3063,
+      "introductionYear": 3081,
       "special": [
         "Reduced damage from missiles and ballistics",
         "Increased damage from energy"
@@ -97,10 +93,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3063,
-      "special": [
-        "Requires Guardian ECM",
-        "+2 to hit at medium/long range"
-      ]
+      "special": ["Requires Guardian ECM", "+2 to hit at medium/long range"]
     }
   ]
 }

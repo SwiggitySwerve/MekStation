@@ -43,6 +43,7 @@ describe('UnitSaveSummary', () => {
     // A browser write adds the draft part; the library wording stays.
     act(() => clientSafeStorage.setItem('megamek-unit-summary-a', '{}'));
     expect(line).toHaveTextContent(/^Not in library · draft saved$/);
+    expect(line.querySelector('[data-icon-name="check"]')).toBeNull();
   });
 
   it('reads the save state as one line, library words first', () => {
@@ -100,6 +101,7 @@ describe('UnitSaveSummary', () => {
     render(<UnitSaveSummary unitId={store.getState().id} showOnDesktop />);
     const line = screen.getByTestId('unit-save-summary');
     expect(line).toHaveTextContent(/^In library v3$/);
+    expect(line.querySelector('[data-icon-name="check"]')).toBeNull();
     act(() => {
       store.setState({ model: 'AS7-D-X' });
     });

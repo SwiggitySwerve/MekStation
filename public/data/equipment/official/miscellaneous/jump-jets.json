@@ -15,9 +15,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
-      "special": [
-        "For mechs 10-55 tons"
-      ]
+      "special": ["For mechs 10-55 tons"]
     },
     {
       "id": "jump-jet-medium",
@@ -30,9 +28,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
-      "special": [
-        "For mechs 60-85 tons"
-      ]
+      "special": ["For mechs 60-85 tons"]
     },
     {
       "id": "jump-jet-heavy",
@@ -45,9 +41,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
-      "special": [
-        "For mechs 90-100 tons"
-      ]
+      "special": ["For mechs 90-100 tons"]
     },
     {
       "id": "improved-jump-jet-light",
@@ -59,11 +53,8 @@
       "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3069,
-      "special": [
-        "For mechs 10-55 tons",
-        "Double jump distance"
-      ]
+      "introductionYear": 3068,
+      "special": ["For mechs 10-55 tons", "Double jump distance"]
     },
     {
       "id": "improved-jump-jet-medium",
@@ -75,11 +66,8 @@
       "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3069,
-      "special": [
-        "For mechs 60-85 tons",
-        "Double jump distance"
-      ]
+      "introductionYear": 3068,
+      "special": ["For mechs 60-85 tons", "Double jump distance"]
     },
     {
       "id": "improved-jump-jet-heavy",
@@ -91,11 +79,8 @@
       "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3069,
-      "special": [
-        "For mechs 90-100 tons",
-        "Double jump distance"
-      ]
+      "introductionYear": 3068,
+      "special": ["For mechs 90-100 tons", "Double jump distance"]
     },
     {
       "id": "partial-wing",
@@ -107,11 +92,8 @@
       "criticalSlots": 6,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3067,
-      "special": [
-        "+1 Jump MP",
-        "+2 heat dissipation at altitude"
-      ],
+      "introductionYear": 3085,
+      "special": ["+1 Jump MP", "+2 heat dissipation at altitude"],
       "variableEquipmentId": "partial-wing"
     }
   ]

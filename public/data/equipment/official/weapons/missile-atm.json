@@ -9,21 +9,14 @@
       "rulesLevel": "STANDARD",
       "damage": "2/missile",
       "heat": 2,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 1.5,
       "criticalSlots": 2,
       "ammoPerTon": 20,
       "costCBills": 50000,
       "battleValue": 53,
-      "introductionYear": 3054,
-      "special": [
-        "Multiple ammo types"
-      ]
+      "introductionYear": 3053,
+      "special": ["Multiple ammo types"]
     },
     {
       "id": "atm-6",
@@ -34,21 +27,14 @@
       "rulesLevel": "STANDARD",
       "damage": "2/missile",
       "heat": 4,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 3.5,
       "criticalSlots": 3,
       "ammoPerTon": 10,
       "costCBills": 125000,
       "battleValue": 105,
-      "introductionYear": 3054,
-      "special": [
-        "Multiple ammo types"
-      ]
+      "introductionYear": 3053,
+      "special": ["Multiple ammo types"]
     },
     {
       "id": "atm-9",
@@ -59,21 +45,14 @@
       "rulesLevel": "STANDARD",
       "damage": "2/missile",
       "heat": 6,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 5,
       "criticalSlots": 4,
       "ammoPerTon": 7,
       "costCBills": 225000,
       "battleValue": 147,
-      "introductionYear": 3054,
-      "special": [
-        "Multiple ammo types"
-      ]
+      "introductionYear": 3053,
+      "special": ["Multiple ammo types"]
     },
     {
       "id": "atm-12",
@@ -84,21 +63,14 @@
       "rulesLevel": "STANDARD",
       "damage": "2/missile",
       "heat": 8,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 7,
       "criticalSlots": 5,
       "ammoPerTon": 5,
       "costCBills": 350000,
       "battleValue": 212,
-      "introductionYear": 3054,
-      "special": [
-        "Multiple ammo types"
-      ]
+      "introductionYear": 3053,
+      "special": ["Multiple ammo types"]
     },
     {
       "id": "iatm12",
@@ -120,7 +92,7 @@
       "criticalSlots": 5,
       "costCBills": 700000,
       "battleValue": 333,
-      "introductionYear": 3054,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -143,7 +115,7 @@
       "criticalSlots": 2,
       "costCBills": 100000,
       "battleValue": 83,
-      "introductionYear": 3054,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -166,7 +138,7 @@
       "criticalSlots": 3,
       "costCBills": 250000,
       "battleValue": 165,
-      "introductionYear": 3054,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -189,7 +161,7 @@
       "criticalSlots": 4,
       "costCBills": 450000,
       "battleValue": 231,
-      "introductionYear": 3054,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -201,21 +173,14 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": "2/missile",
       "heat": 2,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 1.5,
       "criticalSlots": 2,
       "ammoPerTon": 20,
       "costCBills": 50000,
       "battleValue": 83,
       "introductionYear": 3070,
-      "special": [
-        "iatm"
-      ]
+      "special": ["iatm"]
     },
     {
       "id": "iatm-6",
@@ -226,21 +191,14 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": "2/missile",
       "heat": 4,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 3.5,
       "criticalSlots": 3,
       "ammoPerTon": 10,
       "costCBills": 250000,
       "battleValue": 165,
       "introductionYear": 3070,
-      "special": [
-        "iatm"
-      ]
+      "special": ["iatm"]
     },
     {
       "id": "iatm-9",
@@ -251,21 +209,14 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": "2/missile",
       "heat": 6,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 5,
       "criticalSlots": 4,
       "ammoPerTon": 7,
       "costCBills": 450000,
       "battleValue": 231,
       "introductionYear": 3070,
-      "special": [
-        "iatm"
-      ]
+      "special": ["iatm"]
     },
     {
       "id": "iatm-12",
@@ -276,21 +227,14 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": "2/missile",
       "heat": 8,
-      "ranges": {
-        "minimum": 4,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 4, "short": 5, "medium": 10, "long": 15 },
       "weight": 7,
       "criticalSlots": 5,
       "ammoPerTon": 5,
       "costCBills": 700000,
       "battleValue": 333,
       "introductionYear": 3070,
-      "special": [
-        "iatm"
-      ]
+      "special": ["iatm"]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

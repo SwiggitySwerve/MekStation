@@ -37,6 +37,9 @@ yarn-error.log*
 # Development/investigation scripts
 scripts/**
 !scripts/sync-equipment-availability.mjs
+!scripts/verify-equipment-availability.ts
+!scripts/equipment-availability/
+!scripts/equipment-availability/**
 !scripts/
 !scripts/AGENTS.md
 !scripts/expand-unit-type-requirements.mjs

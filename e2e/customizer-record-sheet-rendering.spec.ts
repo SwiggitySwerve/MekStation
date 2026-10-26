@@ -241,7 +241,10 @@ test('preview zoom increments survive resize and fit width tracks until manual @
   expect(afterWait).toBe(Math.min(afterIn + 15, 300));
   await page.getByRole('button', { name: 'Zoom out', exact: true }).click();
   expect(await zoomPercent(page)).toBe(afterIn);
-  await page.getByRole('button', { name: 'Fit width', exact: true }).click();
+  await page.getByRole('button', { name: 'Zoom options', exact: true }).click();
+  await page
+    .getByRole('menuitemradio', { name: 'Fit width', exact: true })
+    .click();
   await waitTwoAnimationFrames(page);
   await expectFitWidthCanvas(page, LETTER.width);
   await page.setViewportSize({ width: 900, height: 800 });
@@ -520,12 +523,18 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   expect(await zoomPercent(page)).toBe(manual);
   const a4Box = await canvas.boundingBox();
   expect(a4Box!.width / a4Box!.height).toBeCloseTo(A4_RATIO, 2);
-  await page.getByRole('button', { name: 'Fit width', exact: true }).click();
+  await page.getByRole('button', { name: 'Zoom options', exact: true }).click();
+  await page
+    .getByRole('menuitemradio', { name: 'Fit width', exact: true })
+    .click();
   await waitTwoAnimationFrames(page);
   const fit = await zoomPercent(page);
   await page.setViewportSize({ width: 800, height: 850 });
   await expect.poll(() => zoomPercent(page)).toBeLessThan(fit);
-  await page.getByRole('button', { name: 'Fit page', exact: true }).click();
+  await page.getByRole('button', { name: 'Zoom options', exact: true }).click();
+  await page
+    .getByRole('menuitemradio', { name: 'Fit page', exact: true })
+    .click();
   await waitTwoAnimationFrames(page);
   await expect(canvas).toBeInViewport({ ratio: 0.95 });
   await expectSheetType(page, 'Roadmap Infantry Proof');

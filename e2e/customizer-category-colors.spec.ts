@@ -187,7 +187,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await page.setViewportSize({ width: 390, height: 844 });
   await page
     .getByRole('navigation', { name: 'Critical slot location shortcuts' })
-    .getByRole('tab', { name: /^Left Arm / })
+    .getByRole('tab', { name: /^Left Arm,/ })
     .click();
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);

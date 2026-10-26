@@ -59,7 +59,7 @@ describe('catalog capacity annotations', () => {
     ).toMatchObject({
       weightText: '4.0 t free',
       slotsText: '16 slots free',
-      exhausted: false,
+      state: 'free',
     });
     expect(
       getCatalogCapacityNotice({ remainingWeight: 0.5, remainingSlots: 1 })
@@ -67,38 +67,46 @@ describe('catalog capacity annotations', () => {
     ).toBe('1 slot free');
   });
 
-  it('warns once when no tonnage is free', () => {
+  it('reads a plain status with tonnage free and a neutral one when exactly full', () => {
+    expect(
+      getCatalogCapacityNotice({ remainingWeight: 4, remainingSlots: 16 }),
+    ).toMatchObject({ state: 'free', weightText: '4.0 t free' });
     expect(
       getCatalogCapacityNotice({ remainingWeight: 0, remainingSlots: 12 }),
     ).toMatchObject({
-      weightText:
-        '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
+      state: 'full',
+      weightText: '0.0 t free \u00B7 unit is at its tonnage limit',
+      compactWeightText: '0.0 t free \u00B7 at tonnage limit',
       slotsText: '12 slots free',
-      exhausted: true,
     });
   });
 
-  it('keeps a deficit as a negative number when the unit is already overweight', () => {
+  it.each([0.004, -0.004, 0.0049])(
+    'treats %s t as exactly full, never as free or over',
+    (remainingWeight) => {
+      expect(
+        getCatalogCapacityNotice({ remainingWeight, remainingSlots: 2 }),
+      ).toMatchObject({
+        state: 'full',
+        weightText: '0.0 t free \u00B7 unit is at its tonnage limit',
+      });
+    },
+  );
+
+  it('names the deficit and the fix only when the unit is over its limit', () => {
     expect(
-      getCatalogCapacityNotice({ remainingWeight: -2, remainingSlots: 3 }),
+      getCatalogCapacityNotice({ remainingWeight: -7, remainingSlots: 3 }),
     ).toMatchObject({
-      weightText: '-2.0 t free',
-      compactWeightText: '-2.0 t free',
-      exhausted: true,
+      state: 'over',
+      weightText: 'Over by 7.0 t \u2014 remove equipment or armor',
+      compactWeightText: 'Over by 7.0 t',
+      slotsText: '3 slots free',
     });
+    expect(
+      getCatalogCapacityNotice({ remainingWeight: -0.5, remainingSlots: 3 })
+        .weightText,
+    ).toBe('Over by 0.5 t \u2014 remove equipment or armor');
   });
-
-  it('keeps the phone wording short while the full sentence stays available', () => {
-    const notice = getCatalogCapacityNotice({
-      remainingWeight: 0,
-      remainingSlots: 12,
-    });
-    expect(notice.compactWeightText).toBe('0.0 t free — no tonnage left');
-    expect(notice.weightText.startsWith('0.0 t free — no tonnage left;')).toBe(
-      true,
-    );
-  });
-
   it('projects existing totals without hiding deficits', () => {
     expect(
       getCatalogCapacity({

@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 
 import {
   getLocationAbbreviation,
@@ -21,6 +21,9 @@ interface PhoneLocationNavigationProps {
   ) => React.ReactNode;
 }
 
+/** Locations per row in the phone selector (front view: RA RT HD CT / LT LA RL LL). */
+const PILL_COLUMNS = 4;
+
 /** Phone-only navigation over the same slot rows and placement callbacks. */
 export function PhoneLocationNavigation({
   selectedEquipmentId,
@@ -42,12 +45,6 @@ export function PhoneLocationNavigation({
     setSelection(selectedEquipmentId);
     setActiveLocation(defaultLocation());
   }
-  useEffect(() => {
-    pills.current[activeLocation]?.scrollIntoView?.({
-      block: 'nearest',
-      inline: 'nearest',
-    });
-  }, [activeLocation]);
 
   const summaries = locations.map((location) => {
     const data = getLocationData(location);
@@ -60,25 +57,47 @@ export function PhoneLocationNavigation({
             (entry.secondary && entry.secondary.type !== 'empty'),
         ).length
       : data.slots.filter((slot) => slot.type !== 'empty').length;
+    const total = LOCATION_SLOT_COUNTS[location];
     return {
       location,
-      count: `${used}/${LOCATION_SLOT_COUNTS[location]}`,
-      free: LOCATION_SLOT_COUNTS[location] - used,
+      count: `${used}/${total}`,
+      summary: `${used} of ${total} used`,
     };
   });
+
+  /** Index the arrow key moves to, or null when the key is not a move. */
+  const nextIndex = (key: string, index: number): number | null => {
+    const last = locations.length - 1;
+    switch (key) {
+      case 'ArrowRight':
+        return (index + 1) % locations.length;
+      case 'ArrowLeft':
+        return (index - 1 + locations.length) % locations.length;
+      case 'ArrowDown':
+        return index + PILL_COLUMNS <= last ? index + PILL_COLUMNS : index;
+      case 'ArrowUp':
+        return index - PILL_COLUMNS >= 0 ? index - PILL_COLUMNS : index;
+      case 'Home':
+        return 0;
+      case 'End':
+        return last;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="sm:hidden">
       <nav
         aria-label="Critical slot location shortcuts"
-        className="bg-surface-deep border-border-theme sticky top-0 z-10 border-b py-1"
+        className="bg-surface-deep"
       >
         <div
           role="tablist"
           aria-label="Location"
           className={styles.criticalLocationPills}
         >
-          {summaries.map(({ location, count, free }, index) => (
+          {summaries.map(({ location, count, summary }, index) => (
             <button
               key={location}
               ref={(element) => {
@@ -87,21 +106,15 @@ export function PhoneLocationNavigation({
               id={`${id}-location-${index}`}
               type="button"
               role="tab"
-              aria-label={`${location} · ${count} used, ${free} free`}
+              aria-label={`${location}, ${summary}`}
               aria-selected={location === activeLocation}
               aria-controls={`${id}-panel-${index}`}
               tabIndex={location === activeLocation ? 0 : -1}
               className={styles.criticalLocationPill}
               onClick={() => setActiveLocation(location)}
               onKeyDown={(event) => {
-                let next: number;
-                if (event.key === 'ArrowRight')
-                  next = (index + 1) % locations.length;
-                else if (event.key === 'ArrowLeft')
-                  next = (index - 1 + locations.length) % locations.length;
-                else if (event.key === 'Home') next = 0;
-                else if (event.key === 'End') next = locations.length - 1;
-                else return;
+                const next = nextIndex(event.key, index);
+                if (next === null) return;
                 event.preventDefault();
                 const target = locations[next];
                 setActiveLocation(target);
@@ -113,8 +126,8 @@ export function PhoneLocationNavigation({
           ))}
         </div>
       </nav>
-      <div className="pt-1">
-        {locations.map((location, index) => (
+      <div>
+        {summaries.map(({ location, summary }, index) => (
           <div
             key={location}
             id={`${id}-panel-${index}`}
@@ -122,6 +135,12 @@ export function PhoneLocationNavigation({
             aria-labelledby={`${id}-location-${index}`}
             hidden={location !== activeLocation}
           >
+            <h3
+              data-testid="phone-location-heading"
+              className={styles.criticalLocationHeading}
+            >
+              {location} {'\u2014'} {summary}
+            </h3>
             {renderLocation(location, true)}
           </div>
         ))}

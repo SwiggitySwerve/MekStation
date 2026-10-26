@@ -85,7 +85,7 @@ test('critical panels use the workspace and keep slot names readable @customizer
             ),
         ).toBe(true);
       }
-      await selector.getByRole('tab', { name: /^Right Torso / }).click();
+      await selector.getByRole('tab', { name: /^Right Torso,/ }).click();
     }
     await expect(
       grid.getByRole('group', { name: /critical slots$/ }),
@@ -114,15 +114,15 @@ test('critical panels use the workspace and keep slot names readable @customizer
     expect(actual.documentOverflow).toBe(0);
     if (layout.width < 640) {
       const selector = grid.getByRole('tablist', { name: 'Location' });
-      await selector.getByRole('tab', { name: /^Center Torso / }).click();
+      await selector.getByRole('tab', { name: /^Center Torso,/ }).click();
       await expect(
         grid.getByText('Standard Gyro', { exact: true }).first(),
       ).toBeVisible();
-      await selector.getByRole('tab', { name: /^Head / }).click();
+      await selector.getByRole('tab', { name: /^Head,/ }).click();
       await expect(
         grid.getByText('Standard Cockpit', { exact: true }),
       ).toBeVisible();
-      await selector.getByRole('tab', { name: /^Right Torso / }).click();
+      await selector.getByRole('tab', { name: /^Right Torso,/ }).click();
     } else {
       await expect(
         grid.getByText('Standard Gyro', { exact: true }).first(),

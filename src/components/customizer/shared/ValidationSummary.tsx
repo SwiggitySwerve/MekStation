@@ -1,5 +1,4 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+﻿import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
@@ -12,8 +11,9 @@ import {
 
 import {
   BUILD_STATE_TINT_CLASS,
-  BuildStateIcon,
+  BUILD_STATUS_KIND_TEXT_CLASS,
   BuildStatusLabel,
+  SeverityIcon,
 } from './BuildStatusLabel';
 import {
   getBuildStatusSummary,
@@ -24,12 +24,9 @@ import {
   measureStatusPanelLayout,
   type StatusPanelLayout,
 } from './statusPanelLayout';
+import { ValidationSummaryPanel } from './ValidationSummaryPanel';
 import {
   flattenErrors,
-  ValidationGroupHeading,
-  ValidationIssueRow,
-  ValidationPanelHeader,
-  ValidationNoteRow,
   type FixDestination,
   type ValidationIssue,
   type ValidationNote,
@@ -54,7 +51,7 @@ interface ValidationSummaryProps {
   notes?: readonly ValidationNote[];
   /** Extra status shown at the foot of the panel (e.g. save state). */
   details?: React.ReactNode;
-  /** Short button wording for narrow bands. */
+  /** Full-width phone status row, with a severity icon for each group. */
   compact?: boolean;
   /**
    * Raise to open the panel from elsewhere (the tab issue notice's "Show all
@@ -64,22 +61,15 @@ interface ValidationSummaryProps {
 }
 
 const NO_NOTES: readonly ValidationNote[] = [];
-/** Rule results with their own panel group; infos are listed as notes. */
-const RULE_GROUPS = [
-  { severity: 'error', title: 'Errors' },
-  { severity: 'warning', title: 'Warnings' },
-] as const;
-/** Readout items (running hot) are listed in this group. */
-const READOUT_GROUP = 'warning';
 
 const buttonClass =
   'focus-visible:outline-accent hover:bg-surface-raised flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-md border font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
 const sizeClass = 'px-3 text-[13px]';
 /**
- * Phone: every group as shape and count, tighter, within the readout row.
+ * Phone: one full-width row under the readouts, with every group spelled out.
  * Important overrides beat the global unlayered `button` padding and size.
  */
-const compactSizeClass = 'max-w-[7.5rem] !px-1.5 !py-0 !text-[13px]';
+const compactSizeClass = 'h-11 w-full !px-2 !py-0 !text-sm';
 
 /**
  * Focus the section a fix button opened once it renders, so keyboard users
@@ -201,7 +191,7 @@ export function ValidationSummary({
   ) {
     return (
       <span
-        className={`inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-[13px] font-semibold whitespace-nowrap ${busy || !validation.isValid ? 'text-text-theme-secondary' : 'text-text-theme-primary'} ${className}`}
+        className={`inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-[13px] font-semibold whitespace-nowrap ${compact ? 'w-full justify-center !text-sm' : ''} ${busy || !validation.isValid ? 'text-text-theme-secondary' : 'text-text-theme-primary'} ${className}`}
         role="status"
       >
         {busy ? (
@@ -262,7 +252,6 @@ export function ValidationSummary({
         ]
       : [];
 
-  const noteIssues = shown.filter((item) => item.severity === 'info');
   return (
     <div
       ref={root}
@@ -292,7 +281,26 @@ export function ValidationSummary({
         }}
         className={`${buttonClass} ${BUILD_STATE_TINT_CLASS[state]} ${compact ? compactSizeClass : sizeClass}`}
       >
-        <BuildStatusLabel summary={summary} compact={compact} />
+        {compact && !summary.headlineNote && state !== 'ready' ? (
+          summary.parts.map((part, index) => (
+            <React.Fragment key={part.kind}>
+              {index > 0 && (
+                <span aria-hidden="true" className="text-text-theme-secondary">
+                  {'\u00b7'}
+                </span>
+              )}
+              <span
+                data-build-status-part={part.kind}
+                className={`inline-flex items-center gap-1 ${BUILD_STATUS_KIND_TEXT_CLASS[part.kind]}`}
+              >
+                <SeverityIcon kind={part.kind} />
+                {part.text}
+              </span>
+            </React.Fragment>
+          ))
+        ) : (
+          <BuildStatusLabel summary={summary} compact={false} />
+        )}
         {/* Phone: the readouts toggle beside it already shows a chevron. */}
         {!compact && (
           <AppIcon
@@ -303,136 +311,29 @@ export function ValidationSummary({
           />
         )}
       </button>
-      {open &&
-        createPortal(
-          <>
-            {/* Dims the page behind a sheet or popover; a press closes it.
-                The drawer leaves the tab content visible (a press outside
-                still closes it). */}
-            {layout.mode !== 'drawer' && (
-              <div
-                aria-hidden="true"
-                data-validation-scrim
-                className={`fixed inset-0 z-[69] ${layout.mode === 'sheet' ? 'bg-black/60' : 'bg-black/50'}`}
-                onPointerDown={(event) => {
-                  event.preventDefault();
-                  close();
-                }}
-              />
-            )}
-            <div
-              ref={panel}
-              id={id}
-              role="dialog"
-              aria-labelledby={`${id}-title ${id}-summary`}
-              data-panel-layout={layout.mode}
-              className={`bg-surface-base border-border-theme text-text-theme-primary fixed z-[70] flex flex-col overflow-hidden border shadow-xl ${
-                layout.mode === 'sheet'
-                  ? 'inset-x-0 bottom-0 max-h-[80dvh] rounded-t-xl border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]'
-                  : layout.mode === 'drawer'
-                    ? 'border-y-0 border-r-0'
-                    : 'rounded-lg'
-              }`}
-              style={
-                layout.mode === 'sheet'
-                  ? undefined
-                  : {
-                      left: layout.left,
-                      top: layout.top,
-                      width: layout.width,
-                      height: layout.height,
-                      maxHeight: layout.maxHeight,
-                    }
-              }
-            >
-              {layout.mode === 'sheet' && (
-                <span
-                  aria-hidden="true"
-                  data-validation-sheet-handle
-                  className="bg-border-theme-strong mx-auto mt-2 mb-0.5 h-1 w-10 shrink-0 rounded-full"
-                />
-              )}
-              <ValidationPanelHeader
-                titleId={`${id}-title`}
-                title={`${unitName} \u00b7 Build status`}
-                onClose={() => {
-                  close();
-                  trigger.current?.focus();
-                }}
-              />
-              <div className="min-h-0 overflow-y-auto overscroll-contain">
-                <p
-                  id={`${id}-summary`}
-                  className="border-border-theme flex items-center gap-2 border-b px-4 py-3 text-base leading-6 font-semibold"
-                >
-                  <BuildStateIcon state={state} />
-                  {summary.panelHeading}
-                </p>
-                {RULE_GROUPS.map(({ severity, title }) => {
-                  const group = shown.filter(
-                    (item) => item.severity === severity,
-                  );
-                  const readouts = severity === READOUT_GROUP ? notes : [];
-                  if (group.length === 0 && readouts.length === 0) return null;
-                  return (
-                    <section key={severity} aria-label={title}>
-                      <ValidationGroupHeading kind={severity} />
-                      <ul>
-                        {group.map((item, index) => (
-                          <ValidationIssueRow
-                            key={`${item.error.ruleId}-${item.error.field ?? ''}-${index}`}
-                            issue={item}
-                            headingId={`${id}-${severity}-${index}`}
-                            destinations={issueDestinations(item)}
-                          />
-                        ))}
-                        {readouts.map((note) => (
-                          <ValidationNoteRow
-                            key={note.id}
-                            note={note}
-                            headingId={`${id}-readout-${note.id}`}
-                            destinations={noteDestinations(note)}
-                          />
-                        ))}
-                      </ul>
-                    </section>
-                  );
-                })}
-                {!showAll && issues.length > shown.length && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAll(true)}
-                    className="border-border-theme text-text-theme-primary hover:bg-surface-raised min-h-11 w-full border-b px-4 text-left text-sm"
-                  >
-                    +{issues.length - shown.length} more issues {'\u00b7'} Show
-                    all
-                  </button>
-                )}
-                {noteIssues.length > 0 && (
-                  <section aria-label="Notes">
-                    <ValidationGroupHeading kind="note" />
-                    <ul>
-                      {noteIssues.map((item, index) => (
-                        <ValidationIssueRow
-                          key={`${item.error.ruleId}-${item.error.field ?? ''}-${index}`}
-                          issue={item}
-                          headingId={`${id}-info-${index}`}
-                          destinations={issueDestinations(item)}
-                        />
-                      ))}
-                    </ul>
-                  </section>
-                )}
-                {details !== undefined && (
-                  <div className="border-border-theme bg-surface-deep/40 border-t px-4 py-2">
-                    {details}
-                  </div>
-                )}
-              </div>
-            </div>
-          </>,
-          document.body,
-        )}
+      {open && (
+        <ValidationSummaryPanel
+          id={id}
+          panelRef={panel}
+          layout={layout}
+          state={state}
+          summary={summary}
+          unitName={unitName}
+          notes={notes}
+          shown={shown}
+          totalIssues={issues.length}
+          showAll={showAll}
+          details={details}
+          onShowAll={() => setShowAll(true)}
+          onDismiss={close}
+          onCloseButton={() => {
+            close();
+            trigger.current?.focus();
+          }}
+          issueDestinations={issueDestinations}
+          noteDestinations={noteDestinations}
+        />
+      )}
     </div>
   );
 }

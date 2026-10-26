@@ -87,14 +87,12 @@ describe('RecordSheetCanvasPreview zoom', () => {
     render(<ZoomHarness />);
 
     expect(zoomOutput()).toHaveTextContent(/123%$/);
-    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(screen.getByRole('button', { name: 'Fit page' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).toHaveTextContent('Fit width');
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).not.toHaveTextContent('Fit page');
   });
 
   it('caps the sheet width when the viewer is very wide', () => {
@@ -113,17 +111,16 @@ describe('RecordSheetCanvasPreview zoom', () => {
       const user = userEvent.setup();
       render(<ZoomHarness />);
       expect(zoomOutput()).toHaveTextContent(/56%$/);
-      expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
-        'aria-pressed',
-        'true',
-      );
-      await user.click(screen.getByRole('button', { name: 'Fit page' }));
+      expect(
+        screen.getByRole('button', { name: 'Zoom options' }),
+      ).toHaveTextContent('Fit width');
+      await user.click(screen.getByRole('button', { name: 'Zoom options' }));
+      await user.click(screen.getByRole('menuitemradio', { name: 'Fit page' }));
       fireResize(390, 400);
       expect(zoomOutput()).toHaveTextContent(/44%$/);
-      expect(screen.getByRole('button', { name: 'Fit page' })).toHaveAttribute(
-        'aria-pressed',
-        'true',
-      );
+      expect(
+        screen.getByRole('button', { name: 'Zoom options' }),
+      ).toHaveTextContent('Fit page');
     } finally {
       window.matchMedia = originalMatchMedia;
     }
@@ -153,15 +150,15 @@ describe('RecordSheetCanvasPreview zoom', () => {
     });
   });
 
-  it('keeps 100% across resize and shows it as the pressed mode', async () => {
+  it('keeps 100% across resize and shows it in the zoom control', async () => {
     const user = userEvent.setup();
     render(<ZoomHarness />);
 
-    await user.click(screen.getByRole('button', { name: '100%' }));
-    expect(screen.getByRole('button', { name: '100%' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await user.click(screen.getByRole('button', { name: 'Zoom options' }));
+    await user.click(screen.getByRole('menuitemradio', { name: '100%' }));
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).toHaveTextContent('100%');
     expect(zoomOutput()).toHaveTextContent(/100%$/);
 
     fireResize(390, 700);
@@ -176,10 +173,9 @@ describe('RecordSheetCanvasPreview zoom', () => {
 
     await user.click(screen.getByRole('button', { name: 'Zoom in' }));
     expect(zoomOutput()).toHaveTextContent('138%');
-    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).not.toHaveTextContent('Fit width');
 
     fireResize(1290, 912);
 
@@ -194,20 +190,22 @@ describe('RecordSheetCanvasPreview zoom', () => {
     fireResize(1600, 400);
     expect(zoomOutput()).toHaveTextContent(/150%$/);
 
-    await user.click(screen.getByRole('button', { name: 'Fit page' }));
+    await user.click(screen.getByRole('button', { name: 'Zoom options' }));
+    await user.click(screen.getByRole('menuitemradio', { name: 'Fit page' }));
     expect(zoomOutput()).toHaveTextContent(/44%$/);
 
-    await user.click(screen.getByRole('button', { name: 'Fit width' }));
+    await user.click(screen.getByRole('button', { name: 'Zoom options' }));
+    await user.click(screen.getByRole('menuitemradio', { name: 'Fit width' }));
     expect(zoomOutput()).toHaveTextContent(/150%$/);
-    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).toHaveTextContent('Fit width');
 
     fireResize(800, 400);
     expect(zoomOutput()).toHaveTextContent(/123%$/);
 
-    await user.click(screen.getByRole('button', { name: 'Fit page' }));
+    await user.click(screen.getByRole('button', { name: 'Zoom options' }));
+    await user.click(screen.getByRole('menuitemradio', { name: 'Fit page' }));
     expect(zoomOutput()).toHaveTextContent(/44%$/);
 
     fireResize(800, 1000);

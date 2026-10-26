@@ -479,8 +479,11 @@ test('critical locations fit below pinned tools and offer one phone location pil
       page.getByRole('button', { name: 'Auto-arrange', exact: true }),
     ).toBeInViewport({ ratio: 1 });
     const banner = page.getByRole('region', { name: 'Equipment to place' });
-    if (await banner.isVisible())
+    if (await banner.isVisible()) {
       await expect(banner).toBeInViewport({ ratio: 1 });
+      // The banner already states the issue, so the tab notice stays out.
+      await expect(page.getByTestId('tab-issue-notice')).toBeHidden();
+    }
     await desktop.evaluate((element) => {
       element.scrollTop = 0;
     });
@@ -520,15 +523,31 @@ test('critical locations fit below pinned tools and offer one phone location pil
   const pills = locationTabs.getByRole('tab');
   await expect(shortcuts.getByRole('combobox')).toHaveCount(0);
   await expect(pills).toHaveCount(8);
-  const fullyVisiblePills = await locationTabs.evaluate((strip) => {
-    const bounds = strip.getBoundingClientRect();
-    return [...strip.querySelectorAll('[role=tab]')].filter((pill) => {
+  // All eight locations show at once as a 4x2 grid in front-view order.
+  const pillBoxes = await pills.evaluateAll((items) =>
+    items.map((pill) => {
       const rect = pill.getBoundingClientRect();
-      return rect.left >= bounds.left && rect.right <= bounds.right;
-    }).length;
-  });
-  expect(fullyVisiblePills).toBe(4);
-
+      return { left: rect.left, right: rect.right, top: rect.top };
+    }),
+  );
+  const strip = (await locationTabs.boundingBox())!;
+  for (const box of pillBoxes) {
+    expect(box.left).toBeGreaterThanOrEqual(strip.x - 1);
+    expect(box.right).toBeLessThanOrEqual(strip.x + strip.width + 1);
+  }
+  expect(new Set(pillBoxes.map((box) => Math.round(box.top))).size).toBe(2);
+  expect(
+    pillBoxes.slice(0, 4).every((box) => box.top === pillBoxes[0].top),
+  ).toBe(true);
+  expect(pillBoxes.slice(4).every((box) => box.top === pillBoxes[4].top)).toBe(
+    true,
+  );
+  await expect(pills.nth(4)).toHaveAccessibleName(
+    /^Left Torso, \d+ of 12 used$/,
+  );
+  await expect(
+    phone.getByRole('heading', { name: /^Right Arm \u2014 \d+ of 12 used$/ }),
+  ).toBeVisible();
   expect(await pills.allTextContents()).toEqual(
     [
       /^RA \d+\/12$/,
@@ -545,11 +564,11 @@ test('critical locations fit below pinned tools and offer one phone location pil
     items.map((item) => item.getBoundingClientRect().height),
   );
   expect(Math.min(...sizes)).toBeGreaterThanOrEqual(44);
-  await locationTabs.getByRole('tab', { name: /^Head / }).click();
+  await locationTabs.getByRole('tab', { name: /^Head,/ }).click();
   await expect(
     phone.getByRole('group', { name: 'Head critical slots', exact: true }),
   ).toBeVisible();
-  const legTab = locationTabs.getByRole('tab', { name: /^Left Leg / });
+  const legTab = locationTabs.getByRole('tab', { name: /^Left Leg,/ });
   await legTab.click();
   await expect(legTab).toHaveAttribute('aria-selected', 'true');
   await expect(legTab).toBeInViewport({ ratio: 1 });

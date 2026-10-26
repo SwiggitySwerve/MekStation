@@ -7,18 +7,10 @@
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 
 import { customizerStyles as cs } from '@/components/customizer/styles';
 import { AppIcon } from '@/components/ui/AppIcon';
-
-import { sectionWordCount } from './fluffSections';
 
 /** Stable DOM id for a field name or label. */
 export function fieldId(name: string): string {
@@ -77,57 +69,32 @@ export function FieldLabel({
 
 /**
  * The box around a narrative textarea. It owns the border, fill, vertical
- * padding and focus ring so the textarea inside can be sized to a whole
- * number of text lines with no partial line peeking into its padding.
+ * padding and focus ring so the textarea inside can be sized to its content
+ * with no partial line peeking into its padding.
  */
 const TEXTAREA_FRAME =
   'relative w-full rounded border border-border-theme bg-[var(--field-surface,var(--surface-deep))] py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent';
-
-/** 32px fade from the box fill, drawn over the last line of a collapsed box. */
-const COLLAPSE_FADE =
-  'pointer-events-none absolute inset-x-px bottom-px h-8 rounded-b bg-linear-to-t from-[var(--field-surface,var(--surface-deep))] to-transparent';
 
 const TEXTAREA_BASE =
   'block w-full resize-none overflow-y-hidden rounded-none border-0 bg-transparent px-3 py-0 text-text-theme-primary shadow-none focus:shadow-none focus:outline-none disabled:bg-transparent';
 
 /**
- * Left-aligned text button 8px under the box. The visible text is 24px tall;
- * the pseudo-element stretches the hit area to 44px without moving the text.
- */
-const EXPAND_BUTTON =
-  "text-accent focus-visible:ring-accent relative mt-2 inline-flex min-h-6 items-center rounded text-sm hover:underline focus-visible:ring-2 focus-visible:outline-none before:absolute before:-top-2 before:-bottom-3 before:-inset-x-2 before:content-['']";
-
-/**
- * Collapse long text to a whole number of lines (--fluff-line-cap times the
- * textarea's own line height), fade the last line, and put a left-aligned
- * "Show all" text button under the box. Measure again after edits and width
- * changes (re-wrapping).
+ * Textarea that always grows to show its full content, so what you see is
+ * what you edit. The caller's min-height sets the three-line minimum. It
+ * measures again after edits and width changes (re-wrapping).
  */
 export function AutoSizeTextarea({
-  fieldLabel,
   className = '',
   ...props
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
-  fieldLabel: string;
-}): React.ReactElement {
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>): React.ReactElement {
   const ref = useRef<HTMLTextAreaElement>(null);
-  const [expanded, setExpanded] = useState(false);
-  const [overflows, setOverflows] = useState(false);
 
   const resize = useCallback((): void => {
     const textarea = ref.current;
     if (!textarea) return;
     textarea.style.height = 'auto';
-    const styles = getComputedStyle(textarea);
-    const lines = Number.parseFloat(
-      styles.getPropertyValue('--fluff-line-cap'),
-    );
-    const cap = lines * Number.parseFloat(styles.lineHeight);
-    const fullHeight = textarea.scrollHeight;
-    const isLong = Number.isFinite(cap) && fullHeight > cap + 1;
-    setOverflows(isLong);
-    textarea.style.height = `${isLong && !expanded ? cap : fullHeight}px`;
-  }, [expanded]);
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, []);
 
   useLayoutEffect(resize, [props.value, resize]);
 
@@ -144,45 +111,24 @@ export function AutoSizeTextarea({
     return () => observer.disconnect();
   }, [resize]);
 
-  const collapsed = overflows && !expanded;
-
   return (
-    <>
-      <div
-        className={`${TEXTAREA_FRAME} ${disabledClasses(!!props.disabled)}`}
-        onMouseDown={(event) => {
-          if (event.target !== event.currentTarget) return;
-          event.preventDefault();
-          ref.current?.focus();
-        }}
-      >
-        <textarea
-          ref={ref}
-          {...props}
-          className={`${TEXTAREA_BASE} ${className}`}
-        />
-        {collapsed && <div className={COLLAPSE_FADE} aria-hidden="true" />}
-      </div>
-      {overflows && (
-        <button
-          type="button"
-          aria-controls={props.id}
-          aria-expanded={expanded}
-          onClick={() => setExpanded((current) => !current)}
-          className={EXPAND_BUTTON}
-        >
-          {expanded ? 'Show less' : 'Show all'}
-          <span className="sr-only"> {fieldLabel}</span>
-          {!expanded && (
-            <span aria-hidden="true" className="ml-1.5">
-              &middot; {sectionWordCount(String(props.value ?? ''))}
-            </span>
-          )}
-        </button>
-      )}
-    </>
+    <div
+      className={`${TEXTAREA_FRAME} ${disabledClasses(!!props.disabled)}`}
+      onMouseDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        event.preventDefault();
+        ref.current?.focus();
+      }}
+    >
+      <textarea
+        ref={ref}
+        {...props}
+        className={`${TEXTAREA_BASE} ${className}`}
+      />
+    </div>
   );
 }
+
 const INPUT_CLASSES = `${cs.input.full} placeholder:text-text-theme-muted min-h-11 placeholder:italic`;
 
 /** Label above a single-line input. */

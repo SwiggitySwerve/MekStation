@@ -60,7 +60,7 @@ its separate Preview-before-Fluff order.
 - **WHEN** the active section has an error or warning badge and is not Overview or Preview
 - **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`
 - **AND** a "Show all issues" button in the notice opens the build status panel
-- **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues
+- **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues, and on Critical Slots while its "items to place" banner is showing (the banner already states the issue and its action); it returns once nothing is waiting to be placed
 
 ---
 
@@ -304,8 +304,10 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 #### Scenario: Page layout
 
 - **WHEN** the Fluff tab renders in an editor container at least 64rem wide
-- **THEN** a two-column grid spans the workspace content edges: the left column holds the Unit History and Description card, capped near 75 characters of 16px text plus card padding, and the right column holds the Battlefield Role card above the Manufacturing card in the remaining width (never under 20rem)
-- **AND** the right column stays pinned to the top of the scroll area beside long narrative text and scrolls within itself when taller than the viewport, with a 32px edge fade on whichever side still has hidden content so no field is cut off at the fold without a cue
+- **THEN** a two-column grid spans the workspace content edges: the left column holds the Unit History and Description card, capped near 75 characters of 16px text plus card padding, and the right column holds the Sections index, then the Battlefield Role card, then the Manufacturing card in the remaining width (never under 20rem)
+- **AND** the right column has no internal scroll and no fade mask, and every card renders at its natural height so no content is clipped
+- **AND** the whole right column is sticky under the tab bar when it fits the scroll area; when it is taller than the scroll area only the Sections card is sticky and the other cards scroll with the page, unless the Sections card alone would cover more than half the scroll area, in which case nothing is sticky so no card is hidden behind another
+- **AND** where the right column is at least 24rem wide the Sections links flow in two columns of four so the pinned card stays short
 - **AND** in a narrower container the cards form one left-aligned column in the order narrative, role, manufacturing, each capped at the same reading width
 
 #### Scenario: Narrative text fields
@@ -313,18 +315,17 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 - **WHEN** user navigates to Fluff tab
 - **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a full-width textarea of its column at 16px text on a 1.5 line height, at least 3 rows, stacked in that order
 - **AND** the field labels use the small-caps section-label style used for sub-section headings elsewhere in the customizer
-- **AND** long text collapses to a whole number of lines (8 lines, or 6 lines in containers narrower than 30rem), computed from the textarea's own line height, with no partial line visible and a 32px fade over the last line of the collapsed box
-- **AND** text longer than the cap has a keyboard-accessible left-aligned text button 8px under the box, "Show all · <n> words" when collapsed and "Show less" when expanded, with `aria-expanded` and `aria-controls`, allowing the full text to expand and collapse without changing its value
+- **AND** every textarea grows to show its full text, with no fixed-height box, no fade and no collapse control, so what is shown is what is edited
 - **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
 
 #### Scenario: Section navigation
 
 - **WHEN** the Fluff tab renders in a container at least 64rem wide
-- **THEN** a compact Sections index follows Manufacturing inside the sticky right column, listing Overview, Capabilities, History, Deployment, Variants, Notable Units, Battlefield Role and Manufacturing in that order
+- **THEN** a compact Sections index is the first card of the right column, listing Overview, Capabilities, History, Deployment, Variants, Notable Units, Battlefield Role and Manufacturing in that order
 - **AND** each link shows a muted word count or "Empty" based on the current field text
 - **AND** in narrower containers a labelled "Jump to section" select appears at the top of the tab with the same destinations and text status
 - **AND** activating a destination scrolls its field into view and focuses it, or focuses its containing section when the field is disabled
-- **AND** the index and expansion controls do not change stored narrative, role or manufacturing values
+- **AND** the index does not change stored narrative, role or manufacturing values
 
 #### Scenario: Battlefield role
 

@@ -219,11 +219,11 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 #### Scenario: Phone location navigation
 
 - **WHEN** critical slots are displayed on a phone
-- **THEN** one horizontally scrollable Location tablist presents eight 44px-tall pills in RA, RT, HD, CT, LT, LA, RL, LL order
-- **AND** each pill shows its abbreviation and existing used/total occupancy (for example, "LT 8/12") with a full location name and used/free counts in its accessible name
+- **THEN** one Location tablist presents all eight locations at once as a 4x2 grid of pills at least 44px tall with 14px text, in front-view order (RA, RT, HD, CT on the first row; LT, LA, RL, LL on the second), with no horizontal scrolling
+- **AND** each pill shows its abbreviation and existing used/total occupancy (for example, "LT 8/12") with the full location name and used count in its accessible name (for example, "Left Torso, 8 of 12 used")
 - **AND** the selected pill has a filled background and underline; no duplicate selector is displayed
-- **AND** selecting a pill displays only its associated slot panel, without a duplicate location heading or accordion
-- **AND** one pill is in the tab order; Left/Right arrows wrap, Home/End select the first/last location, and focus and horizontal scrolling follow keyboard selection
+- **AND** selecting a pill displays only its associated slot panel, headed by the full name and occupancy (for example, Left Torso — 8 of 12 used) above the slot list, without an accordion
+- **AND** one pill is in the tab order; Left/Right arrows wrap, Up/Down move between the two rows, and Home/End select the first/last location
 - **AND** selecting equipment reveals the first assignable location
 
 #### Scenario: Fill skips already-placed unhittables

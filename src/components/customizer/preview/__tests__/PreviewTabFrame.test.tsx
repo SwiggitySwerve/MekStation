@@ -68,35 +68,35 @@ describe('PreviewTabFrame', () => {
     installViewport(900, 700);
     render(<Harness />);
 
-    const fitWidth = screen.getByRole('button', { name: 'Fit width' });
-    expect(fitWidth).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: 'Fit page' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
-    expect(screen.getByRole('button', { name: '100%' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).toHaveTextContent('Fit width');
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).not.toHaveTextContent('Fit page');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     // (900 - 48) / 612
     expect(screen.getByLabelText('Current zoom')).toHaveTextContent('139%');
     expect(screen.getByTestId('sheet-canvas').style.width).toBe('852px');
   });
 
-  it('moves the pressed state to 100% and draws the sheet at actual size', async () => {
+  it('selects 100% from the menu and draws the sheet at actual size', async () => {
     installViewport(900, 700);
     render(<Harness />);
 
-    await userEvent.setup().click(screen.getByRole('button', { name: '100%' }));
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Zoom options' }));
+    await userEvent
+      .setup()
+      .click(screen.getByRole('menuitemradio', { name: '100%' }));
 
-    expect(screen.getByRole('button', { name: '100%' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
-    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
-      'aria-pressed',
-      'false',
-    );
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).toHaveTextContent('100%');
+    expect(
+      screen.getByRole('button', { name: 'Zoom options' }),
+    ).not.toHaveTextContent('Fit width');
     expect(screen.getByLabelText('Current zoom')).toHaveTextContent('100%');
     expect(screen.getByTestId('sheet-canvas').style.width).toBe('612px');
   });

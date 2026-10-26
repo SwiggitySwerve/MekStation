@@ -18,6 +18,7 @@ import workbenchStyles from '../CustomizerWorkbench.module.css';
 import {
   BUILD_STATUS_KIND_TEXT_CLASS,
   BUILD_STATE_TINT_CLASS,
+  SeverityIcon,
 } from '../shared/BuildStatusLabel';
 import { EquipmentControlPopover } from './EquipmentControlPopover';
 
@@ -350,15 +351,14 @@ export function CompactFilterBar({
         {capacity && (
           <span
             data-testid="equipment-catalog-capacity"
+            data-capacity-state={capacity.state}
             className={
-              capacity.exhausted
-                ? `${workbenchStyles.catalogCapacityWarning} ${BUILD_STATUS_KIND_TEXT_CLASS.warning} ${BUILD_STATE_TINT_CLASS.warning}`
+              capacity.state === 'over'
+                ? `${workbenchStyles.catalogCapacityWarning} ${BUILD_STATUS_KIND_TEXT_CLASS.error} ${BUILD_STATE_TINT_CLASS.error}`
                 : undefined
             }
           >
-            {capacity.exhausted && (
-              <AppIcon name="warning" size="inline" aria-hidden="true" />
-            )}
+            {capacity.state === 'over' && <SeverityIcon kind="error" />}
             <span>
               <span>
                 {capacity.compactWeightText === capacity.weightText ? (

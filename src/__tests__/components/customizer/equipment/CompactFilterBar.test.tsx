@@ -204,34 +204,46 @@ describe('CompactFilterBar', () => {
       );
     });
 
-    it.each([0, -7])(
-      'warns in a bordered callout when free tonnage is %s',
-      (remainingWeight) => {
-        render(
-          <CompactFilterBar
-            {...defaultProps}
-            resultSummary="182 items"
-            capacity={getCatalogCapacityNotice({
-              remainingWeight,
-              remainingSlots: 12,
-            })}
-          />,
-        );
-        const capacity = screen.getByTestId('equipment-catalog-capacity');
-        expect(capacity).toHaveTextContent(
-          remainingWeight === 0
-            ? '0.0 t free — no tonnage left; anything with weight makes the unit overweight'
-            : '-7.0 t free',
-        );
-        expect(capacity).toHaveClass(
-          ...BUILD_STATE_TINT_CLASS.warning.split(' '),
-        );
-        expect(
-          capacity.querySelector('[data-icon-name="warning"]'),
-        ).toBeInTheDocument();
-      },
-    );
+    it('shows a legal, exactly-full unit as neutral text without a callout', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          resultSummary="182 items"
+          capacity={getCatalogCapacityNotice({
+            remainingWeight: 0,
+            remainingSlots: 12,
+          })}
+        />,
+      );
+      const capacity = screen.getByTestId('equipment-catalog-capacity');
+      expect(capacity).toHaveTextContent(
+        '0.0 t free \u00B7 unit is at its tonnage limit',
+      );
+      expect(capacity).toHaveAttribute('data-capacity-state', 'full');
+      expect(capacity.className).toBe('');
+      expect(capacity.querySelector('[data-icon-name]')).toBeNull();
+    });
 
+    it('warns in the error callout only when over the limit', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          resultSummary="182 items"
+          capacity={getCatalogCapacityNotice({
+            remainingWeight: -7,
+            remainingSlots: 12,
+          })}
+        />,
+      );
+      const capacity = screen.getByTestId('equipment-catalog-capacity');
+      expect(capacity).toHaveTextContent(
+        'Over by 7.0 t \u2014 remove equipment or armor',
+      );
+      expect(capacity).toHaveClass(...BUILD_STATE_TINT_CLASS.error.split(' '));
+      expect(
+        capacity.querySelector('[data-icon-name="error"]'),
+      ).toBeInTheDocument();
+    });
     it('shows a short active-filter count for narrow screens', () => {
       render(
         <CompactFilterBar

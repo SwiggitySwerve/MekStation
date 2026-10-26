@@ -2,9 +2,10 @@
  * Fluff Tab Component
  *
  * Non-mechanical unit information (history, description, manufacturer).
- * Wide editors show the narrative in a reading column beside a compact
- * column holding the role and manufacturing cards; narrower editors stack
- * narrative, role, manufacturing in one column.
+ * Wide editors show the narrative in a reading column beside a column holding
+ * the Sections index, role and manufacturing cards at their natural height;
+ * narrower editors stack narrative, role, manufacturing in one column under a
+ * "Jump to section" select.
  *
  * @spec openspec/specs/customizer-tabs/spec.md
  */
@@ -98,7 +99,15 @@ export function FluffTab({
           onFluffChange={onFluffChange}
         />
 
-        <FluffSideColumn>
+        <FluffSideColumn
+          sections={
+            <FluffSectionIndex
+              fluff={fluff}
+              role={role}
+              onJump={jumpToSection}
+            />
+          }
+        >
           <section
             className={cs.panel.main}
             tabIndex={-1}
@@ -135,7 +144,6 @@ export function FluffTab({
             readOnly={isReadOnly}
             onFluffChange={onFluffChange}
           />
-          <FluffSectionIndex fluff={fluff} role={role} onJump={jumpToSection} />
         </FluffSideColumn>
       </div>
     </div>

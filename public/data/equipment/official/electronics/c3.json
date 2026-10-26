@@ -15,10 +15,7 @@
       "costCBills": 1500000,
       "battleValue": 0,
       "introductionYear": 3050,
-      "special": [
-        "Coordinates up to 3 C3 slaves",
-        "Shares targeting data"
-      ]
+      "special": ["Coordinates up to 3 C3 slaves", "Shares targeting data"]
     },
     {
       "id": "c3-slave",
@@ -31,10 +28,7 @@
       "costCBills": 250000,
       "battleValue": 0,
       "introductionYear": 3050,
-      "special": [
-        "Links to C3 Master",
-        "Shares targeting data"
-      ]
+      "special": ["Links to C3 Master", "Shares targeting data"]
     },
     {
       "id": "c3i",
@@ -46,11 +40,9 @@
       "criticalSlots": 2,
       "costCBills": 750000,
       "battleValue": 0,
-      "introductionYear": 3062,
-      "special": [
-        "No master required",
-        "Links up to 6 units"
-      ]
+      "introductionYear": 3058,
+      "special": ["No master required", "Links up to 6 units"],
+      "extinctionYear": 3085
     },
     {
       "id": "c3-boosted-master",
@@ -62,11 +54,8 @@
       "criticalSlots": 6,
       "costCBills": 3000000,
       "battleValue": 0,
-      "introductionYear": 3073,
-      "special": [
-        "Coordinates up to 3 C3 slaves",
-        "Extended range"
-      ]
+      "introductionYear": 3100,
+      "special": ["Coordinates up to 3 C3 slaves", "Extended range"]
     },
     {
       "id": "c3-boosted-slave",
@@ -78,11 +67,8 @@
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 3073,
-      "special": [
-        "Links to C3 Master",
-        "Extended range"
-      ]
+      "introductionYear": 3100,
+      "special": ["Links to C3 Master", "Extended range"]
     },
     {
       "id": "c3slaveunit",
@@ -94,7 +80,7 @@
       "criticalSlots": 1,
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 3039,
+      "introductionYear": 3050,
       "special": []
     },
     {
@@ -107,8 +93,9 @@
       "criticalSlots": 2,
       "costCBills": 750000,
       "battleValue": 0,
-      "introductionYear": 3052,
-      "special": []
+      "introductionYear": 3058,
+      "special": [],
+      "extinctionYear": 3085
     },
     {
       "id": "c3boostedsystemslaveunit",
@@ -120,7 +107,7 @@
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 3073,
+      "introductionYear": 3100,
       "special": []
     },
     {
@@ -133,7 +120,7 @@
       "criticalSlots": 2,
       "costCBills": 2800000,
       "battleValue": 0,
-      "introductionYear": 3071,
+      "introductionYear": 3099,
       "special": []
     },
     {
@@ -146,7 +133,7 @@
       "criticalSlots": 1,
       "costCBills": 62500,
       "battleValue": 0,
-      "introductionYear": 3073,
+      "introductionYear": 3095,
       "special": []
     },
     {
@@ -159,7 +146,7 @@
       "criticalSlots": 1,
       "costCBills": 125000,
       "battleValue": 0,
-      "introductionYear": 3063,
+      "introductionYear": 3095,
       "special": []
     }
   ]

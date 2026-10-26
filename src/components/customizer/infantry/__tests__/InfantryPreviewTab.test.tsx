@@ -75,7 +75,7 @@ describe('InfantryPreviewTab — non-mech crash regression gate', () => {
     ).not.toThrow();
   });
 
-  it('exposes the shared record-sheet zoom controls', () => {
+  it('exposes the shared record-sheet zoom controls', async () => {
     const store = makeInfantryStore();
 
     render(
@@ -88,11 +88,12 @@ describe('InfantryPreviewTab — non-mech crash regression gate', () => {
     expect(
       screen.getByRole('button', { name: 'Zoom out' }),
     ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Zoom options' }));
     expect(
-      screen.getByRole('button', { name: 'Fit width' }),
+      screen.getByRole('menuitemradio', { name: 'Fit width' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Fit page' }),
+      screen.getByRole('menuitemradio', { name: 'Fit page' }),
     ).toBeInTheDocument();
   });
 });

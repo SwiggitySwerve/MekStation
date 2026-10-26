@@ -174,11 +174,11 @@ describe('UnitInfoBanner', () => {
     expect(heat).toHaveAttribute('tabindex', '0');
   });
 
-  it('keeps caps legible: denominators are 12px secondary text', () => {
+  it('keeps caps legible: denominators are 13px secondary text', () => {
     render(<UnitInfoBanner stats={createStats()} compact />);
     for (const cap of ['100t', '78', '30', '307'])
       expect(screen.getByText(cap)).toHaveClass(
-        'text-xs',
+        'text-[13px]',
         'text-text-theme-secondary',
       );
   });

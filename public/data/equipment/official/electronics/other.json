@@ -14,10 +14,8 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3062,
-      "special": [
-        "-1 to-hit for direct fire weapons"
-      ],
+      "introductionYear": 3061,
+      "special": ["-1 to-hit for direct fire weapons"],
       "variableEquipmentId": "targeting-computer-is"
     },
     {
@@ -31,9 +29,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2860,
-      "special": [
-        "-1 to-hit for direct fire weapons"
-      ],
+      "special": ["-1 to-hit for direct fire weapons"],
       "variableEquipmentId": "targeting-computer-clan"
     },
     {
@@ -50,7 +46,9 @@
       "special": [
         "Designates targets for homing missiles",
         "Uses small laser ranges"
-      ]
+      ],
+      "extinctionYear": 2835,
+      "reintroductionYear": 3044
     },
     {
       "id": "clan-tag",
@@ -62,7 +60,7 @@
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2820,
+      "introductionYear": 2830,
       "special": [
         "Designates targets for homing missiles",
         "Uses small laser ranges"
@@ -72,17 +70,14 @@
       "id": "light-tag",
       "name": "Light TAG",
       "category": "TAG",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 40000,
       "battleValue": 0,
       "introductionYear": 3054,
-      "special": [
-        "Designates targets",
-        "Shorter range than standard TAG"
-      ]
+      "special": ["Designates targets", "Shorter range than standard TAG"]
     },
     {
       "id": "clan-light-tag",
@@ -95,10 +90,7 @@
       "costCBills": 40000,
       "battleValue": 0,
       "introductionYear": 3054,
-      "special": [
-        "Designates targets",
-        "Shorter range than standard TAG"
-      ]
+      "special": ["Designates targets", "Shorter range than standard TAG"]
     },
     {
       "id": "communications-equipment",
@@ -110,11 +102,8 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
-      "special": [
-        "Variable weight",
-        "Variable critical slots"
-      ]
+      "introductionYear": 1950,
+      "special": ["Variable weight", "Variable critical slots"]
     }
   ]
 }

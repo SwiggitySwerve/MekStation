@@ -5,7 +5,7 @@ import { type LocationData } from '@/components/customizer/critical-slots/critic
 import { PhoneLocationNavigation } from '@/components/customizer/critical-slots/PhoneLocationNavigation';
 import { MechLocation } from '@/types/construction';
 
-it('shows displayed used/free occupancy in a single tablist, counting paired entries once', () => {
+it('shows displayed used occupancy in a single tablist, counting paired entries once', () => {
   const head: LocationData = {
     location: MechLocation.HEAD,
     isSuperheavy: false,
@@ -35,9 +35,9 @@ it('shows displayed used/free occupancy in a single tablist, counting paired ent
       renderLocation={(location) => <p>{location} grid</p>}
     />,
   );
-  const headTab = screen.getByRole('tab', { name: 'Head · 1/6 used, 5 free' });
+  const headTab = screen.getByRole('tab', { name: 'Head, 1 of 6 used' });
   const torsoTab = screen.getByRole('tab', {
-    name: 'Center Torso · 1/12 used, 11 free',
+    name: 'Center Torso, 1 of 12 used',
   });
   expect(screen.getAllByRole('tablist')).toHaveLength(1);
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
@@ -46,6 +46,9 @@ it('shows displayed used/free occupancy in a single tablist, counting paired ent
   fireEvent.click(torsoTab);
   expect(torsoTab).toHaveAttribute('aria-selected', 'true');
   expect(screen.getByText('Center Torso grid')).toBeVisible();
+  expect(
+    screen.getByRole('heading', { name: 'Center Torso \u2014 1 of 12 used' }),
+  ).toBeVisible();
   fireEvent.click(headTab);
   expect(screen.getByText('Head grid')).toBeVisible();
 });

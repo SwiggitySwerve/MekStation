@@ -17,11 +17,8 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": true,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
-      "introductionYear": 2515,
+      "validLocations": ["Left Arm", "Right Arm"],
+      "introductionYear": 3022,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -38,10 +35,7 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": true,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
+      "validLocations": ["Left Arm", "Right Arm"],
       "introductionYear": 3058,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
@@ -58,11 +52,8 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": false,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
-      "introductionYear": 3060,
+      "validLocations": ["Left Arm", "Right Arm"],
+      "introductionYear": 3090,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -78,10 +69,7 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": true,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
+      "validLocations": ["Left Arm", "Right Arm"],
       "introductionYear": 3061,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
@@ -98,18 +86,15 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": true,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
-      "introductionYear": 3064,
+      "validLocations": ["Left Arm", "Right Arm"],
+      "introductionYear": 3083,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
       "id": "talons",
       "type": "Talons",
       "name": "Talons",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weightFormula": "tonnage_divisor",
       "tonnageDivisor": 15,
@@ -119,11 +104,8 @@
       "criticalSlots": 0,
       "requiresLowerArm": false,
       "requiresHand": false,
-      "validLocations": [
-        "Left Leg",
-        "Right Leg"
-      ],
-      "introductionYear": 3072,
+      "validLocations": ["Left Leg", "Right Leg"],
+      "introductionYear": 3087,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -139,11 +121,8 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": false,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
-      "introductionYear": 3069,
+      "validLocations": ["Left Arm", "Right Arm"],
+      "introductionYear": 2420,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -159,11 +138,8 @@
       "criticalSlots": 0,
       "requiresLowerArm": true,
       "requiresHand": true,
-      "validLocations": [
-        "Left Arm",
-        "Right Arm"
-      ],
-      "introductionYear": 3064,
+      "validLocations": ["Left Arm", "Right Arm"],
+      "introductionYear": 3079,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -179,11 +155,8 @@
       "criticalSlots": 0,
       "requiresLowerArm": false,
       "requiresHand": false,
-      "validLocations": [
-        "Left Torso",
-        "Right Torso"
-      ],
-      "introductionYear": 3054,
+      "validLocations": ["Left Torso", "Right Torso"],
+      "introductionYear": 1950,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     }
   ]

@@ -13,12 +13,7 @@
       "rulesLevel": "INTRODUCTORY",
       "damage": 10,
       "heat": 10,
-      "ranges": {
-        "minimum": 3,
-        "short": 6,
-        "medium": 12,
-        "long": 18
-      },
+      "ranges": { "minimum": 3, "short": 6, "medium": 12, "long": 18 },
       "weight": 7,
       "criticalSlots": 3,
       "costCBills": 200000,
@@ -34,12 +29,7 @@
       "rulesLevel": "STANDARD",
       "damage": 10,
       "heat": 15,
-      "ranges": {
-        "minimum": 0,
-        "short": 7,
-        "medium": 14,
-        "long": 23
-      },
+      "ranges": { "minimum": 0, "short": 7, "medium": 14, "long": 23 },
       "weight": 7,
       "criticalSlots": 3,
       "costCBills": 300000,
@@ -57,12 +47,7 @@
       "rulesLevel": "STANDARD",
       "damage": 5,
       "heat": 5,
-      "ranges": {
-        "minimum": 3,
-        "short": 6,
-        "medium": 12,
-        "long": 18
-      },
+      "ranges": { "minimum": 3, "short": 6, "medium": 12, "long": 18 },
       "weight": 3,
       "criticalSlots": 2,
       "costCBills": 150000,
@@ -78,12 +63,7 @@
       "rulesLevel": "STANDARD",
       "damage": 15,
       "heat": 15,
-      "ranges": {
-        "minimum": 3,
-        "short": 6,
-        "medium": 12,
-        "long": 18
-      },
+      "ranges": { "minimum": 3, "short": 6, "medium": 12, "long": 18 },
       "weight": 10,
       "criticalSlots": 4,
       "costCBills": 250000,
@@ -99,17 +79,14 @@
       "rulesLevel": "STANDARD",
       "damage": 10,
       "heat": 10,
-      "ranges": {
-        "minimum": 0,
-        "short": 5,
-        "medium": 10,
-        "long": 15
-      },
+      "ranges": { "minimum": 0, "short": 5, "medium": 10, "long": 15 },
       "weight": 6,
       "criticalSlots": 2,
       "costCBills": 165000,
       "battleValue": 165,
-      "introductionYear": 3067
+      "introductionYear": 2784,
+      "extinctionYear": 2790,
+      "reintroductionYear": 3067
     },
     {
       "id": "clan-er-ppc",
@@ -120,17 +97,12 @@
       "rulesLevel": "STANDARD",
       "damage": 15,
       "heat": 15,
-      "ranges": {
-        "minimum": 0,
-        "short": 7,
-        "medium": 14,
-        "long": 23
-      },
+      "ranges": { "minimum": 0, "short": 7, "medium": 14, "long": 23 },
       "weight": 6,
       "criticalSlots": 2,
       "costCBills": 300000,
       "battleValue": 412,
-      "introductionYear": 2824
+      "introductionYear": 2826
     },
     {
       "id": "enhanced-er-ppc",
@@ -141,12 +113,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": 12,
       "heat": 15,
-      "ranges": {
-        "minimum": 0,
-        "short": 7,
-        "medium": 14,
-        "long": 23
-      },
+      "ranges": { "minimum": 0, "short": 7, "medium": 14, "long": 23 },
       "weight": 7,
       "criticalSlots": 3,
       "costCBills": 300000,

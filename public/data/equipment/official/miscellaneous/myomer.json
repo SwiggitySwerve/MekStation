@@ -15,10 +15,7 @@
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3050,
-      "special": [
-        "+2 walking MP at 9+ heat",
-        "Double physical attack damage"
-      ],
+      "special": ["+2 walking MP at 9+ heat", "Double physical attack damage"],
       "variableEquipmentId": "tsm"
     },
     {
@@ -31,10 +28,8 @@
       "criticalSlots": 6,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2680,
-      "special": [
-        "Improved lifting capacity"
-      ]
+      "introductionYear": 3045,
+      "special": ["Improved lifting capacity"]
     }
   ]
 }

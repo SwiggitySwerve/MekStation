@@ -30,22 +30,15 @@
       "variant": "Inferno",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "srm-2",
-        "srm-4",
-        "srm-6"
-      ],
+      "compatibleWeaponIds": ["srm-2", "srm-4", "srm-6"],
       "shotsPerTon": 100,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 13500,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 2370,
-      "special": [
-        "Causes 2 heat per missile",
-        "No physical damage"
-      ]
+      "introductionYear": 2380,
+      "special": ["Causes 2 heat per missile", "No physical damage"]
     },
     {
       "id": "srm-fragmentation-ammo",
@@ -54,21 +47,17 @@
       "variant": "Fragmentation",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "srm-2",
-        "srm-4",
-        "srm-6"
-      ],
+      "compatibleWeaponIds": ["srm-2", "srm-4", "srm-6"],
       "shotsPerTon": 100,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 27000,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 3054,
-      "special": [
-        "+2 damage vs infantry"
-      ]
+      "introductionYear": 2377,
+      "special": ["+2 damage vs infantry"],
+      "extinctionYear": 2790,
+      "reintroductionYear": 3054
     },
     {
       "id": "srm-tandem-charge-ammo",
@@ -77,22 +66,18 @@
       "variant": "Tandem-Charge",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
-      "compatibleWeaponIds": [
-        "srm-2",
-        "srm-4",
-        "srm-6"
-      ],
+      "compatibleWeaponIds": ["srm-2", "srm-4", "srm-6"],
       "shotsPerTon": 50,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 54000,
       "battleValue": 24,
       "isExplosive": true,
-      "introductionYear": 3057,
+      "introductionYear": 2757,
       "damageModifier": 1,
-      "special": [
-        "Extra damage vs armor"
-      ]
+      "special": ["Extra damage vs armor"],
+      "extinctionYear": 2784,
+      "reintroductionYear": 3062
     },
     {
       "id": "streak-srm-ammo",
@@ -115,7 +100,9 @@
       "costPerTon": 54000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 2647
+      "introductionYear": 2647,
+      "extinctionYear": 2845,
+      "reintroductionYear": 3035
     },
     {
       "id": "ammo-srm-2",
@@ -131,7 +118,7 @@
       "costPerTon": 27000,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 2365,
+      "introductionYear": 2370,
       "special": []
     },
     {
@@ -148,7 +135,7 @@
       "costPerTon": 27000,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 2365,
+      "introductionYear": 2370,
       "special": []
     },
     {
@@ -165,7 +152,7 @@
       "costPerTon": 27000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 2365,
+      "introductionYear": 2370,
       "special": []
     },
     {
@@ -173,7 +160,7 @@
       "name": "SRM 1 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -182,7 +169,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -190,7 +177,7 @@
       "name": "SRM 3 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -199,7 +186,7 @@
       "costPerTon": 0,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -207,7 +194,7 @@
       "name": "SRM 5 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -216,7 +203,7 @@
       "costPerTon": 0,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -224,7 +211,7 @@
       "name": "Streak SRM 2 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 50,
@@ -233,7 +220,7 @@
       "costPerTon": 54000,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 5400,
+      "introductionYear": 2822,
       "special": []
     },
     {
@@ -241,7 +228,7 @@
       "name": "Streak SRM 4 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 25,
@@ -250,7 +237,7 @@
       "costPerTon": 54000,
       "battleValue": 10,
       "isExplosive": true,
-      "introductionYear": 5400,
+      "introductionYear": 2822,
       "special": []
     },
     {
@@ -258,7 +245,7 @@
       "name": "Streak SRM 6 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 15,
@@ -267,7 +254,7 @@
       "costPerTon": 54000,
       "battleValue": 15,
       "isExplosive": true,
-      "introductionYear": 5400,
+      "introductionYear": 2822,
       "special": []
     },
     {
@@ -275,7 +262,7 @@
       "name": "Streak SRM 1 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -284,7 +271,7 @@
       "costPerTon": 0,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -292,7 +279,7 @@
       "name": "Streak SRM 3 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -301,7 +288,7 @@
       "costPerTon": 0,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -309,7 +296,7 @@
       "name": "Streak SRM 5 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -318,7 +305,7 @@
       "costPerTon": 0,
       "battleValue": 13,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -377,7 +364,7 @@
       "name": "Improved SRM 2 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 50,
@@ -386,15 +373,17 @@
       "costPerTon": 27000,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 2700,
-      "special": []
+      "introductionYear": 2817,
+      "special": [],
+      "extinctionYear": 2828,
+      "reintroductionYear": 3080
     },
     {
       "id": "climpammosrm4",
       "name": "Improved SRM 4 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 25,
@@ -403,8 +392,10 @@
       "costPerTon": 27000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 2700,
-      "special": []
+      "introductionYear": 2817,
+      "special": [],
+      "extinctionYear": 2828,
+      "reintroductionYear": 3080
     },
     {
       "id": "impammosrm6",
@@ -420,8 +411,10 @@
       "costPerTon": 27000,
       "battleValue": 10,
       "isExplosive": true,
-      "introductionYear": 2815,
-      "special": []
+      "introductionYear": 2817,
+      "special": [],
+      "extinctionYear": 2828,
+      "reintroductionYear": 3080
     },
     {
       "id": "ba-srm1",
@@ -530,7 +523,7 @@
       "name": "Advanced SRM 1 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -539,7 +532,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -547,7 +540,7 @@
       "name": "Advanced SRM 2 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -556,7 +549,7 @@
       "costPerTon": 0,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -564,7 +557,7 @@
       "name": "Advanced SRM 3 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -573,7 +566,7 @@
       "costPerTon": 0,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -581,7 +574,7 @@
       "name": "Advanced SRM 4 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -590,7 +583,7 @@
       "costPerTon": 0,
       "battleValue": 8,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -598,7 +591,7 @@
       "name": "Advanced SRM 5 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -607,7 +600,7 @@
       "costPerTon": 0,
       "battleValue": 10,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -615,7 +608,7 @@
       "name": "Advanced SRM 6 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -624,7 +617,7 @@
       "costPerTon": 0,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3056,
       "special": []
     }
   ],
