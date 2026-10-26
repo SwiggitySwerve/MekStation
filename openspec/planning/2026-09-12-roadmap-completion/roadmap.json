@@ -9694,7 +9694,7 @@
       "kind": "implementation",
       "state": "planned",
       "dependsOn": ["R2.authority-live"],
-      "ownershipPaths": ["desktop/electron", "desktop/services/local", "desktop/scripts/validate-packaged-security.js", ".github/workflows/pr-checks.yml", "server.js", "src/services/persistence"],
+      "ownershipPaths": ["desktop/electron", "desktop/services/local", "desktop/scripts/validate-packaged-security.js", ".github/workflows/pr-checks.yml", "server.js", "src/services/persistence", "desktop/types", "src/components/settings", ".storybook/mocks"],
       "acceptance": ["DESKTOP-DATA-OWN-1 -> DESKTOP-DATA-OWN-2 -> DESKTOP-GUARDS-1; all ordinary caps and genuine exact-main proof", "Every database the packaged server opens lives under userData/data; only the server process copies, restores or deletes those files; the renderer file sandbox excludes them", "Every S7 reproduction in the units is a test that fails before and passes after; no GUI-launch claim is made without a packaged run"],
       "owner": "parent-managed serialized platform lane",
       "maxFiles": 15,

@@ -1,0 +1,322 @@
+{
+  "id": "release-blocking-registration-correction-20261025",
+  "kind": "registration-correction",
+  "date": "2026-10-25",
+  "author": "Registration correction sub-agent for Root; ledger, prose and evidence only",
+  "baseline": "cdb5289d28b39b2239262e66a95fbe1a81265db2",
+  "registrationOnly": true,
+  "sourceAdmitted": false,
+  "supersedes": {
+    "evidence": "evidence/release-blocking-registration-20261025.json",
+    "sha256": "4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38",
+    "note": "Unchanged and still valid for everything not listed here. The corrections below are recorded by this file and by one annotation field per unit (registration20261025bCorrection)."
+  },
+  "authority": {
+    "removalAndStep3": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025b.md",
+      "sha256": "3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2",
+      "ownerAnswerVerbatim": "yes and yes",
+      "q1": "Do you want the backup removal (keeping the pre-upgrade safety copy)?",
+      "q2": "Are the default rulings in step 3 acceptable?",
+      "receiptVerbatim": [
+        "# Owner decisions 2026-10-25 (b)",
+        "",
+        "Recorded by Root (T3 thread 6db2c314-6cd3-40c5-8fbd-7c42bc27ed35). Owner answer, verbatim: \"yes and yes\"",
+        "",
+        "## Question 1 (answer: yes)",
+        "\"Do you want the backup removal (keeping the pre-upgrade safety copy)?\"",
+        "",
+        "Proposal as put to the owner:",
+        "- Remove the backup feature from v2.2.0: the 5-minute timer (desktop/electron/main.ts setupPeriodicTasks), the tray \"Create backup\" item, the create-backup and restore-backup IPC calls, and the Settings Backups tab.",
+        "- Keep one automatic safety copy taken just before a database schema upgrade at startup (not user-facing). The DESKTOP-GUARDS-1 prep draft already includes it (VACUUM INTO).",
+        "- Put a plain \"Export data\" on the backlog.",
+        "- Consequence: DESKTOP-DATA-OWN-2, the pre-named -2B split and the proposed -2C become one small removal unit; Step 4 needs no extra PRs for the split.",
+        "- Owner context: \"I would guess that we don't need to be making backups and just have things saved properly the first time inside the app ecosystem.\"",
+        "",
+        "## Question 2 (answer: yes)",
+        "\"Are the default rulings in step 3 acceptable?\"",
+        "",
+        "The rulings as put to the owner:",
+        "1. Size-cap counting: the reachability helper and the fixture files count as test-support (lets A2FP, A2F, A2 and B fit).",
+        "2. GM spectator view: check that the sealed event's content is hidden and list the sequence-number gap as a known issue; do not require the strict sequence check (OQ-M1).",
+        "3. A2: run a co-op setup reachability check before RED and accept zero margin; if it does not fit, Root returns to the owner about a Step 3 budget of 12.",
+        "4. Match timeline: accept the current behaviour, where it returns audit rows only.",
+        "5. Same-host check: the server exits at startup if the check cannot load; frames are capped at 1 MiB.",
+        "6. Non-host saves while a co-op session is live: a save from a guest keeps today's conflict reply (409).",
+        "",
+        "## Applied under the standing instruction (\"continue with recommended options and fix the issues that come up, publish as needed\")",
+        "- Host deleting its own live campaign: refused until the live session ends (changes the CAMPAIGN-LIVE-WRITE-1 prep draft, which allowed it).",
+        "- Registration corrections from the Step 4 preps (API-SAME-HOST-1 15-file variant B; CAMPAIGN-LIVE-WRITE-1 two test helpers plus CampaignDashboardPage.tsx; DESKTOP-DATA-OWN-1 main.cleanup.ts; DESKTOP-GUARDS-1 two leaves; RELEASE-PRODUCER-1 proof reworded to fail-closed before the RC).",
+        "",
+        "## Not decided here",
+        "- Adding \"Build Test / linux\" as a required check on main (owner's repository setting).",
+        "- CF-SMOKEA1-7 and F4 (recommended as known issues plus backlog; still open)."
+      ]
+    },
+    "decisions1to8": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025.md",
+      "sha256": "c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4",
+      "note": "Decisions 1-8 cited by #2334; unchanged."
+    },
+    "rootRuling": {
+      "label": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction",
+      "stopReport": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/reg-correction/STOPPED.md",
+      "stopReportSha256": "ca1f0e1c43221b35ebd528f241f9b9a0dbb95fe1011f1713ffdb43da5395921f",
+      "verbatim": [
+        "Root ruling on your STOPPED.md (under the standing instruction \"continue with recommended options and fix the issues that come up\"). Proceed and open the PR with items 1-8.",
+        "Budget correction: Step 4 prBudget 29 covers its 14 units at about 2 PRs each; decision 4 priced each pre-named split at +2-3. So three removal units would overrun 29. Do NOT register RM-B or RM-C as Step 4 units.",
+        "1. DESKTOP-DATA-OWN-2 (keep the id) = RM-A: the 10 leaves (main.ts, main.tray.ts, main.ipc.ts, preload.ts, main.actions.ts, main.services.ts, main.cleanup.ts, validate-packaged-security.js, main.ipc.security.test.ts, main.startup.test.ts) + 5 lifecycle = 15. It runs after DESKTOP-DATA-OWN-1 (predecessor edge). It removes every reachable backup path: timer, tray item, create-backup and restore-backup IPC, preload exposure, the service wiring in main.services.ts, the packaged validator assertion.",
+        "2. Also in DESKTOP-DATA-OWN-2, inside main.ipc.ts (already a leaf, no new file): remove the service-call 'clearCache' route, so LocalStorageService.clear (S7-03) and the clearCache half of S7-04 become unreachable. DesktopSettingsDialog is not mounted anywhere (src/pages/settings.tsx imports other settings sections, never the dialog), so the only path to clearCache is that IPC route. Acceptance row: a renderer service-call 'clearCache' is refused and mekstation.db is untouched. Note on the unit that this supersedes the decision-8 default \"'Clear cache' removes only tracked cache entries\" for v2.2.0, because no user surface for clear cache ships.",
+        "3. Findings on DESKTOP-DATA-OWN-2: S7-02, S7-05, the createBackup/restoreBackup half of S7-04, F-3 forged id, F-4 retention: resolved by removal. S7-03 and the clearCache half of S7-04: made unreachable by removing the route (not repaired; LocalStorageService.clear remains as dead code).",
+        "4. Register ONE backlog unit (outside closures, no step, like MULTI-WINDOW-SESSION-1), e.g. DESKTOP-BACKUP-DEADCODE-1: delete BackupService.ts and BackupService.archive.ts, the unmounted DesktopSettingsDialog Backups tab and advanced clearCache button (or the whole unmounted dialog), backup settings fields (main.config.ts, BaseTypes.ts, SettingsService.ts and tests), Storybook mock, LocalStorageService.clear. List the RM-B + RM-C census as its leaves and note it may split at admission. Predecessor: DESKTOP-DATA-OWN-2.",
+        "5. The \"Export data\" backlog unit stays as instructed.",
+        "6. Pre-upgrade safety copy stays in DESKTOP-GUARDS-1 as instructed. DESKTOP-GUARDS-1 and DESKTOP-DATA-OWN-2 both touch validate-packaged-security.js: record the shared leaf and an ordering edge or note so they do not collide.",
+        "7. Step 4 prBudget stays 29. Record that the old -2B and proposed -2C splits are retired and no split PRs are needed.",
+        "Cite as \"Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction\"; the authority for removal remains owner-decisions-20261025b.md Q1."
+      ],
+      "removalAuthority": "owner-decisions-20261025b.md Q1 remains the authority for the removal; the Root ruling decides how it is split into units."
+    },
+    "standing": "Owner standing instruction: continue with recommended options and fix the issues that come up, publish as needed. This is not a future sensitive OWNER-RULING, source admission or runtime acceptance."
+  },
+  "inputs": [
+    {
+      "role": "authority-b",
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025b.md",
+      "sha256": "3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2",
+      "note": "Owner answer \"yes and yes\": backup removal and Step 3 rulings."
+    },
+    {
+      "role": "authority-a",
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025.md",
+      "sha256": "c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4",
+      "note": "Decisions 1-8 cited by #2334."
+    },
+    {
+      "role": "root-ruling-input",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/reg-correction/STOPPED.md",
+      "sha256": "ca1f0e1c43221b35ebd528f241f9b9a0dbb95fe1011f1713ffdb43da5395921f",
+      "note": "Stop report this correction answers."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/BRIEF.md",
+      "sha256": "e79773ee4462f62d0fe936d530997c19bec97a566afa5cab4d1ffc16c8cd74c6",
+      "note": "Prep brief."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/api-same-host/README.md",
+      "sha256": "9d3b32cfa6a2acb3c8ed796996348b7c67eb2ebcec1624b4ad8ed5b7ce1c4770",
+      "note": "API-SAME-HOST-1 variant B."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/campaign-live-write/README.md",
+      "sha256": "d8196246e78d88d8dbe0d519f4630d1a38e3d99ebb97ceed4dbaf47df788aff9",
+      "note": "CAMPAIGN-LIVE-WRITE-1 leaves and rows."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/desktop-data/README.md",
+      "sha256": "3491afc16da5b34b48538b0c35a47213c3d2f67776090fb7a49dc915633a382a",
+      "note": "DESKTOP-DATA-OWN-1 main.cleanup.ts, spike, S7 findings F-3 and F-4."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/guards-producer/README.md",
+      "sha256": "7f1e1351226cfa9a206cb44e34aacb729da314330110740186a0abfd6a08c64b",
+      "note": "DESKTOP-GUARDS-1 two leaves, required-CI facts, RELEASE-PRODUCER-1 proof."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2f-a2m/README.md",
+      "sha256": "ced32ed6d9d28820721a3c2d4343f6161785bbd44c5a8c0664b9b7d3cf825b14",
+      "note": "A2F name collision, OQ-M1, S5-02."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2-b/README.md",
+      "sha256": "4b7ca99c731d48ad35ac02aff36193308816a2f4b461a2cd91d66bc84906949f",
+      "note": "A2 and B sizes, timeline, RC-B-1 placement."
+    },
+    {
+      "role": "prep",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/release-notes/README.md",
+      "sha256": "32e9c37509caacffda1eaf45fa35fb74f3e1a9ae9cf1ec4cd5ed30812ca479b5",
+      "note": "Topology doc versus checker strings."
+    },
+    {
+      "role": "prior-evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/release-blocking-registration-20261025.json",
+      "sha256": "4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38",
+      "note": "The #2334 registration evidence; unchanged."
+    }
+  ],
+  "units": {
+    "DESKTOP-DATA-OWN-2": {
+      "change": "Re-scoped from snapshot backup and staged restore (S7-02, S7-03, S7-04, S7-05) to backup removal. Id kept: nothing in validate-roadmap, the steps page or the evidence ties an id to its scope, and renaming would touch the Step 4 unit list, two successor lists and the pin tests for no gain.",
+      "leaves": [
+        "desktop/electron/main.ts",
+        "desktop/electron/main.tray.ts",
+        "desktop/electron/main.ipc.ts",
+        "desktop/electron/preload.ts",
+        "desktop/electron/main.actions.ts",
+        "desktop/electron/main.services.ts",
+        "desktop/electron/main.cleanup.ts",
+        "desktop/scripts/validate-packaged-security.js",
+        "desktop/electron/__tests__/main.ipc.security.test.ts",
+        "desktop/electron/__tests__/main.startup.test.ts"
+      ],
+      "files": 15,
+      "estimatedCountedLines": "under 100: the work is deletion (no deletion credit, none counted) plus a refusal branch for clearCache and test rows; measured at the freeze",
+      "removes": [
+        "auto-backup timer (main.ts setupPeriodicTasks, line 423 on cdb5289d2) and the enableBackups/backupInterval reads",
+        "tray item \"Backup Data\" (main.tray.ts:72) and the createBackup tray option",
+        "IPC handlers create-backup and restore-backup (main.ipc.ts:258-281) and the userData/backups sandbox root",
+        "preload exposure createBackup/restoreBackup (preload.ts:115-117, 286-292)",
+        "createBackup/restoreBackup actions (main.actions.ts:30-57)",
+        "BackupService construction (main.services.ts:55-82) and its cleanup call (main.cleanup.ts:31), with the BackupService field in main.ts",
+        "the restore-backup handler assertion in the packaged validator (validate-packaged-security.js:302-305)",
+        "the service-call 'clearCache' route in main.ipc.ts (:246-247)"
+      ],
+      "acceptanceRows": [
+        "main.ts: with enableBackups true and fake timers advanced past five backup intervals, no backup call is made and no timer is registered for backups.",
+        "main.tray.ts: the tray menu has no 'Backup Data' item.",
+        "main.ipc.security.test.ts: ipcMain has no 'create-backup' or 'restore-backup' handler; the userData/backups path is no longer a sandbox root while userData/files stays one; a renderer service-call 'clearCache' is refused and a temporary userData/data/mekstation.db is byte-identical afterwards.",
+        "preload: the exposed API has no createBackup or restoreBackup (source-level test reading the exposed object).",
+        "main.startup.test.ts: startup builds services without a backup service and quit cleanup does not touch one.",
+        "validate-packaged-security.js: asserts that restore-backup and create-backup handlers are absent from the packaged main process.",
+        "rg shows no import of BackupService from desktop/electron."
+      ],
+      "findings": {
+        "S7-02": "resolved by removal",
+        "S7-05": "resolved by removal",
+        "S7-04": "createBackup/restoreBackup half resolved by removal; clearCache half made unreachable by removing the route (not repaired)",
+        "S7-03": "made unreachable by removing the service-call clearCache route (not repaired); LocalStorageService.clear stays as dead code until DESKTOP-BACKUP-DEADCODE-1",
+        "F-3 forged metadata id (desktop-data prep)": "resolved by removal (restoreBackup no longer exists)",
+        "F-4 retention never runs (desktop-data prep)": "resolved by removal (listBackups and cleanupOldBackups no longer run)",
+        "F-5 unanchored exclusion regex, F-6 renderer-settable backupDirectory": "BackupService.archive.ts and the backupDirectory setting are dead code after this unit; deleted by DESKTOP-BACKUP-DEADCODE-1. DESKTOP-GUARDS-1 still validates backupDirectory/dataDirectory writes while the field exists."
+      },
+      "supersedes": "Decision-8 default \"'Clear cache' removes only tracked cache entries\" for v2.2.0: no user surface for clear cache ships (DesktopSettingsDialog is mounted nowhere; src/pages/settings.tsx imports other settings sections and never the dialog; verified by rg on cdb5289d2).",
+      "retired": [
+        "DESKTOP-DATA-OWN-2B (S7-03 and S7-04 split): retired, never registered",
+        "DESKTOP-DATA-OWN-2C (S7-05 split): never registered"
+      ],
+      "notClaimed": "Existing backup archives under userData/backups stay on disk and are not deleted; users cannot restore from them in v2.2.0 (disclose in release notes). The removal was censused with rg on cdb5289d2, not drafted: no patch exists and the zero-slack 10-leaf fit is unmeasured until the freeze."
+    },
+    "DESKTOP-BACKUP-DEADCODE-1": {
+      "change": "New post-v2.2.0 backlog unit, blocked, outside l1ReleaseChecklist20261018.closures and in no step. Predecessor DESKTOP-DATA-OWN-2.",
+      "candidateLeaves": {
+        "rendererRM_B": [
+          "src/components/settings/DesktopSettingsDialog.tsx",
+          "src/components/settings/DesktopSettingsDialog.tabs.tsx",
+          "src/components/settings/DesktopSettingsDialog.state.ts",
+          "src/components/settings/DesktopSettingsDialog.stories.tsx",
+          "src/components/settings/DesktopSettingsDialog.advanced.tsx",
+          "src/components/settings/useDesktopSettings.ts",
+          "src/components/settings/useElectron.ts",
+          "src/components/settings/__tests__/DesktopSettingsDialog.test.tsx",
+          "src/components/settings/__tests__/DesktopSettingsDialog.tabs.test.tsx",
+          ".storybook/mocks/useElectron.tsx"
+        ],
+        "desktopRM_C": [
+          "desktop/services/local/BackupService.ts",
+          "desktop/services/local/BackupService.archive.ts",
+          "desktop/services/local/LocalStorageService.ts",
+          "desktop/electron/main.config.ts",
+          "desktop/types/BaseTypes.ts",
+          "desktop/services/local/SettingsService.ts",
+          "desktop/services/local/__tests__/SettingsService.test.ts",
+          "desktop/electron/__tests__/main.window.security.test.ts",
+          "desktop/electron/__tests__/main.behavior.test.ts"
+        ],
+        "optional": [
+          "desktop/installer/setup.helpers.ts (mkdir backups)",
+          "desktop/AGENTS.md",
+          "the barrel src/components/settings/index.ts and DesktopSettingsContext.tsx if the whole unmounted dialog is deleted"
+        ],
+        "note": "About 19 candidate leaves against a budget of 10: the unit must split at admission (renderer half and desktop half) by a separately registered correction. The registration freezes no leaf. The alternative of deleting the whole unmounted dialog is a choice for the freeze."
+      }
+    },
+    "DESKTOP-DATA-EXPORT-1": {
+      "change": "New post-v2.2.0 backlog unit, blocked, outside closures and in no step: a plain user-initiated Export data command (owner decision 2026-10-25b Q1: \"Put a plain Export data on the backlog\"). No timer, no restore, no retention. Predecessor DESKTOP-DATA-OWN-2. Registration freezes no leaf."
+    },
+    "API-SAME-HOST-1": {
+      "change": "Variant B of the api-same-host prep: drop scripts/__tests__/validate-multiplayer-packaged-socket.test.ts, move its rows into src/__tests__/api/sameHostGuard.routes.test.ts, add src/__tests__/api/securityBoundary.test.ts and src/__tests__/api/vault/unlock.test.ts (both build requests with a non-loopback or absent Host and fail once token.ts and unlock.ts refuse first: 14 failures measured in the prep).",
+      "leaves": 10,
+      "files": 15,
+      "estimatedCountedLines": 274,
+      "acceptanceAdded": [
+        "server.js exits 1 at boot when the same-host guard module cannot load; a later load failure answers 500 and never lets a request through unguarded (owner decisions 2026-10-25b Q2 item 5).",
+        "The one WebSocketServer has maxPayload 1 MiB: a frame of exactly 1 MiB is accepted and 1 MiB + 1 is closed with 1009 on both the match and campaign channels."
+      ]
+    },
+    "CAMPAIGN-LIVE-WRITE-1": {
+      "change": "Three leaves added: src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts (callId cannot send a bearer and throws on 204), src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts (hostPut PUTs as the literal host id with no bearer, so two suites outside the manifest would get 401), src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx (handleDeleteCampaign shows the refusal).",
+      "leaves": 10,
+      "files": 15,
+      "estimatedCountedLines": 212,
+      "acceptanceAdded": [
+        "A verified non-host PUT while the session is live keeps today's 409 live-coop-session conflict (owner decisions 2026-10-25b Q2 item 6).",
+        "The host's own DELETE while a live session runs is REFUSED until the session ends, and every other DELETE while a host is live stays refused (changes prep LW09, which pinned the host DELETE as accepted; applied under the standing instruction).",
+        "Typed codes HOST_SESSION_REQUIRED (no usable bearer) and HOST_SESSION_EXPIRED (expired bearer); the code for the host's own refused DELETE is settled at the freeze.",
+        "CampaignDashboardPage.tsx shows the server's refusal when Delete Campaign is refused while a session runs."
+      ],
+      "admissionCensus": "Two Playwright cleanup helpers send an anonymous DELETE and now get a refusal while a live host exists: e2e/fixtures/campaign.ts:394 and e2e/gm-campaign-ledger-control-plane.spec.ts:126. They are not leaves (the unit is at 15 files). The admission census must show each ends its co-op session before cleanup or tolerates the refusal; otherwise a separately registered unit carries the edit."
+    },
+    "DESKTOP-DATA-OWN-1": {
+      "change": "desktop/electron/main.cleanup.ts added as the tenth leaf: it awaits the now-asynchronous EmbeddedServer.stop() at quit; without it main.lifecycle.ts will-quit treats a second stop as out of time and force-kills an in-progress graceful stop (desktop-data prep RC-1).",
+      "leaves": 10,
+      "files": 15,
+      "estimatedCountedLines": 369,
+      "admissionPrecondition": "OPEN, not yet run: the ELECTRON_RUN_AS_NODE=1 IPC spike (prep/desktop-data/draft/spike-ipc-electron-run-as-node.cjs, run with the shipped Electron executable) must pass before the RED receipt. Fallback if it fails: a line protocol on stdin, which changes only main.server.ts and server.js."
+    },
+    "DESKTOP-GUARDS-1": {
+      "change": "Two leaves added: desktop/scripts/packaged-ipc-probe.js (copies the compiled dist from app.asar, stubs electron, runs setupIpcHandlers and replays the S7-01 two-call case) and scripts/__tests__/packaged-validators-ci.test.ts (workflow wiring plus the probe on real sources and mutants).",
+      "leaves": 10,
+      "files": 15,
+      "estimatedCountedLines": 424,
+      "acceptanceAdded": [
+        "Pre-upgrade safety copy (the only automatic safety copy in v2.2.0 once the backup feature is removed): before the first pending migration of an existing database SQLiteService.initialize makes <db>.pre-migration-v<from>.bak with VACUUM INTO into a staging name and renames it; a failure stops the launch and leaves the schema alone; a fresh or already-current database gets no copy.",
+        "A database whose MAX(migrations.version) exceeds the catalog head is refused with both versions in the message, before the WAL pragma or any write."
+      ],
+      "requiredCi": "The two validator steps run in Build Test / linux. That job is a merge gate only if the owner adds Build Test / linux as a required status check on main. That is a repository setting, NOT decided, and is not claimed. On main today the only required context is Lint and Test (read-only gh api in the guards-producer prep, 2026-10-25).",
+      "sharedLeaves": "desktop/scripts/validate-packaged-security.js is also a leaf of DESKTOP-DATA-OWN-2 (removes the restore-backup assertion) and main.ipc.ts and main.ipc.security.test.ts are leaves of DESKTOP-DATA-OWN-1 and -2. The existing edges DESKTOP-DATA-OWN-1 -> DESKTOP-DATA-OWN-2 -> DESKTOP-GUARDS-1 serialize them. At the GUARDS-1 freeze re-apply the sender-check change on the post-removal main.ipc.ts (two fewer channels than the 21 in the prep draft)."
+    },
+    "RELEASE-PRODUCER-1": {
+      "change": "Second proof reworded. The producer run on the unit's merge commit with fixture inputs fails closed at the V2.2 gate and uploads no v220-qualified artifact, because the real ledger cannot pass the gate before a release candidate exists. The first positive upload happens on the RC at Step 7.",
+      "leaves": 4,
+      "files": 9
+    }
+  },
+  "step3Rulings": {
+    "source": "owner-decisions-20261025b.md Q2 (answer yes), rulings 1-4; items 5 and 6 of Q2 are recorded on API-SAME-HOST-1 and CAMPAIGN-LIVE-WRITE-1.",
+    "L1-SMOKE-B": "Fixtures leaf scripts/release/l1-built-server-fog-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA. Match timeline: accepted as audit rows only; B asserts what main does (200, audit rows) and scans the body for the captured secrets. RC-B-1 is NOT registered here: it rides PR 8 of the Step 3 plan (prep/a2-b); validate-roadmap does not require it.",
+    "L1-SMOKE-A2": "Fixtures leaf scripts/release/l1-built-server-spectator-fixtures.ts is test-support under option A. A co-op reachability probe runs before RED; zero size margin is accepted (about 497-512 of 500 with lifecycle); overflow returns to the owner as the Step 3 budget 12 question (split A2C + A2 final), not a silent cap raise.",
+    "L1-SMOKE-A2F": "Fixtures leaf scripts/release/l1-built-server-spectator-trusted-fixtures.ts is test-support under option A. The admission receipt uses a date-suffixed evidence name (l1-smoke-a2f-admission-<date>.json) because evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical.",
+    "L1-SMOKE-A2M": "OQ-M1: GM-branded spectator rows assert the sealed content is absent, no placeholder and a contiguous delivery cursor, and RECORD the authority sequence gap as a disclosed known issue; the strict sequence check is not required. S5-02 (who may spectate) is disclosed and gets no A2M row, because a refusal row would fail on main and the fix is a product seam Step 3 forbids.",
+    "L1-SMOKE-A2FP": "Not edited: its implementation runs in parallel on another branch."
+  },
+  "releaseNotes": {
+    "gate": "l1ReleaseChecklist20261018.checklist[release-notes] (the Step 9 gate; Step 9 lists no unit, so the gate entry is the owner of record)",
+    "finding": "docs/releases/v2.2.0-topology.md carries 5 of the 7 strings that scripts/qc/v220-evidence.mjs (lines 276-282 on cdb5289d2) requires as case-sensitive substrings. It misses \"fog-of-war is unavailable in multiplayer in this release\" (the doc writes \"Fog of war is unavailable in multiplayer in this release.\") and the lobby string. The lobby string ends \"(fixed by B15-PRIV)\", but B15-PRIV is blocked and not in the 54 closures, so the checker string must be reworded before Step 9 or the notes will claim a fix that is not in v2.2.0.",
+    "disposition": "Annotation only. No checker, doc or gate text is changed here; rewording the checker string needs a registered unit."
+  },
+  "budgets": {
+    "step4": "prBudget stays 29. DESKTOP-DATA-OWN-2B and the proposed -2C are retired; no split PRs are needed. DESKTOP-BACKUP-DEADCODE-1 and DESKTOP-DATA-EXPORT-1 are in no step, so they use no Step 4 budget.",
+    "step3": "Unchanged at 10; the A2 overflow question is Step 3 budget 12 and returns to the owner."
+  },
+  "notDone": [
+    "No unit state, historical evidence, cap, or Step 1 recorded hash changed. v220-steps.json is untouched.",
+    "L1-SMOKE-A2FP is untouched.",
+    "RC-B-1 is not registered."
+  ],
+  "unverified": [
+    "All size figures are estimates until git diff --numstat at each admission freeze.",
+    "The DESKTOP-DATA-OWN-2 removal was censused with rg, not drafted or run: its 10-leaf fit with zero slack and its acceptance rows are unmeasured.",
+    "The ELECTRON_RUN_AS_NODE=1 IPC spike for DESKTOP-DATA-OWN-1 has not run.",
+    "Build Test / linux as a required check is an owner repository setting; it is not decided.",
+    "The Playwright cleanup helpers named under CAMPAIGN-LIVE-WRITE-1 were read, not run.",
+    "The A2 co-op provisioning reachability is unverified until its probe runs."
+  ]
+}
