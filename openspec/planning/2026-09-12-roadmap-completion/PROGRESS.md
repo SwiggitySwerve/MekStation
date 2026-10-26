@@ -1,3 +1,15 @@
+## 2026-10-26 L1-SMOKE-A2F closed; main-verified (exact-main built-image proof); Step 3 PR 4 of 12 (the ledger budget reads 10 until the registration in the next commit of this PR)
+
+Closes L1-SMOKE-A2F (PR #2341, ruled and merged head 2815c144f, merge f917a5259) as main-verified. The OWNER-RULING (comment 6427223735) accepted that exact head; the merge tree equals the ruled head tree, so the three leaves are byte-identical to the reviewed bytes.
+
+- Exact-main proof at clean f917a5259: fresh `npm ci` (real node_modules), then the registered done-test `node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=f917a5259...` passed first time: all eight cases (accepted-Move, accepted-Attack, accepted-Physical, trusted-player-stale, trusted-gm-stale, trusted-gm-unassigned, trusted-gm-participant, gm-brand-recovered), 0 errors, 22 owned server processes, 21 offline witness calls in the expected order (CF-A2FP-1 checked from evidence.jsonl). No readiness-probe timeout, so no rerun (CF-A2FP-2). The A1 smoke test, the A2FP test file and the A2F node test (13 of 13) and the roadmap tool checks at the same clean tree exit 0.
+- Receipts: review (the Opus report at 945af2636 in one byte envelope; the F1/F2 delta was checked by Root), merge and mainProof; the ruling comment is byte-copied and equals the live comment and the Root copy; one envelope holds the install, run and tool-check output. PK-l1-smoke-a2f-ruling decision and ruling are filled.
+- capException.countedLines stays 533 (literal validator count of the merge diff, re-measured; option A 330).
+- Carry-forward (units.json A2F.closureCarryForward20261026): the live stale-first row, the actor replay defect and the neighbour rerun of this runner are routed to MISSION-MATCH-1 and the A2M matrix; R5 and P6 survive as disclosed.
+- No task row is ticked. MISSION-MATCH-1 is registered by the next commit of this PR and admitted by the third.
+
+---
+
 ## 2026-10-26 L1-SMOKE-A2F local-verified (Step 3 PR 3; ledger budget 10, owner-approved 12 is recorded with the MISSION-MATCH-1 registration)
 
 Amended frozen leaves implement trusted-audience fixtures, the non-spectating-GM positive and recovered GM branding. Stale rows apply their assignment after the actor declaration and test spectator replay after restart. RED contains only the test; GREEN adds the two source leaves with the same frozen test bytes.

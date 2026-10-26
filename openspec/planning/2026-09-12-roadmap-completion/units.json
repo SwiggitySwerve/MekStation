@@ -8589,7 +8589,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-amendment-20261026.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-merge-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-mainproof-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-source-review-20261026.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-owner-ruling-6427223735.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-f917a5259-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8604,17 +8609,36 @@
         "optionACountedLines": 330,
         "optionAExemptLeaves": ["scripts/release/l1-built-server-spectator-trusted-fixtures.ts"]
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "35fa2fb9c892ed6585057dcacf40de87670a0456",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+      "mergeSha": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2f-admission-20261026.json" },
         "red": { "path": "evidence/l1-smoke-a2f-red.json" },
         "local": { "path": "evidence/l1-smoke-a2f-local.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/l1-smoke-a2f-review.json",
+          "head": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+          "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "47c8411877b2f0037542a86f9a4dbd1f24e889ab84fd6d95bda4ced0cf076486",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 2815c144fddf519bfd0fc4da7386065d2e54c2a4"
+        },
+        "merge": {
+          "path": "evidence/l1-smoke-a2f-merge-20261026.json",
+          "pr": 2341,
+          "head": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+          "mergeSha": "f917a5259ac8b2fa5f216337338d48d92bdc5960"
+        },
+        "mainProof": {
+          "path": "evidence/l1-smoke-a2f-mainproof-20261026.json",
+          "mergeCommit": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+          "verdict": "PASS",
+          "runtime": "Built-image run (registered done-test, run-l1-built-server-spectator-trusted-proof.mjs --build at the clean exact merge): 8 passed (0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8712,6 +8736,29 @@
         "authority": "owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) item 3; Root ruling OPTION 1 on the A2F G-F1 probe finding",
         "change": "The stale-assignment rows apply the stale assignment after the actor's declaration and assert the spectator guard on the replay after a restart; the runner and test leaf hashes are re-frozen in the receipt, the fixtures leaf is unchanged. P1, P4 and P6 move to A2M; the live stale-first case is deferred to MISSION-MATCH-1 plus the Step 2/3 RC rerun. Root clarified on 2026-10-26 that R6-R8 move to A2M because they target its runRow and reveal leg; R1-R5 remain A2F obligations.",
         "fit": "option A 274 leaf lines (binding, cap 500), literal 477 leaf lines (overflow recorded in capException), 8 counted files of 15."
+      },
+      "closureCarryForward20261026": {
+        "CF-A2F-1": {
+          "severity": "Medium",
+          "owner": "MISSION-MATCH-1 (product fix and Jest rows) and L1-SMOKE-A2M (built-image matrix row, after MISSION-MATCH-1 lands); named at the MISSION-MATCH-1 admission",
+          "status": "OPEN; routed",
+          "item": "A2F proves the stale-first spectator guard only through the replay after a restart, because its runner applies the stale assignment after the declaration. The live stale-first case (stale assignment present before the actor acts, live delivery) is not proved on the built image. After MISSION-MATCH-1 the A2M matrix, whose live legs import prepareAudience and run after it, owns that built-image row; the Step 2/3 RC rerun repeats it."
+        },
+        "CF-A2F-2": {
+          "severity": "Medium",
+          "owner": "MISSION-MATCH-1 (owner decisions 2026-10-26 item 1b)",
+          "status": "OPEN; routed",
+          "item": "In both A2F stale rows the acting player (guest3) replay after the stale-first prepare lacks its own movement_declared; guest2 received it live. A2F asserts nothing about the actor replay. MISSION-MATCH-1 adds a replay/reconnect variant to its MM5 row."
+        },
+        "CF-A2F-3": {
+          "severity": "Low",
+          "owner": "MISSION-MATCH-1 admission and its closure run",
+          "status": "OPEN; routed",
+          "item": "MISSION-MATCH-1 edits MatchWireSealedChoices.ts, which A2F stale rows exercise. Rerun the A2F built runner (run-l1-built-server-spectator-trusted-proof.mjs --build) as a neighbour proof for that unit. A2F frozen comments and test name still describe the first-entry rule; after sideOfPlayer they are historical and the stale rows stay discriminating because the spectator guard still precedes ownership."
+        },
+        "survivors": {
+          "item": "R5 survives as a redundant check (prepareAudience refuses a wrong brand, ineffective stale assignment, wrong seat kind or moved history, and the declared witness re-reads the same rows); P6 survives and is informational for A2M; P2 was re-run with a compiling mutant and killed by a named check; P1/P4 killed, informational for A2M; R6-R8 belong to A2M."
+        }
       }
     },
     {
@@ -22880,10 +22927,22 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. Thirteen node falsifiers and the eight-case built-image proof pass on the frozen amended leaves; the offline witness sequence is verified. Review the stopped-owned-private-DB lineage, unchanged combat history, stale assignment after the accepted declaration, current spectator seat guard, durable GM source and live/recovered non-spectating-GM positive. Mutants and survivors are disclosed in the local receipt; P2 is killed by a named check with a compiling mutant (the first P2 mutation did not compile and is disclosed) and R5 survives. P1/P4/P6 and R6-R8 belong to A2M (Root ruling 2026-10-26; R6-R8 target its runRow/reveal leg). Live stale-first behavior stays with MISSION-MATCH-1 plus RC rerun. The literal cap overflow is recorded; option A excludes the owner-confirmed fixture test-support leaf. CF-A2FP-1 witness checking and the CF-A2FP-2 single-readiness-timeout-only rerun rule remain standing. No product or frozen predecessor changes; no exact-main acceptance is claimed.",
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. Thirteen node falsifiers and the eight-case built-image proof pass on the frozen amended leaves; the offline witness sequence is verified. Review the stopped-owned-private-DB lineage, unchanged combat history, stale assignment after the accepted declaration, current spectator seat guard, durable GM source and live/recovered non-spectating-GM positive. Mutants and survivors are disclosed in the local receipt; P2 is killed by a named check with a compiling mutant (the first P2 mutation did not compile and is disclosed) and R5 survives. P1/P4/P6 and R6-R8 belong to A2M (Root ruling 2026-10-26; R6-R8 target its runRow/reveal leg). Live stale-first behavior stays with MISSION-MATCH-1 plus RC rerun. The literal cap overflow is recorded; option A excludes the owner-confirmed fixture test-support leaf. CF-A2FP-1 witness checking and the CF-A2FP-2 single-readiness-timeout-only rerun rule remain standing. No product or frozen predecessor changes; no exact-main acceptance is claimed. Closure (2026-10-26): the OWNER-RULING (comment 6427223735) accepted 2815c144f; the exact-main built-image run at f917a5259 passed all eight cases with the 21-call witness sequence (CF-A2FP-1 discharged, no rerun); capException.countedLines 533 re-measured on the real merge. The live stale-first row, the actor replay defect and the neighbour rerun are routed in A2F.closureCarryForward20261026.",
       "revertCost": "Delete the three A2F leaves and own lifecycle additions. Product and predecessor leaves are unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-26T21:01:16Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2341#issuecomment-6427223735"
+      },
+      "ruling": {
+        "ruledHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+        "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+        "pr": 2341,
+        "commentId": 6427223735,
+        "author": "SwiggitySwerve",
+        "bodySha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541"
+      }
     },
     {
       "id": "PK-ts7s1a-ruling",

@@ -1,0 +1,556 @@
+{
+  "unit": "L1-SMOKE-A2F",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-26T21:27:05.715Z",
+  "mergeCommit": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/a2f-closure-20261026",
+  "runtime": {
+    "playwright": "Built-image run (registered done-test, run-l1-built-server-spectator-trusted-proof.mjs --build at the clean exact merge): 8 passed (0 failed, 0 skipped, 0 flaky)",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci (real node_modules, no junction) at the clean exact merge before any closure edit",
+    "build": "npm run build, run by the runner with --build: exit 0, 229659 ms",
+    "toolChecks": "G-F3 tool checks at the clean exact merge, all exit 0: v220 tests 130 / pass 130 / fail 0; generate-v220-steps --check; validate-roadmap plain, --git and --github; validate-roadmap.test.mjs 86 / pass 86 / fail 0; A2F node test 13 of 13; A2FP node test 16 of 16; A1 smoke test 17 of 17",
+    "scope": "Built production standalone server on 127.0.0.1, owned processes only, ordinary authenticated APIs and sockets, offline fixtures against the stopped private DB.",
+    "schemaNote": "runtime.playwright is the validator field for a result line; this is the registered built-image runner, not a Playwright run."
+  },
+  "proofClass": "full",
+  "machineGate": "heavy-run.mjs --lane a2f-closure --class build|jest --cwd E:/Projects/Personal/MekStation-wt/a2f-closure-20261026 -- <command>; the idle gate was unmodified (no HEAVY_IDLE_CMD)",
+  "execution": "Fresh worktree from fetched origin/main (f917a5259), clean before and after every job (git status --porcelain empty). npm ci and the built-image run ran as build tickets, the tool checks as one jest ticket. The worktree was created on branch work/a2f-closure-mm1-admission-20261026; the branch carries no commit before the closure edit.",
+  "ancestry": {
+    "mergeSha": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "originMain": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "isAncestorOfOriginMain": true,
+    "checkedAt": "2026-10-26T21:27:05.715Z",
+    "note": "git fetch origin reported f917a5259 as origin/main before the worktree was created; git merge-base --is-ancestor exit 0"
+  },
+  "exactMain": {
+    "mergeTree": "16ded0990a3853dddcf918da39922c18ebb2f08f",
+    "equalsRuledHeadTree": true,
+    "ruledHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "opusReviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+    "leavesAtMerge": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "mergeBlob": "5ad4186f7709cfec3f78df22f99e5d3675bb7bd3",
+        "mergeSha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078",
+        "mergeBytes": 8899,
+        "localReceiptSha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078",
+        "localReceiptBytes": 8899,
+        "equal": true
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "mergeBlob": "31d908b985817e3760f4b805d033023f4a760399",
+        "mergeSha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+        "mergeBytes": 6851,
+        "localReceiptSha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+        "localReceiptBytes": 6851,
+        "equal": true
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "mergeBlob": "86e6b865df4cfdcc121a2371dd83bf8dfb2bda9c",
+        "mergeSha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85",
+        "mergeBytes": 17032,
+        "localReceiptSha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85",
+        "localReceiptBytes": 17032,
+        "equal": true
+      }
+    ]
+  },
+  "toolChecks": [
+    {
+      "name": "chk-v220tests",
+      "exit": 0,
+      "start": "2026-10-26T21:17:49.1720830Z",
+      "end": "2026-10-26T21:17:53.5666093Z",
+      "command": "node --test scripts/__tests__/v220-evidence.test.mjs scripts/__tests__/v220-format.test.mjs scripts/__tests__/v220-steps.test.mjs"
+    },
+    {
+      "name": "chk-gen",
+      "exit": 0,
+      "start": "2026-10-26T21:17:53.5671362Z",
+      "end": "2026-10-26T21:17:53.6604651Z",
+      "command": "node scripts/qc/generate-v220-steps.mjs --check"
+    },
+    {
+      "name": "chk-vr",
+      "exit": 0,
+      "start": "2026-10-26T21:17:53.6614416Z",
+      "end": "2026-10-26T21:18:03.5274494Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+    },
+    {
+      "name": "chk-vrgit",
+      "exit": 0,
+      "start": "2026-10-26T21:18:03.5284356Z",
+      "end": "2026-10-26T21:18:19.8213850Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git"
+    },
+    {
+      "name": "chk-vrgh",
+      "exit": 0,
+      "start": "2026-10-26T21:18:19.8223600Z",
+      "end": "2026-10-26T21:20:06.4350817Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github"
+    },
+    {
+      "name": "chk-vrtest",
+      "exit": 0,
+      "start": "2026-10-26T21:20:06.4360663Z",
+      "end": "2026-10-26T21:20:18.8252187Z",
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+    },
+    {
+      "name": "chk-a2f-node-test",
+      "exit": 0,
+      "start": "2026-10-26T21:20:18.8261938Z",
+      "end": "2026-10-26T21:22:10.2567711Z",
+      "command": "node --test scripts/release/l1-built-server-spectator-fixture.test.mjs"
+    },
+    {
+      "name": "chk-a2fp-node-test",
+      "exit": 0,
+      "start": "2026-10-26T21:22:10.2577846Z",
+      "end": "2026-10-26T21:23:30.7869923Z",
+      "command": "node --test scripts/release/l1-built-server-spectator-reachability.test.mjs"
+    },
+    {
+      "name": "chk-a1-smoke-test",
+      "exit": 0,
+      "start": "2026-10-26T21:23:30.7869923Z",
+      "end": "2026-10-26T21:24:09.8154991Z",
+      "command": "node --test scripts/release/l1-built-server-smoke.test.mjs"
+    }
+  ],
+  "toolChecksTree": {
+    "headBefore": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "statusBefore": 0,
+    "headAfter": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "statusAfter": 0,
+    "summaryLog": {
+      "sha256": "045ae7e16df82666ce875623c2b2f100547aea69d98dabe3a788b1c88415b32c",
+      "bytes": 1675,
+      "path": "evidence/mainproof-f917a5259-logs.bytes.json",
+      "payloadLocation": "top-level payload"
+    }
+  },
+  "builtImage": {
+    "command": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=f917a5259ac8b2fa5f216337338d48d92bdc5960 --output=<abs-new-dir>",
+    "head": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "treeClean": true,
+    "node": "v22.22.0",
+    "built": true,
+    "image": {
+      "buildId": "1793048851709",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "59f45031369432b3a1055016b9fc7463e006007d3e6983c86561f9f39fe992f8",
+      "sourceTreeSha256": "3a9304aa675540f2839d927a7436ad0c3ac672ddf27eb58470ceccdd25bd5c0c"
+    },
+    "verdict": "PASS",
+    "passed": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical",
+      "trusted-player-stale",
+      "trusted-gm-stale",
+      "trusted-gm-unassigned",
+      "trusted-gm-participant",
+      "gm-brand-recovered"
+    ],
+    "errors": [],
+    "ownedServerProcesses": 22,
+    "processExitCodes": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "processExitNote": "Exit code 1 is the owned-process stop (taskkill-style termination) recorded by the harness; the A1 harness expects it and reports no early exit. 22 processes: one initial server plus one restart around each of the 21 offline witness calls.",
+    "eventKinds": {
+      "command": 22,
+      "process": 64,
+      "http": 16,
+      "socket": 122,
+      "frame": 520,
+      "offline-fixture": 21,
+      "case": 8
+    },
+    "witnessSequence": [
+      "ready",
+      "declared",
+      "ready",
+      "declared",
+      "ready",
+      "ready",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare"
+    ],
+    "expectedSequence": [
+      "ready",
+      "declared",
+      "ready",
+      "declared",
+      "ready",
+      "ready",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare"
+    ],
+    "witnessSequenceEqualsExpected": true,
+    "cfA2fp1": "CF-A2FP-1 discharged for this run: the offline-fixture records in evidence.jsonl show the 21-call op sequence ready,declared,ready,declared,ready,ready,declared (the three A2FP rows) then ready,prepare,declared for player-stale, gm-stale, gm-unassigned and gm-participant, and ready,prepare for gm-brand-recovered. The declared witness ran in every case that owns one.",
+    "cfA2fp2": "CF-A2FP-2: no readiness-probe timeout occurred; the single run passed on the first attempt and no rerun was taken.",
+    "runs": [
+      {
+        "id": "run-1",
+        "verdict": "PASS",
+        "summary": {
+          "name": "summary.json",
+          "sha256": "2ed9a948b188af5427187fc316e9b3253ffdec158650af78893144a03e56eb6c",
+          "bytes": 5092
+        },
+        "manifest": {
+          "name": "manifest.json",
+          "sha256": "6e3fc01e8a348ba7f3ed292f2b51f38d7f3b69eb7fed4abbf2367c019d4aa862",
+          "bytes": 1001
+        },
+        "evidence": {
+          "name": "evidence.jsonl",
+          "sha256": "6f536021c970866bf8ab3da04c08e8364b486f6b4d2a4d47e8e24ecb78406667",
+          "bytes": 477613
+        },
+        "firstRecord": "2026-10-26T21:11:18.611Z",
+        "lastRecord": "2026-10-26T21:15:37.401Z",
+        "buildMs": 229659
+      }
+    ],
+    "logs": {
+      "envelope": "evidence/mainproof-f917a5259-logs.bytes.json",
+      "files": {
+        "npm-ci.log": {
+          "name": "npm-ci.log",
+          "sha256": "662e415463b7541167351ad6618a36389134374404ce1e04ab0ada01fc006a57",
+          "bytes": 1194
+        },
+        "built-run-stdout.log": {
+          "name": "built-run-stdout.log",
+          "sha256": "98ba24bfe378915d346387c17ca2386faebf0e68d8e8050bd396180fdcd1c829",
+          "bytes": 288
+        },
+        "built-run-stderr.log": {
+          "name": "built-run-stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "summary.json": {
+          "name": "summary.json",
+          "sha256": "2ed9a948b188af5427187fc316e9b3253ffdec158650af78893144a03e56eb6c",
+          "bytes": 5092
+        },
+        "manifest.json": {
+          "name": "manifest.json",
+          "sha256": "6e3fc01e8a348ba7f3ed292f2b51f38d7f3b69eb7fed4abbf2367c019d4aa862",
+          "bytes": 1001
+        },
+        "evidence.jsonl": {
+          "name": "evidence.jsonl",
+          "sha256": "6f536021c970866bf8ab3da04c08e8364b486f6b4d2a4d47e8e24ecb78406667",
+          "bytes": 477613
+        },
+        "server-1.log": {
+          "name": "server-1.log",
+          "sha256": "9544ad078995cd526bdf11e3d6c62fbd6159ed2c529d43fbcacf653e059e48d1",
+          "bytes": 3059
+        },
+        "server-2.log": {
+          "name": "server-2.log",
+          "sha256": "1e7b2b33305eba5e6fa082b478f4e836660de73e25320f3cfc57e67008a1902c",
+          "bytes": 2176
+        },
+        "server-3.log": {
+          "name": "server-3.log",
+          "sha256": "ccc1b87dbc59e4d2386e2de50f20810dadca7f2685112712e2c3cfe0d10d0a62",
+          "bytes": 4867
+        },
+        "server-4.log": {
+          "name": "server-4.log",
+          "sha256": "46e051508603bef06bab1c5f66c4b877643ab29828258425b2626205659ea196",
+          "bytes": 2174
+        },
+        "server-5.log": {
+          "name": "server-5.log",
+          "sha256": "c6adee6d93b61dd862dba2728621f252f7dfce31e14e9bdbdeb0170c4207c2e2",
+          "bytes": 4655
+        },
+        "server-6.log": {
+          "name": "server-6.log",
+          "sha256": "4436ae62ea7e6949bc1e98ef87ea01bf297db9cfae767dafff39893a8107f62e",
+          "bytes": 2788
+        },
+        "server-7.log": {
+          "name": "server-7.log",
+          "sha256": "1a2966988d13a7795c1114963ea02e56d37318b9080b983c183f48791b5f1960",
+          "bytes": 2176
+        },
+        "server-8.log": {
+          "name": "server-8.log",
+          "sha256": "178254bd5ea2cba244de3a73904ec2a189f5678b0cd623937a77641d5de00475",
+          "bytes": 4662
+        },
+        "server-9.log": {
+          "name": "server-9.log",
+          "sha256": "937c790b4527ad87ecf71693d6cd7ca4a21996aefdfa4b98e0429f70a8a558f0",
+          "bytes": 2176
+        },
+        "server-10.log": {
+          "name": "server-10.log",
+          "sha256": "d9c634e27fe95afdcdae701aa7303752ad80cb38c67ea8a289be4fa454a7d9dd",
+          "bytes": 2751
+        },
+        "server-11.log": {
+          "name": "server-11.log",
+          "sha256": "05863dd603fa1b1fa318f0765c0ed5114c824aa053fe544f178d20c7994cfb8c",
+          "bytes": 4659
+        },
+        "server-12.log": {
+          "name": "server-12.log",
+          "sha256": "1ba9d4b3dee27333ee8ab4a411c7ec1014fe8bd05907c82b759e28c55b6b61ed",
+          "bytes": 2172
+        },
+        "server-13.log": {
+          "name": "server-13.log",
+          "sha256": "a82c6de35c00f458173ab561aa4862f60d6d8f740b97e0b5cc6aea6f73e7a3a3",
+          "bytes": 2755
+        },
+        "server-14.log": {
+          "name": "server-14.log",
+          "sha256": "f11d264918d59695fa8594a3deeecf3423c4af5ff0ffb461598683f19e491800",
+          "bytes": 4662
+        },
+        "server-15.log": {
+          "name": "server-15.log",
+          "sha256": "d9f4e10faae2f592d416b993c94a838756c5a58423a9893c96a1b69ff5046a61",
+          "bytes": 1975
+        },
+        "server-16.log": {
+          "name": "server-16.log",
+          "sha256": "7c32fda18649517fb1bc77bec3331013fd1913b589ce8c6e2efcb4fb133dfd1d",
+          "bytes": 2960
+        },
+        "server-17.log": {
+          "name": "server-17.log",
+          "sha256": "5fe541d883a5e602fbe0676c9f33e8d6508556af79c21ec81e0458e488d33d27",
+          "bytes": 4666
+        },
+        "server-18.log": {
+          "name": "server-18.log",
+          "sha256": "61556614fb7cf9ffad06feaa3ad5d5cb2702ee4232b2c9f5358ff430433e8ddc",
+          "bytes": 1975
+        },
+        "server-19.log": {
+          "name": "server-19.log",
+          "sha256": "5a01c9f549fbc7d094ca5e0d6bd17af08bb10446a665a66ff9c6866bf7ceee28",
+          "bytes": 2176
+        },
+        "server-20.log": {
+          "name": "server-20.log",
+          "sha256": "2ecd24d83a031ed3836ae6ef3385b69d08bb9b7a2503991d67ca5d4c1ff3e933",
+          "bytes": 4660
+        },
+        "server-21.log": {
+          "name": "server-21.log",
+          "sha256": "0cca7bd6d245ce93dd4813f03e42133a5dd53c2c8baee2b4c52ea3f740e98d2c",
+          "bytes": 2171
+        },
+        "server-22.log": {
+          "name": "server-22.log",
+          "sha256": "d0680821106af03ea6bdcccd75782503a1df45de95bfe2e1e2fa39a1a6eafaf5",
+          "bytes": 1971
+        },
+        "inspect-run.txt": {
+          "name": "inspect-run.txt",
+          "sha256": "939a6e4f0f5099330b41502556ef8cf5b320be93b6ae4c3aed935e68dd56b8b5",
+          "bytes": 7290
+        },
+        "git-facts.txt": {
+          "name": "git-facts.txt",
+          "sha256": "99136a4681178661c54f62c87efd27bfc1044d620ec4015387b74512efd0bdb7",
+          "bytes": 935
+        },
+        "chk-a1-smoke-test.log": {
+          "name": "chk-a1-smoke-test.log",
+          "sha256": "8098e85685670a0df111e0dbfdc0ac22d65248b9b8ff62a85e611a266dc4c084",
+          "bytes": 3802
+        },
+        "chk-a2f-node-test.log": {
+          "name": "chk-a2f-node-test.log",
+          "sha256": "639ee2fcbba2b56b57a36ee9d03e19db71f76bed9a8a679413f18b473ae7b293",
+          "bytes": 3475
+        },
+        "chk-a2fp-node-test.log": {
+          "name": "chk-a2fp-node-test.log",
+          "sha256": "47cf83cfe595d0b18c765a56e31ae0e6f3c901f718479a4d3aea8ce779883102",
+          "bytes": 3627
+        },
+        "chk-gen.log": {
+          "name": "chk-gen.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "chk-v220tests.log": {
+          "name": "chk-v220tests.log",
+          "sha256": "7a327f14183076191a01b7c5090a20a35f97405a19cd9e0dea0d0ed1858c1ada",
+          "bytes": 20674
+        },
+        "chk-vr.log": {
+          "name": "chk-vr.log",
+          "sha256": "1fe05c0bd326aeefadc48f01dd1e4cfa8310a7c1a3e940e7c0b82f4185db57c4",
+          "bytes": 80
+        },
+        "chk-vrgh.log": {
+          "name": "chk-vrgh.log",
+          "sha256": "1fe05c0bd326aeefadc48f01dd1e4cfa8310a7c1a3e940e7c0b82f4185db57c4",
+          "bytes": 80
+        },
+        "chk-vrgit.log": {
+          "name": "chk-vrgit.log",
+          "sha256": "6458759f95c1ef66ac56256b3bad514006fe1e6647b14b1b8119a43a8452eec0",
+          "bytes": 2359
+        },
+        "chk-vrtest.log": {
+          "name": "chk-vrtest.log",
+          "sha256": "f0a4462ca080a7d637465ec7a1036745a16c207afbedcf92293e08947f9f647f",
+          "bytes": 16873
+        }
+      }
+    },
+    "comparisonToLocalRun": {
+      "localRunHead": "35a5394513ece07be198653697b75a20b1a4ed4a",
+      "localRunVerdict": "PASS",
+      "localRunProcesses": 22,
+      "localImage": {
+        "buildId": "1793042474290",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "46c5998caf520f0085d2904f16f4753973b554882f9bd0c072e3bc4ae4d6db41",
+        "sourceTreeSha256": "3a9304aa675540f2839d927a7436ad0c3ac672ddf27eb58470ceccdd25bd5c0c"
+      },
+      "note": "The local receipt records one first-attempt PASS at the GREEN head; this exact-main run also passed first time. serverSha256 and sourceTreeSha256 equal the local values; configSha256 and buildId differ per build."
+    }
+  },
+  "cleanup": {
+    "processesStarted": "only the runner-owned production server processes (22) and the heavy-run wrappers; the runner stops every server it starts.",
+    "leftoverProcesses": "none (checked by command line after the run)",
+    "portsReleased": true,
+    "mekStationProcesses": "none",
+    "note": "No installer, Electron app or service was started by this closure."
+  },
+  "review": {
+    "path": "evidence/l1-smoke-a2f-review.json",
+    "head": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1"
+  },
+  "ownerRuling": {
+    "ruledHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+    "pr": 2341,
+    "commentId": 6427223735,
+    "author": "SwiggitySwerve",
+    "bodySha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-A2FP-1",
+      "status": "discharged for the exact-main run",
+      "item": "Witness sequence checked from evidence.jsonl: ready,declared,ready,declared,ready,ready,declared,ready,prepare,declared,ready,prepare,declared,ready,prepare,declared,ready,prepare,declared,ready,prepare (21 calls)."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "status": "unused for this run; routed (units.json A2FP.carryForwardRouting20261026)",
+      "item": "The 15 s readiness probe at run-l1-built-server-smoke.mjs:134 belongs to the frozen A1 harness; no readiness timeout occurred and no rerun was taken."
+    },
+    {
+      "id": "CF-A2F-1",
+      "status": "open; routed in units.json A2F.closureCarryForward20261026",
+      "item": "The live stale-first spectator row (stale assignment present before the actor acts, live delivery) is not proved by A2F, whose runner applies the stale assignment after the declaration. MISSION-MATCH-1 plus the Step 2/3 RC rerun carry it; its built-image owner is the A2M matrix."
+    },
+    {
+      "id": "CF-A2F-2",
+      "status": "open; routed in units.json A2F.closureCarryForward20261026",
+      "item": "A2F stale rows show the sealed-owner product defect on replay: the acting player replay after restart lacks its own declaration. A2F asserts nothing about the actor replay. MISSION-MATCH-1 owns the fix and a replay/reconnect row."
+    },
+    {
+      "id": "CF-A2F-3",
+      "status": "open; routed in units.json A2F.closureCarryForward20261026",
+      "item": "MISSION-MATCH-1 edits MatchWireSealedChoices.ts, so its admission requires rerunning this A2F built runner as a neighbour proof."
+    }
+  ],
+  "successorRelease": {
+    "note": "Owner decision 2026-10-26 item 1 places MISSION-MATCH-1 after L1-SMOKE-A2F and before L1-SMOKE-A2M. It is registered by the next commit of this PR and admitted by the third.",
+    "releases": [
+      "MISSION-MATCH-1 (registration, next commit)"
+    ]
+  },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes privacy and authority)",
+    "head": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+    "headNote": "Run at the clean exact merge (state local-verified). The same command is rerun at the final closure head and cited in the PR; a receipt cannot cite its own commit SHA.",
+    "exit": 0,
+    "start": "2026-10-26T21:18:19.8223600Z",
+    "end": "2026-10-26T21:20:06.4350817Z"
+  },
+  "limitations": [
+    "One built-image run on one machine (Windows, Node 22.22.0); the exact-main run is the closure proof, the local runs are in the local receipt.",
+    "Survivors disclosed in the local receipt: R5 (redundant check) and P6; P2 was re-run with a compiling mutant and killed by a named check; P1, P4 and R6-R8 belong to A2M.",
+    "No source-review plain copy: the review is a byte envelope.",
+    "CI is cited from the PR (33 of 33 at 2815c144f), not re-run here."
+  ]
+}
