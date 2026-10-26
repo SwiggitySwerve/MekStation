@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2FP",
+  "stage": "local",
+  "date": "20261025",
+  "evidenceNameNote": "Evidence names keep the literals frozen in units.json L1-SMOKE-A2FP.registration20261020A2FPartition.prospectiveStageManifest.",
+  "recordedAt": "2026-10-26T01:51:55.907Z",
+  "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+  "implementationBase": "cdb5289d28b39b2239262e66a95fbe1a81265db2",
+  "baselineNote": "The unit ledger baseline stays the admission baseline. The PR base is origin/main cdb5289d2 (#2336 merge). All 15 control files are unchanged between 57fd9064c and cdb5289d2 (git diff --stat over src, server.js, package.json, package-lock.json, .github, .oxfmtrc.json, .oxfmtignore, tsconfig files is empty).",
+  "redCommit": "38fdd91e473b8cc53473ee4757b010b5c99481ad",
+  "greenCommit": "0db04fa361877a38586a38a59faa627886f46315",
+  "headBeforeLifecycle": "0db04fa361877a38586a38a59faa627886f46315",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json"
+  },
+  "red": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json"
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "sha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d",
+      "bytes": 2638,
+      "lines": 86,
+      "frozenSha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d",
+      "matchesAdmissionReceipt": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-context.mjs",
+      "sha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb",
+      "bytes": 7932,
+      "lines": 249,
+      "frozenSha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb",
+      "matchesAdmissionReceipt": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+      "sha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd",
+      "bytes": 9448,
+      "lines": 284,
+      "frozenSha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd",
+      "matchesAdmissionReceipt": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+      "sha256": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894",
+      "bytes": 16540,
+      "lines": 463
+    }
+  ],
+  "formatting": "oxfmt --write --config .oxfmtrc.json on the four leaves is idempotent; the three source leaves are byte-identical to the amended hashes in the admission receipt manifest.interfaceChange.amendedLeafBytes (verified from the committed blobs).",
+  "nodeTests": {
+    "command": "node --test scripts/release/l1-built-server-spectator-reachability.test.mjs",
+    "head": "0db04fa361877a38586a38a59faa627886f46315",
+    "lane": "a2fp-impl",
+    "class": "jest",
+    "tests": 16,
+    "pass": 16,
+    "fail": 0,
+    "log": {
+      "sha256": "e5991b1b72d20b789b6187db5840ba4bd5fad93cdb614fa89b79c54bca684c87",
+      "bytes": 3524
+    },
+    "note": "The admitted 15 plus the trusted-flag test (OQ-T)."
+  },
+  "trustedFlagTest": "Added within the frozen test leaf (test lines are exempt, no new file): \"ready witness lets a trusted command through the co-op guard and keeps the other guards\". It passes a trusted co-op match, and refuses a trusted co-op match that is fog-on or not active. It kills M22 (trusted flag ignored). OQ-T is resolved.",
+  "builtImage": {
+    "command": "node scripts/release/run-l1-built-server-spectator-fixture-proof.mjs --build --expected-sha=<head> --output=<abs-new-dir>",
+    "head": "0db04fa361877a38586a38a59faa627886f46315",
+    "lane": "a2fp-impl",
+    "class": "build",
+    "node": "v22.22.0",
+    "runs": [
+      {
+        "id": "run-1",
+        "verdict": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack"
+        ],
+        "errors": [
+          "The operation was aborted due to timeout"
+        ],
+        "processes": 8,
+        "summary": {
+          "sha256": "b1e2e3fe64fd5206ae10af668085155ed0f2ac9716b513f90b9f38e2d4d5d43f",
+          "bytes": 2453
+        },
+        "disposition": "FAIL, transient: accepted-Move and accepted-Attack passed; the readiness probe of the 8th server process (first HTTP request after the last restart, 15 s AbortSignal) timed out while the machine was busy with other lanes. The server had printed MEKSTATION_LISTENER_READY. No guard, witness or case failed. Not retried silently: a second full run with --build on a clean tree followed."
+      },
+      {
+        "id": "run-2",
+        "verdict": "PASS",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical"
+        ],
+        "errors": [],
+        "processes": 8,
+        "offlineWitnessCalls": 7,
+        "image": {
+          "buildId": "1792978514566",
+          "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+          "configSha256": "68cda73241f32ab821fbf586a80227c942a88800578bc1f30487fd249bfcd2b4",
+          "sourceTreeSha256": "5c80d0d89db213b7ea0ddd33c8333d2f5af9e4b3f17ee7e4515c8d4d3abb923e"
+        },
+        "source": {
+          "head": "0db04fa361877a38586a38a59faa627886f46315",
+          "clean": true
+        },
+        "summary": {
+          "sha256": "f80a59fa0f41ff9b35e654953680be0e5192611c0046a60d97ef7fdfcf3c0b4e",
+          "bytes": 2427
+        },
+        "manifest": {
+          "sha256": "e27d73de4ee741becc36e69b28e9ff07b17ac8edd22a9ad294a0b47791de5053",
+          "bytes": 860
+        },
+        "evidence": {
+          "sha256": "228630034c45b442b8cc9ed7e487ab51ea28857b9640669aad8e16521ba31a66",
+          "bytes": 181078
+        },
+        "disposition": "PASS: accepted-Move, accepted-Attack and accepted-Physical, 0 errors, 8 owned server processes, 7 read-only offline witness calls (ready, declared, ready, declared, ready, ready, declared), clean tree at the GREEN head."
+      },
+      {
+        "id": "control",
+        "verdict": "BASELINE-PASS",
+        "note": "Unmutated control run without --build on the same image, as the first run of the mutant batch.",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical"
+        ]
+      }
+    ],
+    "note": "Raw output (evidence.jsonl, server logs, summary.json, manifest.json) stays outside Git under E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/a2fp-impl/built-run-*/; its hashes are above. The exact-main run at the merge commit is the closure proof (G-P3)."
+  },
+  "mutants": {
+    "note": "M1-M16, M18, M18b, M21 were measured at admission on identical leaf bytes (admission mutantInventory). Re-run here on the final bytes: the built-server mutants, M22 and M23.",
+    "builtServer": {
+      "M17": {
+        "mutant": "connect() reuses labels after restart",
+        "verdict": "KILLED",
+        "exit": 1,
+        "errors": [
+          "[reach-Physical] phase advance refused: {\"kind\":\"Error\",\"matchId\":\"12f9889e-7095-4d38-a8a9-06e2fa91f47d\",\"ts\":\"2026-10-26T01:42:32.237Z\",\"code\":\"DUPLICATE_INTENT\",\"reason\":\"Intent id already accepted for this match\",\"intentId\":\"reach-Physical-host-3\"}"
+        ]
+      },
+      "M19": {
+        "mutant": "runner never calls the declared witness",
+        "verdict": "KILLED",
+        "exit": 1,
+        "errors": [
+          "durable is not defined"
+        ]
+      },
+      "M20": {
+        "mutant": "mapRadius back to 4",
+        "verdict": "KILLED",
+        "exit": 1,
+        "errors": [
+          "[reach-Physical] Move not accepted as movement_declared: {\"kind\":\"Event\",\"matchId\":\"84c52ba8-c524-44cd-9051-f3505696dd7e\",\"ts\":\"2026-10-26T01:43:24.788Z\",\"event\":{\"id\":\"cab7248b-7ccb-45f4-a60c-958c7e508439\",\"gameId\":\"84c52ba8-c524-44cd-9051-f3505696dd7e\",\"timestamp\":\"2026-10-26T01:43:24.786Z\",\"type\":\"movement_invalid\",\"turn\":1,\"phase\":\"movement\",\"actorId\":\"fixture-opponent\",\"payload\":{\"unitId\":\"fixture-opponent\",\"from\":{\"q\":-2,\"r\":-5},\"to\":{\"q\":-2,\"r\":0},\"facing\":3,\"movementType\":\"run\",\"reason\":\"TerrainBlocked\",\"details\":\"Destination is outside map bounds\",\"mpCost\":null,\"heatGenerated\":0,\"intentId\":\"reach-Physical-guest2-1\"}},\"deliverySequence\":4}"
+        ]
+      },
+      "M24": {
+        "mutant": "connOf always returns the host connection",
+        "verdict": "KILLED",
+        "exit": 1,
+        "errors": [
+          "[reach-Move] Move not accepted as movement_declared: {\"kind\":\"Error\",\"matchId\":\"ab90614d-a511-40fe-9b55-a3123b82bde6\",\"ts\":\"2026-10-26T01:43:38.646Z\",\"code\":\"AUTH_REJECTED\",\"reason\":\"unit-not-owned\",\"intentId\":\"reach-Move-host2-1\"}"
+        ]
+      },
+      "M25": {
+        "mutant": "offline() does not restart or reconnect after the script",
+        "verdict": "KILLED",
+        "exit": 1,
+        "errors": [
+          "Cannot read properties of undefined (reading 'op')"
+        ]
+      }
+    },
+    "builtServerNotes": {
+      "M17": "Killed as intended: DUPLICATE_INTENT on the first reconnect after a restart.",
+      "M19": "Killed, but by a ReferenceError (\"durable is not defined\"): the mutation removes the declaration and leaves the use, so the kill does not isolate the missing declared witness.",
+      "M20": "Killed as intended: the Physical case cannot move into range on a radius-4 map and Move is not accepted.",
+      "M24": "Killed by AUTH_REJECTED: the host connection sent an intent for the guest. Probabilistic, because initiative is crypto-random per match; it dies whenever the guest moves first in any of the three matches.",
+      "M25": "Killed, but by a TypeError (offline() returns undefined and the witness reads facts.op), not by an assertion about the missing restart."
+    },
+    "nodeTest": {
+      "M22": {
+        "exit": 1,
+        "tests": 1,
+        "pass": 0,
+        "fail": 1,
+        "failed": [
+          "ready witness lets a trusted command through the co-op guard and keeps the other guards"
+        ],
+        "ms": 5795,
+        "verdict": "KILLED"
+      },
+      "M23": {
+        "exit": 0,
+        "tests": 16,
+        "pass": 16,
+        "fail": 0,
+        "failed": [],
+        "ms": 72688,
+        "verdict": "SURVIVED"
+      }
+    },
+    "nodeBaseline": {
+      "exit": 0,
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "failed": [],
+      "ms": 72374,
+      "verdict": "BASELINE-PASS"
+    },
+    "survivors": {
+      "M8": "ready: pending-lock check removed. The already-acted case is also refused by the declaration-already-present check, and the test regex accepts either message. Probably equivalent for reachable states.",
+      "M12": "revealed check removed. Behind the phase guard (Move, Physical) and the second-actor guard (Attack, AttacksRevealed implies all units locked). Probably equivalent; kept as defence in depth.",
+      "M13": "DB lineage comparison removed. The witness never writes, so the in-process tripwire cannot fire; the tests hash DB and WAL before and after independently. Needs a mutating seam, not proposed.",
+      "M23": "principal lookup reverts to the first assignment of a side. No A2FP fixture seeds a stale first assignment row, so the file passes with the mutant. It matters to A2F (stale assignments); a fixture with a stale first row would kill it deterministically."
+    },
+    "m22Disposition": "M22 was a survivor at admission and is killed by the trusted-flag test."
+  },
+  "gateDispositions": [
+    {
+      "id": "G-P0",
+      "disposition": "AUTH-3/AUTH-4 recorded in the admission; #2336 is merged (cdb5289d2). The owner has not overruled the test-support classification of reachability.ts as of this receipt."
+    },
+    {
+      "id": "G-P1",
+      "disposition": "npm run build once per run through heavy-run (class build) from a worktree with a real node_modules (npm ci); expected-sha equals HEAD of a clean tree."
+    },
+    {
+      "id": "G-P2",
+      "disposition": "Node test file, runner PASS with all 3 cases, oxfmt of the four leaves idempotent; validate-roadmap, its tests, lint:units and generate-v220-steps --check are cited in the PR at the final head."
+    },
+    {
+      "id": "G-P3",
+      "disposition": "Open: exact-main run at the merge commit."
+    },
+    {
+      "id": "G-P4",
+      "disposition": "PK-l1-smoke-a2fp-ruling carries a genuine agentRecommendation."
+    },
+    {
+      "id": "G-P5",
+      "disposition": "units.json capException records the literal validator count; the option-A count sits in optionACountedLines."
+    },
+    {
+      "id": "G-P6",
+      "disposition": "Built-image runner run with --build on the amended leaves (run-2 PASS above)."
+    }
+  ],
+  "measuredFit": {
+    "files": {
+      "listed": [
+        "four leaves",
+        "units.json",
+        "PROGRESS.md",
+        "l1-smoke-a2fp-red.json",
+        "l1-smoke-a2fp-local.json",
+        "V2.2.0-STEPS.md (exempt)"
+      ],
+      "cap": 15
+    },
+    "capException": {
+      "countedLines": 667,
+      "optionACountedLines": 383,
+      "tool": "prep/a2fp/draft/measure-cap.cjs over origin/main..HEAD, cross-checked by validate-roadmap --git"
+    }
+  },
+  "packet": {
+    "id": "PK-l1-smoke-a2fp-ruling",
+    "decision": null
+  },
+  "finalHeadProof": "The check suite (generate-v220-steps --check, validate-roadmap plain/--git/--github/--next, its tests, v220 tests, lint:units, format:check, typecheck, lint, openspec validate --all --strict, control-character scan) is run at the PR head after this commit and cited in the PR body.",
+  "notClaimed": [
+    "review, CI, OWNER-RULING, merge or exact-main proof",
+    "a trusted GM or stale-assignment mutation, the privacy matrix, co-op restart, captured rolls or concurrent first sockets (A2F, A2M, A2)",
+    "a fixture that kills M23",
+    "CI wiring of the node:test file"
+  ]
+}

@@ -8464,14 +8464,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "capException": {
+        "countedLines": 667,
+        "recordedBy": "ownerRuling20261020SizeCapOptionA",
+        "optionACountedLines": 383,
+        "optionAExemptLeaves": ["scripts/release/l1-built-server-spectator-reachability.ts"]
+      },
+      "state": "local-verified",
       "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2fp-admission.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/l1-smoke-a2fp-red.json" },
+        "local": { "path": "evidence/l1-smoke-a2fp-local.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -22589,6 +22595,33 @@
           "item": "F4: after a socket drop or an authority restart every player must reload; the app does not reconnect a closed campaign socket by itself. S2 and S7 reload explicitly and assert that nothing is silently re-minted and the same playerId returns. No unit owns an automatic reconnect today."
         }
       ]
+    },
+    {
+      "id": "PK-l1-smoke-a2fp-ruling",
+      "blocks": [
+        "L1-SMOKE-A2FP"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the A2FP ordinary provisioning and read-only phase/unit/declaration reachability proof for accepted Move, Attack and Physical commands on the built image, after independent exact-head privacy and authority review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge followed by the exact-main built-image PASS and closure; release only L1-SMOKE-A2F after genuine verification.",
+          "effort": "Independent review, current CI and exact-main built-image run"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete findings within scope/caps, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head privacy and authority review, required CI and an explicit OWNER-RULING on the exact head. Evidence on file: 16 of 16 node:test falsifiers on the GREEN head; a built-image run on a clean tree at that head (npm run build, owned production server, 8 server processes, 7 offline witness calls) passing accepted-Move, accepted-Attack and accepted-Physical with 0 errors; the built-server mutants M17, M19, M20, M24 and M25 all killed, with M19 and M25 killed by incidental exceptions and M24 only when the guest moves first; M22 (trusted flag ignored) killed by the new trusted-flag test. Disclosed: the first built run failed once on a 15 s readiness-probe timeout of the 8th server while the machine was loaded, with no case or guard failing, and the second full run passed. Review should cover: (1) the witness is read-only (query_only plus a DB and WAL lineage hash) and refuses a live owning PID, a foreign or redirected DB, a non-fog-off, co-op (unless trusted) or non-active match, an unexpected host, bootstrap, seats or phase, a unit that already acted, an absent or duplicated accepted intent, a changed history digest and a second actor that can no longer withhold reveal; (2) the acting principal and unit come from getActivePhaseUnitId and the participant own assignment rows, never from who is host; (3) no source-host call, injected declaration, fake socket, product edit or trusted mutation, and tokens never reach URLs or retained evidence; (4) the Q-F3 interface change (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) that A2F and A2M reuse, with the trusted branch covered only by the new test and mutant M22; (5) survivors M8 and M12 (behind earlier guards, probably equivalent), M13 (needs a mutating seam) and M23 (no stale-first-assignment fixture; it belongs to A2F); (6) the cap fit relies on ownerRuling20261020SizeCapOptionA with reachability.ts classified as test-support, which the owner may contest: the literal validator count is recorded in capException.countedLines and the option-A count beside it. Not claimed: a privacy matrix, co-op restart, captured rolls, concurrent first sockets, a stale-assignment or trusted mutation, CI wiring of the node:test file, or the exact-main built-image run, which closes the unit.",
+      "revertCost": "Delete the four registered leaves and the unit's own lifecycle; no product, A1 harness, helper, config or dependency file is touched.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",

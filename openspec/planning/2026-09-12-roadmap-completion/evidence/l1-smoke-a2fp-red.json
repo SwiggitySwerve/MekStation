@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2FP",
+  "stage": "red",
+  "date": "20261025",
+  "evidenceNameNote": "Evidence names keep the literals frozen in units.json L1-SMOKE-A2FP.registration20261020A2FPartition.prospectiveStageManifest.",
+  "recordedAt": "2026-10-26T01:51:55.907Z",
+  "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+  "implementationBase": "cdb5289d28b39b2239262e66a95fbe1a81265db2",
+  "redCommit": "38fdd91e473b8cc53473ee4757b010b5c99481ad",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json"
+  },
+  "productUnchanged": "Only scripts/release/l1-built-server-spectator-reachability.test.mjs is added at the RED commit; no src/, package.json, server.js, workflow or other script file changes.",
+  "tests": [
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+      "sha256": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894",
+      "bytes": 16540,
+      "lines": 463
+    }
+  ],
+  "runtime": {
+    "node": "v22.22.0",
+    "cwd": "detached worktree at the RED commit (no source leaf present)",
+    "lane": "a2fp-impl",
+    "class": "jest",
+    "command": [
+      "node",
+      "--test",
+      "scripts/release/l1-built-server-spectator-reachability.test.mjs"
+    ],
+    "exitCode": 1,
+    "tests": 1,
+    "pass": 0,
+    "fail": 1,
+    "log": {
+      "sha256": "f001dc47749a1fdce047afc25b3c63227839cf841edbfc9a4006908fa7fc763c",
+      "bytes": 1660
+    },
+    "summary": "The test file fails at import: ERR_MODULE_NOT_FOUND for scripts/release/l1-built-server-spectator-context.mjs. A missing file, not a wrong guard."
+  },
+  "classification": [
+    {
+      "item": "every test in the file",
+      "statusAtBaseline": "not runnable: import of the absent context leaf fails",
+      "class": "RED by absence (weak RED)"
+    },
+    {
+      "item": "trusted-flag test (OQ-T)",
+      "statusAtBaseline": "not runnable at main",
+      "class": "RED by absence; it is guard-level only against the GREEN leaves (mutant M22 below)"
+    }
+  ],
+  "guardLevelRed": "Guard-level RED comes from the mutants run against the GREEN leaves: M1-M7, M9-M11, M14-M16, M18, M21 and (new here) M22 are killed by the file; see the local receipt.",
+  "counts": {
+    "redFailing": 1,
+    "totalFiles": 1
+  },
+  "rawLog": {
+    "encoding": "base64",
+    "bytes": 1660,
+    "sha256": "f001dc47749a1fdce047afc25b3c63227839cf841edbfc9a4006908fa7fc763c",
+    "data": "VEFQIHZlcnNpb24gMTMKIyBub2RlOmludGVybmFsL21vZHVsZXMvZXNtL3Jlc29sdmU6Mjc0CiMgICAgIHRocm93IG5ldyBFUlJfTU9EVUxFX05PVF9GT1VORCgKIyAgICAgICAgICAgXgojIEVycm9yIFtFUlJfTU9EVUxFX05PVF9GT1VORF06IENhbm5vdCBmaW5kIG1vZHVsZSAnRTpcXFByb2plY3RzXFxQZXJzb25hbFxcTWVrU3RhdGlvbi13dFxcYTJmcC1yZWQtMjAyNjEwMjVcXHNjcmlwdHNcXHJlbGVhc2VcXGwxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3ItY29udGV4dC5tanMnIGltcG9ydGVkIGZyb20gRTpcXFByb2plY3RzXFxQZXJzb25hbFxcTWVrU3RhdGlvbi13dFxcYTJmcC1yZWQtMjAyNjEwMjVcXHNjcmlwdHNcXHJlbGVhc2VcXGwxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3ItcmVhY2hhYmlsaXR5LnRlc3QubWpzCiMgICAgIGF0IGZpbmFsaXplUmVzb2x1dGlvbiAobm9kZTppbnRlcm5hbC9tb2R1bGVzL2VzbS9yZXNvbHZlOjI3NDoxMSkKIyAgICAgYXQgbW9kdWxlUmVzb2x2ZSAobm9kZTppbnRlcm5hbC9tb2R1bGVzL2VzbS9yZXNvbHZlOjg1OToxMCkKIyAgICAgYXQgZGVmYXVsdFJlc29sdmUgKG5vZGU6aW50ZXJuYWwvbW9kdWxlcy9lc20vcmVzb2x2ZTo5ODM6MTEpCiMgICAgIGF0IFwjY2FjaGVkRGVmYXVsdFJlc29sdmUgKG5vZGU6aW50ZXJuYWwvbW9kdWxlcy9lc20vbG9hZGVyOjczMToyMCkKIyAgICAgYXQgTW9kdWxlTG9hZGVyLnJlc29sdmUgKG5vZGU6aW50ZXJuYWwvbW9kdWxlcy9lc20vbG9hZGVyOjcwODozOCkKIyAgICAgYXQgTW9kdWxlTG9hZGVyLmdldE1vZHVsZUpvYkZvckltcG9ydCAobm9kZTppbnRlcm5hbC9tb2R1bGVzL2VzbS9sb2FkZXI6MzEwOjM4KQojICAgICBhdCBNb2R1bGVKb2IuX2xpbmsgKG5vZGU6aW50ZXJuYWwvbW9kdWxlcy9lc20vbW9kdWxlX2pvYjoxODI6NDkpIHsKIyAgIGNvZGU6ICdFUlJfTU9EVUxFX05PVF9GT1VORCcsCiMgICB1cmw6ICdmaWxlOi8vL0U6L1Byb2plY3RzL1BlcnNvbmFsL01la1N0YXRpb24td3QvYTJmcC1yZWQtMjAyNjEwMjUvc2NyaXB0cy9yZWxlYXNlL2wxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3ItY29udGV4dC5tanMnCiMgfQojIE5vZGUuanMgdjIyLjIyLjAKIyBTdWJ0ZXN0OiBzY3JpcHRzXFxyZWxlYXNlXFxsMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLXJlYWNoYWJpbGl0eS50ZXN0Lm1qcwpub3Qgb2sgMSAtIHNjcmlwdHNcXHJlbGVhc2VcXGwxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3ItcmVhY2hhYmlsaXR5LnRlc3QubWpzCiAgLS0tCiAgZHVyYXRpb25fbXM6IDczLjU5NzcKICB0eXBlOiAndGVzdCcKICBsb2NhdGlvbjogJ0U6XFxQcm9qZWN0c1xcUGVyc29uYWxcXE1la1N0YXRpb24td3RcXGEyZnAtcmVkLTIwMjYxMDI1XFxzY3JpcHRzXFxyZWxlYXNlXFxsMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLXJlYWNoYWJpbGl0eS50ZXN0Lm1qczoxOjEnCiAgZmFpbHVyZVR5cGU6ICd0ZXN0Q29kZUZhaWx1cmUnCiAgZXhpdENvZGU6IDEKICBzaWduYWw6IH4KICBlcnJvcjogJ3Rlc3QgZmFpbGVkJwogIGNvZGU6ICdFUlJfVEVTVF9GQUlMVVJFJwogIC4uLgoxLi4xCiMgdGVzdHMgMQojIHN1aXRlcyAwCiMgcGFzcyAwCiMgZmFpbCAxCiMgY2FuY2VsbGVkIDAKIyBza2lwcGVkIDAKIyB0b2RvIDAKIyBkdXJhdGlvbl9tcyA3OS4xNzc2Cg=="
+  }
+}

@@ -1,3 +1,13 @@
+## 2026-10-25 L1-SMOKE-A2FP local-verified (implementation; Step 3 unit 1)
+
+Implements L1-SMOKE-A2FP on origin/main cdb5289d2 (#2336): RED (test file only, fails at import on main), GREEN (the three source leaves, byte-identical to the amended hashes in the admission receipt) and this lifecycle commit. The four leaves were added with `git add -f` (`scripts/**` is ignored).
+
+- Proof: 16 of 16 node:test falsifiers (the admitted 15 plus a trusted-flag test); a built-image run with `--build` on a clean tree passed accepted-Move, accepted-Attack and accepted-Physical (8 server processes, 7 read-only witness calls). The first built run failed once on a 15 s readiness-probe timeout of the 8th server under load, with no case or guard failing; it is recorded, not hidden. Built-server mutants M17, M19, M20, M24 and M25 are all killed (M19 and M25 by incidental exceptions, M24 only when the guest moves first); M22 is now killed by the trusted-flag test. Survivors M8, M12, M13 and M23 are disclosed with reasons in the local receipt.
+- Cap: capException.countedLines is 667 (the literal validator count of the squash diff, reachability.ts included); the option-A count is 383 of 500. reachability.ts is test-support under ownerRuling20261020SizeCapOptionA and the owner may contest that. The 15-file cap holds.
+- Packet PK-l1-smoke-a2fp-ruling carries a genuine recommendation; review, OWNER-RULING, CI, merge and the exact-main built-image run are open ([evidence](evidence/l1-smoke-a2fp-local.json)).
+
+---
+
 ## 2026-10-25 L1-SMOKE-A2FP admitted (first Step 3 unit; ledger and evidence only)
 
 Admits L1-SMOKE-A2FP on baseline 57fd9064c, after the LSC-2P closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. GATE OPEN is the Root brief for this PR (owner decision 5: Step 3 starts once LSC-2P closes). The registered undated evidence literal is kept ([evidence](evidence/l1-smoke-a2fp-admission.json)).
