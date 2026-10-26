@@ -8449,7 +8449,13 @@
       "behavior": "Ordinary authenticated provisioning and read-only canonical phase/unit/declaration reachability for accepted Move/Attack/Physical on the built image; activation-aware principal selection, a reveal-holding second actor, strict CLI/precondition falsifiers and frozen import-safe callbacks. No trusted GM/stale mutation or full matrix/restart acceptance.",
       "ownershipPaths": ["scripts"],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8458,12 +8464,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/l1-smoke-a2fp-admission.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -8512,6 +8518,15 @@
           "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
         ],
         "budgetQualification": "No measured complete candidate or fit proof. FP inherits the historical 221+153=374 subtotal before partition/refactoring, read-only witness, activation/CLI/precondition fixes and lifecycle. Every actual aggregate must be measured after normal oxfmt. If FP still does not fit when drafted, stop and tell Root before proposing a third split; policy is being raised with the owner."
+      },
+      "admission20261025": {
+        "date": "2026-10-25",
+        "receipt": "evidence/l1-smoke-a2fp-admission.json",
+        "authority": "Root brief to the implementation worker of the LSC-2P closure PR (GATE OPEN for Step 3, the Q-F3 interface change and the ownershipExceptions extension); owner decision 2026-10-25 item 5 (Step 3 starts once LSC-2P closes).",
+        "placement": "P2: the admission rides the LSC-2P closure PR; implementation starts only after that PR merges.",
+        "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four literal evidence names (admission, red, local, review).",
+        "interfaceChange": "Q-F3: the 21-line a2fp-interface-asks.patch (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) is part of the frozen manifest; patch text and amended leaf hashes are in the receipt manifest.interfaceChange.",
+        "sizeCap": "ownerRuling20261020SizeCapOptionA with reachability.ts as test-support (Root interpretation, owner may overrule before merge); measured fit in the receipt: 657 literal / 373 option A of 500."
       }
     },
     {
@@ -10069,7 +10084,14 @@
         "scripts/__tests__/v220-evidence.test.mjs",
         "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
         "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
-        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-merge-20261025.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-mainproof-20261025.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-source-review-20261025.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-owner-ruling-6404037472.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-57fd9064c-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit's own authentic lifecycle fields and frozen evidence; no other unit/packet/holder/historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -10084,17 +10106,36 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "a7711ad136c70b3380788298414690b589ee8430",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+      "mergeSha": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
       "stageReceipts": {
         "admission": { "path": "evidence/lsc-2p-admission-20261018.json" },
         "red": { "path": "evidence/lsc-2p-red-20261018.json" },
         "local": { "path": "evidence/lsc-2p-local-20261018.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/lsc-2p-admission-review-20261018.json",
+          "head": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+          "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "3e50117317517c91a1a5b73c566f7828de2007f07f4a512deab48c83fa14c2f2",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 63c8fb8aca3ef45d2738803bd8177e4d8bcbaead"
+        },
+        "merge": {
+          "path": "evidence/lsc-2p-merge-20261025.json",
+          "pr": 2335,
+          "head": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+          "mergeSha": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89"
+        },
+        "mainProof": {
+          "path": "evidence/lsc-2p-mainproof-20261025.json",
+          "mergeCommit": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+          "verdict": "PASS",
+          "runtime": "Packaged local-seat run (registered command, LSC2P_PACKAGED=1, installer built from the exact merge): 17 passed (0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -10161,7 +10202,106 @@
           "sha256": "b62b701939aa04cef0b8afd0f5e666326096f9226d5d2989f3c1f065cc9b3793"
         },
         "noProductScope": true
-      }
+      },
+      "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+      "carryForwardRouting20261025": [
+        {
+          "id": "CF-SMOKEA1-7",
+          "severity": "Medium",
+          "owner": "Root (open decision)",
+          "target": "src/lib/multiplayer/server/InMemoryPlayerStore.ts and the P2J carry-forward that depends on this answer",
+          "status": "OPEN DECISION for Root; this closure does not rule",
+          "item": "Packaged evidence (both runs): after an authority restart the seats and public playerIds are unchanged (playerIds come from keys and the seat rows live in SQLite) and the production standalone server prints the InMemoryPlayerStore dev-only warning. Identities therefore survive a restart. Player profiles held by InMemoryPlayerStore (display name, avatar, lastSeenAt) are lost on restart. The record field matchRecovered=no is the spec any-socket-close heuristic: after the restart the authority log shows the GM and P1 sockets accepted and bound to campaign A and exactly one upgrade refused with reason=expired (the log does not name the player; the round-1 review attributed it to the P2 original seat-2 bearer, which had expired before the restart, and the second run has the same timeline: minted in S1/S2, expired during the soak, restart after expiry). The reading is inconclusive, not a product defect. Root rules one of: (a) no identity repair needed (identity is durable; profile loss is accepted and disclosed), or (b) register a profile-persistence follow-up unit. P2J depends on the answer. STEP2-RC-RERUN-1 should record recovery per profile.",
+          "optionsForRoot": [
+            "(a) rule \"no identity repair needed\" and disclose the profile loss",
+            "(b) register a profile-persistence follow-up owner for InMemoryPlayerStore"
+          ],
+          "secondRunRestart": {
+            "seatsUnchanged": true,
+            "idsUnchanged": true,
+            "matchRecovered": "no",
+            "inMemoryPlayerStoreWarning": "seen"
+          },
+          "firstRunRestart": {
+            "seatsUnchanged": true,
+            "idsUnchanged": true,
+            "matchRecovered": "no",
+            "inMemoryPlayerStoreWarning": "seen"
+          }
+        },
+        {
+          "id": "LSC2P-F4-NO-AUTO-RECONNECT",
+          "severity": "Medium",
+          "owner": "Root (decide whether F4 needs an owner before the v2.2.0 human session)",
+          "target": "campaign socket client (the app never reconnects a closed campaign socket)",
+          "status": "OPEN decision for Root; disclosed in the proof doc Known gaps",
+          "item": "F4: after a socket drop or an authority restart every player must reload; the app does not reconnect a closed campaign socket by itself. S2 and S7 reload explicitly and assert that nothing is silently re-minted and the same playerId returns. No unit owns an automatic reconnect today."
+        },
+        {
+          "id": "LSC2P-F5-BINDING-REQUIRED-TEXT",
+          "severity": "Low",
+          "owner": "Root (disclosure)",
+          "target": "bare second tab of an installed profile",
+          "status": "disclosed; S2c records and does not assert",
+          "item": "F5: in a bare second tab the BINDING_REQUIRED text does not render and the forget control is unreachable. Admission S2c expected the text; the run records its absence. No unit owns it."
+        },
+        {
+          "id": "LSC2P-F1-SECURITY-HALF",
+          "severity": "High (release-blocking, already owned)",
+          "owner": "CAMPAIGN-LIVE-WRITE-1 (Step 4, blocked)",
+          "target": "PUT /api/campaigns/[id] and DELETE of a live-host campaign",
+          "status": "owned; open in this build",
+          "item": "From a guest profile viewing the HOST badge, the dashboard whole-record save is accepted by PUT /api/campaigns/[id] and an anonymous DELETE of a live-host campaign answers 204; the campaign socket takes the role from the verified bearer and is not affected. LSC-2P proves no implied server authority only through N4 (no host surfaces in the UI) and S1 (three distinct verified principals)."
+        },
+        {
+          "id": "STEP2-RC-RERUN-1-notes",
+          "severity": "Low",
+          "owner": "STEP2-RC-RERUN-1 (blocked)",
+          "target": "e2e/local-seat-credentials.spec.ts and scripts/qc/v220-evidence.mjs at RC time",
+          "status": "routed; spec and checker changes need a new qualifying run, so they are not made in the closure",
+          "items": [
+            "L-1: make the S5a server-log refusal check unconditional (it is skipped when no log files exist).",
+            "L-2 / M-2: record matchRecovered per profile instead of the any-socket-close heuristic.",
+            "L-4: add a discriminating mutant for \"no automatic mint\" and \"prompt alone mints nothing\" (M6 is a weak kill).",
+            "M-4: run the longer S5b sequence (old seat-2 identity joins campaign B, re-provision, new identity takes the remaining seat while the ghost stays) or move it to the LSC-GM-REMOVE-1 proof.",
+            "L-7 (optional): make the checker verify gaps, operator.kind and installer.sha256 against installed.exeSha256.",
+            "L-9: rebuild the installer from the RC commit (the first run installer bytes were not kept) and remove the MULTIPLAYER_DB_PATH override.",
+            "Step 2 reads \"not started | manual evidence pending\" in the generated page until that rerun, as Step 0 does; this is the generator default, not a defect (owner decision 5)."
+          ]
+        },
+        {
+          "id": "LSC2P-F2-F3-F6-F7",
+          "severity": "Info",
+          "owner": "none (recorded in the proof doc Known gaps)",
+          "target": "proof doc Known gaps",
+          "status": "recorded, not fixed (no src/ scope)",
+          "item": "F2: a refused join leaves a stored bearer and binding in that tab. F3: the join dialog never shows the host refusal reason. F6: the update check contacts GitHub at start. F7: agent shells export ELECTRON_RUN_AS_NODE."
+        },
+        {
+          "id": "LSC2P-GM-REMOVE-UI",
+          "severity": "Info",
+          "owner": "LSC-GM-REMOVE-1 (blocked, Step 5; must land before the human session)",
+          "target": "ordinary-UI GM remove-member control",
+          "status": "routed (Q8 option b); removal UI recorded absent in both packaged runs",
+          "item": "No ordinary-UI ghost-removal control exists; S5c records it absent and M8 kills any spec that claims a removal."
+        },
+        {
+          "id": "LSC2P-PASSWORD-MANAGER",
+          "severity": "Info",
+          "owner": "Step 8 human session",
+          "target": "browser password-manager prompt",
+          "status": "human item; Playwright cannot observe it",
+          "item": "N6 verifies the autocomplete attributes (current-password on create, primary and join; new-password on the new seat password). The prompt itself is a human observation (CF-LSC2OP-4)."
+        },
+        {
+          "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+          "severity": "Low",
+          "owner": "LSC-STORE-RULES-1 (blocked, registered 2026-10-24)",
+          "target": "CampaignCoopEntryPanel.tsx and CoopCredentialRenewal",
+          "status": "routed to its registered owner; not exercised by the packaged run",
+          "item": "The IDENTITY_CHANGED recovery gap carried from LSC-2 (admission carry-in) has a registered owner. The packaged spec, proof doc and local receipt do not mention IDENTITY_CHANGED, so the run records no journey consequence for it; the gap stays open with LSC-STORE-RULES-1."
+        }
+      ]
     },
     {
       "id": "P2CG1H",
@@ -22399,10 +22539,56 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING on the exact head. Evidence on file: one qualifying run of the registered command against an installer built from the clean tree at d302868b3 (17 of 17 tests, S3 real-time soak 59 minutes, N4 before S5b, exit 0); the checker kill tests M9-M13 and the packaged mutants M1-M8 and M2 all died at the named step (M6 is a weak kill: the control does not exist yet). Review should cover: (1) the three distinct public playerIds and the no-implied-role claim, which is now worded as no implied server authority; (2) the known issue F1 recorded in S5b, where the re-provisioned guest sees the HOST badge on the first campaign after joining a second one, disclosed and not fixed per owner decision 2, with N4 asserted before S5b changes the profile; F1 also has a security half that is open in this build (PUT /api/campaigns/[id] accepts the guest's whole-record save and an anonymous DELETE of a live-host campaign answers 204; the campaign socket takes the role from the verified bearer), owned by CAMPAIGN-LIVE-WRITE-1, and this run proves no implied server authority only through the N4 UI checks and S1's three distinct verified players; (3) the Q8(b) outcome and the S5b narrowing (campaign B never held the old seat-2 identity, so S5b shows a re-provisioned identity admitted to a free seat, not the longer ghost sequence of the admission; accept it or move it to STEP2-RC-RERUN-1): re-provision gives a new playerId, the host refuses it while the ghost holds a seat (the join dialog shows only the timeout text; the reason appears in the server log), no removal control exists, and S5b is test-only evidence; (4) G-P2: the app does not reconnect a closed socket by itself, S2 asserts no silent re-mint and the same playerId after a reload; (5) CF-SMOKEA1-7: InMemoryPlayerStore warning seen; the record's matchRecovered=no comes from an any-socket-close heuristic, and the authority log shows the GM and P1 sockets accepted and bound after the restart with only P2's expired seat-2 bearer refused (inconclusive, not a product defect); identities survive a restart but player profiles are lost, so the closure must rule no repair or register a profile-persistence follow-up (P2J depends on it); the app also does not reconnect a closed socket by itself (F4); (6) the folded checker (RC-LSC2P-1) refuses repeated ids, wrong choices, missing hashes and non-PASS scenarios; (7) the soak test is the only per-test timeout override (Q2). Not claimed: R0 (a pre-LSC-2 installer was not built), the password-manager prompt (human item), an RC installer (STEP2-RC-RERUN-1 reruns on the RC build and removes the MULTIPLAYER_DB_PATH override), and any Step 2 completion record. Retain all operator, final UI and packaged gates.",
+      "agentRecommendation": "Accept only after independent exact-head review, required CI and explicit OWNER-RULING on the exact head. Evidence on file: one qualifying run of the registered command against an installer built from the clean tree at d302868b3 (17 of 17 tests, S3 real-time soak 59 minutes, N4 before S5b, exit 0); the checker kill tests M9-M13 and the packaged mutants M1-M8 and M2 all died at the named step (M6 is a weak kill: the control does not exist yet). Review should cover: (1) the three distinct public playerIds and the no-implied-role claim, which is now worded as no implied server authority; (2) the known issue F1 recorded in S5b, where the re-provisioned guest sees the HOST badge on the first campaign after joining a second one, disclosed and not fixed per owner decision 2, with N4 asserted before S5b changes the profile; F1 also has a security half that is open in this build (PUT /api/campaigns/[id] accepts the guest's whole-record save and an anonymous DELETE of a live-host campaign answers 204; the campaign socket takes the role from the verified bearer), owned by CAMPAIGN-LIVE-WRITE-1, and this run proves no implied server authority only through the N4 UI checks and S1's three distinct verified players; (3) the Q8(b) outcome and the S5b narrowing (campaign B never held the old seat-2 identity, so S5b shows a re-provisioned identity admitted to a free seat, not the longer ghost sequence of the admission; accept it or move it to STEP2-RC-RERUN-1): re-provision gives a new playerId, the host refuses it while the ghost holds a seat (the join dialog shows only the timeout text; the reason appears in the server log), no removal control exists, and S5b is test-only evidence; (4) G-P2: the app does not reconnect a closed socket by itself, S2 asserts no silent re-mint and the same playerId after a reload; (5) CF-SMOKEA1-7: InMemoryPlayerStore warning seen; the record's matchRecovered=no comes from an any-socket-close heuristic, and the authority log shows the GM and P1 sockets accepted and bound after the restart with only P2's expired seat-2 bearer refused (inconclusive, not a product defect); identities survive a restart but player profiles are lost, so the closure must rule no repair or register a profile-persistence follow-up (P2J depends on it); the app also does not reconnect a closed socket by itself (F4); (6) the folded checker (RC-LSC2P-1) refuses repeated ids, wrong choices, missing hashes and non-PASS scenarios; (7) the soak test is the only per-test timeout override (Q2). Not claimed: R0 (a pre-LSC-2 installer was not built), the password-manager prompt (human item), an RC installer (STEP2-RC-RERUN-1 reruns on the RC build and removes the MULTIPLAYER_DB_PATH override), and any Step 2 completion record. Retain all operator, final UI and packaged gates. Closure (2026-10-25): the OWNER-RULING (comment 6404037472) accepted this exact head and the listed qualifications; the exact-main rerun on an installer built from 57fd9064c with the head spec passed 17 of 17 (installer c2e7ac5255a9b089adb330184ff7faab0d0c75b8d788c5df7b1f0a312037f0a1); CF-SMOKEA1-7 and F4 stay open decisions for Root.",
       "revertCost": "Revert the three registered leaves (config, spec, proof doc), the five RC-LSC2P-1 checker, test and page leaves and the unit lifecycle edits; no src/ file, package.json or workflow changes, so product behavior is unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-25T22:09:15Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2335#issuecomment-6404037472"
+      },
+      "ruling": {
+        "ruledHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+        "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+        "pr": 2335,
+        "commentId": 6404037472,
+        "author": "SwiggitySwerve",
+        "bodySha256": "a19e1e38710a859b9be9e56d2583629f1ed94db41390f3f7a5cf60b362619ae9"
+      },
+      "openRegistrationFollowUps": [
+        {
+          "id": "CF-SMOKEA1-7",
+          "severity": "Medium",
+          "owner": "Root (open decision)",
+          "target": "src/lib/multiplayer/server/InMemoryPlayerStore.ts and the P2J carry-forward that depends on this answer",
+          "status": "OPEN DECISION for Root; this closure does not rule",
+          "item": "Packaged evidence (both runs): after an authority restart the seats and public playerIds are unchanged (playerIds come from keys and the seat rows live in SQLite) and the production standalone server prints the InMemoryPlayerStore dev-only warning. Identities therefore survive a restart. Player profiles held by InMemoryPlayerStore (display name, avatar, lastSeenAt) are lost on restart. The record field matchRecovered=no is the spec any-socket-close heuristic: after the restart the authority log shows the GM and P1 sockets accepted and bound to campaign A and exactly one upgrade refused with reason=expired (the log does not name the player; the round-1 review attributed it to the P2 original seat-2 bearer, which had expired before the restart, and the second run has the same timeline: minted in S1/S2, expired during the soak, restart after expiry). The reading is inconclusive, not a product defect. Root rules one of: (a) no identity repair needed (identity is durable; profile loss is accepted and disclosed), or (b) register a profile-persistence follow-up unit. P2J depends on the answer. STEP2-RC-RERUN-1 should record recovery per profile.",
+          "optionsForRoot": [
+            "(a) rule \"no identity repair needed\" and disclose the profile loss",
+            "(b) register a profile-persistence follow-up owner for InMemoryPlayerStore"
+          ],
+          "secondRunRestart": {
+            "seatsUnchanged": true,
+            "idsUnchanged": true,
+            "matchRecovered": "no",
+            "inMemoryPlayerStoreWarning": "seen"
+          },
+          "firstRunRestart": {
+            "seatsUnchanged": true,
+            "idsUnchanged": true,
+            "matchRecovered": "no",
+            "inMemoryPlayerStoreWarning": "seen"
+          }
+        },
+        {
+          "id": "LSC2P-F4-NO-AUTO-RECONNECT",
+          "severity": "Medium",
+          "owner": "Root (decide whether F4 needs an owner before the v2.2.0 human session)",
+          "target": "campaign socket client (the app never reconnects a closed campaign socket)",
+          "status": "OPEN decision for Root; disclosed in the proof doc Known gaps",
+          "item": "F4: after a socket drop or an authority restart every player must reload; the app does not reconnect a closed campaign socket by itself. S2 and S7 reload explicitly and assert that nothing is silently re-minted and the same playerId returns. No unit owns an automatic reconnect today."
+        }
+      ]
     },
     {
       "id": "PK-ts7s1a-ruling",

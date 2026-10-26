@@ -1,0 +1,256 @@
+{
+  "unit": "LSC-2P",
+  "stage": "merge",
+  "recordedAt": "2026-10-25T23:43:27.893Z",
+  "pr": 2335,
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2335",
+  "head": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+  "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+  "mergeSha": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+  "mergedAt": "2026-10-25T22:09:21Z",
+  "mergedBy": "SwiggitySwerve",
+  "baseline": "a7711ad136c70b3380788298414690b589ee8430",
+  "baselineNote": "The admission baseline (a7711ad13, the #2332 merge) differs from the PR base: #2334 merged first at 79211e5a1, which is prBaseRefOid and parent 1 of the merge. #2334 changed only the roadmap ledger, the Step 2 scope text and the v220-steps pin; it touches none of the LSC-2P leaves.",
+  "prBaseRefOid": "79211e5a16104d7f788435579bbb0a9d5a1bf1d9",
+  "parents": [
+    "79211e5a16104d7f788435579bbb0a9d5a1bf1d9",
+    "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead"
+  ],
+  "mainBeforeMerge": "79211e5a16104d7f788435579bbb0a9d5a1bf1d9",
+  "mergedTree": "4ea33c4ef0c6d428fde2a4898208758e77b19b67",
+  "reconstructedTree": "4ea33c4ef0c6d428fde2a4898208758e77b19b67",
+  "integrationClean": true,
+  "topology": "two-parent merge commit; ordered parent2 equals the exact reviewed head; the merged tree equals git merge-tree --write-tree of the two parents and equals the tree of the PR head (4ea33c4ef)",
+  "mergeCommitMessageSha256": "3529c49fa71174edbe5f5fd0965f31fa37081d3aa6de75d409873d5bb89668cb",
+  "mergeCommand": "Merged with --match-head-commit 63c8fb8aca3ef45d2738803bd8177e4d8bcbaead (OWNER-RULING comment 6404037472).",
+  "sourceIdentities": [
+    {
+      "path": "docs/releases/v2.2.0-local-seat-proof.md",
+      "reviewedBlob": "438cc2855d6bb3a5e180ba758831c0dd38d11b3d",
+      "prHeadBlob": "438cc2855d6bb3a5e180ba758831c0dd38d11b3d",
+      "mergeBlob": "438cc2855d6bb3a5e180ba758831c0dd38d11b3d"
+    },
+    {
+      "path": "e2e/local-seat-credentials.spec.ts",
+      "reviewedBlob": "86e5dabed2e1b57bc8f4c1b729fe8a549be2f11b",
+      "prHeadBlob": "86e5dabed2e1b57bc8f4c1b729fe8a549be2f11b",
+      "mergeBlob": "86e5dabed2e1b57bc8f4c1b729fe8a549be2f11b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "reviewedBlob": "514e4bd44785dfac373b86e87cda03fdb54e9cd8",
+      "prHeadBlob": "514e4bd44785dfac373b86e87cda03fdb54e9cd8",
+      "mergeBlob": "514e4bd44785dfac373b86e87cda03fdb54e9cd8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+      "reviewedBlob": "e39b5bf161efac6ecc4cd5d5b3ec34502a480836",
+      "prHeadBlob": "e39b5bf161efac6ecc4cd5d5b3ec34502a480836",
+      "mergeBlob": "e39b5bf161efac6ecc4cd5d5b3ec34502a480836"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+      "reviewedBlob": "935fc96416aad286b42a6946a8c7cb2ef101b243",
+      "prHeadBlob": "935fc96416aad286b42a6946a8c7cb2ef101b243",
+      "mergeBlob": "935fc96416aad286b42a6946a8c7cb2ef101b243"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+      "reviewedBlob": "7a4a8ad103b356d239d34dc349da0db037497cc1",
+      "prHeadBlob": "7a4a8ad103b356d239d34dc349da0db037497cc1",
+      "mergeBlob": "7a4a8ad103b356d239d34dc349da0db037497cc1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "reviewedBlob": "108ebceb818f555e27d5cb21697d44bc2b4805df",
+      "prHeadBlob": "108ebceb818f555e27d5cb21697d44bc2b4805df",
+      "mergeBlob": "108ebceb818f555e27d5cb21697d44bc2b4805df"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "reviewedBlob": "c683286eb0e098fad3b6d82ccc9619efde03a4e0",
+      "prHeadBlob": "c683286eb0e098fad3b6d82ccc9619efde03a4e0",
+      "mergeBlob": "c683286eb0e098fad3b6d82ccc9619efde03a4e0"
+    },
+    {
+      "path": "playwright.local-seat-packaged.config.ts",
+      "reviewedBlob": "d0af05b7fdd4395abe599470cade0e7b1883992e",
+      "prHeadBlob": "d0af05b7fdd4395abe599470cade0e7b1883992e",
+      "mergeBlob": "d0af05b7fdd4395abe599470cade0e7b1883992e"
+    },
+    {
+      "path": "scripts/__tests__/v220-evidence.test.mjs",
+      "reviewedBlob": "d588354bf4fd07dddd48a4f1ad7e8ccea7ba29c8",
+      "prHeadBlob": "d588354bf4fd07dddd48a4f1ad7e8ccea7ba29c8",
+      "mergeBlob": "d588354bf4fd07dddd48a4f1ad7e8ccea7ba29c8"
+    },
+    {
+      "path": "scripts/qc/v220-evidence.mjs",
+      "reviewedBlob": "4eeb5c1e7b8f4001cbb1f5ff27ec09c864cf2aa4",
+      "prHeadBlob": "4eeb5c1e7b8f4001cbb1f5ff27ec09c864cf2aa4",
+      "mergeBlob": "4eeb5c1e7b8f4001cbb1f5ff27ec09c864cf2aa4"
+    }
+  ],
+  "commits": [
+    {
+      "oid": "24783032a2c2766a6e7e2b50b21cf78bcffaa364",
+      "headline": "test(LSC-2P): RED packaged local-seat spec, config, proof-doc layout"
+    },
+    {
+      "oid": "30122d695c48774815876cee811ee44814bf8d18",
+      "headline": "feat(LSC-2P): register the local-seat-proof evidence kind and flip the Step 2 done-test"
+    },
+    {
+      "oid": "d302868b3b14ea720107aa66f8bd911cb0cc5968",
+      "headline": "Merge remote-tracking branch origin/main into work/lsc-2p-20261024"
+    },
+    {
+      "oid": "4d99661bf511b43c0f53c138c287481314687561",
+      "headline": "test(LSC-2P): installed local-seat identity proof (record, receipts, packet)"
+    },
+    {
+      "oid": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+      "headline": "docs(LSC-2P): review fixes M-1..M-4 and low findings for #2335"
+    }
+  ],
+  "sourceCensus": {
+    "files": [
+      "docs/releases/v2.2.0-local-seat-proof.md",
+      "e2e/local-seat-credentials.spec.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "playwright.local-seat-packaged.config.ts",
+      "scripts/__tests__/v220-evidence.test.mjs",
+      "scripts/qc/v220-evidence.mjs"
+    ],
+    "count": 11,
+    "countedAdditions": 339,
+    "countedRule": "added lines of git diff --numstat --no-renames <mergeSha>^1 <mergeSha>, skipping evidence/ and the UNCOUNTED_FILES patterns (e2e/, __tests__/, *.test.*, *.spec.*), as validate-roadmap.mjs --git counts; the generated V2.2.0-STEPS.md page is counted",
+    "byFile": [
+      {
+        "path": "docs/releases/v2.2.0-local-seat-proof.md",
+        "additions": 223,
+        "deletions": 0,
+        "counted": true
+      },
+      {
+        "path": "e2e/local-seat-credentials.spec.ts",
+        "additions": 1924,
+        "deletions": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "additions": 2,
+        "deletions": 2,
+        "counted": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+        "additions": 4,
+        "deletions": 0,
+        "counted": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-local-20261018.json",
+        "additions": 649,
+        "deletions": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/lsc-2p-red-20261018.json",
+        "additions": 130,
+        "deletions": 0,
+        "counted": false
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "additions": 30,
+        "deletions": 3,
+        "counted": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+        "additions": 3,
+        "deletions": 4,
+        "counted": true
+      },
+      {
+        "path": "playwright.local-seat-packaged.config.ts",
+        "additions": 37,
+        "deletions": 0,
+        "counted": true
+      },
+      {
+        "path": "scripts/__tests__/v220-evidence.test.mjs",
+        "additions": 92,
+        "deletions": 0,
+        "counted": false
+      },
+      {
+        "path": "scripts/qc/v220-evidence.mjs",
+        "additions": 40,
+        "deletions": 0,
+        "counted": true
+      }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "files": 11,
+    "filesNote": "the generated page is exempt from the file count (ownerRuling20261024StepsPageFileCap), so 10 of 15 counted files",
+    "counted": 339,
+    "capExceptionNeeded": false
+  },
+  "ownerRuling": {
+    "ruledHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "pr": 2335,
+    "commentId": 6404037472,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a19e1e38710a859b9be9e56d2583629f1ed94db41390f3f7a5cf60b362619ae9",
+    "at": "2026-10-25T22:09:15Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2335#issuecomment-6404037472",
+    "bodyBytes": 3254,
+    "envelope": {
+      "path": "evidence/lsc-2p-owner-ruling-6404037472.bytes.json",
+      "payloadSha256": "a19e1e38710a859b9be9e56d2583629f1ed94db41390f3f7a5cf60b362619ae9",
+      "payloadBytes": 3254
+    },
+    "copyEqualsLive": true,
+    "copyEqualsRootSource": true,
+    "rootSource": "E:/Projects/Personal/MekStation-wt/_receipts/pr2335-owner-ruling-63c8fb8ac.md",
+    "label": "owner-ruled"
+  },
+  "ci": {
+    "run": 40237866103,
+    "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40237866103",
+    "headSha": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "event": "pull_request",
+    "conclusion": "success",
+    "jobs": 33,
+    "checks": "33/33 SUCCESS (gh pr checks 2335 and gh run view 40237866103)"
+  },
+  "reviewRounds": [
+    {
+      "round": 1,
+      "reviewedHead": "4d99661bf511b43c0f53c138c287481314687561",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES",
+      "report": "evidence/lsc-2p-source-review-20261025.bytes.json additionalPayloads[0]"
+    },
+    {
+      "round": 2,
+      "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES (PR body text only; applied)",
+      "report": "evidence/lsc-2p-source-review-20261025.bytes.json top-level payload"
+    }
+  ],
+  "mergeNotes": [
+    "The merge commit tree equals the reviewed head tree, so every leaf at the merge is byte-identical to the reviewed head (leavesAtMerge in the mainProof receipt)."
+  ]
+}

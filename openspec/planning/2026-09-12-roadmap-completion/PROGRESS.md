@@ -1,3 +1,30 @@
+## 2026-10-25 L1-SMOKE-A2FP admitted (first Step 3 unit; ledger and evidence only)
+
+Admits L1-SMOKE-A2FP on baseline 57fd9064c, after the LSC-2P closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. GATE OPEN is the Root brief for this PR (owner decision 5: Step 3 starts once LSC-2P closes). The registered undated evidence literal is kept ([evidence](evidence/l1-smoke-a2fp-admission.json)).
+
+- Authority: HOLD lift (holdLiftAmendment20261024), the merge-through order, owner decisions 2026-10-25 1-8, the size-cap rule ownerRuling20261020SizeCapOptionA, and the Q-F3 interface change; proofClass full; no PK packet until GREEN.
+- Fresh census at 57fd9064c with the commit-1 ledger: no literal collision on the four leaves, no open PR touching a leaf or consumer (only the draft #2113), the `scripts` alias of STEP2-RC-RERUN-1 grants nothing. All 15 controls are byte-identical to the prep hashes.
+- Q-F3 is part of the frozen manifest: the 21-line interface change (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) with the patch text, its sha256 and the amended leaf hashes; A2F and A2M reuse the leaves instead of copying about 50 lines.
+- Measured fit (amended leaves): 619 literal leaf lines (86 + 249 + 284) plus the test file (445 lines, exempt). capException.countedLines is 657 literal and 373 under option A, measured with measure-cap.cjs on a drafted implementation diff (units.json +36, page +2); reachability.ts is test-support under Root's interpretation and the owner may overrule it before this PR merges (the contingency split costs two more PRs).
+- Tests and mutants rerun on the amended leaves through heavy-run: 15 of 15 (the prep 13 plus the adopted M4/M10 gap tests). Killed: M1-M7, M9-M11, M14-M16, M18, M18b and M21; M4 and M10 are now killed outright. Survivors M8, M12, M13, M22, M23; M17, M19, M20, M24 and M25 need a built server and were not run.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md and the four literal evidence names; the new scripts/release leaves need `git add -f` at implementation.
+- Open: B2 (owner may overrule the witness classification), B7 (the amended leaves have no built-image run yet), a test for the trusted flag, stub-image falsifiers for M17/M19/M20.
+
+---
+
+## 2026-10-25 LSC-2P closed; main-verified (exact-main packaged proof); Step 3 opens
+
+Closes LSC-2P (PR #2335, reviewed and merged head 63c8fb8ac, merge 57fd9064c) as main-verified. The OWNER-RULING (comment 6404037472) accepted that exact head.
+
+- Exact-main proof at clean 57fd9064c (its tree equals the reviewed head tree, so the eight proof leaves are byte-identical to the local receipt): fresh `npm ci` and `npm --prefix desktop ci`; `npm run electron:build`; the NSIS package built with `--publish never` and no token (MekStation-2.2.0-lsc2p.2-win-x64.exe, 177306577 bytes, sha256 c2e7ac5255a9b089adb330184ff7faab0d0c75b8d788c5df7b1f0a312037f0a1, installed MekStation.exe sha256 0e3171e01572724602f1728b564bb266fa833ea36c09fff84adaca84bc3ceb63, Authenticode NotSigned). G-P5: the registered command with the head spec and no flag, 22:34Z-23:37Z: 17 of 17 passed, exit 0, N4 before S5b, S3 real-time soak 1.0 h incl. N5, three distinct public playerIds. The restart again kept seats and ids and showed the InMemoryPlayerStore warning with matchRecovered=no (recorded, not asserted). G-P7 at the same clean tree: v220 tests 130/130, generate-v220-steps --check, validate-roadmap plain, --git and --github (94 nodes) all exit 0, validate-roadmap tests 86/86.
+- Receipts: review (the two Opus reports in one byte envelope, M-1..M-4 and the listed Low fixes applied in 63c8fb8ac, the accepted-on-the-record items), merge and mainProof; the ruling comment is byte-copied and equals the live comment and the Root copy; one log envelope holds the tool-check, build, install, run and authority logs and the PowerShell recipe. PK-lsc-2p-ruling decision and ruling are filled.
+- No v220-step-evidence.json Step 2 entry (owner decision 5): Step 2 keeps the generator default "not started | manual evidence pending" until STEP2-RC-RERUN-1 reruns it on the RC build; the page now shows LSC-2P main-verified.
+- Carry-forward routing (units.json LSC-2P.carryForwardRouting20261025): CF-SMOKEA1-7 (identities survive a restart; player profiles do not) and F4 (no automatic reconnect) are open decisions for Root, P2J depends on the first; F1 security half stays with CAMPAIGN-LIVE-WRITE-1; STEP2-RC-RERUN-1 gets L-1, L-2, L-4, M-4, L-7 and L-9; F2/F3/F5/F6/F7 are recorded; the ghost-removal UI is LSC-GM-REMOVE-1; the password-manager prompt is a Step 8 human item.
+- heavy-run: the packaged run held its package ticket for about 66 minutes against the 30-minute lease, as the first run did; the lsc-2p-closure OVERDUE marker is for Root to clear.
+- No successor is released: P2J and P2CG1H keep other open predecessors. Step 3 opens by the admission of L1-SMOKE-A2FP in the next commit of this PR.
+
+---
+
 ## 2026-10-25 Release-blocking units registered from the quality review (ledger and docs; budget pin)
 
 Recorded the owner's council-plan decisions 1-8 (owner-decisions-20261025.md, sha256 c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4) and the 2026-10-24 d desktop/origin decision (sha256 e1633c49a158f2e76e1ba137c63f79a281a5ad7e6b47da770bde0fc825663eef) verbatim as `ownerRuling20261025ReleaseBlockingSet`; receipts stay outside the repository.

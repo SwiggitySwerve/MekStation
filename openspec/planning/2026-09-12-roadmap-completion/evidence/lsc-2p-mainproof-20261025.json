@@ -1,0 +1,822 @@
+{
+  "unit": "LSC-2P",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-25T23:43:27.893Z",
+  "mergeCommit": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/lsc-2p-closure-20261025",
+  "runtime": {
+    "playwright": "Packaged local-seat run (registered command, LSC2P_PACKAGED=1, installer built from the exact merge): 17 passed (0 failed, 0 skipped, 0 flaky)",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci and npm --prefix desktop ci at the clean exact merge before any closure edit",
+    "build": "npm run electron:build, then in desktop/: npm run rebuild:next-standalone and npx electron-builder --win nsis --x64 --config.extraMetadata.version=2.2.0-lsc2p.2 --publish never (no GH token): exit 0 each",
+    "toolChecks": "G-P7: v220 tests tests 130 / pass 130 / fail 0; generate-v220-steps --check exit 0; validate-roadmap plain, --git and --github exit 0 (ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows); validate-roadmap.test.mjs tests 86 / pass 86 / fail 0",
+    "scope": "Installed Windows x64 NSIS authority at http://127.0.0.1:3001, three isolated Chromium profiles, ordinary shipped UI only; the same registered command and head spec as the local run, on an installer built from the exact merge commit.",
+    "schemaNote": "runtime.playwright is the validator field for a result line; this is a Playwright run of the registered packaged command, not a Jest line."
+  },
+  "proofClass": "full",
+  "machineGate": "heavy-run.mjs --lane lsc-2p-closure --class build|jest|package --cwd E:/Projects/Personal/MekStation-wt/lsc-2p-closure-20261025 -- <command>; the idle gate was unmodified (no HEAVY_IDLE_CMD)",
+  "execution": "Fresh worktree from fetched origin/main (57fd9064c), clean before and after every job (git status --porcelain empty). npm ci, npm --prefix desktop ci, electron:build and the NSIS package ran as build and package tickets, the G-P7 tool checks as one jest ticket, and the packaged run (silent install, scrubbed-environment launch, registered command, graceful teardown) as one package ticket that overran the 30-minute package lease, as the first run did (the run takes about an hour; the heavy-run OVERDUE marker is Root to clear). ELECTRON_RUN_AS_NODE, GH_TOKEN and GITHUB_TOKEN were removed from the process environment; electron-builder ran with --publish never.",
+  "ancestry": {
+    "mergeSha": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "originMain": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "isAncestorOfOriginMain": true,
+    "checkedAt": "2026-10-25T23:43:27.893Z",
+    "note": "git fetch origin main reported 57fd9064c before the worktree was created; git merge-base --is-ancestor exit 0"
+  },
+  "exactMain": {
+    "mergeTree": "4ea33c4ef0c6d428fde2a4898208758e77b19b67",
+    "equalsReviewedHeadTree": true,
+    "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "leavesAtMerge": [
+      {
+        "path": "playwright.local-seat-packaged.config.ts",
+        "mergeBlob": "d0af05b7fdd4395abe599470cade0e7b1883992e",
+        "mergeSha256": "a4f78ac55e006ff7a2b752ea2ca37327cbfd3c88a6b416ae4aaa83e9630cc0e8",
+        "mergeBytes": 1092,
+        "localReceiptSha256": "a4f78ac55e006ff7a2b752ea2ca37327cbfd3c88a6b416ae4aaa83e9630cc0e8",
+        "localReceiptBytes": 1092,
+        "equal": true
+      },
+      {
+        "path": "e2e/local-seat-credentials.spec.ts",
+        "mergeBlob": "86e5dabed2e1b57bc8f4c1b729fe8a549be2f11b",
+        "mergeSha256": "f58fe19be4deb1e6e166768309496450291dac196f27c83125cd5010ad47ee35",
+        "mergeBytes": 66166,
+        "localReceiptSha256": "f58fe19be4deb1e6e166768309496450291dac196f27c83125cd5010ad47ee35",
+        "localReceiptBytes": 66166,
+        "equal": true
+      },
+      {
+        "path": "docs/releases/v2.2.0-local-seat-proof.md",
+        "mergeBlob": "438cc2855d6bb3a5e180ba758831c0dd38d11b3d",
+        "mergeSha256": "f291ad791171ceedcf1d48ad3ac7ec25b38716fc4962bb53051fc57f6be75a08",
+        "mergeBytes": 32317,
+        "localReceiptSha256": "f291ad791171ceedcf1d48ad3ac7ec25b38716fc4962bb53051fc57f6be75a08",
+        "localReceiptBytes": 32317,
+        "equal": true
+      },
+      {
+        "path": "scripts/qc/v220-evidence.mjs",
+        "mergeBlob": "4eeb5c1e7b8f4001cbb1f5ff27ec09c864cf2aa4",
+        "mergeSha256": "1350bf72e5dc2d33801b423d9f6894de9e029cf9fb8cda6ba8a543bef2d7a7b4",
+        "mergeBytes": 11984,
+        "localReceiptSha256": "1350bf72e5dc2d33801b423d9f6894de9e029cf9fb8cda6ba8a543bef2d7a7b4",
+        "localReceiptBytes": 11984,
+        "equal": true
+      },
+      {
+        "path": "scripts/__tests__/v220-evidence.test.mjs",
+        "mergeBlob": "d588354bf4fd07dddd48a4f1ad7e8ccea7ba29c8",
+        "mergeSha256": "9ef68d48a4a3a0ea9d0febea4e4cbbf7004411c6a7622aa36dc6683d13756494",
+        "mergeBytes": 31380,
+        "localReceiptSha256": "9ef68d48a4a3a0ea9d0febea4e4cbbf7004411c6a7622aa36dc6683d13756494",
+        "localReceiptBytes": 31380,
+        "equal": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+        "mergeBlob": "c683286eb0e098fad3b6d82ccc9619efde03a4e0",
+        "mergeSha256": "64195bea50c8d1e36275503423118cc0ba4e0f514712ea0b741ec51b76b6ad15",
+        "mergeBytes": 8029,
+        "localReceiptSha256": "64195bea50c8d1e36275503423118cc0ba4e0f514712ea0b741ec51b76b6ad15",
+        "localReceiptBytes": 8029,
+        "equal": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V220-EVIDENCE.md",
+        "mergeBlob": "e39b5bf161efac6ecc4cd5d5b3ec34502a480836",
+        "mergeSha256": "c710a574931eb5f6aa1326745d3f006b3b44e6ae9680719876fa27a4507e93b8",
+        "mergeBytes": 7829,
+        "localReceiptSha256": "c710a574931eb5f6aa1326745d3f006b3b44e6ae9680719876fa27a4507e93b8",
+        "localReceiptBytes": 7829,
+        "equal": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "mergeBlob": "514e4bd44785dfac373b86e87cda03fdb54e9cd8",
+        "mergeSha256": "e38efb31d2be663f8be325cf1e5f715ad792e8f9d8523eb22c8b75f34a0c7b27",
+        "mergeBytes": 2846,
+        "localReceiptSha256": "e38efb31d2be663f8be325cf1e5f715ad792e8f9d8523eb22c8b75f34a0c7b27",
+        "localReceiptBytes": 2846,
+        "equal": true
+      }
+    ],
+    "note": "The merged tree equals the tree of the reviewed head, so every leaf at the merge equals the leaf the local receipt hashed."
+  },
+  "toolChecks": [
+    {
+      "name": "chk-v220tests",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/__tests__/v220-evidence.test.mjs",
+        "scripts/__tests__/v220-format.test.mjs",
+        "scripts/__tests__/v220-steps.test.mjs"
+      ],
+      "command": "node --test scripts/__tests__/v220-evidence.test.mjs scripts/__tests__/v220-format.test.mjs scripts/__tests__/v220-steps.test.mjs",
+      "exit": 0,
+      "startedAt": "2026-10-25T22:29:20.0731699Z",
+      "endedAt": "2026-10-25T22:29:24.1677825Z",
+      "summary": "tests 130 / pass 130 / fail 0",
+      "logSha256": "7154fb7f6a3bb086f99b9321ec9e43d7f84edb021f17f5dad5b1b89afb1c48eb",
+      "logBytes": 20661
+    },
+    {
+      "name": "chk-gen",
+      "argv": [
+        "node",
+        "scripts/qc/generate-v220-steps.mjs",
+        "--check"
+      ],
+      "command": "node scripts/qc/generate-v220-steps.mjs --check",
+      "exit": 0,
+      "startedAt": "2026-10-25T22:29:24.1688360Z",
+      "endedAt": "2026-10-25T22:29:24.2752990Z",
+      "summary": "exit 0, no output (generated page equals the checked-in page)",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logBytes": 0
+    },
+    {
+      "name": "chk-vr",
+      "argv": [
+        "node",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+      ],
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "startedAt": "2026-10-25T22:29:24.2752990Z",
+      "endedAt": "2026-10-25T22:29:29.3148110Z",
+      "summary": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "logSha256": "1fe05c0bd326aeefadc48f01dd1e4cfa8310a7c1a3e940e7c0b82f4185db57c4",
+      "logBytes": 80
+    },
+    {
+      "name": "chk-vrgit",
+      "argv": [
+        "node",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--git"
+      ],
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exit": 0,
+      "startedAt": "2026-10-25T22:29:29.3158459Z",
+      "endedAt": "2026-10-25T22:29:46.9613772Z",
+      "summary": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "logSha256": "6458759f95c1ef66ac56256b3bad514006fe1e6647b14b1b8119a43a8452eec0",
+      "logBytes": 2359
+    },
+    {
+      "name": "chk-vrgh",
+      "argv": [
+        "node",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--github"
+      ],
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github",
+      "exit": 0,
+      "startedAt": "2026-10-25T22:29:46.9618941Z",
+      "endedAt": "2026-10-25T22:31:28.2461520Z",
+      "summary": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "logSha256": "1fe05c0bd326aeefadc48f01dd1e4cfa8310a7c1a3e940e7c0b82f4185db57c4",
+      "logBytes": 80
+    },
+    {
+      "name": "chk-vrtest",
+      "argv": [
+        "node",
+        "--test",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+      ],
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "exit": 0,
+      "startedAt": "2026-10-25T22:31:28.2471569Z",
+      "endedAt": "2026-10-25T22:31:41.1095079Z",
+      "summary": "tests 86 / pass 86 / fail 0",
+      "logSha256": "1b65bc61e736d01bf410edcaaf8770056113a940bfdb80323706fad5a7b62546",
+      "logBytes": 16886
+    }
+  ],
+  "toolChecksTree": {
+    "headBefore": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "statusBefore": 0,
+    "headAfter": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "statusAfter": 0,
+    "summaryLog": {
+      "sha256": "93cd8355f1743007e09d6468c976e74482bdef9b73a0566bf88dcbf1261b13e2",
+      "bytes": 1174,
+      "path": "evidence/mainproof-57fd9064c-logs.bytes.json",
+      "payloadLocation": "top-level payload"
+    }
+  },
+  "build": {
+    "steps": [
+      {
+        "name": "npm ci",
+        "exit": 0,
+        "log": {
+          "name": "build-npmci.log",
+          "payloadSha256": "9d047062fd4f40093963cbb22b75643d41345901a45c728032fc194d166c5552",
+          "payloadBytes": 3282,
+          "payloadLocation": "additionalPayloads[7]"
+        }
+      },
+      {
+        "name": "npm --prefix desktop ci",
+        "exit": 0,
+        "log": {
+          "name": "build-desktopci.log",
+          "payloadSha256": "39fbb6397318c80564499ba4a78d93415f0d75db6fd9a9abae245146f44aa4b7",
+          "payloadBytes": 4062,
+          "payloadLocation": "additionalPayloads[8]"
+        }
+      },
+      {
+        "name": "npm run electron:build",
+        "exit": 0,
+        "logBytes": 6738090,
+        "logSha256": "752c6ad7d6a768067e3f1664ab50fbe571ded96ebb270af3812dfed497537044",
+        "note": "webpack progress output; not preserved byte-for-byte (size and sha256 recorded)"
+      },
+      {
+        "name": "desktop: npm run rebuild:next-standalone && npx electron-builder --win nsis --x64 --config.extraMetadata.version=2.2.0-lsc2p.2 --publish never",
+        "exit": 0,
+        "log": {
+          "name": "build-package.log",
+          "payloadSha256": "11024cd023bd3ece9aaa3a34dcaf75032c510c30bb35bdefcb4a35d8963ec7fb",
+          "payloadBytes": 7040,
+          "payloadLocation": "additionalPayloads[9]"
+        }
+      }
+    ],
+    "stepsLog": {
+      "name": "build-steps.log",
+      "payloadSha256": "4ac28008bbe82a0244ca00b616e830d70540641edc916fac2983abd6b92a6883",
+      "payloadBytes": 449,
+      "payloadLocation": "additionalPayloads[6]"
+    },
+    "version": "2.2.0-lsc2p.2",
+    "candidate": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "treeClean": true
+  },
+  "packagedRun": {
+    "command": "node scripts/playwright/run-playwright.mjs test --config=playwright.local-seat-packaged.config.ts e2e/local-seat-credentials.spec.ts --workers=1",
+    "commandNote": "Unchanged: no --grep, --grep-invert or --timeout flag (the soak test is the only per-test timeout override).",
+    "environment": {
+      "LSC2P_PACKAGED": "1 (set by the config)",
+      "LSC2P_INSTALLER": "desktop/release/MekStation-2.2.0-lsc2p.2-win-x64.exe",
+      "LSC2P_INSTALLER_SHA256": "c2e7ac5255a9b089adb330184ff7faab0d0c75b8d788c5df7b1f0a312037f0a1",
+      "LSC2P_INSTALL_DIR": "fresh scratch directory without spaces",
+      "LSC2P_RC_SHA": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+      "LSC2P_RUN_DIR": "fresh scratch directory"
+    },
+    "rcSha": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "specBytes": {
+      "path": "e2e/local-seat-credentials.spec.ts",
+      "sha256": "f58fe19be4deb1e6e166768309496450291dac196f27c83125cd5010ad47ee35",
+      "bytes": 66166,
+      "note": "the head spec (f58fe19b...), not the first run spec (bec680f6...)"
+    },
+    "installer": {
+      "filename": "MekStation-2.2.0-lsc2p.2-win-x64.exe",
+      "sha256": "c2e7ac5255a9b089adb330184ff7faab0d0c75b8d788c5df7b1f0a312037f0a1",
+      "sizeBytes": 177306577,
+      "authenticode": "NotSigned",
+      "productVersion": "2.2.0-lsc2p.2",
+      "hashedBeforeInstall": true
+    },
+    "installed": {
+      "exeSha256": "0e3171e01572724602f1728b564bb266fa833ea36c09fff84adaca84bc3ceb63",
+      "productVersion": "2.2.0.0",
+      "authorityUrl": "http://127.0.0.1:3001",
+      "listener": {
+        "pid": 64256,
+        "imageUnderInstallDir": true,
+        "bind": "127.0.0.1"
+      },
+      "freshAuthority": true
+    },
+    "window": {
+      "startedAt": "2026-10-25T22:34:31.049Z",
+      "endedAt": "2026-10-25T23:37:40.325Z",
+      "t0MintAt": "2026-10-25T22:34:36.822Z",
+      "attempt": 1,
+      "playwrightDurationMs": 3790257.81,
+      "startTime": "2026-10-25T22:34:30.139Z"
+    },
+    "playwright": {
+      "expected": 17,
+      "unexpected": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "workers": 1,
+      "retries": 0,
+      "timeoutMs": 30000,
+      "configFile": "playwright.local-seat-packaged.config.ts",
+      "specExit": 0
+    },
+    "tests": [
+      {
+        "title": "S0 installed artifact identity and clean single authority",
+        "line": 690,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 3902,
+        "retry": 0
+      },
+      {
+        "title": "S1a GM identity, campaign and seat provisioning",
+        "line": 799,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 2752,
+        "retry": 0
+      },
+      {
+        "title": "S1b players join through the chooser with distinct public ids",
+        "line": 856,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 2933,
+        "retry": 0
+      },
+      {
+        "title": "S2 reload and reconnect keep identity",
+        "line": 907,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 14492,
+        "retry": 0
+      },
+      {
+        "title": "S4 operator revoke, then re-provision seat 2",
+        "line": 1027,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 1901,
+        "retry": 0
+      },
+      {
+        "title": "S5a guest reclaim with a new password: refused while the ghost holds a seat",
+        "line": 1086,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 11637,
+        "retry": 0
+      },
+      {
+        "title": "S5c active-seat re-provision needs confirmation; no removal control",
+        "line": 1131,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 941,
+        "retry": 0
+      },
+      {
+        "title": "N1 no token transfer",
+        "line": 1212,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 62,
+        "retry": 0
+      },
+      {
+        "title": "N2 no test activator",
+        "line": 1282,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 49,
+        "retry": 0
+      },
+      {
+        "title": "N3 no server-wide identity switch",
+        "line": 1329,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 166,
+        "retry": 0
+      },
+      {
+        "title": "N4 no implied role",
+        "line": 1355,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 489,
+        "retry": 0
+      },
+      {
+        "title": "N6 secrecy and autofill attributes",
+        "line": 1380,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 664,
+        "retry": 0
+      },
+      {
+        "title": "S3 renewal and expiry in real time @soak",
+        "line": 1437,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 3721884,
+        "retry": 0
+      },
+      {
+        "title": "S7a authority restart: close the installed app gracefully",
+        "line": 1578,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 3930,
+        "retry": 0
+      },
+      {
+        "title": "S7b authority restart: relaunch with the same command and user-data dir",
+        "line": 1596,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 3138,
+        "retry": 0
+      },
+      {
+        "title": "S7c authority restart: seats and public ids are unchanged",
+        "line": 1626,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 6097,
+        "retry": 0
+      },
+      {
+        "title": "S5b new identity takes a free seat in a second campaign",
+        "line": 1680,
+        "status": "expected",
+        "expected": "passed",
+        "durationMs": 13009,
+        "retry": 0
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "S0",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:34:31.049Z",
+        "endedAt": "2026-10-25T22:34:34.943Z"
+      },
+      {
+        "id": "S1",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:34:34.960Z",
+        "endedAt": "2026-10-25T22:34:40.651Z"
+      },
+      {
+        "id": "S2",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:34:40.666Z",
+        "endedAt": "2026-10-25T22:34:53.960Z"
+      },
+      {
+        "id": "S3",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:35:11.383Z",
+        "endedAt": "2026-10-25T23:34:49.215Z"
+      },
+      {
+        "id": "S4",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:34:55.182Z",
+        "endedAt": "2026-10-25T22:34:57.079Z"
+      },
+      {
+        "id": "S5",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:34:57.117Z",
+        "endedAt": "2026-10-25T22:35:09.695Z"
+      },
+      {
+        "id": "S6",
+        "result": "PASS",
+        "startedAt": "2026-10-25T22:35:09.729Z",
+        "endedAt": "2026-10-25T22:35:11.362Z"
+      },
+      {
+        "id": "S7",
+        "result": "PASS",
+        "startedAt": "2026-10-25T23:37:13.279Z",
+        "endedAt": "2026-10-25T23:37:26.463Z"
+      }
+    ],
+    "n4BeforeS5b": {
+      "n4Index": 11,
+      "s5bIndex": 17,
+      "n4Status": "expected",
+      "ordered": true
+    },
+    "publicIdentities": [
+      {
+        "profile": "gm",
+        "choice": "primary",
+        "playerId": "pid_umqeRDoohb1CQFsg2r5KR47rBae"
+      },
+      {
+        "profile": "p1",
+        "choice": "seat1",
+        "playerId": "pid_uzwkeYrPjc5YCQytfgwRYMHhvPb"
+      },
+      {
+        "profile": "p2",
+        "choice": "seat2",
+        "playerId": "pid_3fmMzH517nDZZsDvtF7UCCpquKpd"
+      }
+    ],
+    "distinctPublicIds": 3,
+    "soak": {
+      "timeline": {
+        "gm": {
+          "mintedAt": "2026-10-25T22:34:36.822Z",
+          "expiresAt": "2026-10-25T23:34:36.822Z",
+          "promptAppearedAt": "2026-10-25T23:30:43.139Z",
+          "renewedAt": "2026-10-25T23:30:43.679Z"
+        },
+        "p1": {
+          "mintedAt": "2026-10-25T22:34:39.590Z",
+          "expiresAt": "2026-10-25T23:34:39.590Z",
+          "promptAppearedAt": "2026-10-25T23:30:43.697Z",
+          "expiredObservedAt": "2026-10-25T23:34:48.727Z",
+          "recoveredAt": "2026-10-25T23:34:49.159Z"
+        }
+      },
+      "s3DurationMs": 3721884
+    },
+    "reprovision": {
+      "ghostMembershipObserved": true,
+      "removalUi": "absent",
+      "seat2PlayerIds": [
+        "pid_3fmMzH517nDZZsDvtF7UCCpquKpd",
+        "pid_3ofPexRMdHqMG2NM4mQLMLepS8vA",
+        "pid_25bJBSp4nEhCZh6WpAsRUpHD4bJX"
+      ],
+      "freeSeatCampaign": {
+        "id": "S5b",
+        "result": "PASS"
+      }
+    },
+    "restart": {
+      "seatsUnchanged": true,
+      "idsUnchanged": true,
+      "matchRecovered": "no",
+      "inMemoryPlayerStoreWarning": "seen"
+    },
+    "gaps": [
+      "Playwright cannot observe a browser password-manager prompt (Step 8 human item)",
+      "Installer is unsigned (Authenticode NotSigned)",
+      "Windows x64 NSIS only",
+      "Pre-RC installer: Step 8 must bind the RC bytes"
+    ],
+    "operator": {
+      "identity": "wroll@SwerveStation",
+      "kind": "agent",
+      "attestation": "Ran the registered command against the installer with the recorded hash"
+    },
+    "defects": [],
+    "artifacts": {
+      "recordHashes": {
+        "installer.sha256.txt": "80e85c7a172dc07f757634933b2591c63b4c75de37f6b3d6e541dfb580a46b4e",
+        "s1-gm.png": "9f3db064d5e0a5c89c892d5c64bf2e0c461c033b249da51103c08674f0537eb2",
+        "s1-p1.png": "7d3ebd9fad716374fbd75b425dfd0c1d0750690a4f82c5c913eb0825ae95ecdf",
+        "s1-p2.png": "d52553d96cb7c1714ef34205a4d315c6aa4d48a46130d9e8d5f2e428d32f4220",
+        "s5-reclaim.png": "cd1b8918ab6a0ed9c8b2440208e1822501bde523eda3d582951804772f09fa2f",
+        "s3-renewal-prompt.png": "72db10a2a5112f5e64c9bb1dd29703f02f9a757cc89cf4ef1a74cb0d3caa63c5",
+        "s3-expired.png": "5c5f6720a8b452f0c1c816ff93ef5dcc5c3ab078428b2ddfc2315f538e9c128a",
+        "timeline.json": "1a1fa2038adaa3918043cfc8be0f20157ffe3f03d84befefa416906251c2d49f"
+      },
+      "pngs": [
+        {
+          "name": "s1-gm.png",
+          "bytes": 70814,
+          "sha256": "9f3db064d5e0a5c89c892d5c64bf2e0c461c033b249da51103c08674f0537eb2",
+          "recordHash": "9f3db064d5e0a5c89c892d5c64bf2e0c461c033b249da51103c08674f0537eb2",
+          "equal": true
+        },
+        {
+          "name": "s1-p1.png",
+          "bytes": 102099,
+          "sha256": "7d3ebd9fad716374fbd75b425dfd0c1d0750690a4f82c5c913eb0825ae95ecdf",
+          "recordHash": "7d3ebd9fad716374fbd75b425dfd0c1d0750690a4f82c5c913eb0825ae95ecdf",
+          "equal": true
+        },
+        {
+          "name": "s1-p2.png",
+          "bytes": 102241,
+          "sha256": "d52553d96cb7c1714ef34205a4d315c6aa4d48a46130d9e8d5f2e428d32f4220",
+          "recordHash": "d52553d96cb7c1714ef34205a4d315c6aa4d48a46130d9e8d5f2e428d32f4220",
+          "equal": true
+        },
+        {
+          "name": "s3-expired.png",
+          "bytes": 99931,
+          "sha256": "5c5f6720a8b452f0c1c816ff93ef5dcc5c3ab078428b2ddfc2315f538e9c128a",
+          "recordHash": "5c5f6720a8b452f0c1c816ff93ef5dcc5c3ab078428b2ddfc2315f538e9c128a",
+          "equal": true
+        },
+        {
+          "name": "s3-renewal-prompt.png",
+          "bytes": 9556,
+          "sha256": "72db10a2a5112f5e64c9bb1dd29703f02f9a757cc89cf4ef1a74cb0d3caa63c5",
+          "recordHash": "72db10a2a5112f5e64c9bb1dd29703f02f9a757cc89cf4ef1a74cb0d3caa63c5",
+          "equal": true
+        },
+        {
+          "name": "s5-reclaim.png",
+          "bytes": 100696,
+          "sha256": "cd1b8918ab6a0ed9c8b2440208e1822501bde523eda3d582951804772f09fa2f",
+          "recordHash": "cd1b8918ab6a0ed9c8b2440208e1822501bde523eda3d582951804772f09fa2f",
+          "equal": true
+        }
+      ],
+      "recordFile": {
+        "name": "proof-record.json",
+        "payloadSha256": "67c05466414ce5ff87701b17bf2f7db6496f5ea8351146483075797fa29f71b5",
+        "payloadBytes": 19186,
+        "payloadLocation": "additionalPayloads[13]"
+      },
+      "reportFile": {
+        "name": "playwright-report.json",
+        "payloadSha256": "3760ad51f916263706ecd812db239c0afff2d97a849f0079ff6acdabc75daa13",
+        "payloadBytes": 23071,
+        "payloadLocation": "additionalPayloads[14]"
+      }
+    },
+    "recordCheck": {
+      "checker": "checkEvidenceRecord(\"local-seat-proof\") in scripts/qc/v220-evidence.mjs at the exact merge",
+      "accepted": true,
+      "method": "node ESM import of the checker with the real v220-steps.json and units.json; inputSha256 set from stepInputSha(plan, ledger, 2) because Root adds it only when the bundle record is composed; no Step 2 record is written",
+      "coveredRuns": [
+        "first local run (rcSha d302868b3)",
+        "this exact-merge run (rcSha 57fd9064ce8899c37f94195d4e6ff1713e5b4c89)"
+      ]
+    },
+    "recordNote": "The record was produced by the spec; inputSha256 is added by Root when the Step 2 record is composed at RC time (STEP2-RC-RERUN-1). No v220-step-evidence.json Step 2 entry is written (owner decision 5).",
+    "comparisonToLocalRun": {
+      "localRun": {
+        "rcSha": "d302868b3b14ea720107aa66f8bd911cb0cc5968",
+        "installerSha256": "e80a227ac642f400f9ebf018daa9daebe777ccdca9d303ff120c3330b057b6bb",
+        "installedExeSha256": "8446459f87590e5f267984121d2dcdc55e905154fa357cab57167ccc7bb4787d",
+        "window": {
+          "startedAt": "2026-10-25T18:18:34.958Z",
+          "endedAt": "2026-10-25T19:22:05.904Z",
+          "t0MintAt": "2026-10-25T18:18:42.056Z",
+          "attempt": 1
+        },
+        "restart": {
+          "seatsUnchanged": true,
+          "idsUnchanged": true,
+          "matchRecovered": "no",
+          "inMemoryPlayerStoreWarning": "seen"
+        },
+        "publicIdentities": [
+          "pid_3Yvs5N8ECAZXCwWvPRLCaMaBz1E",
+          "pid_2VN1465EVtKMiLiMABzwU8SsfPH4",
+          "pid_3sSd3hsrT45AwxkFmKUcoMgcQ9Ho"
+        ]
+      },
+      "note": "The two runs use different identities (fresh authority each time) and different installer builds (d302868b3 versus the exact merge). Both pass 17 of 17 with the same scenarios, the same N4-before-S5b order and the real-time soak. Differences are listed here, not hidden."
+    }
+  },
+  "review": {
+    "path": "evidence/lsc-2p-admission-review-20261018.json",
+    "head": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "outputSha256": "3e50117317517c91a1a5b73c566f7828de2007f07f4a512deab48c83fa14c2f2"
+  },
+  "ownerRuling": {
+    "ruledHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "reviewedHead": "63c8fb8aca3ef45d2738803bd8177e4d8bcbaead",
+    "pr": 2335,
+    "commentId": 6404037472,
+    "author": "SwiggitySwerve",
+    "bodySha256": "a19e1e38710a859b9be9e56d2583629f1ed94db41390f3f7a5cf60b362619ae9"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-SMOKEA1-7",
+      "severity": "Medium",
+      "owner": "Root (open decision)",
+      "target": "src/lib/multiplayer/server/InMemoryPlayerStore.ts and the P2J carry-forward that depends on this answer",
+      "status": "OPEN DECISION for Root; this closure does not rule",
+      "item": "Packaged evidence (both runs): after an authority restart the seats and public playerIds are unchanged (playerIds come from keys and the seat rows live in SQLite) and the production standalone server prints the InMemoryPlayerStore dev-only warning. Identities therefore survive a restart. Player profiles held by InMemoryPlayerStore (display name, avatar, lastSeenAt) are lost on restart. The record field matchRecovered=no is the spec any-socket-close heuristic: after the restart the authority log shows the GM and P1 sockets accepted and bound to campaign A and exactly one upgrade refused with reason=expired (the log does not name the player; the round-1 review attributed it to the P2 original seat-2 bearer, which had expired before the restart, and the second run has the same timeline: minted in S1/S2, expired during the soak, restart after expiry). The reading is inconclusive, not a product defect. Root rules one of: (a) no identity repair needed (identity is durable; profile loss is accepted and disclosed), or (b) register a profile-persistence follow-up unit. P2J depends on the answer. STEP2-RC-RERUN-1 should record recovery per profile.",
+      "optionsForRoot": [
+        "(a) rule \"no identity repair needed\" and disclose the profile loss",
+        "(b) register a profile-persistence follow-up owner for InMemoryPlayerStore"
+      ],
+      "secondRunRestart": {
+        "seatsUnchanged": true,
+        "idsUnchanged": true,
+        "matchRecovered": "no",
+        "inMemoryPlayerStoreWarning": "seen"
+      },
+      "firstRunRestart": {
+        "seatsUnchanged": true,
+        "idsUnchanged": true,
+        "matchRecovered": "no",
+        "inMemoryPlayerStoreWarning": "seen"
+      }
+    },
+    {
+      "id": "LSC2P-F4-NO-AUTO-RECONNECT",
+      "severity": "Medium",
+      "owner": "Root (decide whether F4 needs an owner before the v2.2.0 human session)",
+      "target": "campaign socket client (the app never reconnects a closed campaign socket)",
+      "status": "OPEN decision for Root; disclosed in the proof doc Known gaps",
+      "item": "F4: after a socket drop or an authority restart every player must reload; the app does not reconnect a closed campaign socket by itself. S2 and S7 reload explicitly and assert that nothing is silently re-minted and the same playerId returns. No unit owns an automatic reconnect today."
+    },
+    {
+      "id": "LSC2P-F5-BINDING-REQUIRED-TEXT",
+      "severity": "Low",
+      "owner": "Root (disclosure)",
+      "target": "bare second tab of an installed profile",
+      "status": "disclosed; S2c records and does not assert",
+      "item": "F5: in a bare second tab the BINDING_REQUIRED text does not render and the forget control is unreachable. Admission S2c expected the text; the run records its absence. No unit owns it."
+    },
+    {
+      "id": "LSC2P-F1-SECURITY-HALF",
+      "severity": "High (release-blocking, already owned)",
+      "owner": "CAMPAIGN-LIVE-WRITE-1 (Step 4, blocked)",
+      "target": "PUT /api/campaigns/[id] and DELETE of a live-host campaign",
+      "status": "owned; open in this build",
+      "item": "From a guest profile viewing the HOST badge, the dashboard whole-record save is accepted by PUT /api/campaigns/[id] and an anonymous DELETE of a live-host campaign answers 204; the campaign socket takes the role from the verified bearer and is not affected. LSC-2P proves no implied server authority only through N4 (no host surfaces in the UI) and S1 (three distinct verified principals)."
+    },
+    {
+      "id": "STEP2-RC-RERUN-1-notes",
+      "severity": "Low",
+      "owner": "STEP2-RC-RERUN-1 (blocked)",
+      "target": "e2e/local-seat-credentials.spec.ts and scripts/qc/v220-evidence.mjs at RC time",
+      "status": "routed; spec and checker changes need a new qualifying run, so they are not made in the closure",
+      "items": [
+        "L-1: make the S5a server-log refusal check unconditional (it is skipped when no log files exist).",
+        "L-2 / M-2: record matchRecovered per profile instead of the any-socket-close heuristic.",
+        "L-4: add a discriminating mutant for \"no automatic mint\" and \"prompt alone mints nothing\" (M6 is a weak kill).",
+        "M-4: run the longer S5b sequence (old seat-2 identity joins campaign B, re-provision, new identity takes the remaining seat while the ghost stays) or move it to the LSC-GM-REMOVE-1 proof.",
+        "L-7 (optional): make the checker verify gaps, operator.kind and installer.sha256 against installed.exeSha256.",
+        "L-9: rebuild the installer from the RC commit (the first run installer bytes were not kept) and remove the MULTIPLAYER_DB_PATH override.",
+        "Step 2 reads \"not started | manual evidence pending\" in the generated page until that rerun, as Step 0 does; this is the generator default, not a defect (owner decision 5)."
+      ]
+    },
+    {
+      "id": "LSC2P-F2-F3-F6-F7",
+      "severity": "Info",
+      "owner": "none (recorded in the proof doc Known gaps)",
+      "target": "proof doc Known gaps",
+      "status": "recorded, not fixed (no src/ scope)",
+      "item": "F2: a refused join leaves a stored bearer and binding in that tab. F3: the join dialog never shows the host refusal reason. F6: the update check contacts GitHub at start. F7: agent shells export ELECTRON_RUN_AS_NODE."
+    },
+    {
+      "id": "LSC2P-GM-REMOVE-UI",
+      "severity": "Info",
+      "owner": "LSC-GM-REMOVE-1 (blocked, Step 5; must land before the human session)",
+      "target": "ordinary-UI GM remove-member control",
+      "status": "routed (Q8 option b); removal UI recorded absent in both packaged runs",
+      "item": "No ordinary-UI ghost-removal control exists; S5c records it absent and M8 kills any spec that claims a removal."
+    },
+    {
+      "id": "LSC2P-PASSWORD-MANAGER",
+      "severity": "Info",
+      "owner": "Step 8 human session",
+      "target": "browser password-manager prompt",
+      "status": "human item; Playwright cannot observe it",
+      "item": "N6 verifies the autocomplete attributes (current-password on create, primary and join; new-password on the new seat password). The prompt itself is a human observation (CF-LSC2OP-4)."
+    },
+    {
+      "id": "LSC2-F6-IDENTITY-CHANGED-RECOVERY",
+      "severity": "Low",
+      "owner": "LSC-STORE-RULES-1 (blocked, registered 2026-10-24)",
+      "target": "CampaignCoopEntryPanel.tsx and CoopCredentialRenewal",
+      "status": "routed to its registered owner; not exercised by the packaged run",
+      "item": "The IDENTITY_CHANGED recovery gap carried from LSC-2 (admission carry-in) has a registered owner. The packaged spec, proof doc and local receipt do not mention IDENTITY_CHANGED, so the run records no journey consequence for it; the gap stays open with LSC-STORE-RULES-1."
+    }
+  ],
+  "successorRelease": {
+    "note": "P2J and P2CG1H stay blocked: P2J also waits on P2 and U38, and P2CG1H on its other predecessors. Release only; no successor field changes in this PR.",
+    "releases": []
+  },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes authority, privacy, replay, idempotency, concurrency and migration)",
+    "head": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "headNote": "Run at the clean exact merge (state local-verified, so the PR-ruling loop does not yet visit LSC-2P). The same command is rerun at the final closure head and cited in the PR; a receipt cannot cite its own commit SHA.",
+    "startedAt": "2026-10-25T22:29:46.9618941Z",
+    "endedAt": "2026-10-25T22:31:28.2461520Z",
+    "machineGate": "run inside the jest ticket (network call to GitHub)",
+    "exit": 0,
+    "output": "ROADMAP VALIDATION PASSED: 94 nodes, 13 packages, 381 tasks, 40 triage rows"
+  },
+  "limitations": [
+    "No task row is ticked and no v220-step-evidence.json Step 2 entry is written: the Step 2 record is composed at RC time by STEP2-RC-RERUN-1 (owner decision 5).",
+    "The installer is unsigned, a pre-RC build (2.2.0-lsc2p.2) of the exact merge, not an RC installer; STEP2-RC-RERUN-1 reruns on the RC build.",
+    "No password-manager prompt is claimed (a human item for Step 8); Playwright cannot observe it.",
+    "F1 security half stays open until CAMPAIGN-LIVE-WRITE-1; this run proves no implied server authority through N4 and S1 only.",
+    "CF-SMOKEA1-7 and F4 are recorded as open decisions for Root (carryForwards).",
+    "Windows x64 NSIS only. The PNG screenshots are not tracked; their sha256 values are recorded."
+  ]
+}
