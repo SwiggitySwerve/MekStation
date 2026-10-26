@@ -9,6 +9,8 @@ import { createPortal } from 'react-dom';
 
 interface ModalOverlayProps {
   fullScreen?: boolean;
+  /** Fill the phone viewport above app navigation; retain the desktop layout. */
+  fullScreenOnMobile?: boolean;
   /** Center this dialog in the native top layer; fullScreen retains precedence. */
   topLayer?: boolean;
   isOpen: boolean;
@@ -118,6 +120,7 @@ function useModalLifecycle<T extends HTMLElement>(
 }
 
 function CenteredModalOverlay({
+  fullScreenOnMobile = false,
   isOpen,
   onClose,
   preventClose = false,
@@ -146,9 +149,9 @@ function CenteredModalOverlay({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose, preventClose]);
   if (!isOpen) return null;
-  return (
+  const content = (
     <div
-      className="bg-surface-deep/80 fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className={`bg-surface-deep/80 fixed inset-0 flex items-center justify-center sm:p-6 ${fullScreenOnMobile ? 'z-[100] p-0' : 'z-50 p-4'}`}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => {
         event.stopPropagation();
@@ -158,7 +161,7 @@ function CenteredModalOverlay({
       <div
         ref={modalRef}
         tabIndex={-1}
-        className={`bg-surface-base border-border-theme max-h-[90vh] w-full overflow-auto rounded-lg border shadow-xl ${className}`}
+        className={`bg-surface-base border-border-theme w-full shadow-xl ${fullScreenOnMobile ? 'h-dvh max-h-dvh overflow-hidden border-0 pt-[env(safe-area-inset-top)] sm:h-auto sm:max-h-[90vh] sm:rounded-lg sm:border sm:pt-0' : 'max-h-[90vh] overflow-auto rounded-lg border'} ${className}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={ariaLabelledBy}
@@ -175,6 +178,7 @@ function CenteredModalOverlay({
       </div>
     </div>
   );
+  return fullScreenOnMobile ? createPortal(content, document.body) : content;
 }
 
 function NativeModal({

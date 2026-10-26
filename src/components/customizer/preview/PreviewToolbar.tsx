@@ -105,24 +105,24 @@ export function PreviewToolbar({
 
   return (
     <div
-      className={`preview-toolbar ${className}`}
+      className={`preview-toolbar shrink-0 p-2 sm:px-4 sm:py-3 ${className}`}
       style={{
         display: 'flex',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: '8px',
-        padding: '12px 16px',
         backgroundColor: 'var(--surface-base)',
         borderBottom: '1px solid var(--border-subtle)',
       }}
     >
       {/* Paper Size Select */}
       <div
-        className="w-full shrink-0 sm:w-auto"
+        className="min-w-0 flex-1 sm:flex-none"
         style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
       >
         <label
           htmlFor="paper-size"
+          className="sr-only sm:not-sr-only"
           style={{
             color: 'var(--text-secondary)',
             fontSize: '13px',
@@ -134,6 +134,7 @@ export function PreviewToolbar({
         </label>
         <select
           id="paper-size"
+          className="min-h-11 w-full min-w-0 sm:w-auto"
           value={paperSize}
           onChange={(e) => onPaperSizeChange(e.target.value as PaperSize)}
           disabled={isBusy}
@@ -160,6 +161,7 @@ export function PreviewToolbar({
       {/* Print Button */}
       <button
         type="button"
+        className="shrink-0 px-3 sm:px-4"
         onClick={() => {
           void runAction('print');
         }}
@@ -169,7 +171,8 @@ export function PreviewToolbar({
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          padding: '8px 16px',
+          paddingTop: '8px',
+          paddingBottom: '8px',
           minHeight: 44,
           whiteSpace: 'nowrap',
           borderRadius: '6px',
@@ -194,7 +197,9 @@ export function PreviewToolbar({
         }}
       >
         <PrintIcon />
-        {isPrinting ? 'Printing...' : 'Print'}
+        <span className="sr-only sm:not-sr-only">
+          {isPrinting ? 'Printing...' : 'Print'}
+        </span>
       </button>
 
       {/* Download PDF Button */}
@@ -217,7 +222,7 @@ export function PreviewToolbar({
           backgroundColor: isBusy
             ? 'var(--surface-raised)'
             : 'var(--accent-primary)',
-          color: 'var(--text-primary)',
+          color: isBusy ? 'var(--text-primary)' : 'var(--color-on-accent)',
           fontSize: '13px',
           fontWeight: 500,
           cursor: isBusy ? 'not-allowed' : 'pointer',

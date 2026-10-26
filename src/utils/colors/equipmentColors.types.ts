@@ -27,6 +27,12 @@ export interface CategoryColorDefinition {
   readonly slotText: string;
   readonly slotHoverBg: string;
   readonly indicatorBg: string;
+  /**
+   * Left accent bar for neutral list/card surfaces (catalog rows, loadout
+   * rail). Category reads as a thin edge instead of a full fill so warnings
+   * and selection stay the most prominent color on screen.
+   */
+  readonly accentBorder: string;
 }
 
 // =============================================================================
@@ -40,7 +46,9 @@ export interface CategoryColorDefinition {
  * - Engine uses Orange → Ballistic uses Amber instead
  * - Gyro uses Purple → Structural uses Lime instead
  * - Actuator uses Blue → Electronics uses Teal instead
- * - Cockpit uses Yellow-600 → Ammo uses Yellow-400 (different shade)
+ * - Cockpit uses Yellow-600 → Ammo uses a brown-amber (amber-600)
+ * - The app selection accent is amber-400, so Energy uses a paler, reduced
+ *   opacity yellow-300 and Ammo a deeper amber; neither reuses the exact accent
  */
 export const EQUIPMENT_CATEGORY_COLORS: Record<
   EquipmentCategory,
@@ -57,7 +65,8 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotBorder: 'border-yellow-400',
     slotText: 'text-black',
     slotHoverBg: 'hover:bg-yellow-500',
-    indicatorBg: 'bg-yellow-500',
+    indicatorBg: 'bg-yellow-300/70',
+    accentBorder: 'border-l-yellow-300/70',
   },
 
   [EquipmentCategory.BALLISTIC_WEAPON]: {
@@ -68,6 +77,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-red-600',
     indicatorBg: 'bg-red-500',
+    accentBorder: 'border-l-red-500',
   },
 
   [EquipmentCategory.MISSILE_WEAPON]: {
@@ -78,6 +88,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-teal-600',
     indicatorBg: 'bg-teal-500',
+    accentBorder: 'border-l-teal-500',
   },
 
   [EquipmentCategory.ARTILLERY]: {
@@ -88,6 +99,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-violet-600',
     indicatorBg: 'bg-violet-500',
+    accentBorder: 'border-l-violet-500',
   },
 
   [EquipmentCategory.CAPITAL_WEAPON]: {
@@ -98,6 +110,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-fuchsia-600',
     indicatorBg: 'bg-fuchsia-500',
+    accentBorder: 'border-l-fuchsia-500',
   },
 
   [EquipmentCategory.PHYSICAL_WEAPON]: {
@@ -108,6 +121,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-rose-600',
     indicatorBg: 'bg-rose-500',
+    accentBorder: 'border-l-rose-500',
   },
 
   // -------------------------------------------------------------------------
@@ -121,7 +135,8 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotBorder: 'border-amber-400',
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-amber-500',
-    indicatorBg: 'bg-amber-400',
+    indicatorBg: 'bg-amber-600',
+    accentBorder: 'border-l-amber-600',
   },
 
   // -------------------------------------------------------------------------
@@ -136,6 +151,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-cyan-600',
     indicatorBg: 'bg-cyan-500',
+    accentBorder: 'border-l-cyan-500',
   },
 
   [EquipmentCategory.MOVEMENT]: {
@@ -146,6 +162,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-emerald-600',
     indicatorBg: 'bg-emerald-500',
+    accentBorder: 'border-l-emerald-500',
   },
 
   [EquipmentCategory.STRUCTURAL]: {
@@ -156,6 +173,7 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-lime-600',
     indicatorBg: 'bg-lime-500',
+    accentBorder: 'border-l-lime-500',
   },
 
   [EquipmentCategory.MISC_EQUIPMENT]: {
@@ -166,5 +184,6 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-slate-600',
     indicatorBg: 'bg-slate-500',
+    accentBorder: 'border-l-slate-500',
   },
 };

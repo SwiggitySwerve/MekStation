@@ -416,6 +416,72 @@ describe('GlobalLoadoutTray', () => {
       expect(screen.getByTitle('Managed by configuration')).toBeInTheDocument();
     });
 
+    it('shows an empty Unassigned section as a quiet collapsed header', async () => {
+      const user = userEvent.setup();
+      const mounted = createEquipment({
+        isAllocated: true,
+        location: 'Left Arm',
+      });
+      render(<GlobalLoadoutTray {...defaultProps} equipment={[mounted]} />);
+
+      const section = screen.getByRole('button', { name: /^Unassigned/ });
+      expect(section).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(/Nothing unassigned/)).not.toBeInTheDocument();
+
+      await user.click(section);
+
+      expect(section).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByText(/Nothing unassigned/)).toBeInTheDocument();
+    });
+
+    it('still accepts a drop on the collapsed Unassigned header', () => {
+      const onUnassignEquipment = jest.fn();
+      const mounted = createEquipment({
+        instanceId: 'mounted-1',
+        isAllocated: true,
+        location: 'Left Arm',
+      });
+      render(
+        <GlobalLoadoutTray
+          {...defaultProps}
+          equipment={[mounted]}
+          onUnassignEquipment={onUnassignEquipment}
+        />,
+      );
+
+      const section = screen.getByRole('button', { name: /^Unassigned/ });
+      const dataTransfer = { getData: () => 'mounted-1' };
+      fireEvent.dragOver(section, { dataTransfer });
+      expect(
+        screen.getByRole('button', { name: /Drop to unassign/ }),
+      ).toBeInTheDocument();
+      fireEvent.drop(section, { dataTransfer });
+
+      expect(onUnassignEquipment).toHaveBeenCalledWith('mounted-1');
+    });
+
+    it('labels grouped duplicates with a count and tooltip', () => {
+      render(
+        <GlobalLoadoutTray
+          {...defaultProps}
+          equipment={[
+            createEquipment({ instanceId: 'laser-1' }),
+            createEquipment({ instanceId: 'laser-2' }),
+            createEquipment({ instanceId: 'laser-3' }),
+          ]}
+        />,
+      );
+
+      const group = screen.getByRole('button', {
+        name: 'Show 3 instances of Medium Laser in Unassigned',
+      });
+      expect(group).toHaveAttribute(
+        'title',
+        '3 identical items. Show each one.',
+      );
+      expect(within(group).getByText('3×')).toBeInTheDocument();
+    });
+
     it('moves bulk removal into the loadout actions overflow', async () => {
       const user = userEvent.setup();
       const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);

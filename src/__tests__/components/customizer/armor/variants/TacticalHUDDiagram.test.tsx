@@ -64,7 +64,7 @@ describe('TacticalHUDDiagram', () => {
   it('should display status readout', () => {
     render(<TacticalHUDDiagram {...defaultProps} />);
 
-    expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('Unallocated:')).toBeInTheDocument();
     expect(screen.getByText('12 points')).toBeInTheDocument();
   });
 

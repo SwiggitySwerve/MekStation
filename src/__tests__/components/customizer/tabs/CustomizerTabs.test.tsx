@@ -27,18 +27,20 @@ describe('CustomizerTabs', () => {
   it('should render all tabs', () => {
     render(<CustomizerTabs {...defaultProps} />);
 
-    expect(screen.getByText('Overview')).toBeInTheDocument();
-    expect(screen.getByText('Structure')).toBeInTheDocument();
-    expect(screen.getByText('Armor')).toBeInTheDocument();
-    expect(screen.getByText('Equipment')).toBeInTheDocument();
-    expect(screen.getByText('Critical Slots')).toBeInTheDocument();
-    expect(screen.getByText('Fluff')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Overview' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Structure' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Armor' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Equipment' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('tab', { name: 'Critical Slots' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Fluff' })).toBeInTheDocument();
   });
 
   it('should highlight active tab', () => {
     render(<CustomizerTabs {...defaultProps} activeTab="armor" />);
 
-    const armorTab = screen.getByText('Armor').closest('button');
+    const armorTab = screen.getByRole('tab', { name: 'Armor' });
     expect(armorTab).toHaveClass('text-accent');
     expect(armorTab).toHaveClass('border-accent');
   });
@@ -47,7 +49,7 @@ describe('CustomizerTabs', () => {
     const user = userEvent.setup();
     render(<CustomizerTabs {...defaultProps} />);
 
-    const structureTab = screen.getByText('Structure');
+    const structureTab = screen.getByRole('tab', { name: 'Structure' });
     await user.click(structureTab);
 
     expect(defaultProps.onTabChange).toHaveBeenCalledWith('structure');
@@ -62,7 +64,7 @@ describe('CustomizerTabs', () => {
 
     render(<CustomizerTabs {...defaultProps} tabs={tabs} />);
 
-    const disabledTab = screen.getByText('Disabled');
+    const disabledTab = screen.getByRole('tab', { name: 'Disabled' });
     await user.click(disabledTab);
 
     expect(defaultProps.onTabChange).not.toHaveBeenCalled();
@@ -71,21 +73,21 @@ describe('CustomizerTabs', () => {
   it('should set correct aria attributes', () => {
     render(<CustomizerTabs {...defaultProps} activeTab="armor" />);
 
-    const armorTab = screen.getByText('Armor').closest('button');
+    const armorTab = screen.getByRole('tab', { name: 'Armor' });
     expect(armorTab).toHaveAttribute('aria-selected', 'true');
     expect(armorTab).toHaveAttribute('aria-controls', 'tabpanel-armor');
 
-    const overviewTab = screen.getByText('Overview').closest('button');
+    const overviewTab = screen.getByRole('tab', { name: 'Overview' });
     expect(overviewTab).toHaveAttribute('aria-selected', 'false');
   });
 
   it('should set correct tabIndex', () => {
     render(<CustomizerTabs {...defaultProps} activeTab="armor" />);
 
-    const armorTab = screen.getByText('Armor').closest('button');
+    const armorTab = screen.getByRole('tab', { name: 'Armor' });
     expect(armorTab).toHaveAttribute('tabIndex', '0');
 
-    const overviewTab = screen.getByText('Overview').closest('button');
+    const overviewTab = screen.getByRole('tab', { name: 'Overview' });
     expect(overviewTab).toHaveAttribute('tabIndex', '-1');
   });
 

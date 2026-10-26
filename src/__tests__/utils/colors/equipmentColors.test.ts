@@ -11,6 +11,8 @@ import {
   getCategoryLabel,
   getCategorySlotClasses,
   getCategoryIndicatorClass,
+  getCategoryAccentClass,
+  getEquipmentAccentClasses,
   classifyEquipmentByName,
   getEquipmentSlotClassesByName,
   getCategoryColorsLegacy,
@@ -87,7 +89,7 @@ describe('EquipmentColors Utility', () => {
   describe('getCategoryIndicatorClass', () => {
     it('should return indicator class', () => {
       expect(getCategoryIndicatorClass(EquipmentCategory.ENERGY_WEAPON)).toBe(
-        'bg-yellow-500',
+        'bg-yellow-300/70',
       );
     });
   });
@@ -131,6 +133,60 @@ describe('EquipmentColors Utility', () => {
     it('should return correct classes for weapons', () => {
       const classes = getEquipmentSlotClassesByName('Medium Laser');
       expect(classes).toContain('bg-yellow-600');
+    });
+  });
+
+  describe('accent classes', () => {
+    it('gives every category a literal left-border accent class', () => {
+      for (const category of Object.values(EquipmentCategory)) {
+        expect(getCategoryAccentClass(category)).toMatch(
+          /^border-l-[a-z]+-\d{3}(\/\d{2})?$/,
+        );
+      }
+    });
+
+    it('keeps Energy and Ammo accents off the app selection accent amber/yellow', () => {
+      const selectionAccents = ['border-l-amber-400', 'border-l-yellow-400'];
+      for (const category of [
+        EquipmentCategory.ENERGY_WEAPON,
+        EquipmentCategory.AMMUNITION,
+      ]) {
+        expect(selectionAccents).not.toContain(
+          getCategoryAccentClass(category),
+        );
+      }
+      expect(getCategoryAccentClass(EquipmentCategory.ENERGY_WEAPON)).toBe(
+        'border-l-yellow-300/70',
+      );
+      expect(getCategoryAccentClass(EquipmentCategory.AMMUNITION)).toBe(
+        'border-l-amber-600',
+      );
+    });
+
+    it('keeps Energy, Ammo, Ballistic, Missile and heat sink accents distinct', () => {
+      const accents = [
+        getCategoryAccentClass(EquipmentCategory.ENERGY_WEAPON),
+        getCategoryAccentClass(EquipmentCategory.AMMUNITION),
+        getCategoryAccentClass(EquipmentCategory.BALLISTIC_WEAPON),
+        getCategoryAccentClass(EquipmentCategory.MISSILE_WEAPON),
+        HEATSINK_COLORS.accentBorder,
+      ];
+      expect(new Set(accents).size).toBe(accents.length);
+    });
+
+    it('uses the heat sink accent for heat sinks regardless of category', () => {
+      expect(
+        getEquipmentAccentClasses(
+          EquipmentCategory.MISC_EQUIPMENT,
+          'Heat Sink',
+        ),
+      ).toBe(HEATSINK_COLORS.accentBorder);
+    });
+
+    it('uses the category accent for other equipment', () => {
+      expect(
+        getEquipmentAccentClasses(EquipmentCategory.BALLISTIC_WEAPON, 'AC/20'),
+      ).toBe('border-l-red-500');
     });
   });
 

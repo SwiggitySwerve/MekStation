@@ -15,10 +15,11 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 
 import { Button } from '@/components/ui/Button';
 import { MechLocation } from '@/types/construction';
-import { getEquipmentSlotClasses } from '@/utils/colors/equipmentColors';
+import { getEquipmentSurfaceClasses } from '@/utils/colors/equipmentColors';
 import { canChangeEquipmentMount } from '@/utils/construction/equipmentMutationPolicy';
 
 import { LocationGrid } from '../critical-slots/LocationGrid';
+import { useCriticalSlotOverflow } from '../critical-slots/useCriticalSlotOverflow';
 import { CustomizerToolbarContext } from '../CustomizerToolbarContext';
 import { useCriticalSlotsTabLogic } from './CriticalSlotsTab.logic';
 import { CriticalSlotsToolbar } from './CriticalSlotsToolbar';
@@ -75,6 +76,8 @@ export function CriticalSlotsTab({
     onSelectEquipment,
   });
 
+  const { rootRef, hasMoreBelow } = useCriticalSlotOverflow(isBiped);
+
   const renderLocation = (location: MechLocation) => (
     <LocationGrid
       key={location}
@@ -104,7 +107,7 @@ export function CriticalSlotsTab({
         onClick={() => onSelectEquipment?.(isSelected ? null : item.instanceId)}
       >
         <span
-          className={`rounded border px-2 py-1 ${getEquipmentSlotClasses(item.category, item.name)}`}
+          className={`rounded border px-2 py-1 ${getEquipmentSurfaceClasses(item.category, item.name)}`}
         >
           {item.name} · {item.criticalSlots} cr
         </span>
@@ -114,9 +117,11 @@ export function CriticalSlotsTab({
 
   return (
     <div
+      ref={rootRef}
       className={`bg-surface-deep flex h-full min-h-0 flex-col ${className}`}
     >
       <CriticalSlotsToolbar
+        hasMoreLocationsBelow={hasMoreBelow}
         autoFillUnhittables={autoModeSettings.autoFillUnhittables}
         autoCompact={autoModeSettings.autoCompact}
         autoSort={autoModeSettings.autoSort}
@@ -240,73 +245,64 @@ export function CriticalSlotsTab({
       )}
 
       {!isBiped && (
-        <div className="grid grid-cols-1 items-start gap-3 overflow-auto p-3 min-[480px]:grid-cols-2 min-[720px]:grid-cols-3 xl:grid-cols-4">
-          {locations.map(renderLocation)}
+        <div
+          className="min-h-0 flex-1 overflow-y-auto p-3"
+          role="region"
+          aria-label="Critical slot locations"
+          tabIndex={0}
+        >
+          <div className="grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 min-[720px]:grid-cols-3 xl:grid-cols-4">
+            {locations.map(renderLocation)}
+          </div>
         </div>
       )}
       {isBiped && (
         <>
+          <p className="text-text-theme-secondary shrink-0 px-2 pt-2 text-center text-sm">
+            Front view · Right side on the left
+          </p>
           <div
-            className="min-h-0 flex-1 overflow-auto p-2 lg:hidden"
+            className="min-h-0 flex-1 overflow-y-auto p-2 lg:hidden"
             data-testid="critical-slots-grid-mobile"
+            role="region"
+            aria-label="Critical slot locations"
+            tabIndex={0}
           >
             <div className="grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 min-[720px]:grid-cols-3">
               {[
                 MechLocation.HEAD,
                 MechLocation.CENTER_TORSO,
-                MechLocation.LEFT_TORSO,
                 MechLocation.RIGHT_TORSO,
-                MechLocation.LEFT_ARM,
+                MechLocation.LEFT_TORSO,
                 MechLocation.RIGHT_ARM,
-                MechLocation.LEFT_LEG,
+                MechLocation.LEFT_ARM,
                 MechLocation.RIGHT_LEG,
+                MechLocation.LEFT_LEG,
               ].map(renderLocation)}
             </div>
           </div>
-
           <div
-            className="hidden min-h-0 flex-1 overflow-auto p-2 lg:flex lg:p-4"
+            className="hidden min-h-0 flex-1 overflow-y-auto p-3 lg:block"
             data-testid="critical-slots-grid-desktop"
+            role="region"
+            aria-label="Critical slot locations"
+            tabIndex={0}
           >
-            <div className="grid w-full min-w-0 grid-cols-5 items-start gap-2 lg:gap-3">
-              <div
-                className="flex min-w-0 flex-col"
-                style={{ marginTop: '136px' }}
-              >
-                {renderLocation(MechLocation.LEFT_ARM)}
+            <div className="grid grid-cols-5 items-center gap-2">
+              {renderLocation(MechLocation.RIGHT_ARM)}
+              <div className="min-w-0 space-y-2">
+                {renderLocation(MechLocation.RIGHT_TORSO)}
+                {renderLocation(MechLocation.RIGHT_LEG)}
               </div>
-
-              <div
-                className="flex min-w-0 flex-col"
-                style={{ marginTop: '40px' }}
-              >
-                {renderLocation(MechLocation.LEFT_TORSO)}
-                <div className="mt-16">
-                  {renderLocation(MechLocation.LEFT_LEG)}
-                </div>
-              </div>
-
-              <div className="flex min-w-0 flex-col gap-3">
+              <div className="min-w-0 space-y-2">
                 {renderLocation(MechLocation.HEAD)}
                 {renderLocation(MechLocation.CENTER_TORSO)}
               </div>
-
-              <div
-                className="flex min-w-0 flex-col"
-                style={{ marginTop: '40px' }}
-              >
-                {renderLocation(MechLocation.RIGHT_TORSO)}
-                <div className="mt-16">
-                  {renderLocation(MechLocation.RIGHT_LEG)}
-                </div>
+              <div className="min-w-0 space-y-2">
+                {renderLocation(MechLocation.LEFT_TORSO)}
+                {renderLocation(MechLocation.LEFT_LEG)}
               </div>
-
-              <div
-                className="flex min-w-0 flex-col"
-                style={{ marginTop: '136px' }}
-              >
-                {renderLocation(MechLocation.RIGHT_ARM)}
-              </div>
+              {renderLocation(MechLocation.LEFT_ARM)}
             </div>
           </div>
         </>

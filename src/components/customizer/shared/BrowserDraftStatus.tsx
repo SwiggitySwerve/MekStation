@@ -6,6 +6,21 @@ import {
   subscribeToStorageWriteReceipts,
 } from '@/stores/utils/clientSafeStorage';
 
+type DraftState = 'pending' | 'saved' | 'failed';
+
+const DRAFT_LABEL: Record<DraftState, string> = {
+  pending: 'Browser draft, no changes yet',
+  saved: 'Draft saved in this browser',
+  failed: 'Draft save failed in this browser',
+};
+
+/** Short wording for bands that pair the draft with the library state. */
+const DRAFT_SHORT_LABEL: Record<DraftState, string> = {
+  pending: 'Browser draft',
+  saved: 'Draft saved in browser',
+  failed: 'Draft save failed',
+};
+
 function draftStorageKey(unitId: string): string {
   return `megamek-unit-${unitId}`;
 }
@@ -22,10 +37,16 @@ function receiptForUnit(
 export function BrowserDraftStatus({
   unitId,
   compact = false,
+  onlyWhenFailed = false,
+  className = '',
 }: {
   unitId: string;
+  /** Short visible wording; the full wording stays in the accessible text. */
   compact?: boolean;
-}): React.ReactElement {
+  /** Render nothing until a draft write fails (for bands without room). */
+  onlyWhenFailed?: boolean;
+  className?: string;
+}): React.ReactElement | null {
   const [receipt, setReceipt] = useState<{
     unitId: string;
     failed: boolean;
@@ -42,29 +63,34 @@ export function BrowserDraftStatus({
 
   const current = receipt?.unitId === unitId ? receipt : null;
   const failed = Boolean(current?.failed);
-  const label = failed
-    ? 'Draft save failed'
-    : current
-      ? 'Draft saved'
-      : 'Browser draft';
+  const state: DraftState = failed ? 'failed' : current ? 'saved' : 'pending';
+  if (onlyWhenFailed && !failed) return null;
+  const label = DRAFT_LABEL[state];
   return (
     <span
       role="status"
       aria-live={failed ? 'polite' : 'off'}
-      data-state={failed ? 'failed' : current ? 'saved' : 'pending'}
-      className={`inline-flex min-w-0 shrink-0 items-center gap-1 text-xs whitespace-nowrap ${failed ? 'text-red-400' : 'text-text-theme-secondary'}`}
-      title={`${label}. Browser drafts are separate from units saved to your library.`}
+      data-state={state}
+      className={`inline-flex min-w-0 items-center gap-1 ${compact ? 'whitespace-nowrap' : 'flex-wrap text-xs'} ${failed ? 'font-semibold text-red-400' : 'text-text-theme-secondary'} ${className}`}
+      // Compact parts share their band's tooltip; a failure keeps its own.
+      title={
+        compact && !failed
+          ? undefined
+          : `${label}. Browser drafts are separate from units saved to your library.`
+      }
     >
-      {compact && (
-        <span
-          aria-hidden="true"
-          className={`h-2 w-2 rounded-full border ${failed ? 'border-red-400 bg-red-400' : current ? 'border-green-400 bg-green-400' : 'border-text-theme-muted bg-surface-base'}`}
-        />
+      {compact ? (
+        <>
+          <span aria-hidden="true">{DRAFT_SHORT_LABEL[state]}</span>
+          <span className="sr-only">{label}</span>
+        </>
+      ) : (
+        <span data-status-label>{label}</span>
       )}
-      <span>{label}</span>
       {failed && getUnitStore(unitId) && (
         <button
           type="button"
+          aria-label="Retry browser draft"
           className="min-h-11 px-2 underline"
           onClick={() => {
             try {
@@ -74,7 +100,7 @@ export function BrowserDraftStatus({
             }
           }}
         >
-          Retry browser draft
+          {compact ? 'Retry' : 'Retry browser draft'}
         </button>
       )}
     </span>

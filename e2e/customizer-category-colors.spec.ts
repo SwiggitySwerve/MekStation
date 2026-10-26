@@ -7,6 +7,14 @@ async function paint(locator: Locator) {
   });
 }
 
+// Catalog rows and loadout cards are neutral surfaces; the category shows as
+// the left accent bar.
+async function accent(locator: Locator) {
+  return locator.evaluate(
+    (element) => getComputedStyle(element).borderLeftColor,
+  );
+}
+
 test('equipment colors survive catalog, grouping, mounting and reload @customizer', async ({
   page,
 }, testInfo) => {
@@ -28,7 +36,8 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     name: 'Search equipment',
     exact: true,
   });
-  const colors: Record<string, { background: string; text: string }> = {};
+  const colors: Record<string, string> = {};
+  let neutralFill = '';
   for (const name of ['Small Laser', 'AC/20', 'LRM 20', 'AC/20 Ammo']) {
     await search.fill(name);
     const details = page.getByRole('button', {
@@ -39,12 +48,12 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     const row = details.locator('xpath=ancestor::li');
     const fill = row.getByTestId('equipment-catalog-row-fill');
     await page.mouse.move(0, 0);
-    colors[name] = {
-      background: (await paint(fill)).background,
-      // Loadout and mounted slots use solid category colors with black text.
-      text: 'rgb(0, 0, 0)',
-    };
-    expect(colors[name].background).not.toBe('rgba(0, 0, 0, 0)');
+    colors[name] = await accent(row);
+    const { background } = await paint(fill);
+    expect(background).not.toBe('rgba(0, 0, 0, 0)');
+    // Every category shares the same neutral fill.
+    if (neutralFill) expect(background).toBe(neutralFill);
+    neutralFill = background;
     await expect(fill).toHaveCSS('opacity', '0.3');
     await expect(row).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(row).toHaveCSS('opacity', '1');
@@ -67,7 +76,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     await expect(fill).toHaveCSS('opacity', '0.4');
     await expect(content).toHaveCSS('opacity', '1');
   }
-  expect(new Set(Object.values(colors).map((c) => c.background)).size).toBe(4);
+  expect(new Set(Object.values(colors)).size).toBe(4);
   await search.fill('Small Laser');
   await expect(
     page.getByRole('region', { name: 'Equipment catalog' }).locator('li'),
@@ -85,7 +94,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     exact: true,
   });
   await expect(group).toBeVisible();
-  expect(await paint(group.locator('..'))).toEqual(colors['Small Laser']);
+  expect(await accent(group.locator('..'))).toBe(colors['Small Laser']);
   await group.click();
   await page.mouse.move(0, 0);
   const item = page
@@ -94,7 +103,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
       exact: true,
     })
     .first();
-  expect(await paint(item.locator('..'))).toEqual(colors['Small Laser']);
+  expect(await accent(item.locator('..'))).toBe(colors['Small Laser']);
   await page.screenshot({
     path: testInfo.outputPath('equipment-restored.png'),
     fullPage: true,
@@ -110,21 +119,28 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     .getByRole('gridcell', { name: 'Slot 7: Small Laser', exact: true });
   await expect(mounted).toBeVisible();
   await page.mouse.move(0, 0);
-  await expect.poll(() => paint(mounted)).toEqual(colors['Small Laser']);
+  // Mounted slots keep the category edge used by the catalog and loadout.
+  // Slots animate colour changes; wait for the settled accent before sampling.
+  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
+  const mountedPaint = await paint(mounted);
+  expect(mountedPaint.background).not.toBe('rgba(0, 0, 0, 0)');
   const engine = page
     .getByRole('gridcell', { name: /: .*Engine$|: Engine$/ })
     .first();
   const gyro = page.getByRole('gridcell', { name: /: Standard Gyro$/ }).first();
   await expect(engine).toBeVisible();
-  expect((await paint(engine)).background).not.toBe(
-    (await paint(gyro)).background,
-  );
+  expect((await paint(engine)).background).toBe((await paint(gyro)).background);
+  expect(await accent(engine)).not.toBe(await accent(gyro));
+  await expect(engine).toHaveCSS('border-left-width', '2px');
+  await expect(mounted).toHaveCSS('border-left-width', '4px');
   await page.reload();
   await expect(mounted).toBeVisible();
-  await expect.poll(() => paint(mounted)).toEqual(colors['Small Laser']);
+  await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
+  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(mounted).toBeVisible();
-  await expect.poll(() => paint(mounted)).toEqual(colors['Small Laser']);
+  await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
+  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

@@ -13,7 +13,7 @@ import {
   type ConfigurableArmorDiagramProps,
 } from '../shared/ArmorVariantRenderHelpers';
 import { DiagramHeader } from '../shared/DiagramHeader';
-import { BipedArmorSurface, getBipedArmorInk } from './BipedArmorSurface';
+import { BipedArmorSurface, BIPED_ARMOR_INK } from './BipedArmorSurface';
 import { BIPED_ARMOR_PLATES } from './CleanTechBipedDiagram.geometry';
 
 interface BipedArmorDiagramProps extends ConfigurableArmorDiagramProps {
@@ -38,18 +38,26 @@ export function BipedArmorDiagram({
       data-armor-variant={variant}
     >
       <DiagramHeader title="Armor Allocation" />
-      <div
-        className="text-text-theme-secondary mb-2 flex justify-between text-xs tracking-wide uppercase"
-        aria-hidden="true"
-      >
-        <span>Right</span>
-        <span>Front view · rear inset</span>
-        <span>Left</span>
-      </div>
+      <p className="text-text-theme-secondary mb-2 text-center text-xs">
+        Front view · rear armor shown inside torso
+      </p>
       <ArmorDiagramSvgFrame
         viewBox="0 0 360 440"
-        className="mx-auto w-full max-w-[320px]"
+        className="mx-auto w-full max-w-[360px] xl:max-w-[400px]"
       >
+        <g
+          fill="var(--text-secondary)"
+          fontSize="14"
+          textAnchor="middle"
+          aria-hidden="true"
+        >
+          <text x="48" y="55">
+            Right
+          </text>
+          <text x="312" y="55">
+            Left
+          </text>
+        </g>
         <defs>
           <pattern
             id={gridId}
@@ -98,7 +106,7 @@ export function BipedArmorDiagram({
           const ratio =
             maximum > 0 ? Math.min(1, Math.max(0, total / maximum)) : 0;
           const displayColor = statusColor;
-          const ink = getBipedArmorInk(variant, statusColor);
+          const ink = BIPED_ARMOR_INK;
           return (
             <ArmorLocationInteractionGroup
               key={location}
@@ -124,7 +132,7 @@ export function BipedArmorDiagram({
               />
               <circle
                 data-armor-status={location}
-                cx={plate.x + 19}
+                cx={plate.x + 25}
                 cy={plate.y - 4}
                 r="2.5"
                 fill={statusColor}
@@ -168,7 +176,7 @@ export function BipedArmorDiagram({
                 <text
                   x={plate.x}
                   y={plate.y}
-                  fontSize="11"
+                  fontSize="14"
                   fontWeight="600"
                   style={
                     variant === 'premium-material'
@@ -200,7 +208,7 @@ export function BipedArmorDiagram({
                     <text
                       x={plate.x}
                       y={plate.rearY}
-                      fontSize="10"
+                      fontSize="13"
                       fill={ink.secondary}
                     >
                       REAR
@@ -216,7 +224,7 @@ export function BipedArmorDiagram({
                     <text
                       x={plate.x}
                       y={plate.y + 40}
-                      fontSize="10"
+                      fontSize="13"
                       fill={ink.secondary}
                     >
                       {total} / {maximum}
@@ -226,7 +234,7 @@ export function BipedArmorDiagram({
                   <text
                     x={plate.x}
                     y={plate.y + 40}
-                    fontSize="11"
+                    fontSize="14"
                     fill={ink.secondary}
                   >
                     / {maximum}
@@ -254,19 +262,23 @@ export function BipedArmorDiagram({
       <p className="text-text-theme-secondary mb-3 text-center text-xs">
         Torso totals include front and rear armor.
       </p>
-      <div className="mb-3 flex justify-between text-xs" aria-live="polite">
-        <span
-          className={
-            unallocatedPoints < 0 ? 'text-red-400' : 'text-text-theme-secondary'
-          }
-        >
-          {unallocatedPoints < 0 ? 'Over allocated' : 'Available'}
-        </span>
-        <span className="text-text-theme-primary tabular-nums">
-          {Math.abs(unallocatedPoints)} points
-        </span>
+      <div className="border-border-theme-subtle bg-surface-deep flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded border px-3 py-3">
+        <div className="flex items-baseline gap-2 text-xs" aria-live="polite">
+          <span
+            className={
+              unallocatedPoints < 0
+                ? 'text-red-400'
+                : 'text-text-theme-secondary'
+            }
+          >
+            {unallocatedPoints < 0 ? 'Over allocated' : 'Unallocated:'}
+          </span>
+          <span className="text-text-theme-primary font-semibold tabular-nums">
+            {Math.abs(unallocatedPoints)} points
+          </span>
+        </div>
+        <ArmorStatusLegend className="mt-0! flex-wrap" />
       </div>
-      <ArmorStatusLegend />
       <ArmorDiagramInstructions />
     </div>
   );

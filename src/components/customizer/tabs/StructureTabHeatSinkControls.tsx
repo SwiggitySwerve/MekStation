@@ -106,7 +106,7 @@ function HeatSinkCountControl({
             </option>
           ))}
         </select>
-        <span className={`${cs.text.secondary} text-right`}>Type</span>
+        <span aria-hidden="true" />
       </div>
 
       <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
@@ -152,7 +152,7 @@ function HeatSinkCountControl({
           </button>
         </div>
         <span className={`${cs.text.secondary} text-right tabular-nums`}>
-          {calculations.integralHeatSinks} integral
+          {calculations.integralHeatSinks} fit in engine
         </span>
       </div>
     </div>
@@ -167,26 +167,28 @@ function HeatSinkStats({
   return (
     <div className="grid grid-cols-3 gap-2 text-center">
       <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div className={`font-mono text-lg font-bold ${cs.text.valuePositive}`}>
+        <div
+          className={`text-lg font-semibold tabular-nums ${cs.text.valuePositive}`}
+        >
           {calculations.integralHeatSinks}
         </div>
-        <div className="text-text-theme-muted text-[10px]">Free</div>
+        <div className="text-text-theme-secondary text-xs">In engine</div>
       </div>
       <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
         <div
-          className={`font-mono text-lg font-bold ${calculations.externalHeatSinks > 0 ? cs.text.valueWarning : cs.text.value}`}
+          className={`text-lg font-semibold tabular-nums ${calculations.externalHeatSinks > 0 ? cs.text.valueWarning : cs.text.value}`}
         >
           {calculations.externalHeatSinks}
         </div>
-        <div className="text-text-theme-muted text-[10px]">External</div>
+        <div className="text-text-theme-secondary text-xs">External</div>
       </div>
       <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
         <div
-          className={`font-mono text-lg font-bold ${cs.text.valueHighlight}`}
+          className={`text-lg font-semibold tabular-nums ${cs.text.valueHighlight}`}
         >
           {calculations.totalHeatDissipation}
         </div>
-        <div className="text-text-theme-muted text-[10px]">Dissipation</div>
+        <div className="text-text-theme-secondary text-xs">Dissipation</div>
       </div>
     </div>
   );

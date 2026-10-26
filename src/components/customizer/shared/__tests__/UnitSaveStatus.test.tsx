@@ -32,7 +32,9 @@ describe('UnitSaveStatus', () => {
   it('does not invent a library identity when none has been recorded', () => {
     mockGetUnitStore.mockReturnValue(undefined);
     render(<UnitSaveStatus unitId="missing" />);
-    expect(screen.getByRole('status')).toHaveTextContent('No library save yet');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Not saved to library',
+    );
     expect(screen.getByRole('status')).not.toHaveTextContent(/latest/i);
   });
 
@@ -48,20 +50,20 @@ describe('UnitSaveStatus', () => {
     mockGetUnitStore.mockReturnValue(store);
     render(<UnitSaveStatus unitId={store.getState().id} />);
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Last library save v2 · Matches library save',
+      'Saved to library · v2',
     );
 
     act(() => {
       store.setState({ name: 'Temporary editor label', isModified: true });
     });
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Last library save v2 · Matches library save',
+      'Saved to library · v2',
     );
     act(() => {
       store.setState({ model: 'AS7-D-X', isModified: true });
     });
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Last library save v2 · Changes since library save',
+      'Changes since library save v2',
     );
     expect(screen.getByRole('status')).not.toHaveTextContent(/latest/i);
   });

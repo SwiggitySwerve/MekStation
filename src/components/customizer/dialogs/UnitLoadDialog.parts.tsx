@@ -85,20 +85,31 @@ function UnitTable({
   setSelectedUnit: (unit: UnitWithSource) => void;
 }) {
   return (
-    <table className={cs.dialog.table}>
-      <thead className={cs.dialog.tableHeader}>
+    <table
+      role="table"
+      aria-label="Available units"
+      className={`${cs.dialog.table} block sm:table`}
+    >
+      <thead
+        className={`${cs.dialog.tableHeader} z-10 hidden sm:table-header-group`}
+      >
         <tr>
           <th className="px-3 py-2 font-medium">Chassis</th>
           <th className="px-3 py-2 font-medium">Model</th>
           <th className="px-3 py-2 text-right font-medium">Weight</th>
-          <th className="px-3 py-2 text-right font-medium">Year</th>
-          <th className="px-3 py-2 font-medium">Tech</th>
-          <th className="px-3 py-2 font-medium">Role</th>
-          <th className="px-3 py-2 font-medium">Source</th>
+          <th className="hidden px-3 py-2 text-right font-medium sm:table-cell">
+            Year
+          </th>
+          <th className="hidden px-3 py-2 font-medium sm:table-cell">Tech</th>
+          <th className="hidden px-3 py-2 font-medium md:table-cell">Role</th>
+          <th className="hidden px-3 py-2 font-medium sm:table-cell">Source</th>
           <th className="w-8"></th>
         </tr>
       </thead>
-      <tbody className={cs.dialog.tableBody}>
+      <tbody
+        role="rowgroup"
+        className={`${cs.dialog.tableBody} block sm:table-row-group`}
+      >
         {filteredUnits.map((unit) => (
           <UnitTableRow
             key={unit.id}
@@ -128,33 +139,57 @@ function UnitTableRow({
 
   return (
     <tr
+      role="row"
+      tabIndex={0}
+      aria-selected={isSelected}
       onClick={() => setSelectedUnit(unit)}
       onDoubleClick={() => onDoubleClick(unit)}
-      className={`${cs.dialog.tableRow} ${
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setSelectedUnit(unit);
+        }
+      }}
+      className={`${cs.dialog.tableRow} focus-visible:outline-accent relative block px-4 py-3 pr-10 focus-visible:outline-2 focus-visible:-outline-offset-2 sm:table-row sm:p-0 ${
         isSelected ? cs.dialog.tableRowSelected : ''
       }`}
     >
-      <td className="text-text-theme-primary px-3 py-1.5">{unit.chassis}</td>
-      <td className="text-text-theme-secondary px-3 py-1.5">
+      <td
+        role="cell"
+        className="text-text-theme-primary inline font-semibold sm:table-cell sm:px-3 sm:py-1.5 sm:font-normal"
+      >
+        {unit.chassis}{' '}
+      </td>
+      <td
+        role="cell"
+        className="text-text-theme-primary sm:text-text-theme-secondary inline font-semibold sm:table-cell sm:px-3 sm:py-1.5 sm:font-normal"
+      >
         <UnitVariantLabel unit={unit} />
       </td>
-      <td className="text-text-theme-secondary px-3 py-1.5 text-right tabular-nums">
+      <td
+        role="cell"
+        className="text-text-theme-secondary mt-1 block text-xs tabular-nums sm:table-cell sm:px-3 sm:py-1.5 sm:text-right sm:text-sm"
+      >
         {unit.tonnage} t
+        <span className="sm:hidden">
+          {unit.year ? ` · ${unit.year}` : ''} · {getTechLabel(unit.techBase)}
+          {unit.role ? ` · ${unit.role}` : ''} · <UnitSourceLabel unit={unit} />
+        </span>
       </td>
-      <td className="text-text-theme-secondary px-3 py-1.5 text-right tabular-nums">
+      <td className="text-text-theme-secondary hidden px-3 py-1.5 text-right tabular-nums sm:table-cell">
         {unit.year ?? '-'}
       </td>
-      <td className="text-text-theme-secondary px-3 py-1.5">
+      <td className="text-text-theme-secondary hidden px-3 py-1.5 sm:table-cell">
         {getTechLabel(unit.techBase)}
       </td>
-      <td className="text-text-theme-secondary px-3 py-1.5">
+      <td className="text-text-theme-secondary hidden px-3 py-1.5 md:table-cell">
         {unit.role ?? '-'}
       </td>
-      <td className="px-3 py-1.5">
+      <td className="hidden px-3 py-1.5 sm:table-cell">
         <UnitSourceLabel unit={unit} />
       </td>
-      <td className="px-2 py-1.5 text-right">
-        {isSelected && <CheckIcon className="inline-block text-blue-400" />}
+      <td className="absolute top-3 right-3 text-right sm:static sm:px-2 sm:py-1.5">
+        {isSelected && <CheckIcon className="text-accent inline-block" />}
       </td>
     </tr>
   );
@@ -162,7 +197,7 @@ function UnitTableRow({
 
 function UnitVariantLabel({ unit }: { unit: UnitWithSource }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="inline-flex items-center gap-1.5">
       {unit.variant}
       {unit.source === 'custom' &&
         unit.currentVersion &&

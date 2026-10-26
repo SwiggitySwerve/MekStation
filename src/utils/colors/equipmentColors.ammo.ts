@@ -25,9 +25,10 @@ export const MISSILE_AMMO_COLORS: CategoryColorDefinition = {
   slotText: 'text-white',
   slotHoverBg: 'hover:bg-emerald-500',
   indicatorBg: 'bg-emerald-400',
+  accentBorder: 'border-l-emerald-400',
 };
 
-/** Ballistic ammo - Amber colored */
+/** Ballistic ammo - Brown-amber (deeper than the app's amber-400 accent) */
 export const BALLISTIC_AMMO_COLORS: CategoryColorDefinition = {
   label: 'Ballistic Ammo',
   badgeVariant: 'amber',
@@ -35,7 +36,8 @@ export const BALLISTIC_AMMO_COLORS: CategoryColorDefinition = {
   slotBorder: 'border-amber-700',
   slotText: 'text-white',
   slotHoverBg: 'hover:bg-amber-500',
-  indicatorBg: 'bg-amber-400',
+  indicatorBg: 'bg-amber-600',
+  accentBorder: 'border-l-amber-600',
 };
 
 /** Patterns to detect missile ammo by name */

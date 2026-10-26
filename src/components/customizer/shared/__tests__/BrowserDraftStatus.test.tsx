@@ -12,16 +12,26 @@ describe('BrowserDraftStatus', () => {
 
   it('reports only successful writes for the active draft', () => {
     const { rerender } = render(<BrowserDraftStatus unitId="visible-first" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Browser draft');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Browser draft, no changes yet',
+    );
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'off');
     act(() => clientSafeStorage.setItem('megamek-unit-other', '{}'));
-    expect(screen.getByRole('status')).toHaveTextContent('Browser draft');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Browser draft, no changes yet',
+    );
     act(() => clientSafeStorage.setItem('megamek-unit-visible-first', '{}'));
-    expect(screen.getByRole('status')).toHaveTextContent('Draft saved');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft saved in this browser',
+    );
     rerender(<BrowserDraftStatus unitId="visible-second" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Browser draft');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Browser draft, no changes yet',
+    );
     rerender(<BrowserDraftStatus unitId="visible-first" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Draft saved');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft saved in this browser',
+    );
   });
 
   it('retains the failed state until the draft is successfully written', () => {
@@ -37,10 +47,14 @@ describe('BrowserDraftStatus', () => {
       ).toThrow('full');
     });
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
-    expect(screen.getByRole('status')).toHaveTextContent('Draft save failed');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft save failed in this browser',
+    );
     storage.mockRestore();
     act(() => clientSafeStorage.setItem('megamek-unit-visible-failed', '{}'));
-    expect(screen.getByRole('status')).toHaveTextContent('Draft saved');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft saved in this browser',
+    );
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'off');
   });
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
-import { getEquipmentSlotClasses } from '@/utils/colors/equipmentColors';
+import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getLocationShorthand } from '@/utils/locationUtils';
 
 import { trayStyles } from './GlobalLoadoutTray.styles';
@@ -61,40 +61,45 @@ export function GlobalLoadoutTrayEquipmentGroup({
 
   return (
     <div
-      className={`my-0.5 rounded-md border-2 border-solid ${getEquipmentSlotClasses(representative.category, representative.name)}`}
+      className={`my-0.5 ${trayStyles.equipmentSurface} ${getEquipmentAccentClasses(representative.category, representative.name)}`}
     >
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={isExpanded}
         aria-label={`${isExpanded ? 'Hide' : 'Show'} ${count} instances of ${groupName}`}
-        className="focus-visible:ring-accent flex min-h-11 w-full items-center gap-2 rounded-md px-2 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+        title={`${count} identical items. ${isExpanded ? 'Hide' : 'Show'} each one.`}
+        className="focus-visible:ring-accent hover:bg-surface-raised flex min-h-11 w-full items-stretch gap-1.5 rounded-md pl-2 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
       >
-        <AppIcon
-          name="chevron-right"
-          size="inline"
-          aria-hidden="true"
-          className={isExpanded ? 'rotate-90' : ' '}
-        />
-        <span className="min-w-0 flex-1">
-          <span
-            className={`block truncate leading-tight text-inherit ${trayStyles.text.primary}`}
-          >
-            {representative.name}
+        <span className="flex min-w-0 flex-1 flex-col justify-center py-1">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <span
+              className="border-border-theme bg-surface-base text-text-theme-primary shrink-0 rounded border px-1.5 text-xs leading-5 font-semibold tabular-nums"
+              aria-hidden="true"
+            >
+              {count}&times;
+            </span>
+            <span
+              className={`min-w-0 truncate leading-tight font-medium text-inherit ${trayStyles.text.primary}`}
+            >
+              {representative.name}
+            </span>
           </span>
           <span
-            className={`mt-0.5 block leading-tight text-inherit ${trayStyles.text.secondary}`}
+            className={`text-text-theme-secondary mt-0.5 block truncate leading-tight tabular-nums ${trayStyles.text.secondary}`}
           >
-            {location} · {representative.weight}t ·{' '}
-            {representative.criticalSlots} slot
+            {representative.weight}t &middot; {representative.criticalSlots}{' '}
+            slot
             {representative.criticalSlots === 1 ? '' : 's'}
+            {representative.isAllocated && <> &middot; {location}</>}
           </span>
         </span>
-        <span
-          className="border-border-theme bg-surface-base text-text-theme-primary min-w-6 rounded border px-1.5 py-0.5 text-center text-[10px] tabular-nums"
-          aria-hidden="true"
-        >
-          ×{count}
+        <span className={trayStyles.rowActionCell} aria-hidden="true">
+          <AppIcon
+            name="chevron-down"
+            size="inline"
+            className={`text-text-theme-secondary transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+          />
         </span>
       </button>
 

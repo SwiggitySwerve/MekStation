@@ -1,10 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import {
   UnitInfoBanner,
   UnitStats,
 } from '@/components/customizer/shared/UnitInfoBanner';
+import { CAUTION_TEXT_CLASS } from '@/components/customizer/shared/unitStatStatus';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 
@@ -60,7 +61,7 @@ describe('UnitInfoBanner', () => {
     };
     render(<UnitInfoBanner stats={stats} validation={mockValidation} />);
 
-    expect(screen.getByRole('status')).toHaveTextContent('Valid');
+    expect(screen.getByRole('status')).toHaveTextContent('Ready');
     expect(
       screen.getByRole('status').querySelector('[data-icon-name="check"]'),
     ).toBeInTheDocument();
@@ -123,12 +124,141 @@ describe('UnitInfoBanner', () => {
     expect(heatContainer).toHaveTextContent('30');
   });
 
-  it('should display tonnage stat', () => {
-    const stats = createStats();
-    render(<UnitInfoBanner stats={stats} />);
+  it('shows running hot as an orange caution with the excess, not an error or the amber accent', () => {
+    render(
+      <UnitInfoBanner
+        stats={createStats({ heatGenerated: 33, heatDissipation: 22 })}
+        compact
+      />,
+    );
+    const heat = screen.getByTestId('unit-info-stat-heat');
+    expect(heat).toHaveAttribute('data-status', 'warning');
+    expect(heat).toHaveTextContent('+11 over');
+    expect(heat.querySelector('.text-red-400')).toBeNull();
+    expect(heat.querySelector('.text-amber-400')).toBeNull();
+    expect(heat.querySelector(`.${CAUTION_TEXT_CLASS}`)).toHaveTextContent(
+      '33',
+    );
+    expect(
+      (heat.querySelector('.budgetFill') as HTMLElement).style.background,
+    ).toContain('--color-orange-400');
+    expect(heat).toHaveAccessibleName(
+      'Heat: 33 / 22. 33 heat at full fire / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
+    );
+    expect(heat).toHaveAttribute('tabindex', '0');
+    expect(heat).toHaveAccessibleDescription(
+      '33 heat at full fire / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
+    );
+  });
 
-    expect(screen.getByText('Tonnage')).toBeInTheDocument();
-    expect(screen.getByText('100')).toBeInTheDocument();
+  it('names both heat numbers even when heat is in budget', () => {
+    render(<UnitInfoBanner stats={createStats()} compact />);
+    const heat = screen.getByTestId('unit-info-stat-heat');
+    expect(heat).toHaveTextContent('gen / diss');
+    expect(heat).toHaveAccessibleName(
+      'Heat: 20 / 30. 20 heat at full fire / 30 dissipation.',
+    );
+    expect(heat).toHaveAttribute('tabindex', '0');
+  });
+
+  it('keeps caps legible: denominators are 12px secondary text', () => {
+    render(<UnitInfoBanner stats={createStats()} compact />);
+    for (const cap of ['100t', '78', '30', '307'])
+      expect(screen.getByText(cap)).toHaveClass(
+        'text-xs',
+        'text-text-theme-secondary',
+      );
+  });
+
+  it('keeps red for real capacity errors and no excess when heat is in budget', () => {
+    render(
+      <UnitInfoBanner
+        stats={createStats({
+          weightUsed: 101,
+          weightRemaining: -1,
+          criticalSlotsUsed: 80,
+        })}
+        compact
+      />,
+    );
+    expect(screen.getByTestId('unit-info-stat-weight')).toHaveAttribute(
+      'data-status',
+      'error',
+    );
+    expect(screen.getByTestId('unit-info-stat-slots')).toHaveAttribute(
+      'data-status',
+      'error',
+    );
+    const heat = screen.getByTestId('unit-info-stat-heat');
+    expect(heat).toHaveAttribute('data-status', 'normal');
+    expect(heat).not.toHaveTextContent('+');
+  });
+
+  it('groups the budget readouts as the emphasized capacity group with fill bars', () => {
+    render(
+      <UnitInfoBanner
+        stats={createStats({ heatGenerated: 33, heatDissipation: 22 })}
+        compact
+      />,
+    );
+    const capacity = screen.getByRole('group', { name: 'Capacity' });
+    expect(capacity).toHaveClass('readoutGroupKey');
+    for (const id of ['weight', 'slots', 'heat', 'armor']) {
+      const stat = screen.getByTestId(`unit-info-stat-${id}`);
+      expect(capacity).toContainElement(stat);
+      expect(stat).toHaveClass('budgetStat');
+      expect(stat.querySelector('.budgetFill')).toHaveAttribute(
+        'data-status',
+        stat.getAttribute('data-status'),
+      );
+    }
+    const fill = (id: string) =>
+      (
+        screen
+          .getByTestId(`unit-info-stat-${id}`)
+          .querySelector('.budgetFill') as HTMLElement
+      ).style.width;
+    expect(fill('weight')).toBe('50%');
+    // Over the cap stays a full bar rather than overflowing.
+    expect(fill('heat')).toBe('100%');
+    for (const id of ['walk', 'run', 'jump', 'engine', 'bv'])
+      expect(screen.getByTestId(`unit-info-stat-${id}`)).toHaveClass(
+        'secondaryStat',
+      );
+  });
+
+  it('lets phone users open the remaining compact readouts', () => {
+    render(
+      <UnitInfoBanner
+        stats={createStats()}
+        compact
+        status={<button type="button">Valid</button>}
+      />,
+    );
+    const toggle = screen.getByRole('button', {
+      name: 'Show all unit readouts',
+    });
+    const readouts = document.getElementById(
+      toggle.getAttribute('aria-controls')!,
+    );
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(readouts).not.toHaveClass('readoutsDetailsOpen');
+    fireEvent.click(toggle);
+    expect(
+      screen.getByRole('button', { name: 'Hide all unit readouts' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(readouts).toHaveClass('readoutsDetailsOpen');
+    expect(screen.getByRole('button', { name: 'Valid' })).toBeInTheDocument();
+  });
+
+  it('shows tonnage once, as the weight cap', () => {
+    const stats = createStats();
+    render(<UnitInfoBanner stats={stats} compact />);
+
+    expect(screen.queryByText('Tonnage')).not.toBeInTheDocument();
+    expect(screen.getByTestId('unit-info-stat-weight')).toHaveTextContent(
+      '50.0t/100t',
+    );
   });
 
   it('should display engine rating stat', () => {
@@ -153,7 +283,7 @@ describe('UnitInfoBanner', () => {
 
     expect(screen.getByText('-')).toBeInTheDocument();
   });
-  it('keeps all ten metrics and conditional Run+ in the compact workbench', () => {
+  it('keeps all nine metrics and conditional Run+ in the compact workbench', () => {
     const { rerender } = render(
       <UnitInfoBanner stats={createStats()} compact />,
     );
@@ -162,7 +292,6 @@ describe('UnitInfoBanner', () => {
       'Run',
       'Jump',
       'Engine',
-      'Tonnage',
       'Weight',
       'Slots',
       'Armor',

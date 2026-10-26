@@ -4,23 +4,31 @@ import { useStore, type StoreApi } from 'zustand';
 import type { UnitStore } from '@/stores/unitState';
 
 import { useToast } from '@/components/shared/Toast';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
 import { getUnitEditHistory } from '@/stores/unit/unitEditHistory';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 
 export function UnitEditControls({
   unitId,
+  compact = false,
 }: {
   unitId: string;
+  /** Icon-only buttons for hosts that share a band with other controls. */
+  compact?: boolean;
 }): React.ReactElement | null {
   const store = getUnitStore(unitId);
-  return store ? <StoreEditControls key={unitId} store={store} /> : null;
+  return store ? (
+    <StoreEditControls key={unitId} store={store} compact={compact} />
+  ) : null;
 }
 
 export function StoreEditControls({
   store,
+  compact = false,
 }: {
   store: StoreApi<UnitStore>;
+  compact?: boolean;
 }): React.ReactElement {
   const history = getUnitEditHistory(store);
   const state = useStore(history);
@@ -78,6 +86,7 @@ export function StoreEditControls({
     return () => window.removeEventListener('keydown', handleKey);
   }, [history, perform]);
 
+  const buttonClass = `!text-text-theme-primary !min-h-11 ${compact ? '!h-11 !w-11 !p-0' : '!px-3'}`;
   return (
     <div
       className="flex shrink-0 items-center gap-1"
@@ -86,7 +95,7 @@ export function StoreEditControls({
     >
       <Button
         size="sm"
-        variant="ghost"
+        variant="secondary"
         disabled={!state.canUndo}
         aria-label={state.undoLabel ? `Undo: ${state.undoLabel}` : 'Undo'}
         title={
@@ -94,14 +103,15 @@ export function StoreEditControls({
             ? `Undo: ${state.undoLabel} (Ctrl/Cmd+Z)`
             : 'No edits to undo this session'
         }
-        className="!min-h-11"
+        className={buttonClass}
         onClick={() => perform('undo')}
       >
-        Undo
+        <AppIcon name="undo" size="inline" />
+        {!compact && 'Undo'}
       </Button>
       <Button
         size="sm"
-        variant="ghost"
+        variant="secondary"
         disabled={!state.canRedo}
         aria-label={state.redoLabel ? `Redo: ${state.redoLabel}` : 'Redo'}
         title={
@@ -109,10 +119,11 @@ export function StoreEditControls({
             ? `Redo: ${state.redoLabel} (Ctrl/Cmd+Shift+Z)`
             : 'No edits to redo this session'
         }
-        className="!min-h-11"
+        className={buttonClass}
         onClick={() => perform('redo')}
       >
-        Redo
+        <AppIcon name="redo" size="inline" />
+        {!compact && 'Redo'}
       </Button>
     </div>
   );

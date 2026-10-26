@@ -78,7 +78,7 @@ describe('NeonOperatorDiagram', () => {
   it('should display unallocated points info', () => {
     render(<NeonOperatorDiagram {...defaultProps} />);
 
-    expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('Unallocated:')).toBeInTheDocument();
     expect(screen.getByText('12 points')).toBeInTheDocument();
   });
 

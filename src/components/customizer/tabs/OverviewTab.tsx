@@ -222,18 +222,17 @@ export function OverviewTab({
     enhancement,
   ]);
 
+  const unplacedCount = equipment.filter(
+    (item) => !hasAssignedCriticalSlots(item),
+  ).length;
+
   return (
-    <div className={`space-y-4 p-4 ${className}`}>
+    <div
+      className={`grid gap-4 p-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] xl:items-start ${className}`}
+    >
       <div className={cs.panel.main}>
-        <div className="border-border-theme-subtle mb-4 flex flex-col gap-2 border-b pb-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-accent text-xs font-semibold tracking-[0.18em] uppercase">
-              Unit dossier
-            </p>
-            <h3 className="text-text-theme-primary mt-1 text-xl font-semibold">
-              Identity
-            </h3>
-          </div>
+        <div className="border-border-theme mb-4 flex flex-col gap-1 border-b pb-3 sm:flex-row sm:items-baseline sm:justify-between">
+          <h3 className={cs.text.cardTitle}>Identity</h3>
           <p className={`${cs.text.secondary} sm:text-right`}>
             {TECH_BASE_MODE_LABELS[techBaseMode]} · {rulesLevel}
           </p>
@@ -283,7 +282,7 @@ export function OverviewTab({
             </div>
           </div>
 
-          <div className="border-border-theme-subtle grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-3">
+          <div className="border-border-theme grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-3">
             <div className={cs.layout.field}>
               <label className={cs.text.label}>Year</label>
               <input
@@ -333,96 +332,81 @@ export function OverviewTab({
         </div>
       </div>
 
-      <details
-        className={`${cs.panel.main} group`}
-        open={isTechConfigOpen}
-        onToggle={(event) => setIsTechConfigOpen(event.currentTarget.open)}
-      >
-        <summary className="focus-visible:ring-accent focus-visible:ring-offset-surface-base flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
-          <span>
-            <span className="text-text-theme-primary block text-sm font-semibold">
-              Component technology
-            </span>
-            <span className={cs.text.secondary}>
-              {techBaseMode === TechBaseMode.MIXED
-                ? 'Mixed tech is active; each component can be configured independently.'
-                : `${TECH_BASE_MODE_LABELS[techBaseMode]} applies across the unit.`}
-            </span>
-          </span>
-          <AppIcon
-            name="add"
-            size="inline"
-            className="text-accent group-open:rotate-45"
-            aria-hidden="true"
-          />
-        </summary>
-        <div className="border-border-theme-subtle mt-4 border-t pt-4">
-          <TechBaseConfiguration
-            mode={techBaseMode}
-            components={componentTechBases}
-            componentValues={componentValues}
-            onModeChange={handleModeChange}
-            onComponentChange={handleComponentChange}
-            readOnly={readOnly}
-          />
-        </div>
-      </details>
-
-      <div className={cs.panel.main}>
-        <div className="border-border-theme-subtle mb-4 flex items-baseline justify-between border-b pb-3">
-          <h3 className="text-text-theme-primary text-lg font-semibold">
-            Loadout summary
-          </h3>
-          <span className={cs.text.secondary}>Current build</span>
-        </div>
-        <div
-          aria-label="Equipment summary"
-          className={
-            equipment.length
-              ? 'grid grid-cols-3 gap-3 text-center'
-              : cs.panel.empty
-          }
+      {/* Wide screens: Identity on the left; technology and summary stack on the right. */}
+      <div className="flex min-w-0 flex-col gap-4">
+        <details
+          className={`${cs.panel.main} group`}
+          open={isTechConfigOpen}
+          onToggle={(event) => setIsTechConfigOpen(event.currentTarget.open)}
         >
+          <summary className="focus-visible:ring-accent focus-visible:ring-offset-surface-base flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 rounded text-left focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className={`${cs.text.cardTitle} block`}>
+                Component technology
+              </span>
+              <span className={cs.text.secondary}>
+                {techBaseMode === TechBaseMode.MIXED
+                  ? 'Mixed tech is active; each component can be configured independently.'
+                  : `${TECH_BASE_MODE_LABELS[techBaseMode]} applies across the unit.`}
+              </span>
+            </span>
+            <AppIcon
+              name="chevron-down"
+              size="inline"
+              className="text-text-theme-secondary shrink-0 transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div className="border-border-theme mt-4 border-t pt-4">
+            <TechBaseConfiguration
+              mode={techBaseMode}
+              components={componentTechBases}
+              componentValues={componentValues}
+              onModeChange={handleModeChange}
+              onComponentChange={handleComponentChange}
+              readOnly={readOnly}
+            />
+          </div>
+        </details>
+
+        <div
+          className={`${cs.panel.main} flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1`}
+        >
+          <h3 className={cs.text.cardTitle}>Loadout summary</h3>
           {equipment.length > 0 ? (
-            <>
-              <div className="border-border-theme-subtle bg-surface-deep/35 rounded border px-2 py-3">
-                <strong className="text-accent block font-mono text-xl">
-                  {equipment.length}
-                </strong>
-                <span className={cs.text.secondary}>Equipment items</span>
-              </div>
-              <div className="border-border-theme-subtle bg-surface-deep/35 rounded border px-2 py-3">
-                <strong className="text-text-theme-primary block font-mono text-xl">
-                  {equipment
-                    .reduce((sum, item) => sum + item.weight, 0)
-                    .toFixed(1)}{' '}
-                  t
-                </strong>
-                <span className={cs.text.secondary}>Equipment weight</span>
-              </div>
-              <div className="border-border-theme-subtle bg-surface-deep/35 rounded border px-2 py-3">
-                <strong className="text-text-theme-primary block font-mono text-xl">
-                  {
-                    equipment.filter((item) => !hasAssignedCriticalSlots(item))
-                      .length
-                  }
-                </strong>
-                <span className={cs.text.secondary}>Need placement</span>
-              </div>
-            </>
+            <p
+              aria-label="Equipment summary"
+              className="text-text-theme-secondary text-sm tabular-nums"
+            >
+              <strong className={cs.text.value}>{equipment.length}</strong>{' '}
+              {equipment.length === 1 ? 'item' : 'items'} ·{' '}
+              <strong className={cs.text.value}>
+                {equipment
+                  .reduce((sum, item) => sum + item.weight, 0)
+                  .toFixed(1)}{' '}
+                t
+              </strong>{' '}
+              equipment weight ·{' '}
+              <strong
+                className={
+                  unplacedCount > 0 ? cs.text.valueWarning : cs.text.value
+                }
+              >
+                {unplacedCount}
+              </strong>{' '}
+              need placement
+            </p>
           ) : (
-            <>
-              <p>No equipment mounted</p>
-              <p className="mt-2 text-sm">
-                Add weapons and equipment from the Equipment tab
-              </p>
-            </>
+            <p aria-label="Equipment summary" className={cs.text.secondary}>
+              No equipment mounted. Add weapons and equipment from the Equipment
+              tab.
+            </p>
           )}
         </div>
       </div>
 
       {readOnly && (
-        <div className={cs.panel.notice}>
+        <div className={`${cs.panel.notice} xl:col-span-2`}>
           This unit is in read-only mode. Changes cannot be made.
         </div>
       )}

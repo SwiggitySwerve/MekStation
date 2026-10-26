@@ -12,7 +12,7 @@ import React, { useCallback, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { EquipmentCategory } from '@/types/equipment';
-import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
+import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 import { getLocationShorthand } from '@/utils/locationUtils';
 
 import { MobileLocationMenu } from './MobileLocationMenu';
@@ -142,16 +142,16 @@ function EquipmentSummary({
         {item.name}
       </span>
       {item.damage !== undefined && (
-        <span className="flex-shrink-0 text-[9px] text-cyan-400/80">
+        <span className="flex-shrink-0 text-[10px] text-cyan-400/80">
           {item.damage}d
         </span>
       )}
       {item.targetingComputerCompatible && (
-        <span className="flex-shrink-0 text-[8px] text-green-400/70">TC</span>
+        <span className="flex-shrink-0 text-[10px] text-green-400/70">TC</span>
       )}
       {isOmni && (
         <span
-          className={`flex-shrink-0 rounded px-0.5 text-[8px] ${
+          className={`flex-shrink-0 rounded px-0.5 text-[10px] ${
             item.isOmniPodMounted
               ? 'bg-accent/20 text-accent'
               : 'bg-surface-raised text-text-theme-secondary'
@@ -353,7 +353,6 @@ export function MobileEquipmentRow({
 }: MobileEquipmentRowProps): React.ReactElement {
   const [showConfirmRemove, setShowConfirmRemove] = useState(false);
   const [showConfirmUnassign, setShowConfirmUnassign] = useState(false);
-  const colors = getCategoryColorsLegacy(item.category);
 
   // Check if this is fixed equipment on an OmniMech
   const isFixedOnOmni = isOmni && item.isOmniPodMounted === false;
@@ -381,7 +380,10 @@ export function MobileEquipmentRow({
         className,
       })}
     >
-      <div className={`mr-1.5 h-6 w-1 flex-shrink-0 rounded-sm ${colors.bg}`} />
+      <div
+        aria-hidden="true"
+        className={`mr-1.5 h-6 w-1 flex-shrink-0 rounded-sm ${getCategoryIndicatorClass(item.category)}`}
+      />
       <button
         type="button"
         data-equipment-select={item.instanceId}

@@ -80,7 +80,7 @@ describe('ValidationSummary', () => {
       const validation = createMockValidationState({ isValid: true });
       render(<ValidationSummary validation={validation} />);
 
-      expect(screen.getByRole('status')).toHaveTextContent('Valid');
+      expect(screen.getByRole('status')).toHaveTextContent('Ready');
       expect(
         screen.getByRole('status').querySelector('[data-icon-name="check"]'),
       ).toBeInTheDocument();
@@ -105,7 +105,9 @@ describe('ValidationSummary', () => {
       expect(
         screen.getByRole('button', { name: /\d+ errors?, show issues/ }),
       ).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /3 errors, show issues/ }),
+      ).toHaveTextContent('3 errors');
     });
 
     it('should show dropdown when clicked', () => {
@@ -164,7 +166,9 @@ describe('ValidationSummary', () => {
       expect(
         screen.getByRole('button', { name: /\d+ warnings?, show issues/ }),
       ).toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /2 warnings, show issues/ }),
+      ).toHaveTextContent('2 warnings');
       expect(screen.queryByText('Valid')).not.toBeInTheDocument();
     });
 

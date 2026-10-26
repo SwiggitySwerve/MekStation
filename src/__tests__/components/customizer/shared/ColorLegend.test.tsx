@@ -50,19 +50,21 @@ describe('ColorLegend', () => {
     expect(screen.getByText('Engine')).toBeInTheDocument();
     expect(screen.getByText('Gyro')).toBeInTheDocument();
     expect(screen.getByText('Actuators')).toBeInTheDocument();
-    expect(screen.getByText('Cockpit/Sensors')).toBeInTheDocument();
+    expect(
+      screen.getByText('Cockpit / life support / sensors'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Empty Slot')).toBeInTheDocument();
   });
 
   it('should display equipment type colors', () => {
     render(<ColorLegend defaultExpanded={true} />);
 
-    expect(screen.getByText('Weapons')).toBeInTheDocument();
-    expect(screen.getByText('Ammunition')).toBeInTheDocument();
+    expect(screen.getByText('Energy')).toBeInTheDocument();
+    expect(screen.getByText('Ammo')).toBeInTheDocument();
     expect(screen.getByText('Heat Sinks')).toBeInTheDocument();
     expect(screen.getByText('Electronics')).toBeInTheDocument();
-    expect(screen.getByText('Physical Weapons')).toBeInTheDocument();
-    expect(screen.getByText('Other Equipment')).toBeInTheDocument();
+    expect(screen.getByText('Physical')).toBeInTheDocument();
+    expect(screen.getByText('Misc')).toBeInTheDocument();
   });
 
   it('should display tech base colors', () => {

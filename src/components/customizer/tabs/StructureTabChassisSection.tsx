@@ -82,10 +82,8 @@ export function StructureTabChassisSection({
 }: StructureTabChassisSectionProps): React.ReactElement {
   return (
     <div className={cs.panel.main}>
-      <div className="border-border-theme-subtle mb-4 border-b pb-3">
-        <h3 className="text-text-theme-primary text-lg font-semibold">
-          Chassis
-        </h3>
+      <div className="border-border-theme mb-4 border-b pb-3">
+        <h3 className={cs.text.cardTitle}>Chassis</h3>
         <p className={`${cs.text.secondary} mt-0.5`}>
           Core structure, drive system, and cooling
         </p>
@@ -95,7 +93,7 @@ export function StructureTabChassisSection({
         <section aria-labelledby="chassis-configuration-heading">
           <h4
             id="chassis-configuration-heading"
-            className="text-text-theme-secondary mb-2 text-xs font-semibold tracking-[0.16em] uppercase"
+            className={`${cs.text.subsection} mb-2`}
           >
             Chassis
           </h4>
@@ -127,10 +125,7 @@ export function StructureTabChassisSection({
         />
 
         <section aria-labelledby="cooling-heading">
-          <h4
-            id="cooling-heading"
-            className="text-text-theme-secondary mb-2 text-xs font-semibold tracking-[0.16em] uppercase"
-          >
+          <h4 id="cooling-heading" className={`${cs.text.subsection} mb-2`}>
             Cooling
           </h4>
           <HeatSinkSection

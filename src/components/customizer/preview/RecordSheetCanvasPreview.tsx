@@ -71,10 +71,17 @@ export function drawRecordSheetRenderError(
   canvas.height = height;
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, width, height);
-  ctx.fillStyle = '#f00';
-  ctx.font = '14px sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Error rendering record sheet', width / 2, height / 2);
+  ctx.fillStyle = '#1e293b';
+  ctx.font = '600 20px sans-serif';
+  ctx.fillText('Record sheet unavailable', width / 2, height / 2 - 14);
+  ctx.fillStyle = '#475569';
+  ctx.font = '14px sans-serif';
+  ctx.fillText(
+    'The sheet could not be drawn. Reload the page to try again.',
+    width / 2,
+    height / 2 + 14,
+  );
 }
 
 function commitStagedRecordSheetPreview(

@@ -32,10 +32,10 @@ describe('slotColors', () => {
   describe('getSlotColorClasses', () => {
     it('should return combined class string for component types', () => {
       const engineClasses = getSlotColorClasses('engine');
-      expect(engineClasses).toContain('bg-orange-600');
-      expect(engineClasses).toContain('border-orange-700');
-      expect(engineClasses).toContain('text-white');
-      expect(engineClasses).toContain('hover:bg-orange-500');
+      expect(engineClasses).toContain('bg-surface-base');
+      expect(engineClasses).toContain('border-l-orange-400/35');
+      expect(engineClasses).toContain('text-text-theme-secondary');
+      expect(engineClasses).toContain('hover:bg-surface-raised');
     });
 
     it('should return correct classes for all component types', () => {

@@ -190,6 +190,7 @@ test('mobile equipment actions retain identity and focus through mounting and re
   await page.getByText('AS7-D', { exact: true }).click();
   await page.getByRole('button', { name: 'Load Unit', exact: true }).click();
   await page.getByRole('dialog').waitFor({ state: 'hidden' });
+  await page.getByRole('button', { name: /^Section:/ }).click();
   await page.getByRole('tab', { name: 'Equipment', exact: true }).click();
   await page
     .getByRole('textbox', { name: 'Search equipment', exact: true })
@@ -308,7 +309,7 @@ test('mobile equipment actions retain identity and focus through mounting and re
   await drawer.getByRole('button', { name: 'Close', exact: true }).click();
   await page.reload();
   await expect(
-    page.getByRole('tab', { name: 'Equipment', exact: true }),
+    page.getByRole('button', { name: 'Section: Equipment, 4 of 7' }),
   ).toBeVisible();
   expect(
     (await equipment()).some((item) => item.instanceId === instance.instanceId),
@@ -484,6 +485,7 @@ test('mobile pending confirmation is discarded across same-document unit history
   const atlasBefore = await storedEquipment(page);
   const timeOrigin = await page.evaluate(() => performance.timeOrigin);
   expect(new URL(page.url()).pathname.endsWith('/armor')).toBe(false);
+  await page.getByRole('button', { name: /^Section:/ }).click();
   await page.getByRole('tab', { name: 'Armor', exact: true }).click();
   await expect(page).toHaveURL(/\/armor$/);
   const enforcer = await loadStock(page, 'Enforcer ENF-4R', 'ENF-4R', true);

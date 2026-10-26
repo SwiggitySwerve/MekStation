@@ -64,7 +64,7 @@ export function EquipmentBrowser({
       aria-label={`Sort by ${column === 'weight' ? 'weight' : label.toLowerCase()}${sortColumn === column ? `, ${sortDirection === 'asc' ? 'ascending' : 'descending'}` : ''}`}
       onClick={() => browser.setSort(column)}
       {...(catalogColumn ? { 'data-catalog-column': catalogColumn } : {})}
-      className={`!grid !px-0 !text-xs ${workbenchStyles.catalogSortButton}`}
+      className={`!px-0 ${workbenchStyles.catalogSortButton}`}
     >
       <span className={workbenchStyles.catalogSortLabel}>{label}</span>
       <span aria-hidden="true" className={workbenchStyles.catalogSortArrow}>
@@ -121,11 +121,11 @@ export function EquipmentBrowser({
             : `${totalItems} ${totalItems === 1 ? 'item' : 'items'}`
         }
         availabilitySummary={[
-          unitTechBase === 'Inner Sphere' ? 'IS' : unitTechBase,
-          unitYear ? `≤${unitYear}` : null,
+          unitTechBase,
+          unitYear ? `up to ${unitYear}` : null,
         ]
           .filter(Boolean)
-          .join(' / ')}
+          .join(' · ')}
         sortControls={
           <div className="flex flex-col gap-1">
             {(['name', 'weight', 'criticalSlots'] as const).map((column) =>

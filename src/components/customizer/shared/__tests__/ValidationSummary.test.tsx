@@ -99,7 +99,7 @@ function createValidationResult(
 
 describe('ValidationSummary', () => {
   describe('valid state', () => {
-    it('should show Valid badge when no issues', () => {
+    it('should show Ready when no issues', () => {
       const validation = createValidationState({
         isValid: true,
         errorCount: 0,
@@ -110,7 +110,7 @@ describe('ValidationSummary', () => {
       render(<ValidationSummary validation={validation} />);
 
       expect(screen.getByRole('status')).toBeInTheDocument();
-      expect(screen.getByRole('status')).toHaveTextContent('Valid');
+      expect(screen.getByRole('status')).toHaveTextContent('Ready');
       expect(
         screen.getByRole('status').querySelector('[data-icon-name="check"]'),
       ).toBeInTheDocument();
@@ -135,7 +135,9 @@ describe('ValidationSummary', () => {
       expect(
         screen.getByRole('button', { name: /\d+ errors?, show issues/ }),
       ).toBeInTheDocument();
-      expect(screen.getByText('3')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /3 errors, show issues/ }),
+      ).toHaveTextContent('3 errors');
     });
 
     it('should expand to show error details on click', () => {
@@ -175,7 +177,9 @@ describe('ValidationSummary', () => {
       expect(
         screen.getByRole('button', { name: /\d+ warnings?, show issues/ }),
       ).toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /2 warnings, show issues/ }),
+      ).toHaveTextContent('2 warnings');
     });
 
     it('should expand to show warning details', () => {
@@ -217,7 +221,9 @@ describe('ValidationSummary', () => {
       expect(
         screen.getByRole('button', { name: /\d+ infos?, show issues/ }),
       ).toBeInTheDocument();
-      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /1 info, show issues/ }),
+      ).toHaveTextContent('1 info');
     });
   });
 

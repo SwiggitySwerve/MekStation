@@ -55,13 +55,23 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 - **AND** both use SimpleStat component
 - **AND** neither uses a decorative accent hue (per command-screen focus doctrine, color is reserved for out-of-budget / invalid states)
 
+#### Scenario: Budget readouts lead the strip
+
+- **WHEN** the compact workbench strip renders
+- **THEN** Weight, Slots, Heat and Armor form the emphasized Capacity group and use the larger value size
+- **AND** each budget readout shows a 3px fill bar under its value, filled by use against its cap (clamped at full) and colored neutral, caution orange or red by the same state as its value
+- **AND** readout state colors come from one owner (`unitStatStatus.ts`) shared by the banner, the build-status control and the mobile loadout header: cautions use orange, distinct from the amber accent that marks the selected tab and primary actions, and red is reserved for errors
+- **AND** Walk, Run, Run+ (when present), Jump, Engine and BV use a smaller secondary value size
+- **AND** group columns are proportional to their stat counts so every stat cell, and every gap between groups, has the same width
+- **AND** tonnage is not repeated as its own readout, because the Weight cap shows it
+
 #### Scenario: Weight stat with capacity format
 
 - **WHEN** weight stat renders
 - **THEN** label shows "WEIGHT"
-- **AND** value shows "usedTonnage / maxTonnage" format (e.g., "45.5t / 50.0t")
+- **AND** value shows "usedTonnage / tonnage" format (e.g., "45.5t / 50t"), the cap being the unit's tonnage
 - **AND** value text is red if used exceeds max (overweight)
-- **AND** value text is yellow if within 0.5 tons of max
+- **AND** value text is caution orange if within 0.5 tons of max
 - **AND** value text is white/normal otherwise
 
 #### Scenario: Critical slots stat with capacity format
@@ -83,8 +93,11 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 
 - **WHEN** heat stat renders
 - **THEN** label shows "HEAT"
-- **AND** value shows "generated / dissipation" format (e.g., "15 / 10")
-- **AND** value text is red if generated exceeds dissipation (overheating)
+- **AND** value shows "generated / dissipation" format (e.g., "15 / 10"), and on wide screens a visible "gen / diss" caption beside the label names the two numbers
+- **AND** the heat readout is always keyboard focusable, with an accessible name and a hover/focus explanation naming both numbers (e.g., "15 heat at full fire / 10 dissipation")
+- **AND** value text is caution orange if generated exceeds dissipation, with the excess shown explicitly in a caution pill with a warning icon (e.g., "+5 over"; the phone strip shows "+5" and keeps "over" in the accessible name and explanation), because running hot is legal
+- **AND** when running hot the explanation adds how far heat is over and that this is legal (e.g., "5 over: legal; add heat sinks to run cool.")
+- **AND** red is reserved for construction errors such as overweight or over slots
 - **AND** value text uses neutral primary color when dissipation meets or exceeds generation (in-budget states are not accent-highlighted, per command-screen focus doctrine)
 
 #### Scenario: Balanced row distribution
@@ -119,7 +132,7 @@ Each statistic cell SHALL use consistent vertical layout with clear labeling.
 - **WHEN** stat shows "current / max" format
 - **THEN** both values appear with " / " separator
 - **AND** current value inherits color based on status (normal/warning/error)
-- **AND** max value appears in slate-500 (muted)
+- **AND** max value appears in 12px secondary text, legible on wide and phone layouts
 - **AND** format emphasizes current value over max
 
 ### Requirement: Validation Status Indicator
@@ -128,9 +141,22 @@ The banner SHALL display unit validation status.
 
 #### Scenario: Valid unit display
 
-- **WHEN** unit passes all validation
-- **THEN** green dot indicator appears
-- **AND** Valid text in green is shown
+- **WHEN** unit passes all validation and has no cautions
+- **THEN** the build status reads "Ready" in neutral text with a green check
+
+#### Scenario: One build-status statement in the workbench
+
+- **WHEN** the workbench section bar renders on desktop
+- **THEN** the build status comes first as one statement, followed by a separate secondary save line in plain words (e.g., "Draft saved in browser · not in library")
+- **AND** the save line's tooltip explains it ("Your changes are kept in this browser. Use Save to add the unit to your library…"), and each part keeps its full wording ("Draft saved in this browser", "Not saved to library") in its accessible text
+- **WHEN** the unit runs hot and has no rule issues
+- **THEN** the build status reads as the caution itself (e.g., "Runs hot +11") with a warning icon in the caution color, never "Valid" beside a caution, and opens a checks list whose heat note states both numbers and the excess in plain language (e.g., "Heat 33 at full fire vs 22 dissipation: 11 over.") and links to the Structure tab where heat sinks are set
+- **AND** the heat note is presentational: it never adds to error or warning counts and never makes the unit invalid
+- **WHEN** the unit has validation issues
+- **THEN** the build status is one bordered control that leads with the worst severity in words (e.g., "2 errors"), followed by the other severities and any caution as parts of the same control; each part keeps its own accessible name (e.g., "Atlas AS7-D: 2 errors, show issues") and opens its own list
+- **WHEN** the workbench renders on a phone
+- **THEN** the build status shares the budget readout row with the same short wording (e.g., "Runs hot +11"; the label truncates before the amount if space runs out), its panel shows the full save state with the same explanation, and a failed browser draft write still appears as a visible line with a retry action
+- **AND** with validation issues the phone control keeps the worst severity in words (e.g., "1 error") and the rest as counts, and lists any caution inside each issue list instead of as a separate part
 
 #### Scenario: Invalid unit display
 
