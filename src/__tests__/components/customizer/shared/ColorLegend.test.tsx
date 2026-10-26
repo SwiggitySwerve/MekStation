@@ -23,6 +23,17 @@ describe('ColorLegend', () => {
     expect(within(key).queryByText('Missile')).not.toBeInTheDocument();
     expect(within(key).getByText('Fixed systems')).toBeInTheDocument();
     expect(within(key).getByText('Empty')).toBeInTheDocument();
+    const energyChip = within(key).getByText('Energy').previousElementSibling;
+    expect(energyChip).toHaveClass('criticalLegendCategoryChip');
+    expect(energyChip).toHaveStyle(
+      '--critical-category-color: var(--color-yellow-300)',
+    );
+    expect(
+      within(key).getByText('Fixed systems').previousElementSibling,
+    ).toHaveClass('criticalLegendFixedChip');
+    expect(within(key).getByText('Empty').previousElementSibling).toHaveClass(
+      'criticalLegendEmptyChip',
+    );
     view.rerender(<ColorLegend equipmentNames={['LRM 20']} />);
     expect(within(key).getByText('Missile')).toBeInTheDocument();
     expect(within(key).queryByText('Energy')).not.toBeInTheDocument();

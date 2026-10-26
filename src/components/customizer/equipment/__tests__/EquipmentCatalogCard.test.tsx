@@ -71,22 +71,36 @@ it('adds no weight annotation when nothing is free, so the browser notice speaks
 });
 
 it.each([
-  ['ac-2', '4'],
-  ['small-laser', '—'],
-  ['unknown-equipment', '—'],
+  ['ac-2', '4', 'Damage 2 · Range 8/16/24 · Min 4', 'Heat 1 · 0.5 t · 1 slot'],
+  ['small-laser', '—', 'Damage 3 · Range 1/2/3', 'Heat 1 · 0.5 t · 1 slot'],
 ])(
-  'shows existing minimum range for %s in both comparison layouts',
-  (id, minimum) => {
+  'shows existing minimum range for %s in both comparison layouts and omits it on the phone when there is none',
+  (id, minimum, combat, size) => {
     setup({ equipment: { ...laser, id } });
     const row = screen.getByTestId('equipment-catalog-row');
     expect(
       row.querySelector('[data-catalog-column="minimumRange"]'),
     ).toHaveTextContent(minimum);
     const stats = screen.getByTestId('equipment-catalog-stats');
-    expect(stats).toHaveTextContent(`Min ${minimum}`);
-    expect(stats.children).toHaveLength(6);
+    expect(stats.children).toHaveLength(2);
+    expect(stats.children[0].textContent).toBe(combat.replaceAll(' · ', ' · '));
+    expect(stats.children[1].textContent).toBe(size.replaceAll(' · ', ' · '));
+    if (minimum === '—') expect(stats).not.toHaveTextContent('Min');
   },
 );
+
+it('shows no combat line for equipment without weapon data', () => {
+  setup({ equipment: { ...laser, id: 'unknown-equipment' } });
+  const row = screen.getByTestId('equipment-catalog-row');
+  expect(
+    row.querySelector('[data-catalog-column="minimumRange"]'),
+  ).toHaveTextContent('—');
+  const stats = screen.getByTestId('equipment-catalog-stats');
+  expect(stats.children).toHaveLength(1);
+  expect(stats).toHaveTextContent('0.5 t · 1 slot');
+  for (const label of ['Damage', 'Range', 'Min', 'Heat'])
+    expect(stats).not.toHaveTextContent(label);
+});
 
 it('keeps damage for weapons and shows ammunition capacity as its own field', () => {
   setup({
@@ -104,10 +118,12 @@ it('keeps damage for weapons and shows ammunition capacity as its own field', ()
   expect(
     row.querySelector('[data-catalog-column="category"]'),
   ).toHaveTextContent('Ammunition · 45 shots/t');
+  // Ammunition is one line: capacity, weight, slots.
   const stats = screen.getByTestId('equipment-catalog-stats');
-  expect(stats).toHaveTextContent('Shots 45');
-  expect(stats).not.toHaveTextContent('Dmg');
-  expect(stats.children).toHaveLength(6);
+  expect(stats).toHaveTextContent('Shots 45 · 0.5 t · 1 slot');
+  for (const label of ['Damage', 'Range', 'Min', 'Heat'])
+    expect(stats).not.toHaveTextContent(label);
+  expect(stats.children).toHaveLength(1);
 });
 
 it('shows variable-size placeholders instead of 0 for items flagged variable without a formula', () => {
@@ -130,7 +146,7 @@ it('shows variable-size placeholders instead of 0 for items flagged variable wit
     row.querySelector('[data-catalog-column="criticalSlots"]'),
   ).toHaveTextContent('Variable');
   expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
-    'Tons Variable',
+    'Variable weight',
   );
   expect(row).toHaveTextContent('depend on the size chosen');
 });
@@ -146,7 +162,7 @@ it('reads variable-size notes from the loaded record when the catalog item omits
     },
   });
   expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
-    'Slots Variable',
+    'Variable slots',
   );
 });
 

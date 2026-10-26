@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Fluff form primitives
  *
  * Shared field pieces for the Fluff tab cards: label, auto-growing textarea,
@@ -70,10 +70,15 @@ export function FieldLabel({
 /**
  * The box around a narrative textarea. It owns the border, fill, vertical
  * padding and focus ring so the textarea inside can be sized to its content
- * with no partial line peeking into its padding.
+ * with no partial line peeking into its padding. It matches the single-line
+ * inputs beside it (same inset fill and shadow, the shared calm field border,
+ * strong border on hover, accent border and ring on focus) and shows a text
+ * cursor, so a long paragraph reads as an editable field, not a quote panel.
  */
 const TEXTAREA_FRAME =
-  'relative w-full rounded border border-[var(--field-border,var(--border-default))] hover:border-border-theme-strong bg-[var(--field-surface,var(--surface-deep))] py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent';
+  'relative w-full rounded border border-[var(--field-border,var(--border-default))] bg-[var(--field-surface,var(--surface-deep))] py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent';
+const TEXTAREA_FRAME_EDITABLE =
+  'cursor-text shadow-[inset_0_1px_2px_rgb(0_0_0/0.22)] hover:border-border-theme-strong';
 
 const TEXTAREA_BASE =
   'block w-full resize-none overflow-y-hidden rounded-none border-0 bg-transparent px-3 py-0 text-text-theme-primary shadow-none focus:shadow-none focus:outline-none disabled:bg-transparent';
@@ -113,7 +118,7 @@ export function AutoSizeTextarea({
 
   return (
     <div
-      className={`${TEXTAREA_FRAME} ${disabledClasses(!!props.disabled)}`}
+      className={`${TEXTAREA_FRAME} ${props.disabled ? disabledClasses(true) : TEXTAREA_FRAME_EDITABLE}`}
       onMouseDown={(event) => {
         if (event.target !== event.currentTarget) return;
         event.preventDefault();

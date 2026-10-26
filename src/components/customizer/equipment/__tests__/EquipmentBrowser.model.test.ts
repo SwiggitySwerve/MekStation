@@ -4,6 +4,7 @@ import {
   getCatalogCapacity,
   getCatalogCapacityNotice,
   getCatalogWeightExcess,
+  getCompactAvailabilitySummary,
   isCatalogWeightExhausted,
   isVariableSizeEquipment,
 } from '../EquipmentBrowser.model';
@@ -139,5 +140,17 @@ describe('isVariableSizeEquipment', () => {
     [{}, false],
   ])('classifies %j as variable=%s', (item, expected) => {
     expect(isVariableSizeEquipment(item)).toBe(expected);
+  });
+});
+
+describe('compact availability summary', () => {
+  it.each([
+    ['Inner Sphere', 3028, 'IS · 3028'],
+    ['Clan', 3060, 'Clan · 3060'],
+    [null, 3028, '3028'],
+    ['Inner Sphere', null, 'IS'],
+    [null, null, ''],
+  ])('summarises %s / %s as "%s"', (techBase, year, expected) => {
+    expect(getCompactAvailabilitySummary(techBase, year)).toBe(expected);
   });
 });

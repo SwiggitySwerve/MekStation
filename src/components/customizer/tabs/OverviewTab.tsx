@@ -71,7 +71,10 @@ export function OverviewTab({
         </div>
 
         <div className="flex min-w-0 flex-col @4xl:col-start-1 @4xl:row-start-2">
-          <ComponentTechnologyCard readOnly={readOnly} />
+          <ComponentTechnologyCard
+            readOnly={readOnly}
+            onNavigate={onNavigate}
+          />
         </div>
 
         {readOnly && (

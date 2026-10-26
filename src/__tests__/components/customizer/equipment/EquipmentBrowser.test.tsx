@@ -332,16 +332,10 @@ describe('EquipmentBrowser', () => {
       '3',
     );
     const stats = within(row).getByTestId('equipment-catalog-stats');
-    for (const pair of [
-      'Dmg 5',
-      'Range 3/6/9',
-      'Min —',
-      'Heat 3',
-      'Tons 1',
-      'Slots 1',
-    ]) {
+    for (const pair of ['Damage 5 · Range 3/6/9', 'Heat 3 · 1 t · 1 slot']) {
       expect(stats).toHaveTextContent(pair);
     }
+    expect(stats).not.toHaveTextContent('Min');
     expect(
       row.querySelector('[data-catalog-column="minimumRange"]'),
     ).toHaveTextContent('—');
@@ -404,11 +398,13 @@ describe('EquipmentBrowser', () => {
     ).toHaveTextContent('—');
     const stats = within(row).getByTestId('equipment-catalog-stats');
     if (id === 'ac10-ammo') {
-      expect(stats).toHaveTextContent('Shots 10');
-      expect(stats).not.toHaveTextContent('Dmg 10');
+      expect(stats).toHaveTextContent('Shots 10 · 1 t · 1 slot');
+      expect(stats).not.toHaveTextContent('Damage');
     } else {
+      // Unknown ammunition has no capacity and no combat data to show.
       expect(stats).not.toHaveTextContent('Shots');
-      expect(stats).toHaveTextContent('Dmg —');
+      expect(stats).not.toHaveTextContent('Damage');
+      expect(stats).toHaveTextContent('1 t · 1 slot');
     }
   });
 

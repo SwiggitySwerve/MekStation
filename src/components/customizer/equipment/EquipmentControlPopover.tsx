@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 interface EquipmentControlPopoverProps {
   label: React.ReactNode;
   ariaLabel: string;
+  /** Accessible name of the trigger when it differs from the panel name. */
+  triggerLabel?: string;
   children: React.ReactNode;
   className?: string;
 }
@@ -14,6 +16,7 @@ interface EquipmentControlPopoverProps {
 export function EquipmentControlPopover({
   label,
   ariaLabel,
+  triggerLabel,
   children,
   className = '',
 }: EquipmentControlPopoverProps): React.ReactElement {
@@ -64,7 +67,7 @@ export function EquipmentControlPopover({
       <Button
         variant="ghost"
         size="sm"
-        aria-label={ariaLabel}
+        aria-label={triggerLabel ?? ariaLabel}
         aria-expanded={open}
         aria-controls={id}
         onClick={(event) => {

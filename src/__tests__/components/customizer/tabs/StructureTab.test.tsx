@@ -134,7 +134,7 @@ describe('StructureTab', () => {
     expect(
       screen.getByTestId('structure-heat-sink-weight-help'),
     ).toHaveTextContent(
-      '22 heat sinks \u00b7 10 free with engine, 12 weigh 12 t',
+      '22 heat sinks \u00b7 12 fit inside the engine, 10 mounted outside \u00b7 first 10 weigh nothing; 12 add 12 t',
     );
   });
 

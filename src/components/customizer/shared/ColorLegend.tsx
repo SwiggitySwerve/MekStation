@@ -18,11 +18,7 @@ import {
 import { SystemComponentType } from '@/utils/colors/slotColors';
 import { TECH_BASE_COLORS } from '@/utils/colors/techBaseColors';
 
-import {
-  getCriticalCategoryTint,
-  getSlotContentClasses,
-  getSystemSlotClasses,
-} from '../critical-slots/SlotVisualHelpers';
+import { getCriticalCategoryTint } from '../critical-slots/SlotVisualHelpers';
 import styles from '../CustomizerWorkbench.module.css';
 
 interface ColorLegendProps {
@@ -42,8 +38,7 @@ interface ColorSwatchProps {
 }
 
 // Keep the empty-slot pattern legible at legend scale.
-const EMPTY_SWATCH_CLASSES =
-  'bg-surface-deep border-border-theme-strong border-dashed';
+const EMPTY_SWATCH_CLASSES = styles.criticalLegendEmptyChip;
 
 function ColorSwatch({
   bgClass,
@@ -117,17 +112,13 @@ export function ColorLegend({
               compact
               label={colors.label}
               style={getCriticalCategoryTint(colors)}
-              bgClass={`border-l-4 ${colors.accentBorder} ${styles.criticalTintedSlot} ${colors === HEATSINK_COLORS ? styles.criticalHeatSink : ''}`}
+              bgClass={`${styles.criticalLegendCategoryChip} ${colors === HEATSINK_COLORS ? styles.criticalHeatSink : ''}`}
             />
           ))}
           <ColorSwatch
             compact
             label="Fixed systems"
-            bgClass={getSlotContentClasses({
-              index: 0,
-              type: 'system',
-              name: 'Engine',
-            })}
+            bgClass={styles.criticalLegendFixedChip}
           />
           <ColorSwatch compact label="Empty" bgClass={EMPTY_SWATCH_CLASSES} />
         </div>
@@ -156,8 +147,8 @@ export function ColorLegend({
           className={`border-border-theme bg-surface-base absolute top-full right-0 z-20 max-h-[60dvh] w-[32rem] max-w-[calc(100vw-2rem)] space-y-4 overflow-y-auto rounded-lg border p-3 shadow-xl ${equipmentNames ? 'sm:hidden' : ''}`}
         >
           <p className="text-text-theme-secondary text-xs">
-            Tinted bars identify equipment; neutral grey identifies fixed
-            systems. Patterned fill and dashed cyan stripes identify heat sinks.
+            Coloured edges and tinted fills identify equipment; neutral grey
+            identifies fixed systems. Patterned cyan fill identifies heat sinks.
             Dashed outlines are empty or unhittable.
           </p>
           {/* System Components */}
@@ -172,7 +163,7 @@ export function ColorLegend({
                   bgClass={
                     type === 'empty'
                       ? EMPTY_SWATCH_CLASSES
-                      : getSystemSlotClasses(type)
+                      : styles.criticalLegendFixedChip
                   }
                   label={label}
                 />
@@ -190,7 +181,7 @@ export function ColorLegend({
                 <ColorSwatch
                   key={colors.label}
                   style={getCriticalCategoryTint(colors)}
-                  bgClass={`border-l-4 ${colors.accentBorder} ${styles.criticalTintedSlot} ${colors.label === 'Heat Sinks' ? styles.criticalHeatSink : ''}`}
+                  bgClass={`${styles.criticalLegendCategoryChip} ${colors.label === 'Heat Sinks' ? styles.criticalHeatSink : ''}`}
                   label={colors.label}
                 />
               ))}

@@ -1,4 +1,7 @@
 .workbench {
+  /* Gap kept under the last row of a scrolling phone tab; full-height tabs
+     extend into it so their lists reach the Loadout bar. */
+  --workspace-bottom-gap: 16px;
   --workbench-gap: 1rem;
   --workbench-control-height: 2.75rem;
   /* Calm inset field: between the page (surface-deep) and the card
@@ -99,14 +102,32 @@
   flex: 1 1 0%;
 }
 
-.catalogViewport[data-more-below='true']::after {
-  content: '';
+/* Fade plus "More below" hint over a list that has hidden content below. */
+.moreBelowCue {
   position: absolute;
   inset: auto 0 9px;
   z-index: 3;
-  height: 32px;
+  display: flex;
+  height: 44px;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
   pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--surface-deep));
+}
+
+.moreBelowLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 1px 10px 1px 12px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
 }
 
 .catalogEnd {
@@ -344,28 +365,25 @@
   padding: 4px 0 !important;
 }
 
+/* Phone stats: up to two 14px lines of "Label value" fields. */
 .catalogMobileStats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: block;
   grid-column: 1 / -1;
-  gap: 0 12px;
+  min-width: 0;
   padding: 0;
   color: var(--text-secondary);
   font-size: 14px;
-  line-height: 18px;
+  line-height: 20px;
   font-variant-numeric: tabular-nums;
 }
 
 .catalogMobileStats > span {
-  display: flex;
-  min-width: 0;
-  align-items: baseline;
-  gap: 6px;
-  white-space: nowrap;
+  display: block;
 }
 
-.catalogMobileStats > span > span:first-child {
-  flex: 0 0 40px;
+/* A field never breaks inside; a narrow line wraps between fields. */
+.catalogStatField {
+  white-space: nowrap;
 }
 
 .catalogDetails {
@@ -712,12 +730,11 @@
     );
   }
 
-  /* Keep the final legend or control clear of the fixed Loadout bar even
-     when a full-height tab has its own content flow. */
+  /* workspaceBody already stops this scroll area at the Loadout bar, so only
+     a small breathing gap is added here. Full-height tabs (Equipment,
+     Critical Slots) then reach the bar with no dead band above it. */
   .workspaceScroll {
-    padding-bottom: calc(
-      var(--loadout-bar-height) + env(safe-area-inset-bottom, 0px) + 16px
-    );
+    padding-bottom: var(--workspace-bottom-gap);
   }
 }
 
@@ -943,16 +960,18 @@
 .criticalTintedSlot {
   background-color: color-mix(
     in srgb,
-    var(--critical-category-color) 16%,
+    var(--critical-category-color) 18%,
     var(--surface-base)
   );
   color: var(--text-primary);
+  border-color: var(--border-subtle);
+  border-left: 4px solid var(--critical-category-color);
 }
 
 .criticalTintedSlot:hover {
   background-color: color-mix(
     in srgb,
-    var(--critical-category-color) 18%,
+    var(--critical-category-color) 20%,
     var(--surface-base)
   );
 }
@@ -1026,7 +1045,6 @@
 }
 
 .criticalHeatSink {
-  border-left-style: dashed;
   background-image: repeating-linear-gradient(
     135deg,
     transparent 0 5px,
@@ -1035,11 +1053,35 @@
 }
 
 .criticalLegendBar {
-  width: 28px;
+  width: 12px;
   height: 12px;
-  border-top: 0;
-  border-right: 0;
-  border-bottom: 0;
+  opacity: 1;
+}
+
+.criticalLegendCategoryChip {
+  background-color: var(--critical-category-color);
+  border-color: var(--critical-category-color);
+}
+
+.criticalLegendCategoryChip.criticalHeatSink {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--surface-deep) 65%, transparent) 3px 5px
+  );
+}
+
+.criticalLegendFixedChip {
+  background-color: var(--text-secondary);
+}
+
+.criticalLegendEmptyChip {
+  background-color: color-mix(
+    in srgb,
+    var(--text-secondary) 55%,
+    var(--surface-base)
+  );
+  border: 1px dashed var(--text-secondary);
 }
 
 @media (min-width: 1024px) and (pointer: fine) {

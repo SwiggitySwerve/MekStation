@@ -1,5 +1,7 @@
 import type { IEquipmentItem } from '@/types/equipment';
 
+import { getTechBaseLabel } from '@/utils/techBase';
+
 import type { UnitStats } from '../shared/UnitInfoBanner';
 
 import { getWeightStatus } from '../shared/unitStatStatus';
@@ -138,4 +140,17 @@ export function countCatalogMounts(
     counts.set(item.equipmentId, (counts.get(item.equipmentId) ?? 0) + 1);
   }
   return counts;
+}
+
+/**
+ * Short availability text for the phone Filters button, such as "IS · 3028".
+ * The full wording stays in the button's accessible name and the panel.
+ */
+export function getCompactAvailabilitySummary(
+  techBase: string | null,
+  year: number | null,
+): string {
+  return [techBase ? getTechBaseLabel(techBase) : null, year]
+    .filter(Boolean)
+    .join(' · ');
 }

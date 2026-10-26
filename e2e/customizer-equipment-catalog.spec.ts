@@ -44,9 +44,7 @@ async function loadAtlas(page: Page) {
   await page.getByRole('tab', { name: 'Equipment', exact: true }).click();
 }
 async function hideUnmatchedAmmo(page: Page, hidden: boolean) {
-  await page
-    .getByRole('button', { name: 'Visibility filters', exact: true })
-    .click();
+  await page.getByRole('button', { name: /^Visibility filters/ }).click();
   const toggle = page.getByRole('button', {
     name: 'Ammo without weapon',
     exact: true,
@@ -148,15 +146,18 @@ async function expectInitialScrollBoundary(page: Page) {
   ).toBeGreaterThanOrEqual(8);
   await expect(scroll).toHaveCSS('overflow-y', 'auto');
   await expect(scroll.locator('..')).toHaveAttribute('data-more-below', 'true');
-  const fade = await scroll.locator('..').evaluate((element) => {
-    const style = getComputedStyle(element, '::after');
+  const cue = scroll.locator('..').getByTestId('more-below-cue');
+  await expect(cue).toBeVisible();
+  await expect(cue).toContainText('More below');
+  const fade = await cue.evaluate((element) => {
+    const style = getComputedStyle(element);
     return {
       height: style.height,
       background: style.backgroundImage,
       pointerEvents: style.pointerEvents,
     };
   });
-  expect(fade.height).toBe('32px');
+  expect(fade.height).toBe('44px');
   expect(fade.background).toContain('linear-gradient');
   expect(fade.pointerEvents).toBe('none');
   const rowInGap = await page.evaluate(
@@ -639,7 +640,15 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(catalogHeader(page)).toBeHidden();
   await expectInitialScrollBoundary(page);
-  // Phone density: the two-column stats grid leaves five full rows visible.
+  // The pager is pinned directly above the Loadout bar, with no dead band.
+  const pagerBox = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  const loadoutBar = (await page
+    .getByRole('button', { name: 'Expand loadout', exact: true })
+    .boundingBox())!;
+  expect(loadoutBar.y - (pagerBox.y + pagerBox.height)).toBeLessThanOrEqual(2);
+  // Phone density: two 14px stat lines per row leave five full rows visible.
   const phoneScroll = (await scroll.boundingBox())!;
   expect(
     (await rows.first().boundingBox())!.y,
@@ -658,14 +667,16 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   const firstStats = page.getByTestId('equipment-catalog-stats').first();
   expect(
     (await firstStats.boundingBox())!.height,
-    'first row stats fit in three two-column rows',
-  ).toBeLessThanOrEqual(60);
-  await expect(firstStats).toHaveCSS('display', 'grid');
-  await expect(firstStats.locator(':scope > span')).toHaveCount(6);
-  for (const pair of await firstStats.locator(':scope > span').all()) {
-    await expect(pair).toHaveCSS('white-space', 'nowrap');
-    await expect(pair).toHaveCSS('font-size', '14px');
-    expect((await pair.boundingBox())!.height).toBeLessThanOrEqual(20);
+    'first row stats fit in two 20px lines',
+  ).toBeLessThanOrEqual(40);
+  await expect(firstStats).toHaveCSS('font-size', '14px');
+  // A weapon row: damage/range/min, then heat/weight/slots.
+  await expect(firstStats.locator(':scope > span')).toHaveCount(2);
+  await expect(firstStats).toContainText(/Damage .*Range \d+\/\d+\/\d+/);
+  await expect(firstStats).toContainText(/Heat \d+ . [\d.]+ t . \d+ slots?/);
+  for (const field of await firstStats.locator(':scope > span > span').all()) {
+    await expect(field).toHaveCSS('white-space', 'nowrap');
+    expect((await field.boundingBox())!.height).toBeLessThanOrEqual(20);
   }
   await page.mouse.move(0, 0);
   await page.screenshot({

@@ -52,6 +52,8 @@ export interface ReadinessRow {
   readonly status: StatStatus;
   /** Severity shown by the row's icon, matching the status panel groups. */
   readonly severity: ReadinessSeverity;
+  /** Neutral incomplete icon; does not add another warning for unplaced items. */
+  readonly pending?: boolean;
   /** One plain sentence describing the current state. */
   readonly sentence: string;
   /** Rule result the readout does not already explain, if any. */
@@ -281,6 +283,9 @@ export function getReadinessRows(
       {
         id: 'slots',
         label: 'Slots',
+        pending:
+          (input.criticalSlotsPending ?? 0) > 0 ||
+          input.unplacedInstanceIds.length > 0,
         status: slotStatus,
         sentence: slotsSentence(input, slotStatus),
         tabId: 'criticals',

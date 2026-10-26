@@ -12,6 +12,7 @@ import {
   type BuildStatusSummary,
 } from '@/components/customizer/shared/buildStatusSummary';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { SvgIcon } from '@/components/ui/SvgIcon';
 import { getTabLabel } from '@/utils/validation/validationNavigation';
 
 import type { ReadinessRow, ReadinessSeverity } from './buildReadiness';
@@ -88,14 +89,28 @@ export function BuildReadinessList({
               data-severity={row.severity}
             >
               <span className="mt-1 flex shrink-0 self-start">
-                <BuildStateIcon
-                  state={row.severity === 'ok' ? 'ready' : row.severity}
-                />
+                {row.pending && row.severity === 'ok' ? (
+                  <SvgIcon
+                    size="inline"
+                    aria-hidden="true"
+                    data-readiness-icon="pending"
+                    className="text-text-theme-muted shrink-0"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                  </SvgIcon>
+                ) : (
+                  <BuildStateIcon
+                    state={row.severity === 'ok' ? 'ready' : row.severity}
+                  />
+                )}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-text-theme-primary text-sm font-medium">
                   <span className="sr-only">
-                    {SEVERITY_WORD[row.severity]}:{' '}
+                    {row.pending && row.severity === 'ok'
+                      ? 'Pending'
+                      : SEVERITY_WORD[row.severity]}
+                    :{' '}
                   </span>
                   {row.label}
                 </p>

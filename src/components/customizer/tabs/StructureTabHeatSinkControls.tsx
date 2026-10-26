@@ -59,8 +59,10 @@ export function HeatSinkSection({
         className={`${cs.text.secondary} m-0`}
         data-testid="structure-heat-sink-weight-help"
       >
-        {heatSinkCount} heat sinks {'\u00b7'} {calculations.freeHeatSinks} free
-        with engine, {calculations.heatSinksRequiringWeight} weigh{' '}
+        {heatSinkCount} heat sinks {'\u00b7'} {calculations.integralHeatSinks}{' '}
+        fit inside the engine, {calculations.externalHeatSinks} mounted outside{' '}
+        {'\u00b7'} first {calculations.freeHeatSinks} weigh nothing;{' '}
+        {calculations.heatSinksRequiringWeight} add{' '}
         {calculations.heatSinkWeight} t
       </p>
 
@@ -153,34 +155,17 @@ export function HeatSinkStats({
 }: {
   readonly calculations: StructureTabCalculations;
 }): React.ReactElement {
-  const stats: ReadonlyArray<{ label: string; value: number }> = [
-    { label: 'in engine', value: calculations.integralHeatSinks },
-    { label: 'external', value: calculations.externalHeatSinks },
-    { label: 'dissipation', value: calculations.totalHeatDissipation },
-  ];
-
   return (
     <p
       className="m-0 flex flex-wrap items-baseline justify-end gap-x-2 gap-y-0.5 text-right"
       data-testid="structure-heat-sink-stats"
     >
-      {stats.map((stat, index) => (
-        <React.Fragment key={stat.label}>
-          {index > 0 && (
-            <span className="text-text-theme-muted" aria-hidden="true">
-              ·
-            </span>
-          )}
-          <span className="inline-flex items-baseline gap-1">
-            <span
-              className={`text-sm font-semibold tabular-nums ${cs.text.value}`}
-            >
-              {stat.value}
-            </span>
-            <span className={cs.text.secondary}>{stat.label}</span>
-          </span>
-        </React.Fragment>
-      ))}
+      <span className="inline-flex items-baseline gap-1">
+        <span className={`text-sm font-semibold tabular-nums ${cs.text.value}`}>
+          {calculations.totalHeatDissipation}
+        </span>
+        <span className={cs.text.secondary}>dissipation</span>
+      </span>
     </p>
   );
 }

@@ -46,6 +46,8 @@ export interface CompactFilterBarProps {
   /** Free tonnage and slots, shown on the result-count line. */
   capacity?: ICatalogCapacityNotice;
   availabilitySummary?: string;
+  /** Short availability text for the phone Filters button, e.g. "IS · 3028". */
+  compactAvailabilitySummary?: string;
   sortControls?: React.ReactNode;
 }
 
@@ -97,6 +99,7 @@ export function CompactFilterBar({
   resultSummary,
   capacity,
   availabilitySummary,
+  compactAvailabilitySummary,
   sortControls,
 }: CompactFilterBarProps): React.ReactElement {
   const categoriesRef = useRef<HTMLDivElement>(null);
@@ -129,7 +132,15 @@ export function CompactFilterBar({
     hideAmmoWithoutWeapon && 'Matched ammo',
   ].filter(Boolean);
   const activeFilters = activeFilterNames.join(', ');
-  const activeFilterCount = activeFilterNames.length;
+  // Phone: the first active filter in short form, plus how many more apply.
+  const compactFilterNames = [
+    hideUnavailable &&
+      (compactAvailabilitySummary || availabilitySummary || 'Availability'),
+    ...activeFilterNames.slice(hideUnavailable ? 1 : 0),
+  ].filter(Boolean);
+  const compactFilters = compactFilterNames.length
+    ? `${compactFilterNames[0]}${compactFilterNames.length > 1 ? ` +${compactFilterNames.length - 1}` : ''}`
+    : '';
   const handleCategoryClick = useCallback(
     (category: EquipmentCategory, event: React.MouseEvent) =>
       onSelectCategory(category, event.ctrlKey || event.metaKey),
@@ -180,6 +191,11 @@ export function CompactFilterBar({
         </div>
         <EquipmentControlPopover
           ariaLabel="Visibility filters"
+          triggerLabel={
+            activeFilters
+              ? `Visibility filters: ${activeFilters}`
+              : 'Visibility filters'
+          }
           className="max-w-full min-w-0 [&>button]:max-w-full"
           label={
             <span className="truncate" title={activeFilters}>
@@ -187,8 +203,8 @@ export function CompactFilterBar({
               {activeFilters && (
                 <span className="hidden sm:inline"> · {activeFilters}</span>
               )}
-              {activeFilterCount > 0 && (
-                <span className="sm:hidden"> · {activeFilterCount}</span>
+              {compactFilters && (
+                <span className="sm:hidden"> · {compactFilters}</span>
               )}
             </span>
           }

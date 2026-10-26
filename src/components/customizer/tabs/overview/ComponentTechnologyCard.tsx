@@ -3,12 +3,15 @@
  *
  * Shows each component's current selection and tech base at a glance, with
  * the full tech base editor (including mixed-tech per-component toggles)
- * one disclosure away.
+ * one disclosure away. The selections themselves are set elsewhere, so each
+ * value links to the tab that changes it.
  *
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
+
+import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { useUnitStore } from '@/stores/useUnitStore';
@@ -34,6 +37,7 @@ import {
   getTechBaseBadgeClass,
   getTechBaseShortName,
 } from '@/utils/colors/techBaseColors';
+import { getTabLabel } from '@/utils/validation/validationNavigation';
 
 import {
   IComponentValues,
@@ -42,6 +46,25 @@ import {
 import { customizerStyles as cs } from '../../styles';
 
 const COMPONENTS = Object.values(TechBaseComponent);
+
+/**
+ * The tab where each component's selection is changed. Targeting computers
+ * are chosen with equipment, so that row has no single tab and stays plain.
+ */
+const COMPONENT_EDIT_TAB: Partial<Record<TechBaseComponent, CustomizerTabId>> =
+  {
+    [TechBaseComponent.CHASSIS]: 'structure',
+    [TechBaseComponent.GYRO]: 'structure',
+    [TechBaseComponent.ENGINE]: 'structure',
+    [TechBaseComponent.HEATSINK]: 'structure',
+    [TechBaseComponent.MYOMER]: 'structure',
+    [TechBaseComponent.MOVEMENT]: 'structure',
+    [TechBaseComponent.ARMOR]: 'armor',
+  };
+
+/** A quiet link: dotted underline at rest, solid and tinted on hover/focus. */
+const VALUE_LINK =
+  'focus-visible:ring-accent hover:text-accent min-w-0 truncate rounded !p-0 text-left underline decoration-dotted underline-offset-4 transition-colors hover:decoration-solid focus-visible:ring-2 focus-visible:outline-none [@media(pointer:coarse)]:min-h-11';
 
 function useComponentValues(): IComponentValues {
   const engineType = useUnitStore((s) => s.engineType);
@@ -96,10 +119,13 @@ function useComponentValues(): IComponentValues {
 
 interface ComponentTechnologyCardProps {
   readonly readOnly: boolean;
+  /** Opens the tab that changes a component's selection. */
+  readonly onNavigate?: (tabId: CustomizerTabId) => void;
 }
 
 export function ComponentTechnologyCard({
   readOnly,
+  onNavigate,
 }: ComponentTechnologyCardProps): React.ReactElement {
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
@@ -132,9 +158,19 @@ export function ComponentTechnologyCard({
       data-testid="overview-component-technology"
     >
       <div className="border-border-theme mb-3 flex flex-col gap-1 border-b pb-3 @sm:flex-row @sm:items-baseline @sm:justify-between">
-        <h3 id="overview-component-tech-title" className={cs.text.cardTitle}>
-          Component technology
-        </h3>
+        <div className="min-w-0">
+          <h3 id="overview-component-tech-title" className={cs.text.cardTitle}>
+            Component technology
+          </h3>
+          <p
+            className={`${cs.text.secondary} mt-1`}
+            data-testid="overview-component-tech-help"
+          >
+            {readOnly
+              ? 'Set in Structure and Armor.'
+              : 'Set in Structure and Armor; change the tech base below.'}
+          </p>
+        </div>
         <p className={`${cs.text.secondary} @sm:text-right`}>
           {showPerComponentTech
             ? 'Mixed tech: each component sets its own tech base.'
@@ -148,6 +184,11 @@ export function ComponentTechnologyCard({
         {COMPONENTS.map((component) => {
           const value = componentValues[component];
           const techBase = componentTechBases[component];
+          const editTab = COMPONENT_EDIT_TAB[component];
+          const valueClass =
+            value === 'None'
+              ? 'text-text-theme-secondary'
+              : 'text-text-theme-primary';
           return (
             <div
               key={component}
@@ -158,15 +199,18 @@ export function ComponentTechnologyCard({
                 {TECH_BASE_COMPONENT_LABELS[component]}
               </dt>
               <dd className="flex min-w-0 items-center justify-end gap-2">
-                <span
-                  className={`truncate ${
-                    value === 'None'
-                      ? 'text-text-theme-secondary'
-                      : 'text-text-theme-primary'
-                  }`}
-                >
-                  {value}
-                </span>
+                {onNavigate && editTab ? (
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(editTab)}
+                    aria-label={`${TECH_BASE_COMPONENT_LABELS[component]}: ${value}. Change in ${getTabLabel(editTab)}`}
+                    className={`${VALUE_LINK} ${valueClass}`}
+                  >
+                    {value}
+                  </button>
+                ) : (
+                  <span className={`truncate ${valueClass}`}>{value}</span>
+                )}
                 {showPerComponentTech && techBase && (
                   <span
                     className={`${getTechBaseBadgeClass(techBase)} shrink-0`}

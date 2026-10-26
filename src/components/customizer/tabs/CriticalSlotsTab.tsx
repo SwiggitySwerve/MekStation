@@ -23,6 +23,7 @@ import { PhoneLocationNavigation } from '../critical-slots/PhoneLocationNavigati
 import { useCriticalSlotOverflow } from '../critical-slots/useCriticalSlotOverflow';
 import { CustomizerToolbarContext } from '../CustomizerToolbarContext';
 import styles from '../CustomizerWorkbench.module.css';
+import { MoreBelowCue } from '../shared/MoreBelowCue';
 import { useCriticalSlotsTabLogic } from './CriticalSlotsTab.logic';
 import { CriticalSlotsToolbar } from './CriticalSlotsToolbar';
 
@@ -133,7 +134,7 @@ export function CriticalSlotsTab({
   return (
     <div
       ref={rootRef}
-      className={`bg-surface-deep flex h-full min-h-0 flex-col ${className}`}
+      className={`bg-surface-deep flex h-full min-h-0 flex-col max-sm:h-[calc(100%+var(--workspace-bottom-gap))] ${className}`}
     >
       <CriticalSlotsToolbar
         equipmentNames={[
@@ -322,22 +323,30 @@ export function CriticalSlotsTab({
           <p className="text-text-theme-secondary hidden shrink-0 px-2 pt-1 text-center text-sm sm:block">
             Front view · Right side on the left
           </p>
-          <div
-            className="min-h-0 flex-1 overflow-y-auto p-2 lg:hidden"
-            data-testid="critical-slots-grid-mobile"
-            role="region"
-            aria-label="Critical slot locations"
-            tabIndex={0}
-          >
-            <PhoneLocationNavigation
-              selectedEquipmentId={selectedEquipmentId}
-              locations={PHONE_LOCATION_ORDER}
-              getLocationData={getLocationData}
-              getAssignableSlots={getAssignableSlots}
-              renderLocation={renderLocation}
-            />
-            <div className="hidden grid-cols-2 items-start gap-3 min-[720px]:grid-cols-3 sm:grid">
-              {PHONE_LOCATION_ORDER.map((location) => renderLocation(location))}
+          <div className="relative flex min-h-0 flex-1 flex-col lg:hidden">
+            <div
+              className="min-h-0 flex-1 overflow-y-auto p-2"
+              data-testid="critical-slots-grid-mobile"
+              role="region"
+              aria-label="Critical slot locations"
+              tabIndex={0}
+            >
+              <PhoneLocationNavigation
+                selectedEquipmentId={selectedEquipmentId}
+                locations={PHONE_LOCATION_ORDER}
+                getLocationData={getLocationData}
+                getAssignableSlots={getAssignableSlots}
+                renderLocation={renderLocation}
+              />
+              <div className="hidden grid-cols-2 items-start gap-3 min-[720px]:grid-cols-3 sm:grid">
+                {PHONE_LOCATION_ORDER.map((location) =>
+                  renderLocation(location),
+                )}
+              </div>
+            </div>
+            {/* Tablets get the toolbar's "Scroll for more locations" text instead. */}
+            <div className="sm:hidden">
+              <MoreBelowCue visible={hasMoreBelow} />
             </div>
           </div>
           <div

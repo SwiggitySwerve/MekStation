@@ -54,10 +54,53 @@ test('labels tonnage points, allocated capacity, and unallocated excess distinct
   expect(
     screen.getByRole('button', { name: 'Auto Allocate (0 pts)' }),
   ).toBeDisabled();
+  // 5 points are unallocated but cannot be placed: the button explains why.
+  const reason = screen.getByText('All allocatable points assigned');
+  expect(reason).toBeInTheDocument();
   expect(
-    screen.getByText('All allocatable points assigned'),
-  ).toBeInTheDocument();
+    screen.getByRole('button', { name: 'Auto Allocate (0 pts)' }),
+  ).toHaveAccessibleDescription('All allocatable points assigned');
   expect(store.getState().armorAllocation).toBe(before);
+});
+
+test('explains a disabled Auto Allocate when every point is already assigned', () => {
+  const store = createNewUnitStore({
+    name: 'Atlas armor assigned',
+    tonnage: 100,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  store.getState().setArmorTonnage(19);
+  store.getState().autoAllocateArmor();
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  const button = screen.getByRole('button', { name: /^Auto Allocate/ });
+  expect(button).toBeDisabled();
+  expect(
+    screen.getByText('Unallocated Armor Points').parentElement,
+  ).toHaveTextContent('0');
+  expect(screen.getByTestId('armor-auto-allocate-reason')).toHaveTextContent(
+    'All armor points are already assigned',
+  );
+  expect(button).toHaveAccessibleDescription(
+    'All armor points are already assigned',
+  );
+});
+
+test('shows no Auto Allocate reason while the button is enabled', () => {
+  render(
+    <UnitStoreContext.Provider value={makeStore()}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  expect(screen.getByRole('button', { name: /^Auto Allocate/ })).toBeEnabled();
+  expect(
+    screen.queryByTestId('armor-auto-allocate-reason'),
+  ).not.toBeInTheDocument();
 });
 
 test('real armor actions enforce shared cap and update the selected SVG values', () => {
@@ -108,7 +151,11 @@ test('read-only armor remains inspectable without exposing mutations', () => {
     screen.getByRole('spinbutton', { name: 'Armor tonnage' }),
   ).toBeDisabled();
   expect(screen.getByRole('combobox', { name: 'Armor type' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: /Auto Allocate/ })).toBeDisabled();
+  const allocate = screen.getByRole('button', { name: /Auto Allocate/ });
+  expect(allocate).toBeDisabled();
+  expect(allocate).toHaveAccessibleDescription(
+    'Read-only: armor cannot be changed.',
+  );
   expect(store.getState().armorAllocation).toBe(before);
 });
 
@@ -182,7 +229,7 @@ test.each([0, 10])(
     fireEvent.click(allocate);
     expect(allocate).toBeDisabled();
     expect(allocate).toHaveAccessibleDescription(
-      'All allocatable points assigned',
+      'All armor points are already assigned',
     );
   },
 );

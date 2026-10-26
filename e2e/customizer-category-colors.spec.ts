@@ -155,9 +155,16 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     .getByRole('gridcell', { name: 'Slot 7: Small Laser', exact: true });
   await expect(mounted).toBeVisible();
   await page.mouse.move(0, 0);
-  // Mounted slots keep the category edge used by the catalog and loadout.
-  // Slots animate colour changes; wait for the settled accent before sampling.
-  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
+  // Critical slots use the owner's full-opacity hue; the catalog may mute it.
+  const energyStripe = await mounted.evaluate((element) => {
+    const probe = document.createElement('span');
+    probe.style.color = 'var(--color-yellow-300)';
+    element.append(probe);
+    const color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+  });
+  await expect.poll(() => accent(mounted)).toBe(energyStripe);
   const mountedPaint = await paint(mounted);
   expect(mountedPaint.background).not.toBe('rgba(0, 0, 0, 0)');
   expect(await textContrast(mounted)).toBeGreaterThanOrEqual(4.5);
@@ -173,7 +180,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   const heatSink = page
     .getByRole('gridcell', { name: /: .*Heat Sink$/ })
     .first();
-  await expect(heatSink).toHaveCSS('border-left-style', 'dashed');
+  await expect(heatSink).toHaveCSS('border-left-style', 'solid');
   await expect(mounted).toHaveCSS('border-left-style', 'solid');
   expect(await accent(engine)).toBe(await accent(gyro));
   await expect(heatSink).not.toHaveCSS('background-image', 'none');
@@ -183,7 +190,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await page.reload();
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
-  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
+  await expect.poll(() => accent(mounted)).toBe(energyStripe);
   await page.setViewportSize({ width: 390, height: 844 });
   await page
     .getByRole('navigation', { name: 'Critical slot location shortcuts' })
@@ -191,7 +198,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     .click();
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
-  await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
+  await expect.poll(() => accent(mounted)).toBe(energyStripe);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { AutoSizeTextarea } from '@/components/customizer/fluff/FluffFields';
@@ -532,6 +532,47 @@ describe('Fluff textarea sizing', () => {
   });
 });
 
+describe('Fluff narrative field treatment', () => {
+  it('frames editable narrative text like the other inputs', () => {
+    render(
+      <FluffTab
+        fluff={{ overview: 'A quoted line.' }}
+        onRoleChange={jest.fn()}
+        onFluffChange={jest.fn()}
+      />,
+    );
+
+    const frame = screen.getByLabelText('Overview').parentElement;
+    // Same fill and calm border as the single-line inputs, strong border on
+    // hover, accent border and ring on focus, plus the inset shadow and a text
+    // cursor so a long paragraph does not read as a quote panel.
+    expect(frame).toHaveClass(
+      'border',
+      'bg-[var(--field-surface,var(--surface-deep))]',
+      'border-[var(--field-border,var(--border-default))]',
+      'hover:border-border-theme-strong',
+      'focus-within:border-accent',
+      'focus-within:ring-2',
+      'cursor-text',
+    );
+  });
+
+  it('drops the editable cues when the field is disabled', () => {
+    render(
+      <FluffTab
+        fluff={{ overview: 'A quoted line.' }}
+        readOnly
+        onRoleChange={jest.fn()}
+        onFluffChange={jest.fn()}
+      />,
+    );
+
+    const frame = screen.getByLabelText('Overview').parentElement;
+    expect(frame).toHaveClass('cursor-not-allowed');
+    expect(frame).not.toHaveClass('cursor-text');
+    expect(frame).not.toHaveClass('hover:border-border-theme-strong');
+  });
+});
 describe('Fluff side column', () => {
   /** Fake layout: cards are `cardHeight` tall, the Sections slot `slotHeight`. */
   const layout = (

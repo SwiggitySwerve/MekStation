@@ -30,14 +30,10 @@ it('opens all seven full labels, retains validation counts and focuses the selec
     name: 'Section: Armor, 3 of 7',
   });
   expect(trigger).toHaveAttribute('aria-expanded', 'false');
-  expect(
-    within(trigger).getByRole('img', {
-      name: 'Other tabs: 2 errors, 1 warning',
-    }),
-  ).toHaveTextContent('21');
-  expect(trigger).toHaveAccessibleDescription(
-    'Issues on other tabs: 2 errors, 1 warning',
-  );
+  // Armor owns no issues, so its trigger carries no badge even though other
+  // sections do: the totals live in the status row, not here.
+  expect(within(trigger).queryByRole('img')).toBeNull();
+  expect(trigger).not.toHaveAccessibleDescription();
   fireEvent.click(trigger);
   expect(trigger).toHaveAttribute('aria-expanded', 'true');
   expect(
@@ -68,14 +64,17 @@ it.each(DEFAULT_CUSTOMIZER_TABS)(
     });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveFocus();
-    const badge = within(trigger).getByRole('img');
-    expect(badge).toHaveAccessibleName(
-      id === 'structure'
-        ? 'Other tabs: 1 warning'
-        : id === 'equipment'
-          ? 'Other tabs: 2 errors'
-          : 'Other tabs: 2 errors, 1 warning',
-    );
+    // The trigger badges only what the current section owns, like a wide tab.
+    const owned = {
+      structure: 'Structure: 2 errors',
+      equipment: 'Equipment: 1 warning',
+    }[id as 'structure' | 'equipment'];
+    if (owned) {
+      expect(within(trigger).getByRole('img')).toHaveAccessibleName(owned);
+      expect(trigger).toHaveAccessibleDescription(owned.split(': ')[1]);
+    } else {
+      expect(within(trigger).queryByRole('img')).toBeNull();
+    }
     expect(screen.getByRole('tab', { name: label })).toHaveAttribute(
       'aria-selected',
       'true',

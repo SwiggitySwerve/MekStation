@@ -47,6 +47,7 @@ export function EquipmentCatalogCard({
   const range = weapon?.ranges
     ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
     : '—';
+  const mobileRange = range.replaceAll(' ', '');
   const minimumRange = weapon?.ranges?.minimum || '—';
   // Damage belongs to weapons; ammunition shows its capacity as its own field.
   const damage = weapon?.damage ?? '—';
@@ -65,6 +66,42 @@ export function EquipmentCatalogCard({
     weightExcess === null
       ? undefined
       : describeCatalogWeightExcess(weightExcess);
+  // Phone stats: only the fields that apply to this kind of item. Ammunition
+  // is one line (capacity, weight, slots); a weapon adds a damage/range line
+  // above heat; other equipment shows weight and slots alone.
+  const sizeFields: StatField[] = [
+    {
+      text: variable ? 'Variable weight' : `${equipment.weight} t`,
+      className: weightNote ? WEIGHT_OVER_CLASS : undefined,
+      title: weightNote,
+      note: weightNote,
+    },
+    plainField(
+      variable
+        ? 'Variable slots'
+        : `${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`,
+    ),
+  ];
+  const statLines: StatField[][] =
+    shotsPerTon !== undefined
+      ? [[plainField(`Shots ${shotsPerTon}`), ...sizeFields]]
+      : weapon
+        ? [
+            [
+              plainField(`Damage ${damage}`),
+              ...(weapon.ranges ? [plainField(`Range ${mobileRange}`)] : []),
+              ...(weapon.ranges?.minimum
+                ? [plainField(`Min ${weapon.ranges.minimum}`)]
+                : []),
+            ],
+            [
+              ...(weapon.heat === undefined
+                ? []
+                : [plainField(`Heat ${weapon.heat}`)]),
+              ...sizeFields,
+            ],
+          ]
+        : [sizeFields];
   const accent = getEquipmentAccentClasses(equipment.category, equipment.name);
   return (
     <li
@@ -118,36 +155,9 @@ export function EquipmentCatalogCard({
             className={workbenchStyles.catalogMobileStats}
             data-testid="equipment-catalog-stats"
           >
-            {shotsPerTon === undefined ? (
-              <span>
-                <span>Dmg</span> <span>{damage}</span>
-              </span>
-            ) : (
-              <span title="Shots per ton">
-                <span>Shots</span> <span>{shotsPerTon}</span>
-              </span>
-            )}
-            <span>
-              <span>Range</span> <span>{range.replaceAll(' ', '')}</span>
-            </span>
-            <span>
-              <span>Min</span> <span>{minimumRange}</span>
-            </span>
-            <span>
-              <span>Heat</span> <span>{weapon?.heat ?? '—'}</span>
-            </span>
-            <span
-              className={weightNote ? WEIGHT_OVER_CLASS : undefined}
-              title={weightNote}
-            >
-              <span>Tons</span>{' '}
-              <span>{variable ? 'Variable' : equipment.weight}</span>
-              {weightNote && <span className="sr-only">, {weightNote}</span>}
-            </span>
-            <span>
-              <span>Slots</span>{' '}
-              <span>{variable ? 'Variable' : equipment.criticalSlots}</span>
-            </span>
+            {statLines.map((fields) => (
+              <StatLine key={fields[0].text} fields={fields} />
+            ))}
           </span>
         </button>
         <span
@@ -221,6 +231,44 @@ export function EquipmentCatalogCard({
         </div>
       )}
     </li>
+  );
+}
+
+interface StatField {
+  text: string;
+  className?: string;
+  title?: string;
+  /** Screen-reader note appended to the field. */
+  note?: string;
+}
+
+const plainField = (text: string): StatField => ({ text });
+
+/**
+ * One phone stat line: unbreakable fields joined by a dot, so a narrow row
+ * wraps between fields and never inside one.
+ */
+function StatLine({
+  fields,
+}: {
+  fields: readonly StatField[];
+}): React.ReactElement {
+  return (
+    <span>
+      {fields.map((field, index) => (
+        <React.Fragment key={field.text}>
+          {index > 0 && ' '}
+          <span
+            className={`${workbenchStyles.catalogStatField} ${field.className ?? ''}`}
+            title={field.title}
+          >
+            {field.text}
+            {field.note && <span className="sr-only">, {field.note}</span>}
+          </span>
+          {index < fields.length - 1 && ' ·'}
+        </React.Fragment>
+      ))}
+    </span>
   );
 }
 

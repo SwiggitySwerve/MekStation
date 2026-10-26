@@ -1,3 +1,5 @@
+import { render, screen } from '@testing-library/react';
+
 import type { UnitValidationState } from '@/hooks/useUnitValidation';
 
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
@@ -11,6 +13,7 @@ import {
   getReadinessStatus,
   type ReadinessInput,
 } from '../overview/buildReadiness';
+import { BuildReadinessList } from '../overview/BuildReadinessList';
 import { getTonnageBreakdown } from '../overview/tonnageBreakdown';
 
 const balanced: ReadinessInput = {
@@ -99,6 +102,7 @@ describe('Overview build readiness', () => {
     expect(rows.slots.sentence).toBe('66 of 78 slots filled · 3 pending.');
     expect(rows.slots.status).toBe('normal');
     expect(rows.slots.severity).toBe('ok');
+    expect(rows.slots.pending).toBe(true);
     expect(rows.unplaced.severity).toBe('warning');
     expect(rows.unplaced.sentence).toBe('PPC needs 3 slots; 1 item unplaced.');
   });
@@ -152,6 +156,53 @@ describe('Overview build readiness', () => {
     const rows = byId(getReadinessRows(balanced, null));
     expect(rows.slots.sentence).toBe('62 of 78 slots filled, 16 free.');
     expect(rows.slots.severity).toBe('ok');
+    expect(rows.slots.pending).toBe(false);
+  });
+
+  it('uses a neutral pending icon until placement completes without adding warnings', () => {
+    const input = {
+      ...balanced,
+      criticalSlotsUsed: 69,
+      criticalSlotsPlaced: 66,
+      criticalSlotsPending: 3,
+      unplacedInstanceIds: ['ppc-1'],
+    };
+    const view = render(
+      <BuildReadinessList
+        rows={getReadinessRows(input, null)}
+        status={getReadinessStatus(
+          { errorCount: 0, warningCount: 1, infoCount: 0 },
+          20,
+          20,
+        )}
+      />,
+    );
+    const slots = screen.getByTestId('overview-readiness-slots');
+    expect(slots).toHaveTextContent('Pending:');
+    expect(slots.querySelector('[data-readiness-icon="pending"]')).toHaveClass(
+      'text-text-theme-muted',
+    );
+    expect(slots.querySelector('.text-green-400')).toBeNull();
+    expect(
+      view.container.querySelectorAll('li[data-severity="warning"]'),
+    ).toHaveLength(1);
+    expect(screen.getByTestId('overview-readiness-summary')).toHaveTextContent(
+      '1 warning',
+    );
+
+    view.rerender(
+      <BuildReadinessList
+        rows={getReadinessRows(balanced, null)}
+        status={getReadinessStatus(
+          { errorCount: 0, warningCount: 0, infoCount: 0 },
+          20,
+          20,
+        )}
+      />,
+    );
+    expect(slots).toHaveTextContent('OK:');
+    expect(slots.querySelector('[data-readiness-icon="pending"]')).toBeNull();
+    expect(slots.querySelector('.text-green-400')).not.toBeNull();
   });
 
   it('keeps an over-capacity slot row an error even with unplaced items', () => {

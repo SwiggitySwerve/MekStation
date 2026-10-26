@@ -8,8 +8,13 @@ import { IEquipmentItem } from '@/types/equipment';
 
 /** @spec openspec/specs/equipment-browser/spec.md */
 import workbenchStyles from '../CustomizerWorkbench.module.css';
+import { MoreBelowCue } from '../shared/MoreBelowCue';
+import { hasContentBelow } from '../shared/scrollOverflow';
 import { CompactFilterBar } from './CompactFilterBar';
-import { getCatalogCapacityNotice } from './EquipmentBrowser.model';
+import {
+  getCatalogCapacityNotice,
+  getCompactAvailabilitySummary,
+} from './EquipmentBrowser.model';
 import {
   EquipmentBrowserUnitContext,
   EquipmentBrowserUnitProvider,
@@ -63,10 +68,7 @@ function EquipmentBrowserContent({
   useEffect(() => {
     const viewport = scrollRef.current;
     if (!viewport) return;
-    const update = () =>
-      setHasMoreBelow(
-        viewport.scrollHeight - viewport.clientHeight - viewport.scrollTop > 2,
-      );
+    const update = () => setHasMoreBelow(hasContentBelow(viewport));
     const observer =
       typeof ResizeObserver === 'undefined'
         ? undefined
@@ -157,6 +159,10 @@ function EquipmentBrowserContent({
         ]
           .filter(Boolean)
           .join(' · ')}
+        compactAvailabilitySummary={getCompactAvailabilitySummary(
+          unitTechBase,
+          unitYear,
+        )}
         sortControls={
           <div className="flex flex-col gap-1">
             {(['name', 'weight', 'criticalSlots'] as const).map((column) =>
@@ -252,6 +258,7 @@ function EquipmentBrowserContent({
             </p>
           )}
         </div>
+        <MoreBelowCue visible={hasMoreBelow} />
       </div>
       {totalPages > 1 && (
         <div

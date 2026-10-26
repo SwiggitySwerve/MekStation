@@ -195,6 +195,18 @@ export function ArmorTab({
     [selectedLocation, setLocationArmor],
   );
 
+  // Why Auto Allocate is unavailable, shown under the button.
+  const autoAllocateDisabled = readOnly || pointsDelta === 0;
+  let autoAllocateReason: string | null = null;
+  if (readOnly) {
+    autoAllocateReason = 'Read-only: armor cannot be changed.';
+  } else if (pointsDelta === 0) {
+    autoAllocateReason =
+      unallocatedPoints === 0
+        ? 'All armor points are already assigned'
+        : 'All allocatable points assigned';
+  }
+
   const handleAutoAllocate = useCallback(() => {
     autoAllocateArmor();
   }, [autoAllocateArmor]);
@@ -342,9 +354,9 @@ export function ArmorTab({
                   </button>
                   <button
                     onClick={handleAutoAllocate}
-                    disabled={readOnly || pointsDelta === 0}
+                    disabled={autoAllocateDisabled}
                     aria-describedby={
-                      pointsDelta === 0 ? allocationStatusId : undefined
+                      autoAllocateReason ? allocationStatusId : undefined
                     }
                     className={`min-h-11 rounded px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                       pointsDelta !== 0
@@ -355,12 +367,13 @@ export function ArmorTab({
                     Auto Allocate ({pointsDelta > 0 ? '+' : ''}
                     {pointsDelta} pts)
                   </button>
-                  {pointsDelta === 0 && (
+                  {autoAllocateReason && (
                     <p
                       id={allocationStatusId}
-                      className="text-text-theme-secondary text-xs sm:col-span-2 xl:col-span-1"
+                      data-testid="armor-auto-allocate-reason"
+                      className="text-text-theme-secondary text-[13px] leading-[18px] sm:col-span-2 xl:col-span-1"
                     >
-                      All allocatable points assigned
+                      {autoAllocateReason}
                     </p>
                   )}
                 </div>

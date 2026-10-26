@@ -32,7 +32,7 @@ The system SHALL display critical slots organized by mech location in a responsi
 - **THEN** Left Torso SHALL show engine slots at indices 0 through (sideTorsoSlots - 1)
 - **AND** Right Torso SHALL show engine slots at indices 0 through (sideTorsoSlots - 1)
 - **AND** engine slots SHALL be displayed with "Engine" label
-- **AND** engine slots SHALL use orange color coding
+- **AND** engine slots SHALL use the same neutral grey fixed-system presentation as other engine slots, without a coloured stripe
 - **AND** remaining slots SHALL show as empty or equipment
 
 #### Scenario: Side torso display without engine slots
@@ -55,16 +55,16 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 #### Scenario: Equipment type colors
 
 - **WHEN** a slot contains equipment
-- **THEN** equipment retains the category stripe defined by the equipment colour owner
-- **AND** its background mixes that category colour at 16% over the base surface (18% on hover)
+- **THEN** equipment uses a solid 4px left stripe in the full-opacity hue defined by the equipment colour owner
+- **AND** single slots and merged blocks mix that same full-opacity category hue at 18% over the base surface (20% on hover), without darkening merged blocks
 - **AND** slot text has contrast of at least 4.5:1 on the tint
-- **AND** heat sinks use a dashed cyan stripe and a subtle diagonal fill pattern, distinguishing them from the solid Missile stripe without changing global category colours
+- **AND** heat sinks retain a subtle diagonal fill pattern alongside their solid cyan stripe, without changing global category colours
 
-#### Scenario: Colour key bars
+#### Scenario: Colour key chips
 
 - **WHEN** the Critical Slots colour key renders
-- **THEN** swatches are short horizontal bars with the same stripe and tint as the slots
-- **AND** swatches are at least 20px wide and 12px tall, with 13–14px labels
+- **THEN** category swatches use the same full-opacity hue as the slot stripes, with visible neutral grey Fixed systems and Empty chips
+- **AND** swatches are solid 12px by 12px chips with 13–14px labels; heat sinks retain a hatch and Empty retains a dashed outline
 - **AND** heat-sink cells spell out "Heat Sink"; labels truncate with ellipsis only when needed and retain their complete accessible names
 
 #### Scenario: Empty slot display

@@ -36,7 +36,7 @@ its separate Preview-before-Fluff order.
 
 - **WHEN** the viewport is narrower than 640px
 - **THEN** a 48px-tall row SHALL place the section selector on the left and undo/redo on the right, with at least 44px touch targets
-- **AND** the selector SHALL show the full current section label and its position among the available sections, plus the error and warning counts on other tabs using the same shape-and-number badges as wide tabs and an accessible description naming the counts
+- **AND** the selector SHALL show the full current section label and its position among the available sections, plus a badge for the errors and warnings owned by the current section only, using the same shape-and-number badge, count and accessible name ("Structure: 1 warning") as the wide tab, and no badge when the current section owns none; counts on other sections appear only on the options in the open list, and global totals only in the status row
 - **AND** opening the selector SHALL disclose all section labels, the selected section, and the existing per-section validation counts with the same shape-and-number badges and accessible names as wide tabs
 - **AND** selecting a section SHALL use the existing tab change handler and close the disclosure
 - **AND** Escape SHALL close the disclosure and restore focus to its trigger; outside pointer interaction or focus leaving the disclosure SHALL also close it
@@ -127,10 +127,17 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 - **AND** the Component technology card stretches to the bottom of the column with its component rows evenly distributed, so both columns end on the same line without an empty card body
 - **AND** Identity leads with Chassis, Model, Year and Tech Level, followed by Clan Name and MUL ID
 
+#### Scenario: Component technology says where values are set
+
+- **WHEN** the Component technology card renders
+- **THEN** a muted helper line under the card title reads "Set in Structure and Armor; change the tech base below." ("Set in Structure and Armor." when the unit is read-only)
+- **AND** each component value (Internal structure, Gyro, Engine, Heat sinks, Myomer, Movement enhancement) is a quiet link, dotted underline at rest and tinted on hover and focus, that opens the Structure tab, and the Armor value opens the Armor tab, through the existing tab navigation callback; Targeting computer stays plain text
+- **AND** each link's accessible name carries the component, its value and the destination tab (e.g. "Engine: Standard Fusion 300. Change in Structure"), and the links reach 44px on coarse pointers
+
 #### Scenario: Slots readiness counts placed slots
 
 - **WHEN** mounted equipment has not been placed in critical slots
-- **THEN** the Build readiness Slots row reads "<placed> of <total> slots filled · <n> pending." as a passing row (no warning icon), instead of counting the unplaced items as used slots, and reads "<placed> of <total> slots filled, <free> free." once every item is placed
+- **THEN** the Build readiness Slots row reads "<placed> of <total> slots filled · <n> pending." with a muted hollow-circle pending icon (no warning or green check), instead of counting the unplaced items as used slots, and reads "<placed> of <total> slots filled, <free> free." with a green check once every item is placed and no slot issue remains; over-capacity and rule issues retain their severity icon
 - **AND** the Unplaced equipment row carries the warning for those items and names them with their slots ("PPC needs 3 slots; 1 item unplaced.", "PPC and Medium Laser need 5 slots; 2 items unplaced."), so Slots and Unplaced equipment never warn about the same item twice and the readiness list shows as many warning rows as the status button counts
 
 #### Scenario: Overview reading order on phones
@@ -184,9 +191,9 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 
 - **WHEN** the Structure tab renders
 - **THEN** the Cooling panel (Heat sink type, Installed stepper, and the OmniMech base chassis control when applicable) is a separate card below Mobility in the right column, not part of the Chassis panel
-- **AND** the heat sink summary (heat sinks in the engine, external heat sinks, total dissipation) is shown as a right-aligned stat in the Cooling panel header
+- **AND** total heat dissipation is shown as a right-aligned stat in the Cooling panel header
 - **AND** it is not repeated as a separate row below the Installed stepper
-- **AND** a Cooling helper SHALL explain the installed count, the weight-free sinks supplied with the engine, the count that adds weight, and its tonnage (e.g., "22 heat sinks · 10 free with engine, 12 weigh 12 t"), using the existing heat sink calculation owner
+- **AND** a Cooling helper SHALL distinguish physical mounting from weight allowance: installed count, sinks that fit inside the engine, sinks mounted outside, the weight-free allowance, and remaining sink weight (e.g., "22 heat sinks · 12 fit inside the engine, 10 mounted outside · first 10 weigh nothing; 12 add 12 t"), using the existing heat sink calculation owner
 
 #### Scenario: Weight strip labels its subtotal
 
@@ -237,6 +244,12 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 - **AND** when points are bought but unplaced, over the chassis max, or beyond the chassis max, the line names that count instead
 - **AND** all numbers come from the existing armor point and tonnage calculations
 - **AND** the "<points> pts from <tons> t" text appears only in the summary strip; the Armor inspector header shows just its title
+
+#### Scenario: Disabled Auto Allocate explains itself
+
+- **WHEN** the Auto Allocate button is disabled
+- **THEN** a helper line under it states why and is linked to the button with `aria-describedby`: "All armor points are already assigned" when no points are unallocated, "All allocatable points assigned" when unallocated points remain that the chassis cannot take, and "Read-only: armor cannot be changed." for a read-only unit
+- **AND** no helper line shows while the button is enabled
 
 #### Scenario: Inspector aligns with the diagram
 
@@ -324,6 +337,7 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 - **AND** the field labels use the small-caps section-label style used for sub-section headings elsewhere in the customizer
 - **AND** every textarea grows to show its full text, with no fixed-height box, no fade and no collapse control, so what is shown is what is edited
 - **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
+- **AND** an editable narrative textarea is drawn as a field, not a quote panel: the same inset fill and shadow as the single-line inputs, the shared calm `--field-border`, the strong border on hover, the accent border and ring on focus, and a text cursor; a disabled one drops the shadow, hover border and text cursor
 
 #### Scenario: Section navigation
 

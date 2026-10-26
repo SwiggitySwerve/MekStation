@@ -126,21 +126,15 @@ export function CustomizerTabs({
   const rootRef = useRef<HTMLDivElement>(null);
   const sectionsId = useId();
   const currentIndex = tabs.findIndex((tab) => tab.id === activeTab);
-  const otherTabCounts = tabs.reduce(
-    (total, tab) => {
-      if (tab.id === activeTab) return total;
-      const counts = validationCounts?.[tab.id as keyof ValidationCountsByTab];
-      return {
-        errors: total.errors + (counts?.errors ?? 0),
-        warnings: total.warnings + (counts?.warnings ?? 0),
-        infos: 0,
-      };
-    },
-    { errors: 0, warnings: 0, infos: 0 },
-  );
-  const otherIssuesId = `${sectionsId}-other-issues`;
-  const hasOtherIssues =
-    otherTabCounts.errors > 0 || otherTabCounts.warnings > 0;
+  // The phone trigger badges only what the current section owns, exactly like
+  // a wide tab; other sections' badges live in the open list and the totals in
+  // the status row.
+  const currentTab = tabs[currentIndex];
+  const currentCounts = currentTab
+    ? validationCounts?.[currentTab.id as keyof ValidationCountsByTab]
+    : undefined;
+  const currentIssuesId = `${sectionsId}-current-issues`;
+  const hasCurrentIssues = !!(currentCounts?.errors || currentCounts?.warnings);
 
   const closeSections = (): void => {
     setSectionsOpen(false);
@@ -250,9 +244,7 @@ export function CustomizerTabs({
         aria-label={`Section: ${tabs[currentIndex]?.label ?? 'Choose section'}, ${currentIndex + 1} of ${tabs.length}`}
         aria-expanded={sectionsOpen}
         aria-controls={sectionsId}
-        aria-describedby={
-          hasOtherIssues ? `${otherIssuesId}-label ${otherIssuesId}` : undefined
-        }
+        aria-describedby={hasCurrentIssues ? currentIssuesId : undefined}
         disabled={readOnly}
         onClick={() => setSectionsOpen((open) => !open)}
       >
@@ -260,18 +252,16 @@ export function CustomizerTabs({
         <span className="text-text-theme-secondary">
           · {currentIndex + 1} of {tabs.length}
         </span>
-        {hasOtherIssues && (
-          <span id={`${otherIssuesId}-label`} className="sr-only">
-            Issues on other tabs:
-          </span>
-        )}
-        {hasOtherIssues && (
+        {currentTab && hasCurrentIssues && (
           <SectionValidationBadge
-            tabId="other-tabs"
-            label="Other tabs"
-            counts={otherTabCounts}
-            issueLines={[]}
-            validationId={otherIssuesId}
+            tabId={currentTab.id}
+            label={currentTab.label}
+            counts={currentCounts}
+            issueLines={describeTabIssues(
+              currentCounts,
+              issueTitles?.[currentTab.id],
+            )}
+            validationId={currentIssuesId}
             onTooltipChange={setBadgeTooltip}
           />
         )}

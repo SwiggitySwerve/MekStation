@@ -420,9 +420,9 @@ test('critical locations fit below pinned tools and offer one phone location pil
       await expect(key.getByText(label, { exact: true })).toBeVisible();
     for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
       const box = (await swatch.boundingBox())!;
-      expect(box.width).toBeGreaterThanOrEqual(20);
+      expect(box.width).toBe(12);
       expect(box.height).toBeGreaterThanOrEqual(12);
-      expect(box.width).toBeGreaterThan(box.height * 2);
+      expect(box.height).toBe(12);
     }
     for (const label of await key.locator('span').all()) {
       expect(
@@ -638,9 +638,9 @@ test('heat explanations reconcile and phone navigation keeps issue badges @custo
   );
   await page.setViewportSize({ width: 390, height: 844 });
   const selector = page.getByRole('button', { name: /^Section:/ });
-  await expect(
-    selector.getByRole('img', { name: 'Other tabs: 1 warning' }),
-  ).toBeVisible();
+  // The trigger badges only what the current section owns: Overview owns no
+  // issue, so the heat warning on Structure does not show here.
+  await expect(selector.getByRole('img')).toHaveCount(0);
   await selector.click();
   const structure = page.getByRole('tab', { name: 'Structure', exact: true });
   await expect(
@@ -650,10 +650,15 @@ test('heat explanations reconcile and phone navigation keeps issue badges @custo
     '1',
   );
   await structure.click();
+  await expect(
+    selector.getByRole('img', { name: 'Structure: 1 warning' }),
+  ).toBeVisible();
   await expect(page.getByTestId('tab-issue-notice')).toBeHidden();
   await expect(
     page.getByTestId('structure-heat-sink-weight-help'),
-  ).toContainText(/\d+ heat sinks · 10 free with engine, \d+ weigh \d+ t/);
+  ).toContainText(
+    /\d+ heat sinks · \d+ fit inside the engine, \d+ mounted outside · first 10 weigh nothing; \d+ add \d+ t/,
+  );
   await expect(
     page.getByRole('button', {
       name: 'More stats (Armor, Movement, BV)',

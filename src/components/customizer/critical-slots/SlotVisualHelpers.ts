@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 import {
   classifyEquipmentByName,
   getCategoryColors,
-  getEquipmentSurfaceClassesByName,
   HEATSINK_COLORS,
   type CategoryColorDefinition,
 } from '@/utils/colors/equipmentColors';
@@ -23,18 +22,13 @@ export function getSlotSizeClasses(compact: boolean): string {
   return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1' : ''}`;
 }
 
-/** Resolve the existing owner's Tailwind accent token, including its opacity. */
+/** Use the owner's hue at full opacity; slots apply one shared tint strength. */
 export function getCriticalCategoryTint(
   colors: CategoryColorDefinition,
 ): CSSProperties {
-  const [token, opacity] = colors.accentBorder
-    .replace('border-l-', '')
-    .split('/');
-  const color = `var(--color-${token})`;
+  const [token] = colors.accentBorder.replace('border-l-', '').split('/');
   return {
-    '--critical-category-color': opacity
-      ? `color-mix(in srgb, ${color} ${opacity}%, transparent)`
-      : color,
+    '--critical-category-color': `var(--color-${token})`,
   } as CSSProperties;
 }
 
@@ -71,7 +65,7 @@ export function getSlotContentClasses(slot: SlotContent): string {
     return getSystemSlotClasses(classifySystemComponent(slot.name));
   }
   if (slot.type === 'equipment' && slot.name) {
-    return `${getEquipmentSurfaceClassesByName(slot.name)} ${styles.criticalTintedSlot} ${classifyEquipmentByName(slot.name) === 'heatsink' ? styles.criticalHeatSink : ''}`;
+    return `${styles.criticalTintedSlot} ${classifyEquipmentByName(slot.name) === 'heatsink' ? styles.criticalHeatSink : ''}`;
   }
   return 'bg-transparent border-border-theme-strong/60 border-dashed text-text-theme-muted';
 }

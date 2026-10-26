@@ -673,16 +673,17 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Phone comparison
 
 - **WHEN** browsing on a phone
-- **THEN** names use 16px text with the Add actions beside the name and stats; stats use a two-column grid at 14px with Dmg (Shots for ammunition), Range, Min, Heat, Tons, and Slots label/value pairs; each pair stays unbroken
+- **THEN** names use 16px text with the Add actions beside the name and stats; stats use at most two 14px lines of unbroken fields: weapons read "Damage 10 · Range 6/12/18 · Min 3" over "Heat 10 · 7 t · 3 slots", ammunition reads one line ("Shots 45 · 1 t · 1 slot"), and other equipment reads only "<weight> · <slots>"; fields that do not apply (including a zero minimum range) are omitted rather than shown as dashes, and a narrow line wraps between fields, never inside one
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
 - **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
-- **AND** the Filters label shows only an active-filter count on phones and names the criteria on wider screens
+- **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · available in 3028")
+- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it, and a subtle fade with a "More below" hint appears over the list only while rows are hidden below
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 
 #### Scenario: Active filters
 
 - **WHEN** visibility filters are active
-- **THEN** the Filters label names those criteria while retaining its Visibility filters accessible name
+- **THEN** the Filters label names those criteria and the button's accessible name starts with "Visibility filters" followed by the full criteria text
 - **AND** availability describes catalog tech base and listed introduction year, without claiming extinction, reintroduction, or rules legality checks
 
 #### Scenario: Expanded equipment details

@@ -157,7 +157,7 @@ describe('CompactFilterBar', () => {
     it('should render Hide button', () => {
       render(<CompactFilterBar {...defaultProps} />);
       expect(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       ).toBeInTheDocument();
     });
 
@@ -170,7 +170,7 @@ describe('CompactFilterBar', () => {
         />,
       );
       expect(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       ).toHaveTextContent('Filters · No prototypes, No one-shot');
     });
 
@@ -183,7 +183,7 @@ describe('CompactFilterBar', () => {
         />,
       );
       expect(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       ).toHaveTextContent('Filters · Inner Sphere · introduced ≤3028');
     });
 
@@ -244,17 +244,32 @@ describe('CompactFilterBar', () => {
         capacity.querySelector('[data-icon-name="error"]'),
       ).toBeInTheDocument();
     });
-    it('shows a short active-filter count for narrow screens', () => {
+    it('names the first active filter compactly for narrow screens and keeps the full text in the accessible name', () => {
       render(
         <CompactFilterBar
           {...defaultProps}
+          hideUnavailable={true}
           hidePrototype={true}
-          hideOneShot={true}
+          availabilitySummary="Inner Sphere · available in 3028"
+          compactAvailabilitySummary="IS · 3028"
         />,
       );
+      const button = screen.getByRole('button', {
+        name: /^Visibility filters/,
+      });
+      expect(button).toHaveAccessibleName(
+        'Visibility filters: Inner Sphere · available in 3028, No prototypes',
+      );
+      expect(button.querySelector('.sm\\:hidden')).toHaveTextContent(
+        '· IS · 3028 +1',
+      );
+    });
+
+    it('keeps the plain accessible name when no filter is active', () => {
+      render(<CompactFilterBar {...defaultProps} />);
       expect(
         screen.getByRole('button', { name: 'Visibility filters' }),
-      ).toHaveTextContent('· 2');
+      ).toBeInTheDocument();
     });
     it('labels the help popover in plain words', () => {
       render(<CompactFilterBar {...defaultProps} />);
@@ -268,7 +283,7 @@ describe('CompactFilterBar', () => {
       render(<CompactFilterBar {...defaultProps} />);
 
       const hideButton = screen
-        .getByRole('button', { name: 'Visibility filters' })
+        .getByRole('button', { name: /^Visibility filters/ })
         .closest('button');
       await user.click(hideButton!);
 
@@ -283,7 +298,7 @@ describe('CompactFilterBar', () => {
       render(<CompactFilterBar {...defaultProps} />);
 
       const hideButton = screen
-        .getByRole('button', { name: 'Visibility filters' })
+        .getByRole('button', { name: /^Visibility filters/ })
         .closest('button');
       await user.click(hideButton!);
 
@@ -298,7 +313,7 @@ describe('CompactFilterBar', () => {
       render(<CompactFilterBar {...defaultProps} />);
 
       const hideButton = screen
-        .getByRole('button', { name: 'Visibility filters' })
+        .getByRole('button', { name: /^Visibility filters/ })
         .closest('button');
       await user.click(hideButton!);
 
@@ -313,7 +328,7 @@ describe('CompactFilterBar', () => {
       render(<CompactFilterBar {...defaultProps} hidePrototype={true} />);
 
       const hideButton = screen
-        .getByRole('button', { name: 'Visibility filters' })
+        .getByRole('button', { name: /^Visibility filters/ })
         .closest('button');
       await user.click(hideButton!);
 
@@ -363,7 +378,7 @@ describe('CompactFilterBar', () => {
     it('should show Clear button when filters are active', () => {
       render(<CompactFilterBar {...defaultProps} search="test" />);
       fireEvent.click(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       );
       expect(screen.getByText('Clear filters')).toBeInTheDocument();
     });
@@ -371,7 +386,7 @@ describe('CompactFilterBar', () => {
     it('should show Clear button when showAll is false', () => {
       render(<CompactFilterBar {...defaultProps} showAll={false} />);
       fireEvent.click(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       );
       expect(screen.getByText('Clear filters')).toBeInTheDocument();
     });
@@ -379,7 +394,7 @@ describe('CompactFilterBar', () => {
     it('should show Clear button when hide filters are active', () => {
       render(<CompactFilterBar {...defaultProps} hidePrototype={true} />);
       fireEvent.click(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       );
       expect(screen.getByText('Clear filters')).toBeInTheDocument();
     });
@@ -394,7 +409,7 @@ describe('CompactFilterBar', () => {
       render(<CompactFilterBar {...defaultProps} search="test" />);
 
       await user.click(
-        screen.getByRole('button', { name: 'Visibility filters' }),
+        screen.getByRole('button', { name: /^Visibility filters/ }),
       );
       const clearButton = screen.getByText('Clear filters');
       await user.click(clearButton);
