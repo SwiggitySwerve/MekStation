@@ -22,7 +22,7 @@
         "id": "AUTH-2",
         "kind": "GATE OPEN / predecessor",
         "status": "SETTLED (this Root brief)",
-        "text": "The Root brief to the implementation worker of the A2FP closure PR (thread, 2026-10-26) names this admission as commit 2 of the A2FP closure PR, the same riding pattern as #2336 (LSC-2P closure plus A2FP admission). It answers the #2318 owner-ruling hold (A2F admission waits for A2FP closure). A2FP closes in commit 1 of this PR: state main-verified, prHead c2297627622e054938ed677a3e282c0b844d7705, mergeSha 35fa2fb9c892ed6585057dcacf40de87670a0456 (ancestry exit 0), mainProof PASS (evidence/l1-smoke-a2fp-mainproof-20261026.json: built-image run at the clean exact merge, accepted-Move, accepted-Attack, accepted-Physical, witness sequence ready,declared,ready,declared,ready,ready,declared). No admitted-unfinished unit remains once this PR merges; A2F implementation starts only after this PR merges to main."
+        "text": "The Root brief to the implementation worker of the A2FP closure PR (thread, 2026-10-26) names this admission as commit 2 of the A2FP closure PR, the same riding pattern as #2336 (LSC-2P closure plus A2FP admission). It answers the #2318 owner-ruling hold (A2F admission waits for A2FP closure). A2FP closes in commit 1 of this PR: state main-verified, prHead c2297627622e054938ed677a3e282c0b844d7705, mergeSha 35fa2fb9c892ed6585057dcacf40de87670a0456 (ancestry exit 0), mainProof PASS (evidence/l1-smoke-a2fp-mainproof-20261026.json: built-image run at the clean exact merge, accepted-Move, accepted-Attack, accepted-Physical, witness sequence ready,declared,ready,declared,ready,ready,declared). Once this PR merges, A2F is the only admitted-unfinished unit (A2FP is main-verified); A2F implementation starts only after this PR merges to main."
       },
       {
         "id": "AUTH-3",
@@ -303,7 +303,7 @@
         "withLifecycleLow": 467,
         "withLifecycleHigh": 499,
         "cap": 500,
-        "verdict": "FITS"
+        "verdict": "FITS on the estimate (margin 33 to 1); an overflow is recorded, not a stop"
       },
       {
         "id": "S-optionA",
@@ -322,7 +322,7 @@
       "margin": 7,
       "note": "Three leaves + units.json + PROGRESS.md + red + local receipts = 7 counted files; V2.2.0-STEPS.md is exempt from the file count. All files count, tests and evidence included."
     },
-    "verdict": "FITS under option A (margin 204 to 236) and, at the A2FP-actual lifecycle, under the literal rule too (467 of 500). capException is needed only if the real literal count exceeds 500."
+    "verdict": "FITS under option A, the binding rule (264 to 296 of 500). Literal 467 to 499 of 500 on an estimated lifecycle (1 line of margin at the high bound); a literal overflow is recorded in capException.countedLines, not a stop (see capException)."
   },
   "testInventory": {
     "runner": "node --test scripts/release/l1-built-server-spectator-fixture.test.mjs (node:test, no build, no Jest; builds throwaway private DBs with the production DurableMatchStore + InteractiveSession through tsx, copying the A2FP test builder plus the production participant migration)",
@@ -483,7 +483,7 @@
     "The fixture-only co-op marker disables the foreign-unit guard (ServerMatchHostIntent.ts:566) and is read by CampaignHostRegistry.createEntry (CampaignHostRegistry.ts:442-475) only on campaign-sync sockets, which no A2 leaf opens; the tactical recovery path does not read it (rg coopCampaign src/lib/multiplayer/server shows no MatchHostRegistry/recovery reader).",
     "Capability tables are not in the match file: DurableMatchStore.ts:614-620.",
     "CF-A2FP-1 (new, from the A2FP review): a runner that skips an offline witness but keeps a value would pass. The F closure receipt must check the offline op sequence of its own run in evidence.jsonl (the three A2FP rows contribute ready,declared,ready,declared,ready,ready,declared; the trusted rows add their prepare and ready/declared calls) and the F runner must not skip a witness call by design.",
-    "CF-A2FP-2 (new, from the A2FP review): the 15 s readiness probe at scripts/release/run-l1-built-server-smoke.mjs:134 is in the frozen A1 harness and no registered unit owns it (routed to Root in units.json A2FP.carryForwardRouting20261026). The F run restarts the server more often than A2FP (8 matches); a failure limited to that probe timeout may be re-run once with both runs disclosed; any other failure, or a second probe timeout, stops for Root.",
+    "CF-A2FP-2 (new, from the A2FP review): the 15 s readiness probe at scripts/release/run-l1-built-server-smoke.mjs:134 is in the frozen A1 harness and Root routed it on 2026-10-26 to the first unit that must amend the A1 harness, which A2F does not (units.json A2FP.carryForwardRouting20261026). The F run restarts the server more often than A2FP (8 matches); a closure run whose only failure is that probe timeout may be re-run once with both runs disclosed; any other failure, or a second probe timeout, stops for Root.",
     "CF-A2FP survivors: M23 (stale-first assignment lookup) belongs to A2F: prepare puts the stale assignment FIRST for the active side and the F-M9 mutant exercises it through the witness (killed); the A2FP file has no fixture for it.",
     "OQ-M1 (owner Q2 item 2) is A2M scope, not A2F."
   ],
@@ -783,7 +783,7 @@
       "sha256": "07dcf8fbdbe599382076a4e4a934ceac5de2a2d8c77b056244cf4c54eb81f9d7"
     }
   ],
-  "controlsNote": "sha256/bytes re-hashed 2026-10-26 from the git objects at 35fa2fb9c; every listed control is byte-identical to the prep (79211e5a1) values. Ledger and tool files edited by later PRs are listed in controlsChanged and are not controls for the leaves. Re-hash at the implementation baseline; any change must be explained (byte-equal at admission baseline and PR head).",
+  "controlsNote": "sha256/bytes re-hashed 2026-10-26 from the git objects at 35fa2fb9c; every listed control is byte-identical to the prep (79211e5a1) values. The prep listed 21 controls; v220-steps.json (prep sha256 4667b88d66e6f9dd890695f7c8e2d58c9709781906392b7aaa1503549aacbd29, 8023 bytes; now 64195bea50c8d1e36275503423118cc0ba4e0f514712ea0b741ec51b76b6ad15, 8029 bytes, changed by LSC-2P commit 30122d695) is a ledger file, not a control for the leaves, and is dropped, so 20 controls remain. Re-hash at the implementation baseline; any change must be explained (byte-equal at admission baseline and PR head).",
   "a2fpLeavesOnMain": [
     {
       "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
@@ -839,7 +839,7 @@
     {
       "id": "G-F5",
       "kind": "cap record",
-      "text": "Re-measure the real squash diff with measure-cap.cjs; record capException in units.json only if the literal validator count exceeds 500 (the literal estimate fits, see measuredFit); validate-roadmap --git is the check at the closure."
+      "text": "Re-measure the real squash diff with measure-cap.cjs after the lifecycle edit; if the literal validator count exceeds 500 record capException as described in capException.consequence; an option-A count over 500 stops for Root; validate-roadmap --git is the check at the closure."
     },
     {
       "id": "G-F6",
@@ -850,7 +850,7 @@
   "openQuestions": [
     "B7 analogue: the F runner has never run in a built image (G-F1 probe and the local run settle it).",
     "OQ-M2 and OQ-M3 are A2M admission questions.",
-    "CF-A2FP-2 owner (Root decision)."
+    "CF-A2FP-2: routed by Root on 2026-10-26 to the first unit that must amend the A1 harness (not A2F)."
   ],
   "limitations": [
     "Admission only. The leaf bytes live outside Git (prep a2f-a2m draft/scripts/release; formatted; hashes in measuredFit) and need `git add -f` when committed at the implementation RED/GREEN.",
@@ -862,8 +862,8 @@
   ],
   "capException": {
     "rule": "validate-roadmap.mjs:723-726 fails a merged unit when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, where counted is the sum of added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` over files outside evidence/ and outside UNCOUNTED_FILES. It does not know option A.",
-    "needed": false,
-    "consequence": "The literal estimate (467 to 499) stays within 500 even at the high bound (margin 1); the implementation PR re-measures its real squash diff and records capException.countedLines = the literal validator count (and optionACountedLines beside it) if and only if the literal count exceeds 500.",
+    "needed": "decided at the implementation merge (not expected at the A2FP-actual lifecycle of 48 lines; 1 line of margin at the 80-line high bound)",
+    "consequence": "The literal estimate is 467 to 499 of 500. The validator does not stop a literal count over 500: it requires capException.countedLines to equal the literal count of the merge diff (validate-roadmap.mjs:723-726). If the real literal count exceeds 500, the implementation PR records capException {countedLines: <literal count>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines: <literal count minus the trusted-fixtures.ts lines>, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-trusted-fixtures.ts]}, as A2FP did (667), and re-measures after adding it (those lines count too). The binding limits are the option-A count (estimate 264 to 296) and 15 files; an option-A count over 500 or a 16th file stops the unit for Root.",
     "tool": "prep/a2fp/draft/measure-cap.cjs <repo> <head> <parent> --testsupport=<path>",
     "toolSha256": "586df8ce4b897468a175ddb206da6abcfdd7ca297f7a945041cb9faa0eaf8858"
   },
