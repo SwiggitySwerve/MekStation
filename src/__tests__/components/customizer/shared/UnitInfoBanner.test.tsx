@@ -164,11 +164,11 @@ describe('UnitInfoBanner', () => {
       (heat.querySelector('.budgetFill') as HTMLElement).style.background,
     ).toContain('--warning');
     expect(heat).toHaveAccessibleName(
-      'Heat: 33 / 22. 33 heat at full fire (31 weapons + 2 running) / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
+      'Heat: 33 / 22. 33 heat at full fire (31 from weapons + 2 from running) / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
     );
     expect(heat).toHaveAttribute('tabindex', '0');
     expect(heat).toHaveAccessibleDescription(
-      '33 heat at full fire (31 weapons + 2 running) / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
+      '33 heat at full fire (31 from weapons + 2 from running) / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
     );
   });
 

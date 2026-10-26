@@ -258,17 +258,20 @@ function EquipmentBrowserContent({
             </p>
           )}
         </div>
-        <MoreBelowCue visible={hasMoreBelow} />
       </div>
       {totalPages > 1 && (
         <div
-          className="border-border-theme flex h-12 shrink-0 items-center justify-between gap-2 border-t px-3"
+          className={`border-border-theme flex min-h-12 shrink-0 items-center justify-between gap-2 border-t px-3 ${workbenchStyles.catalogFooter}`}
           data-testid="equipment-pagination"
         >
           <div className="min-w-0">
             <span className="text-text-theme-secondary text-xs">
               Page {Math.min(currentPage, lastPage)}/{lastPage}
             </span>
+            <MoreBelowCue
+              visible={hasMoreBelow}
+              label="Scroll for more equipment"
+            />
           </div>
           <div className="flex gap-1">
             <Button
@@ -310,6 +313,13 @@ function EquipmentBrowserContent({
               <AppIcon name="chevrons-right" size="inline" aria-hidden="true" />
             </Button>
           </div>
+        </div>
+      )}
+      {totalPages <= 1 && hasMoreBelow && (
+        <div
+          className={`border-border-theme shrink-0 border-t px-3 ${workbenchStyles.catalogFooter}`}
+        >
+          <MoreBelowCue visible label="Scroll for more equipment" />
         </div>
       )}
       <p

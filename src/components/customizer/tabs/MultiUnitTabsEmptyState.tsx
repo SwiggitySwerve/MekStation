@@ -73,7 +73,7 @@ export function MultiUnitTabsEmptyState({
             className="bg-accent hover:bg-accent-hover text-on-accent focus-visible:outline-accent flex min-h-11 items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <AppIcon name="add" size="control" aria-hidden="true" />
-            New Unit
+            Add unit
           </button>
 
           <button

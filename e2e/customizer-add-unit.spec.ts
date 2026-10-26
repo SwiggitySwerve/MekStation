@@ -29,7 +29,7 @@ for (const catalogState of ['loading', 'failed'] as const) {
     });
     try {
       await page.goto('/customizer');
-      await page.getByRole('button', { name: 'New Unit', exact: true }).click();
+      await page.getByRole('button', { name: 'Add unit', exact: true }).click();
       const dialog = page.getByRole('dialog', {
         name: 'Add unit',
         exact: true,

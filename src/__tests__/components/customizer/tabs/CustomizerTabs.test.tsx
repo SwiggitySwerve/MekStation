@@ -56,6 +56,16 @@ describe('CustomizerTabs', () => {
     expect(
       dot!.querySelector('[data-section-badge="warning"]'),
     ).toHaveTextContent(/^1$/);
+    // One pill shape for both; the decorative symbol inside carries the meaning.
+    const errorBadge = dot!.querySelector('[data-section-badge="error"]')!;
+    const warningBadge = dot!.querySelector('[data-section-badge="warning"]')!;
+    expect(errorBadge.className).toBe(warningBadge.className);
+    expect(
+      errorBadge.querySelector('svg[data-severity-icon="error"]'),
+    ).toHaveAttribute('aria-hidden', 'true');
+    expect(
+      warningBadge.querySelector('svg[data-severity-icon="warning"]'),
+    ).toHaveAttribute('aria-hidden', 'true');
 
     rerender(
       <CustomizerTabs

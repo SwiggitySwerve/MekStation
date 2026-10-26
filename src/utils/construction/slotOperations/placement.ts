@@ -76,11 +76,7 @@ export function getEquipmentSlotIssues(
   const issues: ICriticalSlotIssue[] = [];
   const locations = getLocationsForConfig(configuration);
   const occupants = new Map<string, IMountedEquipmentInstance>();
-  const add = (
-    item: IMountedEquipmentInstance,
-    message: string,
-    severity = UnitValidationSeverity.ERROR,
-  ): void => {
+  const add = (item: IMountedEquipmentInstance, message: string): void => {
     if (
       !issues.some(
         (issue) =>
@@ -91,16 +87,12 @@ export function getEquipmentSlotIssues(
         instanceId: item.instanceId,
         location: item.location,
         message,
-        severity,
+        severity: UnitValidationSeverity.ERROR,
       });
   };
   for (const item of equipment) {
     if (!item.location) {
-      add(
-        item,
-        `${item.name} needs a location.`,
-        UnitValidationSeverity.WARNING,
-      );
+      add(item, `${item.name} needs a location.`);
       continue;
     }
     const location = item.location as MechLocation;
@@ -117,9 +109,6 @@ export function getEquipmentSlotIssues(
       add(
         item,
         `${item.name} in ${location} needs ${item.criticalSlots} distinct critical slots.`,
-        item.slots?.length
-          ? UnitValidationSeverity.ERROR
-          : UnitValidationSeverity.WARNING,
       );
     const fixed = getFixedSlotIndices(
       location,

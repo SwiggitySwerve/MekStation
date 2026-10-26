@@ -34,9 +34,13 @@ describe('getBuildStatusSummary', () => {
   });
 
   it('counts running hot with the warnings, never as an error or a note', () => {
-    const summary = getBuildStatusSummary(counts(1, 1), [hot]);
+    // Overweight plus unplaced equipment are errors; heat stays a warning.
+    const summary = getBuildStatusSummary(counts(2, 0), [hot]);
     expect(summary.state).toBe('error');
-    expect(summary.headline).toBe('1 error \u00b7 2 warnings');
+    expect(summary.headline).toBe('2 errors \u00b7 1 warning');
+    expect(summary.panelHeading).toBe(
+      'Not legal \u00b7 2 errors \u00b7 1 warning',
+    );
     expect(summary.parts.map((part) => part.kind)).toEqual([
       'error',
       'warning',

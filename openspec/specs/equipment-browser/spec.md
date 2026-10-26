@@ -677,7 +677,8 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
 - **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
 - **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · available in 3028")
-- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it, and a subtle fade with a "More below" hint appears over the list only while rows are hidden below
+- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it
+- **AND** only while rows are hidden below, an opaque footer reads "Scroll for more equipment" in the pager (or a dedicated footer for a single page); the footer stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 
 #### Scenario: Active filters

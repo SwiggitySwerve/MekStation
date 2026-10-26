@@ -15,12 +15,17 @@ function viewport(client: number, scrollHeight: number, scrollTop: number) {
 }
 
 it('shows the hint only while the list has content below', () => {
-  const { rerender } = render(<MoreBelowCue visible={false} />);
+  const { rerender } = render(
+    <MoreBelowCue visible={false} label="Scroll for more equipment" />,
+  );
   expect(screen.queryByTestId('more-below-cue')).toBeNull();
-  rerender(<MoreBelowCue visible />);
+  rerender(<MoreBelowCue visible label="Scroll for more equipment" />);
   const cue = screen.getByTestId('more-below-cue');
-  expect(cue).toHaveTextContent('More below');
+  expect(cue).toHaveTextContent('Scroll for more equipment');
   expect(cue).toHaveAttribute('aria-hidden', 'true');
+  expect(cue).not.toHaveTextContent('More below');
+  rerender(<MoreBelowCue visible label="Scroll for more slots" />);
+  expect(cue).toHaveTextContent('Scroll for more slots');
 });
 
 it('detects content below, ignoring sub-pixel overflow and hidden viewports', () => {

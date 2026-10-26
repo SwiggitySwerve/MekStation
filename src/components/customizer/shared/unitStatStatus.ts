@@ -117,9 +117,14 @@ export function getBudgetFill(used: number, max: number): number {
   return Math.min(1, Math.max(0, used / max));
 }
 
-/** Present the subtotals supplied by the heat calculation owner. */
+/**
+ * Present the subtotals supplied by the heat calculation owner. Each number
+ * names its source ("31 from weapons + 2 from running") so the weapon figure
+ * never reads as a weapon count. The one formatter behind the Overview tile,
+ * the header tooltip and the running-hot message.
+ */
 export function describeHeatSources(generation: IHeatGeneration): string {
-  return `${generation.alphaStrikeHeat} weapons + ${generation.movementHeat} ${generation.movementMode}`;
+  return `${generation.alphaStrikeHeat} from weapons + ${generation.movementHeat} from ${generation.movementMode}`;
 }
 
 /** What the generated and dissipated heat numbers include. */

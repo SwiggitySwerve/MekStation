@@ -481,7 +481,7 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
 }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'New Unit', exact: true }).click();
+  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   const add = page.getByRole('dialog', { name: 'Add unit', exact: true });
   await add
     .getByRole('button', {

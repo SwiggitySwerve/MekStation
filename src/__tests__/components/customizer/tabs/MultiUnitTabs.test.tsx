@@ -644,7 +644,7 @@ describe('MultiUnitTabs', () => {
   // Empty State Tests
   // ===========================================================================
   describe('Empty State', () => {
-    it('should show New Unit and Load from Library buttons', () => {
+    it('should show Add unit and Load from Library buttons', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
 
       renderWithToast(
@@ -653,11 +653,11 @@ describe('MultiUnitTabs', () => {
         </MultiUnitTabs>,
       );
 
-      expect(screen.getByText('New Unit')).toBeInTheDocument();
+      expect(screen.getByText('Add unit')).toBeInTheDocument();
       expect(screen.getByText('Load from Library')).toBeInTheDocument();
     });
 
-    it('opens the shared Add unit flow from New Unit in the empty state', () => {
+    it('opens the shared Add unit flow from Add unit in the empty state', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
 
       renderWithToast(
@@ -666,7 +666,7 @@ describe('MultiUnitTabs', () => {
         </MultiUnitTabs>,
       );
 
-      const newUnitButton = screen.getByText('New Unit');
+      const newUnitButton = screen.getByText('Add unit');
       fireEvent.click(newUnitButton);
 
       expect(screen.getByTestId('unit-load-dialog')).toHaveAttribute(

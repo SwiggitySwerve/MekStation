@@ -9,12 +9,7 @@ import {
   getTabForCategory,
 } from '@/utils/validation/validationNavigation';
 
-import {
-  BUILD_STATE_TINT_CLASS,
-  BUILD_STATUS_KIND_TEXT_CLASS,
-  BuildStatusLabel,
-  SeverityIcon,
-} from './BuildStatusLabel';
+import { BUILD_STATE_TINT_CLASS, BuildStatusLabel } from './BuildStatusLabel';
 import {
   getBuildStatusSummary,
   noteText,
@@ -51,7 +46,11 @@ interface ValidationSummaryProps {
   notes?: readonly ValidationNote[];
   /** Extra status shown at the foot of the panel (e.g. save state). */
   details?: React.ReactNode;
-  /** Full-width phone status row, with a severity icon for each group. */
+  /**
+   * Phone chip in the stat strip: a severity shape and count for each group
+   * ("⊗ 1 · ⚠ 2"), or the lone readout item ("⚠ Runs hot +11"). The
+   * accessible name and tooltip keep the full words.
+   */
   compact?: boolean;
   /**
    * Raise to open the panel from elsewhere (the tab issue notice's "Show all
@@ -66,10 +65,10 @@ const buttonClass =
   'focus-visible:outline-accent hover:bg-surface-raised flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-md border font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
 const sizeClass = 'px-3 text-[13px]';
 /**
- * Phone: one full-width row under the readouts, with every group spelled out.
- * Important overrides beat the global unlayered `button` padding and size.
+ * Phone: a 44px chip filling its stat-strip column, 13px text. Important
+ * overrides beat the global unlayered `button` padding and size.
  */
-const compactSizeClass = 'h-11 w-full !px-2 !py-0 !text-sm';
+const compactSizeClass = 'h-11 w-full !gap-1 !px-1.5 !py-0 !text-[13px]';
 
 /**
  * Focus the section a fix button opened once it renders, so keyboard users
@@ -191,7 +190,7 @@ export function ValidationSummary({
   ) {
     return (
       <span
-        className={`inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-[13px] font-semibold whitespace-nowrap ${compact ? 'w-full justify-center !text-sm' : ''} ${busy || !validation.isValid ? 'text-text-theme-secondary' : 'text-text-theme-primary'} ${className}`}
+        className={`inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-[13px] font-semibold whitespace-nowrap ${compact ? 'w-full justify-center !px-1 !text-[13px]' : ''} ${busy || !validation.isValid ? 'text-text-theme-secondary' : 'text-text-theme-primary'} ${className}`}
         role="status"
       >
         {busy ? (
@@ -281,26 +280,7 @@ export function ValidationSummary({
         }}
         className={`${buttonClass} ${BUILD_STATE_TINT_CLASS[state]} ${compact ? compactSizeClass : sizeClass}`}
       >
-        {compact && !summary.headlineNote && state !== 'ready' ? (
-          summary.parts.map((part, index) => (
-            <React.Fragment key={part.kind}>
-              {index > 0 && (
-                <span aria-hidden="true" className="text-text-theme-secondary">
-                  {'\u00b7'}
-                </span>
-              )}
-              <span
-                data-build-status-part={part.kind}
-                className={`inline-flex items-center gap-1 ${BUILD_STATUS_KIND_TEXT_CLASS[part.kind]}`}
-              >
-                <SeverityIcon kind={part.kind} />
-                {part.text}
-              </span>
-            </React.Fragment>
-          ))
-        ) : (
-          <BuildStatusLabel summary={summary} compact={false} />
-        )}
+        <BuildStatusLabel summary={summary} compact={compact} />
         {/* Phone: the readouts toggle beside it already shows a chevron. */}
         {!compact && (
           <AppIcon

@@ -7,7 +7,7 @@ async function loadUnit(page: Page, name = 'Atlas AS7-D', variant = 'AS7-D') {
   });
   if (await open.isVisible()) await open.click();
   else
-    await page.getByRole('button', { name: 'New Unit', exact: true }).click();
+    await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await page.getByPlaceholder('Search by chassis or variant...').fill(name);
@@ -274,8 +274,8 @@ test('validation keeps section badges, guidance and focused destinations @custom
   });
   await expect(statusButton).toBeVisible();
   await expect(statusButton).toHaveAttribute('data-build-status', 'error');
-  // Running hot is listed with the warnings (48 heat over 22 dissipation).
-  await expect(statusButton).toContainText(/1 error\s*·\s*2 warnings/);
+  // Weight and unplaced equipment are errors; running hot stays a warning.
+  await expect(statusButton).toContainText(/2 errors\s*·\s*1 warning/);
   // Section dots mark where the fix happens: overweight is fixed on Equipment.
   await expect(
     page
@@ -296,7 +296,7 @@ test('validation keeps section badges, guidance and focused destinations @custom
   await expect(
     page
       .getByRole('tab', { name: 'Critical Slots', exact: true })
-      .locator('[aria-label="Critical Slots: 1 warning"]'),
+      .locator('[aria-label="Critical Slots: 1 error"]'),
   ).toBeVisible();
   await statusButton.focus();
   await statusButton.press('Enter');
@@ -305,7 +305,7 @@ test('validation keeps section badges, guidance and focused destinations @custom
   });
   await expect(issues).toBeVisible();
   const issue = issues
-    .getByRole('region', { name: 'Warnings' })
+    .getByRole('region', { name: 'Errors' })
     .locator('[data-validation-issue]')
     .filter({ hasText: 'ER PPC' });
   await expect(issue).toContainText('Select the equipment in Critical Slots');
@@ -315,7 +315,7 @@ test('validation keeps section badges, guidance and focused destinations @custom
   });
   await expect(placeIssue).toBeVisible();
   await page.screenshot({
-    path: testInfo.outputPath('warning-guidance.png'),
+    path: testInfo.outputPath('placement-error-guidance.png'),
     fullPage: true,
   });
   await page.keyboard.press('Escape');

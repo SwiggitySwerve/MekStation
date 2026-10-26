@@ -25,8 +25,12 @@ const styles = {
   /** Labels, caps and captions share a 12px minimum, legible at phone size. */
   label:
     'text-xs leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wide',
-  /** One value size for every metric, budget or not. */
-  value: 'text-base leading-6 font-bold max-md:text-lg! sm:text-lg',
+  /**
+   * One value size for every metric, budget or not. Phones use 18px, and
+   * 16px on 360px-class screens so the weight pair ("107.0t / 100t") still
+   * fits beside the status chip.
+   */
+  value: 'text-base leading-6 font-bold max-md:min-[381px]:text-lg! sm:text-lg',
   status: STAT_STATUS_TEXT_CLASS,
   muted: 'text-[13px] text-text-theme-secondary',
   box: 'flex min-w-0 flex-col items-center gap-0.5 text-center tabular-nums',

@@ -21,6 +21,8 @@ import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
 import { customizerStyles as cs } from '../styles';
 import { BuildSummaryCard } from './overview/BuildSummaryCard';
 import { ComponentTechnologyCard } from './overview/ComponentTechnologyCard';
+import { OverviewIssueSummary } from './overview/OverviewIssueSummary';
+import { useBuildReadiness } from './overview/useBuildReadiness';
 import { useOverviewBuildSummary } from './overview/useOverviewBuildSummary';
 import { OverviewOmniControls } from './OverviewTab.omni';
 
@@ -48,7 +50,10 @@ interface OverviewTabProps {
  * build summary on the right; the technology card stretches (its rows share
  * the extra height) so both columns end on the same line. Narrow canvases
  * stack Identity first, then the build summary, then component technology,
- * so the unit's identity is on screen before the state of the build.
+ * so the unit's identity is on screen before the state of the build. On
+ * phones a build with errors or warnings opens with a short list of what
+ * needs attention (the failing readiness rows and their fix links) above
+ * Identity; a passing build keeps Identity first.
  */
 export function OverviewTab({
   readOnly = false,
@@ -56,12 +61,15 @@ export function OverviewTab({
   onNavigate,
 }: OverviewTabProps): React.ReactElement {
   const summary = useOverviewBuildSummary();
+  const readiness = useBuildReadiness(summary);
 
   return (
     <div className={`@container p-4 ${className}`}>
       {/* DOM order is the narrow reading order. On wide canvases the summary
           spans both left rows; the second row takes the leftover height. */}
       <div className="grid gap-4 @4xl:grid-cols-2 @4xl:grid-rows-[auto_1fr]">
+        <OverviewIssueSummary readiness={readiness} onNavigate={onNavigate} />
+
         <div className="min-w-0 @4xl:col-start-1 @4xl:row-start-1">
           <IdentityCard readOnly={readOnly} />
         </div>

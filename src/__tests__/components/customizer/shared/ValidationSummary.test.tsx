@@ -304,30 +304,28 @@ describe('ValidationSummary', () => {
       expect(items[1]).toContain('Regular error');
     });
   });
-  it('preserves a warning location, guidance and issue identity when navigating', () => {
-    const result = createMockResult(
-      [],
-      [
-        {
-          message: 'ER PPC needs a location',
-          category: ValidationCategory.SLOTS,
-        },
-      ],
-    );
+  it('preserves an unplaced-equipment error, guidance and issue identity when navigating', () => {
+    const result = createMockResult([
+      {
+        message: 'ER PPC needs a location',
+        category: ValidationCategory.SLOTS,
+      },
+    ]);
     const issue = {
-      ...result.results[0].warnings[0],
+      ...result.results[0].errors[0],
       field: 'criticalSlots.ppc-1',
       suggestion: 'Choose a location with 3 free critical slots.',
     };
     const detailedResult = {
       ...result,
-      results: [{ ...result.results[0], warnings: [issue] }],
+      results: [{ ...result.results[0], errors: [issue] }],
     };
     const onIssueNavigate = jest.fn();
     render(
       <ValidationSummary
         validation={createMockValidationState({
-          warningCount: 1,
+          isValid: false,
+          errorCount: 1,
           result: detailedResult,
         })}
         unitName="Atlas"
@@ -335,20 +333,20 @@ describe('ValidationSummary', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Atlas: Legal · 1 warning, show issues',
+      name: 'Atlas: Not legal · 1 error, show issues',
     });
     fireEvent.click(trigger);
     expect(screen.getByRole('dialog')).toHaveAccessibleName(
-      /Atlas.*Build status.*Legal · 1 warning/,
+      /Atlas.*Build status.*Not legal · 1 error/,
     );
     // A short message is its own heading; the suggestion explains the fix.
     expect(
-      screen.getByRole('heading', { name: 'Warning: ER PPC needs a location' }),
+      screen.getByRole('heading', { name: 'Error: ER PPC needs a location' }),
     ).toBeInTheDocument();
     expect(screen.getByText(issue.suggestion)).toBeInTheDocument();
     const fix = screen.getByRole('button', { name: /Go to Critical Slots/ });
     expect(fix).toHaveFocus();
-    expect(fix).toHaveAccessibleDescription('Warning: ER PPC needs a location');
+    expect(fix).toHaveAccessibleDescription('Error: ER PPC needs a location');
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
@@ -394,24 +392,19 @@ describe('ValidationSummary', () => {
       <ValidationSummary
         validation={createMockValidationState({
           isValid: false,
-          errorCount: 1,
-          warningCount: 1,
-          result: createMockResult(
-            [
-              {
-                message:
-                  'Unit exceeds maximum tonnage by 3.0 tons (103.0/100 tons)',
-                category: ValidationCategory.WEIGHT,
-                severity: UnitValidationSeverity.CRITICAL_ERROR,
-              },
-            ],
-            [
-              {
-                message: 'ER PPC needs a location',
-                category: ValidationCategory.SLOTS,
-              },
-            ],
-          ),
+          errorCount: 2,
+          result: createMockResult([
+            {
+              message:
+                'Unit exceeds maximum tonnage by 3.0 tons (103.0/100 tons)',
+              category: ValidationCategory.WEIGHT,
+              severity: UnitValidationSeverity.CRITICAL_ERROR,
+            },
+            {
+              message: 'ER PPC needs a location',
+              category: ValidationCategory.SLOTS,
+            },
+          ]),
         })}
         unitName="Atlas"
         onNavigate={onNavigate}
@@ -419,20 +412,17 @@ describe('ValidationSummary', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 1 error · 1 warning, show issues',
+      name: 'Atlas: Not legal · 2 errors, show issues',
     });
     expect(trigger).toHaveAttribute('data-build-status', 'error');
-    expect(trigger).toHaveTextContent(/^1 error\s*·\s*1 warning$/);
+    expect(trigger).toHaveTextContent('2 errors');
     fireEvent.click(trigger);
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveAccessibleName(/Not legal · 1 error · 1 warning/);
+    expect(dialog).toHaveAccessibleName(/Not legal · 2 errors/);
     const groups = Array.from(dialog.querySelectorAll('h4')).map(
       (heading) => heading.textContent,
     );
-    expect(groups).toEqual([
-      'Errors \u2014 the unit is not legal until fixed',
-      'Warnings \u2014 legal, but likely a mistake',
-    ]);
+    expect(groups).toEqual(['Errors \u2014 the unit is not legal until fixed']);
     const overweight = screen.getByRole('heading', {
       name: 'Critical error: Overweight by 3.0 t',
     });

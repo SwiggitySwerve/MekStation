@@ -268,41 +268,41 @@ describe('OverviewTab', () => {
     const user = userEvent.setup();
     const onNavigate = jest.fn();
     render(<OverviewTab onNavigate={onNavigate} />);
+    // The phone issue summary repeats the failing rows; this list is the card's.
+    const card = within(screen.getByTestId('overview-build-summary'));
 
-    expect(screen.getByTestId('overview-readiness-weight')).toHaveAttribute(
+    expect(card.getByTestId('overview-readiness-weight')).toHaveAttribute(
       'data-status',
       'normal',
     );
-    expect(screen.getByTestId('overview-readiness-heat')).toHaveAttribute(
+    expect(card.getByTestId('overview-readiness-heat')).toHaveAttribute(
       'data-status',
       'warning',
     );
     // Counts only: the header status chip and the Heat row name the warning.
-    expect(screen.getByTestId('overview-readiness-summary')).toHaveTextContent(
+    expect(card.getByTestId('overview-readiness-summary')).toHaveTextContent(
       /^1 warning$/,
     );
     // The Heat readout shows the numbers; the readiness row says what they mean.
     const heatTile = screen.getByTestId('overview-stat-heat');
-    expect(heatTile).toHaveTextContent('31 weapons + 2 running');
+    expect(heatTile).toHaveTextContent('31 from weapons + 2 from running');
     expect(heatTile).toHaveTextContent('33 / 22 dissipation');
     expect(heatTile).not.toHaveTextContent('over');
 
     await user.click(
-      screen.getByRole('button', { name: 'Weight: go to Equipment' }),
+      card.getByRole('button', { name: 'Weight: go to Equipment' }),
+    );
+    await user.click(card.getByRole('button', { name: 'Armor: go to Armor' }));
+    await user.click(
+      card.getByRole('button', { name: 'Slots: go to Critical Slots' }),
     );
     await user.click(
-      screen.getByRole('button', { name: 'Armor: go to Armor' }),
-    );
-    await user.click(
-      screen.getByRole('button', { name: 'Slots: go to Critical Slots' }),
-    );
-    await user.click(
-      screen.getByRole('button', {
+      card.getByRole('button', {
         name: 'Unplaced equipment: go to Critical Slots',
       }),
     );
     await user.click(
-      screen.getByRole('button', { name: 'Heat: go to Structure' }),
+      card.getByRole('button', { name: 'Heat: go to Structure' }),
     );
     expect(onNavigate.mock.calls.map(([tab]) => tab)).toEqual([
       'equipment',
@@ -311,6 +311,54 @@ describe('OverviewTab', () => {
       'criticals',
       'structure',
     ]);
+  });
+
+  it('opens with the failing readiness rows above Identity for phones', async () => {
+    const user = userEvent.setup();
+    const onNavigate = jest.fn();
+    render(<OverviewTab onNavigate={onNavigate} />);
+
+    const issues = screen.getByTestId('overview-issue-summary');
+    const identity = screen.getByRole('region', { name: 'Identity' });
+    expect(
+      issues.compareDocumentPosition(identity) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // Phones only: wider canvases keep Identity first and the list in the card.
+    expect(issues).toHaveClass('sm:hidden');
+    expect(
+      within(issues).getByRole('heading', { name: 'Needs attention' }),
+    ).toBeInTheDocument();
+    expect(
+      within(issues).getByTestId('overview-issues-summary'),
+    ).toHaveTextContent(/^1 warning$/);
+    // Only rows that are not passing, each with its link to the fixing tab.
+    expect(within(issues).getByTestId('overview-issues-heat')).toHaveAttribute(
+      'data-severity',
+      'warning',
+    );
+    expect(within(issues).queryByTestId('overview-issues-weight')).toBeNull();
+    await user.click(
+      within(issues).getByRole('button', { name: 'Heat: go to Structure' }),
+    );
+    expect(onNavigate).toHaveBeenCalledWith('structure');
+  });
+
+  it('keeps Identity first when every readiness row passes', () => {
+    jest.mocked(useOverviewBuildSummary).mockReturnValue({
+      ...summaryFixture,
+      stats: {
+        ...summaryFixture.stats,
+        heatGenerated: 20,
+        heatGeneration: undefined,
+      },
+    });
+    render(<OverviewTab />);
+
+    expect(screen.queryByTestId('overview-issue-summary')).toBeNull();
+    expect(
+      screen.getByRole('region', { name: 'Identity' }),
+    ).toBeInTheDocument();
   });
 
   it('omits readiness buttons when no navigation is available', () => {

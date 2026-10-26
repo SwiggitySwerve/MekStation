@@ -55,7 +55,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   page,
 }, testInfo) => {
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'New Unit' }).click();
+  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   await page
     .getByRole('dialog')
     .getByRole('combobox')

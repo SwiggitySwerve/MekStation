@@ -32,6 +32,10 @@ interface BuildReadinessListProps {
   /** Header counts, shared with the build-status button (`getReadinessStatus`). */
   readonly status: BuildStatusSummary;
   readonly onNavigate?: (tabId: CustomizerTabId) => void;
+  readonly title?: string;
+  /** Prefix of the element ids and test ids, unique per list on a page. */
+  readonly idPrefix?: string;
+  readonly headingLevel?: 'h3' | 'h4';
 }
 
 /** Checklist of the unit's budgets, each with a way to the tab that fixes it. */
@@ -39,16 +43,25 @@ export function BuildReadinessList({
   rows,
   status,
   onNavigate,
+  title = 'Build readiness',
+  idPrefix = 'overview-readiness',
+  headingLevel = 'h4',
 }: BuildReadinessListProps): React.ReactElement {
+  const Heading = headingLevel;
   return (
-    <section aria-labelledby="overview-readiness-title">
+    <section aria-labelledby={`${idPrefix}-title`}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h4 id="overview-readiness-title" className={cs.text.subsection}>
-          Build readiness
-        </h4>
+        <Heading
+          id={`${idPrefix}-title`}
+          className={
+            headingLevel === 'h3' ? cs.text.cardTitle : cs.text.subsection
+          }
+        >
+          {title}
+        </Heading>
         <p
           className="flex flex-wrap items-center gap-x-1.5 text-sm font-medium"
-          data-testid="overview-readiness-summary"
+          data-testid={`${idPrefix}-summary`}
           data-state={status.state}
         >
           <BuildStateIcon state={status.state} />
@@ -84,7 +97,7 @@ export function BuildReadinessList({
             <li
               key={row.id}
               className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-2 sm:flex sm:items-center"
-              data-testid={`overview-readiness-${row.id}`}
+              data-testid={`${idPrefix}-${row.id}`}
               data-status={row.status}
               data-severity={row.severity}
             >
@@ -92,7 +105,7 @@ export function BuildReadinessList({
                 {row.pending && row.severity === 'ok' ? (
                   <SvgIcon
                     size="inline"
-                    aria-hidden="true"
+                    label="Pending"
                     data-readiness-icon="pending"
                     className="text-text-theme-muted shrink-0"
                   >

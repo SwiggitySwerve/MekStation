@@ -217,6 +217,15 @@ The system SHALL provide validation rules that apply to ALL unit types.
 - **THEN** any location exceeding slot capacity SHALL produce CRITICAL_ERROR
 - **AND** error message SHALL be "{Location} exceeds slot capacity by {overage}"
 - **AND** multiple overflowing locations SHALL produce separate errors
+
+#### Scenario: Unplaced equipment makes a unit not legal
+
+- **GIVEN** mounted equipment requires a location and critical slot assignment
+- **WHEN** its location is missing or its required critical slots are not fully assigned
+- **THEN** the placement owner SHALL report ERROR, including "<item> needs a location." for a missing location
+- **AND** VAL-UNIV-015 SHALL retain the error severity and identify the item in `criticalSlots.<instanceId>`
+- **AND** even when placement is the unit's only issue, validation SHALL return `isValid: false` with an error, not a warning; this regular ERROR SHALL NOT become CRITICAL_ERROR
+- **AND** assigning all required critical slots to a valid location SHALL clear the placement error
 - **AND** validation SHALL be skipped if slot data unavailable
 
 ---

@@ -345,8 +345,11 @@ export function CriticalSlotsTab({
               </div>
             </div>
             {/* Tablets get the toolbar's "Scroll for more locations" text instead. */}
-            <div className="sm:hidden">
-              <MoreBelowCue visible={hasMoreBelow} />
+            <div className="border-border-theme-subtle shrink-0 sm:hidden">
+              <MoreBelowCue
+                visible={hasMoreBelow}
+                label="Scroll for more slots"
+              />
             </div>
           </div>
           <div

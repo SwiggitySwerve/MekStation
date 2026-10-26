@@ -4,7 +4,7 @@ test('critical panels use the workspace and keep slot names readable @customizer
   page,
 }, testInfo) => {
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'New Unit', exact: true }).click();
+  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await page

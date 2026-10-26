@@ -105,18 +105,13 @@ function Separator(): React.ReactElement {
   );
 }
 
-/**
- * One group as its shape and count, e.g. a red crossed circle and "1". With
- * `text` it reads in words ("1 error") beside the shape.
- */
+/** One group as its shape and count, e.g. a red crossed circle and "1". */
 function CountBadge({
   kind,
   count,
-  text,
 }: {
   kind: BuildStatusKind;
   count: number;
-  text?: string;
 }): React.ReactElement {
   return (
     <span
@@ -124,26 +119,19 @@ function CountBadge({
       className={`inline-flex shrink-0 items-center gap-0.5 tabular-nums ${BUILD_STATUS_KIND_TEXT_CLASS[kind]}`}
     >
       <SeverityIcon kind={kind} />
-      {text ?? (count > 99 ? '99+' : count)}
+      {count > 99 ? '99+' : count}
     </span>
   );
 }
 
 /**
- * The most groups a phone spells out. Two lines of 12px text fit the 44px
- * button; a third group falls back to shapes and counts.
- */
-const COMPACT_SPELLED_GROUPS = 2;
-
-/**
  * Visible wording of the build-status button, rendered from the shared
  * summary: "1 error \u00b7 1 warning \u00b7 1 note", each group in its own
  * color after the worst group's icon. A lone readout warning reads as itself
- * ("Runs hot +11") and truncates before its amount. Phones show every group
- * beside its severity shape, in words ("1 error", "2 warnings") that wrap to
- * two lines; a third group would not fit, so three groups shrink to shapes
- * and counts. Either way the breakdown never relies on color. The button's
- * accessible name keeps the full summary.
+ * ("Runs hot +11") and truncates before its amount. The phone chip in the
+ * stat strip shows every group as its severity shape and count ("⊗ 1 ·
+ * ⚠ 2"); the words stay in the button's accessible name and tooltip, so the
+ * breakdown never relies on color or on the shapes alone.
  */
 export function BuildStatusLabel({
   summary,
@@ -173,18 +161,13 @@ export function BuildStatusLabel({
       </>
     );
   if (compact) {
-    const spelled = parts.length <= COMPACT_SPELLED_GROUPS;
     return (
-      <span
-        className={`flex min-w-0 flex-wrap items-center justify-center gap-x-2 leading-4 ${spelled ? 'gap-y-0 text-xs' : 'gap-y-0.5'}`}
-      >
-        {parts.map((part) => (
-          <CountBadge
-            key={part.kind}
-            kind={part.kind}
-            count={part.count}
-            text={spelled ? part.text : undefined}
-          />
+      <span className="flex min-w-0 items-center justify-center gap-x-1.5 leading-4">
+        {parts.map((part, index) => (
+          <React.Fragment key={part.kind}>
+            {index > 0 && <Separator />}
+            <CountBadge kind={part.kind} count={part.count} />
+          </React.Fragment>
         ))}
       </span>
     );

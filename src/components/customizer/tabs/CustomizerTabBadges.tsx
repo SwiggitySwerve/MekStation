@@ -9,6 +9,7 @@
 
 import React from 'react';
 
+import { SeverityIcon } from '@/components/customizer/shared/BuildStatusLabel';
 import { buildStatusCountText } from '@/components/customizer/shared/buildStatusSummary';
 import { TabValidationCounts } from '@/utils/validation/validationNavigation';
 
@@ -101,9 +102,12 @@ interface SectionValidationBadgeProps {
 }
 
 /**
- * Validation badges: shape and count, never color alone. Errors are a red
- * circle, warnings a yellow rounded square, each holding its count; the slot
- * keeps its width when the counts clear.
+ * Validation badges: one pill shape for both severities, so the symbol and
+ * the count carry the meaning, never color or outline alone. Errors show the
+ * crossed circle on red, warnings the triangle on orange, each before its
+ * count. The symbols are decorative; the badge's accessible name keeps the
+ * full words ("Equipment: 1 error"). The slot keeps its width when the counts
+ * clear.
  */
 export function SectionValidationBadge({
   tabId,
@@ -141,6 +145,7 @@ export function SectionValidationBadge({
           data-section-badge="error"
           className={workbenchStyles.sectionBadge}
         >
+          <SeverityIcon kind="error" />
           {badgeCount(counts.errors)}
         </span>
       )}
@@ -150,6 +155,7 @@ export function SectionValidationBadge({
           data-section-badge="warning"
           className={workbenchStyles.sectionBadge}
         >
+          <SeverityIcon kind="warning" />
           {badgeCount(counts.warnings)}
         </span>
       )}

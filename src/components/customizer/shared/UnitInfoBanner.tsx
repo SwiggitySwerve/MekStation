@@ -4,7 +4,8 @@
  * Unit identity and grouped readouts: seven equal-width cells at one value
  * size, a 1px rule between every pair on wide screens. The budget stats (weight, slots, heat, armor) add fill bars against
  * their caps; movement (walk / run / jump in one cell), engine and BV show the
- * value alone. Detailed phone readouts expand without displacing the editor.
+ * value alone. On phones the status chip sits in the strip beside the key
+ * readouts; the detailed readouts expand without displacing the editor.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
@@ -74,7 +75,7 @@ interface UnitInfoBannerProps {
   className?: string;
   actions?: React.ReactNode;
   compact?: boolean;
-  /** Compact only: a status control below the metrics on phones. */
+  /** Compact only: a status chip in the metrics strip on phones. */
   status?: React.ReactNode;
 }
 
@@ -120,7 +121,7 @@ export function UnitInfoBanner({
       <div
         role="group"
         aria-label="Capacity"
-        className={`${workbenchStyles.readoutGroup} ${workbenchStyles.readoutGroupKey} ${compact ? 'max-md:col-span-2! max-md:min-h-11!' : ''}`}
+        className={`${workbenchStyles.readoutGroup} ${workbenchStyles.readoutGroupKey}`}
       >
         <span className={workbenchStyles.readoutHeading}>Capacity</span>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
@@ -164,7 +165,7 @@ export function UnitInfoBanner({
       <div
         role="group"
         aria-label="Movement and engine"
-        className={`${workbenchStyles.readoutGroup} ${compact ? 'max-md:row-start-3!' : ''}`}
+        className={workbenchStyles.readoutGroup}
       >
         <span className={workbenchStyles.readoutHeading}>
           Movement and engine
@@ -182,7 +183,7 @@ export function UnitInfoBanner({
       <div
         role="group"
         aria-label="Battle value"
-        className={`${workbenchStyles.readoutGroup} ${workbenchStyles.readoutGroupAside} ${compact ? 'max-md:row-start-3!' : ''}`}
+        className={`${workbenchStyles.readoutGroup} ${workbenchStyles.readoutGroupAside}`}
       >
         <span className={workbenchStyles.readoutHeading}>Battle value</span>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
@@ -244,20 +245,14 @@ export function UnitInfoBanner({
         </button>
       )}
       {compact ? (
-        <div
-          className={`${workbenchStyles.compactBar} max-md:min-h-11! max-md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px]!`}
-        >
+        <div className={workbenchStyles.compactBar}>
           {readouts}
           {status && (
-            <div
-              className={`${workbenchStyles.compactStatus} max-md:col-span-full! max-md:col-start-1! max-md:row-start-2! max-md:mt-0! max-md:border-l-0! max-md:pl-0!`}
-            >
-              {status}
-            </div>
+            <div className={workbenchStyles.compactStatus}>{status}</div>
           )}
           <button
             type="button"
-            className={`text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex h-11 w-11 items-center justify-center rounded focus-visible:outline-2 focus-visible:outline-offset-[-2px] max-md:col-start-3! max-md:mt-0! md:hidden ${workbenchStyles.compactToggle}`}
+            className={`text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex h-11 w-11 items-center justify-center rounded focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:hidden ${workbenchStyles.compactToggle}`}
             aria-expanded={showReadouts}
             aria-controls={readoutsId}
             aria-label={

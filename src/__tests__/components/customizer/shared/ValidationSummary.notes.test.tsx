@@ -205,11 +205,12 @@ describe('ValidationSummary readout warnings', () => {
     const error = screen.getByRole('button', {
       name: 'Atlas: Not legal · 1 error · 1 warning (Runs hot +11), show issues',
     });
-    // Phones show each group with its severity shape and words on one line.
-    expect(error).toHaveTextContent(/^1 error\s*\u00b7\s*1 warning$/);
+    // The phone chip shows each group as its severity shape and count; the
+    // words stay in the accessible name and tooltip.
+    expect(error).toHaveTextContent(/^1\s*\u00b7\s*1$/);
     expect(
       error.querySelector('[data-build-status-part="error"]'),
-    ).toHaveTextContent('1 error');
+    ).toHaveTextContent(/^1$/);
     expect(
       error.querySelector(
         '[data-build-status-part="warning"] [data-severity-icon="warning"]',
@@ -321,7 +322,7 @@ describe('ValidationSummary readout warnings', () => {
     });
   });
 
-  it('spells out all three groups on phone', () => {
+  it('shows all three groups as shape and count on phone', () => {
     render(
       <ValidationSummary
         validation={{ ...withOneError(), warningCount: 2, infoCount: 3 }}
@@ -330,9 +331,7 @@ describe('ValidationSummary readout warnings', () => {
       />,
     );
     const button = screen.getByRole('button', { name: /show issues$/ });
-    expect(button).toHaveTextContent(
-      /^1 error\s*\u00b7\s*2 warnings\s*\u00b7\s*3 notes$/,
-    );
+    expect(button).toHaveTextContent(/^1\s*\u00b7\s*2\s*\u00b7\s*3$/);
     expect(button).toHaveAccessibleName(
       /Not legal \u00b7 1 error \u00b7 2 warnings \u00b7 3 notes/,
     );

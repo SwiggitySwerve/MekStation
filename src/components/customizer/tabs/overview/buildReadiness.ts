@@ -52,7 +52,7 @@ export interface ReadinessRow {
   readonly status: StatStatus;
   /** Severity shown by the row's icon, matching the status panel groups. */
   readonly severity: ReadinessSeverity;
-  /** Neutral incomplete icon; does not add another warning for unplaced items. */
+  /** Neutral incomplete icon; does not duplicate the unplaced equipment error. */
   readonly pending?: boolean;
   /** One plain sentence describing the current state. */
   readonly sentence: string;
@@ -202,8 +202,11 @@ function slotsSentence(input: ReadinessInput, status: StatStatus): string {
   if (status === 'error') {
     return `${plural(used - total, 'slot')} over capacity (${used} of ${total}).`;
   }
-  // Pending slots are plain text here: the Unplaced equipment row, next to
-  // this one, carries the warning for the same items.
+  // Name the incomplete placement; the Unplaced row carries its error.
+  if (input.unplacedInstanceIds.length > 0) {
+    const placed = input.criticalSlotsPlaced ?? used;
+    return `${placed} of ${total} slots filled · ${unplacedDescription(input)}.`;
+  }
   return describeSlotFill(slotFillOf(input), false);
 }
 
@@ -227,9 +230,19 @@ function heatSentence(status: StatStatus): string {
 }
 
 /**
- * Names the unplaced items with the slots they will take ("PPC needs 3
- * slots; 1 item unplaced"), so this one row carries the whole warning.
+ * Names unplaced items and their slot demand using the existing placement data.
  */
+function unplacedDescription(input: ReadinessInput): string {
+  const names = input.unplacedItemNames ?? [];
+  const subject =
+    names.length > 0 && names.length <= 2
+      ? names.join(' and ')
+      : plural(input.unplacedInstanceIds.length, 'item');
+  const pending = input.criticalSlotsPending ?? 0;
+  const slots = pending > 0 ? ` (${plural(pending, 'slot')})` : '';
+  return `${subject}${slots} not placed`;
+}
+
 function unplacedSentence(input: ReadinessInput): string {
   const count = input.equipmentCount;
   const unplaced = input.unplacedInstanceIds.length;
@@ -237,15 +250,7 @@ function unplacedSentence(input: ReadinessInput): string {
   if (unplaced === 0) {
     return `All ${plural(count, 'item')} placed in critical slots.`;
   }
-  const pending = input.criticalSlotsPending ?? 0;
-  const names = input.unplacedItemNames ?? [];
-  const slots = pending > 0 ? plural(pending, 'slot') : 'critical slots';
-  const subject =
-    names.length > 0 && names.length <= 2 ? names.join(' and ') : undefined;
-  const need = subject
-    ? `${subject} ${names.length === 1 ? 'needs' : 'need'} ${slots}`
-    : `Needs ${slots}`;
-  return `${need}; ${plural(unplaced, 'item')} unplaced.`;
+  return `${unplacedDescription(input)} — not legal until placed.`;
 }
 
 export function getReadinessRows(
@@ -254,7 +259,7 @@ export function getReadinessRows(
 ): ReadinessRow[] {
   const weightStatus = getWeightStatus(input.weightUsed, input.tonnage);
   // Neutral while items are unplaced: the Unplaced equipment row owns that
-  // warning, so one condition is counted once. Only over capacity is red.
+  // error, so one condition is counted once. Only over capacity is red.
   const slotStatus = getSlotFillStatus(slotFillOf(input));
   const armorStatus = getCapacityStatus(
     input.armorPoints,
@@ -267,6 +272,11 @@ export function getReadinessRows(
   );
   const isUnplacedField = (field: string | undefined) =>
     field !== undefined && unplacedFields.has(field);
+  const unplacedIssues = issuesFor(
+    result,
+    ValidationCategory.SLOTS,
+    isUnplacedField,
+  );
 
   return [
     withRules(
@@ -320,13 +330,11 @@ export function getReadinessRows(
       {
         id: 'unplaced',
         label: 'Unplaced equipment',
-        status: input.unplacedInstanceIds.length > 0 ? 'warning' : 'normal',
+        status: unplacedIssues.status,
         sentence: unplacedSentence(input),
         tabId: 'criticals',
       },
-      issuesFor(result, ValidationCategory.SLOTS, isUnplacedField),
-      // Unplaced equipment is the warning the status panel lists.
-      input.unplacedInstanceIds.length > 0 ? 'warning' : 'ok',
+      unplacedIssues,
     ),
   ];
 }

@@ -57,29 +57,26 @@ describe('getTabIssueTitles', () => {
   });
 
   it('lists rule results on the tab that counts them', () => {
-    const result = resultOf(
-      [
-        issue(
-          ValidationCategory.ARMOR,
-          UnitValidationSeverity.ERROR,
-          'Head armor exceeds 9 points',
-        ),
-      ],
-      [
-        issue(
-          ValidationCategory.SLOTS,
-          UnitValidationSeverity.WARNING,
-          'PPC needs a location.',
-        ),
-      ],
-    );
+    const result = resultOf([
+      issue(
+        ValidationCategory.ARMOR,
+        UnitValidationSeverity.ERROR,
+        'Head armor exceeds 9 points',
+      ),
+      issue(
+        ValidationCategory.SLOTS,
+        UnitValidationSeverity.ERROR,
+        'PPC needs a location.',
+      ),
+    ]);
     const titles = getTabIssueTitles(result, []);
     expect(titles.armor?.errors).toEqual(['Head armor exceeds 9 points']);
-    expect(titles.criticals?.warnings).toEqual(['PPC needs a location']);
+    expect(titles.criticals?.errors).toEqual(['PPC needs a location']);
     // Same tabs and totals as the badge counts these titles explain.
     const counts = countValidationIssuesByTab(result);
     expect(counts.armor.errors).toBe(1);
-    expect(counts.criticals.warnings).toBe(1);
+    expect(counts.criticals.errors).toBe(1);
+    expect(counts.criticals.warnings).toBe(0);
     expect(describeTabIssues(counts.armor, titles.armor)).toEqual([
       '1 error: Head armor exceeds 9 points',
     ]);

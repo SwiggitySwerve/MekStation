@@ -62,6 +62,15 @@ function byId(rows: ReturnType<typeof getReadinessRows>) {
   return Object.fromEntries(rows.map((row) => [row.id, row]));
 }
 
+const unplacedResult = resultOf([
+  issue(
+    ValidationCategory.SLOTS,
+    UnitValidationSeverity.ERROR,
+    'PPC needs a location.',
+    'criticalSlots.ppc-1',
+  ),
+]);
+
 describe('Overview build readiness', () => {
   it('passes every row for a balanced build', () => {
     const rows = byId(getReadinessRows(balanced, null));
@@ -84,7 +93,7 @@ describe('Overview build readiness', () => {
     );
   });
 
-  it('counts placed slots and leaves the warning to the unplaced row', () => {
+  it('counts placed slots and leaves the error to the unplaced row', () => {
     const rows = byId(
       getReadinessRows(
         {
@@ -95,19 +104,23 @@ describe('Overview build readiness', () => {
           unplacedInstanceIds: ['ppc-1'],
           unplacedItemNames: ['PPC'],
         },
-        null,
+        unplacedResult,
       ),
     );
-    // Plain text, no warning: the same item is the Unplaced row's warning.
-    expect(rows.slots.sentence).toBe('66 of 78 slots filled · 3 pending.');
+    // The Slots row explains placement without repeating the error.
+    expect(rows.slots.sentence).toBe(
+      '66 of 78 slots filled · PPC (3 slots) not placed.',
+    );
     expect(rows.slots.status).toBe('normal');
     expect(rows.slots.severity).toBe('ok');
     expect(rows.slots.pending).toBe(true);
-    expect(rows.unplaced.severity).toBe('warning');
-    expect(rows.unplaced.sentence).toBe('PPC needs 3 slots; 1 item unplaced.');
+    expect(rows.unplaced.severity).toBe('error');
+    expect(rows.unplaced.sentence).toBe(
+      'PPC (3 slots) not placed — not legal until placed.',
+    );
   });
 
-  it('shows as many warning rows as the build status counts', () => {
+  it('shows the placement error and heat warning once each', () => {
     const input = {
       ...balanced,
       criticalSlotsUsed: 69,
@@ -117,17 +130,18 @@ describe('Overview build readiness', () => {
       unplacedItemNames: ['PPC'],
       heatGenerated: 31,
     };
-    const rows = getReadinessRows(input, null);
+    const rows = getReadinessRows(input, unplacedResult);
     const status = getReadinessStatus(
-      // The validator's one warning is the unplaced PPC.
-      { errorCount: 0, warningCount: 1, infoCount: 0 },
+      { errorCount: 1, warningCount: 0, infoCount: 0 },
       input.heatGenerated,
       input.heatDissipation,
     );
-    // The chip counts the unplaced warning and the heat note: two warnings,
-    // and the checklist shows exactly two warning rows for them.
+    expect(status.legal).toBe(false);
+    expect(
+      rows.filter((row) => row.severity === 'error').map((row) => row.id),
+    ).toEqual(['unplaced']);
     const warningRows = rows.filter((row) => row.severity === 'warning');
-    expect(warningRows.map((row) => row.id)).toEqual(['heat', 'unplaced']);
+    expect(warningRows.map((row) => row.id)).toEqual(['heat']);
     expect(status.parts.find((part) => part.kind === 'warning')?.count).toBe(
       warningRows.length,
     );
@@ -148,7 +162,7 @@ describe('Overview build readiness', () => {
       ),
     );
     expect(rows.unplaced.sentence).toBe(
-      'PPC and Medium Laser need 5 slots; 2 items unplaced.',
+      'PPC and Medium Laser (5 slots) not placed — not legal until placed.',
     );
   });
 
@@ -169,9 +183,9 @@ describe('Overview build readiness', () => {
     };
     const view = render(
       <BuildReadinessList
-        rows={getReadinessRows(input, null)}
+        rows={getReadinessRows(input, unplacedResult)}
         status={getReadinessStatus(
-          { errorCount: 0, warningCount: 1, infoCount: 0 },
+          { errorCount: 1, warningCount: 0, infoCount: 0 },
           20,
           20,
         )}
@@ -179,15 +193,16 @@ describe('Overview build readiness', () => {
     );
     const slots = screen.getByTestId('overview-readiness-slots');
     expect(slots).toHaveTextContent('Pending:');
+    expect(screen.getByRole('img', { name: 'Pending' })).toBeInTheDocument();
     expect(slots.querySelector('[data-readiness-icon="pending"]')).toHaveClass(
       'text-text-theme-muted',
     );
     expect(slots.querySelector('.text-green-400')).toBeNull();
     expect(
-      view.container.querySelectorAll('li[data-severity="warning"]'),
+      view.container.querySelectorAll('li[data-severity="error"]'),
     ).toHaveLength(1);
     expect(screen.getByTestId('overview-readiness-summary')).toHaveTextContent(
-      '1 warning',
+      '1 error',
     );
 
     view.rerender(
@@ -275,26 +290,22 @@ describe('Overview build readiness', () => {
     const rows = byId(
       getReadinessRows(
         { ...balanced, unplacedInstanceIds: ['ppc-1'] },
-        resultOf(
-          [],
-          [
-            issue(
-              ValidationCategory.SLOTS,
-              UnitValidationSeverity.WARNING,
-              'ER PPC needs a location.',
-              'criticalSlots.ppc-1',
-            ),
-          ],
-        ),
+        resultOf([
+          issue(
+            ValidationCategory.SLOTS,
+            UnitValidationSeverity.ERROR,
+            'ER PPC needs a location.',
+            'criticalSlots.ppc-1',
+          ),
+        ]),
       ),
     );
     expect(rows.slots.status).toBe('normal');
     expect(rows.slots.detail).toBeUndefined();
-    expect(rows.unplaced.status).toBe('warning');
-    // The panel lists unplaced equipment as a warning; so does the row.
-    expect(rows.unplaced.severity).toBe('warning');
+    expect(rows.unplaced.status).toBe('error');
+    expect(rows.unplaced.severity).toBe('error');
     expect(rows.unplaced.sentence).toBe(
-      'Needs critical slots; 1 item unplaced.',
+      '1 item not placed — not legal until placed.',
     );
   });
 });

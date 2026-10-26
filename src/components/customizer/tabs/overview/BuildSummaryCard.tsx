@@ -14,10 +14,10 @@ import { calculateArmorPercentage } from '@/services/pilot-mech-card/PilotMechCa
 import type { OverviewBuildSummaryData } from './useOverviewBuildSummary';
 
 import { customizerStyles as cs } from '../../styles';
-import { getReadinessRows, getReadinessStatus } from './buildReadiness';
 import { BuildReadinessList } from './BuildReadinessList';
 import { formatTons, getTonnageBreakdown } from './tonnageBreakdown';
 import { TonnageBreakdownBar } from './TonnageBreakdownBar';
+import { useBuildReadiness } from './useBuildReadiness';
 
 interface StatTileProps {
   readonly label: string;
@@ -69,8 +69,6 @@ export function BuildSummaryCard({
     equipmentWeight,
     equipmentCount,
     unplacedInstanceIds,
-    unplacedItemNames,
-    validation,
   } = data;
   const unplacedCount = unplacedInstanceIds.length;
 
@@ -90,35 +88,7 @@ export function BuildSummaryCard({
     ],
   );
 
-  const rows = useMemo(
-    () =>
-      getReadinessRows(
-        {
-          tonnage: stats.tonnage,
-          weightUsed: stats.weightUsed,
-          weightRemaining: stats.weightRemaining,
-          criticalSlotsUsed: stats.criticalSlotsUsed,
-          criticalSlotsTotal: stats.criticalSlotsTotal,
-          criticalSlotsPlaced: stats.criticalSlotsPlaced,
-          criticalSlotsPending: stats.criticalSlotsPending,
-          armorPoints: stats.armorPoints,
-          maxArmorPoints: stats.maxArmorPoints,
-          heatGenerated: stats.heatGenerated,
-          heatDissipation: stats.heatDissipation,
-          equipmentCount,
-          unplacedInstanceIds,
-          unplacedItemNames,
-        },
-        validation.result,
-      ),
-    [
-      stats,
-      equipmentCount,
-      unplacedInstanceIds,
-      unplacedItemNames,
-      validation.result,
-    ],
-  );
+  const readiness = useBuildReadiness(data);
 
   const weightStatus = getWeightStatus(stats.weightUsed, stats.tonnage);
   const heatStatus = getHeatStatus(stats.heatGenerated, stats.heatDissipation);
@@ -205,12 +175,8 @@ export function BuildSummaryCard({
 
         <div className="border-border-theme border-t pt-3">
           <BuildReadinessList
-            rows={rows}
-            status={getReadinessStatus(
-              validation,
-              stats.heatGenerated,
-              stats.heatDissipation,
-            )}
+            rows={readiness.rows}
+            status={readiness.status}
             onNavigate={onNavigate}
           />
         </div>

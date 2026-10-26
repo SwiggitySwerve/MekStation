@@ -77,10 +77,13 @@ async function expectFittedPreview(page: Page) {
       .boundingBox())!;
     const buildStatus = statusRegion.locator('[data-build-status]');
     const statusBox = (await buildStatus.boundingBox())!;
-    expect(statusBox.y).toBe(capacity.y + capacity.height);
+    // The status is a 44px chip in the stat strip, beside the key readouts,
+    // so the header stays one 48px row.
+    expect(statusBox.x).toBeGreaterThanOrEqual(capacity.x + capacity.width - 1);
     expect(statusBox.height).toBe(44);
-    expect(statusBox.width).toBe(viewport.width - 8);
-    await expect(buildStatus).toHaveCSS('font-size', '14px');
+    expect(statusBox.width).toBeLessThanOrEqual(140);
+    expect((await statusRegion.boundingBox())!.height).toBe(48);
+    await expect(buildStatus).toHaveCSS('font-size', '13px');
     // Phones: exactly two toolbar rows, every control 44px tall with a
     // visible text label, the sheet starting high, and a readability hint.
     const rows = await page

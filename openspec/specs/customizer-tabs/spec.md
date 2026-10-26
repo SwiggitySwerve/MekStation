@@ -36,7 +36,7 @@ its separate Preview-before-Fluff order.
 
 - **WHEN** the viewport is narrower than 640px
 - **THEN** a 48px-tall row SHALL place the section selector on the left and undo/redo on the right, with at least 44px touch targets
-- **AND** the selector SHALL show the full current section label and its position among the available sections, plus a badge for the errors and warnings owned by the current section only, using the same shape-and-number badge, count and accessible name ("Structure: 1 warning") as the wide tab, and no badge when the current section owns none; counts on other sections appear only on the options in the open list, and global totals only in the status row
+- **AND** the selector SHALL show the full current section label and its position among the available sections, plus a badge for the errors and warnings owned by the current section only, using the same shape-and-number badge, count and accessible name ("Structure: 1 warning") as the wide tab, and no badge when the current section owns none; counts on other sections appear only on the options in the open list, and global totals only in the status chip
 - **AND** opening the selector SHALL disclose all section labels, the selected section, and the existing per-section validation counts with the same shape-and-number badges and accessible names as wide tabs
 - **AND** selecting a section SHALL use the existing tab change handler and close the disclosure
 - **AND** Escape SHALL close the disclosure and restore focus to its trigger; outside pointer interaction or focus leaving the disclosure SHALL also close it
@@ -49,7 +49,7 @@ its separate Preview-before-Fluff order.
 #### Scenario: Stable section validation indicators
 
 - **WHEN** section validation counts change
-- **THEN** each severity SHALL show as a numbered badge whose shape carries the meaning, not color alone: errors a red circle holding the error count, warnings an orange rounded square holding the warning count (the same hues as the build-status button and panel), errors first
+- **THEN** each severity SHALL show as a numbered pill badge whose symbol carries the meaning, not color alone: both severities share one pill shape, errors with the crossed-circle symbol on red and the error count, warnings with the triangle symbol on orange and the warning count (the same hues and symbols as the build-status button and panel), errors first; the symbols are decorative and the accessible name is unchanged
 - **AND** the badge group's accessible name SHALL name the tab and the counts (e.g., "Equipment: 1 error"), and the section tab's accessible description SHALL include the counts (e.g., "1 error")
 - **AND** the indicator slot SHALL keep at least one badge's width when counts change or clear
 - **AND** the warning count SHALL include the build-status readout warnings (e.g., running hot) on the tab where they are fixed (Structure for running hot), so the badges agree with the build-status counts
@@ -58,7 +58,7 @@ its separate Preview-before-Fluff order.
 #### Scenario: Active tab explains its badge
 
 - **WHEN** the active section has an error or warning badge and is not Overview or Preview
-- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the full-width status row, while remaining visible on desktop and whenever the status row only counts the issues
+- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the status chip, while remaining visible on desktop and whenever the chip only counts the issues
 - **AND** a "Show all issues" button in the notice opens the build status panel
 - **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues, and on Critical Slots while its "items to place" banner is showing (the banner already states the issue and its action); it returns once nothing is waiting to be placed
 
@@ -137,13 +137,15 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 #### Scenario: Slots readiness counts placed slots
 
 - **WHEN** mounted equipment has not been placed in critical slots
-- **THEN** the Build readiness Slots row reads "<placed> of <total> slots filled · <n> pending." with a muted hollow-circle pending icon (no warning or green check), instead of counting the unplaced items as used slots, and reads "<placed> of <total> slots filled, <free> free." with a green check once every item is placed and no slot issue remains; over-capacity and rule issues retain their severity icon
-- **AND** the Unplaced equipment row carries the warning for those items and names them with their slots ("PPC needs 3 slots; 1 item unplaced.", "PPC and Medium Laser need 5 slots; 2 items unplaced."), so Slots and Unplaced equipment never warn about the same item twice and the readiness list shows as many warning rows as the status button counts
+- **THEN** the Build readiness Slots row names the incomplete placement ("66 of 78 slots filled · PPC (3 slots) not placed.") with a muted hollow-circle icon labelled "Pending", instead of counting unplaced items as filled slots; it reads "<placed> of <total> slots filled, <free> free." with a green check once every item is placed and no slot issue remains; over-capacity and other rule issues retain their severity icon
+- **AND** the Unplaced equipment row carries the validation error and names the items and their slots ("PPC (3 slots) not placed — not legal until placed.", "PPC and Medium Laser (5 slots) not placed — not legal until placed."); Slots SHALL NOT duplicate that error
+- **AND** an overweight unit with one unplaced PPC and excess heat SHALL read "Not legal · 2 errors · 1 warning": weight and placement are errors, heat stays a warning, and the Critical Slots tab receives the placement error badge
 
 #### Scenario: Overview reading order on phones
 
 - **WHEN** the Overview tab renders on a narrow canvas
 - **THEN** the cards stack as Identity, Build summary, then Component technology, so the unit's identity is visible on first view
+- **AND** below 640px, when the unit has errors or warnings, a "Needs attention" card above Identity lists the readiness rows that are not passing (the Build readiness rows and counts, each with its link to the fixing tab); with nothing to fix it is absent and Identity stays first, and from 640px it is hidden because the Build summary card lists the same rows
 - **AND** Identity is compact: Chassis and Model share a row, Year and Tech Level share a row, and Clan Name and MUL ID share the next row
 
 #### Scenario: Tonnage change from Overview

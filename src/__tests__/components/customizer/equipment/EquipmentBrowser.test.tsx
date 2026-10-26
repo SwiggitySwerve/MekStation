@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -118,6 +118,41 @@ describe('EquipmentBrowser', () => {
     jest.clearAllMocks();
     (useEquipmentBrowser as jest.Mock).mockReturnValue(defaultMockHook);
   });
+
+  it.each([1, 4])(
+    'puts the overflow cue outside rows with %i pages and hides it at the end',
+    (totalPages) => {
+      (useEquipmentBrowser as jest.Mock).mockReturnValue({
+        ...defaultMockHook,
+        totalPages,
+      });
+      const height = jest
+        .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+        .mockReturnValue(200);
+      const content = jest
+        .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+        .mockReturnValue(500);
+      try {
+        render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+        const scroll = screen.getByTestId('equipment-catalog-scroll');
+        const cue = screen.getByTestId('more-below-cue');
+        expect(cue).toHaveTextContent('Scroll for more equipment');
+        expect(scroll).not.toContainElement(cue);
+        expect(scroll.parentElement).not.toContainElement(cue);
+        if (totalPages > 1)
+          expect(screen.getByTestId('equipment-pagination')).toContainElement(
+            cue,
+          );
+        fireEvent.scroll(scroll, { target: { scrollTop: 300 } });
+        expect(screen.queryByTestId('more-below-cue')).not.toBeInTheDocument();
+        fireEvent.scroll(scroll, { target: { scrollTop: 0 } });
+        expect(screen.getByTestId('more-below-cue')).toBeInTheDocument();
+      } finally {
+        height.mockRestore();
+        content.mockRestore();
+      }
+    },
+  );
 
   it('keeps duplicate equipment IDs in different categories independent through filtering', async () => {
     const user = userEvent.setup();

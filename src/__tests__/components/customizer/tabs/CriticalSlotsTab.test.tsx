@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { useCriticalSlotOverflow } from '@/components/customizer/critical-slots/useCriticalSlotOverflow';
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
 import { useCustomizerStore } from '@/stores/useCustomizerStore';
 import { useUnitStore } from '@/stores/useUnitStore';
@@ -11,6 +12,12 @@ import {
 import { EquipmentCategory } from '@/types/equipment';
 
 // Mock dependencies
+jest.mock(
+  '@/components/customizer/critical-slots/useCriticalSlotOverflow',
+  () => ({
+    useCriticalSlotOverflow: jest.fn(),
+  }),
+);
 jest.mock('@/stores/useUnitStore', () => ({
   useUnitStore: jest.fn(),
 }));
@@ -56,6 +63,9 @@ describe('CriticalSlotsTab', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest
+      .mocked(useCriticalSlotOverflow)
+      .mockReturnValue({ rootRef: { current: null }, hasMoreBelow: false });
     mockUseUnitStore.mockImplementation((selector: unknown): unknown => {
       if (typeof selector === 'function') {
         return (selector as (state: typeof mockStoreValues) => unknown)(
@@ -79,6 +89,18 @@ describe('CriticalSlotsTab', () => {
 
     // The tab renders LocationGrid components for each location
     expect(screen.getAllByTestId('location-grid').length).toBeGreaterThan(0);
+  });
+
+  it('puts the phone overflow hint below the scrolling locations', () => {
+    jest
+      .mocked(useCriticalSlotOverflow)
+      .mockReturnValue({ rootRef: { current: null }, hasMoreBelow: true });
+    render(<CriticalSlotsTab />);
+    const cue = screen.getByTestId('more-below-cue');
+    const scroll = screen.getByTestId('critical-slots-grid-mobile');
+    expect(cue).toHaveTextContent('Scroll for more slots');
+    expect(scroll).not.toContainElement(cue);
+    expect(scroll.nextElementSibling).toContainElement(cue);
   });
 
   it('should apply custom className', () => {

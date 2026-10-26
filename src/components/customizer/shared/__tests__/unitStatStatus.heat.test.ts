@@ -8,10 +8,10 @@ it.each([
   (movementMode, movementHeat, generated) => {
     const generation = { alphaStrikeHeat: 31, movementHeat, movementMode };
     expect(getHeatNote(generated, 22, generation)?.message).toBe(
-      `Heat ${generated} at full fire (31 weapons + ${movementHeat} ${movementMode}) vs 22 dissipation: ${generated - 22} over.`,
+      `Heat ${generated} at full fire (31 from weapons + ${movementHeat} from ${movementMode}) vs 22 dissipation: ${generated - 22} over.`,
     );
     expect(describeHeat(generated, 22, generation)).toContain(
-      `31 weapons + ${movementHeat} ${movementMode}`,
+      `31 from weapons + ${movementHeat} from ${movementMode}`,
     );
   },
 );

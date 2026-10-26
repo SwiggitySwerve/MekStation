@@ -146,20 +146,28 @@ async function expectInitialScrollBoundary(page: Page) {
   ).toBeGreaterThanOrEqual(8);
   await expect(scroll).toHaveCSS('overflow-y', 'auto');
   await expect(scroll.locator('..')).toHaveAttribute('data-more-below', 'true');
-  const cue = scroll.locator('..').getByTestId('more-below-cue');
+  const cue = page
+    .getByTestId('equipment-pagination')
+    .getByTestId('more-below-cue');
   await expect(cue).toBeVisible();
-  await expect(cue).toContainText('More below');
-  const fade = await cue.evaluate((element) => {
+  await expect(cue).toContainText('Scroll for more equipment');
+  const footerStyle = await cue.evaluate((element) => {
     const style = getComputedStyle(element);
     return {
-      height: style.height,
+      position: style.position,
       background: style.backgroundImage,
       pointerEvents: style.pointerEvents,
     };
   });
-  expect(fade.height).toBe('44px');
-  expect(fade.background).toContain('linear-gradient');
-  expect(fade.pointerEvents).toBe('none');
+  expect(footerStyle.position).toBe('static');
+  expect(footerStyle.background).toBe('none');
+  expect(footerStyle.pointerEvents).toBe('none');
+  const cueBox = (await cue.boundingBox())!;
+  expect(
+    cueBox.y,
+    'cue stays below the scroll viewport',
+  ).toBeGreaterThanOrEqual(list.y + list.height);
+  await expect(scroll.getByTestId('more-below-cue')).toHaveCount(0);
   const rowInGap = await page.evaluate(
     ({ x, y }) =>
       document
