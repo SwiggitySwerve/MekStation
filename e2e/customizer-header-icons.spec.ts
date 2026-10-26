@@ -100,7 +100,7 @@ test('customizer header symbols stay legible and preserve their actions @customi
   }
   // Save state is spelled out beside Save, never a bare dot on the button.
   await expect(header.getByTestId('unit-save-label')).toHaveText(
-    /^(Draft saved in browser\s*)?Not in library$/,
+    /^Not in library(?:\s*\u00b7\s*draft saved)?$/,
   );
   await expect(
     header

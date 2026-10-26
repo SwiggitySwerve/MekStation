@@ -128,7 +128,7 @@ export function ComponentTechnologyCard({
   return (
     <section
       aria-labelledby="overview-component-tech-title"
-      className={`${cs.panel.main} @container`}
+      className={`${cs.panel.main} @container flex flex-1 flex-col`}
       data-testid="overview-component-technology"
     >
       <div className="border-border-theme mb-3 flex flex-col gap-1 border-b pb-3 @sm:flex-row @sm:items-baseline @sm:justify-between">
@@ -142,7 +142,9 @@ export function ComponentTechnologyCard({
         </p>
       </div>
 
-      <dl className="grid grid-cols-1 gap-x-6 @lg:grid-cols-2">
+      {/* Rows share any height the card is stretched to, so the card can end on
+          the same line as the column beside it without a void at the bottom. */}
+      <dl className="grid flex-1 auto-rows-fr grid-cols-1 gap-x-6 @lg:grid-cols-2">
         {COMPONENTS.map((component) => {
           const value = componentValues[component];
           const techBase = componentTechBases[component];

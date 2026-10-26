@@ -34,6 +34,38 @@ export function hasAssignedCriticalSlots(
   );
 }
 
+/**
+ * How much of the mounted equipment's slot demand is actually placed in
+ * critical slots. Items without a complete slot assignment (see
+ * `hasAssignedCriticalSlots`) count as pending: they reserve capacity in the
+ * slot budget but do not occupy a slot on the unit yet.
+ */
+export interface ISlotPlacementSummary {
+  /** Slots held by equipment that has a complete slot assignment. */
+  readonly placedSlots: number;
+  /** Slots the unplaced equipment will need once placed. */
+  readonly pendingSlots: number;
+  /** Number of mounted items still waiting for a slot assignment. */
+  readonly unplacedItems: number;
+}
+
+export function getSlotPlacementSummary(
+  equipment: readonly IMountedEquipmentInstance[],
+): ISlotPlacementSummary {
+  let placedSlots = 0;
+  let pendingSlots = 0;
+  let unplacedItems = 0;
+  for (const item of equipment) {
+    if (hasAssignedCriticalSlots(item)) {
+      placedSlots += item.criticalSlots;
+    } else {
+      pendingSlots += item.criticalSlots;
+      unplacedItems += 1;
+    }
+  }
+  return { placedSlots, pendingSlots, unplacedItems };
+}
+
 export function getEquipmentSlotIssues(
   equipment: readonly IMountedEquipmentInstance[],
   configuration: MechConfiguration,

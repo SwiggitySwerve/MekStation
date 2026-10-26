@@ -1,9 +1,89 @@
 ﻿import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { AutoSizeTextarea } from '@/components/customizer/fluff/FluffFields';
 import { FluffTab } from '@/components/customizer/tabs/FluffTab';
 
 describe('FluffTab', () => {
+  it('lists all sections with current text status without changing field values', () => {
+    const onFluffChange = jest.fn();
+    const { rerender } = render(
+      <FluffTab
+        role="Fire Support"
+        fluff={{
+          overview: '  Two\nwords  ',
+          manufacturer: 'Field Refit',
+          primaryFactory: 'Field Refit',
+        }}
+        onFluffChange={onFluffChange}
+      />,
+    );
+    const nav = screen.getByRole('navigation', { name: 'Sections' });
+    expect(
+      within(nav)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual([
+      'Overview2 words',
+      'CapabilitiesEmpty',
+      'HistoryEmpty',
+      'DeploymentEmpty',
+      'VariantsEmpty',
+      'Notable UnitsEmpty',
+      'Battlefield Role2 words',
+      'Manufacturing4 words',
+    ]);
+    expect(screen.getByLabelText('Manufacturer')).toHaveValue('Field Refit');
+    expect(screen.getByLabelText('Primary Factory')).toHaveValue('Field Refit');
+    expect(screen.getByLabelText('Jump to section')).toHaveValue('');
+    expect(nav.parentElement).toBe(screen.getByTestId('fluff-side-column'));
+    expect(nav.previousElementSibling).toBe(
+      screen.getByRole('region', { name: 'Manufacturing' }),
+    );
+    rerender(
+      <FluffTab fluff={{ history: 'Written' }} onFluffChange={onFluffChange} />,
+    );
+    expect(
+      within(nav).getByRole('link', { name: 'History 1 word' }),
+    ).toBeInTheDocument();
+    expect(onFluffChange).not.toHaveBeenCalled();
+  });
+
+  it('scrolls and focuses the destination from links and the jump select', () => {
+    render(<FluffTab onRoleChange={jest.fn()} onFluffChange={jest.fn()} />);
+    const history = screen.getByRole('textbox', {
+      name: 'History',
+    });
+    const role = screen.getByRole('combobox', {
+      name: 'Combat Role',
+    });
+    const scrollHistory = jest.fn();
+    const scrollRole = jest.fn();
+    history.scrollIntoView = scrollHistory;
+    role.scrollIntoView = scrollRole;
+    fireEvent.click(screen.getByRole('link', { name: 'History Empty' }));
+    expect(history).toHaveFocus();
+    expect(scrollHistory).toHaveBeenCalledWith({
+      block: 'nearest',
+      inline: 'nearest',
+    });
+    fireEvent.change(screen.getByLabelText('Jump to section'), {
+      target: { value: 'fluff-role' },
+    });
+    expect(role).toHaveFocus();
+    expect(scrollRole).toHaveBeenCalled();
+    expect(screen.getByLabelText('Jump to section')).toHaveValue('');
+  });
+
+  it('focuses the containing section when jumping to a disabled field', () => {
+    render(<FluffTab readOnly fluff={{ history: 'Imported history' }} />);
+    const history = screen.getByLabelText('History');
+    history.scrollIntoView = jest.fn();
+    fireEvent.click(screen.getByRole('link', { name: 'History 2 words' }));
+    expect(screen.getByTestId('fluff-field-history')).toHaveFocus();
+    expect(history).toHaveValue('Imported history');
+  });
+
   it('renders the controlled role and serialized fluff fields', () => {
     render(
       <FluffTab
@@ -363,5 +443,57 @@ describe('FluffTab', () => {
     const { container } = render(<FluffTab className="custom-class" />);
 
     expect(container.firstChild).toHaveClass('custom-class');
+  });
+});
+
+describe('Fluff textarea expansion', () => {
+  it('caps long text, expands and collapses, then hides the toggle for short text', () => {
+    const measure = jest
+      .spyOn(HTMLTextAreaElement.prototype, 'scrollHeight', 'get')
+      .mockImplementation(function (this: HTMLTextAreaElement) {
+        return this.value.length > 100 ? 800 : 88;
+      });
+    const props = {
+      id: 'fluff-history',
+      fieldLabel: 'History',
+      value: 'Long history '.repeat(100),
+      readOnly: true,
+      style: {
+        lineHeight: '24px',
+        paddingTop: '8px',
+        paddingBottom: '8px',
+        '--fluff-line-cap': '14',
+      } as React.CSSProperties,
+    };
+    try {
+      const { rerender } = render(<AutoSizeTextarea {...props} />);
+      const field = screen.getByRole('textbox');
+      expect(field.style.height).toBe('352px');
+      const toggle = screen.getByRole('button', { name: 'Show all History' });
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(toggle).toHaveAttribute('aria-controls', 'fluff-history');
+      fireEvent.click(toggle);
+      expect(field.style.height).toBe('800px');
+      expect(toggle).toHaveAccessibleName('Show less History');
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      fireEvent.click(toggle);
+      expect(field.style.height).toBe('352px');
+      rerender(
+        <AutoSizeTextarea
+          {...props}
+          style={
+            { ...props.style, '--fluff-line-cap': '10' } as React.CSSProperties
+          }
+          value={`${props.value} changed`}
+        />,
+      );
+      expect(field.style.height).toBe('256px');
+      rerender(<AutoSizeTextarea {...props} value="Short" />);
+      expect(field.style.height).toBe('88px');
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      expect(field).toHaveValue('Short');
+    } finally {
+      measure.mockRestore();
+    }
   });
 });

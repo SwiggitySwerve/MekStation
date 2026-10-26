@@ -97,6 +97,8 @@ export function BuildSummaryCard({
           weightRemaining: stats.weightRemaining,
           criticalSlotsUsed: stats.criticalSlotsUsed,
           criticalSlotsTotal: stats.criticalSlotsTotal,
+          criticalSlotsPlaced: stats.criticalSlotsPlaced,
+          criticalSlotsPending: stats.criticalSlotsPending,
           armorPoints: stats.armorPoints,
           maxArmorPoints: stats.maxArmorPoints,
           heatGenerated: stats.heatGenerated,

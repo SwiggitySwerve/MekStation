@@ -13,6 +13,7 @@ import {
   UnitSaveDetails,
   UnitSaveLabel,
   UnitSaveSummary,
+  unitSaveLine,
   unitSaveLines,
 } from '../UnitSaveSummary';
 
@@ -41,7 +42,22 @@ describe('UnitSaveSummary', () => {
     );
     // A browser write adds the draft part; the library wording stays.
     act(() => clientSafeStorage.setItem('megamek-unit-summary-a', '{}'));
-    expect(line).toHaveTextContent(/^Draft saved in browser · Not in library$/);
+    expect(line).toHaveTextContent(/^Not in library · draft saved$/);
+  });
+
+  it('reads the save state as one line, library words first', () => {
+    expect(unitSaveLine(unitSaveLines('pending', { state: 'none' }))).toBe(
+      'Not in library',
+    );
+    expect(unitSaveLine(unitSaveLines('saved', { state: 'none' }))).toBe(
+      'Not in library · draft saved',
+    );
+    expect(
+      unitSaveLine(unitSaveLines('saved', { state: 'changed', version: 3 })),
+    ).toBe('Changed since v3 · draft saved');
+    expect(
+      unitSaveLine(unitSaveLines('saved', { state: 'matched', version: 3 })),
+    ).toBe('In library v3');
   });
 
   it('words the save state in two parts until the library copy matches', () => {
@@ -87,7 +103,7 @@ describe('UnitSaveSummary', () => {
     act(() => {
       store.setState({ model: 'AS7-D-X' });
     });
-    expect(line).toHaveTextContent(/Changed since v3$/);
+    expect(line).toHaveTextContent(/^Changed since v3 · draft saved$/);
   });
 
   it('labels the desktop Save button with the save state, or a loud failure with Retry', () => {
@@ -170,7 +186,7 @@ describe('UnitSaveSummary', () => {
     expect(button).toHaveAccessibleDescription(/^Changed since v4\s*\./);
     expect(button).toHaveAttribute('data-save-emphasis', 'primary');
     expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
-      /^Draft saved in browser\s*Changed since v4$/,
+      /^Changed since v4 · draft saved$/,
     );
   });
   it('repeats the header words in the panel and leaves out an unwritten draft', () => {

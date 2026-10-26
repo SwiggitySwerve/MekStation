@@ -53,6 +53,7 @@ its separate Preview-before-Fluff order.
 - **AND** the badge group's accessible name SHALL name the tab and the counts (e.g., "Equipment: 1 error"), and the section tab's accessible description SHALL include the counts (e.g., "1 error")
 - **AND** the indicator slot SHALL keep at least one badge's width when counts change or clear
 - **AND** the warning count SHALL include the build-status readout warnings (e.g., running hot) on the tab where they are fixed (Structure for running hot), so the badges agree with the build-status counts
+- **AND** hovering the badge or keyboard-focusing its tab SHALL show a tooltip that names the issues behind the count, one line per severity ("1 warning: Runs hot", "2 errors: <title>; <title>"), listing at most four titles before "+N more"; the titles are the status panel's own headings and readout labels on the same tab (`getTabIssueTitles`), the tooltip replaces the native title, and the tab's accessible description carries the same words
 
 ---
 
@@ -105,6 +106,25 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 - **AND** Name input field allows editing the unit name
 - **AND** Tonnage spinner allows setting tonnage (20-100, step 5)
 - **AND** Motive Type dropdown shows Biped, Quad, Tripod, LAM, QuadVee options
+
+#### Scenario: Overview columns end on the same line
+
+- **WHEN** the Overview tab renders on a wide canvas
+- **THEN** Identity and Component technology stack in the left column and the Build summary fills the right column
+- **AND** the Component technology card stretches to the bottom of the column with its component rows evenly distributed, so both columns end on the same line without an empty card body
+- **AND** Identity leads with Chassis, Model, Year and Tech Level, followed by Clan Name and MUL ID
+
+#### Scenario: Slots readiness counts placed slots
+
+- **WHEN** mounted equipment has not been placed in critical slots
+- **THEN** the Build readiness Slots row reads "<placed> of <total> slots filled · <n> pending (<k> unplaced item[s])." in the warning state, instead of counting the unplaced items as used slots, and clears to "<placed> of <total> slots filled, <free> free." once every item is placed
+- **AND** the Unplaced equipment row still names how many items need a critical slot
+
+#### Scenario: Overview reading order on phones
+
+- **WHEN** the Overview tab renders on a narrow canvas
+- **THEN** the cards stack as Identity, Build summary, then Component technology, so the unit's identity is visible on first view
+- **AND** Identity is compact: Chassis and Model share a row, Year and Tech Level share a row, and Clan Name and MUL ID share the next row
 
 #### Scenario: Tonnage change from Overview
 
@@ -166,14 +186,14 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **WHEN** the Chassis, Mobility or Cooling panel renders at least 32rem wide
 - **THEN** every row uses one grid: a 140px label column, a 240px control column, and a meta column that starts about 12px after the control column
 - **AND** every control fills the 240px control column, so all controls share one right edge: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) keep 44px buttons and stretch their value box, and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is 240px wide
-- **AND** per-component cost meta ("19t / 6 slots") and "→ <final> final" for Walk, Run and Jump MP sit in the meta column beside the control, not in a far-right gutter
+- **AND** per-component cost meta (weight and critical slots, e.g. "19t · 6 slots", with tabular numerals) is right-aligned to the card's right edge so each row reads edge to edge, while "→ <final> final" for Walk, Run and Jump MP stays in the meta column beside the control
 - **AND** range hints such as the tonnage range ("Range 20–200t.") are 13px muted helper text under their control, linked with aria-describedby
 - **AND** in a narrower card the grid is a single column (label, control, meta, helper text) and helper text uses the full card width
 
 #### Scenario: Mobility rows
 
 - **WHEN** the Mobility panel renders
-- **THEN** Run MP is a read-only field with the same outline, height and 240px width as a stepper, muted text, and a small lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
+- **THEN** Run MP is a read-only field with the same outline, height, 240px width and value text colour as a stepper (primary, not muted), and a small lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
 - **AND** the Walk MP range, the Run MP line ("Follows Walk MP; it is not set directly.") and the Max Jump MP note appear as 13px muted helper text directly under their control, linked with aria-describedby
 - **AND** Jump Type stays enabled but is muted, with the hint "No jump jets installed", while Jump MP is 0
 - **AND** the Mobility panel shows no copy about unsupported mechanical jump boosters
@@ -213,7 +233,7 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 #### Scenario: Diagram and inspector cards end together
 
 - **WHEN** the Armor tab renders at xl or wider with no location selected
-- **THEN** the Armor Allocation card and the Armor inspector card stretch to the same bottom edge, with the inspector's controls spaced evenly and its legend row at the bottom, so no hollow space sits under either card
+- **THEN** the Armor Allocation card and the Armor inspector card stretch to the same bottom edge; the inspector stacks its controls, the Unallocated Armor Points row (16px below the last control or its "All allocatable points assigned" note, with no spacer pushing it away) and the legend row in order, and any spare height falls under the legend rather than between rows
 - **AND** the diagram column is no longer sticky; when the location editor is open the diagram card stretches to the taller inspector column
 
 #### Scenario: Location editor does not push the inspector off screen
@@ -285,8 +305,18 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 - **WHEN** user navigates to Fluff tab
 - **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a full-width textarea of its column at 16px text on a 1.5 line height, at least 3 rows, stacked in that order
 - **AND** the field labels use the small-caps section-label style used for sub-section headings elsewhere in the customizer
-- **AND** the textarea grows to show its whole content
+- **AND** the textarea grows to about 14 lines in containers at least 64rem wide, or about 10 lines in narrower containers, with internal scrolling beyond the cap
+- **AND** text longer than the cap has a keyboard-accessible "Show all" / "Show less" toggle with `aria-expanded` and `aria-controls`, allowing the full text to expand and collapse without changing its value
 - **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
+
+#### Scenario: Section navigation
+
+- **WHEN** the Fluff tab renders in a container at least 64rem wide
+- **THEN** a compact Sections index follows Manufacturing inside the sticky right column, listing Overview, Capabilities, History, Deployment, Variants, Notable Units, Battlefield Role and Manufacturing in that order
+- **AND** each link shows a muted word count or "Empty" based on the current field text
+- **AND** in narrower containers a labelled "Jump to section" select appears at the top of the tab with the same destinations and text status
+- **AND** activating a destination scrolls its field into view and focuses it, or focuses its containing section when the field is disabled
+- **AND** the index and expansion controls do not change stored narrative, role or manufacturing values
 
 #### Scenario: Battlefield role
 

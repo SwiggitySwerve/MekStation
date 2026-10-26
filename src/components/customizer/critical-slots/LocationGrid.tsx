@@ -11,6 +11,7 @@ import React from 'react';
 
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 
+import styles from '../CustomizerWorkbench.module.css';
 import {
   type CritEntry,
   type LocationData,
@@ -111,7 +112,7 @@ export function LocationGrid({
     <div
       role="group"
       aria-label={`${label} critical slots`}
-      className={`bg-surface-deep border-border-theme w-full min-w-0 overflow-hidden rounded-md border shadow-sm ${className}`}
+      className={`bg-surface-deep border-border-theme w-full min-w-0 overflow-hidden rounded-md border shadow-sm ${styles.criticalLocationGrid} ${className}`}
     >
       {/* Consistent location header keeps the diagram scannable at any width. */}
       {!hideHeader && (
@@ -126,7 +127,7 @@ export function LocationGrid({
       )}
 
       {/* Slots */}
-      <div className="p-1">
+      <div className={`p-1 ${styles.criticalSlotRows}`}>
         {entries.map((entry) =>
           isSuperheavy && entry.isDoubleSlot ? (
             <DoubleSlotRow

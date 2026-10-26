@@ -19,25 +19,7 @@ import {
   fieldId,
   FieldLabel,
 } from './FluffFields';
-
-type NarrativeField = keyof Pick<
-  ISerializedFluff,
-  | 'overview'
-  | 'capabilities'
-  | 'history'
-  | 'deployment'
-  | 'variants'
-  | 'notableUnits'
->;
-
-const NARRATIVE_FIELDS: ReadonlyArray<[NarrativeField, string]> = [
-  ['overview', 'Overview'],
-  ['capabilities', 'Capabilities'],
-  ['history', 'History'],
-  ['deployment', 'Deployment'],
-  ['variants', 'Variants'],
-  ['notableUnits', 'Notable Units'],
-];
+import { NARRATIVE_FIELDS, type NarrativeField } from './fluffSections';
 
 /** Hints for the sections that are usually empty on a new design. */
 const NARRATIVE_PLACEHOLDERS: Partial<Record<NarrativeField, string>> = {
@@ -47,9 +29,9 @@ const NARRATIVE_PLACEHOLDERS: Partial<Record<NarrativeField, string>> = {
 
 /**
  * 16px text on a 24px (1.5) line height, at least 3 rows; the textarea grows
- * with its content.
+ * with its content up to the collapsed line cap.
  */
-const NARRATIVE_TEXTAREA = `${cs.input.full.replace('text-sm', 'text-base')} min-h-[6.5rem] w-full resize-none overflow-hidden leading-6 placeholder:text-text-theme-muted placeholder:italic`;
+const NARRATIVE_TEXTAREA = `${cs.input.full.replace('text-sm', 'text-base')} min-h-[6.5rem] w-full resize-none overflow-y-auto leading-6 placeholder:text-text-theme-muted placeholder:italic [--fluff-line-cap:10] @[64rem]:[--fluff-line-cap:14]`;
 
 interface FluffNarrativeCardProps {
   fluff: ISerializedFluff;
@@ -74,7 +56,7 @@ export function FluffNarrativeCard({
         {NARRATIVE_FIELDS.map(([field, label]) => {
           const value = fluff[field] ?? '';
           return (
-            <div key={field} data-testid={`fluff-field-${field}`}>
+            <div key={field} tabIndex={-1} data-testid={`fluff-field-${field}`}>
               <FieldLabel
                 htmlFor={fieldId(field)}
                 label={label}
@@ -82,6 +64,7 @@ export function FluffNarrativeCard({
                 showOptional={!disabled && value === ''}
               />
               <AutoSizeTextarea
+                fieldLabel={label}
                 id={fieldId(field)}
                 rows={3}
                 value={value}

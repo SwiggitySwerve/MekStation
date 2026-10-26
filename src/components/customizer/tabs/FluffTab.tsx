@@ -9,12 +9,13 @@
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
 
 import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { FluffManufacturingCard } from '@/components/customizer/fluff/FluffManufacturingCard';
 import { FluffNarrativeCard } from '@/components/customizer/fluff/FluffNarrativeCard';
+import { FluffSectionIndex } from '@/components/customizer/fluff/FluffSectionIndex';
 import { customizerStyles as cs } from '@/components/customizer/styles';
 
 export interface FluffTabProps {
@@ -60,17 +61,38 @@ export function FluffTab({
   onRoleChange,
   onFluffChange,
 }: FluffTabProps): React.ReactElement {
+  const rootRef = useRef<HTMLDivElement>(null);
   const isReadOnly = readOnly || (!onRoleChange && !onFluffChange);
   const roleIsKnown =
     role === '' || ROLES.some((candidate) => candidate === role);
 
+  const jumpToSection = (id: string): void => {
+    const field = rootRef.current?.querySelector<HTMLElement>(`#${id}`);
+    if (!field) return;
+    const target = field.matches(':disabled')
+      ? field.closest<HTMLElement>('[tabindex="-1"]')
+      : field;
+    target?.focus({ preventScroll: true });
+    field.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  };
+
   return (
-    <div className={`@container flex flex-col gap-5 p-4 ${className}`}>
+    <div
+      ref={rootRef}
+      className={`@container flex flex-col gap-5 p-4 ${className}`}
+    >
       {isReadOnly && (
         <div className={cs.panel.notice} role="status">
           This unit&apos;s descriptive details are view only.
         </div>
       )}
+
+      <FluffSectionIndex
+        fluff={fluff}
+        role={role}
+        compact
+        onJump={jumpToSection}
+      />
 
       <div className={PAGE_GRID} data-testid="fluff-grid">
         <FluffNarrativeCard
@@ -82,6 +104,7 @@ export function FluffTab({
         <div className={SIDE_COLUMN} data-testid="fluff-side-column">
           <section
             className={cs.panel.main}
+            tabIndex={-1}
             aria-labelledby="fluff-role-heading"
           >
             <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
@@ -115,6 +138,7 @@ export function FluffTab({
             readOnly={isReadOnly}
             onFluffChange={onFluffChange}
           />
+          <FluffSectionIndex fluff={fluff} role={role} onJump={jumpToSection} />
         </div>
       </div>
     </div>

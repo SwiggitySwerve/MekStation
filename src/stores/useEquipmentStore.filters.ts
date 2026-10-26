@@ -189,6 +189,14 @@ const EQUIPMENT_SORT_VALUE_GETTERS: Readonly<
   heat: (item) => item.name.toLowerCase(),
 };
 
+/** Names compare numerically so AC/2, AC/5, AC/10 and AC/20 read in order. */
+const NATURAL_NAME_COLLATOR = new Intl.Collator('en', { numeric: true });
+const NATURAL_NAME_COLUMNS: ReadonlySet<SortColumn> = new Set([
+  'name',
+  'damage',
+  'heat',
+]);
+
 function compareEquipment(
   first: IEquipmentItem,
   second: IEquipmentItem,
@@ -197,7 +205,15 @@ function compareEquipment(
   const getValue = EQUIPMENT_SORT_VALUE_GETTERS[sort.column];
   const firstValue = getValue(first);
   const secondValue = getValue(second);
-  if (firstValue < secondValue) return sort.direction === 'asc' ? -1 : 1;
-  if (firstValue > secondValue) return sort.direction === 'asc' ? 1 : -1;
-  return 0;
+  const order =
+    NATURAL_NAME_COLUMNS.has(sort.column) &&
+    typeof firstValue === 'string' &&
+    typeof secondValue === 'string'
+      ? NATURAL_NAME_COLLATOR.compare(firstValue, secondValue)
+      : firstValue < secondValue
+        ? -1
+        : firstValue > secondValue
+          ? 1
+          : 0;
+  return sort.direction === 'asc' ? order : -order;
 }

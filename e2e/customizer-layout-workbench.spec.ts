@@ -7,9 +7,7 @@ async function loadUnit(page: Page, name = 'Atlas AS7-D', variant = 'AS7-D') {
   });
   if (await open.isVisible()) await open.click();
   else
-    await page
-      .getByRole('button', { name: 'Load from Library', exact: true })
-      .click();
+    await page.getByRole('button', { name: 'New Unit', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await page.getByPlaceholder('Search by chassis or variant...').fill(name);
@@ -397,7 +395,7 @@ test('notifications leave pinned metrics unobstructed @customizer', async ({
   );
 });
 
-test('critical locations scroll below pinned tools and offer phone free-slot shortcuts @customizer', async ({
+test('critical locations fit below pinned tools and offer one phone location selector @customizer', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -442,8 +440,8 @@ test('critical locations scroll below pinned tools and offer phone free-slot sho
           (element) => element.scrollHeight - element.clientHeight,
         ),
       )
-      .toBeGreaterThan(2);
-    await expect(page.getByText('Scroll for more locations')).toBeVisible();
+      .toBeLessThanOrEqual(2);
+    await expect(page.getByText('Scroll for more locations')).toBeHidden();
     const tops = await desktop
       .locator(':scope > div > *')
       .evaluateAll((columns) =>
@@ -454,10 +452,10 @@ test('critical locations scroll below pinned tools and offer phone free-slot sho
     await desktop.evaluate((element) => {
       element.scrollTop = element.scrollHeight;
     });
-    for (const name of ['Right Leg critical slots', 'Left Leg critical slots'])
-      await expect(
-        desktop.getByRole('group', { name, exact: true }),
-      ).toBeInViewport({ ratio: 1 });
+    const locations = desktop.getByRole('group', { name: /critical slots$/ });
+    await expect(locations).toHaveCount(8);
+    for (const location of await locations.all())
+      await expect(location).toBeInViewport({ ratio: 1 });
     expect((await key.boundingBox())!.y).toBe(toolbarTop);
     await expect(
       page.getByRole('button', { name: 'Auto-arrange', exact: true }),
@@ -501,13 +499,16 @@ test('critical locations scroll below pinned tools and offer phone free-slot sho
     name: 'Critical slot location shortcuts',
   });
   const locationSelect = shortcuts.getByRole('combobox', { name: 'Location' });
-  const freeButtons = shortcuts.getByRole('button', { name: /free slots$/ });
-  await expect(freeButtons).toHaveCount(8);
-  for (const button of await freeButtons.all())
-    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-  await shortcuts
-    .getByRole('button', { name: /^Head, \d+ free slots$/ })
-    .click();
+  await expect(shortcuts.getByRole('button')).toHaveCount(0);
+  expect(await locationSelect.getByRole('option').allTextContents()).toEqual(
+    Array.from({ length: 8 }, () =>
+      expect.stringMatching(/ · \d+\/\d+ used, \d+ free$/),
+    ),
+  );
+  expect((await locationSelect.boundingBox())!.width).toBeGreaterThanOrEqual(
+    350,
+  );
+  await locationSelect.selectOption('Head');
   await expect(locationSelect).toHaveValue('Head');
   await expect(
     phone.getByRole('group', { name: 'Head critical slots', exact: true }),

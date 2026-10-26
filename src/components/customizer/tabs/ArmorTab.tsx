@@ -259,9 +259,13 @@ export function ArmorTab({
               </div>
             )}
 
-            <div className="flex flex-1 flex-col gap-6 xl:justify-between">
+            <div className="flex flex-1 flex-col gap-2">
               <div
-                className={selectedLocation ? 'contents xl:hidden' : 'contents'}
+                className={
+                  selectedLocation
+                    ? 'flex flex-col gap-6 xl:hidden'
+                    : 'flex flex-col gap-6'
+                }
                 data-testid="armor-inspector-controls"
               >
                 {/* Armor Type */}
@@ -362,7 +366,7 @@ export function ArmorTab({
                 </div>
               </div>
 
-              <div className="border-border-theme-subtle border-t pt-3">
+              <div className="border-border-theme-subtle border-t pt-2">
                 <div className={`${cs.layout.rowBetween} text-sm`}>
                   <span className={cs.text.label}>
                     Unallocated Armor Points

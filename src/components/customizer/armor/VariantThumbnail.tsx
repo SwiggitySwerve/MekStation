@@ -3,7 +3,10 @@ import React from 'react';
 import type { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 
 import { BipedArmorSurface } from './variants/BipedArmorSurface';
-import { BIPED_ARMOR_PLATES } from './variants/CleanTechBipedDiagram.geometry';
+import {
+  BIPED_ARMOR_PLATES,
+  BIPED_ARMOR_VIEWBOX,
+} from './variants/CleanTechBipedDiagram.geometry';
 
 interface VariantThumbnailProps {
   variant: ArmorDiagramVariant;
@@ -16,8 +19,8 @@ export function VariantThumbnail({
 }: VariantThumbnailProps): React.ReactElement {
   return (
     <svg
-      viewBox="0 0 360 440"
-      className={`h-[60px] w-10 ${className}`}
+      viewBox={BIPED_ARMOR_VIEWBOX}
+      className={`h-[46px] w-12 shrink-0 ${className}`}
       aria-label={`${variant} style preview`}
       role="img"
     >

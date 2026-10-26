@@ -54,6 +54,46 @@ export function getCapacityStatus(used: number, max: number): StatStatus {
   return used > max ? 'error' : 'normal';
 }
 
+/** Slot budget figures behind the Slots readout. */
+export interface ISlotFill {
+  /** Slots the build needs: system slots plus every mounted item's slots. */
+  readonly used: number;
+  readonly total: number;
+  /** Slots actually filled; defaults to `used` when nothing is pending. */
+  readonly placed?: number;
+  /** Slots needed by mounted items that are not placed yet. */
+  readonly pendingSlots?: number;
+  /** Mounted items that are not placed yet. */
+  readonly unplacedItems?: number;
+}
+
+/**
+ * Slots readout state: over capacity is an error, and while any item is still
+ * unplaced the budget is a warning, because the slots it will take are not
+ * filled yet.
+ */
+export function getSlotFillStatus(fill: ISlotFill): StatStatus {
+  const status = getCapacityStatus(fill.used, fill.total);
+  if (status === 'error') return status;
+  return (fill.pendingSlots ?? 0) > 0 ? 'warning' : 'normal';
+}
+
+/**
+ * Slots filled by placed items, not the slots reserved by unplaced ones, so
+ * the figure matches what a tabletop player would count on the sheet.
+ */
+export function describeSlotFill(fill: ISlotFill): string {
+  const pending = fill.pendingSlots ?? 0;
+  const placed = fill.placed ?? fill.used;
+  if (pending <= 0) {
+    return `${placed} of ${fill.total} slots filled, ${fill.total - placed} free.`;
+  }
+  const items = fill.unplacedItems ?? 0;
+  const itemNote =
+    items > 0 ? ` (${items} unplaced item${items === 1 ? '' : 's'})` : '';
+  return `${placed} of ${fill.total} slots filled · ${pending} pending${itemNote}.`;
+}
+
 /** Heat generated at full fire beyond dissipation; zero when in budget. */
 export function getHeatExcess(generated: number, dissipation: number): number {
   return Math.max(0, generated - dissipation);

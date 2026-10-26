@@ -45,8 +45,10 @@ interface OverviewTabProps {
  * Overview tab showing the unit's build summary and identity.
  *
  * Wide canvases put Identity and component technology on the left and the
- * build summary on the right. Narrow canvases stack the build summary first,
- * so the state of the build and what to do next lead.
+ * build summary on the right; the technology card stretches (its rows share
+ * the extra height) so both columns end on the same line. Narrow canvases
+ * stack Identity first, then the build summary, then component technology,
+ * so the unit's identity is on screen before the state of the build.
  */
 export function OverviewTab({
   readOnly = false,
@@ -57,13 +59,18 @@ export function OverviewTab({
 
   return (
     <div className={`@container p-4 ${className}`}>
-      <div className="grid gap-4 @4xl:grid-cols-2 @4xl:items-start">
-        <div className="flex min-w-0 flex-col gap-4 @4xl:col-start-2 @4xl:row-start-1">
+      {/* DOM order is the narrow reading order. On wide canvases the summary
+          spans both left rows; the second row takes the leftover height. */}
+      <div className="grid gap-4 @4xl:grid-cols-2 @4xl:grid-rows-[auto_1fr]">
+        <div className="min-w-0 @4xl:col-start-1 @4xl:row-start-1">
+          <IdentityCard readOnly={readOnly} />
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-4 @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:self-start">
           <BuildSummaryCard data={summary} onNavigate={onNavigate} />
         </div>
 
-        <div className="flex min-w-0 flex-col gap-4 @4xl:col-start-1 @4xl:row-start-1">
-          <IdentityCard readOnly={readOnly} />
+        <div className="flex min-w-0 flex-col @4xl:col-start-1 @4xl:row-start-2">
           <ComponentTechnologyCard readOnly={readOnly} />
         </div>
 
@@ -175,7 +182,9 @@ function IdentityCard({
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,0.8fr)]">
+        {/* Chassis, model, year and tech level lead (two rows of two on
+            phones, one row on wide cards); the optional fields follow. */}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-4 @lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,0.7fr)_minmax(0,1fr)] @lg:gap-x-4">
           <div className={cs.layout.field}>
             <label className={cs.text.label}>Chassis</label>
             <input
@@ -202,23 +211,6 @@ function IdentityCard({
             />
           </div>
 
-          <div className={`${cs.layout.field} @sm:col-span-2 @lg:col-span-1`}>
-            <label className={cs.text.label}>
-              Clan Name <span className={cs.text.secondary}>(opt)</span>
-            </label>
-            <input
-              type="text"
-              aria-label="Clan name"
-              value={clanName}
-              onChange={handleClanNameChange}
-              disabled={readOnly}
-              className={cs.input.full}
-              placeholder=""
-            />
-          </div>
-        </div>
-
-        <div className="border-border-theme grid grid-cols-1 gap-4 border-t pt-4 @sm:grid-cols-3">
           <div className={cs.layout.field}>
             <label className={cs.text.label}>Year</label>
             <input
@@ -250,7 +242,22 @@ function IdentityCard({
             </select>
           </div>
 
-          <div className={cs.layout.field}>
+          <div className={`${cs.layout.field} @lg:col-span-2`}>
+            <label className={cs.text.label}>
+              Clan Name <span className={cs.text.secondary}>(opt)</span>
+            </label>
+            <input
+              type="text"
+              aria-label="Clan name"
+              value={clanName}
+              onChange={handleClanNameChange}
+              disabled={readOnly}
+              className={cs.input.full}
+              placeholder=""
+            />
+          </div>
+
+          <div className={`${cs.layout.field} @lg:col-span-2`}>
             <label className={cs.text.label}>MUL ID</label>
             <input
               type="text"

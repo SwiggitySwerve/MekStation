@@ -183,6 +183,27 @@ describe('UnitInfoBanner', () => {
       );
   });
 
+  it('counts placed slots in the Slots readout and explains the pending ones', () => {
+    render(
+      <UnitInfoBanner
+        stats={createStats({
+          criticalSlotsUsed: 69,
+          criticalSlotsPlaced: 66,
+          criticalSlotsPending: 3,
+          unplacedItemCount: 1,
+        })}
+        compact
+      />,
+    );
+    const slots = screen.getByTestId('unit-info-stat-slots');
+    expect(slots).toHaveTextContent('66');
+    expect(slots).not.toHaveTextContent('69');
+    expect(slots).toHaveAttribute('data-status', 'warning');
+    expect(slots).toHaveAccessibleName(
+      'Slots: 66 / 78. 66 of 78 slots filled · 3 pending (1 unplaced item).',
+    );
+  });
+
   it('keeps red for real capacity errors and no excess when heat is in budget', () => {
     render(
       <UnitInfoBanner

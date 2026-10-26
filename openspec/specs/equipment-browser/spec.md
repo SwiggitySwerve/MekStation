@@ -42,7 +42,7 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 - **WHEN** the equipment catalog is rendered at desktop width
 - **THEN** Name, Dmg, Range, Heat, Tons, Slots, and Add occupy seven aligned content columns, with Type as secondary text directly under Name and a trailing flexible space
 - **AND** rows use hairline dividers and a 4px category accent instead of full card borders
-- **AND** Name has a 240px minimum and 320px maximum, numeric columns use fixed 48–96px right-aligned tracks, and unused width remains after Add
+- **AND** the table spans the full catalog width: Name is flexible with a 240px minimum, numeric columns use fixed 48–96px right-aligned tracks with tabular figures, and Add with the ellipsis control is pinned to the right edge, leaving no unused band before the loadout rail
 - **AND** the Range header stays on one line with an accessible description of short / medium / long
 - **AND** only the active Name, Tons, or Slots sort shows a filled directional arrow in the accent color; inactive arrows appear faintly on hover or keyboard focus, with pressed state and direction conveyed by accessible names; combat statistics remain plain headers
 - **AND** damage, range, and heat use the existing weapon lookup and display a dash for non-weapons
@@ -55,6 +55,7 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 - **WHEN** the catalog is displayed at a narrow viewport
 - **THEN** each row retains its equipment name, weight or variable-property summary, detail toggle, and accessible Add control
 - **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
+- **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 280px of the viewport top and at least six rows are fully visible
 - **AND** expanding details makes weapon and equipment statistics available
 
 ### Requirement: Equipment Filtering
@@ -514,7 +515,7 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 - **AND** sort.direction toggles between 'asc' and 'desc' if same column
 - **AND** sort.direction is 'asc' if different column
 - **AND** pagination resets to page 1
-- **AND** filtered equipment is sorted by `compareEquipment` in `src/stores/useEquipmentStore.filters.ts`
+- **AND** filtered equipment is sorted by `compareEquipment` in `src/stores/useEquipmentStore.filters.ts`, comparing names with numeric collation so AC/2, AC/5, AC/10, AC/15 Ammo, and AC/20 read in numeric order (presentation key only; stored names are unchanged)
 - **AND** catalog headers currently sort name/weight/criticalSlots; store `SortColumn` also has category, techBase, damage, heat, but damage/heat getters currently compare `item.name` (parent product follow-up)
 
 #### Scenario: Pagination controls
@@ -672,7 +673,8 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 - **WHEN** browsing on a phone
 - **THEN** names use 16px text with the Add actions on the same row; specs use a separate full-width 13px line with explicit Dmg, Range, and Heat labels, followed by weight and slot count; each label/value pair stays unbroken and pairs wrap as units when necessary
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
-- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained
+- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent outline so it is visible without hover or focus
+- **AND** the Filters label shows only an active-filter count on phones and names the criteria on wider screens
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 
 #### Scenario: Active filters
@@ -694,21 +696,28 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 #### Scenario: Capacity and mounted equipment
 
 - **WHEN** a BattleMech catalog is open
-- **THEN** a compact strip below the filters shows remaining tonnage to one decimal place and remaining slots from the existing unit summary, such as `4.0 t free · 16 slots free`
-- **AND** deficits remain negative rather than being hidden
-- **AND** a row already present in the loadout shows `×N mounted` beside its name, counting exact equipment IDs including unassigned instances
+- **THEN** the result-count line also shows remaining tonnage to one decimal place and remaining slots from the existing unit summary, such as `182 items · 4.0 t free · 16 slots free`
+- **AND** deficits remain negative rather than being hidden, such as `-2.0 t free`
+- **AND** a row already present in the loadout shows `×N mounted` as plain muted text of at least 13px beside its name, counting exact equipment IDs including unassigned instances, not as a miniature pill
+- **AND** secondary row metadata such as shots per ton uses at least 13px text
 - **AND** standalone browsing without a BattleMech context omits these annotations
+
+#### Scenario: No tonnage free
+
+- **GIVEN** the unit has exactly 0.0 t free
+- **WHEN** the catalog renders
+- **THEN** the capacity line reads `0.0 t free — no tonnage left; anything with weight makes the unit overweight` in the warning color, instead of the plain capacity text, and no individual row carries an over-weight marker
+- **AND** on phones the line is shortened to `0.0 t free — no tonnage left` so it stays on one row
 
 #### Scenario: Equipment exceeds remaining tonnage
 
 - **GIVEN** a fixed-weight item weighs 7 tons and the unit has 4 tons free
 - **WHEN** its catalog row renders
-- **THEN** a muted `+3.0 t over` badge appears
+- **THEN** the weight value in the Tons cell, and in the phone stats line, uses the warning text color with a dotted underline, and carries the accessible description `exceeds free weight by 3.0 t`; no chip is shown
 - **AND** the row stays visible and its Add action retains its existing behavior
-- **AND** an exact fit has no over badge
-- **AND** variable-weight items retain their Variable label without an estimated over badge
+- **AND** an exact fit is not marked, and no row is marked when 0 t or less is free
+- **AND** variable-weight items retain their Variable label without an estimated excess
 - **AND** the row split action remains visibly at least 44px tall
-
 ## Hook Architecture
 
 ---

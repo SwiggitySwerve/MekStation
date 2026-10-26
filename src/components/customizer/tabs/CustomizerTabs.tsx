@@ -11,16 +11,27 @@
 
 import React, { useState, useRef, useEffect, useId } from 'react';
 
-import { buildStatusCountText } from '@/components/customizer/shared/buildStatusSummary';
+import {
+  describeTabIssues,
+  type TabIssueTitlesByTab,
+} from '@/components/customizer/shared/tabIssueTitles';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
-import {
-  TabValidationCounts,
-  ValidationCountsByTab,
-} from '@/utils/validation/validationNavigation';
+import { ValidationCountsByTab } from '@/utils/validation/validationNavigation';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
+import {
+  DirtyTabMarker,
+  ErrorTabMarker,
+  SectionValidationBadge,
+} from './CustomizerTabBadges';
 import { CUSTOMIZER_TAB_ICONS as TabIcons } from './CustomizerTabIcons';
+import {
+  hasKeyboardFocus,
+  TabIssueTooltip,
+  tooltipFor,
+  type BadgeTooltip,
+} from './TabIssueTooltip';
 /**
  * Customizer tab configuration
  */
@@ -42,6 +53,11 @@ interface CustomizerTabsProps {
   readOnly?: boolean;
   className?: string;
   validationCounts?: ValidationCountsByTab;
+  /**
+   * Titles of the issues behind each tab's badge. When present, hovering or
+   * keyboard-focusing a tab with a badge lists them ("1 warning: Runs hot").
+   */
+  issueTitles?: TabIssueTitlesByTab;
   compact?: boolean;
   /**
    * Set of tab ids that have unsaved field changes.
@@ -61,40 +77,6 @@ interface CustomizerTabsProps {
    * naming the failing rule (`VAL-VEHICLE-ARMOR-MAX`)".
    */
   errorTabs?: Map<string, string> | Set<string>;
-}
-
-/**
- * Compute the ARIA label + tooltip string for a validation-error dot.
- *
- * When `errorTabs` is a Map the value is the rule code (e.g.
- * `VAL-VEHICLE-ARMOR-MAX`) and is used verbatim so screen-reader users hear
- * the specific failing rule.  When `errorTabs` is a Set (legacy) or the map
- * entry has an empty/undefined value we fall back to the generic label.
- *
- * Satisfies Spec § Requirement: Validation Error Markers.
- */
-function getErrorRuleCode(
-  errorTabs: Map<string, string> | Set<string>,
-  tabId: string,
-): string {
-  if (errorTabs instanceof Map)
-    return errorTabs.get(tabId) || 'Validation error';
-  return 'Validation error';
-}
-
-/** "2 errors, 1 warning" for a section tab's badge and description. */
-function sectionCountsText(counts: TabValidationCounts | undefined): string {
-  if (!counts) return '';
-  return [
-    counts.errors > 0 ? buildStatusCountText('error', counts.errors) : '',
-    counts.warnings > 0 ? buildStatusCountText('warning', counts.warnings) : '',
-  ]
-    .filter(Boolean)
-    .join(', ');
-}
-
-function badgeCount(count: number): string {
-  return count > 99 ? '99+' : String(count);
 }
 
 /**
@@ -128,6 +110,7 @@ export function CustomizerTabs({
   readOnly = false,
   className = '',
   validationCounts,
+  issueTitles,
   compact = false,
   dirtyTabs,
   errorTabs,
@@ -137,6 +120,8 @@ export function CustomizerTabs({
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
+  const [badgeTooltip, setBadgeTooltip] = useState<BadgeTooltip | null>(null);
+  const tooltipId = useId();
   const selectorRef = useRef<HTMLButtonElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const sectionsId = useId();
@@ -319,7 +304,7 @@ export function CustomizerTabs({
           const counts =
             validationCounts?.[tab.id as keyof ValidationCountsByTab];
           const validationId = `customizer-tab-validation-${tab.id}`;
-          const countsText = sectionCountsText(counts);
+          const issueLines = describeTabIssues(counts, issueTitles?.[tab.id]);
           return (
             <div
               key={tab.id}
@@ -334,9 +319,21 @@ export function CustomizerTabs({
                 aria-describedby={
                   counts?.errors || counts?.warnings ? validationId : undefined
                 }
+                onFocus={(event) => {
+                  const badge =
+                    event.currentTarget.querySelector('[data-tab-badge]');
+                  if (
+                    badge &&
+                    issueLines.length > 0 &&
+                    hasKeyboardFocus(event.currentTarget)
+                  )
+                    setBadgeTooltip(tooltipFor(tab.id, issueLines, badge));
+                }}
+                onBlur={() => setBadgeTooltip(null)}
                 tabIndex={tab.id === activeTab ? 0 : -1}
                 onClick={() => {
                   if (tab.disabled) return;
+                  setBadgeTooltip(null);
                   onTabChange(tab.id);
                   if (sectionsOpen) closeSections();
                 }}
@@ -356,85 +353,29 @@ export function CustomizerTabs({
                     className={workbenchStyles.sectionSelected}
                   />
                 )}
-                {/* Dirty marker — yellow dot for unsaved changes */}
-                {dirtyTabs?.has(tab.id) && (
-                  <span
-                    className="ml-1 text-yellow-400"
-                    aria-label="Unsaved changes"
-                    role="img"
-                    title="Unsaved changes"
-                  >
-                    ●
-                  </span>
-                )}
-                {/* Validation error marker — red dot for failing constraints.
-                When errorTabs is a Map, the value is the rule code (e.g.
-                "VAL-VEHICLE-ARMOR-MAX") and becomes the ARIA label + tooltip
-                so screen-reader users hear the specific failing rule.  A
-                plain Set falls back to the generic "Validation error" label.
-                Satisfies Spec § Requirement: Validation Error Markers. */}
+                {dirtyTabs?.has(tab.id) && <DirtyTabMarker />}
                 {errorTabs?.has(tab.id) && (
-                  <span
-                    className="ml-1 text-red-500"
-                    aria-label={getErrorRuleCode(errorTabs, tab.id)}
-                    role="img"
-                    title={getErrorRuleCode(errorTabs, tab.id)}
-                  >
-                    ●
-                  </span>
+                  <ErrorTabMarker errorTabs={errorTabs} tabId={tab.id} />
                 )}
-                {/* Validation badges: shape and count, never color alone.
-                Errors are a red circle, warnings a yellow rounded square,
-                each holding its count; the slot keeps its width when the
-                counts clear. */}
                 {validationCounts && (
-                  <span
-                    className={workbenchStyles.sectionValidationDot}
-                    data-severity={
-                      counts?.errors
-                        ? 'error'
-                        : counts?.warnings
-                          ? 'warning'
-                          : undefined
-                    }
-                    role={countsText ? 'img' : undefined}
-                    aria-label={
-                      countsText ? `${tab.label}: ${countsText}` : undefined
-                    }
-                    title={
-                      countsText ? `${tab.label}: ${countsText}` : undefined
-                    }
-                  >
-                    {counts && counts.errors > 0 && (
-                      <span
-                        aria-hidden="true"
-                        data-section-badge="error"
-                        className={workbenchStyles.sectionBadge}
-                      >
-                        {badgeCount(counts.errors)}
-                      </span>
-                    )}
-                    {counts && counts.warnings > 0 && (
-                      <span
-                        aria-hidden="true"
-                        data-section-badge="warning"
-                        className={workbenchStyles.sectionBadge}
-                      >
-                        {badgeCount(counts.warnings)}
-                      </span>
-                    )}
-                    {countsText && (
-                      <span id={validationId} className="sr-only">
-                        {countsText}
-                      </span>
-                    )}
-                  </span>
+                  <SectionValidationBadge
+                    tabId={tab.id}
+                    label={tab.label}
+                    counts={counts}
+                    issueLines={issueLines}
+                    validationId={validationId}
+                    onTooltipChange={setBadgeTooltip}
+                  />
                 )}
               </button>
             </div>
           );
         })}
       </div>
+
+      {badgeTooltip && (
+        <TabIssueTooltip id={tooltipId} tooltip={badgeTooltip} />
+      )}
 
       {/* Right overflow cue */}
       {showRightFade && (

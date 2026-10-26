@@ -80,6 +80,51 @@ describe('Overview build readiness', () => {
     );
   });
 
+  it('counts placed slots and warns while an item is unplaced', () => {
+    const rows = byId(
+      getReadinessRows(
+        {
+          ...balanced,
+          criticalSlotsUsed: 69,
+          criticalSlotsPlaced: 66,
+          criticalSlotsPending: 3,
+          unplacedInstanceIds: ['ppc-1'],
+        },
+        null,
+      ),
+    );
+    expect(rows.slots.sentence).toBe(
+      '66 of 78 slots filled · 3 pending (1 unplaced item).',
+    );
+    expect(rows.slots.status).toBe('warning');
+    expect(rows.slots.severity).toBe('warning');
+    // The Unplaced row keeps naming the item that needs a slot.
+    expect(rows.unplaced.severity).toBe('warning');
+  });
+
+  it('says how many slots are free when nothing is unplaced', () => {
+    const rows = byId(getReadinessRows(balanced, null));
+    expect(rows.slots.sentence).toBe('62 of 78 slots filled, 16 free.');
+    expect(rows.slots.severity).toBe('ok');
+  });
+
+  it('keeps an over-capacity slot row an error even with unplaced items', () => {
+    const rows = byId(
+      getReadinessRows(
+        {
+          ...balanced,
+          criticalSlotsUsed: 80,
+          criticalSlotsPlaced: 77,
+          criticalSlotsPending: 3,
+          unplacedInstanceIds: ['ppc-1'],
+        },
+        null,
+      ),
+    );
+    expect(rows.slots.status).toBe('error');
+    expect(rows.slots.sentence).toBe('2 slots over capacity (80 of 78).');
+  });
+
   it('uses the shared readout thresholds for weight, slots, armor and heat', () => {
     const rows = byId(
       getReadinessRows(

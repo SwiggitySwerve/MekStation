@@ -24,8 +24,10 @@ import {
   type BuildStatusSummary,
 } from '@/components/customizer/shared/buildStatusSummary';
 import {
+  describeSlotFill,
   getCapacityStatus,
   getHeatStatus,
+  getSlotFillStatus,
   getStatusNotes,
   getWeightStatus,
   type StatStatus,
@@ -64,8 +66,13 @@ export interface ReadinessInput {
   readonly tonnage: number;
   readonly weightUsed: number;
   readonly weightRemaining: number;
+  /** Slots the build needs, including slots of items not placed yet. */
   readonly criticalSlotsUsed: number;
   readonly criticalSlotsTotal: number;
+  /** Slots actually filled; defaults to `criticalSlotsUsed`. */
+  readonly criticalSlotsPlaced?: number;
+  /** Slots needed by mounted items that are not placed yet. */
+  readonly criticalSlotsPending?: number;
   readonly armorPoints: number;
   readonly maxArmorPoints: number;
   readonly heatGenerated: number;
@@ -176,12 +183,22 @@ function weightSentence(input: ReadinessInput, status: StatStatus): string {
   return `${formatTons(input.weightRemaining)} free of ${max}.`;
 }
 
+function slotFillOf(input: ReadinessInput) {
+  return {
+    used: input.criticalSlotsUsed,
+    total: input.criticalSlotsTotal,
+    placed: input.criticalSlotsPlaced,
+    pendingSlots: input.criticalSlotsPending,
+    unplacedItems: input.unplacedInstanceIds.length,
+  };
+}
+
 function slotsSentence(input: ReadinessInput, status: StatStatus): string {
   const { criticalSlotsUsed: used, criticalSlotsTotal: total } = input;
   if (status === 'error') {
     return `${plural(used - total, 'slot')} over capacity (${used} of ${total}).`;
   }
-  return `${used} of ${total} critical slots used, ${total - used} free.`;
+  return describeSlotFill(slotFillOf(input));
 }
 
 function armorSentence(input: ReadinessInput, status: StatStatus): string {
@@ -218,10 +235,8 @@ export function getReadinessRows(
   result: UnitValidationState['result'],
 ): ReadinessRow[] {
   const weightStatus = getWeightStatus(input.weightUsed, input.tonnage);
-  const slotStatus = getCapacityStatus(
-    input.criticalSlotsUsed,
-    input.criticalSlotsTotal,
-  );
+  // Warning while any item is unplaced: its slots are reserved, not filled.
+  const slotStatus = getSlotFillStatus(slotFillOf(input));
   const armorStatus = getCapacityStatus(
     input.armorPoints,
     input.maxArmorPoints,

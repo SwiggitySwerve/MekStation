@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function armorSnapshot(page: Page) {
   return page.locator('[data-armor-variant]').evaluate((root) => {
-    const svg = root.querySelector('svg[viewBox="0 20 360 402"]')!;
+    const svg = root.querySelector('svg[viewBox="-30 20 420 402"]')!;
     const frame = svg.getBoundingClientRect();
     const paths = Array.from(root.querySelectorAll('path[data-armor-plate]'));
     return {
@@ -183,9 +183,9 @@ test('armor designs retain distinct materials, common geometry and themed panels
   // Phone: 12px text (14px in the plates), 44px touch targets, and the Unallocated/legend footer
   // sits fully above the 56px Loadout bar without scrolling.
   const phone = await page.evaluate(() => {
-    const svg = document.querySelector('svg[viewBox="0 20 360 402"]')!;
+    const svg = document.querySelector('svg[viewBox="-30 20 420 402"]')!;
     const frame = svg.getBoundingClientRect();
-    const scale = Math.min(frame.width / 360, frame.height / 402);
+    const scale = Math.min(frame.width / 420, frame.height / 402);
     const fonts = Array.from(svg.querySelectorAll('text, tspan')).map(
       (node) =>
         Number(node.closest('[font-size]')?.getAttribute('font-size')) * scale,

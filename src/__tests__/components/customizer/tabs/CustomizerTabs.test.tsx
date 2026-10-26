@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -79,6 +79,52 @@ describe('CustomizerTabs', () => {
     expect(dot).toBeInTheDocument();
     expect(dot).not.toHaveAttribute('data-severity');
     expect(tab).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('lists the issues behind a badge in a tooltip on hover and keyboard focus', async () => {
+    const user = userEvent.setup();
+    const counts = createEmptyValidationCounts();
+    counts.structure = { errors: 0, warnings: 1, infos: 0 };
+    render(
+      <CustomizerTabs
+        {...defaultProps}
+        validationCounts={counts}
+        issueTitles={{
+          structure: { errors: [], warnings: ['Runs hot'] },
+        }}
+      />,
+    );
+    const tab = screen.getByRole('tab', { name: 'Structure' });
+    const badge = tab.querySelector('[data-tab-badge]')!;
+    // The tooltip replaces the slower native title, never doubles it.
+    expect(badge).not.toHaveAttribute('title');
+    expect(screen.queryByRole('tooltip')).toBeNull();
+
+    await user.hover(badge);
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      '1 warning: Runs hot',
+    );
+    await user.unhover(badge);
+    expect(screen.queryByRole('tooltip')).toBeNull();
+
+    // Keyboard users get the same words from the tab itself.
+    act(() => tab.focus());
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      '1 warning: Runs hot',
+    );
+    expect(tab).toHaveAccessibleDescription('1 warning: Runs hot');
+    act(() => tab.blur());
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('keeps the count title when no issue titles are supplied', () => {
+    const counts = createEmptyValidationCounts();
+    counts.structure = { errors: 0, warnings: 1, infos: 0 };
+    render(<CustomizerTabs {...defaultProps} validationCounts={counts} />);
+    const badge = screen
+      .getByRole('tab', { name: 'Structure' })
+      .querySelector('[data-tab-badge]')!;
+    expect(badge).toHaveAttribute('title', 'Structure: 1 warning');
   });
 
   it('should highlight active tab', () => {

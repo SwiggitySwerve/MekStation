@@ -20,9 +20,9 @@ The system SHALL display critical slots organized by mech location in a responsi
 #### Scenario: Readable desktop and touch rows
 
 - **WHEN** the Critical Slots tab renders at desktop width with a fine pointer
-- **THEN** slot rows are at least 34px tall with 2px gaps
+- **THEN** slot rows are 30–32px tall with 2px gaps between separate equipment items and no gaps within a merged equipment block or between flat fixed-system rows
 - **AND** rows remain at least 44px tall on phones or with a coarse pointer
-- **AND** the existing five-column front-view arrangement scrolls vertically when needed, including at 1440x900
+- **AND** the existing five-column front-view arrangement shows all eight Atlas AS7-D locations without scrolling at 1440x900, with or without the one-item equipment-to-place banner; shorter viewports may scroll
 - **AND** the toolbar, colour key and equipment-to-place banner remain above the scrolling locations
 
 #### Scenario: Side torso engine slot display
@@ -48,8 +48,8 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 #### Scenario: System component colors
 
 - **WHEN** a slot contains a system component
-- **THEN** Engine, Gyro, Actuator, Cockpit, Life Support and Sensor slots use a neutral raised grey fill
-- **AND** their existing muted category stripes remain visible
+- **THEN** Engine, Gyro, Actuator, Cockpit, Life Support and Sensor slots use a flat, low-contrast neutral fill with muted text at a contrast ratio of at least 4.5:1
+- **AND** fixed systems have no coloured stripe
 
 #### Scenario: Equipment type colors
 
@@ -57,7 +57,7 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 - **THEN** equipment retains the category stripe defined by the equipment colour owner
 - **AND** its background mixes that category colour at 16% over the base surface (18% on hover)
 - **AND** slot text has contrast of at least 4.5:1 on the tint
-- **AND** heat sinks use a dashed cyan stripe, distinguishing them from the solid Missile stripe without changing global category colours
+- **AND** heat sinks use a dashed cyan stripe and a subtle diagonal fill pattern, distinguishing them from the solid Missile stripe without changing global category colours
 
 #### Scenario: Colour key bars
 
@@ -102,9 +102,9 @@ The system SHALL display multi-slot equipment as a connected visual group.
 #### Scenario: Multi-slot rendering
 
 - **WHEN** equipment occupies multiple slots
-- **THEN** the first slot shows the equipment name
-- **AND** subsequent slots show a lighter continuation marker instead of repeating the name
-- **AND** the right-side bracket connects the occupied slots
+- **THEN** the occupied rows form one merged block with the equipment name shown once and a muted "N slots" caption
+- **AND** continuation rows have no repeated name, glyph, gap or internal border
+- **AND** the category tint and stripe span the whole block
 - **AND** each slot retains its complete accessible name, slot number and existing selection, removal and drag behavior
 
 ### Requirement: Equipment Selection and Assignment
@@ -217,9 +217,8 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 #### Scenario: Phone location navigation
 
 - **WHEN** critical slots are displayed on a phone
-- **THEN** a labelled Location selector lists full location names and occupied slot counts
-- **AND** a horizontally scrollable summary above the selector contains one 44px button per location, showing its abbreviation and free-slot count from the existing displayed occupancy summary
-- **AND** summary buttons and the selector switch the same active location
+- **THEN** one full-width labelled Location selector lists full location names and used/free slot counts (for example, "Left Torso · 8/12 used, 4 free")
+- **AND** no duplicate location chip strip is displayed; counts reuse the existing displayed occupancy summary
 - **AND** selecting a location displays only its slot grid, without a duplicate location heading or accordion
 - **AND** keyboard focus remains on the selector, which has at least a 44px touch target
 - **AND** selecting equipment reveals the first assignable location

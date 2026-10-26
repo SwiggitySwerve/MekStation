@@ -11,12 +11,17 @@ import type {
 import { customizerStyles as cs } from '../styles';
 import {
   STRUCTURE_HELP,
-  STRUCTURE_META,
+  STRUCTURE_META_END,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
   STRUCTURE_SELECT,
 } from './StructureTabRowLayout';
 import { StructureStepper } from './StructureTabStepper';
+
+/** "19t · 6 slots": a component's weight and critical-slot cost. */
+function formatCostMeta(weight: number, slots: number): string {
+  return `${weight}t · ${slots} ${slots === 1 ? 'slot' : 'slots'}`;
+}
 
 interface StructureOption {
   readonly type: string;
@@ -159,7 +164,10 @@ export function SystemSelects({
         </div>
         <LabeledSelect
           label="Engine"
-          meta={`${calculations.engineWeight}t / ${calculations.engineSlots} slots`}
+          meta={formatCostMeta(
+            calculations.engineWeight,
+            calculations.engineSlots,
+          )}
           disabled={readOnly}
           value={engineType}
           options={filteredOptions.engines}
@@ -177,7 +185,10 @@ export function SystemSelects({
         <div className="space-y-2">
           <LabeledSelect
             label="Gyro"
-            meta={`${calculations.gyroWeight}t / ${calculations.gyroSlots} slots`}
+            meta={formatCostMeta(
+              calculations.gyroWeight,
+              calculations.gyroSlots,
+            )}
             disabled={readOnly}
             value={gyroType}
             options={filteredOptions.gyros}
@@ -185,7 +196,10 @@ export function SystemSelects({
           />
           <LabeledSelect
             label="Structure"
-            meta={`${calculations.structureWeight}t / ${calculations.structureSlots} slots`}
+            meta={formatCostMeta(
+              calculations.structureWeight,
+              calculations.structureSlots,
+            )}
             disabled={readOnly}
             value={internalStructureType}
             options={filteredOptions.structures}
@@ -193,7 +207,10 @@ export function SystemSelects({
           />
           <LabeledSelect
             label="Cockpit"
-            meta={`${calculations.cockpitWeight}t / ${calculations.cockpitSlots} slots`}
+            meta={formatCostMeta(
+              calculations.cockpitWeight,
+              calculations.cockpitSlots,
+            )}
             disabled={readOnly}
             value={cockpitType}
             options={filteredOptions.cockpits}
@@ -241,7 +258,7 @@ function LabeledSelect({
           </option>
         ))}
       </select>
-      <span className={STRUCTURE_META}>{meta}</span>
+      <span className={STRUCTURE_META_END}>{meta}</span>
     </div>
   );
 }
@@ -263,7 +280,7 @@ export function EngineRatingSummary({
       >
         {engineRating}
       </span>
-      <span className={STRUCTURE_META}>
+      <span className={STRUCTURE_META_END}>
         {isAtMaxEngineRating ? 'Maximum' : 'Derived'}
       </span>
       {isAtMaxEngineRating && (

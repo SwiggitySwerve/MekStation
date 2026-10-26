@@ -5,28 +5,27 @@ import type { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 import { MechLocation } from '@/types/construction';
 
 import type { IArmorFaceMaximums } from '../shared/ArmorFaceMaximums';
-import type { BipedArmorPlate } from './CleanTechBipedDiagram.geometry';
 
 import { BIPED_ARMOR_INK } from './BipedArmorSurface';
+import {
+  BIPED_PLATE_STACK as STACK,
+  type BipedArmorPlate,
+} from './CleanTechBipedDiagram.geometry';
 
 /**
  * Text sizes in viewBox units. On a 390px phone the diagram renders at about
- * 0.86 px per unit (its height is capped to keep the footer above the Loadout
- * bar), so the "/max" denominators and the rear line use 17 units (about
- * 14.6 rendered px) and the 17-unit location names match them.
+ * 0.83 px per unit (the viewBox is 420 units wide and the figure's height is
+ * capped to keep the footer above the Loadout bar), so the 17-unit "/max"
+ * denominators, rear line and abbreviations render at about 14 px.
  */
 const FONT = {
-  label: 17,
-  headLabel: 17,
-  headValue: 24,
-  torsoValue: 22,
-  limbValue: 26,
-  limbMaximum: 17,
-  secondary: 17,
+  abbreviation: 17,
+  value: 22,
+  maximum: 17,
 } as const;
 
-/** Baseline offsets below `plate.y` for the lines inside a torso plate. */
-const TORSO_LINE = { front: 30, rear: 57 } as const;
+/** Half-width of the limb fill bar. */
+const BAR_HALF_WIDTH = 18;
 
 const PREMIUM_BACKING = {
   fill: '#071a16',
@@ -49,8 +48,10 @@ interface BipedArmorPlateLabelProps {
 }
 
 /**
- * The text drawn inside one biped armor plate: location name, the front value
- * over its face maximum and, on torsos, a smaller "R" line for rear armor.
+ * The text drawn inside one biped armor plate. Every location uses the same
+ * stack, centred on the plate: the abbreviation, the front value in bold with
+ * its "/max" muted on the same baseline and, on torsos, a muted "R" line for
+ * rear armor.
  */
 export function BipedArmorPlateLabel({
   plate,
@@ -67,12 +68,15 @@ export function BipedArmorPlateLabel({
   const isPremium = variant === 'premium-material';
   const isHead = location === MechLocation.HEAD;
   const hasRear = plate.hasRear === true;
+  const hasBar = !hasRear && !isHead;
+  const frontMaximum = hasRear ? faceMaximums.front : maximum;
   const backing = {
     fill: PREMIUM_BACKING.fill,
     fillOpacity: PREMIUM_BACKING.fillOpacity,
     stroke: statusColor,
     strokeWidth: PREMIUM_BACKING.strokeWidth,
   };
+  const backingHeight = hasRear ? 54 : 30;
 
   return (
     <g
@@ -80,32 +84,12 @@ export function BipedArmorPlateLabel({
       className={`pointer-events-none ${variant === 'tactical-hud' ? 'font-mono' : ''}`}
       fill={ink.primary}
     >
-      {isPremium && hasRear && (
+      {isPremium && (
         <rect
-          x={plate.x - 32}
-          y={plate.y - 17}
-          width="64"
-          height="80"
-          rx="6"
-          {...backing}
-        />
-      )}
-      {isPremium && isHead && (
-        <rect
-          x={plate.x - 24}
-          y={plate.y + 6}
-          width="48"
-          height="26"
-          rx="6"
-          {...backing}
-        />
-      )}
-      {isPremium && !hasRear && !isHead && (
-        <rect
-          x={plate.x - 24}
-          y={plate.y + 4}
-          width="48"
-          height="30"
+          x={plate.x - 34}
+          y={plate.y + STACK.value - 22}
+          width="68"
+          height={backingHeight}
           rx="6"
           {...backing}
         />
@@ -113,8 +97,10 @@ export function BipedArmorPlateLabel({
       <text
         x={plate.x}
         y={plate.y}
-        fontSize={isHead ? FONT.headLabel : FONT.label}
+        fontSize={FONT.abbreviation}
         fontWeight="700"
+        letterSpacing="1.2"
+        fill={ink.secondary}
         style={
           isPremium
             ? { paintOrder: 'stroke', stroke: '#071a16', strokeWidth: 2 }
@@ -123,80 +109,42 @@ export function BipedArmorPlateLabel({
       >
         {plate.label}
       </text>
-      {hasRear ? (
-        <>
-          <text
-            x={plate.x}
-            y={plate.y + TORSO_LINE.front}
-            fontSize={FONT.torsoValue}
-            fontWeight="700"
-            data-armor-face="front"
-            data-armor-face-location={location}
-          >
-            {current}
-            <tspan
-              fontSize={FONT.secondary}
-              fontWeight="600"
-              fill={ink.secondary}
-            >
-              /{faceMaximums.front}
-            </tspan>
-          </text>
-          <text
-            x={plate.x}
-            y={plate.y + TORSO_LINE.rear}
-            fontSize={FONT.secondary}
-            fontWeight="600"
-            fill={ink.secondary}
-            data-armor-face="rear"
-            data-armor-face-location={location}
-          >
-            <tspan>{'R '}</tspan>
-            {rear}/{faceMaximums.rear}
-          </text>
-        </>
-      ) : isHead ? (
+      <text
+        x={plate.x}
+        y={plate.y + STACK.value}
+        fontSize={FONT.value}
+        fontWeight="700"
+        data-armor-face={hasRear ? 'front' : undefined}
+        data-armor-face-location={hasRear ? location : undefined}
+      >
+        {current}
+        <tspan fontSize={FONT.maximum} fontWeight="600" fill={ink.secondary}>
+          /{frontMaximum}
+        </tspan>
+      </text>
+      {hasRear && (
         <text
           x={plate.x}
-          y={plate.y + 25}
-          fontSize={FONT.headValue}
-          fontWeight="700"
+          y={plate.y + STACK.rear}
+          fontSize={FONT.maximum}
+          fontWeight="600"
+          fill={ink.secondary}
+          data-armor-face="rear"
+          data-armor-face-location={location}
         >
-          {current}
-          <tspan
-            fontSize={FONT.secondary}
-            fontWeight="600"
-            fill={ink.secondary}
-          >
-            /{maximum}
-          </tspan>
+          <tspan>{'R '}</tspan>
+          {rear}/{faceMaximums.rear}
         </text>
-      ) : (
+      )}
+      {hasBar && (
         <>
-          <text
-            x={plate.x}
-            y={plate.y + 26}
-            fontSize={FONT.limbValue}
-            fontWeight="700"
-          >
-            {current}
-          </text>
-          <text
-            x={plate.x}
-            y={plate.y + 46}
-            fontSize={FONT.limbMaximum}
-            fontWeight="600"
-            fill={ink.secondary}
-          >
-            /{maximum}
-          </text>
           <path
-            d={`M${plate.x - 18} ${plate.y + 56} h36`}
+            d={`M${plate.x - BAR_HALF_WIDTH} ${plate.y + STACK.bar} h${BAR_HALF_WIDTH * 2}`}
             stroke="var(--surface-deep)"
             strokeWidth="4"
           />
           <path
-            d={`M${plate.x - 18} ${plate.y + 56} h${36 * ratio}`}
+            d={`M${plate.x - BAR_HALF_WIDTH} ${plate.y + STACK.bar} h${BAR_HALF_WIDTH * 2 * ratio}`}
             stroke={statusColor}
             strokeWidth="4"
           />

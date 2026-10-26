@@ -284,33 +284,47 @@ export function UnitLoadDialog({
 
       {onCreateBlankUnit && (
         <div className="bg-surface-raised border-border-theme-subtle shrink-0 border-b p-4">
-          {/* The primary action and its secondary settings step sit side by
-              side at the same height; the explanation reads under the pair. */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-start">
-            <button
-              type="button"
-              onClick={onCreateBlankUnit}
-              aria-describedby={`${titleId}-blank-help`}
-              className={`${cs.dialog.btnPrimary} h-11 max-sm:w-full max-sm:px-3 sm:px-6`}
-            >
-              New blank unit
-            </button>
-            {onConfigureNewUnit && (
+          {/* Each action carries its own caption directly under it, aligned to
+              the button's left edge. The two actions sit side by side at the
+              same height; on phones they stack with their captions. The
+              captions wrap at the button's width (w-0 min-w-full) so they
+              never push the second action away from the first. */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-start sm:gap-3">
+            <div className="flex flex-col gap-1.5 max-sm:w-full">
               <button
                 type="button"
-                onClick={onConfigureNewUnit}
-                className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:px-3 max-sm:text-sm`}
+                onClick={onCreateBlankUnit}
+                aria-describedby={`${titleId}-blank-help`}
+                className={`${cs.dialog.btnPrimary} h-11 max-sm:w-full max-sm:px-3 sm:min-w-52 sm:px-6`}
               >
-                Choose tonnage and tech first…
+                New blank unit
               </button>
+              <p
+                id={`${titleId}-blank-help`}
+                className="text-text-theme-secondary m-0 w-0 min-w-full text-xs leading-snug"
+              >
+                Starts a 50-ton Inner Sphere BattleMech you can change.
+              </p>
+            </div>
+            {onConfigureNewUnit && (
+              <div className="flex flex-col gap-1.5 max-sm:w-full">
+                <button
+                  type="button"
+                  onClick={onConfigureNewUnit}
+                  aria-describedby={`${titleId}-configure-help`}
+                  className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:px-3 max-sm:text-sm`}
+                >
+                  Choose tonnage and tech first…
+                </button>
+                <p
+                  id={`${titleId}-configure-help`}
+                  className="text-text-theme-secondary m-0 w-0 min-w-full text-xs leading-snug"
+                >
+                  Pick unit type, tonnage and tech base.
+                </p>
+              </div>
             )}
           </div>
-          <p
-            id={`${titleId}-blank-help`}
-            className="text-text-theme-secondary mt-2 text-xs sm:text-sm"
-          >
-            Starts a 50-ton Inner Sphere BattleMech you can change.
-          </p>
         </div>
       )}
       {onCreateBlankUnit && (

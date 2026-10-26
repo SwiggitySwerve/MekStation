@@ -185,7 +185,7 @@ describe('UnitLoadDialog', () => {
     expect(screen.queryByText('Select a unit to load')).not.toBeInTheDocument();
   });
 
-  it('puts New blank unit and the settings step side by side, with the explanation under them', () => {
+  it('puts New blank unit and the settings step side by side, each with its own caption under it', () => {
     render(
       <UnitLoadDialog
         {...defaultProps}
@@ -198,15 +198,24 @@ describe('UnitLoadDialog', () => {
     const settings = screen.getByRole('button', {
       name: 'Choose tonnage and tech first…',
     });
-    // The two buttons are siblings in one row; the explanation sits under
-    // the pair, and stays linked to the primary button.
-    expect(settings.parentElement).toBe(blank.parentElement);
-    expect(blank.nextElementSibling).toBe(settings);
-    expect(blank.parentElement?.nextElementSibling).toHaveTextContent(
+    // Two columns in one row: each button owns the caption right under it.
+    const blankColumn = blank.parentElement as HTMLElement;
+    const settingsColumn = settings.parentElement as HTMLElement;
+    expect(blankColumn).not.toBe(settingsColumn);
+    expect(blankColumn.parentElement).toBe(settingsColumn.parentElement);
+    expect(blankColumn.nextElementSibling).toBe(settingsColumn);
+    expect(blank.nextElementSibling).toHaveTextContent(
       'Starts a 50-ton Inner Sphere BattleMech you can change.',
     );
+    expect(settings.nextElementSibling).toHaveTextContent(
+      'Pick unit type, tonnage and tech base.',
+    );
+    // The blank-unit caption describes only the blank-unit button.
     expect(blank).toHaveAccessibleDescription(
       'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(settings).toHaveAccessibleDescription(
+      'Pick unit type, tonnage and tech base.',
     );
     expect(blank.className).toContain('h-11');
     expect(settings.className).toContain('h-11');

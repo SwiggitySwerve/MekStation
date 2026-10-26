@@ -10,6 +10,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { NewTabModal } from './NewTabModal';
+import { QuickStartUnits } from './QuickStartUnits';
 
 interface MultiUnitTabsEmptyStateProps {
   className: string;
@@ -83,6 +84,11 @@ export function MultiUnitTabsEmptyState({
             Load from Library
           </button>
         </div>
+
+        <QuickStartUnits
+          isLoadingUnit={isLoadingUnit}
+          onLoadUnit={onLoadUnit}
+        />
       </div>
 
       <NewTabModal

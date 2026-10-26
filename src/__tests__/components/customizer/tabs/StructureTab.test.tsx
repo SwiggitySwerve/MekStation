@@ -156,6 +156,33 @@ describe('StructureTab', () => {
     expect(screen.getByTitle('Final Run MP')).toBeInTheDocument();
   });
 
+  it('shows the locked Run MP value in the primary text colour, like other values', () => {
+    render(<StructureTab />);
+
+    const run = screen.getByLabelText('Run MP');
+    expect(run).toHaveClass('text-text-theme-primary');
+    expect(run).not.toHaveClass('text-text-theme-secondary');
+    // The lock icon and the helper line still say it is derived.
+    expect(run.querySelector('svg')).not.toBeNull();
+    expect(run).toHaveAccessibleDescription(
+      'Follows Walk MP; it is not set directly.',
+    );
+  });
+
+  it('pins each cost meta to the card edge as "weight · slots" with tabular numerals', () => {
+    render(<StructureTab />);
+
+    const row = screen.getByLabelText('Engine').closest('.grid') as HTMLElement;
+    const meta = within(row).getByText(/^\d+t · .+ slots?$/);
+    expect(meta).toHaveClass('tabular-nums');
+    expect(meta.className).toContain('@[32rem]:text-right');
+    expect(meta.className).toContain('@[32rem]:justify-self-end');
+    // "-> n final" readouts stay beside their control.
+    expect(screen.getByTitle('Final Walk MP').parentElement).not.toHaveClass(
+      'text-right',
+    );
+  });
+
   it('makes every stepper span the full control column', () => {
     render(<StructureTab />);
 

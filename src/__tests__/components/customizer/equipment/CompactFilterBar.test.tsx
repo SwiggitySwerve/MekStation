@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { CompactFilterBar } from '@/components/customizer/equipment/CompactFilterBar';
+import { getCatalogCapacityNotice } from '@/components/customizer/equipment/EquipmentBrowser.model';
 import { EquipmentCategory } from '@/types/equipment';
 
 describe('CompactFilterBar', () => {
@@ -185,6 +186,53 @@ describe('CompactFilterBar', () => {
       ).toHaveTextContent('Filters · Inner Sphere · introduced ≤3028');
     });
 
+    it('puts the result count and free capacity on one summary line', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          resultSummary="182 items"
+          capacity={getCatalogCapacityNotice({
+            remainingWeight: 4,
+            remainingSlots: 16,
+          })}
+        />,
+      );
+      const capacity = screen.getByTestId('equipment-catalog-capacity');
+      expect(capacity.parentElement).toHaveTextContent(
+        '182 items · 4.0 t free · 16 slots free',
+      );
+    });
+
+    it('warns in place of the weight when no tonnage is free', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          resultSummary="182 items"
+          capacity={getCatalogCapacityNotice({
+            remainingWeight: 0,
+            remainingSlots: 12,
+          })}
+        />,
+      );
+      expect(
+        screen.getByTestId('equipment-catalog-capacity'),
+      ).toHaveTextContent(
+        '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
+      );
+    });
+
+    it('shows a short active-filter count for narrow screens', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          hidePrototype={true}
+          hideOneShot={true}
+        />,
+      );
+      expect(
+        screen.getByRole('button', { name: 'Visibility filters' }),
+      ).toHaveTextContent('· 2');
+    });
     it('labels the help popover in plain words', () => {
       render(<CompactFilterBar {...defaultProps} />);
       expect(

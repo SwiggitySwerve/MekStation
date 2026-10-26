@@ -4,15 +4,19 @@ import React from 'react';
 import { MechLocation } from '@/types/construction';
 
 import { CleanTechDiagram, PremiumMaterialDiagram } from '..';
-import { BIPED_ARMOR_PLATES } from '../CleanTechBipedDiagram.geometry';
+import {
+  BIPED_ARMOR_PLATES,
+  BIPED_PLATE_STACK,
+} from '../CleanTechBipedDiagram.geometry';
 
 /**
- * The biped diagram is drawn at about 0.86 px per viewBox unit on a 390x844
- * phone (its height is capped to keep the footer above the Loadout bar), so
- * these unit floors correspond to 12 px text and 44 px touch targets there.
+ * The biped diagram is drawn at about 0.83 px per viewBox unit on a 390x844
+ * phone (420 units wide, its height capped to keep the footer above the
+ * Loadout bar), so these unit floors correspond to 12 px text and 44 px touch
+ * targets there.
  */
 const MIN_TEXT_UNITS = 14;
-const MIN_TAP_UNITS = 52;
+const MIN_TAP_UNITS = 54;
 /** Clear space the head's value line keeps above the plate's bottom edge. */
 const MIN_HEAD_CLEARANCE_UNITS = 10;
 
@@ -81,6 +85,55 @@ function pathBounds(d: string): {
   };
 }
 
+/** Vertices of an absolute M/L/H/V/Z path. */
+function pathPoints(d: string): Array<[number, number]> {
+  const points: Array<[number, number]> = [];
+  let x = 0;
+  let y = 0;
+  for (const [, command, args] of d.matchAll(/([MLHVZ])([^MLHVZ]*)/g)) {
+    const n = args
+      .trim()
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .map(Number);
+    if (command === 'H') x = n[0];
+    else if (command === 'V') y = n[0];
+    else if (command !== 'Z') [x, y] = n;
+    if (command !== 'Z') points.push([x, y]);
+  }
+  return points;
+}
+
+/** The plate's left and right edge at height y, around the vertical axis x. */
+function spanAt(
+  points: Array<[number, number]>,
+  y: number,
+  x: number,
+): [number, number] | null {
+  const crossings: number[] = [];
+  points.forEach(([x1, y1], index) => {
+    const [x2, y2] = points[(index + 1) % points.length];
+    if ((y1 <= y && y < y2) || (y2 <= y && y < y1))
+      crossings.push(x1 + ((y - y1) * (x2 - x1)) / (y2 - y1));
+  });
+  crossings.sort((a, b) => a - b);
+  for (let i = 0; i + 1 < crossings.length; i += 2)
+    if (crossings[i] <= x && x <= crossings[i + 1])
+      return [crossings[i], crossings[i + 1]];
+  return null;
+}
+
+/**
+ * Widest rendered text rows, in viewBox units, measured in the browser at the
+ * sizes the label uses ("47/48" at 22/17 units, "R 14/15" at 17 units).
+ */
+const FRONT_ROW_UNITS = 50;
+/** The head's one-digit "9/9". */
+const HEAD_ROW_UNITS = 28;
+const REAR_ROW_UNITS = 61;
+/** Clear space between a text row and the plate outline. */
+const MIN_EDGE_INSET_UNITS = 8;
+
 function fontSizeOf(node: Element): number {
   return Number(node.closest('[font-size]')?.getAttribute('font-size'));
 }
@@ -123,6 +176,86 @@ describe('biped armor diagram layout', () => {
     expect(
       screen.getByRole('button', { name: /^Center Torso armor:.*rear: 14 of/ }),
     ).toBeInTheDocument();
+  });
+
+  it('uses one text stack for every location, centred on its plate', () => {
+    const { container } = render(<CleanTechDiagram {...props} />);
+    const buttons = container.querySelectorAll('[role="button"][aria-label]');
+    expect(buttons).toHaveLength(Object.keys(BIPED_ARMOR_PLATES).length);
+    for (const location of Object.keys(BIPED_ARMOR_PLATES) as MechLocation[]) {
+      const plate = BIPED_ARMOR_PLATES[location]!;
+      const button = container.querySelector(
+        `[role="button"][aria-label^="${location} armor"]`,
+      )!;
+      const lines = Array.from(button.querySelectorAll('text'));
+      // Abbreviation, then the front value with its "/max" muted on the same
+      // baseline, then (torsos only) the rear line.
+      expect(lines).toHaveLength(plate.hasRear ? 3 : 2);
+      expect(lines[0]).toHaveTextContent(plate.label);
+      expect(lines[1].textContent).toMatch(/^\d+\/\d+$/);
+      expect(lines[1].querySelectorAll('tspan')).toHaveLength(1);
+      expect(lines[1].querySelector('tspan')?.textContent).toMatch(/^\/\d+$/);
+      if (plate.hasRear) expect(lines[2].textContent).toMatch(/^R \d+\/\d+$/);
+      for (const line of lines)
+        expect(Number(line.getAttribute('x'))).toBe(plate.x);
+    }
+  });
+
+  it('keeps every text row at least 8 units inside its plate outline', () => {
+    for (const [location, plate] of Object.entries(BIPED_ARMOR_PLATES)) {
+      const points = pathPoints(plate.path);
+      const rows = [
+        {
+          baseline: plate.y + BIPED_PLATE_STACK.value,
+          cap: 16,
+          width:
+            location === MechLocation.HEAD ? HEAD_ROW_UNITS : FRONT_ROW_UNITS,
+        },
+        ...(plate.hasRear
+          ? [
+              {
+                baseline: plate.y + BIPED_PLATE_STACK.rear,
+                cap: 12,
+                width: REAR_ROW_UNITS,
+              },
+            ]
+          : []),
+      ];
+      for (const { baseline, cap, width } of rows) {
+        for (const y of [baseline - cap, baseline]) {
+          const span = spanAt(points, y, plate.x);
+          expect(span).not.toBeNull();
+          const [left, right] = span!;
+          expect(plate.x - width / 2 - left).toBeGreaterThanOrEqual(
+            MIN_EDGE_INSET_UNITS,
+          );
+          expect(right - (plate.x + width / 2)).toBeGreaterThanOrEqual(
+            MIN_EDGE_INSET_UNITS,
+          );
+        }
+      }
+    }
+  });
+
+  it('mirrors the left plates about the centre line', () => {
+    const pairs: Array<[MechLocation, MechLocation]> = [
+      [MechLocation.RIGHT_ARM, MechLocation.LEFT_ARM],
+      [MechLocation.RIGHT_TORSO, MechLocation.LEFT_TORSO],
+      [MechLocation.RIGHT_LEG, MechLocation.LEFT_LEG],
+    ];
+    for (const [right, left] of pairs) {
+      const a = BIPED_ARMOR_PLATES[right]!;
+      const b = BIPED_ARMOR_PLATES[left]!;
+      expect(a.x + b.x).toBe(360);
+      expect(a.y).toBe(b.y);
+      const bounds = (path: string) => {
+        const xs = pathPoints(path).map(([x]) => x);
+        return [Math.min(...xs), Math.max(...xs)];
+      };
+      const [minA, maxA] = bounds(a.path);
+      const [minB, maxB] = bounds(b.path);
+      expect([minA + maxB, maxA + minB]).toEqual([360, 360]);
+    }
   });
 
   it('gives the head denominator room above its bottom outline', () => {

@@ -37,6 +37,7 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
     onSearchChange,
     onClearFilters,
     availabilitySummary,
+    capacity,
   }: CompactFilterBarProps) => (
     <div data-testid="compact-filter-bar">
       <input
@@ -47,6 +48,11 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
       />
       <button onClick={onClearFilters}>Clear</button>
       <span>{availabilitySummary}</span>
+      {capacity && (
+        <span data-testid="equipment-catalog-capacity">
+          {capacity.weightText} · {capacity.slotsText}
+        </span>
+      )}
     </div>
   ),
 }));
@@ -172,11 +178,34 @@ describe('EquipmentBrowser', () => {
       '4.0 t free · 16 slots free',
     );
     expect(screen.getByText('×3 mounted')).toBeInTheDocument();
-    expect(screen.getAllByText('+1.0 t over')).toHaveLength(2);
+    // Only the 5 t Large Laser exceeds the 4 t free; no per-row chip.
+    expect(screen.getAllByText(/exceeds free weight by 1\.0 t/)).toHaveLength(
+      2,
+    );
+    expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
     await userEvent
       .setup()
       .click(screen.getByRole('button', { name: 'Add Large Laser' }));
     expect(onAddEquipment).toHaveBeenCalledWith(mockEquipment[1]);
+  });
+
+  it('says once that nothing is free instead of marking every row', () => {
+    render(
+      <EquipmentBrowserUnitContext.Provider
+        value={{
+          remainingWeight: 0,
+          remainingSlots: 12,
+          mountedCounts: new Map(),
+        }}
+      >
+        <EquipmentBrowser onAddEquipment={jest.fn()} />
+      </EquipmentBrowserUnitContext.Provider>,
+    );
+    expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
+      '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
+    );
+    expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\+\d+\.\d t over/)).not.toBeInTheDocument();
   });
 
   it('should render equipment table', () => {

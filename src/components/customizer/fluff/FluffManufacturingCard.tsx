@@ -65,7 +65,11 @@ export function FluffManufacturingCard({
   };
 
   return (
-    <section className={cs.panel.main} aria-labelledby="fluff-mfg-heading">
+    <section
+      className={cs.panel.main}
+      tabIndex={-1}
+      aria-labelledby="fluff-mfg-heading"
+    >
       <h3 id="fluff-mfg-heading" className={`${cs.text.cardTitle} mb-3`}>
         Manufacturing
       </h3>

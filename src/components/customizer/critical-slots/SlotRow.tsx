@@ -21,13 +21,13 @@ import type {
 } from './SlotInteractionTypes';
 
 import { SlotContextMenuShell } from './SlotContextMenuShell';
+import { SlotEquipmentLabel } from './SlotEquipmentLabel';
 import {
+  getMergedSlotClasses,
   getOccupiedSpanClasses,
-  getSingleSlotDisplayName,
   getSlotSizeClasses,
   getSlotStateClasses,
   getSlotTintStyle,
-  isSlotContinuation,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -277,7 +277,6 @@ export const SlotRow = memo(function SlotRow({
     ? 'ring-2 ring-accent ring-offset-1 ring-offset-surface-deep'
     : '';
   const spanClasses = getOccupiedSpanClasses(slot);
-  const displayName = getSingleSlotDisplayName(slot, isOmni);
   const title = getTitle(interactivityState);
 
   return (
@@ -289,7 +288,7 @@ export const SlotRow = memo(function SlotRow({
         aria-label={getSlotAriaLabel(slot)}
         aria-selected={isSelected}
         style={getSlotTintStyle(slot)}
-        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)}`}
+        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)} ${getMergedSlotClasses(slot)}`}
         onClick={onClick}
         onDoubleClick={() => handleSlotDoubleClick({ canUnassign, onRemove })}
         onContextMenu={(e) =>
@@ -336,13 +335,7 @@ export const SlotRow = memo(function SlotRow({
         >
           {slot.index + 1}
         </span>
-        <span
-          aria-hidden={isSlotContinuation(slot) || undefined}
-          className={`min-w-0 flex-1 break-words whitespace-normal ${isSlotContinuation(slot) ? 'text-text-theme-secondary' : ''}`}
-        >
-          {slot.type === 'empty' && <span aria-hidden="true">+ </span>}
-          {displayName}
-        </span>
+        <SlotEquipmentLabel slot={slot} isOmni={isOmni} />
         {spanClasses && (
           <span
             aria-hidden="true"

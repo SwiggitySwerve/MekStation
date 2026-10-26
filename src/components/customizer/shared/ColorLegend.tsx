@@ -157,8 +157,8 @@ export function ColorLegend({
         >
           <p className="text-text-theme-secondary text-xs">
             Tinted bars identify equipment; neutral grey identifies fixed
-            systems. Dashed cyan stripes identify heat sinks. Dashed outlines
-            are empty or unhittable.
+            systems. Patterned fill and dashed cyan stripes identify heat sinks.
+            Dashed outlines are empty or unhittable.
           </p>
           {/* System Components */}
           <div>

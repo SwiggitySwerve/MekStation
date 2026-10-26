@@ -15,7 +15,14 @@ import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
-import { getCatalogWeightExcess } from './EquipmentBrowser.model';
+import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
+import {
+  describeCatalogWeightExcess,
+  getCatalogWeightExcess,
+} from './EquipmentBrowser.model';
+
+/** Warning hue plus a dotted underline, so the cue is not colour alone. */
+const WEIGHT_OVER_CLASS = `${BUILD_STATUS_KIND_TEXT_CLASS.warning} underline decoration-dotted underline-offset-4`;
 
 interface EquipmentCatalogCardProps {
   equipment: IEquipmentItem;
@@ -48,6 +55,10 @@ export function EquipmentCatalogCard({
     : '—';
   const variable = Boolean(equipment.variableEquipmentId);
   const weightExcess = getCatalogWeightExcess(equipment, remainingWeight);
+  const weightNote =
+    weightExcess === null
+      ? undefined
+      : describeCatalogWeightExcess(weightExcess);
   const accent = getEquipmentAccentClasses(equipment.category, equipment.name);
   return (
     <li
@@ -91,14 +102,9 @@ export function EquipmentCatalogCard({
             </span>
             <span
               data-catalog-column="category"
-              className="text-text-theme-secondary hidden truncate text-xs lg:block"
+              className={`hidden lg:block ${workbenchStyles.catalogMeta}`}
             >
               {equipment.category}
-              {weightExcess !== null && (
-                <span className={workbenchStyles.catalogOver}>
-                  +{weightExcess.toFixed(1)} t over
-                </span>
-              )}
             </span>
           </span>
         </button>
@@ -124,9 +130,11 @@ export function EquipmentCatalogCard({
         </span>
         <span
           data-catalog-column="weight"
-          className="hidden text-sm text-inherit tabular-nums lg:block"
+          className={`hidden text-sm tabular-nums lg:block ${weightNote ? WEIGHT_OVER_CLASS : 'text-inherit'}`}
+          title={weightNote}
         >
           {variable ? 'Variable' : equipment.weight}
+          {weightNote && <span className="sr-only">, {weightNote}</span>}
         </span>
         <span
           data-catalog-column="criticalSlots"
@@ -144,11 +152,6 @@ export function EquipmentCatalogCard({
           className={workbenchStyles.catalogMobileStats}
           data-testid="equipment-catalog-stats"
         >
-          {weightExcess !== null && (
-            <span className={workbenchStyles.catalogOver}>
-              +{weightExcess.toFixed(1)} t over
-            </span>
-          )}
           {weapon ? (
             <>
               <span>Dmg {weapon.damage}</span>
@@ -162,7 +165,13 @@ export function EquipmentCatalogCard({
             <span>Variable weight / slots</span>
           ) : (
             <>
-              <span>{equipment.weight} t</span>
+              <span
+                className={weightNote ? WEIGHT_OVER_CLASS : undefined}
+                title={weightNote}
+              >
+                {equipment.weight} t
+                {weightNote && <span className="sr-only">, {weightNote}</span>}
+              </span>
               <span>
                 {equipment.criticalSlots}{' '}
                 {equipment.criticalSlots === 1 ? 'slot' : 'slots'}

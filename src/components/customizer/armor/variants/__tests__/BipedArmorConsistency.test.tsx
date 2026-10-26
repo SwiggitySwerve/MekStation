@@ -12,6 +12,7 @@ import {
   TacticalHUDDiagram,
 } from '..';
 import { BipedArmorSurface } from '../BipedArmorSurface';
+import { BIPED_ARMOR_VIEWBOX } from '../CleanTechBipedDiagram.geometry';
 
 const components = [
   CleanTechDiagram,
@@ -72,7 +73,7 @@ it('biped designs preserve geometry and status semantics while keeping distinct 
       ),
     );
     expect(
-      view.container.querySelector('svg[viewBox="0 20 360 402"]'),
+      view.container.querySelector(`svg[viewBox="${BIPED_ARMOR_VIEWBOX}"]`),
     ).toHaveClass('max-w-[360px]', '@[40rem]:max-w-[440px]');
     expect(
       projection.find((p) => p.location === MechLocation.HEAD)?.status,

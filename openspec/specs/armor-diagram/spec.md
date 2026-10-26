@@ -72,8 +72,8 @@ The system SHALL display current armor values directly on the diagram.
 #### Scenario: Maximum shown for every biped location
 
 - **WHEN** the biped armor diagram renders
-- **THEN** every limb shows its current armor with "/<max>" beneath it (no space after the slash, the same separator as the torso and head cells), and the head shows "<value>/<max>" on one line inside its outline
-- **AND** each torso (CT, LT, RT) is labelled with its short name only ("CT", "LT", "RT", not "CT-F") and shows the front value as the primary line, "<value>/<face max>" (for example 47/48), over a smaller "R <value>/<face max>" rear line (for example R 14/15); there are no separate FRONT or REAR words on the cell
+- **THEN** every location (head, torsos, arms and legs) uses one text stack centred on its plate and kept at least 8 viewBox units inside the outline: the location abbreviation in small bold capitals, then the front value in bold with its "/<max>" muted on the same baseline (for example "34/34", "9/9"), and on torsos a muted "R <value>/<face max>" line under it; arms and legs add the fill bar beneath
+- **AND** each torso (CT, LT, RT) is labelled with its short name only ("CT", "LT", "RT", not "CT-F") and shows the front value as "<value>/<face max>" (for example 47/48) with the smaller "R <value>/<face max>" rear line (for example R 14/15) under it; there are no separate FRONT or REAR words on the cell
 - **AND** the location's accessible name still spells out the rear face ("<location> armor: <front> of <max>, rear: <rear> of <rear max>")
 - **AND** a face's max is the location maximum minus the armor the other face currently holds, the same figure the location editor shows beside its Front and Rear controls ("max 48", "max 15"), taken from one shared helper (`getArmorFaceMaximums`)
 - **AND** the torso cell has no total line; the location editor's Total line remains the place that shows front + rear over the location maximum
@@ -82,9 +82,9 @@ The system SHALL display current armor values directly on the diagram.
 #### Scenario: Biped plates stay legible and tappable on a phone
 
 - **WHEN** the biped silhouette renders at 390x844
-- **THEN** every SVG text and tspan is at least 12 rendered px, and the plate text, including the "/max" denominators, the rear line and the location names, is at least 14 rendered px (plate text uses 17 viewBox units, shown at about 0.86 px per unit because the SVG height is capped to the viewport)
-- **AND** every location plate (head, torsos, arms and legs) is a button at least 44 px wide and 44 px tall; arms are narrower and side torsos wider than the earlier layout so the torso values have room
-- **AND** the viewBox is cropped to the drawn silhouette ("0 20 360 402") so the cropped height, not wasted margin, sets the scale
+- **THEN** every SVG text and tspan is at least 12 rendered px, and the plate text, including the "/max" denominators, the rear line and the location names, is at least 14 rendered px (plate text uses 17 viewBox units, shown at about 0.83 px per unit because the figure is 420 units wide and its height is capped to the viewport; the bold values use 22 units)
+- **AND** every location plate (head, torsos, arms and legs) is a button at least 44 px wide and 44 px tall; arms, side torsos and legs are drawn wide at their text rows (about 70 to 80 units) so the "<value>/<max>" stack and the rear line never touch the outline
+- **AND** the viewBox is cropped to the drawn silhouette ("-30 20 420 402", exported as `BIPED_ARMOR_VIEWBOX` and shared with the style thumbnails) so the cropped height, not wasted margin, sets the scale
 
 #### Scenario: Neck and pelvis read as part of the silhouette
 

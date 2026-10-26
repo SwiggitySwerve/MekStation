@@ -2,21 +2,82 @@ import { MechLocation } from '@/types/construction';
 
 export interface BipedArmorPlate {
   readonly path: string;
-  /** Horizontal centre of the plate's text block. */
+  /** Horizontal centre of the plate's text stack. */
   readonly x: number;
-  /** Text anchor: label baseline for torsos, label row for the other plates. */
+  /** Baseline of the location abbreviation; the value lines hang below it. */
   readonly y: number;
   readonly label: string;
   /** Torso plates carry a second (rear) armor face. */
   readonly hasRear?: boolean;
 }
 
+/** Cropped to the drawn silhouette so its height sets the diagram's scale. */
+export const BIPED_ARMOR_VIEWBOX = '-30 20 420 402';
+
 /**
- * Local presentation geometry (viewBox 0 0 360 440); allocation limits come
- * from ArmorTab's projection. Arms are narrow and side torsos wide so every
- * plate stays a comfortable tap target and torso values stay readable when the
- * diagram is scaled down on a phone. Left-side plates mirror the right side
- * about x = 180.
+ * Baselines below `plate.y` (the abbreviation baseline) for the one text stack
+ * every plate shares: the front value with its "/max" on one baseline, then on
+ * torsos a rear line; arms and legs add a fill bar.
+ */
+export const BIPED_PLATE_STACK = { value: 25, rear: 47, bar: 56 } as const;
+
+/** Mirror axis: the right-side plates reflect onto the left about this x. */
+const CENTRE_X = 180;
+
+type Point = readonly [number, number];
+
+function polygon(points: readonly Point[]): string {
+  const [first, ...rest] = points;
+  return `M${first[0]} ${first[1]} ${rest.map(([x, y]) => `L${x} ${y}`).join(' ')} Z`;
+}
+
+function mirror(points: readonly Point[]): Point[] {
+  return points.map(([x, y]) => [2 * CENTRE_X - x, y]);
+}
+
+/**
+ * Right-side (figure's right, viewer's left) outlines. Every plate is wide
+ * enough at its text rows to keep the "<value>/<max>" stack at least 8 units
+ * clear of the outline, so the left side is an exact mirror.
+ */
+const RIGHT_SIDE = {
+  torso: [
+    [135, 93],
+    [57, 101],
+    [55, 186],
+    [78, 216],
+    [135, 208],
+  ],
+  arm: [
+    [54, 101],
+    [14, 108],
+    [-16, 150],
+    [-22, 215],
+    [-26, 252],
+    [-8, 272],
+    [38, 262],
+    [50, 222],
+    [52, 150],
+  ],
+  leg: [
+    [176, 235],
+    [104, 228],
+    [94, 290],
+    [102, 330],
+    [88, 399],
+    [104, 415],
+    [177, 415],
+    [176, 375],
+    [164, 328],
+    [176, 285],
+  ],
+} as const satisfies Record<string, readonly Point[]>;
+
+/**
+ * Local presentation geometry; allocation limits come from ArmorTab's
+ * projection. Plates are drawn wide where the text sits so the same stack
+ * (abbreviation, front value over its "/max", torso rear line) fits every
+ * location on a phone without touching the outline.
  */
 export const BIPED_ARMOR_PLATES: Partial<
   Record<MechLocation, BipedArmorPlate>
@@ -28,48 +89,48 @@ export const BIPED_ARMOR_PLATES: Partial<
     label: 'HD',
   },
   [MechLocation.CENTER_TORSO]: {
-    path: 'M149 93 H211 L220 131 L210 204 L198 220 H162 L150 204 L140 131 Z',
+    path: 'M148 93 H212 L221 125 L221 192 L210 212 H150 L139 192 L139 125 Z',
     x: 180,
-    y: 126,
+    y: 132,
     label: 'CT',
     hasRear: true,
   },
-  [MechLocation.LEFT_TORSO]: {
-    path: 'M223 93 L293 103 L288 181 L258 215 L221 203 L228 133 Z',
-    x: 257,
-    y: 126,
-    label: 'LT',
-    hasRear: true,
-  },
   [MechLocation.RIGHT_TORSO]: {
-    path: 'M137 93 L67 103 L72 181 L102 215 L139 203 L132 133 Z',
-    x: 103,
-    y: 126,
+    path: polygon(RIGHT_SIDE.torso),
+    x: 95,
+    y: 132,
     label: 'RT',
     hasRear: true,
   },
-  [MechLocation.LEFT_ARM]: {
-    path: 'M302 99 L334 111 L345 161 L340 204 L348 250 L332 269 L303 256 L298 217 L306 176 L295 138 Z',
-    x: 321,
-    y: 169,
-    label: 'LA',
+  [MechLocation.LEFT_TORSO]: {
+    path: polygon(mirror(RIGHT_SIDE.torso)),
+    x: 265,
+    y: 132,
+    label: 'LT',
+    hasRear: true,
   },
   [MechLocation.RIGHT_ARM]: {
-    path: 'M58 99 L26 111 L15 161 L20 204 L12 250 L28 269 L57 256 L62 217 L54 176 L65 138 Z',
-    x: 39,
-    y: 169,
+    path: polygon(RIGHT_SIDE.arm),
+    x: 17,
+    y: 160,
     label: 'RA',
   },
-  [MechLocation.LEFT_LEG]: {
-    path: 'M190 235 L245 228 L258 290 L247 327 L264 399 L247 415 H185 L186 373 L199 326 L184 280 Z',
-    x: 222,
-    y: 283,
-    label: 'LL',
+  [MechLocation.LEFT_ARM]: {
+    path: polygon(mirror(RIGHT_SIDE.arm)),
+    x: 343,
+    y: 160,
+    label: 'LA',
   },
   [MechLocation.RIGHT_LEG]: {
-    path: 'M170 235 L115 228 L102 290 L113 327 L96 399 L113 415 H175 L174 373 L161 326 L176 280 Z',
-    x: 138,
-    y: 283,
+    path: polygon(RIGHT_SIDE.leg),
+    x: 134,
+    y: 285,
     label: 'RL',
+  },
+  [MechLocation.LEFT_LEG]: {
+    path: polygon(mirror(RIGHT_SIDE.leg)),
+    x: 226,
+    y: 285,
+    label: 'LL',
   },
 };

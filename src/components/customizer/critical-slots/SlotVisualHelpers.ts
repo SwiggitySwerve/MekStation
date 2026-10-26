@@ -20,7 +20,7 @@ import styles from '../CustomizerWorkbench.module.css';
 
 /** Readable mouse targets on desktop; phones and touch pointers keep 44px rows. */
 export function getSlotSizeClasses(compact: boolean): string {
-  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[34px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1 lg:pointer-fine:text-[13px]' : ''}`;
+  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1 lg:pointer-fine:text-[13px]' : ''}`;
 }
 
 /** Resolve the existing owner's Tailwind accent token, including its opacity. */
@@ -46,16 +46,24 @@ export function getSlotTintStyle(slot: SlotContent): CSSProperties | undefined {
   );
 }
 
+export function isMultiSlotEquipment(slot: SlotContent): boolean {
+  return slot.type === 'equipment' && (slot.totalSlots ?? 1) > 1;
+}
+
 export function isSlotContinuation(slot: SlotContent): boolean {
-  return (
-    slot.type === 'equipment' &&
-    (slot.totalSlots ?? 1) > 1 &&
-    slot.isFirstSlot === false
-  );
+  return isMultiSlotEquipment(slot) && slot.isFirstSlot === false;
 }
 
 export function getSystemSlotClasses(type: SystemComponentType): string {
-  return `${getSlotColorClasses(type)} ${type !== 'structure' && type !== 'armor' && type !== 'empty' ? styles.criticalFixedSlot : ''}`;
+  return type !== 'structure' && type !== 'armor' && type !== 'empty'
+    ? styles.criticalFixedSlot
+    : getSlotColorClasses(type);
+}
+
+/** Join adjacent occupied rows without removing their individual hit targets. */
+export function getMergedSlotClasses(slot: SlotContent): string {
+  if (!isMultiSlotEquipment(slot)) return '';
+  return `${styles.criticalMergedSlot} ${isSlotContinuation(slot) ? styles.criticalMergedContinuation : styles.criticalMergedFirst} ${slot.isLastSlot ? styles.criticalMergedLast : ''}`;
 }
 
 export function getSlotContentClasses(slot: SlotContent): string {
@@ -85,7 +93,7 @@ export function getSlotStateClasses(
 }
 
 export function getOccupiedSpanClasses(slot: SlotContent): string {
-  if (slot.type !== 'equipment' || (slot.totalSlots ?? 1) < 2) return '';
+  if (!isMultiSlotEquipment(slot)) return '';
   return [
     'absolute right-0 w-1.5 border-r-2 border-current opacity-70',
     slot.isFirstSlot ? 'top-0 rounded-tr-sm border-t-2' : '-top-2',
@@ -95,7 +103,7 @@ export function getOccupiedSpanClasses(slot: SlotContent): string {
 
 export function getSlotDisplayName(slot: SlotContent): string {
   if (slot.type === 'empty') return 'Available';
-  if (isSlotContinuation(slot)) return '↳';
+  if (isSlotContinuation(slot)) return '';
   return slot.name ? abbreviateEquipmentName(slot.name) : '';
 }
 

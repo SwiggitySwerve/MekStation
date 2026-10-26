@@ -12,7 +12,10 @@ import { CATALOG_OTHER_CATEGORIES } from '@/stores/useEquipmentStore.filters';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 
+import type { ICatalogCapacityNotice } from './EquipmentBrowser.model';
+
 import workbenchStyles from '../CustomizerWorkbench.module.css';
+import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
 import { EquipmentControlPopover } from './EquipmentControlPopover';
 
 export interface CompactFilterBarProps {
@@ -36,6 +39,8 @@ export interface CompactFilterBarProps {
   onClearFilters: () => void;
   className?: string;
   resultSummary?: string;
+  /** Free tonnage and slots, shown on the result-count line. */
+  capacity?: ICatalogCapacityNotice;
   availabilitySummary?: string;
   sortControls?: React.ReactNode;
 }
@@ -86,6 +91,7 @@ export function CompactFilterBar({
   onClearFilters,
   className = '',
   resultSummary,
+  capacity,
   availabilitySummary,
   sortControls,
 }: CompactFilterBarProps): React.ReactElement {
@@ -112,14 +118,14 @@ export function CompactFilterBar({
     observer.observe(element);
     return () => observer.disconnect();
   }, [updateCategoryOverflow]);
-  const activeFilters = [
+  const activeFilterNames = [
     hideUnavailable && (availabilitySummary || 'Availability'),
     hidePrototype && 'No prototypes',
     hideOneShot && 'No one-shot',
     hideAmmoWithoutWeapon && 'Matched ammo',
-  ]
-    .filter(Boolean)
-    .join(', ');
+  ].filter(Boolean);
+  const activeFilters = activeFilterNames.join(', ');
+  const activeFilterCount = activeFilterNames.length;
   const handleCategoryClick = useCallback(
     (category: EquipmentCategory, event: React.MouseEvent) =>
       onSelectCategory(category, event.ctrlKey || event.metaKey),
@@ -142,10 +148,10 @@ export function CompactFilterBar({
   return (
     <div className={`flex shrink-0 flex-col ${className}`}>
       <div
-        className="border-border-theme flex min-h-14 shrink-0 flex-wrap items-center gap-2 border-b px-3 py-1"
+        className="border-border-theme flex min-h-12 shrink-0 flex-wrap items-center gap-x-2 gap-y-0 border-b px-3 py-0.5"
         data-testid="equipment-search-controls"
       >
-        <div className="relative min-w-0 basis-full lg:flex-1 lg:basis-0">
+        <div className="relative max-w-full min-w-32 flex-1 basis-0">
           <input
             type="text"
             aria-label="Search equipment"
@@ -173,7 +179,13 @@ export function CompactFilterBar({
           className="max-w-full min-w-0 [&>button]:max-w-full"
           label={
             <span className="truncate" title={activeFilters}>
-              Filters{activeFilters ? ` · ${activeFilters}` : ''}
+              Filters
+              {activeFilters && (
+                <span className="hidden sm:inline"> · {activeFilters}</span>
+              )}
+              {activeFilterCount > 0 && (
+                <span className="sm:hidden"> · {activeFilterCount}</span>
+              )}
             </span>
           }
         >
@@ -329,9 +341,43 @@ export function CompactFilterBar({
           </Button>
         )}
       </div>
-      <div className="text-text-theme-secondary flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-1 text-xs">
+      <p className={workbenchStyles.catalogSummary}>
         {resultSummary && <span aria-live="polite">{resultSummary}</span>}
-      </div>
+        {capacity && ' · '}
+        {capacity && (
+          <span data-testid="equipment-catalog-capacity">
+            <span
+              className={
+                capacity.exhausted ? BUILD_STATUS_KIND_TEXT_CLASS.warning : ''
+              }
+            >
+              {capacity.compactWeightText === capacity.weightText ? (
+                capacity.weightText
+              ) : (
+                <>
+                  <span className="sm:hidden">
+                    {capacity.compactWeightText}
+                  </span>
+                  <span className="hidden sm:inline">
+                    {capacity.weightText}
+                  </span>
+                </>
+              )}
+            </span>
+            {/* A long notice drops the slot count on phones to stay on one row. */}
+            <span
+              className={
+                capacity.compactWeightText === capacity.weightText
+                  ? ''
+                  : 'hidden sm:inline'
+              }
+            >
+              {' · '}
+              {capacity.slotsText}
+            </span>
+          </span>
+        )}
+      </p>
     </div>
   );
 }

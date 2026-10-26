@@ -394,9 +394,10 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     expect(box!.height, `collapsed row ${index} height`).toBeLessThanOrEqual(
       48,
     );
+    // The Name column is flexible: it never shrinks below 240px and takes
+    // whatever width the fixed numeric columns leave.
     const nameCell = row.locator('[data-catalog-column="name"]');
     expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(240);
-    expect((await nameCell.boundingBox())!.width).toBeLessThanOrEqual(320);
     await expect(
       nameCell.locator('[data-icon-name="chevron-right"]'),
     ).toBeVisible();
@@ -421,6 +422,46 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   expect(actionBounds.x + actionBounds.width).toBeLessThanOrEqual(
     rowBounds.x + rowBounds.width,
   );
+  // Add and "..." are pinned to the right edge (row padding only), and the
+  // Name column absorbs the remaining width instead of leaving a dead band.
+  expect(
+    rowBounds.x + rowBounds.width - (actionBounds.x + actionBounds.width),
+    'actions pinned to the right edge',
+  ).toBeLessThanOrEqual(16);
+  const firstNameBounds = (await firstRow
+    .locator('[data-catalog-column="name"]')
+    .boundingBox())!;
+  expect(firstNameBounds.width, 'name column is flexible').toBeGreaterThan(320);
+  await expect(
+    firstRow.getByRole('button', { name: /^Add options for / }),
+    'persistent outline on the more-ways-to-add control',
+  ).toHaveCSS('border-top-width', '1px');
+  await expect(
+    firstRow.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCSS('border-top-style', 'solid');
+  // The Atlas has no free tonnage: one notice above the list, no per-row chip.
+  await expect(page.getByTestId('equipment-catalog-capacity')).toContainText(
+    '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
+  );
+  await expect(rows.filter({ hasText: /\+\d+(\.\d)? t over/ })).toHaveCount(0);
+  // Names sort naturally: AC/2, AC/5, AC/10, AC/15 Ammo, AC/20.
+  const visibleNames = await Promise.all(
+    (await rows.all()).map((candidate) => rowName(candidate)),
+  );
+  const acOrder = ['AC/2', 'AC/5', 'AC/10', 'AC/15 Ammo', 'AC/20'].map((name) =>
+    visibleNames.indexOf(name),
+  );
+  expect(acOrder.every((index) => index >= 0)).toBe(true);
+  expect(acOrder).toEqual([...acOrder].sort((a, b) => a - b));
+  // Secondary metadata is plain text at 13px or larger, not a miniature pill.
+  const mounted = page.getByText(/^×\d+ mounted$/).first();
+  await expect(mounted).toBeVisible();
+  expect(
+    Number.parseFloat(
+      await mounted.evaluate((element) => getComputedStyle(element).fontSize),
+    ),
+  ).toBeGreaterThanOrEqual(13);
+  await expect(mounted).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await page.mouse.move(0, 0);
   const sortButtons = catalogHeader(page).getByRole('button');
   for (const button of await sortButtons.all()) {
@@ -550,10 +591,26 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(catalogHeader(page)).toBeHidden();
   await expectInitialScrollBoundary(page);
+  // Phone density: the first row starts within 280px and six rows are visible.
+  const phoneScroll = (await scroll.boundingBox())!;
+  expect(
+    (await rows.first().boundingBox())!.y,
+    'first phone row starts near the top',
+  ).toBeLessThanOrEqual(280);
+  let fullyVisible = 0;
+  for (const candidate of await rows.all()) {
+    const box = (await candidate.boundingBox())!;
+    if (
+      box.y >= phoneScroll.y - 1 &&
+      box.y + box.height <= phoneScroll.y + phoneScroll.height + 1
+    )
+      fullyVisible += 1;
+  }
+  expect(fullyVisible, 'phone rows fully visible').toBeGreaterThanOrEqual(6);
   const firstStats = page.getByTestId('equipment-catalog-stats').first();
   expect(
     (await firstStats.boundingBox())!.height,
-    'AC/10 stats fit on one full-width line',
+    'first row stats fit on one full-width line',
   ).toBeLessThanOrEqual(28);
   for (const pair of await firstStats.locator(':scope > span').all()) {
     await expect(pair).toHaveCSS('white-space', 'nowrap');

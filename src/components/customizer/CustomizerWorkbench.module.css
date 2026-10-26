@@ -127,43 +127,41 @@
   scroll-margin-block: 44px 24px;
 }
 
-.catalogCapacity {
-  flex-shrink: 0;
-  padding: 4px 12px 6px;
+/* One line above the list: result count, then free tonnage and slots. */
+.catalogSummary {
+  margin: 0;
+  padding: 2px 12px 4px;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 20px;
   font-variant-numeric: tabular-nums;
 }
 
 .catalogNameLine {
   display: flex;
   min-width: 0;
-  align-items: center;
-  gap: 6px;
+  align-items: baseline;
+  gap: 8px;
 }
 
-.catalogMounted,
-.catalogOver {
+/* Secondary row metadata reads as plain muted text, never a miniature pill. */
+.catalogMounted {
   flex-shrink: 0;
-  border-radius: 4px;
-  padding: 1px 4px;
-  background: var(--surface-raised);
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
   line-height: 16px;
   white-space: nowrap;
 }
 
-.catalogOver {
-  margin-left: 8px;
-}
-
-.catalogMobileStats .catalogOver {
-  margin-left: 0;
-  padding-block: 0;
-  font-size: inherit;
-  line-height: inherit;
+.catalogMeta {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .catalogColumns {
@@ -262,19 +260,24 @@
   padding: 0 !important;
 }
 
+/* Pinned to the right edge of the row on every width. */
 .catalogActions {
   display: flex;
   flex: 0 0 124px;
   width: 124px;
   align-items: center;
+  justify-self: end;
+  gap: 4px;
 }
 
+/* A persistent outline keeps "More ways to add" findable without hover. */
 .catalogAddOptions {
   width: 44px;
   min-width: 44px;
   height: 44px;
   padding: 0 !important;
-  border-radius: 0 8px 8px 0;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 8px;
 }
 
 .catalogAddMenu {
@@ -309,8 +312,8 @@
   display: flex;
   grid-column: 1 / -1;
   flex-wrap: wrap;
-  gap: 2px 12px;
-  padding: 0 0 8px 24px;
+  gap: 0 10px;
+  padding: 0 0 6px 24px;
   color: var(--text-secondary);
   font-size: 13px;
   line-height: 20px;
@@ -363,9 +366,8 @@
 
 @media (min-width: 1024px) {
   .catalogColumns {
-    grid-template-columns:
-      minmax(240px, 320px)
-      56px 96px 48px 64px 72px 124px minmax(0, 1fr);
+    /* Flexible name; fixed numeric tracks; actions pinned to the right edge. */
+    grid-template-columns: minmax(240px, 1fr) 72px 96px 48px 64px 72px 124px;
   }
 
   .catalogMobileStats {
@@ -902,12 +904,82 @@
 }
 
 .criticalFixedSlot {
-  background-color: oklch(from var(--surface-raised) l 0 h);
-  color: var(--text-primary);
+  background-color: color-mix(
+    in srgb,
+    var(--surface-raised) 35%,
+    var(--surface-deep)
+  );
+  border-color: transparent;
+  color: var(--text-secondary);
+  margin-block: 0;
+}
+
+.criticalMergedSlot {
+  position: relative;
+  margin-block: 0;
+  border-radius: 0;
+  border-block-width: 0;
+}
+
+.criticalMergedFirst {
+  margin-top: 2px;
+  border-top-width: 1px;
+  border-radius: 3px 3px 0 0;
+}
+
+.criticalMergedLast {
+  margin-bottom: 2px;
+  border-bottom-width: 1px;
+  border-radius: 0 0 3px 3px;
+}
+
+.criticalMergedSlot[aria-selected='true'] {
+  box-shadow:
+    inset 2px 0 var(--accent-primary),
+    inset -2px 0 var(--accent-primary);
+}
+
+.criticalMergedFirst[aria-selected='true'] {
+  box-shadow:
+    inset 2px 0 var(--accent-primary),
+    inset -2px 0 var(--accent-primary),
+    inset 0 2px var(--accent-primary);
+}
+
+.criticalMergedLast[aria-selected='true'] {
+  box-shadow:
+    inset 2px 0 var(--accent-primary),
+    inset -2px 0 var(--accent-primary),
+    inset 0 -2px var(--accent-primary);
+}
+
+.criticalMergedSlot:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+.criticalMergedLabel {
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  left: 1.75rem;
+  right: 0.5rem;
+  line-height: 1.25;
+}
+
+.criticalMergedContinuation > .criticalMergedLabel,
+.criticalMergedSlot [data-testid='equipment-group-bracket'] {
+  display: none;
 }
 
 .criticalHeatSink {
   border-left-style: dashed;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 5px,
+    color-mix(in srgb, var(--critical-category-color) 12%, transparent) 5px 7px
+  );
 }
 
 .criticalLegendBar {
@@ -916,4 +988,18 @@
   border-top: 0;
   border-right: 0;
   border-bottom: 0;
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+  :global([data-testid='critical-slots-grid-desktop']) {
+    padding-block: 0;
+  }
+
+  .criticalLocationGrid > :first-child:not(.criticalSlotRows) {
+    min-height: 26px;
+  }
+
+  .criticalSlotRows {
+    padding-block: 0;
+  }
 }

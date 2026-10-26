@@ -1,7 +1,6 @@
 import React, { useId, useState } from 'react';
 
 import { LOCATION_SLOT_COUNTS, MechLocation } from '@/types/construction';
-import { getLocationShorthand } from '@/utils/locationUtils';
 
 import type { LocationData } from './criticalSlotTypes';
 
@@ -58,28 +57,8 @@ export function PhoneLocationNavigation({
         aria-label="Critical slot location shortcuts"
         className="bg-surface-deep border-border-theme sticky top-0 z-10 border-b py-1"
       >
-        <div
-          className="mb-1 flex gap-1 overflow-x-auto"
-          aria-label="Free slots by location"
-        >
-          {summaries.map(({ location, free }) => (
-            <button
-              key={location}
-              type="button"
-              aria-label={`${location}, ${free} free slots`}
-              aria-pressed={location === activeLocation}
-              onClick={() => setActiveLocation(location)}
-              className={`focus-visible:outline-accent min-h-11 shrink-0 rounded border px-2 text-[13px] tabular-nums focus-visible:outline-2 focus-visible:outline-offset-[-2px] ${location === activeLocation ? 'border-accent bg-accent/10 text-text-theme-primary' : 'border-border-theme bg-surface-base text-text-theme-secondary'}`}
-            >
-              {getLocationShorthand(location)} {free} free
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          <label
-            htmlFor={`${id}-location`}
-            className="text-text-theme-secondary text-sm"
-          >
+        <div>
+          <label htmlFor={`${id}-location`} className="sr-only">
             Location
           </label>
           <select
@@ -91,17 +70,17 @@ export function PhoneLocationNavigation({
               );
               if (location) setActiveLocation(location);
             }}
-            className="border-border-theme bg-surface-base text-text-theme-primary focus-visible:outline-accent min-h-11 min-w-0 flex-1 rounded border px-3 text-sm tabular-nums focus-visible:outline-2"
+            className="border-border-theme bg-surface-base text-text-theme-primary focus-visible:outline-accent min-h-11 w-full min-w-0 rounded border px-3 text-sm tabular-nums focus-visible:outline-2"
           >
-            {summaries.map(({ location, count }) => (
+            {summaries.map(({ location, count, free }) => (
               <option key={location} value={location}>
-                {location} · {count} used
+                {location} · {count} used, {free} free
               </option>
             ))}
           </select>
         </div>
       </nav>
-      <div className="py-2">
+      <div className="pt-1">
         {locations.map((location) => (
           <div key={location} hidden={location !== activeLocation}>
             {renderLocation(location, true)}

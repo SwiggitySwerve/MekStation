@@ -5,7 +5,7 @@ import type { StructureTabCalculations } from './StructureTabViewTypes';
 import { customizerStyles as cs } from '../styles';
 import {
   STRUCTURE_HELP,
-  STRUCTURE_META,
+  STRUCTURE_META_END,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
   STRUCTURE_SELECT,
@@ -233,7 +233,7 @@ function BaseChassisHeatSinkControl({
             onInputChange={(raw) => onChange(parseInt(raw, 10) || 10)}
           />{' '}
         </div>
-        <span className={STRUCTURE_META}>
+        <span className={STRUCTURE_META_END}>
           {baseChassisHeatSinks === -1
             ? 'Auto'
             : `${baseChassisHeatSinks} fixed`}

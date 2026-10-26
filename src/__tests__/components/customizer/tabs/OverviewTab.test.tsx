@@ -142,6 +142,48 @@ describe('OverviewTab', () => {
     });
   });
 
+  it('reads Identity, then the build summary, then component technology', () => {
+    render(<OverviewTab />);
+
+    const identity = screen.getByRole('region', { name: 'Identity' });
+    const summary = screen.getByTestId('overview-build-summary');
+    const tech = screen.getByTestId('overview-component-technology');
+    const follows = (a: HTMLElement, b: HTMLElement) =>
+      Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(follows(identity, summary)).toBe(true);
+    expect(follows(summary, tech)).toBe(true);
+  });
+
+  it('keeps chassis, model, year and tech level ahead of the optional identity fields', () => {
+    render(<OverviewTab />);
+
+    const order = [
+      'Chassis',
+      'Model',
+      'Year',
+      'Tech level',
+      'Clan name',
+      'MUL ID',
+    ];
+    const fields = order.map((name) => screen.getByLabelText(name));
+    fields.slice(1).forEach((field, index) => {
+      expect(
+        Boolean(
+          fields[index].compareDocumentPosition(field) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      ).toBe(true);
+    });
+  });
+
+  it('lets component technology fill its column so both columns can end together', () => {
+    render(<OverviewTab />);
+
+    const tech = screen.getByTestId('overview-component-technology');
+    expect(tech).toHaveClass('flex-1');
+    expect(tech.querySelector('dl')).toHaveClass('flex-1', 'auto-rows-fr');
+  });
+
   it('should render overview tab', () => {
     render(<OverviewTab />);
 

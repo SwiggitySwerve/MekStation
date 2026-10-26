@@ -7,6 +7,42 @@ async function paint(locator: Locator) {
   });
 }
 
+async function textContrast(locator: Locator) {
+  return locator.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1;
+    const context = canvas.getContext('2d')!;
+    const luminance = (color: string) => {
+      context.clearRect(0, 0, 1, 1);
+      context.fillStyle = getComputedStyle(
+        document.documentElement,
+      ).getPropertyValue('--surface-base');
+      context.fillRect(0, 0, 1, 1);
+      context.fillStyle = color;
+      context.fillRect(0, 0, 1, 1);
+      return Array.from(context.getImageData(0, 0, 1, 1).data)
+        .slice(0, 3)
+        .map((channel) => channel / 255)
+        .map((channel) =>
+          channel <= 0.04045
+            ? channel / 12.92
+            : ((channel + 0.055) / 1.055) ** 2.4,
+        )
+        .reduce(
+          (sum, channel, index) =>
+            sum + channel * [0.2126, 0.7152, 0.0722][index],
+          0,
+        );
+    };
+    const background = luminance(style.backgroundColor);
+    const text = luminance(style.color);
+    return (
+      (Math.max(background, text) + 0.05) / (Math.min(background, text) + 0.05)
+    );
+  });
+}
+
 // Catalog rows and loadout cards are neutral surfaces; the category shows as
 // the left accent bar.
 async function accent(locator: Locator) {
@@ -19,7 +55,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   page,
 }, testInfo) => {
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'Load from Library' }).click();
+  await page.getByRole('button', { name: 'New Unit' }).click();
   await page
     .getByRole('dialog')
     .getByRole('combobox')
@@ -124,45 +160,14 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   const mountedPaint = await paint(mounted);
   expect(mountedPaint.background).not.toBe('rgba(0, 0, 0, 0)');
-  const contrast = await mounted.evaluate((element) => {
-    const style = getComputedStyle(element);
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 1;
-    const context = canvas.getContext('2d')!;
-    const luminance = (color: string) => {
-      context.clearRect(0, 0, 1, 1);
-      context.fillStyle = getComputedStyle(
-        document.documentElement,
-      ).getPropertyValue('--surface-base');
-      context.fillRect(0, 0, 1, 1);
-      context.fillStyle = color;
-      context.fillRect(0, 0, 1, 1);
-      return Array.from(context.getImageData(0, 0, 1, 1).data)
-        .slice(0, 3)
-        .map((channel) => channel / 255)
-        .map((channel) =>
-          channel <= 0.04045
-            ? channel / 12.92
-            : ((channel + 0.055) / 1.055) ** 2.4,
-        )
-        .reduce(
-          (sum, channel, index) =>
-            sum + channel * [0.2126, 0.7152, 0.0722][index],
-          0,
-        );
-    };
-    const background = luminance(style.backgroundColor);
-    const text = luminance(style.color);
-    return (
-      (Math.max(background, text) + 0.05) / (Math.min(background, text) + 0.05)
-    );
-  });
-  expect(contrast).toBeGreaterThanOrEqual(4.5);
+  expect(await textContrast(mounted)).toBeGreaterThanOrEqual(4.5);
   const engine = page
     .getByRole('gridcell', { name: /: .*Engine$|: Engine$/ })
     .first();
   const gyro = page.getByRole('gridcell', { name: /: Standard Gyro$/ }).first();
   await expect(engine).toBeVisible();
+  expect(await textContrast(engine)).toBeGreaterThanOrEqual(4.5);
+  expect(await textContrast(gyro)).toBeGreaterThanOrEqual(4.5);
   expect((await paint(engine)).background).toBe((await paint(gyro)).background);
   expect(mountedPaint.background).not.toBe((await paint(engine)).background);
   const heatSink = page
@@ -170,8 +175,10 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     .first();
   await expect(heatSink).toHaveCSS('border-left-style', 'dashed');
   await expect(mounted).toHaveCSS('border-left-style', 'solid');
-  expect(await accent(engine)).not.toBe(await accent(gyro));
-  await expect(engine).toHaveCSS('border-left-width', '2px');
+  expect(await accent(engine)).toBe(await accent(gyro));
+  await expect(heatSink).not.toHaveCSS('background-image', 'none');
+  await expect(mounted).toHaveCSS('background-image', 'none');
+  await expect(engine).toHaveCSS('border-left-color', 'rgba(0, 0, 0, 0)');
   await expect(mounted).toHaveCSS('border-left-width', '4px');
   await page.reload();
   await expect(mounted).toBeVisible();

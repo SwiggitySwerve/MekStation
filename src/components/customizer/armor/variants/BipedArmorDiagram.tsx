@@ -20,7 +20,10 @@ import {
 import { DiagramHeader } from '../shared/DiagramHeader';
 import { BipedArmorPlateLabel } from './BipedArmorPlateLabel';
 import { BipedArmorSurface } from './BipedArmorSurface';
-import { BIPED_ARMOR_PLATES } from './CleanTechBipedDiagram.geometry';
+import {
+  BIPED_ARMOR_PLATES,
+  BIPED_ARMOR_VIEWBOX,
+} from './CleanTechBipedDiagram.geometry';
 
 /** Locations whose plate carries a rear face. */
 const LOCATIONS_WITH_REAR: ReadonlySet<MechLocation> = new Set(
@@ -44,7 +47,7 @@ function BipedStructureFrame(): React.ReactElement {
       data-armor-structure
     >
       <path d="M163 78 H197 V104 H163 Z" />
-      <path d="M138 204 H222 L228 240 H132 Z" />
+      <path d="M144 198 H216 L222 238 H138 Z" />
     </g>
   );
 }
@@ -79,19 +82,19 @@ export function BipedArmorDiagram({
             Front view &middot; click a location to edit
           </p>
           <ArmorDiagramSvgFrame
-            viewBox="0 20 360 402"
+            viewBox={BIPED_ARMOR_VIEWBOX}
             className="mx-auto max-h-[max(20rem,calc(100dvh-31rem))] w-full max-w-[360px] @[40rem]:max-h-none @[40rem]:max-w-[440px]"
           >
             <g
               fill="var(--text-secondary)"
-              fontSize="14"
+              fontSize="15"
               textAnchor="middle"
               aria-hidden="true"
             >
-              <text x="39" y="292">
+              <text x="16" y="294">
                 Right
               </text>
-              <text x="321" y="292">
+              <text x="344" y="294">
                 Left
               </text>
             </g>
@@ -111,9 +114,9 @@ export function BipedArmorDiagram({
               </pattern>
             </defs>
             <rect
-              x="8"
+              x="-22"
               y="8"
-              width="344"
+              width="404"
               height="424"
               fill={`url(#${gridId})`}
               opacity={variant === 'megamek' ? 0 : 0.32}

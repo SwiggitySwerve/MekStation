@@ -5,7 +5,7 @@ import { type LocationData } from '@/components/customizer/critical-slots/critic
 import { PhoneLocationNavigation } from '@/components/customizer/critical-slots/PhoneLocationNavigation';
 import { MechLocation } from '@/types/construction';
 
-it('reuses displayed occupancy for free-slot shortcuts and keeps selector and buttons in sync', () => {
+it('shows displayed used/free occupancy in a single selector, counting paired entries once', () => {
   const head: LocationData = {
     location: MechLocation.HEAD,
     isSuperheavy: false,
@@ -36,18 +36,16 @@ it('reuses displayed occupancy for free-slot shortcuts and keeps selector and bu
     />,
   );
   const select = screen.getByRole('combobox', { name: 'Location' });
-  const headButton = screen.getByRole('button', { name: 'Head, 5 free slots' });
-  const torsoButton = screen.getByRole('button', {
-    name: 'Center Torso, 11 free slots',
-  });
-  expect(headButton).toHaveTextContent('HD 5 free');
-  expect(torsoButton).toHaveTextContent('CT 11 free');
-  expect(headButton).toHaveAttribute('aria-pressed', 'true');
-  fireEvent.click(torsoButton);
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('option', { name: 'Head · 1/6 used, 5 free' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('option', { name: 'Center Torso · 1/12 used, 11 free' }),
+  ).toBeInTheDocument();
+  fireEvent.change(select, { target: { value: MechLocation.CENTER_TORSO } });
   expect(select).toHaveValue(MechLocation.CENTER_TORSO);
-  expect(torsoButton).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByText('Center Torso grid')).toBeVisible();
   fireEvent.change(select, { target: { value: MechLocation.HEAD } });
-  expect(headButton).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByText('Head grid')).toBeVisible();
 });

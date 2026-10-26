@@ -4,18 +4,78 @@ import type { UnitStats } from '../shared/UnitInfoBanner';
 
 import { getWeightStatus } from '../shared/unitStatStatus';
 
-/** Catalog annotations only; adding equipment still uses the existing rules. */
+/** Free tonnage below this reads as "0.0 t free" (weights come in half tons). */
+const WEIGHT_EPSILON = 0.005;
+
+/**
+ * True when the unit has no free tonnage left (or is already overweight), so
+ * every weighted item would add to the overweight. The catalog then shows one
+ * capacity line instead of marking each row.
+ */
+export function isCatalogWeightExhausted(
+  remainingWeight: number | undefined,
+): boolean {
+  return remainingWeight !== undefined && remainingWeight <= WEIGHT_EPSILON;
+}
+
+/**
+ * Tons by which a fixed-weight item exceeds the unit's free tonnage. Only rows
+ * that are heavier than a non-zero free budget are annotated; with nothing
+ * free the capacity notice covers every row, and variable-weight items are
+ * not guessed. Catalog annotations only; adding still uses the existing rules.
+ */
 export function getCatalogWeightExcess(
   equipment: Pick<IEquipmentItem, 'weight' | 'variableEquipmentId'>,
   remainingWeight: number | undefined,
 ): number | null {
-  if (remainingWeight === undefined || equipment.variableEquipmentId)
+  if (
+    remainingWeight === undefined ||
+    equipment.variableEquipmentId ||
+    isCatalogWeightExhausted(remainingWeight)
+  )
     return null;
   return getWeightStatus(equipment.weight, remainingWeight) === 'error'
     ? equipment.weight - remainingWeight
     : null;
 }
 
+/** Accessible description for a Tons value that exceeds the free tonnage. */
+export function describeCatalogWeightExcess(excess: number): string {
+  return `exceeds free weight by ${excess.toFixed(1)} t`;
+}
+
+export interface ICatalogCapacityNotice {
+  /** Free tonnage, or the notice that nothing is free. */
+  readonly weightText: string;
+  /** Same meaning in fewer words, for a phone-width summary line. */
+  readonly compactWeightText: string;
+  readonly slotsText: string;
+  /** True when no tonnage is free (or the unit is over), shown as a warning. */
+  readonly exhausted: boolean;
+}
+
+/**
+ * Capacity summary shown beside the result count above the catalog list.
+ * With exactly 0.0 t free it says what adding anything will do; a deficit
+ * stays a negative number, as in the unit summary.
+ */
+export function getCatalogCapacityNotice(capacity: {
+  remainingWeight: number;
+  remainingSlots: number;
+}): ICatalogCapacityNotice {
+  const { remainingWeight, remainingSlots } = capacity;
+  const slotsText = `${remainingSlots} ${remainingSlots === 1 ? 'slot' : 'slots'} free`;
+  const full = Math.abs(remainingWeight) <= WEIGHT_EPSILON;
+  const weightText = `${(full ? 0 : remainingWeight).toFixed(1)} t free`;
+  return {
+    weightText: full
+      ? `${weightText} — no tonnage left; anything with weight makes the unit overweight`
+      : weightText,
+    compactWeightText: full ? `${weightText} — no tonnage left` : weightText,
+    slotsText,
+    exhausted: isCatalogWeightExhausted(remainingWeight),
+  };
+}
 export function getCatalogCapacity(
   stats: Pick<
     UnitStats,

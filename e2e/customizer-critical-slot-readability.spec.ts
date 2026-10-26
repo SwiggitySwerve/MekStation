@@ -4,9 +4,7 @@ test('critical panels use the workspace and keep slot names readable @customizer
   page,
 }, testInfo) => {
   await page.goto('/customizer');
-  await page
-    .getByRole('button', { name: 'Load from Library', exact: true })
-    .click();
+  await page.getByRole('button', { name: 'New Unit', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await page
@@ -131,57 +129,44 @@ test('critical panels use the workspace and keep slot names readable @customizer
       0,
     );
     await expect(grid.getByText('AC/20', { exact: true })).toHaveCount(1);
-    const equipmentNames = grid
-      .getByRole('gridcell', { name: /^Slot \d+: AC\/20$/ })
-      .locator(':scope > span:nth-child(2)');
-    await expect(equipmentNames).toHaveCount(10);
-    const grouping = await equipmentNames.evaluateAll((labels) =>
-      labels.map((label) => {
-        const cell = label.closest('[role=gridcell]')!;
-        const indicator = cell.querySelector<HTMLElement>(
-          '[data-testid=equipment-group-bracket]',
-        )!;
-        const style = getComputedStyle(label);
-        const numberStyle = getComputedStyle(label.previousElementSibling!);
-        const bracketStyle = getComputedStyle(indicator);
-        const bounds = indicator.getBoundingClientRect();
+    const occupied = grid.getByRole('gridcell', { name: /^Slot \d+: AC\/20$/ });
+    await expect(occupied).toHaveCount(10);
+    await expect(grid.getByText('10 slots', { exact: true })).toHaveCount(1);
+    await expect(grid.getByText('↳', { exact: true })).toHaveCount(0);
+    const grouping = await occupied.evaluateAll((cells) =>
+      cells.map((cell) => {
+        const style = getComputedStyle(cell);
+        const bounds = cell.getBoundingClientRect();
         return {
-          nameBorders: [
-            style.borderLeftWidth,
-            style.borderRightWidth,
-            numberStyle.borderRightWidth,
-          ],
-          right: bounds.right,
           top: bounds.top,
           bottom: bounds.bottom,
-          topCap: bracketStyle.borderTopWidth,
-          rail: bracketStyle.borderRightWidth,
-          bottomCap: bracketStyle.borderBottomWidth,
-          afterName: bounds.left > label.getBoundingClientRect().right,
+          background: style.backgroundColor,
+          topBorder: style.borderTopWidth,
+          bottomBorder: style.borderBottomWidth,
+          tabIndex: (cell as HTMLElement).tabIndex,
         };
       }),
     );
     for (let index = 0; index < grouping.length; index++) {
       const item = grouping[index];
-      expect(item.nameBorders).toEqual(['0px', '0px', '0px']);
-      expect(item.afterName).toBe(true);
-      expect(item.right).toBe(grouping[0].right);
-      expect(item.rail).toBe('2px');
-      expect(item.topCap).toBe(index === 0 ? '2px' : '0px');
-      expect(item.bottomCap).toBe(
-        index === grouping.length - 1 ? '2px' : '0px',
+      expect(item.tabIndex).toBe(0);
+      expect(item.background).toBe(grouping[0].background);
+      expect(item.topBorder).toBe(index === 0 ? '1px' : '0px');
+      expect(item.bottomBorder).toBe(
+        index === grouping.length - 1 ? '1px' : '0px',
       );
       if (index > 0)
         expect(item.top - grouping[index - 1].bottom).toBeLessThanOrEqual(1);
     }
-    await expect(equipmentNames.filter({ hasText: '↳' })).toHaveCount(9);
     const cells = grid.getByRole('gridcell').filter({ visible: true });
     const heights = await cells.evaluateAll((rows) =>
       rows.map((row) => row.getBoundingClientRect().height),
     );
     expect(Math.min(...heights)).toBeGreaterThanOrEqual(
-      layout.width < 640 ? 44 : 34,
+      layout.width < 640 ? 44 : 30,
     );
+    if (layout.width >= 1024)
+      expect(Math.max(...heights)).toBeLessThanOrEqual(32);
     measurements.push({ layout, ...actual, grouping });
     await page.screenshot({
       path: testInfo.outputPath(layout.name + '.png'),

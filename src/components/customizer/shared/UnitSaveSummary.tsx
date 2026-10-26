@@ -85,8 +85,21 @@ export function useUnitSaveState(unitId: string): UnitSaveState {
   };
 }
 
-function saveStateTitle({ library }: UnitSaveState): string {
-  return `${librarySaveExplanation(library.state, library.version)} ${SAVE_STATE_EXPLANATION}`;
+/** Short words for a written browser draft in the one-line save state. */
+const DRAFT_SAVED_WORD = 'draft saved';
+
+/**
+ * The one-line save state: the library words first, because they are what
+ * Save changes, then "draft saved" once the browser copy is written
+ * ("Not in library · draft saved"). The long wording is in the tooltip.
+ */
+export function unitSaveLine({ first, second }: UnitSaveLines): string {
+  return second ? `${second} · ${DRAFT_SAVED_WORD}` : first;
+}
+
+function saveStateTitle({ library, draft }: UnitSaveState): string {
+  const draftNote = draft === 'saved' ? ` ${DRAFT_LABEL.saved}.` : '';
+  return `${librarySaveExplanation(library.state, library.version)}${draftNote} ${SAVE_STATE_EXPLANATION}`;
 }
 
 function SettledCheck(): React.ReactElement {
@@ -119,10 +132,7 @@ function UnitSaveLinesView({
         className="text-text-theme-secondary inline-flex min-w-0 items-center gap-1 whitespace-nowrap"
       >
         {settled && <SettledCheck />}
-        <span className="min-w-0 truncate">
-          {first}
-          {second && <> · {second}</>}
-        </span>
+        <span className="min-w-0 truncate">{unitSaveLine(state.lines)}</span>
       </span>
     );
   // Beside Save, the library words are what Save changes, so they read in
@@ -151,8 +161,8 @@ function UnitSaveLinesView({
 }
 
 /**
- * Two-part save state beside the desktop Save button: "Draft saved in
- * browser" over "Not in library" / "Changed since v3", or "In library v3"
+ * One-line save state beside the desktop Save button: "Not in library ·
+ * draft saved" / "Changed since v3 · draft saved", or "In library v3"
  * alone, or a red "Browser draft not saved · Retry". The words repeat the
  * Save button's description, so they are hidden from assistive tech; the
  * failure keeps its own status and Retry. Phones show the words in the
@@ -180,9 +190,9 @@ export function UnitSaveLabel({
       data-testid="unit-save-label"
       data-state={state.library.state}
       title={saveStateTitle(state)}
-      className={`max-w-44 min-w-0 ${className}`}
+      className={`max-w-56 min-w-0 ${className}`}
     >
-      <UnitSaveLinesView unitId={unitId} state={state} layout="stacked" />
+      <UnitSaveLinesView unitId={unitId} state={state} layout="inline" />
     </span>
   );
 }

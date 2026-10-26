@@ -9,6 +9,7 @@ import { IEquipmentItem } from '@/types/equipment';
 /** @spec openspec/specs/equipment-browser/spec.md */
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { CompactFilterBar } from './CompactFilterBar';
+import { getCatalogCapacityNotice } from './EquipmentBrowser.model';
 import {
   EquipmentBrowserUnitContext,
   EquipmentBrowserUnitProvider,
@@ -144,6 +145,7 @@ function EquipmentBrowserContent({
         onToggleAmmoWithoutWeapon={browser.toggleHideAmmoWithoutWeapon}
         onSearchChange={browser.setSearch}
         onClearFilters={browser.clearFilters}
+        capacity={unit ? getCatalogCapacityNotice(unit) : undefined}
         resultSummary={
           isLoading
             ? 'Loading…'
@@ -170,15 +172,6 @@ function EquipmentBrowserContent({
           </div>
         }
       />
-      {unit && (
-        <p
-          className={workbenchStyles.catalogCapacity}
-          data-testid="equipment-catalog-capacity"
-        >
-          {unit.remainingWeight.toFixed(1)} t free · {unit.remainingSlots} slots
-          free
-        </p>
-      )}
       <div
         className={workbenchStyles.catalogViewport}
         data-more-below={hasMoreBelow}

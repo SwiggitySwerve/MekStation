@@ -7,10 +7,17 @@
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { customizerStyles as cs } from '@/components/customizer/styles';
 import { AppIcon } from '@/components/ui/AppIcon';
+import { Button } from '@/components/ui/Button';
 
 /** Stable DOM id for a field name or label. */
 export function fieldId(name: string): string {
@@ -68,22 +75,37 @@ export function FieldLabel({
 }
 
 /**
- * Textarea that always shows its full content: it is sized on mount, whenever
- * the value changes and whenever its width changes (re-wrapping), so text is
- * never clipped mid-line at the bottom edge.
+ * Grow to the responsive line cap, with an explicit expansion control for
+ * longer text. Measure again after edits and width changes (re-wrapping).
  */
-export function AutoSizeTextarea(
-  props: React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-): React.ReactElement {
+export function AutoSizeTextarea({
+  fieldLabel,
+  ...props
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  fieldLabel: string;
+}): React.ReactElement {
   const ref = useRef<HTMLTextAreaElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
 
   const resize = useCallback((): void => {
     const textarea = ref.current;
     if (!textarea) return;
     textarea.style.height = 'auto';
+    const styles = getComputedStyle(textarea);
+    const lines = Number.parseFloat(
+      styles.getPropertyValue('--fluff-line-cap'),
+    );
+    const cap =
+      lines * Number.parseFloat(styles.lineHeight) +
+      Number.parseFloat(styles.paddingTop) +
+      Number.parseFloat(styles.paddingBottom);
     const borders = textarea.offsetHeight - textarea.clientHeight;
-    textarea.style.height = `${textarea.scrollHeight + borders}px`;
-  }, []);
+    const fullHeight = textarea.scrollHeight;
+    const isLong = Number.isFinite(cap) && fullHeight > cap + 1;
+    setOverflows(isLong);
+    textarea.style.height = `${(isLong && !expanded ? cap : fullHeight) + borders}px`;
+  }, [expanded]);
 
   useLayoutEffect(resize, [props.value, resize]);
 
@@ -100,7 +122,26 @@ export function AutoSizeTextarea(
     return () => observer.disconnect();
   }, [resize]);
 
-  return <textarea ref={ref} {...props} />;
+  return (
+    <>
+      <textarea ref={ref} {...props} />
+      {overflows && (
+        <div className="mt-1 flex justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-controls={props.id}
+            aria-expanded={expanded}
+            onClick={() => setExpanded((current) => !current)}
+          >
+            {expanded ? 'Show less' : 'Show all'}
+            <span className="sr-only"> {fieldLabel}</span>
+          </Button>
+        </div>
+      )}
+    </>
+  );
 }
 
 const INPUT_CLASSES = `${cs.input.full} placeholder:text-text-theme-muted min-h-11 placeholder:italic`;

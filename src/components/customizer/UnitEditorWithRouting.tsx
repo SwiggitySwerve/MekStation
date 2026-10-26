@@ -7,6 +7,7 @@ import { CampaignRefitCommandBar } from '@/components/customizer/campaign/Campai
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
 import { BrowserDraftStatus } from '@/components/customizer/shared/BrowserDraftStatus';
 import { addStatusNotesToTabCounts } from '@/components/customizer/shared/buildStatusSummary';
+import { getTabIssueTitles } from '@/components/customizer/shared/tabIssueTitles';
 import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import {
@@ -236,6 +237,10 @@ export function UnitEditorWithRouting({
     () => addStatusNotesToTabCounts(validationNav.errorsByTab, statusNotes),
     [validationNav.errorsByTab, statusNotes],
   );
+  const tabIssueTitles = useMemo(
+    () => getTabIssueTitles(validation.result, statusNotes),
+    [validation.result, statusNotes],
+  );
   const validationProps = {
     validation,
     unitName,
@@ -276,6 +281,7 @@ export function UnitEditorWithRouting({
             activeTab={activeTabId}
             onTabChange={handleTabChange}
             validationCounts={tabIssueCounts}
+            issueTitles={tabIssueTitles}
             compact
             className="min-w-0 flex-1 !border-b-0"
           />

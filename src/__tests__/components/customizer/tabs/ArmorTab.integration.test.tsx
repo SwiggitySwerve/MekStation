@@ -237,9 +237,17 @@ test('every biped location shows its max and torsos show front and rear against 
   );
 
   const diagram = within(screen.getByTestId('armor-diagram'));
-  // The four limbs show "/max" under the value (same separator as the torso
-  // and head cells); the head shows "value/max".
-  expect(diagram.getAllByText(/^\/\d+$/, { selector: 'text' })).toHaveLength(4);
+  // Every location uses one stack: the front value with its "/max" muted on
+  // the same baseline (head, four limbs and three torso fronts); torsos add a
+  // rear line under it.
+  const frontValues = Array.from(
+    container.querySelectorAll('[data-testid="armor-diagram"] text'),
+  ).filter((node) => /^\d+\/\d+$/.test(node.textContent ?? ''));
+  expect(frontValues).toHaveLength(8);
+  for (const value of frontValues) {
+    expect(value.querySelectorAll('tspan')).toHaveLength(1);
+    expect(value.querySelector('tspan')?.textContent).toMatch(/^\/\d+$/);
+  }
   const headButton = screen.getByRole('button', { name: /^Head armor:/ });
   expect(headButton).toHaveTextContent(/\d+\/\d+/);
   // No torso cell carries a total line any more.
@@ -344,7 +352,7 @@ test('the location editor opens inside the inspector and yields the controls on 
     </UnitStoreContext.Provider>,
   );
   const controls = screen.getByTestId('armor-inspector-controls');
-  expect(controls).toHaveClass('contents');
+  expect(controls).toHaveClass('flex');
   expect(controls).not.toHaveClass('xl:hidden');
 
   fireEvent.click(screen.getByRole('button', { name: /^Center Torso armor:/ }));
@@ -355,7 +363,7 @@ test('the location editor opens inside the inspector and yields the controls on 
   );
   // Below xl everything stays stacked and reachable; from xl the editor takes
   // the controls' place so nothing is pushed below the fold.
-  expect(controls).toHaveClass('contents', 'xl:hidden');
+  expect(controls).toHaveClass('flex', 'xl:hidden');
   expect(inspector).toContainElement(controls);
   expect(
     screen.getByRole('spinbutton', { name: 'Armor tonnage' }),

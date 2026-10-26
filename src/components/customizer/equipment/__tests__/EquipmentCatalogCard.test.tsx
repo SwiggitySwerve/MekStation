@@ -21,21 +21,30 @@ const laser: IEquipmentItem = {
   introductionYear: 2300,
 };
 
-it('shows mounted count and excess tonnage while keeping Add enabled', async () => {
+it('shows mounted count as plain text and marks an overweight item in the Tons cells', async () => {
   const user = userEvent.setup();
-  const { onAdd } = setup({ mountedCount: 3, remainingWeight: -2.5 });
+  const { onAdd } = setup({ mountedCount: 3, remainingWeight: 0.25 });
   expect(screen.getByText('×3 mounted')).toBeInTheDocument();
-  expect(screen.getAllByText('+3.0 t over')).toHaveLength(2);
+  // Desktop Tons cell and phone stats line each carry the warning and a
+  // description; no per-row "t over" chip remains.
+  expect(screen.getAllByText(/exceeds free weight by 0\.3 t/)).toHaveLength(2);
+  expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
   const add = screen.getByRole('button', { name: 'Add Small Laser' });
   expect(add).toBeEnabled();
   await user.click(add);
   expect(onAdd).toHaveBeenCalledTimes(1);
 });
 
-it('omits mounted and over badges when the item is absent and fits exactly', () => {
+it('adds no weight annotation when nothing is free, so the browser notice speaks once', () => {
+  setup({ remainingWeight: 0 });
+  expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
+});
+
+it('omits mounted and weight annotations when the item is absent and fits exactly', () => {
   setup({ remainingWeight: 0.5 });
   expect(screen.queryByText(/mounted/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
 });
 
 function setup(
