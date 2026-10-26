@@ -219,11 +219,11 @@ describe('ValidationSummary', () => {
       render(<ValidationSummary validation={validation} />);
 
       expect(
-        screen.getByRole('button', { name: /\d+ infos?, show issues/ }),
+        screen.getByRole('button', { name: /\d+ notes?, show checks/ }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: /1 info, show issues/ }),
-      ).toHaveTextContent('1 info');
+        screen.getByRole('button', { name: /1 note, show checks/ }),
+      ).toHaveTextContent('1 note');
     });
   });
 
@@ -244,18 +244,16 @@ describe('ValidationSummary', () => {
 
       render(<ValidationSummary validation={validation} />);
 
-      expect(
-        screen.getByRole('button', { name: /\d+ errors?, show issues/ }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /\d+ warnings?, show issues/ }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /\d+ infos?, show issues/ }),
-      ).toBeInTheDocument();
+      // One button names every severity, worst first.
+      const status = screen.getByRole('button', {
+        name: 'Unit: Not legal · 1 error · 2 warnings · 1 note, show issues',
+      });
+      expect(status).toHaveTextContent(
+        /^1 error\s*·\s*2 warnings\s*·\s*1 note$/,
+      );
     });
 
-    it('keeps error and warning messages in their own severity groups', () => {
+    it('lists errors before warnings in one panel, each under its own heading', () => {
       const validation = createValidationState({
         status: 'error',
         isValid: false,
@@ -267,22 +265,20 @@ describe('ValidationSummary', () => {
         ),
       });
       render(<ValidationSummary validation={validation} />);
-      const errors = screen.getByRole('button', {
-        name: /1 error, show issues/,
-      });
-      const warnings = screen.getByRole('button', {
-        name: /1 warning, show issues/,
-      });
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: /1 error · 1 warning, show issues/,
+        }),
+      );
+      const errors = screen.getByRole('region', { name: 'Errors' });
+      const warnings = screen.getByRole('region', { name: 'Warnings' });
       expect(
         errors.compareDocumentPosition(warnings) &
           Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
-      fireEvent.click(errors);
-      expect(screen.getByText('This is an error')).toBeInTheDocument();
-      expect(screen.queryByText('This is a warning')).not.toBeInTheDocument();
-      fireEvent.click(warnings);
-      expect(screen.getByText('This is a warning')).toBeInTheDocument();
-      expect(screen.queryByText('This is an error')).not.toBeInTheDocument();
+      expect(errors).toHaveTextContent('This is an error');
+      expect(errors).not.toHaveTextContent('This is a warning');
+      expect(warnings).toHaveTextContent('This is a warning');
     });
   });
 
@@ -303,13 +299,10 @@ describe('ValidationSummary', () => {
       // Expand
       fireEvent.click(screen.getByRole('button'));
 
-      // Click on error item
-      const errorButton = screen.getByText('Test error').closest('button');
-      if (errorButton) {
-        fireEvent.click(errorButton);
-      }
+      // Weight errors offer the tabs that change what the unit carries.
+      fireEvent.click(screen.getByRole('button', { name: 'Go to Equipment' }));
 
-      expect(onNavigate).toHaveBeenCalled();
+      expect(onNavigate).toHaveBeenCalledWith('equipment');
     });
   });
 

@@ -67,7 +67,9 @@ test('catalog copies mount, move and persist independently @customizer', async (
   await expect(
     page.getByRole('status').filter({ hasText: 'Small Laser.' }),
   ).toContainText('unassigned');
-  await page.getByTitle('Add unit (Ctrl+O)').click();
+  await page
+    .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+    .click();
   await page
     .getByRole('dialog')
     .getByRole('combobox')

@@ -1,14 +1,98 @@
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
+import { UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
 import {
   CATEGORY_TAB_MAP,
   TAB_LABELS,
   getTabForCategory,
   getTabLabel,
+  getFixTabsForCategory,
+  getPrimaryFixTab,
+  countValidationIssuesByTab,
   createEmptyValidationCounts,
 } from '@/utils/validation/validationNavigation';
 
 describe('validationNavigation', () => {
+  describe('getFixTabsForCategory', () => {
+    it('offers equipment and armor for weight issues; its own tab stays Structure', () => {
+      expect(getFixTabsForCategory(ValidationCategory.WEIGHT)).toEqual([
+        'equipment',
+        'armor',
+      ]);
+      expect(getTabForCategory(ValidationCategory.WEIGHT)).toBe('structure');
+    });
+
+    it('offers the owning tab for every other category', () => {
+      for (const category of Object.values(ValidationCategory)) {
+        if (category === ValidationCategory.WEIGHT) continue;
+        expect(getFixTabsForCategory(category)).toEqual([
+          CATEGORY_TAB_MAP[category],
+        ]);
+      }
+    });
+  });
+
+  describe('getPrimaryFixTab', () => {
+    it('is the first fix tab: Equipment for weight, the owning tab otherwise', () => {
+      expect(getPrimaryFixTab(ValidationCategory.WEIGHT)).toBe('equipment');
+      for (const category of Object.values(ValidationCategory)) {
+        expect(getPrimaryFixTab(category)).toBe(
+          getFixTabsForCategory(category)[0],
+        );
+      }
+    });
+  });
+
+  describe('countValidationIssuesByTab', () => {
+    const issue = (
+      category: ValidationCategory,
+      severity: UnitValidationSeverity,
+    ) => ({
+      id: 'x',
+      ruleId: 'r',
+      ruleName: 'Rule',
+      severity,
+      category,
+      message: 'm',
+    });
+
+    it('returns empty counts without a result', () => {
+      expect(countValidationIssuesByTab(null)).toEqual(
+        createEmptyValidationCounts(),
+      );
+    });
+
+    it('counts each issue once, on the tab where it is fixed', () => {
+      const counts = countValidationIssuesByTab({
+        results: [
+          {
+            ruleId: 'weight',
+            ruleName: 'Weight',
+            passed: false,
+            errors: [
+              issue(
+                ValidationCategory.WEIGHT,
+                UnitValidationSeverity.CRITICAL_ERROR,
+              ),
+            ],
+            warnings: [
+              issue(ValidationCategory.SLOTS, UnitValidationSeverity.WARNING),
+            ],
+            infos: [
+              issue(ValidationCategory.HEAT, UnitValidationSeverity.INFO),
+            ],
+            executionTime: 0,
+          },
+        ],
+      } as unknown as Parameters<typeof countValidationIssuesByTab>[0]);
+
+      expect(counts.equipment).toEqual({ errors: 1, warnings: 0, infos: 1 });
+      expect(counts.structure).toEqual({ errors: 0, warnings: 0, infos: 0 });
+      expect(counts.armor.errors).toBe(0);
+      expect(counts.criticals).toEqual({ errors: 0, warnings: 1, infos: 0 });
+    });
+  });
+
   describe('CATEGORY_TAB_MAP', () => {
     it('should map WEIGHT to structure tab', () => {
       expect(CATEGORY_TAB_MAP[ValidationCategory.WEIGHT]).toBe('structure');

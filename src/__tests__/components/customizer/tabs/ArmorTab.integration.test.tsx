@@ -39,7 +39,11 @@ test('labels tonnage points, allocated capacity, and unallocated excess distinct
     </UnitStoreContext.Provider>,
   );
 
-  expect(screen.getByText('312 pts from 19.5 t')).toBeInTheDocument();
+  // The points-from-tonnage line lives in the summary strip only.
+  expect(screen.getAllByText(/312 pts from 19.5 t/)).toHaveLength(1);
+  expect(screen.getByTestId('armor-points-explanation')).toHaveTextContent(
+    '312 pts from 19.5 t',
+  );
   expect(screen.getByText('307 / 307 max')).toBeInTheDocument();
   expect(
     within(screen.getByTestId('armor-diagram')).getByText('5 points'),
@@ -117,7 +121,7 @@ test('draft appearance changes can revert or save without mutating armor', () =>
     </UnitStoreContext.Provider>,
   );
   expect(
-    screen.getByText('Front view · rear armor shown inside torso'),
+    screen.getByText('Front view · click a location to edit'),
   ).toBeInTheDocument();
   act(() =>
     useCustomizerSettingsStore
@@ -127,14 +131,14 @@ test('draft appearance changes can revert or save without mutating armor', () =>
   expect(screen.getByText('HUD')).toBeInTheDocument();
   act(() => useCustomizerSettingsStore.getState().revertCustomizer());
   expect(
-    screen.getByText('Front view · rear armor shown inside torso'),
+    screen.getByText('Front view · click a location to edit'),
   ).toBeInTheDocument();
   act(() => {
     useCustomizerSettingsStore.getState().setDraftArmorDiagramMode('schematic');
     useCustomizerSettingsStore.getState().saveCustomizer();
   });
   expect(
-    screen.queryByText('Front view · rear armor shown inside torso'),
+    screen.queryByText('Front view · click a location to edit'),
   ).not.toBeInTheDocument();
   expect(useCustomizerSettingsStore.getState().armorDiagramMode).toBe(
     'schematic',
@@ -156,7 +160,7 @@ test.each([
   );
   expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
   expect(
-    screen.queryByText('Front view · rear armor shown inside torso'),
+    screen.queryByText('Front view · click a location to edit'),
   ).not.toBeInTheDocument();
 });
 
@@ -182,3 +186,102 @@ test.each([0, 10])(
     );
   },
 );
+
+test('explains the gap between allocated points and the chassis max in plain words', () => {
+  const store = createNewUnitStore({
+    name: 'Atlas gap',
+    tonnage: 100,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  store.getState().setArmorTonnage(19);
+  store.getState().autoAllocateArmor();
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  expect(screen.getByTestId('armor-points-explanation')).toHaveTextContent(
+    '304 pts from 19 t · 3 more need +0.5 t',
+  );
+});
+
+test('shows one short instruction, with the keyboard hint for screen readers only', () => {
+  const store = makeStore();
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  expect(screen.queryByTestId('location-armor-editor-empty')).toBeNull();
+  expect(
+    screen.queryByText(/Select a location on the diagram/),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Click a location to edit armor values'),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText(/Torsos list front/)).not.toBeInTheDocument();
+  expect(screen.getAllByText(/click a location to edit/i)).toHaveLength(1);
+  expect(screen.getByText(/Tab to a location, then press Enter/)).toHaveClass(
+    'sr-only',
+  );
+});
+
+test('every biped location shows its max and torsos show front and rear against their own maxima', () => {
+  const store = makeStore();
+  const { container } = render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  const diagram = within(screen.getByTestId('armor-diagram'));
+  // The four limbs show "/ max" under the value; the head shows "value/max".
+  expect(diagram.getAllByText(/^\/ \d+$/)).toHaveLength(4);
+  const headButton = screen.getByRole('button', { name: /^Head armor:/ });
+  expect(headButton).toHaveTextContent(/\d+\/\d+/);
+  // No torso cell carries a total line any more.
+  expect(container.querySelector('[data-armor-total]')).toBeNull();
+  // Torso: 32-point location holding 20 front and 8 rear. Each face's max is
+  // the location max minus what the other face uses (24 front, 12 rear).
+  const faces = (location: MechLocation) =>
+    Array.from(
+      container.querySelectorAll(`[data-armor-face-location="${location}"]`),
+    ).map((node) => node.textContent);
+  expect(faces(MechLocation.CENTER_TORSO)).toEqual(['20/24', 'R 8/12']);
+  expect(container.querySelectorAll('[data-armor-face]')).toHaveLength(6);
+
+  // The location editor derives the same maxima.
+  fireEvent.click(screen.getByRole('button', { name: /^Center Torso armor:/ }));
+  const editor = within(screen.getByTestId('location-armor-editor'));
+  expect(editor.getByText('max 24')).toBeInTheDocument();
+  expect(editor.getByText('max 12')).toBeInTheDocument();
+  expect(editor.getByText('Total')).toBeInTheDocument();
+});
+
+test('the inspector carries the diagram legend on wide layouts for biped silhouettes only', () => {
+  const biped = render(
+    <UnitStoreContext.Provider value={makeStore()}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+  const legend = screen.getByTestId('armor-inspector-legend');
+  expect(legend).toHaveClass('hidden', 'xl:flex', 'border-t');
+  expect(legend).toHaveTextContent('R = rear armor');
+  expect(legend).toHaveTextContent('60%+');
+  // The diagram's own footer steps aside from xl up so the readout is not
+  // repeated beside the inspector's Unallocated Armor Points row.
+  expect(screen.getByTestId('armor-allocation-footer')).toHaveClass(
+    'xl:hidden',
+  );
+  biped.unmount();
+
+  render(
+    <UnitStoreContext.Provider value={makeStore(MechConfiguration.QUAD)}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+  expect(screen.queryByTestId('armor-inspector-legend')).toBeNull();
+  expect(screen.queryByTestId('armor-allocation-footer')).toBeNull();
+});

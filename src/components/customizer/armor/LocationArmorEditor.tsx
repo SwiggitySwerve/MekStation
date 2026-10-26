@@ -15,6 +15,7 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
 
+import { getArmorFaceMaximums } from './shared/ArmorFaceMaximums';
 import { FRONT_ARMOR_COLOR, REAR_ARMOR_COLOR } from './shared/ArmorFills';
 
 // =============================================================================
@@ -85,8 +86,11 @@ export function LocationArmorEditor({
   const total = front + rear;
 
   // Calculate max for each slider (capped by what the other allows)
-  const maxFront = maxArmor - rear;
-  const maxRear = maxArmor - front;
+  const { front: maxFront, rear: maxRear } = getArmorFaceMaximums(
+    maxArmor,
+    front,
+    rear,
+  );
 
   // Handlers
   const handleFrontChange = useCallback(

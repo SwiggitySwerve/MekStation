@@ -49,7 +49,7 @@ test('critical panels use the workspace and keep slot names readable @customizer
   ]) {
     await page.setViewportSize({ width: layout.width, height: layout.height });
     const toggle = page.getByRole('button', {
-      name: 'Wide workspace',
+      name: 'Hide loadout panel',
       exact: true,
     });
     if (
@@ -57,23 +57,45 @@ test('critical panels use the workspace and keep slot names readable @customizer
       ((await toggle.getAttribute('aria-pressed')) === 'true') !== layout.wide
     )
       await toggle.click();
-    const grid = page.getByTestId(
+    let grid = page.getByTestId(
       layout.width >= 1024
         ? 'critical-slots-grid-desktop'
         : 'critical-slots-grid-mobile',
     );
     await expect(grid).toBeVisible();
+    if (layout.width < 640) {
+      grid = grid
+        .getByRole('navigation', { name: 'Critical slot location shortcuts' })
+        .locator('..');
+      const selector = grid.getByRole('combobox', { name: 'Location' });
+      for (const option of await selector.locator('option').all()) {
+        await selector.selectOption((await option.getAttribute('value'))!);
+        const panel = grid.getByRole('group', { name: /critical slots$/ });
+        await expect(panel).toHaveCount(1);
+        expect((await panel.boundingBox())!.width).toBeGreaterThanOrEqual(
+          layout.minimumPanelWidth,
+        );
+        expect(
+          await panel
+            .locator('span')
+            .evaluateAll((spans) =>
+              spans.every((span) => span.scrollWidth <= span.clientWidth + 1),
+            ),
+        ).toBe(true);
+      }
+      await selector.selectOption('Right Torso');
+    }
     await expect(
       grid.getByRole('group', { name: /critical slots$/ }),
-    ).toHaveCount(8);
+    ).toHaveCount(layout.width < 640 ? 1 : 8);
     const actual = await grid.evaluate((element) => ({
       workspaceWidth: element.getBoundingClientRect().width,
-      panels: Array.from(element.querySelectorAll('[role=group]')).map(
-        (panel) => ({
+      panels: Array.from(element.querySelectorAll('[role=group]'))
+        .filter((panel) => panel.getBoundingClientRect().width > 0)
+        .map((panel) => ({
           label: panel.getAttribute('aria-label'),
           width: panel.getBoundingClientRect().width,
-        }),
-      ),
+        })),
       clippedLabels: Array.from(element.querySelectorAll('span'))
         .filter(
           (span) =>
@@ -86,12 +108,25 @@ test('critical panels use the workspace and keep slot names readable @customizer
       expect(panel.width).toBeGreaterThanOrEqual(layout.minimumPanelWidth);
     expect(actual.clippedLabels).toEqual([]);
     expect(actual.documentOverflow).toBe(0);
-    await expect(
-      grid.getByText('Standard Gyro', { exact: true }).first(),
-    ).toBeVisible();
-    await expect(
-      grid.getByText('Standard Cockpit', { exact: true }),
-    ).toBeVisible();
+    if (layout.width < 640) {
+      const selector = grid.getByRole('combobox', { name: 'Location' });
+      await selector.selectOption('Center Torso');
+      await expect(
+        grid.getByText('Standard Gyro', { exact: true }).first(),
+      ).toBeVisible();
+      await selector.selectOption('Head');
+      await expect(
+        grid.getByText('Standard Cockpit', { exact: true }),
+      ).toBeVisible();
+      await selector.selectOption('Right Torso');
+    } else {
+      await expect(
+        grid.getByText('Standard Gyro', { exact: true }).first(),
+      ).toBeVisible();
+      await expect(
+        grid.getByText('Standard Cockpit', { exact: true }),
+      ).toBeVisible();
+    }
     await expect(grid.getByText('Continuation', { exact: true })).toHaveCount(
       0,
     );

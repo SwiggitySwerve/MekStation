@@ -69,17 +69,47 @@ The system SHALL display current armor values directly on the diagram.
 - **AND** rear armor value is displayed on the rear section (for CT, LT, RT)
 - **AND** values update immediately when changed
 
+#### Scenario: Maximum shown for every biped location
+
+- **WHEN** the biped armor diagram renders
+- **THEN** every limb shows its current armor with "/ <max>" beneath it, and the head shows "<value>/<max>" on one line inside its outline
+- **AND** each torso (CT, LT, RT) is labelled with its short name only ("CT", "LT", "RT", not "CT-F") and shows the front value as the primary line, "<value>/<face max>" (for example 47/48), over a smaller "R <value>/<face max>" rear line (for example R 14/15); there are no separate FRONT or REAR words on the cell
+- **AND** the location's accessible name still spells out the rear face ("<location> armor: <front> of <max>, rear: <rear> of <rear max>")
+- **AND** a face's max is the location maximum minus the armor the other face currently holds, the same figure the location editor shows beside its Front and Rear controls ("max 48", "max 15"), taken from one shared helper (`getArmorFaceMaximums`)
+- **AND** the torso cell has no total line; the location editor's Total line remains the place that shows front + rear over the location maximum
+- **AND** the quad, tripod, LAM and QuadVee diagrams use a different cell renderer and keep their existing front/rear display
+
+#### Scenario: Biped plates stay legible and tappable on a phone
+
+- **WHEN** the biped silhouette renders at 390x844
+- **THEN** every SVG text and tspan is at least 12 rendered px (the diagram draws no text below 14 viewBox units, shown at about 0.86 px per unit because the SVG height is capped to the viewport)
+- **AND** every location plate (head, torsos, arms and legs) is a button at least 44 px wide and 44 px tall; arms are narrower and side torsos wider than the earlier layout so the torso values have room
+- **AND** the viewBox is cropped to the drawn silhouette ("0 20 360 402") so the cropped height, not wasted margin, sets the scale
+
+#### Scenario: Neck and pelvis read as part of the silhouette
+
+- **WHEN** the biped silhouette renders
+- **THEN** the neck and pelvis are drawn as one structural group filled with the raised surface color, not the dark deep-surface color that read as a hole between the torso and legs
+- **AND** no extra bar is drawn behind the legs
+
 ### Requirement: Location Color Coding
 
-The system SHALL use color coding to distinguish location types.
+The system SHALL color each armor location by how full it is, using four clearly distinct health colors owned by `src/constants/armorStatus.ts`.
 
-#### Scenario: Location colors
+#### Scenario: Armor health colors
 
 - **WHEN** a location is displayed
-- **THEN** Head is green (bg-green-600)
-- **AND** Torso/Limbs are amber (bg-amber-600)
-- **AND** Rear armor sections are darker amber (bg-amber-800)
-- **AND** Selected location is blue (bg-blue-600)
+- **THEN** it is green (#22c55e) at 60% of its maximum or more
+- **AND** yellow (#facc15) from 40% up to 60%
+- **AND** orange (#f97316) from 20% up to 40%
+- **AND** red (#dc2626) below 20%
+- **AND** no two health colors are close in hue (amber and orange are not used side by side)
+- **AND** diagrams, legends, gradients and the schematic view read these colors from the single owner instead of repeating hex values
+
+#### Scenario: Selected location color
+
+- **WHEN** a location is selected
+- **THEN** it is highlighted with the accent/selected color rather than a health color
 
 ### Requirement: Hover Feedback
 
@@ -110,8 +140,19 @@ The system SHALL include a legend explaining color coding.
 #### Scenario: Legend display
 
 - **WHEN** diagram is rendered
-- **THEN** legend shows color indicators for Head, Torso/Limbs, Rear, Selected
-- **AND** instruction text explains click interaction
+- **THEN** legend shows the four health colors with their thresholds (60%+, 40%+, 20%+, <20%)
+- **AND** the swatches use the same colors as the diagram fills
+- **AND** the biped diagram explains click interaction once, in its caption ("Front view · click a location to edit"), with the keyboard instruction (Tab to a location, then press Enter) kept as screen-reader-only text
+- **AND** the biped diagram has no separate footnote or bottom instruction line
+
+#### Scenario: Legend and unallocated footer placement
+
+- **WHEN** the biped silhouette renders below the xl breakpoint (phones and tablets)
+- **THEN** a footer inside the diagram card shows "Unallocated: <n> points" (or "Over allocated" in red when negative), the "R = rear armor" key and the four-color legend
+- **AND** the SVG height is capped by the viewport (`100dvh - 31rem`, never below 20rem) so on a 390x844 phone the footer sits fully above the Loadout bar without scrolling
+- **WHEN** it renders at xl or wider in the Armor tab
+- **THEN** the diagram's footer is hidden and the armor inspector card ends with the "R = rear armor" key and legend instead; the Unallocated Armor Points row already in the inspector is the single unallocated readout
+- **AND** configurations and views that keep their built-in legend (quad, tripod, LAM, QuadVee, schematic) are unchanged
 
 ### Requirement: Configuration-Specific Diagram Components
 

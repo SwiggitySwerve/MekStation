@@ -5,13 +5,14 @@ import type { IUnitValidationError } from '@/types/validation/UnitValidationInte
 import { ErrorBoundary } from '@/components/common';
 import { CampaignRefitCommandBar } from '@/components/customizer/campaign/CampaignRefitCommandBar';
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
+import { BrowserDraftStatus } from '@/components/customizer/shared/BrowserDraftStatus';
 import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import {
   UnitSaveDetails,
   UnitSaveSummary,
 } from '@/components/customizer/shared/UnitSaveSummary';
-import { getHeatNote } from '@/components/customizer/shared/unitStatStatus';
+import { getStatusNotes } from '@/components/customizer/shared/unitStatStatus';
 import { ValidationSummary } from '@/components/customizer/shared/ValidationSummary';
 import {
   CustomizerTabs,
@@ -226,10 +227,10 @@ export function UnitEditorWithRouting({
   }, [activeTabId, unitId, validationTarget, selectedEquipmentId]);
 
   const { heatGenerated, heatDissipation } = unitStats;
-  const statusNotes = useMemo(() => {
-    const heatNote = getHeatNote(heatGenerated, heatDissipation);
-    return heatNote ? [heatNote] : [];
-  }, [heatGenerated, heatDissipation]);
+  const statusNotes = useMemo(
+    () => getStatusNotes(heatGenerated, heatDissipation),
+    [heatGenerated, heatDissipation],
+  );
   const validationProps = {
     validation,
     unitName,
@@ -275,7 +276,9 @@ export function UnitEditorWithRouting({
           />
           <div ref={setToolbarTarget} className="flex shrink-0 items-center" />
           {isMobile && (
-            <UnitSaveSummary unitId={unitId} className="min-w-0 flex-1 px-2" />
+            <div className="hidden max-w-64 min-w-0 shrink px-2 sm:block">
+              <UnitSaveSummary unitId={unitId} />
+            </div>
           )}
           <UnitEditStatusSlot
             className={`${workbenchStyles.editStatusSlot} border-border-theme shrink-0 md:border-l md:pl-2`}
@@ -283,7 +286,6 @@ export function UnitEditorWithRouting({
           {!isMobile && (
             <div className={workbenchStyles.statusControl}>
               <ValidationSummary key={unitId} {...validationProps} />
-              <UnitSaveSummary unitId={unitId} className="min-w-0" />
             </div>
           )}
           <CustomizerWorkspaceControls
@@ -295,15 +297,26 @@ export function UnitEditorWithRouting({
             }}
           />
         </div>
-        <div className="flex min-h-0 flex-1 overflow-hidden pb-14 md:pb-0">
+        {isMobile && (
+          <BrowserDraftStatus
+            unitId={unitId}
+            compact
+            onlyWhenFailed
+            className="shrink-0 border-b border-red-400/40 bg-red-500/10 px-3 text-xs sm:hidden"
+          />
+        )}
+        <div
+          className={`${workbenchStyles.workspaceBody} flex min-h-0 flex-1 overflow-hidden pb-14 md:pb-0`}
+        >
           <div
-            className="min-h-0 min-w-0 flex-1 overflow-auto"
+            className={`${workbenchStyles.workspaceScroll} min-h-0 min-w-0 flex-1 overflow-auto`}
             data-testid="customizer-workspace"
           >
             <UnitEditorWithRoutingTabContent
               activeTabId={activeTabId}
               selectedEquipmentId={selectedEquipmentId}
               onSelectEquipment={handleSelectEquipment}
+              onNavigate={handleTabChange}
               workbench
             />
           </div>

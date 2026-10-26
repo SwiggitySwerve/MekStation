@@ -55,11 +55,11 @@ describe('CleanTechDiagram', () => {
   it('should render all 8 mech locations', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
-    // Check for location labels (torso locations show "X-F" format for front)
+    // Check for location labels (torsos show the short name, then front and rear values)
     expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT-F')).toBeInTheDocument();
-    expect(screen.getByText('LT-F')).toBeInTheDocument();
-    expect(screen.getByText('RT-F')).toBeInTheDocument();
+    expect(screen.getByText('CT')).toBeInTheDocument();
+    expect(screen.getByText('LT')).toBeInTheDocument();
+    expect(screen.getByText('RT')).toBeInTheDocument();
     expect(screen.getByText('LA')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
     expect(screen.getByText('LL')).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('CleanTechDiagram', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
     expect(
-      screen.getByText('Click a location to edit armor values'),
+      screen.getByText('Front view · click a location to edit'),
     ).toBeInTheDocument();
   });
 

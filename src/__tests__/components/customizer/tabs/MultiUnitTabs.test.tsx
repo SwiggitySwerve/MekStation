@@ -327,7 +327,10 @@ describe('MultiUnitTabs', () => {
       expect(screen.getByRole('button', { name: 'Undo' })).toHaveTextContent(
         'Undo',
       );
-      expect(screen.getByText('Not saved to library')).toBeInTheDocument();
+      // Desktop names the save state beside Save, in the shared wording.
+      expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
+        'Not in library',
+      );
 
       rerender(
         <ToastProvider>
@@ -346,8 +349,11 @@ describe('MultiUnitTabs', () => {
       expect(screen.getByRole('button', { name: 'Undo' })).toHaveTextContent(
         '',
       );
-      // The slot hosts history only; its editor shows save state itself.
-      expect(screen.queryByText('Not saved to library')).toBeNull();
+      // The slot hosts history only; desktop save state stays on Save.
+      expect(slot).not.toHaveTextContent('Not in library');
+      expect(
+        screen.getByRole('button', { name: 'Save active unit to library' }),
+      ).toHaveAccessibleDescription(/Not in library/);
     });
 
     it('should render children content', () => {
@@ -405,6 +411,9 @@ describe('MultiUnitTabs', () => {
       );
 
       expect(screen.getByText('No Units Open')).toBeInTheDocument();
+      // One subtitle sentence, not two overlapping paragraphs.
+      const heading = screen.getByRole('heading', { name: 'No Units Open' });
+      expect(heading.parentElement?.querySelectorAll('p')).toHaveLength(1);
     });
   });
 
@@ -466,9 +475,10 @@ describe('MultiUnitTabs', () => {
       expect(saveButton).toHaveAccessibleDescription(
         expect.stringMatching(/not available.*browser draft remains open/i),
       );
-      expect(saveButton).toHaveAttribute(
-        'title',
-        expect.stringMatching(/not available/i),
+      // The instant hint leads with the reason instead of a native title.
+      expect(saveButton).not.toHaveAttribute('title');
+      expect(saveButton.querySelector('[data-toolbar-hint]')).toHaveTextContent(
+        /not available/i,
       );
     });
   });

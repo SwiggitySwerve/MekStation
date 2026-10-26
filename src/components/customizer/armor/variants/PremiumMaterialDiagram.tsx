@@ -91,25 +91,49 @@ function ConfiguredPremiumMaterialDiagram({
 
       <div className="mt-5 flex justify-center gap-4">
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-lg shadow-green-500/30" />
+          <div
+            className="h-2.5 w-2.5 rounded-full shadow-lg"
+            style={{
+              backgroundColor: ARMOR_STATUS.HEALTHY.color,
+              boxShadow: `0 4px 8px ${ARMOR_STATUS.HEALTHY.color}4d`,
+            }}
+          />
           <span className="text-text-theme-secondary text-xs">
             {Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/30" />
+          <div
+            className="h-2.5 w-2.5 rounded-full shadow-lg"
+            style={{
+              backgroundColor: ARMOR_STATUS.MODERATE.color,
+              boxShadow: `0 4px 8px ${ARMOR_STATUS.MODERATE.color}4d`,
+            }}
+          />
           <span className="text-text-theme-secondary text-xs">
             {Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-orange-500 shadow-lg shadow-orange-500/30" />
+          <div
+            className="h-2.5 w-2.5 rounded-full shadow-lg"
+            style={{
+              backgroundColor: ARMOR_STATUS.LOW.color,
+              boxShadow: `0 4px 8px ${ARMOR_STATUS.LOW.color}4d`,
+            }}
+          />
           <span className="text-text-theme-secondary text-xs">
             {Math.round(ARMOR_STATUS.LOW.min * 100)}%+
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-lg shadow-red-500/30" />
+          <div
+            className="h-2.5 w-2.5 rounded-full shadow-lg"
+            style={{
+              backgroundColor: ARMOR_STATUS.CRITICAL.color,
+              boxShadow: `0 4px 8px ${ARMOR_STATUS.CRITICAL.color}4d`,
+            }}
+          />
           <span className="text-text-theme-secondary text-xs">
             &lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%
           </span>

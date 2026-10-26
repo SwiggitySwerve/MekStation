@@ -111,6 +111,78 @@ describe('StructureTab', () => {
     expect(tonnageInput).toBeDisabled();
   });
 
+  it('labels the weight subtotal as structure, systems and armor out of tonnage', () => {
+    render(<StructureTab />);
+
+    const subtotal = screen.getByTestId('structure-subtotal');
+    expect(subtotal).toHaveTextContent(/Structure, systems & armor/);
+    expect(subtotal).toHaveTextContent(/of 50t/);
+  });
+
+  it('shows heat sink stats in the Cooling header, not as a separate row', () => {
+    render(<StructureTab />);
+
+    const heading = screen.getByRole('heading', { name: 'Cooling' });
+    const stats = screen.getByTestId('structure-heat-sink-stats');
+    expect(heading.parentElement).toContainElement(stats);
+  });
+
+  it('merges base and final mobility into one column with helper text', () => {
+    render(<StructureTab />);
+
+    expect(screen.queryByText('Base')).not.toBeInTheDocument();
+    expect(screen.getByTitle('Final Walk MP')).toHaveTextContent('5');
+    const walkInput = screen.getByRole('spinbutton', { name: 'Walk MP' });
+    expect(walkInput).toHaveAccessibleDescription(/Range .* for a 50t mech/);
+  });
+
+  it('shows Run MP as plain derived text on the stepper column, not a field', () => {
+    render(<StructureTab />);
+
+    const run = screen.getByLabelText('Run MP');
+    const stepper = screen.getByRole('spinbutton', { name: 'Walk MP' })
+      .parentElement as HTMLElement;
+    expect(run).toHaveTextContent('8');
+    expect(run).not.toHaveClass('border');
+    expect(run.tagName).toBe('OUTPUT');
+    expect(run.parentElement).toHaveTextContent(/8\s*→\s*8\s*final/);
+    expect(stepper).toHaveClass('w-[8.5rem]');
+    expect(screen.getByTitle('Final Run MP')).toBeInTheDocument();
+  });
+
+  it('mutes Jump Type, but keeps it usable, while no jump jets are installed', () => {
+    render(<StructureTab />);
+
+    const jumpType = screen.getByLabelText('Jump type');
+    expect(jumpType).toBeEnabled();
+    expect(jumpType).toHaveClass('text-text-theme-secondary');
+    expect(jumpType).toHaveAccessibleDescription(/No jump jets installed/);
+  });
+
+  it('puts every Chassis control on the same grid template', () => {
+    render(<StructureTab />);
+
+    const rowGrids = [
+      screen.getByRole('spinbutton', { name: 'Tonnage' }),
+      screen.getByLabelText('Engine'),
+      screen.getByLabelText('Heat sink type'),
+      screen.getByRole('spinbutton', { name: 'Heat sink count' }),
+    ].map((control) => {
+      let row: HTMLElement | null = control;
+      while (row && !row.classList.contains('grid')) row = row.parentElement;
+      return row?.className;
+    });
+    expect(new Set(rowGrids).size).toBe(1);
+  });
+
+  it('says plainly that mechanical jump boosters are not supported', () => {
+    render(<StructureTab />);
+
+    expect(
+      screen.getByText('Mechanical jump boosters are not supported yet.'),
+    ).toBeInTheDocument();
+  });
+
   it('should apply custom className', () => {
     const { container } = render(<StructureTab className="custom-class" />);
 

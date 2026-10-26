@@ -4,6 +4,8 @@ import { AppIcon } from '@/components/ui/AppIcon';
 
 import type { TabDisplayInfo } from './tabTypes';
 
+import { ToolbarHint } from '../shared/ToolbarHint';
+
 interface UnitActionsMenuProps {
   tabs: readonly TabDisplayInfo[];
   activeTabId: string | null;
@@ -65,10 +67,15 @@ export function UnitActionsMenu({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((value) => !value)}
-        className="text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 focus-visible:outline-2"
-        title="Import, export, and open units"
+        className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent relative flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 focus-visible:outline-2"
       >
         <AppIcon name="more" size="toolbar" />
+        <ToolbarHint>
+          <span className="block font-semibold">Unit actions</span>
+          <span className="text-text-theme-secondary block">
+            Import, export, saved history
+          </span>
+        </ToolbarHint>
       </button>
       {open && (
         <div

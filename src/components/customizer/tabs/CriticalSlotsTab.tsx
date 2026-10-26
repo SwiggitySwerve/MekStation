@@ -19,6 +19,7 @@ import { getEquipmentSurfaceClasses } from '@/utils/colors/equipmentColors';
 import { canChangeEquipmentMount } from '@/utils/construction/equipmentMutationPolicy';
 
 import { LocationGrid } from '../critical-slots/LocationGrid';
+import { PhoneLocationNavigation } from '../critical-slots/PhoneLocationNavigation';
 import { useCriticalSlotOverflow } from '../critical-slots/useCriticalSlotOverflow';
 import { CustomizerToolbarContext } from '../CustomizerToolbarContext';
 import { useCriticalSlotsTabLogic } from './CriticalSlotsTab.logic';
@@ -36,6 +37,17 @@ interface CriticalSlotsTabProps {
   /** Additional CSS classes */
   className?: string;
 }
+
+const PHONE_LOCATION_ORDER = [
+  MechLocation.RIGHT_ARM,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_LEG,
+  MechLocation.LEFT_LEG,
+];
 
 export function CriticalSlotsTab({
   readOnly = false,
@@ -77,11 +89,13 @@ export function CriticalSlotsTab({
   });
 
   const { rootRef, hasMoreBelow } = useCriticalSlotOverflow(isBiped);
+  const firstUnassigned = unassignedEquipment[0];
 
-  const renderLocation = (location: MechLocation) => (
+  const renderLocation = (location: MechLocation, hideHeader = false) => (
     <LocationGrid
       key={location}
       location={location}
+      hideHeader={hideHeader}
       data={getLocationData(location)}
       selectedEquipmentId={selectedEquipmentId || undefined}
       assignableSlots={getAssignableSlots(location)}
@@ -121,6 +135,14 @@ export function CriticalSlotsTab({
       className={`bg-surface-deep flex h-full min-h-0 flex-col ${className}`}
     >
       <CriticalSlotsToolbar
+        equipmentNames={[
+          ...locations.flatMap((location) =>
+            getLocationData(location).slots.flatMap((slot) =>
+              slot.type === 'equipment' && slot.name ? [slot.name] : [],
+            ),
+          ),
+          ...unassignedEquipment.map((item) => item.name),
+        ]}
         hasMoreLocationsBelow={hasMoreBelow}
         autoFillUnhittables={autoModeSettings.autoFillUnhittables}
         autoCompact={autoModeSettings.autoCompact}
@@ -144,6 +166,44 @@ export function CriticalSlotsTab({
             : undefined
         }
       />
+
+      {firstUnassigned && (
+        <section
+          aria-label="Equipment to place"
+          className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-amber-500/20 bg-amber-500/5 px-3 py-0.5 text-sm max-sm:flex-nowrap"
+        >
+          <p
+            className="text-text-theme-secondary min-w-0 max-sm:flex-1 max-sm:truncate"
+            title={firstUnassigned.name}
+          >
+            <span className="font-medium text-amber-400">
+              {unassignedEquipment.length}{' '}
+              {unassignedEquipment.length === 1 ? 'item' : 'items'} to place:{' '}
+              {firstUnassigned.name}
+              {unassignedEquipment.length > 1 &&
+                ` and ${unassignedEquipment.length - 1} more`}
+            </span>
+            {readOnly ? (
+              ' — read-only.'
+            ) : (
+              <span className="hidden sm:inline">
+                {' '}
+                — select, then tap a highlighted slot or drag.
+              </span>
+            )}
+          </p>
+          {onSelectEquipment && !readOnly && (
+            <Button
+              size="sm"
+              variant="secondary"
+              aria-pressed={selectedEquipmentId === firstUnassigned.instanceId}
+              onClick={() => onSelectEquipment(firstUnassigned.instanceId)}
+            >
+              Select {firstUnassigned.name}
+            </Button>
+          )}
+        </section>
+      )}
 
       {isSuperheavy && !workbench && (
         <p className="text-text-theme-secondary px-4 py-2 text-sm">
@@ -252,13 +312,13 @@ export function CriticalSlotsTab({
           tabIndex={0}
         >
           <div className="grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 min-[720px]:grid-cols-3 xl:grid-cols-4">
-            {locations.map(renderLocation)}
+            {locations.map((location) => renderLocation(location))}
           </div>
         </div>
       )}
       {isBiped && (
         <>
-          <p className="text-text-theme-secondary shrink-0 px-2 pt-2 text-center text-sm">
+          <p className="text-text-theme-secondary hidden shrink-0 px-2 pt-1 text-center text-sm sm:block">
             Front view · Right side on the left
           </p>
           <div
@@ -268,27 +328,25 @@ export function CriticalSlotsTab({
             aria-label="Critical slot locations"
             tabIndex={0}
           >
-            <div className="grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 min-[720px]:grid-cols-3">
-              {[
-                MechLocation.HEAD,
-                MechLocation.CENTER_TORSO,
-                MechLocation.RIGHT_TORSO,
-                MechLocation.LEFT_TORSO,
-                MechLocation.RIGHT_ARM,
-                MechLocation.LEFT_ARM,
-                MechLocation.RIGHT_LEG,
-                MechLocation.LEFT_LEG,
-              ].map(renderLocation)}
+            <PhoneLocationNavigation
+              selectedEquipmentId={selectedEquipmentId}
+              locations={PHONE_LOCATION_ORDER}
+              getLocationData={getLocationData}
+              getAssignableSlots={getAssignableSlots}
+              renderLocation={renderLocation}
+            />
+            <div className="hidden grid-cols-2 items-start gap-3 min-[720px]:grid-cols-3 sm:grid">
+              {PHONE_LOCATION_ORDER.map((location) => renderLocation(location))}
             </div>
           </div>
           <div
-            className="hidden min-h-0 flex-1 overflow-y-auto p-3 lg:block"
+            className="hidden min-h-0 flex-1 overflow-y-auto px-3 py-2 lg:block"
             data-testid="critical-slots-grid-desktop"
             role="region"
             aria-label="Critical slot locations"
             tabIndex={0}
           >
-            <div className="grid grid-cols-5 items-center gap-2">
+            <div className="grid grid-cols-5 items-start gap-2">
               {renderLocation(MechLocation.RIGHT_ARM)}
               <div className="min-w-0 space-y-2">
                 {renderLocation(MechLocation.RIGHT_TORSO)}

@@ -13,12 +13,12 @@ describe('BrowserDraftStatus', () => {
   it('reports only successful writes for the active draft', () => {
     const { rerender } = render(<BrowserDraftStatus unitId="visible-first" />);
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Browser draft, no changes yet',
+      'No browser draft yet',
     );
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'off');
     act(() => clientSafeStorage.setItem('megamek-unit-other', '{}'));
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Browser draft, no changes yet',
+      'No browser draft yet',
     );
     act(() => clientSafeStorage.setItem('megamek-unit-visible-first', '{}'));
     expect(screen.getByRole('status')).toHaveTextContent(
@@ -26,7 +26,7 @@ describe('BrowserDraftStatus', () => {
     );
     rerender(<BrowserDraftStatus unitId="visible-second" />);
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Browser draft, no changes yet',
+      'No browser draft yet',
     );
     rerender(<BrowserDraftStatus unitId="visible-first" />);
     expect(screen.getByRole('status')).toHaveTextContent(

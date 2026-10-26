@@ -7,6 +7,7 @@ import {
   DEFAULT_CUSTOMIZER_TABS,
   useCustomizerTabs,
 } from '@/components/customizer/tabs/CustomizerTabs';
+import { createEmptyValidationCounts } from '@/utils/validation/validationNavigation';
 
 // Mock keyboard navigation hook
 jest.mock('@/hooks/useKeyboardNavigation', () => ({
@@ -35,6 +36,41 @@ describe('CustomizerTabs', () => {
       screen.getByRole('tab', { name: 'Critical Slots' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Fluff' })).toBeInTheDocument();
+  });
+
+  it('keeps validation counts accessible through a fixed dot slot', () => {
+    const counts = createEmptyValidationCounts();
+    counts.structure = { errors: 2, warnings: 1, infos: 0 };
+    const { rerender } = render(
+      <CustomizerTabs {...defaultProps} validationCounts={counts} />,
+    );
+    const tab = screen.getByRole('tab', { name: 'Structure' });
+    const dot = tab.querySelector('[data-severity]');
+    expect(dot).toHaveAttribute('data-severity', 'error');
+    expect(dot).toHaveAccessibleName('2 errors 1 warning');
+    expect(tab).toHaveAccessibleDescription('2 errors 1 warning');
+
+    rerender(
+      <CustomizerTabs
+        {...defaultProps}
+        validationCounts={{
+          ...counts,
+          structure: { errors: 0, warnings: 1, infos: 0 },
+        }}
+      />,
+    );
+    expect(dot).toHaveAttribute('data-severity', 'warning');
+    expect(dot).toHaveAccessibleName('1 warning');
+
+    rerender(
+      <CustomizerTabs
+        {...defaultProps}
+        validationCounts={createEmptyValidationCounts()}
+      />,
+    );
+    expect(dot).toBeInTheDocument();
+    expect(dot).not.toHaveAttribute('data-severity');
+    expect(tab).not.toHaveAttribute('aria-describedby');
   });
 
   it('should highlight active tab', () => {

@@ -58,6 +58,7 @@ const navItems: NavItem[] = [
 export function MobileBottomNav(): ReactElement {
   const router = useRouter();
   const isMobileMenuOpen = useMobileSidebarSelector((state) => state.isOpen);
+  const isUnitCustomizer = /^\/customizer\/[^/?#]+/.test(router.asPath ?? '');
 
   if (isMobileMenuOpen) {
     return <></>;
@@ -74,7 +75,7 @@ export function MobileBottomNav(): ReactElement {
 
   return (
     <nav
-      className="bg-surface-base border-border-theme-subtle fixed right-0 bottom-0 left-0 z-50 border-t md:hidden"
+      className={`bg-surface-base border-border-theme-subtle fixed right-0 bottom-0 left-0 z-50 border-t md:hidden ${isUnitCustomizer ? 'max-sm:hidden' : ''}`}
       role="navigation"
       aria-label="Mobile navigation"
     >

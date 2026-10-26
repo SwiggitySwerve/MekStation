@@ -204,7 +204,7 @@ The system SHALL render a live preview of the record sheet in the browser from t
 
 ### Requirement: Zoom Controls
 
-The system SHALL provide zoom controls in the preview area with Current zoom output, Zoom in, Zoom out, Fit Width, and Fit Page.
+The system SHALL provide zoom controls in the preview toolbar, beside the paper size and the Print and Download PDF actions, with Current zoom output, Zoom in, Zoom out, and a segmented Fit page / Fit width / 100% control whose active mode is marked pressed.
 
 **Rationale**: Users need durable manual zoom and explicit fit modes that do not fight each other on resize.
 
@@ -213,8 +213,11 @@ The system SHALL provide zoom controls in the preview area with Current zoom out
 #### Scenario: Zoom control display
 
 - **WHEN** preview is displayed
-- **THEN** show zoom controls labeled Current zoom, Zoom in, Zoom out, Fit Width, and Fit Page
-- **AND** Current zoom reports the displayed percentage
+- **THEN** show zoom controls in the toolbar above the sheet, labeled Current zoom, Zoom in, Zoom out, Fit page, Fit width, and 100%
+- **AND** Current zoom reports the active fit mode with the displayed percentage, such as "Fit width · 150%", or the percentage alone for manual and actual size
+- **AND** exactly one of Fit page, Fit width and 100% has `aria-pressed="true"` while that mode is active, and none is pressed after a manual zoom
+- **AND** the paper size select, the zoom controls, Print and Download PDF share one 44px control height and baseline
+- **AND** a caption under the sheet names the paper size and page count, for example "Letter · 1 page"
 
 #### Scenario: Zoom in/out
 
@@ -236,19 +239,33 @@ The system SHALL provide zoom controls in the preview area with Current zoom out
 - **AND** only the selected paper's aspect is applied at that zoom
 - **AND** ResizeObserver SHALL NOT recompute a fit mode
 
-#### Scenario: Fit Width
+#### Scenario: Fit width
 
-- **WHEN** the user activates Fit Width
+- **WHEN** the user activates Fit width
 - **THEN** calculate scale to fit container width, clamped to 20–300%
-- **AND** the canvas CSS width matches the visible scroll viewport content width, capped at 3× paper width, within 2px
-- **AND** while Fit Width remains selected, resize recomputes that width fit to the same CSS-width contract
-- **AND** a later Zoom in or Zoom out ends Fit Width tracking and keeps the new manual zoom across resize
+- **AND** the canvas CSS width matches the visible scroll viewport content width, capped at 920 CSS pixels and at 3× paper width, within 2px
+- **AND** while Fit width remains selected, resize recomputes that width fit to the same CSS-width contract
+- **AND** a later Zoom in or Zoom out ends Fit width tracking and keeps the new manual zoom across resize
 
-#### Scenario: Fit Page
+#### Scenario: Preview opens fit to width
 
-- **WHEN** the user activates Fit Page, or preview first opens
+- **WHEN** preview first opens, on any screen size
+- **THEN** the mode is Fit width, so the sheet fits the available width
+- **AND** the 100% option is prominent and retains horizontal scrolling for reading at actual size
+- **AND** on very wide viewers the sheet is drawn no wider than 920 CSS pixels
+- **AND** on phones the same control is shown, so 100% is one tap away and the sheet then scrolls horizontally
+
+#### Scenario: 100%
+
+- **WHEN** the user activates 100%
+- **THEN** the sheet is drawn at one CSS pixel per paper point
+- **AND** the mode stays 100% across resize until another mode or a manual zoom is chosen
+
+#### Scenario: Fit page
+
+- **WHEN** the user activates Fit page
 - **THEN** calculate scale to fit the container while preserving paper aspect, clamped to 20–300%
-- **AND** while Fit Page remains selected, resize recomputes only Fit Page
+- **AND** while Fit page remains selected, resize recomputes only Fit page
 - **AND** explicit fit modes SHALL NOT recompute a mode the user did not select
 
 ### Requirement: Print Functionality

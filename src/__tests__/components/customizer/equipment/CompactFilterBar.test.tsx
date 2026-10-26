@@ -29,6 +29,49 @@ describe('CompactFilterBar', () => {
   });
 
   describe('Category Buttons', () => {
+    it('offers a scroll cue only for overflow and can return to earlier categories', async () => {
+      const user = userEvent.setup();
+      const scrollWidth = jest
+        .spyOn(HTMLElement.prototype, 'scrollWidth', 'get')
+        .mockReturnValue(800);
+      const clientWidth = jest
+        .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+        .mockReturnValue(300);
+      try {
+        render(<CompactFilterBar {...defaultProps} />);
+        const categories = screen.getByRole('group', {
+          name: 'Equipment categories',
+        });
+        const scrollBy = jest.fn();
+        Object.defineProperty(categories, 'scrollBy', { value: scrollBy });
+        await user.click(
+          screen.getByRole('button', { name: 'More equipment categories' }),
+        );
+        expect(scrollBy).toHaveBeenLastCalledWith({
+          left: 240,
+          behavior: 'auto',
+        });
+        categories.scrollLeft = 500;
+        fireEvent.scroll(categories);
+        await user.click(
+          screen.getByRole('button', { name: 'Previous equipment categories' }),
+        );
+        expect(scrollBy).toHaveBeenLastCalledWith({
+          left: -240,
+          behavior: 'auto',
+        });
+        clientWidth.mockReturnValue(800);
+        fireEvent.scroll(categories);
+        expect(
+          screen.queryByRole('button', { name: /equipment categories$/ }),
+        ).not.toBeInTheDocument();
+        expect(defaultProps.onSelectCategory).not.toHaveBeenCalled();
+      } finally {
+        scrollWidth.mockRestore();
+        clientWidth.mockRestore();
+      }
+    });
+
     it('should render accessible category chips', () => {
       render(<CompactFilterBar {...defaultProps} />);
 
@@ -116,7 +159,7 @@ describe('CompactFilterBar', () => {
       ).toBeInTheDocument();
     });
 
-    it('should show active hide filter count badge', () => {
+    it('names the active visibility filters', () => {
       render(
         <CompactFilterBar
           {...defaultProps}
@@ -124,21 +167,22 @@ describe('CompactFilterBar', () => {
           hideOneShot={true}
         />,
       );
-      expect(screen.getByText('(2)')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Visibility filters' }),
+      ).toHaveTextContent('Filters · No prototypes, No one-shot');
     });
 
-    it('shows availability as its own chip, not inside the Filters label', () => {
+    it('includes the applied availability criteria in the Filters label', () => {
       render(
         <CompactFilterBar
           {...defaultProps}
           hideUnavailable={true}
-          availabilitySummary="Inner Sphere · up to 3028"
+          availabilitySummary="Inner Sphere · introduced ≤3028"
         />,
       );
-      expect(screen.getByText('Inner Sphere · up to 3028')).toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: 'Visibility filters' }),
-      ).not.toHaveTextContent('Inner Sphere');
+      ).toHaveTextContent('Filters · Inner Sphere · introduced ≤3028');
     });
 
     it('labels the help popover in plain words', () => {

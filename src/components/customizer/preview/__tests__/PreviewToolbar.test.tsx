@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { PaperSize } from '@/types/printing';
+import { logger } from '@/utils/logger';
 
 import { PreviewToolbar } from '../PreviewToolbar';
 
@@ -44,6 +45,10 @@ describe('PreviewToolbar', () => {
 
   it('surfaces an async print error inline with retry and no alert', async () => {
     const user = userEvent.setup();
+    const warning = jest
+      .spyOn(logger, 'warn')
+      .mockImplementation(() => undefined);
+    const errorLog = jest.spyOn(logger, 'error');
     const onPrint = jest
       .fn()
       .mockRejectedValueOnce(new Error('Could not open print window'))
@@ -56,6 +61,8 @@ describe('PreviewToolbar', () => {
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Could not open print window');
     expect(alertSpy).not.toHaveBeenCalled();
+    expect(warning).toHaveBeenCalledWith('Error printing:', expect.any(Error));
+    expect(errorLog).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Retry print' }));
 
@@ -63,6 +70,8 @@ describe('PreviewToolbar', () => {
       expect(onPrint).toHaveBeenCalledTimes(2);
     });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    warning.mockRestore();
+    errorLog.mockRestore();
   });
 
   it('keeps export errors inline, disables duplicates, and restores after retry', async () => {

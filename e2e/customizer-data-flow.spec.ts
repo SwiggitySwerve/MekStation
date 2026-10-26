@@ -348,7 +348,9 @@ test('library save failures preserve the draft and successful saves reload the s
     await expect(
       panel.getByRole('textbox', { name: 'History', exact: true }),
     ).toHaveValue('Customizer integration history');
-    await page.getByTitle('Add unit (Ctrl+O)').click();
+    await page
+      .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+      .click();
     await page
       .getByPlaceholder('Search by chassis or variant...')
       .fill(variant);

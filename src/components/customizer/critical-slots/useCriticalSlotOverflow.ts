@@ -18,9 +18,13 @@ export function useCriticalSlotOverflow(isBiped: boolean): {
       setHasMoreBelow(
         viewports.some(
           (viewport) =>
+            viewport.getClientRects().length > 0 &&
             viewport.clientHeight > 0 &&
-            viewport.scrollHeight - viewport.scrollTop >
-              viewport.clientHeight + 1,
+            Math.ceil(
+              viewport.scrollHeight -
+                viewport.clientHeight -
+                viewport.scrollTop,
+            ) > 2,
         ),
       );
     };
@@ -30,8 +34,8 @@ export function useCriticalSlotOverflow(isBiped: boolean): {
         : new ResizeObserver(update);
     for (const viewport of viewports) {
       observer?.observe(viewport);
-      if (viewport.firstElementChild)
-        observer?.observe(viewport.firstElementChild);
+      for (const content of Array.from(viewport.children))
+        observer?.observe(content);
       viewport.addEventListener('scroll', update, { passive: true });
     }
     update();

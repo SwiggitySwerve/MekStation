@@ -9,7 +9,11 @@ import { logger } from '@/utils/logger';
 import type { PreviewToolbarActions } from './PreviewTabFrame';
 
 import { RecordSheetPreviewZoomControls } from './RecordSheetPreviewZoomControls';
-import { useRecordSheetPreviewZoom } from './useRecordSheetPreviewZoom';
+import {
+  RecordSheetPreviewZoomContext,
+  useRecordSheetPreviewZoom,
+  type RecordSheetPreviewZoom,
+} from './useRecordSheetPreviewZoom';
 
 interface RenderUnitRecordSheetPreviewInput {
   canvas: HTMLCanvasElement;
@@ -168,16 +172,60 @@ interface RecordSheetCanvasPreviewProps {
   className?: string;
 }
 
-export function RecordSheetCanvasPreview({
+/**
+ * Scrollable sheet viewer. Inside a `PreviewTabFrame` it follows the zoom the
+ * toolbar controls; on its own it keeps a control row under the sheet.
+ */
+export function RecordSheetCanvasPreview(
+  props: RecordSheetCanvasPreviewProps,
+): React.ReactElement {
+  const sharedZoom = React.useContext(RecordSheetPreviewZoomContext);
+  return sharedZoom ? (
+    <RecordSheetViewer {...props} zoomState={sharedZoom} />
+  ) : (
+    <StandaloneRecordSheetViewer {...props} />
+  );
+}
+
+function StandaloneRecordSheetViewer(
+  props: RecordSheetCanvasPreviewProps,
+): React.ReactElement {
+  const zoomState = useRecordSheetPreviewZoom(props.width, props.height);
+  const { zoom, mode, zoomIn, zoomOut, fitToWidth, fitToPage, actualSize } =
+    zoomState;
+  return (
+    <RecordSheetViewer
+      {...props}
+      zoomState={zoomState}
+      footer={
+        <RecordSheetPreviewZoomControls
+          className="border-border-theme-subtle bg-surface-base border-t p-1.5 sm:justify-end"
+          zoom={zoom}
+          mode={mode}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onFitToWidth={fitToWidth}
+          onFitToPage={fitToPage}
+          onActualSize={actualSize}
+        />
+      }
+    />
+  );
+}
+
+function RecordSheetViewer({
   canvasRef,
   testId,
   width,
   height,
-  scale: _scale = 0.8,
   className = '',
-}: RecordSheetCanvasPreviewProps): React.ReactElement {
-  const { containerRef, zoom, mode, zoomIn, zoomOut, fitToWidth, fitToPage } =
-    useRecordSheetPreviewZoom(width, height);
+  zoomState,
+  footer,
+}: RecordSheetCanvasPreviewProps & {
+  zoomState: RecordSheetPreviewZoom;
+  footer?: React.ReactNode;
+}): React.ReactElement {
+  const { containerRef, zoom } = zoomState;
 
   return (
     <div
@@ -214,14 +262,7 @@ export function RecordSheetCanvasPreview({
           }}
         />
       </div>
-      <RecordSheetPreviewZoomControls
-        zoom={zoom}
-        mode={mode}
-        onZoomIn={zoomIn}
-        onZoomOut={zoomOut}
-        onFitToWidth={fitToWidth}
-        onFitToPage={fitToPage}
-      />
+      {footer}
     </div>
   );
 }

@@ -64,19 +64,11 @@ export function EquipmentBrowser({
       aria-label={`Sort by ${column === 'weight' ? 'weight' : label.toLowerCase()}${sortColumn === column ? `, ${sortDirection === 'asc' ? 'ascending' : 'descending'}` : ''}`}
       onClick={() => browser.setSort(column)}
       {...(catalogColumn ? { 'data-catalog-column': catalogColumn } : {})}
-      className={`!px-0 ${workbenchStyles.catalogSortButton}`}
+      className={`${catalogColumn === 'name' ? '!pr-0 !pl-6' : '!px-0'} ${workbenchStyles.catalogSortButton}`}
     >
       <span className={workbenchStyles.catalogSortLabel}>{label}</span>
       <span aria-hidden="true" className={workbenchStyles.catalogSortArrow}>
-        {sortColumn === column ? (
-          sortDirection === 'asc' ? (
-            <AppIcon name="arrow-up" size="inline" aria-hidden="true" />
-          ) : (
-            <AppIcon name="arrow-down" size="inline" aria-hidden="true" />
-          )
-        ) : (
-          <AppIcon name="chevron-up" size="inline" aria-hidden="true" />
-        )}
+        {sortColumn === column && sortDirection === 'desc' ? '▼' : '▲'}
       </span>
     </Button>
   );
@@ -122,7 +114,7 @@ export function EquipmentBrowser({
         }
         availabilitySummary={[
           unitTechBase,
-          unitYear ? `up to ${unitYear}` : null,
+          unitYear ? `introduced ≤${unitYear}` : null,
         ]
           .filter(Boolean)
           .join(' · ')}
@@ -151,10 +143,15 @@ export function EquipmentBrowser({
           aria-label="Sort equipment columns"
         >
           {sortButton('name', 'Name', 'name')}
-          <span data-catalog-column="category">Type</span>
+          <span data-catalog-column="damage">Dmg</span>
+          <span data-catalog-column="range">
+            Range
+            <br />
+            (S/M/L)
+          </span>
+          <span data-catalog-column="heat">Heat</span>
           {sortButton('weight', 'Tons', 'weight')}
           {sortButton('criticalSlots', 'Slots', 'criticalSlots')}
-          <span data-catalog-column="heat">Heat</span>
           <span data-catalog-column="actions" />
         </div>
         {isLoading ? (
@@ -172,7 +169,7 @@ export function EquipmentBrowser({
             <Button onClick={browser.clearFilters}>Clear filters</Button>
           </div>
         ) : (
-          <ul className="space-y-1">
+          <ul>
             {paginatedEquipment.map((equipment) => {
               const entryKey = JSON.stringify([
                 equipment.id,

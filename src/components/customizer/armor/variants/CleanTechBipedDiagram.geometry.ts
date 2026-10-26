@@ -1,53 +1,62 @@
 import { MechLocation } from '@/types/construction';
 
-interface BipedArmorPlate {
+export interface BipedArmorPlate {
   readonly path: string;
+  /** Horizontal centre of the plate's text block. */
   readonly x: number;
+  /** Text anchor: label baseline for torsos, label row for the other plates. */
   readonly y: number;
   readonly label: string;
-  readonly rearY?: number;
+  /** Torso plates carry a second (rear) armor face. */
+  readonly hasRear?: boolean;
 }
 
-// Local presentation geometry; allocation limits come from ArmorTab's projection.
+/**
+ * Local presentation geometry (viewBox 0 0 360 440); allocation limits come
+ * from ArmorTab's projection. Arms are narrow and side torsos wide so every
+ * plate stays a comfortable tap target and torso values stay readable when the
+ * diagram is scaled down on a phone. Left-side plates mirror the right side
+ * about x = 180.
+ */
 export const BIPED_ARMOR_PLATES: Partial<
   Record<MechLocation, BipedArmorPlate>
 > = {
   [MechLocation.HEAD]: {
-    path: 'M156 28 H204 L214 44 L207 78 H153 L146 44 Z',
+    path: 'M156 26 H204 L214 42 L207 82 H153 L146 42 Z',
     x: 180,
-    y: 45,
+    y: 43,
     label: 'HD',
   },
   [MechLocation.CENTER_TORSO]: {
     path: 'M149 93 H211 L220 131 L210 204 L198 220 H162 L150 204 L140 131 Z',
     x: 180,
-    y: 115,
-    label: 'CT-F',
-    rearY: 187,
+    y: 126,
+    label: 'CT',
+    hasRear: true,
   },
   [MechLocation.LEFT_TORSO]: {
-    path: 'M223 93 L280 104 L274 181 L254 215 L221 203 L228 133 Z',
-    x: 250,
-    y: 120,
-    label: 'LT-F',
-    rearY: 182,
+    path: 'M223 93 L293 103 L288 181 L258 215 L221 203 L228 133 Z',
+    x: 257,
+    y: 126,
+    label: 'LT',
+    hasRear: true,
   },
   [MechLocation.RIGHT_TORSO]: {
-    path: 'M137 93 L80 104 L86 181 L106 215 L139 203 L132 133 Z',
-    x: 110,
-    y: 120,
-    label: 'RT-F',
-    rearY: 182,
+    path: 'M137 93 L67 103 L72 181 L102 215 L139 203 L132 133 Z',
+    x: 103,
+    y: 126,
+    label: 'RT',
+    hasRear: true,
   },
   [MechLocation.LEFT_ARM]: {
-    path: 'M288 99 L327 111 L339 161 L334 204 L343 250 L324 269 L289 256 L284 217 L293 176 L280 138 Z',
-    x: 312,
+    path: 'M302 99 L334 111 L345 161 L340 204 L348 250 L332 269 L303 256 L298 217 L306 176 L295 138 Z',
+    x: 321,
     y: 169,
     label: 'LA',
   },
   [MechLocation.RIGHT_ARM]: {
-    path: 'M72 99 L33 111 L21 161 L26 204 L17 250 L36 269 L71 256 L76 217 L67 176 L80 138 Z',
-    x: 48,
+    path: 'M58 99 L26 111 L15 161 L20 204 L12 250 L28 269 L57 256 L62 217 L54 176 L65 138 Z',
+    x: 39,
     y: 169,
     label: 'RA',
   },

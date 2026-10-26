@@ -54,11 +54,10 @@ describe('NeonOperatorDiagram', () => {
   it('should render front/rear labels on torso locations', () => {
     render(<NeonOperatorDiagram {...defaultProps} />);
 
-    // Torso locations have stacked front/rear with "-F" suffix for front
-    expect(screen.getByText('CT-F')).toBeInTheDocument();
-    // Multiple "R" labels for each torso rear section
-    const rearLabels = screen.getAllByText('REAR');
-    expect(rearLabels.length).toBe(3);
+    // Torso locations show the front value over a smaller "R" rear line
+    expect(screen.getByText('CT')).toBeInTheDocument();
+    const rearLines = document.querySelectorAll('[data-armor-face="rear"]');
+    expect(rearLines.length).toBe(3);
   });
 
   // Note: Auto-allocate button was moved to ArmorTab.tsx
@@ -86,7 +85,7 @@ describe('NeonOperatorDiagram', () => {
     render(<NeonOperatorDiagram {...defaultProps} />);
 
     expect(
-      screen.getByText('Click a location to edit armor values'),
+      screen.getByText('Front view · click a location to edit'),
     ).toBeInTheDocument();
   });
 

@@ -317,13 +317,24 @@ export function StructureTab({
                 </span>
               </div>
             )}
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+              <span className={cs.text.label}>Armor:</span>
+              <span className={cs.text.value}>{calculations.armorWeight}t</span>
+            </div>
           </div>
           <div
             className={`${cs.layout.statRow} border-border-theme-subtle border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4`}
+            data-testid="structure-subtotal"
+            title="Chassis, systems and armor only. Equipment weight is counted in the header total."
           >
-            <span className={`text-sm ${cs.text.label}`}>Total:</span>
+            <span className={`text-sm ${cs.text.label}`}>
+              Structure, systems &amp; armor:
+            </span>
             <span className="text-text-theme-primary text-lg font-bold tabular-nums">
               {calculations.totalStructuralWeight}t
+            </span>
+            <span className={`text-sm ${cs.text.label} tabular-nums`}>
+              of {tonnage}t
             </span>
           </div>
         </div>

@@ -1,6 +1,8 @@
 import React, { useId } from 'react';
 
+import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
+import { getArmorStatusColor } from '@/utils/armor/armorColors';
 
 import { hasRearArmor, LOCATION_SHORT_LABELS } from '../shared/types';
 
@@ -10,22 +12,21 @@ interface SchematicFill {
   ratio: number;
 }
 
+const SCHEMATIC_EMPTY_COLORS: Record<string, string> = {
+  [ARMOR_STATUS.HEALTHY.color]: '#14532d',
+  [ARMOR_STATUS.MODERATE.color]: '#713f12',
+  [ARMOR_STATUS.LOW.color]: '#7c2d12',
+  [ARMOR_STATUS.CRITICAL.color]: '#7f1d1d',
+};
+
 function getSchematicFill(current: number, maximum: number): SchematicFill {
   const ratio = maximum > 0 ? Math.min(1, Math.max(0, current / maximum)) : 0;
 
   if (maximum === 0) {
     return { color: '#64748b', emptyColor: '#334155', ratio };
   }
-  if (ratio >= 0.75) {
-    return { color: '#22c55e', emptyColor: '#14532d', ratio };
-  }
-  if (ratio >= 0.5) {
-    return { color: '#f59e0b', emptyColor: '#78350f', ratio };
-  }
-  if (ratio >= 0.25) {
-    return { color: '#f97316', emptyColor: '#7c2d12', ratio };
-  }
-  return { color: '#ef4444', emptyColor: '#7f1d1d', ratio };
+  const color = getArmorStatusColor(current, maximum);
+  return { color, emptyColor: SCHEMATIC_EMPTY_COLORS[color], ratio };
 }
 
 function SchematicCapacityBar({

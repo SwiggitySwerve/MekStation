@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -40,28 +41,127 @@ function setup(
   return { onInspect, onAdd, onAddAndPlace };
 }
 
-it('exposes Add Small Laser on the collapsed row without Add and place', () => {
-  setup({ expanded: false });
-  expect(screen.getByRole('button', { name: 'Add Small Laser' })).toBeEnabled();
+it.each([false, true])(
+  'keeps one split action with details expanded=%s',
+  async (expanded) => {
+    const user = userEvent.setup();
+    const { onAdd, onAddAndPlace } = setup({ expanded });
+    const row = screen.getByTestId('equipment-catalog-row');
+    expect(within(row).getAllByRole('button')).toHaveLength(3);
+    await user.click(screen.getByRole('button', { name: 'Add Small Laser' }));
+    expect(onAdd).toHaveBeenCalledTimes(1);
+    await user.click(
+      screen.getByRole('button', { name: 'Add options for Small Laser' }),
+    );
+    const menu = screen.getByRole('menu');
+    expect(row).not.toContainElement(menu);
+    await user.click(
+      within(menu).getByRole('menuitem', { name: 'Add and place Small Laser' }),
+    );
+    expect(onAddAndPlace).toHaveBeenCalledTimes(1);
+    expect(onAdd).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  },
+);
+
+it('adds to unassigned from the menu and returns focus', async () => {
+  const user = userEvent.setup();
+  const { onAdd, onAddAndPlace } = setup();
+  const trigger = screen.getByRole('button', {
+    name: 'Add options for Small Laser',
+  });
+  await user.click(trigger);
+  await user.click(screen.getByRole('menuitem', { name: 'Add to unassigned' }));
+  expect(onAdd).toHaveBeenCalledTimes(1);
+  expect(onAddAndPlace).not.toHaveBeenCalled();
+  expect(trigger).toHaveFocus();
+});
+
+it('closes the menu when its caret is clicked again', async () => {
+  const user = userEvent.setup();
+  setup();
+  const trigger = screen.getByRole('button', {
+    name: 'Add options for Small Laser',
+  });
+  await user.click(trigger);
+  await user.click(trigger);
+  expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+});
+
+it('ignores queued scroll events but dismisses when its anchor moves', async () => {
+  const user = userEvent.setup();
+  setup();
+  const trigger = screen.getByRole('button', {
+    name: 'Add options for Small Laser',
+  });
+  const bounds = jest
+    .spyOn(trigger, 'getBoundingClientRect')
+    .mockReturnValue(new DOMRect(300, 600, 44, 44));
+  await user.click(trigger);
+
+  // Scrolling the row into view can deliver its event after the menu opens.
+  fireEvent.scroll(window);
+  expect(screen.getByRole('menu')).toBeVisible();
   expect(
-    screen.queryByRole('button', { name: 'Add and place Small Laser' }),
+    screen.getByRole('menuitem', { name: 'Add to unassigned' }),
+  ).toHaveFocus();
+
+  bounds.mockReturnValue(new DOMRect(300, 580, 44, 44));
+  fireEvent.scroll(window);
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  expect(trigger).toHaveFocus();
+  bounds.mockRestore();
+});
+
+it('supports arrow navigation, Escape, Tab and outside dismissal', async () => {
+  const user = userEvent.setup();
+  setup();
+  const trigger = screen.getByRole('button', {
+    name: 'Add options for Small Laser',
+  });
+  trigger.focus();
+  await user.keyboard('{ArrowDown}');
+  expect(
+    screen.getByRole('menuitem', { name: 'Add to unassigned' }),
+  ).toHaveFocus();
+  await user.keyboard('{ArrowDown}');
+  expect(
+    screen.getByRole('menuitem', { name: 'Add and place Small Laser' }),
+  ).toHaveFocus();
+  await user.keyboard('{ArrowDown}');
+  expect(
+    screen.getByRole('menuitem', { name: 'Add to unassigned' }),
+  ).toHaveFocus();
+  await user.keyboard('{Escape}');
+  expect(trigger).toHaveFocus();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  await user.click(trigger);
+  await user.tab();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  await user.click(trigger);
+  await user.click(
+    screen.getByRole('button', { name: 'Details for Small Laser' }),
+  );
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+});
+
+it('omits the caret without placement and disables both parts when readOnly', () => {
+  setup({ onAddAndPlace: undefined });
+  expect(
+    screen.queryByRole('button', { name: 'Add options for Small Laser' }),
   ).not.toBeInTheDocument();
 });
 
-it('exposes Add and place once details are expanded', () => {
-  setup({ expanded: true });
-  expect(screen.getByRole('button', { name: 'Add Small Laser' })).toBeEnabled();
-  expect(
-    screen.getByRole('button', { name: 'Add and place Small Laser' }),
-  ).toBeEnabled();
-});
-
-it('disables add actions when readOnly', () => {
+it('disables add actions when readOnly but keeps details available', () => {
   setup({ expanded: true, readOnly: true });
   expect(
     screen.getByRole('button', { name: 'Add Small Laser' }),
   ).toBeDisabled();
   expect(
-    screen.getByRole('button', { name: 'Add and place Small Laser' }),
+    screen.getByRole('button', { name: 'Add options for Small Laser' }),
   ).toBeDisabled();
+  expect(
+    screen.getByRole('button', { name: 'Details for Small Laser' }),
+  ).toBeEnabled();
 });

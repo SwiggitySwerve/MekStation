@@ -30,6 +30,17 @@ interface ChassisSelectHandlers {
   ) => void;
 }
 
+/**
+ * One row template for every Chassis control: label | control | meta. Each row
+ * is its own grid, so they all share this template to keep every control's
+ * left edge (steppers and selects) on the same vertical line.
+ */
+export const CHASSIS_ROW_GRID =
+  'grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)]';
+
+/** Meta text sits under the control on narrow cards, in its own column on wide. */
+export const CHASSIS_ROW_META = 'col-start-2 sm:col-start-auto sm:text-right';
+
 export function TonnageControl({
   readOnly,
   tonnage,
@@ -42,7 +53,7 @@ export function TonnageControl({
   readonly onChange: (newTonnage: number) => void;
 }): React.ReactElement {
   return (
-    <div className="grid grid-cols-[minmax(6rem,1fr)_auto_minmax(5rem,0.8fr)] items-center gap-3">
+    <div className={CHASSIS_ROW_GRID}>
       <label className={`${cs.text.label} font-medium`} htmlFor="tonnage">
         Tonnage
       </label>
@@ -81,7 +92,7 @@ export function TonnageControl({
           <AppIcon name="add" size="inline" aria-hidden="true" />
         </button>
       </div>
-      <span className={`${cs.text.secondary} text-right tabular-nums`}>
+      <span className={`${cs.text.secondary} ${CHASSIS_ROW_META} tabular-nums`}>
         {BATTLEMECH_TONNAGE.min}–{BATTLEMECH_TONNAGE.max}t
       </span>
       {isSuperheavy && (
@@ -189,7 +200,7 @@ function LabeledSelect({
   const id = `${label.toLowerCase()}-select`;
 
   return (
-    <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)]">
+    <div className={CHASSIS_ROW_GRID}>
       <label className={`${cs.text.label} font-medium`} htmlFor={id}>
         {label}
       </label>
@@ -207,9 +218,7 @@ function LabeledSelect({
           </option>
         ))}
       </select>
-      <span
-        className={`${cs.text.secondary} col-start-2 tabular-nums sm:col-start-auto sm:text-right`}
-      >
+      <span className={`${cs.text.secondary} ${CHASSIS_ROW_META} tabular-nums`}>
         {meta}
       </span>
     </div>
@@ -224,14 +233,16 @@ export function EngineRatingSummary({
   readonly isAtMaxEngineRating: boolean;
 }): React.ReactElement {
   return (
-    <div className="border-border-theme-subtle grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3 border-t pt-3">
+    <div
+      className={`${CHASSIS_ROW_GRID} border-border-theme-subtle border-t pt-3`}
+    >
       <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
       <span
         className={`text-sm tabular-nums ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.value}`}
       >
         {engineRating}
       </span>
-      <span className={`${cs.text.secondary} text-right`}>
+      <span className={`${cs.text.secondary} ${CHASSIS_ROW_META}`}>
         {isAtMaxEngineRating ? 'Maximum' : 'Derived'}
       </span>
       {isAtMaxEngineRating && (

@@ -1,14 +1,36 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { ColorLegend } from '@/components/customizer/shared/ColorLegend';
 
 describe('ColorLegend', () => {
+  it('shows only the unit equipment categories plus fixed systems and empty inline', () => {
+    const view = render(
+      <ColorLegend
+        equipmentNames={[
+          'Medium Laser',
+          'Medium Laser',
+          'Single Heat Sink',
+          'AC/20',
+        ]}
+      />,
+    );
+    const key = screen.getByRole('group', { name: 'Colour key' });
+    expect(within(key).getAllByText('Energy')).toHaveLength(1);
+    expect(within(key).getByText('Heat Sink')).toBeInTheDocument();
+    expect(within(key).getByText('Ballistic')).toBeInTheDocument();
+    expect(within(key).queryByText('Missile')).not.toBeInTheDocument();
+    expect(within(key).getByText('Fixed systems')).toBeInTheDocument();
+    expect(within(key).getByText('Empty')).toBeInTheDocument();
+    view.rerender(<ColorLegend equipmentNames={['LRM 20']} />);
+    expect(within(key).getByText('Missile')).toBeInTheDocument();
+    expect(within(key).queryByText('Energy')).not.toBeInTheDocument();
+  });
   it('should render collapsed by default', () => {
     render(<ColorLegend />);
 
-    expect(screen.getByText('Color Legend')).toBeInTheDocument();
+    expect(screen.getByText('Colour key')).toBeInTheDocument();
     expect(screen.queryByText('System Components')).not.toBeInTheDocument();
   });
 
@@ -24,7 +46,7 @@ describe('ColorLegend', () => {
     const user = userEvent.setup();
     render(<ColorLegend />);
 
-    const button = screen.getByText('Color Legend').closest('button');
+    const button = screen.getByText('Colour key').closest('button');
     expect(button).toBeInTheDocument();
 
     await user.click(button!);
@@ -38,7 +60,7 @@ describe('ColorLegend', () => {
 
     expect(screen.getByText('System Components')).toBeInTheDocument();
 
-    const button = screen.getByText('Color Legend').closest('button');
+    const button = screen.getByText('Colour key').closest('button');
     await user.click(button!);
 
     expect(screen.queryByText('System Components')).not.toBeInTheDocument();

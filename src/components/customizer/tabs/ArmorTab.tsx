@@ -20,6 +20,7 @@ import React, {
 
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
+import { ArmorStatusLegend } from '@/components/armor/shared/ArmorStatusLegend';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { useTechBaseSync } from '@/hooks/useTechBaseSync';
 import { getTotalAllocatedArmor } from '@/stores/unitState';
@@ -41,7 +42,12 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import { LocationArmorEditor } from '../armor/LocationArmorEditor';
 import { customizerStyles as cs } from '../styles';
 import { ArmorDiagramPanel } from './ArmorDiagramPanel';
-import { buildArmorData, calculatePointsDelta } from './ArmorTab.logic';
+import { ArmorSummaryStrip } from './ArmorSummaryStrip';
+import {
+  buildArmorData,
+  calculatePointsDelta,
+  diagramLegendMovesToInspector,
+} from './ArmorTab.logic';
 
 // =============================================================================
 // Types
@@ -139,6 +145,10 @@ export function ArmorTab({
 
   // Calculate unallocated and wasted points
   const unallocatedPoints = availablePoints - allocatedPoints;
+  const legendInInspector = diagramLegendMovesToInspector(
+    configuration,
+    armorDiagramMode,
+  );
   const wastedPoints = Math.max(0, availablePoints - maxTotalArmor);
 
   const pointsDelta = useMemo(
@@ -195,47 +205,21 @@ export function ArmorTab({
 
   return (
     <div className={`${cs.layout.tabContent} ${className}`}>
-      {/* Compact Summary Bar - responsive */}
-      <div className={cs.panel.summary}>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm sm:gap-x-6">
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
-              <span className={cs.text.label}>Type:</span>
-              <span className={cs.text.value}>
-                {armorDef?.name ?? 'Standard'}
-              </span>
-            </div>
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
-              <span className={cs.text.label}>Pts/Ton:</span>
-              <span className={cs.text.value}>{pointsPerTon}</span>
-            </div>
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
-              <span className={cs.text.label}>Slots:</span>
-              <span className={cs.text.value}>{armorSlots}</span>
-            </div>
-          </div>
-          <div className="border-border-theme-subtle flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4">
-            <div className={cs.layout.statRow}>
-              <span className={`text-sm ${cs.text.label}`}>Tonnage:</span>
-              <span className="text-text-theme-primary text-lg font-bold tabular-nums">
-                {armorTonnage}t
-              </span>
-            </div>
-            <div className={cs.layout.statRow}>
-              <span className={`text-sm ${cs.text.label}`}>Allocated:</span>
-              <span
-                className={`text-lg font-bold tabular-nums ${allocatedPoints > maxTotalArmor ? 'text-red-400' : 'text-text-theme-primary'}`}
-              >
-                {allocatedPoints} / {maxTotalArmor} max
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ArmorSummaryStrip
+        armorTypeName={armorDef?.name ?? 'Standard'}
+        pointsPerTon={pointsPerTon}
+        armorSlots={armorSlots}
+        armorTonnage={armorTonnage}
+        allocatedPoints={allocatedPoints}
+        maxTotalArmor={maxTotalArmor}
+        availablePoints={availablePoints}
+        maxUsefulTonnage={maxUsefulTonnage}
+      />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.85fr)]">
+        {/* Both columns stretch so the diagram and inspector cards end together. */}
         <section
-          className="order-1 min-w-0 xl:sticky xl:top-4 xl:self-start"
+          className="order-1 flex min-w-0 flex-col"
           aria-label="Armor diagram"
         >
           <ArmorDiagramPanel
@@ -250,7 +234,7 @@ export function ArmorTab({
         </section>
 
         {/* Compact inspector follows the diagram on smaller viewports. */}
-        <aside className="order-2 flex min-w-0 flex-col gap-4 xl:self-start">
+        <aside className="order-2 flex min-w-0 flex-col gap-4">
           {/* Location Editor - shown at top when a location is selected */}
           {selectedLocation && selectedLocationData && (
             <div ref={locationEditorRef}>
@@ -266,17 +250,12 @@ export function ArmorTab({
           )}
 
           {/* Armor Configuration */}
-          <div className={`${cs.panel.main} flex flex-col`}>
-            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 className="text-text-theme-primary text-lg font-semibold">
-                Armor inspector
-              </h3>
-              <span className="text-text-theme-secondary text-xs tabular-nums">
-                {availablePoints} pts from {armorTonnage} t
-              </span>
-            </div>
+          <div className={`${cs.panel.main} flex flex-col xl:flex-1`}>
+            <h3 className="text-text-theme-primary mb-5 text-lg font-semibold">
+              Armor inspector
+            </h3>
 
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-1 flex-col gap-6 xl:justify-between">
               {/* Armor Type */}
               <div className={cs.layout.field}>
                 <div className={cs.layout.rowBetween}>
@@ -431,6 +410,20 @@ export function ArmorTab({
                   </div>
                 </details>
               </div>
+
+              {/* Wide layouts: the diagram's legend lives here, filling the
+                  card's bottom edge so both columns end together. */}
+              {legendInInspector && (
+                <div
+                  className="border-border-theme-subtle hidden items-center justify-between gap-3 border-t pt-3 xl:flex"
+                  data-testid="armor-inspector-legend"
+                >
+                  <span className="text-text-theme-secondary text-xs">
+                    R = rear armor
+                  </span>
+                  <ArmorStatusLegend className="mt-0!" />
+                </div>
+              )}
             </div>
           </div>
         </aside>

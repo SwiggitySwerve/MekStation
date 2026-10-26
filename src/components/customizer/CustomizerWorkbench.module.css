@@ -1,6 +1,13 @@
 .workbench {
   --workbench-gap: 1rem;
   --workbench-control-height: 2.75rem;
+  /* Calm inset field: between the page (surface-deep) and the card
+     (surface-base) so fields read as recessed without going near-black. */
+  --field-surface: color-mix(
+    in srgb,
+    var(--surface-deep) 35%,
+    var(--surface-base)
+  );
   color: var(--text-primary);
 }
 
@@ -8,12 +15,12 @@
 .workbench select,
 .workbench textarea {
   min-height: var(--workbench-control-height);
-  /* Inset field: darker than the card (surface-base) it sits on, with a
-     visible border, so inputs never blend into card surfaces. */
-  background-color: var(--surface-deep);
+  /* Inset field: a touch darker than the card it sits on, with a clear
+     border, so inputs never blend into card surfaces. */
+  background-color: var(--field-surface);
   color: var(--text-primary);
   border-color: var(--border-strong);
-  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.35);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.22);
 }
 
 .workbench
@@ -29,6 +36,7 @@
 .workbench textarea:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
+  border-color: var(--accent-primary);
 }
 
 .identityBanner {
@@ -80,12 +88,19 @@
   flex: 1 1 0%;
   overflow: auto;
   scrollbar-gutter: stable;
+  scroll-padding-bottom: 16px;
+}
+
+.catalogScroll > ul {
+  padding-bottom: 24px;
+}
+
+.catalogRow {
+  scroll-margin-block: 44px 24px;
 }
 
 .catalogColumns {
-  grid-template-columns:
-    minmax(0, 1fr) minmax(88px, 0.5fr)
-    64px 64px 52px 44px;
+  grid-template-columns: minmax(240px, 1fr) 72px 96px 72px 72px 72px 124px;
   align-items: center;
   justify-items: stretch;
   column-gap: 0.75rem;
@@ -96,6 +111,8 @@
 }
 
 /* Numeric tracks read right-aligned so digits line up down the column. */
+.catalogColumns > [data-catalog-column='damage'],
+.catalogColumns > [data-catalog-column='range'],
 .catalogColumns > [data-catalog-column='weight'],
 .catalogColumns > [data-catalog-column='criticalSlots'],
 .catalogColumns > [data-catalog-column='heat'] {
@@ -117,10 +134,9 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-default);
-  /* Match row card borders (4px category accent on the left) so header and
+  /* Match the row's 4px category accent so header and
      value tracks share the same inset. */
   border-left: 4px solid transparent;
-  border-right: 1px solid transparent;
 }
 
 .catalogSortButton {
@@ -157,7 +173,12 @@
   display: inline-flex;
   flex-shrink: 0;
   color: var(--text-muted);
-  opacity: 0.6;
+  opacity: 0;
+}
+
+.catalogSortButton:hover .catalogSortArrow,
+.catalogSortButton:focus .catalogSortArrow {
+  opacity: 0.4;
 }
 
 .catalogSortButton[aria-pressed='true'] .catalogSortArrow {
@@ -166,30 +187,100 @@
 }
 
 .catalogAddHit {
-  width: 2.75rem;
+  width: 76px;
   min-width: 2.75rem;
   min-height: 2.75rem;
-  padding: 0;
+  height: 2.75rem;
+  padding: 0 !important;
 }
 
-.catalogAddGlyph {
-  display: inline-flex;
-  width: 1.875rem;
-  height: 1.875rem;
+.catalogActions {
+  display: flex;
+  flex: 0 0 124px;
+  width: 124px;
   align-items: center;
-  justify-content: center;
-  border-radius: 0.375rem;
-  background-color: color-mix(in srgb, var(--surface-raised) 65%, transparent);
-  color: var(--text-primary);
+}
+
+.catalogAddCaret {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 !important;
+  border-radius: 0 8px 8px 0;
+}
+
+.catalogAddMenu {
+  position: fixed;
+  z-index: 70;
+  width: 240px;
+  max-width: calc(100vw - 16px);
+  padding: 4px;
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--surface-base);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+.catalogAddMenu > button {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.catalogInspect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 0 !important;
+}
+
+.catalogDetails {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 12px 12px 16px 36px;
+}
+
+.catalogDetailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  font-size: 13px;
+}
+
+.catalogCategories {
+  scrollbar-width: thin;
+}
+
+.catalogCategories[data-overflow='forward'] {
+  mask-image: linear-gradient(to right, black calc(100% - 24px), transparent);
+}
+
+.catalogCategories[data-overflow='backward'] {
+  mask-image: linear-gradient(to left, black calc(100% - 24px), transparent);
 }
 
 @media (min-width: 1024px) {
-  .catalogColumns {
+  .catalogDetailGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .catalogInspect {
+    height: 44px;
+    padding: 0 !important;
+  }
+
+  .catalogColumns,
+  .catalogHeader {
     display: grid;
   }
 
-  .catalogHeader {
-    display: grid;
+  .catalogHeader,
+  .catalogScroll > ul {
+    min-width: 848px;
   }
 }
 
@@ -212,17 +303,13 @@
 
 .compactMetrics .readouts {
   display: grid;
-  /* Columns follow stat counts (capacity 4, movement 4, BV 1) so every stat
-     cell, and so every group gap, has the same width. */
-  grid-template-columns: minmax(0, 4fr) minmax(0, 4fr) minmax(0, 1fr);
+  /* Columns follow cell counts (capacity 4, movement and engine 2, BV 1) so
+     all seven cells, and so every group gap, have the same width. */
+  grid-template-columns: minmax(0, 4fr) minmax(0, 2fr) minmax(0, 1fr);
   align-items: center;
   min-height: 48px;
   padding: 0;
   gap: 0;
-}
-
-.compactMetrics .readoutsWithRunPlus {
-  grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 1fr);
 }
 
 .compactMetrics .readoutGroup {
@@ -310,6 +397,20 @@
   gap: 8px;
 }
 
+/* Wide section bar: the section tabs share the free width up to a cap, so no
+   empty band sits between the last tab and the edit controls. Tabs never
+   shrink below their label, so a narrow bar still scrolls instead of
+   crowding. */
+@media (min-width: 768px) {
+  .sectionBar .sectionTablist > * {
+    flex: 1 1 0%;
+    max-width: 11rem;
+  }
+
+  .sectionBar .sectionTablist > * > .sectionTab {
+    flex: 1 1 auto;
+  }
+}
 /* Overflow cues: a fade plus chevron on each edge that has hidden tabs. */
 .sectionFadeLeft,
 .sectionFadeRight {
@@ -331,16 +432,16 @@
   display: none;
 }
 
-/* Phone navigation owns the whole first row; tools/history wrap below it. */
+/* Phone navigation and edit history share one 48px band. */
 @media (max-width: 639px) {
   .sectionBar {
-    height: auto;
-    flex-wrap: wrap;
-    padding-block: 4px;
+    height: 48px;
+    flex-wrap: nowrap;
+    padding-block: 0;
   }
 
   .sectionBar > :first-child {
-    flex: 1 0 100%;
+    flex: 1 1 0%;
   }
 
   .sectionBar .editStatusSlot {
@@ -350,7 +451,7 @@
   .sectionSelector {
     display: flex;
     width: 100%;
-    height: 48px;
+    height: 44px;
     align-items: center;
     gap: 8px;
     border: 1px solid var(--border-strong);
@@ -411,6 +512,63 @@
   .sectionFadeRight {
     display: none;
   }
+
+  /* The app nav is hidden on an open unit route, so its reserved space can
+     return to the workspace. Only the Loadout bar needs a bottom inset. */
+  :global(main):has(.workbench) {
+    padding-bottom: 0;
+    scroll-padding-bottom: 0;
+  }
+
+  /* The scroll area stops where the Loadout bar starts, on every tab, so
+     no content renders under the bar. */
+  .workspaceBody {
+    padding-bottom: calc(
+      var(--loadout-bar-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  /* Room after the last control so it never sits flush on the bar. */
+  .workspaceScroll {
+    padding-bottom: 16px;
+  }
+}
+
+.workbench {
+  /* Height of the phone Loadout bar (BottomSheetTray's collapsed dock). */
+  --loadout-bar-height: 45px;
+}
+
+.mobileLoadoutDock {
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 639px) {
+  .mobileLoadoutDock {
+    bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--surface-base);
+    /* Lifts the bar off the scrolling content without changing its height. */
+    box-shadow: 0 -8px 16px rgb(0 0 0 / 0.35);
+  }
+}
+
+.sectionValidationDot {
+  position: relative;
+  display: inline-flex;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.sectionValidationDot[data-severity='error'] {
+  background: var(--color-red-400, #f87171);
+}
+
+/* Same hues as the status button and panel: errors red, warnings yellow. */
+.sectionValidationDot[data-severity='warning'] {
+  background: var(--color-yellow-400, #facc15);
 }
 
 .sectionFadeLeft {
@@ -485,7 +643,7 @@
 
   .compactBar {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) 120px 44px;
     align-items: center;
     gap: 0 2px;
   }
@@ -498,6 +656,9 @@
     align-self: start;
     min-width: 0;
     margin-top: 2px;
+    width: 100%;
+    border-left: 1px solid var(--border-default);
+    padding-left: 4px;
   }
 
   .compactToggle {
@@ -571,5 +732,11 @@
 @media (max-width: 767px) {
   :global(body):has(.workbench) :global([data-testid='toast-container']) {
     bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 639px) {
+  :global(body):has(.workbench) :global([data-testid='toast-container']) {
+    bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   }
 }

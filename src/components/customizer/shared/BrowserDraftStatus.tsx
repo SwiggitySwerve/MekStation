@@ -6,19 +6,24 @@ import {
   subscribeToStorageWriteReceipts,
 } from '@/stores/utils/clientSafeStorage';
 
-type DraftState = 'pending' | 'saved' | 'failed';
+export type DraftState = 'pending' | 'saved' | 'failed';
 
-const DRAFT_LABEL: Record<DraftState, string> = {
-  pending: 'Browser draft, no changes yet',
+/**
+ * Browser-draft wording. A pending draft has had no write yet, so surfaces
+ * that pair it with the library state leave it out rather than imply the
+ * unit is saved.
+ */
+export const DRAFT_LABEL: Record<DraftState, string> = {
+  pending: 'No browser draft yet',
   saved: 'Draft saved in this browser',
   failed: 'Draft save failed in this browser',
 };
 
 /** Short wording for bands that pair the draft with the library state. */
-const DRAFT_SHORT_LABEL: Record<DraftState, string> = {
-  pending: 'Browser draft',
+export const DRAFT_SHORT_LABEL: Record<DraftState, string> = {
+  pending: 'No browser draft',
   saved: 'Draft saved in browser',
-  failed: 'Draft save failed',
+  failed: 'Browser draft not saved',
 };
 
 function draftStorageKey(unitId: string): string {
@@ -31,6 +36,27 @@ function receiptForUnit(
   const latest = getLatestStorageWriteReceipt(draftStorageKey(unitId));
   if (!latest) return null;
   return { unitId, failed: latest.status === 'failed' };
+}
+
+/** The active draft's last completed browser write: pending, saved or failed. */
+export function useBrowserDraftState(unitId: string): DraftState {
+  const [receipt, setReceipt] = useState<{
+    unitId: string;
+    failed: boolean;
+  } | null>(() => receiptForUnit(unitId));
+
+  useEffect(() => {
+    setReceipt(receiptForUnit(unitId));
+    return subscribeToStorageWriteReceipts((next) => {
+      if (next.key === draftStorageKey(unitId)) {
+        setReceipt({ unitId, failed: next.status === 'failed' });
+      }
+    });
+  }, [unitId]);
+
+  const current = receipt?.unitId === unitId ? receipt : null;
+  if (current?.failed) return 'failed';
+  return current ? 'saved' : 'pending';
 }
 
 /** Show only completed writes for the active draft, separately from library save. */
@@ -47,23 +73,8 @@ export function BrowserDraftStatus({
   onlyWhenFailed?: boolean;
   className?: string;
 }): React.ReactElement | null {
-  const [receipt, setReceipt] = useState<{
-    unitId: string;
-    failed: boolean;
-  } | null>(() => receiptForUnit(unitId));
-
-  useEffect(() => {
-    setReceipt(receiptForUnit(unitId));
-    return subscribeToStorageWriteReceipts((next) => {
-      if (next.key === draftStorageKey(unitId)) {
-        setReceipt({ unitId, failed: next.status === 'failed' });
-      }
-    });
-  }, [unitId]);
-
-  const current = receipt?.unitId === unitId ? receipt : null;
-  const failed = Boolean(current?.failed);
-  const state: DraftState = failed ? 'failed' : current ? 'saved' : 'pending';
+  const state = useBrowserDraftState(unitId);
+  const failed = state === 'failed';
   if (onlyWhenFailed && !failed) return null;
   const label = DRAFT_LABEL[state];
   return (
@@ -87,11 +98,14 @@ export function BrowserDraftStatus({
       ) : (
         <span data-status-label>{label}</span>
       )}
+      {failed && getUnitStore(unitId) && compact && (
+        <span aria-hidden="true">·</span>
+      )}
       {failed && getUnitStore(unitId) && (
         <button
           type="button"
           aria-label="Retry browser draft"
-          className="min-h-11 px-2 underline"
+          className="-ml-1 min-h-11 px-1 underline underline-offset-2"
           onClick={() => {
             try {
               getUnitStore(unitId)?.setState({});

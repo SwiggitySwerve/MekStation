@@ -49,19 +49,38 @@ async function expectFittedPreview(page: Page) {
     name: 'Record sheet zoom controls',
   });
   await expect(controls).toBeInViewport({ ratio: 1 });
+  // The active zoom mode is visibly pressed, and the sheet is captioned.
+  await expect(
+    controls.getByRole('button', { name: 'Fit width', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
+    /^Fit width \u00b7 \d+%$/,
+  );
+  await expect(page.getByTestId('preview-sheet-caption')).toHaveText(
+    'Letter \u00b7 1 page',
+  );
   const paper = (await canvas.boundingBox())!;
-  const footer = (await controls.boundingBox())!;
+  const toolbar = (await controls.boundingBox())!;
   const viewport = page.viewportSize()!;
-  if (viewport.width < 640) {
-    // Phones open the sheet fitted to width so it stays legible; the full
-    // width is visible and the rest of the page scrolls above the controls.
-    expect(paper.x).toBeGreaterThanOrEqual(0);
-    expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
-    expect(paper.y).toBeLessThan(footer.y);
-    return;
+  // Every screen opens fit-width: the sheet is as wide as the viewer allows
+  // (capped at 920px), fully inside the viewport horizontally, and starts
+  // below the toolbar that now holds the zoom controls.
+  expect(paper.x).toBeGreaterThanOrEqual(0);
+  expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
+  expect(paper.width).toBeLessThanOrEqual(921);
+  expect(paper.y).toBeGreaterThanOrEqual(toolbar.y + toolbar.height);
+  if (viewport.width >= 640) {
+    // Readable on desktop, not a 600px sheet between wide gutters.
+    expect(paper.width).toBeGreaterThan(800);
+    const toolbarRow = page.locator('.preview-toolbar');
+    await expect(toolbarRow.getByLabel('Paper Size:')).toBeVisible();
+    await expect(controls).toBeInViewport({ ratio: 1 });
+    expect(
+      await toolbarRow
+        .getByRole('group', { name: 'Record sheet zoom controls' })
+        .count(),
+    ).toBe(1);
   }
-  await expect(canvas).toBeInViewport({ ratio: 1 });
-  expect(paper.y + paper.height).toBeLessThanOrEqual(footer.y);
 }
 
 const tabs = [
@@ -96,7 +115,7 @@ test('all workbench surfaces retain a stable sidebar and explicit wide mode @cus
     });
   }
   const wide = page.getByRole('button', {
-    name: 'Wide workspace',
+    name: 'Hide loadout panel',
     exact: true,
   });
   await wide.click();

@@ -3,7 +3,7 @@
  * @spec openspec/specs/equipment-browser/spec.md
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +12,7 @@ import { CATALOG_OTHER_CATEGORIES } from '@/stores/useEquipmentStore.filters';
 import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 
+import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { EquipmentControlPopover } from './EquipmentControlPopover';
 
 export interface CompactFilterBarProps {
@@ -45,10 +46,10 @@ interface CategoryConfig {
 }
 
 const CHIP_CLASS =
-  'focus-visible:outline-accent inline-flex min-h-11 shrink-0 items-center gap-2 rounded border px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2';
-const CHIP_SELECTED = 'border-accent bg-accent/10 text-accent';
+  'focus-visible:outline-accent inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 border-b-2 px-2 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
+const CHIP_SELECTED = 'border-accent text-accent font-medium';
 const CHIP_IDLE =
-  'border-border-theme-subtle bg-surface-raised/50 text-text-theme-secondary hover:border-border-theme hover:text-text-theme-primary';
+  'border-transparent text-text-theme-secondary hover:bg-surface-raised/30 hover:text-text-theme-primary';
 
 const CATEGORY_CONFIGS: CategoryConfig[] = [
   { category: EquipmentCategory.ENERGY_WEAPON, label: 'Energy' },
@@ -88,12 +89,37 @@ export function CompactFilterBar({
   availabilitySummary,
   sortControls,
 }: CompactFilterBarProps): React.ReactElement {
-  const activeHideCount = [
-    hidePrototype,
-    hideOneShot,
-    hideUnavailable,
-    hideAmmoWithoutWeapon,
-  ].filter(Boolean).length;
+  const categoriesRef = useRef<HTMLDivElement>(null);
+  const [categoryOverflow, setCategoryOverflow] = useState<
+    'none' | 'forward' | 'backward'
+  >('none');
+  const updateCategoryOverflow = useCallback(() => {
+    const element = categoriesRef.current;
+    if (!element) return;
+    setCategoryOverflow(
+      element.scrollWidth <= element.clientWidth + 1
+        ? 'none'
+        : element.scrollLeft + element.clientWidth < element.scrollWidth - 1
+          ? 'forward'
+          : 'backward',
+    );
+  }, []);
+  useEffect(() => {
+    const element = categoriesRef.current;
+    if (!element) return;
+    updateCategoryOverflow();
+    const observer = new ResizeObserver(updateCategoryOverflow);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [updateCategoryOverflow]);
+  const activeFilters = [
+    hideUnavailable && (availabilitySummary || 'Availability'),
+    hidePrototype && 'No prototypes',
+    hideOneShot && 'No one-shot',
+    hideAmmoWithoutWeapon && 'Matched ammo',
+  ]
+    .filter(Boolean)
+    .join(', ');
   const handleCategoryClick = useCallback(
     (category: EquipmentCategory, event: React.MouseEvent) =>
       onSelectCategory(category, event.ctrlKey || event.metaKey),
@@ -116,10 +142,10 @@ export function CompactFilterBar({
   return (
     <div className={`flex shrink-0 flex-col ${className}`}>
       <div
-        className="border-border-theme flex h-12 shrink-0 items-center gap-1 border-b px-3"
+        className="border-border-theme flex min-h-14 shrink-0 flex-wrap items-center gap-2 border-b px-3 py-1"
         data-testid="equipment-search-controls"
       >
-        <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0 basis-full lg:flex-1 lg:basis-0">
           <input
             type="text"
             aria-label="Search equipment"
@@ -144,13 +170,11 @@ export function CompactFilterBar({
         </div>
         <EquipmentControlPopover
           ariaLabel="Visibility filters"
+          className="max-w-full min-w-0 [&>button]:max-w-full"
           label={
-            <>
-              <span>Filters</span>
-              {activeHideCount > 0 && (
-                <span className="text-accent">({activeHideCount})</span>
-              )}
-            </>
+            <span className="truncate" title={activeFilters}>
+              Filters{activeFilters ? ` · ${activeFilters}` : ''}
+            </span>
           }
         >
           <p className="text-text-theme-secondary mb-2 text-xs">
@@ -184,7 +208,9 @@ export function CompactFilterBar({
           </div>
           {hideUnavailable && availabilitySummary && (
             <p className="text-text-theme-secondary my-2 text-xs">
-              Available for: {availabilitySummary}
+              Catalog criteria: {availabilitySummary}. Uses listed introduction
+              year and tech base; does not check extinction, reintroduction, or
+              rules legality.
             </p>
           )}
           <Button
@@ -211,22 +237,6 @@ export function CompactFilterBar({
             {sortControls}
           </EquipmentControlPopover>
         )}
-        {hideUnavailable && availabilitySummary && (
-          <span
-            className="text-text-theme-secondary bg-surface-deep border-border-theme-subtle hidden shrink-0 rounded-full border px-2 py-0.5 text-xs whitespace-nowrap md:inline-block"
-            title="Equipment is limited to what this unit can use"
-          >
-            {availabilitySummary}
-          </span>
-        )}
-        {resultSummary && (
-          <span
-            className="text-text-theme-secondary hidden shrink-0 px-1 text-xs whitespace-nowrap md:block"
-            aria-live="polite"
-          >
-            {resultSummary}
-          </span>
-        )}
         <EquipmentControlPopover
           ariaLabel="How to add equipment"
           label="How to add"
@@ -239,47 +249,88 @@ export function CompactFilterBar({
           </p>
         </EquipmentControlPopover>
       </div>
-      <div
-        className="border-border-theme flex h-12 shrink-0 items-center gap-1.5 overflow-x-auto px-3 py-0.5"
-        role="group"
-        aria-label="Equipment categories"
-        data-testid="equipment-category-controls"
-      >
-        <button
-          type="button"
-          onClick={onShowAll}
-          aria-pressed={showAll}
-          title="Show all categories"
-          className={`${CHIP_CLASS} ${showAll ? CHIP_SELECTED : CHIP_IDLE}`}
+      <div className="border-border-theme-subtle flex min-w-0 border-b">
+        <div
+          ref={categoriesRef}
+          onScroll={updateCategoryOverflow}
+          data-overflow={categoryOverflow}
+          className={`flex min-h-11 min-w-0 flex-1 items-center gap-0.5 overflow-x-auto px-3 ${workbenchStyles.catalogCategories}`}
+          role="group"
+          aria-label="Equipment categories"
+          data-testid="equipment-category-controls"
         >
-          All
-        </button>
-        {CATEGORY_CONFIGS.map(({ category, label }) => {
-          const isActive =
-            showAll ||
-            (category === EquipmentCategory.MISC_EQUIPMENT
-              ? CATALOG_OTHER_CATEGORIES.some((candidate) =>
-                  activeCategories.has(candidate),
-                )
-              : activeCategories.has(category));
-          return (
-            <button
-              key={category}
-              type="button"
-              aria-label={label}
-              aria-pressed={isActive}
-              onClick={(event) => handleCategoryClick(category, event)}
-              title={`${label} (Ctrl+click to multi-select)`}
-              className={`${CHIP_CLASS} ${isActive && !showAll ? CHIP_SELECTED : CHIP_IDLE}`}
-            >
-              <span
-                aria-hidden="true"
-                className={`h-2 w-2 shrink-0 rounded-full ${getCategoryIndicatorClass(category)}`}
-              />
-              {label}
-            </button>
-          );
-        })}
+          <button
+            type="button"
+            onClick={onShowAll}
+            aria-pressed={showAll}
+            title="Show all categories"
+            className={`${CHIP_CLASS} ${showAll ? CHIP_SELECTED : CHIP_IDLE}`}
+          >
+            All
+          </button>
+          {CATEGORY_CONFIGS.map(({ category, label }) => {
+            const isActive =
+              showAll ||
+              (category === EquipmentCategory.MISC_EQUIPMENT
+                ? CATALOG_OTHER_CATEGORIES.some((candidate) =>
+                    activeCategories.has(candidate),
+                  )
+                : activeCategories.has(category));
+            return (
+              <button
+                key={category}
+                type="button"
+                aria-label={label}
+                aria-pressed={isActive}
+                onClick={(event) => handleCategoryClick(category, event)}
+                title={`${label} (Ctrl+click to multi-select)`}
+                className={`${CHIP_CLASS} ${isActive && !showAll ? CHIP_SELECTED : CHIP_IDLE}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`h-2 w-2 shrink-0 rounded-full ${getCategoryIndicatorClass(category)}`}
+                />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+        {categoryOverflow !== 'none' && (
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={
+              categoryOverflow === 'forward'
+                ? 'More equipment categories'
+                : 'Previous equipment categories'
+            }
+            className="!h-11 !w-11 !min-w-11 shrink-0 !p-0"
+            onClick={() => {
+              const element = categoriesRef.current;
+              if (!element) return;
+              element.scrollBy({
+                left:
+                  (categoryOverflow === 'forward' ? 1 : -1) *
+                  element.clientWidth *
+                  0.8,
+                behavior: 'auto',
+              });
+            }}
+          >
+            <AppIcon
+              name={
+                categoryOverflow === 'forward'
+                  ? 'chevron-right'
+                  : 'chevron-left'
+              }
+              size="control"
+              aria-hidden="true"
+            />
+          </Button>
+        )}
+      </div>
+      <div className="text-text-theme-secondary flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-1 text-xs">
+        {resultSummary && <span aria-live="polite">{resultSummary}</span>}
       </div>
     </div>
   );

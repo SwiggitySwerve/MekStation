@@ -1,7 +1,8 @@
 /**
  * Preview Toolbar Component
  *
- * Toolbar with Download PDF and Print buttons for the record sheet preview.
+ * Toolbar with paper size, zoom, Print and Download PDF controls for the
+ * record sheet preview.
  *
  * @spec openspec/specs/record-sheet-export/spec.md
  */
@@ -12,6 +13,8 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import { PaperSize } from '@/types/printing';
 import { logger } from '@/utils/logger';
+
+import { PREVIEW_CONTROL_CLASS } from './previewToolbarStyles';
 
 // =============================================================================
 // Types
@@ -28,6 +31,8 @@ interface PreviewToolbarProps {
   paperSize: PaperSize;
   /** Callback to change paper size */
   onPaperSizeChange: (size: PaperSize) => void;
+  /** Zoom controls shown beside the paper size (owned by the preview frame). */
+  zoomControls?: React.ReactNode;
   /** CSS class name */
   className?: string;
 }
@@ -60,6 +65,7 @@ export function PreviewToolbar({
   onPrint,
   paperSize,
   onPaperSizeChange,
+  zoomControls,
   className = '',
 }: PreviewToolbarProps): React.ReactElement {
   const [pendingAction, setPendingAction] = useState<ToolbarAction | null>(
@@ -83,7 +89,9 @@ export function PreviewToolbar({
           await onExportPDF();
         }
       } catch (error) {
-        logger.error(
+        // This failure is handled inline with Retry. Logging it as an error
+        // opens Next's development overlay over that recovery control.
+        logger.warn(
           action === 'print' ? 'Error printing:' : 'Error exporting PDF:',
           error,
         );
@@ -105,48 +113,22 @@ export function PreviewToolbar({
 
   return (
     <div
-      className={`preview-toolbar shrink-0 p-2 sm:px-4 sm:py-3 ${className}`}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '8px',
-        backgroundColor: 'var(--surface-base)',
-        borderBottom: '1px solid var(--border-subtle)',
-      }}
+      className={`preview-toolbar border-border-theme-subtle bg-surface-base flex shrink-0 flex-wrap items-center gap-2 border-b p-2 sm:gap-3 sm:px-4 sm:py-3 ${className}`}
     >
       {/* Paper Size Select */}
-      <div
-        className="min-w-0 flex-1 sm:flex-none"
-        style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-      >
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none">
         <label
           htmlFor="paper-size"
-          className="sr-only sm:not-sr-only"
-          style={{
-            color: 'var(--text-secondary)',
-            fontSize: '13px',
-            fontWeight: 500,
-            whiteSpace: 'nowrap',
-          }}
+          className="text-text-theme-secondary sr-only text-[13px] font-medium whitespace-nowrap sm:not-sr-only"
         >
           Paper Size:
         </label>
         <select
           id="paper-size"
-          className="min-h-11 w-full min-w-0 sm:w-auto"
+          className={`${PREVIEW_CONTROL_CLASS} w-full min-w-0 sm:w-auto`}
           value={paperSize}
           onChange={(e) => onPaperSizeChange(e.target.value as PaperSize)}
           disabled={isBusy}
-          style={{
-            padding: '6px 12px',
-            borderRadius: '4px',
-            border: '1px solid var(--border-default)',
-            backgroundColor: 'var(--surface-raised)',
-            color: 'var(--text-primary)',
-            fontSize: '13px',
-            cursor: isBusy ? 'not-allowed' : 'pointer',
-          }}
         >
           <option value={PaperSize.LETTER}>
             Letter (8.5&quot; × 11&quot;)
@@ -155,95 +137,49 @@ export function PreviewToolbar({
         </select>
       </div>
 
-      {/* Spacer */}
-      <div className="hidden sm:block" style={{ flex: 1 }} />
+      {/* Zoom: beside the paper size on wide toolbars, its own row on phones */}
+      {zoomControls ? (
+        <div className="order-last min-w-0 basis-full sm:order-none sm:basis-auto">
+          {zoomControls}
+        </div>
+      ) : null}
 
-      {/* Print Button */}
-      <button
-        type="button"
-        className="shrink-0 px-3 sm:px-4"
-        onClick={() => {
-          void runAction('print');
-        }}
-        disabled={isBusy}
-        aria-busy={isPrinting}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          paddingTop: '8px',
-          paddingBottom: '8px',
-          minHeight: 44,
-          whiteSpace: 'nowrap',
-          borderRadius: '6px',
-          border: '1px solid var(--border-default)',
-          backgroundColor: 'var(--surface-raised)',
-          color: 'var(--text-primary)',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: isBusy ? 'not-allowed' : 'pointer',
-          transition: 'all 0.15s ease',
-          opacity: isBusy ? 0.7 : 1,
-        }}
-        onMouseEnter={(e) => {
-          if (!isBusy) {
-            e.currentTarget.style.backgroundColor = 'var(--surface-base)';
-            e.currentTarget.style.borderColor = 'var(--border-strong)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--surface-raised)';
-          e.currentTarget.style.borderColor = 'var(--border-default)';
-        }}
-      >
-        <PrintIcon />
-        <span className="sr-only sm:not-sr-only">
-          {isPrinting ? 'Printing...' : 'Print'}
-        </span>
-      </button>
+      {/* Print + Download stay together at the toolbar's trailing edge */}
+      <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
+        {/* Print Button */}
+        <button
+          type="button"
+          className={`${PREVIEW_CONTROL_CLASS} inline-flex items-center gap-1.5 whitespace-nowrap sm:px-4`}
+          onClick={() => {
+            void runAction('print');
+          }}
+          disabled={isBusy}
+          aria-busy={isPrinting}
+        >
+          <PrintIcon />
+          <span className="sr-only sm:not-sr-only">
+            {isPrinting ? 'Printing...' : 'Print'}
+          </span>
+        </button>
 
-      {/* Download PDF Button */}
-      <button
-        type="button"
-        onClick={() => {
-          void runAction('export');
-        }}
-        disabled={isBusy}
-        aria-busy={isExporting}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '8px 16px',
-          minHeight: 44,
-          whiteSpace: 'nowrap',
-          borderRadius: '6px',
-          border: 'none',
-          backgroundColor: isBusy
-            ? 'var(--surface-raised)'
-            : 'var(--accent-primary)',
-          color: isBusy ? 'var(--text-primary)' : 'var(--color-on-accent)',
-          fontSize: '13px',
-          fontWeight: 500,
-          cursor: isBusy ? 'not-allowed' : 'pointer',
-          transition: 'all 0.15s ease',
-          opacity: isBusy ? 0.7 : 1,
-        }}
-        onMouseEnter={(e) => {
-          if (!isBusy) {
-            e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isBusy) {
-            e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
-          }
-        }}
-      >
-        <DownloadIcon />
-        {isExporting ? 'Exporting...' : 'Download PDF'}
-      </button>
-
+        {/* Download PDF Button */}
+        <button
+          type="button"
+          onClick={() => {
+            void runAction('export');
+          }}
+          disabled={isBusy}
+          aria-busy={isExporting}
+          className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:px-4 ${
+            isBusy
+              ? 'border-border-theme bg-surface-raised text-text-theme-primary cursor-not-allowed opacity-70'
+              : 'bg-accent text-on-accent hover:bg-accent-hover focus-visible:ring-on-accent border-transparent'
+          }`}
+        >
+          <DownloadIcon />
+          {isExporting ? 'Exporting...' : 'Download PDF'}
+        </button>
+      </div>
       {actionError ? (
         <div
           role="alert"

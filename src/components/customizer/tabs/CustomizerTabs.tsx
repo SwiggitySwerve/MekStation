@@ -438,11 +438,30 @@ export function CustomizerTabs({
                   </span>
                 )}
                 {validationCounts && (
-                  <ValidationTabBadge
-                    id={validationId}
-                    counts={counts ?? { errors: 0, warnings: 0, infos: 0 }}
-                    className="ml-1"
-                  />
+                  <span
+                    className={workbenchStyles.sectionValidationDot}
+                    data-severity={
+                      counts?.errors
+                        ? 'error'
+                        : counts?.warnings
+                          ? 'warning'
+                          : undefined
+                    }
+                    role={
+                      counts?.errors || counts?.warnings ? 'img' : undefined
+                    }
+                    aria-labelledby={
+                      counts?.errors || counts?.warnings
+                        ? validationId
+                        : undefined
+                    }
+                  >
+                    <ValidationTabBadge
+                      id={validationId}
+                      counts={counts ?? { errors: 0, warnings: 0, infos: 0 }}
+                      className="sr-only"
+                    />
+                  </span>
                 )}
               </button>
             </div>

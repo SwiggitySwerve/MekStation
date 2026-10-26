@@ -17,7 +17,7 @@ import {
   SystemSelects,
   TonnageControl,
 } from './StructureTabChassisControls';
-import { HeatSinkSection } from './StructureTabHeatSinkControls';
+import { HeatSinkSection, HeatSinkStats } from './StructureTabHeatSinkControls';
 
 interface StructureTabChassisSectionProps {
   readonly readOnly: boolean;
@@ -125,9 +125,12 @@ export function StructureTabChassisSection({
         />
 
         <section aria-labelledby="cooling-heading">
-          <h4 id="cooling-heading" className={`${cs.text.subsection} mb-2`}>
-            Cooling
-          </h4>
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h4 id="cooling-heading" className={cs.text.subsection}>
+              Cooling
+            </h4>
+            <HeatSinkStats calculations={calculations} />
+          </div>
           <HeatSinkSection
             readOnly={readOnly}
             isOmni={isOmni}

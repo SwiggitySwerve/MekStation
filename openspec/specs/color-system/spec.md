@@ -37,8 +37,8 @@ The system SHALL keep fixed systems visually quieter than mounted equipment, usi
 #### Scenario: Empty slot coloring
 
 - **WHEN** slot is empty and has no interaction highlight
-- **THEN** slot uses bg-surface-base/80 and text-text-theme-muted
-- **AND** border is dashed with border-border-theme
+- **THEN** slot uses bg-transparent and text-text-theme-muted
+- **AND** border is faint and dashed with border-border-theme-subtle/20, so occupied slots provide the primary visual structure
 
 #### Scenario: Unhittable slot coloring
 
@@ -151,7 +151,15 @@ The system SHALL use red/green/yellow for validation states.
 
 ### Requirement: Color Legend
 
-The system SHALL provide a collapsible color reference panel.
+The system SHALL provide a collapsible Colour key reference panel and an always-visible compact colour key in the desktop critical-slot toolbar.
+
+#### Scenario: Desktop critical-slot colour key
+
+- **WHEN** critical slots are displayed at desktop width
+- **THEN** a compact inline row shows labelled swatches for the equipment categories present on the unit, fixed systems, and empty slots
+- **AND** swatches use the same category colour definitions as the displayed slots, with a stronger dashed outline for Empty
+- **AND** swatches are at least 12px by 12px and labels are at least 12px
+- **AND** phone layouts use the Colour key disclosure
 
 #### Scenario: Legend display
 

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function armorSnapshot(page: Page) {
   return page.locator('[data-armor-variant]').evaluate((root) => {
-    const svg = root.querySelector('svg[viewBox="0 0 360 440"]')!;
+    const svg = root.querySelector('svg[viewBox="0 20 360 402"]')!;
     const frame = svg.getBoundingClientRect();
     const paths = Array.from(root.querySelectorAll('path[data-armor-plate]'));
     return {
@@ -16,9 +16,7 @@ async function armorSnapshot(page: Page) {
           return {
             location,
             geometry: path.getAttribute('d'),
-            status: getComputedStyle(
-              root.querySelector(`circle[data-armor-status="${location}"]`)!,
-            ).fill,
+            status: path.getAttribute('data-armor-status'),
             x: bounds.x - frame.x,
             y: bounds.y - frame.y,
             width: bounds.width,
@@ -49,6 +47,8 @@ async function armorSnapshot(page: Page) {
 test('armor designs retain distinct materials, common geometry and themed panels @appearance', async ({
   page,
 }, testInfo) => {
+  // Four materials, ten theme round trips and responsive checks share this journey.
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1180, height: 912 });
   await page.goto('/customizer');
   await page.getByRole('button', { name: 'Load from Library' }).click();
@@ -68,7 +68,7 @@ test('armor designs retain distinct materials, common geometry and themed panels
   const unitUrl = page.url();
   const baseline = await armorSnapshot(page);
   expect(baseline.panelBackground).toBe('rgb(18, 46, 80)');
-  expect(baseline.geometry.width).toBe(320);
+  expect(baseline.geometry.width).toBe(360);
   expect(baseline.geometry.plates).toHaveLength(8);
   expect(
     baseline.geometry.plates.find((p) => p.location === 'Left Arm')!.x,
@@ -87,6 +87,9 @@ test('armor designs retain distinct materials, common geometry and themed panels
     const snapshot = await armorSnapshot(page);
     expect(snapshot.geometry).toEqual(baseline.geometry);
     materials[variant] = snapshot.materials;
+    await expect(
+      page.locator('[data-armor-face-location="Center Torso"]'),
+    ).toHaveText(['47/48', 'R 14/15']);
     const arm = page.getByRole('button', { name: /^Left Arm armor:/ });
     await arm.press('Enter');
     await expect(page.getByTestId('location-armor-editor')).toBeVisible();
@@ -129,12 +132,62 @@ test('armor designs retain distinct materials, common geometry and themed panels
   await page.reload();
   await expect(page.locator('[data-armor-variant]')).toBeVisible();
   expect((await armorSnapshot(page)).geometry).toEqual(baseline.geometry);
+  // Wide layouts: the diagram and inspector cards end together, and the
+  // inspector carries the legend instead of the diagram's own footer.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.getByTestId('armor-inspector-legend')).toBeVisible();
+  await expect(page.getByTestId('armor-allocation-footer')).toBeHidden();
+  const cardBottoms = await page.evaluate(() => {
+    const diagram = document.querySelector('[data-armor-variant]')!;
+    const inspector = Array.from(document.querySelectorAll('h3')).find(
+      (heading) => heading.textContent === 'Armor inspector',
+    )!.parentElement!;
+    return [
+      diagram.getBoundingClientRect().bottom,
+      inspector.getBoundingClientRect().bottom,
+    ];
+  });
+  expect(Math.abs(cardBottoms[0] - cardBottoms[1])).toBeLessThanOrEqual(1);
+
   await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  // Phone: 12px text, 44px touch targets, and the Unallocated/legend footer
+  // sits fully above the 56px Loadout bar without scrolling.
+  const phone = await page.evaluate(() => {
+    const svg = document.querySelector('svg[viewBox="0 20 360 402"]')!;
+    const frame = svg.getBoundingClientRect();
+    const scale = Math.min(frame.width / 360, frame.height / 402);
+    const fonts = Array.from(svg.querySelectorAll('text, tspan')).map(
+      (node) =>
+        Number(node.closest('[font-size]')?.getAttribute('font-size')) * scale,
+    );
+    const targets = Array.from(svg.querySelectorAll('[role="button"]')).map(
+      (node) => {
+        const box = node.getBoundingClientRect();
+        return Math.min(box.width, box.height);
+      },
+    );
+    const footer = document
+      .querySelector('[data-testid="armor-allocation-footer"]')!
+      .getBoundingClientRect();
+    return {
+      minFont: Math.min(...fonts),
+      minTarget: Math.min(...targets),
+      targetCount: targets.length,
+      footerTop: footer.top,
+      footerBottom: footer.bottom,
+      loadoutBarTop: innerHeight - 56,
+    };
+  });
+  expect(phone.minFont).toBeGreaterThanOrEqual(11.9);
+  expect(phone.targetCount).toBe(8);
+  expect(phone.minTarget).toBeGreaterThanOrEqual(43.9);
+  expect(phone.footerTop).toBeGreaterThan(0);
+  expect(phone.footerBottom).toBeLessThanOrEqual(phone.loadoutBarTop);
   await page.getByRole('button', { name: /^Left Arm armor:/ }).press('Enter');
   await expect(page.getByTestId('location-armor-editor')).toBeInViewport();
   await page.screenshot({

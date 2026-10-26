@@ -54,7 +54,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     // Every category shares the same neutral fill.
     if (neutralFill) expect(background).toBe(neutralFill);
     neutralFill = background;
-    await expect(fill).toHaveCSS('opacity', '0.3');
+    await expect(fill).toHaveCSS('opacity', '0.1');
     await expect(row).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(row).toHaveCSS('opacity', '1');
     await expect(details).toHaveCSS('opacity', '1');
@@ -73,7 +73,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
       }),
     ).toBe(true);
     await details.hover();
-    await expect(fill).toHaveCSS('opacity', '0.4');
+    await expect(fill).toHaveCSS('opacity', '0.3');
     await expect(content).toHaveCSS('opacity', '1');
   }
   expect(new Set(Object.values(colors)).size).toBe(4);
@@ -138,6 +138,10 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
   await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);
   await page.setViewportSize({ width: 390, height: 844 });
+  await page
+    .getByRole('navigation', { name: 'Critical slot location shortcuts' })
+    .getByRole('combobox', { name: 'Location', exact: true })
+    .selectOption('Left Arm');
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
   await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);

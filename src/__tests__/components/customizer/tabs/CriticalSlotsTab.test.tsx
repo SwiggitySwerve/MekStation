@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { CriticalSlotsTab } from '@/components/customizer/tabs/CriticalSlotsTab';
@@ -8,6 +8,7 @@ import {
   getLocationsForConfig,
   MechConfiguration,
 } from '@/types/construction/MechConfigurationSystem';
+import { EquipmentCategory } from '@/types/equipment';
 
 // Mock dependencies
 jest.mock('@/stores/useUnitStore', () => ({
@@ -87,6 +88,50 @@ describe('CriticalSlotsTab', () => {
     expect(tab).toHaveClass('custom-class');
   });
 
+  it('explains placement and selects the first unassigned item without assigning it', () => {
+    const onSelectEquipment = jest.fn();
+    const updateEquipmentLocation = jest.fn();
+    mockUseUnitStore.mockImplementation((selector: unknown): unknown =>
+      typeof selector === 'function'
+        ? selector({
+            ...mockStoreValues,
+            updateEquipmentLocation,
+            equipment: [
+              {
+                instanceId: 'er-ppc-1',
+                equipmentId: 'er-ppc',
+                name: 'ER PPC',
+                category: EquipmentCategory.ENERGY_WEAPON,
+                weight: 7,
+                criticalSlots: 3,
+              },
+            ],
+          })
+        : undefined,
+    );
+    const view = render(
+      <CriticalSlotsTab
+        hideLoadoutTray={false}
+        onSelectEquipment={onSelectEquipment}
+      />,
+    );
+    const banner = screen.getByRole('region', { name: 'Equipment to place' });
+    expect(banner).toHaveTextContent('1 item to place: ER PPC');
+    expect(banner).toHaveTextContent(
+      'select, then tap a highlighted slot or drag.',
+    );
+    fireEvent.click(
+      within(banner).getByRole('button', { name: 'Select ER PPC' }),
+    );
+    expect(onSelectEquipment).toHaveBeenCalledWith('er-ppc-1');
+    expect(updateEquipmentLocation).not.toHaveBeenCalled();
+    view.rerender(
+      <CriticalSlotsTab readOnly onSelectEquipment={onSelectEquipment} />,
+    );
+    expect(within(banner).queryByRole('button')).not.toBeInTheDocument();
+    expect(banner).toHaveTextContent('read-only');
+  });
+
   it('groups desktop locations in front-view columns with head above center torso', () => {
     render(<CriticalSlotsTab />);
     expect(
@@ -106,7 +151,7 @@ describe('CriticalSlotsTab', () => {
     const tools = screen.getByRole('button', { name: 'Critical slot tools' });
     expect(
       within(tools.parentElement!).getByRole('button', {
-        name: 'Color Legend',
+        name: 'Colour key',
       }),
     ).toBeInTheDocument();
   });

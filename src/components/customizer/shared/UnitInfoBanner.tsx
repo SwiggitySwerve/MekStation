@@ -1,9 +1,10 @@
 /**
  * Unit Info Banner Component
  *
- * Unit identity and grouped readouts: the budget stats (weight, slots, heat,
- * armor) lead with fill bars against their caps; movement, engine and BV read
- * as secondary. Detailed phone readouts expand without displacing the editor.
+ * Unit identity and grouped readouts: seven evenly spaced cells at one value
+ * size. The budget stats (weight, slots, heat, armor) add fill bars against
+ * their caps; movement (walk / run / jump in one cell), engine and BV show the
+ * value alone. Detailed phone readouts expand without displacing the editor.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
@@ -19,11 +20,9 @@ import { ValidationStatus } from '@/utils/colors/statusColors';
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { TechBaseBadge } from './TechBaseBadge';
 import {
-  CAUTION_PILL_CLASS,
   describeHeat,
   getBudgetFill,
   getCapacityStatus,
-  getHeatExcess,
   getHeatStatus,
   getWeightStatus,
   STAT_STATUS_FILL_COLOR,
@@ -77,10 +76,8 @@ interface UnitInfoBannerProps {
 const styles = {
   label:
     'text-[11px] leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wider',
-  value: {
-    key: 'text-base leading-6 font-bold sm:text-lg',
-    secondary: 'text-[13px] leading-5 font-semibold',
-  },
+  /** One value size for every metric, budget or not. */
+  value: 'text-base leading-6 font-bold sm:text-lg',
   status: STAT_STATUS_TEXT_CLASS,
   /** Caps and captions: 12px secondary text, legible at phone size. */
   muted: 'text-xs text-text-theme-secondary',
@@ -105,15 +102,80 @@ interface SimpleStatProps {
   value: number | string;
 }
 
+/** Value-only readout; a bar-height spacer keeps it level with budget stats. */
 function SimpleStat({ label, value }: SimpleStatProps) {
   return (
-    <div
-      className={`${styles.box} ${workbenchStyles.secondaryStat}`}
-      data-testid={statTestId(label)}
-    >
+    <div className={styles.box} data-testid={statTestId(label)}>
       <span className={styles.label}>{label}</span>
-      <span className={`${styles.value.secondary} ${styles.status.normal}`}>
-        {value}
+      <span className="flex flex-col items-stretch gap-[3px]">
+        <span
+          className={`${styles.value} ${workbenchStyles.budgetValue} ${styles.status.normal}`}
+        >
+          {value}
+        </span>
+        <span aria-hidden="true" className="block h-[3px]" />
+      </span>
+    </div>
+  );
+}
+
+interface MovementStatProps {
+  walk: number;
+  run: number;
+  /** Top run speed with a movement enhancement, when above `run`. */
+  runPlus?: number;
+  jump: number;
+}
+
+const slash = <span className={`${styles.muted} font-normal`}>/</span>;
+
+/**
+ * Walk, run and jump as one cell ("3 / 5 / 0"), so the strip reads as one
+ * row of evenly spaced cells. Each part keeps its own test id.
+ */
+function MovementStat({ walk, run, runPlus, jump }: MovementStatProps) {
+  const label = `Movement: walk ${walk}, run ${run}${
+    runPlus ? ` (${runPlus} with enhancement)` : ''
+  }, jump ${jump} MP`;
+  return (
+    <div
+      className={styles.box}
+      data-testid="unit-info-stat-movement"
+      role="group"
+      aria-label={label}
+      title={label}
+    >
+      <span className="flex items-baseline justify-center gap-1.5">
+        <span className={styles.label}>Movement</span>
+        <span
+          aria-hidden="true"
+          className={`${styles.muted} leading-[14px] whitespace-nowrap max-md:hidden`}
+        >
+          {runPlus ? 'walk / run (max) / jump' : 'walk / run / jump'}
+        </span>
+      </span>
+      <span className="flex flex-col items-stretch gap-[3px]">
+        <span
+          aria-hidden="true"
+          className={`${styles.value} ${workbenchStyles.budgetValue} ${styles.status.normal} flex items-baseline justify-center gap-1.5`}
+        >
+          <span data-testid="unit-info-stat-walk">{walk}</span>
+          {slash}
+          <span data-testid="unit-info-stat-run">
+            {run}
+            {runPlus ? (
+              <span
+                data-testid="unit-info-stat-run-plus"
+                className={`${styles.muted} ml-0.5 font-normal`}
+              >
+                ({runPlus})
+              </span>
+            ) : null}
+          </span>
+          {slash}
+          <span data-testid="unit-info-stat-jump">{jump}</span>
+        </span>
+        <span aria-hidden="true" className="block h-[3px]" />
       </span>
     </div>
   );
@@ -129,8 +191,6 @@ interface BudgetStatProps {
   formatMax?: (value: number) => string;
   unit?: string;
   status?: StatStatus;
-  /** Visible amount over the maximum, e.g. heat above dissipation. */
-  excess?: number;
   /** Hover/focus explanation; also makes the readout focusable. */
   title?: string;
   /** Short wide-screen hint naming the two numbers, e.g. "gen / diss". */
@@ -148,7 +208,6 @@ function BudgetStat({
   formatMax = format,
   unit = '',
   status = 'normal',
-  excess,
   title,
   caption,
   phoneDetail = false,
@@ -186,26 +245,12 @@ function BudgetStat({
       <span className="flex flex-col items-stretch gap-[3px]">
         <span className="flex items-baseline justify-center gap-0.5">
           <span
-            className={`${styles.value.key} ${workbenchStyles.budgetValue} ${styles.status[status]}`}
+            className={`${styles.value} ${workbenchStyles.budgetValue} ${styles.status[status]}`}
           >
             {currentText}
           </span>
           <span className={styles.muted}>/</span>
           <span className={styles.muted}>{maxText}</span>
-          {excess !== undefined && excess > 0 && (
-            <span
-              className={`ml-1 inline-flex items-center gap-0.5 self-center rounded px-1.5 text-xs leading-4 font-semibold whitespace-nowrap ${CAUTION_PILL_CLASS}`}
-            >
-              <AppIcon
-                name="warning"
-                size="inline"
-                aria-hidden="true"
-                className="shrink-0 max-md:hidden"
-              />
-              +{excess}
-              <span className={workbenchStyles.excessWord}> over</span>
-            </span>
-          )}
         </span>
         <span aria-hidden="true" className={workbenchStyles.budgetTrack}>
           <span
@@ -246,13 +291,12 @@ export function UnitInfoBanner({
 }: UnitInfoBannerProps): React.ReactElement {
   const [showReadouts, setShowReadouts] = useState(false);
   const readoutsId = useId();
-  const heatExcess = getHeatExcess(stats.heatGenerated, stats.heatDissipation);
   const hasRunPlus = stats.maxRunMP && stats.maxRunMP > stats.runMP;
 
   const readouts = (
     <div
       id={readoutsId}
-      className={`${workbenchStyles.readouts} ${hasRunPlus ? workbenchStyles.readoutsWithRunPlus : ''} ${showReadouts || compact ? workbenchStyles.readoutsExpanded : ''} ${compact && showReadouts ? workbenchStyles.readoutsDetailsOpen : ''}`}
+      className={`${workbenchStyles.readouts} ${showReadouts || compact ? workbenchStyles.readoutsExpanded : ''} ${compact && showReadouts ? workbenchStyles.readoutsDetailsOpen : ''}`}
     >
       <div
         role="group"
@@ -284,7 +328,6 @@ export function UnitInfoBanner({
             current={stats.heatGenerated}
             max={stats.heatDissipation}
             status={getHeatStatus(stats.heatGenerated, stats.heatDissipation)}
-            excess={heatExcess}
             caption="gen / diss"
             title={describeHeat(stats.heatGenerated, stats.heatDissipation)}
           />
@@ -299,15 +342,19 @@ export function UnitInfoBanner({
       </div>
       <div
         role="group"
-        aria-label="Movement"
+        aria-label="Movement and engine"
         className={workbenchStyles.readoutGroup}
       >
-        <span className={workbenchStyles.readoutHeading}>Movement</span>
+        <span className={workbenchStyles.readoutHeading}>
+          Movement and engine
+        </span>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
-          <SimpleStat label="Walk" value={stats.walkMP} />
-          <SimpleStat label="Run" value={stats.runMP} />
-          {hasRunPlus && <SimpleStat label="Run+" value={stats.maxRunMP!} />}
-          <SimpleStat label="Jump" value={stats.jumpMP} />
+          <MovementStat
+            walk={stats.walkMP}
+            run={stats.runMP}
+            runPlus={hasRunPlus ? stats.maxRunMP : undefined}
+            jump={stats.jumpMP}
+          />
           <SimpleStat label="Engine" value={stats.engineRating} />
         </div>
       </div>

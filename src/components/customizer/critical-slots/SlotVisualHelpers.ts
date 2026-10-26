@@ -9,7 +9,7 @@ import type { SlotContent } from './criticalSlotTypes';
 
 /** Dense mouse targets on desktop; phones and touch pointers keep 44px rows. */
 export function getSlotSizeClasses(compact: boolean): string {
-  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-7 lg:pointer-fine:py-0.5 ${compact ? 'lg:pointer-fine:px-1 lg:pointer-fine:text-[13px]' : ''}`;
+  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[26px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1 lg:pointer-fine:text-[13px]' : ''}`;
 }
 
 export function getSlotContentClasses(slot: SlotContent): string {
@@ -19,7 +19,7 @@ export function getSlotContentClasses(slot: SlotContent): string {
   if (slot.type === 'equipment' && slot.name) {
     return getEquipmentSurfaceClassesByName(slot.name);
   }
-  return 'bg-surface-base/80 border-border-theme border-dashed text-text-theme-muted';
+  return 'bg-transparent border-border-theme-subtle/20 border-dashed text-text-theme-muted';
 }
 
 export function getSlotStateClasses(

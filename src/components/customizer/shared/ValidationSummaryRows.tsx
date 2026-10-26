@@ -2,41 +2,22 @@ import React from 'react';
 
 import type { UnitValidationState } from '@/hooks/useUnitValidation';
 
-import { AppIcon, type AppIconName } from '@/components/ui/AppIcon';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import {
   IUnitValidationError,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
-import {
-  getTabForCategory,
-  getTabLabel,
-} from '@/utils/validation/validationNavigation';
+import { getTabLabel } from '@/utils/validation/validationNavigation';
 
-import { CAUTION_TEXT_CLASS } from './unitStatStatus';
+import { BUILD_STATUS_KIND_TEXT_CLASS, SeverityIcon } from './BuildStatusLabel';
 import {
-  ValidationIssueIcon,
-  validationIconColors,
-  type ValidationIconSeverity,
-} from './ValidationIssueIcon';
-
-/**
- * A caution derived from readouts already on screen (e.g. running hot).
- * Notes are presentational: they never change what counts as an error or
- * warning, and they never make a unit invalid.
- */
-export interface ValidationNote {
-  id: string;
-  /** Short visible phrase that can stand alone, e.g. "Runs hot". */
-  label: string;
-  /** Amount shown after the label and kept when it truncates, e.g. "+11". */
-  amount?: string;
-  message: string;
-  suggestion?: string;
-  /** Tab where the user can address the note. */
-  tabId: CustomizerTabId;
-  icon?: AppIconName;
-}
+  BUILD_STATUS_GROUPS,
+  noteText,
+  type BuildStatusKind,
+  type ValidationNote,
+} from './buildStatusSummary';
+import { type ValidationIconSeverity } from './ValidationIssueIcon';
 
 export interface ValidationIssue {
   error: IUnitValidationError;
@@ -44,33 +25,32 @@ export interface ValidationIssue {
   critical?: boolean;
 }
 
-/**
- * Notes read as cautions: the shared caution hue, never the red or yellow of
- * rule results or the amber of the selection accent.
- */
-export const validationNoteColor = CAUTION_TEXT_CLASS;
+/** Notes use the note severity color, never a rule problem's red or yellow. */
+export const validationNoteColor = BUILD_STATUS_KIND_TEXT_CLASS.note;
 
-/** A note's short visible text, e.g. "Runs hot +11". */
-export function noteText(note: ValidationNote): string {
-  return note.amount ? `${note.label} ${note.amount}` : note.label;
+/** Info-level rule results are listed, and styled, as notes. */
+export function issueKind(severity: ValidationIconSeverity): BuildStatusKind {
+  return severity === 'info' ? 'note' : severity;
 }
 
-/** "3", or with words "3 errors" / "1 info". */
-export function severityCountText(
-  severity: ValidationIconSeverity,
-  count: number,
-  words: boolean,
-): string {
-  const shown = count > 99 ? '99+' : String(count);
-  if (!words) return shown;
-  return `${shown} ${severity}${count === 1 || severity === 'info' ? '' : 's'}`;
-}
+const ITEM_LABEL = Object.fromEntries(
+  BUILD_STATUS_GROUPS.map((group) => [group.kind, group.itemLabel]),
+) as Record<BuildStatusKind, string>;
+
+export { noteText };
+export type { ValidationNote };
 
 export function plural(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? '' : 's'}`;
 }
 
-/** Every rule result as one list, critical errors first. */
+const SEVERITY_ORDER: Record<ValidationIconSeverity, number> = {
+  error: 0,
+  warning: 1,
+  info: 2,
+};
+
+/** Every rule result as one list: errors (critical first), warnings, infos. */
 export function flattenErrors(
   result: UnitValidationState['result'],
 ): ValidationIssue[] {
@@ -87,25 +67,45 @@ export function flattenErrors(
       })),
       ...result.infos.map((error) => ({ error, severity: 'info' as const })),
     ])
-    .sort((a, b) => Number(Boolean(b.critical)) - Number(Boolean(a.critical)));
+    .sort(
+      (a, b) =>
+        SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity] ||
+        Number(Boolean(b.critical)) - Number(Boolean(a.critical)),
+    );
 }
 
-const rowClass =
-  'border-border-theme hover:bg-surface-raised focus-visible:outline-accent flex min-h-11 w-full items-start gap-2 border-b p-3 text-left last:border-b-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
+const OVERWEIGHT_MESSAGE = /exceeds maximum tonnage by ([\d.]+) tons?/i;
+/** Messages this short read well as the heading itself. */
+const HEADING_MESSAGE_LENGTH = 64;
 
-function GoTo({
-  prefix,
-  tabId,
-}: {
-  prefix: string;
-  tabId: CustomizerTabId;
-}): React.ReactElement {
-  return (
-    <span className="text-text-theme-secondary mt-2 block text-xs">
-      {prefix} {'\u2022'} Go to {getTabLabel(tabId)}{' '}
-      <AppIcon name="arrow-right" size="inline" aria-hidden="true" />
-    </span>
-  );
+/**
+ * Plain heading for a rule result plus the explanation shown beneath it.
+ * Wording only: the amount comes from the rule's own message, never
+ * recomputed here. Short single-sentence messages are their own heading.
+ */
+export function describeIssue(error: IUnitValidationError): {
+  heading: string;
+  explanation?: string;
+} {
+  const overweight = OVERWEIGHT_MESSAGE.exec(error.message);
+  if (overweight)
+    return {
+      heading: `Overweight by ${overweight[1]} t`,
+      explanation: error.message,
+    };
+  const message = error.message.trim();
+  if (
+    message.length <= HEADING_MESSAGE_LENGTH &&
+    !/[.!?]\s/.test(message) &&
+    message.length > 0
+  )
+    return { heading: message.replace(/\.$/, '') };
+  return {
+    heading:
+      error.ruleName.replace(/\s+(Validation|Check)$/i, '').trim() ||
+      error.category,
+    explanation: message,
+  };
 }
 
 export function ValidationPanelHeader({
@@ -118,8 +118,11 @@ export function ValidationPanelHeader({
   onClose: () => void;
 }): React.ReactElement {
   return (
-    <div className="border-border-theme flex min-h-11 shrink-0 items-center justify-between gap-2 border-b pl-3">
-      <h3 id={titleId} className="min-w-0 text-xs font-semibold">
+    <div className="border-border-theme flex min-h-11 shrink-0 items-center justify-between gap-2 border-b pl-4">
+      <h3
+        id={titleId}
+        className="text-text-theme-secondary min-w-0 truncate text-xs font-semibold tracking-wider uppercase"
+      >
         {title}
       </h3>
       <button
@@ -135,70 +138,171 @@ export function ValidationPanelHeader({
   );
 }
 
-export function ValidationNoteRow({
-  note,
-  onSelect,
+/**
+ * Label above each severity group in the panel: the group name in its
+ * severity color, then the one-line meaning of the group.
+ */
+export function ValidationGroupHeading({
+  kind,
 }: {
-  note: ValidationNote;
+  kind: BuildStatusKind;
+}): React.ReactElement {
+  const group = BUILD_STATUS_GROUPS.find((entry) => entry.kind === kind)!;
+  return (
+    <h4
+      data-severity-group={kind}
+      className="border-border-theme bg-surface-deep/40 flex flex-wrap items-baseline gap-x-1.5 border-b px-4 py-1.5 text-xs leading-4"
+    >
+      <span
+        className={`text-[11px] font-semibold tracking-wider uppercase ${BUILD_STATUS_KIND_TEXT_CLASS[kind]}`}
+      >
+        {group.title}
+      </span>{' '}
+      <span className="text-text-theme-secondary">
+        {'\u2014'} {group.definition}
+      </span>
+    </h4>
+  );
+}
+
+export interface FixDestination {
+  tabId: CustomizerTabId;
   onSelect: () => void;
+}
+
+/** Secondary 44px button that takes the user to a tab that can fix an item. */
+function FixButton({
+  destination,
+  describedBy,
+}: {
+  destination: FixDestination;
+  describedBy: string;
 }): React.ReactElement {
   return (
     <button
       type="button"
-      data-validation-note
-      onClick={onSelect}
-      className={rowClass}
+      data-validation-fix={destination.tabId}
+      aria-describedby={describedBy}
+      onClick={destination.onSelect}
+      className="border-border-theme-strong bg-surface-raised text-text-theme-primary hover:bg-surface-base focus-visible:outline-accent inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2"
     >
-      <span className={`pt-0.5 ${validationNoteColor}`}>
-        <AppIcon name={note.icon ?? 'info'} size="inline" aria-hidden="true" />
-      </span>
-      <span className="min-w-0">
-        <span className={`block text-xs font-medium ${validationNoteColor}`}>
-          {note.message}
-        </span>
-        {note.suggestion && (
-          <span className="text-text-theme-secondary mt-1 block text-xs">
-            {note.suggestion}
-          </span>
-        )}
-        <GoTo prefix="Caution" tabId={note.tabId} />
-      </span>
+      Go to {getTabLabel(destination.tabId)}
+      <AppIcon name="arrow-right" size="inline" aria-hidden="true" />
     </button>
+  );
+}
+
+/**
+ * One panel item: severity icon, plain heading, explanation, then the tabs
+ * that can fix it. The item is not itself a control; its buttons are.
+ */
+function BuildStatusItem({
+  kind,
+  icon,
+  severityLabel,
+  heading,
+  explanation,
+  suggestion,
+  destinations,
+  headingId,
+}: {
+  kind: 'issue' | 'note';
+  icon: React.ReactNode;
+  severityLabel: string;
+  heading: string;
+  explanation?: string;
+  suggestion?: string;
+  destinations: readonly FixDestination[];
+  headingId: string;
+}): React.ReactElement {
+  return (
+    <li
+      data-validation-issue={kind === 'issue' ? '' : undefined}
+      data-validation-note={kind === 'note' ? '' : undefined}
+      className="border-border-theme flex gap-3 border-b px-4 py-3 last:border-b-0"
+    >
+      <span className="flex h-6 shrink-0 items-center">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <h5
+          id={headingId}
+          className="text-text-theme-primary text-base leading-6 font-semibold"
+        >
+          <span className="sr-only">{severityLabel}: </span>
+          {heading}
+        </h5>
+        {explanation && (
+          <p className="text-text-theme-secondary mt-0.5 text-sm leading-5">
+            {explanation}
+          </p>
+        )}
+        {suggestion && (
+          <p className="text-text-theme-secondary mt-1 text-sm leading-5">
+            {suggestion}
+          </p>
+        )}
+        {destinations.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {destinations.map((destination) => (
+              <FixButton
+                key={destination.tabId}
+                destination={destination}
+                describedBy={headingId}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </li>
+  );
+}
+
+export function ValidationNoteRow({
+  note,
+  headingId,
+  destinations,
+}: {
+  note: ValidationNote;
+  headingId: string;
+  destinations: readonly FixDestination[];
+}): React.ReactElement {
+  return (
+    <BuildStatusItem
+      kind="note"
+      icon={<SeverityIcon kind="note" />}
+      severityLabel={ITEM_LABEL.note}
+      heading={note.heading ?? noteText(note)}
+      explanation={note.message}
+      suggestion={note.suggestion}
+      destinations={destinations}
+      headingId={headingId}
+    />
   );
 }
 
 export function ValidationIssueRow({
   issue,
-  onSelect,
+  headingId,
+  destinations,
 }: {
   issue: ValidationIssue;
-  onSelect: () => void;
+  headingId: string;
+  destinations: readonly FixDestination[];
 }): React.ReactElement {
-  const color = validationIconColors[issue.severity];
+  const { heading, explanation } = describeIssue(issue.error);
   return (
-    <button
-      type="button"
-      data-validation-issue
-      onClick={onSelect}
-      className={rowClass}
-    >
-      <span className={`pt-0.5 ${color}`}>
-        <ValidationIssueIcon severity={issue.severity} />
-      </span>
-      <span className="min-w-0">
-        <span className={`block text-xs font-medium ${color}`}>
-          {issue.error.message}
-        </span>
-        {issue.error.suggestion && (
-          <span className="text-text-theme-secondary mt-1 block text-xs">
-            {issue.error.suggestion}
-          </span>
-        )}
-        <GoTo
-          prefix={issue.critical ? 'Critical error' : issue.error.severity}
-          tabId={getTabForCategory(issue.error.category)}
-        />
-      </span>
-    </button>
+    <BuildStatusItem
+      kind="issue"
+      icon={<SeverityIcon kind={issueKind(issue.severity)} />}
+      severityLabel={
+        issue.critical
+          ? 'Critical error'
+          : ITEM_LABEL[issueKind(issue.severity)]
+      }
+      heading={heading}
+      explanation={explanation}
+      suggestion={issue.error.suggestion}
+      destinations={destinations}
+      headingId={headingId}
+    />
   );
 }

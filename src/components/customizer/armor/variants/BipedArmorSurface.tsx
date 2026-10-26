@@ -124,6 +124,7 @@ export function BipedArmorSurface({
       </defs>
       <path
         data-armor-plate={location}
+        data-armor-status={status}
         data-armor-material={variant}
         data-armor-fill={location ?? 'preview'}
         data-armor-fill-ratio={ratio}

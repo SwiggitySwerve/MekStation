@@ -6,7 +6,13 @@
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
-import React, { useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
@@ -62,7 +68,7 @@ export function FluffTab({
   };
 
   return (
-    <div className={`space-y-5 p-4 ${className}`}>
+    <div className={`@container space-y-5 p-4 ${className}`}>
       {isReadOnly && (
         <div className={cs.panel.notice} role="status">
           This unit&apos;s descriptive details are view only.
@@ -70,18 +76,16 @@ export function FluffTab({
       )}
 
       <section
-        className="border-border-theme bg-surface-base grid gap-3 rounded-lg border px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)] sm:items-end"
+        className="border-border-theme bg-surface-base rounded-lg border px-4 py-3"
         aria-labelledby="fluff-role-heading"
       >
-        <div>
-          <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
-            Battlefield Role
-          </h3>
-          <p className="text-text-theme-secondary mt-1 text-xs">
-            A quick classification used in the unit dossier and export.
-          </p>
-        </div>
-        <label className="block" htmlFor="fluff-role">
+        <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
+          Battlefield Role
+        </h3>
+        <p className="text-text-theme-secondary mt-1 text-xs">
+          A quick classification used in the unit dossier and export.
+        </p>
+        <label className="mt-3 block max-w-80" htmlFor="fluff-role">
           <span className={`${cs.text.label} mb-1 block`}>Combat Role</span>
           <select
             id="fluff-role"
@@ -103,19 +107,25 @@ export function FluffTab({
         <h3 id="fluff-mfg-heading" className={`${cs.text.cardTitle} mb-3`}>
           Manufacturing
         </h3>
-        <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
-          <TextField
-            label="Manufacturer"
-            value={fluff.manufacturer ?? ''}
-            disabled={isReadOnly || !onFluffChange}
-            onChange={(value) => update('manufacturer', value)}
-          />
-          <TextField
-            label="Primary Factory"
-            value={fluff.primaryFactory ?? ''}
-            disabled={isReadOnly || !onFluffChange}
-            onChange={(value) => update('primaryFactory', value)}
-          />
+        <div className={MANUFACTURING_GRID}>
+          <div>
+            <TextField
+              label="Manufacturer"
+              optional
+              value={fluff.manufacturer ?? ''}
+              disabled={isReadOnly || !onFluffChange}
+              onChange={(value) => update('manufacturer', value)}
+            />
+          </div>
+          <div>
+            <TextField
+              label="Primary Factory"
+              optional
+              value={fluff.primaryFactory ?? ''}
+              disabled={isReadOnly || !onFluffChange}
+              onChange={(value) => update('primaryFactory', value)}
+            />
+          </div>
         </div>
         <h4
           className={`${cs.text.subsection} border-border-theme mt-6 mb-3 border-t pt-4`}
@@ -127,12 +137,9 @@ export function FluffTab({
             No system manufacturers recorded.
           </p>
         )}
-        <div className="grid gap-x-6 gap-y-4 lg:grid-cols-2">
+        <div className={MANUFACTURING_GRID}>
           {Object.entries(systems).map(([system, manufacturer]) => (
-            <div
-              key={system}
-              className="grid grid-cols-[minmax(0,1fr)_2.75rem] items-end gap-1.5"
-            >
+            <div key={system} className={`${FIELD_WITH_ACTION} items-end`}>
               <TextField
                 id={`fluff-system-${fieldId(system)}`}
                 label={formatSystemLabel(system)}
@@ -146,7 +153,7 @@ export function FluffTab({
                   aria-label={`Remove ${system} manufacturer`}
                   title={`Remove ${formatSystemLabel(system)} manufacturer`}
                   onClick={() => removeSystem(system)}
-                  className="border-border-theme text-text-theme-secondary focus-visible:ring-accent flex h-11 w-11 items-center justify-center rounded border transition-colors hover:bg-red-950 hover:text-white focus-visible:ring-2 focus-visible:outline-none"
+                  className="text-text-theme-muted focus-visible:text-text-theme-primary focus-visible:ring-accent flex h-11 w-11 items-center justify-center rounded transition-colors hover:bg-red-950 hover:text-white focus-visible:ring-2 focus-visible:outline-none"
                 >
                   <AppIcon name="trash" size="inline" aria-hidden="true" />
                 </button>
@@ -155,29 +162,37 @@ export function FluffTab({
           ))}
         </div>
         {!isReadOnly && onFluffChange && (
-          <div className="bg-surface-deep/40 border-border-theme-subtle mt-4 grid max-w-3xl gap-2 rounded-md border p-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)_auto] sm:items-end">
-            <TextField
-              label="New System"
-              value={newSystem}
-              disabled={false}
-              onChange={setNewSystem}
-            />
-            <TextField
-              label="New Manufacturer"
-              value={newManufacturer}
-              disabled={false}
-              onChange={setNewManufacturer}
-            />
-            <Button
-              type="button"
-              size="sm"
-              disabled={
-                !newSystem.trim() || Object.hasOwn(systems, newSystem.trim())
-              }
-              onClick={addSystem}
-            >
-              Add system
-            </Button>
+          <div className="border-border-theme-subtle mt-4 rounded-md border border-dashed p-3">
+            <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end">
+              <TextField
+                label="New System"
+                placeholder="e.g. Targeting system"
+                value={newSystem}
+                disabled={false}
+                onChange={setNewSystem}
+              />
+              <TextField
+                label="New Manufacturer"
+                placeholder="e.g. Dalban Hirez"
+                value={newManufacturer}
+                disabled={false}
+                onChange={setNewManufacturer}
+              />
+              <Button
+                type="button"
+                size="sm"
+                className="min-h-11"
+                disabled={
+                  !newSystem.trim() || Object.hasOwn(systems, newSystem.trim())
+                }
+                onClick={addSystem}
+              >
+                Add system
+              </Button>
+            </div>
+            <p className={`${cs.text.secondary} mt-2`}>
+              Name a system and who makes it.
+            </p>
           </div>
         )}
       </section>
@@ -189,24 +204,28 @@ export function FluffTab({
         <h3 id="fluff-history-heading" className={`${cs.text.cardTitle} mb-3`}>
           Unit History and Description
         </h3>
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div className={NARRATIVE_GRID} data-testid="fluff-narrative-grid">
           {NARRATIVE_FIELDS.map(([field, label]) => {
             const id = fieldId(field);
+            const value = fluff[field] ?? '';
+            const disabled = isReadOnly || !onFluffChange;
             return (
-              <label key={field} className="block" htmlFor={id}>
-                <span className={`${cs.text.label} mb-1 block`}>{label}</span>
-                <textarea
-                  id={id}
-                  rows={field === 'overview' ? 8 : 6}
-                  onInput={autoGrowTextarea}
-                  value={fluff[field] ?? ''}
-                  disabled={isReadOnly || !onFluffChange}
-                  onChange={(event) => update(field, event.target.value)}
-                  className={`${cs.input.full} min-h-32 resize-y leading-6 ${disabledClasses(
-                    isReadOnly || !onFluffChange,
-                  )}`}
+              <div key={field} data-testid={`fluff-field-${field}`}>
+                <FieldLabel
+                  htmlFor={id}
+                  label={label}
+                  showOptional={!disabled && value === ''}
                 />
-              </label>
+                <AutoSizeTextarea
+                  id={id}
+                  rows={4}
+                  value={value}
+                  placeholder={NARRATIVE_PLACEHOLDERS[field]}
+                  disabled={disabled}
+                  onChange={(event) => update(field, event.target.value)}
+                  className={`${NARRATIVE_TEXTAREA} ${disabledClasses(disabled)}`}
+                />
+              </div>
             );
           })}
         </div>
@@ -245,6 +264,12 @@ const NARRATIVE_FIELDS: ReadonlyArray<[NarrativeField, string]> = [
   ['notableUnits', 'Notable Units'],
 ];
 
+/** Hints for the sections that are usually empty on a new design. */
+const NARRATIVE_PLACEHOLDERS: Partial<Record<NarrativeField, string>> = {
+  variants: 'e.g. Model name and what changes from this design, one per line.',
+  notableUnits: 'e.g. A famous pilot, or one named unit of this design.',
+};
+
 function fieldId(name: string): string {
   return `fluff-${name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}`;
 }
@@ -264,40 +289,130 @@ function formatSystemLabel(system: string): string {
     .join(' ');
 }
 
+/**
+ * One column below 70rem (1120px) of editor width; two columns above it
+ * (a 1440px window with the loadout sidebar open measures about 1168px), so
+ * each box
+ * fills its half instead of leaving half the card empty. Reading order runs
+ * across the pairs: Overview + Capabilities, History + Deployment, Variants +
+ * Notable Units.
+ */
+const NARRATIVE_GRID =
+  'grid grid-cols-1 items-start gap-x-8 gap-y-4 @[70rem]:grid-cols-2';
+
+/**
+ * Narrative text fills its column. In the two-column layout each column caps
+ * line length near 75 characters. 16px text on a 24px (1.5) line height, at
+ * least 4 rows; the textarea grows with its content.
+ */
+const NARRATIVE_TEXTAREA = `${cs.input.full.replace('text-sm', 'text-base')} w-full resize-none overflow-hidden leading-6 placeholder:text-text-theme-muted placeholder:italic @[70rem]:max-w-[75ch]`;
+
 function disabledClasses(disabled: boolean): string {
   return disabled ? 'cursor-not-allowed opacity-60' : '';
 }
 
-function autoGrowTextarea(event: React.FormEvent<HTMLTextAreaElement>): void {
-  const textarea = event.currentTarget;
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
+/**
+ * Two equal columns on wide screens; shared by Manufacturing fields. Plain
+ * fields span the full column, ending where the removable rows' action
+ * buttons end.
+ */
+const MANUFACTURING_GRID = 'grid gap-x-6 gap-y-4 lg:grid-cols-2';
+
+/** Field plus a trailing 44px slot so inputs line up with removable rows. */
+const FIELD_WITH_ACTION = 'grid grid-cols-[minmax(0,1fr)_2.75rem] gap-1.5';
+
+/**
+ * Textarea that always shows its full content: it is sized on mount, whenever
+ * the value changes and whenever its width changes (re-wrapping), so text is
+ * never clipped mid-line at the bottom edge.
+ */
+function AutoSizeTextarea(
+  props: React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+): React.ReactElement {
+  const ref = useRef<HTMLTextAreaElement>(null);
+
+  const resize = useCallback((): void => {
+    const textarea = ref.current;
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    const borders = textarea.offsetHeight - textarea.clientHeight;
+    textarea.style.height = `${textarea.scrollHeight + borders}px`;
+  }, []);
+
+  useLayoutEffect(resize, [props.value, resize]);
+
+  useEffect(() => {
+    const textarea = ref.current;
+    if (!textarea || typeof ResizeObserver === 'undefined') return undefined;
+    let width = textarea.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (textarea.clientWidth === width) return;
+      width = textarea.clientWidth;
+      resize();
+    });
+    observer.observe(textarea);
+    return () => observer.disconnect();
+  }, [resize]);
+
+  return <textarea ref={ref} {...props} />;
 }
 
 function TextField({
   id,
   label,
+  placeholder,
+  optional = false,
   value,
   disabled,
   onChange,
 }: {
   id?: string;
   label: string;
+  placeholder?: string;
+  /** Show an "Optional" tag while the field is empty. */
+  optional?: boolean;
   value: string;
   disabled: boolean;
   onChange: (value: string) => void;
 }): React.ReactElement {
   const inputId = id ?? fieldId(label);
   return (
-    <label className="block" htmlFor={inputId}>
-      <span className={`${cs.text.label} mb-1 block`}>{label}</span>
+    <div>
+      <FieldLabel
+        htmlFor={inputId}
+        label={label}
+        showOptional={optional && !disabled && value === ''}
+      />
       <input
         id={inputId}
         value={value}
+        placeholder={placeholder}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className={`${cs.input.full} min-h-11 ${disabledClasses(disabled)}`}
+        className={`${cs.input.full} placeholder:text-text-theme-muted min-h-11 placeholder:italic ${disabledClasses(disabled)}`}
       />
-    </label>
+    </div>
+  );
+}
+
+/** Field label with a muted "Optional" tag while an optional field is empty. */
+function FieldLabel({
+  htmlFor,
+  label,
+  showOptional,
+}: {
+  htmlFor: string;
+  label: string;
+  showOptional: boolean;
+}): React.ReactElement {
+  return (
+    <div className="mb-1 flex items-baseline gap-2">
+      <label className={cs.text.label} htmlFor={htmlFor}>
+        {label}
+      </label>
+      {showOptional && (
+        <span className="text-text-theme-muted text-xs">Optional</span>
+      )}
+    </div>
   );
 }

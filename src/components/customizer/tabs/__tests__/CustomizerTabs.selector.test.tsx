@@ -36,9 +36,9 @@ it('opens all seven full labels, retains validation counts and focuses the selec
   ).toEqual(DEFAULT_CUSTOMIZER_TABS.map((tab) => tab.label));
   expect(screen.getByRole('tab', { name: 'Armor' })).toHaveFocus();
   expect(
-    within(screen.getByRole('tab', { name: 'Structure' })).getByLabelText(
-      '2 errors',
-    ),
+    within(screen.getByRole('tab', { name: 'Structure' })).getByRole('img', {
+      name: '2 errors',
+    }),
   ).toBeInTheDocument();
 });
 

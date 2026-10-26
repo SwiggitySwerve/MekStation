@@ -50,4 +50,26 @@ describe('Gameplay navigation multiplayer entry', () => {
       '/multiplayer',
     );
   });
+
+  it.each(['/customizer', '/customizer?sort=name', '/gameplay'])(
+    'keeps phone navigation available at %s',
+    (path) => {
+      mockPathname = path;
+      render(<MobileBottomNav />);
+      expect(
+        screen.getByRole('navigation', { name: 'Mobile navigation' }),
+      ).not.toHaveClass('max-sm:hidden');
+    },
+  );
+
+  it.each(['/customizer/unit-1', '/customizer/unit-1/armor?refit=1'])(
+    'hides navigation only below the small breakpoint for %s',
+    (path) => {
+      mockPathname = path;
+      render(<MobileBottomNav />);
+      expect(
+        screen.getByRole('navigation', { name: 'Mobile navigation' }),
+      ).toHaveClass('max-sm:hidden');
+    },
+  );
 });

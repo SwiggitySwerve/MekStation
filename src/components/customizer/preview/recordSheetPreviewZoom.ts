@@ -1,9 +1,28 @@
-export type RecordSheetPreviewZoomMode = 'manual' | 'fit-width' | 'fit-page';
+export type RecordSheetPreviewZoomMode =
+  | 'manual'
+  | 'fit-width'
+  | 'fit-page'
+  | 'actual';
 
 export const MIN_RECORD_SHEET_PREVIEW_ZOOM = 0.2;
 export const MAX_RECORD_SHEET_PREVIEW_ZOOM = 3;
 export const RECORD_SHEET_PREVIEW_ZOOM_STEP = 0.15;
 export const RECORD_SHEET_PREVIEW_VIEWPORT_PADDING = 48;
+/**
+ * Widest the sheet is drawn by the fit modes, so a very wide viewer shows a
+ * readable sheet with gutters instead of an enormous one.
+ */
+export const RECORD_SHEET_PREVIEW_MAX_FIT_WIDTH = 920;
+
+/** Zoom of the 100% (actual size) mode: one CSS pixel per paper point. */
+export const RECORD_SHEET_PREVIEW_ACTUAL_ZOOM = 1;
+
+function fitAvailableWidth(viewportWidth: number): number {
+  return Math.min(
+    viewportWidth - RECORD_SHEET_PREVIEW_VIEWPORT_PADDING,
+    RECORD_SHEET_PREVIEW_MAX_FIT_WIDTH,
+  );
+}
 
 export function clampRecordSheetPreviewZoom(zoom: number): number {
   return Math.min(
@@ -16,7 +35,7 @@ export function computeFitWidthZoom(
   viewportWidth: number,
   pageWidth: number,
 ): number | null {
-  const availableWidth = viewportWidth - RECORD_SHEET_PREVIEW_VIEWPORT_PADDING;
+  const availableWidth = fitAvailableWidth(viewportWidth);
   if (availableWidth <= 0 || pageWidth <= 0) return null;
   return clampRecordSheetPreviewZoom(availableWidth / pageWidth);
 }
@@ -27,7 +46,7 @@ export function computeFitPageZoom(
   pageWidth: number,
   pageHeight: number,
 ): number | null {
-  const availableWidth = viewportWidth - RECORD_SHEET_PREVIEW_VIEWPORT_PADDING;
+  const availableWidth = fitAvailableWidth(viewportWidth);
   const availableHeight =
     viewportHeight - RECORD_SHEET_PREVIEW_VIEWPORT_PADDING;
   if (
@@ -52,6 +71,9 @@ export function computeZoomForMode(
 ): number | null {
   if (mode === 'fit-width') {
     return computeFitWidthZoom(viewportWidth, pageWidth);
+  }
+  if (mode === 'actual') {
+    return RECORD_SHEET_PREVIEW_ACTUAL_ZOOM;
   }
   if (mode === 'fit-page') {
     return computeFitPageZoom(

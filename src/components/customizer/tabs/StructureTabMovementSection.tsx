@@ -21,6 +21,106 @@ import type {
 
 import { customizerStyles as cs } from '../styles';
 
+/**
+ * Shared Mobility grid: label | one control column. Steppers, derived values and
+ * selects all start at the same left edge; helper text sits under its control.
+ */
+const MOBILITY_GRID =
+  'grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-x-3 gap-y-1';
+
+/** Row label, vertically centred on the 44px control beside it. */
+const MOBILITY_LABEL = `${cs.text.label} flex min-h-11 items-center font-medium`;
+
+/** One stepper group is exactly 44 + 48 + 44px wide. */
+const STEPPER_WIDTH = 'w-[8.5rem] shrink-0';
+
+/**
+ * Jump Type stays usable with no jump jets, but reads as secondary until a
+ * Jump MP is set.
+ */
+const JUMP_TYPE_IDLE_SELECT = cs.select.full
+  .replace('text-text-theme-primary', 'text-text-theme-secondary')
+  .replace('border-border-theme', 'border-border-theme-subtle');
+
+function MobilityStepper({
+  id,
+  name,
+  value,
+  min,
+  max,
+  readOnly,
+  describedBy,
+  onChange,
+}: {
+  readonly id: string;
+  readonly name: string;
+  readonly value: number;
+  readonly min: number;
+  readonly max: number;
+  readonly readOnly: boolean;
+  readonly describedBy?: string;
+  readonly onChange: (next: number) => void;
+}): React.ReactElement {
+  return (
+    <div className={`flex items-center ${STEPPER_WIDTH}`}>
+      <button
+        type="button"
+        onClick={() => onChange(value - 1)}
+        disabled={readOnly || value <= min}
+        className={cs.button.stepperLeft}
+        aria-label={`Decrease ${name}`}
+      >
+        <AppIcon name="remove" size="inline" aria-hidden="true" />
+      </button>
+      <input
+        id={id}
+        type="number"
+        aria-label={name}
+        aria-describedby={describedBy}
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value, 10) || min)}
+        disabled={readOnly}
+        min={min}
+        max={max}
+        className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
+      />
+      <button
+        type="button"
+        onClick={() => onChange(value + 1)}
+        disabled={readOnly || value >= max}
+        className={cs.button.stepperRight}
+        aria-label={`Increase ${name}`}
+      >
+        <AppIcon name="add" size="inline" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+/** "→ 3 final": the resulting value after the base setting is applied. */
+function FinalValue({
+  name,
+  children,
+}: {
+  readonly name: string;
+  readonly children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <span
+      className="inline-flex items-baseline gap-1.5 tabular-nums"
+      title={`Final ${name}`}
+    >
+      <span className="text-text-theme-muted" aria-hidden="true">
+        →
+      </span>
+      <span className={`text-sm font-semibold ${cs.text.value}`}>
+        {children}
+      </span>
+      <span className={cs.text.secondary}>final</span>
+    </span>
+  );
+}
+
 interface StructureTabMovementSectionProps {
   readonly readOnly: boolean;
   readonly walkMP: number;
@@ -90,188 +190,136 @@ export function StructureTabMovementSection({
       </div>
 
       <div className="space-y-5">
-        <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
-          <span></span>
-          <span className={`${cs.text.subsection} text-center`}>Base</span>
-          <span className={`${cs.text.subsection} text-center`}>Final</span>
-        </div>
-
-        <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
-          <label className={`${cs.text.label} font-medium`} htmlFor="walk-mp">
+        <div className={MOBILITY_GRID}>
+          <label className={MOBILITY_LABEL} htmlFor="walk-mp">
             Walk MP
           </label>
-          <div className="flex items-center justify-center">
-            <button
-              onClick={() => handleWalkMPChange(walkMP - 1)}
-              disabled={readOnly || walkMP <= walkMPRange.min}
-              className={cs.button.stepperLeft}
-            >
-              <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-            </button>
-            <input
-              id="walk-mp"
-              type="number"
-              aria-label="Walk MP"
-              value={walkMP}
-              onChange={(e) =>
-                handleWalkMPChange(
-                  parseInt(e.target.value, 10) || walkMPRange.min,
-                )
-              }
-              disabled={readOnly}
-              min={walkMPRange.min}
-              max={walkMPRange.max}
-              className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-            />
-            <button
-              onClick={() => handleWalkMPChange(walkMP + 1)}
-              disabled={readOnly || walkMP >= walkMPRange.max}
-              className={cs.button.stepperRight}
-            >
-              {' '}
-              <AppIcon name="add" size="inline" aria-hidden="true" />
-            </button>
+          <div>
+            <div className="flex items-center gap-3">
+              <MobilityStepper
+                id="walk-mp"
+                name="Walk MP"
+                value={walkMP}
+                min={walkMPRange.min}
+                max={walkMPRange.max}
+                readOnly={readOnly}
+                describedBy="walk-mp-help"
+                onChange={handleWalkMPChange}
+              />
+              <FinalValue name="Walk MP">{walkMP}</FinalValue>
+            </div>
+            <p id="walk-mp-help" className={`${cs.text.secondary} mt-1`}>
+              Range {walkMPRange.min}-{walkMPRange.max} for a {tonnage}t mech
+              (max engine {MAX_ENGINE_RATING}).
+            </p>
           </div>
-          <span className={`text-sm tabular-nums ${cs.text.value} text-center`}>
-            {walkMP}
-          </span>
         </div>
 
-        <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
-          <span className={`${cs.text.label} font-medium`}>Run MP</span>
-          <span className={`text-sm tabular-nums ${cs.text.value} text-center`}>
-            {runMP}
-          </span>
-          <div className="flex items-center justify-center gap-1">
-            <span className={`text-sm tabular-nums ${cs.text.value}`}>
+        <div className={MOBILITY_GRID}>
+          <span className={MOBILITY_LABEL}>Run MP</span>
+          <div className="flex min-h-11 items-center gap-1.5">
+            {/* Derived, not editable: plain text, so nobody tries to type in it. */}
+            <output
+              aria-label="Run MP"
+              className={`text-sm font-semibold tabular-nums ${cs.text.value}`}
+            >
               {runMP}
-            </span>
-            {maxRunMP && (
-              <span
-                className="text-text-theme-primary cursor-help text-sm font-bold"
-                title={
-                  enhancement === MovementEnhancementType.MASC
-                    ? `MASC Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
-                    : enhancement === MovementEnhancementType.TSM
-                      ? `TSM at 9+ heat: effective Walk ${tsmEffectiveWalkMP} (base ${walkMP} + 2 TSM − 1 heat), Run ${tsmEffectiveRunMP}`
-                      : enhancement === MovementEnhancementType.SUPERCHARGER
-                        ? `Supercharger Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
-                        : `Enhanced max: ${maxRunMP}`
-                }
-              >
-                [{maxRunMP}]
-              </span>
-            )}
+            </output>
+            <FinalValue name="Run MP">
+              {runMP}
+              {maxRunMP && (
+                <span
+                  className="text-text-theme-primary ml-1.5 cursor-help font-bold"
+                  title={
+                    enhancement === MovementEnhancementType.MASC
+                      ? `MASC Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
+                      : enhancement === MovementEnhancementType.TSM
+                        ? `TSM at 9+ heat: effective Walk ${tsmEffectiveWalkMP} (base ${walkMP} + 2 TSM − 1 heat), Run ${tsmEffectiveRunMP}`
+                        : enhancement === MovementEnhancementType.SUPERCHARGER
+                          ? `Supercharger Sprint: Walk ${walkMP} × 2 = ${maxRunMP}`
+                          : `Enhanced max: ${maxRunMP}`
+                  }
+                >
+                  [{maxRunMP}]
+                </span>
+              )}
+            </FinalValue>
           </div>
         </div>
 
-        <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
-          <label className={`${cs.text.label} font-medium`} htmlFor="jump-mp">
+        <div className={MOBILITY_GRID}>
+          <label className={MOBILITY_LABEL} htmlFor="jump-mp">
             Jump MP
           </label>
-          <div className="flex items-center justify-center">
-            <button
-              onClick={() => handleJumpMPChange(jumpMP - 1)}
-              disabled={readOnly || jumpMP <= 0}
-              className={cs.button.stepperLeft}
-            >
-              <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-            </button>
-            <input
-              id="jump-mp"
-              type="number"
-              aria-label="Jump MP"
-              value={jumpMP}
-              onChange={(e) =>
-                handleJumpMPChange(parseInt(e.target.value, 10) || 0)
-              }
-              disabled={readOnly}
-              min={0}
-              max={maxJumpMP}
-              className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-            />
-            <button
-              onClick={() => handleJumpMPChange(jumpMP + 1)}
-              disabled={readOnly || jumpMP >= maxJumpMP}
-              className={cs.button.stepperRight}
-            >
-              {' '}
-              <AppIcon name="add" size="inline" aria-hidden="true" />
-            </button>
+          <div>
+            <div className="flex items-center gap-3">
+              <MobilityStepper
+                id="jump-mp"
+                name="Jump MP"
+                value={jumpMP}
+                min={0}
+                max={maxJumpMP}
+                readOnly={readOnly}
+                describedBy="jump-mp-help"
+                onChange={handleJumpMPChange}
+              />
+              <FinalValue name="Jump MP">{jumpMP}</FinalValue>
+            </div>
+            <p id="jump-mp-help" className={`${cs.text.secondary} mt-1`}>
+              Max {maxJumpMP} (
+              {jumpJetType === JumpJetType.IMPROVED
+                ? 'run speed'
+                : 'walk speed'}
+              ).
+              {jumpMP > 0 &&
+                ` Jump jets: ${calculations.jumpJetWeight}t / ${calculations.jumpJetSlots} slots.`}
+            </p>
           </div>
-          <span className={`text-sm tabular-nums ${cs.text.value} text-center`}>
-            {jumpMP}
-          </span>
         </div>
 
-        <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1fr)] items-center gap-3">
-          <label className={`${cs.text.label} font-medium`} htmlFor="jump-type">
+        <div className={MOBILITY_GRID}>
+          <label className={MOBILITY_LABEL} htmlFor="jump-type">
             Jump Type
           </label>
-          <select
-            id="jump-type"
-            className={cs.select.full}
-            disabled={readOnly}
-            aria-label="Jump type"
-            value={jumpJetType}
-            onChange={handleJumpJetTypeChange}
-          >
-            {JUMP_JET_DEFINITIONS.filter(
-              (def) => def.type !== JumpJetType.MECHANICAL,
-            ).map((def) => (
-              <option key={def.type} value={def.type}>
-                {def.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
-          <label
-            className={`${cs.text.label} font-medium`}
-            htmlFor="mechanical-jump-booster-mp"
-          >
-            Jump booster
-          </label>
-          <div className="flex items-center justify-center">
-            <input
-              id="mechanical-jump-booster-mp"
-              type="number"
-              aria-label="Mechanical jump booster MP"
-              value={0}
-              disabled={true}
-              className={`w-12 ${cs.input.compact} text-center opacity-50 ${cs.input.noSpinners}`}
-            />
+          <div>
+            <select
+              id="jump-type"
+              className={jumpMP === 0 ? JUMP_TYPE_IDLE_SELECT : cs.select.full}
+              disabled={readOnly}
+              aria-label="Jump type"
+              aria-describedby="jump-type-help"
+              value={jumpJetType}
+              onChange={handleJumpJetTypeChange}
+            >
+              {JUMP_JET_DEFINITIONS.filter(
+                (def) => def.type !== JumpJetType.MECHANICAL,
+              ).map((def) => (
+                <option key={def.type} value={def.type}>
+                  {def.name}
+                </option>
+              ))}
+            </select>
+            <div id="jump-type-help" className="mt-1 space-y-0.5">
+              {jumpMP === 0 && (
+                <p className={cs.text.secondary}>No jump jets installed</p>
+              )}
+              <p className={cs.text.secondary}>
+                Mechanical jump boosters are not supported yet.
+              </p>
+            </div>
           </div>
-          <span className={`${cs.text.secondary} text-right`}>
-            Not editable
-          </span>
-        </div>
-
-        <div className={`${cs.layout.divider} mt-3`}>
-          <p className={cs.text.secondary}>
-            Walk MP range: {walkMPRange.min}-{walkMPRange.max} (for {tonnage}t
-            mech, max engine {MAX_ENGINE_RATING})
-          </p>
-          <p className={cs.text.secondary}>
-            Max Jump MP: {maxJumpMP} (
-            {jumpJetType === JumpJetType.IMPROVED ? 'run speed' : 'walk speed'})
-          </p>
-          {jumpMP > 0 && (
-            <p className={cs.text.secondary}>
-              Jump Jets: {calculations.jumpJetWeight}t /{' '}
-              {calculations.jumpJetSlots} slots
-            </p>
-          )}
         </div>
 
         <div className={`${cs.layout.divider} mt-2`}>
           <h4 className={`${cs.text.subsection} mb-3`}>Enhancement</h4>
-          <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1fr)] items-center gap-3">
-            <label className={cs.text.label}>Type</label>
+          <div className={MOBILITY_GRID}>
+            <label className={MOBILITY_LABEL} htmlFor="movement-enhancement">
+              Type
+            </label>
             <select
-              className={cs.select.inline}
+              className={cs.select.full}
               disabled={readOnly}
+              id="movement-enhancement"
               aria-label="Movement enhancement"
               value={enhancement ?? ''}
               onChange={handleEnhancementChange}
@@ -302,11 +350,14 @@ export function StructureTabMovementSection({
         </div>
 
         <div className={`${cs.layout.divider} mt-2`}>
-          <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1fr)] items-center gap-3">
-            <label className={cs.text.label}>Motive Type</label>
+          <div className={MOBILITY_GRID}>
+            <label className={MOBILITY_LABEL} htmlFor="motive-type">
+              Motive Type
+            </label>
             <select
-              className={cs.select.inline}
+              className={cs.select.full}
               disabled={readOnly}
+              id="motive-type"
               aria-label="Motive type"
               aria-describedby="configuration-change-help"
               value={configuration}
@@ -320,7 +371,7 @@ export function StructureTabMovementSection({
             </select>
             <p
               id="configuration-change-help"
-              className="text-text-theme-secondary col-span-full text-xs"
+              className="text-text-theme-secondary col-span-full mt-1 text-xs"
             >
               Changing configuration clears armor in removed locations and
               returns their equipment to unassigned.

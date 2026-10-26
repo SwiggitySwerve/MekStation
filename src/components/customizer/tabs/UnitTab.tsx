@@ -4,6 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
  *
  * Individual tab with name, modification indicator, and close button.
  *
+ * The unsaved-changes dot marks background tabs only: the active unit's save
+ * state is on the Save button (its dot, label and description), so the
+ * header never shows two unexplained dots for the same fact. On phones the
+ * name wraps onto a second line inside the tab instead of truncating.
+ *
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
@@ -42,6 +47,19 @@ export function UnitTab({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(tab.name);
   const inputRef = useRef<HTMLInputElement>(null);
+  const tabRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isActive) return;
+    const reveal = (): void => {
+      tabRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    };
+    reveal();
+    const observer = new ResizeObserver(reveal);
+    const tablist = tabRef.current?.parentElement;
+    if (tablist) observer.observe(tablist);
+    return () => observer.disconnect();
+  }, [isActive, tab.name]);
 
   // Focus input when entering edit mode
   useEffect(() => {
@@ -82,13 +100,10 @@ export function UnitTab({
     onClose();
   };
 
-  // Truncate long names
-  const displayName =
-    tab.name.length > 48 ? tab.name.substring(0, 45) + '...' : tab.name;
-
   return (
     <div
-      className={`group flex min-h-11 max-w-[220px] min-w-[140px] shrink-0 items-center gap-1 rounded-t border-b-2 pl-2 transition-colors lg:max-w-[320px] ${
+      ref={tabRef}
+      className={`group flex min-h-11 max-w-[220px] min-w-[140px] shrink-0 items-center gap-1 rounded-t border-b-2 pl-2 transition-colors lg:max-w-[320px] ${isActive ? 'max-sm:w-full max-sm:max-w-full' : ''} ${
         isActive
           ? 'border-accent bg-surface-raised text-text-theme-primary'
           : 'text-text-theme-secondary [@media(hover:hover)]:hover:text-text-theme-primary border-transparent bg-transparent'
@@ -117,9 +132,14 @@ export function UnitTab({
             title={`${tab.name} · Double-click to rename`}
             onClick={onSelect}
             onDoubleClick={handleDoubleClick}
-            className="focus-visible:outline-accent flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+            className="focus-visible:outline-accent flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px] max-sm:!px-0 max-sm:!py-0 max-sm:leading-4"
           >
-            <span className="truncate">{displayName}</span>
+            <span
+              data-unit-tab-name
+              className="min-w-0 truncate max-sm:line-clamp-2 max-sm:text-[13px] max-sm:leading-4 max-sm:font-medium max-sm:break-words max-sm:whitespace-normal"
+            >
+              {tab.name}
+            </span>
             {tab.techBaseMode && (
               <TechBaseBadge
                 techBaseMode={tab.techBaseMode}
@@ -130,11 +150,14 @@ export function UnitTab({
         )}
       </div>
 
-      {/* Modified indicator */}
-      {tab.isModified && !isEditing && (
+      {/* Modified indicator: background tabs only (see above). */}
+      {tab.isModified && !isActive && !isEditing && (
         <span
-          className="bg-accent h-2 w-2 flex-shrink-0 rounded-full"
+          role="img"
+          aria-label="Changes not saved to library"
           title="Changes not saved to library"
+          data-unsaved-dot
+          className="bg-accent h-2 w-2 flex-shrink-0 rounded-full"
         />
       )}
 

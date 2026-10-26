@@ -46,14 +46,14 @@ export function MultiUnitTabsEmptyState({
 }: MultiUnitTabsEmptyStateProps): React.ReactElement {
   return (
     <div
-      className={`flex min-h-screen flex-col items-center justify-center py-16 ${className}`}
+      className={`flex h-full min-h-0 flex-col items-center justify-center overflow-auto px-4 py-8 ${className}`}
     >
-      <div className="max-w-md text-center">
-        <div className="bg-surface-base mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl">
+      <div className="my-auto w-full max-w-md text-center">
+        <div className="bg-accent/10 text-accent mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full">
           <AppIcon
-            name="settings"
-            size="feature"
-            className="text-text-theme-muted"
+            name="mech"
+            size="hero"
+            className="scale-150"
             aria-hidden="true"
           />
         </div>
@@ -69,7 +69,7 @@ export function MultiUnitTabsEmptyState({
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={onOpenLoadDialog}
-            className="bg-accent hover:bg-accent-hover text-on-accent flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors"
+            className="bg-accent hover:bg-accent-hover text-on-accent focus-visible:outline-accent flex min-h-11 items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <AppIcon name="add" size="control" aria-hidden="true" />
             New Unit
@@ -77,7 +77,7 @@ export function MultiUnitTabsEmptyState({
 
           <button
             onClick={onOpenLoadDialog}
-            className="bg-surface-raised hover:bg-surface-base text-text-theme-primary flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors"
+            className="bg-surface-raised hover:bg-surface-base text-text-theme-primary focus-visible:outline-accent flex min-h-11 items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <AppIcon name="list" size="control" aria-hidden="true" />
             Load from Library

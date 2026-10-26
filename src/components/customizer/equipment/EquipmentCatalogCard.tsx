@@ -1,4 +1,11 @@
-import React, { useId, useMemo } from 'react';
+import React, {
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
@@ -27,16 +34,19 @@ export function EquipmentCatalogCard({
 }: EquipmentCatalogCardProps): React.ReactElement {
   const detailId = useId();
   const weapon = useMemo(() => getWeaponById(equipment.id), [equipment.id]);
+  const range = weapon?.ranges
+    ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
+    : '—';
   const variable = Boolean(equipment.variableEquipmentId);
   const accent = getEquipmentAccentClasses(equipment.category, equipment.name);
   return (
     <li
-      className={`group text-text-theme-primary relative isolate rounded-md border border-l-4 border-solid transition-colors ${accent} ${expanded ? 'border-accent/60' : 'border-border-theme-subtle'}`}
+      className={`group text-text-theme-primary border-border-theme-subtle/40 relative isolate border-b border-l-4 border-solid transition-colors ${workbenchStyles.catalogRow} ${accent}`}
       data-testid="equipment-catalog-row"
     >
       <span
         aria-hidden="true"
-        className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 rounded-[inherit] ${expanded ? 'opacity-40' : 'opacity-30 group-hover:opacity-40'}`}
+        className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 ${expanded ? 'opacity-40' : 'opacity-10 group-hover:opacity-30'}`}
         data-testid="equipment-catalog-row-fill"
       />
       <div
@@ -49,35 +59,59 @@ export function EquipmentCatalogCard({
           aria-label={`Details for ${equipment.name}`}
           aria-expanded={expanded}
           aria-controls={detailId}
-          className="focus-visible:ring-accent min-h-11 min-w-0 flex-1 rounded text-left focus-visible:ring-2 lg:w-full lg:flex-none lg:!px-0"
+          className={`focus-visible:ring-accent min-h-11 min-w-0 flex-1 rounded text-left focus-visible:ring-2 ${workbenchStyles.catalogInspect}`}
         >
-          <span className="flex items-center gap-1">
+          <AppIcon
+            name="chevron-right"
+            size="inline"
+            aria-hidden="true"
+            className={`text-text-theme-muted shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
+          />
+          <span className="min-w-0 flex-1">
             <span
-              className="block min-w-0 flex-1 truncate text-sm font-semibold text-inherit"
+              className="block truncate text-base font-semibold text-inherit lg:text-sm"
               title={equipment.name}
             >
               {equipment.name}
             </span>
-            <AppIcon
-              name="chevron-down"
-              size="inline"
-              aria-hidden="true"
-              className={`text-text-theme-muted shrink-0 transition-transform lg:hidden ${expanded ? 'rotate-180' : ''}`}
-            />
-          </span>
-          <span className="text-text-theme-secondary mt-0.5 block truncate text-xs tabular-nums lg:hidden">
-            {equipment.category} ·{' '}
-            {variable
-              ? 'Variable weight / slots'
-              : `${equipment.weight} t · ${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`}
+            <span
+              data-catalog-column="category"
+              className="text-text-theme-secondary hidden truncate text-xs lg:block"
+            >
+              {equipment.category}
+            </span>
+            <span className="text-text-theme-secondary block text-sm leading-5 tabular-nums lg:hidden">
+              {weapon && (
+                <span className="block">
+                  Dmg {weapon.damage} · Range {range.replaceAll(' ', '')} · Heat{' '}
+                  {weapon.heat}
+                </span>
+              )}
+              <span className="block">
+                {variable
+                  ? 'Variable weight / slots'
+                  : `${equipment.weight} t · ${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`}
+              </span>
+            </span>
           </span>
         </button>
         <span
-          data-catalog-column="category"
-          className="text-text-theme-secondary hidden min-w-0 truncate text-xs lg:block"
-          title={equipment.category}
+          data-catalog-column="damage"
+          className="hidden text-sm tabular-nums lg:block"
         >
-          {equipment.category}
+          {weapon?.damage ?? '—'}
+        </span>
+        <span
+          data-catalog-column="range"
+          className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
+        >
+          {range}
+        </span>
+        <span
+          data-catalog-column="heat"
+          className="hidden text-sm tabular-nums lg:block"
+        >
+          {weapon?.heat ?? '—'}
         </span>
         <span
           data-catalog-column="weight"
@@ -91,34 +125,19 @@ export function EquipmentCatalogCard({
         >
           {variable ? 'Variable' : equipment.criticalSlots}
         </span>
-        <span
-          data-catalog-column="heat"
-          className={`hidden text-sm tabular-nums lg:block ${weapon?.heat ? 'text-inherit' : 'text-text-theme-muted'}`}
-        >
-          {weapon?.heat ?? '—'}
-        </span>
-        <div
-          data-catalog-column="actions"
-          className="flex h-11 w-11 shrink-0 items-center justify-center"
-        >
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={readOnly}
-            onClick={onAdd}
-            title={`Add ${equipment.name}`}
-            aria-label={`Add ${equipment.name}`}
-            className={`!h-11 !min-h-11 !w-11 !min-w-11 !p-0 ${workbenchStyles.catalogAddHit}`}
-          >
-            <span className={workbenchStyles.catalogAddGlyph}>
-              <AppIcon name="add" size="inline" aria-hidden="true" />
-            </span>
-          </Button>
-        </div>
+        <CatalogAddAction
+          name={equipment.name}
+          readOnly={readOnly}
+          onAdd={onAdd}
+          onAddAndPlace={onAddAndPlace}
+        />
       </div>
       {expanded && (
-        <div id={detailId} className="border-border-theme-subtle border-t p-3">
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
+        <div
+          id={detailId}
+          className={`border-border-theme-subtle border-t ${workbenchStyles.catalogDetails}`}
+        >
+          <dl className={workbenchStyles.catalogDetailGrid}>
             <Detail label="Tech base" value={equipment.techBase} />
             <Detail label="Introduced" value={equipment.introductionYear} />
             <Detail label="Rules" value={equipment.rulesLevel} />
@@ -128,45 +147,193 @@ export function EquipmentCatalogCard({
               suffix=" C-bills"
             />
             <Detail label="Battle value" value={equipment.battleValue} />
-            {weapon && (
-              <>
-                <Detail label="Damage" value={weapon.damage} />
-                <Detail label="Heat" value={weapon.heat} />
-              </>
-            )}
-            {weapon?.ranges && (
-              <Detail
-                label="Range (S / M / L)"
-                value={`${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`}
-              />
-            )}
-            {weapon?.ranges?.minimum ? (
-              <Detail label="Minimum range" value={weapon.ranges.minimum} />
-            ) : null}
+            <Detail label="Minimum range" value={weapon?.ranges?.minimum} />
           </dl>
           {variable && (
-            <p className="text-text-theme-secondary mt-3 text-xs">
+            <p className="text-text-theme-secondary col-span-full text-xs">
               Weight and slots are calculated for this unit when added. Check
               the loadout for the resulting values.
             </p>
           )}
-          {onAddAndPlace && (
-            <div className="mt-3">
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={readOnly}
-                onClick={onAddAndPlace}
-                title={`Add and place ${equipment.name}`}
-                aria-label={`Add and place ${equipment.name}`}
-              >
-                Add + place
-              </Button>
-            </div>
-          )}
         </div>
       )}
     </li>
+  );
+}
+
+function CatalogAddAction({
+  name,
+  readOnly,
+  onAdd,
+  onAddAndPlace,
+}: {
+  name: string;
+  readOnly: boolean;
+  onAdd: () => void;
+  onAddAndPlace?: () => void;
+}): React.ReactElement {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement | null>(null);
+  const available = open && !readOnly && Boolean(onAddAndPlace);
+  useLayoutEffect(() => {
+    if (!available) return;
+    const panel = menu.current;
+    const button = trigger.current;
+    if (!panel || !button) return;
+    // Portal keeps the last row's menu outside the catalog scroll clip.
+    const anchor = button.getBoundingClientRect();
+    const box = panel.getBoundingClientRect();
+    panel.style.left = `${Math.max(8, Math.min(anchor.right - box.width, window.innerWidth - box.width - 8))}px`;
+    panel.style.top = `${Math.max(8, anchor.bottom + box.height + 8 <= window.innerHeight ? anchor.bottom + 4 : anchor.top - box.height - 4)}px`;
+    panel
+      .querySelector<HTMLElement>('[role="menuitem"]')
+      ?.focus({ preventScroll: true });
+    const outside = (event: PointerEvent): void => {
+      if (
+        !root.current?.contains(event.target as Node) &&
+        !panel.contains(event.target as Node)
+      )
+        setOpen(false);
+    };
+    const dismiss = (): void => {
+      if (panel.contains(document.activeElement))
+        button.focus({ preventScroll: true });
+      setOpen(false);
+    };
+    const dismissIfMoved = (): void => {
+      // A queued scroll from revealing the trigger must not close a menu
+      // positioned after that scroll. Only dismiss when its anchor moves.
+      const current = button.getBoundingClientRect();
+      if (current.top !== anchor.top || current.left !== anchor.left) dismiss();
+    };
+    document.addEventListener('pointerdown', outside);
+    window.addEventListener('resize', dismiss);
+    window.addEventListener('scroll', dismissIfMoved, true);
+    return () => {
+      document.removeEventListener('pointerdown', outside);
+      window.removeEventListener('resize', dismiss);
+      window.removeEventListener('scroll', dismissIfMoved, true);
+    };
+  }, [available]);
+  const run = (action: () => void): void => {
+    setOpen(false);
+    trigger.current?.focus({ preventScroll: true });
+    action();
+  };
+  return (
+    <div
+      ref={root}
+      data-catalog-column="actions"
+      className={workbenchStyles.catalogActions}
+    >
+      <Button
+        size="sm"
+        variant="ghost"
+        disabled={readOnly}
+        onClick={onAdd}
+        title="Add to unassigned"
+        aria-label={`Add ${name}`}
+        aria-description="Add to unassigned in the Loadout"
+        className={workbenchStyles.catalogAddHit}
+      >
+        <AppIcon name="add" size="inline" aria-hidden="true" />
+        <span>Add</span>
+      </Button>
+      {onAddAndPlace && (
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={readOnly}
+          aria-label={`Add options for ${name}`}
+          aria-haspopup="menu"
+          aria-expanded={available}
+          aria-controls={available ? id : undefined}
+          className={workbenchStyles.catalogAddCaret}
+          onClick={(event) => {
+            trigger.current = event.currentTarget;
+            setOpen(!open);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              trigger.current = event.currentTarget;
+              setOpen(true);
+            }
+          }}
+        >
+          <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
+        </Button>
+      )}
+      {available &&
+        createPortal(
+          <div
+            ref={menu}
+            id={id}
+            role="menu"
+            aria-label={`Add options for ${name}`}
+            className={workbenchStyles.catalogAddMenu}
+            onBlur={(event) => {
+              if (
+                event.relatedTarget !== trigger.current &&
+                !event.currentTarget.contains(event.relatedTarget)
+              )
+                setOpen(false);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape' || event.key === 'Tab') {
+                if (event.key === 'Escape') event.preventDefault();
+                event.stopPropagation();
+                setOpen(false);
+                trigger.current?.focus({ preventScroll: true });
+              } else if (
+                ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)
+              ) {
+                event.preventDefault();
+                const items = Array.from(
+                  event.currentTarget.querySelectorAll<HTMLElement>(
+                    '[role="menuitem"]',
+                  ),
+                );
+                const current = items.indexOf(
+                  document.activeElement as HTMLElement,
+                );
+                const next =
+                  event.key === 'Home'
+                    ? 0
+                    : event.key === 'End'
+                      ? items.length - 1
+                      : (current +
+                          (event.key === 'ArrowDown' ? 1 : -1) +
+                          items.length) %
+                        items.length;
+                items[next]?.focus();
+              }
+            }}
+          >
+            <Button
+              variant="ghost"
+              role="menuitem"
+              tabIndex={-1}
+              onClick={() => run(onAdd)}
+            >
+              Add to unassigned
+            </Button>
+            <Button
+              variant="ghost"
+              role="menuitem"
+              tabIndex={-1}
+              aria-label={`Add and place ${name}`}
+              onClick={() => onAddAndPlace && run(onAddAndPlace)}
+            >
+              Add and choose location…
+            </Button>
+          </div>,
+          document.body,
+        )}
+    </div>
   );
 }
 

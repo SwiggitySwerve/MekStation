@@ -5,6 +5,10 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import type { StructureTabCalculations } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
+import {
+  CHASSIS_ROW_GRID,
+  CHASSIS_ROW_META,
+} from './StructureTabChassisControls';
 
 interface StructureOption {
   readonly type: string;
@@ -42,13 +46,10 @@ export function HeatSinkSection({
         readOnly={readOnly}
         heatSinkType={heatSinkType}
         heatSinkCount={heatSinkCount}
-        calculations={calculations}
         heatSinkOptions={heatSinkOptions}
         handleHeatSinkTypeChange={handleHeatSinkTypeChange}
         handleHeatSinkCountChange={handleHeatSinkCountChange}
       />
-
-      <HeatSinkStats calculations={calculations} />
 
       {isOmni && (
         <BaseChassisHeatSinkControl
@@ -67,7 +68,6 @@ function HeatSinkCountControl({
   readOnly,
   heatSinkType,
   heatSinkCount,
-  calculations,
   heatSinkOptions,
   handleHeatSinkTypeChange,
   handleHeatSinkCountChange,
@@ -75,7 +75,6 @@ function HeatSinkCountControl({
   readonly readOnly: boolean;
   readonly heatSinkType: string;
   readonly heatSinkCount: number;
-  readonly calculations: StructureTabCalculations;
   readonly heatSinkOptions: readonly StructureOption[];
   readonly handleHeatSinkTypeChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -84,7 +83,7 @@ function HeatSinkCountControl({
 }): React.ReactElement {
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
+      <div className={CHASSIS_ROW_GRID}>
         <label
           className={`${cs.text.label} font-medium`}
           htmlFor="heat-sink-type"
@@ -106,10 +105,10 @@ function HeatSinkCountControl({
             </option>
           ))}
         </select>
-        <span aria-hidden="true" />
+        <span aria-hidden="true" className="hidden sm:block" />
       </div>
 
-      <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
+      <div className={CHASSIS_ROW_GRID}>
         <label
           className={`${cs.text.label} font-medium`}
           htmlFor="heat-sink-count"
@@ -151,46 +150,50 @@ function HeatSinkCountControl({
             <AppIcon name="add" size="inline" aria-hidden="true" />
           </button>
         </div>
-        <span className={`${cs.text.secondary} text-right tabular-nums`}>
-          {calculations.integralHeatSinks} fit in engine
-        </span>
+        <span aria-hidden="true" className="hidden sm:block" />
       </div>
     </div>
   );
 }
 
-function HeatSinkStats({
+/**
+ * Compact cooling readout shown in the Cooling section header. Plain counts, so
+ * no status colour; colour is reserved for state (over-budget, errors).
+ */
+export function HeatSinkStats({
   calculations,
 }: {
   readonly calculations: StructureTabCalculations;
 }): React.ReactElement {
+  const stats: ReadonlyArray<{ label: string; value: number }> = [
+    { label: 'in engine', value: calculations.integralHeatSinks },
+    { label: 'external', value: calculations.externalHeatSinks },
+    { label: 'dissipation', value: calculations.totalHeatDissipation },
+  ];
+
   return (
-    <div className="grid grid-cols-3 gap-2 text-center">
-      <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div
-          className={`text-lg font-semibold tabular-nums ${cs.text.valuePositive}`}
-        >
-          {calculations.integralHeatSinks}
-        </div>
-        <div className="text-text-theme-secondary text-xs">In engine</div>
-      </div>
-      <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div
-          className={`text-lg font-semibold tabular-nums ${calculations.externalHeatSinks > 0 ? cs.text.valueWarning : cs.text.value}`}
-        >
-          {calculations.externalHeatSinks}
-        </div>
-        <div className="text-text-theme-secondary text-xs">External</div>
-      </div>
-      <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div
-          className={`text-lg font-semibold tabular-nums ${cs.text.valueHighlight}`}
-        >
-          {calculations.totalHeatDissipation}
-        </div>
-        <div className="text-text-theme-secondary text-xs">Dissipation</div>
-      </div>
-    </div>
+    <p
+      className="m-0 flex flex-wrap items-baseline justify-end gap-x-2 gap-y-0.5 text-right"
+      data-testid="structure-heat-sink-stats"
+    >
+      {stats.map((stat, index) => (
+        <React.Fragment key={stat.label}>
+          {index > 0 && (
+            <span className="text-text-theme-muted" aria-hidden="true">
+              ·
+            </span>
+          )}
+          <span className="inline-flex items-baseline gap-1">
+            <span
+              className={`text-sm font-semibold tabular-nums ${cs.text.value}`}
+            >
+              {stat.value}
+            </span>
+            <span className={cs.text.secondary}>{stat.label}</span>
+          </span>
+        </React.Fragment>
+      ))}
+    </p>
   );
 }
 
@@ -212,7 +215,7 @@ function BaseChassisHeatSinkControl({
 
   return (
     <div className="border-border-theme-subtle border-t pt-3">
-      <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
+      <div className={CHASSIS_ROW_GRID}>
         <label
           className={`${cs.text.label} font-medium`}
           htmlFor="base-chassis-heat-sinks"
@@ -270,7 +273,7 @@ function BaseChassisHeatSinkControl({
             </button>
           </div>
         </div>
-        <span className={`${cs.text.secondary} text-right`}>
+        <span className={`${cs.text.secondary} ${CHASSIS_ROW_META}`}>
           {baseChassisHeatSinks === -1
             ? 'Auto'
             : `${baseChassisHeatSinks} fixed`}

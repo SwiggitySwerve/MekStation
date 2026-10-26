@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -150,6 +150,58 @@ describe('UnitLoadDialog', () => {
       // Check that Custom appears (multiple instances are expected)
       expect(screen.getAllByText('Custom').length).toBeGreaterThan(0);
     });
+  });
+
+  it('explains the blank starting unit and why Load Unit is disabled', async () => {
+    render(<UnitLoadDialog {...defaultProps} onCreateBlankUnit={jest.fn()} />);
+    expect(
+      screen.getByText(
+        '50-ton Inner Sphere BattleMech. Change settings in the editor.',
+      ),
+    ).not.toHaveClass('hidden');
+    const load = screen.getByRole('button', { name: 'Load Unit' });
+    expect(load).toBeDisabled();
+    expect(load).toHaveAccessibleDescription('Select a unit to load');
+    await userEvent.click(await screen.findByText('AS7-D'));
+    expect(load).toBeEnabled();
+    expect(screen.queryByText('Select a unit to load')).not.toBeInTheDocument();
+  });
+
+  it('puts Choose starting settings beside New blank unit in one row', () => {
+    render(
+      <UnitLoadDialog
+        {...defaultProps}
+        onCreateBlankUnit={jest.fn()}
+        onConfigureNewUnit={jest.fn()}
+      />,
+    );
+
+    const blank = screen.getByRole('button', { name: 'New blank unit' });
+    const settings = screen.getByRole('button', {
+      name: 'Choose starting settings',
+    });
+    expect(settings.parentElement).toBe(blank.parentElement);
+  });
+
+  it('marks the selected catalog row with a tint, accent bar and check', async () => {
+    const user = userEvent.setup();
+    render(<UnitLoadDialog {...defaultProps} />);
+    const row = await screen.findByRole('row', { name: /Atlas/ });
+    expect(row).not.toHaveClass('dialog-table-row-selected');
+
+    await user.click(row);
+
+    expect(row).toHaveClass('dialog-table-row-selected');
+    expect(row.className).toContain('inset_3px_0_0_var(--accent-primary)');
+    expect(row.querySelector('svg')).not.toBeNull();
+  });
+
+  it('shows a dash for units without a role', async () => {
+    render(<UnitLoadDialog {...defaultProps} />);
+
+    await screen.findByText('AS7-D');
+    const row = screen.getByText('AS7-D').closest('tr') as HTMLElement;
+    expect(within(row).getAllByText('\u2014').length).toBeGreaterThan(0);
   });
 
   it('should filter units by search query', async () => {

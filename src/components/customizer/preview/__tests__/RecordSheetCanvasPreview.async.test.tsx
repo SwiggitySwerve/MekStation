@@ -144,7 +144,7 @@ describe('record sheet preview async rendering and print', () => {
     await waitFor(() => expect(mockRenderPreview).toHaveBeenCalledTimes(1));
 
     await user.click(screen.getByRole('button', { name: 'Zoom in' }));
-    await user.click(screen.getByRole('button', { name: 'Fit Width' }));
+    await user.click(screen.getByRole('button', { name: 'Fit width' }));
 
     expect(mockRenderPreview).toHaveBeenCalledTimes(1);
   });

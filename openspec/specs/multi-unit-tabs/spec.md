@@ -31,7 +31,8 @@ Each tab SHALL display unit name with modification indicator.
 
 - **WHEN** tab renders
 - **THEN** unit name is shown (truncated at 48 chars max)
-- **AND** modified indicator appears in orange if unsaved changes exist
+- **AND** a background (inactive) tab shows the accent modified dot, named "Changes not saved to library", if unsaved changes exist; the active unit's save state is spelled out beside the Save button instead (for example "Draft saved in browser" over "Not in library"), so the header never repeats the same dot
+- **AND** on phones the name wraps onto a second line inside the tab instead of truncating
 - **AND** close button appears on hover
 
 #### Scenario: Active tab styling
@@ -276,19 +277,27 @@ The empty state SHALL provide quick access to unit creation and loading.
 #### Scenario: Empty state buttons
 
 - **WHEN** empty state is displayed
-- **THEN** "New Unit" button with document icon appears
-- **AND** "Load from Library" button with folder icon appears
-- **AND** icons match toolbar styling
+- **THEN** a centered composition shows a large mech icon in a soft tinted circle, a title, and one explanatory sentence
+- **AND** "New Unit" and "Load from Library" actions use shared icons and at least 44px touch targets
+- **AND** phone layouts keep 16px side margins
 
 #### Scenario: Empty state new unit
 
 - **WHEN** user clicks "New Unit" in empty state
-- **THEN** NewTabModal opens
+- **THEN** the Add unit dialog opens with blank-unit, starting-settings, and library choices
 
 #### Scenario: Empty state load unit
 
 - **WHEN** user clicks "Load from Library" in empty state
 - **THEN** UnitLoadDialog opens
+
+
+#### Scenario: Phone library dialog footer
+
+- **WHEN** the Add unit dialog is displayed on a phone
+- **THEN** the result count occupies its own line above a full-width Load Unit button
+- **AND** when no unit is selected, "Select a unit to load" is the button helper text
+- **AND** the scrollable unit list has bottom padding so its last row can be fully revealed above the footer
 
 ### Requirement: Tab Navigation Resilience
 

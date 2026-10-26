@@ -35,12 +35,23 @@ its separate Preview-before-Fluff order.
 #### Scenario: Phone section selection
 
 - **WHEN** the viewport is narrower than 640px
-- **THEN** a full-width, 48px-tall section selector SHALL show the full current section label and its position among the available sections
+- **THEN** a 48px-tall row SHALL place the section selector on the left and undo/redo on the right, with at least 44px touch targets
+- **AND** the selector SHALL show the full current section label and its position among the available sections
 - **AND** opening the selector SHALL disclose all section labels, the selected section, and the existing per-section validation counts
 - **AND** selecting a section SHALL use the existing tab change handler and close the disclosure
 - **AND** Escape SHALL close the disclosure and restore focus to its trigger; outside pointer interaction or focus leaving the disclosure SHALL also close it
-- **AND** undo, redo, and section tools SHALL remain reachable below the selector without reducing its width
+- **AND** save details SHALL be available in the build-status panel, with a failed browser draft write also shown in a visible red banner with Retry
+- **AND** the phone build-status control SHALL have its own slot beside the capacity readouts with room for a short status label
+- **AND** the active unit tab SHALL show its full name with wrapping as needed
+- **AND** the app bottom navigation SHALL be hidden on unit routes below 640px, while the hamburger menu keeps app navigation reachable and the Loadout bar remains at the bottom edge
 - **AND** at widths of 640px or greater the existing tablist, tab IDs, and panel associations SHALL remain intact
+
+#### Scenario: Stable section validation indicators
+
+- **WHEN** section validation counts change
+- **THEN** a fixed-size dot SHALL show red for errors or yellow for warnings (the same hues as the build-status button and panel), with errors taking precedence
+- **AND** the dot's accessible name and the section tab's accessible description SHALL include the validation counts
+- **AND** the indicator slot SHALL keep the same width when counts change or clear
 
 ---
 
@@ -135,6 +146,30 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **THEN** engine rating is calculated as tonnage × walkMP
 - **AND** engine rating is updated in the store
 
+#### Scenario: Cooling summary sits in the Cooling header
+
+- **WHEN** the Chassis panel renders its Cooling section
+- **THEN** the heat sink summary (heat sinks in the engine, external heat sinks, total dissipation) is shown as a right-aligned stat in the Cooling section header
+- **AND** it is not repeated as a separate row below the Installed stepper
+
+#### Scenario: Weight strip labels its subtotal
+
+- **WHEN** the Structure summary strip renders
+- **THEN** it lists engine, gyro, structure, cockpit, heat sink, jump jet (when present) and armor weight
+- **AND** the subtotal is labelled "Structure, systems & armor" and shown as "<subtotal>t of <tonnage>t"
+- **AND** the label makes clear that equipment weight is counted in the header total, not in this subtotal
+
+#### Scenario: Mobility uses one column per row
+
+- **WHEN** the Mobility panel renders
+- **THEN** Walk MP, Run MP and Jump MP each show a single control column: the stepper (or derived base value) followed by "→ <final> final"
+- **AND** there are no separate Base and Final column headers
+- **AND** the derived Run MP base value is plain text ("5 → 5 final", labeled "Run MP"), not an input-styled box, left-aligned on the same grid line as the steppers
+- **AND** every Chassis control (tonnage and Installed steppers, engine, gyro, structure, cockpit and heat sink selects) starts on one shared grid line, as do the Mobility steppers and selects
+- **AND** Jump Type stays enabled but is muted, with the hint "No jump jets installed", while Jump MP is 0
+- **AND** the Walk MP range and the Max Jump MP note appear as helper text directly under their stepper, linked with aria-describedby
+- **AND** the Jump Type helper states that mechanical jump boosters are not supported yet (they cannot be added as BattleMech equipment either)
+
 ### Requirement: Armor Tab
 
 The Armor tab SHALL manage armor type selection and location-based armor allocation.
@@ -151,6 +186,28 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 - **WHEN** user clicks Auto-Allocate button
 - **THEN** armor points are distributed optimally across all locations
 - **AND** location maximums are respected
+
+#### Scenario: Allocated total is explained in words
+
+- **WHEN** the Armor summary strip shows "Allocated <n> / <max> max"
+- **THEN** a plain-words line below it states the points bought by the current armor tonnage ("<points> pts from <tons> t")
+- **AND** when the chassis can still hold more armor than is allocated, the line adds how many more points fit and the extra tonnage they need (e.g. "3 more need +0.5 t")
+- **AND** when points are bought but unplaced, over the chassis max, or beyond the chassis max, the line names that count instead
+- **AND** all numbers come from the existing armor point and tonnage calculations
+- **AND** the "<points> pts from <tons> t" text appears only in the summary strip; the Armor inspector header shows just its title
+
+#### Scenario: Inspector aligns with the diagram
+
+- **WHEN** no armor location is selected on a wide layout
+- **THEN** no hint card is shown above the Armor inspector, so the inspector card starts at the same top edge as the Armor Allocation card
+- **AND** the one visible instruction lives in the diagram caption ("Front view · click a location to edit"), and the keyboard instruction (Tab to a location, then press Enter) remains available to assistive technology
+- **AND** when a location is selected the location editor takes the top of the inspector column, also level with the Armor Allocation card
+
+#### Scenario: Diagram and inspector cards end together
+
+- **WHEN** the Armor tab renders at xl or wider with no location selected
+- **THEN** the Armor Allocation card and the Armor inspector card stretch to the same bottom edge, with the inspector's controls spaced evenly and its legend row at the bottom, so no hollow space sits under either card
+- **AND** the diagram column is no longer sticky; when the location editor is open the diagram card stretches to the taller inspector column
 
 ### Requirement: Equipment Tab
 
@@ -195,13 +252,31 @@ The Criticals tab SHALL manage critical slot allocation and equipment placement.
 
 ### Requirement: Fluff Tab
 
-The Fluff tab SHALL display unit background and description information.
+The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and narrative text.
 
-#### Scenario: Placeholder display
+#### Scenario: Narrative text fields
 
 - **WHEN** user navigates to Fluff tab
-- **THEN** a Coming Soon message is displayed
-- **AND** feature preview cards show planned functionality
+- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a textarea at 16px text on a 1.5 line height, at least 4 rows, that fills its column
+- **AND** the textarea grows to show its whole content
+- **AND** when the editor is at least 70rem (1120px) wide, the fields form two columns (Overview + Capabilities, History + Deployment, Variants + Notable Units), each capped near 75 characters per line; below that they form one full-width column
+- **AND** an empty optional field shows a muted "Optional" tag next to its label
+
+#### Scenario: Battlefield role
+
+- **WHEN** the Fluff tab renders an editable unit
+- **THEN** the Combat Role select sits in the Battlefield Role card body, under the subtitle, about 320px wide
+
+#### Scenario: Placeholders read as examples
+
+- **WHEN** a Fluff field that is empty shows placeholder text
+- **THEN** the placeholder begins with "e.g." and is drawn in muted italic placeholder styling, so it cannot be mistaken for a saved value
+
+#### Scenario: Removing a system manufacturer
+
+- **WHEN** an editable unit lists system manufacturers
+- **THEN** each row has a low-emphasis icon-only remove button that is still 44px square and keyboard reachable
+- **AND** the button reaches full contrast on hover and keyboard focus
 
 ### Requirement: Preview Tab
 

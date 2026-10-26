@@ -89,10 +89,10 @@ describe('InfantryPreviewTab — non-mech crash regression gate', () => {
       screen.getByRole('button', { name: 'Zoom out' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Fit Width' }),
+      screen.getByRole('button', { name: 'Fit width' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Fit Page' }),
+      screen.getByRole('button', { name: 'Fit page' }),
     ).toBeInTheDocument();
   });
 });

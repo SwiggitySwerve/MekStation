@@ -40,14 +40,19 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 #### Scenario: Desktop catalog columns
 
 - **WHEN** the equipment catalog is rendered at desktop width
-- **THEN** Name, Type, Tons, Slots, Heat, and Add occupy one six-column grid
-- **AND** Name, Tons, and Slots expose sort controls and the selected sort direction
+- **THEN** Name, Dmg, Range (S/M/L), Heat, Tons, Slots, and Add occupy one seven-column grid, with Type as secondary text directly under Name
+- **AND** rows use hairline dividers and a 4px category accent instead of full card borders
+- **AND** Name fills remaining width with a 240px minimum, numeric columns use fixed 72–96px right-aligned tracks, and Add controls align to the right edge
+- **AND** only the active Name, Tons, or Slots sort shows a filled directional arrow in the accent color; inactive arrows appear faintly on hover or keyboard focus, with pressed state and direction conveyed by accessible names; combat statistics remain plain headers
+- **AND** damage, range, and heat use the existing weapon lookup and display a dash for non-weapons
+- **AND** both desktop and phone detail toggles have a visible chevron
 - **AND** the sticky header remains in the same scroll region as the catalog rows
+- **AND** bottom list padding and row scroll margins allow the final row to be fully visible above pagination: after scrolling to the end at 1440?900 and 390?844, its bottom is no lower than the footer top
 
 #### Scenario: Narrow catalog
 
 - **WHEN** the catalog is displayed at a narrow viewport
-- **THEN** each row retains its equipment name, technology, weight or variable-property summary, detail toggle, and accessible Add control
+- **THEN** each row retains its equipment name, weight or variable-property summary, detail toggle, and accessible Add control
 - **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
 - **AND** expanding details makes weapon and equipment statistics available
 
@@ -602,7 +607,7 @@ The catalog SHALL use translucent category-colored row backgrounds with opaque r
 - **WHEN** rows render in supported themes and viewport sizes
 - **THEN** category colors remain recognizable without fully opaque fills
 - **AND** text, focus, selection, details and Add controls remain readable and operable
-- **AND** desktop headings and matching name, type, numeric and action cells share one six-column grid with a sticky header in the same scrolling region
+- **AND** desktop headings and matching name, type, numeric and action cells share one seven-column grid with a sticky header in the same scrolling region
 - **AND** ordinary collapsed desktop rows are no taller than 48px while Add keeps a 44px hit target around a smaller plus control
 
 ### Requirement: Add and place from catalog
@@ -611,7 +616,7 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 
 #### Scenario: Valid placement
 
-- **WHEN** that row's details are expanded and a legal location is confirmed
+- **WHEN** Add and choose location? is selected from a row's Add options menu and a legal location is confirmed
 - **THEN** a new equipment instance is added and assigned legal slots
 - **AND** weight and critical slots include variable-equipment calculations
 - **AND** one Undo reverses the whole operation and Redo restores it
@@ -636,8 +641,35 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 
 - **WHEN** Add is used without placement
 - **THEN** a copy is added unassigned through the existing workflow
-- **AND** the collapsed-row Add control is a plus that keeps the Add name accessible
-- **AND** Add and place is not shown until that row's details are expanded
+- **AND** each row shows one low-emphasis split action in a fixed-width column on desktop and phone, with a plus and visible Add text, accessible name `Add <name>`, and tooltip `Add to unassigned`
+- **AND** when placement is available, a caret named `Add options for <name>` opens a menu with `Add to unassigned` and `Add and choose location?`; the placement item retains accessible name `Add and place <name>`
+- **AND** the caret is omitted when placement is unavailable; read-only mode disables both parts
+- **AND** the action stays in the same column and position when details expand
+- **AND** both parts and menu items have at least 44px hit areas; keyboard users can open the menu, navigate with arrow keys, and dismiss with Escape, returning focus to the caret
+
+### Requirement: Catalog comparison and filter clarity
+
+The catalog SHALL expose comparison data before expansion and describe the filters actually applied.
+
+#### Scenario: Phone comparison
+
+- **WHEN** browsing on a phone
+- **THEN** names use 16px text and specs use wrapping 14px lines with explicit Dmg, Range, and Heat labels, followed by weight and slot count
+- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained
+- **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
+
+#### Scenario: Active filters
+
+- **WHEN** visibility filters are active
+- **THEN** the Filters label names those criteria while retaining its Visibility filters accessible name
+- **AND** availability describes catalog tech base and listed introduction year, without claiming extinction, reintroduction, or rules legality checks
+
+#### Scenario: Expanded equipment details
+
+- **WHEN** equipment details are expanded on desktop
+- **THEN** metadata fills a three-column grid aligned to the equipment name indent
+- **AND** the expanded panel contains details only, without Add buttons
+- **AND** the row split action remains visibly at least 44px tall
 
 ## Hook Architecture
 

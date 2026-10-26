@@ -83,18 +83,25 @@ describe('RecordSheetCanvasPreview zoom', () => {
     installViewportMocks();
   });
 
-  it('starts in fit-page mode', () => {
+  it('starts in fit-width mode', () => {
     render(<ZoomHarness />);
 
-    expect(zoomOutput()).toHaveTextContent('120%');
-    expect(screen.getByRole('button', { name: 'Fit Page' })).toHaveAttribute(
+    expect(zoomOutput()).toHaveTextContent('Fit width \u00b7 123%');
+    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
-    expect(screen.getByRole('button', { name: 'Fit Width' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Fit page' })).toHaveAttribute(
       'aria-pressed',
       'false',
     );
+  });
+
+  it('caps the sheet width when the viewer is very wide', () => {
+    viewport.width = 2400;
+    render(<ZoomHarness />);
+
+    expect(screen.getByTestId('sheet-canvas').style.width).toBe('920px');
   });
 
   it('starts at fit width on phones and preserves an explicit fit-page choice', async () => {
@@ -105,15 +112,15 @@ describe('RecordSheetCanvasPreview zoom', () => {
     try {
       const user = userEvent.setup();
       render(<ZoomHarness />);
-      expect(zoomOutput()).toHaveTextContent('56%');
-      expect(screen.getByRole('button', { name: 'Fit Width' })).toHaveAttribute(
+      expect(zoomOutput()).toHaveTextContent('Fit width \u00b7 56%');
+      expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
         'aria-pressed',
         'true',
       );
-      await user.click(screen.getByRole('button', { name: 'Fit Page' }));
+      await user.click(screen.getByRole('button', { name: 'Fit page' }));
       fireResize(390, 400);
-      expect(zoomOutput()).toHaveTextContent('44%');
-      expect(screen.getByRole('button', { name: 'Fit Page' })).toHaveAttribute(
+      expect(zoomOutput()).toHaveTextContent('Fit page \u00b7 44%');
+      expect(screen.getByRole('button', { name: 'Fit page' })).toHaveAttribute(
         'aria-pressed',
         'true',
       );
@@ -129,8 +136,8 @@ describe('RecordSheetCanvasPreview zoom', () => {
     const zoomIn = screen.getByRole('button', { name: 'Zoom in' });
     const zoomOut = screen.getByRole('button', { name: 'Zoom out' });
 
-    expect(zoomIn.className).toMatch(/min-h-\[44px\]/);
-    expect(zoomOut.className).toMatch(/min-h-\[44px\]/);
+    expect(zoomIn.className).toMatch(/min-h-11/);
+    expect(zoomOut.className).toMatch(/min-h-11/);
     expect(zoomIn).toHaveClass('min-w-11');
     expect(zoomOut).toHaveClass('min-w-11');
 
@@ -146,41 +153,62 @@ describe('RecordSheetCanvasPreview zoom', () => {
     });
   });
 
+  it('keeps 100% across resize and shows it as the pressed mode', async () => {
+    const user = userEvent.setup();
+    render(<ZoomHarness />);
+
+    await user.click(screen.getByRole('button', { name: '100%' }));
+    expect(screen.getByRole('button', { name: '100%' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(zoomOutput()).toHaveTextContent('100%');
+
+    fireResize(390, 700);
+
+    expect(zoomOutput()).toHaveTextContent('100%');
+    expect(screen.getByTestId('sheet-canvas').style.width).toBe('612px');
+  });
+
   it('does not let a ResizeObserver callback override manual zoom', async () => {
     const user = userEvent.setup();
     render(<ZoomHarness />);
 
     await user.click(screen.getByRole('button', { name: 'Zoom in' }));
-    expect(zoomOutput()).toHaveTextContent('135%');
-    expect(screen.getByRole('button', { name: 'Fit Page' })).toHaveAttribute(
+    expect(zoomOutput()).toHaveTextContent('138%');
+    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
       'aria-pressed',
       'false',
     );
 
     fireResize(1290, 912);
 
-    expect(zoomOutput()).toHaveTextContent('135%');
+    expect(zoomOutput()).toHaveTextContent('138%');
   });
 
   it('recalculates only the selected fit mode on resize', async () => {
     const user = userEvent.setup();
     const { rerender } = render(<ZoomHarness />);
 
+    // Fit width follows the viewer, up to the readable-width cap.
     fireResize(1600, 400);
-    expect(zoomOutput()).toHaveTextContent('44%');
+    expect(zoomOutput()).toHaveTextContent('Fit width \u00b7 150%');
 
-    await user.click(screen.getByRole('button', { name: 'Fit Width' }));
-    expect(zoomOutput()).toHaveTextContent('254%');
-    expect(screen.getByRole('button', { name: 'Fit Width' })).toHaveAttribute(
+    await user.click(screen.getByRole('button', { name: 'Fit page' }));
+    expect(zoomOutput()).toHaveTextContent('Fit page \u00b7 44%');
+
+    await user.click(screen.getByRole('button', { name: 'Fit width' }));
+    expect(zoomOutput()).toHaveTextContent('Fit width \u00b7 150%');
+    expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
 
     fireResize(800, 400);
-    expect(zoomOutput()).toHaveTextContent('123%');
+    expect(zoomOutput()).toHaveTextContent('Fit width \u00b7 123%');
 
-    await user.click(screen.getByRole('button', { name: 'Fit Page' }));
-    expect(zoomOutput()).toHaveTextContent('44%');
+    await user.click(screen.getByRole('button', { name: 'Fit page' }));
+    expect(zoomOutput()).toHaveTextContent('Fit page \u00b7 44%');
 
     fireResize(800, 1000);
     expect(zoomOutput()).toHaveTextContent('120%');

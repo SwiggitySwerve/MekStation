@@ -1,9 +1,13 @@
 import React from 'react';
 
-import { Button } from '@/components/ui/Button';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 
 import type { RecordSheetPreviewZoomMode } from './recordSheetPreviewZoom';
+
+import {
+  PREVIEW_SEGMENT_CLASS,
+  PREVIEW_SEGMENT_GROUP_CLASS,
+} from './previewToolbarStyles';
 
 interface RecordSheetPreviewZoomControlsProps {
   readonly zoom: number;
@@ -12,8 +16,15 @@ interface RecordSheetPreviewZoomControlsProps {
   readonly onZoomOut: () => void;
   readonly onFitToWidth: () => void;
   readonly onFitToPage: () => void;
+  readonly onActualSize: () => void;
+  readonly className?: string;
 }
 
+/**
+ * Zoom stepper (- 100% +) beside a segmented Fit page / Fit width / 100%
+ * control. The active mode is the pressed segment; stepping the zoom leaves
+ * all three unpressed (manual zoom).
+ */
 export function RecordSheetPreviewZoomControls({
   zoom,
   mode,
@@ -21,70 +32,85 @@ export function RecordSheetPreviewZoomControls({
   onZoomOut,
   onFitToWidth,
   onFitToPage,
+  onActualSize,
+  className = '',
 }: RecordSheetPreviewZoomControlsProps): React.ReactElement {
   return (
     <div
-      className="border-border-theme-subtle bg-surface-base flex shrink-0 flex-wrap items-center justify-center gap-1 border-t p-1.5 sm:justify-end"
+      className={`flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap ${className}`}
       role="group"
       aria-label="Record sheet zoom controls"
     >
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={onZoomOut}
-        aria-label="Zoom out"
-        className="min-w-11 px-2 text-lg leading-none"
-      >
-        <SvgIcon size="inline" aria-hidden="true">
-          <circle cx="10" cy="10" r="7" />
-          <path d="m15 15 7 7M7 10h6" />
-        </SvgIcon>
-      </Button>
-      <output
-        className="text-text-theme-primary min-w-14 px-1 text-center text-xs font-medium tabular-nums"
-        aria-live="polite"
-        aria-label="Current zoom"
-      >
-        {Math.round(zoom * 100)}%
-      </output>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={onZoomIn}
-        aria-label="Zoom in"
-        className="min-w-11 px-2 text-lg leading-none"
-      >
-        <SvgIcon size="inline" aria-hidden="true">
-          <circle cx="10" cy="10" r="7" />
-          <path d="m15 15 7 7M7 10h6M10 7v6" />
-        </SvgIcon>
-      </Button>
       <div
-        aria-hidden="true"
-        className="border-border-theme mx-1 h-6 border-l"
-      />
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={onFitToWidth}
-        aria-pressed={mode === 'fit-width'}
-        className="min-w-11 px-3 text-xs"
+        className={`${PREVIEW_SEGMENT_GROUP_CLASS} w-full shrink-0 sm:w-auto`}
       >
-        Fit Width
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={onFitToPage}
-        aria-pressed={mode === 'fit-page'}
-        className="min-w-11 px-3 text-xs"
+        <button
+          type="button"
+          onClick={onZoomOut}
+          aria-label="Zoom out"
+          className={PREVIEW_SEGMENT_CLASS}
+        >
+          <SvgIcon size="inline" aria-hidden="true">
+            <circle cx="10" cy="10" r="7" />
+            <path d="m15 15 7 7M7 10h6" />
+          </SvgIcon>
+        </button>
+        <output
+          className="text-text-theme-primary inline-flex min-w-14 flex-1 items-center justify-center px-3 text-center text-[13px] font-medium whitespace-nowrap tabular-nums"
+          aria-live="polite"
+          aria-label="Current zoom"
+        >
+          {mode === 'fit-width'
+            ? 'Fit width · '
+            : mode === 'fit-page'
+              ? 'Fit page · '
+              : ''}
+          {Math.round(zoom * 100)}%
+        </output>
+        <button
+          type="button"
+          onClick={onZoomIn}
+          aria-label="Zoom in"
+          className={PREVIEW_SEGMENT_CLASS}
+        >
+          <SvgIcon size="inline" aria-hidden="true">
+            <circle cx="10" cy="10" r="7" />
+            <path d="m15 15 7 7M7 10h6M10 7v6" />
+          </SvgIcon>
+        </button>
+      </div>
+
+      <div
+        className={`${PREVIEW_SEGMENT_GROUP_CLASS} min-w-0 flex-1 sm:flex-none`}
+        role="group"
+        aria-label="Sheet size"
       >
-        Fit Page
-      </Button>
+        <button
+          type="button"
+          onClick={onFitToPage}
+          aria-pressed={mode === 'fit-page'}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
+        >
+          Fit page
+        </button>
+        <button
+          type="button"
+          onClick={onFitToWidth}
+          aria-pressed={mode === 'fit-width'}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
+        >
+          Fit width
+        </button>
+        <button
+          type="button"
+          onClick={onActualSize}
+          aria-pressed={mode === 'actual'}
+          title="Actual size — scroll to read the full sheet"
+          className={`${PREVIEW_SEGMENT_CLASS} max-sm:bg-surface-base max-sm:text-text-theme-primary flex-1 whitespace-nowrap max-sm:font-semibold`}
+        >
+          100%
+        </button>
+      </div>
     </div>
   );
 }

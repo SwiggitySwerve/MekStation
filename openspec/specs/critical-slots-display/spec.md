@@ -179,7 +179,7 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 
 #### Scenario: Sort action execution
 
-- **WHEN** user clicks Sort button
+- **WHEN** user clicks Auto-arrange in the toolbar or Sort in the slot tools
 - **THEN** equipment in each location is sorted by critical slot count (largest first)
 - **AND** equipment with equal slot counts is sorted alphabetically by name
 - **AND** largest equipment goes to lowest indices (top of the list)
@@ -187,10 +187,25 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 
 #### Scenario: Reset action execution
 
-- **WHEN** user clicks Reset button
+- **WHEN** user opens Reset and confirms Reset slot assignments in the reset confirmation dialog
 - **THEN** all equipment locations are cleared
 - **AND** all equipment moves to unallocated state
 - **AND** fixed system components remain in place
+
+#### Scenario: Separate arrangement and reset controls
+
+- **WHEN** the critical slot toolbar is displayed
+- **THEN** Auto-arrange is a primary action separate from Reset
+- **AND** the slot tools disclose automatic toggles and the Fill, Compact, and Sort actions
+- **AND** opening or cancelling Reset does not change slot assignments
+
+#### Scenario: Phone location navigation
+
+- **WHEN** critical slots are displayed on a phone
+- **THEN** a labelled Location selector lists full location names and occupied slot counts
+- **AND** selecting a location displays only its slot grid, without a duplicate location heading or accordion
+- **AND** keyboard focus remains on the selector, which has at least a 44px touch target
+- **AND** selecting equipment reveals the first assignable location
 
 #### Scenario: Fill skips already-placed unhittables
 

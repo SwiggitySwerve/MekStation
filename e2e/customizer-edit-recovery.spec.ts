@@ -252,7 +252,14 @@ test('save, reload and restore history retain exact library versions and undo on
     expect((await draft(page)).id).toBe(originalId);
     expect((await draft(page)).clanName).toBe('Recovery One');
     expect((await draft(page)).librarySave.version).toBe(2);
-    await expect(page.getByText(/Changes since library save/)).toBeVisible();
+    await expect(page.getByText(/Changed since v2\b/).first()).toBeVisible();
+    // Unsaved library changes make Save the primary action; no bare dot.
+    const saveButton = page.getByRole('button', {
+      name: 'Save active unit to library',
+      exact: true,
+    });
+    await expect(saveButton).toHaveAttribute('data-save-emphasis', 'primary');
+    await expect(page.locator('[data-save-dot]')).toHaveCount(0);
     await undo(page);
     expect((await draft(page)).clanName).toBe('Recovery Two');
     await redo(page);
@@ -298,7 +305,13 @@ test('save, reload and restore history retain exact library versions and undo on
     await latestDialog.getByRole('button', { name: /Restore.*v3/i }).click();
     await expect(latestDialog).toBeHidden();
     expect((await draft(page)).isModified).toBe(false);
-    await expect(page.getByText(/Saved to library/)).toBeVisible();
+    await expect(page.getByText(/In library v3\b/).first()).toBeVisible();
+    await expect(
+      page.getByRole('button', {
+        name: 'Save active unit to library',
+        exact: true,
+      }),
+    ).toHaveAttribute('data-save-emphasis', 'quiet');
     await page.evaluate(() => {
       const original = Storage.prototype.setItem;
       const currentKey = `megamek-unit-${location.pathname.split('/')[2]}`;
@@ -314,20 +327,25 @@ test('save, reload and restore history retain exact library versions and undo on
       };
     });
     await page.getByLabel('Clan name', { exact: true }).fill('Browser Retry');
-    await expect(
-      page.getByText('Draft save failed in this browser', { exact: true }),
-    ).toBeVisible();
+    const failedDraft = page
+      .getByRole('status')
+      .filter({ hasText: 'Browser draft not saved' });
+    await expect(failedDraft).toBeVisible();
     await page.evaluate(() => {
       (
         window as unknown as { restoreDraftStorage: () => void }
       ).restoreDraftStorage();
     });
-    await page
+    await failedDraft
       .getByRole('button', { name: 'Retry browser draft', exact: true })
       .click();
+    await expect(failedDraft).toBeHidden();
     await expect(
-      page.getByText('Draft saved in this browser', { exact: true }),
-    ).toBeVisible();
+      page.getByRole('button', {
+        name: 'Save active unit to library',
+        exact: true,
+      }),
+    ).toHaveAccessibleDescription(/Draft saved in this browser/);
     expect((await draft(page)).clanName).toBe('Browser Retry');
     expect((await (await page.request.get(url)).json()).currentVersion).toBe(3);
     await undo(page);

@@ -84,6 +84,14 @@ test('workbench preserves readable metrics and a stable scrolling workspace @cus
       .getByRole('group', { name: 'Edit history', exact: true })
       .boundingBox();
     expect(editControls?.height).toBe(44);
+    // The section tabs fill the bar: no empty band before the edit controls.
+    const lastSection = await page
+      .getByTestId('customizer-section-bar')
+      .getByRole('tab', { name: 'Preview', exact: true })
+      .boundingBox();
+    expect(
+      editControls!.x - (lastSection!.x + lastSection!.width),
+    ).toBeLessThanOrEqual(24);
     // Edit history shares the section bar instead of adding its own band.
     expect(editControls!.y).toBeGreaterThanOrEqual(before.section.y);
     expect(editControls!.y + editControls!.height).toBeLessThanOrEqual(
@@ -92,9 +100,18 @@ test('workbench preserves readable metrics and a stable scrolling workspace @cus
     expect(before.workspace.y).toBe(before.section.y + before.section.height);
     expect(before.workspace.height).toBe(viewport.height - before.workspace.y);
     expect(before.documentOverflow).toBe(0);
-    const readouts = page.locator('[data-testid^="unit-info-stat-"]');
-    // Tonnage is the weight cap, so the strip has nine readouts.
-    await expect(readouts).toHaveCount(9);
+    // Seven cells; Movement retains separate walk/run/jump value spans.
+    const readouts = page.locator('div[data-testid^="unit-info-stat-"]');
+    await expect(readouts).toHaveCount(7);
+    const movement = page.getByTestId('unit-info-stat-movement');
+    await expect(movement).toHaveAccessibleName(
+      'Movement: walk 3, run 5, jump 0 MP',
+    );
+    for (const stat of ['walk', 'run', 'jump']) {
+      await expect(
+        movement.getByTestId(`unit-info-stat-${stat}`),
+      ).toBeVisible();
+    }
     for (const metric of await readouts.all()) {
       await expect(metric).toBeVisible();
       expect(
@@ -186,7 +203,7 @@ test('unit commands preserve live tech identity, rename and unit isolation @cust
   const atlasTab = page.getByRole('tab', { name: 'Atlas AS7-D', exact: true });
   await expect(atlasTab.getByText('IS', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
-  await page.getByText('Component technology', { exact: true }).click();
+  await page.getByText('Change tech base', { exact: true }).click();
   await page
     .getByTitle('All components use Clan technology', { exact: true })
     .click();
@@ -249,47 +266,55 @@ test('validation keeps section badges, guidance and focused destinations @custom
     .fill('ER PPC');
   await page.getByRole('button', { name: 'Add ER PPC', exact: true }).click();
   const overall = page.locator('[aria-label="Unit validation"]');
-  const errorButton = overall.getByRole('button', {
-    name: /errors?, show issues$/,
+  // One build-status button names every group, in the shared wording, and
+  // opens one panel.
+  const statusButton = overall.getByRole('button', {
+    name: /Not legal · \d+ errors? · \d+ warnings?.*, show issues$/,
   });
-  const warningButton = overall.getByRole('button', {
-    name: /warnings?, show issues$/,
-  });
-  await expect(errorButton).toBeVisible();
-  await expect(warningButton).toBeVisible();
+  await expect(statusButton).toBeVisible();
+  await expect(statusButton).toHaveAttribute('data-build-status', 'error');
+  await expect(statusButton).toContainText(/1 error\s*·\s*1 warning/);
+  // Section dots mark where the fix happens: overweight is fixed on Equipment.
+  await expect(
+    page
+      .getByRole('tab', { name: 'Equipment', exact: true })
+      .locator('[aria-label="1 error"]'),
+  ).toBeVisible();
   await expect(
     page
       .getByRole('tab', { name: 'Structure', exact: true })
       .locator('[aria-label="1 error"]'),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(
     page
       .getByRole('tab', { name: 'Critical Slots', exact: true })
       .locator('[aria-label="1 warning"]'),
   ).toBeVisible();
-  expect(
-    await errorButton.evaluate((element) => getComputedStyle(element).color),
-  ).not.toBe(
-    await warningButton.evaluate((element) => getComputedStyle(element).color),
-  );
-  await warningButton.focus();
-  await warningButton.press('Enter');
-  const issues = page.getByRole('dialog', { name: /Atlas AS7-D.*Warnings/ });
+  await statusButton.focus();
+  await statusButton.press('Enter');
+  const issues = page.getByRole('dialog', {
+    name: /Atlas AS7-D.*Build status.*Not legal/,
+  });
   await expect(issues).toBeVisible();
   const issue = issues
+    .getByRole('region', { name: 'Warnings' })
     .locator('[data-validation-issue]')
     .filter({ hasText: 'ER PPC' });
   await expect(issue).toContainText('Select the equipment in Critical Slots');
-  await expect(issue).toContainText('Go to Critical Slots');
+  const placeIssue = issue.getByRole('button', {
+    name: 'Go to Critical Slots',
+    exact: true,
+  });
+  await expect(placeIssue).toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath('warning-guidance.png'),
     fullPage: true,
   });
   await page.keyboard.press('Escape');
   await expect(issues).toBeHidden();
-  await expect(warningButton).toBeFocused();
-  await warningButton.click();
-  await issue.click();
+  await expect(statusButton).toBeFocused();
+  await statusButton.click();
+  await placeIssue.click();
   await expect(
     page.getByRole('tab', { name: 'Critical Slots', exact: true }),
   ).toHaveAttribute('aria-selected', 'true');
@@ -297,25 +322,32 @@ test('validation keeps section badges, guidance and focused destinations @custom
   await expect(placement).toBeFocused();
   await expect(placement).toContainText('ER PPC');
   expect((await readDraft(page)).id).toBe(id);
-  await errorButton.click();
-  const errorIssue = page
-    .getByRole('dialog', { name: /Atlas AS7-D.*Errors/ })
+  await statusButton.click();
+  // Overweight names its cause and offers the tabs that change carried weight.
+  const errorIssue = issues
+    .getByRole('region', { name: 'Errors' })
     .locator('[data-validation-issue]')
-    .filter({ hasText: /weight|tonnage/i })
+    .filter({ hasText: /Overweight by/ })
     .first();
-  await errorIssue.click();
+  await expect(errorIssue.locator('[data-validation-fix]')).toHaveText([
+    /Go to Equipment/,
+    /Go to Armor/,
+  ]);
+  await errorIssue
+    .getByRole('button', { name: 'Go to Armor', exact: true })
+    .click();
   await expect(
-    page.getByRole('tab', { name: 'Structure', exact: true }),
+    page.getByRole('tab', { name: 'Armor', exact: true }),
   ).toHaveAttribute('aria-selected', 'true');
   await expect(
-    page.getByRole('tabpanel', { name: 'Structure', exact: true }),
+    page.getByRole('tabpanel', { name: 'Armor', exact: true }),
   ).toBeFocused();
   expect((await readDraft(page)).id).toBe(id);
   await page
-    .getByRole('button', { name: 'Wide workspace', exact: true })
+    .getByRole('button', { name: 'Hide loadout panel', exact: true })
     .click();
-  await warningButton.click();
-  await issue.click();
+  await statusButton.click();
+  await placeIssue.click();
   const wideDrawer = page.getByRole('dialog', {
     name: 'Unit loadout',
     exact: true,
@@ -327,8 +359,8 @@ test('validation keeps section badges, guidance and focused destinations @custom
   await page.keyboard.press('Escape');
   await expect(wideDrawer).toBeHidden();
   await page.setViewportSize({ width: 390, height: 844 });
-  await warningButton.click();
-  await issue.click();
+  await statusButton.click();
+  await placeIssue.click();
   const mobileDrawer = page.getByRole('dialog', {
     name: 'Equipment Loadout',
     exact: true,
@@ -358,6 +390,156 @@ test('notifications leave pinned metrics unobstructed @customizer', async ({
   );
 });
 
+test('critical locations fit desktop and use one phone location selector @customizer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/customizer');
+  await loadUnit(page);
+  const desktop = page.getByTestId('critical-slots-grid-desktop');
+  const checkDesktop = async () => {
+    await expect(desktop).toBeVisible();
+    const key = page.getByRole('group', { name: 'Colour key', exact: true });
+    await expect(key).toBeVisible();
+    for (const label of [
+      'Energy',
+      'Ballistic',
+      'Missile',
+      'Heat Sink',
+      'Fixed systems',
+      'Empty',
+    ])
+      await expect(key.getByText(label, { exact: true })).toBeVisible();
+    for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
+      const box = (await swatch.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(12);
+      expect(box.height).toBeGreaterThanOrEqual(12);
+    }
+    for (const label of await key.locator('span').all()) {
+      expect(
+        await label.evaluate((element) =>
+          parseFloat(getComputedStyle(element).fontSize),
+        ),
+      ).toBeGreaterThanOrEqual(12);
+    }
+    await expect(
+      page.getByRole('button', { name: 'Colour key', exact: true }),
+    ).toBeHidden();
+    await expect(
+      page.getByRole('button', { name: 'Auto-arrange', exact: true }),
+    ).toBeVisible();
+    await expect
+      .poll(() =>
+        desktop.evaluate(
+          (element) => element.scrollHeight - element.clientHeight,
+        ),
+      )
+      .toBeLessThanOrEqual(2);
+    await expect(page.getByText('Scroll for more locations')).toBeHidden();
+    const tops = await desktop
+      .locator(':scope > div > *')
+      .evaluateAll((columns) =>
+        columns.map((column) => column.getBoundingClientRect().top),
+      );
+    expect(Math.max(...tops) - Math.min(...tops)).toBeLessThanOrEqual(1);
+    for (const name of ['Right Leg critical slots', 'Left Leg critical slots'])
+      await expect(
+        desktop.getByRole('group', { name, exact: true }),
+      ).toBeInViewport({ ratio: 1 });
+  };
+  await page.getByRole('tab', { name: 'Critical Slots', exact: true }).click();
+  await checkDesktop();
+  await page.getByRole('tab', { name: 'Equipment', exact: true }).click();
+  await page
+    .getByRole('textbox', { name: 'Search equipment', exact: true })
+    .fill('ER PPC');
+  await page.getByRole('button', { name: 'Add ER PPC', exact: true }).click();
+  await page.getByRole('tab', { name: 'Critical Slots', exact: true }).click();
+  await expect(
+    page.getByRole('region', { name: 'Equipment to place' }),
+  ).toBeVisible();
+  await checkDesktop();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(
+    page.getByRole('group', { name: 'Colour key', exact: true }),
+  ).toBeHidden();
+  await expect(
+    page.getByRole('button', { name: 'Colour key', exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth - innerWidth,
+    ),
+  ).toBe(0);
+  await expect(
+    page.getByText('Front view · Right side on the left'),
+  ).toBeHidden();
+  const phone = page.getByTestId('critical-slots-grid-mobile');
+  const shortcuts = phone.getByRole('navigation', {
+    name: 'Critical slot location shortcuts',
+  });
+  const locationSelect = shortcuts.getByRole('combobox', { name: 'Location' });
+  await expect(locationSelect.getByRole('option')).toHaveCount(8);
+  expect(await locationSelect.getByRole('option').allTextContents()).toEqual([
+    expect.stringMatching(/^Right Arm /),
+    expect.stringMatching(/^Right Torso /),
+    expect.stringMatching(/^Head /),
+    expect.stringMatching(/^Center Torso /),
+    expect.stringMatching(/^Left Torso /),
+    expect.stringMatching(/^Left Arm /),
+    expect.stringMatching(/^Right Leg /),
+    expect.stringMatching(/^Left Leg /),
+  ]);
+  expect((await locationSelect.boundingBox())!.height).toBeGreaterThanOrEqual(
+    44,
+  );
+  await expect(phone.locator('h3 button')).toHaveCount(0);
+  await locationSelect.selectOption('Left Leg');
+  await expect(locationSelect).toHaveValue('Left Leg');
+  await expect(
+    phone.getByRole('group', { name: 'Left Leg critical slots', exact: true }),
+  ).toBeVisible();
+  await expect(
+    phone.getByRole('group', { name: /critical slots$/ }),
+  ).toHaveCount(1);
+  await expect(shortcuts).toBeInViewport({ ratio: 1 });
+  await page
+    .getByRole('button', { name: 'Select ER PPC', exact: true })
+    .click();
+  const arm = phone.getByRole('group', {
+    name: 'Right Arm critical slots',
+    exact: true,
+  });
+  await expect(arm).toBeVisible();
+  const slot = arm.getByRole('gridcell', { name: /empty/i }).first();
+  expect((await slot.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(
+    await slot.evaluate((element) =>
+      parseFloat(getComputedStyle(element).fontSize),
+    ),
+  ).toBeGreaterThanOrEqual(14);
+  await slot.click();
+  await expect(
+    page.getByRole('region', { name: 'Equipment to place' }),
+  ).toBeHidden();
+  await expect(
+    arm.getByRole('gridcell', { name: /ER PPC/ }).first(),
+  ).toBeVisible();
+  // The unit name shows once on phones, in full, inside its tab.
+  await expect(page.getByTestId('phone-unit-name')).toHaveCount(0);
+  const unitName = page
+    .getByRole('tab', { name: 'Atlas AS7-D', exact: true })
+    .locator('[data-unit-tab-name]');
+  await expect(unitName).toHaveText('Atlas AS7-D');
+  expect(
+    await unitName.evaluate(
+      (element) =>
+        element.scrollHeight <= element.clientHeight &&
+        element.scrollWidth <= element.clientWidth,
+    ),
+  ).toBe(true);
+});
+
 test('active section remains visible after viewport resize @customizer', async ({
   page,
 }) => {
@@ -373,8 +555,22 @@ test('active section remains visible after viewport resize @customizer', async (
   });
   await expect(selector).toBeInViewport({ ratio: 1 });
   const selectorBox = (await selector.boundingBox())!;
-  expect(selectorBox.width).toBeGreaterThanOrEqual(380);
-  expect(selectorBox.height).toBe(48);
+  const history = page.getByRole('group', {
+    name: 'Edit history',
+    exact: true,
+  });
+  await expect(history).toBeInViewport({ ratio: 1 });
+  const historyBox = (await history.boundingBox())!;
+  // The selector fills the phone row beside the 44px undo/redo controls.
+  expect(selectorBox.width).toBeGreaterThanOrEqual(260);
+  expect(selectorBox.height).toBe(44);
+  expect(historyBox.y).toBe(selectorBox.y);
+  expect(historyBox.x).toBeGreaterThanOrEqual(
+    selectorBox.x + selectorBox.width,
+  );
+  expect(historyBox.x - selectorBox.x - selectorBox.width).toBeLessThanOrEqual(
+    12,
+  );
   await selector.click();
   const active = page.getByRole('tab', { name: 'Critical Slots', exact: true });
   await expect(active).toBeInViewport({ ratio: 1 });
@@ -424,7 +620,7 @@ test('unit switching never attributes another draft validation to the selected u
   const locustErrors = page
     .locator('[aria-label="Unit validation"]')
     .getByRole('button', {
-      name: 'Locust LCT-1V: 2 errors, show issues',
+      name: 'Locust LCT-1V: Not legal · 2 errors, show issues',
       exact: true,
     });
   await expect(locustErrors).toBeVisible();
@@ -433,10 +629,12 @@ test('unit switching never attributes another draft validation to the selected u
     .evaluateAll((elements) =>
       elements.map((element) => element.getAttribute('aria-label')!),
     );
+  const errorItems = page
+    .getByRole('dialog')
+    .getByRole('region', { name: 'Errors' })
+    .locator('[data-validation-issue]');
   await locustErrors.click();
-  const baselineMessages = await page
-    .locator('[data-validation-issue]')
-    .allTextContents();
+  const baselineMessages = await errorItems.allTextContents();
   expect(baselineMessages).toHaveLength(2);
   expect(
     baselineMessages.every((message) =>
@@ -456,17 +654,15 @@ test('unit switching never attributes another draft validation to the selected u
   await expect(
     page
       .locator('[aria-label="Unit validation"]')
-      .getByRole('button', { name: /errors?, show issues$/ }),
+      .getByRole('button', { name: /errors?.*, show issues$/ }),
   ).toBeVisible();
   await page
     .locator('[aria-label="Unit validation"]')
     .getByRole('button', {
-      name: /errors?, show issues$/,
+      name: /errors?.*, show issues$/,
     })
     .click();
-  const atlasMessages = await page
-    .locator('[data-validation-issue]')
-    .allTextContents();
+  const atlasMessages = await errorItems.allTextContents();
   expect(atlasMessages).not.toEqual(baselineMessages);
   expect(atlasMessages).toHaveLength(1);
   expect(atlasMessages[0]).toContain(
@@ -508,9 +704,7 @@ test('unit switching never attributes another draft validation to the selected u
   ).toContainText('/20t');
   await expect(locustErrors).toBeVisible();
   await locustErrors.click();
-  expect(
-    await page.locator('[data-validation-issue]').allTextContents(),
-  ).toEqual(baselineMessages);
+  expect(await errorItems.allTextContents()).toEqual(baselineMessages);
   expect((await readDraft(page)).equipment).toEqual(baselineDraft.equipment);
   const samples = await page.evaluate(() => {
     const auditWindow = window as typeof window & {

@@ -8,10 +8,11 @@ test.beforeEach(async ({ page }) => {
 });
 const CATALOG_COLUMNS = [
   'name',
-  'category',
+  'damage',
+  'range',
+  'heat',
   'weight',
   'criticalSlots',
-  'heat',
   'actions',
 ] as const;
 const SORT_LABEL_COLUMNS = ['name', 'weight', 'criticalSlots'] as const;
@@ -191,10 +192,15 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .fill('Small Laser');
   const before = (await draft(page)).equipment;
   await details(page, 'Small Laser').click();
-  const add = page.getByRole('button', {
+  const options = page.getByRole('button', {
+    name: 'Add options for Small Laser',
+    exact: true,
+  });
+  const add = page.getByRole('menuitem', {
     name: 'Add and place Small Laser',
     exact: true,
   });
+  await options.click();
   await add.click();
   const dialog = page.getByRole('dialog', {
     name: 'Add and place equipment',
@@ -212,6 +218,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .selectOption('Left Arm');
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect((await draft(page)).equipment).toEqual(before);
+  await options.click();
   await add.click();
   await dialog
     .getByRole('combobox', { name: 'Equipment location' })
@@ -239,9 +246,10 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .getByRole('textbox', { name: 'Search equipment', exact: true })
     .fill('Small Laser');
   await details(page, 'Small Laser').click();
-  await expect(add).toBeVisible();
+  await expect(options).toBeVisible();
   expect((await draft(page)).equipment).toEqual(placed);
   await page.setViewportSize({ width: 390, height: 844 });
+  await options.click();
   await add.click();
   await expect(dialog).toBeInViewport();
   await dialog
@@ -283,7 +291,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
 test('catalog rows stay dense and column-aligned on desktop and mobile @customizer', async ({
   page,
 }, testInfo) => {
-  await page.setViewportSize({ width: 1318, height: 912 });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await loadAtlas(page);
   const search = page.getByRole('textbox', {
     name: 'Search equipment',
@@ -291,11 +299,11 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   });
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(
-    page.getByRole('button', { name: /^Add and place / }),
-  ).toHaveCount(0);
+    page.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCount(25);
   const rows = page.getByTestId('equipment-catalog-row');
   const visible = await rows.count();
-  expect(visible).toBeGreaterThan(0);
+  expect(visible).toBe(25);
   let longest = { name: '', length: 0, index: 0 };
   for (let index = 0; index < visible; index += 1) {
     const row = rows.nth(index);
@@ -304,14 +312,55 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     expect(box!.height, `collapsed row ${index} height`).toBeLessThanOrEqual(
       48,
     );
+    const nameCell = row.locator('[data-catalog-column="name"]');
+    expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(240);
+    await expect(
+      nameCell.locator('[data-icon-name="chevron-right"]'),
+    ).toBeVisible();
     const name = await rowName(row);
     if (name.length > longest.length)
       longest = { name, length: name.length, index };
     await expectClickTarget(
       row.getByRole('button', { name: `Add ${name}`, exact: true }),
     );
+    await expectClickTarget(
+      row.getByRole('button', { name: `Add options for ${name}`, exact: true }),
+    );
     await expectColumnsAligned(page, row);
   }
+  const firstRow = rows.first();
+  const rowBounds = (await firstRow.boundingBox())!;
+  const actionBounds = (await firstRow
+    .locator('[data-catalog-column="actions"]')
+    .boundingBox())!;
+  expect(
+    rowBounds.x + rowBounds.width - actionBounds.x - actionBounds.width,
+  ).toBeLessThanOrEqual(14);
+  await page.mouse.move(0, 0);
+  const sortButtons = catalogHeader(page).getByRole('button');
+  for (const button of await sortButtons.all()) {
+    const active = (await button.getAttribute('aria-pressed')) === 'true';
+    await expect(button.locator('span[aria-hidden="true"]')).toHaveCSS(
+      'opacity',
+      active ? '1' : '0',
+    );
+  }
+  const weightSort = catalogHeader(page).locator(
+    '[data-catalog-column="weight"]',
+  );
+  await weightSort.focus();
+  await expect(weightSort.locator('span[aria-hidden="true"]')).toHaveCSS(
+    'opacity',
+    '0.4',
+  );
+  await weightSort.click();
+  await expect(weightSort).toHaveAttribute('aria-pressed', 'true');
+  await expect(weightSort).toHaveAccessibleName('Sort by weight, ascending');
+  await weightSort.click();
+  await expect(weightSort).toHaveAccessibleName('Sort by weight, descending');
+  await catalogHeader(page)
+    .getByRole('button', { name: 'Sort by name', exact: true })
+    .click();
   expect(longest.length).toBeGreaterThan(0);
   await page.screenshot({
     path: testInfo.outputPath('density-desktop-sidebar.png'),
@@ -323,6 +372,13 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   });
   const scrolled = rows.last();
   await expect(scrolled).toBeVisible();
+  const lastBounds = (await scrolled.boundingBox())!;
+  const footerBounds = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  expect(lastBounds.y + lastBounds.height).toBeLessThanOrEqual(
+    footerBounds.y - 12,
+  );
   await expectColumnsAligned(page, scrolled);
   await page.screenshot({
     path: testInfo.outputPath('density-desktop-scrolled.png'),
@@ -338,32 +394,46 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   const afterAdd = (await draft(page)).equipment;
   expect(afterAdd).toHaveLength(before.length + 1);
   await expect(
-    page.getByRole('button', { name: /^Add and place / }),
-  ).toHaveCount(0);
+    page.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCount(25);
   const detailsBtn = first.getByRole('button', {
     name: `Details for ${name}`,
     exact: true,
   });
+  const rowAdd = first.getByRole('button', {
+    name: `Add ${name}`,
+    exact: true,
+  });
+  const collapsedAction = (await rowAdd.boundingBox())!;
   await detailsBtn.focus();
   await page.keyboard.press('Enter');
-  const place = page.getByRole('button', {
+  expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
+  expect(await first.getByRole('button').count()).toBe(3);
+  await page.keyboard.press('Tab');
+  await expect(rowAdd).toBeFocused();
+  await page.keyboard.press('Tab');
+  const options = first.getByRole('button', {
+    name: `Add options for ${name}`,
+    exact: true,
+  });
+  await expect(options).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(
+    page.getByRole('menuitem', { name: 'Add to unassigned', exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  const place = page.getByRole('menuitem', {
     name: `Add and place ${name}`,
     exact: true,
   });
-  await expect(place).toBeVisible();
-  let reachedPlace = false;
-  for (let step = 0; step < 8; step += 1) {
-    await page.keyboard.press('Tab');
-    if (await place.evaluate((element) => element === document.activeElement)) {
-      reachedPlace = true;
-      break;
-    }
-  }
-  expect(reachedPlace).toBe(true);
+  await expect(place).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(options).toBeFocused();
+  await expect(place).toBeHidden();
   await detailsBtn.click();
-  await expect(place).toHaveCount(0);
+  expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
   const wide = page.getByRole('button', {
-    name: 'Wide workspace',
+    name: 'Hide loadout panel',
     exact: true,
   });
   await expect(wide).toBeVisible();
@@ -394,9 +464,32 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(catalogHeader(page)).toBeHidden();
+  const categories = page.getByTestId('equipment-category-controls');
+  expect(
+    await categories.evaluate(
+      (element) => element.scrollWidth > element.clientWidth,
+    ),
+  ).toBe(true);
+  expect(
+    await categories.evaluate((element) => getComputedStyle(element).maskImage),
+  ).not.toBe('none');
+  const moreCategories = page.getByRole('button', {
+    name: 'More equipment categories',
+  });
+  await expectClickTarget(moreCategories);
+  await moreCategories.click();
+  expect(
+    await categories.evaluate((element) => element.scrollLeft),
+  ).toBeGreaterThan(0);
+  await categories
+    .getByRole('button', { name: 'Other', exact: true })
+    .scrollIntoViewIfNeeded();
   await expect(
-    page.getByRole('button', { name: /^Add and place / }),
-  ).toHaveCount(0);
+    categories.getByRole('button', { name: 'Other', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCount(25);
   const mobileRows = page.getByTestId('equipment-catalog-row');
   const mobileCount = Math.min(await mobileRows.count(), 6);
   for (let index = 0; index < mobileCount; index += 1) {
@@ -405,18 +498,48 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     await expectClickTarget(
       row.getByRole('button', { name: `Add ${mobileName}`, exact: true }),
     );
+    await expectClickTarget(
+      row.getByRole('button', {
+        name: `Add options for ${mobileName}`,
+        exact: true,
+      }),
+    );
+    await expect(row.getByText(mobileName, { exact: true })).toHaveCSS(
+      'font-size',
+      '16px',
+    );
   }
   const mobileFirst = mobileRows.first();
   const mobileName = await rowName(mobileFirst);
   await mobileFirst
     .getByRole('button', { name: `Details for ${mobileName}`, exact: true })
     .click();
+  await mobileFirst
+    .getByRole('button', { name: `Add options for ${mobileName}`, exact: true })
+    .click();
   await expect(
-    page.getByRole('button', {
+    page.getByRole('menuitem', {
       name: `Add and place ${mobileName}`,
       exact: true,
     }),
   ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await scroll.evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  const mobileLast = (await mobileRows.last().boundingBox())!;
+  const mobileFooter = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  expect(mobileLast.y + mobileLast.height).toBeLessThanOrEqual(
+    mobileFooter.y - 12,
+  );
+  await mobileRows
+    .last()
+    .getByRole('button', { name: /^Add options for / })
+    .click();
+  await expect(page.getByRole('menu')).toBeInViewport({ ratio: 1 });
+  await page.keyboard.press('Escape');
   await noDocumentOverflow(page);
   await page.screenshot({
     path: testInfo.outputPath('density-mobile.png'),
