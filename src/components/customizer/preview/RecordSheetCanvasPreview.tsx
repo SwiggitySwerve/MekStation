@@ -245,24 +245,26 @@ function RecordSheetViewer({
           minHeight: 0,
           display: 'flex',
           overflow: 'auto',
-          padding: '24px',
           backgroundColor: 'var(--surface-deep)',
         }}
       >
-        <canvas
-          ref={canvasRef}
-          data-testid={testId}
-          style={{
-            flexShrink: 0,
-            // Centred across, top-aligned down: the sheet starts right under
-            // the toolbar instead of floating mid-viewer on tall screens.
-            margin: '0 auto',
-            width: width * zoom,
-            height: height * zoom,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
-            backgroundColor: '#fff',
-          }}
-        />
+        {/* The padding lives on this wrapper (not the scroll container) so a
+            zoomed sheet keeps the same 24px gutter on its right edge when it
+            scrolls. Phones trim the top gutter so the sheet starts higher. */}
+        <div className="shrink-0 p-6 max-sm:pt-3" style={{ margin: '0 auto' }}>
+          <canvas
+            ref={canvasRef}
+            data-testid={testId}
+            style={{
+              display: 'block',
+              flexShrink: 0,
+              width: width * zoom,
+              height: height * zoom,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+              backgroundColor: '#fff',
+            }}
+          />
+        </div>
       </div>
       {footer}
     </div>

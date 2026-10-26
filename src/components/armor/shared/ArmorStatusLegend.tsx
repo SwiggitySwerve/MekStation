@@ -26,35 +26,35 @@ export function ArmorStatusLegend({
 
   return (
     <div
-      className={`mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs ${className}`}
+      className={`mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs max-sm:gap-x-2 max-sm:text-sm ${className}`}
     >
       <span className="text-text-theme-secondary font-medium">
-        Armor % of max:
+        <span className="max-sm:sr-only">Armor </span>% of max:
       </span>
       <div className="flex items-center gap-1">
         <div
-          className="h-3 w-3 rounded"
+          className="h-3 w-3 rounded max-sm:h-3.5 max-sm:w-3.5"
           style={{ backgroundColor: ARMOR_STATUS.HEALTHY.color }}
         />
         <span className="text-text-theme-secondary">{healthyPct}%+</span>
       </div>
       <div className="flex items-center gap-1">
         <div
-          className="h-3 w-3 rounded"
+          className="h-3 w-3 rounded max-sm:h-3.5 max-sm:w-3.5"
           style={{ backgroundColor: ARMOR_STATUS.MODERATE.color }}
         />
         <span className="text-text-theme-secondary">{moderatePct}%+</span>
       </div>
       <div className="flex items-center gap-1">
         <div
-          className="h-3 w-3 rounded"
+          className="h-3 w-3 rounded max-sm:h-3.5 max-sm:w-3.5"
           style={{ backgroundColor: ARMOR_STATUS.LOW.color }}
         />
         <span className="text-text-theme-secondary">{lowPct}%+</span>
       </div>
       <div className="flex items-center gap-1">
         <div
-          className="h-3 w-3 rounded"
+          className="h-3 w-3 rounded max-sm:h-3.5 max-sm:w-3.5"
           style={{ backgroundColor: ARMOR_STATUS.CRITICAL.color }}
         />
         <span className="text-text-theme-secondary">&lt;{lowPct}%</span>

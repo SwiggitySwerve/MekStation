@@ -49,9 +49,10 @@ its separate Preview-before-Fluff order.
 #### Scenario: Stable section validation indicators
 
 - **WHEN** section validation counts change
-- **THEN** a fixed-size dot SHALL show red for errors or yellow for warnings (the same hues as the build-status button and panel), with errors taking precedence
-- **AND** the dot's accessible name and the section tab's accessible description SHALL include the validation counts
-- **AND** the indicator slot SHALL keep the same width when counts change or clear
+- **THEN** each severity SHALL show as a numbered badge whose shape carries the meaning, not color alone: errors a red circle holding the error count, warnings a yellow rounded square holding the warning count (the same hues as the build-status button and panel), errors first
+- **AND** the badge group's accessible name SHALL name the tab and the counts (e.g., "Equipment: 1 error"), and the section tab's accessible description SHALL include the counts (e.g., "1 error")
+- **AND** the indicator slot SHALL keep at least one badge's width when counts change or clear
+- **AND** the warning count SHALL include the build-status readout warnings (e.g., running hot) on the tab where they are fixed (Structure for running hot), so the badges agree with the build-status counts
 
 ---
 
@@ -127,7 +128,7 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 
 - **WHEN** Structure tab renders
 - **THEN** left column shows Chassis panel with component selections
-- **AND** right column shows Movement panel
+- **AND** right column stacks the Mobility panel and, below it, a separate Cooling panel, with all panels top-aligned (no stretched empty panel bodies)
 - **AND** the Chassis panel shows Tonnage and, directly below it on the same row template, the Motive Type dropdown (Biped, Quad, Tripod, LAM, QuadVee) with its "Changing configuration clears armor in removed locations and returns their equipment to unassigned." warning attached through aria-describedby; the Mobility panel does not show Motive Type
 
 #### Scenario: Chassis panel components
@@ -146,10 +147,11 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **THEN** engine rating is calculated as tonnage × walkMP
 - **AND** engine rating is updated in the store
 
-#### Scenario: Cooling summary sits in the Cooling header
+#### Scenario: Cooling is its own panel
 
-- **WHEN** the Chassis panel renders its Cooling section
-- **THEN** the heat sink summary (heat sinks in the engine, external heat sinks, total dissipation) is shown as a right-aligned stat in the Cooling section header
+- **WHEN** the Structure tab renders
+- **THEN** the Cooling panel (Heat sink type, Installed stepper, and the OmniMech base chassis control when applicable) is a separate card below Mobility in the right column, not part of the Chassis panel
+- **AND** the heat sink summary (heat sinks in the engine, external heat sinks, total dissipation) is shown as a right-aligned stat in the Cooling panel header
 - **AND** it is not repeated as a separate row below the Installed stepper
 
 #### Scenario: Weight strip labels its subtotal
@@ -159,22 +161,22 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **AND** the subtotal is labelled "Structure, systems & armor" and shown as "<subtotal>t of <tonnage>t"
 - **AND** the label makes clear that equipment weight is counted in the header total, not in this subtotal
 
-#### Scenario: Chassis and Mobility share one label / control / meta grid
+#### Scenario: Chassis, Mobility and Cooling share one label / control / meta grid
 
-- **WHEN** the Chassis or Mobility panel renders at least 32rem wide
+- **WHEN** the Chassis, Mobility or Cooling panel renders at least 32rem wide
 - **THEN** every row uses one grid: a 140px label column, a 240px control column, and a meta column that starts about 12px after the control column
-- **AND** every control sits in the 240px control column: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) are left-aligned inside it and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is 240px wide
-- **AND** meta text (the "20–200t" tonnage range, "19t / 6 slots" weight and slot readouts, and "→ <final> final" for Walk, Run and Jump MP) sits in the meta column beside its control, not in a far-right gutter
-- **AND** in a narrower card the grid falls back to label and control columns, with meta and helper text under the control
+- **AND** every control fills the 240px control column, so all controls share one right edge: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) keep 44px buttons and stretch their value box, and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is 240px wide
+- **AND** per-component cost meta ("19t / 6 slots") and "→ <final> final" for Walk, Run and Jump MP sit in the meta column beside the control, not in a far-right gutter
+- **AND** range hints such as the tonnage range ("Range 20–200t.") are 13px muted helper text under their control, linked with aria-describedby
+- **AND** in a narrower card the grid is a single column (label, control, meta, helper text) and helper text uses the full card width
 
 #### Scenario: Mobility rows
 
 - **WHEN** the Mobility panel renders
-- **THEN** Run MP shows a read-only value box the same size as a stepper's value box, with no buttons, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
+- **THEN** Run MP is a read-only field with the same outline, height and 240px width as a stepper, muted text, and a small lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
 - **AND** the Walk MP range, the Run MP line ("Follows Walk MP; it is not set directly.") and the Max Jump MP note appear as 13px muted helper text directly under their control, linked with aria-describedby
 - **AND** Jump Type stays enabled but is muted, with the hint "No jump jets installed", while Jump MP is 0
 - **AND** the Mobility panel shows no copy about unsupported mechanical jump boosters
-
 ### Requirement: Armor Tab
 
 The Armor tab SHALL manage armor type selection and location-based armor allocation.
@@ -271,21 +273,31 @@ The Criticals tab SHALL manage critical slot allocation and equipment placement.
 
 The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and narrative text.
 
+#### Scenario: Page layout
+
+- **WHEN** the Fluff tab renders in an editor container at least 64rem wide
+- **THEN** a two-column grid spans the workspace content edges: the left column holds the Unit History and Description card, capped near 75 characters of 16px text plus card padding, and the right column holds the Battlefield Role card above the Manufacturing card in the remaining width (never under 20rem)
+- **AND** the right column stays pinned to the top of the scroll area beside long narrative text and scrolls within itself when taller than the viewport
+- **AND** in a narrower container the cards form one left-aligned column in the order narrative, role, manufacturing, each capped at the same reading width
+
 #### Scenario: Narrative text fields
 
 - **WHEN** user navigates to Fluff tab
-- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a textarea at 16px text on a 1.5 line height, at least 3 rows, that fills the full width of the Unit History and Description card
-- **AND** the card is the same full content width and padding as the Battlefield Role and Manufacturing cards, left-aligned, not narrower or centred
-- **AND** Overview, Capabilities, History and Deployment stack in that order at every width; only Variants and Notable Units, both short, sit side by side as an equal pair when the editor is at least 48rem wide, so a short field never sits beside a tall one
+- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a full-width textarea of its column at 16px text on a 1.5 line height, at least 3 rows, stacked in that order
+- **AND** the field labels use the small-caps section-label style used for sub-section headings elsewhere in the customizer
 - **AND** the textarea grows to show its whole content
 - **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
 
 #### Scenario: Battlefield role
 
 - **WHEN** the Fluff tab renders an editable unit
-- **THEN** the Battlefield Role card is a compact strip: title and subtitle on one side and the Combat Role select, about 320px wide, on the other when the editor is at least 40rem wide
-- **AND** the select sits below the subtitle at full width in a narrower editor
+- **THEN** the Battlefield Role card is compact: title, subtitle, then the Combat Role select at the full width of the card
 
+#### Scenario: Manufacturing list
+
+- **WHEN** the Manufacturing card renders
+- **THEN** Manufacturer, Primary Factory and each system manufacturer are single-column "name | value" rows, so no field sits alone in a row
+- **AND** a normal secondary "Add system" action, with its reason text visible, is the last row of an editable list
 #### Scenario: Placeholders read as examples
 
 - **WHEN** a Fluff field that is empty shows placeholder text
@@ -294,8 +306,8 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 #### Scenario: Removing a system manufacturer
 
 - **WHEN** an editable unit lists system manufacturers
-- **THEN** each row has a low-emphasis icon-only remove button that is still 44px square and keyboard reachable
-- **AND** the button reaches full contrast on hover and keyboard focus
+- **THEN** each system row has an icon-only remove button with an accessible name, 44px square, inside the trailing edge of the row's input
+- **AND** on fine hover pointers the button is invisible until the row is hovered or has focus within, and on coarse pointers it is always visible
 
 ### Requirement: Preview Tab
 
@@ -814,3 +826,4 @@ The following are explicitly **out of scope** for this specification:
 5. **Feature Flag Management**: Application-wide feature flags are handled by app settings store
 6. **Undo/Redo**: Settings change history is not tracked
 7. **Settings Migration**: Version migration for settings schema changes is not specified
+

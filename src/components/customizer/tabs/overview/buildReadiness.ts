@@ -8,7 +8,7 @@
  *
  * Each row also carries the severity the status panel would give it, so the
  * checklist uses the same words, colors and icons: a readout over its cap is
- * an error, a legal-but-high readout (running hot) is a note,
+ * an error, a legal-but-high readout (running hot) is a warning,
  * and rule results keep their own error or warning severity.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
@@ -99,9 +99,9 @@ function worstSeverity(
   return SEVERITY_RANK[a] >= SEVERITY_RANK[b] ? a : b;
 }
 
-/** Over its cap is an error; legal but high (e.g. running hot) is a note. */
+/** Over its cap is an error; legal but high (e.g. running hot) is a warning. */
 function readoutSeverity(status: StatStatus): ReadinessSeverity {
-  return status === 'error' ? 'error' : status === 'warning' ? 'note' : 'ok';
+  return status === 'normal' ? 'ok' : status;
 }
 
 interface CategoryIssues {
@@ -296,7 +296,7 @@ export function getReadinessRows(
 
 /**
  * Readiness header: the build-status summary every status surface shows,
- * from the same validation counts and readout notes.
+ * from the same validation counts and readout warnings.
  */
 export function getReadinessStatus(
   validation: BuildStatusCounts,

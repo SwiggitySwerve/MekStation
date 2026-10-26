@@ -65,15 +65,14 @@ describe('ArmorLocationTable', () => {
 
     expect(
       screen.getAllByRole('columnheader').map((header) => header.textContent),
-    ).toEqual(['Location', 'Front / max', 'Rear / max', 'Location max']);
+    ).toEqual(['Location', 'Front', 'Rear', 'Max']);
     // Header row, the note row directly under it, then one row per location.
     expect(screen.getAllByRole('row')).toHaveLength(5);
     const note = screen.getByTestId('armor-location-table-note');
     expect(note.closest('thead')).not.toBeNull();
     expect(note).toHaveClass('text-[13px]');
-    expect(note).toHaveTextContent(
-      "Front and rear show points placed out of that face's limit. Location max is the whole location.",
-    );
+    expect(note).toHaveClass('whitespace-nowrap');
+    expect(note).toHaveTextContent('Current / max. Max is the whole location.');
     const torso = screen.getByRole('row', { name: /Center Torso/ });
     expect(
       within(torso)
@@ -105,7 +104,7 @@ describe('ArmorLocationTable', () => {
     expect(onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
     fireEvent.click(
       screen
-        .getByText('Location max', { selector: 'th' })
+        .getByText('Max', { selector: 'th' })
         .closest('table')!
         .querySelectorAll('tbody tr')[1],
     );

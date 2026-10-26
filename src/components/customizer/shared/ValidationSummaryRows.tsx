@@ -25,9 +25,6 @@ export interface ValidationIssue {
   critical?: boolean;
 }
 
-/** Notes use the note severity color, never a rule problem's red or yellow. */
-export const validationNoteColor = BUILD_STATUS_KIND_TEXT_CLASS.note;
-
 /** Info-level rule results are listed, and styled, as notes. */
 export function issueKind(severity: ValidationIconSeverity): BuildStatusKind {
   return severity === 'info' ? 'note' : severity;
@@ -256,6 +253,10 @@ function BuildStatusItem({
   );
 }
 
+/**
+ * A readout warning (running hot): listed and styled as a warning, though
+ * it is not a validation result.
+ */
 export function ValidationNoteRow({
   note,
   headingId,
@@ -268,8 +269,8 @@ export function ValidationNoteRow({
   return (
     <BuildStatusItem
       kind="note"
-      icon={<SeverityIcon kind="note" />}
-      severityLabel={ITEM_LABEL.note}
+      icon={<SeverityIcon kind="warning" />}
+      severityLabel={ITEM_LABEL.warning}
       heading={note.heading ?? noteText(note)}
       explanation={note.message}
       suggestion={note.suggestion}

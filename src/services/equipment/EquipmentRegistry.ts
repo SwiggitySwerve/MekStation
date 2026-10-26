@@ -26,6 +26,7 @@ import {
 import {
   addCommonWeaponAliases,
   addAmmunitionAliases,
+  ammunitionAliasKey,
   addStaticAliasMappings,
   parseLegacyMegaMekId,
   addMiscEquipmentAliases,
@@ -166,7 +167,11 @@ export class EquipmentRegistry {
     // Map ammunition
     this.loader.getAllAmmunition().forEach((ammo) => {
       this.registerEquipment(ammo.id, ammo.name, EquipmentType.AMMUNITION);
-      addAmmunitionAliases(ammo, this.nameToIdMap);
+      addAmmunitionAliases(
+        ammo,
+        this.nameToIdMap,
+        this.normalizeName.bind(this),
+      );
     });
 
     // Map electronics
@@ -248,8 +253,11 @@ export class EquipmentRegistry {
       }
     }
 
-    // Try normalized name lookup
-    const normalizedId = this.nameToIdMap.get(this.normalizeName(idOrName));
+    // Ammunition aliases share the registry normalizer and retain bin size.
+    const ammoKey = ammunitionAliasKey(idOrName, this.normalizeName.bind(this));
+    const normalizedId =
+      (ammoKey ? this.nameToIdMap.get(ammoKey) : undefined) ??
+      this.nameToIdMap.get(this.normalizeName(idOrName));
     if (normalizedId) {
       const equipment = this.loader.getById(normalizedId);
       if (equipment) {

@@ -300,14 +300,14 @@ test('lists every location in a table that selects like the figure', () => {
   // Headers say what each column holds, and the note sits right under them.
   expect(table.getAllByRole('columnheader').map((h) => h.textContent)).toEqual([
     'Location',
-    'Front / max',
-    'Rear / max',
-    'Location max',
+    'Front',
+    'Rear',
+    'Max',
   ]);
   const note = table.getByTestId('armor-location-table-note');
   expect(note.closest('thead')).not.toBeNull();
   expect(note).toHaveClass('text-[13px]');
-  expect(note).toHaveTextContent('Location max is the whole location.');
+  expect(note).toHaveTextContent('Max is the whole location.');
   // Same data and face maxima as the plates: 20/24 front, 8/12 rear, 32 max.
   const torsoRow = table
     .getByRole('button', { name: 'Center Torso' })

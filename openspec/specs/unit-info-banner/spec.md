@@ -56,11 +56,11 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 #### Scenario: Budget readouts lead the strip
 
 - **WHEN** the compact workbench strip renders
-- **THEN** Weight, Slots, Heat and Armor form the Capacity group, and each shows a 3px fill bar under its value, filled by use against its cap (clamped at full) and colored neutral, the note hue (legal but high) or red by the same state as its value
-- **AND** readout state colors come from one owner (`unitStatStatus.ts`, taking its hues from the severity colors in `BuildStatusLabel.tsx`) shared by the banner, the Overview Heat readout and the mobile loadout header: a legal-but-high value (running hot) is sky blue, the same note hue the build status, panel and readiness rows use for that condition, distinct from the amber accent that marks the selected tab and primary actions, and red is reserved for errors
+- **THEN** Weight, Slots, Heat and Armor form the Capacity group, and each shows a 3px fill bar under its value, filled by use against its cap (clamped at full) and colored neutral, the warning hue (legal but high) or red by the same state as its value
+- **AND** readout state colors come from one owner (`unitStatStatus.ts`, taking its hues from the severity colors in `BuildStatusLabel.tsx`) shared by the banner, the Overview Heat readout and the mobile loadout header: a legal-but-high value (running hot) is yellow, the same warning hue the build status, panel and readiness rows use for that condition, and red is reserved for errors
 - **AND** the strip has seven evenly spaced cells at one value size: Weight, Slots, Heat, Armor, Movement, Engine and BV; Movement, Engine and BV show the value alone, level with the budget values, without a bar
 - **AND** labels are 12px uppercase; caps (e.g., "/100t", "/78", "/22") and captions are at least 12px, so no secondary text in the strip is smaller than 12px on phones
-- **AND** group columns are proportional to their cell counts (capacity 4, movement and engine 2, BV 1) so every cell, and every gap between groups, has the same width
+- **AND** group columns are proportional to their cell counts (capacity 4, movement and engine 2, BV 1) so every cell has the same width; from 768px a 1px rule separates every pair of adjacent cells, not only the groups, and the Movement caption shows from 1280px so equal cells never crowd
 - **AND** tonnage is not repeated as its own readout, because the Weight cap shows it
 
 #### Scenario: Weight stat with capacity format
@@ -93,7 +93,7 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 - **THEN** label shows "HEAT"
 - **AND** value shows "generated / dissipation" format (e.g., "15 / 10"), and on wide screens a visible "gen / diss" caption beside the label names the two numbers
 - **AND** the heat readout is always keyboard focusable, with an accessible name and a hover/focus explanation naming both numbers (e.g., "15 heat at full fire / 10 dissipation")
-- **AND** value text and fill bar are in the note hue (sky blue) if generated exceeds dissipation, because running hot is legal and the build status lists it as a note in that hue; the readout does not repeat the excess as its own pill
+- **AND** value text and fill bar are in the warning hue (yellow) if generated exceeds dissipation, because running hot is legal but worth fixing and the build status lists it as a warning in that hue; the readout does not repeat the excess as its own pill
 - **AND** the Overview Heat readout shows only the numbers (e.g., "33 / 22 dissipation", "at full fire") with the generated value in the same state color; the Overview Heat readiness row states what running hot means, so the readout does not repeat "+11 over"
 - **AND** when running hot the explanation adds how far heat is over and that this is legal (e.g., "5 over: legal; add heat sinks to run cool.")
 - **AND** red is reserved for construction errors such as overweight or over slots
@@ -132,24 +132,24 @@ The banner SHALL display unit validation status.
 
 #### Scenario: Valid unit display
 
-- **WHEN** unit passes all validation and has no notes
+- **WHEN** unit passes all validation and has no readout warnings
 - **THEN** the build status reads "Ready" in neutral text with a green check
 
 #### Scenario: One build-status button in the workbench
 
 - **WHEN** the workbench section bar renders
-- **THEN** issue counts and their wording come from one owner (`buildStatusSummary.ts`), which takes the validation counts and the readout notes (`getStatusNotes` in `unitStatStatus.ts`), so the header status button, the status panel heading, the phone status button and the Overview "Build readiness" header always report the same totals; the readiness header shows the counts only (e.g., "1 note", "1 error ? 1 warning ? 1 note"), because the header status button and the readiness rows already name a lone note such as running hot
-- **AND** the vocabulary is errors ("the unit is not legal until fixed"), warnings ("legal, but likely a mistake") and notes ("legal; for your information": info-level rule results and readout notes such as running hot)
-- **AND** each severity has one color and one icon on every surface (status button, panel, Overview readiness rows and section-tab dots), owned by `BuildStatusLabel.tsx`: errors red with a crossed circle, warnings yellow with a triangle, notes sky blue with an info circle
-- **AND** the headline omits empty groups and joins the rest worst first with " · " (e.g., "1 error · 1 warning · 1 note"); a lone readout note reads as itself (e.g., "Runs hot +11"), and a unit with nothing to report reads "Ready" with a green check
+- **THEN** issue counts and their wording come from one owner (`buildStatusSummary.ts`), which takes the validation counts and the readout warnings (`getStatusNotes` in `unitStatStatus.ts`), so the header status button, the status panel heading, the phone status button and the Overview "Build readiness" header always report the same totals; the readiness header shows the counts only (e.g., "1 warning", "1 error · 2 warnings"), because the header status button and the readiness rows already name a lone readout warning such as running hot
+- **AND** the vocabulary is errors ("the unit is not legal until fixed"), warnings ("legal, but likely a mistake": rule warnings and readout warnings such as running hot) and notes ("legal; for your information": info-level rule results)
+- **AND** each severity has one color and one icon on every surface (status button, panel and Overview readiness rows), owned by `BuildStatusLabel.tsx`: errors red with a crossed circle, warnings yellow with a triangle, notes sky blue with an info circle; the numbered section-tab badges use the same hues as a red circle (errors) and a yellow rounded square (warnings)
+- **AND** the headline omits empty groups and joins the rest worst first with " · " (e.g., "1 error · 1 warning · 1 note"); a lone readout warning reads as itself (e.g., "Runs hot +11"), and a unit with nothing to report reads "Ready" with a green check
 - **AND** the build status is one button showing that headline, each group in its own severity color after the worst group's icon, with that worst severity tinting the button's border
-- **AND** its accessible name contains the full panel heading, the notes by name when the headline only counts them, and what it opens (e.g., "Atlas AS7-D: Not legal · 1 error · 1 warning · 1 note (Runs hot +26), show issues"; "Atlas AS7-D: Legal · Runs hot +11, show checks")
-- **AND** it opens one panel whose heading is "Not legal · <headline>" or "Legal · <headline>", never a green "all rules pass" line above a note
-- **AND** the panel lists errors, then warnings, then notes, each under its own label followed by its one-line definition (e.g., "Errors — the unit is not legal until fixed"); each item shows its severity icon, a 16px semibold plain heading (e.g., "Overweight by 3.0 t", "ER PPC needs a location", "Runs 11 heat over dissipation"), the existing validation message and suggestion as 14px explanation, and 44px secondary "Go to <tab>" buttons for the tabs that can fix it
+- **AND** its accessible name contains the full panel heading, the readout warnings by name when the headline only counts them, and what it opens (e.g., "Atlas AS7-D: Not legal · 1 error · 2 warnings (Runs hot +26), show issues"; "Atlas AS7-D: Legal · Runs hot +11, show issues"; "show checks" when only notes or save details are listed)
+- **AND** it opens one panel whose heading is "Not legal · <headline>" or "Legal · <headline>", never a green "all rules pass" line above a warning
+- **AND** the panel lists errors, then warnings (rule warnings first, then readout warnings such as running hot), then notes, each under its own label followed by its one-line definition (e.g., "Errors — the unit is not legal until fixed"); each item shows its severity icon, a 16px semibold plain heading (e.g., "Overweight by 3.0 t", "ER PPC needs a location", "Runs 11 heat over dissipation"), the existing validation message and suggestion as 14px explanation, and 44px secondary "Go to <tab>" buttons for the tabs that can fix it
 - **AND** weight issues offer Equipment and Armor (`getFixTabsForCategory`); other issues offer their category's tab
-- **AND** the section tab dots count each issue on the first tab that fixes it (`getPrimaryFixTab`), so an overweight unit marks Equipment rather than Structure; the dots keep their accessible names (e.g., "1 error")
-- **AND** the Overview "Build readiness" rows use the same severity icons and colors: a readout over its cap is an error, a legal-but-high readout (running hot) is a note, unplaced equipment and other rule warnings are warnings
-- **AND** the heat note is presentational: it never adds to error or warning counts and never makes the unit invalid; it links to the Structure tab where heat sinks are set
+- **AND** the section tab badges count each issue on the first tab that fixes it (`getPrimaryFixTab`), so an overweight unit marks Equipment rather than Structure; the badges are named with their tab (e.g., "Equipment: 1 error")
+- **AND** the Overview "Build readiness" rows use the same severity icons and colors: a readout over its cap is an error, a legal-but-high readout (running hot) is a warning, as are unplaced equipment and other rule warnings; each row's action is a quiet link-style button (the tab name and a chevron, outlined only on hover or focus, at least 44px tall) named "<row>: go to <tab>", placed under the row text on phones
+- **AND** the running-hot warning is a presentation tier: it is counted, worded and colored with the warnings but it is not a validation result, never makes the unit invalid and never changes what the validator reports; it links to the Structure tab where heat sinks are set
 - **AND** while the panel is open a dim scrim covers the workspace behind it; pressing the scrim closes the panel, and Escape or the close button return focus to the status button
 - **WHEN** the workbench renders on desktop
 - **THEN** the header groups Add unit and the "…" Unit actions button as one quiet secondary group, and the save state with the Save button as the primary group, with no separator rules between them
@@ -158,12 +158,12 @@ The banner SHALL display unit validation status.
 - **AND** the "…" button (accessible name "Unit actions") and the loadout panel toggle (accessible name "Hide loadout panel", pressed while the panel is hidden) show instant hints naming what they do
 - **AND** the status panel's Saving section repeats the same two-part words as the header (an unwritten draft is not listed), then the explanation
 - **WHEN** the workbench renders on a phone
-- **THEN** the build status shares the budget readout row and keeps words: the worst group's icon and count in words (e.g., "1 error") over a worded count of the remaining items (e.g., "+2 more"), or the lone note itself (e.g., "Runs hot +11", truncating before the amount), at 13px with the count at 12px, within the 48px readout row; its accessible name keeps the full summary
+- **THEN** the build status shares the budget readout row and shows every group as its severity shape and count (e.g., a red crossed circle with "1", a yellow triangle with "2", a blue info circle with "1"), at 13px, wrapping within the 48px readout row, or the lone readout warning itself (e.g., "Runs hot +11", truncating before the amount); its accessible name and tooltip keep the full summary in words
 - **AND** phone helper text in the status sheet (group definitions, the Saving explanation) is at least 13px
-- **AND** the unit name shows once, inside its unit tab, on one line ending in an ellipsis when it does not fit; the tab's accessible name and tooltip keep the full name and the Overview Identity card shows it in full; there is no separate name line under the header
+- **AND** the unit name shows once, inside its unit tab, on one line ending in an ellipsis when it does not fit; below 640px the tab drops its tech base badge (the tab tooltip still names the tech base) and the header icons draw at 20px within 44px targets, so a name such as "Atlas AS7-D (Danielle)" fits at 390px; the tab's accessible name and tooltip keep the full name and the Overview Identity card shows it in full; there is no separate name line under the header
 - **AND** the workspace scroll area ends where the fixed Loadout bar begins (bar height plus the bottom safe area) on every tab, so no content renders under the bar, and the bar casts a shadow over the content above it
 - **AND** below 640px the panel opens as a bottom sheet over a scrim, at most 80% of the dynamic viewport height, scrolling inside; its Saving section uses the same wording, and a failed browser draft write still appears as a visible line with a retry action
-- **AND** on phones the Save icon button carries no dot: it is filled as the primary action while the unit needs a library save and quiet once it matches; the words appear in the status sheet's Saving section and, from 640px, on one line in the section band ("Draft saved in browser · Not in library")
+- **AND** on phones the Save icon button carries no dot: it is an amber outline with an amber icon while the unit needs a library save and a plain icon once it matches; the words appear in the status sheet's Saving section and, from 640px, on one line in the section band ("Draft saved in browser · Not in library")
 
 #### Scenario: Invalid unit display
 

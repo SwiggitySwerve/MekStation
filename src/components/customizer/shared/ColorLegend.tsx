@@ -15,10 +15,15 @@ import {
   EQUIPMENT_CATEGORY_COLORS,
   HEATSINK_COLORS,
 } from '@/utils/colors/equipmentColors';
-import { SLOT_COLORS, SystemComponentType } from '@/utils/colors/slotColors';
+import { SystemComponentType } from '@/utils/colors/slotColors';
 import { TECH_BASE_COLORS } from '@/utils/colors/techBaseColors';
 
-import { getSlotContentClasses } from '../critical-slots/SlotVisualHelpers';
+import {
+  getCriticalCategoryTint,
+  getSlotContentClasses,
+  getSystemSlotClasses,
+} from '../critical-slots/SlotVisualHelpers';
+import styles from '../CustomizerWorkbench.module.css';
 
 interface ColorLegendProps {
   /** Initially expanded */
@@ -33,20 +38,27 @@ interface ColorSwatchProps {
   bgClass: string;
   label: string;
   compact?: boolean;
+  style?: React.CSSProperties;
 }
 
 // Keep the empty-slot pattern legible at legend scale.
 const EMPTY_SWATCH_CLASSES =
   'bg-surface-deep border-border-theme-strong border-dashed';
 
-function ColorSwatch({ bgClass, label, compact = false }: ColorSwatchProps) {
+function ColorSwatch({
+  bgClass,
+  label,
+  compact = false,
+  style,
+}: ColorSwatchProps) {
   return (
     <div
       className={`flex min-w-0 items-center gap-1.5 ${compact ? 'whitespace-nowrap' : ''}`}
     >
       <div
         aria-hidden="true"
-        className={`${compact ? 'h-4 w-5' : 'h-5 w-7'} border-border-theme-strong border-y-border-theme-strong border-r-border-theme-strong shrink-0 rounded-sm border ${bgClass}`}
+        style={style}
+        className={`${styles.criticalLegendBar} border-border-theme-strong shrink-0 rounded-sm border ${bgClass}`}
       />
       <span className="text-text-theme-primary text-[13px]">{label}</span>
     </div>
@@ -99,12 +111,13 @@ export function ColorLegend({
           aria-label="Colour key"
           className="hidden flex-wrap items-center justify-end gap-x-3 gap-y-1 py-1 sm:flex"
         >
-          {inlineColors.map(({ label, accentBorder }) => (
+          {inlineColors.map((colors) => (
             <ColorSwatch
-              key={label}
+              key={colors.label}
               compact
-              label={label}
-              bgClass={`bg-surface-raised border-l-4 ${accentBorder}`}
+              label={colors.label}
+              style={getCriticalCategoryTint(colors)}
+              bgClass={`border-l-4 ${colors.accentBorder} ${styles.criticalTintedSlot} ${colors === HEATSINK_COLORS ? styles.criticalHeatSink : ''}`}
             />
           ))}
           <ColorSwatch
@@ -143,8 +156,9 @@ export function ColorLegend({
           className={`border-border-theme bg-surface-base absolute top-full right-0 z-20 max-h-[60dvh] w-[32rem] max-w-[calc(100vw-2rem)] space-y-4 overflow-y-auto rounded-lg border p-3 shadow-xl ${equipmentNames ? 'sm:hidden' : ''}`}
         >
           <p className="text-text-theme-secondary text-xs">
-            Wide accents identify equipment; thin muted accents identify fixed
-            systems. Dashed slots are empty or unhittable.
+            Tinted bars identify equipment; neutral grey identifies fixed
+            systems. Dashed cyan stripes identify heat sinks. Dashed outlines
+            are empty or unhittable.
           </p>
           {/* System Components */}
           <div>
@@ -158,7 +172,7 @@ export function ColorLegend({
                   bgClass={
                     type === 'empty'
                       ? EMPTY_SWATCH_CLASSES
-                      : `${SLOT_COLORS[type].bg} ${SLOT_COLORS[type].border}`
+                      : getSystemSlotClasses(type)
                   }
                   label={label}
                 />
@@ -172,11 +186,12 @@ export function ColorLegend({
               Equipment Types
             </h4>
             <div className="grid grid-cols-2 gap-1">
-              {equipmentTypes.map(({ accentBorder, label }) => (
+              {equipmentTypes.map((colors) => (
                 <ColorSwatch
-                  key={label}
-                  bgClass={`bg-surface-raised border-l-4 ${accentBorder}`}
-                  label={label}
+                  key={colors.label}
+                  style={getCriticalCategoryTint(colors)}
+                  bgClass={`border-l-4 ${colors.accentBorder} ${styles.criticalTintedSlot} ${colors.label === 'Heat Sinks' ? styles.criticalHeatSink : ''}`}
+                  label={colors.label}
                 />
               ))}
             </div>

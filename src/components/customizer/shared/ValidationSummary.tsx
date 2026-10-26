@@ -43,8 +43,9 @@ interface ValidationSummaryProps {
   className?: string;
   unitName?: string;
   /**
-   * Notes listed after the rule results (e.g. running hot). With no rule
-   * issues the button reads as the note itself, e.g. "Runs hot +11".
+   * Readout warnings (e.g. running hot), listed after the rule warnings.
+   * With nothing else to report the button reads as the item itself, e.g.
+   * "Runs hot +11".
    */
   notes?: readonly ValidationNote[];
   /** Extra status shown at the foot of the panel (e.g. save state). */
@@ -59,6 +60,8 @@ const RULE_GROUPS = [
   { severity: 'error', title: 'Errors' },
   { severity: 'warning', title: 'Warnings' },
 ] as const;
+/** Readout items (running hot) are listed in this group. */
+const READOUT_GROUP = 'warning';
 const PANEL_WIDTH = 384;
 /** Below this width the panel opens as a bottom sheet. */
 const SHEET_MAX_WIDTH = 639;
@@ -67,7 +70,7 @@ const buttonClass =
   'focus-visible:outline-accent hover:bg-surface-raised flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-md border font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
 const sizeClass = 'px-3 text-[13px]';
 /**
- * Phone: the same wording, tighter, truncating within the readout row.
+ * Phone: every group as shape and count, tighter, within the readout row.
  * Important overrides beat the global unlayered `button` padding and size.
  */
 const compactSizeClass = 'max-w-[7.5rem] !px-1.5 !py-0 !text-[13px]';
@@ -227,8 +230,8 @@ export function ValidationSummary({
 
   const state: BuildState = summary.state;
   const noteNames = notes.map(noteText).join(', ');
-  // The full summary, the notes by name when the headline only counts
-  // them, and what the button opens.
+  // The full summary, the readout warnings by name when the headline only
+  // counts them, and what the button opens.
   const ariaLabel = `${unitName}: ${summary.panelHeading}${
     noteNames && !summary.headlineNote ? ` (${noteNames})` : ''
   }, ${summary.state === 'error' || summary.state === 'warning' ? 'show issues' : 'show checks'}`;
@@ -281,7 +284,7 @@ export function ValidationSummary({
         title={
           summary.headlineNote
             ? noteNames
-            : compact && summary.short.more
+            : compact
               ? summary.headline
               : undefined
         }
@@ -360,7 +363,8 @@ export function ValidationSummary({
                   const group = shown.filter(
                     (item) => item.severity === severity,
                   );
-                  if (group.length === 0) return null;
+                  const readouts = severity === READOUT_GROUP ? notes : [];
+                  if (group.length === 0 && readouts.length === 0) return null;
                   return (
                     <section key={severity} aria-label={title}>
                       <ValidationGroupHeading kind={severity} />
@@ -371,6 +375,14 @@ export function ValidationSummary({
                             issue={item}
                             headingId={`${id}-${severity}-${index}`}
                             destinations={issueDestinations(item)}
+                          />
+                        ))}
+                        {readouts.map((note) => (
+                          <ValidationNoteRow
+                            key={note.id}
+                            note={note}
+                            headingId={`${id}-readout-${note.id}`}
+                            destinations={noteDestinations(note)}
                           />
                         ))}
                       </ul>
@@ -387,7 +399,7 @@ export function ValidationSummary({
                     all
                   </button>
                 )}
-                {(noteIssues.length > 0 || notes.length > 0) && (
+                {noteIssues.length > 0 && (
                   <section aria-label="Notes">
                     <ValidationGroupHeading kind="note" />
                     <ul>
@@ -397,14 +409,6 @@ export function ValidationSummary({
                           issue={item}
                           headingId={`${id}-info-${index}`}
                           destinations={issueDestinations(item)}
-                        />
-                      ))}
-                      {notes.map((note) => (
-                        <ValidationNoteRow
-                          key={note.id}
-                          note={note}
-                          headingId={`${id}-note-${note.id}`}
-                          destinations={noteDestinations(note)}
                         />
                       ))}
                     </ul>

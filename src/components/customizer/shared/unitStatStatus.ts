@@ -6,12 +6,13 @@
  * these readouts reads its state and color from here so the thresholds and
  * the readout hue stay in one place.
  *
- * Running hot is legal, so heat above dissipation is a note, never an error.
- * A readout in that legal-but-high state (running hot, nearly full) shows its
- * value and bar in the note hue, the same color the build status, the panel
- * and the Overview readiness rows use for that note, so one condition never
- * reads as two severities. Red stays reserved for errors. The hues themselves
- * belong to the severity vocabulary (`BuildStatusLabel`).
+ * Running hot is legal but worth fixing, so heat above dissipation is a
+ * warning, never an error. A readout in that legal-but-high state shows its
+ * value and bar in the warning hue, the same color the build status, the
+ * panel and the Overview readiness rows use for that warning, so one
+ * condition never reads as two severities. Red stays reserved for errors.
+ * The hues themselves belong to the severity vocabulary (`BuildStatusLabel`).
+ * This is a presentation tier only; the validator does not report it.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
@@ -23,18 +24,15 @@ import {
   BUILD_STATUS_KIND_TEXT_CLASS,
 } from './BuildStatusLabel';
 
-/** Readout state: in budget, legal but high (a note), or over its cap. */
+/** Readout state: in budget, legal but high (a warning), or over its cap. */
 export type StatStatus = 'normal' | 'warning' | 'error';
 
 /** Text color for a readout value by state. */
 export const STAT_STATUS_TEXT_CLASS: Record<StatStatus, string> = {
   normal: 'text-text-theme-primary',
-  warning: BUILD_STATUS_KIND_TEXT_CLASS.note,
+  warning: BUILD_STATUS_KIND_TEXT_CLASS.warning,
   error: BUILD_STATUS_KIND_TEXT_CLASS.error,
 };
-
-/** Readout value text in its legal-but-high state, such as running hot. */
-export const READOUT_NOTE_TEXT_CLASS = STAT_STATUS_TEXT_CLASS.warning;
 
 /**
  * Fill-bar colors by state; normal keeps the neutral bar. Inline values win
@@ -42,11 +40,10 @@ export const READOUT_NOTE_TEXT_CLASS = STAT_STATUS_TEXT_CLASS.warning;
  */
 export const STAT_STATUS_FILL_COLOR: Record<StatStatus, string | undefined> = {
   normal: undefined,
-  warning: BUILD_STATUS_KIND_FILL_COLOR.note,
+  warning: BUILD_STATUS_KIND_FILL_COLOR.warning,
   error: BUILD_STATUS_KIND_FILL_COLOR.error,
 };
 
-/** Overweight is an error; under half a ton of headroom is legal but high. */
 /** Using the full tonnage is normal; only exceeding it is a problem. */
 export function getWeightStatus(used: number, max: number): StatStatus {
   return used > max ? 'error' : 'normal';
@@ -83,7 +80,7 @@ export function describeHeatBalance(
   return `${generated} heat at full fire / ${dissipation} dissipation`;
 }
 
-/** Plain-language explanation of running hot, shared by tooltip and notes. */
+/** Plain-language explanation of running hot, shared by tooltip and panel. */
 export function describeHeatExcess(excess: number): string {
   return `${excess} over: legal; add heat sinks to run cool.`;
 }
@@ -96,7 +93,7 @@ export function describeHeat(generated: number, dissipation: number): string {
 }
 
 /**
- * Status-control note for running hot. It restates the heat readout already
+ * Build-status warning for running hot. It restates the heat readout already
  * shown and points to the heat sinks; it is not a validation result.
  */
 export function getHeatNote(
@@ -118,8 +115,8 @@ export function getHeatNote(
 }
 
 /**
- * Notes the build status lists beside the rule results, from the
- * readouts. Every status surface takes its notes from here.
+ * Readout warnings the build status lists with the rule warnings. Every
+ * status surface takes them from here.
  */
 export function getStatusNotes(
   heatGenerated: number,

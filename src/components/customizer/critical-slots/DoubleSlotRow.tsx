@@ -29,6 +29,7 @@ import {
   getSlotContentClasses,
   getSlotDisplayName,
   getSlotSizeClasses,
+  getSlotTintStyle,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -247,6 +248,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         >
           {/* Primary half */}
           <div
+            style={getSlotTintStyle(primary)}
             className={`border-border-theme flex min-w-0 flex-1 items-center border-r border-dashed pr-1 ${getSlotContentClasses(primary)}`}
           >
             <span
@@ -261,6 +263,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
           </div>
           {/* Secondary half */}
           <div
+            style={getSlotTintStyle(secondary)}
             className={`flex min-w-0 flex-1 items-center pl-1 ${getSlotContentClasses(secondary)}`}
           >
             <span
@@ -297,6 +300,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         role="gridcell"
         tabIndex={0}
         draggable={canDrag}
+        style={getSlotTintStyle(primary)}
         className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus-visible:ring-2 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${containerClasses} ${selectionClasses} ${sizeClasses}`}
         onClick={onClick}
         onDoubleClick={() => handleDoubleSlotDoubleClick(removeState)}

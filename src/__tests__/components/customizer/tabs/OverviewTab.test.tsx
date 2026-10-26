@@ -230,9 +230,9 @@ describe('OverviewTab', () => {
       'data-status',
       'warning',
     );
-    // Counts only: the header status chip and the Heat row name the note.
+    // Counts only: the header status chip and the Heat row name the warning.
     expect(screen.getByTestId('overview-readiness-summary')).toHaveTextContent(
-      /^1 note$/,
+      /^1 warning$/,
     );
     // The Heat readout shows the numbers; the readiness row says what they mean.
     const heatTile = screen.getByTestId('overview-stat-heat');

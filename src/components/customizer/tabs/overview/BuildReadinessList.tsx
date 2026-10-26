@@ -51,7 +51,7 @@ export function BuildReadinessList({
           data-state={status.state}
         >
           <BuildStateIcon state={status.state} />
-          {/* Counts only ("1 note"): the rows below say what each one is. */}
+          {/* Counts only ("1 warning"): the rows below say what each one is. */}
           {status.state === 'ready' ? (
             <span className="text-green-400">{status.headline}</span>
           ) : (
@@ -77,7 +77,9 @@ export function BuildReadinessList({
           const needsAction = row.severity !== 'ok';
           return (
             // Phones stack each row: icon + title + full-width explanation,
-            // then the action as a full-width button under the text.
+            // then the action under the text. The actions are quiet links
+            // (text + chevron, outlined only on hover/focus) so the five of
+            // them never outweigh the rows they belong to.
             <li
               key={row.id}
               className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-2 sm:flex sm:items-center"
@@ -113,10 +115,10 @@ export function BuildReadinessList({
                   type="button"
                   onClick={() => onNavigate(row.tabId)}
                   aria-label={`${row.label}: go to ${tabLabel}`}
-                  className={`focus-visible:ring-accent col-start-2 inline-flex min-h-11 w-full shrink-0 items-center justify-between gap-1 rounded border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none sm:w-36 ${
+                  className={`hover:border-border-theme hover:bg-surface-raised focus-visible:ring-accent col-start-2 -ml-2 inline-flex min-h-11 w-fit shrink-0 items-center gap-1 justify-self-start rounded border border-transparent bg-transparent !px-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:ml-0 ${
                     needsAction
-                      ? 'border-border-theme text-text-theme-primary hover:bg-surface-raised'
-                      : 'border-border-theme-subtle text-text-theme-secondary hover:bg-surface-raised hover:text-text-theme-primary'
+                      ? 'text-text-theme-primary'
+                      : 'text-text-theme-secondary hover:text-text-theme-primary'
                   }`}
                 >
                   {tabLabel}

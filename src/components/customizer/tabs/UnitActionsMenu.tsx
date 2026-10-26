@@ -69,7 +69,11 @@ export function UnitActionsMenu({
         onClick={() => setOpen((value) => !value)}
         className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent relative flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 focus-visible:outline-2"
       >
-        <AppIcon name="more" size="toolbar" />
+        <AppIcon
+          name="more"
+          size="toolbar"
+          className="max-sm:!h-5 max-sm:!w-5"
+        />
         <ToolbarHint>
           <span className="block font-semibold">Unit actions</span>
           <span className="text-text-theme-secondary block">

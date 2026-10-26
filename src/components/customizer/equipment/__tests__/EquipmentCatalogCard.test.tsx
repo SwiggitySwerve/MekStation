@@ -21,6 +21,23 @@ const laser: IEquipmentItem = {
   introductionYear: 2300,
 };
 
+it('shows mounted count and excess tonnage while keeping Add enabled', async () => {
+  const user = userEvent.setup();
+  const { onAdd } = setup({ mountedCount: 3, remainingWeight: -2.5 });
+  expect(screen.getByText('×3 mounted')).toBeInTheDocument();
+  expect(screen.getAllByText('+3.0 t over')).toHaveLength(2);
+  const add = screen.getByRole('button', { name: 'Add Small Laser' });
+  expect(add).toBeEnabled();
+  await user.click(add);
+  expect(onAdd).toHaveBeenCalledTimes(1);
+});
+
+it('omits mounted and over badges when the item is absent and fits exactly', () => {
+  setup({ remainingWeight: 0.5 });
+  expect(screen.queryByText(/mounted/)).not.toBeInTheDocument();
+  expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
+});
+
 function setup(
   props: Partial<React.ComponentProps<typeof EquipmentCatalogCard>> = {},
 ) {

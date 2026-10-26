@@ -14,10 +14,16 @@ export const RECORD_SHEET_PREVIEW_VIEWPORT_PADDING = 48;
  */
 export const RECORD_SHEET_PREVIEW_MAX_FIT_WIDTH = 920;
 
+/**
+ * Below this zoom the sheet's small print is hard to read, so phones show a
+ * hint to zoom in. 100% draws one CSS pixel per paper point.
+ */
+export const RECORD_SHEET_PREVIEW_READABLE_ZOOM = 0.9;
+
 /** Zoom of the 100% (actual size) mode: one CSS pixel per paper point. */
 export const RECORD_SHEET_PREVIEW_ACTUAL_ZOOM = 1;
 
-/** The zoom as the readout shows it, e.g. "150%" (toolbar and caption). */
+/** The zoom as the readout shows it, e.g. "150%" (toolbar readout). */
 export function formatZoomPercent(zoom: number): string {
   return `${Math.round(zoom * 100)}%`;
 }

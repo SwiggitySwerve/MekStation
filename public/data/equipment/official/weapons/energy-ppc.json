@@ -44,7 +44,9 @@
       "criticalSlots": 3,
       "costCBills": 300000,
       "battleValue": 229,
-      "introductionYear": 2751
+      "introductionYear": 2751,
+      "extinctionYear": 2860,
+      "reintroductionYear": 3037
     },
     {
       "id": "light-ppc",
@@ -135,7 +137,7 @@
       "name": "Enhanced ER PPC",
       "category": "Energy",
       "subType": "PPC",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "damage": 12,
       "heat": 15,
@@ -149,7 +151,9 @@
       "criticalSlots": 3,
       "costCBills": 300000,
       "battleValue": 329,
-      "introductionYear": 2823
+      "introductionYear": 2823,
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080
     }
   ]
 }

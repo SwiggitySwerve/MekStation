@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 /**
  * Miscellaneous Equipment Type Definitions
  *
@@ -29,7 +30,10 @@ export enum MiscEquipmentCategory {
 /**
  * Misc equipment interface
  */
-export interface IMiscEquipment {
+export interface IMiscEquipment extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   readonly id: string;
   readonly name: string;
   readonly category: MiscEquipmentCategory;
@@ -39,7 +43,6 @@ export interface IMiscEquipment {
   readonly criticalSlots: number;
   readonly costCBills: number;
   readonly battleValue: number;
-  readonly introductionYear: number;
   readonly special?: readonly string[];
   /** ID for variable equipment formula lookup in FormulaRegistry */
   readonly variableEquipmentId?: string;

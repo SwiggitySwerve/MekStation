@@ -15,6 +15,7 @@ import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
+import { getCatalogWeightExcess } from './EquipmentBrowser.model';
 
 interface EquipmentCatalogCardProps {
   equipment: IEquipmentItem;
@@ -23,6 +24,8 @@ interface EquipmentCatalogCardProps {
   onInspect: () => void;
   onAdd: () => void;
   onAddAndPlace?: () => void;
+  mountedCount?: number;
+  remainingWeight?: number;
 }
 
 export function EquipmentCatalogCard({
@@ -32,6 +35,8 @@ export function EquipmentCatalogCard({
   onInspect,
   onAdd,
   onAddAndPlace,
+  mountedCount = 0,
+  remainingWeight,
 }: EquipmentCatalogCardProps): React.ReactElement {
   const detailId = useId();
   const weapon = useMemo(() => getWeaponById(equipment.id), [equipment.id]);
@@ -42,6 +47,7 @@ export function EquipmentCatalogCard({
     ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
     : '—';
   const variable = Boolean(equipment.variableEquipmentId);
+  const weightExcess = getCatalogWeightExcess(equipment, remainingWeight);
   const accent = getEquipmentAccentClasses(equipment.category, equipment.name);
   return (
     <li
@@ -70,17 +76,29 @@ export function EquipmentCatalogCard({
             className={`text-text-theme-muted shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
           />
           <span className="min-w-0 flex-1">
-            <span
-              className="block truncate text-base font-semibold text-inherit lg:text-sm"
-              title={equipment.name}
-            >
-              {equipment.name}
+            <span className={workbenchStyles.catalogNameLine}>
+              <span
+                className="min-w-0 truncate text-base font-semibold text-inherit lg:text-sm"
+                title={equipment.name}
+              >
+                {equipment.name}
+              </span>
+              {mountedCount > 0 && (
+                <span className={workbenchStyles.catalogMounted}>
+                  ×{mountedCount} mounted
+                </span>
+              )}
             </span>
             <span
               data-catalog-column="category"
               className="text-text-theme-secondary hidden truncate text-xs lg:block"
             >
               {equipment.category}
+              {weightExcess !== null && (
+                <span className={workbenchStyles.catalogOver}>
+                  +{weightExcess.toFixed(1)} t over
+                </span>
+              )}
             </span>
           </span>
         </button>
@@ -126,6 +144,11 @@ export function EquipmentCatalogCard({
           className={workbenchStyles.catalogMobileStats}
           data-testid="equipment-catalog-stats"
         >
+          {weightExcess !== null && (
+            <span className={workbenchStyles.catalogOver}>
+              +{weightExcess.toFixed(1)} t over
+            </span>
+          )}
           {weapon ? (
             <>
               <span>Dmg {weapon.damage}</span>

@@ -106,7 +106,7 @@ export function TabBar({
       {/* Secondary unit commands; Save and its state sit apart as the
           primary group. */}
       <div
-        className="flex shrink-0 items-center gap-0.5 pl-2"
+        className="flex shrink-0 items-center gap-0.5 pl-2 max-sm:gap-0 max-sm:pl-0"
         data-testid="unit-command-group"
       >
         <button
@@ -115,7 +115,11 @@ export function TabBar({
           className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent relative flex h-11 min-w-11 items-center justify-center gap-2 rounded !p-0 text-sm font-medium whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 xl:!pr-3 xl:!pl-2"
           aria-label="Add unit (Ctrl+O)"
         >
-          <AppIcon name="add" size="toolbar" />
+          <AppIcon
+            name="add"
+            size="toolbar"
+            className="max-sm:!h-5 max-sm:!w-5"
+          />
           <span aria-hidden="true" className="hidden xl:inline">
             Add unit
           </span>

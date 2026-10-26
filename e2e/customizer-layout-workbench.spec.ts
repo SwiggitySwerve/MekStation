@@ -273,22 +273,29 @@ test('validation keeps section badges, guidance and focused destinations @custom
   });
   await expect(statusButton).toBeVisible();
   await expect(statusButton).toHaveAttribute('data-build-status', 'error');
-  await expect(statusButton).toContainText(/1 error\s*·\s*1 warning/);
+  // Running hot is listed with the warnings (48 heat over 22 dissipation).
+  await expect(statusButton).toContainText(/1 error\s*·\s*2 warnings/);
   // Section dots mark where the fix happens: overweight is fixed on Equipment.
   await expect(
     page
       .getByRole('tab', { name: 'Equipment', exact: true })
-      .locator('[aria-label="1 error"]'),
+      .locator('[aria-label="Equipment: 1 error"]'),
   ).toBeVisible();
   await expect(
     page
       .getByRole('tab', { name: 'Structure', exact: true })
-      .locator('[aria-label="1 error"]'),
+      .locator('[aria-label="Structure: 1 error"]'),
   ).toHaveCount(0);
+  // Running hot is fixed on Structure, so its warning badge sits there.
+  await expect(
+    page
+      .getByRole('tab', { name: 'Structure', exact: true })
+      .locator('[aria-label="Structure: 1 warning"]'),
+  ).toBeVisible();
   await expect(
     page
       .getByRole('tab', { name: 'Critical Slots', exact: true })
-      .locator('[aria-label="1 warning"]'),
+      .locator('[aria-label="Critical Slots: 1 warning"]'),
   ).toBeVisible();
   await statusButton.focus();
   await statusButton.press('Enter');
@@ -390,7 +397,7 @@ test('notifications leave pinned metrics unobstructed @customizer', async ({
   );
 });
 
-test('critical locations fit desktop and use one phone location selector @customizer', async ({
+test('critical locations scroll below pinned tools and offer phone free-slot shortcuts @customizer', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -413,7 +420,8 @@ test('critical locations fit desktop and use one phone location selector @custom
     for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
       const box = (await swatch.boundingBox())!;
       expect(box.width).toBeGreaterThanOrEqual(20);
-      expect(box.height).toBeGreaterThanOrEqual(16);
+      expect(box.height).toBe(10);
+      expect(box.width).toBeGreaterThan(box.height * 2);
     }
     for (const label of await key.locator('span').all()) {
       expect(
@@ -434,18 +442,32 @@ test('critical locations fit desktop and use one phone location selector @custom
           (element) => element.scrollHeight - element.clientHeight,
         ),
       )
-      .toBeLessThanOrEqual(2);
-    await expect(page.getByText('Scroll for more locations')).toBeHidden();
+      .toBeGreaterThan(2);
+    await expect(page.getByText('Scroll for more locations')).toBeVisible();
     const tops = await desktop
       .locator(':scope > div > *')
       .evaluateAll((columns) =>
         columns.map((column) => column.getBoundingClientRect().top),
       );
     expect(Math.max(...tops) - Math.min(...tops)).toBeLessThanOrEqual(1);
+    const toolbarTop = (await key.boundingBox())!.y;
+    await desktop.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+    });
     for (const name of ['Right Leg critical slots', 'Left Leg critical slots'])
       await expect(
         desktop.getByRole('group', { name, exact: true }),
       ).toBeInViewport({ ratio: 1 });
+    expect((await key.boundingBox())!.y).toBe(toolbarTop);
+    await expect(
+      page.getByRole('button', { name: 'Auto-arrange', exact: true }),
+    ).toBeInViewport({ ratio: 1 });
+    const banner = page.getByRole('region', { name: 'Equipment to place' });
+    if (await banner.isVisible())
+      await expect(banner).toBeInViewport({ ratio: 1 });
+    await desktop.evaluate((element) => {
+      element.scrollTop = 0;
+    });
   };
   await page.getByRole('tab', { name: 'Critical Slots', exact: true }).click();
   await checkDesktop();
@@ -479,6 +501,17 @@ test('critical locations fit desktop and use one phone location selector @custom
     name: 'Critical slot location shortcuts',
   });
   const locationSelect = shortcuts.getByRole('combobox', { name: 'Location' });
+  const freeButtons = shortcuts.getByRole('button', { name: /free slots$/ });
+  await expect(freeButtons).toHaveCount(8);
+  for (const button of await freeButtons.all())
+    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await shortcuts
+    .getByRole('button', { name: /^Head, \d+ free slots$/ })
+    .click();
+  await expect(locationSelect).toHaveValue('Head');
+  await expect(
+    phone.getByRole('group', { name: 'Head critical slots', exact: true }),
+  ).toBeVisible();
   await expect(locationSelect.getByRole('option')).toHaveCount(8);
   expect(await locationSelect.getByRole('option').allTextContents()).toEqual([
     expect.stringMatching(/^Right Arm /),

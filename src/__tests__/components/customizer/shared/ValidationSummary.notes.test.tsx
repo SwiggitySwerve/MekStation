@@ -63,7 +63,7 @@ function withOneError(): UnitValidationState {
   return { ...valid, isValid: false, status: 'error', errorCount: 1, result };
 }
 
-describe('ValidationSummary notes', () => {
+describe('ValidationSummary readout warnings', () => {
   it('derives the heat note only when running hot, in plain language', () => {
     expect(getHeatNote(22, 22)).toBeNull();
     expect(heatNote).toMatchObject({
@@ -77,7 +77,7 @@ describe('ValidationSummary notes', () => {
     });
   });
 
-  it('reads as the note itself, not as "Valid", and links it to the tab that addresses it', () => {
+  it('reads as the warning itself, not as "Valid", and links it to the tab that addresses it', () => {
     const onNavigate = jest.fn();
     render(
       <ValidationSummary
@@ -88,23 +88,24 @@ describe('ValidationSummary notes', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Atlas: Legal · Runs hot +11, show checks',
+      name: 'Atlas: Legal · Runs hot +11, show issues',
     });
     expect(trigger).toHaveTextContent(/^Runs hot\s*\+11$/);
     expect(trigger).not.toHaveTextContent('Valid');
-    expect(trigger.querySelector('[data-severity-icon="note"]')).toHaveClass(
-      BUILD_STATUS_KIND_TEXT_CLASS.note,
+    expect(trigger).toHaveAttribute('data-build-status', 'warning');
+    expect(trigger.querySelector('[data-severity-icon="warning"]')).toHaveClass(
+      BUILD_STATUS_KIND_TEXT_CLASS.warning,
     );
     expect(trigger.querySelector('[data-icon-name="check"]')).toBeNull();
     fireEvent.click(trigger);
     // A legal build says so in its heading instead of a green line above a
-    // note row.
+    // warning row.
     const dialog = screen.getByRole('dialog', {
       name: /Atlas.*Build status.*Legal · Runs hot \+11/,
     });
     expect(dialog).not.toHaveTextContent('All construction rules pass');
     const heading = screen.getByRole('heading', {
-      name: 'Note: Runs 11 heat over dissipation',
+      name: 'Warning: Runs 11 heat over dissipation',
     });
     const note = heading.closest('[data-validation-note]')!;
     expect(note).toHaveTextContent(heatNote.message);
@@ -116,7 +117,7 @@ describe('ValidationSummary notes', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('is one button led by the worst severity, listing errors before notes', () => {
+  it('is one button led by the worst severity, listing running hot with the warnings', () => {
     render(
       <ValidationSummary
         validation={withOneError()}
@@ -126,27 +127,27 @@ describe('ValidationSummary notes', () => {
     );
     expect(screen.getAllByRole('button')).toHaveLength(1);
     const status = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 1 error · 1 note (Runs hot +11), show issues',
+      name: 'Atlas: Not legal · 1 error · 1 warning (Runs hot +11), show issues',
     });
     // Every group is counted, worst first, in the shared wording.
-    expect(status).toHaveTextContent(/^1 error\s*·\s*1 note$/);
+    expect(status).toHaveTextContent(/^1 error\s*·\s*1 warning$/);
     expect(status).toHaveAttribute('data-build-status', 'error');
     fireEvent.click(status);
     const dialog = screen.getByRole('dialog', {
-      name: /Atlas.*Build status.*Not legal · 1 error · 1 note/,
+      name: /Atlas.*Build status.*Not legal · 1 error · 1 warning/,
     });
     // Each group heading says what the group means.
     expect(
       Array.from(dialog.querySelectorAll('h4')).map((h) => h.textContent),
     ).toEqual([
       'Errors \u2014 the unit is not legal until fixed',
-      'Notes \u2014 legal; for your information',
+      'Warnings \u2014 legal, but likely a mistake',
     ]);
     expect(dialog).toHaveTextContent('Overweight');
     expect(dialog).toHaveTextContent(heatNote.message);
   });
 
-  it('keeps one short worded button on phone and lists notes in its panel', () => {
+  it('shows every group as shape and count on phone and lists them in its panel', () => {
     render(
       <ValidationSummary
         validation={withOneError()}
@@ -156,16 +157,19 @@ describe('ValidationSummary notes', () => {
       />,
     );
     const error = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 1 error · 1 note (Runs hot +11), show issues',
+      name: 'Atlas: Not legal · 1 error · 1 warning (Runs hot +11), show issues',
     });
-    // Phones name the worst group in words over a worded count of the rest.
-    expect(error).toHaveTextContent(/^1 error\s*\+1 more$/);
+    // Phones show each group as its severity shape and count.
+    expect(error).toHaveTextContent(/^1\s*1$/);
     expect(
       error.querySelector('[data-build-status-part="error"]'),
-    ).toHaveTextContent('1 error');
-    expect(error.querySelector('[data-build-status-more]')).toHaveTextContent(
-      /^\+1 more$/,
-    );
+    ).toHaveTextContent('1');
+    expect(
+      error.querySelector(
+        '[data-build-status-part="warning"] [data-severity-icon="warning"]',
+      ),
+    ).toHaveClass(BUILD_STATUS_KIND_TEXT_CLASS.warning);
+    expect(error).toHaveAttribute('title', '1 error · 1 warning');
     expect(error.querySelector('[data-severity-icon="error"]')).toHaveClass(
       BUILD_STATUS_KIND_TEXT_CLASS.error,
     );
@@ -175,7 +179,7 @@ describe('ValidationSummary notes', () => {
     expect(dialog).toHaveTextContent(heatNote.message);
   });
 
-  it('keeps the same note wording on phone and shows details in the panel', () => {
+  it('keeps the same running-hot wording on phone and shows details in the panel', () => {
     render(
       <ValidationSummary
         validation={valid}
@@ -185,9 +189,11 @@ describe('ValidationSummary notes', () => {
         details={<span>Draft saved in this browser</span>}
       />,
     );
-    const trigger = screen.getByRole('button', { name: /show checks/ });
+    const trigger = screen.getByRole('button', {
+      name: /Runs hot \+11, show issues/,
+    });
     expect(trigger).toHaveTextContent(/Runs hot\s*\+11/);
-    expect(trigger).not.toHaveTextContent('note');
+    expect(trigger).not.toHaveTextContent('warning');
     fireEvent.click(trigger);
     expect(screen.getByRole('dialog')).toHaveTextContent(
       'Draft saved in this browser',

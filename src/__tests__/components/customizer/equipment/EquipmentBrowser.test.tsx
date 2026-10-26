@@ -5,6 +5,7 @@ import React from 'react';
 import type { CompactFilterBarProps } from '@/components/customizer/equipment/CompactFilterBar';
 
 import { EquipmentBrowser } from '@/components/customizer/equipment/EquipmentBrowser';
+import { EquipmentBrowserUnitContext } from '@/components/customizer/equipment/EquipmentBrowserUnitContext';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
@@ -152,6 +153,30 @@ describe('EquipmentBrowser', () => {
     expect(
       screen.getByRole('textbox', { name: 'Search equipment' }),
     ).toBeInTheDocument();
+  });
+
+  it('presents calculated capacity and current loadout counts without blocking Add', async () => {
+    const onAddEquipment = jest.fn();
+    render(
+      <EquipmentBrowserUnitContext.Provider
+        value={{
+          remainingWeight: 4,
+          remainingSlots: 16,
+          mountedCounts: new Map([['medium-laser', 3]]),
+        }}
+      >
+        <EquipmentBrowser onAddEquipment={onAddEquipment} />
+      </EquipmentBrowserUnitContext.Provider>,
+    );
+    expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
+      '4.0 t free · 16 slots free',
+    );
+    expect(screen.getByText('×3 mounted')).toBeInTheDocument();
+    expect(screen.getAllByText('+1.0 t over')).toHaveLength(2);
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Add Large Laser' }));
+    expect(onAddEquipment).toHaveBeenCalledWith(mockEquipment[1]);
   });
 
   it('should render equipment table', () => {
@@ -488,7 +513,7 @@ describe('EquipmentBrowser', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
     expect(
-      screen.getByText('Inner Sphere · introduced ≤3050'),
+      screen.getByText('Inner Sphere · available in 3050'),
     ).toBeInTheDocument();
   });
   it('allows keyboard inspection in read-only mode but cannot add equipment', async () => {

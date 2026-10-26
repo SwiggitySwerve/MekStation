@@ -57,9 +57,9 @@ async function expectFittedPreview(page: Page) {
   await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
     /^\d+%$/,
   );
-  // Phones repeat the zoom in the caption so the toolbar fits one row.
+  // The caption names the paper and page count; the zoom lives in the toolbar.
   await expect(page.getByTestId('preview-sheet-caption')).toHaveText(
-    /^Letter \u00b7 1 page(?: \u00b7 \d+%)?$/,
+    'Letter \u00b7 1 page',
   );
   const paper = (await canvas.boundingBox())!;
   const toolbar = (await controls.boundingBox())!;
@@ -71,6 +71,37 @@ async function expectFittedPreview(page: Page) {
   expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
   expect(paper.width).toBeLessThanOrEqual(921);
   expect(paper.y).toBeGreaterThanOrEqual(toolbar.y + toolbar.height);
+  if (viewport.width < 640) {
+    // Phones: exactly two toolbar rows, every control 44px tall with a
+    // visible text label, the sheet starting high, and a readability hint.
+    const rows = await page
+      .locator('.preview-toolbar')
+      .locator('button, [data-testid="paper-size-phone-label"]')
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((node) => (node as HTMLElement).offsetParent !== null)
+          .map((node) => {
+            const box = node.getBoundingClientRect();
+            return {
+              top: Math.round(box.top),
+              height: Math.round(box.height),
+              // The - and + steppers are icon buttons named by aria-label.
+              text:
+                (node.textContent ?? '').trim() ||
+                (node.getAttribute('aria-label') ?? ''),
+            };
+          }),
+      );
+    expect(new Set(rows.map((row) => row.top)).size).toBe(2);
+    for (const row of rows) {
+      expect(row.height).toBeGreaterThanOrEqual(44);
+      expect(row.text.length).toBeGreaterThan(0);
+    }
+    expect(paper.y).toBeLessThanOrEqual(300);
+    await expect(page.getByTestId('preview-sheet-hint')).toHaveText(
+      'Zoom in or pinch to read details',
+    );
+  }
   if (viewport.width >= 640) {
     // Readable on desktop, not a 600px sheet between wide gutters.
     expect(paper.width).toBeGreaterThan(800);

@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 import type { IAmmunition } from '@/types/equipment/AmmunitionTypes';
 import type { IElectronics } from '@/types/equipment/ElectronicsTypes';
 import type { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
@@ -15,7 +16,10 @@ import {
   parseWeaponCategory,
 } from './EquipmentParsers';
 
-export interface IRawWeaponData {
+export interface IRawWeaponData extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   id: string;
   name: string;
   category: string;
@@ -37,7 +41,6 @@ export interface IRawWeaponData {
   ammoPerTon?: number;
   costCBills: number;
   battleValue: number;
-  introductionYear: number;
   isExplosive?: boolean;
   special?: string[];
   allowedUnitTypes?: string[];
@@ -45,7 +48,10 @@ export interface IRawWeaponData {
   allowedLocations?: string[];
 }
 
-export interface IRawAmmunitionData {
+export interface IRawAmmunitionData extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   id: string;
   name: string;
   category: string;
@@ -59,7 +65,6 @@ export interface IRawAmmunitionData {
   costPerTon: number;
   battleValue: number;
   isExplosive: boolean;
-  introductionYear: number;
   damageModifier?: number;
   rangeModifier?: number;
   special?: string[];
@@ -67,7 +72,10 @@ export interface IRawAmmunitionData {
   flags?: string[];
 }
 
-export interface IRawElectronicsData {
+export interface IRawElectronicsData extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   id: string;
   name: string;
   category: string;
@@ -77,7 +85,6 @@ export interface IRawElectronicsData {
   criticalSlots: number;
   costCBills: number;
   battleValue: number;
-  introductionYear: number;
   special?: string[];
   variableEquipmentId?: string;
   allowedUnitTypes?: string[];
@@ -85,7 +92,10 @@ export interface IRawElectronicsData {
   allowedLocations?: string[];
 }
 
-export interface IRawMiscEquipmentData {
+export interface IRawMiscEquipmentData extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   id: string;
   name: string;
   category: string;
@@ -95,7 +105,6 @@ export interface IRawMiscEquipmentData {
   criticalSlots: number;
   costCBills: number;
   battleValue: number;
-  introductionYear: number;
   special?: string[];
   variableEquipmentId?: string;
   allowedUnitTypes?: string[];
@@ -133,6 +142,8 @@ export function convertWeapon(raw: IRawWeaponData): IWeapon {
     costCBills: raw.costCBills,
     battleValue: raw.battleValue,
     introductionYear: raw.introductionYear,
+    extinctionYear: raw.extinctionYear,
+    reintroductionYear: raw.reintroductionYear,
     ...(raw.isExplosive && { isExplosive: raw.isExplosive }),
     ...(raw.special && { special: raw.special }),
     ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
@@ -160,6 +171,8 @@ export function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
     battleValue: raw.battleValue,
     isExplosive: raw.isExplosive,
     introductionYear: raw.introductionYear,
+    extinctionYear: raw.extinctionYear,
+    reintroductionYear: raw.reintroductionYear,
     ...(raw.damageModifier !== undefined && {
       damageModifier: raw.damageModifier,
     }),
@@ -187,6 +200,8 @@ export function convertElectronics(raw: IRawElectronicsData): IElectronics {
     costCBills: raw.costCBills,
     battleValue: raw.battleValue,
     introductionYear: raw.introductionYear,
+    extinctionYear: raw.extinctionYear,
+    reintroductionYear: raw.reintroductionYear,
     ...(raw.special && { special: raw.special }),
     ...(raw.variableEquipmentId && {
       variableEquipmentId: raw.variableEquipmentId,
@@ -214,6 +229,8 @@ export function convertMiscEquipment(
     costCBills: raw.costCBills,
     battleValue: raw.battleValue,
     introductionYear: raw.introductionYear,
+    extinctionYear: raw.extinctionYear,
+    reintroductionYear: raw.reintroductionYear,
     ...(raw.special && { special: raw.special }),
     ...(raw.variableEquipmentId && {
       variableEquipmentId: raw.variableEquipmentId,

@@ -14,6 +14,7 @@ import { SvgIcon } from '@/components/ui/SvgIcon';
 import { PaperSize } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
+import { PAPER_SHORT_LABEL } from './paperSizeLabels';
 import { PREVIEW_CONTROL_CLASS } from './previewToolbarStyles';
 
 // =============================================================================
@@ -113,12 +114,11 @@ export function PreviewToolbar({
 
   return (
     <div
-      className={`preview-toolbar border-border-theme-subtle bg-surface-base flex shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1.5 sm:gap-3 sm:px-4 sm:py-3 ${className}`}
+      className={`preview-toolbar border-border-theme-subtle bg-surface-base grid shrink-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-1.5 gap-y-1 border-b px-2 py-1.5 sm:flex sm:flex-wrap sm:gap-3 sm:px-4 sm:py-3 ${className}`}
     >
-      {/* Paper Size Select. Phones show it as a 44px page icon over the
-          native select (the caption below the sheet names the paper), so
-          every control fits one row above the sheet. */}
-      <div className="max-sm:has-[select:focus-visible]:ring-accent relative flex shrink-0 items-center gap-2 max-sm:rounded-md max-sm:has-[select:disabled]:opacity-70 max-sm:has-[select:focus-visible]:ring-2">
+      {/* Paper Size Select. Phones show a labelled 44px "Paper: Letter"
+          control over the native select; desktop shows the label and select. */}
+      <div className="max-sm:has-[select:focus-visible]:ring-accent relative flex min-w-0 items-center gap-2 max-sm:rounded-md max-sm:has-[select:disabled]:opacity-70 max-sm:has-[select:focus-visible]:ring-2 sm:shrink-0">
         <label
           htmlFor="paper-size"
           className="text-text-theme-secondary sr-only text-[13px] font-medium whitespace-nowrap sm:not-sr-only"
@@ -127,9 +127,14 @@ export function PreviewToolbar({
         </label>
         <span
           aria-hidden="true"
-          className={`${PREVIEW_CONTROL_CLASS} inline-flex w-11 items-center justify-center max-sm:px-0 sm:hidden`}
+          data-testid="paper-size-phone-label"
+          className={`${PREVIEW_CONTROL_CLASS} flex w-full min-w-0 items-center justify-between gap-1.5 whitespace-nowrap sm:hidden`}
         >
-          <AppIcon name="document" size="inline" />
+          <span className="truncate">
+            <span className="text-text-theme-secondary">Paper: </span>
+            {PAPER_SHORT_LABEL[paperSize]}
+          </span>
+          <AppIcon name="chevron-down" size="inline" />
         </span>
         <select
           id="paper-size"
@@ -139,24 +144,27 @@ export function PreviewToolbar({
           disabled={isBusy}
         >
           <option value={PaperSize.LETTER}>
-            Letter (8.5&quot; × 11&quot;)
+            Letter (8.5&quot; &times; 11&quot;)
           </option>
-          <option value={PaperSize.A4}>A4 (210mm × 297mm)</option>
+          <option value={PaperSize.A4}>A4 (210mm &times; 297mm)</option>
         </select>
       </div>
 
-      {/* Zoom sits between the paper size and the actions on every width */}
+      {/* Zoom: the first row on phones, between paper size and actions on
+          desktop. */}
       {zoomControls ? (
-        <div className="flex-1 sm:flex-none">{zoomControls}</div>
+        <div className="max-sm:order-first max-sm:col-span-3">
+          {zoomControls}
+        </div>
       ) : null}
 
-      {/* Print + Download stay together at the toolbar's trailing edge;
-          phones show them as 44px icon buttons */}
-      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+      {/* Print + Download PDF: grid cells on phones (second row, icon and
+          text), one trailing group on desktop. */}
+      <div className="contents sm:ml-auto sm:flex sm:shrink-0 sm:items-center sm:gap-2">
         {/* Print Button */}
         <button
           type="button"
-          className={`${PREVIEW_CONTROL_CLASS} inline-flex min-w-11 items-center justify-center gap-1.5 whitespace-nowrap max-sm:px-0! sm:px-4`}
+          className={`${PREVIEW_CONTROL_CLASS} inline-flex items-center justify-center gap-1.5 whitespace-nowrap max-sm:px-2.5 sm:px-4`}
           onClick={() => {
             void runAction('print');
           }}
@@ -164,9 +172,7 @@ export function PreviewToolbar({
           aria-busy={isPrinting}
         >
           <PrintIcon />
-          <span className="sr-only sm:not-sr-only">
-            {isPrinting ? 'Printing...' : 'Print'}
-          </span>
+          <span>{isPrinting ? 'Printing...' : 'Print'}</span>
         </button>
 
         {/* Download PDF Button */}
@@ -177,21 +183,20 @@ export function PreviewToolbar({
           }}
           disabled={isBusy}
           aria-busy={isExporting}
-          className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset max-sm:px-0! sm:px-4 ${
+          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset max-sm:px-2.5 sm:px-4 ${
             isBusy
               ? 'border-border-theme bg-surface-raised text-text-theme-primary cursor-not-allowed opacity-70'
               : 'bg-accent text-on-accent hover:bg-accent-hover focus-visible:ring-on-accent border-transparent'
           }`}
         >
           <DownloadIcon />
-          <span className="sr-only sm:not-sr-only">
-            {isExporting ? 'Exporting...' : 'Download PDF'}
-          </span>
+          <span>{isExporting ? 'Exporting...' : 'Download PDF'}</span>
         </button>
       </div>
       {actionError ? (
         <div
           role="alert"
+          className="max-sm:col-span-3"
           style={{
             flexBasis: '100%',
             display: 'flex',
@@ -232,7 +237,6 @@ export function PreviewToolbar({
     </div>
   );
 }
-
 // =============================================================================
 // Icons
 // =============================================================================

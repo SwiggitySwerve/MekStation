@@ -1,6 +1,10 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
-import { createAmmoWeaponMatcher } from '@/utils/equipment/ammunitionCompatibility';
+import {
+  createAmmoWeaponMatcher,
+  isOneShotEquipment,
+} from '@/utils/equipment/ammunitionCompatibility';
+import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
 import type {
   EquipmentFilters,
@@ -137,7 +141,7 @@ function matchesOneShotFilter(
   item: IEquipmentItem,
   hideOneShot: boolean,
 ): boolean {
-  return !hideOneShot || !/(?:one[ -]shot|\((?:i-)?os\))/i.test(item.name);
+  return !hideOneShot || !isOneShotEquipment(item);
 }
 
 function matchesAvailability(
@@ -148,7 +152,7 @@ function matchesAvailability(
   if (!filters.hideUnavailable) return true;
   if (
     unitContext.unitYear !== null &&
-    item.introductionYear > unitContext.unitYear
+    !isAvailableInYear(item, unitContext.unitYear)
   ) {
     return false;
   }
@@ -166,7 +170,7 @@ function matchesNumericFilters(
     (filters.maxWeight === null || item.weight <= filters.maxWeight) &&
     (filters.maxCriticalSlots === null ||
       item.criticalSlots <= filters.maxCriticalSlots) &&
-    (filters.maxYear === null || item.introductionYear <= filters.maxYear)
+    (filters.maxYear === null || isAvailableInYear(item, filters.maxYear))
   );
 }
 

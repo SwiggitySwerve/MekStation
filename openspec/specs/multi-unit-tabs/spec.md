@@ -232,6 +232,14 @@ The system SHALL provide a dialog for loading existing units into tabs.
 - **THEN** modal appears with search input at top
 - **AND** filter options for tech base and weight class
 - **AND** scrollable list of units below
+- **AND** search and filter controls use the standard input border color, retaining their focus rings and 44px touch targets
+
+#### Scenario: Default library name ordering
+
+- **WHEN** the dialog sorts units by source and name
+- **THEN** custom units retain priority over canonical units
+- **AND** names within each source sort using a presentation key that ignores leading punctuation, quotes, and whitespace
+- **AND** displayed names and the units passed to Load Unit remain unchanged
 
 #### Scenario: Unit sources
 

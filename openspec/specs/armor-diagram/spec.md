@@ -82,7 +82,7 @@ The system SHALL display current armor values directly on the diagram.
 #### Scenario: Biped plates stay legible and tappable on a phone
 
 - **WHEN** the biped silhouette renders at 390x844
-- **THEN** every SVG text and tspan is at least 12 rendered px (the diagram draws no text below 14 viewBox units, shown at about 0.86 px per unit because the SVG height is capped to the viewport)
+- **THEN** every SVG text and tspan is at least 12 rendered px, and the plate text, including the "/max" denominators, the rear line and the location names, is at least 14 rendered px (plate text uses 17 viewBox units, shown at about 0.86 px per unit because the SVG height is capped to the viewport)
 - **AND** every location plate (head, torsos, arms and legs) is a button at least 44 px wide and 44 px tall; arms are narrower and side torsos wider than the earlier layout so the torso values have room
 - **AND** the viewBox is cropped to the drawn silhouette ("0 20 360 402") so the cropped height, not wasted margin, sets the scale
 
@@ -100,10 +100,10 @@ The system SHALL display current armor values directly on the diagram.
 #### Scenario: Location table beside the silhouette
 
 - **WHEN** the biped silhouette card is at least 40rem wide inside (container query, not viewport width)
-- **THEN** the silhouette column (up to 440px) sits beside a compact table of every location with columns "Location", "Front / max", "Rear / max" and "Location max", centered as a pair so no blank band is left on the card's right
-- **AND** Front and Rear read "<value>/<face max>" using the same face maximums as the plates (`getArmorFaceMaximums`), Rear shows an em dash for locations without rear armor, and Location max is the whole-location maximum; the table adds no calculations of its own
+- **THEN** the silhouette column (up to 440px) sits beside a compact table of every location with single-line columns "Location", "Front", "Rear" and "Max", centered as a pair so no blank band is left on the card's right
+- **AND** Front and Rear read "<value>/<face max>" using the same face maximums as the plates (`getArmorFaceMaximums`), Rear shows an em dash for locations without rear armor, and Max is the whole-location maximum; the table adds no calculations of its own, never overflows its card, and keeps the card's 16px padding to the right of the last column, so a selected row never touches the card edge
 - **AND** each row's location is a button (`aria-pressed` when selected) and clicking anywhere on the row selects or deselects that location exactly like its plate, so the plate, the row and the location editor always agree
-- **AND** a 13px note directly under the table header row says Front and rear are points placed out of that face's limit and Location max is the whole location
+- **AND** a single-line 13px note directly under the table header row says values are current / max and Max is the whole location
 - **AND** each row carries a status dot using the plate's health color
 - **WHEN** the card is narrower (phones and narrow tablets)
 - **THEN** the table is omitted because the plates already show every value, and the figure keeps its viewport-capped height
@@ -157,6 +157,7 @@ The system SHALL include a legend explaining color coding.
 
 - **WHEN** diagram is rendered
 - **THEN** legend is introduced by "Armor % of max:" and shows the four health colors with their thresholds (60%+, 40%+, 20%+, <20%)
+- **AND** on phones the legend text is 14px and shows the lead-in as "% of max:" (the word "Armor" stays in the accessible text) so the legend fits one line and the footer stays above the Loadout bar
 - **AND** the swatches use the same colors as the diagram fills
 - **AND** the biped diagram explains click interaction once, in its caption ("Front view · click a location to edit"), with the keyboard instruction (Tab to a location, then press Enter) kept as screen-reader-only text
 - **AND** the biped diagram has no separate footnote or bottom instruction line

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+﻿import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { FluffTab } from '@/components/customizer/tabs/FluffTab';
@@ -30,7 +30,7 @@ describe('FluffTab', () => {
     expect(screen.queryByText('Cost (C-Bills)')).not.toBeInTheDocument();
   });
 
-  it('stacks the long narrative fields in order and pairs the short ones', () => {
+  it('stacks all six narrative fields in one column, in order', () => {
     render(
       <FluffTab
         fluff={{}}
@@ -50,14 +50,8 @@ describe('FluffTab', () => {
     const fields = labels.map((label) => screen.getByLabelText(label));
     const container = screen.getByTestId('fluff-narrative');
     expect(container).toHaveClass('flex-col');
-    fields.slice(0, 4).forEach((field) => {
-      expect(field.parentElement?.parentElement).toBe(container);
-    });
-    const pair = fields[4].parentElement?.parentElement as HTMLElement;
-    expect(fields[5].parentElement?.parentElement).toBe(pair);
-    expect(pair.parentElement).toBe(container);
-    expect(pair.className).toContain('@[48rem]:grid-cols-2');
     fields.forEach((field, index) => {
+      expect(field.parentElement?.parentElement).toBe(container);
       if (index > 0) {
         expect(
           fields[index - 1].compareDocumentPosition(field) &
@@ -67,6 +61,36 @@ describe('FluffTab', () => {
     });
   });
 
+  it('uses the small-caps section-label style for narrative labels', () => {
+    render(<FluffTab fluff={{}} onFluffChange={jest.fn()} />);
+
+    const overview = screen.getByText('Overview', { selector: 'label' });
+    expect(overview).toHaveClass('uppercase', 'tracking-wider', 'text-xs');
+  });
+
+  it('places the narrative first, then role, then manufacturing, in a container-query grid', () => {
+    render(
+      <FluffTab
+        fluff={{}}
+        onRoleChange={jest.fn()}
+        onFluffChange={jest.fn()}
+      />,
+    );
+
+    const grid = screen.getByTestId('fluff-grid');
+    expect(grid.className).toContain('@[64rem]:grid-cols-');
+    const narrative = screen.getByRole('region', {
+      name: 'Unit History and Description',
+    });
+    const side = screen.getByTestId('fluff-side-column');
+    const role = screen.getByRole('region', { name: 'Battlefield Role' });
+    const manufacturing = screen.getByRole('region', { name: 'Manufacturing' });
+    expect(grid.firstElementChild).toBe(narrative);
+    expect(grid.lastElementChild).toBe(side);
+    expect(side.children[0]).toBe(role);
+    expect(side.children[1]).toBe(manufacturing);
+    expect(side.className).toContain('@[64rem]:sticky');
+  });
   it('keeps the history card full width and left-aligned, 16px / 1.5, at least 3 rows', () => {
     render(
       <FluffTab
@@ -81,6 +105,7 @@ describe('FluffTab', () => {
     });
     const manufacturing = screen.getByRole('region', { name: 'Manufacturing' });
     expect(card.className).not.toMatch(/mx-auto|max-w-/);
+    expect(screen.getByTestId('fluff-grid').className).toContain('75ch');
     expect(card.className).toContain('p-4');
     expect(manufacturing.className).toContain('p-4');
     for (const label of ['Overview', 'History', 'Variants']) {
@@ -116,7 +141,7 @@ describe('FluffTab', () => {
     }
   });
 
-  it('keeps the remove button subtle but reachable at 44px', () => {
+  it('keeps the remove button inside the row, hidden until hover or focus on fine pointers, 44px', () => {
     render(
       <FluffTab
         fluff={{ systemManufacturer: { Engine: 'Vlar' } }}
@@ -128,11 +153,17 @@ describe('FluffTab', () => {
     const remove = screen.getByRole('button', {
       name: 'Remove Engine manufacturer',
     });
-    expect(remove).toHaveClass('h-11', 'w-11', 'text-text-theme-muted');
-    expect(remove).not.toHaveClass('border');
+    const input = screen.getByLabelText('Engine');
+    expect(remove).toHaveClass('h-11', 'w-11', 'absolute', 'right-0');
+    expect(remove.parentElement).toBe(input.parentElement);
+    expect(input).toHaveClass('pr-11');
+    const fine = '[@media(hover:hover)_and_(pointer:fine)]';
+    expect(remove).toHaveClass(`${fine}:opacity-0`);
+    expect(remove).toHaveClass(`${fine}:group-hover/row:opacity-100`);
+    expect(remove).toHaveClass(`${fine}:group-focus-within/row:opacity-100`);
+    expect(remove).not.toHaveClass('opacity-0');
     expect(remove).toHaveClass('hover:text-white', 'focus-visible:ring-2');
   });
-
   it('hints at what goes in the usually-empty Variants and Notable Units', () => {
     render(
       <FluffTab
@@ -148,20 +179,54 @@ describe('FluffTab', () => {
     );
   });
 
-  it('gives Manufacturer the full column width, like the system rows', () => {
+  it('lists manufacturer and systems as consistent name + value rows with no orphan', () => {
     render(
       <FluffTab
-        fluff={{ systemManufacturer: { Engine: 'Vlar' } }}
+        fluff={{
+          systemManufacturer: { Engine: 'Vlar', Targeting: 'Angst' },
+        }}
         onRoleChange={jest.fn()}
         onFluffChange={jest.fn()}
       />,
     );
 
-    const manufacturerCell =
-      screen.getByLabelText('Manufacturer').parentElement?.parentElement;
-    expect(manufacturerCell).not.toHaveClass('grid');
+    const side = screen.getByRole('region', { name: 'Manufacturing' });
+    const rowOf = (label: string): HTMLElement =>
+      screen.getByLabelText(label).closest('.group\\/row') as HTMLElement;
+    const rows = ['Manufacturer', 'Primary Factory', 'Engine', 'Targeting'].map(
+      rowOf,
+    );
+    rows.forEach((row) => {
+      expect(side).toContainElement(row);
+      expect(row.parentElement).toHaveClass('flex-col');
+    });
+    expect(rows[2].parentElement).toBe(rows[3].parentElement);
   });
 
+  it('ends the system list with a normal secondary Add system action and its reason', () => {
+    render(
+      <FluffTab
+        fluff={{ systemManufacturer: { Engine: 'Vlar' } }}
+        onFluffChange={jest.fn()}
+      />,
+    );
+
+    const add = screen.getByRole('button', { name: 'Add system' });
+    expect(add).toBeDisabled();
+    expect(add).toHaveClass('bg-surface-raised');
+    expect(add).toHaveAccessibleDescription('Name a system and who makes it.');
+
+    fireEvent.change(screen.getByLabelText('New System'), {
+      target: { value: 'Engine' },
+    });
+    expect(add).toBeDisabled();
+    expect(add).toHaveAccessibleDescription(/already has a manufacturer/);
+
+    fireEvent.change(screen.getByLabelText('New System'), {
+      target: { value: 'Armor' },
+    });
+    expect(add).toBeEnabled();
+  });
   it('tags empty optional fields, and drops the tag once they are filled', () => {
     const { rerender } = render(
       <FluffTab
@@ -198,20 +263,20 @@ describe('FluffTab', () => {
     expect(screen.queryByText('Optional')).not.toBeInTheDocument();
   });
 
-  it('puts the Combat Role select in the card body under the subtitle', () => {
+  it('puts a full-width Combat Role select in the card body under the subtitle', () => {
     render(<FluffTab role="Scout" onRoleChange={jest.fn()} />);
 
     const card = screen.getByRole('region', { name: 'Battlefield Role' });
     const select = screen.getByLabelText('Combat Role');
     expect(card).toContainElement(select);
-    expect(select.closest('label')).toHaveClass('@[40rem]:w-80');
+    expect(select).toHaveClass('w-full');
+    expect(select.closest('label')).toHaveClass('block');
     const subtitle = screen.getByText(/quick classification/);
     expect(
       subtitle.compareDocumentPosition(select) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
-
   it('emits narrow controlled patches for role, narrative, and manufacturing', () => {
     const onRoleChange = jest.fn();
     const onFluffChange = jest.fn();

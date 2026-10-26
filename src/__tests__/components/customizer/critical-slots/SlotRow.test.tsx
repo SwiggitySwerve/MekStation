@@ -43,7 +43,7 @@ describe('SlotRow', () => {
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
   });
 
-  it('shows the equipment name and slot index in every occupied slot', () => {
+  it('shows a continuation marker while retaining the complete accessible name', async () => {
     const slot: SlotContent = {
       index: 2,
       type: 'equipment',
@@ -57,8 +57,16 @@ describe('SlotRow', () => {
     render(<SlotRow {...defaultProps} slot={slot} />);
 
     expect(screen.getByText('3')).toBeInTheDocument();
-    expect(screen.getByText('LPL Laser')).toBeInTheDocument();
-    expect(screen.queryByText('Continuation')).not.toBeInTheDocument();
+    expect(screen.queryByText('LPL Laser')).not.toBeInTheDocument();
+    expect(screen.getByText('↳')).toHaveAttribute('aria-hidden', 'true');
+    const cell = screen.getByRole('gridcell', {
+      name: 'Slot 3: Large Pulse Laser',
+    });
+    expect(cell).toHaveAttribute('draggable', 'true');
+    await userEvent.click(cell);
+    expect(defaultProps.onClick).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard('{Delete}');
+    expect(defaultProps.onRemove).toHaveBeenCalledTimes(1);
   });
 
   it('should call onClick when clicked', async () => {

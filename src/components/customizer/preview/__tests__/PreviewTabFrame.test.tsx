@@ -110,6 +110,40 @@ describe('PreviewTabFrame', () => {
     );
   });
 
+  it('hints how to read a small sheet and names the paper in the phone toolbar', () => {
+    installViewport(390, 700);
+    render(<Harness />);
+
+    // (390 - 48) / 612 = 56%: too small to read, so the hint shows.
+    expect(screen.getByTestId('preview-sheet-hint')).toHaveTextContent(
+      'Zoom in or pinch to read details',
+    );
+    expect(screen.getByTestId('preview-sheet-hint')).toHaveClass('sm:hidden');
+    // The caption no longer repeats the zoom; the toolbar readout shows it.
+    expect(screen.getByTestId('preview-sheet-caption')).toHaveTextContent(
+      /^Letter \u00b7 1 page$/,
+    );
+    expect(screen.getByLabelText('Current zoom')).toHaveTextContent('56%');
+    expect(screen.getByTestId('paper-size-phone-label')).toHaveTextContent(
+      'Paper: Letter',
+    );
+    // Print and Download PDF always carry visible text, not sr-only text.
+    expect(screen.getByRole('button', { name: 'Print' }).textContent).toBe(
+      'Print',
+    );
+    expect(
+      screen
+        .getByRole('button', { name: 'Download PDF' })
+        .querySelector('.sr-only'),
+    ).toBeNull();
+  });
+
+  it('omits the hint once the sheet is readable', () => {
+    installViewport(1100, 700);
+    render(<Harness />);
+
+    expect(screen.queryByTestId('preview-sheet-hint')).not.toBeInTheDocument();
+  });
   it('caps the opening width at a readable 920px on wide viewers', () => {
     installViewport(2600, 900);
     render(<Harness />);

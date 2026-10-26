@@ -17,6 +17,14 @@ The system SHALL display critical slots organized by mech location in a responsi
 - **AND** each location shows its correct number of slots
 - **AND** grid adapts to screen size
 
+#### Scenario: Readable desktop and touch rows
+
+- **WHEN** the Critical Slots tab renders at desktop width with a fine pointer
+- **THEN** slot rows are at least 34px tall with 2px gaps
+- **AND** rows remain at least 44px tall on phones or with a coarse pointer
+- **AND** the existing five-column front-view arrangement scrolls vertically when needed, including at 1440x900
+- **AND** the toolbar, colour key and equipment-to-place banner remain above the scrolling locations
+
 #### Scenario: Side torso engine slot display
 
 - **WHEN** engine type requires side torso slots (XL, Light, XXL)
@@ -40,18 +48,22 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 #### Scenario: System component colors
 
 - **WHEN** a slot contains a system component
-- **THEN** Engine slots are orange
-- **AND** Gyro slots are purple
-- **AND** Actuator slots are blue
-- **AND** Cockpit/Life Support/Sensors are yellow
+- **THEN** Engine, Gyro, Actuator, Cockpit, Life Support and Sensor slots use a neutral raised grey fill
+- **AND** their existing muted category stripes remain visible
 
 #### Scenario: Equipment type colors
 
 - **WHEN** a slot contains equipment
-- **THEN** Weapons are red
-- **AND** Ammunition is orange
-- **AND** Heat sinks are cyan
-- **AND** Other equipment is blue
+- **THEN** equipment retains the category stripe defined by the equipment colour owner
+- **AND** its background mixes that category colour at 16% over the base surface (18% on hover)
+- **AND** slot text has contrast of at least 4.5:1 on the tint
+- **AND** heat sinks use a dashed cyan stripe, distinguishing them from the solid Missile stripe without changing global category colours
+
+#### Scenario: Colour key bars
+
+- **WHEN** the Critical Slots colour key renders
+- **THEN** swatches are short horizontal bars with the same stripe and tint as the slots
+- **AND** labels are 13px
 
 #### Scenario: Empty slot display
 
@@ -90,9 +102,10 @@ The system SHALL display multi-slot equipment as a connected visual group.
 #### Scenario: Multi-slot rendering
 
 - **WHEN** equipment occupies multiple slots
-- **THEN** first slot shows equipment name and slot count
-- **AND** middle slots show continuation marker
-- **AND** border radius creates connected appearance
+- **THEN** the first slot shows the equipment name
+- **AND** subsequent slots show a lighter continuation marker instead of repeating the name
+- **AND** the right-side bracket connects the occupied slots
+- **AND** each slot retains its complete accessible name, slot number and existing selection, removal and drag behavior
 
 ### Requirement: Equipment Selection and Assignment
 
@@ -205,6 +218,8 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 
 - **WHEN** critical slots are displayed on a phone
 - **THEN** a labelled Location selector lists full location names and occupied slot counts
+- **AND** a horizontally scrollable summary above the selector contains one 44px button per location, showing its abbreviation and free-slot count from the existing displayed occupancy summary
+- **AND** summary buttons and the selector switch the same active location
 - **AND** selecting a location displays only its slot grid, without a duplicate location heading or accordion
 - **AND** keyboard focus remains on the selector, which has at least a 44px touch target
 - **AND** selecting equipment reveals the first assignable location

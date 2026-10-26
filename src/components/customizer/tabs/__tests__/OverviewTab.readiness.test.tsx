@@ -100,10 +100,10 @@ describe('Overview build readiness', () => {
     expect(rows.slots.status).toBe('error');
     expect(rows.heat.status).toBe('warning');
     // Same severities as the status panel: over a cap is an error, running
-    // hot is a legal note.
+    // hot is a legal warning.
     expect(rows.weight.severity).toBe('error');
     expect(rows.slots.severity).toBe('error');
-    expect(rows.heat.severity).toBe('note');
+    expect(rows.heat.severity).toBe('warning');
     // The Heat readout shows the numbers; the row only says what to do.
     expect(rows.heat.sentence).not.toMatch(/\d/);
     expect(rows.heat.sentence).toMatch(/add heat sinks/i);

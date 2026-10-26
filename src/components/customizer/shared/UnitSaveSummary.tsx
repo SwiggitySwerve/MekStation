@@ -194,6 +194,14 @@ export function UnitSaveLabel({
  * quiet. The accessible name stays "Save active unit to library" and the
  * state is its description.
  */
+/**
+ * Phones: a needed save is an amber outline with an amber icon rather than a
+ * solid fill, so it is not the heaviest object in a 390px header; a unit that
+ * matches its library copy shows a plain icon, so the two stay distinct.
+ */
+const PHONE_OUTLINE_PRIMARY =
+  'max-sm:!border max-sm:!border-accent max-sm:!bg-transparent max-sm:!text-accent';
+
 export function UnitSaveAction({
   unitId,
   disabledReason,
@@ -223,10 +231,14 @@ export function UnitSaveAction({
         }
         data-save-emphasis={primary ? 'primary' : 'quiet'}
         disabled={disabledReason !== null}
-        className={`group relative !h-11 !min-w-11 shrink-0 !p-0 whitespace-nowrap lg:!px-3 ${primary ? '' : '!text-text-theme-primary'}`}
+        className={`group relative !h-11 !min-w-11 shrink-0 !p-0 whitespace-nowrap lg:!px-3 ${primary ? PHONE_OUTLINE_PRIMARY : '!text-text-theme-primary max-sm:!border-transparent max-sm:!bg-transparent'}`}
         onClick={onSave}
       >
-        <AppIcon name="save" size="toolbar" />
+        <AppIcon
+          name="save"
+          size="toolbar"
+          className="max-sm:!h-5 max-sm:!w-5"
+        />
         <span aria-hidden="true" className="hidden lg:inline">
           {SAVE_ACTION_LABEL}
         </span>

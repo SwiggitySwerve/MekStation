@@ -10,22 +10,23 @@ import type { BipedArmorPlate } from './CleanTechBipedDiagram.geometry';
 import { BIPED_ARMOR_INK } from './BipedArmorSurface';
 
 /**
- * Text sizes in viewBox units. The diagram renders at roughly 0.85-1.1 px per
- * unit on a phone, so 14 units is the floor that keeps every label at or above
- * 12 rendered px.
+ * Text sizes in viewBox units. On a 390px phone the diagram renders at about
+ * 0.86 px per unit (its height is capped to keep the footer above the Loadout
+ * bar), so the "/max" denominators and the rear line use 17 units (about
+ * 14.6 rendered px) and the 17-unit location names match them.
  */
 const FONT = {
-  label: 16,
-  headLabel: 14,
+  label: 17,
+  headLabel: 17,
   headValue: 24,
   torsoValue: 22,
   limbValue: 26,
-  limbMaximum: 15,
-  secondary: 14,
+  limbMaximum: 17,
+  secondary: 17,
 } as const;
 
 /** Baseline offsets below `plate.y` for the lines inside a torso plate. */
-const TORSO_LINE = { front: 30, rear: 56 } as const;
+const TORSO_LINE = { front: 30, rear: 57 } as const;
 
 const PREMIUM_BACKING = {
   fill: '#071a16',
@@ -84,7 +85,7 @@ export function BipedArmorPlateLabel({
           x={plate.x - 32}
           y={plate.y - 17}
           width="64"
-          height="78"
+          height="80"
           rx="6"
           {...backing}
         />
@@ -182,7 +183,7 @@ export function BipedArmorPlateLabel({
           </text>
           <text
             x={plate.x}
-            y={plate.y + 44}
+            y={plate.y + 46}
             fontSize={FONT.limbMaximum}
             fontWeight="600"
             fill={ink.secondary}
@@ -190,12 +191,12 @@ export function BipedArmorPlateLabel({
             /{maximum}
           </text>
           <path
-            d={`M${plate.x - 18} ${plate.y + 54} h36`}
+            d={`M${plate.x - 18} ${plate.y + 56} h36`}
             stroke="var(--surface-deep)"
             strokeWidth="4"
           />
           <path
-            d={`M${plate.x - 18} ${plate.y + 54} h${36 * ratio}`}
+            d={`M${plate.x - 18} ${plate.y + 56} h${36 * ratio}`}
             stroke={statusColor}
             strokeWidth="4"
           />

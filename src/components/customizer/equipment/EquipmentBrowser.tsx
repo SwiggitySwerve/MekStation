@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +9,10 @@ import { IEquipmentItem } from '@/types/equipment';
 /** @spec openspec/specs/equipment-browser/spec.md */
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { CompactFilterBar } from './CompactFilterBar';
+import {
+  EquipmentBrowserUnitContext,
+  EquipmentBrowserUnitProvider,
+} from './EquipmentBrowserUnitContext';
 import { EquipmentCatalogCard } from './EquipmentCatalogCard';
 
 export interface EquipmentBrowserProps {
@@ -19,7 +23,17 @@ export interface EquipmentBrowserProps {
   addHint?: string;
 }
 
-export function EquipmentBrowser({
+export function EquipmentBrowser(
+  props: EquipmentBrowserProps,
+): React.ReactElement {
+  return (
+    <EquipmentBrowserUnitProvider>
+      <EquipmentBrowserContent {...props} />
+    </EquipmentBrowserUnitProvider>
+  );
+}
+
+function EquipmentBrowserContent({
   onAddEquipment,
   onAddAndPlace,
   className = '',
@@ -27,6 +41,7 @@ export function EquipmentBrowser({
   addHint = 'Added to the unit.',
 }: EquipmentBrowserProps): React.ReactElement {
   const browser = useEquipmentBrowser();
+  const unit = useContext(EquipmentBrowserUnitContext);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState({ message: '', count: 0 });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -136,7 +151,7 @@ export function EquipmentBrowser({
         }
         availabilitySummary={[
           unitTechBase,
-          unitYear ? `introduced ≤${unitYear}` : null,
+          unitYear ? `available in ${unitYear}` : null,
         ]
           .filter(Boolean)
           .join(' · ')}
@@ -155,6 +170,15 @@ export function EquipmentBrowser({
           </div>
         }
       />
+      {unit && (
+        <p
+          className={workbenchStyles.catalogCapacity}
+          data-testid="equipment-catalog-capacity"
+        >
+          {unit.remainingWeight.toFixed(1)} t free · {unit.remainingSlots} slots
+          free
+        </p>
+      )}
       <div
         className={workbenchStyles.catalogViewport}
         data-more-below={hasMoreBelow}
@@ -209,6 +233,8 @@ export function EquipmentBrowser({
                   <EquipmentCatalogCard
                     key={entryKey}
                     equipment={equipment}
+                    mountedCount={unit?.mountedCounts.get(equipment.id)}
+                    remainingWeight={unit?.remainingWeight}
                     expanded={selectedId === entryKey}
                     readOnly={readOnly}
                     onInspect={() =>

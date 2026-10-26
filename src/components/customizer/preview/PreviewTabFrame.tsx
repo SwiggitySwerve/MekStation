@@ -2,18 +2,14 @@ import React from 'react';
 
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 
+import { PAPER_SHORT_LABEL } from './paperSizeLabels';
 import { PreviewToolbar } from './PreviewToolbar';
-import { formatZoomPercent } from './recordSheetPreviewZoom';
+import { RECORD_SHEET_PREVIEW_READABLE_ZOOM } from './recordSheetPreviewZoom';
 import { RecordSheetPreviewZoomControls } from './RecordSheetPreviewZoomControls';
 import {
   RecordSheetPreviewZoomContext,
   useRecordSheetPreviewZoom,
 } from './useRecordSheetPreviewZoom';
-
-const PAPER_CAPTION: Record<PaperSize, string> = {
-  [PaperSize.LETTER]: 'Letter',
-  [PaperSize.A4]: 'A4',
-};
 
 export interface PreviewToolbarActions {
   onExportPDF: () => Promise<void>;
@@ -63,18 +59,18 @@ export function PreviewTabFrame({
         <div className="min-h-0 flex-1">{children}</div>
       </RecordSheetPreviewZoomContext.Provider>
 
-      <p
-        className="border-border-theme-subtle bg-surface-base text-text-theme-muted shrink-0 border-t px-4 py-1 text-xs"
-        data-testid="preview-sheet-caption"
-      >
-        {PAPER_CAPTION[toolbarActions.paperSize]} {'\u00b7'} 1 page
-        {/* Phones keep the zoom readout here so the toolbar fits one row;
-            screen readers already hear the toolbar's Current zoom output. */}
-        <span aria-hidden="true" className="sm:hidden">
-          {' \u00b7 '}
-          {formatZoomPercent(zoomState.zoom)}
-        </span>
-      </p>
+      <div className="border-border-theme-subtle bg-surface-base text-text-theme-muted flex shrink-0 flex-wrap items-baseline justify-between gap-x-3 border-t px-4 py-1 text-xs">
+        <p data-testid="preview-sheet-caption">
+          {PAPER_SHORT_LABEL[toolbarActions.paperSize]} {'\u00b7'} 1 page
+        </p>
+        {/* Phones only: a fitted sheet is too small to read, so say how to
+            read it. The toolbar above shows the zoom percentage. */}
+        {zoomState.zoom < RECORD_SHEET_PREVIEW_READABLE_ZOOM ? (
+          <p className="sm:hidden" data-testid="preview-sheet-hint">
+            Zoom in or pinch to read details
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

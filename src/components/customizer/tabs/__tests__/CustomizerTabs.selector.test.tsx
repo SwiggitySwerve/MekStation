@@ -37,7 +37,7 @@ it('opens all seven full labels, retains validation counts and focuses the selec
   expect(screen.getByRole('tab', { name: 'Armor' })).toHaveFocus();
   expect(
     within(screen.getByRole('tab', { name: 'Structure' })).getByRole('img', {
-      name: '2 errors',
+      name: 'Structure: 2 errors',
     }),
   ).toBeInTheDocument();
 });

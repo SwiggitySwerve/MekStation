@@ -127,7 +127,9 @@ function sortUnitsBySourceAndName(a: UnitWithSource, b: UnitWithSource) {
     return a.source === 'custom' ? -1 : 1;
   }
 
-  return `${a.chassis} ${a.variant}`.localeCompare(`${b.chassis} ${b.variant}`);
+  const nameKey = (unit: UnitWithSource) =>
+    `${unit.chassis} ${unit.variant}`.replace(/^[\p{P}\p{Z}\s]+/u, '');
+  return nameKey(a).localeCompare(nameKey(b));
 }
 
 // =============================================================================
@@ -319,16 +321,18 @@ export function UnitLoadDialog({
       )}
 
       {/* Search and filters */}
-      <UnitSearchFilters
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSourceFilter={setSourceFilter}
-        setTechBaseFilter={setTechBaseFilter}
-        setWeightClassFilter={setWeightClassFilter}
-        sourceFilter={sourceFilter}
-        techBaseFilter={techBaseFilter}
-        weightClassFilter={weightClassFilter}
-      />
+      <div className="[&_input]:!border-border-theme [&_select]:!border-border-theme contents">
+        <UnitSearchFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          setSourceFilter={setSourceFilter}
+          setTechBaseFilter={setTechBaseFilter}
+          setWeightClassFilter={setWeightClassFilter}
+          sourceFilter={sourceFilter}
+          techBaseFilter={techBaseFilter}
+          weightClassFilter={weightClassFilter}
+        />
+      </div>
 
       {/* Unit table */}
       <div className="min-h-0 flex-1 scroll-pb-4 overflow-auto overscroll-contain pb-4">

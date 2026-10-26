@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { AppIcon } from '@/components/ui/AppIcon';
 import { BATTLEMECH_TONNAGE } from '@/services/construction/constructionConstants';
 
 import type {
@@ -16,8 +15,8 @@ import {
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
   STRUCTURE_SELECT,
-  STRUCTURE_STEPPER,
 } from './StructureTabRowLayout';
+import { StructureStepper } from './StructureTabStepper';
 
 interface StructureOption {
   readonly type: string;
@@ -55,44 +54,28 @@ export function TonnageControl({
       <label className={STRUCTURE_ROW_LABEL} htmlFor="tonnage">
         Tonnage
       </label>
-      <div className={STRUCTURE_STEPPER}>
-        <button
-          type="button"
-          onClick={() => onChange(tonnage - BATTLEMECH_TONNAGE.step)}
-          disabled={readOnly || tonnage <= BATTLEMECH_TONNAGE.min}
-          className={cs.button.stepperLeft}
-          aria-label="Decrease tonnage"
-        >
-          <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-        </button>
-        <input
-          id="tonnage"
-          type="number"
-          aria-label="Tonnage"
-          value={tonnage}
-          onChange={(e) =>
-            onChange(parseInt(e.target.value, 10) || BATTLEMECH_TONNAGE.min)
-          }
-          disabled={readOnly}
-          min={BATTLEMECH_TONNAGE.min}
-          max={BATTLEMECH_TONNAGE.max}
-          step={BATTLEMECH_TONNAGE.step}
-          className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-        />
-        <button
-          type="button"
-          onClick={() => onChange(tonnage + BATTLEMECH_TONNAGE.step)}
-          disabled={readOnly || tonnage >= BATTLEMECH_TONNAGE.max}
-          className={cs.button.stepperRight}
-          aria-label="Increase tonnage"
-        >
-          {' '}
-          <AppIcon name="add" size="inline" aria-hidden="true" />
-        </button>
-      </div>
-      <span className={STRUCTURE_META}>
-        {BATTLEMECH_TONNAGE.min}–{BATTLEMECH_TONNAGE.max}t
-      </span>
+      <StructureStepper
+        id="tonnage"
+        inputLabel="Tonnage"
+        decreaseLabel="Decrease tonnage"
+        increaseLabel="Increase tonnage"
+        value={tonnage}
+        min={BATTLEMECH_TONNAGE.min}
+        max={BATTLEMECH_TONNAGE.max}
+        step={BATTLEMECH_TONNAGE.step}
+        disabled={readOnly}
+        decreaseDisabled={tonnage <= BATTLEMECH_TONNAGE.min}
+        increaseDisabled={tonnage >= BATTLEMECH_TONNAGE.max}
+        describedBy="tonnage-help"
+        onDecrease={() => onChange(tonnage - BATTLEMECH_TONNAGE.step)}
+        onIncrease={() => onChange(tonnage + BATTLEMECH_TONNAGE.step)}
+        onInputChange={(raw) =>
+          onChange(parseInt(raw, 10) || BATTLEMECH_TONNAGE.min)
+        }
+      />
+      <p id="tonnage-help" className={`${STRUCTURE_HELP} m-0`}>
+        Range {BATTLEMECH_TONNAGE.min}&ndash;{BATTLEMECH_TONNAGE.max}t.
+      </p>
       {isSuperheavy && (
         <div className="col-span-full rounded border border-amber-600/40 bg-amber-900/20 px-3 py-2 text-xs text-amber-300">
           Superheavy: double-slot crits, SUPERHEAVY cockpit/gyro required
@@ -101,7 +84,6 @@ export function TonnageControl({
     </div>
   );
 }
-
 /**
  * Motive Type (biped, quad, ...) is chassis configuration, so it sits with
  * Tonnage in the Chassis card. Its warning stays attached to the control.

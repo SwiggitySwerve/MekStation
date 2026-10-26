@@ -1,3 +1,4 @@
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 /**
  * Weapon Utility Functions
  *
@@ -12,10 +13,9 @@
  *
  * @spec openspec/specs/weapon-system/spec.md
  */
-
-import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 import { TechBase } from '@/types/enums/TechBase';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
 /**
  * Get all standard weapons (excluding artillery and capital weapons)
@@ -74,7 +74,7 @@ export function getWeaponsBySubType(subType: string): IWeapon[] {
  * Get weapons available by year
  */
 export function getWeaponsAvailableByYear(year: number): IWeapon[] {
-  return getAllStandardWeapons().filter((w) => w.introductionYear <= year);
+  return getAllStandardWeapons().filter((w) => isAvailableInYear(w, year));
 }
 
 // ============================================================================

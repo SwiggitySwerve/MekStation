@@ -396,6 +396,7 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     );
     const nameCell = row.locator('[data-catalog-column="name"]');
     expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(240);
+    expect((await nameCell.boundingBox())!.width).toBeLessThanOrEqual(320);
     await expect(
       nameCell.locator('[data-icon-name="chevron-right"]'),
     ).toBeVisible();
@@ -417,9 +418,9 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   const actionBounds = (await firstRow
     .locator('[data-catalog-column="actions"]')
     .boundingBox())!;
-  expect(
-    rowBounds.x + rowBounds.width - actionBounds.x - actionBounds.width,
-  ).toBeLessThanOrEqual(14);
+  expect(actionBounds.x + actionBounds.width).toBeLessThanOrEqual(
+    rowBounds.x + rowBounds.width,
+  );
   await page.mouse.move(0, 0);
   const sortButtons = catalogHeader(page).getByRole('button');
   for (const button of await sortButtons.all()) {

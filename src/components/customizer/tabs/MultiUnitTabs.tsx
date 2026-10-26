@@ -206,7 +206,7 @@ export function MultiUnitTabs({
           onOpenSavedHistory={openSavedHistory}
           savedHistoryDisabledReason={savedHistoryDisabledReason}
         />
-        <div className="bg-surface-base flex min-w-0 shrink-0 items-center pr-1 pl-3">
+        <div className="bg-surface-base flex min-w-0 shrink-0 items-center pr-1 pl-3 max-sm:pl-0">
           <UnitSaveAction
             unitId={activeTabId}
             disabledReason={librarySaveDisabledReason}

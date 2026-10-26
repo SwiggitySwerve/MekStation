@@ -23,7 +23,9 @@ it('shows one location with counts and no duplicate heading or accordion', () =>
   render(<PhoneLocationNavigation {...props} />);
   expect(screen.getByText('Right Arm rows')).toBeVisible();
   expect(screen.getByText('Right Torso rows')).not.toBeVisible();
-  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  expect(screen.getAllByRole('button', { name: /free slots$/ })).toHaveLength(
+    2,
+  );
   expect(screen.queryByRole('heading')).not.toBeInTheDocument();
   expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue(
     MechLocation.RIGHT_ARM,

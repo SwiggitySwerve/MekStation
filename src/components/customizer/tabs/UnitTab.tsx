@@ -9,12 +9,14 @@ import React, { useState, useRef, useEffect } from 'react';
  * header never shows two unexplained dots for the same fact. The name stays
  * on one line and ends in an ellipsis when it does not fit (phones too); the
  * tab's accessible name and tooltip keep the full name, and the Overview
- * Identity card shows it in full.
+ * Identity card shows it in full. Phones drop the tech base badge so the
+ * name fits; the tooltip still names the tech base.
  *
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { TECH_BASE_MODE_LABELS } from '@/types/construction/TechBaseConfiguration';
 
 import type { TabDisplayInfo } from './tabTypes';
 
@@ -131,7 +133,13 @@ export function UnitTab({
             aria-selected={isActive}
             aria-label={tab.name}
             tabIndex={isActive ? 0 : -1}
-            title={`${tab.name} · Double-click to rename`}
+            title={[
+              tab.name,
+              tab.techBaseMode && TECH_BASE_MODE_LABELS[tab.techBaseMode],
+              'Double-click to rename',
+            ]
+              .filter(Boolean)
+              .join(' \u00b7 ')}
             onClick={onSelect}
             onDoubleClick={handleDoubleClick}
             className="focus-visible:outline-accent flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px] max-sm:!px-0 max-sm:!py-0 max-sm:leading-4"
@@ -145,7 +153,7 @@ export function UnitTab({
             {tab.techBaseMode && (
               <TechBaseBadge
                 techBaseMode={tab.techBaseMode}
-                className="shrink-0 !px-1 !py-0 !text-[10px]"
+                className="shrink-0 !px-1 !py-0 !text-[10px] max-sm:hidden"
               />
             )}
           </button>

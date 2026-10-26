@@ -38,7 +38,7 @@ describe('CustomizerTabs', () => {
     expect(screen.getByRole('tab', { name: 'Fluff' })).toBeInTheDocument();
   });
 
-  it('keeps validation counts accessible through a fixed dot slot', () => {
+  it('shows validation counts as shaped, numbered badges in a fixed slot', () => {
     const counts = createEmptyValidationCounts();
     counts.structure = { errors: 2, warnings: 1, infos: 0 };
     const { rerender } = render(
@@ -47,8 +47,15 @@ describe('CustomizerTabs', () => {
     const tab = screen.getByRole('tab', { name: 'Structure' });
     const dot = tab.querySelector('[data-severity]');
     expect(dot).toHaveAttribute('data-severity', 'error');
-    expect(dot).toHaveAccessibleName('2 errors 1 warning');
-    expect(tab).toHaveAccessibleDescription('2 errors 1 warning');
+    expect(dot).toHaveAccessibleName('Structure: 2 errors, 1 warning');
+    expect(tab).toHaveAccessibleDescription('2 errors, 1 warning');
+    // Shape and count, not color alone.
+    expect(
+      dot!.querySelector('[data-section-badge="error"]'),
+    ).toHaveTextContent(/^2$/);
+    expect(
+      dot!.querySelector('[data-section-badge="warning"]'),
+    ).toHaveTextContent(/^1$/);
 
     rerender(
       <CustomizerTabs
@@ -60,7 +67,8 @@ describe('CustomizerTabs', () => {
       />,
     );
     expect(dot).toHaveAttribute('data-severity', 'warning');
-    expect(dot).toHaveAccessibleName('1 warning');
+    expect(dot).toHaveAccessibleName('Structure: 1 warning');
+    expect(dot!.querySelector('[data-section-badge="error"]')).toBeNull();
 
     rerender(
       <CustomizerTabs

@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 /**
  * Unified Equipment Item Interface
  *
@@ -14,7 +15,10 @@ import { EquipmentCategory } from './EquipmentCategory';
 /**
  * Unified equipment item (for listing/browsing)
  */
-export interface IEquipmentItem {
+export interface IEquipmentItem extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   readonly id: string;
   readonly name: string;
   readonly category: EquipmentCategory;
@@ -25,13 +29,16 @@ export interface IEquipmentItem {
   readonly additionalCategories?: readonly EquipmentCategory[];
   /** Declared compatible weapon IDs for ammunition; imports may omit them. */
   readonly compatibleWeaponIds?: readonly string[];
+  /** External ammunition capacity and behavior metadata for weapon validation. */
+  readonly ammoPerTon?: number;
+  readonly flags?: readonly string[];
+  readonly special?: readonly string[];
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
   readonly weight: number;
   readonly criticalSlots: number;
   readonly costCBills: number;
   readonly battleValue: number;
-  readonly introductionYear: number;
   /**
    * Variable equipment formula ID for equipment with variable properties.
    * If present, weight and criticalSlots should be calculated dynamically

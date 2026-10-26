@@ -8,22 +8,27 @@
  *
  * Vocabulary (also the panel's group definitions, `BUILD_STATUS_GROUPS`):
  * - errors: rule results that make the unit not legal (must fix);
- * - warnings: legal, but likely a mistake (should review);
- * - notes: legal, for your information, i.e. info-level rule results plus
- *   readout notes such as running hot (`getHeatNote` in `unitStatStatus`).
+ * - warnings: legal, but likely a mistake (should review): rule warnings
+ *   plus readout warnings such as running hot (`getHeatNote` in
+ *   `unitStatStatus`);
+ * - notes: legal, for your information, i.e. info-level rule results.
  *
- * Counts come from the validation state and the notes passed in; nothing here
- * decides what is legal.
+ * Counts come from the validation state and the readout items passed in;
+ * nothing here decides what is legal. Readout items are a presentation tier:
+ * they are listed and counted with the warnings, but they never come from or
+ * change the validator.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
+import type { ValidationCountsByTab } from '@/utils/validation/validationNavigation';
 
 /**
- * A note derived from readouts already on screen (e.g. running hot).
- * Notes are presentational: they never change what counts as an error or
- * warning, and they never make a unit invalid.
+ * A status item derived from readouts already on screen (e.g. running hot).
+ * It is presented as a warning (counted, worded and colored with the rule
+ * warnings) but it is not a validation result: it never makes a unit invalid
+ * and never changes what the validator reports.
  */
 export interface ValidationNote {
   id: string;
@@ -35,7 +40,7 @@ export interface ValidationNote {
   heading?: string;
   message: string;
   suggestion?: string;
-  /** Tab where the user can address the note. */
+  /** Tab where the user can address the item. */
   tabId: CustomizerTabId;
 }
 
@@ -95,18 +100,14 @@ export interface BuildStatusSummary {
   readonly parts: readonly BuildStatusPart[];
   /**
    * Headline every surface shows: "1 error \u00b7 1 warning \u00b7 1 note",
-   * the note itself when it is the only item ("Runs hot +11"), or "Ready".
+   * the readout item itself when it is the only item ("Runs hot +11"), or
+   * "Ready".
    */
   readonly headline: string;
-  /** The single note the headline names, when it names one. */
+  /** The single readout item the headline names, when it names one. */
   readonly headlineNote?: ValidationNote;
   /** Panel heading: "Not legal \u00b7 <headline>" or "Legal \u00b7 <headline>". */
   readonly panelHeading: string;
-  /**
-   * Short wording for narrow bands: the worst group in words ("1 error")
-   * and the count of everything else ("+2 more"), or the lone note itself.
-   */
-  readonly short: { readonly text: string; readonly more?: string };
 }
 
 export const BUILD_STATUS_SEPARATOR = ' \u00b7 ';
@@ -129,7 +130,7 @@ export function buildStatusCountText(
   return `${countText(count)} ${KIND_WORD[kind]}${count === 1 ? '' : 's'}`;
 }
 
-/** A note's short visible text, e.g. "Runs hot +11". */
+/** A readout item's short visible text, e.g. "Runs hot +11". */
 export function noteText(note: ValidationNote): string {
   return note.amount ? `${note.label} ${note.amount}` : note.label;
 }
@@ -140,8 +141,8 @@ export function getBuildStatusSummary(
 ): BuildStatusSummary {
   const totals: Record<BuildStatusKind, number> = {
     error: counts.errorCount,
-    warning: counts.warningCount,
-    note: counts.infoCount + notes.length,
+    warning: counts.warningCount + notes.length,
+    note: counts.infoCount,
   };
   const parts = BUILD_STATUS_GROUPS.filter(({ kind }) => totals[kind] > 0).map(
     ({ kind }) => ({
@@ -151,23 +152,15 @@ export function getBuildStatusSummary(
     }),
   );
   const state: BuildState = parts[0]?.kind ?? 'ready';
+  const onlyItem =
+    parts.length === 1 && parts[0].count === 1 ? notes[0] : undefined;
   const headlineNote =
-    state === 'note' && counts.infoCount === 0 && notes.length === 1
-      ? notes[0]
-      : undefined;
+    onlyItem && counts.warningCount === 0 ? onlyItem : undefined;
   const headline = headlineNote
     ? noteText(headlineNote)
     : parts.length > 0
       ? parts.map((part) => part.text).join(BUILD_STATUS_SEPARATOR)
       : 'Ready';
-  const rest = parts.slice(1).reduce((sum, part) => sum + part.count, 0);
-  const short =
-    headlineNote || parts.length === 0
-      ? { text: headline }
-      : {
-          text: parts[0].text,
-          more: rest > 0 ? `+${countText(rest)} more` : undefined,
-        };
   const legal = totals.error === 0;
   return {
     state,
@@ -176,6 +169,25 @@ export function getBuildStatusSummary(
     headline,
     headlineNote,
     panelHeading: `${legal ? 'Legal' : 'Not legal'}${BUILD_STATUS_SEPARATOR}${headline}`,
-    short,
   };
+}
+
+/**
+ * Section-tab badge counts: the validator's counts plus the readout warnings
+ * (e.g. running hot), each on the tab where the user fixes it. The status chip
+ * counts the same notes as warnings, so the badges and chip agree.
+ */
+export function addStatusNotesToTabCounts(
+  counts: ValidationCountsByTab,
+  notes: readonly ValidationNote[],
+): ValidationCountsByTab {
+  if (notes.length === 0) return counts;
+  const next = { ...counts };
+  for (const note of notes) {
+    next[note.tabId] = {
+      ...next[note.tabId],
+      warnings: next[note.tabId].warnings + 1,
+    };
+  }
+  return next;
 }

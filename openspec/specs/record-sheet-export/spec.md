@@ -218,7 +218,10 @@ The system SHALL provide zoom controls in the preview toolbar, beside the paper 
 - **AND** exactly one of Fit page, Fit width and 100% has `aria-pressed="true"` while that mode is active, and none is pressed after a manual zoom
 - **AND** the paper size select, the zoom controls, Print and Download PDF share one 44px control height and baseline
 - **AND** a caption under the sheet names the paper size and page count, for example "Letter · 1 page"
-- **AND** below 640px the toolbar is one row: the paper size select shows as a 44px page icon over the native select, Print and Download PDF show as 44px icon buttons that keep those accessible names, the zoom stepper and the fit modes (shown as Page, Width and 100%, still named Fit page and Fit width) join into one bar, and the caption repeats the zoom percentage (for example "Letter · 1 page · 56%") in place of the visible toolbar readout
+- **AND** the Current zoom readout is plain tabular text between the Zoom out and Zoom in buttons, with no pill or background, so only the pressed fit segment is highlighted
+- **AND** below 640px the toolbar is exactly two rows of controls at least 44px tall, each with a visible text label: row one holds Zoom out, the percentage, Zoom in and the segmented Fit page / Fit width / 100% control; row two holds a "Paper: Letter" select (a labelled control over the native select, still named Paper Size:), Print and Download PDF (icon plus text)
+- **AND** the phone sheet starts no lower than about 300px from the top of a 390x844 screen, and the viewer keeps a 24px gutter on every side of the sheet (12px above it on phones), including on its right edge when the sheet is zoomed past the viewer width
+- **AND** on phones, while the zoom is below 90%, a hint under the sheet reads "Zoom in or pinch to read details"; desktop never shows it
 
 #### Scenario: Zoom in/out
 

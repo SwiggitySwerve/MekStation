@@ -1,8 +1,8 @@
 /**
  * Unit Info Banner Component
  *
- * Unit identity and grouped readouts: seven evenly spaced cells at one value
- * size. The budget stats (weight, slots, heat, armor) add fill bars against
+ * Unit identity and grouped readouts: seven equal-width cells at one value
+ * size, a 1px rule between every pair on wide screens. The budget stats (weight, slots, heat, armor) add fill bars against
  * their caps; movement (walk / run / jump in one cell), engine and BV show the
  * value alone. Detailed phone readouts expand without displacing the editor.
  *
@@ -149,7 +149,7 @@ function MovementStat({ walk, run, runPlus, jump }: MovementStatProps) {
         <span className={styles.label}>Movement</span>
         <span
           aria-hidden="true"
-          className={`${styles.muted} leading-[14px] whitespace-nowrap max-md:hidden`}
+          className={`${styles.muted} leading-[14px] whitespace-nowrap max-xl:hidden`}
         >
           {runPlus ? 'walk / run (max) / jump' : 'walk / run / jump'}
         </span>

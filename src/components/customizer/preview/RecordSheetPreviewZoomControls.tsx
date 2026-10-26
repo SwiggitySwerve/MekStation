@@ -5,6 +5,7 @@ import { SvgIcon } from '@/components/ui/SvgIcon';
 import type { RecordSheetPreviewZoomMode } from './recordSheetPreviewZoom';
 
 import {
+  PREVIEW_CONTROL_CLASS,
   PREVIEW_SEGMENT_CLASS,
   PREVIEW_SEGMENT_GROUP_CLASS,
 } from './previewToolbarStyles';
@@ -21,10 +22,15 @@ interface RecordSheetPreviewZoomControlsProps {
   readonly className?: string;
 }
 
+/** Square 44px stepper button (zoom out / zoom in). */
+const STEP_BUTTON_CLASS = `${PREVIEW_CONTROL_CLASS} inline-flex w-11 min-w-11 shrink-0 items-center justify-center px-0!`;
+
 /**
- * Zoom stepper (- 100% +) beside a segmented Fit page / Fit width / 100%
- * control. The active mode is the pressed segment; stepping the zoom leaves
- * all three unpressed (manual zoom).
+ * Zoom stepper (- 150% +) beside a segmented Fit page / Fit width / 100%
+ * control. The readout is plain tabular text between the two step buttons;
+ * only the pressed fit segment is highlighted. Stepping the zoom leaves all
+ * three segments unpressed (manual zoom). Every control keeps its visible
+ * text label on phones.
  */
 export function RecordSheetPreviewZoomControls({
   zoom,
@@ -38,29 +44,25 @@ export function RecordSheetPreviewZoomControls({
 }: RecordSheetPreviewZoomControlsProps): React.ReactElement {
   return (
     <div
-      className={`flex w-full min-w-0 items-center sm:w-auto sm:gap-2 ${className}`}
+      className={`flex w-full min-w-0 items-center gap-2 sm:w-auto ${className}`}
       role="group"
       aria-label="Record sheet zoom controls"
     >
-      {/* Phones join the stepper and the fit modes into one bar. */}
-      <div
-        className={`${PREVIEW_SEGMENT_GROUP_CLASS} shrink-0 max-sm:rounded-r-none`}
-      >
+      <div className="flex shrink-0 items-center gap-0.5">
         <button
           type="button"
           onClick={onZoomOut}
           aria-label="Zoom out"
-          className={`${PREVIEW_SEGMENT_CLASS} max-sm:px-0!`}
+          className={STEP_BUTTON_CLASS}
         >
           <SvgIcon size="inline" aria-hidden="true">
             <circle cx="10" cy="10" r="7" />
             <path d="m15 15 7 7M7 10h6" />
           </SvgIcon>
         </button>
-        {/* Percentage only: the pressed segment already names the mode. On
-            phones the sheet caption shows it, so the bar fits one row. */}
+        {/* Plain text, not a control: the pressed segment names the mode. */}
         <output
-          className="text-text-theme-primary max-sm:sr-only sm:inline-flex sm:min-w-14 sm:items-center sm:justify-center sm:px-3 sm:text-center sm:text-[13px] sm:font-medium sm:whitespace-nowrap sm:tabular-nums"
+          className="text-text-theme-primary inline-flex min-w-12 items-center justify-center text-center text-[13px] font-medium whitespace-nowrap tabular-nums"
           aria-live="polite"
           aria-label="Current zoom"
         >
@@ -70,7 +72,7 @@ export function RecordSheetPreviewZoomControls({
           type="button"
           onClick={onZoomIn}
           aria-label="Zoom in"
-          className={`${PREVIEW_SEGMENT_CLASS} max-sm:px-0!`}
+          className={STEP_BUTTON_CLASS}
         >
           <SvgIcon size="inline" aria-hidden="true">
             <circle cx="10" cy="10" r="7" />
@@ -80,36 +82,32 @@ export function RecordSheetPreviewZoomControls({
       </div>
 
       <div
-        className={`${PREVIEW_SEGMENT_GROUP_CLASS} min-w-0 flex-1 max-sm:rounded-l-none max-sm:border-l-0 sm:flex-none`}
+        className={`${PREVIEW_SEGMENT_GROUP_CLASS} min-w-0 flex-1 sm:flex-none`}
         role="group"
         aria-label="Sheet size"
       >
         <button
           type="button"
           onClick={onFitToPage}
-          aria-label="Fit page"
           aria-pressed={mode === 'fit-page'}
-          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap max-sm:px-1!`}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
         >
-          <span className="sm:hidden">Page</span>
-          <span className="max-sm:hidden">Fit page</span>
+          Fit page
         </button>
         <button
           type="button"
           onClick={onFitToWidth}
-          aria-label="Fit width"
           aria-pressed={mode === 'fit-width'}
-          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap max-sm:px-1!`}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
         >
-          <span className="sm:hidden">Width</span>
-          <span className="max-sm:hidden">Fit width</span>
+          Fit width
         </button>
         <button
           type="button"
           onClick={onActualSize}
           aria-pressed={mode === 'actual'}
-          title="Actual size — scroll to read the full sheet"
-          className={`${PREVIEW_SEGMENT_CLASS} max-sm:bg-surface-base max-sm:text-text-theme-primary flex-1 whitespace-nowrap max-sm:px-1! max-sm:font-semibold`}
+          title={'Actual size \u2014 scroll to read the full sheet'}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
         >
           100%
         </button>

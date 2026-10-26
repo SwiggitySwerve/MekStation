@@ -68,9 +68,11 @@ interface ArmorLocationTableProps {
 }
 
 const HEADER_CLASS =
-  'text-text-theme-secondary px-2 py-1.5 text-xs font-medium tracking-wide uppercase';
+  'text-text-theme-secondary px-2 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap uppercase';
 const NUMBER_CELL_CLASS =
   'px-2 py-0 text-right text-sm whitespace-nowrap tabular-nums';
+/** The last column keeps the card's 16px padding so a selected row never touches the card edge. */
+const LAST_COLUMN_PAD = 'pr-4!';
 
 function FaceValue({
   value,
@@ -113,23 +115,25 @@ export function ArmorLocationTable({
               Location
             </th>
             <th scope="col" className={`${HEADER_CLASS} text-right`}>
-              Front / max
+              Front
             </th>
             <th scope="col" className={`${HEADER_CLASS} text-right`}>
-              Rear / max
+              Rear
             </th>
-            <th scope="col" className={`${HEADER_CLASS} text-right`}>
-              Location max
+            <th
+              scope="col"
+              className={`${HEADER_CLASS} ${LAST_COLUMN_PAD} text-right`}
+            >
+              Max
             </th>
           </tr>
           <tr className="border-border-theme-subtle border-b">
             <td
               colSpan={4}
               data-testid="armor-location-table-note"
-              className="text-text-theme-secondary px-2 pt-1 pb-2 text-[13px] leading-snug"
+              className="text-text-theme-secondary px-2 pt-1 pb-2 text-[13px] leading-snug whitespace-nowrap"
             >
-              Front and rear show points placed out of that face&apos;s limit.
-              Location max is the whole location.
+              Current / max. Max is the whole location.
             </td>
           </tr>
         </thead>
@@ -177,7 +181,7 @@ export function ArmorLocationTable({
                   <FaceValue value={row.rear} max={row.rearMax} />
                 </td>
                 <td
-                  className={`${NUMBER_CELL_CLASS} text-text-theme-secondary`}
+                  className={`${NUMBER_CELL_CLASS} ${LAST_COLUMN_PAD} text-text-theme-secondary`}
                 >
                   {row.max}
                 </td>

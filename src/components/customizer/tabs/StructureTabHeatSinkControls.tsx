@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { AppIcon } from '@/components/ui/AppIcon';
-
 import type { StructureTabCalculations } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
@@ -11,8 +9,8 @@ import {
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
   STRUCTURE_SELECT,
-  STRUCTURE_STEPPER,
 } from './StructureTabRowLayout';
+import { StructureStepper } from './StructureTabStepper';
 
 interface StructureOption {
   readonly type: string;
@@ -112,41 +110,24 @@ function HeatSinkCountControl({
         <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-count">
           Installed
         </label>
-        <div className={STRUCTURE_STEPPER}>
-          <button
-            type="button"
-            onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
-            disabled={readOnly || heatSinkCount <= 10}
-            className={cs.button.stepperLeft}
-            data-testid="structure-heat-sink-decrement"
-            aria-label="Decrease heat sink count"
-          >
-            <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-          </button>
-          <input
-            id="heat-sink-count"
-            type="number"
-            aria-label="Heat sink count"
-            value={heatSinkCount}
-            onChange={(e) =>
-              handleHeatSinkCountChange(parseInt(e.target.value, 10) || 10)
-            }
-            disabled={readOnly}
-            min={10}
-            className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-          />
-          <button
-            type="button"
-            onClick={() => handleHeatSinkCountChange(heatSinkCount + 1)}
-            disabled={readOnly}
-            className={cs.button.stepperRight}
-            data-testid="structure-heat-sink-increment"
-            aria-label="Increase heat sink count"
-          >
-            {' '}
-            <AppIcon name="add" size="inline" aria-hidden="true" />
-          </button>
-        </div>
+        <StructureStepper
+          id="heat-sink-count"
+          inputLabel="Heat sink count"
+          decreaseLabel="Decrease heat sink count"
+          increaseLabel="Increase heat sink count"
+          value={heatSinkCount}
+          min={10}
+          disabled={readOnly}
+          decreaseDisabled={heatSinkCount <= 10}
+          increaseDisabled={false}
+          decreaseTestId="structure-heat-sink-decrement"
+          increaseTestId="structure-heat-sink-increment"
+          onDecrease={() => handleHeatSinkCountChange(heatSinkCount - 1)}
+          onIncrease={() => handleHeatSinkCountChange(heatSinkCount + 1)}
+          onInputChange={(raw) =>
+            handleHeatSinkCountChange(parseInt(raw, 10) || 10)
+          }
+        />
       </div>
     </div>
   );
@@ -218,7 +199,7 @@ function BaseChassisHeatSinkControl({
         >
           Base chassis
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full max-w-60 items-center gap-2">
           <button
             type="button"
             onClick={() => onChange(-1)}
@@ -232,42 +213,25 @@ function BaseChassisHeatSinkControl({
           >
             Auto
           </button>
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={() => onChange(displayedCount - 1)}
-              disabled={readOnly || baseChassisHeatSinks <= 1}
-              className={cs.button.stepperLeft}
-              aria-label="Decrease base chassis heat sinks"
-            >
-              <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-            </button>
-            <input
-              id="base-chassis-heat-sinks"
-              type="number"
-              aria-label="Base chassis heat sinks"
-              value={displayedCount}
-              onChange={(e) => onChange(parseInt(e.target.value, 10) || 10)}
-              disabled={readOnly}
-              min={1}
-              max={heatSinkCount}
-              className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-            />
-            <button
-              type="button"
-              onClick={() => onChange(displayedCount + 1)}
-              disabled={
-                readOnly ||
-                (baseChassisHeatSinks !== -1 &&
-                  baseChassisHeatSinks >= heatSinkCount)
-              }
-              className={cs.button.stepperRight}
-              aria-label="Increase base chassis heat sinks"
-            >
-              {' '}
-              <AppIcon name="add" size="inline" aria-hidden="true" />
-            </button>
-          </div>
+          <StructureStepper
+            id="base-chassis-heat-sinks"
+            className="min-w-0 flex-1"
+            inputLabel="Base chassis heat sinks"
+            decreaseLabel="Decrease base chassis heat sinks"
+            increaseLabel="Increase base chassis heat sinks"
+            value={displayedCount}
+            min={1}
+            max={heatSinkCount}
+            disabled={readOnly}
+            decreaseDisabled={baseChassisHeatSinks <= 1}
+            increaseDisabled={
+              baseChassisHeatSinks !== -1 &&
+              baseChassisHeatSinks >= heatSinkCount
+            }
+            onDecrease={() => onChange(displayedCount - 1)}
+            onIncrease={() => onChange(displayedCount + 1)}
+            onInputChange={(raw) => onChange(parseInt(raw, 10) || 10)}
+          />{' '}
         </div>
         <span className={STRUCTURE_META}>
           {baseChassisHeatSinks === -1

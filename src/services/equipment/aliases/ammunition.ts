@@ -5,6 +5,7 @@
  * Handles techbase prefixes and slug-style IDs for ammunition.
  *
  * @module services/equipment/aliases/ammunition
+ * @spec openspec/changes/customizer-ammunition-and-era-availability/specs/equipment-services/spec.md
  */
 
 import { TechBase } from '@/types/enums/TechBase';
@@ -16,6 +17,7 @@ import { IAmmunition } from '@/types/equipment/AmmunitionTypes';
 export function addAmmunitionAliases(
   ammo: IAmmunition,
   nameToIdMap: Map<string, string>,
+  normalizeName: (name: string) => string,
 ): void {
   const name = ammo.name;
   const id = ammo.id;
@@ -43,6 +45,83 @@ export function addAmmunitionAliases(
 
   // Add slug-style ID aliases for ammo (e.g., 'ultra-ac-5-ammo' → 'uac-5-ammo')
   addAmmunitionSlugAliases(id, isClan, nameToIdMap);
+  addInternalAmmunitionAliases(ammo, nameToIdMap, normalizeName);
+}
+
+/** Only mounting and guidance-capability labels are incidental to bin identity.
+ * Keep munition variants and bin sizes in the lookup key.
+ */
+export function ammunitionAliasKey(
+  token: string,
+  normalizeName: (name: string) => string,
+): string | undefined {
+  if (!/ammo/i.test(token)) return undefined;
+  return normalizeName(
+    token
+      .replace(/\s*\(omnipod\)/gi, '')
+      .replace(/\s*\((?:Clan|IS)\)/gi, '')
+      .replace(/\s+(?:Artemis(?:\s+(?:IV|V))?|Narc)-capable\b/gi, ''),
+  );
+}
+
+function addInternalAmmunitionAliases(
+  ammo: IAmmunition,
+  aliases: Map<string, string>,
+  normalizeName: (name: string) => string,
+): void {
+  // Some imported half-bin records incorrectly weigh one ton. Do not create
+  // additional aliases for them or turn an unknown half bin into a full bin.
+  if (/half/i.test(ammo.name) && ammo.weight !== 0.5) return;
+  const base = ammo.name.replace(/\s*\(Clan\)/i, '');
+  const names = new Set([base]);
+  if (/^MG Ammo/.test(base)) {
+    names.add(base.replace(/^MG/, 'Machine Gun'));
+    names.add(`MG Ammo (${ammo.shotsPerTon})`);
+    if (ammo.weight === 1) names.add('MG Ammo - Full');
+  }
+  if (/^[LS]RT \d+ Ammo$/.test(base)) {
+    names.add(base.replace(/^([LS]R)T /, '$1Torpedo '));
+  }
+  if (/Chemical Laser Ammo/.test(base)) {
+    names.add(base.replace('Chemical Laser', 'ChemLaser'));
+  }
+  if (/Gauss/.test(base)) {
+    names.add(base.replace(' Gauss Ammo', ' Gauss Rifle Ammo'));
+    names.add(base.replace('Gauss Rifle', 'Gauss'));
+  }
+  if (/^LB \d+-X/.test(base)) {
+    names.add(base.replace(/^LB (\d+)-X (?:Slug|AC) Ammo$/, 'LBXAC$1 Ammo'));
+    names.add(base.replace(/^LB (\d+)-X Cluster Ammo$/, 'LBXAC$1 CL Ammo'));
+  }
+  if (/^Anti-Personnel Gauss Rifle/.test(base)) {
+    names.add(base.replace('Anti-Personnel', 'AP'));
+  }
+  if (/^AP Gauss Ammo/.test(base)) names.add('APGaussRifle Ammo');
+  const atm = base.match(
+    /^(Standard|Extended-Range|High-Explosive) (i?ATM\/\d+) Ammo$/,
+  );
+  if (atm) {
+    const variant =
+      atm[1] === 'Standard' ? '' : atm[1] === 'Extended-Range' ? ' ER' : ' HE';
+    names.add(`${atm[2]}${variant} Ammo`);
+  }
+  const clanOnly =
+    ammo.techBase === TechBase.CLAN || ammo.id.startsWith('clan-');
+  for (const name of names) {
+    for (const prefix of clanOnly ? ['CL', 'Clan '] : ['IS', 'CL', 'Clan ']) {
+      const key = ammunitionAliasKey(`${prefix}${name}`, normalizeName);
+      // Shared ammunition is a fallback; a dedicated Clan bin (e.g. AMS)
+      // takes precedence and retains its own capacity and BV.
+      if (key && (clanOnly || !aliases.has(key))) aliases.set(key, ammo.id);
+      const ammoFirst = name.replace(/ Ammo\b/, '');
+      const firstKey = ammunitionAliasKey(
+        `${prefix} Ammo ${ammoFirst}`,
+        normalizeName,
+      );
+      if (firstKey && (clanOnly || !aliases.has(firstKey)))
+        aliases.set(firstKey, ammo.id);
+    }
+  }
 }
 
 /**

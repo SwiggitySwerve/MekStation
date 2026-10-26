@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 /**
  * Ammunition Type Definitions
  *
@@ -53,7 +54,10 @@ export enum AmmoVariant {
 /**
  * Ammunition interface
  */
-export interface IAmmunition {
+export interface IAmmunition extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   readonly id: string;
   readonly name: string;
   readonly category: AmmoCategory;
@@ -69,7 +73,6 @@ export interface IAmmunition {
   readonly isExplosive: boolean;
   readonly damageModifier?: number;
   readonly rangeModifier?: number;
-  readonly introductionYear: number;
   readonly special?: readonly string[];
 
   /**

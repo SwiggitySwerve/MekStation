@@ -56,9 +56,15 @@ export function isTemporalEntity(obj: unknown): obj is ITemporalEntity {
  * @returns true if the entity is available in the given year
  */
 export function isAvailableInYear(
-  entity: ITemporalEntity,
+  entity: Pick<
+    ITemporalEntity,
+    'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+  >,
   year: number,
 ): boolean {
+  if (!Number.isFinite(year) || !Number.isFinite(entity.introductionYear))
+    return false;
+
   // Not yet introduced
   if (year < entity.introductionYear) {
     return false;

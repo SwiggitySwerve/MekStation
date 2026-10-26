@@ -26,6 +26,8 @@ import {
   getSingleSlotDisplayName,
   getSlotSizeClasses,
   getSlotStateClasses,
+  getSlotTintStyle,
+  isSlotContinuation,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -286,6 +288,7 @@ export const SlotRow = memo(function SlotRow({
         draggable={canDrag}
         aria-label={getSlotAriaLabel(slot)}
         aria-selected={isSelected}
+        style={getSlotTintStyle(slot)}
         className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)}`}
         onClick={onClick}
         onDoubleClick={() => handleSlotDoubleClick({ canUnassign, onRemove })}
@@ -333,7 +336,10 @@ export const SlotRow = memo(function SlotRow({
         >
           {slot.index + 1}
         </span>
-        <span className="min-w-0 flex-1 break-words whitespace-normal">
+        <span
+          aria-hidden={isSlotContinuation(slot) || undefined}
+          className={`min-w-0 flex-1 break-words whitespace-normal ${isSlotContinuation(slot) ? 'text-text-theme-secondary' : ''}`}
+        >
           {slot.type === 'empty' && <span aria-hidden="true">+ </span>}
           {displayName}
         </span>

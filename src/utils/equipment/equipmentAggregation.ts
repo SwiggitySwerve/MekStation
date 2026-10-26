@@ -1,3 +1,4 @@
+import { RulesLevel } from '@/types/enums/RulesLevel';
 /**
  * Equipment Aggregation Utilities
  *
@@ -7,8 +8,6 @@
  * Moved from src/types/equipment/index.ts to resolve types→utils
  * reverse dependency (these functions import from categoryRegistry).
  */
-
-import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { ALL_AMMUNITION, IAmmunition } from '@/types/equipment/AmmunitionTypes';
 import {
@@ -32,6 +31,7 @@ import {
 } from '@/types/equipment/PhysicalWeaponTypes';
 import { IWeapon } from '@/types/equipment/weapons';
 import { ALL_STANDARD_WEAPONS } from '@/utils/equipment/weapons/utilities';
+import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
 import { weaponCategoryToEquipmentCategory } from './categoryRegistry';
 
@@ -87,6 +87,9 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
     items.push({
       id: weapon.id,
       name: weapon.name,
+      ammoPerTon: weapon.ammoPerTon,
+      flags: weapon.flags,
+      special: weapon.special,
       category,
       additionalCategories,
       techBase: weapon.techBase,
@@ -96,6 +99,8 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: weapon.costCBills,
       battleValue: weapon.battleValue,
       introductionYear: weapon.introductionYear,
+      extinctionYear: weapon.extinctionYear,
+      reintroductionYear: weapon.reintroductionYear,
     });
   }
 
@@ -110,8 +115,11 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       weight: ammo.weight,
       criticalSlots: ammo.criticalSlots,
       costCBills: ammo.costPerTon,
+      compatibleWeaponIds: ammo.compatibleWeaponIds,
       battleValue: ammo.battleValue,
       introductionYear: ammo.introductionYear,
+      extinctionYear: ammo.extinctionYear,
+      reintroductionYear: ammo.reintroductionYear,
     });
   }
 
@@ -128,6 +136,8 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: electronics.costCBills,
       battleValue: electronics.battleValue,
       introductionYear: electronics.introductionYear,
+      extinctionYear: electronics.extinctionYear,
+      reintroductionYear: electronics.reintroductionYear,
       variableEquipmentId: electronics.variableEquipmentId,
     });
   }
@@ -145,6 +155,8 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: misc.costCBills,
       battleValue: misc.battleValue,
       introductionYear: misc.introductionYear,
+      extinctionYear: misc.extinctionYear,
+      reintroductionYear: misc.reintroductionYear,
       variableEquipmentId: misc.variableEquipmentId,
     });
   }
@@ -164,6 +176,8 @@ export function getAllEquipmentItemsForLookup(): IEquipmentItem[] {
       costCBills: 0, // Variable
       battleValue: 0, // Variable
       introductionYear: physicalWeapon.introductionYear,
+      extinctionYear: physicalWeapon.extinctionYear,
+      reintroductionYear: physicalWeapon.reintroductionYear,
       variableEquipmentId: id, // Physical weapons use their ID as the formula ID
     });
   }
@@ -190,6 +204,9 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
     items.push({
       id: weapon.id,
       name: weapon.name,
+      ammoPerTon: weapon.ammoPerTon,
+      flags: weapon.flags,
+      special: weapon.special,
       category,
       additionalCategories,
       techBase: weapon.techBase,
@@ -199,6 +216,8 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: weapon.costCBills,
       battleValue: weapon.battleValue,
       introductionYear: weapon.introductionYear,
+      extinctionYear: weapon.extinctionYear,
+      reintroductionYear: weapon.reintroductionYear,
     });
   }
 
@@ -213,8 +232,11 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       weight: ammo.weight,
       criticalSlots: ammo.criticalSlots,
       costCBills: ammo.costPerTon,
+      compatibleWeaponIds: ammo.compatibleWeaponIds,
       battleValue: ammo.battleValue,
       introductionYear: ammo.introductionYear,
+      extinctionYear: ammo.extinctionYear,
+      reintroductionYear: ammo.reintroductionYear,
     });
   }
 
@@ -231,6 +253,8 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: electronics.costCBills,
       battleValue: electronics.battleValue,
       introductionYear: electronics.introductionYear,
+      extinctionYear: electronics.extinctionYear,
+      reintroductionYear: electronics.reintroductionYear,
       variableEquipmentId: electronics.variableEquipmentId,
     });
   }
@@ -253,6 +277,8 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: misc.costCBills,
       battleValue: misc.battleValue,
       introductionYear: misc.introductionYear,
+      extinctionYear: misc.extinctionYear,
+      reintroductionYear: misc.reintroductionYear,
       variableEquipmentId: misc.variableEquipmentId,
     });
   }
@@ -274,6 +300,8 @@ export function getAllEquipmentItems(): IEquipmentItem[] {
       costCBills: 0, // Variable: calculated based on weight
       battleValue: 0, // Variable: calculated based on damage
       introductionYear: physicalWeapon.introductionYear,
+      extinctionYear: physicalWeapon.extinctionYear,
+      reintroductionYear: physicalWeapon.reintroductionYear,
       variableEquipmentId: id, // Physical weapons use their ID as the formula ID
     });
   }
@@ -298,7 +326,7 @@ export function filterEquipmentByRulesLevel(
 }
 
 export function filterEquipmentByYear(year: number): IEquipmentItem[] {
-  return getAllEquipmentItems().filter((e) => e.introductionYear <= year);
+  return getAllEquipmentItems().filter((e) => isAvailableInYear(e, year));
 }
 
 export function filterEquipmentByCategory(

@@ -87,6 +87,22 @@ describe('UnitLoadDialog', () => {
     });
   });
 
+  it('sorts names ignoring leading punctuation while preserving labels and custom priority', async () => {
+    (getCanonicalUnitService().getIndex as jest.Mock).mockResolvedValue([
+      { ...mockCanonicalUnit, id: 'wing', chassis: "'Wing' Wraith" },
+      { ...mockCanonicalUnit, id: 'battle', chassis: '“Battle Tripod”' },
+      mockCanonicalUnit,
+    ]);
+    render(<UnitLoadDialog {...defaultProps} />);
+    await screen.findByText('Atlas');
+    const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+    expect(
+      rows.map((row) =>
+        within(row).getAllByRole('cell')[0].textContent?.trim(),
+      ),
+    ).toEqual(['Custom', 'Atlas', '“Battle Tripod”', "'Wing' Wraith"]);
+  });
+
   it('should not render when closed', () => {
     render(<UnitLoadDialog {...defaultProps} isOpen={false} />);
 

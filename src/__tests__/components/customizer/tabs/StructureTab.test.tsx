@@ -136,7 +136,7 @@ describe('StructureTab', () => {
     expect(walkInput).toHaveAccessibleDescription(/Range .* for a 50t mech/);
   });
 
-  it('shows Run MP as a read-only box the size of the stepper value box', () => {
+  it('shows Run MP as a locked read-only field as wide as a stepper', () => {
     render(<StructureTab />);
 
     const run = screen.getByLabelText('Run MP');
@@ -145,15 +145,56 @@ describe('StructureTab', () => {
       control.closest('.grid') as HTMLElement;
     expect(run.tagName).toBe('OUTPUT');
     expect(run).toHaveTextContent('8');
-    expect(run).toHaveClass('w-12', 'min-h-11', 'border');
-    expect(walk).toHaveClass('w-12');
+    expect(run).toHaveClass('min-h-11', 'border', 'w-full', 'max-w-60');
+    expect(run).not.toHaveAttribute('tabindex');
+    expect(run.querySelector('svg')).not.toBeNull();
     expect(within(rowOf(run)).queryAllByRole('button')).toHaveLength(0);
     expect(rowOf(run)).toHaveTextContent(/8\s*→\s*8\s*final/);
     expect(rowOf(run).className).toBe(rowOf(walk).className);
-    expect(walk.parentElement).toHaveClass('w-[8.5rem]');
+    // Same width class as the stepper group, so both share one right edge.
+    expect(walk.parentElement).toHaveClass('w-full', 'max-w-60');
     expect(screen.getByTitle('Final Run MP')).toBeInTheDocument();
   });
 
+  it('makes every stepper span the full control column', () => {
+    render(<StructureTab />);
+
+    for (const name of ['Tonnage', 'Walk MP', 'Jump MP', 'Heat sink count']) {
+      const input = screen.getByRole('spinbutton', { name });
+      expect(input.parentElement).toHaveClass('w-full', 'max-w-60');
+      expect(input).toHaveClass('flex-1');
+    }
+  });
+
+  it('puts the tonnage range under the control as helper text', () => {
+    render(<StructureTab />);
+
+    const tonnage = screen.getByRole('spinbutton', { name: 'Tonnage' });
+    expect(tonnage).toHaveAccessibleDescription(/20–200t/);
+  });
+
+  it('moves Cooling into its own card below Mobility', () => {
+    render(<StructureTab />);
+
+    const cardOf = (name: string) =>
+      screen.getByRole('heading', { name, level: 3 }).closest('.\\@container');
+    const cooling = cardOf('Cooling') as HTMLElement;
+    const mobility = cardOf('Mobility') as HTMLElement;
+    const chassis = cardOf('Chassis') as HTMLElement;
+    expect(cooling).not.toBe(chassis);
+    expect(cooling.parentElement).toBe(mobility.parentElement);
+    expect(mobility.nextElementSibling).toBe(cooling);
+    expect(
+      within(cooling).getByRole('combobox', { name: 'Heat sink type' }),
+    ).toBeInTheDocument();
+    expect(
+      within(cooling).getByRole('spinbutton', { name: 'Heat sink count' }),
+    ).toBeInTheDocument();
+    expect(
+      within(chassis).queryByRole('combobox', { name: 'Heat sink type' }),
+    ).toBeNull();
+    expect(chassis.parentElement).toHaveClass('items-start');
+  });
   it('mutes Jump Type, but keeps it usable, while no jump jets are installed', () => {
     render(<StructureTab />);
 

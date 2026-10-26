@@ -130,10 +130,11 @@ test('critical panels use the workspace and keep slot names readable @customizer
     await expect(grid.getByText('Continuation', { exact: true })).toHaveCount(
       0,
     );
-    expect(
-      await grid.getByText('AC/20', { exact: true }).count(),
-    ).toBeGreaterThan(1);
-    const equipmentNames = grid.getByText('AC/20', { exact: true });
+    await expect(grid.getByText('AC/20', { exact: true })).toHaveCount(1);
+    const equipmentNames = grid
+      .getByRole('gridcell', { name: /^Slot \d+: AC\/20$/ })
+      .locator(':scope > span:nth-child(2)');
+    await expect(equipmentNames).toHaveCount(10);
     const grouping = await equipmentNames.evaluateAll((labels) =>
       labels.map((label) => {
         const cell = label.closest('[role=gridcell]')!;
@@ -173,7 +174,14 @@ test('critical panels use the workspace and keep slot names readable @customizer
       if (index > 0)
         expect(item.top - grouping[index - 1].bottom).toBeLessThanOrEqual(1);
     }
-    await expect(grid.getByText('↳', { exact: true })).toHaveCount(0);
+    await expect(equipmentNames.filter({ hasText: '↳' })).toHaveCount(9);
+    const cells = grid.getByRole('gridcell').filter({ visible: true });
+    const heights = await cells.evaluateAll((rows) =>
+      rows.map((row) => row.getBoundingClientRect().height),
+    );
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(
+      layout.width < 640 ? 44 : 34,
+    );
     measurements.push({ layout, ...actual, grouping });
     await page.screenshot({
       path: testInfo.outputPath(layout.name + '.png'),

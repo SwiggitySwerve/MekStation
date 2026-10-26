@@ -152,10 +152,10 @@ test('armor designs retain distinct materials, common geometry and themed panels
   });
   expect(Math.abs(cardBottoms[0] - cardBottoms[1])).toBeLessThanOrEqual(1);
   // The location table sits beside the figure and selects like a plate.
-  // Its headers say what each column holds, with the 13px note right under.
+  // Its headers are single words, with the 13px current/max note right under.
   await expect(
     page.getByTestId('armor-location-table').getByRole('columnheader'),
-  ).toHaveText(['Location', 'Front / max', 'Rear / max', 'Location max']);
+  ).toHaveText(['Location', 'Front', 'Rear', 'Max']);
   await expect(page.getByTestId('armor-location-table-note')).toHaveCSS(
     'font-size',
     '13px',
@@ -180,13 +180,19 @@ test('armor designs retain distinct materials, common geometry and themed panels
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  // Phone: 12px text, 44px touch targets, and the Unallocated/legend footer
+  // Phone: 12px text (14px in the plates), 44px touch targets, and the Unallocated/legend footer
   // sits fully above the 56px Loadout bar without scrolling.
   const phone = await page.evaluate(() => {
     const svg = document.querySelector('svg[viewBox="0 20 360 402"]')!;
     const frame = svg.getBoundingClientRect();
     const scale = Math.min(frame.width / 360, frame.height / 402);
     const fonts = Array.from(svg.querySelectorAll('text, tspan')).map(
+      (node) =>
+        Number(node.closest('[font-size]')?.getAttribute('font-size')) * scale,
+    );
+    const plateFonts = Array.from(
+      svg.querySelectorAll('[role="button"] text, [role="button"] tspan'),
+    ).map(
       (node) =>
         Number(node.closest('[font-size]')?.getAttribute('font-size')) * scale,
     );
@@ -201,6 +207,7 @@ test('armor designs retain distinct materials, common geometry and themed panels
       .getBoundingClientRect();
     return {
       minFont: Math.min(...fonts),
+      plateMinFont: Math.min(...plateFonts),
       minTarget: Math.min(...targets),
       targetCount: targets.length,
       footerTop: footer.top,
@@ -209,6 +216,8 @@ test('armor designs retain distinct materials, common geometry and themed panels
     };
   });
   expect(phone.minFont).toBeGreaterThanOrEqual(11.9);
+  // Plate text, including the /max denominators, renders at 14px or more.
+  expect(phone.plateMinFont).toBeGreaterThanOrEqual(13.9);
   expect(phone.targetCount).toBe(8);
   expect(phone.minTarget).toBeGreaterThanOrEqual(43.9);
   expect(phone.footerTop).toBeGreaterThan(0);

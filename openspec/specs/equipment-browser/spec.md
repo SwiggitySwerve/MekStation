@@ -40,9 +40,10 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 #### Scenario: Desktop catalog columns
 
 - **WHEN** the equipment catalog is rendered at desktop width
-- **THEN** Name, Dmg, Range (S/M/L), Heat, Tons, Slots, and Add occupy one seven-column grid, with Type as secondary text directly under Name
+- **THEN** Name, Dmg, Range, Heat, Tons, Slots, and Add occupy seven aligned content columns, with Type as secondary text directly under Name and a trailing flexible space
 - **AND** rows use hairline dividers and a 4px category accent instead of full card borders
-- **AND** Name fills remaining width with a 240px minimum, numeric columns use fixed 72–96px right-aligned tracks, and Add controls align to the right edge
+- **AND** Name has a 240px minimum and 320px maximum, numeric columns use fixed 48–96px right-aligned tracks, and unused width remains after Add
+- **AND** the Range header stays on one line with an accessible description of short / medium / long
 - **AND** only the active Name, Tons, or Slots sort shows a filled directional arrow in the accent color; inactive arrows appear faintly on hover or keyboard focus, with pressed state and direction conveyed by accessible names; combat statistics remain plain headers
 - **AND** damage, range, and heat use the existing weapon lookup and display a dash for non-weapons
 - **AND** both desktop and phone detail toggles have a visible chevron
@@ -614,7 +615,7 @@ The catalog SHALL use translucent category-colored row backgrounds with opaque r
 - **WHEN** rows render in supported themes and viewport sizes
 - **THEN** category colors remain recognizable without fully opaque fills
 - **AND** text, focus, selection, details and Add controls remain readable and operable
-- **AND** desktop headings and matching name, type, numeric and action cells share one seven-column grid with a sticky header in the same scrolling region
+- **AND** desktop headings and matching name, type, numeric and action cells share aligned content columns with trailing flexible space and a sticky header in the same scrolling region
 - **AND** ordinary collapsed desktop rows are no taller than 48px while Add keeps a 44px hit target around a smaller plus control
 
 #### Scenario: Scroll boundary and comparison headers
@@ -683,8 +684,29 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Expanded equipment details
 
 - **WHEN** equipment details are expanded on desktop
-- **THEN** metadata fills a three-column grid aligned to the equipment name indent
+- **THEN** metadata uses compact label/value pairs in two content-width columns on desktop and one on phones, aligned to the equipment name indent at content height
 - **AND** the expanded panel contains details only, without Add buttons
+
+### Requirement: Active BattleMech capacity context
+
+The catalog SHALL display the active BattleMech's existing calculated capacity and loadout counts without changing Add behavior.
+
+#### Scenario: Capacity and mounted equipment
+
+- **WHEN** a BattleMech catalog is open
+- **THEN** a compact strip below the filters shows remaining tonnage to one decimal place and remaining slots from the existing unit summary, such as `4.0 t free · 16 slots free`
+- **AND** deficits remain negative rather than being hidden
+- **AND** a row already present in the loadout shows `×N mounted` beside its name, counting exact equipment IDs including unassigned instances
+- **AND** standalone browsing without a BattleMech context omits these annotations
+
+#### Scenario: Equipment exceeds remaining tonnage
+
+- **GIVEN** a fixed-weight item weighs 7 tons and the unit has 4 tons free
+- **WHEN** its catalog row renders
+- **THEN** a muted `+3.0 t over` badge appears
+- **AND** the row stays visible and its Add action retains its existing behavior
+- **AND** an exact fit has no over badge
+- **AND** variable-weight items retain their Variable label without an estimated over badge
 - **AND** the row split action remains visibly at least 44px tall
 
 ## Hook Architecture

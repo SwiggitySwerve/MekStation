@@ -22,12 +22,12 @@ import {
   STRUCTURE_CARD,
   STRUCTURE_HELP,
   STRUCTURE_META,
-  STRUCTURE_READONLY_VALUE,
+  STRUCTURE_READONLY_FIELD,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
   STRUCTURE_SELECT,
-  STRUCTURE_STEPPER,
 } from './StructureTabRowLayout';
+import { StructureStepper } from './StructureTabStepper';
 
 /**
  * Jump Type stays usable with no jump jets, but reads as secondary until a
@@ -58,41 +58,24 @@ function MobilityStepper({
   readonly onChange: (next: number) => void;
 }): React.ReactElement {
   return (
-    <div className={STRUCTURE_STEPPER}>
-      <button
-        type="button"
-        onClick={() => onChange(value - 1)}
-        disabled={readOnly || value <= min}
-        className={cs.button.stepperLeft}
-        aria-label={`Decrease ${name}`}
-      >
-        <AppIcon name="remove" size="inline" aria-hidden="true" />
-      </button>
-      <input
-        id={id}
-        type="number"
-        aria-label={name}
-        aria-describedby={describedBy}
-        value={value}
-        onChange={(e) => onChange(parseInt(e.target.value, 10) || min)}
-        disabled={readOnly}
-        min={min}
-        max={max}
-        className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-      />
-      <button
-        type="button"
-        onClick={() => onChange(value + 1)}
-        disabled={readOnly || value >= max}
-        className={cs.button.stepperRight}
-        aria-label={`Increase ${name}`}
-      >
-        <AppIcon name="add" size="inline" aria-hidden="true" />
-      </button>
-    </div>
+    <StructureStepper
+      id={id}
+      inputLabel={name}
+      decreaseLabel={`Decrease ${name}`}
+      increaseLabel={`Increase ${name}`}
+      value={value}
+      min={min}
+      max={max}
+      disabled={readOnly}
+      decreaseDisabled={value <= min}
+      increaseDisabled={value >= max}
+      describedBy={describedBy}
+      onDecrease={() => onChange(value - 1)}
+      onIncrease={() => onChange(value + 1)}
+      onInputChange={(raw) => onChange(parseInt(raw, 10) || min)}
+    />
   );
 }
-
 /** "→ 3 final": the resulting value after the base setting is applied. */
 function FinalValue({
   name,
@@ -203,16 +186,15 @@ export function StructureTabMovementSection({
 
         <div className={STRUCTURE_ROW_GRID}>
           <span className={STRUCTURE_ROW_LABEL}>Run MP</span>
-          {/* Derived, not editable: a read-only box, no buttons. */}
-          <div className={STRUCTURE_READONLY_VALUE}>
-            <output
-              aria-label="Run MP"
-              aria-describedby="run-mp-help"
-              className={`border-border-theme-subtle bg-surface-deep inline-flex min-h-11 w-12 items-center justify-center rounded border text-sm font-semibold tabular-nums ${cs.text.value}`}
-            >
-              {runMP}
-            </output>
-          </div>
+          {/* Derived, not editable: a locked, outlined field with no buttons. */}
+          <output
+            aria-label="Run MP"
+            aria-describedby="run-mp-help"
+            className={STRUCTURE_READONLY_FIELD}
+          >
+            <AppIcon name="lock" size="inline" aria-hidden="true" />
+            {runMP}
+          </output>
           <div className={STRUCTURE_META}>
             <FinalValue name="Run MP">
               {runMP}

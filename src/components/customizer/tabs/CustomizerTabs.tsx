@@ -11,10 +11,13 @@
 
 import React, { useState, useRef, useEffect, useId } from 'react';
 
-import { ValidationTabBadge } from '@/components/customizer/shared/ValidationTabBadge';
+import { buildStatusCountText } from '@/components/customizer/shared/buildStatusSummary';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
-import { ValidationCountsByTab } from '@/utils/validation/validationNavigation';
+import {
+  TabValidationCounts,
+  ValidationCountsByTab,
+} from '@/utils/validation/validationNavigation';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { CUSTOMIZER_TAB_ICONS as TabIcons } from './CustomizerTabIcons';
@@ -77,6 +80,21 @@ function getErrorRuleCode(
   if (errorTabs instanceof Map)
     return errorTabs.get(tabId) || 'Validation error';
   return 'Validation error';
+}
+
+/** "2 errors, 1 warning" for a section tab's badge and description. */
+function sectionCountsText(counts: TabValidationCounts | undefined): string {
+  if (!counts) return '';
+  return [
+    counts.errors > 0 ? buildStatusCountText('error', counts.errors) : '',
+    counts.warnings > 0 ? buildStatusCountText('warning', counts.warnings) : '',
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
+function badgeCount(count: number): string {
+  return count > 99 ? '99+' : String(count);
 }
 
 /**
@@ -301,6 +319,7 @@ export function CustomizerTabs({
           const counts =
             validationCounts?.[tab.id as keyof ValidationCountsByTab];
           const validationId = `customizer-tab-validation-${tab.id}`;
+          const countsText = sectionCountsText(counts);
           return (
             <div
               key={tab.id}
@@ -364,6 +383,10 @@ export function CustomizerTabs({
                     ●
                   </span>
                 )}
+                {/* Validation badges: shape and count, never color alone.
+                Errors are a red circle, warnings a yellow rounded square,
+                each holding its count; the slot keeps its width when the
+                counts clear. */}
                 {validationCounts && (
                   <span
                     className={workbenchStyles.sectionValidationDot}
@@ -374,20 +397,37 @@ export function CustomizerTabs({
                           ? 'warning'
                           : undefined
                     }
-                    role={
-                      counts?.errors || counts?.warnings ? 'img' : undefined
+                    role={countsText ? 'img' : undefined}
+                    aria-label={
+                      countsText ? `${tab.label}: ${countsText}` : undefined
                     }
-                    aria-labelledby={
-                      counts?.errors || counts?.warnings
-                        ? validationId
-                        : undefined
+                    title={
+                      countsText ? `${tab.label}: ${countsText}` : undefined
                     }
                   >
-                    <ValidationTabBadge
-                      id={validationId}
-                      counts={counts ?? { errors: 0, warnings: 0, infos: 0 }}
-                      className="sr-only"
-                    />
+                    {counts && counts.errors > 0 && (
+                      <span
+                        aria-hidden="true"
+                        data-section-badge="error"
+                        className={workbenchStyles.sectionBadge}
+                      >
+                        {badgeCount(counts.errors)}
+                      </span>
+                    )}
+                    {counts && counts.warnings > 0 && (
+                      <span
+                        aria-hidden="true"
+                        data-section-badge="warning"
+                        className={workbenchStyles.sectionBadge}
+                      >
+                        {badgeCount(counts.warnings)}
+                      </span>
+                    )}
+                    {countsText && (
+                      <span id={validationId} className="sr-only">
+                        {countsText}
+                      </span>
+                    )}
                   </span>
                 )}
               </button>
