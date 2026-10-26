@@ -395,7 +395,7 @@ test('notifications leave pinned metrics unobstructed @customizer', async ({
   );
 });
 
-test('critical locations fit below pinned tools and offer one phone location selector @customizer', async ({
+test('critical locations fit below pinned tools and offer one phone location pill tablist @customizer', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -418,7 +418,7 @@ test('critical locations fit below pinned tools and offer one phone location sel
     for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
       const box = (await swatch.boundingBox())!;
       expect(box.width).toBeGreaterThanOrEqual(20);
-      expect(box.height).toBe(10);
+      expect(box.height).toBeGreaterThanOrEqual(12);
       expect(box.width).toBeGreaterThan(box.height * 2);
     }
     for (const label of await key.locator('span').all()) {
@@ -443,7 +443,7 @@ test('critical locations fit below pinned tools and offer one phone location sel
       .toBeLessThanOrEqual(2);
     await expect(page.getByText('Scroll for more locations')).toBeHidden();
     const tops = await desktop
-      .locator(':scope > div > *')
+      .locator(':scope > div > :nth-child(-n + 5)')
       .evaluateAll((columns) =>
         columns.map((column) => column.getBoundingClientRect().top),
       );
@@ -454,6 +454,24 @@ test('critical locations fit below pinned tools and offer one phone location sel
     });
     const locations = desktop.getByRole('group', { name: /critical slots$/ });
     await expect(locations).toHaveCount(8);
+    const rightTorso = (await locations
+      .filter({ hasText: 'Right Torso' })
+      .boundingBox())!;
+    const leftTorso = (await locations
+      .filter({ hasText: 'Left Torso' })
+      .boundingBox())!;
+    const rightLeg = (await desktop
+      .getByRole('group', { name: 'Right Leg critical slots', exact: true })
+      .boundingBox())!;
+    const leftLeg = (await desktop
+      .getByRole('group', { name: 'Left Leg critical slots', exact: true })
+      .boundingBox())!;
+    expect(rightLeg.y).toBe(leftLeg.y);
+    expect(rightLeg.x).toBe(rightTorso.x);
+    expect(leftLeg.x).toBe(leftTorso.x);
+    expect(rightLeg.width).toBe(rightTorso.width);
+    expect(leftLeg.width).toBe(leftTorso.width);
+
     for (const location of await locations.all())
       await expect(location).toBeInViewport({ ratio: 1 });
     expect((await key.boundingBox())!.y).toBe(toolbarTop);
@@ -498,38 +516,43 @@ test('critical locations fit below pinned tools and offer one phone location sel
   const shortcuts = phone.getByRole('navigation', {
     name: 'Critical slot location shortcuts',
   });
-  const locationSelect = shortcuts.getByRole('combobox', { name: 'Location' });
-  await expect(shortcuts.getByRole('button')).toHaveCount(0);
-  expect(await locationSelect.getByRole('option').allTextContents()).toEqual(
-    Array.from({ length: 8 }, () =>
-      expect.stringMatching(/ · \d+\/\d+ used, \d+ free$/),
-    ),
+  const locationTabs = shortcuts.getByRole('tablist', { name: 'Location' });
+  const pills = locationTabs.getByRole('tab');
+  await expect(shortcuts.getByRole('combobox')).toHaveCount(0);
+  await expect(pills).toHaveCount(8);
+  const fullyVisiblePills = await locationTabs.evaluate((strip) => {
+    const bounds = strip.getBoundingClientRect();
+    return [...strip.querySelectorAll('[role=tab]')].filter((pill) => {
+      const rect = pill.getBoundingClientRect();
+      return rect.left >= bounds.left && rect.right <= bounds.right;
+    }).length;
+  });
+  expect(fullyVisiblePills).toBe(4);
+
+  expect(await pills.allTextContents()).toEqual(
+    [
+      /^RA \d+\/12$/,
+      /^RT \d+\/12$/,
+      /^HD \d+\/6$/,
+      /^CT \d+\/12$/,
+      /^LT \d+\/12$/,
+      /^LA \d+\/12$/,
+      /^RL \d+\/6$/,
+      /^LL \d+\/6$/,
+    ].map((pattern) => expect.stringMatching(pattern)),
   );
-  expect((await locationSelect.boundingBox())!.width).toBeGreaterThanOrEqual(
-    350,
+  const sizes = await pills.evaluateAll((items) =>
+    items.map((item) => item.getBoundingClientRect().height),
   );
-  await locationSelect.selectOption('Head');
-  await expect(locationSelect).toHaveValue('Head');
+  expect(Math.min(...sizes)).toBeGreaterThanOrEqual(44);
+  await locationTabs.getByRole('tab', { name: /^Head / }).click();
   await expect(
     phone.getByRole('group', { name: 'Head critical slots', exact: true }),
   ).toBeVisible();
-  await expect(locationSelect.getByRole('option')).toHaveCount(8);
-  expect(await locationSelect.getByRole('option').allTextContents()).toEqual([
-    expect.stringMatching(/^Right Arm /),
-    expect.stringMatching(/^Right Torso /),
-    expect.stringMatching(/^Head /),
-    expect.stringMatching(/^Center Torso /),
-    expect.stringMatching(/^Left Torso /),
-    expect.stringMatching(/^Left Arm /),
-    expect.stringMatching(/^Right Leg /),
-    expect.stringMatching(/^Left Leg /),
-  ]);
-  expect((await locationSelect.boundingBox())!.height).toBeGreaterThanOrEqual(
-    44,
-  );
-  await expect(phone.locator('h3 button')).toHaveCount(0);
-  await locationSelect.selectOption('Left Leg');
-  await expect(locationSelect).toHaveValue('Left Leg');
+  const legTab = locationTabs.getByRole('tab', { name: /^Left Leg / });
+  await legTab.click();
+  await expect(legTab).toHaveAttribute('aria-selected', 'true');
+  await expect(legTab).toBeInViewport({ ratio: 1 });
   await expect(
     phone.getByRole('group', { name: 'Left Leg critical slots', exact: true }),
   ).toBeVisible();

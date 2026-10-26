@@ -105,7 +105,7 @@ function UnitTable({
           </th>
           <th className="hidden px-3 py-2 font-medium sm:table-cell">Tech</th>
           <th className="hidden px-3 py-2 font-medium md:table-cell">Role</th>
-          <th className="hidden px-3 py-2 font-medium sm:table-cell">Source</th>
+          <th className="hidden px-3 py-2 font-medium sm:table-cell">Era</th>
           <th className="w-8"></th>
         </tr>
       </thead>

@@ -36,7 +36,9 @@ export function ArmorAllocationFooter({
             {Math.abs(unallocatedPoints)} points
           </span>
         </div>
-        <span className="text-text-theme-secondary">R = rear armor</span>
+        <span className="text-text-theme-secondary">
+          F = front · R = rear armor
+        </span>
       </div>
       <ArmorStatusLegend className="mt-0! flex-wrap justify-start!" />
     </div>

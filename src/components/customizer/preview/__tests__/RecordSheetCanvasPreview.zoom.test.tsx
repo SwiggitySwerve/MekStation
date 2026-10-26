@@ -86,7 +86,7 @@ describe('RecordSheetCanvasPreview zoom', () => {
   it('starts in fit-width mode', () => {
     render(<ZoomHarness />);
 
-    expect(zoomOutput()).toHaveTextContent(/^123%$/);
+    expect(zoomOutput()).toHaveTextContent(/123%$/);
     expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
       'aria-pressed',
       'true',
@@ -112,14 +112,14 @@ describe('RecordSheetCanvasPreview zoom', () => {
     try {
       const user = userEvent.setup();
       render(<ZoomHarness />);
-      expect(zoomOutput()).toHaveTextContent(/^56%$/);
+      expect(zoomOutput()).toHaveTextContent(/56%$/);
       expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
         'aria-pressed',
         'true',
       );
       await user.click(screen.getByRole('button', { name: 'Fit page' }));
       fireResize(390, 400);
-      expect(zoomOutput()).toHaveTextContent(/^44%$/);
+      expect(zoomOutput()).toHaveTextContent(/44%$/);
       expect(screen.getByRole('button', { name: 'Fit page' })).toHaveAttribute(
         'aria-pressed',
         'true',
@@ -162,11 +162,11 @@ describe('RecordSheetCanvasPreview zoom', () => {
       'aria-pressed',
       'true',
     );
-    expect(zoomOutput()).toHaveTextContent(/^100%$/);
+    expect(zoomOutput()).toHaveTextContent(/100%$/);
 
     fireResize(390, 700);
 
-    expect(zoomOutput()).toHaveTextContent(/^100%$/);
+    expect(zoomOutput()).toHaveTextContent(/100%$/);
     expect(screen.getByTestId('sheet-canvas').style.width).toBe('612px');
   });
 
@@ -192,23 +192,23 @@ describe('RecordSheetCanvasPreview zoom', () => {
 
     // Fit width follows the viewer, up to the readable-width cap.
     fireResize(1600, 400);
-    expect(zoomOutput()).toHaveTextContent(/^150%$/);
+    expect(zoomOutput()).toHaveTextContent(/150%$/);
 
     await user.click(screen.getByRole('button', { name: 'Fit page' }));
-    expect(zoomOutput()).toHaveTextContent(/^44%$/);
+    expect(zoomOutput()).toHaveTextContent(/44%$/);
 
     await user.click(screen.getByRole('button', { name: 'Fit width' }));
-    expect(zoomOutput()).toHaveTextContent(/^150%$/);
+    expect(zoomOutput()).toHaveTextContent(/150%$/);
     expect(screen.getByRole('button', { name: 'Fit width' })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
 
     fireResize(800, 400);
-    expect(zoomOutput()).toHaveTextContent(/^123%$/);
+    expect(zoomOutput()).toHaveTextContent(/123%$/);
 
     await user.click(screen.getByRole('button', { name: 'Fit page' }));
-    expect(zoomOutput()).toHaveTextContent(/^44%$/);
+    expect(zoomOutput()).toHaveTextContent(/44%$/);
 
     fireResize(800, 1000);
     expect(zoomOutput()).toHaveTextContent('120%');

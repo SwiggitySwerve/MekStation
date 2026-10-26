@@ -22,6 +22,7 @@ import { LocationGrid } from '../critical-slots/LocationGrid';
 import { PhoneLocationNavigation } from '../critical-slots/PhoneLocationNavigation';
 import { useCriticalSlotOverflow } from '../critical-slots/useCriticalSlotOverflow';
 import { CustomizerToolbarContext } from '../CustomizerToolbarContext';
+import styles from '../CustomizerWorkbench.module.css';
 import { useCriticalSlotsTabLogic } from './CriticalSlotsTab.logic';
 import { CriticalSlotsToolbar } from './CriticalSlotsToolbar';
 
@@ -346,21 +347,21 @@ export function CriticalSlotsTab({
             aria-label="Critical slot locations"
             tabIndex={0}
           >
-            <div className="grid grid-cols-5 items-start gap-2">
+            <div className={styles.criticalDesktopGrid}>
               {renderLocation(MechLocation.RIGHT_ARM)}
-              <div className="min-w-0 space-y-2">
-                {renderLocation(MechLocation.RIGHT_TORSO)}
-                {renderLocation(MechLocation.RIGHT_LEG)}
-              </div>
-              <div className="min-w-0 space-y-2">
+              {renderLocation(MechLocation.RIGHT_TORSO)}
+              <div className={styles.criticalCenterColumn}>
                 {renderLocation(MechLocation.HEAD)}
                 {renderLocation(MechLocation.CENTER_TORSO)}
               </div>
-              <div className="min-w-0 space-y-2">
-                {renderLocation(MechLocation.LEFT_TORSO)}
+              {renderLocation(MechLocation.LEFT_TORSO)}
+              {renderLocation(MechLocation.LEFT_ARM)}
+              <div className={styles.criticalRightLeg}>
+                {renderLocation(MechLocation.RIGHT_LEG)}
+              </div>
+              <div className={styles.criticalLeftLeg}>
                 {renderLocation(MechLocation.LEFT_LEG)}
               </div>
-              {renderLocation(MechLocation.LEFT_ARM)}
             </div>
           </div>
         </>

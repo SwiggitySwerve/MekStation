@@ -7,7 +7,11 @@ import { CampaignRefitCommandBar } from '@/components/customizer/campaign/Campai
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
 import { BrowserDraftStatus } from '@/components/customizer/shared/BrowserDraftStatus';
 import { addStatusNotesToTabCounts } from '@/components/customizer/shared/buildStatusSummary';
-import { getTabIssueTitles } from '@/components/customizer/shared/tabIssueTitles';
+import { TabIssueNotice } from '@/components/customizer/shared/TabIssueNotice';
+import {
+  getTabIssueNotice,
+  getTabIssueTitles,
+} from '@/components/customizer/shared/tabIssueTitles';
 import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import {
@@ -155,6 +159,7 @@ export function UnitEditorWithRouting({
   const [toolbarTarget, setToolbarTarget] = useState<HTMLElement | null>(null);
   const [loadoutRequest, setLoadoutRequest] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [statusPanelRequest, setStatusPanelRequest] = useState(0);
   const [validationTarget, setValidationTarget] = useState<{
     unitId: string;
     tabId: CustomizerTabId;
@@ -241,12 +246,26 @@ export function UnitEditorWithRouting({
     () => getTabIssueTitles(validation.result, statusNotes),
     [validation.result, statusNotes],
   );
+  // Overview lists every issue in its readiness rows and Preview is not an
+  // editing surface, so the notice appears on the other tabs only.
+  const tabIssueNotice =
+    activeTabId === 'overview' || activeTabId === 'preview'
+      ? null
+      : getTabIssueNotice(
+          tabIssueCounts[activeTabId],
+          tabIssueTitles[activeTabId],
+        );
+  const showAllIssues = useCallback(
+    () => setStatusPanelRequest((value) => value + 1),
+    [],
+  );
   const validationProps = {
     validation,
     unitName,
     notes: statusNotes,
     onIssueNavigate: handleValidationIssue,
     onNavigate: handleTabChange,
+    openRequest: statusPanelRequest,
   };
 
   return (
@@ -319,17 +338,25 @@ export function UnitEditorWithRouting({
         <div
           className={`${workbenchStyles.workspaceBody} flex min-h-0 flex-1 overflow-hidden pb-14 md:pb-0`}
         >
-          <div
-            className={`${workbenchStyles.workspaceScroll} min-h-0 min-w-0 flex-1 overflow-auto`}
-            data-testid="customizer-workspace"
-          >
-            <UnitEditorWithRoutingTabContent
-              activeTabId={activeTabId}
-              selectedEquipmentId={selectedEquipmentId}
-              onSelectEquipment={handleSelectEquipment}
-              onNavigate={handleTabChange}
-              workbench
-            />
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            {tabIssueNotice && (
+              <TabIssueNotice
+                notice={tabIssueNotice}
+                onShowAll={showAllIssues}
+              />
+            )}
+            <div
+              className={`${workbenchStyles.workspaceScroll} min-h-0 min-w-0 flex-1 overflow-auto`}
+              data-testid="customizer-workspace"
+            >
+              <UnitEditorWithRoutingTabContent
+                activeTabId={activeTabId}
+                selectedEquipmentId={selectedEquipmentId}
+                onSelectEquipment={handleSelectEquipment}
+                onNavigate={handleTabChange}
+                workbench
+              />
+            </div>
           </div>
           <ErrorBoundary componentName="ResponsiveLoadoutTray">
             <ResponsiveLoadoutTray

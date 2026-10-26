@@ -214,7 +214,7 @@ The system SHALL provide zoom controls in the preview toolbar, beside the paper 
 
 - **WHEN** preview is displayed
 - **THEN** show zoom controls in the toolbar above the sheet, labeled Current zoom, Zoom in, Zoom out, Fit page, Fit width, and 100%
-- **AND** Current zoom reports the displayed percentage alone, such as "150%"; the pressed segment names the active mode
+- **AND** Current zoom reports the displayed percentage, such as "150%", labelled "Zoom 150%" from 640px up so it does not read as a mode beside the pressed "Fit width" segment (phones show the percentage alone); the pressed segment names the active mode
 - **AND** exactly one of Fit page, Fit width and 100% has `aria-pressed="true"` while that mode is active, and none is pressed after a manual zoom
 - **AND** the paper size select, the zoom controls, Print and Download PDF share one 44px control height and baseline
 - **AND** a caption under the sheet names the paper size and page count, for example "Letter · 1 page"

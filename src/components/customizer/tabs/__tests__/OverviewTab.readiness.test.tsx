@@ -8,6 +8,7 @@ import {
 
 import {
   getReadinessRows,
+  getReadinessStatus,
   type ReadinessInput,
 } from '../overview/buildReadiness';
 import { getTonnageBreakdown } from '../overview/tonnageBreakdown';
@@ -80,7 +81,7 @@ describe('Overview build readiness', () => {
     );
   });
 
-  it('counts placed slots and warns while an item is unplaced', () => {
+  it('counts placed slots and leaves the warning to the unplaced row', () => {
     const rows = byId(
       getReadinessRows(
         {
@@ -89,17 +90,62 @@ describe('Overview build readiness', () => {
           criticalSlotsPlaced: 66,
           criticalSlotsPending: 3,
           unplacedInstanceIds: ['ppc-1'],
+          unplacedItemNames: ['PPC'],
         },
         null,
       ),
     );
-    expect(rows.slots.sentence).toBe(
-      '66 of 78 slots filled · 3 pending (1 unplaced item).',
-    );
-    expect(rows.slots.status).toBe('warning');
-    expect(rows.slots.severity).toBe('warning');
-    // The Unplaced row keeps naming the item that needs a slot.
+    // Plain text, no warning: the same item is the Unplaced row's warning.
+    expect(rows.slots.sentence).toBe('66 of 78 slots filled · 3 pending.');
+    expect(rows.slots.status).toBe('normal');
+    expect(rows.slots.severity).toBe('ok');
     expect(rows.unplaced.severity).toBe('warning');
+    expect(rows.unplaced.sentence).toBe('PPC needs 3 slots; 1 item unplaced.');
+  });
+
+  it('shows as many warning rows as the build status counts', () => {
+    const input = {
+      ...balanced,
+      criticalSlotsUsed: 69,
+      criticalSlotsPlaced: 66,
+      criticalSlotsPending: 3,
+      unplacedInstanceIds: ['ppc-1'],
+      unplacedItemNames: ['PPC'],
+      heatGenerated: 31,
+    };
+    const rows = getReadinessRows(input, null);
+    const status = getReadinessStatus(
+      // The validator's one warning is the unplaced PPC.
+      { errorCount: 0, warningCount: 1, infoCount: 0 },
+      input.heatGenerated,
+      input.heatDissipation,
+    );
+    // The chip counts the unplaced warning and the heat note: two warnings,
+    // and the checklist shows exactly two warning rows for them.
+    const warningRows = rows.filter((row) => row.severity === 'warning');
+    expect(warningRows.map((row) => row.id)).toEqual(['heat', 'unplaced']);
+    expect(status.parts.find((part) => part.kind === 'warning')?.count).toBe(
+      warningRows.length,
+    );
+  });
+
+  it('names several unplaced items without repeating the slot warning', () => {
+    const rows = byId(
+      getReadinessRows(
+        {
+          ...balanced,
+          criticalSlotsUsed: 71,
+          criticalSlotsPlaced: 66,
+          criticalSlotsPending: 5,
+          unplacedInstanceIds: ['a', 'b'],
+          unplacedItemNames: ['PPC', 'Medium Laser'],
+        },
+        null,
+      ),
+    );
+    expect(rows.unplaced.sentence).toBe(
+      'PPC and Medium Laser need 5 slots; 2 items unplaced.',
+    );
   });
 
   it('says how many slots are free when nothing is unplaced', () => {
@@ -197,7 +243,7 @@ describe('Overview build readiness', () => {
     // The panel lists unplaced equipment as a warning; so does the row.
     expect(rows.unplaced.severity).toBe('warning');
     expect(rows.unplaced.sentence).toBe(
-      '1 of 18 items still needs a critical slot.',
+      'Needs critical slots; 1 item unplaced.',
     );
   });
 });

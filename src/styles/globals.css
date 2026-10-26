@@ -29,6 +29,9 @@
   --color-accent-muted: var(--accent-muted);
   --color-on-accent: #07121c;
 
+  /* Warning tier (text-warning, border-warning, bg-warning): legal-but-risky states. Orange, never the amber brand accent. */
+  --color-warning: var(--warning);
+
   /* Text theme colors (text-text-theme-*) */
   --color-text-theme-primary: var(--text-primary);
   --color-text-theme-secondary: var(--text-secondary);
@@ -82,6 +85,9 @@
   --accent-primary: #fbbf24;
   --accent-hover: #f59e0b;
   --accent-muted: rgba(251, 191, 36, 0.15);
+
+  /* Warning Color (orange-400): 6.4:1 on --surface-base, 5:1 on its 10% tint. Alerts only; the amber accent stays the action color. */
+  --warning: #fb923c;
 
   /* Font Size (updated by GlobalStyleProvider) */
   --font-size-base: 16px;
@@ -1578,7 +1584,8 @@ button:disabled {
   }
 
   .text-amber-400,
-  .text-yellow-400 {
+  .text-yellow-400,
+  .text-warning {
     color: black !important;
   }
 

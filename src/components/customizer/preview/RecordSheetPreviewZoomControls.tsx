@@ -26,8 +26,9 @@ interface RecordSheetPreviewZoomControlsProps {
 const STEP_BUTTON_CLASS = `${PREVIEW_CONTROL_CLASS} inline-flex w-11 min-w-11 shrink-0 items-center justify-center px-0!`;
 
 /**
- * Zoom stepper (- 150% +) beside a segmented Fit page / Fit width / 100%
- * control. The readout is plain tabular text between the two step buttons;
+ * Zoom stepper (- Zoom 150% +) beside a segmented Fit page / Fit width / 100%
+ * control. The readout is plain tabular text between the two step buttons
+ * ("Zoom" is spelled out from the sm breakpoint up; phones show the percentage);
  * only the pressed fit segment is highlighted. Stepping the zoom leaves all
  * three segments unpressed (manual zoom). Every control keeps its visible
  * text label on phones.
@@ -60,12 +61,17 @@ export function RecordSheetPreviewZoomControls({
             <path d="m15 15 7 7M7 10h6" />
           </SvgIcon>
         </button>
-        {/* Plain text, not a control: the pressed segment names the mode. */}
+        {/* Plain text, not a control: the pressed segment names the mode,
+            and "Zoom" (desktop) keeps the percentage from reading as a
+            mode. */}
         <output
-          className="text-text-theme-primary inline-flex min-w-12 items-center justify-center text-center text-[13px] font-medium whitespace-nowrap tabular-nums"
+          className="text-text-theme-primary inline-flex min-w-12 items-center justify-center text-center text-[13px] font-medium whitespace-nowrap tabular-nums sm:min-w-[4.5rem]"
           aria-live="polite"
           aria-label="Current zoom"
         >
+          <span className="text-text-theme-secondary mr-1 hidden sm:inline">
+            Zoom{' '}
+          </span>
           {formatZoomPercent(zoom)}
         </output>
         <button

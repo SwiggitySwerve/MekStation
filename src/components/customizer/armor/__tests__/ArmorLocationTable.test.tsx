@@ -29,15 +29,13 @@ const locations = [
 const withRear = new Set([MechLocation.CENTER_TORSO]);
 
 describe('buildArmorLocationTableRows', () => {
-  it('uses the shared face maximums and leaves rear empty off the torsos', () => {
+  it('totals front and rear against one location max and leaves rear empty off the torsos', () => {
     const rows = buildArmorLocationTableRows(armorData, locations, withRear);
 
-    expect(
-      rows.map((r) => [r.front, r.frontMax, r.rear, r.rearMax, r.max]),
-    ).toEqual([
-      [9, 9, undefined, undefined, 9],
-      [20, 24, 8, 12, 32],
-      [10, 24, undefined, undefined, 24],
+    expect(rows.map((r) => [r.front, r.rear, r.total, r.max])).toEqual([
+      [9, undefined, 9, 9],
+      [20, 8, 28, 32],
+      [10, undefined, 10, 24],
     ]);
   });
 
@@ -47,7 +45,7 @@ describe('buildArmorLocationTableRows', () => {
       [MechLocation.HEAD],
       new Set(),
     );
-    expect(row).toMatchObject({ front: 0, frontMax: 0, max: 0 });
+    expect(row).toMatchObject({ front: 0, total: 0, max: 0 });
   });
 });
 
@@ -65,20 +63,20 @@ describe('ArmorLocationTable', () => {
 
     expect(
       screen.getAllByRole('columnheader').map((header) => header.textContent),
-    ).toEqual(['Location', 'Front', 'Rear', 'Max']);
+    ).toEqual(['Location', 'Front', 'Rear', 'Total']);
     // Header row, the note row directly under it, then one row per location.
     expect(screen.getAllByRole('row')).toHaveLength(5);
     const note = screen.getByTestId('armor-location-table-note');
     expect(note.closest('thead')).not.toBeNull();
     expect(note).toHaveClass('text-[13px]');
     expect(note).toHaveClass('whitespace-nowrap');
-    expect(note).toHaveTextContent('Current / max. Max is the whole location.');
+    expect(note).toHaveTextContent('Front + rear share the location max.');
     const torso = screen.getByRole('row', { name: /Center Torso/ });
     expect(
       within(torso)
         .getAllByRole('cell')
         .map((c) => c.textContent),
-    ).toEqual(['20/24', '8/12', '32']);
+    ).toEqual(['20', '8', '28 / 32']);
   });
 
   it('selects through the row button, marks the selection and toggles by click', () => {
@@ -104,7 +102,7 @@ describe('ArmorLocationTable', () => {
     expect(onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
     fireEvent.click(
       screen
-        .getByText('Max', { selector: 'th' })
+        .getByText('Total', { selector: 'th' })
         .closest('table')!
         .querySelectorAll('tbody tr')[1],
     );

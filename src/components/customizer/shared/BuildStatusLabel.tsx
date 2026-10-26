@@ -15,14 +15,16 @@ export type { BuildState } from './buildStatusSummary';
 /**
  * The one look of each severity, shared by the status button, the panel,
  * the Overview readiness rows, the section-tab dots and the readouts
- * (`unitStatStatus`): errors red with a crossed circle, warnings yellow with
+ * (`unitStatStatus`): errors red with a crossed circle, warnings orange with
  * a triangle, notes sky blue with an info circle. A readout in a
  * legal-but-high state (running hot) is a warning and shows the warning hue;
- * red stays reserved for errors.
+ * red stays reserved for errors. The warning hue is the theme's `--warning`
+ * token, never the amber accent: amber keeps meaning the action (Save),
+ * orange means a risk.
  */
 export const BUILD_STATUS_KIND_TEXT_CLASS: Record<BuildStatusKind, string> = {
   error: 'text-red-400',
-  warning: 'text-yellow-400',
+  warning: 'text-warning',
   note: 'text-sky-300',
 };
 
@@ -32,14 +34,14 @@ export const BUILD_STATUS_KIND_TEXT_CLASS: Record<BuildStatusKind, string> = {
  */
 export const BUILD_STATUS_KIND_FILL_COLOR: Record<BuildStatusKind, string> = {
   error: 'var(--color-red-400, #f87171)',
-  warning: 'var(--color-yellow-400, #facc15)',
+  warning: 'var(--warning, #fb923c)',
   note: 'var(--color-sky-300, #7dd3fc)',
 };
 
 /** Border and tint of a control whose worst state is this one. */
 export const BUILD_STATE_TINT_CLASS: Record<BuildState, string> = {
   error: 'border-red-400/60 bg-red-400/10',
-  warning: 'border-yellow-400/50 bg-yellow-400/10',
+  warning: 'border-warning/50 bg-warning/10',
   note: 'border-sky-300/50 bg-sky-300/10',
   ready: 'border-border-theme bg-surface-base',
 };
@@ -103,13 +105,18 @@ function Separator(): React.ReactElement {
   );
 }
 
-/** One group as its shape and count, e.g. a red crossed circle and "1". */
+/**
+ * One group as its shape and count, e.g. a red crossed circle and "1". With
+ * `text` it reads in words ("1 error") beside the shape.
+ */
 function CountBadge({
   kind,
   count,
+  text,
 }: {
   kind: BuildStatusKind;
   count: number;
+  text?: string;
 }): React.ReactElement {
   return (
     <span
@@ -117,18 +124,26 @@ function CountBadge({
       className={`inline-flex shrink-0 items-center gap-0.5 tabular-nums ${BUILD_STATUS_KIND_TEXT_CLASS[kind]}`}
     >
       <SeverityIcon kind={kind} />
-      {count > 99 ? '99+' : count}
+      {text ?? (count > 99 ? '99+' : count)}
     </span>
   );
 }
+
+/**
+ * The most groups a phone spells out. Two lines of 12px text fit the 44px
+ * button; a third group falls back to shapes and counts.
+ */
+const COMPACT_SPELLED_GROUPS = 2;
 
 /**
  * Visible wording of the build-status button, rendered from the shared
  * summary: "1 error \u00b7 1 warning \u00b7 1 note", each group in its own
  * color after the worst group's icon. A lone readout warning reads as itself
  * ("Runs hot +11") and truncates before its amount. Phones show every group
- * as its severity shape and count, so the breakdown stays visible without
- * relying on color; the button's accessible name keeps the full summary.
+ * beside its severity shape, in words ("1 error", "2 warnings") that wrap to
+ * two lines; a third group would not fit, so three groups shrink to shapes
+ * and counts. Either way the breakdown never relies on color. The button's
+ * accessible name keeps the full summary.
  */
 export function BuildStatusLabel({
   summary,
@@ -157,14 +172,23 @@ export function BuildStatusLabel({
         </span>
       </>
     );
-  if (compact)
+  if (compact) {
+    const spelled = parts.length <= COMPACT_SPELLED_GROUPS;
     return (
-      <span className="flex min-w-0 flex-wrap items-center justify-center gap-x-2 gap-y-0.5 leading-4">
+      <span
+        className={`flex min-w-0 flex-wrap items-center justify-center gap-x-2 leading-4 ${spelled ? 'gap-y-0 text-xs' : 'gap-y-0.5'}`}
+      >
         {parts.map((part) => (
-          <CountBadge key={part.kind} kind={part.kind} count={part.count} />
+          <CountBadge
+            key={part.kind}
+            kind={part.kind}
+            count={part.count}
+            text={spelled ? part.text : undefined}
+          />
         ))}
       </span>
     );
+  }
   return (
     <>
       <BuildStateIcon state={state} />

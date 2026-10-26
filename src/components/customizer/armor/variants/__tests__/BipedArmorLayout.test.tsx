@@ -125,14 +125,17 @@ function spanAt(
 
 /**
  * Widest rendered text rows, in viewBox units, measured in the browser at the
- * sizes the label uses ("47/48" at 22/17 units, "R 14/15" at 17 units).
+ * sizes the label uses ("61/62" at 22/17 units, "F47·R14" at 17 units).
  */
 const FRONT_ROW_UNITS = 50;
 /** The head's one-digit "9/9". */
 const HEAD_ROW_UNITS = 28;
-const REAR_ROW_UNITS = 61;
+/** The torso's "F47·R14" split line, the widest row any plate holds. */
+const SPLIT_ROW_UNITS = 67;
 /** Clear space between a text row and the plate outline. */
 const MIN_EDGE_INSET_UNITS = 8;
+/** The split line fills a torso plate, so it keeps a slightly smaller inset. */
+const MIN_SPLIT_INSET_UNITS = 6;
 
 function fontSizeOf(node: Element): number {
   return Number(node.closest('[font-size]')?.getAttribute('font-size'));
@@ -156,7 +159,7 @@ describe('biped armor diagram layout', () => {
     }
   });
 
-  it('labels torsos with the short name, front value and an R rear line', () => {
+  it('labels torsos with the short name, the location total and an F/R split line', () => {
     const { container } = render(<CleanTechDiagram {...props} />);
     for (const name of ['CT', 'LT', 'RT']) {
       expect(screen.getByText(name)).toBeInTheDocument();
@@ -171,7 +174,14 @@ describe('biped armor diagram layout', () => {
       'front',
       'rear',
     ]);
-    expect(faces.map((node) => node.textContent)).toEqual(['47/48', 'R 14/15']);
+    // Front and rear share the location max (62), so the plate shows the
+    // total against it and splits it below; no per-side maximum is drawn.
+    expect(faces.map((node) => node.textContent)).toEqual(['F47', 'R14']);
+    const totalText = container.querySelector(
+      '[data-armor-total-location="Center Torso"]',
+    );
+    expect(totalText?.textContent).toBe('61/62');
+    expect(container.textContent).not.toMatch(/47\/48|14\/15/);
     // Accessible names still spell out the rear face.
     expect(
       screen.getByRole('button', { name: /^Center Torso armor:.*rear: 14 of/ }),
@@ -188,14 +198,14 @@ describe('biped armor diagram layout', () => {
         `[role="button"][aria-label^="${location} armor"]`,
       )!;
       const lines = Array.from(button.querySelectorAll('text'));
-      // Abbreviation, then the front value with its "/max" muted on the same
-      // baseline, then (torsos only) the rear line.
+      // Abbreviation, then the location's armor with its "/max" muted on the
+      // same baseline, then (torsos only) the front / rear split line.
       expect(lines).toHaveLength(plate.hasRear ? 3 : 2);
       expect(lines[0]).toHaveTextContent(plate.label);
       expect(lines[1].textContent).toMatch(/^\d+\/\d+$/);
       expect(lines[1].querySelectorAll('tspan')).toHaveLength(1);
       expect(lines[1].querySelector('tspan')?.textContent).toMatch(/^\/\d+$/);
-      if (plate.hasRear) expect(lines[2].textContent).toMatch(/^R \d+\/\d+$/);
+      if (plate.hasRear) expect(lines[2].textContent).toMatch(/^F\d+·R\d+$/);
       for (const line of lines)
         expect(Number(line.getAttribute('x'))).toBe(plate.x);
     }
@@ -210,28 +220,26 @@ describe('biped armor diagram layout', () => {
           cap: 16,
           width:
             location === MechLocation.HEAD ? HEAD_ROW_UNITS : FRONT_ROW_UNITS,
+          inset: MIN_EDGE_INSET_UNITS,
         },
         ...(plate.hasRear
           ? [
               {
                 baseline: plate.y + BIPED_PLATE_STACK.rear,
                 cap: 12,
-                width: REAR_ROW_UNITS,
+                width: SPLIT_ROW_UNITS,
+                inset: MIN_SPLIT_INSET_UNITS,
               },
             ]
           : []),
       ];
-      for (const { baseline, cap, width } of rows) {
+      for (const { baseline, cap, width, inset } of rows) {
         for (const y of [baseline - cap, baseline]) {
           const span = spanAt(points, y, plate.x);
           expect(span).not.toBeNull();
           const [left, right] = span!;
-          expect(plate.x - width / 2 - left).toBeGreaterThanOrEqual(
-            MIN_EDGE_INSET_UNITS,
-          );
-          expect(right - (plate.x + width / 2)).toBeGreaterThanOrEqual(
-            MIN_EDGE_INSET_UNITS,
-          );
+          expect(plate.x - width / 2 - left).toBeGreaterThanOrEqual(inset);
+          expect(right - (plate.x + width / 2)).toBeGreaterThanOrEqual(inset);
         }
       }
     }
@@ -287,7 +295,7 @@ describe('biped armor diagram layout', () => {
     const footer = () => screen.getByTestId('armor-allocation-footer');
     expect(footer()).not.toHaveClass('xl:hidden');
     expect(footer()).toHaveTextContent('Unallocated:');
-    expect(footer()).toHaveTextContent('R = rear armor');
+    expect(footer()).toHaveTextContent('F = front · R = rear armor');
     rerender(<CleanTechDiagram {...props} footerVisibility="below-xl" />);
     expect(footer()).toHaveClass('xl:hidden');
     rerender(<CleanTechDiagram {...props} unallocatedPoints={-3} />);

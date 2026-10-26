@@ -143,10 +143,13 @@ describe('CriticalSlotsTab', () => {
     const grid = screen.getByTestId('critical-slots-grid-desktop');
     const columns = grid.firstElementChild!.children;
     expect(columns[0]).toHaveTextContent('Right Arm');
-    expect(columns[1]).toHaveTextContent('Right TorsoRight Leg');
+    expect(columns[1]).toHaveTextContent('Right Torso');
     expect(columns[2]).toHaveTextContent('HeadCenter Torso');
-    expect(columns[3]).toHaveTextContent('Left TorsoLeft Leg');
+    expect(columns[3]).toHaveTextContent('Left Torso');
     expect(columns[4]).toHaveTextContent('Left Arm');
+    expect(columns[5]).toHaveTextContent('Right Leg');
+    expect(columns[6]).toHaveTextContent('Left Leg');
+    expect(columns).toHaveLength(7);
     expect(within(grid).getAllByTestId('location-grid')).toHaveLength(8);
     const tools = screen.getByRole('button', { name: 'Critical slot tools' });
     expect(

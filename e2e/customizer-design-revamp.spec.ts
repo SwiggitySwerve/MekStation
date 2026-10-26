@@ -53,9 +53,10 @@ async function expectFittedPreview(page: Page) {
   await expect(
     controls.getByRole('button', { name: 'Fit width', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
-  // The readout is the percentage alone; the pressed segment names the mode.
+  // The readout is the percentage (labelled Zoom on desktop); the pressed
+  // segment names the mode.
   await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
-    /^\d+%$/,
+    /^(Zoom )?\d+%$/,
   );
   // The caption names the paper and page count; the zoom lives in the toolbar.
   await expect(page.getByTestId('preview-sheet-caption')).toHaveText(

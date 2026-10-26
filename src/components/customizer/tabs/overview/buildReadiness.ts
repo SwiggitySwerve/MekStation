@@ -80,6 +80,8 @@ export interface ReadinessInput {
   readonly equipmentCount: number;
   /** Instance ids of mounted equipment without assigned critical slots. */
   readonly unplacedInstanceIds: readonly string[];
+  /** Names of the unplaced items, for the Unplaced equipment sentence. */
+  readonly unplacedItemNames?: readonly string[];
 }
 
 const STATUS_RANK: Record<StatStatus, number> = {
@@ -198,7 +200,9 @@ function slotsSentence(input: ReadinessInput, status: StatStatus): string {
   if (status === 'error') {
     return `${plural(used - total, 'slot')} over capacity (${used} of ${total}).`;
   }
-  return describeSlotFill(slotFillOf(input));
+  // Pending slots are plain text here: the Unplaced equipment row, next to
+  // this one, carries the warning for the same items.
+  return describeSlotFill(slotFillOf(input), false);
 }
 
 function armorSentence(input: ReadinessInput, status: StatStatus): string {
@@ -220,14 +224,26 @@ function heatSentence(status: StatStatus): string {
     : 'Runs hot at full fire. Legal, but add heat sinks to run cool.';
 }
 
+/**
+ * Names the unplaced items with the slots they will take ("PPC needs 3
+ * slots; 1 item unplaced"), so this one row carries the whole warning.
+ */
 function unplacedSentence(input: ReadinessInput): string {
   const count = input.equipmentCount;
   const unplaced = input.unplacedInstanceIds.length;
   if (count === 0) return 'No equipment mounted yet.';
-  if (unplaced > 0) {
-    return `${unplaced} of ${plural(count, 'item')} still ${unplaced === 1 ? 'needs' : 'need'} a critical slot.`;
+  if (unplaced === 0) {
+    return `All ${plural(count, 'item')} placed in critical slots.`;
   }
-  return `All ${plural(count, 'item')} placed in critical slots.`;
+  const pending = input.criticalSlotsPending ?? 0;
+  const names = input.unplacedItemNames ?? [];
+  const slots = pending > 0 ? plural(pending, 'slot') : 'critical slots';
+  const subject =
+    names.length > 0 && names.length <= 2 ? names.join(' and ') : undefined;
+  const need = subject
+    ? `${subject} ${names.length === 1 ? 'needs' : 'need'} ${slots}`
+    : `Needs ${slots}`;
+  return `${need}; ${plural(unplaced, 'item')} unplaced.`;
 }
 
 export function getReadinessRows(
@@ -235,7 +251,8 @@ export function getReadinessRows(
   result: UnitValidationState['result'],
 ): ReadinessRow[] {
   const weightStatus = getWeightStatus(input.weightUsed, input.tonnage);
-  // Warning while any item is unplaced: its slots are reserved, not filled.
+  // Neutral while items are unplaced: the Unplaced equipment row owns that
+  // warning, so one condition is counted once. Only over capacity is red.
   const slotStatus = getSlotFillStatus(slotFillOf(input));
   const armorStatus = getCapacityStatus(
     input.armorPoints,

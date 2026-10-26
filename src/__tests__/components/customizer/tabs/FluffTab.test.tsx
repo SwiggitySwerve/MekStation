@@ -2,6 +2,7 @@
 import React from 'react';
 
 import { AutoSizeTextarea } from '@/components/customizer/fluff/FluffFields';
+import { FluffSideColumn } from '@/components/customizer/fluff/FluffSideColumn';
 import { FluffTab } from '@/components/customizer/tabs/FluffTab';
 
 describe('FluffTab', () => {
@@ -131,7 +132,8 @@ describe('FluffTab', () => {
     const container = screen.getByTestId('fluff-narrative');
     expect(container).toHaveClass('flex-col');
     fields.forEach((field, index) => {
-      expect(field.parentElement?.parentElement).toBe(container);
+      // textarea > frame > field wrapper > column
+      expect(field.parentElement?.parentElement?.parentElement).toBe(container);
       if (index > 0) {
         expect(
           fields[index - 1].compareDocumentPosition(field) &
@@ -194,10 +196,8 @@ describe('FluffTab', () => {
       expect(field).toHaveAttribute('rows', '3');
       expect(field).not.toHaveClass('text-sm');
     }
-    expect(screen.getByLabelText('Variants')).toHaveClass('min-h-[6.5rem]');
-    expect(screen.getByLabelText('Notable Units')).toHaveClass(
-      'min-h-[6.5rem]',
-    );
+    expect(screen.getByLabelText('Variants')).toHaveClass('min-h-18');
+    expect(screen.getByLabelText('Notable Units')).toHaveClass('min-h-18');
   });
 
   it('marks every placeholder as an example in placeholder styling', () => {
@@ -447,7 +447,7 @@ describe('FluffTab', () => {
 });
 
 describe('Fluff textarea expansion', () => {
-  it('caps long text, expands and collapses, then hides the toggle for short text', () => {
+  it('collapses at whole lines with a fade, then expands, collapses and hides the toggle for short text', () => {
     const measure = jest
       .spyOn(HTMLTextAreaElement.prototype, 'scrollHeight', 'get')
       .mockImplementation(function (this: HTMLTextAreaElement) {
@@ -460,40 +460,91 @@ describe('Fluff textarea expansion', () => {
       readOnly: true,
       style: {
         lineHeight: '24px',
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        '--fluff-line-cap': '14',
+        '--fluff-line-cap': '8',
       } as React.CSSProperties,
     };
+    const fade = (field: HTMLElement): Element | null =>
+      field.parentElement?.querySelector('.bg-linear-to-t') ?? null;
     try {
       const { rerender } = render(<AutoSizeTextarea {...props} />);
       const field = screen.getByRole('textbox');
-      expect(field.style.height).toBe('352px');
+      // 8 whole lines of 24px: no partial line, no padding inside the textarea.
+      expect(field.style.height).toBe('192px');
+      expect(fade(field)).not.toBeNull();
+      expect(fade(field)).toHaveClass('h-8', 'pointer-events-none');
       const toggle = screen.getByRole('button', { name: 'Show all History' });
       expect(toggle).toHaveAttribute('aria-expanded', 'false');
       expect(toggle).toHaveAttribute('aria-controls', 'fluff-history');
+      expect(toggle).toHaveTextContent('Show all');
+      expect(toggle).toHaveTextContent('\u00b7 200 words');
+      expect(toggle).toHaveClass('mt-2');
+      // The toggle sits directly after the box, left-aligned (not in a right-aligned row).
+      expect(field.parentElement?.nextElementSibling).toBe(toggle);
       fireEvent.click(toggle);
       expect(field.style.height).toBe('800px');
+      expect(fade(field)).toBeNull();
       expect(toggle).toHaveAccessibleName('Show less History');
+      expect(toggle).not.toHaveTextContent('words');
       expect(toggle).toHaveAttribute('aria-expanded', 'true');
       fireEvent.click(toggle);
-      expect(field.style.height).toBe('352px');
+      expect(field.style.height).toBe('192px');
       rerender(
         <AutoSizeTextarea
           {...props}
           style={
-            { ...props.style, '--fluff-line-cap': '10' } as React.CSSProperties
+            { ...props.style, '--fluff-line-cap': '6' } as React.CSSProperties
           }
           value={`${props.value} changed`}
         />,
       );
-      expect(field.style.height).toBe('256px');
+      expect(field.style.height).toBe('144px');
       rerender(<AutoSizeTextarea {...props} value="Short" />);
       expect(field.style.height).toBe('88px');
       expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      expect(fade(field)).toBeNull();
       expect(field).toHaveValue('Short');
     } finally {
       measure.mockRestore();
     }
+  });
+});
+
+describe('Fluff side column', () => {
+  it('flags hidden content above and below as the column scrolls', () => {
+    render(
+      <FluffSideColumn>
+        <p>Content</p>
+      </FluffSideColumn>,
+    );
+    const column = screen.getByTestId('fluff-side-column');
+    expect(column.className).toContain('@[64rem]:sticky');
+    expect(column.className).toContain('@[64rem]:overflow-y-auto');
+    expect(column).not.toHaveAttribute('data-scroll-more-below');
+
+    let scrollTop = 0;
+    Object.defineProperties(column, {
+      scrollHeight: { configurable: true, value: 1000 },
+      clientHeight: { configurable: true, value: 500 },
+      scrollTop: {
+        configurable: true,
+        get: () => scrollTop,
+        set: (value: number) => {
+          scrollTop = value;
+        },
+      },
+    });
+    fireEvent.scroll(column);
+    expect(column).toHaveAttribute('data-scroll-more-below', 'true');
+    expect(column).not.toHaveAttribute('data-scroll-more-above');
+
+    scrollTop = 250;
+    fireEvent.scroll(column);
+    expect(column).toHaveAttribute('data-scroll-more-below', 'true');
+    expect(column).toHaveAttribute('data-scroll-more-above', 'true');
+
+    scrollTop = 500;
+    fireEvent.scroll(column);
+    expect(column).not.toHaveAttribute('data-scroll-more-below');
+    expect(column).toHaveAttribute('data-scroll-more-above', 'true');
   });
 });

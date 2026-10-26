@@ -75,7 +75,7 @@ describe('CleanTechDiagram', () => {
       screen.getByRole('button', { name: /^Center Torso armor/ }),
     );
     expect(head.getByText('9')).toBeInTheDocument(); // Head
-    expect(centerTorso.getByText('35')).toBeInTheDocument(); // CT front
+    expect(centerTorso.getByText('47')).toBeInTheDocument(); // CT 35 front + 12 rear
   });
 
   // Note: Auto-allocate button was moved to ArmorTab.tsx

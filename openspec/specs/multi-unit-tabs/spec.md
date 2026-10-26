@@ -311,6 +311,11 @@ The empty state SHALL provide quick access to unit creation and loading.
 - **AND** on phones the two buttons stack full width, each followed by its own caption
 - **AND** both buttons keep at least 44px touch targets
 
+#### Scenario: Add unit dialog catalog table names its columns truthfully
+
+- **WHEN** the Add unit dialog lists catalog units on a screen 640px or wider
+- **THEN** the table's last column is headed "Era", because it shows each unit's era (for example "Dark Age" or "Clan Invasion"); saved designs show "Custom" in that cell, and the "All Sources" filter still separates catalog units from saved designs
+
 #### Scenario: Empty state icon matches the palette
 
 - **WHEN** the empty state is displayed

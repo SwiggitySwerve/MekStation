@@ -40,12 +40,12 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 #### Scenario: Desktop catalog columns
 
 - **WHEN** the equipment catalog is rendered at desktop width
-- **THEN** Name, Dmg, Range, Heat, Tons, Slots, and Add occupy seven aligned content columns, with Type as secondary text directly under Name and a trailing flexible space
+- **THEN** Name, Dmg, Range, Min, Heat, Tons, Slots, and Add occupy eight aligned content columns, with Type as secondary text directly under Name
 - **AND** rows use hairline dividers and a 4px category accent instead of full card borders
-- **AND** the table spans the full catalog width: Name is flexible with a 240px minimum, numeric columns use fixed 48–96px right-aligned tracks with tabular figures, and Add with the ellipsis control is pinned to the right edge, leaving no unused band before the loadout rail
+- **AND** the table spans the full catalog width: Name uses a minmax(220px, 420px) track, numeric columns use fixed 52–108px right-aligned tracks with tabular figures, and Add with the ellipsis control is pinned to the right edge; spare space forms a gutter between Slots and the actions, with 12px gaps inside the comparison block
 - **AND** the Range header stays on one line with an accessible description of short / medium / long
 - **AND** only the active Name, Tons, or Slots sort shows a filled directional arrow in the accent color; inactive arrows appear faintly on hover or keyboard focus, with pressed state and direction conveyed by accessible names; combat statistics remain plain headers
-- **AND** damage, range, and heat use the existing weapon lookup and display a dash for non-weapons
+- **AND** damage, range, minimum range, and heat use the existing weapon lookup and display a dash for non-weapons; Min also displays a dash when minimum range is zero or unavailable
 - **AND** both desktop and phone detail toggles have a visible chevron
 - **AND** the sticky header remains in the same scroll region as the catalog rows
 - **AND** bottom list padding and row scroll margins allow the final row to be fully visible above pagination: after scrolling to the end at 1440?900 and 390?844, its bottom is no lower than the footer top
@@ -55,7 +55,7 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 - **WHEN** the catalog is displayed at a narrow viewport
 - **THEN** each row retains its equipment name, weight or variable-property summary, detail toggle, and accessible Add control
 - **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
-- **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 280px of the viewport top and at least six rows are fully visible
+- **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 290px of the viewport top and at least five rows are fully visible
 - **AND** expanding details makes weapon and equipment statistics available
 
 ### Requirement: Equipment Filtering
@@ -671,9 +671,9 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Phone comparison
 
 - **WHEN** browsing on a phone
-- **THEN** names use 16px text with the Add actions on the same row; specs use a separate full-width 13px line with explicit Dmg, Range, and Heat labels, followed by weight and slot count; each label/value pair stays unbroken and pairs wrap as units when necessary
+- **THEN** names use 16px text with the Add actions beside the name and stats; stats use a two-column grid at 14px with Dmg, Range, Min, Heat, Tons, and Slots label/value pairs; each pair stays unbroken
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
-- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent outline so it is visible without hover or focus
+- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
 - **AND** the Filters label shows only an active-filter count on phones and names the criteria on wider screens
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 
@@ -686,7 +686,7 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Expanded equipment details
 
 - **WHEN** equipment details are expanded on desktop
-- **THEN** metadata uses compact label/value pairs in two content-width columns on desktop and one on phones, aligned to the equipment name indent at content height
+- **THEN** metadata uses compact label/value pairs in two content-width columns on desktop and one on phones, aligned to the equipment name indent at content height, with labels at least 13px and values at least 14px
 - **AND** the expanded panel contains details only, without Add buttons
 
 ### Requirement: Active BattleMech capacity context
@@ -706,7 +706,8 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 
 - **GIVEN** the unit has exactly 0.0 t free
 - **WHEN** the catalog renders
-- **THEN** the capacity line reads `0.0 t free — no tonnage left; anything with weight makes the unit overweight` in the warning color, instead of the plain capacity text, and no individual row carries an over-weight marker
+- **THEN** the capacity line reads `0.0 t free — no tonnage left; anything with weight makes the unit overweight` in a compact bordered callout with a warning icon, warning-surface background, and 14px text, instead of the plain capacity text, and no individual row carries an over-weight marker
+- **AND** the same callout treatment applies to negative free tonnage, preserving the deficit value
 - **AND** on phones the line is shortened to `0.0 t free — no tonnage left` so it stays on one row
 
 #### Scenario: Equipment exceeds remaining tonnage

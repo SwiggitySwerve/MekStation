@@ -8,6 +8,23 @@ import { EquipmentCategory, type IEquipmentItem } from '@/types/equipment';
 
 import { EquipmentCatalogCard } from '../EquipmentCatalogCard';
 
+jest.mock('@/utils/equipment/weapons/utilities', () => ({
+  getWeaponById: (id: string) =>
+    id === 'ac-2'
+      ? {
+          damage: 2,
+          heat: 1,
+          ranges: { short: 8, medium: 16, long: 24, minimum: 4 },
+        }
+      : id === 'small-laser'
+        ? {
+            damage: 3,
+            heat: 1,
+            ranges: { short: 1, medium: 2, long: 3, minimum: 0 },
+          }
+        : undefined,
+}));
+
 const laser: IEquipmentItem = {
   id: 'small-laser',
   name: 'Small Laser',
@@ -40,6 +57,24 @@ it('adds no weight annotation when nothing is free, so the browser notice speaks
   expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
   expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
 });
+
+it.each([
+  ['ac-2', '4'],
+  ['small-laser', '—'],
+  ['unknown-equipment', '—'],
+])(
+  'shows existing minimum range for %s in both comparison layouts',
+  (id, minimum) => {
+    setup({ equipment: { ...laser, id } });
+    const row = screen.getByTestId('equipment-catalog-row');
+    expect(
+      row.querySelector('[data-catalog-column="minimumRange"]'),
+    ).toHaveTextContent(minimum);
+    const stats = screen.getByTestId('equipment-catalog-stats');
+    expect(stats).toHaveTextContent(`Min ${minimum}`);
+    expect(stats.children).toHaveLength(6);
+  },
+);
 
 it('omits mounted and weight annotations when the item is absent and fits exactly', () => {
   setup({ remainingWeight: 0.5 });

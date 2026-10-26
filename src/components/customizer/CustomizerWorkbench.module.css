@@ -130,11 +130,29 @@
 /* One line above the list: result count, then free tonnage and slots. */
 .catalogSummary {
   margin: 0;
-  padding: 2px 12px 4px;
+  padding: 2px 12px;
   color: var(--text-secondary);
   font-size: 13px;
   line-height: 20px;
   font-variant-numeric: tabular-nums;
+}
+
+.catalogCapacityWarning {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.catalogCapacityWarning > svg {
+  flex-shrink: 0;
 }
 
 .catalogNameLine {
@@ -179,6 +197,7 @@
 /* Numeric tracks read right-aligned so digits line up down the column. */
 .catalogColumns > [data-catalog-column='damage'],
 .catalogColumns > [data-catalog-column='range'],
+.catalogColumns > [data-catalog-column='minimumRange'],
 .catalogColumns > [data-catalog-column='weight'],
 .catalogColumns > [data-catalog-column='criticalSlots'],
 .catalogColumns > [data-catalog-column='heat'] {
@@ -276,8 +295,14 @@
   min-width: 44px;
   height: 44px;
   padding: 0 !important;
-  border: 1px solid var(--border-default) !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: transparent !important;
   border-radius: 8px;
+}
+
+.catalogAddOptions:hover,
+.catalogAddOptions:focus-visible {
+  border-color: var(--border-strong) !important;
 }
 
 .catalogAddMenu {
@@ -301,27 +326,36 @@
 }
 
 .catalogInspect {
-  display: flex;
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
+  gap: 0 8px;
   min-height: 44px;
-  padding: 8px 0 !important;
+  padding: 4px 0 !important;
 }
 
 .catalogMobileStats {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-column: 1 / -1;
-  flex-wrap: wrap;
-  gap: 0 10px;
-  padding: 0 0 6px 24px;
+  gap: 0 12px;
+  padding: 0;
   color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
   font-variant-numeric: tabular-nums;
 }
 
 .catalogMobileStats > span {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
   white-space: nowrap;
+}
+
+.catalogMobileStats > span > span:first-child {
+  flex: 0 0 40px;
 }
 
 .catalogDetails {
@@ -350,6 +384,7 @@
 
 .catalogDetailGrid dd {
   margin: 0;
+  font-size: 14px;
 }
 
 .catalogCategories {
@@ -366,8 +401,14 @@
 
 @media (min-width: 1024px) {
   .catalogColumns {
-    /* Flexible name; fixed numeric tracks; actions pinned to the right edge. */
-    grid-template-columns: minmax(240px, 1fr) 72px 96px 48px 64px 72px 124px;
+    /* Bound the name and group comparison data; spare width is an action gutter. */
+    grid-template-columns:
+      minmax(220px, 420px)
+      80px 108px 52px 56px 72px 80px minmax(0, 1fr) 124px;
+  }
+
+  .catalogColumns > [data-catalog-column='actions'] {
+    grid-column: 9;
   }
 
   .catalogMobileStats {
@@ -379,6 +420,7 @@
   }
 
   .catalogInspect {
+    display: flex;
     height: 44px;
     padding: 0 !important;
   }
@@ -390,10 +432,9 @@
 
   .catalogHeader,
   .catalogScroll > ul {
-    min-width: 848px;
+    min-width: 916px;
   }
 }
-
 .compactMetrics {
   padding: 0 12px;
   min-height: 48px;
@@ -491,7 +532,7 @@
 /* Legal but high (running hot) is a warning: the warning hue, as in
    BuildStatusLabel. */
 .budgetFill[data-status='warning'] {
-  background: var(--color-yellow-400, #facc15);
+  background: var(--warning, #fb923c);
 }
 
 .budgetFill[data-status='error'] {
@@ -696,7 +737,7 @@
   gap: 3px;
 }
 
-/* Shape and count, never color alone: errors a red circle, warnings a yellow
+/* Shape and count, never color alone: errors a red circle, warnings an orange
    rounded square, in the hues of the status button and panel. */
 .sectionBadge {
   display: inline-flex;
@@ -719,7 +760,7 @@
 
 .sectionBadge[data-section-badge='warning'] {
   border-radius: 3px;
-  background: var(--color-yellow-400, #facc15);
+  background: var(--warning, #fb923c);
 }
 
 .sectionFadeLeft {
@@ -922,13 +963,11 @@
 }
 
 .criticalMergedFirst {
-  margin-top: 2px;
   border-top-width: 1px;
   border-radius: 3px 3px 0 0;
 }
 
 .criticalMergedLast {
-  margin-bottom: 2px;
   border-bottom-width: 1px;
   border-radius: 0 0 3px 3px;
 }
@@ -963,7 +1002,7 @@
   position: absolute;
   z-index: 1;
   top: 5px;
-  left: 1.75rem;
+  left: 0.5rem;
   right: 0.5rem;
   line-height: 1.25;
 }
@@ -984,7 +1023,7 @@
 
 .criticalLegendBar {
   width: 28px;
-  height: 10px;
+  height: 12px;
   border-top: 0;
   border-right: 0;
   border-bottom: 0;
@@ -1002,4 +1041,89 @@
   .criticalSlotRows {
     padding-block: 0;
   }
+
+  .criticalSlotRows > [role='gridcell'] {
+    height: 30px;
+    margin-block: 0;
+    font-size: 14px;
+  }
+}
+
+.criticalDesktopGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.criticalCenterColumn {
+  display: grid;
+  min-width: 0;
+  grid-column: 3;
+  grid-row: 1 / 3;
+  gap: 8px;
+}
+
+.criticalRightLeg {
+  min-width: 0;
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.criticalLeftLeg {
+  min-width: 0;
+  grid-column: 4;
+  grid-row: 2;
+}
+
+.criticalEquipmentName {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.criticalSlotRange {
+  float: left;
+  margin-right: 8px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.criticalLocationPills {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.criticalLocationPill {
+  flex: 0 0 auto;
+  display: flex;
+  min-width: 84px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 4px 4px 0 0;
+  padding: 0 8px;
+  background: var(--surface-base);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.criticalLocationPill[aria-selected='true'] {
+  border-bottom-color: var(--accent-primary);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+.criticalLocationPill:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
 }

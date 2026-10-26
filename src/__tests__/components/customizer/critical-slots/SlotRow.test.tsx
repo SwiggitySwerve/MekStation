@@ -56,7 +56,7 @@ describe('SlotRow', () => {
 
     render(<SlotRow {...defaultProps} slot={slot} />);
 
-    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.queryByText('3')).not.toBeInTheDocument();
     expect(screen.queryByText('LPL Laser')).not.toBeInTheDocument();
     expect(screen.queryByText('↳')).not.toBeInTheDocument();
     expect(screen.queryByText('2 slots')).not.toBeInTheDocument();
@@ -86,12 +86,27 @@ describe('SlotRow', () => {
       />,
     );
     expect(screen.getByText('AC/20')).toBeInTheDocument();
+    expect(screen.getByText('3–12')).toBeInTheDocument();
     expect(screen.getByText('10 slots')).toHaveClass(
       'text-text-theme-secondary',
     );
     expect(
       screen.getByRole('gridcell', { name: 'Slot 3: AC/20' }),
     ).toHaveAttribute('tabindex', '0');
+  });
+
+  it('spells out Heat Sink while preserving its complete accessible name', () => {
+    render(
+      <SlotRow
+        {...defaultProps}
+        slot={{ index: 4, type: 'equipment', name: 'Heat Sink' }}
+      />,
+    );
+    expect(screen.getByText('Heat Sink')).toHaveAttribute('title', 'Heat Sink');
+    expect(screen.queryByText('HS')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('gridcell', { name: 'Slot 5: Heat Sink' }),
+    ).toBeInTheDocument();
   });
 
   it('should call onClick when clicked', async () => {

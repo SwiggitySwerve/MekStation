@@ -39,6 +39,11 @@ it('keeps every row in a merged block individually named, selectable, removable 
   );
   expect(screen.getAllByText('AC/20')).toHaveLength(1);
   expect(screen.getByText('10 slots')).toBeInTheDocument();
+  expect(screen.getByText('1–10')).toBeInTheDocument();
+  for (let slot = 1; slot <= 10; slot++)
+    expect(
+      screen.queryByText(String(slot), { exact: true }),
+    ).not.toBeInTheDocument();
   expect(screen.queryByText('↳')).not.toBeInTheDocument();
   slots.forEach(({ index }) => {
     const cell = screen.getByRole('gridcell', {

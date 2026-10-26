@@ -159,11 +159,11 @@ describe('ValidationSummary readout warnings', () => {
     const error = screen.getByRole('button', {
       name: 'Atlas: Not legal · 1 error · 1 warning (Runs hot +11), show issues',
     });
-    // Phones show each group as its severity shape and count.
-    expect(error).toHaveTextContent(/^1\s*1$/);
+    // Phones show each group as its severity shape and words, two lines.
+    expect(error).toHaveTextContent(/^1 error\s*1 warning$/);
     expect(
       error.querySelector('[data-build-status-part="error"]'),
-    ).toHaveTextContent('1');
+    ).toHaveTextContent('1 error');
     expect(
       error.querySelector(
         '[data-build-status-part="warning"] [data-severity-icon="warning"]',
@@ -177,6 +177,117 @@ describe('ValidationSummary readout warnings', () => {
     const dialog = screen.getByRole('dialog', { name: /Atlas.*Not legal/ });
     expect(dialog).toHaveTextContent('Overweight');
     expect(dialog).toHaveTextContent(heatNote.message);
+  });
+
+  describe('on a desktop workbench', () => {
+    const box = (left: number, top: number, width: number, height: number) =>
+      ({
+        left,
+        top,
+        width,
+        height,
+        right: left + width,
+        bottom: top + height,
+        x: left,
+        y: top,
+        toJSON: () => ({}),
+      }) as DOMRect;
+    const originalWidth = window.innerWidth;
+    const originalHeight = window.innerHeight;
+    let rect: jest.SpyInstance;
+
+    beforeEach(() => {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: 1440,
+      });
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: 900,
+      });
+      rect = jest
+        .spyOn(Element.prototype, 'getBoundingClientRect')
+        .mockImplementation(function (this: Element) {
+          if (this.matches('aside[aria-label="Unit loadout"]'))
+            return box(1200, 153, 240, 747);
+          if (this.matches('[data-testid="customizer-workspace"]'))
+            return box(0, 153, 1200, 747);
+          return box(1100, 108, 160, 44);
+        });
+    });
+
+    afterEach(() => {
+      rect.mockRestore();
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        value: originalWidth,
+      });
+      Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        value: originalHeight,
+      });
+    });
+
+    it('opens a drawer over the loadout rail that leaves the tab content undimmed, and Escape returns focus', () => {
+      render(
+        <div>
+          <div data-testid="customizer-workspace" />
+          <aside aria-label="Unit loadout" />
+          <ValidationSummary
+            validation={withOneError()}
+            unitName="Atlas"
+            notes={[heatNote]}
+          />
+        </div>,
+      );
+      const trigger = screen.getByRole('button', { name: /show issues$/ });
+      fireEvent.click(trigger);
+      const dialog = screen.getByRole('dialog', { name: /Atlas.*Not legal/ });
+      expect(dialog).toHaveAttribute('data-panel-layout', 'drawer');
+      expect(dialog).toHaveStyle({
+        left: '1200px',
+        top: '153px',
+        width: '240px',
+        height: '747px',
+      });
+      expect(
+        document.querySelector('[data-validation-scrim]'),
+      ).not.toBeInTheDocument();
+      fireEvent.keyDown(document, { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+    });
+
+    it('closes from its close button and returns focus to the status button', () => {
+      render(
+        <div>
+          <aside aria-label="Unit loadout" />
+          <ValidationSummary validation={withOneError()} unitName="Atlas" />
+        </div>,
+      );
+      const trigger = screen.getByRole('button', { name: /show issues$/ });
+      fireEvent.click(trigger);
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Close validation issues' }),
+      );
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+    });
+  });
+
+  it('abbreviates three groups to shape and count on phone', () => {
+    render(
+      <ValidationSummary
+        validation={{ ...withOneError(), warningCount: 2, infoCount: 3 }}
+        unitName="Atlas"
+        compact
+      />,
+    );
+    const button = screen.getByRole('button', { name: /show issues$/ });
+    expect(button).toHaveTextContent(/^1\s*2\s*3$/);
+    expect(button).toHaveAccessibleName(
+      /Not legal \u00b7 1 error \u00b7 2 warnings \u00b7 3 notes/,
+    );
   });
 
   it('keeps the same running-hot wording on phone and shows details in the panel', () => {

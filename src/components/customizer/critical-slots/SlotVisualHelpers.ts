@@ -20,7 +20,7 @@ import styles from '../CustomizerWorkbench.module.css';
 
 /** Readable mouse targets on desktop; phones and touch pointers keep 44px rows. */
 export function getSlotSizeClasses(compact: boolean): string {
-  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1 lg:pointer-fine:text-[13px]' : ''}`;
+  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1' : ''}`;
 }
 
 /** Resolve the existing owner's Tailwind accent token, including its opacity. */
@@ -104,7 +104,10 @@ export function getOccupiedSpanClasses(slot: SlotContent): string {
 export function getSlotDisplayName(slot: SlotContent): string {
   if (slot.type === 'empty') return 'Available';
   if (isSlotContinuation(slot)) return '';
-  return slot.name ? abbreviateEquipmentName(slot.name) : '';
+  if (!slot.name) return '';
+  return classifyEquipmentByName(slot.name) === 'heatsink'
+    ? slot.name
+    : abbreviateEquipmentName(slot.name);
 }
 
 export function getSingleSlotDisplayName(

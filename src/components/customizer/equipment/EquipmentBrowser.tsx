@@ -195,6 +195,9 @@ function EquipmentBrowserContent({
             >
               Range
             </span>
+            <span data-catalog-column="minimumRange" title="Minimum range">
+              Min
+            </span>
             <span data-catalog-column="heat">Heat</span>
             {sortButton('weight', 'Tons', 'weight')}
             {sortButton('criticalSlots', 'Slots', 'criticalSlots')}

@@ -83,7 +83,7 @@ describe('MobileLoadoutHeader', () => {
       const { container } = render(
         <MobileLoadoutHeader {...defaultProps} stats={stats} />,
       );
-      expect(STAT_STATUS_TEXT_CLASS.warning).toBe('text-yellow-400');
+      expect(STAT_STATUS_TEXT_CLASS.warning).toBe('text-warning');
       expect(screen.getByText('25')).toHaveClass(
         STAT_STATUS_TEXT_CLASS.warning,
       );

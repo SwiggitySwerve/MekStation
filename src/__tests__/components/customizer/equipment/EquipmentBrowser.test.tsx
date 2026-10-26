@@ -329,9 +329,20 @@ describe('EquipmentBrowser', () => {
     expect(row.querySelector('[data-catalog-column="heat"]')).toHaveTextContent(
       '3',
     );
-    for (const pair of ['Dmg 5', 'Range 3/6/9', 'Heat 3', '1 t', '1 slot']) {
-      expect(within(row).getByText(pair)).toBeInTheDocument();
+    const stats = within(row).getByTestId('equipment-catalog-stats');
+    for (const pair of [
+      'Dmg 5',
+      'Range 3/6/9',
+      'Min —',
+      'Heat 3',
+      'Tons 1',
+      'Slots 1',
+    ]) {
+      expect(stats).toHaveTextContent(pair);
     }
+    expect(
+      row.querySelector('[data-catalog-column="minimumRange"]'),
+    ).toHaveTextContent('—');
     expect(
       screen.queryByRole('button', { name: /Sort by (heat|damage|range)/i }),
     ).not.toBeInTheDocument();
@@ -353,7 +364,7 @@ describe('EquipmentBrowser', () => {
       ],
     });
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    for (const column of ['damage', 'range', 'heat']) {
+    for (const column of ['damage', 'range', 'minimumRange', 'heat']) {
       expect(
         screen
           .getByRole('listitem')

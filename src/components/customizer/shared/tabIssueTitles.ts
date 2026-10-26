@@ -27,6 +27,12 @@ import { describeIssue, flattenErrors } from './ValidationSummaryRows';
 export interface TabIssueTitles {
   readonly errors: readonly string[];
   readonly warnings: readonly string[];
+  /**
+   * The fix for the tab's only issue ("add heat sinks in Cooling"), from the
+   * note's action or the rule's own suggestion. Absent when the tab has
+   * several issues, because one fix would not describe them.
+   */
+  readonly hint?: string;
 }
 
 export type TabIssueTitlesByTab = Partial<Record<string, TabIssueTitles>>;
@@ -40,17 +46,40 @@ export function getTabIssueTitles(
   result: UnitValidationState['result'],
   notes: readonly ValidationNote[],
 ): TabIssueTitlesByTab {
-  const byTab: Record<string, { errors: string[]; warnings: string[] }> = {};
+  const byTab: Record<
+    string,
+    { errors: string[]; warnings: string[]; hints: (string | undefined)[] }
+  > = {};
   const slot = (tabId: string) =>
-    (byTab[tabId] ??= { errors: [], warnings: [] });
+    (byTab[tabId] ??= { errors: [], warnings: [], hints: [] });
   for (const issue of flattenErrors(result)) {
     if (issue.severity === 'info') continue;
     const tab = slot(getPrimaryFixTab(issue.error.category));
     const title = describeIssue(issue.error).heading;
     (issue.severity === 'error' ? tab.errors : tab.warnings).push(title);
+    tab.hints.push(cleanHint(issue.error.suggestion));
   }
-  for (const note of notes) slot(note.tabId).warnings.push(note.label);
-  return byTab;
+  for (const note of notes) {
+    const tab = slot(note.tabId);
+    tab.warnings.push(note.label);
+    tab.hints.push(cleanHint(note.action));
+  }
+  return Object.fromEntries(
+    Object.entries(byTab).map(([tabId, { errors, warnings, hints }]) => [
+      tabId,
+      {
+        errors,
+        warnings,
+        ...(hints.length === 1 && hints[0] ? { hint: hints[0] } : {}),
+      },
+    ]),
+  );
+}
+
+/** A fix phrase without its closing period, or undefined when empty. */
+function cleanHint(text: string | undefined): string | undefined {
+  const hint = text?.trim().replace(/\.$/, '');
+  return hint ? hint : undefined;
 }
 
 /** Most titles a tooltip lists before it summarizes the rest. */
@@ -83,4 +112,32 @@ export function describeTabIssues(
       `${buildStatusCountText('warning', counts.warnings)}: ${listTitles(titles.warnings)}`,
     );
   return lines;
+}
+
+/** What the notice above a tab's content says about that tab's issues. */
+export interface TabIssueNotice {
+  /** Worst severity on the tab, for the icon. */
+  readonly severity: 'error' | 'warning';
+  /** "1 warning: Runs hot", one phrase per severity present. */
+  readonly summary: string;
+  /** The fix in a few words, when the tab has exactly one issue. */
+  readonly hint?: string;
+}
+
+/**
+ * The one-line notice for a tab with badge issues, or null when it has none.
+ * Words come from `describeTabIssues`, so the notice, the badge and its
+ * tooltip always agree.
+ */
+export function getTabIssueNotice(
+  counts: TabValidationCounts | undefined,
+  titles: TabIssueTitles | undefined,
+): TabIssueNotice | null {
+  const lines = describeTabIssues(counts, titles);
+  if (!counts || lines.length === 0) return null;
+  return {
+    severity: counts.errors > 0 ? 'error' : 'warning',
+    summary: lines.join(' \u00b7 '),
+    hint: titles?.hint,
+  };
 }

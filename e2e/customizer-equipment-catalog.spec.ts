@@ -10,6 +10,7 @@ const CATALOG_COLUMNS = [
   'name',
   'damage',
   'range',
+  'minimumRange',
   'heat',
   'weight',
   'criticalSlots',
@@ -394,10 +395,10 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     expect(box!.height, `collapsed row ${index} height`).toBeLessThanOrEqual(
       48,
     );
-    // The Name column is flexible: it never shrinks below 240px and takes
-    // whatever width the fixed numeric columns leave.
+    // Bound names so comparison columns remain grouped together.
     const nameCell = row.locator('[data-catalog-column="name"]');
-    expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(240);
+    expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(220);
+    expect((await nameCell.boundingBox())!.width).toBeLessThanOrEqual(420);
     await expect(
       nameCell.locator('[data-icon-name="chevron-right"]'),
     ).toBeVisible();
@@ -423,7 +424,7 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     rowBounds.x + rowBounds.width,
   );
   // Add and "..." are pinned to the right edge (row padding only), and the
-  // Name column absorbs the remaining width instead of leaving a dead band.
+  // spare width is a deliberate gutter after the comparison columns.
   expect(
     rowBounds.x + rowBounds.width - (actionBounds.x + actionBounds.width),
     'actions pinned to the right edge',
@@ -431,7 +432,37 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   const firstNameBounds = (await firstRow
     .locator('[data-catalog-column="name"]')
     .boundingBox())!;
-  expect(firstNameBounds.width, 'name column is flexible').toBeGreaterThan(320);
+  expect(
+    firstNameBounds.width,
+    'name column remains bounded',
+  ).toBeLessThanOrEqual(420);
+  await expect(
+    catalogHeader(page).locator('[data-catalog-column="minimumRange"]'),
+  ).toHaveText('Min');
+  await expect(
+    firstRow.locator('[data-catalog-column="minimumRange"]'),
+  ).toHaveText('4');
+  const internalGaps = await firstRow.evaluate((row) => {
+    const columns = [
+      'name',
+      'damage',
+      'range',
+      'minimumRange',
+      'heat',
+      'weight',
+      'criticalSlots',
+    ];
+    const bounds = columns.map((column) =>
+      row
+        .querySelector(`[data-catalog-column="${column}"]`)!
+        .getBoundingClientRect(),
+    );
+    return bounds.slice(1).map((box, index) => box.left - bounds[index].right);
+  });
+  expect(
+    Math.max(...internalGaps),
+    'largest gap inside the comparison block',
+  ).toBeLessThanOrEqual(12);
   await expect(
     firstRow.getByRole('button', { name: /^Add options for / }),
     'persistent outline on the more-ways-to-add control',
@@ -439,10 +470,22 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await expect(
     firstRow.getByRole('button', { name: /^Add options for / }),
   ).toHaveCSS('border-top-style', 'solid');
+  await expect(
+    firstRow.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   // The Atlas has no free tonnage: one notice above the list, no per-row chip.
   await expect(page.getByTestId('equipment-catalog-capacity')).toContainText(
     '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
   );
+  await expect(page.getByTestId('equipment-catalog-capacity')).toHaveCSS(
+    'font-size',
+    '14px',
+  );
+  await expect(
+    page
+      .getByTestId('equipment-catalog-capacity')
+      .locator('[data-icon-name="warning"]'),
+  ).toBeVisible();
   await expect(rows.filter({ hasText: /\+\d+(\.\d)? t over/ })).toHaveCount(0);
   // Names sort naturally: AC/2, AC/5, AC/10, AC/15 Ammo, AC/20.
   const visibleNames = await Promise.all(
@@ -535,6 +578,12 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await page.keyboard.press('Enter');
   expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
   expect(await first.getByRole('button').count()).toBe(3);
+  for (const label of await first.locator('dt').all()) {
+    await expect(label).toHaveCSS('font-size', '13px');
+  }
+  for (const value of await first.locator('dd').all()) {
+    await expect(value).toHaveCSS('font-size', '14px');
+  }
   await page.keyboard.press('Tab');
   await expect(rowAdd).toBeFocused();
   await page.keyboard.press('Tab');
@@ -591,12 +640,12 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(catalogHeader(page)).toBeHidden();
   await expectInitialScrollBoundary(page);
-  // Phone density: the first row starts within 280px and six rows are visible.
+  // Phone density: the two-column stats grid leaves five full rows visible.
   const phoneScroll = (await scroll.boundingBox())!;
   expect(
     (await rows.first().boundingBox())!.y,
     'first phone row starts near the top',
-  ).toBeLessThanOrEqual(280);
+  ).toBeLessThanOrEqual(290);
   let fullyVisible = 0;
   for (const candidate of await rows.all()) {
     const box = (await candidate.boundingBox())!;
@@ -606,15 +655,17 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     )
       fullyVisible += 1;
   }
-  expect(fullyVisible, 'phone rows fully visible').toBeGreaterThanOrEqual(6);
+  expect(fullyVisible, 'phone rows fully visible').toBeGreaterThanOrEqual(5);
   const firstStats = page.getByTestId('equipment-catalog-stats').first();
   expect(
     (await firstStats.boundingBox())!.height,
-    'first row stats fit on one full-width line',
-  ).toBeLessThanOrEqual(28);
+    'first row stats fit in three two-column rows',
+  ).toBeLessThanOrEqual(60);
+  await expect(firstStats).toHaveCSS('display', 'grid');
+  await expect(firstStats.locator(':scope > span')).toHaveCount(6);
   for (const pair of await firstStats.locator(':scope > span').all()) {
     await expect(pair).toHaveCSS('white-space', 'nowrap');
-    await expect(pair).toHaveCSS('font-size', '13px');
+    await expect(pair).toHaveCSS('font-size', '14px');
     expect((await pair.boundingBox())!.height).toBeLessThanOrEqual(20);
   }
   await page.mouse.move(0, 0);

@@ -5,9 +5,11 @@ import type { StructureTabCalculations } from './StructureTabViewTypes';
 import { customizerStyles as cs } from '../styles';
 import {
   STRUCTURE_HELP,
+  STRUCTURE_CONTROL_WIDTH,
   STRUCTURE_META_END,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
+  STRUCTURE_ROW_STACK,
   STRUCTURE_SELECT,
 } from './StructureTabRowLayout';
 import { StructureStepper } from './StructureTabStepper';
@@ -43,7 +45,7 @@ export function HeatSinkSection({
   readonly handleBaseChassisHeatSinksChange: (newCount: number) => void;
 }): React.ReactElement {
   return (
-    <div className="space-y-3">
+    <div className={STRUCTURE_ROW_STACK}>
       <HeatSinkCountControl
         readOnly={readOnly}
         heatSinkType={heatSinkType}
@@ -84,7 +86,7 @@ function HeatSinkCountControl({
   readonly handleHeatSinkCountChange: (newCount: number) => void;
 }): React.ReactElement {
   return (
-    <div className="space-y-2">
+    <div className={STRUCTURE_ROW_STACK}>
       <div className={STRUCTURE_ROW_GRID}>
         <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-type">
           Heat sink type
@@ -199,7 +201,7 @@ function BaseChassisHeatSinkControl({
         >
           Base chassis
         </label>
-        <div className="flex w-full max-w-60 items-center gap-2">
+        <div className={`flex items-center gap-2 ${STRUCTURE_CONTROL_WIDTH}`}>
           <button
             type="button"
             onClick={() => onChange(-1)}

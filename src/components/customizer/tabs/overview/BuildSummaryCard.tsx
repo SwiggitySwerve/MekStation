@@ -68,6 +68,7 @@ export function BuildSummaryCard({
     equipmentWeight,
     equipmentCount,
     unplacedInstanceIds,
+    unplacedItemNames,
     validation,
   } = data;
   const unplacedCount = unplacedInstanceIds.length;
@@ -105,10 +106,17 @@ export function BuildSummaryCard({
           heatDissipation: stats.heatDissipation,
           equipmentCount,
           unplacedInstanceIds,
+          unplacedItemNames,
         },
         validation.result,
       ),
-    [stats, equipmentCount, unplacedInstanceIds, validation.result],
+    [
+      stats,
+      equipmentCount,
+      unplacedInstanceIds,
+      unplacedItemNames,
+      validation.result,
+    ],
   );
 
   const weightStatus = getWeightStatus(stats.weightUsed, stats.tonnage);

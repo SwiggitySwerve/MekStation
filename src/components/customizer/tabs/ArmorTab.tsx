@@ -441,7 +441,7 @@ export function ArmorTab({
                 >
                   <ArmorStatusLegend className="mt-0! justify-start!" />
                   <span className="text-text-theme-secondary text-xs">
-                    R = rear armor
+                    F = front · R = rear armor
                   </span>
                 </div>
               )}

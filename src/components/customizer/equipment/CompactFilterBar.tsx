@@ -15,7 +15,10 @@ import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 import type { ICatalogCapacityNotice } from './EquipmentBrowser.model';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
-import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
+import {
+  BUILD_STATUS_KIND_TEXT_CLASS,
+  BUILD_STATE_TINT_CLASS,
+} from '../shared/BuildStatusLabel';
 import { EquipmentControlPopover } from './EquipmentControlPopover';
 
 export interface CompactFilterBarProps {
@@ -345,35 +348,43 @@ export function CompactFilterBar({
         {resultSummary && <span aria-live="polite">{resultSummary}</span>}
         {capacity && ' · '}
         {capacity && (
-          <span data-testid="equipment-catalog-capacity">
-            <span
-              className={
-                capacity.exhausted ? BUILD_STATUS_KIND_TEXT_CLASS.warning : ''
-              }
-            >
-              {capacity.compactWeightText === capacity.weightText ? (
-                capacity.weightText
-              ) : (
-                <>
-                  <span className="sm:hidden">
-                    {capacity.compactWeightText}
-                  </span>
-                  <span className="hidden sm:inline">
-                    {capacity.weightText}
-                  </span>
-                </>
-              )}
-            </span>
-            {/* A long notice drops the slot count on phones to stay on one row. */}
-            <span
-              className={
-                capacity.compactWeightText === capacity.weightText
-                  ? ''
-                  : 'hidden sm:inline'
-              }
-            >
-              {' · '}
-              {capacity.slotsText}
+          <span
+            data-testid="equipment-catalog-capacity"
+            className={
+              capacity.exhausted
+                ? `${workbenchStyles.catalogCapacityWarning} ${BUILD_STATUS_KIND_TEXT_CLASS.warning} ${BUILD_STATE_TINT_CLASS.warning}`
+                : undefined
+            }
+          >
+            {capacity.exhausted && (
+              <AppIcon name="warning" size="inline" aria-hidden="true" />
+            )}
+            <span>
+              <span>
+                {capacity.compactWeightText === capacity.weightText ? (
+                  capacity.weightText
+                ) : (
+                  <>
+                    <span className="sm:hidden">
+                      {capacity.compactWeightText}
+                    </span>
+                    <span className="hidden sm:inline">
+                      {capacity.weightText}
+                    </span>
+                  </>
+                )}
+              </span>
+              {/* A long notice drops the slot count on phones to stay on one row. */}
+              <span
+                className={
+                  capacity.compactWeightText === capacity.weightText
+                    ? ''
+                    : 'hidden sm:inline'
+                }
+              >
+                {' · '}
+                {capacity.slotsText}
+              </span>
             </span>
           </span>
         )}

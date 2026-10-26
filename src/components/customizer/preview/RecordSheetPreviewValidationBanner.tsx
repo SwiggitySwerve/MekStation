@@ -19,8 +19,7 @@ interface RecordSheetPreviewValidationBannerProps {
 
 const SEVERITY_STYLES: Record<ValidationSeverity, string> = {
   [ValidationSeverity.ERROR]: 'border-red-500/40 bg-red-950/30 text-red-200',
-  [ValidationSeverity.WARNING]:
-    'border-amber-400/40 bg-amber-950/20 text-amber-200',
+  [ValidationSeverity.WARNING]: 'border-warning/50 bg-warning/10 text-warning',
   [ValidationSeverity.INFO]: 'border-sky-400/40 bg-sky-950/20 text-sky-200',
 };
 
@@ -41,7 +40,7 @@ export function RecordSheetPreviewValidationBanner({
     errorCount > 0
       ? 'text-red-200'
       : warningCount > 0
-        ? 'text-amber-200'
+        ? 'text-warning'
         : 'text-sky-200';
 
   return (
@@ -66,7 +65,7 @@ export function RecordSheetPreviewValidationBanner({
             </span>
           )}
           {warningCount > 0 && (
-            <span className="text-amber-200">
+            <span className="text-warning">
               {formatCount(warningCount, 'warning')}
             </span>
           )}

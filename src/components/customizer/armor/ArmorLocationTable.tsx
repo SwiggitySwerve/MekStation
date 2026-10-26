@@ -2,8 +2,9 @@
  * Armor location table
  *
  * Compact list of every location's armor beside the silhouette. It reads the
- * same per-location data the diagram plates use, and the shared face-maximum
- * helper the plates and the location editor use, so the three never disagree.
+ * same per-location data the diagram plates use. Front and rear are plain
+ * counts and the Total column carries the one maximum: front and rear share
+ * the location's cap, so there is no separate per-side maximum to misread.
  * Selecting a row selects the location exactly like clicking its plate.
  *
  * @spec openspec/specs/armor-diagram/spec.md
@@ -15,17 +16,16 @@ import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
-import { getArmorFaceMaximums } from './shared/ArmorFaceMaximums';
 import { getArmorStatusColor } from './shared/ArmorFills';
 
 export interface IArmorLocationTableRow {
   readonly location: MechLocation;
   readonly front: number;
-  readonly frontMax: number;
   /** Undefined for locations without rear armor. */
   readonly rear?: number;
-  readonly rearMax?: number;
-  /** Whole-location maximum. */
+  /** Front plus rear armor allocated. */
+  readonly total: number;
+  /** Whole-location maximum, shared by front and rear. */
   readonly max: number;
   /** Same health color the silhouette plate uses. */
   readonly statusColor: string;
@@ -48,12 +48,11 @@ export function buildArmorLocationTableRows(
     const max = data?.maximum ?? 0;
     const hasRear = locationsWithRear.has(location);
     const rear = hasRear ? (data?.rear ?? 0) : 0;
-    const faces = getArmorFaceMaximums(max, front, rear);
     return {
       location,
       front,
-      frontMax: faces.front,
-      ...(hasRear ? { rear, rearMax: faces.rear } : {}),
+      ...(hasRear ? { rear } : {}),
+      total: front + rear,
       max,
       statusColor: getArmorStatusColor(front + rear, max),
     };
@@ -74,14 +73,8 @@ const NUMBER_CELL_CLASS =
 /** The last column keeps the card's 16px padding so a selected row never touches the card edge. */
 const LAST_COLUMN_PAD = 'pr-4!';
 
-function FaceValue({
-  value,
-  max,
-}: {
-  readonly value?: number;
-  readonly max?: number;
-}): React.ReactElement {
-  if (value === undefined || max === undefined) {
+function FaceValue({ value }: { readonly value?: number }): React.ReactElement {
+  if (value === undefined) {
     return (
       <>
         <span aria-hidden="true" className="text-text-theme-muted">
@@ -91,10 +84,20 @@ function FaceValue({
       </>
     );
   }
+  return <span className="text-text-theme-primary">{value}</span>;
+}
+
+function TotalValue({
+  total,
+  max,
+}: {
+  readonly total: number;
+  readonly max: number;
+}): React.ReactElement {
   return (
     <>
-      <span className="text-text-theme-primary font-semibold">{value}</span>
-      <span className="text-text-theme-secondary">/{max}</span>
+      <span className="text-text-theme-primary font-semibold">{total}</span>
+      <span className="text-text-theme-secondary"> / {max}</span>
     </>
   );
 }
@@ -124,7 +127,7 @@ export function ArmorLocationTable({
               scope="col"
               className={`${HEADER_CLASS} ${LAST_COLUMN_PAD} text-right`}
             >
-              Max
+              Total
             </th>
           </tr>
           <tr className="border-border-theme-subtle border-b">
@@ -133,7 +136,7 @@ export function ArmorLocationTable({
               data-testid="armor-location-table-note"
               className="text-text-theme-secondary px-2 pt-1 pb-2 text-[13px] leading-snug whitespace-nowrap"
             >
-              Current / max. Max is the whole location.
+              Front + rear share the location max.
             </td>
           </tr>
         </thead>
@@ -175,15 +178,13 @@ export function ArmorLocationTable({
                   </button>
                 </th>
                 <td className={NUMBER_CELL_CLASS}>
-                  <FaceValue value={row.front} max={row.frontMax} />
+                  <FaceValue value={row.front} />
                 </td>
                 <td className={NUMBER_CELL_CLASS}>
-                  <FaceValue value={row.rear} max={row.rearMax} />
+                  <FaceValue value={row.rear} />
                 </td>
-                <td
-                  className={`${NUMBER_CELL_CLASS} ${LAST_COLUMN_PAD} text-text-theme-secondary`}
-                >
-                  {row.max}
+                <td className={`${NUMBER_CELL_CLASS} ${LAST_COLUMN_PAD}`}>
+                  <TotalValue total={row.total} max={row.max} />
                 </td>
               </tr>
             );

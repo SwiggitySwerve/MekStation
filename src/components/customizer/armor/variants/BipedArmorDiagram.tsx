@@ -10,7 +10,6 @@ import {
 } from '../ArmorLocationTable';
 import { ArmorAllocationFooter } from '../shared/ArmorAllocationFooter';
 import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
-import { getArmorFaceMaximums } from '../shared/ArmorFaceMaximums';
 import { getArmorStatusColor } from '../shared/ArmorFills';
 import { ArmorLocationInteractionGroup } from '../shared/ArmorLocationInteractionGroup';
 import {
@@ -176,7 +175,6 @@ export function BipedArmorDiagram({
                     current={current}
                     rear={rear}
                     maximum={maximum}
-                    faceMaximums={getArmorFaceMaximums(maximum, current, rear)}
                     statusColor={statusColor}
                     ratio={ratio}
                   />

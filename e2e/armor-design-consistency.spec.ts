@@ -92,7 +92,10 @@ test('armor designs retain distinct materials, common geometry and themed panels
     materials[variant] = snapshot.materials;
     await expect(
       page.locator('[data-armor-face-location="Center Torso"]'),
-    ).toHaveText(['47/48', 'R 14/15']);
+    ).toHaveText(['F47', 'R14']);
+    await expect(
+      page.locator('[data-armor-total-location="Center Torso"]'),
+    ).toHaveText('61/62');
     const arm = page.getByRole('button', { name: /^Left Arm armor:/ });
     await arm.press('Enter');
     await expect(page.getByTestId('location-armor-editor')).toBeVisible();
@@ -152,10 +155,10 @@ test('armor designs retain distinct materials, common geometry and themed panels
   });
   expect(Math.abs(cardBottoms[0] - cardBottoms[1])).toBeLessThanOrEqual(1);
   // The location table sits beside the figure and selects like a plate.
-  // Its headers are single words, with the 13px current/max note right under.
+  // Its headers are single words, with the 13px shared-max note right under.
   await expect(
     page.getByTestId('armor-location-table').getByRole('columnheader'),
-  ).toHaveText(['Location', 'Front', 'Rear', 'Max']);
+  ).toHaveText(['Location', 'Front', 'Rear', 'Total']);
   await expect(page.getByTestId('armor-location-table-note')).toHaveCSS(
     'font-size',
     '13px',

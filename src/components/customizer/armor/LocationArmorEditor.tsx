@@ -2,7 +2,10 @@
  * Location Armor Editor Component
  *
  * Compact panel for editing armor values on a selected location.
- * Direct controls for front and rear armor with independent sliders.
+ * Direct controls for front and rear armor with independent sliders. Front
+ * and rear share the location's maximum, so torsos label each slider with
+ * its current value ("Front 47", "Rear 14") and show the one total against
+ * the location max instead of a per-side maximum.
  *
  * @spec openspec/specs/armor-diagram/spec.md
  */
@@ -156,11 +159,13 @@ export function LocationArmorEditor({
       <div className="mb-4">
         <div className="mb-1.5 flex items-center justify-between">
           <span className={labelClass} style={{ color: FRONT_ARMOR_COLOR }}>
-            Front
+            {showRear ? `Front ${front}` : 'Front'}
           </span>
-          <span className="text-text-theme-secondary text-xs">
-            max {maxFront}
-          </span>
+          {!showRear && (
+            <span className="text-text-theme-secondary text-xs">
+              max {maxFront}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -197,10 +202,7 @@ export function LocationArmorEditor({
         <div className="mb-4">
           <div className="mb-1.5 flex items-center justify-between">
             <span className={labelClass} style={{ color: REAR_ARMOR_COLOR }}>
-              Rear
-            </span>
-            <span className="text-text-theme-secondary text-xs">
-              max {maxRear}
+              {`Rear ${rear}`}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -268,25 +270,6 @@ export function LocationArmorEditor({
             />
           )}
         </div>
-        {/* Legend for torso */}
-        {showRear && (
-          <div className="mt-2 flex items-center justify-center gap-4 text-xs">
-            <div className="flex items-center gap-1">
-              <div
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: FRONT_ARMOR_COLOR }}
-              />
-              <span className="text-text-theme-secondary">Front ({front})</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: REAR_ARMOR_COLOR }}
-              />
-              <span className="text-text-theme-secondary">Rear ({rear})</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

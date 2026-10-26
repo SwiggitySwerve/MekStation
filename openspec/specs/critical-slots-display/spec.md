@@ -20,9 +20,10 @@ The system SHALL display critical slots organized by mech location in a responsi
 #### Scenario: Readable desktop and touch rows
 
 - **WHEN** the Critical Slots tab renders at desktop width with a fine pointer
-- **THEN** slot rows are 30–32px tall with 2px gaps between separate equipment items and no gaps within a merged equipment block or between flat fixed-system rows
+- **THEN** slot rows are 30–32px tall on shared tracks with no per-row margins; slot text is 14px and slot-count annotations are at least 13px
 - **AND** rows remain at least 44px tall on phones or with a coarse pointer
 - **AND** the existing five-column front-view arrangement shows all eight Atlas AS7-D locations without scrolling at 1440x900, with or without the one-item equipment-to-place banner; shorter viewports may scroll
+- **AND** both legs start on the same shared grid row directly below their torso columns, with matching widths; the arm and torso slot rows align
 - **AND** the toolbar, colour key and equipment-to-place banner remain above the scrolling locations
 
 #### Scenario: Side torso engine slot display
@@ -63,7 +64,8 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 
 - **WHEN** the Critical Slots colour key renders
 - **THEN** swatches are short horizontal bars with the same stripe and tint as the slots
-- **AND** labels are 13px
+- **AND** swatches are at least 20px wide and 12px tall, with 13–14px labels
+- **AND** heat-sink cells spell out "Heat Sink"; labels truncate with ellipsis only when needed and retain their complete accessible names
 
 #### Scenario: Empty slot display
 
@@ -102,10 +104,10 @@ The system SHALL display multi-slot equipment as a connected visual group.
 #### Scenario: Multi-slot rendering
 
 - **WHEN** equipment occupies multiple slots
-- **THEN** the occupied rows form one merged block with the equipment name shown once and a muted "N slots" caption
+- **THEN** the occupied rows form one merged block with its slot range (for example, "1–10") at the top-left beside the equipment name, shown once above a muted "N slots" caption
 - **AND** continuation rows have no repeated name, glyph, gap or internal border
 - **AND** the category tint and stripe span the whole block
-- **AND** each slot retains its complete accessible name, slot number and existing selection, removal and drag behavior
+- **AND** per-row slot numbers are visually hidden within the block; each slot retains its complete accessible name including its slot number and existing selection, removal and drag behavior
 
 ### Requirement: Equipment Selection and Assignment
 
@@ -217,10 +219,11 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 #### Scenario: Phone location navigation
 
 - **WHEN** critical slots are displayed on a phone
-- **THEN** one full-width labelled Location selector lists full location names and used/free slot counts (for example, "Left Torso · 8/12 used, 4 free")
-- **AND** no duplicate location chip strip is displayed; counts reuse the existing displayed occupancy summary
-- **AND** selecting a location displays only its slot grid, without a duplicate location heading or accordion
-- **AND** keyboard focus remains on the selector, which has at least a 44px touch target
+- **THEN** one horizontally scrollable Location tablist presents eight 44px-tall pills in RA, RT, HD, CT, LT, LA, RL, LL order
+- **AND** each pill shows its abbreviation and existing used/total occupancy (for example, "LT 8/12") with a full location name and used/free counts in its accessible name
+- **AND** the selected pill has a filled background and underline; no duplicate selector is displayed
+- **AND** selecting a pill displays only its associated slot panel, without a duplicate location heading or accordion
+- **AND** one pill is in the tab order; Left/Right arrows wrap, Home/End select the first/last location, and focus and horizontal scrolling follow keyboard selection
 - **AND** selecting equipment reveals the first assignable location
 
 #### Scenario: Fill skips already-placed unhittables

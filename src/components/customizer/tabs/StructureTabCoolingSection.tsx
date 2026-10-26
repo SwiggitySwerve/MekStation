@@ -46,16 +46,14 @@ export function StructureTabCoolingSection({
       aria-labelledby="cooling-heading"
       className={`${cs.panel.main} ${STRUCTURE_CARD}`}
     >
-      <div className="border-border-theme mb-4 border-b pb-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <h3 id="cooling-heading" className={cs.text.cardTitle}>
-            Cooling
-          </h3>
-          <HeatSinkStats calculations={calculations} />
-        </div>
-        <p className={`${cs.text.secondary} mt-0.5`}>
-          Heat sink type and how many are installed
+      <div className="border-border-theme mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b pb-3">
+        <h3 id="cooling-heading" className={cs.text.cardTitle}>
+          Cooling
+        </h3>
+        <p className={`${cs.text.secondary} m-0 mr-auto`}>
+          Heat sink type and count
         </p>
+        <HeatSinkStats calculations={calculations} />
       </div>
 
       <HeatSinkSection

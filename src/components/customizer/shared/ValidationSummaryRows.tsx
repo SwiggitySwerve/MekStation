@@ -118,7 +118,7 @@ export function ValidationPanelHeader({
     <div className="border-border-theme flex min-h-11 shrink-0 items-center justify-between gap-2 border-b pl-4">
       <h3
         id={titleId}
-        className="text-text-theme-secondary min-w-0 truncate text-xs font-semibold tracking-wider uppercase"
+        className="text-text-theme-secondary min-w-0 py-1 text-xs leading-4 font-semibold tracking-wider break-words uppercase"
       >
         {title}
       </h3>

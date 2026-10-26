@@ -8,7 +8,7 @@ describe('slot fill readout', () => {
     expect(describeSlotFill(placed)).toBe('66 of 78 slots filled, 12 free.');
   });
 
-  it('warns while an item is unplaced and counts only placed slots', () => {
+  it('stays neutral while an item is unplaced and counts only placed slots', () => {
     const fill = {
       used: 69,
       total: 78,
@@ -16,13 +16,17 @@ describe('slot fill readout', () => {
       pendingSlots: 3,
       unplacedItems: 1,
     };
-    expect(getSlotFillStatus(fill)).toBe('warning');
+    // The Unplaced equipment warning carries it; the budget is not a second one.
+    expect(getSlotFillStatus(fill)).toBe('normal');
     expect(describeSlotFill(fill)).toBe(
       '66 of 78 slots filled \u00b7 3 pending (1 unplaced item).',
     );
     expect(
       describeSlotFill({ ...fill, pendingSlots: 5, unplacedItems: 2 }),
     ).toBe('66 of 78 slots filled \u00b7 5 pending (2 unplaced items).');
+    expect(describeSlotFill(fill, false)).toBe(
+      '66 of 78 slots filled \u00b7 3 pending.',
+    );
   });
 
   it('stays an error over capacity, pending or not', () => {

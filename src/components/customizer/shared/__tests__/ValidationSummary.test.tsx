@@ -306,6 +306,41 @@ describe('ValidationSummary', () => {
     });
   });
 
+  describe('openRequest', () => {
+    const errorState = () =>
+      createValidationState({
+        status: 'error',
+        isValid: false,
+        errorCount: 1,
+        result: createValidationResult([{ message: 'Test error' }]),
+      });
+
+    it('stays closed on first render and opens when the request rises', () => {
+      const { rerender } = render(
+        <ValidationSummary validation={errorState()} openRequest={0} />,
+      );
+      expect(screen.queryByRole('dialog')).toBeNull();
+
+      rerender(<ValidationSummary validation={errorState()} openRequest={1} />);
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('does not reopen a closed panel on an unrelated render', () => {
+      const { rerender } = render(
+        <ValidationSummary validation={errorState()} openRequest={1} />,
+      );
+      expect(screen.queryByRole('dialog')).toBeNull();
+      rerender(
+        <ValidationSummary
+          validation={errorState()}
+          openRequest={1}
+          className="x"
+        />,
+      );
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+  });
+
   describe('maxItems limit', () => {
     it('should respect maxItems prop', () => {
       const validation = createValidationState({

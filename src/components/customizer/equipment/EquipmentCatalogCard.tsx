@@ -1,14 +1,6 @@
-import React, {
-  useId,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
+import React, { useId, useMemo } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
-import { Button } from '@/components/ui/Button';
 import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 import { IEquipmentItem } from '@/types/equipment';
 import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
@@ -20,6 +12,7 @@ import {
   describeCatalogWeightExcess,
   getCatalogWeightExcess,
 } from './EquipmentBrowser.model';
+import { CatalogAddAction } from './EquipmentCatalogCardActions';
 
 /** Warning hue plus a dotted underline, so the cue is not colour alone. */
 const WEIGHT_OVER_CLASS = `${BUILD_STATUS_KIND_TEXT_CLASS.warning} underline decoration-dotted underline-offset-4`;
@@ -53,6 +46,10 @@ export function EquipmentCatalogCard({
   const range = weapon?.ranges
     ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
     : '—';
+  const minimumRange = weapon?.ranges?.minimum || '—';
+  const damage =
+    weapon?.damage ??
+    (shotsPerTon === undefined ? '—' : `${shotsPerTon} shots`);
   const variable = Boolean(equipment.variableEquipmentId);
   const weightExcess = getCatalogWeightExcess(equipment, remainingWeight);
   const weightNote =
@@ -107,20 +104,56 @@ export function EquipmentCatalogCard({
               {equipment.category}
             </span>
           </span>
+          <span
+            className={workbenchStyles.catalogMobileStats}
+            data-testid="equipment-catalog-stats"
+          >
+            <span
+              title={shotsPerTon === undefined ? undefined : 'Shots per ton'}
+            >
+              <span>Dmg</span> <span>{damage}</span>
+            </span>
+            <span>
+              <span>Range</span> <span>{range.replaceAll(' ', '')}</span>
+            </span>
+            <span>
+              <span>Min</span> <span>{minimumRange}</span>
+            </span>
+            <span>
+              <span>Heat</span> <span>{weapon?.heat ?? '—'}</span>
+            </span>
+            <span
+              className={weightNote ? WEIGHT_OVER_CLASS : undefined}
+              title={weightNote}
+            >
+              <span>Tons</span>{' '}
+              <span>{variable ? 'Variable' : equipment.weight}</span>
+              {weightNote && <span className="sr-only">, {weightNote}</span>}
+            </span>
+            <span>
+              <span>Slots</span>{' '}
+              <span>{variable ? 'Variable' : equipment.criticalSlots}</span>
+            </span>
+          </span>
         </button>
         <span
           data-catalog-column="damage"
           className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
           title={shotsPerTon === undefined ? undefined : 'Shots per ton'}
         >
-          {weapon?.damage ??
-            (shotsPerTon === undefined ? '—' : `${shotsPerTon} shots`)}
+          {damage}
         </span>
         <span
           data-catalog-column="range"
           className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
         >
           {range}
+        </span>
+        <span
+          data-catalog-column="minimumRange"
+          className="hidden text-sm tabular-nums lg:block"
+        >
+          {minimumRange}
         </span>
         <span
           data-catalog-column="heat"
@@ -148,37 +181,6 @@ export function EquipmentCatalogCard({
           onAdd={onAdd}
           onAddAndPlace={onAddAndPlace}
         />
-        <div
-          className={workbenchStyles.catalogMobileStats}
-          data-testid="equipment-catalog-stats"
-        >
-          {weapon ? (
-            <>
-              <span>Dmg {weapon.damage}</span>
-              <span>Range {range.replaceAll(' ', '')}</span>
-              <span>Heat {weapon.heat}</span>
-            </>
-          ) : shotsPerTon !== undefined ? (
-            <span title="Shots per ton">{shotsPerTon} shots</span>
-          ) : null}
-          {variable ? (
-            <span>Variable weight / slots</span>
-          ) : (
-            <>
-              <span
-                className={weightNote ? WEIGHT_OVER_CLASS : undefined}
-                title={weightNote}
-              >
-                {equipment.weight} t
-                {weightNote && <span className="sr-only">, {weightNote}</span>}
-              </span>
-              <span>
-                {equipment.criticalSlots}{' '}
-                {equipment.criticalSlots === 1 ? 'slot' : 'slots'}
-              </span>
-            </>
-          )}
-        </div>
       </div>
       {expanded && (
         <div
@@ -195,7 +197,7 @@ export function EquipmentCatalogCard({
               suffix=" C-bills"
             />
             <Detail label="Battle value" value={equipment.battleValue} />
-            <Detail label="Minimum range" value={weapon?.ranges?.minimum} />
+            <Detail label="Minimum range" value={minimumRange} />
           </dl>
           {variable && (
             <p className="text-text-theme-secondary col-span-full text-xs">
@@ -206,183 +208,6 @@ export function EquipmentCatalogCard({
         </div>
       )}
     </li>
-  );
-}
-
-function CatalogAddAction({
-  name,
-  readOnly,
-  onAdd,
-  onAddAndPlace,
-}: {
-  name: string;
-  readOnly: boolean;
-  onAdd: () => void;
-  onAddAndPlace?: () => void;
-}): React.ReactElement {
-  const id = useId();
-  const [open, setOpen] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
-  const menu = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLButtonElement | null>(null);
-  const available = open && !readOnly && Boolean(onAddAndPlace);
-  useLayoutEffect(() => {
-    if (!available) return;
-    const panel = menu.current;
-    const button = trigger.current;
-    if (!panel || !button) return;
-    // Portal keeps the last row's menu outside the catalog scroll clip.
-    const anchor = button.getBoundingClientRect();
-    const box = panel.getBoundingClientRect();
-    panel.style.left = `${Math.max(8, Math.min(anchor.right - box.width, window.innerWidth - box.width - 8))}px`;
-    panel.style.top = `${Math.max(8, anchor.bottom + box.height + 8 <= window.innerHeight ? anchor.bottom + 4 : anchor.top - box.height - 4)}px`;
-    panel
-      .querySelector<HTMLElement>('[role="menuitem"]')
-      ?.focus({ preventScroll: true });
-    const outside = (event: PointerEvent): void => {
-      if (
-        !root.current?.contains(event.target as Node) &&
-        !panel.contains(event.target as Node)
-      )
-        setOpen(false);
-    };
-    const dismiss = (): void => {
-      if (panel.contains(document.activeElement))
-        button.focus({ preventScroll: true });
-      setOpen(false);
-    };
-    const dismissIfMoved = (): void => {
-      // A queued scroll from revealing the trigger must not close a menu
-      // positioned after that scroll. Only dismiss when its anchor moves.
-      const current = button.getBoundingClientRect();
-      if (current.top !== anchor.top || current.left !== anchor.left) dismiss();
-    };
-    document.addEventListener('pointerdown', outside);
-    window.addEventListener('resize', dismiss);
-    window.addEventListener('scroll', dismissIfMoved, true);
-    return () => {
-      document.removeEventListener('pointerdown', outside);
-      window.removeEventListener('resize', dismiss);
-      window.removeEventListener('scroll', dismissIfMoved, true);
-    };
-  }, [available]);
-  const run = (action: () => void): void => {
-    setOpen(false);
-    trigger.current?.focus({ preventScroll: true });
-    action();
-  };
-  return (
-    <div
-      ref={root}
-      data-catalog-column="actions"
-      className={workbenchStyles.catalogActions}
-    >
-      <Button
-        size="sm"
-        variant="ghost"
-        disabled={readOnly}
-        onClick={onAdd}
-        title="Add to unassigned"
-        aria-label={`Add ${name}`}
-        aria-description="Add to unassigned in the Loadout"
-        className={workbenchStyles.catalogAddHit}
-      >
-        <AppIcon name="add" size="inline" aria-hidden="true" />
-        <span>Add</span>
-      </Button>
-      {onAddAndPlace && (
-        <Button
-          size="sm"
-          variant="ghost"
-          disabled={readOnly}
-          aria-label={`Add options for ${name}`}
-          title="More ways to add"
-          aria-haspopup="menu"
-          aria-expanded={available}
-          aria-controls={available ? id : undefined}
-          className={workbenchStyles.catalogAddOptions}
-          onClick={(event) => {
-            trigger.current = event.currentTarget;
-            setOpen(!open);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === 'ArrowDown') {
-              event.preventDefault();
-              trigger.current = event.currentTarget;
-              setOpen(true);
-            }
-          }}
-        >
-          <AppIcon name="more" size="inline" aria-hidden="true" />
-        </Button>
-      )}
-      {available &&
-        createPortal(
-          <div
-            ref={menu}
-            id={id}
-            role="menu"
-            aria-label={`Add options for ${name}`}
-            className={workbenchStyles.catalogAddMenu}
-            onBlur={(event) => {
-              if (
-                event.relatedTarget !== trigger.current &&
-                !event.currentTarget.contains(event.relatedTarget)
-              )
-                setOpen(false);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape' || event.key === 'Tab') {
-                if (event.key === 'Escape') event.preventDefault();
-                event.stopPropagation();
-                setOpen(false);
-                trigger.current?.focus({ preventScroll: true });
-              } else if (
-                ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)
-              ) {
-                event.preventDefault();
-                const items = Array.from(
-                  event.currentTarget.querySelectorAll<HTMLElement>(
-                    '[role="menuitem"]',
-                  ),
-                );
-                const current = items.indexOf(
-                  document.activeElement as HTMLElement,
-                );
-                const next =
-                  event.key === 'Home'
-                    ? 0
-                    : event.key === 'End'
-                      ? items.length - 1
-                      : (current +
-                          (event.key === 'ArrowDown' ? 1 : -1) +
-                          items.length) %
-                        items.length;
-                items[next]?.focus();
-              }
-            }}
-          >
-            <Button
-              variant="ghost"
-              role="menuitem"
-              tabIndex={-1}
-              onClick={() => run(onAdd)}
-            >
-              Add to unassigned
-            </Button>
-            <Button
-              variant="ghost"
-              role="menuitem"
-              tabIndex={-1}
-              aria-label={`Add and place ${name}`}
-              onClick={() => onAddAndPlace && run(onAddAndPlace)}
-            >
-              Add and choose location…
-            </Button>
-          </div>,
-          document.body,
-        )}
-    </div>
   );
 }
 
@@ -397,7 +222,7 @@ function Detail({
 }): React.ReactElement {
   return (
     <div>
-      <dt className="text-text-theme-secondary text-xs">{label}</dt>
+      <dt className="text-text-theme-secondary">{label}</dt>
       <dd className="mt-1 font-medium text-inherit">
         {value === undefined ? '—' : `${value}${suffix}`}
       </dd>

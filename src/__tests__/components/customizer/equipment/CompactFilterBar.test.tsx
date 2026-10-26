@@ -4,6 +4,7 @@ import React from 'react';
 
 import { CompactFilterBar } from '@/components/customizer/equipment/CompactFilterBar';
 import { getCatalogCapacityNotice } from '@/components/customizer/equipment/EquipmentBrowser.model';
+import { BUILD_STATE_TINT_CLASS } from '@/components/customizer/shared/BuildStatusLabel';
 import { EquipmentCategory } from '@/types/equipment';
 
 describe('CompactFilterBar', () => {
@@ -203,23 +204,33 @@ describe('CompactFilterBar', () => {
       );
     });
 
-    it('warns in place of the weight when no tonnage is free', () => {
-      render(
-        <CompactFilterBar
-          {...defaultProps}
-          resultSummary="182 items"
-          capacity={getCatalogCapacityNotice({
-            remainingWeight: 0,
-            remainingSlots: 12,
-          })}
-        />,
-      );
-      expect(
-        screen.getByTestId('equipment-catalog-capacity'),
-      ).toHaveTextContent(
-        '0.0 t free — no tonnage left; anything with weight makes the unit overweight',
-      );
-    });
+    it.each([0, -7])(
+      'warns in a bordered callout when free tonnage is %s',
+      (remainingWeight) => {
+        render(
+          <CompactFilterBar
+            {...defaultProps}
+            resultSummary="182 items"
+            capacity={getCatalogCapacityNotice({
+              remainingWeight,
+              remainingSlots: 12,
+            })}
+          />,
+        );
+        const capacity = screen.getByTestId('equipment-catalog-capacity');
+        expect(capacity).toHaveTextContent(
+          remainingWeight === 0
+            ? '0.0 t free — no tonnage left; anything with weight makes the unit overweight'
+            : '-7.0 t free',
+        );
+        expect(capacity).toHaveClass(
+          ...BUILD_STATE_TINT_CLASS.warning.split(' '),
+        );
+        expect(
+          capacity.querySelector('[data-icon-name="warning"]'),
+        ).toBeInTheDocument();
+      },
+    );
 
     it('shows a short active-filter count for narrow screens', () => {
       render(

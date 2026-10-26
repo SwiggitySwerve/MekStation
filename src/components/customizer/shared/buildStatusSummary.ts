@@ -40,6 +40,11 @@ export interface ValidationNote {
   heading?: string;
   message: string;
   suggestion?: string;
+  /**
+   * The fix in a few words ("add heat sinks in Cooling"), for one-line
+   * notices that have no room for the longer suggestion.
+   */
+  action?: string;
   /** Tab where the user can address the item. */
   tabId: CustomizerTabId;
 }

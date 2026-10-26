@@ -4,8 +4,6 @@ import type { ArmorDiagramVariant } from '@/stores/useCustomizerSettingsStore';
 
 import { MechLocation } from '@/types/construction';
 
-import type { IArmorFaceMaximums } from '../shared/ArmorFaceMaximums';
-
 import { BIPED_ARMOR_INK } from './BipedArmorSurface';
 import {
   BIPED_PLATE_STACK as STACK,
@@ -16,7 +14,7 @@ import {
  * Text sizes in viewBox units. On a 390px phone the diagram renders at about
  * 0.83 px per unit (the viewBox is 420 units wide and the figure's height is
  * capped to keep the footer above the Loadout bar), so the 17-unit "/max"
- * denominators, rear line and abbreviations render at about 14 px.
+ * denominators, face split line and abbreviations render at about 14 px.
  */
 const FONT = {
   abbreviation: 17,
@@ -37,11 +35,12 @@ interface BipedArmorPlateLabelProps {
   readonly plate: BipedArmorPlate;
   readonly location: MechLocation;
   readonly variant: ArmorDiagramVariant;
+  /** Front armor allocated. */
   readonly current: number;
+  /** Rear armor allocated (torsos only). */
   readonly rear: number;
+  /** Whole-location maximum, shared by front and rear. */
   readonly maximum: number;
-  /** Each face's current maximum, from the shared face-maximum helper. */
-  readonly faceMaximums: IArmorFaceMaximums;
   readonly statusColor: string;
   /** Allocated share of the location maximum, 0-1. */
   readonly ratio: number;
@@ -49,9 +48,11 @@ interface BipedArmorPlateLabelProps {
 
 /**
  * The text drawn inside one biped armor plate. Every location uses the same
- * stack, centred on the plate: the abbreviation, the front value in bold with
- * its "/max" muted on the same baseline and, on torsos, a muted "R" line for
- * rear armor.
+ * stack, centred on the plate: the abbreviation, the location's armor in bold
+ * with its one "/max" muted on the same baseline and, on torsos, a muted
+ * "F47·R14" line splitting that total (the widest line a torso plate holds
+ * at the phone text size). Front and rear share the location
+ * maximum, so torsos never show a per-side maximum a player could add up.
  */
 export function BipedArmorPlateLabel({
   plate,
@@ -60,7 +61,6 @@ export function BipedArmorPlateLabel({
   current,
   rear,
   maximum,
-  faceMaximums,
   statusColor,
   ratio,
 }: BipedArmorPlateLabelProps): React.ReactElement {
@@ -69,7 +69,7 @@ export function BipedArmorPlateLabel({
   const isHead = location === MechLocation.HEAD;
   const hasRear = plate.hasRear === true;
   const hasBar = !hasRear && !isHead;
-  const frontMaximum = hasRear ? faceMaximums.front : maximum;
+  const shown = hasRear ? current + rear : current;
   const backing = {
     fill: PREMIUM_BACKING.fill,
     fillOpacity: PREMIUM_BACKING.fillOpacity,
@@ -77,6 +77,7 @@ export function BipedArmorPlateLabel({
     strokeWidth: PREMIUM_BACKING.strokeWidth,
   };
   const backingHeight = hasRear ? 54 : 30;
+  const backingHalfWidth = hasRear ? 38 : 34;
 
   return (
     <g
@@ -86,9 +87,9 @@ export function BipedArmorPlateLabel({
     >
       {isPremium && (
         <rect
-          x={plate.x - 34}
+          x={plate.x - backingHalfWidth}
           y={plate.y + STACK.value - 22}
-          width="68"
+          width={backingHalfWidth * 2}
           height={backingHeight}
           rx="6"
           {...backing}
@@ -114,12 +115,11 @@ export function BipedArmorPlateLabel({
         y={plate.y + STACK.value}
         fontSize={FONT.value}
         fontWeight="700"
-        data-armor-face={hasRear ? 'front' : undefined}
-        data-armor-face-location={hasRear ? location : undefined}
+        data-armor-total-location={hasRear ? location : undefined}
       >
-        {current}
+        {shown}
         <tspan fontSize={FONT.maximum} fontWeight="600" fill={ink.secondary}>
-          /{frontMaximum}
+          /{maximum}
         </tspan>
       </text>
       {hasRear && (
@@ -129,11 +129,14 @@ export function BipedArmorPlateLabel({
           fontSize={FONT.maximum}
           fontWeight="600"
           fill={ink.secondary}
-          data-armor-face="rear"
-          data-armor-face-location={location}
         >
-          <tspan>{'R '}</tspan>
-          {rear}/{faceMaximums.rear}
+          <tspan data-armor-face="front" data-armor-face-location={location}>
+            F{current}
+          </tspan>
+          <tspan>{'\u00b7'}</tspan>
+          <tspan data-armor-face="rear" data-armor-face-location={location}>
+            R{rear}
+          </tspan>
         </text>
       )}
       {hasBar && (

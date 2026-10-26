@@ -16,6 +16,7 @@ import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 import { FluffManufacturingCard } from '@/components/customizer/fluff/FluffManufacturingCard';
 import { FluffNarrativeCard } from '@/components/customizer/fluff/FluffNarrativeCard';
 import { FluffSectionIndex } from '@/components/customizer/fluff/FluffSectionIndex';
+import { FluffSideColumn } from '@/components/customizer/fluff/FluffSideColumn';
 import { customizerStyles as cs } from '@/components/customizer/styles';
 
 export interface FluffTabProps {
@@ -47,10 +48,6 @@ const ROLES = [
  */
 const PAGE_GRID =
   'grid grid-cols-1 items-start gap-5 max-w-[calc(75ch+2.125rem)] @[64rem]:max-w-none @[64rem]:grid-cols-[minmax(0,calc(75ch+2.125rem))_minmax(20rem,1fr)] @[64rem]:gap-6';
-
-/** Role and manufacturing stay in view beside long narrative text. */
-const SIDE_COLUMN =
-  'flex min-w-0 flex-col gap-5 @[64rem]:sticky @[64rem]:top-4 @[64rem]:max-h-[calc(100dvh-12rem)] @[64rem]:overflow-y-auto';
 
 /** Controlled role and lore form shared across unit types. */
 export function FluffTab({
@@ -101,7 +98,7 @@ export function FluffTab({
           onFluffChange={onFluffChange}
         />
 
-        <div className={SIDE_COLUMN} data-testid="fluff-side-column">
+        <FluffSideColumn>
           <section
             className={cs.panel.main}
             tabIndex={-1}
@@ -139,7 +136,7 @@ export function FluffTab({
             onFluffChange={onFluffChange}
           />
           <FluffSectionIndex fluff={fluff} role={role} onJump={jumpToSection} />
-        </div>
+        </FluffSideColumn>
       </div>
     </div>
   );

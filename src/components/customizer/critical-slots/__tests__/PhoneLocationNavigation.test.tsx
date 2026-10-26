@@ -23,27 +23,36 @@ it('shows one location with counts and no duplicate heading or accordion', () =>
   render(<PhoneLocationNavigation {...props} />);
   expect(screen.getByText('Right Arm rows')).toBeVisible();
   expect(screen.getByText('Right Torso rows')).not.toBeVisible();
-  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  expect(screen.getAllByRole('tab')).toHaveLength(2);
+  expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   expect(screen.queryByRole('heading')).not.toBeInTheDocument();
-  expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue(
-    MechLocation.RIGHT_ARM,
+  expect(screen.getByRole('tab', { name: /Right Arm/ })).toHaveAttribute(
+    'aria-selected',
+    'true',
   );
   expect(
-    screen.getByRole('option', {
-      name: 'Right Torso \u00b7 1/12 used, 11 free',
-    }),
-  ).toBeInTheDocument();
+    screen.getByRole('tab', { name: 'Right Torso · 1/12 used, 11 free' }),
+  ).toHaveTextContent('RT 1/12');
 });
 
 it('switches the visible location and keeps keyboard focus in the selector', () => {
   render(<PhoneLocationNavigation {...props} />);
-  const selector = screen.getByRole('combobox', { name: 'Location' });
-  selector.focus();
-  fireEvent.change(selector, { target: { value: MechLocation.RIGHT_TORSO } });
-  expect(selector).toHaveValue(MechLocation.RIGHT_TORSO);
-  expect(selector).toHaveFocus();
+  const first = screen.getByRole('tab', { name: /Right Arm/ });
+  first.focus();
+  fireEvent.keyDown(first, { key: 'ArrowRight' });
+  const torso = screen.getByRole('tab', { name: /Right Torso/ });
+  expect(torso).toHaveAttribute('aria-selected', 'true');
+  expect(torso).toHaveFocus();
   expect(screen.getByText('Right Torso rows')).toBeVisible();
   expect(screen.getByText('Right Arm rows')).not.toBeVisible();
+  fireEvent.keyDown(torso, { key: 'ArrowRight' });
+  expect(first).toHaveFocus();
+  fireEvent.keyDown(first, { key: 'End' });
+  expect(torso).toHaveFocus();
+  fireEvent.keyDown(torso, { key: 'Home' });
+  expect(first).toHaveFocus();
+  fireEvent.keyDown(first, { key: 'ArrowLeft' });
+  expect(torso).toHaveFocus();
 });
 
 it('reveals an assignable location on a new selection without remounting rows', () => {
@@ -59,8 +68,9 @@ it('reveals an assignable location on a new selection without remounting rows', 
     />,
   );
   expect(rows).toBeVisible();
-  expect(screen.getByRole('combobox', { name: 'Location' })).toHaveValue(
-    MechLocation.RIGHT_TORSO,
+  expect(screen.getByRole('tab', { name: /Right Torso/ })).toHaveAttribute(
+    'aria-selected',
+    'true',
   );
   expect(screen.getByText('Right Torso rows')).toBe(rows);
   expect(screen.getByText('Right Arm rows')).not.toBeVisible();

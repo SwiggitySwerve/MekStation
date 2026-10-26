@@ -25,6 +25,7 @@ import {
   STRUCTURE_READONLY_FIELD,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
+  STRUCTURE_ROW_STACK,
   STRUCTURE_SELECT,
 } from './StructureTabRowLayout';
 import { StructureStepper } from './StructureTabStepper';
@@ -153,14 +154,14 @@ export function StructureTabMovementSection({
 
   return (
     <div className={`${cs.panel.main} ${STRUCTURE_CARD}`}>
-      <div className="border-border-theme mb-4 border-b pb-3">
+      <div className="border-border-theme mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b pb-3">
         <h3 className={cs.text.cardTitle}>Mobility</h3>
-        <p className={`${cs.text.secondary} mt-0.5`}>
+        <p className={`${cs.text.secondary} m-0`}>
           Base settings and derived movement limits
         </p>
       </div>
 
-      <div className="space-y-5">
+      <div className={STRUCTURE_ROW_STACK}>
         <div className={STRUCTURE_ROW_GRID}>
           <label className={STRUCTURE_ROW_LABEL} htmlFor="walk-mp">
             Walk MP
@@ -275,46 +276,40 @@ export function StructureTabMovementSection({
           )}
         </div>
 
-        <div className={`${cs.layout.divider} mt-2`}>
-          <h4 className={`${cs.text.subsection} mb-3`}>Enhancement</h4>
-          <div className={STRUCTURE_ROW_GRID}>
-            <label
-              className={STRUCTURE_ROW_LABEL}
-              htmlFor="movement-enhancement"
-            >
-              Type
-            </label>
-            <select
-              className={STRUCTURE_SELECT}
-              disabled={readOnly}
-              id="movement-enhancement"
-              aria-label="Movement enhancement"
-              value={enhancement ?? ''}
-              onChange={handleEnhancementChange}
-            >
-              {enhancementOptions.map((opt) => (
-                <option key={opt.value ?? 'none'} value={opt.value ?? ''}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            {enhancement && (
-              <p className={`${STRUCTURE_HELP} m-0`}>
-                {enhancement === MovementEnhancementType.MASC &&
-                  'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.'}
-                {enhancement === MovementEnhancementType.TSM && (
-                  <>
-                    Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty =
-                    net +1 MP.
-                    <br />
-                    <span className="text-accent">
-                      Doubles physical attack damage.
-                    </span>
-                  </>
-                )}
-              </p>
-            )}
-          </div>
+        <div className={STRUCTURE_ROW_GRID}>
+          <label className={STRUCTURE_ROW_LABEL} htmlFor="movement-enhancement">
+            Enhancement
+          </label>
+          <select
+            className={STRUCTURE_SELECT}
+            disabled={readOnly}
+            id="movement-enhancement"
+            aria-label="Movement enhancement"
+            value={enhancement ?? ''}
+            onChange={handleEnhancementChange}
+          >
+            {enhancementOptions.map((opt) => (
+              <option key={opt.value ?? 'none'} value={opt.value ?? ''}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          {enhancement && (
+            <p className={`${STRUCTURE_HELP} m-0`}>
+              {enhancement === MovementEnhancementType.MASC &&
+                'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.'}
+              {enhancement === MovementEnhancementType.TSM && (
+                <>
+                  Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty =
+                  net +1 MP.
+                  <br />
+                  <span className="text-accent">
+                    Doubles physical attack damage.
+                  </span>
+                </>
+              )}
+            </p>
+          )}
         </div>
       </div>
     </div>

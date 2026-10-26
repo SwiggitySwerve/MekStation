@@ -49,11 +49,18 @@ its separate Preview-before-Fluff order.
 #### Scenario: Stable section validation indicators
 
 - **WHEN** section validation counts change
-- **THEN** each severity SHALL show as a numbered badge whose shape carries the meaning, not color alone: errors a red circle holding the error count, warnings a yellow rounded square holding the warning count (the same hues as the build-status button and panel), errors first
+- **THEN** each severity SHALL show as a numbered badge whose shape carries the meaning, not color alone: errors a red circle holding the error count, warnings an orange rounded square holding the warning count (the same hues as the build-status button and panel), errors first
 - **AND** the badge group's accessible name SHALL name the tab and the counts (e.g., "Equipment: 1 error"), and the section tab's accessible description SHALL include the counts (e.g., "1 error")
 - **AND** the indicator slot SHALL keep at least one badge's width when counts change or clear
 - **AND** the warning count SHALL include the build-status readout warnings (e.g., running hot) on the tab where they are fixed (Structure for running hot), so the badges agree with the build-status counts
 - **AND** hovering the badge or keyboard-focusing its tab SHALL show a tooltip that names the issues behind the count, one line per severity ("1 warning: Runs hot", "2 errors: <title>; <title>"), listing at most four titles before "+N more"; the titles are the status panel's own headings and readout labels on the same tab (`getTabIssueTitles`), the tooltip replaces the native title, and the tab's accessible description carries the same words
+
+#### Scenario: Active tab explains its badge
+
+- **WHEN** the active section has an error or warning badge and is not Overview or Preview
+- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`
+- **AND** a "Show all issues" button in the notice opens the build status panel
+- **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues
 
 ---
 
@@ -117,8 +124,8 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 #### Scenario: Slots readiness counts placed slots
 
 - **WHEN** mounted equipment has not been placed in critical slots
-- **THEN** the Build readiness Slots row reads "<placed> of <total> slots filled · <n> pending (<k> unplaced item[s])." in the warning state, instead of counting the unplaced items as used slots, and clears to "<placed> of <total> slots filled, <free> free." once every item is placed
-- **AND** the Unplaced equipment row still names how many items need a critical slot
+- **THEN** the Build readiness Slots row reads "<placed> of <total> slots filled · <n> pending." as a passing row (no warning icon), instead of counting the unplaced items as used slots, and reads "<placed> of <total> slots filled, <free> free." once every item is placed
+- **AND** the Unplaced equipment row carries the warning for those items and names them with their slots ("PPC needs 3 slots; 1 item unplaced.", "PPC and Medium Laser need 5 slots; 2 items unplaced."), so Slots and Unplaced equipment never warn about the same item twice and the readiness list shows as many warning rows as the status button counts
 
 #### Scenario: Overview reading order on phones
 
@@ -184,17 +191,18 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 #### Scenario: Chassis, Mobility and Cooling share one label / control / meta grid
 
 - **WHEN** the Chassis, Mobility or Cooling panel renders at least 32rem wide
-- **THEN** every row uses one grid: a 140px label column, a 240px control column, and a meta column that starts about 12px after the control column
-- **AND** every control fills the 240px control column, so all controls share one right edge: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) keep 44px buttons and stretch their value box, and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is 240px wide
-- **AND** per-component cost meta (weight and critical slots, e.g. "19t · 6 slots", with tabular numerals) is right-aligned to the card's right edge so each row reads edge to edge, while "→ <final> final" for Walk, Run and Jump MP stays in the meta column beside the control
+- **THEN** every row uses one grid: a 140px label column, a control column that is 240px at minimum and at most 360px wide, and an 88px meta column that starts about 12px after the control column (so meta stays directly after its control when the card is wider than the grid)
+- **AND** every control fills the control column, so all controls share one right edge: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) keep 44px buttons and stretch their value box, and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is as wide as the stepper, never over 360px
+- **AND** per-component cost meta (weight and critical slots, e.g. "19t · 6 slots", with tabular numerals, never wrapping) is right-aligned inside the 88px meta column directly after its control, while "→ <final> final" for Walk, Run and Jump MP starts at the left of the same column beside the control
 - **AND** range hints such as the tonnage range ("Range 20–200t.") are 13px muted helper text under their control, linked with aria-describedby
 - **AND** in a narrower card the grid is a single column (label, control, meta, helper text) and helper text uses the full card width
 
 #### Scenario: Mobility rows
 
 - **WHEN** the Mobility panel renders
-- **THEN** Run MP is a read-only field with the same outline, height, 240px width and value text colour as a stepper (primary, not muted), and a small lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
-- **AND** the Walk MP range, the Run MP line ("Follows Walk MP; it is not set directly.") and the Max Jump MP note appear as 13px muted helper text directly under their control, linked with aria-describedby
+- **THEN** Run MP is a read-only field with the same outline, height, width and value text colour as a stepper (primary, not muted), and a small lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
+- **AND** the Walk MP range, the Run MP line ("Follows Walk MP; it is not set directly.") and the Max Jump MP note appear as 13px muted helper text directly under their control, linked with aria-describedby, with rows spaced about 72px apart so the Mobility and Cooling cards together end above 900px at a 1440x900 viewport
+- **AND** Enhancement is an ordinary row below Jump Type labelled "Enhancement" (no separate sub-section heading), and the Mobility and Cooling card subtitles sit on the same line as their titles
 - **AND** Jump Type stays enabled but is muted, with the hint "No jump jets installed", while Jump MP is 0
 - **AND** the Mobility panel shows no copy about unsupported mechanical jump boosters
 ### Requirement: Armor Tab
@@ -239,7 +247,7 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 #### Scenario: Location editor does not push the inspector off screen
 
 - **WHEN** a location is selected at xl or wider (for example 1440x900)
-- **THEN** the location editor replaces the Armor Type, Armor Tonnage, Maximize and Auto Allocate controls (hidden until the editor closes), while the Unallocated Armor Points row, the legend and the "R = rear armor" key stay visible within the viewport
+- **THEN** the location editor replaces the Armor Type, Armor Tonnage, Maximize and Auto Allocate controls (hidden until the editor closes), while the Unallocated Armor Points row, the legend and the "F = front · R = rear armor" key stay visible within the viewport
 - **WHEN** a location is selected below xl
 - **THEN** the editor appears under the inspector title with the type and tonnage controls stacked below it, all still reachable, and the editor scrolls into view on phones
 
@@ -297,7 +305,7 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 
 - **WHEN** the Fluff tab renders in an editor container at least 64rem wide
 - **THEN** a two-column grid spans the workspace content edges: the left column holds the Unit History and Description card, capped near 75 characters of 16px text plus card padding, and the right column holds the Battlefield Role card above the Manufacturing card in the remaining width (never under 20rem)
-- **AND** the right column stays pinned to the top of the scroll area beside long narrative text and scrolls within itself when taller than the viewport
+- **AND** the right column stays pinned to the top of the scroll area beside long narrative text and scrolls within itself when taller than the viewport, with a 32px edge fade on whichever side still has hidden content so no field is cut off at the fold without a cue
 - **AND** in a narrower container the cards form one left-aligned column in the order narrative, role, manufacturing, each capped at the same reading width
 
 #### Scenario: Narrative text fields
@@ -305,8 +313,8 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 - **WHEN** user navigates to Fluff tab
 - **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a full-width textarea of its column at 16px text on a 1.5 line height, at least 3 rows, stacked in that order
 - **AND** the field labels use the small-caps section-label style used for sub-section headings elsewhere in the customizer
-- **AND** the textarea grows to about 14 lines in containers at least 64rem wide, or about 10 lines in narrower containers, with internal scrolling beyond the cap
-- **AND** text longer than the cap has a keyboard-accessible "Show all" / "Show less" toggle with `aria-expanded` and `aria-controls`, allowing the full text to expand and collapse without changing its value
+- **AND** long text collapses to a whole number of lines (8 lines, or 6 lines in containers narrower than 30rem), computed from the textarea's own line height, with no partial line visible and a 32px fade over the last line of the collapsed box
+- **AND** text longer than the cap has a keyboard-accessible left-aligned text button 8px under the box, "Show all · <n> words" when collapsed and "Show less" when expanded, with `aria-expanded` and `aria-controls`, allowing the full text to expand and collapse without changing its value
 - **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
 
 #### Scenario: Section navigation

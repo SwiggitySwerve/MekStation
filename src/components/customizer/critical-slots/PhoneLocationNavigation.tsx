@@ -1,8 +1,14 @@
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 
-import { LOCATION_SLOT_COUNTS, MechLocation } from '@/types/construction';
+import {
+  getLocationAbbreviation,
+  LOCATION_SLOT_COUNTS,
+  MechLocation,
+} from '@/types/construction';
 
 import type { LocationData } from './criticalSlotTypes';
+
+import styles from '../CustomizerWorkbench.module.css';
 
 interface PhoneLocationNavigationProps {
   selectedEquipmentId?: string | null;
@@ -24,6 +30,9 @@ export function PhoneLocationNavigation({
   renderLocation,
 }: PhoneLocationNavigationProps): React.ReactElement {
   const id = useId();
+  const pills = useRef<Partial<Record<MechLocation, HTMLButtonElement | null>>>(
+    {},
+  );
   const defaultLocation = () =>
     locations.find((location) => getAssignableSlots(location).length > 0) ??
     locations[0];
@@ -33,6 +42,13 @@ export function PhoneLocationNavigation({
     setSelection(selectedEquipmentId);
     setActiveLocation(defaultLocation());
   }
+  useEffect(() => {
+    pills.current[activeLocation]?.scrollIntoView?.({
+      block: 'nearest',
+      inline: 'nearest',
+    });
+  }, [activeLocation]);
+
   const summaries = locations.map((location) => {
     const data = getLocationData(location);
     // Count displayed occupied rows, including fixed systems, rather than
@@ -57,32 +73,55 @@ export function PhoneLocationNavigation({
         aria-label="Critical slot location shortcuts"
         className="bg-surface-deep border-border-theme sticky top-0 z-10 border-b py-1"
       >
-        <div>
-          <label htmlFor={`${id}-location`} className="sr-only">
-            Location
-          </label>
-          <select
-            id={`${id}-location`}
-            value={activeLocation ?? ''}
-            onChange={(event) => {
-              const location = locations.find(
-                (item) => item === event.target.value,
-              );
-              if (location) setActiveLocation(location);
-            }}
-            className="border-border-theme bg-surface-base text-text-theme-primary focus-visible:outline-accent min-h-11 w-full min-w-0 rounded border px-3 text-sm tabular-nums focus-visible:outline-2"
-          >
-            {summaries.map(({ location, count, free }) => (
-              <option key={location} value={location}>
-                {location} · {count} used, {free} free
-              </option>
-            ))}
-          </select>
+        <div
+          role="tablist"
+          aria-label="Location"
+          className={styles.criticalLocationPills}
+        >
+          {summaries.map(({ location, count, free }, index) => (
+            <button
+              key={location}
+              ref={(element) => {
+                pills.current[location] = element;
+              }}
+              id={`${id}-location-${index}`}
+              type="button"
+              role="tab"
+              aria-label={`${location} · ${count} used, ${free} free`}
+              aria-selected={location === activeLocation}
+              aria-controls={`${id}-panel-${index}`}
+              tabIndex={location === activeLocation ? 0 : -1}
+              className={styles.criticalLocationPill}
+              onClick={() => setActiveLocation(location)}
+              onKeyDown={(event) => {
+                let next: number;
+                if (event.key === 'ArrowRight')
+                  next = (index + 1) % locations.length;
+                else if (event.key === 'ArrowLeft')
+                  next = (index - 1 + locations.length) % locations.length;
+                else if (event.key === 'Home') next = 0;
+                else if (event.key === 'End') next = locations.length - 1;
+                else return;
+                event.preventDefault();
+                const target = locations[next];
+                setActiveLocation(target);
+                pills.current[target]?.focus({ preventScroll: true });
+              }}
+            >
+              {getLocationAbbreviation(location)} {count}
+            </button>
+          ))}
         </div>
       </nav>
       <div className="pt-1">
-        {locations.map((location) => (
-          <div key={location} hidden={location !== activeLocation}>
+        {locations.map((location, index) => (
+          <div
+            key={location}
+            id={`${id}-panel-${index}`}
+            role="tabpanel"
+            aria-labelledby={`${id}-location-${index}`}
+            hidden={location !== activeLocation}
+          >
             {renderLocation(location, true)}
           </div>
         ))}

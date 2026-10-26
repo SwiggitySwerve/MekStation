@@ -187,8 +187,8 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await page.setViewportSize({ width: 390, height: 844 });
   await page
     .getByRole('navigation', { name: 'Critical slot location shortcuts' })
-    .getByRole('combobox', { name: 'Location', exact: true })
-    .selectOption('Left Arm');
+    .getByRole('tab', { name: /^Left Arm / })
+    .click();
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);
   await expect.poll(() => accent(mounted)).toBe(colors['Small Laser']);

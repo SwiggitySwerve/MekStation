@@ -148,13 +148,13 @@ describe('UnitInfoBanner', () => {
     expect(heat).not.toHaveTextContent('+11');
     expect(heat.querySelector('.text-red-400')).toBeNull();
     expect(heat.querySelector('.text-amber-400')).toBeNull();
-    expect(STAT_STATUS_TEXT_CLASS.warning).toBe('text-yellow-400');
+    expect(STAT_STATUS_TEXT_CLASS.warning).toBe('text-warning');
     expect(
       heat.querySelector(`.${STAT_STATUS_TEXT_CLASS.warning}`),
     ).toHaveTextContent('33');
     expect(
       (heat.querySelector('.budgetFill') as HTMLElement).style.background,
-    ).toContain('--color-yellow-400');
+    ).toContain('--warning');
     expect(heat).toHaveAccessibleName(
       'Heat: 33 / 22. 33 heat at full fire / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
     );
@@ -183,7 +183,7 @@ describe('UnitInfoBanner', () => {
       );
   });
 
-  it('counts placed slots in the Slots readout and explains the pending ones', () => {
+  it('counts placed slots in the Slots readout and explains the pending ones without warning', () => {
     render(
       <UnitInfoBanner
         stats={createStats({
@@ -198,7 +198,8 @@ describe('UnitInfoBanner', () => {
     const slots = screen.getByTestId('unit-info-stat-slots');
     expect(slots).toHaveTextContent('66');
     expect(slots).not.toHaveTextContent('69');
-    expect(slots).toHaveAttribute('data-status', 'warning');
+    // The unplaced item is the Unplaced equipment warning; the budget stays neutral.
+    expect(slots).toHaveAttribute('data-status', 'normal');
     expect(slots).toHaveAccessibleName(
       'Slots: 66 / 78. 66 of 78 slots filled · 3 pending (1 unplaced item).',
     );

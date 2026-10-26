@@ -68,21 +68,22 @@ export interface ISlotFill {
 }
 
 /**
- * Slots readout state: over capacity is an error, and while any item is still
- * unplaced the budget is a warning, because the slots it will take are not
- * filled yet.
+ * Slots readout state: only over capacity is a problem. Slots reserved by
+ * unplaced items are not a second issue: the unplaced items are the warning
+ * (Unplaced equipment in the build status), so the budget itself stays
+ * neutral and one condition is never counted twice.
  */
 export function getSlotFillStatus(fill: ISlotFill): StatStatus {
-  const status = getCapacityStatus(fill.used, fill.total);
-  if (status === 'error') return status;
-  return (fill.pendingSlots ?? 0) > 0 ? 'warning' : 'normal';
+  return getCapacityStatus(fill.used, fill.total);
 }
 
 /**
  * Slots filled by placed items, not the slots reserved by unplaced ones, so
- * the figure matches what a tabletop player would count on the sheet.
+ * the figure matches what a tabletop player would count on the sheet. The
+ * item count is added to the header tooltip only (`withItems`); the readiness
+ * row leaves it to the Unplaced equipment row beside it.
  */
-export function describeSlotFill(fill: ISlotFill): string {
+export function describeSlotFill(fill: ISlotFill, withItems = true): string {
   const pending = fill.pendingSlots ?? 0;
   const placed = fill.placed ?? fill.used;
   if (pending <= 0) {
@@ -90,8 +91,10 @@ export function describeSlotFill(fill: ISlotFill): string {
   }
   const items = fill.unplacedItems ?? 0;
   const itemNote =
-    items > 0 ? ` (${items} unplaced item${items === 1 ? '' : 's'})` : '';
-  return `${placed} of ${fill.total} slots filled · ${pending} pending${itemNote}.`;
+    withItems && items > 0
+      ? ` (${items} unplaced item${items === 1 ? '' : 's'})`
+      : '';
+  return `${placed} of ${fill.total} slots filled \u00b7 ${pending} pending${itemNote}.`;
 }
 
 /** Heat generated at full fire beyond dissipation; zero when in budget. */
@@ -150,6 +153,7 @@ export function getHeatNote(
     message: `Heat ${generated} at full fire vs ${dissipation} dissipation: ${excess} over.`,
     suggestion:
       'Legal; add heat sinks in Structure to run cool, or fire fewer weapons each turn.',
+    action: 'add heat sinks in Cooling',
     tabId: 'structure',
   };
 }

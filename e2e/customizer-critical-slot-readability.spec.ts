@@ -65,9 +65,9 @@ test('critical panels use the workspace and keep slot names readable @customizer
       grid = grid
         .getByRole('navigation', { name: 'Critical slot location shortcuts' })
         .locator('..');
-      const selector = grid.getByRole('combobox', { name: 'Location' });
-      for (const option of await selector.locator('option').all()) {
-        await selector.selectOption((await option.getAttribute('value'))!);
+      const selector = grid.getByRole('tablist', { name: 'Location' });
+      for (const pill of await selector.getByRole('tab').all()) {
+        await pill.click();
         const panel = grid.getByRole('group', { name: /critical slots$/ });
         await expect(panel).toHaveCount(1);
         expect((await panel.boundingBox())!.width).toBeGreaterThanOrEqual(
@@ -77,11 +77,15 @@ test('critical panels use the workspace and keep slot names readable @customizer
           await panel
             .locator('span')
             .evaluateAll((spans) =>
-              spans.every((span) => span.scrollWidth <= span.clientWidth + 1),
+              spans.every(
+                (span) =>
+                  span.scrollWidth <= span.clientWidth + 1 ||
+                  !!span.getAttribute('title'),
+              ),
             ),
         ).toBe(true);
       }
-      await selector.selectOption('Right Torso');
+      await selector.getByRole('tab', { name: /^Right Torso / }).click();
     }
     await expect(
       grid.getByRole('group', { name: /critical slots$/ }),
@@ -97,7 +101,9 @@ test('critical panels use the workspace and keep slot names readable @customizer
       clippedLabels: Array.from(element.querySelectorAll('span'))
         .filter(
           (span) =>
-            span.clientWidth > 0 && span.scrollWidth > span.clientWidth + 1,
+            span.clientWidth > 0 &&
+            span.scrollWidth > span.clientWidth + 1 &&
+            !span.getAttribute('title'),
         )
         .map((span) => span.textContent),
       documentOverflow: document.documentElement.scrollWidth - innerWidth,
@@ -107,16 +113,16 @@ test('critical panels use the workspace and keep slot names readable @customizer
     expect(actual.clippedLabels).toEqual([]);
     expect(actual.documentOverflow).toBe(0);
     if (layout.width < 640) {
-      const selector = grid.getByRole('combobox', { name: 'Location' });
-      await selector.selectOption('Center Torso');
+      const selector = grid.getByRole('tablist', { name: 'Location' });
+      await selector.getByRole('tab', { name: /^Center Torso / }).click();
       await expect(
         grid.getByText('Standard Gyro', { exact: true }).first(),
       ).toBeVisible();
-      await selector.selectOption('Head');
+      await selector.getByRole('tab', { name: /^Head / }).click();
       await expect(
         grid.getByText('Standard Cockpit', { exact: true }),
       ).toBeVisible();
-      await selector.selectOption('Right Torso');
+      await selector.getByRole('tab', { name: /^Right Torso / }).click();
     } else {
       await expect(
         grid.getByText('Standard Gyro', { exact: true }).first(),
@@ -132,6 +138,11 @@ test('critical panels use the workspace and keep slot names readable @customizer
     const occupied = grid.getByRole('gridcell', { name: /^Slot \d+: AC\/20$/ });
     await expect(occupied).toHaveCount(10);
     await expect(grid.getByText('10 slots', { exact: true })).toHaveCount(1);
+    await expect(grid.getByText('1–10', { exact: true })).toHaveCount(1);
+    await expect(grid.getByText('HS', { exact: true })).toHaveCount(0);
+    const sinks = grid.getByRole('gridcell', { name: /: .*Heat Sink$/ });
+    if (await sinks.count())
+      await expect(sinks.first()).toContainText('Heat Sink');
     await expect(grid.getByText('↳', { exact: true })).toHaveCount(0);
     const grouping = await occupied.evaluateAll((cells) =>
       cells.map((cell) => {
@@ -144,12 +155,18 @@ test('critical panels use the workspace and keep slot names readable @customizer
           topBorder: style.borderTopWidth,
           bottomBorder: style.borderBottomWidth,
           tabIndex: (cell as HTMLElement).tabIndex,
+          rowNumber: cell
+            .querySelector(
+              ':scope > span[aria-hidden="true"]:not([class*=criticalMergedLabel])',
+            )
+            ?.textContent?.trim(),
         };
       }),
     );
     for (let index = 0; index < grouping.length; index++) {
       const item = grouping[index];
       expect(item.tabIndex).toBe(0);
+      expect(item.rowNumber ?? '').toBe('');
       expect(item.background).toBe(grouping[0].background);
       expect(item.topBorder).toBe(index === 0 ? '1px' : '0px');
       expect(item.bottomBorder).toBe(
@@ -167,6 +184,12 @@ test('critical panels use the workspace and keep slot names readable @customizer
     );
     if (layout.width >= 1024)
       expect(Math.max(...heights)).toBeLessThanOrEqual(32);
+    if (layout.width >= 1024) {
+      const textSizes = await cells.evaluateAll((rows) =>
+        rows.map((row) => getComputedStyle(row).fontSize),
+      );
+      expect(textSizes.every((size) => parseFloat(size) >= 14)).toBe(true);
+    }
     measurements.push({ layout, ...actual, grouping });
     await page.screenshot({
       path: testInfo.outputPath(layout.name + '.png'),

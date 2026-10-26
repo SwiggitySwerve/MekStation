@@ -24,6 +24,7 @@ import { SlotContextMenuShell } from './SlotContextMenuShell';
 import { SlotEquipmentLabel } from './SlotEquipmentLabel';
 import {
   getMergedSlotClasses,
+  isMultiSlotEquipment,
   getOccupiedSpanClasses,
   getSlotSizeClasses,
   getSlotStateClasses,
@@ -329,12 +330,14 @@ export const SlotRow = memo(function SlotRow({
         }
         title={title}
       >
-        <span
-          aria-hidden="true"
-          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
-        >
-          {slot.index + 1}
-        </span>
+        {!isMultiSlotEquipment(slot) && (
+          <span
+            aria-hidden="true"
+            className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
+          >
+            {slot.index + 1}
+          </span>
+        )}
         <SlotEquipmentLabel slot={slot} isOmni={isOmni} />
         {spanClasses && (
           <span

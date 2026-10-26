@@ -518,7 +518,7 @@ The system SHALL provide React hooks for integrating validation into the customi
 
 - **WHEN** CustomizerTabs renders
 - **THEN** each tab SHALL display ValidationTabBadge if issues exist for that tab
-- **AND** badge SHALL show error count (red) or warning count (amber)
+- **AND** badge SHALL show error count (red) or warning count (orange)
 - **AND** badge SHALL be compact (18px circular)
 
 #### Scenario: Validation updates in real-time

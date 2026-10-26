@@ -145,14 +145,14 @@ describe('StructureTab', () => {
       control.closest('.grid') as HTMLElement;
     expect(run.tagName).toBe('OUTPUT');
     expect(run).toHaveTextContent('8');
-    expect(run).toHaveClass('min-h-11', 'border', 'w-full', 'max-w-60');
+    expect(run).toHaveClass('min-h-11', 'border', 'w-full', 'max-w-[22.5rem]');
     expect(run).not.toHaveAttribute('tabindex');
     expect(run.querySelector('svg')).not.toBeNull();
     expect(within(rowOf(run)).queryAllByRole('button')).toHaveLength(0);
     expect(rowOf(run)).toHaveTextContent(/8\s*→\s*8\s*final/);
     expect(rowOf(run).className).toBe(rowOf(walk).className);
     // Same width class as the stepper group, so both share one right edge.
-    expect(walk.parentElement).toHaveClass('w-full', 'max-w-60');
+    expect(walk.parentElement).toHaveClass('w-full', 'max-w-[22.5rem]');
     expect(screen.getByTitle('Final Run MP')).toBeInTheDocument();
   });
 
@@ -169,7 +169,7 @@ describe('StructureTab', () => {
     );
   });
 
-  it('pins each cost meta to the card edge as "weight · slots" with tabular numerals', () => {
+  it('right-aligns each cost meta in the 88px column after its control as "weight · slots" with tabular numerals', () => {
     render(<StructureTab />);
 
     const row = screen.getByLabelText('Engine').closest('.grid') as HTMLElement;
@@ -177,6 +177,8 @@ describe('StructureTab', () => {
     expect(meta).toHaveClass('tabular-nums');
     expect(meta.className).toContain('@[32rem]:text-right');
     expect(meta.className).toContain('@[32rem]:justify-self-end');
+    expect(meta.className).toContain('@[32rem]:col-start-3');
+    expect(meta).toHaveClass('whitespace-nowrap');
     // "-> n final" readouts stay beside their control.
     expect(screen.getByTitle('Final Walk MP').parentElement).not.toHaveClass(
       'text-right',
@@ -188,7 +190,7 @@ describe('StructureTab', () => {
 
     for (const name of ['Tonnage', 'Walk MP', 'Jump MP', 'Heat sink count']) {
       const input = screen.getByRole('spinbutton', { name });
-      expect(input.parentElement).toHaveClass('w-full', 'max-w-60');
+      expect(input.parentElement).toHaveClass('w-full', 'max-w-[22.5rem]');
       expect(input).toHaveClass('flex-1');
     }
   });
@@ -280,13 +282,45 @@ describe('StructureTab', () => {
     );
   });
 
+  it('keeps Enhancement as an ordinary Mobility row under Jump Type', () => {
+    render(<StructureTab />);
+
+    const select = screen.getByRole('combobox', {
+      name: 'Movement enhancement',
+    });
+    expect(
+      screen.getByText('Enhancement', { selector: 'label' }),
+    ).toHaveAttribute('for', 'movement-enhancement');
+    expect(
+      screen.queryByRole('heading', { name: 'Enhancement', level: 4 }),
+    ).toBeNull();
+    const rowOf = (control: HTMLElement) =>
+      control.closest('.grid') as HTMLElement;
+    expect(rowOf(select).previousElementSibling).toBe(
+      rowOf(screen.getByLabelText('Jump type')),
+    );
+  });
+
+  it('puts the Mobility and Cooling subtitles on the title line', () => {
+    render(<StructureTab />);
+
+    for (const [title, subtitle] of [
+      ['Mobility', /Base settings and derived movement limits/],
+      ['Cooling', /Heat sink type and count/],
+    ] as const) {
+      const heading = screen.getByRole('heading', { name: title, level: 3 });
+      expect(heading.parentElement).toHaveClass('flex', 'items-baseline');
+      expect(heading.parentElement).toHaveTextContent(subtitle);
+    }
+  });
+
   it('does not show developer copy about unsupported jump boosters', () => {
     render(<StructureTab />);
 
     expect(screen.queryByText(/not supported yet/i)).not.toBeInTheDocument();
   });
 
-  it('uses one label / control / meta grid and 240px controls in both cards', () => {
+  it('uses one 140px / 240-360px / 88px label, control, meta grid in all three cards', () => {
     render(<StructureTab />);
 
     const rowOf = (control: HTMLElement) =>
@@ -303,10 +337,10 @@ describe('StructureTab', () => {
     ];
     expect(new Set(controls.map((c) => rowOf(c).className)).size).toBe(1);
     expect(rowOf(controls[0]).className).toContain(
-      '@[32rem]:grid-cols-[8.75rem_15rem_minmax(0,1fr)]',
+      '@[32rem]:grid-cols-[8.75rem_minmax(15rem,22.5rem)_5.5rem]',
     );
     for (const select of controls.filter((c) => c.tagName === 'SELECT')) {
-      expect(select).toHaveClass('w-full', 'max-w-60');
+      expect(select).toHaveClass('w-full', 'max-w-[22.5rem]');
     }
     expect(screen.getByLabelText('Jump type')).toBeEnabled();
   });

@@ -48,16 +48,19 @@ test('existing biped armor edits preserve caps, draft and unit isolation @custom
   await expect(page.getByTestId('armor-points-explanation')).toHaveText(
     '304 pts from 19 t · 3 more need +0.5 t',
   );
-  // Torso cells list each face against that face's current maximum, the
-  // same maxima the location editor shows ("max 48" front, "max 15" rear);
-  // the rear line is prefixed "R".
+  // Torso cells show the location total against the one location max
+  // ("61/62") and split it below ("F47", "R14"); front and rear share the
+  // max, so no per-side maximum is drawn.
   // The inspector header no longer repeats the summary strip's "pts from" line.
   await expect(
     page.getByRole('heading', { name: 'Armor inspector' }).locator('..'),
   ).not.toContainText('pts from');
   await expect(
     page.locator('[data-armor-face-location="Center Torso"]'),
-  ).toHaveText(['47/48', 'R 14/15']);
+  ).toHaveText(['F47', 'R14']);
+  await expect(
+    page.locator('[data-armor-total-location="Center Torso"]'),
+  ).toHaveText('61/62');
   await expect(page.getByTestId('location-armor-editor-empty')).toHaveCount(0);
   await torso.focus();
   await page.keyboard.press('Enter');

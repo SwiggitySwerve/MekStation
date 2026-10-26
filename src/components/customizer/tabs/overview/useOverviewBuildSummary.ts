@@ -35,6 +35,8 @@ export interface OverviewBuildSummaryData {
   readonly equipmentCount: number;
   /** Instance ids of mounted equipment without assigned critical slots. */
   readonly unplacedInstanceIds: readonly string[];
+  /** Display names of the same unplaced items, in mount order. */
+  readonly unplacedItemNames: readonly string[];
   readonly validation: UnitValidationState;
 }
 
@@ -121,12 +123,17 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
     configuration,
   );
   const equipmentCalcs = useEquipmentCalculations(equipment);
-  const unplacedInstanceIds = useMemo(
-    () =>
-      equipment
-        .filter((item) => !hasAssignedCriticalSlots(item))
-        .map((item) => item.instanceId),
+  const unplaced = useMemo(
+    () => equipment.filter((item) => !hasAssignedCriticalSlots(item)),
     [equipment],
+  );
+  const unplacedInstanceIds = useMemo(
+    () => unplaced.map((item) => item.instanceId),
+    [unplaced],
+  );
+  const unplacedItemNames = useMemo(
+    () => unplaced.map((item) => item.name),
+    [unplaced],
   );
 
   return {
@@ -135,6 +142,7 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
     equipmentWeight: equipmentCalcs.totalWeight,
     equipmentCount: equipment.length,
     unplacedInstanceIds,
+    unplacedItemNames,
     validation,
   };
 }

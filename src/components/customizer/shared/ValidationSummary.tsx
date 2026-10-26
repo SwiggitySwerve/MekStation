@@ -21,6 +21,10 @@ import {
   type BuildState,
 } from './buildStatusSummary';
 import {
+  measureStatusPanelLayout,
+  type StatusPanelLayout,
+} from './statusPanelLayout';
+import {
   flattenErrors,
   ValidationGroupHeading,
   ValidationIssueRow,
@@ -52,6 +56,11 @@ interface ValidationSummaryProps {
   details?: React.ReactNode;
   /** Short button wording for narrow bands. */
   compact?: boolean;
+  /**
+   * Raise to open the panel from elsewhere (the tab issue notice's "Show all
+   * issues"); the panel opens on every change, never on first render.
+   */
+  openRequest?: number;
 }
 
 const NO_NOTES: readonly ValidationNote[] = [];
@@ -62,9 +71,6 @@ const RULE_GROUPS = [
 ] as const;
 /** Readout items (running hot) are listed in this group. */
 const READOUT_GROUP = 'warning';
-const PANEL_WIDTH = 384;
-/** Below this width the panel opens as a bottom sheet. */
-const SHEET_MAX_WIDTH = 639;
 
 const buttonClass =
   'focus-visible:outline-accent hover:bg-surface-raised flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-md border font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
@@ -102,14 +108,16 @@ export function ValidationSummary({
   notes = NO_NOTES,
   details,
   compact = false,
+  openRequest = 0,
 }: ValidationSummaryProps): React.ReactElement | null {
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const [position, setPosition] = useState({
+  const [layout, setLayout] = useState<StatusPanelLayout>({
+    mode: 'popover',
     left: 0,
     top: 0,
+    width: 384,
     maxHeight: 400,
-    sheet: false,
   });
   const root = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -137,31 +145,18 @@ export function ValidationSummary({
     ],
   );
   const shown = showAll ? issues : issues.slice(0, maxItems);
+  const handledOpenRequest = useRef(openRequest);
+  useEffect(() => {
+    if (openRequest === handledOpenRequest.current) return;
+    handledOpenRequest.current = openRequest;
+    setShowAll(false);
+    setOpen(true);
+  }, [openRequest]);
 
   useEffect(() => {
     if (!open) return;
     const updatePosition = (): void => {
-      if (!trigger.current) return;
-      if (window.innerWidth <= SHEET_MAX_WIDTH) {
-        setPosition({ left: 0, top: 0, maxHeight: 0, sheet: true });
-        return;
-      }
-      const box = trigger.current.getBoundingClientRect();
-      const width = Math.min(PANEL_WIDTH, window.innerWidth - 16);
-      const top = Math.max(
-        8,
-        Math.min(box.bottom + 4, window.innerHeight - 180),
-      );
-      setPosition({
-        // Right-aligned under the button, kept on screen.
-        left: Math.max(
-          8,
-          Math.min(box.right - width, window.innerWidth - width - 8),
-        ),
-        top,
-        maxHeight: window.innerHeight - top - 8,
-        sheet: false,
-      });
+      if (trigger.current) setLayout(measureStatusPanelLayout(trigger.current));
     };
     updatePosition();
     // First fix action, else the close button (nothing to fix).
@@ -311,38 +306,52 @@ export function ValidationSummary({
       {open &&
         createPortal(
           <>
-            {/* Dims the workspace behind the panel; a press closes it. */}
-            <div
-              aria-hidden="true"
-              data-validation-scrim
-              className="fixed inset-0 z-[69] bg-black/50"
-              onPointerDown={(event) => {
-                event.preventDefault();
-                close();
-              }}
-            />
+            {/* Dims the page behind a sheet or popover; a press closes it.
+                The drawer leaves the tab content visible (a press outside
+                still closes it). */}
+            {layout.mode !== 'drawer' && (
+              <div
+                aria-hidden="true"
+                data-validation-scrim
+                className={`fixed inset-0 z-[69] ${layout.mode === 'sheet' ? 'bg-black/60' : 'bg-black/50'}`}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  close();
+                }}
+              />
+            )}
             <div
               ref={panel}
               id={id}
               role="dialog"
               aria-labelledby={`${id}-title ${id}-summary`}
-              data-panel-layout={position.sheet ? 'sheet' : 'popover'}
+              data-panel-layout={layout.mode}
               className={`bg-surface-base border-border-theme text-text-theme-primary fixed z-[70] flex flex-col overflow-hidden border shadow-xl ${
-                position.sheet
+                layout.mode === 'sheet'
                   ? 'inset-x-0 bottom-0 max-h-[80dvh] rounded-t-xl border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)]'
-                  : 'rounded-lg'
+                  : layout.mode === 'drawer'
+                    ? 'border-y-0 border-r-0'
+                    : 'rounded-lg'
               }`}
               style={
-                position.sheet
+                layout.mode === 'sheet'
                   ? undefined
                   : {
-                      left: position.left,
-                      top: position.top,
-                      width: `min(${PANEL_WIDTH}px, calc(100vw - 1rem))`,
-                      maxHeight: position.maxHeight,
+                      left: layout.left,
+                      top: layout.top,
+                      width: layout.width,
+                      height: layout.height,
+                      maxHeight: layout.maxHeight,
                     }
               }
             >
+              {layout.mode === 'sheet' && (
+                <span
+                  aria-hidden="true"
+                  data-validation-sheet-handle
+                  className="bg-border-theme-strong mx-auto mt-2 mb-0.5 h-1 w-10 shrink-0 rounded-full"
+                />
+              )}
               <ValidationPanelHeader
                 titleId={`${id}-title`}
                 title={`${unitName} \u00b7 Build status`}

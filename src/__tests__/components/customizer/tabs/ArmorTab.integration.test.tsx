@@ -228,7 +228,7 @@ test('shows one short instruction, with the keyboard hint for screen readers onl
   );
 });
 
-test('every biped location shows its max and torsos show front and rear against their own maxima', () => {
+test('every biped location shows its max and torsos show one total against the location max', () => {
   const store = makeStore();
   const { container } = render(
     <UnitStoreContext.Provider value={store}>
@@ -237,9 +237,9 @@ test('every biped location shows its max and torsos show front and rear against 
   );
 
   const diagram = within(screen.getByTestId('armor-diagram'));
-  // Every location uses one stack: the front value with its "/max" muted on
-  // the same baseline (head, four limbs and three torso fronts); torsos add a
-  // rear line under it.
+  // Every location uses one stack: the armor value with its "/max" muted on
+  // the same baseline (head, four limbs and three torso totals); torsos add a
+  // front / rear split line under it.
   const frontValues = Array.from(
     container.querySelectorAll('[data-testid="armor-diagram"] text'),
   ).filter((node) => /^\d+\/\d+$/.test(node.textContent ?? ''));
@@ -252,21 +252,34 @@ test('every biped location shows its max and torsos show front and rear against 
   expect(headButton).toHaveTextContent(/\d+\/\d+/);
   // No torso cell carries a total line any more.
   expect(container.querySelector('[data-armor-total]')).toBeNull();
-  // Torso: 32-point location holding 20 front and 8 rear. Each face's max is
-  // the location max minus what the other face uses (24 front, 12 rear).
+  // Torso: 32-point location holding 20 front and 8 rear. The plate shows the
+  // 28 total against the one location max and splits it below; no per-side
+  // maximum is drawn.
   const faces = (location: MechLocation) =>
     Array.from(
       container.querySelectorAll(`[data-armor-face-location="${location}"]`),
     ).map((node) => node.textContent);
-  expect(faces(MechLocation.CENTER_TORSO)).toEqual(['20/24', 'R 8/12']);
+  expect(faces(MechLocation.CENTER_TORSO)).toEqual(['F20', 'R8']);
+  expect(
+    container.querySelector('[data-armor-total-location="Center Torso"]')
+      ?.textContent,
+  ).toBe('28/32');
   expect(container.querySelectorAll('[data-armor-face]')).toHaveLength(6);
 
-  // The location editor derives the same maxima.
+  // The location editor labels each slider with its value and shows one total
+  // against the location max; the sliders keep the face-maximum ranges.
   fireEvent.click(screen.getByRole('button', { name: /^Center Torso armor:/ }));
   const editor = within(screen.getByTestId('location-armor-editor'));
-  expect(editor.getByText('max 24')).toBeInTheDocument();
-  expect(editor.getByText('max 12')).toBeInTheDocument();
+  expect(editor.getByText('Front 20')).toBeInTheDocument();
+  expect(editor.getByText('Rear 8')).toBeInTheDocument();
+  expect(editor.queryByText(/^max \d+/)).toBeNull();
   expect(editor.getByText('Total')).toBeInTheDocument();
+  expect(editor.getByText(/^28/)).toHaveTextContent('28 / 32');
+  const sliders = editor.getAllByRole('slider');
+  expect(sliders.map((slider) => slider.getAttribute('max'))).toEqual([
+    '24',
+    '12',
+  ]);
 });
 
 test('the inspector carries the diagram legend on wide layouts for biped silhouettes only', () => {
@@ -277,7 +290,7 @@ test('the inspector carries the diagram legend on wide layouts for biped silhoue
   );
   const legend = screen.getByTestId('armor-inspector-legend');
   expect(legend).toHaveClass('hidden', 'xl:flex', 'border-t');
-  expect(legend).toHaveTextContent('R = rear armor');
+  expect(legend).toHaveTextContent('F = front · R = rear armor');
   expect(legend).toHaveTextContent('Armor % of max:');
   expect(legend).toHaveTextContent('60%+');
   // The diagram's own footer steps aside from xl up so the readout is not
@@ -310,13 +323,13 @@ test('lists every location in a table that selects like the figure', () => {
     'Location',
     'Front',
     'Rear',
-    'Max',
+    'Total',
   ]);
   const note = table.getByTestId('armor-location-table-note');
   expect(note.closest('thead')).not.toBeNull();
   expect(note).toHaveClass('text-[13px]');
-  expect(note).toHaveTextContent('Max is the whole location.');
-  // Same data and face maxima as the plates: 20/24 front, 8/12 rear, 32 max.
+  expect(note).toHaveTextContent('Front + rear share the location max.');
+  // Same data as the plates: 20 front, 8 rear, 28 of the 32 max.
   const torsoRow = table
     .getByRole('button', { name: 'Center Torso' })
     .closest('tr') as HTMLElement;
@@ -324,7 +337,7 @@ test('lists every location in a table that selects like the figure', () => {
     within(torsoRow)
       .getAllByRole('cell')
       .map((c) => c.textContent),
-  ).toEqual(['20/24', '8/12', '32']);
+  ).toEqual(['20', '8', '28 / 32']);
   const armRow = table
     .getByRole('button', { name: 'Left Arm' })
     .closest('tr') as HTMLElement;

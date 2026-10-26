@@ -111,7 +111,7 @@ export function CriticalSlotsToolbar({
     <div className="border-border-theme-subtle bg-surface-base flex shrink-0 items-center gap-1 border-b px-3 sm:gap-2">
       <Button
         size="sm"
-        variant="primary"
+        variant="secondary"
         disabled={readOnly}
         onClick={onSort}
         title="Sort equipment by size and compact slots within each location"
