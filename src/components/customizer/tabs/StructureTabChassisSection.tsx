@@ -5,8 +5,10 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import type {
+  StructureConfigurationOption,
   StructureTabCalculations,
   StructureTabFilteredOptions,
 } from './StructureTabViewTypes';
@@ -14,16 +16,20 @@ import type {
 import { customizerStyles as cs } from '../styles';
 import {
   EngineRatingSummary,
+  MotiveTypeControl,
   SystemSelects,
   TonnageControl,
 } from './StructureTabChassisControls';
 import { HeatSinkSection, HeatSinkStats } from './StructureTabHeatSinkControls';
+import { STRUCTURE_CARD } from './StructureTabRowLayout';
 
 interface StructureTabChassisSectionProps {
   readonly readOnly: boolean;
   readonly tonnage: number;
   readonly isSuperheavy: boolean;
   readonly isOmni: boolean;
+  readonly configuration: MechConfiguration;
+  readonly configurationOptions: readonly StructureConfigurationOption[];
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
   readonly internalStructureType: InternalStructureType;
@@ -36,6 +42,9 @@ interface StructureTabChassisSectionProps {
   readonly engineRating: number;
   readonly isAtMaxEngineRating: boolean;
   readonly handleTonnageChange: (newTonnage: number) => void;
+  readonly handleConfigurationChange: (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => void;
   readonly handleEngineTypeChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => void;
@@ -60,6 +69,8 @@ export function StructureTabChassisSection({
   tonnage,
   isSuperheavy,
   isOmni,
+  configuration,
+  configurationOptions,
   engineType,
   gyroType,
   internalStructureType,
@@ -72,6 +83,7 @@ export function StructureTabChassisSection({
   engineRating,
   isAtMaxEngineRating,
   handleTonnageChange,
+  handleConfigurationChange,
   handleEngineTypeChange,
   handleGyroTypeChange,
   handleStructureTypeChange,
@@ -81,7 +93,7 @@ export function StructureTabChassisSection({
   handleBaseChassisHeatSinksChange,
 }: StructureTabChassisSectionProps): React.ReactElement {
   return (
-    <div className={cs.panel.main}>
+    <div className={`${cs.panel.main} ${STRUCTURE_CARD}`}>
       <div className="border-border-theme mb-4 border-b pb-3">
         <h3 className={cs.text.cardTitle}>Chassis</h3>
         <p className={`${cs.text.secondary} mt-0.5`}>
@@ -97,12 +109,20 @@ export function StructureTabChassisSection({
           >
             Chassis
           </h4>
-          <TonnageControl
-            readOnly={readOnly}
-            tonnage={tonnage}
-            isSuperheavy={isSuperheavy}
-            onChange={handleTonnageChange}
-          />
+          <div className="space-y-3">
+            <TonnageControl
+              readOnly={readOnly}
+              tonnage={tonnage}
+              isSuperheavy={isSuperheavy}
+              onChange={handleTonnageChange}
+            />
+            <MotiveTypeControl
+              readOnly={readOnly}
+              configuration={configuration}
+              options={configurationOptions}
+              onChange={handleConfigurationChange}
+            />
+          </div>
         </section>
 
         <SystemSelects

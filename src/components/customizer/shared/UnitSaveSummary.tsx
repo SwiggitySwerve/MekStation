@@ -125,20 +125,23 @@ function UnitSaveLinesView({
         </span>
       </span>
     );
+  // Beside Save, the library words are what Save changes, so they read in
+  // primary text at 13px; a settled draft line above them stays secondary.
+  const panel = layout === 'panel';
   return (
     <span
       data-save-lines
-      className={`flex min-w-0 flex-col ${layout === 'panel' ? 'gap-0.5 text-sm' : 'text-xs leading-4 whitespace-nowrap'}`}
+      className={`flex min-w-0 flex-col ${panel ? 'gap-0.5 text-sm' : 'text-[13px] leading-[18px] whitespace-nowrap'}`}
     >
       <span
-        className={`inline-flex min-w-0 items-center gap-1 ${layout === 'panel' ? 'text-text-theme-primary font-medium' : 'text-text-theme-secondary'}`}
+        className={`inline-flex min-w-0 items-center gap-1 ${panel || !second ? 'text-text-theme-primary' : 'text-text-theme-secondary'} ${panel ? 'font-medium' : ''}`}
       >
         {settled && <SettledCheck />}
         <span className="min-w-0 truncate">{first}</span>
       </span>
       {second && (
         <span
-          className={`text-text-theme-secondary min-w-0 truncate ${settled ? 'pl-[18px]' : ''}`}
+          className={`min-w-0 truncate ${panel ? 'text-text-theme-secondary' : 'text-text-theme-primary'} ${settled ? 'pl-[18px]' : ''}`}
         >
           {second}
         </span>
@@ -285,11 +288,11 @@ export function UnitSaveDetails({
   const state = useUnitSaveState(unitId);
   return (
     <div className="flex flex-col gap-1" data-testid="unit-save-details">
-      <span className="text-text-theme-secondary text-[11px] font-semibold tracking-wider uppercase">
+      <span className="text-text-theme-secondary text-xs font-semibold tracking-wider uppercase">
         Saving
       </span>
       <UnitSaveLinesView unitId={unitId} state={state} layout="panel" />
-      <span className="text-text-theme-secondary text-xs">
+      <span className="text-text-theme-secondary text-[13px] leading-[18px]">
         {SAVE_STATE_EXPLANATION}
       </span>
     </div>

@@ -32,7 +32,7 @@ Each tab SHALL display unit name with modification indicator.
 - **WHEN** tab renders
 - **THEN** unit name is shown (truncated at 48 chars max)
 - **AND** a background (inactive) tab shows the accent modified dot, named "Changes not saved to library", if unsaved changes exist; the active unit's save state is spelled out beside the Save button instead (for example "Draft saved in browser" over "Not in library"), so the header never repeats the same dot
-- **AND** on phones the name wraps onto a second line inside the tab instead of truncating
+- **AND** on phones too the name stays on one line and ends in an ellipsis when it does not fit; the tab's accessible name and tooltip keep the full name
 - **AND** close button appears on hover
 
 #### Scenario: Active tab styling
@@ -285,6 +285,19 @@ The empty state SHALL provide quick access to unit creation and loading.
 
 - **WHEN** user clicks "New Unit" in empty state
 - **THEN** the Add unit dialog opens with blank-unit, starting-settings, and library choices
+
+#### Scenario: Add unit dialog has one primary action
+
+- **WHEN** the Add unit dialog opens
+- **THEN** "New blank unit" is the only primary (filled) button and sits left-aligned beside a secondary outlined button labelled "Choose tonnage and tech first…" (so it reads as opening a step), both the same height with a 12px gap
+- **AND** the explanation "Starts a 50-ton Inner Sphere BattleMech you can change." sits under the pair and is linked to the primary button with aria-describedby
+- **AND** on phones the two buttons stack full width with the explanation under both
+- **AND** both buttons keep at least 44px touch targets
+
+#### Scenario: Empty state icon matches the palette
+
+- **WHEN** the empty state is displayed
+- **THEN** its mech icon sits in a circle filled with the navy card surface (not a neutral grey) with a subtle accent ring
 
 #### Scenario: Empty state load unit
 

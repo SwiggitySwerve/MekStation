@@ -70,7 +70,7 @@ const sizeClass = 'px-3 text-[13px]';
  * Phone: the same wording, tighter, truncating within the readout row.
  * Important overrides beat the global unlayered `button` padding and size.
  */
-const compactSizeClass = 'max-w-[7.5rem] !px-1.5 !text-xs';
+const compactSizeClass = 'max-w-[7.5rem] !px-1.5 !py-0 !text-[13px]';
 
 /**
  * Focus the section a fix button opened once it renders, so keyboard users

@@ -17,6 +17,11 @@ export const RECORD_SHEET_PREVIEW_MAX_FIT_WIDTH = 920;
 /** Zoom of the 100% (actual size) mode: one CSS pixel per paper point. */
 export const RECORD_SHEET_PREVIEW_ACTUAL_ZOOM = 1;
 
+/** The zoom as the readout shows it, e.g. "150%" (toolbar and caption). */
+export function formatZoomPercent(zoom: number): string {
+  return `${Math.round(zoom * 100)}%`;
+}
+
 function fitAvailableWidth(viewportWidth: number): number {
   return Math.min(
     viewportWidth - RECORD_SHEET_PREVIEW_VIEWPORT_PADDING,

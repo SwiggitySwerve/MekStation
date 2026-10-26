@@ -74,12 +74,12 @@ interface UnitInfoBannerProps {
 // =============================================================================
 
 const styles = {
+  /** Labels, caps and captions share a 12px minimum, legible at phone size. */
   label:
-    'text-[11px] leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wider',
+    'text-xs leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wide',
   /** One value size for every metric, budget or not. */
   value: 'text-base leading-6 font-bold sm:text-lg',
   status: STAT_STATUS_TEXT_CLASS,
-  /** Caps and captions: 12px secondary text, legible at phone size. */
   muted: 'text-xs text-text-theme-secondary',
   box: 'flex min-w-0 flex-col items-center gap-0.5 text-center tabular-nums',
 } as const;

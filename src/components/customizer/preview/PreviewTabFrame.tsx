@@ -3,6 +3,7 @@ import React from 'react';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 
 import { PreviewToolbar } from './PreviewToolbar';
+import { formatZoomPercent } from './recordSheetPreviewZoom';
 import { RecordSheetPreviewZoomControls } from './RecordSheetPreviewZoomControls';
 import {
   RecordSheetPreviewZoomContext,
@@ -67,6 +68,12 @@ export function PreviewTabFrame({
         data-testid="preview-sheet-caption"
       >
         {PAPER_CAPTION[toolbarActions.paperSize]} {'\u00b7'} 1 page
+        {/* Phones keep the zoom readout here so the toolbar fits one row;
+            screen readers already hear the toolbar's Current zoom output. */}
+        <span aria-hidden="true" className="sm:hidden">
+          {' \u00b7 '}
+          {formatZoomPercent(zoomState.zoom)}
+        </span>
       </p>
     </div>
   );

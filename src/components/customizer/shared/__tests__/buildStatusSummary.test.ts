@@ -28,7 +28,7 @@ describe('getBuildStatusSummary', () => {
       'note',
     ]);
     // Narrow bands: the worst group in words plus a count of the rest.
-    expect(summary.short).toEqual({ text: '1 error', more: '+2' });
+    expect(summary.short).toEqual({ text: '1 error', more: '+2 more' });
   });
 
   it('defines every group in plain words, worst first', () => {

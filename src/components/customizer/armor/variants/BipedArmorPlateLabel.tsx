@@ -187,7 +187,7 @@ export function BipedArmorPlateLabel({
             fontWeight="600"
             fill={ink.secondary}
           >
-            / {maximum}
+            /{maximum}
           </text>
           <path
             d={`M${plate.x - 18} ${plate.y + 54} h36`}

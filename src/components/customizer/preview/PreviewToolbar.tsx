@@ -113,19 +113,27 @@ export function PreviewToolbar({
 
   return (
     <div
-      className={`preview-toolbar border-border-theme-subtle bg-surface-base flex shrink-0 flex-wrap items-center gap-2 border-b p-2 sm:gap-3 sm:px-4 sm:py-3 ${className}`}
+      className={`preview-toolbar border-border-theme-subtle bg-surface-base flex shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1.5 sm:gap-3 sm:px-4 sm:py-3 ${className}`}
     >
-      {/* Paper Size Select */}
-      <div className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none">
+      {/* Paper Size Select. Phones show it as a 44px page icon over the
+          native select (the caption below the sheet names the paper), so
+          every control fits one row above the sheet. */}
+      <div className="max-sm:has-[select:focus-visible]:ring-accent relative flex shrink-0 items-center gap-2 max-sm:rounded-md max-sm:has-[select:disabled]:opacity-70 max-sm:has-[select:focus-visible]:ring-2">
         <label
           htmlFor="paper-size"
           className="text-text-theme-secondary sr-only text-[13px] font-medium whitespace-nowrap sm:not-sr-only"
         >
           Paper Size:
         </label>
+        <span
+          aria-hidden="true"
+          className={`${PREVIEW_CONTROL_CLASS} inline-flex w-11 items-center justify-center max-sm:px-0 sm:hidden`}
+        >
+          <AppIcon name="document" size="inline" />
+        </span>
         <select
           id="paper-size"
-          className={`${PREVIEW_CONTROL_CLASS} w-full min-w-0 sm:w-auto`}
+          className={`${PREVIEW_CONTROL_CLASS} max-sm:absolute max-sm:inset-0 max-sm:h-full max-sm:w-full max-sm:cursor-pointer max-sm:opacity-0`}
           value={paperSize}
           onChange={(e) => onPaperSizeChange(e.target.value as PaperSize)}
           disabled={isBusy}
@@ -137,19 +145,18 @@ export function PreviewToolbar({
         </select>
       </div>
 
-      {/* Zoom: beside the paper size on wide toolbars, its own row on phones */}
+      {/* Zoom sits between the paper size and the actions on every width */}
       {zoomControls ? (
-        <div className="order-last min-w-0 basis-full sm:order-none sm:basis-auto">
-          {zoomControls}
-        </div>
+        <div className="flex-1 sm:flex-none">{zoomControls}</div>
       ) : null}
 
-      {/* Print + Download stay together at the toolbar's trailing edge */}
-      <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
+      {/* Print + Download stay together at the toolbar's trailing edge;
+          phones show them as 44px icon buttons */}
+      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
         {/* Print Button */}
         <button
           type="button"
-          className={`${PREVIEW_CONTROL_CLASS} inline-flex items-center gap-1.5 whitespace-nowrap sm:px-4`}
+          className={`${PREVIEW_CONTROL_CLASS} inline-flex min-w-11 items-center justify-center gap-1.5 whitespace-nowrap max-sm:px-0! sm:px-4`}
           onClick={() => {
             void runAction('print');
           }}
@@ -170,14 +177,16 @@ export function PreviewToolbar({
           }}
           disabled={isBusy}
           aria-busy={isExporting}
-          className={`inline-flex min-h-11 items-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset sm:px-4 ${
+          className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset max-sm:px-0! sm:px-4 ${
             isBusy
               ? 'border-border-theme bg-surface-raised text-text-theme-primary cursor-not-allowed opacity-70'
               : 'bg-accent text-on-accent hover:bg-accent-hover focus-visible:ring-on-accent border-transparent'
           }`}
         >
           <DownloadIcon />
-          {isExporting ? 'Exporting...' : 'Download PDF'}
+          <span className="sr-only sm:not-sr-only">
+            {isExporting ? 'Exporting...' : 'Download PDF'}
+          </span>
         </button>
       </div>
       {actionError ? (

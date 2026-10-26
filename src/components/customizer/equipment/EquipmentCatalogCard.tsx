@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 import { IEquipmentItem } from '@/types/equipment';
 import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
@@ -34,6 +35,9 @@ export function EquipmentCatalogCard({
 }: EquipmentCatalogCardProps): React.ReactElement {
   const detailId = useId();
   const weapon = useMemo(() => getWeaponById(equipment.id), [equipment.id]);
+  const shotsPerTon = getEquipmentLoader().getAmmunitionById(
+    equipment.id,
+  )?.shotsPerTon;
   const range = weapon?.ranges
     ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
     : '—';
@@ -49,9 +53,7 @@ export function EquipmentCatalogCard({
         className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 ${expanded ? 'opacity-40' : 'opacity-10 group-hover:opacity-30'}`}
         data-testid="equipment-catalog-row-fill"
       />
-      <div
-        className={`${workbenchStyles.catalogColumns} flex items-center gap-3 lg:grid`}
-      >
+      <div className={workbenchStyles.catalogColumns}>
         <button
           type="button"
           data-catalog-column="name"
@@ -80,26 +82,15 @@ export function EquipmentCatalogCard({
             >
               {equipment.category}
             </span>
-            <span className="text-text-theme-secondary block text-sm leading-5 tabular-nums lg:hidden">
-              {weapon && (
-                <span className="block">
-                  Dmg {weapon.damage} · Range {range.replaceAll(' ', '')} · Heat{' '}
-                  {weapon.heat}
-                </span>
-              )}
-              <span className="block">
-                {variable
-                  ? 'Variable weight / slots'
-                  : `${equipment.weight} t · ${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`}
-              </span>
-            </span>
           </span>
         </button>
         <span
           data-catalog-column="damage"
-          className="hidden text-sm tabular-nums lg:block"
+          className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
+          title={shotsPerTon === undefined ? undefined : 'Shots per ton'}
         >
-          {weapon?.damage ?? '—'}
+          {weapon?.damage ??
+            (shotsPerTon === undefined ? '—' : `${shotsPerTon} shots`)}
         </span>
         <span
           data-catalog-column="range"
@@ -131,6 +122,31 @@ export function EquipmentCatalogCard({
           onAdd={onAdd}
           onAddAndPlace={onAddAndPlace}
         />
+        <div
+          className={workbenchStyles.catalogMobileStats}
+          data-testid="equipment-catalog-stats"
+        >
+          {weapon ? (
+            <>
+              <span>Dmg {weapon.damage}</span>
+              <span>Range {range.replaceAll(' ', '')}</span>
+              <span>Heat {weapon.heat}</span>
+            </>
+          ) : shotsPerTon !== undefined ? (
+            <span title="Shots per ton">{shotsPerTon} shots</span>
+          ) : null}
+          {variable ? (
+            <span>Variable weight / slots</span>
+          ) : (
+            <>
+              <span>{equipment.weight} t</span>
+              <span>
+                {equipment.criticalSlots}{' '}
+                {equipment.criticalSlots === 1 ? 'slot' : 'slots'}
+              </span>
+            </>
+          )}
+        </div>
       </div>
       {expanded && (
         <div
@@ -248,10 +264,11 @@ function CatalogAddAction({
           variant="ghost"
           disabled={readOnly}
           aria-label={`Add options for ${name}`}
+          title="More ways to add"
           aria-haspopup="menu"
           aria-expanded={available}
           aria-controls={available ? id : undefined}
-          className={workbenchStyles.catalogAddCaret}
+          className={workbenchStyles.catalogAddOptions}
           onClick={(event) => {
             trigger.current = event.currentTarget;
             setOpen(!open);
@@ -264,7 +281,7 @@ function CatalogAddAction({
             }
           }}
         >
-          <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
+          <AppIcon name="more" size="inline" aria-hidden="true" />
         </Button>
       )}
       {available &&

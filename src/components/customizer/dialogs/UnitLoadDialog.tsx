@@ -282,11 +282,14 @@ export function UnitLoadDialog({
 
       {onCreateBlankUnit && (
         <div className="bg-surface-raised border-border-theme-subtle shrink-0 border-b p-4">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* The primary action and its secondary settings step sit side by
+              side at the same height; the explanation reads under the pair. */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-start">
             <button
               type="button"
               onClick={onCreateBlankUnit}
-              className={`${cs.dialog.btnPrimary} min-h-11 max-sm:px-3 max-sm:text-xs`}
+              aria-describedby={`${titleId}-blank-help`}
+              className={`${cs.dialog.btnPrimary} h-11 max-sm:w-full max-sm:px-3 sm:px-6`}
             >
               New blank unit
             </button>
@@ -294,14 +297,17 @@ export function UnitLoadDialog({
               <button
                 type="button"
                 onClick={onConfigureNewUnit}
-                className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base min-h-11 rounded border max-sm:px-3 max-sm:text-xs`}
+                className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:px-3 max-sm:text-sm`}
               >
-                Choose starting settings
+                Choose tonnage and tech first…
               </button>
             )}
           </div>
-          <p className="text-text-theme-secondary mt-2 text-xs sm:text-sm">
-            50-ton Inner Sphere BattleMech. Change settings in the editor.
+          <p
+            id={`${titleId}-blank-help`}
+            className="text-text-theme-secondary mt-2 text-xs sm:text-sm"
+          >
+            Starts a 50-ton Inner Sphere BattleMech you can change.
           </p>
         </div>
       )}

@@ -49,7 +49,7 @@ export function MultiUnitTabsEmptyState({
       className={`flex h-full min-h-0 flex-col items-center justify-center overflow-auto px-4 py-8 ${className}`}
     >
       <div className="my-auto w-full max-w-md text-center">
-        <div className="bg-accent/10 text-accent mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full">
+        <div className="bg-surface-base border-accent/40 ring-accent/15 text-accent mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full border ring-4">
           <AppIcon
             name="mech"
             size="hero"

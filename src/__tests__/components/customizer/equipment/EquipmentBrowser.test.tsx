@@ -23,6 +23,13 @@ jest.mock('@/hooks/useEquipmentBrowser', () => ({
   useEquipmentBrowser: jest.fn(),
 }));
 
+jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
+  getEquipmentLoader: () => ({
+    getAmmunitionById: (id: string) =>
+      id === 'ac10-ammo' ? { shotsPerTon: 10 } : null,
+  }),
+}));
+
 jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
   CompactFilterBar: ({
     search,
@@ -178,9 +185,17 @@ describe('EquipmentBrowser', () => {
     expect(
       screen.getByRole('button', { name: 'Add Medium Laser' }),
     ).toHaveAttribute('title', 'Add to unassigned');
-    await user.click(
-      screen.getByRole('button', { name: 'Add options for Medium Laser' }),
-    );
+    const options = screen.getByRole('button', {
+      name: 'Add options for Medium Laser',
+    });
+    expect(options).toHaveAttribute('title', 'More ways to add');
+    expect(
+      options.querySelector('[data-icon-name="more"]'),
+    ).toBeInTheDocument();
+    expect(
+      options.querySelector('[data-icon-name="chevron-down"]'),
+    ).not.toBeInTheDocument();
+    await user.click(options);
     const quickPlace = screen.getByRole('menuitem', {
       name: 'Add and place Medium Laser',
     });
@@ -260,10 +275,9 @@ describe('EquipmentBrowser', () => {
     expect(row.querySelector('[data-catalog-column="heat"]')).toHaveTextContent(
       '3',
     );
-    expect(
-      within(row).getByText('Dmg 5 · Range 3/6/9 · Heat 3'),
-    ).toBeInTheDocument();
-    expect(within(row).getByText('1 t · 1 slot')).toBeInTheDocument();
+    for (const pair of ['Dmg 5', 'Range 3/6/9', 'Heat 3', '1 t', '1 slot']) {
+      expect(within(row).getByText(pair)).toBeInTheDocument();
+    }
     expect(
       screen.queryByRole('button', { name: /Sort by (heat|damage|range)/i }),
     ).not.toBeInTheDocument();
@@ -292,6 +306,34 @@ describe('EquipmentBrowser', () => {
           .querySelector(`[data-catalog-column="${column}"]`),
       ).toHaveTextContent('—');
     }
+  });
+
+  it.each([
+    ['ac10-ammo', '10 shots'],
+    ['unknown-ammo', '—'],
+  ])('shows only declared ammunition capacity for %s', (id, expected) => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      paginatedEquipment: [
+        {
+          ...mockEquipment[0],
+          id,
+          name: 'Ammo',
+          category: EquipmentCategory.AMMUNITION,
+        },
+      ],
+    });
+    render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    const row = screen.getByRole('listitem');
+    expect(
+      row.querySelector('[data-catalog-column="damage"]'),
+    ).toHaveTextContent(expected);
+    expect(
+      row.querySelector('[data-catalog-column="range"]'),
+    ).toHaveTextContent('—');
+    const stats = within(row).getByTestId('equipment-catalog-stats');
+    if (id === 'ac10-ammo') expect(stats).toHaveTextContent('10 shots');
+    else expect(stats).not.toHaveTextContent('shots');
   });
 
   it('should display loading state', () => {
@@ -347,10 +389,40 @@ describe('EquipmentBrowser', () => {
     expect(screen.getByText('No equipment found')).toBeInTheDocument();
   });
 
-  it('should display pagination info', () => {
+  it('ends a single page with its result count and hides pagination', async () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
-    expect(screen.getByText('Page 1/1')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('equipment-pagination'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('End of results · 2 items')).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Medium Laser' }),
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Medium Laser. Added to the unit.',
+    );
+  });
+
+  it('keeps navigation on multiple pages and marks only the final page as the end', async () => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      totalPages: 2,
+      totalItems: 27,
+    });
+    const view = render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    expect(screen.getByText('Page 1/2')).toBeInTheDocument();
+    expect(screen.queryByText(/End of results/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(defaultMockHook.setPage).toHaveBeenCalledWith(2);
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      currentPage: 2,
+      totalPages: 2,
+      totalItems: 27,
+    });
+    view.rerender(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    expect(screen.getByText('End of results · 27 items')).toBeInTheDocument();
   });
 
   it('should call setSearch when search input changes', async () => {

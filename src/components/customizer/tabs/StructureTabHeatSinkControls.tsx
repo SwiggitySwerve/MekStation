@@ -6,9 +6,13 @@ import type { StructureTabCalculations } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
 import {
-  CHASSIS_ROW_GRID,
-  CHASSIS_ROW_META,
-} from './StructureTabChassisControls';
+  STRUCTURE_HELP,
+  STRUCTURE_META,
+  STRUCTURE_ROW_GRID,
+  STRUCTURE_ROW_LABEL,
+  STRUCTURE_SELECT,
+  STRUCTURE_STEPPER,
+} from './StructureTabRowLayout';
 
 interface StructureOption {
   readonly type: string;
@@ -83,16 +87,13 @@ function HeatSinkCountControl({
 }): React.ReactElement {
   return (
     <div className="space-y-2">
-      <div className={CHASSIS_ROW_GRID}>
-        <label
-          className={`${cs.text.label} font-medium`}
-          htmlFor="heat-sink-type"
-        >
+      <div className={STRUCTURE_ROW_GRID}>
+        <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-type">
           Heat sink type
         </label>
         <select
           id="heat-sink-type"
-          className={cs.select.full}
+          className={STRUCTURE_SELECT}
           disabled={readOnly}
           aria-label="Heat sink type"
           value={heatSinkType}
@@ -105,17 +106,13 @@ function HeatSinkCountControl({
             </option>
           ))}
         </select>
-        <span aria-hidden="true" className="hidden sm:block" />
       </div>
 
-      <div className={CHASSIS_ROW_GRID}>
-        <label
-          className={`${cs.text.label} font-medium`}
-          htmlFor="heat-sink-count"
-        >
+      <div className={STRUCTURE_ROW_GRID}>
+        <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-count">
           Installed
         </label>
-        <div className="flex items-center">
+        <div className={STRUCTURE_STEPPER}>
           <button
             type="button"
             onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
@@ -150,7 +147,6 @@ function HeatSinkCountControl({
             <AppIcon name="add" size="inline" aria-hidden="true" />
           </button>
         </div>
-        <span aria-hidden="true" className="hidden sm:block" />
       </div>
     </div>
   );
@@ -215,9 +211,9 @@ function BaseChassisHeatSinkControl({
 
   return (
     <div className="border-border-theme-subtle border-t pt-3">
-      <div className={CHASSIS_ROW_GRID}>
+      <div className={STRUCTURE_ROW_GRID}>
         <label
-          className={`${cs.text.label} font-medium`}
+          className={STRUCTURE_ROW_LABEL}
           htmlFor="base-chassis-heat-sinks"
         >
           Base chassis
@@ -236,7 +232,7 @@ function BaseChassisHeatSinkControl({
           >
             Auto
           </button>
-          <div className="flex flex-1 items-center">
+          <div className="flex items-center">
             <button
               type="button"
               onClick={() => onChange(displayedCount - 1)}
@@ -273,15 +269,16 @@ function BaseChassisHeatSinkControl({
             </button>
           </div>
         </div>
-        <span className={`${cs.text.secondary} ${CHASSIS_ROW_META}`}>
+        <span className={STRUCTURE_META}>
           {baseChassisHeatSinks === -1
             ? 'Auto'
             : `${baseChassisHeatSinks} fixed`}
         </span>
+        <p className={`${STRUCTURE_HELP} m-0`}>
+          Heat sinks permanently fixed to the base chassis (cannot be
+          pod-mounted)
+        </p>
       </div>
-      <p className="text-text-theme-muted mt-2 text-[10px]">
-        Heat sinks permanently fixed to the base chassis (cannot be pod-mounted)
-      </p>
     </div>
   );
 }

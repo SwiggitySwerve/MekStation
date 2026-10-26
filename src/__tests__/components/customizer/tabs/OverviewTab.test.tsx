@@ -230,11 +230,14 @@ describe('OverviewTab', () => {
       'data-status',
       'warning',
     );
-    // The same headline as the build-status button: running hot is the
-    // only caution, so it reads as itself.
+    // Counts only: the header status chip and the Heat row name the note.
     expect(screen.getByTestId('overview-readiness-summary')).toHaveTextContent(
-      /^Runs hot \+11$/,
+      /^1 note$/,
     );
+    // The Heat readout shows the numbers; the readiness row says what they mean.
+    const heatTile = screen.getByTestId('overview-stat-heat');
+    expect(heatTile).toHaveTextContent('33 / 22 dissipation');
+    expect(heatTile).not.toHaveTextContent('over');
 
     await user.click(
       screen.getByRole('button', { name: 'Weight: go to Equipment' }),

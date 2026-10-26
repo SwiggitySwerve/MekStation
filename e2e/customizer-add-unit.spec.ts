@@ -113,8 +113,27 @@ test('Add unit keeps catalog loading and optional starting settings in one flow 
   await page
     .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
     .click();
+  // Wide layout: the primary and secondary buttons sit side by side, left
+  // aligned, the same height, 12px apart, with the helper under the pair.
+  const primary = dialog.getByRole('button', { name: 'New blank unit' });
+  const secondary = dialog.getByRole('button', {
+    name: 'Choose tonnage and tech first…',
+  });
+  const helper = dialog.getByText(
+    'Starts a 50-ton Inner Sphere BattleMech you can change.',
+  );
+  const [pBox, sBox, hBox] = await Promise.all([
+    primary.boundingBox(),
+    secondary.boundingBox(),
+    helper.boundingBox(),
+  ]);
+  expect(Math.abs(pBox!.height - sBox!.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(pBox!.y - sBox!.y)).toBeLessThanOrEqual(1);
+  expect(sBox!.x - (pBox!.x + pBox!.width)).toBeCloseTo(12, 0);
+  expect(Math.abs(hBox!.x - pBox!.x)).toBeLessThanOrEqual(1);
+  expect(hBox!.y).toBeGreaterThanOrEqual(pBox!.y + pBox!.height);
   await dialog
-    .getByRole('button', { name: 'Choose starting settings' })
+    .getByRole('button', { name: 'Choose tonnage and tech first…' })
     .click();
   await expect(dialog).toBeHidden();
   await expect(

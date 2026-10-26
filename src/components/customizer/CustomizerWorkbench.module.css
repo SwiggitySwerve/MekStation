@@ -82,6 +82,31 @@
   }
 }
 
+.catalogViewport {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 1 1 0%;
+}
+
+.catalogViewport[data-more-below='true']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 9px;
+  z-index: 3;
+  height: 32px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--surface-deep));
+}
+
+.catalogEnd {
+  margin: 0 12px;
+  padding: 12px 0 24px;
+  border-top: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
 .catalogScroll {
   min-width: 0;
   min-height: 0;
@@ -89,6 +114,9 @@
   overflow: auto;
   scrollbar-gutter: stable;
   scroll-padding-bottom: 16px;
+  /* Separate the scroll clip from pagination even before the first scroll. */
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .catalogScroll > ul {
@@ -100,7 +128,8 @@
 }
 
 .catalogColumns {
-  grid-template-columns: minmax(240px, 1fr) 72px 96px 72px 72px 72px 124px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 124px;
   align-items: center;
   justify-items: stretch;
   column-gap: 0.75rem;
@@ -201,7 +230,7 @@
   align-items: center;
 }
 
-.catalogAddCaret {
+.catalogAddOptions {
   width: 44px;
   min-width: 44px;
   height: 44px;
@@ -237,6 +266,22 @@
   padding: 8px 0 !important;
 }
 
+.catalogMobileStats {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  padding: 0 0 8px 24px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.catalogMobileStats > span {
+  white-space: nowrap;
+}
+
 .catalogDetails {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -264,6 +309,14 @@
 }
 
 @media (min-width: 1024px) {
+  .catalogColumns {
+    grid-template-columns: minmax(240px, 1fr) 72px 96px 72px 72px 72px 124px;
+  }
+
+  .catalogMobileStats {
+    display: none;
+  }
+
   .catalogDetailGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -357,8 +410,9 @@
   background: color-mix(in srgb, var(--text-secondary) 80%, transparent);
 }
 
+/* Legal but high (running hot) is a note: the note hue, as in BuildStatusLabel. */
 .budgetFill[data-status='warning'] {
-  background: var(--color-orange-400, #fb923c);
+  background: var(--color-sky-300, #7dd3fc);
 }
 
 .budgetFill[data-status='error'] {
@@ -666,11 +720,6 @@
     grid-row: 1;
     align-self: start;
     margin-top: 2px;
-  }
-
-  /* The tooltip and accessible name carry "over"; the pill keeps "+11". */
-  .excessWord {
-    display: none;
   }
 
   .compactMetrics .readouts {

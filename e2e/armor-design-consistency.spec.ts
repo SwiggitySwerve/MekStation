@@ -68,7 +68,10 @@ test('armor designs retain distinct materials, common geometry and themed panels
   const unitUrl = page.url();
   const baseline = await armorSnapshot(page);
   expect(baseline.panelBackground).toBe('rgb(18, 46, 80)');
-  expect(baseline.geometry.width).toBe(360);
+  // The figure column grows with the card (360-440px) once the location
+  // table sits beside it; the aspect ratio never changes.
+  expect(baseline.geometry.width).toBeGreaterThanOrEqual(360);
+  expect(baseline.geometry.width).toBeLessThanOrEqual(440);
   expect(baseline.geometry.plates).toHaveLength(8);
   expect(
     baseline.geometry.plates.find((p) => p.location === 'Left Arm')!.x,
@@ -148,6 +151,28 @@ test('armor designs retain distinct materials, common geometry and themed panels
     ];
   });
   expect(Math.abs(cardBottoms[0] - cardBottoms[1])).toBeLessThanOrEqual(1);
+  // The location table sits beside the figure and selects like a plate.
+  // Its headers say what each column holds, with the 13px note right under.
+  await expect(
+    page.getByTestId('armor-location-table').getByRole('columnheader'),
+  ).toHaveText(['Location', 'Front / max', 'Rear / max', 'Location max']);
+  await expect(page.getByTestId('armor-location-table-note')).toHaveCSS(
+    'font-size',
+    '13px',
+  );
+  const tableRow = page
+    .getByTestId('armor-location-table')
+    .getByRole('button', { name: 'Left Arm', exact: true });
+  await tableRow.click();
+  await expect(page.getByTestId('location-armor-editor')).toBeVisible();
+  // The editor opens inside the inspector; the armor type and tonnage
+  // controls step aside, but the legend and unallocated row stay on screen.
+  await expect(page.getByTestId('armor-inspector-legend')).toBeInViewport();
+  await expect(page.getByTestId('armor-inspector-legend')).toContainText(
+    'Armor % of max:',
+  );
+  await tableRow.click();
+  await expect(page.getByTestId('location-armor-editor')).toBeHidden();
 
   await page.setViewportSize({ width: 390, height: 844 });
   expect(

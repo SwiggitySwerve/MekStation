@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { FluffTab } from '@/components/customizer/tabs/FluffTab';
@@ -30,7 +30,7 @@ describe('FluffTab', () => {
     expect(screen.queryByText('Cost (C-Bills)')).not.toBeInTheDocument();
   });
 
-  it('lays the narrative out in reading order, two columns on wide editors', () => {
+  it('stacks the long narrative fields in order and pairs the short ones', () => {
     render(
       <FluffTab
         fluff={{}}
@@ -48,11 +48,16 @@ describe('FluffTab', () => {
       'Notable Units',
     ];
     const fields = labels.map((label) => screen.getByLabelText(label));
-    const container = screen.getByTestId('fluff-narrative-grid');
-    expect(container).toHaveClass('grid-cols-1', '@[70rem]:grid-cols-2');
-    expect(container).not.toHaveClass('xl:columns-2');
-    fields.forEach((field, index) => {
+    const container = screen.getByTestId('fluff-narrative');
+    expect(container).toHaveClass('flex-col');
+    fields.slice(0, 4).forEach((field) => {
       expect(field.parentElement?.parentElement).toBe(container);
+    });
+    const pair = fields[4].parentElement?.parentElement as HTMLElement;
+    expect(fields[5].parentElement?.parentElement).toBe(pair);
+    expect(pair.parentElement).toBe(container);
+    expect(pair.className).toContain('@[48rem]:grid-cols-2');
+    fields.forEach((field, index) => {
       if (index > 0) {
         expect(
           fields[index - 1].compareDocumentPosition(field) &
@@ -62,7 +67,7 @@ describe('FluffTab', () => {
     });
   });
 
-  it('fills the column, caps wide-column lines near 75 characters, at 16px / 1.5', () => {
+  it('keeps the history card full width and left-aligned, 16px / 1.5, at least 3 rows', () => {
     render(
       <FluffTab
         fluff={{}}
@@ -71,17 +76,23 @@ describe('FluffTab', () => {
       />,
     );
 
+    const card = screen.getByRole('region', {
+      name: 'Unit History and Description',
+    });
+    const manufacturing = screen.getByRole('region', { name: 'Manufacturing' });
+    expect(card.className).not.toMatch(/mx-auto|max-w-/);
+    expect(card.className).toContain('p-4');
+    expect(manufacturing.className).toContain('p-4');
     for (const label of ['Overview', 'History', 'Variants']) {
       const field = screen.getByLabelText(label);
-      expect(field).toHaveClass(
-        'w-full',
-        '@[70rem]:max-w-[75ch]',
-        'text-base',
-        'leading-6',
-      );
-      expect(field).toHaveAttribute('rows', '4');
+      expect(field).toHaveClass('w-full', 'text-base', 'leading-6');
+      expect(field).toHaveAttribute('rows', '3');
       expect(field).not.toHaveClass('text-sm');
     }
+    expect(screen.getByLabelText('Variants')).toHaveClass('min-h-[6.5rem]');
+    expect(screen.getByLabelText('Notable Units')).toHaveClass(
+      'min-h-[6.5rem]',
+    );
   });
 
   it('marks every placeholder as an example in placeholder styling', () => {
@@ -162,6 +173,7 @@ describe('FluffTab', () => {
 
     const variants = screen.getByTestId('fluff-field-variants');
     expect(variants).toHaveTextContent('Optional');
+    expect(within(variants).getByText('Optional')).toHaveClass('text-sm');
     expect(screen.getByTestId('fluff-field-history')).not.toHaveTextContent(
       'Optional',
     );
@@ -192,7 +204,7 @@ describe('FluffTab', () => {
     const card = screen.getByRole('region', { name: 'Battlefield Role' });
     const select = screen.getByLabelText('Combat Role');
     expect(card).toContainElement(select);
-    expect(select.closest('label')).toHaveClass('max-w-80');
+    expect(select.closest('label')).toHaveClass('@[40rem]:w-80');
     const subtitle = screen.getByText(/quick classification/);
     expect(
       subtitle.compareDocumentPosition(select) &

@@ -19,7 +19,7 @@ export function getSlotContentClasses(slot: SlotContent): string {
   if (slot.type === 'equipment' && slot.name) {
     return getEquipmentSurfaceClassesByName(slot.name);
   }
-  return 'bg-transparent border-border-theme-subtle/20 border-dashed text-text-theme-muted';
+  return 'bg-transparent border-border-theme-strong/60 border-dashed text-text-theme-muted';
 }
 
 export function getSlotStateClasses(

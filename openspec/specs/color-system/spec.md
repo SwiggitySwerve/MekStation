@@ -158,7 +158,7 @@ The system SHALL provide a collapsible Colour key reference panel and an always-
 - **WHEN** critical slots are displayed at desktop width
 - **THEN** a compact inline row shows labelled swatches for the equipment categories present on the unit, fixed systems, and empty slots
 - **AND** swatches use the same category colour definitions as the displayed slots, with a stronger dashed outline for Empty
-- **AND** swatches are at least 12px by 12px and labels are at least 12px
+- **AND** swatches are at least 20px wide by 16px high with visible borders and labels are 13px
 - **AND** phone layouts use the Colour key disclosure
 
 #### Scenario: Legend display

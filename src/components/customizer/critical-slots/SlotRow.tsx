@@ -334,6 +334,7 @@ export const SlotRow = memo(function SlotRow({
           {slot.index + 1}
         </span>
         <span className="min-w-0 flex-1 break-words whitespace-normal">
+          {slot.type === 'empty' && <span aria-hidden="true">+ </span>}
           {displayName}
         </span>
         {spanClasses && (

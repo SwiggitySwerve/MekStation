@@ -35,6 +35,11 @@ interface LocationArmorEditorProps {
   onChange: (front: number, rear?: number) => void;
   /** Called when closing the editor */
   onClose: () => void;
+  /**
+   * Render as an inset panel inside another card (the armor inspector)
+   * instead of a card of its own.
+   */
+  embedded?: boolean;
 }
 
 // =============================================================================
@@ -74,6 +79,7 @@ export function LocationArmorEditor({
   readOnly = false,
   onChange,
   onClose,
+  embedded = false,
 }: LocationArmorEditorProps): React.ReactElement {
   const showRear = hasRearArmor(location);
   const maxArmor = useMemo(
@@ -118,11 +124,17 @@ export function LocationArmorEditor({
 
   return (
     <div
-      className="bg-surface-base border-border-theme rounded-lg border p-4"
+      className={
+        embedded
+          ? 'bg-surface-deep border-border-theme-subtle rounded-lg border p-3'
+          : 'bg-surface-base border-border-theme rounded-lg border p-4'
+      }
       data-testid="location-armor-editor"
     >
       {/* Header Row */}
-      <div className="mb-4 flex items-center justify-between">
+      <div
+        className={`flex items-center justify-between ${embedded ? 'mb-1' : 'mb-4'}`}
+      >
         <h4 className="text-text-theme-primary text-base font-semibold">
           {getLocationName(location)}
         </h4>

@@ -53,11 +53,13 @@ async function expectFittedPreview(page: Page) {
   await expect(
     controls.getByRole('button', { name: 'Fit width', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
+  // The readout is the percentage alone; the pressed segment names the mode.
   await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
-    /^Fit width \u00b7 \d+%$/,
+    /^\d+%$/,
   );
+  // Phones repeat the zoom in the caption so the toolbar fits one row.
   await expect(page.getByTestId('preview-sheet-caption')).toHaveText(
-    'Letter \u00b7 1 page',
+    /^Letter \u00b7 1 page(?: \u00b7 \d+%)?$/,
   );
   const paper = (await canvas.boundingBox())!;
   const toolbar = (await controls.boundingBox())!;

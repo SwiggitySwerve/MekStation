@@ -97,8 +97,8 @@ describe('ValidationSummary notes', () => {
     );
     expect(trigger.querySelector('[data-icon-name="check"]')).toBeNull();
     fireEvent.click(trigger);
-    // A legal build says so in its heading instead of a green line above an
-    // orange row.
+    // A legal build says so in its heading instead of a green line above a
+    // note row.
     const dialog = screen.getByRole('dialog', {
       name: /Atlas.*Build status.*Legal · Runs hot \+11/,
     });
@@ -158,13 +158,13 @@ describe('ValidationSummary notes', () => {
     const error = screen.getByRole('button', {
       name: 'Atlas: Not legal · 1 error · 1 note (Runs hot +11), show issues',
     });
-    // Phones name the worst group in words and count the rest.
-    expect(error).toHaveTextContent(/^1 error\s*\+1$/);
+    // Phones name the worst group in words over a worded count of the rest.
+    expect(error).toHaveTextContent(/^1 error\s*\+1 more$/);
     expect(
       error.querySelector('[data-build-status-part="error"]'),
     ).toHaveTextContent('1 error');
     expect(error.querySelector('[data-build-status-more]')).toHaveTextContent(
-      '+1',
+      /^\+1 more$/,
     );
     expect(error.querySelector('[data-severity-icon="error"]')).toHaveClass(
       BUILD_STATUS_KIND_TEXT_CLASS.error,

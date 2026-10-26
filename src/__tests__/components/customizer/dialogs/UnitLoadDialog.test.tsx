@@ -154,11 +154,13 @@ describe('UnitLoadDialog', () => {
 
   it('explains the blank starting unit and why Load Unit is disabled', async () => {
     render(<UnitLoadDialog {...defaultProps} onCreateBlankUnit={jest.fn()} />);
+    const explanation = screen.getByText(
+      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(explanation).not.toHaveClass('hidden');
     expect(
-      screen.getByText(
-        '50-ton Inner Sphere BattleMech. Change settings in the editor.',
-      ),
-    ).not.toHaveClass('hidden');
+      screen.getByRole('button', { name: 'New blank unit' }),
+    ).toHaveAccessibleDescription(explanation.textContent ?? '');
     const load = screen.getByRole('button', { name: 'Load Unit' });
     expect(load).toBeDisabled();
     expect(load).toHaveAccessibleDescription('Select a unit to load');
@@ -167,7 +169,7 @@ describe('UnitLoadDialog', () => {
     expect(screen.queryByText('Select a unit to load')).not.toBeInTheDocument();
   });
 
-  it('puts Choose starting settings beside New blank unit in one row', () => {
+  it('puts New blank unit and the settings step side by side, with the explanation under them', () => {
     render(
       <UnitLoadDialog
         {...defaultProps}
@@ -178,9 +180,22 @@ describe('UnitLoadDialog', () => {
 
     const blank = screen.getByRole('button', { name: 'New blank unit' });
     const settings = screen.getByRole('button', {
-      name: 'Choose starting settings',
+      name: 'Choose tonnage and tech first…',
     });
+    // The two buttons are siblings in one row; the explanation sits under
+    // the pair, and stays linked to the primary button.
     expect(settings.parentElement).toBe(blank.parentElement);
+    expect(blank.nextElementSibling).toBe(settings);
+    expect(blank.parentElement?.nextElementSibling).toHaveTextContent(
+      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(blank).toHaveAccessibleDescription(
+      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(blank.className).toContain('h-11');
+    expect(settings.className).toContain('h-11');
+    expect(blank.className).toContain('dialog-btn-primary');
+    expect(settings.className).not.toContain('dialog-btn-primary');
   });
 
   it('marks the selected catalog row with a tint, accent bar and check', async () => {

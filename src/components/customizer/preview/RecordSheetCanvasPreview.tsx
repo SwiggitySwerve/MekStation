@@ -254,7 +254,9 @@ function RecordSheetViewer({
           data-testid={testId}
           style={{
             flexShrink: 0,
-            margin: 'auto',
+            // Centred across, top-aligned down: the sheet starts right under
+            // the toolbar instead of floating mid-viewer on tall screens.
+            margin: '0 auto',
             width: width * zoom,
             height: height * zoom,
             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',

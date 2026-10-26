@@ -72,7 +72,7 @@ The system SHALL display current armor values directly on the diagram.
 #### Scenario: Maximum shown for every biped location
 
 - **WHEN** the biped armor diagram renders
-- **THEN** every limb shows its current armor with "/ <max>" beneath it, and the head shows "<value>/<max>" on one line inside its outline
+- **THEN** every limb shows its current armor with "/<max>" beneath it (no space after the slash, the same separator as the torso and head cells), and the head shows "<value>/<max>" on one line inside its outline
 - **AND** each torso (CT, LT, RT) is labelled with its short name only ("CT", "LT", "RT", not "CT-F") and shows the front value as the primary line, "<value>/<face max>" (for example 47/48), over a smaller "R <value>/<face max>" rear line (for example R 14/15); there are no separate FRONT or REAR words on the cell
 - **AND** the location's accessible name still spells out the rear face ("<location> armor: <front> of <max>, rear: <rear> of <rear max>")
 - **AND** a face's max is the location maximum minus the armor the other face currently holds, the same figure the location editor shows beside its Front and Rear controls ("max 48", "max 15"), taken from one shared helper (`getArmorFaceMaximums`)
@@ -91,6 +91,22 @@ The system SHALL display current armor values directly on the diagram.
 - **WHEN** the biped silhouette renders
 - **THEN** the neck and pelvis are drawn as one structural group filled with the raised surface color, not the dark deep-surface color that read as a hole between the torso and legs
 - **AND** no extra bar is drawn behind the legs
+
+#### Scenario: Right and Left labels sit under the arms
+
+- **WHEN** the biped silhouette renders
+- **THEN** the words "Right" and "Left" are drawn directly beneath the right and left arm plates (the figure's own sides, so "Left" is on the viewer's right), not floating at the top corners of the card
+
+#### Scenario: Location table beside the silhouette
+
+- **WHEN** the biped silhouette card is at least 40rem wide inside (container query, not viewport width)
+- **THEN** the silhouette column (up to 440px) sits beside a compact table of every location with columns "Location", "Front / max", "Rear / max" and "Location max", centered as a pair so no blank band is left on the card's right
+- **AND** Front and Rear read "<value>/<face max>" using the same face maximums as the plates (`getArmorFaceMaximums`), Rear shows an em dash for locations without rear armor, and Location max is the whole-location maximum; the table adds no calculations of its own
+- **AND** each row's location is a button (`aria-pressed` when selected) and clicking anywhere on the row selects or deselects that location exactly like its plate, so the plate, the row and the location editor always agree
+- **AND** a 13px note directly under the table header row says Front and rear are points placed out of that face's limit and Location max is the whole location
+- **AND** each row carries a status dot using the plate's health color
+- **WHEN** the card is narrower (phones and narrow tablets)
+- **THEN** the table is omitted because the plates already show every value, and the figure keeps its viewport-capped height
 
 ### Requirement: Location Color Coding
 
@@ -140,7 +156,7 @@ The system SHALL include a legend explaining color coding.
 #### Scenario: Legend display
 
 - **WHEN** diagram is rendered
-- **THEN** legend shows the four health colors with their thresholds (60%+, 40%+, 20%+, <20%)
+- **THEN** legend is introduced by "Armor % of max:" and shows the four health colors with their thresholds (60%+, 40%+, 20%+, <20%)
 - **AND** the swatches use the same colors as the diagram fills
 - **AND** the biped diagram explains click interaction once, in its caption ("Front view · click a location to edit"), with the keyboard instruction (Tab to a location, then press Enter) kept as screen-reader-only text
 - **AND** the biped diagram has no separate footnote or bottom instruction line
@@ -151,7 +167,7 @@ The system SHALL include a legend explaining color coding.
 - **THEN** a footer inside the diagram card shows "Unallocated: <n> points" (or "Over allocated" in red when negative), the "R = rear armor" key and the four-color legend
 - **AND** the SVG height is capped by the viewport (`100dvh - 31rem`, never below 20rem) so on a 390x844 phone the footer sits fully above the Loadout bar without scrolling
 - **WHEN** it renders at xl or wider in the Armor tab
-- **THEN** the diagram's footer is hidden and the armor inspector card ends with the "R = rear armor" key and legend instead; the Unallocated Armor Points row already in the inspector is the single unallocated readout
+- **THEN** the diagram's footer is hidden and the armor inspector card ends with the legend (on its own line) and the "R = rear armor" key instead; the Unallocated Armor Points row already in the inspector is the single unallocated readout
 - **AND** configurations and views that keep their built-in legend (quad, tripod, LAM, QuadVee, schematic) are unchanged
 
 ### Requirement: Configuration-Specific Diagram Components

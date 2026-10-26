@@ -67,6 +67,33 @@ export function FluffTab({
     update('systemManufacturer', remaining);
   };
 
+  const renderNarrativeField = ([field, label]: [
+    NarrativeField,
+    string,
+  ]): React.ReactElement => {
+    const id = fieldId(field);
+    const value = fluff[field] ?? '';
+    const disabled = isReadOnly || !onFluffChange;
+    return (
+      <div key={field} data-testid={`fluff-field-${field}`}>
+        <FieldLabel
+          htmlFor={id}
+          label={label}
+          showOptional={!disabled && value === ''}
+        />
+        <AutoSizeTextarea
+          id={id}
+          rows={3}
+          value={value}
+          placeholder={NARRATIVE_PLACEHOLDERS[field]}
+          disabled={disabled}
+          onChange={(event) => update(field, event.target.value)}
+          className={`${NARRATIVE_TEXTAREA} ${disabledClasses(disabled)}`}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className={`@container space-y-5 p-4 ${className}`}>
       {isReadOnly && (
@@ -76,16 +103,18 @@ export function FluffTab({
       )}
 
       <section
-        className="border-border-theme bg-surface-base rounded-lg border px-4 py-3"
+        className="border-border-theme bg-surface-base flex flex-wrap items-end justify-between gap-x-8 gap-y-3 rounded-lg border px-4 py-3"
         aria-labelledby="fluff-role-heading"
       >
-        <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
-          Battlefield Role
-        </h3>
-        <p className="text-text-theme-secondary mt-1 text-xs">
-          A quick classification used in the unit dossier and export.
-        </p>
-        <label className="mt-3 block max-w-80" htmlFor="fluff-role">
+        <div className="min-w-0">
+          <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
+            Battlefield Role
+          </h3>
+          <p className="text-text-theme-secondary mt-1 text-sm">
+            A quick classification used in the unit dossier and export.
+          </p>
+        </div>
+        <label className="block w-full @[40rem]:w-80" htmlFor="fluff-role">
           <span className={`${cs.text.label} mb-1 block`}>Combat Role</span>
           <select
             id="fluff-role"
@@ -198,36 +227,17 @@ export function FluffTab({
       </section>
 
       <section
-        className={cs.panel.main}
+        className={`${cs.panel.main} text-base`}
         aria-labelledby="fluff-history-heading"
       >
         <h3 id="fluff-history-heading" className={`${cs.text.cardTitle} mb-3`}>
           Unit History and Description
         </h3>
-        <div className={NARRATIVE_GRID} data-testid="fluff-narrative-grid">
-          {NARRATIVE_FIELDS.map(([field, label]) => {
-            const id = fieldId(field);
-            const value = fluff[field] ?? '';
-            const disabled = isReadOnly || !onFluffChange;
-            return (
-              <div key={field} data-testid={`fluff-field-${field}`}>
-                <FieldLabel
-                  htmlFor={id}
-                  label={label}
-                  showOptional={!disabled && value === ''}
-                />
-                <AutoSizeTextarea
-                  id={id}
-                  rows={4}
-                  value={value}
-                  placeholder={NARRATIVE_PLACEHOLDERS[field]}
-                  disabled={disabled}
-                  onChange={(event) => update(field, event.target.value)}
-                  className={`${NARRATIVE_TEXTAREA} ${disabledClasses(disabled)}`}
-                />
-              </div>
-            );
-          })}
+        <div className={NARRATIVE_COLUMN} data-testid="fluff-narrative">
+          {STACKED_FIELDS.map(renderNarrativeField)}
+          <div className={NARRATIVE_PAIR}>
+            {PAIRED_FIELDS.map(renderNarrativeField)}
+          </div>
         </div>
       </section>
     </div>
@@ -290,22 +300,28 @@ function formatSystemLabel(system: string): string {
 }
 
 /**
- * One column below 70rem (1120px) of editor width; two columns above it
- * (a 1440px window with the loadout sidebar open measures about 1168px), so
- * each box
- * fills its half instead of leaving half the card empty. Reading order runs
- * across the pairs: Overview + Capabilities, History + Deployment, Variants +
- * Notable Units.
+ * The narrative fills the card at its full content width, left-aligned like
+ * the cards above. Overview, Capabilities, History and Deployment stack in
+ * one column so each auto-growing box can be as tall as its text without
+ * leaving a hole beside a shorter neighbour.
  */
-const NARRATIVE_GRID =
-  'grid grid-cols-1 items-start gap-x-8 gap-y-4 @[70rem]:grid-cols-2';
+const STACKED_FIELDS = NARRATIVE_FIELDS.filter(
+  ([field]) => field !== 'variants' && field !== 'notableUnits',
+);
+
+/** Variants and Notable Units are both short, so they pair up on wide. */
+const PAIRED_FIELDS = NARRATIVE_FIELDS.filter(
+  ([field]) => field === 'variants' || field === 'notableUnits',
+);
+
+const NARRATIVE_PAIR = 'grid gap-5 @[48rem]:grid-cols-2';
+const NARRATIVE_COLUMN = 'flex flex-col gap-5';
 
 /**
- * Narrative text fills its column. In the two-column layout each column caps
- * line length near 75 characters. 16px text on a 24px (1.5) line height, at
- * least 4 rows; the textarea grows with its content.
+ * Narrative text fills the reading column: 16px text on a 24px (1.5) line
+ * height, at least 3 rows; the textarea grows with its content.
  */
-const NARRATIVE_TEXTAREA = `${cs.input.full.replace('text-sm', 'text-base')} w-full resize-none overflow-hidden leading-6 placeholder:text-text-theme-muted placeholder:italic @[70rem]:max-w-[75ch]`;
+const NARRATIVE_TEXTAREA = `${cs.input.full.replace('text-sm', 'text-base')} min-h-[6.5rem] w-full resize-none overflow-hidden leading-6 placeholder:text-text-theme-muted placeholder:italic`;
 
 function disabledClasses(disabled: boolean): string {
   return disabled ? 'cursor-not-allowed opacity-60' : '';
@@ -411,7 +427,7 @@ function FieldLabel({
         {label}
       </label>
       {showOptional && (
-        <span className="text-text-theme-muted text-xs">Optional</span>
+        <span className="text-text-theme-muted text-sm">Optional</span>
       )}
     </div>
   );

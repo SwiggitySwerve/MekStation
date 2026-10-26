@@ -346,6 +346,8 @@ export function StructureTab({
           tonnage={tonnage}
           isSuperheavy={isSuperheavy}
           isOmni={isOmni}
+          configuration={configuration}
+          configurationOptions={CONFIGURATION_OPTIONS}
           engineType={engineType}
           gyroType={gyroType}
           internalStructureType={internalStructureType}
@@ -358,6 +360,7 @@ export function StructureTab({
           engineRating={engineRating}
           isAtMaxEngineRating={isAtMaxEngineRating}
           handleTonnageChange={handleTonnageChange}
+          handleConfigurationChange={handleConfigurationChange}
           handleEngineTypeChange={handleEngineTypeChange}
           handleGyroTypeChange={handleGyroTypeChange}
           handleStructureTypeChange={handleStructureTypeChange}
@@ -378,15 +381,12 @@ export function StructureTab({
           jumpJetType={jumpJetType}
           enhancement={enhancement}
           enhancementOptions={enhancementOptions}
-          configuration={configuration}
-          configurationOptions={CONFIGURATION_OPTIONS}
           tonnage={tonnage}
           calculations={calculations}
           handleWalkMPChange={handleWalkMPChange}
           handleJumpMPChange={handleJumpMPChange}
           handleJumpJetTypeChange={handleJumpJetTypeChange}
           handleEnhancementChange={handleEnhancementChange}
-          handleConfigurationChange={handleConfigurationChange}
         />
       </div>
     </div>

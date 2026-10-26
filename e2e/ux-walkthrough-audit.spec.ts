@@ -354,7 +354,9 @@ test.describe('ux walkthrough audit — desktop', () => {
           addUnit.getByRole('button', { name: 'New blank unit', exact: true }),
         ).toBeVisible();
         await expect(
-          addUnit.getByRole('button', { name: 'Choose starting settings' }),
+          addUnit.getByRole('button', {
+            name: 'Choose tonnage and tech first…',
+          }),
         ).toBeVisible();
       });
 

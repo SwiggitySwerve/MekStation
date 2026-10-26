@@ -3,9 +3,7 @@ import React, { useMemo } from 'react';
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 import {
-  CAUTION_TEXT_CLASS,
   getCapacityStatus,
-  getHeatExcess,
   getHeatStatus,
   getWeightStatus,
   STAT_STATUS_TEXT_CLASS,
@@ -113,7 +111,6 @@ export function BuildSummaryCard({
 
   const weightStatus = getWeightStatus(stats.weightUsed, stats.tonnage);
   const heatStatus = getHeatStatus(stats.heatGenerated, stats.heatDissipation);
-  const heatExcess = getHeatExcess(stats.heatGenerated, stats.heatDissipation);
   const armorStatus = getCapacityStatus(
     stats.armorPoints,
     stats.maxArmorPoints,
@@ -143,25 +140,18 @@ export function BuildSummaryCard({
         <TonnageBreakdownBar breakdown={breakdown} />
 
         <div className="grid grid-cols-2 gap-2 @xl:grid-cols-4">
+          {/* Numbers only: the Heat readiness row says what running hot means. */}
           <StatTile
             label="Heat"
             testId="overview-stat-heat"
-            caption={
-              heatExcess > 0 ? (
-                <span className={`${CAUTION_TEXT_CLASS} font-medium`}>
-                  +{heatExcess} over
-                </span>
-              ) : (
-                'at full fire'
-              )
-            }
+            caption="at full fire"
           >
             <span className={STAT_STATUS_TEXT_CLASS[heatStatus]}>
               {stats.heatGenerated}
             </span>
             <span className="text-text-theme-secondary text-sm font-normal">
               {' '}
-              / {stats.heatDissipation} diss
+              / {stats.heatDissipation} dissipation
             </span>
           </StatTile>
           <StatTile

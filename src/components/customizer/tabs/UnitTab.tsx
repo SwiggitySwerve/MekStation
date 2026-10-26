@@ -6,8 +6,10 @@ import React, { useState, useRef, useEffect } from 'react';
  *
  * The unsaved-changes dot marks background tabs only: the active unit's save
  * state is on the Save button (its dot, label and description), so the
- * header never shows two unexplained dots for the same fact. On phones the
- * name wraps onto a second line inside the tab instead of truncating.
+ * header never shows two unexplained dots for the same fact. The name stays
+ * on one line and ends in an ellipsis when it does not fit (phones too); the
+ * tab's accessible name and tooltip keep the full name, and the Overview
+ * Identity card shows it in full.
  *
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
@@ -136,7 +138,7 @@ export function UnitTab({
           >
             <span
               data-unit-tab-name
-              className="min-w-0 truncate max-sm:line-clamp-2 max-sm:text-[13px] max-sm:leading-4 max-sm:font-medium max-sm:break-words max-sm:whitespace-normal"
+              className="min-w-0 truncate max-sm:text-[13px] max-sm:leading-5 max-sm:font-medium"
             >
               {tab.name}
             </span>

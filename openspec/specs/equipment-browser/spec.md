@@ -145,6 +145,13 @@ The system SHALL paginate large equipment lists.
 - **AND** store default `pagination.pageSize` is 25; `setPageSize` exists on the store/hook
 - **AND** a visible 10/25/50/100 page-size control remains a desired requirement not on the current `EquipmentBrowser` footer
 
+#### Scenario: Short result lists
+
+- **WHEN** filtered results fit on one page
+- **THEN** pagination controls and the page counter are hidden
+- **AND** nonempty final pages end with a quiet `End of results · N items` line after the last row (singular `item` for one result)
+- **AND** add confirmations and read-only information remain available without pagination
+
 ### Requirement: Add Equipment Action
 
 The system SHALL provide an Add button for each equipment row to add it to the unit.
@@ -610,6 +617,14 @@ The catalog SHALL use translucent category-colored row backgrounds with opaque r
 - **AND** desktop headings and matching name, type, numeric and action cells share one seven-column grid with a sticky header in the same scrolling region
 - **AND** ordinary collapsed desktop rows are no taller than 48px while Add keeps a 44px hit target around a smaller plus control
 
+#### Scenario: Scroll boundary and comparison headers
+
+- **WHEN** the catalog first appears or is scrolled on desktop or phone
+- **THEN** the list clips at its own edge above a visible gap before the pagination footer; rows never draw beneath the footer
+- **AND** a 32px gradient to the list background softens the bottom edge while more content is below; it disappears at the end and when the list fits
+- **AND** the desktop Range header stays on one line with short / medium / long explained by its tooltip and accessible label
+- **AND** ammunition with existing shots-per-ton data shows `N shots` in the damage column and phone stats, with a `Shots per ton` tooltip; unavailable combat values remain `?`
+
 ### Requirement: Add and place from catalog
 
 The catalog SHALL offer optional Add and place with preview and validation through the existing Critical Slots authority.
@@ -642,10 +657,10 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 - **WHEN** Add is used without placement
 - **THEN** a copy is added unassigned through the existing workflow
 - **AND** each row shows one low-emphasis split action in a fixed-width column on desktop and phone, with a plus and visible Add text, accessible name `Add <name>`, and tooltip `Add to unassigned`
-- **AND** when placement is available, a caret named `Add options for <name>` opens a menu with `Add to unassigned` and `Add and choose location?`; the placement item retains accessible name `Add and place <name>`
-- **AND** the caret is omitted when placement is unavailable; read-only mode disables both parts
+- **AND** when placement is available, an ellipsis button named `Add options for <name>` with tooltip `More ways to add` opens a menu with `Add to unassigned` and `Add and choose location?`; the placement item retains accessible name `Add and place <name>`
+- **AND** the ellipsis button is omitted when placement is unavailable; read-only mode disables both parts
 - **AND** the action stays in the same column and position when details expand
-- **AND** both parts and menu items have at least 44px hit areas; keyboard users can open the menu, navigate with arrow keys, and dismiss with Escape, returning focus to the caret
+- **AND** both parts and menu items have at least 44px hit areas; keyboard users can open the menu, navigate with arrow keys, and dismiss with Escape, returning focus to the ellipsis button
 
 ### Requirement: Catalog comparison and filter clarity
 
@@ -654,7 +669,8 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Phone comparison
 
 - **WHEN** browsing on a phone
-- **THEN** names use 16px text and specs use wrapping 14px lines with explicit Dmg, Range, and Heat labels, followed by weight and slot count
+- **THEN** names use 16px text with the Add actions on the same row; specs use a separate full-width 13px line with explicit Dmg, Range, and Heat labels, followed by weight and slot count; each label/value pair stays unbroken and pairs wrap as units when necessary
+- **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
 - **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 

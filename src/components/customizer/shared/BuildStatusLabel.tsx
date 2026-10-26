@@ -14,15 +14,26 @@ export type { BuildState } from './buildStatusSummary';
 
 /**
  * The one look of each severity, shared by the status button, the panel,
- * the Overview readiness rows and the section-tab dots: errors red with a
- * crossed circle, warnings yellow with a triangle, notes sky blue with an
- * info circle. Notes are legal, so they never borrow the red or yellow of
- * rule problems, the orange of the heat readout, or the amber accent.
+ * the Overview readiness rows, the section-tab dots and the readouts
+ * (`unitStatStatus`): errors red with a crossed circle, warnings yellow with
+ * a triangle, notes sky blue with an info circle. Notes are legal, so they
+ * never borrow the red or yellow of rule problems or the amber accent; a
+ * readout in a legal-but-high state (running hot) shows the note hue too.
  */
 export const BUILD_STATUS_KIND_TEXT_CLASS: Record<BuildStatusKind, string> = {
   error: 'text-red-400',
   warning: 'text-yellow-400',
   note: 'text-sky-300',
+};
+
+/**
+ * The same hues as CSS colors, for fills that inline styles paint (budget
+ * bars), so a bar always matches the text color of its severity.
+ */
+export const BUILD_STATUS_KIND_FILL_COLOR: Record<BuildStatusKind, string> = {
+  error: 'var(--color-red-400, #f87171)',
+  warning: 'var(--color-yellow-400, #facc15)',
+  note: 'var(--color-sky-300, #7dd3fc)',
 };
 
 /** Border and tint of a control whose worst state is this one. */
@@ -97,8 +108,8 @@ function Separator(): React.ReactElement {
  * summary: "1 error \u00b7 1 warning \u00b7 1 note", each group in its own
  * color after the worst group's icon. A lone note reads as itself ("Runs
  * hot +11") and truncates before its amount. Phones keep words: the worst
- * group ("1 error") and a "+N" count of the rest; the button's accessible
- * name keeps the full summary.
+ * group ("1 error") over a "+2 more" count of the rest; the button's
+ * accessible name keeps the full summary.
  */
 export function BuildStatusLabel({
   summary,
@@ -131,20 +142,22 @@ export function BuildStatusLabel({
     return (
       <>
         <BuildStateIcon state={state} />
-        <span
-          data-build-status-part={state}
-          className={`min-w-0 truncate ${BUILD_STATUS_KIND_TEXT_CLASS[state]}`}
-        >
-          {short.text}
-        </span>
-        {short.more && (
+        <span className="flex min-w-0 flex-col items-start leading-4">
           <span
-            data-build-status-more
-            className="text-text-theme-primary bg-surface-raised shrink-0 rounded px-1 text-[11px] leading-4 tabular-nums"
+            data-build-status-part={state}
+            className={`max-w-full min-w-0 truncate ${BUILD_STATUS_KIND_TEXT_CLASS[state]}`}
           >
-            {short.more}
+            {short.text}
           </span>
-        )}
+          {short.more && (
+            <span
+              data-build-status-more
+              className="text-text-theme-secondary text-xs font-medium tabular-nums"
+            >
+              {short.more}
+            </span>
+          )}
+        </span>
       </>
     );
   return (

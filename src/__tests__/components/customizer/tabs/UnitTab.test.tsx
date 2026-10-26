@@ -28,7 +28,7 @@ describe('UnitTab', () => {
     expect(screen.getByText('Atlas AS7-D')).toBeInTheDocument();
   });
 
-  it('keeps the active tab on one line with its complete accessible name', () => {
+  it('keeps the tab name on one line, ellipsized, with its complete accessible name', () => {
     const name = 'Atlas AS7-D (Custom long-range fire support configuration)';
     render(
       <UnitTab
@@ -38,9 +38,16 @@ describe('UnitTab', () => {
       />,
     );
     expect(screen.getByRole('tab', { name })).toHaveTextContent(name);
+    // One line with an ellipsis at every width, phones included; the tab's
+    // name and tooltip keep the full name.
     expect(screen.getByText(name)).toHaveClass('truncate');
-    // Phones wrap the name onto a second line inside the tab instead.
-    expect(screen.getByText(name)).toHaveClass('max-sm:line-clamp-2');
+    expect(screen.getByText(name).className).not.toMatch(
+      /line-clamp|whitespace-normal/,
+    );
+    expect(screen.getByRole('tab', { name })).toHaveAttribute(
+      'title',
+      expect.stringContaining(name),
+    );
   });
 
   it('should call onSelect when clicked', async () => {

@@ -128,7 +128,7 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **WHEN** Structure tab renders
 - **THEN** left column shows Chassis panel with component selections
 - **AND** right column shows Movement panel
-- **AND** tonnage and motive type are NOT shown (moved to Overview)
+- **AND** the Chassis panel shows Tonnage and, directly below it on the same row template, the Motive Type dropdown (Biped, Quad, Tripod, LAM, QuadVee) with its "Changing configuration clears armor in removed locations and returns their equipment to unassigned." warning attached through aria-describedby; the Mobility panel does not show Motive Type
 
 #### Scenario: Chassis panel components
 
@@ -159,16 +159,21 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **AND** the subtotal is labelled "Structure, systems & armor" and shown as "<subtotal>t of <tonnage>t"
 - **AND** the label makes clear that equipment weight is counted in the header total, not in this subtotal
 
-#### Scenario: Mobility uses one column per row
+#### Scenario: Chassis and Mobility share one label / control / meta grid
+
+- **WHEN** the Chassis or Mobility panel renders at least 32rem wide
+- **THEN** every row uses one grid: a 140px label column, a 240px control column, and a meta column that starts about 12px after the control column
+- **AND** every control sits in the 240px control column: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) are left-aligned inside it and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is 240px wide
+- **AND** meta text (the "20–200t" tonnage range, "19t / 6 slots" weight and slot readouts, and "→ <final> final" for Walk, Run and Jump MP) sits in the meta column beside its control, not in a far-right gutter
+- **AND** in a narrower card the grid falls back to label and control columns, with meta and helper text under the control
+
+#### Scenario: Mobility rows
 
 - **WHEN** the Mobility panel renders
-- **THEN** Walk MP, Run MP and Jump MP each show a single control column: the stepper (or derived base value) followed by "→ <final> final"
-- **AND** there are no separate Base and Final column headers
-- **AND** the derived Run MP base value is plain text ("5 → 5 final", labeled "Run MP"), not an input-styled box, left-aligned on the same grid line as the steppers
-- **AND** every Chassis control (tonnage and Installed steppers, engine, gyro, structure, cockpit and heat sink selects) starts on one shared grid line, as do the Mobility steppers and selects
+- **THEN** Run MP shows a read-only value box the same size as a stepper's value box, with no buttons, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
+- **AND** the Walk MP range, the Run MP line ("Follows Walk MP; it is not set directly.") and the Max Jump MP note appear as 13px muted helper text directly under their control, linked with aria-describedby
 - **AND** Jump Type stays enabled but is muted, with the hint "No jump jets installed", while Jump MP is 0
-- **AND** the Walk MP range and the Max Jump MP note appear as helper text directly under their stepper, linked with aria-describedby
-- **AND** the Jump Type helper states that mechanical jump boosters are not supported yet (they cannot be added as BattleMech equipment either)
+- **AND** the Mobility panel shows no copy about unsupported mechanical jump boosters
 
 ### Requirement: Armor Tab
 
@@ -201,13 +206,25 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 - **WHEN** no armor location is selected on a wide layout
 - **THEN** no hint card is shown above the Armor inspector, so the inspector card starts at the same top edge as the Armor Allocation card
 - **AND** the one visible instruction lives in the diagram caption ("Front view · click a location to edit"), and the keyboard instruction (Tab to a location, then press Enter) remains available to assistive technology
-- **AND** when a location is selected the location editor takes the top of the inspector column, also level with the Armor Allocation card
+- **AND** when a location is selected the location editor opens inside the Armor inspector card, directly under its title, as an inset panel with its own close button
 
 #### Scenario: Diagram and inspector cards end together
 
 - **WHEN** the Armor tab renders at xl or wider with no location selected
 - **THEN** the Armor Allocation card and the Armor inspector card stretch to the same bottom edge, with the inspector's controls spaced evenly and its legend row at the bottom, so no hollow space sits under either card
 - **AND** the diagram column is no longer sticky; when the location editor is open the diagram card stretches to the taller inspector column
+
+#### Scenario: Location editor does not push the inspector off screen
+
+- **WHEN** a location is selected at xl or wider (for example 1440x900)
+- **THEN** the location editor replaces the Armor Type, Armor Tonnage, Maximize and Auto Allocate controls (hidden until the editor closes), while the Unallocated Armor Points row, the legend and the "R = rear armor" key stay visible within the viewport
+- **WHEN** a location is selected below xl
+- **THEN** the editor appears under the inspector title with the type and tonnage controls stacked below it, all still reachable, and the editor scrolls into view on phones
+
+#### Scenario: Location table selects locations
+
+- **WHEN** the biped silhouette card is wide enough to show its location table (see armor-diagram)
+- **THEN** clicking a table row selects that location, opening the location editor in the inspector, and clicking it again closes the editor, the same as clicking its plate
 
 ### Requirement: Equipment Tab
 
@@ -257,15 +274,17 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 #### Scenario: Narrative text fields
 
 - **WHEN** user navigates to Fluff tab
-- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a textarea at 16px text on a 1.5 line height, at least 4 rows, that fills its column
+- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a textarea at 16px text on a 1.5 line height, at least 3 rows, that fills the full width of the Unit History and Description card
+- **AND** the card is the same full content width and padding as the Battlefield Role and Manufacturing cards, left-aligned, not narrower or centred
+- **AND** Overview, Capabilities, History and Deployment stack in that order at every width; only Variants and Notable Units, both short, sit side by side as an equal pair when the editor is at least 48rem wide, so a short field never sits beside a tall one
 - **AND** the textarea grows to show its whole content
-- **AND** when the editor is at least 70rem (1120px) wide, the fields form two columns (Overview + Capabilities, History + Deployment, Variants + Notable Units), each capped near 75 characters per line; below that they form one full-width column
-- **AND** an empty optional field shows a muted "Optional" tag next to its label
+- **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
 
 #### Scenario: Battlefield role
 
 - **WHEN** the Fluff tab renders an editable unit
-- **THEN** the Combat Role select sits in the Battlefield Role card body, under the subtitle, about 320px wide
+- **THEN** the Battlefield Role card is a compact strip: title and subtitle on one side and the Combat Role select, about 320px wide, on the other when the editor is at least 40rem wide
+- **AND** the select sits below the subtitle at full width in a narrower editor
 
 #### Scenario: Placeholders read as examples
 

@@ -56,10 +56,10 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 #### Scenario: Budget readouts lead the strip
 
 - **WHEN** the compact workbench strip renders
-- **THEN** Weight, Slots, Heat and Armor form the Capacity group, and each shows a 3px fill bar under its value, filled by use against its cap (clamped at full) and colored neutral, orange (legal but high) or red by the same state as its value
-- **AND** readout state colors come from one owner (`unitStatStatus.ts`) shared by the banner and the mobile loadout header: a legal-but-high value (running hot, nearly full) is orange, a value color distinct from the amber accent that marks the selected tab and primary actions and from the note color of the build status, and red is reserved for errors
+- **THEN** Weight, Slots, Heat and Armor form the Capacity group, and each shows a 3px fill bar under its value, filled by use against its cap (clamped at full) and colored neutral, the note hue (legal but high) or red by the same state as its value
+- **AND** readout state colors come from one owner (`unitStatStatus.ts`, taking its hues from the severity colors in `BuildStatusLabel.tsx`) shared by the banner, the Overview Heat readout and the mobile loadout header: a legal-but-high value (running hot) is sky blue, the same note hue the build status, panel and readiness rows use for that condition, distinct from the amber accent that marks the selected tab and primary actions, and red is reserved for errors
 - **AND** the strip has seven evenly spaced cells at one value size: Weight, Slots, Heat, Armor, Movement, Engine and BV; Movement, Engine and BV show the value alone, level with the budget values, without a bar
-- **AND** labels are 11px uppercase
+- **AND** labels are 12px uppercase; caps (e.g., "/100t", "/78", "/22") and captions are at least 12px, so no secondary text in the strip is smaller than 12px on phones
 - **AND** group columns are proportional to their cell counts (capacity 4, movement and engine 2, BV 1) so every cell, and every gap between groups, has the same width
 - **AND** tonnage is not repeated as its own readout, because the Weight cap shows it
 
@@ -69,7 +69,7 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 - **THEN** label shows "WEIGHT"
 - **AND** value shows "usedTonnage / tonnage" format (e.g., "45.5t / 50t"), the cap being the unit's tonnage
 - **AND** value text is red if used exceeds max (overweight)
-- **AND** value text is orange if within 0.5 tons of max
+- **AND** value text is neutral when used is at or under max (using the full tonnage is normal)
 - **AND** value text is white/normal otherwise
 
 #### Scenario: Critical slots stat with capacity format
@@ -93,7 +93,8 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 - **THEN** label shows "HEAT"
 - **AND** value shows "generated / dissipation" format (e.g., "15 / 10"), and on wide screens a visible "gen / diss" caption beside the label names the two numbers
 - **AND** the heat readout is always keyboard focusable, with an accessible name and a hover/focus explanation naming both numbers (e.g., "15 heat at full fire / 10 dissipation")
-- **AND** value text and fill bar are orange if generated exceeds dissipation, because running hot is legal; the readout does not repeat the excess as its own pill, because the build status lists it as a note
+- **AND** value text and fill bar are in the note hue (sky blue) if generated exceeds dissipation, because running hot is legal and the build status lists it as a note in that hue; the readout does not repeat the excess as its own pill
+- **AND** the Overview Heat readout shows only the numbers (e.g., "33 / 22 dissipation", "at full fire") with the generated value in the same state color; the Overview Heat readiness row states what running hot means, so the readout does not repeat "+11 over"
 - **AND** when running hot the explanation adds how far heat is over and that this is legal (e.g., "5 over: legal; add heat sinks to run cool.")
 - **AND** red is reserved for construction errors such as overweight or over slots
 - **AND** value text uses neutral primary color when dissipation meets or exceeds generation (in-budget states are not accent-highlighted, per command-screen focus doctrine)
@@ -137,7 +138,7 @@ The banner SHALL display unit validation status.
 #### Scenario: One build-status button in the workbench
 
 - **WHEN** the workbench section bar renders
-- **THEN** issue counts and their wording come from one owner (`buildStatusSummary.ts`), which takes the validation counts and the readout notes (`getStatusNotes` in `unitStatStatus.ts`), so the header status button, the status panel heading, the phone status button and the Overview "Build readiness" header always report the same totals
+- **THEN** issue counts and their wording come from one owner (`buildStatusSummary.ts`), which takes the validation counts and the readout notes (`getStatusNotes` in `unitStatStatus.ts`), so the header status button, the status panel heading, the phone status button and the Overview "Build readiness" header always report the same totals; the readiness header shows the counts only (e.g., "1 note", "1 error ? 1 warning ? 1 note"), because the header status button and the readiness rows already name a lone note such as running hot
 - **AND** the vocabulary is errors ("the unit is not legal until fixed"), warnings ("legal, but likely a mistake") and notes ("legal; for your information": info-level rule results and readout notes such as running hot)
 - **AND** each severity has one color and one icon on every surface (status button, panel, Overview readiness rows and section-tab dots), owned by `BuildStatusLabel.tsx`: errors red with a crossed circle, warnings yellow with a triangle, notes sky blue with an info circle
 - **AND** the headline omits empty groups and joins the rest worst first with " · " (e.g., "1 error · 1 warning · 1 note"); a lone readout note reads as itself (e.g., "Runs hot +11"), and a unit with nothing to report reads "Ready" with a green check
@@ -152,13 +153,14 @@ The banner SHALL display unit validation status.
 - **AND** while the panel is open a dim scrim covers the workspace behind it; pressing the scrim closes the panel, and Escape or the close button return focus to the status button
 - **WHEN** the workbench renders on desktop
 - **THEN** the header groups Add unit and the "…" Unit actions button as one quiet secondary group, and the save state with the Save button as the primary group, with no separator rules between them
-- **AND** beside the Save button a compact two-part state spells out where the work is, in the shared wording: "Draft saved in browser" with a check over the library line ("Not in library" or "Changed since v3") once the browser draft has been written, "In library v3" alone (with a check) when the unit matches its library copy, or a red "Browser draft not saved · Retry" when the browser write failed
+- **AND** beside the Save button a compact two-part state at 13px spells out where the work is, with the library line in primary text, in the shared wording: "Draft saved in browser" with a check over the library line ("Not in library" or "Changed since v3") once the browser draft has been written, "In library v3" alone (with a check) when the unit matches its library copy, or a red "Browser draft not saved · Retry" when the browser write failed
 - **AND** the Save button is labelled "Save to library" (accessible name "Save active unit to library"); it is the primary action while the unit is not in the library or has changed since its library save, and quiet once the unit matches its library copy; it carries no dot; it is the active unit's only unsaved marker (unit tabs mark background units only, with a dot named "Changes not saved to library"); its accessible description repeats the library wording (plus "Draft saved in this browser" once written), and its instant hint gives the explanation ("Your changes are kept in this browser. Use Save to add the unit to your library…")
 - **AND** the "…" button (accessible name "Unit actions") and the loadout panel toggle (accessible name "Hide loadout panel", pressed while the panel is hidden) show instant hints naming what they do
 - **AND** the status panel's Saving section repeats the same two-part words as the header (an unwritten draft is not listed), then the explanation
 - **WHEN** the workbench renders on a phone
-- **THEN** the build status shares the budget readout row and keeps words: the worst group's icon and count in words (e.g., "1 error") plus a "+N" count of the remaining items (e.g., "+2"), or the lone note itself (e.g., "Runs hot +11", truncating before the amount); its accessible name keeps the full summary
-- **AND** the unit name shows once, inside its unit tab, wrapping onto a second line instead of truncating; there is no separate name line under the header
+- **THEN** the build status shares the budget readout row and keeps words: the worst group's icon and count in words (e.g., "1 error") over a worded count of the remaining items (e.g., "+2 more"), or the lone note itself (e.g., "Runs hot +11", truncating before the amount), at 13px with the count at 12px, within the 48px readout row; its accessible name keeps the full summary
+- **AND** phone helper text in the status sheet (group definitions, the Saving explanation) is at least 13px
+- **AND** the unit name shows once, inside its unit tab, on one line ending in an ellipsis when it does not fit; the tab's accessible name and tooltip keep the full name and the Overview Identity card shows it in full; there is no separate name line under the header
 - **AND** the workspace scroll area ends where the fixed Loadout bar begins (bar height plus the bottom safe area) on every tab, so no content renders under the bar, and the bar casts a shadow over the content above it
 - **AND** below 640px the panel opens as a bottom sheet over a scrim, at most 80% of the dynamic viewport height, scrolling inside; its Saving section uses the same wording, and a failed browser draft write still appears as a visible line with a retry action
 - **AND** on phones the Save icon button carries no dot: it is filled as the primary action while the unit needs a library save and quiet once it matches; the words appear in the status sheet's Saving section and, from 640px, on one line in the section band ("Draft saved in browser · Not in library")

@@ -3,7 +3,6 @@ import React from 'react';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { MAX_ENGINE_RATING } from '@/hooks/useMovementCalculations';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
-import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   JumpJetType,
   JUMP_JET_DEFINITIONS,
@@ -14,33 +13,30 @@ import {
 } from '@/utils/gameplay/movement/calculations';
 
 import type {
-  StructureConfigurationOption,
   StructureEnhancementOption,
   StructureTabCalculations,
 } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
-
-/**
- * Shared Mobility grid: label | one control column. Steppers, derived values and
- * selects all start at the same left edge; helper text sits under its control.
- */
-const MOBILITY_GRID =
-  'grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-x-3 gap-y-1';
-
-/** Row label, vertically centred on the 44px control beside it. */
-const MOBILITY_LABEL = `${cs.text.label} flex min-h-11 items-center font-medium`;
-
-/** One stepper group is exactly 44 + 48 + 44px wide. */
-const STEPPER_WIDTH = 'w-[8.5rem] shrink-0';
+import {
+  STRUCTURE_CARD,
+  STRUCTURE_HELP,
+  STRUCTURE_META,
+  STRUCTURE_READONLY_VALUE,
+  STRUCTURE_ROW_GRID,
+  STRUCTURE_ROW_LABEL,
+  STRUCTURE_SELECT,
+  STRUCTURE_STEPPER,
+} from './StructureTabRowLayout';
 
 /**
  * Jump Type stays usable with no jump jets, but reads as secondary until a
  * Jump MP is set.
  */
-const JUMP_TYPE_IDLE_SELECT = cs.select.full
-  .replace('text-text-theme-primary', 'text-text-theme-secondary')
-  .replace('border-border-theme', 'border-border-theme-subtle');
+const JUMP_TYPE_IDLE_SELECT = STRUCTURE_SELECT.replace(
+  'text-text-theme-primary',
+  'text-text-theme-secondary',
+).replace('border-border-theme', 'border-border-theme-subtle');
 
 function MobilityStepper({
   id,
@@ -62,7 +58,7 @@ function MobilityStepper({
   readonly onChange: (next: number) => void;
 }): React.ReactElement {
   return (
-    <div className={`flex items-center ${STEPPER_WIDTH}`}>
+    <div className={STRUCTURE_STEPPER}>
       <button
         type="button"
         onClick={() => onChange(value - 1)}
@@ -132,8 +128,6 @@ interface StructureTabMovementSectionProps {
   readonly jumpJetType: JumpJetType;
   readonly enhancement: MovementEnhancementType | null;
   readonly enhancementOptions: readonly StructureEnhancementOption[];
-  readonly configuration: MechConfiguration;
-  readonly configurationOptions: readonly StructureConfigurationOption[];
   readonly tonnage: number;
   readonly calculations: StructureTabCalculations;
   readonly handleWalkMPChange: (newWalkMP: number) => void;
@@ -142,9 +136,6 @@ interface StructureTabMovementSectionProps {
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => void;
   readonly handleEnhancementChange: (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => void;
-  readonly handleConfigurationChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => void;
 }
@@ -160,15 +151,12 @@ export function StructureTabMovementSection({
   jumpJetType,
   enhancement,
   enhancementOptions,
-  configuration,
-  configurationOptions,
   tonnage,
   calculations,
   handleWalkMPChange,
   handleJumpMPChange,
   handleJumpJetTypeChange,
   handleEnhancementChange,
-  handleConfigurationChange,
 }: StructureTabMovementSectionProps): React.ReactElement {
   // Compute the canonical TSM-active walk / run preview for the tooltip.
   // `getEffectiveWalkMP` is the single source of truth for the combined
@@ -181,7 +169,7 @@ export function StructureTabMovementSection({
   const tsmEffectiveRunMP = calculateRunMP(tsmEffectiveWalkMP);
 
   return (
-    <div className={cs.panel.main}>
+    <div className={`${cs.panel.main} ${STRUCTURE_CARD}`}>
       <div className="border-border-theme mb-4 border-b pb-3">
         <h3 className={cs.text.cardTitle}>Mobility</h3>
         <p className={`${cs.text.secondary} mt-0.5`}>
@@ -190,41 +178,42 @@ export function StructureTabMovementSection({
       </div>
 
       <div className="space-y-5">
-        <div className={MOBILITY_GRID}>
-          <label className={MOBILITY_LABEL} htmlFor="walk-mp">
+        <div className={STRUCTURE_ROW_GRID}>
+          <label className={STRUCTURE_ROW_LABEL} htmlFor="walk-mp">
             Walk MP
           </label>
-          <div>
-            <div className="flex items-center gap-3">
-              <MobilityStepper
-                id="walk-mp"
-                name="Walk MP"
-                value={walkMP}
-                min={walkMPRange.min}
-                max={walkMPRange.max}
-                readOnly={readOnly}
-                describedBy="walk-mp-help"
-                onChange={handleWalkMPChange}
-              />
-              <FinalValue name="Walk MP">{walkMP}</FinalValue>
-            </div>
-            <p id="walk-mp-help" className={`${cs.text.secondary} mt-1`}>
-              Range {walkMPRange.min}-{walkMPRange.max} for a {tonnage}t mech
-              (max engine {MAX_ENGINE_RATING}).
-            </p>
+          <MobilityStepper
+            id="walk-mp"
+            name="Walk MP"
+            value={walkMP}
+            min={walkMPRange.min}
+            max={walkMPRange.max}
+            readOnly={readOnly}
+            describedBy="walk-mp-help"
+            onChange={handleWalkMPChange}
+          />
+          <div className={STRUCTURE_META}>
+            <FinalValue name="Walk MP">{walkMP}</FinalValue>
           </div>
+          <p id="walk-mp-help" className={`${STRUCTURE_HELP} m-0`}>
+            Range {walkMPRange.min}-{walkMPRange.max} for a {tonnage}t mech (max
+            engine {MAX_ENGINE_RATING}).
+          </p>
         </div>
 
-        <div className={MOBILITY_GRID}>
-          <span className={MOBILITY_LABEL}>Run MP</span>
-          <div className="flex min-h-11 items-center gap-1.5">
-            {/* Derived, not editable: plain text, so nobody tries to type in it. */}
+        <div className={STRUCTURE_ROW_GRID}>
+          <span className={STRUCTURE_ROW_LABEL}>Run MP</span>
+          {/* Derived, not editable: a read-only box, no buttons. */}
+          <div className={STRUCTURE_READONLY_VALUE}>
             <output
               aria-label="Run MP"
-              className={`text-sm font-semibold tabular-nums ${cs.text.value}`}
+              aria-describedby="run-mp-help"
+              className={`border-border-theme-subtle bg-surface-deep inline-flex min-h-11 w-12 items-center justify-center rounded border text-sm font-semibold tabular-nums ${cs.text.value}`}
             >
               {runMP}
             </output>
+          </div>
+          <div className={STRUCTURE_META}>
             <FinalValue name="Run MP">
               {runMP}
               {maxRunMP && (
@@ -245,79 +234,76 @@ export function StructureTabMovementSection({
               )}
             </FinalValue>
           </div>
+          <p id="run-mp-help" className={`${STRUCTURE_HELP} m-0`}>
+            Follows Walk MP; it is not set directly.
+          </p>
         </div>
 
-        <div className={MOBILITY_GRID}>
-          <label className={MOBILITY_LABEL} htmlFor="jump-mp">
+        <div className={STRUCTURE_ROW_GRID}>
+          <label className={STRUCTURE_ROW_LABEL} htmlFor="jump-mp">
             Jump MP
           </label>
-          <div>
-            <div className="flex items-center gap-3">
-              <MobilityStepper
-                id="jump-mp"
-                name="Jump MP"
-                value={jumpMP}
-                min={0}
-                max={maxJumpMP}
-                readOnly={readOnly}
-                describedBy="jump-mp-help"
-                onChange={handleJumpMPChange}
-              />
-              <FinalValue name="Jump MP">{jumpMP}</FinalValue>
-            </div>
-            <p id="jump-mp-help" className={`${cs.text.secondary} mt-1`}>
-              Max {maxJumpMP} (
-              {jumpJetType === JumpJetType.IMPROVED
-                ? 'run speed'
-                : 'walk speed'}
-              ).
-              {jumpMP > 0 &&
-                ` Jump jets: ${calculations.jumpJetWeight}t / ${calculations.jumpJetSlots} slots.`}
-            </p>
+          <MobilityStepper
+            id="jump-mp"
+            name="Jump MP"
+            value={jumpMP}
+            min={0}
+            max={maxJumpMP}
+            readOnly={readOnly}
+            describedBy="jump-mp-help"
+            onChange={handleJumpMPChange}
+          />
+          <div className={STRUCTURE_META}>
+            <FinalValue name="Jump MP">{jumpMP}</FinalValue>
           </div>
+          <p id="jump-mp-help" className={`${STRUCTURE_HELP} m-0`}>
+            Max {maxJumpMP} (
+            {jumpJetType === JumpJetType.IMPROVED ? 'run speed' : 'walk speed'}
+            ).
+            {jumpMP > 0 &&
+              ` Jump jets: ${calculations.jumpJetWeight}t / ${calculations.jumpJetSlots} slots.`}
+          </p>
         </div>
 
-        <div className={MOBILITY_GRID}>
-          <label className={MOBILITY_LABEL} htmlFor="jump-type">
+        <div className={STRUCTURE_ROW_GRID}>
+          <label className={STRUCTURE_ROW_LABEL} htmlFor="jump-type">
             Jump Type
           </label>
-          <div>
-            <select
-              id="jump-type"
-              className={jumpMP === 0 ? JUMP_TYPE_IDLE_SELECT : cs.select.full}
-              disabled={readOnly}
-              aria-label="Jump type"
-              aria-describedby="jump-type-help"
-              value={jumpJetType}
-              onChange={handleJumpJetTypeChange}
-            >
-              {JUMP_JET_DEFINITIONS.filter(
-                (def) => def.type !== JumpJetType.MECHANICAL,
-              ).map((def) => (
-                <option key={def.type} value={def.type}>
-                  {def.name}
-                </option>
-              ))}
-            </select>
-            <div id="jump-type-help" className="mt-1 space-y-0.5">
-              {jumpMP === 0 && (
-                <p className={cs.text.secondary}>No jump jets installed</p>
-              )}
-              <p className={cs.text.secondary}>
-                Mechanical jump boosters are not supported yet.
-              </p>
-            </div>
-          </div>
+          <select
+            id="jump-type"
+            className={jumpMP === 0 ? JUMP_TYPE_IDLE_SELECT : STRUCTURE_SELECT}
+            disabled={readOnly}
+            aria-label="Jump type"
+            aria-describedby={jumpMP === 0 ? 'jump-type-help' : undefined}
+            value={jumpJetType}
+            onChange={handleJumpJetTypeChange}
+          >
+            {JUMP_JET_DEFINITIONS.filter(
+              (def) => def.type !== JumpJetType.MECHANICAL,
+            ).map((def) => (
+              <option key={def.type} value={def.type}>
+                {def.name}
+              </option>
+            ))}
+          </select>
+          {jumpMP === 0 && (
+            <p id="jump-type-help" className={`${STRUCTURE_HELP} m-0`}>
+              No jump jets installed
+            </p>
+          )}
         </div>
 
         <div className={`${cs.layout.divider} mt-2`}>
           <h4 className={`${cs.text.subsection} mb-3`}>Enhancement</h4>
-          <div className={MOBILITY_GRID}>
-            <label className={MOBILITY_LABEL} htmlFor="movement-enhancement">
+          <div className={STRUCTURE_ROW_GRID}>
+            <label
+              className={STRUCTURE_ROW_LABEL}
+              htmlFor="movement-enhancement"
+            >
               Type
             </label>
             <select
-              className={cs.select.full}
+              className={STRUCTURE_SELECT}
               disabled={readOnly}
               id="movement-enhancement"
               aria-label="Movement enhancement"
@@ -330,52 +316,22 @@ export function StructureTabMovementSection({
                 </option>
               ))}
             </select>
-          </div>
-          {enhancement && (
-            <p className={`${cs.text.secondary} mt-2`}>
-              {enhancement === MovementEnhancementType.MASC &&
-                'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.'}
-              {enhancement === MovementEnhancementType.TSM && (
-                <>
-                  Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty =
-                  net +1 MP.
-                  <br />
-                  <span className="text-accent">
-                    Doubles physical attack damage.
-                  </span>
-                </>
-              )}
-            </p>
-          )}
-        </div>
-
-        <div className={`${cs.layout.divider} mt-2`}>
-          <div className={MOBILITY_GRID}>
-            <label className={MOBILITY_LABEL} htmlFor="motive-type">
-              Motive Type
-            </label>
-            <select
-              className={cs.select.full}
-              disabled={readOnly}
-              id="motive-type"
-              aria-label="Motive type"
-              aria-describedby="configuration-change-help"
-              value={configuration}
-              onChange={handleConfigurationChange}
-            >
-              {configurationOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <p
-              id="configuration-change-help"
-              className="text-text-theme-secondary col-span-full mt-1 text-xs"
-            >
-              Changing configuration clears armor in removed locations and
-              returns their equipment to unassigned.
-            </p>
+            {enhancement && (
+              <p className={`${STRUCTURE_HELP} m-0`}>
+                {enhancement === MovementEnhancementType.MASC &&
+                  'Sprint = Walk × 2 when activated. Risk of leg damage on failed roll.'}
+                {enhancement === MovementEnhancementType.TSM && (
+                  <>
+                    Activates at 9+ heat: +2 Walk MP, but -1 from heat penalty =
+                    net +1 MP.
+                    <br />
+                    <span className="text-accent">
+                      Doubles physical attack damage.
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
           </div>
         </div>
       </div>

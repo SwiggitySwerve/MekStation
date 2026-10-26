@@ -151,10 +151,10 @@ export function ValidationGroupHeading({
   return (
     <h4
       data-severity-group={kind}
-      className="border-border-theme bg-surface-deep/40 flex flex-wrap items-baseline gap-x-1.5 border-b px-4 py-1.5 text-xs leading-4"
+      className="border-border-theme bg-surface-deep/40 flex flex-wrap items-baseline gap-x-1.5 border-b px-4 py-1.5 text-[13px] leading-[18px]"
     >
       <span
-        className={`text-[11px] font-semibold tracking-wider uppercase ${BUILD_STATUS_KIND_TEXT_CLASS[kind]}`}
+        className={`text-xs font-semibold tracking-wider uppercase ${BUILD_STATUS_KIND_TEXT_CLASS[kind]}`}
       >
         {group.title}
       </span>{' '}

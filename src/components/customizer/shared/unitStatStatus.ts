@@ -7,27 +7,34 @@
  * the readout hue stay in one place.
  *
  * Running hot is legal, so heat above dissipation is a note, never an error.
- * A readout in that legal-but-high state shows its value in orange, a value
- * color distinct from the amber accent that marks the selected tab and
- * primary actions; red stays reserved for errors. The build status lists the
- * matching note in the note severity color (`BuildStatusLabel`).
+ * A readout in that legal-but-high state (running hot, nearly full) shows its
+ * value and bar in the note hue, the same color the build status, the panel
+ * and the Overview readiness rows use for that note, so one condition never
+ * reads as two severities. Red stays reserved for errors. The hues themselves
+ * belong to the severity vocabulary (`BuildStatusLabel`).
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
 import type { ValidationNote } from './buildStatusSummary';
 
+import {
+  BUILD_STATUS_KIND_FILL_COLOR,
+  BUILD_STATUS_KIND_TEXT_CLASS,
+} from './BuildStatusLabel';
+
+/** Readout state: in budget, legal but high (a note), or over its cap. */
 export type StatStatus = 'normal' | 'warning' | 'error';
 
 /** Text color for a readout value by state. */
 export const STAT_STATUS_TEXT_CLASS: Record<StatStatus, string> = {
   normal: 'text-text-theme-primary',
-  warning: 'text-orange-400',
-  error: 'text-red-400',
+  warning: BUILD_STATUS_KIND_TEXT_CLASS.note,
+  error: BUILD_STATUS_KIND_TEXT_CLASS.error,
 };
 
 /** Readout value text in its legal-but-high state, such as running hot. */
-export const CAUTION_TEXT_CLASS = STAT_STATUS_TEXT_CLASS.warning;
+export const READOUT_NOTE_TEXT_CLASS = STAT_STATUS_TEXT_CLASS.warning;
 
 /**
  * Fill-bar colors by state; normal keeps the neutral bar. Inline values win
@@ -35,15 +42,14 @@ export const CAUTION_TEXT_CLASS = STAT_STATUS_TEXT_CLASS.warning;
  */
 export const STAT_STATUS_FILL_COLOR: Record<StatStatus, string | undefined> = {
   normal: undefined,
-  warning: 'var(--color-orange-400, #fb923c)',
-  error: 'var(--color-red-400, #f87171)',
+  warning: BUILD_STATUS_KIND_FILL_COLOR.note,
+  error: BUILD_STATUS_KIND_FILL_COLOR.error,
 };
 
 /** Overweight is an error; under half a ton of headroom is legal but high. */
+/** Using the full tonnage is normal; only exceeding it is a problem. */
 export function getWeightStatus(used: number, max: number): StatStatus {
-  if (used > max) return 'error';
-  if (max - used < 0.5) return 'warning';
-  return 'normal';
+  return used > max ? 'error' : 'normal';
 }
 
 /** Used beyond the maximum (slots, armor) is an error; anything else is in budget. */

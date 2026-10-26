@@ -8,6 +8,7 @@ import {
   PREVIEW_SEGMENT_CLASS,
   PREVIEW_SEGMENT_GROUP_CLASS,
 } from './previewToolbarStyles';
+import { formatZoomPercent } from './recordSheetPreviewZoom';
 
 interface RecordSheetPreviewZoomControlsProps {
   readonly zoom: number;
@@ -37,41 +38,39 @@ export function RecordSheetPreviewZoomControls({
 }: RecordSheetPreviewZoomControlsProps): React.ReactElement {
   return (
     <div
-      className={`flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap ${className}`}
+      className={`flex w-full min-w-0 items-center sm:w-auto sm:gap-2 ${className}`}
       role="group"
       aria-label="Record sheet zoom controls"
     >
+      {/* Phones join the stepper and the fit modes into one bar. */}
       <div
-        className={`${PREVIEW_SEGMENT_GROUP_CLASS} w-full shrink-0 sm:w-auto`}
+        className={`${PREVIEW_SEGMENT_GROUP_CLASS} shrink-0 max-sm:rounded-r-none`}
       >
         <button
           type="button"
           onClick={onZoomOut}
           aria-label="Zoom out"
-          className={PREVIEW_SEGMENT_CLASS}
+          className={`${PREVIEW_SEGMENT_CLASS} max-sm:px-0!`}
         >
           <SvgIcon size="inline" aria-hidden="true">
             <circle cx="10" cy="10" r="7" />
             <path d="m15 15 7 7M7 10h6" />
           </SvgIcon>
         </button>
+        {/* Percentage only: the pressed segment already names the mode. On
+            phones the sheet caption shows it, so the bar fits one row. */}
         <output
-          className="text-text-theme-primary inline-flex min-w-14 flex-1 items-center justify-center px-3 text-center text-[13px] font-medium whitespace-nowrap tabular-nums"
+          className="text-text-theme-primary max-sm:sr-only sm:inline-flex sm:min-w-14 sm:items-center sm:justify-center sm:px-3 sm:text-center sm:text-[13px] sm:font-medium sm:whitespace-nowrap sm:tabular-nums"
           aria-live="polite"
           aria-label="Current zoom"
         >
-          {mode === 'fit-width'
-            ? 'Fit width · '
-            : mode === 'fit-page'
-              ? 'Fit page · '
-              : ''}
-          {Math.round(zoom * 100)}%
+          {formatZoomPercent(zoom)}
         </output>
         <button
           type="button"
           onClick={onZoomIn}
           aria-label="Zoom in"
-          className={PREVIEW_SEGMENT_CLASS}
+          className={`${PREVIEW_SEGMENT_CLASS} max-sm:px-0!`}
         >
           <SvgIcon size="inline" aria-hidden="true">
             <circle cx="10" cy="10" r="7" />
@@ -81,32 +80,36 @@ export function RecordSheetPreviewZoomControls({
       </div>
 
       <div
-        className={`${PREVIEW_SEGMENT_GROUP_CLASS} min-w-0 flex-1 sm:flex-none`}
+        className={`${PREVIEW_SEGMENT_GROUP_CLASS} min-w-0 flex-1 max-sm:rounded-l-none max-sm:border-l-0 sm:flex-none`}
         role="group"
         aria-label="Sheet size"
       >
         <button
           type="button"
           onClick={onFitToPage}
+          aria-label="Fit page"
           aria-pressed={mode === 'fit-page'}
-          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap max-sm:px-1!`}
         >
-          Fit page
+          <span className="sm:hidden">Page</span>
+          <span className="max-sm:hidden">Fit page</span>
         </button>
         <button
           type="button"
           onClick={onFitToWidth}
+          aria-label="Fit width"
           aria-pressed={mode === 'fit-width'}
-          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap`}
+          className={`${PREVIEW_SEGMENT_CLASS} flex-1 whitespace-nowrap max-sm:px-1!`}
         >
-          Fit width
+          <span className="sm:hidden">Width</span>
+          <span className="max-sm:hidden">Fit width</span>
         </button>
         <button
           type="button"
           onClick={onActualSize}
           aria-pressed={mode === 'actual'}
           title="Actual size — scroll to read the full sheet"
-          className={`${PREVIEW_SEGMENT_CLASS} max-sm:bg-surface-base max-sm:text-text-theme-primary flex-1 whitespace-nowrap max-sm:font-semibold`}
+          className={`${PREVIEW_SEGMENT_CLASS} max-sm:bg-surface-base max-sm:text-text-theme-primary flex-1 whitespace-nowrap max-sm:px-1! max-sm:font-semibold`}
         >
           100%
         </button>

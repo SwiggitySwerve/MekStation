@@ -57,6 +57,8 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 
 - **WHEN** a slot is empty
 - **THEN** slot is gray with dashed border
+- **AND** the dashed outline uses the strong border token at 60% opacity
+- **AND** a decorative, aria-hidden plus precedes `Available` without changing the slot's accessible name or row height
 - **AND** slot number is displayed
 
 ### Requirement: Drag and Drop Equipment Placement

@@ -412,15 +412,15 @@ test('critical locations fit desktop and use one phone location selector @custom
       await expect(key.getByText(label, { exact: true })).toBeVisible();
     for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
       const box = (await swatch.boundingBox())!;
-      expect(box.width).toBeGreaterThanOrEqual(12);
-      expect(box.height).toBeGreaterThanOrEqual(12);
+      expect(box.width).toBeGreaterThanOrEqual(20);
+      expect(box.height).toBeGreaterThanOrEqual(16);
     }
     for (const label of await key.locator('span').all()) {
       expect(
         await label.evaluate((element) =>
           parseFloat(getComputedStyle(element).fontSize),
         ),
-      ).toBeGreaterThanOrEqual(12);
+      ).toBe(13);
     }
     await expect(
       page.getByRole('button', { name: 'Colour key', exact: true }),
@@ -525,7 +525,8 @@ test('critical locations fit desktop and use one phone location selector @custom
   await expect(
     arm.getByRole('gridcell', { name: /ER PPC/ }).first(),
   ).toBeVisible();
-  // The unit name shows once on phones, in full, inside its tab.
+  // The unit name shows once on phones, inside its tab on one line; a
+  // name this short fits without its ellipsis.
   await expect(page.getByTestId('phone-unit-name')).toHaveCount(0);
   const unitName = page
     .getByRole('tab', { name: 'Atlas AS7-D', exact: true })

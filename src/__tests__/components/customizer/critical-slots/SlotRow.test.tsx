@@ -23,6 +23,11 @@ describe('SlotRow', () => {
     render(<SlotRow {...defaultProps} />);
 
     expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('+')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('gridcell', { name: 'Empty slot 1' })).toHaveClass(
+      'border-border-theme-strong/60',
+      'border-dashed',
+    );
   });
 
   it('should render equipment slot', () => {

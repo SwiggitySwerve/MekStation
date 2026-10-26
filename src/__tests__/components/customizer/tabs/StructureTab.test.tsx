@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import { StructureTab } from '@/components/customizer/tabs/StructureTab';
@@ -136,17 +136,21 @@ describe('StructureTab', () => {
     expect(walkInput).toHaveAccessibleDescription(/Range .* for a 50t mech/);
   });
 
-  it('shows Run MP as plain derived text on the stepper column, not a field', () => {
+  it('shows Run MP as a read-only box the size of the stepper value box', () => {
     render(<StructureTab />);
 
     const run = screen.getByLabelText('Run MP');
-    const stepper = screen.getByRole('spinbutton', { name: 'Walk MP' })
-      .parentElement as HTMLElement;
-    expect(run).toHaveTextContent('8');
-    expect(run).not.toHaveClass('border');
+    const walk = screen.getByRole('spinbutton', { name: 'Walk MP' });
+    const rowOf = (control: HTMLElement) =>
+      control.closest('.grid') as HTMLElement;
     expect(run.tagName).toBe('OUTPUT');
-    expect(run.parentElement).toHaveTextContent(/8\s*→\s*8\s*final/);
-    expect(stepper).toHaveClass('w-[8.5rem]');
+    expect(run).toHaveTextContent('8');
+    expect(run).toHaveClass('w-12', 'min-h-11', 'border');
+    expect(walk).toHaveClass('w-12');
+    expect(within(rowOf(run)).queryAllByRole('button')).toHaveLength(0);
+    expect(rowOf(run)).toHaveTextContent(/8\s*→\s*8\s*final/);
+    expect(rowOf(run).className).toBe(rowOf(walk).className);
+    expect(walk.parentElement).toHaveClass('w-[8.5rem]');
     expect(screen.getByTitle('Final Run MP')).toBeInTheDocument();
   });
 
@@ -175,12 +179,68 @@ describe('StructureTab', () => {
     expect(new Set(rowGrids).size).toBe(1);
   });
 
-  it('says plainly that mechanical jump boosters are not supported', () => {
+  it('keeps Motive Type with the chassis, with its warning attached', () => {
     render(<StructureTab />);
 
+    const motive = screen.getByRole('combobox', { name: 'Motive type' });
+    expect(motive).toHaveAccessibleDescription(/clears armor in removed/);
+    const mobility = screen
+      .getByRole('heading', { name: 'Mobility' })
+      .closest('div')?.parentElement as HTMLElement;
     expect(
-      screen.getByText('Mechanical jump boosters are not supported yet.'),
-    ).toBeInTheDocument();
+      within(mobility).queryByRole('combobox', { name: 'Motive type' }),
+    ).toBeNull();
+    // Same row template as Tonnage, directly below it in the Chassis card.
+    const rowOf = (control: HTMLElement) => {
+      let row: HTMLElement | null = control;
+      while (row && !row.classList.contains('grid')) row = row.parentElement;
+      return row;
+    };
+    const tonnageRow = rowOf(
+      screen.getByRole('spinbutton', { name: 'Tonnage' }),
+    );
+    const motiveRow = rowOf(motive);
+    expect(motiveRow?.className).toBe(tonnageRow?.className);
+    expect(tonnageRow?.nextElementSibling).toBe(motiveRow);
+  });
+
+  it('gives Run MP the same helper line the other Mobility rows have', () => {
+    render(<StructureTab />);
+
+    expect(screen.getByLabelText('Run MP')).toHaveAccessibleDescription(
+      'Follows Walk MP; it is not set directly.',
+    );
+  });
+
+  it('does not show developer copy about unsupported jump boosters', () => {
+    render(<StructureTab />);
+
+    expect(screen.queryByText(/not supported yet/i)).not.toBeInTheDocument();
+  });
+
+  it('uses one label / control / meta grid and 240px controls in both cards', () => {
+    render(<StructureTab />);
+
+    const rowOf = (control: HTMLElement) =>
+      control.closest('.grid') as HTMLElement;
+    const controls = [
+      screen.getByRole('spinbutton', { name: 'Tonnage' }),
+      screen.getByRole('combobox', { name: 'Motive type' }),
+      screen.getByRole('combobox', { name: 'Engine' }),
+      screen.getByRole('combobox', { name: 'Heat sink type' }),
+      screen.getByRole('spinbutton', { name: 'Walk MP' }),
+      screen.getByRole('spinbutton', { name: 'Jump MP' }),
+      screen.getByRole('combobox', { name: 'Jump type' }),
+      screen.getByRole('combobox', { name: 'Movement enhancement' }),
+    ];
+    expect(new Set(controls.map((c) => rowOf(c).className)).size).toBe(1);
+    expect(rowOf(controls[0]).className).toContain(
+      '@[32rem]:grid-cols-[8.75rem_15rem_minmax(0,1fr)]',
+    );
+    for (const select of controls.filter((c) => c.tagName === 'SELECT')) {
+      expect(select).toHaveClass('w-full', 'max-w-60');
+    }
+    expect(screen.getByLabelText('Jump type')).toBeEnabled();
   });
 
   it('should apply custom className', () => {

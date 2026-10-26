@@ -481,7 +481,10 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   await page.getByRole('button', { name: 'New Unit', exact: true }).click();
   const add = page.getByRole('dialog', { name: 'Add unit', exact: true });
   await add
-    .getByRole('button', { name: 'Choose starting settings', exact: true })
+    .getByRole('button', {
+      name: 'Choose tonnage and tech first…',
+      exact: true,
+    })
     .click();
   await page.getByRole('button', { name: 'Infantry', exact: true }).click();
   await page.getByRole('button', { name: 'Create Unit', exact: true }).click();

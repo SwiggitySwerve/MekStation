@@ -46,13 +46,9 @@ function ColorSwatch({ bgClass, label, compact = false }: ColorSwatchProps) {
     >
       <div
         aria-hidden="true"
-        className={`${compact ? 'h-4 w-5' : 'h-5 w-7'} shrink-0 rounded-sm border ${bgClass}`}
+        className={`${compact ? 'h-4 w-5' : 'h-5 w-7'} border-border-theme-strong border-y-border-theme-strong border-r-border-theme-strong shrink-0 rounded-sm border ${bgClass}`}
       />
-      <span
-        className={`text-text-theme-primary ${compact ? 'text-xs' : 'text-sm'}`}
-      >
-        {label}
-      </span>
+      <span className="text-text-theme-primary text-[13px]">{label}</span>
     </div>
   );
 }
@@ -108,7 +104,7 @@ export function ColorLegend({
               key={label}
               compact
               label={label}
-              bgClass={`bg-surface-raised border-border-theme border-l-4 ${accentBorder}`}
+              bgClass={`bg-surface-raised border-l-4 ${accentBorder}`}
             />
           ))}
           <ColorSwatch
@@ -179,7 +175,7 @@ export function ColorLegend({
               {equipmentTypes.map(({ accentBorder, label }) => (
                 <ColorSwatch
                   key={label}
-                  bgClass={`bg-surface-raised border-border-theme border-l-4 ${accentBorder}`}
+                  bgClass={`bg-surface-raised border-l-4 ${accentBorder}`}
                   label={label}
                 />
               ))}

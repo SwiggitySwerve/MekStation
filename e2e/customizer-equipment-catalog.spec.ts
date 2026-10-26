@@ -134,6 +134,68 @@ async function rowName(row: Locator) {
   return label?.slice('Details for '.length) ?? '';
 }
 
+async function expectInitialScrollBoundary(page: Page) {
+  const scroll = page.getByTestId('equipment-catalog-scroll');
+  await expect(scroll).toHaveJSProperty('scrollTop', 0);
+  const list = (await scroll.boundingBox())!;
+  const footer = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  expect(
+    footer.y - list.y - list.height,
+    'visible separation above pagination',
+  ).toBeGreaterThanOrEqual(8);
+  await expect(scroll).toHaveCSS('overflow-y', 'auto');
+  await expect(scroll.locator('..')).toHaveAttribute('data-more-below', 'true');
+  const fade = await scroll.locator('..').evaluate((element) => {
+    const style = getComputedStyle(element, '::after');
+    return {
+      height: style.height,
+      background: style.backgroundImage,
+      pointerEvents: style.pointerEvents,
+    };
+  });
+  expect(fade.height).toBe('32px');
+  expect(fade.background).toContain('linear-gradient');
+  expect(fade.pointerEvents).toBe('none');
+  const rowInGap = await page.evaluate(
+    ({ x, y }) =>
+      document
+        .elementsFromPoint(x, y)
+        .some((element) =>
+          element.closest('[data-testid="equipment-catalog-row"]'),
+        ),
+    { x: list.x + list.width / 2, y: list.y + list.height + 4 },
+  );
+  expect(rowInGap, 'rows must be clipped before the pagination gap').toBe(
+    false,
+  );
+}
+
+test('short catalog results have an end marker without pagination @customizer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loadAtlas(page);
+  await page
+    .getByRole('textbox', { name: 'Search equipment', exact: true })
+    .fill('ER PPC');
+  await expect(page.getByTestId('equipment-catalog-row')).toHaveCount(1);
+  await expect(page.getByTestId('equipment-pagination')).toHaveCount(0);
+  await expect(page.getByText('End of results · 1 item')).toBeVisible();
+  await details(page, 'ER PPC').click();
+  await expect(
+    page.getByTestId('equipment-catalog-scroll').locator('..'),
+  ).toHaveAttribute('data-more-below', 'false');
+  await expect(page.getByText('End of results · 1 item')).toBeInViewport({
+    ratio: 1,
+  });
+  await page.getByRole('button', { name: 'Add ER PPC', exact: true }).click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'ER PPC.' }),
+  ).toBeVisible();
+});
+
 test('electronics and compatible ammo update without changing unrelated filters @customizer', async ({
   page,
 }, testInfo) => {
@@ -302,6 +364,26 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     page.getByRole('button', { name: /^Add options for / }),
   ).toHaveCount(25);
   const rows = page.getByTestId('equipment-catalog-row');
+  await expectInitialScrollBoundary(page);
+  const rangeHeader = catalogHeader(page).locator(
+    '[data-catalog-column="range"]',
+  );
+  await expect(rangeHeader).toHaveText('Range');
+  await expect(rangeHeader).toHaveAttribute(
+    'title',
+    'Range (short / medium / long)',
+  );
+  expect((await rangeHeader.boundingBox())!.height).toBeLessThan(20);
+  await expect(
+    rows
+      .filter({ has: details(page, 'AC/10 Ammo') })
+      .locator('[data-catalog-column="damage"]'),
+  ).toHaveText('10 shots');
+  await page.mouse.move(0, 0);
+  await page.screenshot({
+    path: testInfo.outputPath('catalog-initial-wide.png'),
+    animations: 'disabled',
+  });
   const visible = await rows.count();
   expect(visible).toBe(25);
   let longest = { name: '', length: 0, index: 0 };
@@ -317,6 +399,8 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     await expect(
       nameCell.locator('[data-icon-name="chevron-right"]'),
     ).toBeVisible();
+    await expect(row.locator('[data-icon-name="chevron-down"]')).toHaveCount(0);
+    await expect(row.locator('[data-icon-name="more"]')).toHaveCount(1);
     const name = await rowName(row);
     if (name.length > longest.length)
       longest = { name, length: name.length, index };
@@ -464,6 +548,22 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(catalogHeader(page)).toBeHidden();
+  await expectInitialScrollBoundary(page);
+  const firstStats = page.getByTestId('equipment-catalog-stats').first();
+  expect(
+    (await firstStats.boundingBox())!.height,
+    'AC/10 stats fit on one full-width line',
+  ).toBeLessThanOrEqual(28);
+  for (const pair of await firstStats.locator(':scope > span').all()) {
+    await expect(pair).toHaveCSS('white-space', 'nowrap');
+    await expect(pair).toHaveCSS('font-size', '13px');
+    expect((await pair.boundingBox())!.height).toBeLessThanOrEqual(20);
+  }
+  await page.mouse.move(0, 0);
+  await page.screenshot({
+    path: testInfo.outputPath('catalog-initial-phone.png'),
+    animations: 'disabled',
+  });
   const categories = page.getByTestId('equipment-category-controls');
   expect(
     await categories.evaluate(

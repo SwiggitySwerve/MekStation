@@ -104,7 +104,7 @@ export interface BuildStatusSummary {
   readonly panelHeading: string;
   /**
    * Short wording for narrow bands: the worst group in words ("1 error")
-   * and the count of everything else ("+2"), or the lone note itself.
+   * and the count of everything else ("+2 more"), or the lone note itself.
    */
   readonly short: { readonly text: string; readonly more?: string };
 }
@@ -166,7 +166,7 @@ export function getBuildStatusSummary(
       ? { text: headline }
       : {
           text: parts[0].text,
-          more: rest > 0 ? `+${countText(rest)}` : undefined,
+          more: rest > 0 ? `+${countText(rest)} more` : undefined,
         };
   const legal = totals.error === 0;
   return {

@@ -8,7 +8,7 @@
  *
  * Each row also carries the severity the status panel would give it, so the
  * checklist uses the same words, colors and icons: a readout over its cap is
- * an error, a legal-but-high readout (running hot, nearly full) is a note,
+ * an error, a legal-but-high readout (running hot) is a note,
  * and rule results keep their own error or warning severity.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
@@ -172,11 +172,7 @@ function weightSentence(input: ReadinessInput, status: StatStatus): string {
   if (status === 'error') {
     return `${formatTons(-input.weightRemaining)} over the ${max} limit. Remove equipment or armor.`;
   }
-  if (status === 'warning') {
-    return input.weightRemaining === 0
-      ? `Exactly at the ${max} limit.`
-      : `Only ${formatTons(input.weightRemaining)} left of ${max}.`;
-  }
+  if (input.weightRemaining === 0) return `All ${max} used.`;
   return `${formatTons(input.weightRemaining)} free of ${max}.`;
 }
 

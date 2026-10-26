@@ -25,29 +25,34 @@ export function ArmorStatusLegend({
   const lowPct = Math.round(ARMOR_STATUS.LOW.min * 100);
 
   return (
-    <div className={`mt-4 flex justify-center gap-3 text-xs ${className}`}>
-      <div className="flex items-center gap-1.5">
+    <div
+      className={`mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs ${className}`}
+    >
+      <span className="text-text-theme-secondary font-medium">
+        Armor % of max:
+      </span>
+      <div className="flex items-center gap-1">
         <div
           className="h-3 w-3 rounded"
           style={{ backgroundColor: ARMOR_STATUS.HEALTHY.color }}
         />
         <span className="text-text-theme-secondary">{healthyPct}%+</span>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <div
           className="h-3 w-3 rounded"
           style={{ backgroundColor: ARMOR_STATUS.MODERATE.color }}
         />
         <span className="text-text-theme-secondary">{moderatePct}%+</span>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <div
           className="h-3 w-3 rounded"
           style={{ backgroundColor: ARMOR_STATUS.LOW.color }}
         />
         <span className="text-text-theme-secondary">{lowPct}%+</span>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <div
           className="h-3 w-3 rounded"
           style={{ backgroundColor: ARMOR_STATUS.CRITICAL.color }}

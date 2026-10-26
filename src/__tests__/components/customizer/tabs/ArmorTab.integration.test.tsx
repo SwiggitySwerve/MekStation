@@ -237,8 +237,9 @@ test('every biped location shows its max and torsos show front and rear against 
   );
 
   const diagram = within(screen.getByTestId('armor-diagram'));
-  // The four limbs show "/ max" under the value; the head shows "value/max".
-  expect(diagram.getAllByText(/^\/ \d+$/)).toHaveLength(4);
+  // The four limbs show "/max" under the value (same separator as the torso
+  // and head cells); the head shows "value/max".
+  expect(diagram.getAllByText(/^\/\d+$/, { selector: 'text' })).toHaveLength(4);
   const headButton = screen.getByRole('button', { name: /^Head armor:/ });
   expect(headButton).toHaveTextContent(/\d+\/\d+/);
   // No torso cell carries a total line any more.
@@ -269,6 +270,7 @@ test('the inspector carries the diagram legend on wide layouts for biped silhoue
   const legend = screen.getByTestId('armor-inspector-legend');
   expect(legend).toHaveClass('hidden', 'xl:flex', 'border-t');
   expect(legend).toHaveTextContent('R = rear armor');
+  expect(legend).toHaveTextContent('Armor % of max:');
   expect(legend).toHaveTextContent('60%+');
   // The diagram's own footer steps aside from xl up so the readout is not
   // repeated beside the inspector's Unallocated Armor Points row.
@@ -284,4 +286,79 @@ test('the inspector carries the diagram legend on wide layouts for biped silhoue
   );
   expect(screen.queryByTestId('armor-inspector-legend')).toBeNull();
   expect(screen.queryByTestId('armor-allocation-footer')).toBeNull();
+});
+
+test('lists every location in a table that selects like the figure', () => {
+  const store = makeStore();
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+
+  const table = within(screen.getByTestId('armor-location-table'));
+  // Headers say what each column holds, and the note sits right under them.
+  expect(table.getAllByRole('columnheader').map((h) => h.textContent)).toEqual([
+    'Location',
+    'Front / max',
+    'Rear / max',
+    'Location max',
+  ]);
+  const note = table.getByTestId('armor-location-table-note');
+  expect(note.closest('thead')).not.toBeNull();
+  expect(note).toHaveClass('text-[13px]');
+  expect(note).toHaveTextContent('Location max is the whole location.');
+  // Same data and face maxima as the plates: 20/24 front, 8/12 rear, 32 max.
+  const torsoRow = table
+    .getByRole('button', { name: 'Center Torso' })
+    .closest('tr') as HTMLElement;
+  expect(
+    within(torsoRow)
+      .getAllByRole('cell')
+      .map((c) => c.textContent),
+  ).toEqual(['20/24', '8/12', '32']);
+  const armRow = table
+    .getByRole('button', { name: 'Left Arm' })
+    .closest('tr') as HTMLElement;
+  expect(within(armRow).getByText('No rear armor')).toBeInTheDocument();
+
+  fireEvent.click(table.getByRole('button', { name: 'Center Torso' }));
+  expect(screen.getByTestId('location-armor-editor')).toBeInTheDocument();
+  expect(table.getByRole('button', { name: 'Center Torso' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  expect(
+    screen.getByRole('button', { name: /^Center Torso armor:/ }),
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  fireEvent.click(table.getByRole('button', { name: 'Center Torso' }));
+  expect(screen.queryByTestId('location-armor-editor')).toBeNull();
+});
+
+test('the location editor opens inside the inspector and yields the controls on wide layouts', () => {
+  const store = makeStore();
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+  const controls = screen.getByTestId('armor-inspector-controls');
+  expect(controls).toHaveClass('contents');
+  expect(controls).not.toHaveClass('xl:hidden');
+
+  fireEvent.click(screen.getByRole('button', { name: /^Center Torso armor:/ }));
+  const inspector = screen.getByRole('heading', { name: 'Armor inspector' })
+    .parentElement as HTMLElement;
+  expect(inspector).toContainElement(
+    screen.getByTestId('location-armor-editor'),
+  );
+  // Below xl everything stays stacked and reachable; from xl the editor takes
+  // the controls' place so nothing is pushed below the fold.
+  expect(controls).toHaveClass('contents', 'xl:hidden');
+  expect(inspector).toContainElement(controls);
+  expect(
+    screen.getByRole('spinbutton', { name: 'Armor tonnage' }),
+  ).toBeInTheDocument();
+  expect(screen.getByText('Unallocated Armor Points')).toBeInTheDocument();
 });

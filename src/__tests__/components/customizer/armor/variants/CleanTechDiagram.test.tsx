@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -69,9 +69,13 @@ describe('CleanTechDiagram', () => {
   it('should display armor values', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
-    // Check for armor values
-    expect(screen.getByText('9')).toBeInTheDocument(); // Head
-    expect(screen.getByText('35')).toBeInTheDocument(); // CT front
+    // Check for armor values on the plates (the location table repeats them)
+    const head = within(screen.getByRole('button', { name: /^Head armor/ }));
+    const centerTorso = within(
+      screen.getByRole('button', { name: /^Center Torso armor/ }),
+    );
+    expect(head.getByText('9')).toBeInTheDocument(); // Head
+    expect(centerTorso.getByText('35')).toBeInTheDocument(); // CT front
   });
 
   // Note: Auto-allocate button was moved to ArmorTab.tsx

@@ -5,7 +5,7 @@ import {
   UnitInfoBanner,
   UnitStats,
 } from '@/components/customizer/shared/UnitInfoBanner';
-import { CAUTION_TEXT_CLASS } from '@/components/customizer/shared/unitStatStatus';
+import { READOUT_NOTE_TEXT_CLASS } from '@/components/customizer/shared/unitStatStatus';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 
@@ -135,7 +135,7 @@ describe('UnitInfoBanner', () => {
     expect(heatContainer).toHaveTextContent('30');
   });
 
-  it('shows running hot as an orange value and bar, explained without a duplicate pill', () => {
+  it('shows running hot in the note hue, value and bar, without a duplicate pill', () => {
     render(
       <UnitInfoBanner
         stats={createStats({ heatGenerated: 33, heatDissipation: 22 })}
@@ -144,16 +144,17 @@ describe('UnitInfoBanner', () => {
     );
     const heat = screen.getByTestId('unit-info-stat-heat');
     expect(heat).toHaveAttribute('data-status', 'warning');
-    // The build status lists the caution; the readout does not repeat it.
+    // The build status lists the note; the readout does not repeat it.
     expect(heat).not.toHaveTextContent('+11');
     expect(heat.querySelector('.text-red-400')).toBeNull();
     expect(heat.querySelector('.text-amber-400')).toBeNull();
-    expect(heat.querySelector(`.${CAUTION_TEXT_CLASS}`)).toHaveTextContent(
+    expect(READOUT_NOTE_TEXT_CLASS).toBe('text-sky-300');
+    expect(heat.querySelector(`.${READOUT_NOTE_TEXT_CLASS}`)).toHaveTextContent(
       '33',
     );
     expect(
       (heat.querySelector('.budgetFill') as HTMLElement).style.background,
-    ).toContain('--color-orange-400');
+    ).toContain('--color-sky-300');
     expect(heat).toHaveAccessibleName(
       'Heat: 33 / 22. 33 heat at full fire / 22 dissipation. 11 over: legal; add heat sinks to run cool.',
     );

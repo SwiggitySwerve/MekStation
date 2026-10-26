@@ -51,16 +51,9 @@ export function BuildReadinessList({
           data-state={status.state}
         >
           <BuildStateIcon state={status.state} />
-          {status.headlineNote || status.state === 'ready' ? (
-            <span
-              className={
-                status.state === 'ready'
-                  ? 'text-green-400'
-                  : BUILD_STATUS_KIND_TEXT_CLASS.note
-              }
-            >
-              {status.headline}
-            </span>
+          {/* Counts only ("1 note"): the rows below say what each one is. */}
+          {status.state === 'ready' ? (
+            <span className="text-green-400">{status.headline}</span>
           ) : (
             status.parts.map((part, index) => (
               <span
@@ -83,9 +76,11 @@ export function BuildReadinessList({
           const tabLabel = getTabLabel(row.tabId);
           const needsAction = row.severity !== 'ok';
           return (
+            // Phones stack each row: icon + title + full-width explanation,
+            // then the action as a full-width button under the text.
             <li
               key={row.id}
-              className="flex items-center gap-3 py-2"
+              className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-2 sm:flex sm:items-center"
               data-testid={`overview-readiness-${row.id}`}
               data-status={row.status}
               data-severity={row.severity}
@@ -107,7 +102,7 @@ export function BuildReadinessList({
                 </p>
                 {row.detail && (
                   <p
-                    className={`${BUILD_STATUS_KIND_TEXT_CLASS[row.detailSeverity ?? 'warning']} text-xs`}
+                    className={`${BUILD_STATUS_KIND_TEXT_CLASS[row.detailSeverity ?? 'warning']} text-[13px] leading-[18px]`}
                   >
                     {row.detail}
                   </p>
@@ -118,7 +113,7 @@ export function BuildReadinessList({
                   type="button"
                   onClick={() => onNavigate(row.tabId)}
                   aria-label={`${row.label}: go to ${tabLabel}`}
-                  className={`focus-visible:ring-accent inline-flex min-h-11 w-36 shrink-0 items-center justify-between gap-1 rounded border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none ${
+                  className={`focus-visible:ring-accent col-start-2 inline-flex min-h-11 w-full shrink-0 items-center justify-between gap-1 rounded border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none sm:w-36 ${
                     needsAction
                       ? 'border-border-theme text-text-theme-primary hover:bg-surface-raised'
                       : 'border-border-theme-subtle text-text-theme-secondary hover:bg-surface-raised hover:text-text-theme-primary'

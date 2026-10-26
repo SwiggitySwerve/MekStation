@@ -216,7 +216,7 @@ export function ArmorTab({
         maxUsefulTonnage={maxUsefulTonnage}
       />
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.85fr)]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(19rem,0.8fr)]">
         {/* Both columns stretch so the diagram and inspector cards end together. */}
         <section
           className="order-1 flex min-w-0 flex-col"
@@ -235,114 +235,131 @@ export function ArmorTab({
 
         {/* Compact inspector follows the diagram on smaller viewports. */}
         <aside className="order-2 flex min-w-0 flex-col gap-4">
-          {/* Location Editor - shown at top when a location is selected */}
-          {selectedLocation && selectedLocationData && (
-            <div ref={locationEditorRef}>
-              <LocationArmorEditor
-                location={selectedLocation}
-                data={selectedLocationData}
-                tonnage={tonnage}
-                readOnly={readOnly}
-                onChange={handleLocationArmorChange}
-                onClose={() => setSelectedLocation(null)}
-              />
-            </div>
-          )}
-
           {/* Armor Configuration */}
           <div className={`${cs.panel.main} flex flex-col xl:flex-1`}>
             <h3 className="text-text-theme-primary mb-5 text-lg font-semibold">
               Armor inspector
             </h3>
 
+            {/* The selected location's editor sits at the top of the inspector.
+                On wide layouts it takes the place of the type/tonnage controls
+                (hidden until the editor closes) so nothing is pushed below the
+                fold; below xl everything stacks and stays reachable. */}
+            {selectedLocation && selectedLocationData && (
+              <div ref={locationEditorRef} className="mb-5">
+                <LocationArmorEditor
+                  embedded
+                  location={selectedLocation}
+                  data={selectedLocationData}
+                  tonnage={tonnage}
+                  readOnly={readOnly}
+                  onChange={handleLocationArmorChange}
+                  onClose={() => setSelectedLocation(null)}
+                />
+              </div>
+            )}
+
             <div className="flex flex-1 flex-col gap-6 xl:justify-between">
-              {/* Armor Type */}
-              <div className={cs.layout.field}>
-                <div className={cs.layout.rowBetween}>
-                  <label className={cs.text.label}>Armor Type</label>
-                  <span className={cs.text.secondary}>{armorSlots} slots</span>
-                </div>
-                <select
-                  className={`${cs.select.compact} min-h-11`}
-                  aria-label="Armor type"
-                  disabled={readOnly}
-                  value={armorType}
-                  onChange={handleArmorTypeChange}
-                >
-                  {filteredOptions.armors.map((armor) => (
-                    <option key={armor.type} value={armor.type}>
-                      {armor.name} ({armor.pointsPerTon} pts/ton)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Armor Tonnage */}
-              <div className={cs.layout.field}>
-                <label className={cs.text.label}>Armor Tonnage</label>
-                <div className={cs.layout.rowGap}>
-                  <button
-                    onClick={() => handleArmorTonnageChange(armorTonnage - 0.5)}
-                    disabled={readOnly || armorTonnage <= 0}
-                    className={cs.button.stepper}
-                  >
-                    {' '}
-                    <AppIcon name="remove" size="inline" aria-hidden="true" />
-                  </button>
-                  <input
-                    type="number"
-                    aria-label="Armor tonnage"
-                    value={armorTonnage}
-                    onChange={(e) =>
-                      handleArmorTonnageChange(parseFloat(e.target.value) || 0)
-                    }
+              <div
+                className={selectedLocation ? 'contents xl:hidden' : 'contents'}
+                data-testid="armor-inspector-controls"
+              >
+                {/* Armor Type */}
+                <div className={cs.layout.field}>
+                  <div className={cs.layout.rowBetween}>
+                    <label className={cs.text.label}>Armor Type</label>
+                    <span className={cs.text.secondary}>
+                      {armorSlots} slots
+                    </span>
+                  </div>
+                  <select
+                    className={`${cs.select.compact} min-h-11`}
+                    aria-label="Armor type"
                     disabled={readOnly}
-                    min={0}
-                    step={0.5}
-                    className={`min-h-11 w-20 ${cs.input.compact} text-center tabular-nums ${cs.input.noSpinners}`}
-                  />
-                  <button
-                    onClick={() => handleArmorTonnageChange(armorTonnage + 0.5)}
-                    disabled={readOnly || armorTonnage >= maxUsefulTonnage}
-                    className={cs.button.stepper}
+                    value={armorType}
+                    onChange={handleArmorTypeChange}
                   >
-                    {' '}
-                    <AppIcon name="add" size="inline" aria-hidden="true" />
-                  </button>
+                    {filteredOptions.armors.map((armor) => (
+                      <option key={armor.type} value={armor.type}>
+                        {armor.name} ({armor.pointsPerTon} pts/ton)
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
-                <button
-                  onClick={handleMaximize}
-                  disabled={readOnly || armorTonnage >= maxUsefulTonnage}
-                  className="border-border-theme bg-surface-raised hover:bg-surface-raised-hover text-text-theme-primary min-h-11 rounded border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Maximize Tonnage
-                </button>
-                <button
-                  onClick={handleAutoAllocate}
-                  disabled={readOnly || pointsDelta === 0}
-                  aria-describedby={
-                    pointsDelta === 0 ? allocationStatusId : undefined
-                  }
-                  className={`min-h-11 rounded px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                    pointsDelta !== 0
-                      ? 'bg-accent hover:bg-accent-hover text-on-accent'
-                      : 'border-border-theme bg-surface-raised hover:bg-surface-raised-hover text-text-theme-primary border'
-                  }`}
-                >
-                  Auto Allocate ({pointsDelta > 0 ? '+' : ''}
-                  {pointsDelta} pts)
-                </button>
-                {pointsDelta === 0 && (
-                  <p
-                    id={allocationStatusId}
-                    className="text-text-theme-secondary text-xs sm:col-span-2 xl:col-span-1"
+                {/* Armor Tonnage */}
+                <div className={cs.layout.field}>
+                  <label className={cs.text.label}>Armor Tonnage</label>
+                  <div className={cs.layout.rowGap}>
+                    <button
+                      onClick={() =>
+                        handleArmorTonnageChange(armorTonnage - 0.5)
+                      }
+                      disabled={readOnly || armorTonnage <= 0}
+                      className={cs.button.stepper}
+                    >
+                      {' '}
+                      <AppIcon name="remove" size="inline" aria-hidden="true" />
+                    </button>
+                    <input
+                      type="number"
+                      aria-label="Armor tonnage"
+                      value={armorTonnage}
+                      onChange={(e) =>
+                        handleArmorTonnageChange(
+                          parseFloat(e.target.value) || 0,
+                        )
+                      }
+                      disabled={readOnly}
+                      min={0}
+                      step={0.5}
+                      className={`min-h-11 w-20 ${cs.input.compact} text-center tabular-nums ${cs.input.noSpinners}`}
+                    />
+                    <button
+                      onClick={() =>
+                        handleArmorTonnageChange(armorTonnage + 0.5)
+                      }
+                      disabled={readOnly || armorTonnage >= maxUsefulTonnage}
+                      className={cs.button.stepper}
+                    >
+                      {' '}
+                      <AppIcon name="add" size="inline" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                  <button
+                    onClick={handleMaximize}
+                    disabled={readOnly || armorTonnage >= maxUsefulTonnage}
+                    className="border-border-theme bg-surface-raised hover:bg-surface-raised-hover text-text-theme-primary min-h-11 rounded border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    All allocatable points assigned
-                  </p>
-                )}
+                    Maximize Tonnage
+                  </button>
+                  <button
+                    onClick={handleAutoAllocate}
+                    disabled={readOnly || pointsDelta === 0}
+                    aria-describedby={
+                      pointsDelta === 0 ? allocationStatusId : undefined
+                    }
+                    className={`min-h-11 rounded px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                      pointsDelta !== 0
+                        ? 'bg-accent hover:bg-accent-hover text-on-accent'
+                        : 'border-border-theme bg-surface-raised hover:bg-surface-raised-hover text-text-theme-primary border'
+                    }`}
+                  >
+                    Auto Allocate ({pointsDelta > 0 ? '+' : ''}
+                    {pointsDelta} pts)
+                  </button>
+                  {pointsDelta === 0 && (
+                    <p
+                      id={allocationStatusId}
+                      className="text-text-theme-secondary text-xs sm:col-span-2 xl:col-span-1"
+                    >
+                      All allocatable points assigned
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="border-border-theme-subtle border-t pt-3">
@@ -415,13 +432,13 @@ export function ArmorTab({
                   card's bottom edge so both columns end together. */}
               {legendInInspector && (
                 <div
-                  className="border-border-theme-subtle hidden items-center justify-between gap-3 border-t pt-3 xl:flex"
+                  className="border-border-theme-subtle hidden flex-col gap-2 border-t pt-3 xl:flex"
                   data-testid="armor-inspector-legend"
                 >
+                  <ArmorStatusLegend className="mt-0! justify-start!" />
                   <span className="text-text-theme-secondary text-xs">
                     R = rear armor
                   </span>
-                  <ArmorStatusLegend className="mt-0!" />
                 </div>
               )}
             </div>

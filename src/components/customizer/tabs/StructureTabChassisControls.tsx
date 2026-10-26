@@ -4,11 +4,20 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { BATTLEMECH_TONNAGE } from '@/services/construction/constructionConstants';
 
 import type {
+  StructureConfigurationOption,
   StructureTabCalculations,
   StructureTabFilteredOptions,
 } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
+import {
+  STRUCTURE_HELP,
+  STRUCTURE_META,
+  STRUCTURE_ROW_GRID,
+  STRUCTURE_ROW_LABEL,
+  STRUCTURE_SELECT,
+  STRUCTURE_STEPPER,
+} from './StructureTabRowLayout';
 
 interface StructureOption {
   readonly type: string;
@@ -30,17 +39,6 @@ interface ChassisSelectHandlers {
   ) => void;
 }
 
-/**
- * One row template for every Chassis control: label | control | meta. Each row
- * is its own grid, so they all share this template to keep every control's
- * left edge (steppers and selects) on the same vertical line.
- */
-export const CHASSIS_ROW_GRID =
-  'grid grid-cols-[6rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)]';
-
-/** Meta text sits under the control on narrow cards, in its own column on wide. */
-export const CHASSIS_ROW_META = 'col-start-2 sm:col-start-auto sm:text-right';
-
 export function TonnageControl({
   readOnly,
   tonnage,
@@ -53,11 +51,11 @@ export function TonnageControl({
   readonly onChange: (newTonnage: number) => void;
 }): React.ReactElement {
   return (
-    <div className={CHASSIS_ROW_GRID}>
-      <label className={`${cs.text.label} font-medium`} htmlFor="tonnage">
+    <div className={STRUCTURE_ROW_GRID}>
+      <label className={STRUCTURE_ROW_LABEL} htmlFor="tonnage">
         Tonnage
       </label>
-      <div className="flex items-center justify-self-start">
+      <div className={STRUCTURE_STEPPER}>
         <button
           type="button"
           onClick={() => onChange(tonnage - BATTLEMECH_TONNAGE.step)}
@@ -92,7 +90,7 @@ export function TonnageControl({
           <AppIcon name="add" size="inline" aria-hidden="true" />
         </button>
       </div>
-      <span className={`${cs.text.secondary} ${CHASSIS_ROW_META} tabular-nums`}>
+      <span className={STRUCTURE_META}>
         {BATTLEMECH_TONNAGE.min}–{BATTLEMECH_TONNAGE.max}t
       </span>
       {isSuperheavy && (
@@ -100,6 +98,49 @@ export function TonnageControl({
           Superheavy: double-slot crits, SUPERHEAVY cockpit/gyro required
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Motive Type (biped, quad, ...) is chassis configuration, so it sits with
+ * Tonnage in the Chassis card. Its warning stays attached to the control.
+ */
+export function MotiveTypeControl({
+  readOnly,
+  configuration,
+  options,
+  onChange,
+}: {
+  readonly readOnly: boolean;
+  readonly configuration: string;
+  readonly options: readonly StructureConfigurationOption[];
+  readonly onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}): React.ReactElement {
+  return (
+    <div className={STRUCTURE_ROW_GRID}>
+      <label className={STRUCTURE_ROW_LABEL} htmlFor="motive-type">
+        Motive Type
+      </label>
+      <select
+        id="motive-type"
+        className={STRUCTURE_SELECT}
+        disabled={readOnly}
+        aria-label="Motive type"
+        aria-describedby="configuration-change-help"
+        value={configuration}
+        onChange={onChange}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <p id="configuration-change-help" className={`${STRUCTURE_HELP} m-0`}>
+        Changing configuration clears armor in removed locations and returns
+        their equipment to unassigned.
+      </p>
     </div>
   );
 }
@@ -200,13 +241,13 @@ function LabeledSelect({
   const id = `${label.toLowerCase()}-select`;
 
   return (
-    <div className={CHASSIS_ROW_GRID}>
-      <label className={`${cs.text.label} font-medium`} htmlFor={id}>
+    <div className={STRUCTURE_ROW_GRID}>
+      <label className={STRUCTURE_ROW_LABEL} htmlFor={id}>
         {label}
       </label>
       <select
         id={id}
-        className={cs.select.full}
+        className={STRUCTURE_SELECT}
         disabled={disabled}
         aria-label={label}
         value={value}
@@ -218,9 +259,7 @@ function LabeledSelect({
           </option>
         ))}
       </select>
-      <span className={`${cs.text.secondary} ${CHASSIS_ROW_META} tabular-nums`}>
-        {meta}
-      </span>
+      <span className={STRUCTURE_META}>{meta}</span>
     </div>
   );
 }
@@ -234,7 +273,7 @@ export function EngineRatingSummary({
 }): React.ReactElement {
   return (
     <div
-      className={`${CHASSIS_ROW_GRID} border-border-theme-subtle border-t pt-3`}
+      className={`${STRUCTURE_ROW_GRID} border-border-theme-subtle border-t pt-3`}
     >
       <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
       <span
@@ -242,7 +281,7 @@ export function EngineRatingSummary({
       >
         {engineRating}
       </span>
-      <span className={`${cs.text.secondary} ${CHASSIS_ROW_META}`}>
+      <span className={STRUCTURE_META}>
         {isAtMaxEngineRating ? 'Maximum' : 'Derived'}
       </span>
       {isAtMaxEngineRating && (
