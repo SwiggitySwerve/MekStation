@@ -8449,7 +8449,13 @@
       "behavior": "Ordinary authenticated provisioning and read-only canonical phase/unit/declaration reachability for accepted Move/Attack/Physical on the built image; activation-aware principal selection, a reveal-holding second actor, strict CLI/precondition falsifiers and frozen import-safe callbacks. No trusted GM/stale mutation or full matrix/restart acceptance.",
       "ownershipPaths": ["scripts"],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8458,12 +8464,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/l1-smoke-a2fp-admission.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -8512,6 +8518,15 @@
           "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
         ],
         "budgetQualification": "No measured complete candidate or fit proof. FP inherits the historical 221+153=374 subtotal before partition/refactoring, read-only witness, activation/CLI/precondition fixes and lifecycle. Every actual aggregate must be measured after normal oxfmt. If FP still does not fit when drafted, stop and tell Root before proposing a third split; policy is being raised with the owner."
+      },
+      "admission20261025": {
+        "date": "2026-10-25",
+        "receipt": "evidence/l1-smoke-a2fp-admission.json",
+        "authority": "Root brief to the implementation worker of the LSC-2P closure PR (GATE OPEN for Step 3, the Q-F3 interface change and the ownershipExceptions extension); owner decision 2026-10-25 item 5 (Step 3 starts once LSC-2P closes).",
+        "placement": "P2: the admission rides the LSC-2P closure PR; implementation starts only after that PR merges.",
+        "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four literal evidence names (admission, red, local, review).",
+        "interfaceChange": "Q-F3: the 21-line a2fp-interface-asks.patch (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) is part of the frozen manifest; patch text and amended leaf hashes are in the receipt manifest.interfaceChange.",
+        "sizeCap": "ownerRuling20261020SizeCapOptionA with reachability.ts as test-support (Root interpretation, owner may overrule before merge); measured fit in the receipt: 657 literal / 373 option A of 500."
       }
     },
     {

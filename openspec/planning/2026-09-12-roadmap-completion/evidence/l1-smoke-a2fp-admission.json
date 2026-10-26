@@ -1,0 +1,1142 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2FP",
+  "stage": "admission",
+  "date": "20261025",
+  "proofClass": "full",
+  "proofClassNote": "Registered reviewClasses privacy+authority, admissionRequires (finite admission, RED tests-only, privacy/authority packet, independent exact-head review, OWNER-RULING, CI, exact-main PASS, closure) and a built-image run on the owned server make the unit full. A2FP edits no src/ file; the user-reachable path it exercises is the built production server. Exact-main proof is the built-image run at the merge commit.",
+  "evidenceNameNote": "Evidence names keep the literals frozen in units.json L1-SMOKE-A2FP.registration20261020A2FPartition.prospectiveStageManifest (evidence/l1-smoke-a2fp-admission.json, -red.json, -local.json, -review.json; no date suffix, as l1-smoke-a2f-admission.json). Closure receipts (merge, mainproof, ruling and review envelopes, log envelope) follow the LSC-2/LSC-2O convention with the closure date and are frozen at the closure PR.",
+  "recordedAt": "2026-10-26T00:00:30.127Z",
+  "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+  "baselineNote": "Admission baseline is the fetched origin/main at 57fd9064c (the #2335 merge, LSC-2P). This receipt rides the LSC-2P closure PR (placement P2, B6): commit 1 closes LSC-2P (4104fe16510eb3387173452318a114616ebcbe55), commit 2 is this admission (parent 4104fe16510eb3387173452318a114616ebcbe55). The census, controls and fit below were measured at 57fd9064c with the ledger of commit 1. Product bytes the leaves import are unchanged since 1c8a05d1c (git diff --stat 1c8a05d1c 57fd9064c over src, scripts, server.js, package.json, package-lock.json, .github, .oxfmtrc.json, .oxfmtignore and the tsconfig files shows only scripts/__tests__/v220-evidence.test.mjs, scripts/__tests__/v220-steps.test.mjs, scripts/qc/generate-v220-steps.mjs and scripts/qc/v220-evidence.mjs, none imported by the leaves). Re-fetch and union-merge main before the implementation RED (admissionRequires).",
+  "authority": {
+    "summary": "Root rulings recorded at L1-SMOKE-A2FP admission. Admission only; no implementation ruling or acceptance. AUTH-1 to AUTH-6 are settled; AUTH-7 records the interface change folded into the frozen manifest.",
+    "clauses": [
+      {
+        "id": "AUTH-1",
+        "kind": "HOLD lift",
+        "status": "SETTLED on main (holdLiftAmendment20261024)",
+        "text": "units.json holdLiftAmendment20261024 (merged in #2333, a64cb3fe6): owner decision 2026-10-24 (~07:10 UTC), E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261024b.md item 1 (sha256 152db0e7758bf0e44445b8669c5c1f49332052d855fe56fc4209441c283928fa): \"Lift the HOLD and drain #2313, then LSC-2C (recommended)\". Source evidence/root-registration-20261024.json (sha256 29a494f49fa396b759781daf6ec33688f6c6b96c51bd1af7f18fd2b715414f9b). Effect recorded there: \"The tsrs HOLD is lifted for roadmap units. Steps 1-9 may proceed one unit at a time under the Step 0 rules. The Windows tsrs re-run stays advisory and is no longer a gate.\" It amends stepPlanDecision20261024.drain (\"HOLD still applies\"). Tracked prose now agrees: GOAL.md:10, DELIVERY.md:10 and the V2.2.0-STEPS.md header at line 5 say the HOLD was lifted."
+      },
+      {
+        "id": "AUTH-2",
+        "kind": "merge-through order",
+        "text": "Owner decision 2026-10-24 (~08:20 UTC), E:/Projects/Personal/MekStation-wt/_receipts/owner-decision-mergethrough-20261024.md: \"Merge-through: keep posting the owner ruling and merging each reviewed, CI-green unit ... I stop only when something fails, a step goes over its PR budget, or a decision needs you (recommended)\". Order: Step 1 closure -> Step 2 (LSC-2C, 2O, 2, 2P; budget now 12 per ownerRuling20261024StepsPageFileCap) -> Step 3 (A2FP, A2F, A2M, A2, B; budget 10 in v220-steps.json). Standing instruction \"continue with recommended options and fix the issues that come up, publish as needed\" applies. Owner decisions 2026-10-25 item 5 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025.md): \"Step 3 starts once LSC-2P closes, not once Step 2 is marked complete\". Item \"Resume one by one in order\" applies."
+      },
+      {
+        "id": "AUTH-3",
+        "kind": "Step 3 GATE OPEN",
+        "status": "SETTLED (this Root brief)",
+        "text": "GATE OPEN is this Root brief to the implementation worker of the LSC-2P closure PR (thread, 2026-10-25): \"GATE OPEN = this Root brief (Root opens Step 3 now that LSC-2P closes in this PR)\". No separate GATE OPEN receipt file exists; the brief is the message. It answers the #2318 owner ruling hold (_receipts/pr2318-owner-ruling-3689ff692.md: \"A2FP admission is HELD ... must not start until Root sends GATE OPEN\"). Condition per owner decisions 2026-10-25 item 5 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025.md): \"Step 3 starts once LSC-2P closes, not once Step 2 is marked complete\". B5 resolved: the brief serves as the written GATE OPEN."
+      },
+      {
+        "id": "AUTH-4",
+        "kind": "WIP / predecessor",
+        "status": "SETTLED (closure is commit 1 of this PR)",
+        "text": "LSC-2P closes in commit 1 of this PR: state main-verified, prHead 63c8fb8aca3ef45d2738803bd8177e4d8bcbaead, mergeSha 57fd9064ce8899c37f94195d4e6ff1713e5b4c89 (fetched origin/main, ancestry exit 0), mainProof PASS (evidence/lsc-2p-mainproof-20261025.json: G-P5 second packaged run on an installer built from the exact merge, 17 of 17; G-P7 tool checks, exit 0). No admitted-unfinished unit remains once this PR merges (GOAL.md:10, stepPlanDecision20261024.wip); closure and the next admission share one PR (precedent #2330, #2332). A2FP implementation starts only after this PR merges to main."
+      },
+      {
+        "id": "AUTH-5",
+        "kind": "stale tracked text",
+        "status": "SETTLED (nothing stale remains as authority)",
+        "text": "The tracked HOLD prose that predated the lift was rewritten by holdLiftAmendment20261024.proseUpdated (GOAL.md:10, DELIVERY.md:10, generate-v220-steps.mjs header, V2.2.0-STEPS.md regenerated). The only remaining \"HOLD still applies\" text is stepPlanDecision20261024.drain, retained unchanged as history and amended by holdLiftAmendment20261024.amends. A2FP edits none of these Root-owned texts (lifecycleOwnershipLimit); V2.2.0-STEPS.md is regenerated by the PR and is exempt from the file count (ownerRuling20261024StepsPageFileCap) but still counts toward counted lines and needs an ownershipExceptions entry (see manifest.ownershipExceptionsNeeded)."
+      },
+      {
+        "id": "AUTH-6",
+        "kind": "size-cap policy",
+        "status": "SETTLED on main (ownerRuling20261020SizeCapOptionA); the witness classification stays contestable by the owner until this admission merges",
+        "text": "units.json ownerRuling20261020SizeCapOptionA (merged in #2333, a64cb3fe6; baseline c461273a5). Authority: owner decisions 2026-10-20 (~23:45 UTC) item 2, E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261020.md (sha256 2fb5cb2dce0a4d8b787c0d0fcb277958921ff706f6ba10c5ed89ecc01bf63e00): \"Size cap: option A (\\\"2 A\\\"). Test and fixture code are excluded from the 500-line unit cap (file count still applies).\" Ruling: \"test code and fixture code do not count toward caps.maxNonGeneratedLines. The 15-file cap is unchanged and still counts every file\". Its `applies` clause names A2FP as the first expected user: \"must cite this object, re-run its 13 tests and 20 mutants, and fill its GATE OPEN placeholders before admission\". This admission freeze records that A2FP is admitted AFTER the record merged to main, so option A applies. Root interpretation (not owner-stated) used here: the exclusion covers proof-harness test-support leaves, meaning leaves whose only role is to build fixtures or witness state for a proof; it never covers runtime or product code, runner and harness entry points that ship behavior, or the ledger lifecycle files. ENFORCEMENT: not enforced by the validator (UNCOUNTED_FILES in validate-roadmap.mjs:107-109 skips only generated files, __tests__/, e2e/, *.test.* and *.spec.*), so see capException below.",
+        "testSupportLeaves": [
+          {
+            "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+            "formattedLines": 284,
+            "reason": "Root interpretation names it: \"the read-only DB witness\". Its only role is to open the stopped private DB read-only and witness state (phase, units, positions, weapon, lock, declaration, reveal) for the proof; it ships no behavior, is reachable only through ctx.prepareOffline after the owned server stopped, and writes nothing (query_only plus lineage hash). Contestable by the owner before admission.",
+            "validatorCounts": true,
+            "optionACounts": false
+          },
+          {
+            "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+            "formattedLines": 445,
+            "reason": "Test file: already line-exempt under U41 (*.test.*) and file-counted.",
+            "validatorCounts": false,
+            "optionACounts": false
+          }
+        ],
+        "countedLeaves": [
+          {
+            "path": "scripts/release/l1-built-server-spectator-context.mjs",
+            "formattedLines": 249,
+            "reason": "Counted. It drives production HTTP and sockets (provision, phaseReady, accepted) and F/M/A2 import its callbacks: a harness leaf that ships proof behavior, not a witness. Not claimed as test-support."
+          },
+          {
+            "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+            "formattedLines": 86,
+            "reason": "Counted. Runner entry point."
+          }
+        ]
+      },
+      {
+        "id": "AUTH-7",
+        "kind": "interface change folded into the frozen manifest",
+        "status": "SETTLED (this Root brief; prep a2f-a2m README Q-F3)",
+        "text": "Q-F3 (E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2f-a2m/README.md, section 6): \"Add the 21-line a2fp-interface-asks.patch to the A2FP admission freeze. (R) Yes, now: A2FP is the only unit that can still change those leaves, and without them F and M copy about 50 lines (stop/restart wrapper, request builder, a 25-line CLI main, connection lookup) and cannot validate a trusted match with the A2FP witness (invariant 11).\" The Root brief for this PR makes the change part of A2FP's frozen manifest. See manifest.interfaceChange for the exact diff, its sha256 and the amended leaf bytes. ownershipExceptions are extended with PROGRESS.md and V2.2.0-STEPS.md (B3, same brief)."
+      }
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (LSC-2P closure and A2FP admission)",
+    "coordinator": "Root (Astra coordinator)"
+  },
+  "predecessors": {
+    "L1-SMOKE-A1": {
+      "state": "main-verified",
+      "mergeSha": "b16302d76df1ace0589bc334f9249330a25c5278",
+      "mainProof": "evidence/l1-smoke-a1-mainproof-20261018.json",
+      "closure": "#2291 (cfc53c308)"
+    },
+    "MP-RECOVERY-UNITS-1": {
+      "state": "main-verified",
+      "mergeSha": "e69ae02911f11fd0d3bd891c83108414f3098727",
+      "mainProof": "evidence/mp-recovery-units-1-mainproof-20261018.json"
+    },
+    "MP-HOST-DEDUPE-1": {
+      "state": "main-verified",
+      "mergeSha": "86e2a7214b77856bdce4ead9c5697a0416fbfad0",
+      "mainProof": "evidence/mp-host-dedupe-mainproof-20261018.json"
+    },
+    "MP-RECOVERY-UNITS-2": {
+      "state": "main-verified",
+      "mergeSha": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+      "mainProof": "evidence/mp-recovery-units-2-mainproof-20261019.json"
+    },
+    "note": "Read from units.json at 57fd9064c with the commit-1 ledger on 2026-10-25 (all four mainProof verdicts PASS). Verified with validate-roadmap --git (ancestry of each merge in origin/main and closure) in the final-head proof of this PR."
+  },
+  "acceptance": [
+    "A1 Frozen A1 harness read-only on a real built production image: provision canonical units and authenticated participants and a current spectator seat through ordinary APIs/actions; prove accepted legal phase-ready Move, Attack and Physical commands with correlated declaration events and durable read-only witnesses. No sealed declaration inserted; no source-host call. Missing legal reachability retains explicit unrun rows and stops for Root.",
+    "A2 Ordinary context, reachability runner and read-only stopped-private-DB phase/unit/declaration witnesses. Structural CLI validation; falsify live owning PID, foreign/redirected private DB, unexpected metadata/canonical unit/position/phase/weapon/limb/lock state, missing accepted intent and absent positive/precondition control. Witnesses leave DB lineage unchanged. No trusted brand/stale-assignment mutation.",
+    "A3 Import-safe provisioner, activation-aware phase-ready callbacks, accepted-command checks, read-only witnesses and explicit required-case enumeration frozen for F/M/A2. Installed tsx or standalone SQL, server stopped. No new loader/dependency or A1/product/helper/config edit. A1 command/exit/build/listener/readiness/PID/DB hashes and credential redaction preserved; tokens never in URLs or retained evidence. Tests falsify broken guards and missing controls.",
+    "A4 FP supplies ordinary provisioning/read-only reachability only. No full privacy matrix, co-op restart, captured rolls, concurrent first sockets or B/H/RC gate."
+  ],
+  "proofClassAndShape": {
+    "runner": "node scripts/release/run-l1-built-server-spectator-fixture-proof.mjs --build --expected-sha=<40-hex> --output=<abs-new-dir> [--repo-root=<abs>]",
+    "invocationFrozenAtAdmission": true,
+    "node": "22 (v22.22.0), heavy-run class build for the build, class jest for the run (the implementer's own lane)",
+    "exports": [
+      "FP_REQUIRED_CASES",
+      "runReachabilityCases",
+      "COMMANDS",
+      "BOOTSTRAP",
+      "provision",
+      "phaseReady",
+      "commandFor",
+      "accepted",
+      "witness",
+      "REACHABILITY",
+      "connect",
+      "connOf",
+      "witnessRequest",
+      "offline",
+      "hash",
+      "need",
+      "lineage",
+      "runDirect (Q-F3)"
+    ],
+    "requiredCases": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical"
+    ],
+    "note": "MEASURED on the scratch draft at origin/main 1c8a05d1c (2026-10-24): built-image run PASS, passed [accepted-Move, accepted-Attack, accepted-Physical], 0 errors, 8 owned server processes, 7 offline witness calls, ~1 min after a ~5 min build (evidence: prep/a2fp/evidence/fp3-*). NOT re-run at admission (B7 open): this PR is ledger and evidence only and the packaged LSC-2P proof held the build lane for the day; the Q-F3 amendment to the leaves is likewise unrun in a built image. Product bytes the run depends on are byte-identical (controls below), so the 2026-10-24 run is the latest built-image evidence; re-run it with --build on the amended leaves at the local stage and at the exact merge commit."
+  },
+  "manifest": {
+    "count": 10,
+    "files": [
+      "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "scripts/release/l1-built-server-spectator-context.mjs",
+      "scripts/release/l1-built-server-spectator-reachability.ts",
+      "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
+    ],
+    "exemptFromFileCount": [
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md (generated page; now exempt, per Root brief)"
+    ],
+    "plannedImplementationPrFileSet": {
+      "count": 8,
+      "note": "Four leaves + units.json + PROGRESS.md + red + local receipts = 8 counted files (V2.2.0-STEPS.md exempt). The admission receipt is already on main (placement P2), the review receipt lands in the closure PR. Cap 15."
+    },
+    "closurePrExpected": [
+      "evidence/l1-smoke-a2fp-review.json",
+      "evidence/l1-smoke-a2fp-merge-<closure date>.json",
+      "evidence/l1-smoke-a2fp-mainproof-<closure date>.json",
+      "evidence/l1-smoke-a2fp-source-review-<closure date>.bytes.json",
+      "evidence/l1-smoke-a2fp-owner-ruling-<comment id>.bytes.json",
+      "evidence/mainproof-<sha9>-logs.bytes.json",
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md (exempt)"
+    ],
+    "gOwn": "G-OWN: no tracked trace/log/screenshot/DB file. Raw run output (evidence.jsonl, server logs, summary.json, manifest.json) is archived as one combined bytes envelope in the closure PR, as LSC-2P. Names frozen at the closure PR.",
+    "noExtraLeaves": "No helper, config, package.json or product edit. A1 files and V2.2.0-STEPS-adjacent Root texts are read-only.",
+    "ownershipExceptionsNeeded": {
+      "status": "APPLIED in this admission commit (B3 resolved)",
+      "applied": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
+      ],
+      "finding": "units.json L1-SMOKE-A2FP.ownershipExceptions lists only units.json. validate-roadmap.mjs:714-720 fails a merge that touches a file outside ownershipPaths (scripts) and ownershipExceptions, except under evidence/. The implementation PR regenerates V2.2.0-STEPS.md and the closure PR edits PROGRESS.md; LSC-2C, LSC-2O and LSC-2 each carry both in ownershipExceptions (units.json, PROGRESS.md, V2.2.0-STEPS.md plus their evidence names). The admission or the first lifecycle commit must extend A2FP.ownershipExceptions with PROGRESS.md and V2.2.0-STEPS.md (and the evidence names, per lifecycleOwnershipLimit), otherwise `validate-roadmap --git` fails at closure. These added lines count toward the unit lines.",
+      "note": "The closure names (merge, mainproof, source review, owner ruling, log envelope) are added to ownershipExceptions in the closure PR, when their names are frozen (G-OWN)."
+    },
+    "gitignoreFinding": ".gitignore:38 `scripts/**` ignores new files under scripts/release (the four tracked A1 leaves were force-added). The four A2FP leaves must be added with `git add -f`; a plain `git add` silently skips them. A .gitignore edit is outside the frozen manifest and is not proposed. B4 resolved: force-add at implementation (git add -f); no .gitignore edit.",
+    "interfaceChange": {
+      "id": "Q-F3",
+      "summary": "A 21-line interface change to three of the four leaves so that A2F and A2M reuse the A2FP leaves unchanged instead of copying about 50 lines (invariant 11) and so that the A2FP witness can validate a trusted match: context.mjs exports connect(), connOf(), witnessRequest() and a new offline() helper and witness() is rebuilt on them; accepted() uses connOf and no longer names the role in its message; reachability.ts exports hash, need and lineage, adds an optional command.trusted flag (a trusted co-op match passes the ordinary-match guard) and finds the acting principal among the two participants own assignment rows instead of the first assignment of a side; the runner exports runDirect(), the shared direct-run entry, and the FP entry uses it. Behavior for the ordinary (untrusted) path is unchanged.",
+      "patch": {
+        "source": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2f-a2m/draft/patches/a2fp-interface-asks.patch",
+        "sha256": "8316cdce998fb29a626bd35eb21c2c57853e38d87425bdc96da4c02409627062",
+        "bytes": 6904,
+        "lines": 174,
+        "baseOfDiff": "the unamended A2FP draft bytes (prep a2f-a2m fp-base, equal to the prep a2fp draft)",
+        "text": [
+          "diff --git scripts/release/l1-built-server-spectator-context.mjs scripts/release/l1-built-server-spectator-context.mjs",
+          "index fad2edebb..bd7b27407 100644",
+          "--- scripts/release/l1-built-server-spectator-context.mjs",
+          "+++ scripts/release/l1-built-server-spectator-context.mjs",
+          "@@ -40,7 +40,7 @@ export const BOOTSTRAP = Object.freeze([",
+          " ]);",
+          " ",
+          " /** Serial participant sockets for the current server process (A1 serial-first rule). */",
+          "-async function connect(ctx, state) {",
+          "+export async function connect(ctx, state) {",
+          "   state.generation = (state.generation ?? 0) + 1;",
+          "   for (const role of ['host', 'guest']) {",
+          "     state.conns?.[role]?.close();",
+          "@@ -107,12 +107,13 @@ export async function provision(ctx, label) {",
+          "   return state;",
+          " }",
+          " ",
+          "-/** Stop the owned server, run one read-only witness op, restart and reconnect. */",
+          "-export async function witness(ctx, state, op, command, extra = {}) {",
+          "-  Object.values(state.conns).forEach((conn) => conn.close());",
+          "-  await ctx.stop();",
+          "+/** The connection of the participant holding this principal id. */",
+          "+export const connOf = (state, playerId) =>",
+          "+  state.conns[playerId === state.identities.host.playerId ? 'host' : 'guest'];",
+          "+",
+          "+export function witnessRequest(ctx, state, command, extra = {}) {",
+          "   const { host, guest, watcher } = state.identities;",
+          "-  const request = {",
+          "+  return {",
+          "     matchId: state.matchId,",
+          "     expectedDb: path.join(ctx.evidence.dir, 'db', 'smoke.sqlite'),",
+          "     hostId: host.playerId,",
+          "@@ -126,7 +127,22 @@ export async function witness(ctx, state, op, command, extra = {}) {",
+          "       ...extra,",
+          "     },",
+          "   };",
+          "-  const facts = await ctx.prepareOffline(REACHABILITY, [",
+          "+}",
+          "+",
+          "+/** Close every socket, stop the owned server, run one offline script, restart and reconnect. */",
+          "+export async function offline(ctx, state, script, args) {",
+          "+  Object.values(state.conns).forEach((conn) => conn.close());",
+          "+  await ctx.stop();",
+          "+  const result = await ctx.prepareOffline(script, args);",
+          "+  await ctx.restart();",
+          "+  await connect(ctx, state);",
+          "+  return result;",
+          "+}",
+          "+",
+          "+/** One read-only witness op between a stop and a restart. */",
+          "+export async function witness(ctx, state, op, command, extra = {}) {",
+          "+  const request = witnessRequest(ctx, state, command, extra);",
+          "+  const facts = await offline(ctx, state, REACHABILITY, [",
+          "     op,",
+          "     `--request=${JSON.stringify(request)}`,",
+          "   ]);",
+          "@@ -136,8 +152,6 @@ export async function witness(ctx, state, op, command, extra = {}) {",
+          "     'witness answered another op or phase',",
+          "     facts,",
+          "   );",
+          "-  await ctx.restart();",
+          "-  await connect(ctx, state);",
+          "   return facts;",
+          " }",
+          " ",
+          "@@ -156,9 +170,7 @@ async function advance(ctx, state, count) {",
+          " ",
+          " /** One accepted authoritative declaration, correlated to its intent id. */",
+          " export async function accepted(ctx, state, ready, intent, type) {",
+          "-  const role =",
+          "-    ready.active.playerId === state.identities.host.playerId ? 'host' : 'guest';",
+          "-  const result = await state.conns[role].intent(intent);",
+          "+  const result = await connOf(state, ready.active.playerId).intent(intent);",
+          "   const { event } = result.reply;",
+          "   ctx.check(",
+          "     result.reply.kind === 'Event' &&",
+          "@@ -166,7 +178,7 @@ export async function accepted(ctx, state, ready, intent, type) {",
+          "       event.payload.intentId === result.intentId &&",
+          "       event.actorId === ready.active.unitId,",
+          "     state.label,",
+          "-    `${role} ${intent.kind} not accepted as ${type}`,",
+          "+    `${intent.kind} not accepted as ${type}`,",
+          "     result.reply,",
+          "   );",
+          "   return result;",
+          "diff --git scripts/release/l1-built-server-spectator-reachability.ts scripts/release/l1-built-server-spectator-reachability.ts",
+          "index ec96270d2..8b1d4ac21 100644",
+          "--- scripts/release/l1-built-server-spectator-reachability.ts",
+          "+++ scripts/release/l1-built-server-spectator-reachability.ts",
+          "@@ -55,17 +55,18 @@ export const WitnessRequest = z.strictObject({",
+          "     ready: z",
+          "       .strictObject({ count: z.number().int().positive(), sha256: digest })",
+          "       .optional(),",
+          "+    trusted: z.boolean().optional(),",
+          "   }),",
+          " });",
+          " type Request = z.infer<typeof WitnessRequest>;",
+          " ",
+          "-const hash = (value: unknown) =>",
+          "+export const hash = (value: unknown) =>",
+          "   createHash('sha256').update(JSON.stringify(value)).digest('hex');",
+          "-function need(ok: unknown, message: string): asserts ok {",
+          "+export function need(ok: unknown, message: string): asserts ok {",
+          "   if (!ok) throw new Error(`witness: ${message}`);",
+          " }",
+          " /** Digest of the DB and WAL bytes; a read-only open may create an empty WAL, which is not a change. */",
+          "-const lineage = (db: string) =>",
+          "+export const lineage = (db: string) =>",
+          "   hash(",
+          "     [db, `${db}-wal`].map((f) =>",
+          "       fs.existsSync(f) && fs.statSync(f).size > 0",
+          "@@ -98,7 +99,7 @@ export function witness(db: OfflineDb, op: 'ready' | 'declared', req: Request) {",
+          "   need(",
+          "     meta.status === 'active' &&",
+          "       meta.config.fogOfWar === false &&",
+          "-      !meta.coopCampaign,",
+          "+      (command.trusted || !meta.coopCampaign),",
+          "     'ordinary active fog-off match required',",
+          "   );",
+          "   need(meta.hostPlayerId === req.hostId, 'unexpected host');",
+          "@@ -156,7 +157,9 @@ export function witness(db: OfflineDb, op: 'ready' | 'declared', req: Request) {",
+          "   need(active, 'no active unit');",
+          "   const other = active === first ? second : first;",
+          "   const owner = (side: string) =>",
+          "-    meta.sideAssignments.find((a) => a.side === side)?.playerId;",
+          "+    [req.hostId, req.guestId].find((id) =>",
+          "+      meta.sideAssignments.some((a) => a.playerId === id && a.side === side),",
+          "+    );",
+          "   need(",
+          "     [req.hostId, req.guestId].includes(owner(active.side) ?? ''),",
+          "     'active unit has no seated principal',",
+          "diff --git scripts/release/run-l1-built-server-spectator-fixture-proof.mjs scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "index addfd6639..cb2faa810 100644",
+          "--- scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "+++ scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "@@ -48,22 +48,26 @@ export async function runReachabilityCases(ctx) {",
+          "   }",
+          " }",
+          " ",
+          "-if (",
+          "-  process.argv[1] &&",
+          "-  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)",
+          "-) {",
+          "+/** Direct-run entry shared by the FP, F, M and A2 runners; a no-op when imported. */",
+          "+export function runDirect(moduleUrl, requiredCases, runCases, defaults = {}) {",
+          "+  if (",
+          "+    !process.argv[1] ||",
+          "+    path.resolve(process.argv[1]) !== fileURLToPath(moduleUrl)",
+          "+  )",
+          "+    return;",
+          "   const arg = (name) =>",
+          "     process.argv",
+          "       .find((a) => a.startsWith(`--${name}=`))",
+          "       ?.slice(name.length + 3);",
+          "   const options = {",
+          "+    ...defaults,",
+          "     build: process.argv.includes('--build'),",
+          "     expectedSha: arg('expected-sha'),",
+          "     output: arg('output'),",
+          "     repoRoot: arg('repo-root'),",
+          "-    requiredCases: FP_REQUIRED_CASES,",
+          "+    requiredCases,",
+          "   };",
+          "-  runHarness(options, runReachabilityCases).then(",
+          "+  runHarness(options, runCases).then(",
+          "     (summary) =>",
+          "       console.log(",
+          "         JSON.stringify({",
+          "@@ -78,3 +82,5 @@ if (",
+          "     },",
+          "   );",
+          " }",
+          "+",
+          "+runDirect(import.meta.url, FP_REQUIRED_CASES, runReachabilityCases);"
+        ]
+      },
+      "linesAdded": {
+        "context": 12,
+        "reachability": 3,
+        "runner": 6,
+        "total": 21
+      },
+      "amendedLeafBytes": {
+        "run-l1-built-server-spectator-fixture-proof.mjs": {
+          "before": {
+            "lines": 80,
+            "bytes": 2404,
+            "sha256": "64a27659be5096882777f2514053859e5c31ec05f88022bfff750c20e0635f50"
+          },
+          "after": {
+            "lines": 86,
+            "bytes": 2638,
+            "sha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+          }
+        },
+        "l1-built-server-spectator-context.mjs": {
+          "before": {
+            "lines": 237,
+            "bytes": 7485,
+            "sha256": "925e771128a2dfcc2a95831bdc0b013485c2084819cd4e1ef5bf1406be9f2cd5"
+          },
+          "after": {
+            "lines": 249,
+            "bytes": 7932,
+            "sha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+          }
+        },
+        "l1-built-server-spectator-reachability.ts": {
+          "before": {
+            "lines": 281,
+            "bytes": 9306,
+            "sha256": "566021d6add1d90b6a9cfce20c57796defa9faf281912afa3e0f9973866d4f06"
+          },
+          "after": {
+            "lines": 284,
+            "bytes": 9448,
+            "sha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+          }
+        }
+      },
+      "patchAppliedCheck": "git apply -p0 of the patch to the unamended draft bytes reproduces the A2F/A2M prep draft bytes (LF-normalised); the amended bytes are idempotent under oxfmt.",
+      "consumers": "A2F and A2M (prep a2f-a2m drafts) import connect, connOf, witnessRequest, offline, hash, need, lineage and runDirect; their drafts were written against these exports.",
+      "trustedFlagCoverage": "command.trusted is not exercised by an A2FP test (A2FP never sends it); A2F tests carry that coverage. Mutant M22 (trusted flag ignored) therefore survives A2FP by design; the default path is killed by M21/M4 (gap test T14). Open item OQ-T below.",
+      "scopeNote": "No new file, no helper leaf, no config, package or product edit; the four registered leaves only."
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "sizeCapRule": "ownerRuling20261020SizeCapOptionA (AUTH-6)"
+  },
+  "measuredFit": {
+    "basis": "MEASURED 2026-10-25 at 57fd9064c: the amended leaf bytes (prep a2f-a2m amended three leaves plus the test file with the two gap tests applied) formatted with `node node_modules/oxfmt/bin/oxfmt --write --config .oxfmtrc.json <abs paths>` (scripts/ is in .oxfmtignore, so format:check does not apply it); the command is idempotent: every sha256 is unchanged. Lines are git numstat lines (newline-terminated).",
+    "leaves": [
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "formattedLines": 86,
+        "bytesFormatted": 2638,
+        "sha256Formatted": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d",
+        "validatorCounts": true,
+        "optionACounts": true,
+        "before": {
+          "lines": 80,
+          "bytes": 2404,
+          "sha256": "64a27659be5096882777f2514053859e5c31ec05f88022bfff750c20e0635f50"
+        }
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-context.mjs",
+        "formattedLines": 249,
+        "bytesFormatted": 7932,
+        "sha256Formatted": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb",
+        "validatorCounts": true,
+        "optionACounts": true,
+        "before": {
+          "lines": 237,
+          "bytes": 7485,
+          "sha256": "925e771128a2dfcc2a95831bdc0b013485c2084819cd4e1ef5bf1406be9f2cd5"
+        }
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-reachability.ts",
+        "formattedLines": 284,
+        "bytesFormatted": 9448,
+        "sha256Formatted": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd",
+        "validatorCounts": true,
+        "optionACounts": false,
+        "note": "read-only DB witness classified as test-support (AUTH-6)",
+        "before": {
+          "lines": 281,
+          "bytes": 9306,
+          "sha256": "566021d6add1d90b6a9cfce20c57796defa9faf281912afa3e0f9973866d4f06"
+        }
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+        "formattedLines": 445,
+        "bytesFormatted": 15981,
+        "sha256Formatted": "4fbefa59ca3f2c4fb6445939641f1869095ffb9bb4a0d567f8ae7f5205c0d16f",
+        "validatorCounts": false,
+        "optionACounts": false,
+        "note": "test file (13 prep tests plus the two adopted gap tests)",
+        "before": {
+          "lines": 420,
+          "bytes": 15054,
+          "sha256": "78d2f97dc40da6582264d4a37018f2ba570ad5790c8e128934d1a5d3f4f2f08f"
+        }
+      }
+    ],
+    "leafTotals": {
+      "validatorLiteral": 619,
+      "optionA": 335,
+      "before": {
+        "validatorLiteral": 598,
+        "optionA": 317
+      }
+    },
+    "lifecycleDraftMeasurement": {
+      "basis": "a throwaway commit on the admission commit with the four amended leaves (git add -f), the final-stage units.json (state local-verified, red and local receipts, capException, the 27-line PK packet) and the regenerated page; measured with prep/a2fp/draft/measure-cap.cjs <repo> <head> <parent> --testsupport=scripts/release/l1-built-server-spectator-reachability.ts",
+      "P2_admissionAlreadyOnMain": {
+        "unitsJsonAdded": 36,
+        "pageAdded": 2,
+        "lifecycle": 38
+      },
+      "note": "Measured, not estimated: a throwaway commit on the admission commit with the four leaves (git add -f), the final-stage units.json edit (state local-verified, red and local receipts, capException, the 27-line PK packet) and the regenerated page; the count is a fixed point of capException.countedLines. The admission lines themselves (state admitted, baseline, admission receipt, ownershipExceptions, admission20261025) are in the parent and not counted."
+    },
+    "scenarios": [
+      {
+        "id": "S-literal",
+        "rule": "validate-roadmap.mjs UNCOUNTED_FILES as written (only generated files, __tests__/, e2e/, *.test.*, *.spec.*, evidence exempt)",
+        "leaves": 619,
+        "withLifecycle": 657,
+        "cap": 500,
+        "verdict": "DOES NOT FIT (over by 157)"
+      },
+      {
+        "id": "S-optionA",
+        "rule": "ownerRuling20261020SizeCapOptionA with reachability.ts classified as test-support (AUTH-6)",
+        "leaves": 335,
+        "withLifecycle": 373,
+        "cap": 500,
+        "verdict": "FITS (margin 127)"
+      }
+    ],
+    "files": {
+      "count": 10,
+      "cap": 15,
+      "margin": 5,
+      "note": "Manifest above; V2.2.0-STEPS.md is exempt from the file count. All files count, tests and evidence included."
+    },
+    "verdict": "FITS only under option A with the witness classified as test-support (373 of 500; literal 657). If the owner overrules the classification before this admission merges, A2FP does not fit and the smallest split is: A2FP-W (reachability.ts + reachability.test.mjs) then A2FP (context.mjs + runner); it costs at least 2 PRs against Step 3's zero-slack budget of 10 and needs Root and the owner. Contingency only; not proposed."
+  },
+  "testInventory": {
+    "runner": "node --test scripts/release/l1-built-server-spectator-reachability.test.mjs (node:test, no build, no Jest; builds throwaway private DBs with the production DurableMatchStore + InteractiveSession through tsx)",
+    "count": 15,
+    "note": "MEASURED 2026-10-25 on the amended leaves in a scratch worktree at 57fd9064c through heavy-run (lane lsc-2p-closure, class jest): node --test scripts/release/l1-built-server-spectator-reachability.test.mjs -> 15 tests, 15 pass, 0 fail, 78 s (logs and results.json stay outside Git under E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/lsc-2p-closure/a2fp/results/, sha256 of a2fp-results.json: 7dcee2bd7ca1d147fc99d4ad2a8a636a300d2927451639541c66bdb5d1b68fcd; the per-mutant outcomes are in mutantInventory). The file needs no production build: it builds throwaway private DBs with the production DurableMatchStore and InteractiveSession through the installed tsx. node:test, not Jest, so not CI-wired (B9 resolved: no CI wiring; the local receipt and the exact-main run carry the proof, as for A1).",
+    "tests": [
+      "T1 ready witness reports the activation-aware active unit, owner, distance and unchanged DB bytes",
+      "T2 ready witness at weapon_attack names a canonical weapon legal at the actual range",
+      "T3 declared witness proves the accepted intent, active actor, pending second actor and no reveal",
+      "T4 CLI refuses non-JSON request",
+      "T5 CLI refuses unknown op",
+      "T6 CLI refuses missing request",
+      "T7 CLI refuses structurally invalid requests (unknown key, short pid, non-uuid match, invalid kind/phase, wrong bootstrap length, bad ready digest)",
+      "T8 refuses live owning PID, foreign DB, redirected DB (junction), missing DB",
+      "T9 refuses unexpected phase, host, bootstrap and seats",
+      "T10 refuses a unit that already acted, a missing intent, and a changed pre-command history digest",
+      "T11 declared refuses when the second actor can no longer withhold reveal",
+      "T12 declared refuses when the phase moved on",
+      "T13 context callbacks: frozen enumeration; accepted() rejects wrong type, wrong actor, Error reply and stale intent id; commandFor derives destination/weapon/limb; non-shared deployment column throws",
+      "T14 ready witness refuses a fog-on match, a co-op match and a match that is not active (kills M4, M21)",
+      "T15 ready witness names the opponent unit when the opponent moves first (kills M10 deterministically: rebuilds up to 12 times because initiative is crypto-random, not seed-controlled)"
+    ],
+    "gaps": [
+      "The run-level cases (provision, phaseReady, runReachabilityCases) are exercised only by the built-image run. Mutants M17, M19, M20, M24 and M25 can only be killed by a built server (not run).",
+      "M8, M12, M13, M22 and M23 survive node:test (see mutantInventory); M8 and M12 sit behind earlier guards (probably equivalent), M13 needs a mutating-witness seam, M22 and M23 matter to A2F (trusted state and stale-first assignment).",
+      "ctx.check on \"durable declaration is not the one the wire accepted\" has no node:test coverage."
+    ],
+    "optionalGapTests": {
+      "adopted": true,
+      "resolution": "B8 and the prep M4/M10 recommendation: adopted into the inventory (15 tests). The two tests are applied inside the same test file, so no new file; test lines are exempt.",
+      "patch": {
+        "source": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2fp/draft/03-optional-gap-tests.patch",
+        "sha256": "23c259d8e83de18b5a5b065d9e7708e239a4b7da2bd38374d1a1ca954d1534c3",
+        "bytes": 3813
+      }
+    },
+    "firstMoverNote": "The first mover is not controlled by the builder seed: the builder passes SeededRandom(7) but initiative differed between runs, so T1, T3, T11 and others see a different acting side from run to run. All 13 pass for either order; mutant M10 is therefore killed only with probability."
+  },
+  "mutantInventory": {
+    "note": "RESULTS of the 2026-10-25 rerun on the amended leaves (2026-10-25T23:47:48.059Z to 2026-10-25T23:57:50.192Z). M1-M20 are the prep mutants (M4 re-targeted at the amended guard text); M21-M25 are new for the Q-F3 text. Each mutant is a single text edit to one leaf in a scratch worktree, run against the named tests, then the whole file when the targeted run passed.",
+    "baseline": {
+      "exit": 0,
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "failed": [],
+      "ms": 77688
+    },
+    "mutants": [
+      {
+        "id": "M1",
+        "mutant": "witness ignores --stopped-pid (live PID accepted)",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T8",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "witness refuses a live owning PID, a foreign DB, a redirected DB and a missing DB"
+        ]
+      },
+      {
+        "id": "M2",
+        "mutant": "expectedDb comparison removed (foreign DB accepted)",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T8",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "witness refuses a live owning PID, a foreign DB, a redirected DB and a missing DB"
+        ]
+      },
+      {
+        "id": "M3",
+        "mutant": "realpath redirect check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T8",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "witness refuses a live owning PID, a foreign DB, a redirected DB and a missing DB"
+        ]
+      },
+      {
+        "id": "M4",
+        "mutant": "meta.status/fogOfWar/coopCampaign check removed (amended form with the trusted flag)",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T9, T14",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness refuses a fog-on match, a co-op match and a match that is not active"
+        ]
+      },
+      {
+        "id": "M5",
+        "mutant": "unitBootstrap digest check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T9",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness refuses unexpected phase, host, bootstrap and seats"
+        ]
+      },
+      {
+        "id": "M6",
+        "mutant": "seat-kind check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T9",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness refuses unexpected phase, host, bootstrap and seats"
+        ]
+      },
+      {
+        "id": "M7",
+        "mutant": "phase equality check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T9, T12",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness refuses unexpected phase, host, bootstrap and seats",
+          "declared witness refuses a phase that moved on (the declaration is no longer pending)"
+        ]
+      },
+      {
+        "id": "M8",
+        "mutant": "ready: pending-lock check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T10",
+        "applies": true,
+        "result": "SURVIVED",
+        "killedBy": []
+      },
+      {
+        "id": "M9",
+        "mutant": "declared: single-declaration-by-intentId check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T10",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness refuses a unit that already acted and a declared witness without its intent"
+        ]
+      },
+      {
+        "id": "M10",
+        "mutant": "active unit taken as the first (player/host) bootstrap unit instead of getActivePhaseUnitId",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T1, T3, T15",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness reports the activation-aware active unit, owner, weapon and unchanged DB bytes",
+          "ready witness names the opponent unit when the opponent moves first",
+          "declared witness proves the accepted intent, active actor, pending second actor and no reveal"
+        ]
+      },
+      {
+        "id": "M11",
+        "mutant": "second-actor-pending check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T11",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "declared witness refuses an accepted intent whose second actor can no longer withhold reveal"
+        ]
+      },
+      {
+        "id": "M12",
+        "mutant": "revealed check removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T12",
+        "applies": true,
+        "result": "SURVIVED",
+        "killedBy": []
+      },
+      {
+        "id": "M13",
+        "mutant": "DB lineage comparison removed",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T1",
+        "applies": true,
+        "result": "SURVIVED",
+        "killedBy": []
+      },
+      {
+        "id": "M14",
+        "mutant": "WitnessRequest made non-strict",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T7",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "CLI refuses structurally invalid requests"
+        ]
+      },
+      {
+        "id": "M15",
+        "mutant": "accepted() drops intentId correlation",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "T13",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "context callbacks: frozen enumeration and activation-aware, correlated acceptance"
+        ]
+      },
+      {
+        "id": "M16",
+        "mutant": "accepted() accepts movement_invalid (type check removed)",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "T13",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "context callbacks: frozen enumeration and activation-aware, correlated acceptance"
+        ]
+      },
+      {
+        "id": "M17",
+        "mutant": "connect() reuses labels after restart",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "BUILT",
+        "applies": true,
+        "result": "NOT-RUNNABLE-WITHOUT-BUILT-SERVER (mutation applies)",
+        "killedBy": []
+      },
+      {
+        "id": "M18",
+        "mutant": "FP_REQUIRED_CASES omits Physical",
+        "leaf": "run-l1-built-server-spectator-fixture-proof.mjs",
+        "mustFailAt": "T13",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "context callbacks: frozen enumeration and activation-aware, correlated acceptance"
+        ]
+      },
+      {
+        "id": "M18b",
+        "mutant": "COMMANDS (and so FP_REQUIRED_CASES) omits Physical",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "T13",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "context callbacks: frozen enumeration and activation-aware, correlated acceptance"
+        ]
+      },
+      {
+        "id": "M19",
+        "mutant": "runner never calls the declared witness",
+        "leaf": "run-l1-built-server-spectator-fixture-proof.mjs",
+        "mustFailAt": "BUILT",
+        "applies": true,
+        "result": "NOT-RUNNABLE-WITHOUT-BUILT-SERVER (mutation applies)",
+        "killedBy": []
+      },
+      {
+        "id": "M20",
+        "mutant": "mapRadius back to 4",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "BUILT",
+        "applies": true,
+        "result": "NOT-RUNNABLE-WITHOUT-BUILT-SERVER (mutation applies)",
+        "killedBy": []
+      },
+      {
+        "id": "M21",
+        "mutant": "trusted flag makes every match ordinary (co-op accepted without the flag)",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "T14",
+        "applies": true,
+        "result": "KILLED",
+        "killedBy": [
+          "ready witness refuses a fog-on match, a co-op match and a match that is not active"
+        ]
+      },
+      {
+        "id": "M22",
+        "mutant": "trusted flag ignored (a trusted co-op match is refused)",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "NONE-IN-A2FP",
+        "applies": true,
+        "result": "SURVIVED",
+        "killedBy": []
+      },
+      {
+        "id": "M23",
+        "mutant": "principal lookup reverts to the first assignment of a side (stale-first ordering)",
+        "leaf": "l1-built-server-spectator-reachability.ts",
+        "mustFailAt": "NONE-IN-A2FP",
+        "applies": true,
+        "result": "SURVIVED",
+        "killedBy": []
+      },
+      {
+        "id": "M24",
+        "mutant": "connOf always returns the host connection",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "BUILT",
+        "applies": true,
+        "result": "NOT-RUNNABLE-WITHOUT-BUILT-SERVER (mutation applies)",
+        "killedBy": []
+      },
+      {
+        "id": "M25",
+        "mutant": "offline() does not restart or reconnect after the script",
+        "leaf": "l1-built-server-spectator-context.mjs",
+        "mustFailAt": "BUILT",
+        "applies": true,
+        "result": "NOT-RUNNABLE-WITHOUT-BUILT-SERVER (mutation applies)",
+        "killedBy": []
+      }
+    ]
+  },
+  "redPlan": "Tests-only RED commit: add l1-built-server-spectator-reachability.test.mjs (15 tests) against absent leaves; on main the file fails at import (ERR_MODULE_NOT_FOUND for l1-built-server-spectator-context.mjs), which is a weak RED (a missing file, not a wrong guard). Guard-level RED comes from the mutants M1-M16 and M21 against the green leaves (see mutantInventory). GREEN adds the three source leaves within the frozen manifest, including the Q-F3 interface change. Use git add -f (scripts/** is ignored).",
+  "carryIn": [
+    {
+      "id": "CF-SMOKEA1-3",
+      "disposition": "Adopted counting used; historical A1 receipt unchanged."
+    },
+    {
+      "id": "CF-MPRU2-3",
+      "disposition": "Stays in A2 (co-op restart / captured rolls)."
+    },
+    {
+      "id": "CF-MPHD-5",
+      "disposition": "Stays in A2 (concurrent first sockets with accepted actions). FP keeps the A1 serial-first-connection rule."
+    },
+    {
+      "id": "CF-MPRU2-2",
+      "disposition": "U44 remains owner."
+    },
+    {
+      "id": "OBS-MPRU2-1",
+      "disposition": "Next actual MatchRecovery.ts owner; unchanged."
+    },
+    {
+      "id": "CF-MPRD-4/5",
+      "disposition": "Size-cap policy is now recorded in units.json ownerRuling20261020SizeCapOptionA (not validator-enforced). See AUTH-6 and capException."
+    },
+    {
+      "id": "A1-startHex",
+      "disposition": "NEW FINDING: unitBootstrap.startHex is accepted but ignored; deployment is fixed rows +-5. Carry to F/M/A2 so no leaf depends on startHex and mapRadius >= 7 is required."
+    },
+    {
+      "id": "A1-initiative",
+      "disposition": "NEW FINDING: first mover is random; every F/M/A2 leaf must select the principal from the durable witness, never assume the host acts first."
+    },
+    {
+      "id": "A1-offline-wal",
+      "disposition": "NEW FINDING: a read-only open creates an empty -wal and rewrites -shm; lineage checks hash the main DB and a non-empty WAL only."
+    },
+    {
+      "id": "LSC-2P-closure-carry",
+      "disposition": "LSC-2P closes in commit 1; its open decisions (CF-SMOKEA1-7, F4) are routed to Root there and do not bind A2FP. A2FP and the other Step 3 units drive the built production server, not the installed app."
+    }
+  ],
+  "census": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-25\\lsc-2p-closure\\a2fp\\results/census-a2fp.json",
+    "sha256": "2c5e1cd40ccca06cb3641c3a833275b81e0cf1f80fd6a6f53ec83c394018a69c",
+    "bytes": 220012,
+    "script": "census-a2fp.cjs",
+    "scriptSha256": "35612cc6b1063bcbcd4e1f1e6cb93e6d092c9d1887936621a818cee141f70f5b",
+    "observedAt": "2026-10-25T23:45:19.045Z",
+    "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+    "ledgerRef": "4104fe16510eb3387173452318a114616ebcbe55",
+    "prs": 1,
+    "note": "Fresh census run on 2026-10-25 against 57fd9064c (product bytes) and the commit-1 ledger (ledger claims, so LSC-2P main-verified is visible). The raw JSON stays outside Git (path above); its sha256 binds it.",
+    "dispositions": {
+      "literalCollisions": "Literal claims on the four scripts/release leaves: [[\"scripts/release/run-l1-built-server-spectator-fixture-proof.mjs\",[\"L1-SMOKE-A2FP planned units.L1-SMOKE-A2FP.registeredSourceLeaves[0]\",\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registration20261020[0]\"]],[\"scripts/release/l1-built-server-spectator-context.mjs\",[\"L1-SMOKE-A2FP planned units.L1-SMOKE-A2FP.registeredSourceLeaves[1]\",\"L1-SMOKE-A2F blocked units.L1-SMOKE-A2F.registration20261020[1]\"]],[\"scripts/release/l1-built-server-spectator-reachability.ts\",[\"L1-SMOKE-A2FP planned units.L1-SMOKE-A2FP.registeredSourceLeaves[2]\"]],[\"scripts/release/l1-built-server-spectator-reachability.test.mjs\",[\"L1-SMOKE-A2FP planned units.L1-SMOKE-A2FP.registeredSourceLeaves[3]\"]]]. The ledger files units.json and PROGRESS.md are listed as ownershipExceptions by many units (shared lifecycle files, expected). A2F registration20261020[0],[1] list context.mjs and fixture-proof.mjs; historical, pre-narrowing; the live registeredSourceLeaves of A2F are trusted-proof.mjs, trusted-fixtures.ts and fixture.test.mjs. Recorded, not a collision.",
+      "openPullRequests": [
+        {
+          "number": 2113,
+          "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+          "title": "docs(audits): preserve complete thread-transfer history",
+          "draft": true,
+          "files": 472
+        }
+      ],
+      "aliasOverlaps": "The `scripts` navigation alias of A1, A2FP, A2F, A2M, A2, B, R2.authority-live and STEP2-RC-RERUN-1 (blocked; its registered leaves are scripts/qc/v220-evidence.mjs, scripts/__tests__/v220-evidence.test.mjs and others, none in scripts/release). The collision result of the census: manifest collisions [], consumer touches [], alias touches []. Aliases grant no unnamed leaves.",
+      "consumerFindings": "No src/ consumer changes. scripts/release has no CI wiring and is excluded from oxlint, oxfmt and tsconfig; all four leaves are new, so there are no importers.",
+      "lsc2pLesson": "The #2332 lesson applied: A2FP's `scripts` alias overlaps the LSC-2P checker and test leaves (scripts/qc/v220-evidence.mjs, scripts/__tests__/v220-evidence.test.mjs); they are LSC-2P-owned exceptions and not A2FP leaves, and A2FP edits none of them."
+    }
+  },
+  "controls": [
+    {
+      "path": "scripts/release/l1-built-server-fixtures.ts",
+      "bytes": 3309,
+      "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+    },
+    {
+      "path": "scripts/release/l1-built-server-smoke.test.mjs",
+      "bytes": 25830,
+      "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+    },
+    {
+      "path": "scripts/release/l1-built-server-socket-cases.mjs",
+      "bytes": 15615,
+      "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+    },
+    {
+      "path": "scripts/release/run-l1-built-server-smoke.mjs",
+      "bytes": 16500,
+      "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+    },
+    {
+      "path": "server.js",
+      "bytes": 32625,
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "package.json",
+      "bytes": 35833,
+      "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+    },
+    {
+      "path": "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "bytes": 9442,
+      "sha256": "3580918996ec8dfaac7a2e7e79c7f5d8c9c090efea4e0ee4ee295291c3409eee"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostEngineDispatch.ts",
+      "bytes": 4220,
+      "sha256": "bc7bc27177be14a8b8bb34722c5ab711c1d0a384cbfba9f16cf0ed8fae366d98"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "bytes": 22306,
+      "sha256": "584698b14ffdd7d4ad29221c7fa7f460581684592d41fe45af530617c70ced3e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "bytes": 6072,
+      "sha256": "6e25afc908d9396e70335b981fd69c8399d9f022f9a26b72134ec2fb680ef120"
+    },
+    {
+      "path": "src/utils/gameplay/gameSessionActivation.ts",
+      "bytes": 2630,
+      "sha256": "c6352e4c357d7dcc04fa16e290c4b80346bf2b866b1cd136f9eeb1423a776a1e"
+    },
+    {
+      "path": "src/utils/gameplay/gameState/initialization.ts",
+      "bytes": 8940,
+      "sha256": "c099189dcb404fd61e6cfc85607b0967e888b147892d8c36559084b0f9f016ec"
+    },
+    {
+      "path": "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "bytes": 68230,
+      "sha256": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475"
+    },
+    {
+      "path": ".oxfmtrc.json",
+      "bytes": 318,
+      "sha256": "aeec1cd8f81f3f4cfa1b0af19bbfeb8188a9a022671cd1e8c8196f44e2346be1"
+    },
+    {
+      "path": ".oxfmtignore",
+      "bytes": 199,
+      "sha256": "8c67fa605e2dc35426137dd31d04ea7b93ac15d16989600cce86e821988568a8"
+    }
+  ],
+  "controlsNote": "sha256/bytes re-hashed 2026-10-25 from the git objects at 57fd9064c; every control is byte-identical to the prep (79211e5a1 and 1c8a05d1c) values. Re-hash at the implementation baseline; any change must be explained (byte-equal at admission baseline and PR head).",
+  "gates": [
+    {
+      "id": "G-P0",
+      "kind": "ruling before RED",
+      "text": "AUTH-3 (GATE OPEN) and AUTH-4 (LSC-2P closed) are recorded above; AUTH-6 is settled on main. No RED commit before this PR merges to main. If the owner overrules the test-support classification of reachability.ts, STOP and tell Root (contingency split in measuredFit.verdict)."
+    },
+    {
+      "id": "G-P1",
+      "kind": "build",
+      "text": "Run `npm run build` once through heavy-run (class build) from a worktree with a REAL node_modules (a junction makes hydrate-next-standalone-multiplayer-server.mjs fail with \"contains a symlink or junction\"); expected-sha must equal HEAD of a clean tree."
+    },
+    {
+      "id": "G-P2",
+      "kind": "local",
+      "text": "node --test of the reachability test, the A1 smoke test (unchanged), the built-image runner PASS with all 3 cases, validate-roadmap plain/--git/--next, its tests, lint:units, generate-v220-steps --check, and format of the four leaves with the explicit oxfmt command (record the formatted line counts and sha256)."
+    },
+    {
+      "id": "G-P3",
+      "kind": "exact-main",
+      "text": "Built-image runner PASS at the exact merge commit, plus validate-roadmap --github cited (sensitive classes, DELIVERY.md:83)."
+    },
+    {
+      "id": "G-P4",
+      "kind": "privacy/authority packet",
+      "text": "Genuine PK packet before local-verified (agentRecommendation not a placeholder)."
+    },
+    {
+      "id": "G-P5",
+      "kind": "cap record",
+      "text": "Record capException (shape and measured value above) in units.json and extend the closure ownershipExceptions before the closure PR; re-measure on the real squash diff; `validate-roadmap --git` is the check."
+    },
+    {
+      "id": "G-P6",
+      "kind": "built-image rerun of the amended leaves",
+      "text": "The local stage runs the built-image runner with --build on the amended leaves (B7); the exact-main proof runs it again at the merge commit."
+    }
+  ],
+  "openQuestions": [
+    "B2 (owner may overrule the test-support classification), B7 (built-image run), OQ-T (trusted-flag test) and the stub-image falsifiers of B8 are open; B1, B3-B6 and B9 are resolved in resolutions. Draft sources: prep/a2fp/open-questions.md and prep/a2f-a2m/README.md."
+  ],
+  "limitations": [
+    "Admission only. The leaf bytes live outside Git (prep a2f-a2m amended three leaves; the test file with the gap tests applied; formatted, hashes above) and need `git add -f` when committed at the implementation RED/GREEN.",
+    "The built-image run was last executed on the scratch draft at 1c8a05d1c (PASS); it was not repeated for the amended leaves (B7).",
+    "countedLines and the lifecycle line counts are measured on a drafted implementation diff and can move with the real lifecycle edit.",
+    "The census JSON and the test/mutant logs are outside Git; their sha256 values are recorded where they matter.",
+    "Q-F3 changes the frozen leaf bytes and line counts relative to the 2026-10-24 prep (619 literal lines instead of 598)."
+  ],
+  "capException": {
+    "rule": "validate-roadmap.mjs:723-726 fails a merged unit when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, where counted is the sum of added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` over files outside evidence/ and outside UNCOUNTED_FILES. The check compares for equality with the LITERAL validator count. It does not know option A.",
+    "consequence": "To pass \u000balidate-roadmap --git the unit MUST record capException.countedLines = the literal validator count of its implementation squash diff. That count includes reachability.ts (the validator does not exempt it), so the option A figure (373) cannot be what is recorded; it goes in the sibling optionACountedLines. The prep figures (645 or 636 literal) were measured on the unamended leaves and are superseded by the Q-F3 amended leaves (657 literal).",
+    "countedLinesFormula": "literal leaf lines (86 + 249 + 284 = 619) + added lines of units.json and V2.2.0-STEPS.md in the implementation squash diff vs its first parent; the test file and everything under evidence/ add 0.",
+    "measured": {
+      "countedLines": 657,
+      "optionACountedLines": 373,
+      "tool": "node prep/a2fp/draft/measure-cap.cjs <repo> <head> <parent> (replicates validate-roadmap.mjs:706-725; reproduces U17b: 707 for a96d6ec78, per the prep)",
+      "toolSha256": "586df8ce4b897468a175ddb206da6abcfdd7ca297f7a945041cb9faa0eaf8858",
+      "rows": [
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+          "added": 2,
+          "validatorCounts": true,
+          "optionAExempt": false
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "added": 36,
+          "validatorCounts": true,
+          "optionAExempt": false
+        },
+        {
+          "file": "scripts/release/l1-built-server-spectator-context.mjs",
+          "added": 249,
+          "validatorCounts": true,
+          "optionAExempt": false
+        },
+        {
+          "file": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+          "added": 445,
+          "validatorCounts": false,
+          "optionAExempt": false
+        },
+        {
+          "file": "scripts/release/l1-built-server-spectator-reachability.ts",
+          "added": 284,
+          "validatorCounts": true,
+          "optionAExempt": true
+        },
+        {
+          "file": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "added": 86,
+          "validatorCounts": true,
+          "optionAExempt": false
+        }
+      ],
+      "parent": "28ce6ac3262fec0dd7857fae474568c79dd8396c",
+      "head": "131941ef4be678cc05f27d74e09402e088e70a64",
+      "note": "Measured on the final-stage implementation diff drafted on the admission commit (placement P2). Parent and head are throwaway local commits that are not pushed: the parent is a copy of the admission commit whose units.json differs from the pushed admission commit only in the one-line sizeCap sentence of admission20261025 (same line count). It is exact for that draft; the implementation PR must re-measure its real squash diff and correct the figure if its lifecycle edit has a different line shape (the check runs only at the closure PR, for a unit with a mergeSha)."
+    },
+    "recordShape": {
+      "countedLines": 657,
+      "recordedBy": "ownerRuling20261020SizeCapOptionA",
+      "optionACountedLines": 373,
+      "optionAExemptLeaves": [
+        "scripts/release/l1-built-server-spectator-reachability.ts"
+      ],
+      "note": "The validator compares countedLines with the literal count and ignores the extra keys (U17b already carries recordedBy). The object is written into units.json by the implementation PR, so its own lines are counted (selfReference below)."
+    },
+    "selfReference": "capException lives in units.json, so its own lines are counted. Write the object with a same-width placeholder number, measure, then set the number and re-measure; the count must be stable.",
+    "b1": "resolved: record the literal count in countedLines and the option A count in a sibling field. A validator change PR is not requested.",
+    "timing": "The check fires only for a unit with a mergeSha, i.e. in the closure PR; the implementation PR is the safer place to write the object because the exact count is known when the diff is final."
+  },
+  "parentOfAdmissionCommit": "4104fe16510eb3387173452318a114616ebcbe55",
+  "placement": {
+    "choice": "P2",
+    "statement": "The admission rides the LSC-2P closure PR (GOAL.md:10 and stepPlanDecision20261024.wip: closure and the next admission may share one PR; successor implementation starts only after the PR merges). Step 3 then needs exactly 10 PRs (A2FP, A2F, A2M, A2, B and their closures), as budgeted in v220-steps.json.",
+    "b6": "resolved"
+  },
+  "resolutions": {
+    "B1": "capException shape resolved: literal count in countedLines, option A count in optionACountedLines (capException above).",
+    "B2": "reachability.ts is listed as test-support under Root's interpretation (AUTH-6) with its reason; the owner may overrule before this admission merges, in which case A2FP does not fit and Root decides on the A2FP-W split (measuredFit.verdict). OPEN until the owner has seen it.",
+    "B3": "ownershipExceptions extended with PROGRESS.md and V2.2.0-STEPS.md and the four literal evidence names in this admission commit.",
+    "B4": "force-add at implementation (git add -f); no .gitignore edit.",
+    "B5": "the Root brief is the GATE OPEN (AUTH-3).",
+    "B6": "placement P2: the admission rides the LSC-2P closure PR.",
+    "B7": "OPEN: the built-image run was not repeated at admission. The amended leaves were not run in a built image; product bytes are unchanged since the last PASS at 1c8a05d1c, but the Q-F3 text in context.mjs (offline/witness rebuilt on connect and connOf) is only exercised by a built run. The implementation re-runs the runner with --build at the local stage and at the exact merge commit (G-P1, G-P3).",
+    "B8": "M4 and M10 gap tests adopted (15 tests). M17, M19, M20, M24, M25 remain built-image only; stub-image falsifiers are a decision for the RED author (test lines are exempt; the file count is unchanged).",
+    "B9": "no CI wiring: scripts/release tests are not run by CI (as A1); the local receipt and the exact-main run carry the proof.",
+    "OQ-T": "OPEN (new): the trusted flag added by Q-F3 has no A2FP test; the RED author may add a ~10-line test that a trusted co-op match passes the witness guard (test lines exempt), or leave the coverage to A2F."
+  }
+}

@@ -1,3 +1,17 @@
+﻿## 2026-10-25 L1-SMOKE-A2FP admitted (first Step 3 unit; ledger and evidence only)
+
+Admits L1-SMOKE-A2FP on baseline 57fd9064c, after the LSC-2P closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. GATE OPEN is the Root brief for this PR (owner decision 5: Step 3 starts once LSC-2P closes). The registered undated evidence literal is kept ([evidence](evidence/l1-smoke-a2fp-admission.json)).
+
+- Authority: HOLD lift (holdLiftAmendment20261024), the merge-through order, owner decisions 2026-10-25 1-8, the size-cap rule ownerRuling20261020SizeCapOptionA, and the Q-F3 interface change; proofClass full; no PK packet until GREEN.
+- Fresh census at 57fd9064c with the commit-1 ledger: no literal collision on the four leaves, no open PR touching a leaf or consumer (only the draft #2113), the `scripts` alias of STEP2-RC-RERUN-1 grants nothing. All 15 controls are byte-identical to the prep hashes.
+- Q-F3 is part of the frozen manifest: the 21-line interface change (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) with the patch text, its sha256 and the amended leaf hashes; A2F and A2M reuse the leaves instead of copying about 50 lines.
+- Measured fit (amended leaves): 619 literal leaf lines (86 + 249 + 284) plus the test file (445 lines, exempt). capException.countedLines is 657 literal and 373 under option A, measured with measure-cap.cjs on a drafted implementation diff (units.json +36, page +2); reachability.ts is test-support under Root's interpretation and the owner may overrule it before this PR merges (the contingency split costs two more PRs).
+- Tests and mutants rerun on the amended leaves through heavy-run: 15 of 15 (the prep 13 plus the adopted M4/M10 gap tests). Killed: M1-M7, M9-M11, M14-M16, M18, M18b and M21; M4 and M10 are now killed outright. Survivors M8, M12, M13, M22, M23; M17, M19, M20, M24 and M25 need a built server and were not run.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md and the four literal evidence names; the new scripts/release leaves need `git add -f` at implementation.
+- Open: B2 (owner may overrule the witness classification), B7 (the amended leaves have no built-image run yet), a test for the trusted flag, stub-image falsifiers for M17/M19/M20.
+
+---
+
 ﻿## 2026-10-25 LSC-2P closed; main-verified (exact-main packaged proof); Step 3 opens
 
 Closes LSC-2P (PR #2335, reviewed and merged head 63c8fb8ac, merge 57fd9064c) as main-verified. The OWNER-RULING (comment 6404037472) accepted that exact head.
