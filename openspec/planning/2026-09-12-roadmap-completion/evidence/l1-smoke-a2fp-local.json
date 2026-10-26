@@ -87,7 +87,7 @@
           "sha256": "b1e2e3fe64fd5206ae10af668085155ed0f2ac9716b513f90b9f38e2d4d5d43f",
           "bytes": 2453
         },
-        "disposition": "FAIL, transient: accepted-Move and accepted-Attack passed; the readiness probe of the 8th server process (first HTTP request after the last restart, 15 s AbortSignal) timed out while the machine was busy with other lanes. The server had printed MEKSTATION_LISTENER_READY. No guard, witness or case failed. Not retried silently: a second full run with --build on a clean tree followed."
+        "disposition": "FAIL, transient: accepted-Move and accepted-Attack passed; the readiness probe of the 8th server process (first HTTP request after the last restart, 15 s AbortSignal in the frozen A1 harness, run-l1-built-server-smoke.mjs:134) timed out after the server printed MEKSTATION_LISTENER_READY. The machine was slow throughout the run (restart latency 6-23 s against 3.5-7.6 s in run-2 and 3.3-3.9 s in the mutant control); heavy-run granted no other ticket during the run, so the source of the load is not identified. No guard, witness or case failed. Not retried silently: a second full run with --build on a clean tree followed."
       },
       {
         "id": "run-2",
@@ -183,10 +183,10 @@
     },
     "builtServerNotes": {
       "M17": "Killed as intended: DUPLICATE_INTENT on the first reconnect after a restart.",
-      "M19": "Killed, but by a ReferenceError (\"durable is not defined\"): the mutation removes the declaration and leaves the use, so the kill does not isolate the missing declared witness.",
+      "M19": "Killed, but by a ReferenceError (\"durable is not defined\"): the mutation removes the declaration and leaves the use, so the kill does not isolate the missing declared witness. A faithful variant that skips the witness but keeps a value (durable = { declaration: result.reply.event }) passes every check; no assertion proves the declared witness ran. Carried as CF-A2FP-1: the closure receipt checks the offline op sequence in evidence.jsonl, and a stub-context falsifier for runReachabilityCases is offered to the next unit that imports it.",
       "M20": "Killed as intended: the Physical case cannot move into range on a radius-4 map and Move is not accepted.",
-      "M24": "Killed by AUTH_REJECTED: the host connection sent an intent for the guest. Probabilistic, because initiative is crypto-random per match; it dies whenever the guest moves first in any of the three matches.",
-      "M25": "Killed, but by a TypeError (offline() returns undefined and the witness reads facts.op), not by an assertion about the missing restart."
+      "M24": "Killed by AUTH_REJECTED: the host connection sent an intent for a guest-owned unit. Deterministic: here it died in the Move case because the guest moved first; if the host moves first in Move and Attack, the Physical case still dies in closeIn, which moves both units.",
+      "M25": "Killed, but by a TypeError (offline() returns undefined and the witness reads facts.op), not by an assertion about the missing restart. The recorded mutation also removed `return result`; the stated mutant (result returned, no restart or reconnect) still dies because the next intent is sent on a closed socket to a stopped server."
     },
     "nodeTest": {
       "M22": {
@@ -230,7 +230,7 @@
   "gateDispositions": [
     {
       "id": "G-P0",
-      "disposition": "AUTH-3/AUTH-4 recorded in the admission; #2336 is merged (cdb5289d2). The owner has not overruled the test-support classification of reachability.ts as of this receipt."
+      "disposition": "AUTH-3/AUTH-4 recorded in the admission; #2336 is merged (cdb5289d2). The owner confirmed the test-support classification of reachability.ts on 2026-10-25 (owner-decisions-20261025b.md Q2 item 1, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2, answer \"yes\"); B2 is resolved."
     },
     {
       "id": "G-P1",
@@ -285,5 +285,31 @@
     "a trusted GM or stale-assignment mutation, the privacy matrix, co-op restart, captured rolls or concurrent first sockets (A2F, A2M, A2)",
     "a fixture that kills M23",
     "CI wiring of the node:test file"
-  ]
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-A2FP-1",
+      "item": "a runner that skips the declared witness but keeps a value (durable = { declaration: result.reply.event }) would pass every check, so the closure receipt must verify the offline op sequence ready,declared,ready,declared,ready,ready,declared in evidence.jsonl",
+      "owner": "closure receipt of this unit; a stub-context falsifier for runReachabilityCases is offered to the next unit that imports the runner",
+      "expectedSequence": "ready,declared,ready,declared,ready,ready,declared"
+    },
+    {
+      "id": "CF-A2FP-2",
+      "item": "the 15 s readiness probe at run-l1-built-server-smoke.mjs:134 in the frozen A1 harness, owned by the next unit that owns that harness (raise it to limits.readyMs or retry within it); the closure may take one disclosed rerun if only that probe times out",
+      "owner": "the next unit that owns the A1 harness",
+      "closureRule": "One rerun is allowed when only that probe times out, with both runs disclosed; any other failure, or a second probe timeout, stops for Root."
+    }
+  ],
+  "reviewFixes": {
+    "source": "_reports/2026-10-25/pr2338-review.md (Opus, APPROVE-WITH-IN-PR-FIXES at 73aef4ab5)",
+    "applied": [
+      "F0 merge of origin/main b21a18936 (#2337)",
+      "F1 size-cap ruling cited",
+      "F2 M24 wording",
+      "F3 run-1 cause",
+      "F4 CF-A2FP-1 and CF-A2FP-2 and the M19/M25 notes"
+    ],
+    "leavesAndTestUnchanged": true,
+    "countedLines": "re-measured on the merged head: 667 literal, 383 option A"
+  }
 }
