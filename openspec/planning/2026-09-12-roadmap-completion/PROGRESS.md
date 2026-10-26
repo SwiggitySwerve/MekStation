@@ -1,3 +1,17 @@
+## 2026-10-26 MISSION-MATCH-1 admitted (Step 3 unit 3; ledger and evidence only)
+
+Admits MISSION-MATCH-1 on baseline f917a5259, after the A2F closure and the registration in the previous two commits of this PR (the #2336 and #2339 riding pattern). Implementation starts only after this PR merges. The receipt is [mission-match-1-admission-20261026.json](evidence/mission-match-1-admission-20261026.json).
+
+- Authority: owner decisions 2026-10-26 items 1 and 2 (verbatim in the receipt), the accepted-on-the-record items of the #2341 OWNER-RULING, and the 2026-10-26 Root rulings (GM role option a; A2 cap watch).
+- Fresh census at f917a5259 with the registration ledger: one open PR (draft #2113, 472 files, no collision), 16 registered worktrees with no commit-level overlap, no in-flight or literal claim on any leaf (35 unfinished units hold only coarse parent aliases).
+- Fit re-measured on current main: the prep patches reproduce byte for byte (no leaf or neighbour directory moved since 82d7a0f03): RED 9 failed and 8 passed, side refactor compatibility 9 passed, GREEN 23 of 23, 17 neighbour suites with 223 tests, tsc/oxfmt/oxlint exit 0. 90 counted added lines in nine counted leaves (the test leaf adds 473 exempt lines); lifecycle estimated 56 to 80; 146 to 170 of 500. Files: 14 of 15 in the implementation PR (15 of 15 by the registration convention), plus the exempt page.
+- From the #2341 review: the built-image owner of the live stale-first row is the A2M matrix; MM5 gains a replay/reconnect variant (existing test leaf, mutant M17); the A2F built runner is rerun as a neighbour proof at GREEN and at the closure exact-main run (gate G-M6).
+- The spec.md hash in the prep draft carried CR bytes; the receipt freezes the LF form git stores. The test leaf is frozen pre-variant and finally at RED.
+- `--next` prints U25 on this PR's final head (it printed U44 before the A2F closure); it is advisory and gives no admission permission.
+- Not admitted by this: GM viewer-role fix (A2M discloses it), S5-02, fog or per-unit command ownership.
+
+---
+
 ## 2026-10-26 MISSION-MATCH-1 registered (Step 3 release-blocking; Step 3 prBudget 10 -> 12; ledger and docs only)
 
 Registers MISSION-MATCH-1 as one blocked release-blocking unit in Step 3, after L1-SMOKE-A2F and before L1-SMOKE-A2M, riding the A2F closure PR (the #2336 and #2339 pattern). Authority: owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 2, quoted verbatim in `ownerRuling20261026MissionMatch`. The registration is regenerated on f917a5259 by text splices; the draft cut on 82d7a0f03 was not applied.
@@ -7,7 +21,7 @@ Registers MISSION-MATCH-1 as one blocked release-blocking unit in Step 3, after 
 - Budget: v220-steps.json Step 3 prBudget 10 -> 12 and the pin in scripts/__tests__/v220-steps.test.mjs move together; Step 4 stays 29. If A2 must split, Root returns to the owner (Step 3 would need 14).
 - Closures: l1ReleaseChecklist20261018.closures 54 -> 55 (unitCount, the Step 7 scope text and V220-EVIDENCE.md follow); the page is regenerated.
 - S5-02 stays OPEN (annotated on A2M). The real mission GM keeps the player viewer role in Step 3 (Root ruling 2026-10-26, option a): A2M keeps its fixture-branded GM matrix and discloses it as a known issue in its admission and the release notes. A2 cap watch (option A 491 to 506) is carried with the owner decision record.
-- No existing unit state, receipt, cap or historical evidence changes. `--next` (advisory, no admission permission) prints U24b instead of U44 from the A2F closure on: it skips planned units whose ownershipPaths overlap an in-flight unit, and no scripts-owning unit is in flight any more.
+- No existing unit state, receipt, cap or historical evidence changes. `--next` (advisory, no admission permission) no longer prints U44 from the A2F closure on: it skips planned units whose ownershipPaths overlap an in-flight unit, and the scripts-owning A2F is no longer in flight (the admission in the same PR adds src/lib/multiplayer/server as an in-flight path; the final head prints U25).
 
 ---
 

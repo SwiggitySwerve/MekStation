@@ -8785,12 +8785,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/mission-match-1-admission-20261026.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -8831,10 +8831,21 @@
           "MM2: real co-op mission POST spectate admits stranger watcher; host and guest can reconnect and act; watcher can receive public events but cannot act; unregistered stranger refused.",
           "MM3: rostered self-spectate returns 409 both before and after another spectator joins, with no roster or spectator mutation.",
           "MM4: spectator join changes session epoch; repeat join is stable; roster removal in spectator-only mode changes epoch and revokes membership.",
-          "MM5: two players per side, non-first player own move/attack/physical is delivered live to both teammates; opposing players and spectator seats including stale side assignments receive no sealed declaration until reveal; single-player behavior remains.",
+          "MM5: two players per side, non-first player own move/attack/physical is delivered live to both teammates; opposing players and spectator seats including stale side assignments receive no sealed declaration until reveal; single-player behavior remains. Replay/reconnect variant (added at admission 2026-10-26 on the #2341 ruling): after the non-first teammate declares, the replay served on reconnect to the declaring teammate and to the first-listed teammate carries the declaration, and the replay served to an opposing player and to a spectator seat, including a stale side assignment, carries only the public locked frame until the reveal.",
           "MM6: sideOfPlayer has one authoritative implementation; command gate, forfeit and grace timeout retain first-entry-per-player semantics. Fog/visibility remain documented per-side-owner copies because their fallback semantics differ.",
           "MM7: RED on main for both defects, GREEN with fixes and neighbors, touched-file tsc/oxfmt/oxlint and >=12 killed mutants."
         ]
+      },
+      "admission20261026": {
+        "date": "2026-10-26",
+        "receipt": "evidence/mission-match-1-admission-20261026.json",
+        "authority": "Owner decisions 2026-10-26 items 1 and 2 (owner-decisions-20261026.md, sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc, quoted in ownerRuling20261026MissionMatch); OWNER-RULING 2815c144f (comment 6427223735) accepted-on-the-record items; Root rulings 2026-10-26 in carry-forward.md; the Root brief to the implementation worker of the A2F closure PR names this admission as commit 3 (the #2336 and #2339 riding pattern).",
+        "placement": "P2: the admission rides the A2F closure PR as commit 3; implementation starts only after that PR merges and after the G-M0 re-verification.",
+        "fit": "Ten leaves, nine counted: 90 counted added lines measured on f917a5259 (prep patches reproduced, 9 RED failures, 23 GREEN, 223 neighbour tests, tsc/oxfmt/oxlint exit 0); lifecycle estimated 56 to 80; 146 to 170 of 500. Files: 14 of 15 in the implementation PR (15 of 15 under the registration convention) plus the exempt page.",
+        "resolutions": "R1: the built-image owner of the live stale-first row is the L1-SMOKE-A2M matrix. R2: MM5 gains a replay/reconnect variant (this unit text), mutant M17 added. R3: the A2F built runner is rerun as a neighbour proof (gate G-M6).",
+        "evidenceName": "evidence/mission-match-1-admission-20261026.json; red, local and review literals unchanged.",
+        "ownershipExceptionsAdded": "None: the registration already lists PROGRESS.md, V2.2.0-STEPS.md and the four evidence names.",
+        "sizeCap": "No option A and no capException expected: all nine non-test leaves count and total far below 500."
       }
     },
     {
@@ -30400,6 +30411,6 @@
     "a2CapWatch": {
       "note": "The A2 refresh measures option A 491 to 506 (literal 611 to 626); A2 fits only if its lifecycle additions stay at or below 56 lines. If the A2 admission freeze measures option A above 500, Root stops and asks the owner (a split would take Step 3 to 14)."
     },
-    "notChanged": "No existing unit state, receipt, cap, ownership entry or historical evidence changes. Only the A2F successors edge changes (the A2F closure bytes are untouched). Step 4 prBudget stays 29. --next is advisory and grants no admission: with L1-SMOKE-A2F main-verified it prints U24b instead of U44, because the scan skips planned units whose ownershipPaths overlap an in-flight unit and no scripts-owning unit is in flight any more (the registration itself changes no state that --next reads)."
+    "notChanged": "No existing unit state, receipt, cap, ownership entry or historical evidence changes. Only the A2F successors edge changes (the A2F closure bytes are untouched). Step 4 prBudget stays 29. --next is advisory and grants no admission: it printed U44 while A2F (ownershipPaths scripts) was in flight, printed U24b between the A2F closure and the admission commit, and prints U25 on the final head of the A2F closure PR, because the scan skips planned units whose ownershipPaths overlap an in-flight unit (MISSION-MATCH-1 admitted owns src/lib/multiplayer/server). The registration itself changes no state that --next reads."
   }
 }
