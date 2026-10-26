@@ -435,7 +435,7 @@
         "classification": "KILLED by named check"
       },
       {
-        "id": "P2",
+        "id": "P2 (non-compiling, disclosed)",
         "owner": "A2F",
         "desc": "isSealedChoiceRevealed always true",
         "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
@@ -448,7 +448,35 @@
           "Injected P2 expression fails TypeScript at MatchWireSealedChoices.ts:71:53: finalization is possibly undefined. No behavioral case ran."
         ],
         "result": "KILLED",
-        "classification": "KILLED by crash"
+        "classification": "INVALID: did not compile; killed by crash, no behavioral case ran"
+      },
+      {
+        "id": "P2",
+        "owner": "A2F",
+        "desc": "isSealedChoiceRevealed always true (compiling mutation: const revealed = finalization !== undefined && finalization > declaration.sequence; return revealed || !revealed;)",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "mutantSha": "2a324ea2b2dd2667b052a2f11ece424f305aac55",
+        "exit": 1,
+        "ms": 560242,
+        "verdictOfRun": "FAIL",
+        "passed": [],
+        "errors": [
+          "command offline-fixture exited 1: E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\scripts\\release\\l1-built-server-spectator-reachability.ts:66\n  if (!ok) throw new Error(`witness: ${message}`);\n                 ^\n\nError: witness: declaration already revealed\n    at need (E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\scripts\\release\\l1-built-server-spectator-reachability.ts:66:18)\n    at witness (E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\scripts\\release\\l1-built-server-spectator-reachability.ts:242:3)\n    at path (E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\scripts\\release\\l1-built-server-spectator-reachability.ts:277:20)\n    at Object.<anonymous> (E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\scripts\\release\\l1-built-server-spectator-reachability.ts:284:1)\n    at Module._compile (node:internal/modules/cjs/loader:1706:14)\n    at Object.transformer (E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\node_modules\\tsx\\dist\\register-BOkp8V6j.cjs:9:3176)\n    at Module.load (node:internal/modules/cjs/loader:1441:32)\n    at Function._load (node:internal/modules/cjs/loader:1263:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\n\nNode.js v22.22.0\n"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check",
+        "firstError": "command offline-fixture exited 1 in l1-built-server-spectator-reachability.ts: Error: witness: declaration already revealed",
+        "run": {
+          "head": "945af26365c04166f5f2a372595e5859c0f697a1",
+          "command": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=2a324ea2b2dd2667b052a2f11ece424f305aac55",
+          "lane": "a2f-impl6",
+          "class": "build",
+          "logSha256": "6bf6c01d6974962ad20ba5ea2b4bb52b48e19e06194a3dbe31ff97a05ef3b09e",
+          "logBytes": 1337,
+          "mutantCommitted": false,
+          "note": "The mutant was committed only on a detached throwaway HEAD of the worktree and reset; the product file and leaves were restored and verified."
+        },
+        "disclosure": "The mutant compiled and ran on the built image. It was killed by the A2FP offline witness need() guard \"declaration already revealed\", which reads the mutated sealed-choice rule in the very first accepted-Move case, before the A2F stale rows ran. The stale-first leak check \"stale-first spectator received a sealed declaration\" was therefore not reached for P2; P3 (same observable) is killed by that check."
       },
       {
         "id": "P3",
@@ -557,7 +585,7 @@
     ],
     "notes": {
       "R5": "R5 survives as a redundant defensive check under the frozen fixture contract: prepare itself requires the requested brand and stale effectiveness, validates the seat before changing only assignments/branding, and preserves the unrevealed combat history. The later declared witness and established check remain for each affected row. No missing outcome assertion was found, so no test leaf was changed. The no-op-check stand-in independently falsifies established; it does not kill R5.",
-      "P2": "The recorded mutation fails TypeScript before running cases: finalization is possibly undefined. This is a compile-time crash, not behavioral proof.",
+      "P2": "The first P2 mutation (return true || ...) failed TypeScript at MatchWireSealedChoices.ts:71:53 and ran no case; it is disclosed as invalid. The compiling P2 mutation (const revealed = ...; return revealed || !revealed;, mutant 2a324ea2b2dd2667b052a2f11ece424f305aac55) ran on the built image: KILLED by named check: command offline-fixture exited 1 in l1-built-server-spectator-reachability.ts: Error: witness: declaration already revealed (the A2FP witness guard in the first accepted case, not the stale-row leak check).",
       "scope": "P1/P4/P6 are informational A2M mutants; R6/R7/R8 are deferred to A2M under Root ruling 2026-10-26. R1-R5/P2/P3/P5 are the A2F set."
     }
   },
@@ -607,7 +635,8 @@
   "limitations": [
     "Live stale-first assignment before the actor command is deferred to MISSION-MATCH-1 plus the Step 2/3 RC rerun.",
     "The nine-row privacy matrix, A2M reveal legs, co-op restart and final exact-main acceptance remain downstream.",
-    "The node:test file is run explicitly and is not CI-wired; independent exact-head review, OWNER-RULING, CI, merge and exact-main proof remain open."
+    "The node:test file is run explicitly and is not CI-wired; independent exact-head review, OWNER-RULING, CI, merge and exact-main proof remain open.",
+    "A2F's own stale rows show the sealed-owner product defect on replay too: the acting player's replay after restart lacks its own declaration. A2F asserts nothing about the actor replay; the defect is owned by MISSION-MATCH-1 (owner-decisions-20261026.md item 1b)."
   ],
   "cap": {
     "countedLines": 533,
