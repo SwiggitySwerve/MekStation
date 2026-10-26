@@ -8598,14 +8598,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "capException": {
+        "countedLines": 533,
+        "recordedBy": "ownerRuling20261020SizeCapOptionA",
+        "optionACountedLines": 330,
+        "optionAExemptLeaves": ["scripts/release/l1-built-server-spectator-trusted-fixtures.ts"]
+      },
+      "state": "local-verified",
       "baseline": "35fa2fb9c892ed6585057dcacf40de87670a0456",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2f-admission-20261026.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/l1-smoke-a2f-red.json" },
+        "local": { "path": "evidence/l1-smoke-a2f-local.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -8704,7 +8710,7 @@
       "admissionAmendment20261026": {
         "receipt": "evidence/l1-smoke-a2f-admission-amendment-20261026.json",
         "authority": "owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) item 3; Root ruling OPTION 1 on the A2F G-F1 probe finding",
-        "change": "The stale-assignment rows apply the stale assignment after the actor's declaration and assert the spectator guard on the replay after a restart; the runner and test leaf hashes are re-frozen in the receipt, the fixtures leaf is unchanged. P1, P4 and P6 move to A2M; the live stale-first case is deferred to MISSION-MATCH-1 plus the Step 2/3 RC rerun.",
+        "change": "The stale-assignment rows apply the stale assignment after the actor's declaration and assert the spectator guard on the replay after a restart; the runner and test leaf hashes are re-frozen in the receipt, the fixtures leaf is unchanged. P1, P4 and P6 move to A2M; the live stale-first case is deferred to MISSION-MATCH-1 plus the Step 2/3 RC rerun. Root clarified on 2026-10-26 that R6-R8 move to A2M because they target its runRow and reveal leg; R1-R5 remain A2F obligations.",
         "fit": "option A 274 leaf lines (binding, cap 500), literal 477 leaf lines (overflow recorded in capException), 8 counted files of 15."
       }
     },
@@ -22851,6 +22857,33 @@
         "author": "SwiggitySwerve",
         "bodySha256": "9108ce184dac42f3f73e30af110c228642e1825cc4f34b175139df1c6ca833b7"
       }
+    },
+    {
+      "id": "PK-l1-smoke-a2f-ruling",
+      "blocks": [
+        "L1-SMOKE-A2F"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the amended A2F trusted-audience proof after independent exact-head privacy/authority review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge and exact-main proof before A2M admission.",
+          "effort": "Independent review, CI, exact-main build and closure"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete in-scope findings, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. Thirteen node falsifiers and the eight-case built-image proof pass on the frozen amended leaves; the offline witness sequence is verified. Review the stopped-owned-private-DB lineage, unchanged combat history, stale assignment after the accepted declaration, current spectator seat guard, durable GM source and live/recovered non-spectating-GM positive. Mutants and survivors are disclosed in the local receipt; P2 is killed only by a compile-time crash and R5 survives. P1/P4/P6 and R6-R8 belong to A2M (Root ruling 2026-10-26; R6-R8 target its runRow/reveal leg). Live stale-first behavior stays with MISSION-MATCH-1 plus RC rerun. The literal cap overflow is recorded; option A excludes the owner-confirmed fixture test-support leaf. CF-A2FP-1 witness checking and the CF-A2FP-2 single-readiness-timeout-only rerun rule remain standing. No product or frozen predecessor changes; no exact-main acceptance is claimed.",
+      "revertCost": "Delete the three A2F leaves and own lifecycle additions. Product and predecessor leaves are unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",

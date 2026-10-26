@@ -1,3 +1,14 @@
+## 2026-10-26 L1-SMOKE-A2F local-verified (Step 3 PR 3 of 12)
+
+Amended frozen leaves implement trusted-audience fixtures, the non-spectating-GM positive and recovered GM branding. Stale rows apply their assignment after the actor declaration and test spectator replay after restart. RED contains only the test; GREEN adds the two source leaves with the same frozen test bytes.
+
+- Proof: 13/13 node falsifiers and all eight built-image cases pass; the local receipt records image hashes, witness sequence, raw RED and vacuous-stand-in logs, mutants and limitations. P2 is a compile-time crash; R5 survives.
+- Root ruling 2026-10-26: R6-R8 move to A2M because they target its runRow/reveal leg; P1/P4/P6 remain informational A2M checks. Live stale-first behavior stays with MISSION-MATCH-1 plus the RC rerun.
+- Cap: literal 533 and option A 330 of 500 (fixture leaf is owner-confirmed test-support); capException records the literal overflow. 8 counted files, within the 15-file cap.
+- PK-l1-smoke-a2f-ruling recommends acceptance only after independent exact-head privacy/authority review, OWNER-RULING and CI. Merge, exact-main proof and closure remain open. CF-A2FP-1/2 carry forward.
+
+---
+
 ## 2026-10-26 L1-SMOKE-A2F admitted (Step 3 unit 2; ledger and evidence only)
 
 Admits L1-SMOKE-A2F on baseline 35fa2fb9c, after the A2FP closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. The admission receipt has the date-suffixed name [l1-smoke-a2f-admission-20261026.json](evidence/l1-smoke-a2f-admission-20261026.json), because evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical.

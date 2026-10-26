@@ -1,0 +1,630 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2F",
+  "stage": "local",
+  "date": "20261026",
+  "recordedAt": "2026-10-26T19:39:38.550Z",
+  "implementationBase": "1bc225189d55ac11df929c0a6b122149770c89c0",
+  "upstreamIntegration": {
+    "originalBase": "82d7a0f0326aef3e9e7e27ff88b2fdb2b049ac66",
+    "implementationBase": "1bc225189d55ac11df929c0a6b122149770c89c0",
+    "reason": "Main advanced with PR 2340; integrate upstream before RED and fresh build."
+  },
+  "redCommit": "0aa3278417d819e3c8c8c63a2113fb352eac914f",
+  "greenCommit": "35a5394513ece07be198653697b75a20b1a4ed4a",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-20261026.json"
+  },
+  "amendment": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-amendment-20261026.json",
+    "sha256": "e2466a569891b47e31dc60a95bdb4328154beafe42858e10e139a81af2748437",
+    "bytes": 10426
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+      "sha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078",
+      "bytes": 8899,
+      "formattedLines": 274,
+      "changed": true,
+      "was": {
+        "sha256": "fd495f277a888c9deecca717972d7332e1e3cdd2b2961dd79e7ebcee22fbc617",
+        "bytes": 7182,
+        "formattedLines": 216
+      },
+      "matchesFrozenHash": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+      "bytes": 6851,
+      "formattedLines": 203,
+      "changed": false,
+      "was": {
+        "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+        "bytes": 6851,
+        "formattedLines": 203
+      },
+      "matchesFrozenHash": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "sha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85",
+      "bytes": 17032,
+      "formattedLines": 435,
+      "changed": true,
+      "was": {
+        "sha256": "daf7014e402995e5d6a1596eccb27df1dfb0591a167f33f610f8244836d0ff76",
+        "bytes": 16275,
+        "formattedLines": 415
+      },
+      "matchesFrozenHash": true
+    }
+  ],
+  "formatting": "The three scripts/release leaves and the openspec evidence files are listed in .oxfmtignore (scripts, openspec), so oxfmt is not applied to them and npm run format:check never visits them; the leaves were verified by sha256 against the amended frozen hashes instead. GREEN keeps the identical test bytes used at RED. No product, config, dependency or predecessor leaf changes.",
+  "nodeTests": {
+    "tests": 13,
+    "pass": 13,
+    "fail": 0,
+    "command": "node --test scripts/release/l1-built-server-spectator-fixture.test.mjs",
+    "head": "35a5394513ece07be198653697b75a20b1a4ed4a",
+    "lane": "a2f-impl6",
+    "log": {
+      "sha256": "f581ac550bbc398d0799a9852c1f238acd9e3d3f2d92f1f22359946570daed3f",
+      "bytes": 3400
+    }
+  },
+  "builtImage": {
+    "head": "35a5394513ece07be198653697b75a20b1a4ed4a",
+    "command": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=35a5394513ece07be198653697b75a20b1a4ed4a --output=E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2f-impl\\finish2\\local-built",
+    "lane": "a2f-impl6",
+    "class": "build",
+    "verdict": "PASS",
+    "passed": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical",
+      "trusted-player-stale",
+      "trusted-gm-stale",
+      "trusted-gm-unassigned",
+      "trusted-gm-participant",
+      "gm-brand-recovered"
+    ],
+    "errors": [],
+    "processes": 22,
+    "manifest": {
+      "node": "v22.22.0",
+      "platform": "win32",
+      "repoRoot": "E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026",
+      "standaloneDir": "E:\\Projects\\Personal\\MekStation-wt\\a2f-impl-20261026\\.next\\standalone",
+      "dbPath": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2f-impl\\finish2\\local-built\\db\\smoke.sqlite",
+      "required": [
+        "accepted-Move",
+        "accepted-Attack",
+        "accepted-Physical",
+        "trusted-player-stale",
+        "trusted-gm-stale",
+        "trusted-gm-unassigned",
+        "trusted-gm-participant",
+        "gm-brand-recovered"
+      ],
+      "built": true,
+      "source": {
+        "head": "35a5394513ece07be198653697b75a20b1a4ed4a",
+        "clean": true
+      },
+      "image": {
+        "buildId": "1793042474290",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "46c5998caf520f0085d2904f16f4753973b554882f9bd0c072e3bc4ae4d6db41",
+        "sourceTreeSha256": "3a9304aa675540f2839d927a7436ad0c3ac672ddf27eb58470ceccdd25bd5c0c"
+      }
+    },
+    "summary": {
+      "sha256": "2122d2f3d66d0cb07a2bed6cf544d694213fa07d7002e7654107830717cdadfb",
+      "bytes": 5085
+    },
+    "evidence": {
+      "sha256": "ab3a0c3dca46297da25bcd6bc2d642b51472d8b9fa1942fa18f27639be2d9fba",
+      "bytes": 477553
+    },
+    "witnessSequence": [
+      "ready",
+      "declared",
+      "ready",
+      "declared",
+      "ready",
+      "ready",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare"
+    ],
+    "sequenceVerified": true
+  },
+  "inheritedProbe": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-26\\a2f-impl\\probe-run-2",
+    "head": "f9bc1fb54adfea906f479e883d619867654b4c69",
+    "verdict": "PASS",
+    "passed": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical",
+      "trusted-player-stale",
+      "trusted-gm-stale",
+      "trusted-gm-unassigned",
+      "trusted-gm-participant",
+      "gm-brand-recovered"
+    ],
+    "disclosure": "Before RED, the corrected frozen leaves passed G-F1 at f9bc1fb54. Earlier probe-run-0 refused a node_modules junction; probe-run-1 exposed the stale-first product defect. The owner-authorized admission amendment changed only the stale-row ordering. These are disclosed, not counted as CF-A2FP-2 reruns."
+  },
+  "mutants": {
+    "node": {
+      "full": {
+        "status": 0,
+        "summary": [
+          "# tests 13",
+          "# pass 13",
+          "# fail 0"
+        ],
+        "fails": []
+      },
+      "mutants": [
+        {
+          "name": "F-M1 stale assignment appended last",
+          "pattern": "prepare player-stale",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare player-stale: establishes exactly the audience, with the combat history byte-iden"
+        },
+        {
+          "name": "F-M2 gm row never inserted",
+          "pattern": "prepare gm-unassigned",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+        },
+        {
+          "name": "F-M3 co-op marker never written",
+          "pattern": "prepare gm-unassigned",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+        },
+        {
+          "name": "F-M4 gm row bound to the host",
+          "pattern": "prepare gm-unassigned",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+        },
+        {
+          "name": "F-M5 GM may be the acting participant",
+          "pattern": "prepare gm-participant",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-participant brands the idle participant, never the acting one or the watcher"
+        },
+        {
+          "name": "F-M6 combat-history re-check removed",
+          "pattern": "prepare gm-unassigned",
+          "result": "SURVIVED",
+          "failing": 0,
+          "first": null
+        },
+        {
+          "name": "F-M8 witness refuses the co-op marker even when trusted",
+          "pattern": "prepare gm-unassigned",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-unassigned: establishes exactly the audience, with the combat history byte-ide"
+        },
+        {
+          "name": "F-M9 witness owner = first assignment of the side",
+          "pattern": "prepare gm-stale",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-stale: establishes exactly the audience, with the combat history byte-identica"
+        },
+        {
+          "name": "F-M10 established ignores the brand",
+          "pattern": "established rejects",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - established rejects a vacuous fixture: wrong brand, ineffective stale, missing marker or "
+        },
+        {
+          "name": "F-M11 gm-brand-recovered dropped from the enumeration",
+          "pattern": "enumeration is frozen",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - the enumeration is frozen, unique and re-uses every A2FP row without re-registering it"
+        },
+        {
+          "name": "F-M12 established ignores stale effectiveness",
+          "pattern": "established rejects",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - established rejects a vacuous fixture: wrong brand, ineffective stale, missing marker or "
+        },
+        {
+          "name": "F-M13 trusted-state-present check removed",
+          "pattern": "prepare refuses",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 2 - prepare refuses a stray active gm row even without a co-op marker"
+        },
+        {
+          "name": "F-M14 participant-table guard removed",
+          "pattern": "prepare refuses",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare refuses a moved history, a second branding, a live PID, a foreign DB and a missin"
+        },
+        {
+          "name": "F-M15 ready-anchor check removed",
+          "pattern": "prepare refuses",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare refuses a moved history, a second branding, a live PID, a foreign DB and a missin"
+        },
+        {
+          "name": "F-M1b stale assignment appended last (after-declaration test)",
+          "pattern": "puts the stale watcher first",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare after the declaration puts the stale watcher first without moving the principal o"
+        },
+        {
+          "name": "F-M9b witness owner = first assignment of the side (after-declaration test)",
+          "pattern": "puts the stale watcher first",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare after the declaration puts the stale watcher first without moving the principal o"
+        },
+        {
+          "name": "F-M16 subject seat-kind check removed",
+          "pattern": "prepare gm-participant",
+          "result": "KILLED",
+          "failing": 1,
+          "first": "not ok 1 - prepare gm-participant brands the idle participant, never the acting one or the watcher"
+        }
+      ]
+    },
+    "built": [
+      {
+        "id": "R1",
+        "owner": "A2F",
+        "desc": "gmCase(brandFirst=true) skips prepareAudience",
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "exit": 1,
+        "ms": 99346,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical",
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned"
+        ],
+        "errors": [
+          "[trusted-gm-participant] branded GM did not receive the declaration: {\"live\":false}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "R2",
+        "owner": "A2F",
+        "desc": "gmCase(brandFirst=false) skips prepareAudience",
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "exit": 1,
+        "ms": 190772,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical",
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned",
+          "trusted-gm-participant"
+        ],
+        "errors": [
+          "[gm-brand-recovered] GM brand did not survive the restart: {\"replayed\":false}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "R3",
+        "owner": "A2F",
+        "desc": "gmCase(brandFirst=false) brands before the declaration",
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "exit": 1,
+        "ms": 192986,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical",
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned",
+          "trusted-gm-participant"
+        ],
+        "errors": [
+          "[gm-brand-recovered] unbranded participant received a sealed declaration: {\"live\":true}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "R4",
+        "owner": "A2F",
+        "desc": "runTrustedCases omits runReachabilityCases",
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "exit": 1,
+        "ms": 192524,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned",
+          "trusted-gm-participant",
+          "gm-brand-recovered"
+        ],
+        "errors": [
+          "case enumeration mismatch: missing [accepted-Move,accepted-Attack,accepted-Physical] unexpected []"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "R5",
+        "owner": "A2F",
+        "desc": "trusted rows skip established() after prepareAudience (stale and unassigned)",
+        "file": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "exit": 0,
+        "ms": 110851,
+        "verdictOfRun": "PASS",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical",
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned",
+          "trusted-gm-participant",
+          "gm-brand-recovered"
+        ],
+        "errors": [],
+        "result": "SURVIVED",
+        "classification": "SURVIVED"
+      },
+      {
+        "id": "P1",
+        "owner": "A2M (informational)",
+        "desc": "delete the spectator guard (MatchWireSealedChoices.ts)",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "mutantSha": "f9fdba526f2e21ff3db509e9fb509777af53aeea",
+        "exit": 1,
+        "ms": 256390,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical"
+        ],
+        "errors": [
+          "[trusted-player-stale] stale-first spectator received a sealed declaration: {\"leaked\":true}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "P2",
+        "owner": "A2F",
+        "desc": "isSealedChoiceRevealed always true",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "mutantSha": "bd0ce455c33722e53146bf39dd02733b5c58675e",
+        "exit": 1,
+        "ms": 133749,
+        "verdictOfRun": "FAIL",
+        "passed": [],
+        "errors": [
+          "Injected P2 expression fails TypeScript at MatchWireSealedChoices.ts:71:53: finalization is possibly undefined. No behavioral case ran."
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by crash"
+      },
+      {
+        "id": "P3",
+        "owner": "A2F",
+        "desc": "declaration event types PUBLIC in the audience catalog",
+        "file": "src/lib/multiplayer/server/projection/MatchWireAudienceCatalog.ts",
+        "mutantSha": "63184551d2fea99eb418a67d17b51452bc5eccc5",
+        "exit": 1,
+        "ms": 330308,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical"
+        ],
+        "errors": [
+          "[trusted-player-stale] stale-first spectator received a sealed declaration: {\"leaked\":true}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "P4",
+        "owner": "A2M (informational)",
+        "desc": "replay path unprojected (sealed rule bypassed in guardReplayFrames)",
+        "file": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "mutantSha": "c5d262f9728e0981f84e3006796c26b8186f9c98",
+        "exit": 1,
+        "ms": 365267,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical"
+        ],
+        "errors": [
+          "[trusted-player-stale] stale-first spectator received a sealed declaration: {\"leaked\":true}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "P5",
+        "owner": "A2F",
+        "desc": "live Event path unprojected (sealed rule bypassed in guardLiveEvent)",
+        "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "mutantSha": "1bee99ade0516b0074b92dc979ddfb0507981c10",
+        "exit": 1,
+        "ms": 13643348,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical",
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned",
+          "trusted-gm-participant"
+        ],
+        "errors": [
+          "[gm-brand-recovered] unbranded participant received a sealed declaration: {\"live\":true}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check"
+      },
+      {
+        "id": "P6",
+        "owner": "A2M (informational)",
+        "desc": "shouldRemoveAuthorityFieldForRole keeps sequence for every role",
+        "file": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+        "mutantSha": "69f8b9732a4fc683f33fd56e79d501e7d201da75",
+        "exit": 0,
+        "ms": 926036,
+        "verdictOfRun": "PASS",
+        "passed": [
+          "accepted-Move",
+          "accepted-Attack",
+          "accepted-Physical",
+          "trusted-player-stale",
+          "trusted-gm-stale",
+          "trusted-gm-unassigned",
+          "trusted-gm-participant",
+          "gm-brand-recovered"
+        ],
+        "errors": [],
+        "result": "SURVIVED",
+        "classification": "SURVIVED"
+      }
+    ],
+    "deferred": [
+      {
+        "id": "R6",
+        "result": "DEFERRED to A2M",
+        "reason": "Root ruling 2026-10-26: prep/a2f-a2m/mutants.md section 3 targets A2M runRow and the reveal leg; A2F contains neither."
+      },
+      {
+        "id": "R7",
+        "result": "DEFERRED to A2M",
+        "reason": "Root ruling 2026-10-26: prep/a2f-a2m/mutants.md section 3 targets A2M runRow and the reveal leg; A2F contains neither."
+      },
+      {
+        "id": "R8",
+        "result": "DEFERRED to A2M",
+        "reason": "Root ruling 2026-10-26: prep/a2f-a2m/mutants.md section 3 targets A2M runRow and the reveal leg; A2F contains neither."
+      }
+    ],
+    "notes": {
+      "R5": "R5 survives as a redundant defensive check under the frozen fixture contract: prepare itself requires the requested brand and stale effectiveness, validates the seat before changing only assignments/branding, and preserves the unrevealed combat history. The later declared witness and established check remain for each affected row. No missing outcome assertion was found, so no test leaf was changed. The no-op-check stand-in independently falsifies established; it does not kill R5.",
+      "P2": "The recorded mutation fails TypeScript before running cases: finalization is possibly undefined. This is a compile-time crash, not behavioral proof.",
+      "scope": "P1/P4/P6 are informational A2M mutants; R6/R7/R8 are deferred to A2M under Root ruling 2026-10-26. R1-R5/P2/P3/P5 are the A2F set."
+    }
+  },
+  "rootRuling20261026": {
+    "ownerDecision": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md",
+      "item": 3,
+      "sha256": "1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc"
+    },
+    "source": "Root ruling 2026-10-26 in the takeover thread, under the standing instruction",
+    "decision": "R6-R8 deferred to A2M; correct the amendment to R1-R5 owed to A2F. They target runRow and reveal-leg behavior not present in A2F.",
+    "specification": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2f-a2m/mutants.md section 3"
+  },
+  "carryForward": [
+    {
+      "id": "CF-A2FP-1",
+      "status": "Standing closure check retained; local witness sequence explicitly verified",
+      "sequence": [
+        "ready",
+        "declared",
+        "ready",
+        "declared",
+        "ready",
+        "ready",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare"
+      ]
+    },
+    {
+      "id": "CF-A2FP-2",
+      "status": "No readiness timeout in this local run; no rerun used. The frozen A1 15 s probe remains owned by the first unit that must amend A1. One disclosed rerun is permitted only if that probe is the sole failure."
+    }
+  ],
+  "limitations": [
+    "Live stale-first assignment before the actor command is deferred to MISSION-MATCH-1 plus the Step 2/3 RC rerun.",
+    "The nine-row privacy matrix, A2M reveal legs, co-op restart and final exact-main acceptance remain downstream.",
+    "The node:test file is run explicitly and is not CI-wired; independent exact-head review, OWNER-RULING, CI, merge and exact-main proof remain open."
+  ],
+  "cap": {
+    "countedLines": 533,
+    "optionACountedLines": 330,
+    "optionAExemptLeaves": [
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts"
+    ],
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "measurement": "measure-cap.cjs on origin/main..HEAD; literal overflow is recorded, not a stop; option A is binding.",
+    "countedFiles": 8,
+    "totalFiles": 9,
+    "nonEvidenceFiles": 6
+  },
+  "takeover": {
+    "inheritedCommit": "f9bc1fb54adfea906f479e883d619867654b4c69",
+    "branchRecovery": "No branch reset needed; orphan driver restored the branch to the inherited amendment.",
+    "orphanDriver": "Waited until no foreign process command line contained the worktree path; did not signal or kill it. Frozen hashes checked before any edit."
+  }
+}
