@@ -1,4 +1,4 @@
-﻿## 2026-10-25 L1-SMOKE-A2FP admitted (first Step 3 unit; ledger and evidence only)
+## 2026-10-25 L1-SMOKE-A2FP admitted (first Step 3 unit; ledger and evidence only)
 
 Admits L1-SMOKE-A2FP on baseline 57fd9064c, after the LSC-2P closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. GATE OPEN is the Root brief for this PR (owner decision 5: Step 3 starts once LSC-2P closes). The registered undated evidence literal is kept ([evidence](evidence/l1-smoke-a2fp-admission.json)).
 
@@ -12,7 +12,7 @@ Admits L1-SMOKE-A2FP on baseline 57fd9064c, after the LSC-2P closure in the prev
 
 ---
 
-﻿## 2026-10-25 LSC-2P closed; main-verified (exact-main packaged proof); Step 3 opens
+## 2026-10-25 LSC-2P closed; main-verified (exact-main packaged proof); Step 3 opens
 
 Closes LSC-2P (PR #2335, reviewed and merged head 63c8fb8ac, merge 57fd9064c) as main-verified. The OWNER-RULING (comment 6404037472) accepted that exact head.
 

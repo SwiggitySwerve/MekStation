@@ -1059,8 +1059,8 @@
   ],
   "capException": {
     "rule": "validate-roadmap.mjs:723-726 fails a merged unit when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, where counted is the sum of added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` over files outside evidence/ and outside UNCOUNTED_FILES. The check compares for equality with the LITERAL validator count. It does not know option A.",
-    "consequence": "To pass \u000balidate-roadmap --git the unit MUST record capException.countedLines = the literal validator count of its implementation squash diff. That count includes reachability.ts (the validator does not exempt it), so the option A figure (373) cannot be what is recorded; it goes in the sibling optionACountedLines. The prep figures (645 or 636 literal) were measured on the unamended leaves and are superseded by the Q-F3 amended leaves (657 literal).",
-    "countedLinesFormula": "literal leaf lines (86 + 249 + 284 = 619) + added lines of units.json and V2.2.0-STEPS.md in the implementation squash diff vs its first parent; the test file and everything under evidence/ add 0.",
+    "consequence": "To pass validate-roadmap --git the unit MUST record capException.countedLines = the literal validator count of its implementation squash diff. That count includes reachability.ts (the validator does not exempt it), so the option A figure (373) cannot be what is recorded; it goes in the sibling optionACountedLines. The prep figures (645 or 636 literal) were measured on the unamended leaves and are superseded by the Q-F3 amended leaves (657 literal).",
+    "countedLinesFormula": "literal leaf lines (86 + 249 + 284 = 619) + added lines of units.json, PROGRESS.md and V2.2.0-STEPS.md in the implementation squash diff vs its first parent; the test file and everything under evidence/ add 0.",
     "measured": {
       "countedLines": 657,
       "optionACountedLines": 373,
@@ -1106,7 +1106,7 @@
       ],
       "parent": "28ce6ac3262fec0dd7857fae474568c79dd8396c",
       "head": "131941ef4be678cc05f27d74e09402e088e70a64",
-      "note": "Measured on the final-stage implementation diff drafted on the admission commit (placement P2). Parent and head are throwaway local commits that are not pushed: the parent is a copy of the admission commit whose units.json differs from the pushed admission commit only in the one-line sizeCap sentence of admission20261025 (same line count). It is exact for that draft; the implementation PR must re-measure its real squash diff and correct the figure if its lifecycle edit has a different line shape (the check runs only at the closure PR, for a unit with a mergeSha)."
+      "note": "Measured on the final-stage implementation diff drafted on the admission commit (placement P2). Parent and head are throwaway local commits that are not pushed: the parent is the closure commit plus the admission's units.json edit; it lacks the admission receipt, the PROGRESS entry and the page source-SHA line, none of which the draft head changes, so the count is exact for that draft. The implementation PR must re-measure its real squash diff and correct the figure if its lifecycle edit has a different line shape (the check runs only at the closure PR, for a unit with a mergeSha)."
     },
     "recordShape": {
       "countedLines": 657,

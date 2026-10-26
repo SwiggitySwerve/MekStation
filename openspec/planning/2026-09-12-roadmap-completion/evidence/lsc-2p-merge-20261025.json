@@ -21,7 +21,7 @@
   "reconstructedTree": "4ea33c4ef0c6d428fde2a4898208758e77b19b67",
   "integrationClean": true,
   "topology": "two-parent merge commit; ordered parent2 equals the exact reviewed head; the merged tree equals git merge-tree --write-tree of the two parents and equals the tree of the PR head (4ea33c4ef)",
-  "mergeCommitMessageSha256": "14270113602f26f4b030b49b9150634d09fcdec067f9b54122eb7e93e113d4ba",
+  "mergeCommitMessageSha256": "3529c49fa71174edbe5f5fd0965f31fa37081d3aa6de75d409873d5bb89668cb",
   "mergeCommand": "Merged with --match-head-commit 63c8fb8aca3ef45d2738803bd8177e4d8bcbaead (OWNER-RULING comment 6404037472).",
   "sourceIdentities": [
     {
