@@ -20,7 +20,7 @@ Registers MISSION-MATCH-1 as one blocked release-blocking unit in Step 3, after 
 - Edges: A2F.successors is MISSION-MATCH-1, A2M gains MISSION-MATCH-1 as a predecessor. The chain is A2F -> MISSION-MATCH-1 -> A2M -> A2 -> B.
 - Budget: v220-steps.json Step 3 prBudget 10 -> 12 and the pin in scripts/__tests__/v220-steps.test.mjs move together; Step 4 stays 29. If A2 must split, Root returns to the owner (Step 3 would need 14).
 - Closures: l1ReleaseChecklist20261018.closures 54 -> 55 (unitCount, the Step 7 scope text and V220-EVIDENCE.md follow); the page is regenerated.
-- S5-02 stays OPEN (annotated on A2M). The real mission GM keeps the player viewer role in Step 3 (Root ruling 2026-10-26, option a): A2M keeps its fixture-branded GM matrix and discloses it as a known issue in its admission and the release notes. A2 cap watch (option A 491 to 506) is carried with the owner decision record.
+- S5-02 stays OPEN (annotated on A2M). The real mission GM keeps the player viewer role in Step 3 (Root ruling 2026-10-26, option a): A2M keeps its fixture-branded GM matrix and discloses it as a known issue in its admission and the release notes. A2 cap watch (option A 491 to 506; a Root ruling in carry-forward.md) is recorded in ownerRuling20261026MissionMatch.a2CapWatch.
 - No existing unit state, receipt, cap or historical evidence changes. `--next` (advisory, no admission permission) no longer prints U44 from the A2F closure on: it skips planned units whose ownershipPaths overlap an in-flight unit, and the scripts-owning A2F is no longer in flight (the admission in the same PR adds src/lib/multiplayer/server as an in-flight path; the final head prints U25).
 
 ---

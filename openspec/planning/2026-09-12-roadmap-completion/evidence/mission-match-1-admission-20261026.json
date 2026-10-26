@@ -46,7 +46,7 @@
         "id": "AUTH-6",
         "kind": "workers and size cap",
         "status": "SETTLED",
-        "text": "Owner 2026-10-26: workers on Sonnet or Sol priority tier (not Sol ultrafast); reviews on Opus. Size cap: all nine source/spec leaves are product code and count; only the permanent test leaf is line-exempt (U41 UNCOUNTED_FILES). Option A (ownerRuling20261020SizeCapOptionA) is not needed and is not claimed."
+        "text": "Workers on Sonnet or Sol priority tier (owner, 2026-10-26, as stated in the #2341 OWNER-RULING; the owner's words in carry-forward.md: 'use sonnet or Sol Fast instead for workers'). Root's notes, not owner words: no Sol ultrafast (repeated 429s on 2026-10-26); reviews stay on Opus. Size cap: all nine source/spec leaves are product code and count; only the permanent test leaf is line-exempt (U41 UNCOUNTED_FILES). Option A (ownerRuling20261020SizeCapOptionA) is not needed and is not claimed."
       }
     ]
   },
@@ -339,7 +339,7 @@
   "mutantInventory": {
     "prep": "16 of 16 killed in the prep (M01-M16; mutants-results.json sha256 9f662cac8a84ef8098f9a1f7c96d3feed88b91ae4c84e782e0fd00d839ef2c84); not rerun at this admission. Rerun at RED and GREEN against the frozen leaves.",
     "required": "At least 12 discriminating kills at GREEN (admissionRequires), no compile-only or missing-module kill counted.",
-    "added": "M17 (replay path): the replay projection resolves the viewer owner by first side entry again (the pre-fix rule on the replay path only). It must be killed by the MM5 replay/reconnect variant (resolutions.R2). Survivors are disclosed in the local receipt."
+    "added": "M17 (replay path): applied as a throwaway mutant at the call site in src/lib/multiplayer/server/ServerMatchHostReplay.ts (sealedChoiceAudienceContext, which builds the audience context for replay; live delivery shares createMatchWireSealedChoiceAudienceContext, so a replay-only mutation must change the call site, not the leaf): the returned context's isActorOwnedByViewer uses the first sideAssignments entry for the unit's side, the pre-fix rule on the replay path only. ServerMatchHostReplay.ts is not one of the ten frozen leaves and mutants are never committed, so the file count stays 14 of 15. It must be killed by the MM5 replay/reconnect variant (resolutions.R2). Survivors are disclosed in the local receipt."
   },
   "redPlan": {
     "order": [
@@ -434,7 +434,7 @@
     {
       "id": "G-M1",
       "kind": "RED",
-      "text": "Tests-only commit. On main it fails with the nine expected failures plus the MM5 replay/reconnect variant, the controls pass, and a no-op stand-in for the new behavior fails the variant. The test leaf hash is frozen here (red receipt)."
+      "text": "Tests-only commit. On main it fails with the nine expected failures plus the MM5 replay/reconnect variant, the controls pass, and a no-op stand-in for the new behavior fails the variant. The test leaf hash is frozen here (red receipt). The red receipt records the diff from the admission draft b47554540e65642e1826e50efb502042bc6294076beff38329a293f59c74244c and shows that it only adds the MM5 replay/reconnect variant rows; no existing row is edited or removed."
     },
     {
       "id": "G-M2",

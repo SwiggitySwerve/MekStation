@@ -30373,7 +30373,7 @@
     },
     "carryForwardRulings": {
       "path": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
-      "section": "2026-10-26 Root rulings (standing instruction + owner 2026-10-26)",
+      "section": "2026-10-26 Root rulings (standing instruction + owner 2026-10-26 'other recommendations as we're going through')",
       "lines": [
         "- GM viewer role on co-op mission matches (meta.coopCampaign absent, so the real mission GM is a player-role viewer): option (a). A2M keeps its fixture-branded GM matrix and DISCLOSES the real mission GM's player role as a known issue (release notes + A2M admission). No GM fix unit in Step 3. Source: _reports/2026-10-26/prep/a2m-a2-refresh/README.md.",
         "- A2 cap watch: refresh measures option A 491-506 (literal 611-626); fits only if A2 lifecycle additions stay <= 56 lines. If the A2 admission freeze measures option A > 500, Root stops and asks the owner (split would take Step 3 to 14).",
