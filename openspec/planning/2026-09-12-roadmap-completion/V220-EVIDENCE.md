@@ -12,7 +12,7 @@ Required fields: `kind: "local-seat-proof"`, `rcSha`, `inputSha256` (added by Ro
 
 Required fields: `kind: "closure-rewind"`, `rcSha`, `closures`, `reruns`, `rewind`.
 
-- `closures`: exactly one `{unit, reference}` for every checklist unit (currently 54). Reference the unit's existing `stageReceipts.mainProof.path`, prefixed with the planning directory. The checker reopens PASS receipts, compares merge identities, requires terminal ledger state and checks each merge is an ancestor of the candidate. Run the unchanged roadmap validator separately for its full historical receipt contract.
+- `closures`: exactly one `{unit, reference}` for every checklist unit (currently 55). Reference the unit's existing `stageReceipts.mainProof.path`, prefixed with the planning directory. The checker reopens PASS receipts, compares merge identities, requires terminal ledger state and checks each merge is an ancestor of the candidate. Run the unchanged roadmap validator separately for its full historical receipt contract.
 - `reruns`: references to JSON records `{rcSha, verdict: "PASS", argv, inputSha256}`. Bind each rerun to its own step inputs (3, 5 or 6). Cover every exact command registered in steps 3, 5 and 6: combined spectator proof, campaign journey, ownership proof and terminal P2J journey. Missing proofs must first be implemented by their owning units; baseline success alone never qualifies a release.
 - `rewind`: `command`, `observations`, and separate `persisted`, `broadcast`, `replay` references witnessing real post-rewind dice production, capture and faithful replay on this RC.
 

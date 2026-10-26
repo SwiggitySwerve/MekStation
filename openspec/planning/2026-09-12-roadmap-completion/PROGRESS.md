@@ -1,3 +1,16 @@
+## 2026-10-26 MISSION-MATCH-1 registered (Step 3 release-blocking; Step 3 prBudget 10 -> 12; ledger and docs only)
+
+Registers MISSION-MATCH-1 as one blocked release-blocking unit in Step 3, after L1-SMOKE-A2F and before L1-SMOKE-A2M, riding the A2F closure PR (the #2336 and #2339 pattern). Authority: owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 2, quoted verbatim in `ownerRuling20261026MissionMatch`. The registration is regenerated on f917a5259 by text splices; the draft cut on 82d7a0f03 was not applied.
+
+- Fixes two co-op mission match defects: the first spectator join no longer locks the roster out (rostered self-spectate gets 409) and a sealed declaration is delivered live to every non-spectating teammate through one sideOfPlayer rule. Ten registered leaves, release classes authority and privacy; not admitted (the admission is the next commit).
+- Edges: A2F.successors is MISSION-MATCH-1, A2M gains MISSION-MATCH-1 as a predecessor. The chain is A2F -> MISSION-MATCH-1 -> A2M -> A2 -> B.
+- Budget: v220-steps.json Step 3 prBudget 10 -> 12 and the pin in scripts/__tests__/v220-steps.test.mjs move together; Step 4 stays 29. If A2 must split, Root returns to the owner (Step 3 would need 14).
+- Closures: l1ReleaseChecklist20261018.closures 54 -> 55 (unitCount, the Step 7 scope text and V220-EVIDENCE.md follow); the page is regenerated.
+- S5-02 stays OPEN (annotated on A2M). The real mission GM keeps the player viewer role in Step 3 (Root ruling 2026-10-26, option a): A2M keeps its fixture-branded GM matrix and discloses it as a known issue in its admission and the release notes. A2 cap watch (option A 491 to 506) is carried with the owner decision record.
+- No existing unit state, receipt, cap or historical evidence changes. `--next` (advisory, no admission permission) prints U24b instead of U44 from the A2F closure on: it skips planned units whose ownershipPaths overlap an in-flight unit, and no scripts-owning unit is in flight any more.
+
+---
+
 ## 2026-10-26 L1-SMOKE-A2F closed; main-verified (exact-main built-image proof); Step 3 PR 4 of 12 (the ledger budget reads 10 until the registration in the next commit of this PR)
 
 Closes L1-SMOKE-A2F (PR #2341, ruled and merged head 2815c144f, merge f917a5259) as main-verified. The OWNER-RULING (comment 6427223735) accepted that exact head; the merge tree equals the ruled head tree, so the three leaves are byte-identical to the reviewed bytes.

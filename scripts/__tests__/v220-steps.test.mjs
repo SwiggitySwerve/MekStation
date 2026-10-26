@@ -432,7 +432,7 @@ test('adopted budgets and gate placement stay fixed', () => {
       [2, []],
       [3, []],
       [12, []],
-      [10, ['built-server-spectator-smoke']],
+      [12, ['built-server-spectator-smoke']],
       [29, []],
       [7, []],
       [2, ['three-context-entry']],

@@ -8649,7 +8649,7 @@
         "MP-RECOVERY-UNITS-2",
         "L1-SMOKE-A2FP"
       ],
-      "successors": ["L1-SMOKE-A2M"],
+      "successors": ["MISSION-MATCH-1"],
       "admissionRequires": "Blocked until A2FP and the four original predecessors have genuine exact-main PASS, ancestry and closure. Registration only; Root must merge #2318 and qualify it before A2FP admission. Re-fetch/union-merge Main and census literal leaves, all active/planned/blocked reservations, aliases and open PRs before each admission/merge; serialize shared ledger writes with the LSC/product lanes. Require every predecessor genuine main-verified exact-main PASS, ancestry and closure. Freeze every actual source/test/helper/lifecycle/evidence leaf: 15 unique files and 500 aggregate counted additions after normal repository oxfmt, including lifecycle; U41 tests/evidence line-exempt but file-counted, no deletion credit/minification/cap waiver. The measured 374-line context/runner subtotal is incomplete and not FP fit proof. If FP still overflows when drafted, stop and tell Root before proposing a third split; Root is raising size-cap policy with the owner. scripts is navigation only; only the effective registeredSourceLeaves are prospective scope. FP -> F -> M -> A2 -> B stay serial through closure. Preserve A1 and frozen predecessors read-only. No source-host calls, fake sockets, /api/e2e, test mode, projection-capability mocks, existing product/helper/config/dependency edits or live-DB mutation. Installed tsx/standalone SQL fixtures run only with the owned server stopped. Node 22, heavy-run, bounded timeouts, owned-PID cleanup and credential/image/listener/store guarantees remain. Full sensitive cadence: finite admission, RED tests-only, GREEN within manifest, genuine privacy/authority packet before local-verified, independent exact-head review, OWNER-RULING, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. Future review/identity/closure leaves require genuine finite G-OWN freeze; this ruling registers scope, not future implementation approval.",
       "registeredSourceLeaves": [
         "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
@@ -8762,6 +8762,82 @@
       }
     },
     {
+      "id": "MISSION-MATCH-1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Keep roster-mode mission participants admitted when spectators join; refuse rostered self-spectate with 409. Preserve a session membership epoch that covers roster and spectator occupancy. Centralize first per-player side lookup and deliver sealed movement, attack and physical declarations live to every non-spectating teammate; other sides and spectators wait for reveal. Preserve per-player command/concession semantics; fog and visibility per-side owners are unchanged.",
+      "ownershipPaths": ["src/lib/multiplayer/server"],
+      "ownershipExceptions": [
+        "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "openspec/specs/multiplayer-server/spec.md",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-admission-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-review-20261026.json"
+      ],
+      "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
+      "ciClass": "product",
+      "reviewClasses": ["authority", "privacy"],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": ["L1-SMOKE-A2F"],
+      "successors": ["L1-SMOKE-A2M"],
+      "admissionRequires": "Registration only; not source admission or GATE OPEN. Release-blocking Step 3 product exception (owner decisions 2026-10-26 items 1 and 2), after the L1-SMOKE-A2F exact-main PASS and closure and before L1-SMOKE-A2M; registration rides the A2F closure PR. Re-census fetched main, open PRs and worktrees before admission. Freeze exactly 10 leaves plus the lifecycle files (the five-file convention: units.json, admission, red, local and review receipts; PROGRESS.md and the generated page are listed as ownershipExceptions); tests/evidence line-exempt and file-counted, no deletion credit, normal oxfmt. Any extra leaf or >500 counted additions requires a separately registered split. Require failing tests first, behavior-preserving side refactor before behavior changes, focused neighboring suites and at least 12 discriminating mutants. Require genuine sensitive packet before local-verified, independent exact-head authority/privacy review, OWNER-RULING, CI, exact-main PASS and closure. No GM-role fix, no S5-02 discharge, no fog enablement or per-unit command ownership change.",
+      "registeredSourceLeaves": [
+        "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "src/lib/multiplayer/server/sideAssignments.ts",
+        "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "openspec/specs/multiplayer-server/spec.md"
+      ],
+      "registration20261026MissionMatch": {
+        "authority": {
+          "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md",
+          "sha256": "1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc",
+          "items": [
+            1,
+            2
+          ],
+          "verbatim": "ownerRuling20261026MissionMatch.authority.verbatim"
+        },
+        "sourceAdmitted": false,
+        "layer": "L1 / Step 3 release-blocking",
+        "acceptance": [
+          "MM1: no seats, empty seats or spectator-only seats preserve roster admission; human-seat lobbies retain seat admission/revocation.",
+          "MM2: real co-op mission POST spectate admits stranger watcher; host and guest can reconnect and act; watcher can receive public events but cannot act; unregistered stranger refused.",
+          "MM3: rostered self-spectate returns 409 both before and after another spectator joins, with no roster or spectator mutation.",
+          "MM4: spectator join changes session epoch; repeat join is stable; roster removal in spectator-only mode changes epoch and revokes membership.",
+          "MM5: two players per side, non-first player own move/attack/physical is delivered live to both teammates; opposing players and spectator seats including stale side assignments receive no sealed declaration until reveal; single-player behavior remains.",
+          "MM6: sideOfPlayer has one authoritative implementation; command gate, forfeit and grace timeout retain first-entry-per-player semantics. Fog/visibility remain documented per-side-owner copies because their fallback semantics differ.",
+          "MM7: RED on main for both defects, GREEN with fixes and neighbors, touched-file tsc/oxfmt/oxlint and >=12 killed mutants."
+        ]
+      }
+    },
+    {
       "id": "L1-SMOKE-A2M",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -8796,10 +8872,11 @@
         "MP-RECOVERY-UNITS-1",
         "MP-HOST-DEDUPE-1",
         "MP-RECOVERY-UNITS-2",
-        "L1-SMOKE-A2F"
+        "L1-SMOKE-A2F",
+        "MISSION-MATCH-1"
       ],
       "successors": ["L1-SMOKE-A2"],
-      "admissionRequires": "Registration only, not source admission. Root must merge #2315 and independently qualify this registration before A2F admission. Re-fetch/rebase and census literal leaves, coarse aliases, every active/planned/blocked reservation and open PR before each admission/merge. Require every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Freeze all actual source/test/helper/lifecycle/evidence leaves: 15 unique files and 500 aggregate counted additions after normal repository oxfmt formatting, no deletion credit; tests/evidence are line-exempt but file-counted under U41. Planning budgets are not measured fit; extra leaves or overflow require a separately registered split, never omitted proof. One L1 smoke proof lane may run alongside disjoint L1 product work; A2F -> A2M -> A2 -> B are serial through closure, with shared ledger writes serialized. scripts is navigation only; only registeredSourceLeaves are prospective source scope. Preserve A1 bytes; successors import frozen predecessors read-only. An inadequate interface stops for a separate scope decision. No existing product/helper/config/dependency edits, source-host calls, fake sockets, /api/e2e, production test mode or projection-capability mocks. Offline fixtures write only the private DB while the owned server is stopped. Use Node 22 and heavy-run; retain bounded timeouts, credential redaction, owned-PID cleanup and all A1 identity/store guarantees. Sensitive privacy/authority work requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING before merge, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. This registration ruling is not a future implementation ruling.",
+      "admissionRequires": "Registration only, not source admission. Root must merge #2315 and independently qualify this registration before A2F admission. Re-fetch/rebase and census literal leaves, coarse aliases, every active/planned/blocked reservation and open PR before each admission/merge. Require every predecessor genuine exact-main mainProof PASS, fetched-Main ancestry and closure. Freeze all actual source/test/helper/lifecycle/evidence leaves: 15 unique files and 500 aggregate counted additions after normal repository oxfmt formatting, no deletion credit; tests/evidence are line-exempt but file-counted under U41. Planning budgets are not measured fit; extra leaves or overflow require a separately registered split, never omitted proof. One L1 smoke proof lane may run alongside disjoint L1 product work; A2F -> A2M -> A2 -> B are serial through closure, with shared ledger writes serialized. scripts is navigation only; only registeredSourceLeaves are prospective source scope. Preserve A1 bytes; successors import frozen predecessors read-only. An inadequate interface stops for a separate scope decision. No existing product/helper/config/dependency edits, source-host calls, fake sockets, /api/e2e, production test mode or projection-capability mocks. Offline fixtures write only the private DB while the owned server is stopped. Use Node 22 and heavy-run; retain bounded timeouts, credential redaction, owned-PID cleanup and all A1 identity/store guarantees. Sensitive privacy/authority work requires a genuine packet before local-verified, independent exact-head review, OWNER-RULING before merge, required CI, exact-main PASS and closure. Null receipts/ownerGate waive nothing; NEXT is advisory. This registration ruling is not a future implementation ruling. MISSION-MATCH-1 (owner decisions 2026-10-26 item 1) is the explicit Step 3 product exception and must close on main first. S5-02 stays open. The real mission GM keeps the player viewer role in Step 3 (Root ruling 2026-10-26, option a): A2M keeps its fixture-branded GM matrix and DISCLOSES that role as a known issue in the A2M admission and the release notes; there is no GM fix unit in Step 3.",
       "registeredSourceLeaves": [
         "scripts/release/run-l1-built-server-spectator-privacy.mjs",
         "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
@@ -8844,6 +8921,13 @@
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "gmSpectator": "OQ-M1: GM-branded spectator rows assert the sealed content is absent, no placeholder and a contiguous delivery cursor, and record the authority sequence gap as a disclosed known issue; the strict sequence check is not required",
         "s502": "S5-02 (who may spectate) is disclosed and gets no A2M row: a refusal row would fail on main and the fix is a product seam that Step 3 forbids"
+      },
+      "registration20261026MissionMatch": {
+        "after": "MISSION-MATCH-1",
+        "authority": "owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 2; Root ruling 2026-10-26 in carry-forward.md, GM viewer role, option (a)",
+        "s502": "S5-02 (who may spectate) stays OPEN. MISSION-MATCH-1 fixes roster eviction and the sealed-declaration owner only; permission to spectate remains unresolved and still gets no A2M row.",
+        "gmRole": "Mission matches are created without meta.coopCampaign (coopMissionCreate.ts), so the real mission GM is a player-role viewer. Option (a): A2M keeps its fixture-branded GM matrix and discloses the real mission GM player role as a known issue in the A2M admission and the release notes. No GM fix unit in Step 3.",
+        "liveStaleFirst": "The built-image live stale-first spectator row, and a replay/reconnect row for the acting player own declaration, belong to the A2M matrix after MISSION-MATCH-1 lands (A2F carry-forward CF-A2F-1 and CF-A2F-2)."
       }
     },
     {
@@ -28855,7 +28939,7 @@
       "ruling": "Root council-3 ruling supplied in the implementation task; this record transcribes that ruling. Pending policy questions below are not new owner decisions, source admission, exact-head OWNER-RULING or runtime acceptance."
     },
     "layer": "L1 / v2.2.0",
-    "unitCount": 54,
+    "unitCount": 55,
     "closures": [
       "P2CG1B",
       "P2CG1C",
@@ -28887,6 +28971,7 @@
       "L1-SMOKE-A1",
       "L1-SMOKE-A2FP",
       "L1-SMOKE-A2F",
+      "MISSION-MATCH-1",
       "L1-SMOKE-A2M",
       "L1-SMOKE-A2",
       "L1-SMOKE-B",
@@ -30260,5 +30345,61 @@
     "nodeChange": "roadmap.json R2.desktop-platform gains the ownership literals desktop/types, src/components/settings and .storybook/mocks (planned node, no state change) so DESKTOP-BACKUP-DEADCODE-1 can own them.",
     "notChanged": "No unit state, receipt, cap, edge of an unlisted unit, historical evidence or Step 1 recorded hash. v220-steps.json is untouched. RC-B-1 is not registered here (it rides PR 8 of the Step 3 plan).",
     "scope": "Ledger, prose and evidence only: units.json, roadmap.json (one node), V2.2.0-STEPS.md (regenerated), PROGRESS.md and one evidence file. No product code."
+  },
+  "ownerRuling20261026MissionMatch": {
+    "authority": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md",
+      "sha256": "1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc",
+      "items": [
+        1,
+        2
+      ],
+      "verbatim": {
+        "ownerAnswer": "then yes, lets go and fix the 2 bugs and other recommendations as we're going through",
+        "items1And2": "1. Register MISSION-MATCH-1 as one release-blocking unit in Step 3, right after L1-SMOKE-A2F closes and before A2M. It fixes two co-op mission match defects:\n   a. Spectate lockout: the first POST /api/multiplayer/matches/:id/spectate on a seat-less co-op mission match switches membership from roster mode to seat mode and locks out the GM and players (confirmed by a scratch test through the real routes against SQLite; report _reports/2026-10-26/spectate-roster-probe/). Fix: MatchSeatMembershipSource.lookupMembership keeps roster mode when the match has no seats or only spectator seats; a rostered player asking to spectate its own seat-less match gets 409. S5-02 (the spectate door checks no membership) stays open.\n   b. Sealed-declaration owner: MatchWireSealedChoices treats the first sideAssignments entry for a side as its only owner, so with two players on one side the other player's own Move/Attack/Physical declarations are withheld from it until the reveal and shown live to the first-listed teammate (source reading; report _reports/2026-10-26/stale-owner-reachability.md). Fix: one owning function sideOfPlayer(assignments, playerId); sealed delivery uses it. Policy: teammates on a side see each other's sealed declarations live.\n2. Step 3 prBudget 10 -> 12. Step 4 stays 29. If A2 must split, Root returns to the owner (Step 3 would need 14).",
+        "note": "Both strings are exact substrings of the receipt bytes (LF only); the answer is the owner answer quoted in the receipt header."
+      }
+    },
+    "carryForwardRulings": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+      "section": "2026-10-26 Root rulings (standing instruction + owner 2026-10-26)",
+      "lines": [
+        "- GM viewer role on co-op mission matches (meta.coopCampaign absent, so the real mission GM is a player-role viewer): option (a). A2M keeps its fixture-branded GM matrix and DISCLOSES the real mission GM's player role as a known issue (release notes + A2M admission). No GM fix unit in Step 3. Source: _reports/2026-10-26/prep/a2m-a2-refresh/README.md.",
+        "- A2 cap watch: refresh measures option A 491-506 (literal 611-626); fits only if A2 lifecycle additions stay <= 56 lines. If the A2 admission freeze measures option A > 500, Root stops and asks the owner (split would take Step 3 to 14).",
+        "- A2 setup fix: the refresh's draft patch corrects A2's invalid lobby-spectate setup; apply at A2 admission."
+      ],
+      "note": "carry-forward.md is an append-only register, so it is quoted and not hash-pinned."
+    },
+    "sourceAdmitted": false,
+    "registrationRides": "L1-SMOKE-A2F closure PR",
+    "order": "L1-SMOKE-A2F -> MISSION-MATCH-1 -> L1-SMOKE-A2M -> L1-SMOKE-A2 -> L1-SMOKE-B",
+    "step3PrBudget": {
+      "before": 10,
+      "after": 12,
+      "note": "v220-steps.json Step 3 prBudget and the adopted-budgets pin in scripts/__tests__/v220-steps.test.mjs move together. If A2 must split, Root returns to the owner (Step 3 would need 14)."
+    },
+    "step4PrBudget": 29,
+    "closures": {
+      "before": 54,
+      "after": 55,
+      "note": "l1ReleaseChecklist20261018.closures gains MISSION-MATCH-1 after L1-SMOKE-A2F; unitCount follows; the Step 7 scope text and V220-EVIDENCE.md count follow."
+    },
+    "edges": {
+      "L1-SMOKE-A2F.successors": "[\"L1-SMOKE-A2M\"] -> [\"MISSION-MATCH-1\"] (the chain is A2F -> MISSION-MATCH-1 -> A2M)",
+      "L1-SMOKE-A2M.predecessors": "gains MISSION-MATCH-1",
+      "MISSION-MATCH-1.predecessors": "[\"L1-SMOKE-A2F\"]"
+    },
+    "S5_02": {
+      "state": "open",
+      "note": "Roster eviction is fixed here; permission to spectate remains unresolved. Annotated on L1-SMOKE-A2M.registration20261026MissionMatch."
+    },
+    "gmRole": {
+      "ruling": "option (a)",
+      "note": "Mission matches lack meta.coopCampaign and never derive the gm viewer role. A2M discloses it as a known issue (A2M admission and release notes); MISSION-MATCH-1 does not change those fields."
+    },
+    "a2CapWatch": {
+      "note": "The A2 refresh measures option A 491 to 506 (literal 611 to 626); A2 fits only if its lifecycle additions stay at or below 56 lines. If the A2 admission freeze measures option A above 500, Root stops and asks the owner (a split would take Step 3 to 14)."
+    },
+    "notChanged": "No existing unit state, receipt, cap, ownership entry or historical evidence changes. Only the A2F successors edge changes (the A2F closure bytes are untouched). Step 4 prBudget stays 29. --next is advisory and grants no admission: with L1-SMOKE-A2F main-verified it prints U24b instead of U44, because the scan skips planned units whose ownershipPaths overlap an in-flight unit and no scripts-owning unit is in flight any more (the registration itself changes no state that --next reads)."
   }
 }
