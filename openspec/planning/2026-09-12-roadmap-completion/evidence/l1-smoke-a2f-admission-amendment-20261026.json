@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2F",
+  "stage": "admission-amendment",
+  "date": "20261026",
+  "recordedAt": "2026-10-26T06:57:28.600Z",
+  "evidenceNameNote": "Date-suffixed amendment receipt. The merged admission receipt evidence/l1-smoke-a2f-admission-20261026.json stays byte-identical (units.json lifecycleOwnershipLimit: no historical receipt edits); this receipt re-freezes the changed leaf hashes, line counts and fit and supersedes the admission only where it says so. Precedent: the A2FP interface change was likewise a recorded amendment of frozen leaf bytes (admission manifest.interfaceChange.amendedLeafBytes), here recorded beside the merged receipt instead of inside it because the admission is already on main.",
+  "baseline": "82d7a0f0326aef3e9e7e27ff88b2fdb2b049ac66",
+  "baselineNote": "origin/main at the #2339 merge. The 20 controls of the admission receipt are unchanged at this base (src, server.js, package.json, package-lock.json, the A1 harness and the four A2FP leaves are not touched by this PR).",
+  "amends": {
+    "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-20261026.json",
+    "sha256": "f4f14bb2f50d2d5672a243a184a5160a2080738b64e928bbcbe138c61f37814e",
+    "bytes": 51379
+  },
+  "authority": {
+    "ownerDecision": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md",
+      "sha256": "1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc",
+      "item": 3,
+      "ownerAnswerVerbatim": "then yes, lets go and fix the 2 bugs and other recommendations as we're going through",
+      "itemText": "L1-SMOKE-A2F continues with its stale-assignment rows changed: the stale assignment is applied after the actor's declaration; the stale rows test the spectator guard through the replay after a restart. The changed leaf hashes are re-frozen by an amendment commit at the start of the A2F implementation PR (no extra PR). Mutants P1, P4, P6 (watcher-visibility) are A2M's, not A2F's."
+    },
+    "rootRuling": "Root ruled OPTION 1 of the A2F STOP-findings (2026-10-26): apply the stale assignment after the actor's declaration, assert the spectator guard on the replay after a restart, keep everything else as admitted. A2F must not depend on MISSION-MATCH-1.",
+    "investigation": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/stale-owner-reachability.md",
+      "sha256": "d5b83f5e16e60734287ffdce28ea44a44f3897c2c85d7bf3bad23ece3ff3b2b2",
+      "bytes": 19747
+    }
+  },
+  "finding": {
+    "summary": "The G-F1 built-image probe failed at 82d7a0f03: with the stale watcher assignment listed FIRST for the active side before the actor's command, the product accepted the Move (movement_declared seq 5 and movement_locked seq 6 are in the durable history) but withheld the declaration from the actor too, because MatchWireSealedChoices treats the first sideAssignments entry of a side as its only sealed owner. accepted() waits for the correlated declaration and timed out (\"timeout waiting for reply to Move\") in trusted-player-stale. accepted-Move, accepted-Attack and accepted-Physical passed in the same run.",
+    "productDefect": "Real product behaviour (co-op mission launch writes both players on one side; stale-owner-reachability.md section 2). It is fixed by the new unit MISSION-MATCH-1 after A2F (owner decisions 2026-10-26 item 1b). A2F changes no product file and does not depend on it.",
+    "probe": {
+      "run": "probe-run-1",
+      "head": "82d7a0f0326aef3e9e7e27ff88b2fdb2b049ac66",
+      "summary": {
+        "sha256": "abf7bffd6d3e11e4dd1531cafced69f104bea46dc833bfe5342495544f47bce3",
+        "bytes": 3093
+      },
+      "evidence": {
+        "sha256": "b558aaea1754332dd4b7ee3d459911597841be61d0c2f04a77ffe5d2dd130586",
+        "bytes": 227493
+      },
+      "stopFindings": {
+        "sha256": "b9bbdc3e4a4c8e7f3ba560588ab641afb2dea914646db8409634cf8667044bc6",
+        "bytes": 1314
+      },
+      "note": "Raw run output stays outside Git. A diagnostic run of the same runner without the two stale audiences passed accepted-*, trusted-gm-unassigned, trusted-gm-participant and gm-brand-recovered (participant table exists; the GM role flips only through the durable row), so only the stale-first ordering was affected."
+    }
+  },
+  "change": {
+    "runner": "runTrustedCases: for a stale audience the runner now provisions, reaches the command phase, sends the actor's command on ordinary state and requires the correlated declaration (accepted), THEN runs prepare with the declaration anchor (intent and intentId), restarts, joins the watcher and asserts that (a) the watcher replay carries the public lock and (b) it does not carry the sealed declaration id, then runs the declared witness. This is the gm-brand-recovered shape. Rows, ids, AUDIENCES, F_REQUIRED_CASES, the exports and the invocation are unchanged.",
+    "fixtureLeaf": "l1-built-server-spectator-trusted-fixtures.ts is byte-identical to the admission (prepare already supports the declared anchor; stale-first and the staleEffective refusal stay: after the declaration the watcher is first for the active side, which is what the product reads).",
+    "testLeaf": "One falsifier added: prepare after the declaration puts the stale watcher first without moving the principal or the sealed history (13 tests).",
+    "acceptanceRows": "Row 1 (trusted-player-stale, trusted-gm-stale, trusted-gm-unassigned) and row 3 are met with the stale assignment applied after the declaration; the assertion of the spectator guard moves from a live leg to the replay after the restart."
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+      "sha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078",
+      "bytes": 8899,
+      "formattedLines": 274,
+      "changed": true,
+      "was": {
+        "sha256": "fd495f277a888c9deecca717972d7332e1e3cdd2b2961dd79e7ebcee22fbc617",
+        "bytes": 7182,
+        "formattedLines": 216
+      }
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+      "bytes": 6851,
+      "formattedLines": 203,
+      "changed": false,
+      "was": {
+        "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+        "bytes": 6851,
+        "formattedLines": 203
+      }
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "sha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85",
+      "bytes": 17032,
+      "formattedLines": 435,
+      "changed": true,
+      "was": {
+        "sha256": "daf7014e402995e5d6a1596eccb27df1dfb0591a167f33f610f8244836d0ff76",
+        "bytes": 16275,
+        "formattedLines": 415
+      }
+    }
+  ],
+  "leafTotals": {
+    "validatorLiteral": 477,
+    "optionA": 274,
+    "testLines": 435
+  },
+  "fit": {
+    "basis": "Formatted lines of the amended leaves (oxfmt --write then --check, exit 0); git numstat equals the line count for new files. Lifecycle (units.json, PROGRESS.md, page) is an estimate of 55 to 80 lines; the real squash diff is re-measured with measure-cap.cjs after the lifecycle commit (G-F5).",
+    "optionA": {
+      "rule": "ownerRuling20261020SizeCapOptionA with trusted-fixtures.ts as test-support (owner-confirmed 2026-10-25)",
+      "leaves": 274,
+      "withLifecycle": [
+        329,
+        354
+      ],
+      "cap": 500,
+      "verdict": "FITS (binding)"
+    },
+    "literal": {
+      "rule": "validate-roadmap UNCOUNTED_FILES as written",
+      "leaves": 477,
+      "withLifecycle": [
+        532,
+        557
+      ],
+      "cap": 500,
+      "verdict": "EXPECTED TO OVERFLOW 500: recorded in capException.countedLines (the literal validator count of the merge diff), as A2FP did (667); not a stop."
+    },
+    "files": {
+      "counted": 8,
+      "listed": [
+        "three leaves",
+        "units.json",
+        "PROGRESS.md",
+        "this amendment receipt",
+        "l1-smoke-a2f-red.json",
+        "l1-smoke-a2f-local.json"
+      ],
+      "exempt": [
+        "V2.2.0-STEPS.md"
+      ],
+      "cap": 15,
+      "note": "The admission planned 7 counted files; this amendment receipt is the eighth."
+    }
+  },
+  "mutantRouting": {
+    "movedToA2M": [
+      "P1 (delete the spectator guard, MatchWireSealedChoices.ts:77)",
+      "P4 (replay path unprojected)",
+      "P6 (shouldRemoveAuthorityFieldForRole keeps sequence for every role)"
+    ],
+    "note": "Owner decisions 2026-10-26 item 3: watcher-visibility mutants are A2M's. The amended stale rows do assert watcher invisibility on the replay, so P1 and P4 may die in A2F as well; the local receipt reports them as informational and A2F does not claim them. P2, P3 and P5 and R1 to R8 stay owed to A2F.",
+    "deferredLive": "The live stale-first case (the stale assignment present BEFORE the actor acts, with live delivery to a watcher) is deferred to MISSION-MATCH-1 plus the Step 2/3 release-candidate rerun. A2F does not claim it."
+  },
+  "carryIn": "Unchanged from the admission: CF-A2FP-1 (check the offline witness op sequence in the run evidence; the amended stale rows add prepare and declared calls), CF-A2FP-2 (one disclosed rerun only for the 15 s readiness probe of the frozen A1 harness), OQ-M1 is A2M scope.",
+  "limitations": [
+    "The amended runner has not yet run in a built image at the time of this receipt; the re-run of the G-F1 probe, the owed mutants and the local run follow in the same PR and are recorded in the red and local receipts.",
+    "MISSION-MATCH-1 is registered by Root, not by this PR; nothing here claims it."
+  ]
+}

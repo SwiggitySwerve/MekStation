@@ -8586,6 +8586,7 @@
         "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
         "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-amendment-20261026.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-review.json"
@@ -8699,6 +8700,12 @@
         "evidenceName": "evidence/l1-smoke-a2f-admission-20261026.json (date-suffixed; evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical). The red, local and review literals are unchanged.",
         "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four evidence names (admission-20261026, red, local, review).",
         "sizeCap": "ownerRuling20261020SizeCapOptionA with trusted-fixtures.ts as test-support (owner-confirmed 2026-10-25); measured fit in the receipt: leaves 419 literal / 216 option A plus an estimated lifecycle of 48 to 80 lines against the cap of 500."
+      },
+      "admissionAmendment20261026": {
+        "receipt": "evidence/l1-smoke-a2f-admission-amendment-20261026.json",
+        "authority": "owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) item 3; Root ruling OPTION 1 on the A2F G-F1 probe finding",
+        "change": "The stale-assignment rows apply the stale assignment after the actor's declaration and assert the spectator guard on the replay after a restart; the runner and test leaf hashes are re-frozen in the receipt, the fixtures leaf is unchanged. P1, P4 and P6 move to A2M; the live stale-first case is deferred to MISSION-MATCH-1 plus the Step 2/3 RC rerun.",
+        "fit": "option A 274 leaf lines (binding, cap 500), literal 477 leaf lines (overflow recorded in capException), 8 counted files of 15."
       }
     },
     {
