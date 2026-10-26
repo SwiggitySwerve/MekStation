@@ -8455,7 +8455,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-admission.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-merge-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-mainproof-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-source-review-20261026.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-owner-ruling-6406917550.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-35fa2fb9c-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8470,17 +8475,36 @@
         "optionACountedLines": 383,
         "optionAExemptLeaves": ["scripts/release/l1-built-server-spectator-reachability.ts"]
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "c2297627622e054938ed677a3e282c0b844d7705",
+      "mergeSha": "35fa2fb9c892ed6585057dcacf40de87670a0456",
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2fp-admission.json" },
         "red": { "path": "evidence/l1-smoke-a2fp-red.json" },
         "local": { "path": "evidence/l1-smoke-a2fp-local.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/l1-smoke-a2fp-review.json",
+          "head": "c2297627622e054938ed677a3e282c0b844d7705",
+          "reviewedHead": "73aef4ab5a80cf1982e3c2112d84feab4238a12a",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "7e1019085aab07bea08b1f060692614df1ede91a0391c4c4e6d207e302f7c804",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at c2297627622e054938ed677a3e282c0b844d7705"
+        },
+        "merge": {
+          "path": "evidence/l1-smoke-a2fp-merge-20261026.json",
+          "pr": 2338,
+          "head": "c2297627622e054938ed677a3e282c0b844d7705",
+          "mergeSha": "35fa2fb9c892ed6585057dcacf40de87670a0456"
+        },
+        "mainProof": {
+          "path": "evidence/l1-smoke-a2fp-mainproof-20261026.json",
+          "mergeCommit": "35fa2fb9c892ed6585057dcacf40de87670a0456",
+          "verdict": "PASS",
+          "runtime": "Built-image run (registered done-test, run-l1-built-server-spectator-fixture-proof.mjs --build at the clean exact merge): 3 passed (0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8525,6 +8549,22 @@
         ],
         "budgetQualification": "No measured complete candidate or fit proof. FP inherits the historical 221+153=374 subtotal before partition/refactoring, read-only witness, activation/CLI/precondition fixes and lifecycle. Every actual aggregate must be measured after normal oxfmt. If FP still does not fit when drafted, stop and tell Root before proposing a third split; policy is being raised with the owner."
       },
+      "carryForwardRouting20261026": [
+        {
+          "id": "CF-A2FP-1",
+          "severity": "Medium",
+          "owner": "the closure receipts of L1-SMOKE-A2F, A2M, A2 and B (each checks the offline op sequence of its own run); a stub-context falsifier for runReachabilityCases is offered to the next unit that imports the runner",
+          "status": "discharged for the A2FP exact-main run; open as a standing check",
+          "item": "A runner that skips the declared witness but keeps a value (durable = { declaration: result.reply.event }) would pass every check, because nothing asserts that the declared witness ran. The A2FP leaves are frozen by hash, so the check lives in the closure receipt: evidence.jsonl must show the offline op sequence ready,declared,ready,declared,ready,ready,declared. The A2FP exact-main run showed it."
+        },
+        {
+          "id": "CF-A2FP-2",
+          "severity": "Low",
+          "owner": "unowned: no registered unit owns the frozen A1 harness leaves (L1-SMOKE-A1 is main-verified); Root decides whether the first unit that must amend the A1 harness takes it or a one-leaf amendment is registered",
+          "status": "OPEN; routed to Root",
+          "item": "The 15 s readiness probe at scripts/release/run-l1-built-server-smoke.mjs:134 (AbortSignal.timeout(15000)) timed out once in an A2FP local run on a slow machine (8 server restarts per run give 8 chances). The fix is to raise it to limits.readyMs or retry within it. Until then each Step 3 closure run may take ONE disclosed rerun if only that probe times out; any other failure, or a second probe timeout, stops for Root."
+        }
+      ],
       "admission20261025": {
         "date": "2026-10-25",
         "receipt": "evidence/l1-smoke-a2fp-admission.json",
@@ -22773,10 +22813,22 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head privacy and authority review, required CI and an explicit OWNER-RULING on the exact head. Evidence on file: 16 of 16 node:test falsifiers on the GREEN head; a built-image run on a clean tree at that head (npm run build, owned production server, 8 server processes, 7 offline witness calls) passing accepted-Move, accepted-Attack and accepted-Physical with 0 errors; the built-server mutants M17, M19, M20, M24 and M25 all killed, with M19 and M25 killed by incidental exceptions and M24 killed deterministically (the Physical case moves both units, so a guest-owned Move is always sent on the host socket); M22 (trusted flag ignored) killed by the new trusted-flag test. Disclosed: the first built run failed once on a 15 s readiness-probe timeout of the 8th server while the machine was loaded, with no case or guard failing, and the second full run passed. Review should cover: (1) the witness is read-only (query_only plus a DB and WAL lineage hash) and refuses a live owning PID, a foreign or redirected DB, a non-fog-off, co-op (unless trusted) or non-active match, an unexpected host, bootstrap, seats or phase, a unit that already acted, an absent or duplicated accepted intent, a changed history digest and a second actor that can no longer withhold reveal; (2) the acting principal and unit come from getActivePhaseUnitId and the participant own assignment rows, never from who is host; (3) no source-host call, injected declaration, fake socket, product edit or trusted mutation, and tokens never reach URLs or retained evidence; (4) the Q-F3 interface change (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) that A2F and A2M reuse, with the trusted branch covered only by the new test and mutant M22; (5) survivors M8 and M12 (behind earlier guards, probably equivalent), M13 (needs a mutating seam) and M23 (no stale-first-assignment fixture; it belongs to A2F); (6) the cap fit relies on ownerRuling20261020SizeCapOptionA with reachability.ts classified as test-support, which the owner confirmed on 2026-10-25 (owner-decisions-20261025b.md Q2 item 1, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2): the literal validator count is recorded in capException.countedLines and the option-A count beside it. Carried to closure: CF-A2FP-1: a runner that skips the declared witness but keeps a value (durable = { declaration: result.reply.event }) would pass every check, so the closure receipt must verify the offline op sequence ready,declared,ready,declared,ready,ready,declared in evidence.jsonl; CF-A2FP-2: the 15 s readiness probe at run-l1-built-server-smoke.mjs:134 in the frozen A1 harness, owned by the next unit that owns that harness (raise it to limits.readyMs or retry within it); the closure may take one disclosed rerun if only that probe times out. Not claimed: a privacy matrix, co-op restart, captured rolls, concurrent first sockets, a stale-assignment or trusted mutation, CI wiring of the node:test file, or the exact-main built-image run, which closes the unit.",
+      "agentRecommendation": "Accept only after independent exact-head privacy and authority review, required CI and an explicit OWNER-RULING on the exact head. Evidence on file: 16 of 16 node:test falsifiers on the GREEN head; a built-image run on a clean tree at that head (npm run build, owned production server, 8 server processes, 7 offline witness calls) passing accepted-Move, accepted-Attack and accepted-Physical with 0 errors; the built-server mutants M17, M19, M20, M24 and M25 all killed, with M19 and M25 killed by incidental exceptions and M24 killed deterministically (the Physical case moves both units, so a guest-owned Move is always sent on the host socket); M22 (trusted flag ignored) killed by the new trusted-flag test. Disclosed: the first built run failed once on a 15 s readiness-probe timeout of the 8th server while the machine was loaded, with no case or guard failing, and the second full run passed. Review should cover: (1) the witness is read-only (query_only plus a DB and WAL lineage hash) and refuses a live owning PID, a foreign or redirected DB, a non-fog-off, co-op (unless trusted) or non-active match, an unexpected host, bootstrap, seats or phase, a unit that already acted, an absent or duplicated accepted intent, a changed history digest and a second actor that can no longer withhold reveal; (2) the acting principal and unit come from getActivePhaseUnitId and the participant own assignment rows, never from who is host; (3) no source-host call, injected declaration, fake socket, product edit or trusted mutation, and tokens never reach URLs or retained evidence; (4) the Q-F3 interface change (connect, connOf, witnessRequest, offline, hash, need, lineage, command.trusted, runDirect) that A2F and A2M reuse, with the trusted branch covered only by the new test and mutant M22; (5) survivors M8 and M12 (behind earlier guards, probably equivalent), M13 (needs a mutating seam) and M23 (no stale-first-assignment fixture; it belongs to A2F); (6) the cap fit relies on ownerRuling20261020SizeCapOptionA with reachability.ts classified as test-support, which the owner confirmed on 2026-10-25 (owner-decisions-20261025b.md Q2 item 1, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2): the literal validator count is recorded in capException.countedLines and the option-A count beside it. Carried to closure: CF-A2FP-1: a runner that skips the declared witness but keeps a value (durable = { declaration: result.reply.event }) would pass every check, so the closure receipt must verify the offline op sequence ready,declared,ready,declared,ready,ready,declared in evidence.jsonl; CF-A2FP-2: the 15 s readiness probe at run-l1-built-server-smoke.mjs:134 in the frozen A1 harness, owned by the next unit that owns that harness (raise it to limits.readyMs or retry within it); the closure may take one disclosed rerun if only that probe times out. Not claimed: a privacy matrix, co-op restart, captured rolls, concurrent first sockets, a stale-assignment or trusted mutation, CI wiring of the node:test file, or the exact-main built-image run, which closes the unit. Closure (2026-10-26): the OWNER-RULING (comment 6406917550) accepted c22976276; the exact-main built-image run at 35fa2fb9c passed accepted-Move, accepted-Attack and accepted-Physical with the witness sequence ready,declared,ready,declared,ready,ready,declared (CF-A2FP-1 discharged); CF-A2FP-2 stays open for Root.",
       "revertCost": "Delete the four registered leaves and the unit's own lifecycle; no product, A1 harness, helper, config or dependency file is touched.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-26T02:31:44Z",
+        "by": "SwiggitySwerve",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2338#issuecomment-6406917550"
+      },
+      "ruling": {
+        "ruledHead": "c2297627622e054938ed677a3e282c0b844d7705",
+        "reviewedHead": "73aef4ab5a80cf1982e3c2112d84feab4238a12a",
+        "pr": 2338,
+        "commentId": 6406917550,
+        "author": "SwiggitySwerve",
+        "bodySha256": "9108ce184dac42f3f73e30af110c228642e1825cc4f34b175139df1c6ca833b7"
+      }
     },
     {
       "id": "PK-ts7s1a-ruling",

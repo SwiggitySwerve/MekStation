@@ -1,0 +1,156 @@
+{
+  "unit": "L1-SMOKE-A2FP",
+  "stage": "merge",
+  "recordedAt": "2026-10-26T02:55:44.313Z",
+  "pr": 2338,
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2338",
+  "head": "c2297627622e054938ed677a3e282c0b844d7705",
+  "reviewedHead": "c2297627622e054938ed677a3e282c0b844d7705",
+  "mergeSha": "35fa2fb9c892ed6585057dcacf40de87670a0456",
+  "mergedAt": "2026-10-26T02:31:51Z",
+  "mergedBy": "SwiggitySwerve",
+  "baseline": "57fd9064ce8899c37f94195d4e6ff1713e5b4c89",
+  "baselineNote": "The admission baseline (57fd9064c, the #2335 merge) differs from the PR base: #2336 (cdb5289d2) and #2337 (b21a18936) merged first. The PR merged main b21a18936 into its branch (55ef5dd0b); b21a18936 is parent 1 of the merge commit. Neither #2336 nor #2337 touches an A2FP leaf or a control file.",
+  "prBaseRefOid": "b21a189366b0c02bb47c4e3630065245e52c84be",
+  "parents": [
+    "b21a189366b0c02bb47c4e3630065245e52c84be",
+    "c2297627622e054938ed677a3e282c0b844d7705"
+  ],
+  "mainBeforeMerge": "b21a189366b0c02bb47c4e3630065245e52c84be",
+  "mergedTree": "ee563b53ad0faec7e3cb316327bb8e5ffbec1de4",
+  "reconstructedTree": "ee563b53ad0faec7e3cb316327bb8e5ffbec1de4",
+  "integrationClean": true,
+  "topology": "two-parent merge commit; ordered parent2 equals the exact reviewed head; the merged tree equals git merge-tree --write-tree of the two parents and equals the tree of the PR head (ee563b53a)",
+  "treeEqualsPrHeadTree": true,
+  "mergeCommitMessageSha256": "414ac3517761917bc7ec04b755081fe2e4e4472fe296f05ce363db3ed0be5d5d",
+  "mergeCommitMessageBytes": 159,
+  "mergeCommitMessageNote": "sha256 of the raw message bytes from git cat-file commit (after the header block and the blank separator), hashed in Node without text conversion.",
+  "mergeCommand": "Merged with --match-head-commit c2297627622e054938ed677a3e282c0b844d7705 (OWNER-RULING comment 6406917550).",
+  "sourceIdentities": [
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+      "reviewedBlob": "cb2faa8108e777a72a616abe45f09fab5c1f2ada",
+      "prHeadBlob": "cb2faa8108e777a72a616abe45f09fab5c1f2ada",
+      "mergeBlob": "cb2faa8108e777a72a616abe45f09fab5c1f2ada",
+      "reviewedAtBlob": "cb2faa8108e777a72a616abe45f09fab5c1f2ada"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-context.mjs",
+      "reviewedBlob": "bd7b27407dc505c42b9c100d6a4e31ebb33fb7cc",
+      "prHeadBlob": "bd7b27407dc505c42b9c100d6a4e31ebb33fb7cc",
+      "mergeBlob": "bd7b27407dc505c42b9c100d6a4e31ebb33fb7cc",
+      "reviewedAtBlob": "bd7b27407dc505c42b9c100d6a4e31ebb33fb7cc"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+      "reviewedBlob": "8b1d4ac217ad1bb62c871bad466d1b5e45b54fb2",
+      "prHeadBlob": "8b1d4ac217ad1bb62c871bad466d1b5e45b54fb2",
+      "mergeBlob": "8b1d4ac217ad1bb62c871bad466d1b5e45b54fb2",
+      "reviewedAtBlob": "8b1d4ac217ad1bb62c871bad466d1b5e45b54fb2"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+      "reviewedBlob": "c638e8189dae434cc355aa66ab5d896e3c72a9e1",
+      "prHeadBlob": "c638e8189dae434cc355aa66ab5d896e3c72a9e1",
+      "mergeBlob": "c638e8189dae434cc355aa66ab5d896e3c72a9e1",
+      "reviewedAtBlob": "c638e8189dae434cc355aa66ab5d896e3c72a9e1"
+    }
+  ],
+  "commits": [
+    {
+      "oid": "38fdd91e473b8cc53473ee4757b010b5c99481ad",
+      "headline": "test(L1-SMOKE-A2FP): RED reachability witness and context falsifiers …"
+    },
+    {
+      "oid": "0db04fa361877a38586a38a59faa627886f46315",
+      "headline": "feat(L1-SMOKE-A2FP): GREEN built-server spectator reachability leaves"
+    },
+    {
+      "oid": "73aef4ab5a80cf1982e3c2112d84feab4238a12a",
+      "headline": "docs(roadmap): L1-SMOKE-A2FP local-verified (RED and local receipts, …"
+    },
+    {
+      "oid": "55ef5dd0b893eff6d75dd15aec71c8e978f22749",
+      "headline": "Merge origin/main (b21a18936, #2337) into work/a2fp-impl-20261025"
+    },
+    {
+      "oid": "c2297627622e054938ed677a3e282c0b844d7705",
+      "headline": "docs(roadmap): L1-SMOKE-A2FP review fixes F1-F4 for #2338"
+    }
+  ],
+  "sourceCensus": {
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2fp-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "scripts/release/l1-built-server-spectator-context.mjs",
+      "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+      "scripts/release/l1-built-server-spectator-reachability.ts",
+      "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs"
+    ],
+    "note": "gh pr view 2338 files; 9 files"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "files": 9,
+    "nonEvidenceFiles": 7,
+    "filesNote": "the generated page is exempt from the file count (ownerRuling20261024StepsPageFileCap), so 6 of 15 counted files (evidence receipts are file-counted in the plan; the cap fit is the literal validator count below)",
+    "counted": 667,
+    "optionACounted": 383,
+    "capExceptionNeeded": true,
+    "measuredOn": "git diff --numstat --no-renames b21a189366b0c02bb47c4e3630065245e52c84be 35fa2fb9c892ed6585057dcacf40de87670a0456",
+    "tool": "prep/a2fp/draft/measure-cap.cjs semantics (validate-roadmap.mjs:706-725)"
+  },
+  "ownerRuling": {
+    "ruledHead": "c2297627622e054938ed677a3e282c0b844d7705",
+    "reviewedHead": "73aef4ab5a80cf1982e3c2112d84feab4238a12a",
+    "pr": 2338,
+    "commentId": 6406917550,
+    "author": "SwiggitySwerve",
+    "bodySha256": "9108ce184dac42f3f73e30af110c228642e1825cc4f34b175139df1c6ca833b7",
+    "at": "2026-10-26T02:31:44Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2338#issuecomment-6406917550",
+    "bodyBytes": 3392,
+    "envelope": {
+      "path": "evidence/l1-smoke-a2fp-owner-ruling-6406917550.bytes.json",
+      "payloadSha256": "9108ce184dac42f3f73e30af110c228642e1825cc4f34b175139df1c6ca833b7",
+      "payloadBytes": 3392
+    },
+    "rootCopy": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/pr2338-owner-ruling-c22976276.md",
+      "sha256": "9108ce184dac42f3f73e30af110c228642e1825cc4f34b175139df1c6ca833b7",
+      "equalsLive": true
+    }
+  },
+  "ci": {
+    "run": 40259012873,
+    "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40259012873",
+    "headSha": "c2297627622e054938ed677a3e282c0b844d7705",
+    "event": "pull_request",
+    "conclusion": "success",
+    "jobs": 33,
+    "checks": "33/33 SUCCESS (gh pr checks 2338 at the merge; PR Checks run 40259012873)"
+  },
+  "reviewRounds": [
+    {
+      "round": 1,
+      "reviewedHead": "73aef4ab5a80cf1982e3c2112d84feab4238a12a",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES",
+      "report": "evidence/l1-smoke-a2fp-source-review-20261026.bytes.json",
+      "findings": "F0 (merge main b21a18936), F1 (size-cap ruling cited), F2 (M24 deterministic), F3 (run-1 cause), F4 (CF-A2FP-1/2 and the M19/M25 notes)"
+    },
+    {
+      "round": 2,
+      "reviewedHead": "c2297627622e054938ed677a3e282c0b844d7705",
+      "verdict": "Root delta check (not a second Opus round)",
+      "scope": "4 files +36/-10 against 73aef4ab5 plus the merge of b21a18936; scripts unchanged; countedLines 667 and option A 383 re-measured"
+    }
+  ],
+  "mergeNotes": [
+    "The merge commit tree equals the reviewed (ruled) head tree, so every leaf at the merge is byte-identical to the ruled head (leavesAtMerge in the mainProof receipt).",
+    "Leaf blobs at 73aef4ab5 (the Opus-reviewed head), the ruled head c22976276 and the merge are identical (reviewedAtBlob equals mergeBlob in sourceIdentities)."
+  ]
+}

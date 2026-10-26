@@ -1,3 +1,15 @@
+## 2026-10-26 L1-SMOKE-A2FP closed; main-verified (exact-main built-image proof); Step 3 PR 2 of 10
+
+Closes L1-SMOKE-A2FP (PR #2338, ruled and merged head c22976276, merge 35fa2fb9c) as main-verified. The OWNER-RULING (comment 6406917550) accepted that exact head; the merge tree equals the ruled head tree, so the four leaves are byte-identical to the reviewed bytes.
+
+- Exact-main proof at clean 35fa2fb9c: fresh `npm ci` (real node_modules), then the registered done-test `node scripts/release/run-l1-built-server-spectator-fixture-proof.mjs --build --expected-sha=35fa2fb9c...` passed first time: accepted-Move, accepted-Attack and accepted-Physical, 0 errors, 8 owned server processes, 7 read-only witness calls in the order ready,declared,ready,declared,ready,ready,declared (CF-A2FP-1 checked from evidence.jsonl). No readiness-probe timeout, so no rerun (CF-A2FP-2). Tool checks at the same clean tree: v220 tests, generate-v220-steps --check, validate-roadmap plain, --git and --github, validate-roadmap.test.mjs, the A2FP node test and the A1 smoke test, all exit 0.
+- Receipts: review (the Opus report at 73aef4ab5 in one byte envelope; the F0-F4 delta was checked by Root), merge and mainProof; the ruling comment is byte-copied and equals the live comment and the Root copy; one log envelope holds the run, install and tool-check output. PK-l1-smoke-a2fp-ruling decision and ruling are filled.
+- capException.countedLines stays 667 (literal validator count of the merge diff, re-measured; option A 383).
+- Carry-forward routing (units.json A2FP.carryForwardRouting20261026): CF-A2FP-1 stays a standing check in each later Step 3 closure; CF-A2FP-2 (the 15 s readiness probe in the frozen A1 harness) has no registered owner and goes to Root.
+- No task row is ticked. L1-SMOKE-A2F is admitted by the next commit of this PR.
+
+---
+
 ## 2026-10-25 L1-SMOKE-A2FP local-verified (implementation; Step 3 unit 1)
 
 Implements L1-SMOKE-A2FP on origin/main cdb5289d2 (#2336): RED (test file only, fails at import on main), GREEN (the three source leaves, byte-identical to the amended hashes in the admission receipt) and this lifecycle commit. The four leaves were added with `git add -f` (`scripts/**` is ignored).
