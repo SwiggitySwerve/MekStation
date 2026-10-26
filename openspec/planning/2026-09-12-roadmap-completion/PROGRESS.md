@@ -1,3 +1,14 @@
+## 2026-10-25 Registration correction: backup removal, Step 4 leaf lists, Step 3 rulings (ledger and docs only)
+
+Recorded the owner's answer "yes and yes" (owner-decisions-20261025b.md, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) to the backup-removal and Step 3 questions, and a Root ruling of 2026-10-25 on the stop report (reg-correction STOPPED.md) under the standing instruction. Evidence: [evidence/release-blocking-registration-correction-20261025.json](evidence/release-blocking-registration-correction-20261025.json), SHA-256 32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1. No unit state, receipt, cap or historical evidence changes; v220-steps.json and the Step 1 recorded hash are untouched; --next is unchanged.
+
+- DESKTOP-DATA-OWN-2 (id kept) is now the backup removal: timer, tray item, create-backup and restore-backup IPC, preload exposure, BackupService wiring, the packaged validator assertion, and the service-call clearCache route. 10 leaves + 5 lifecycle = 15 files. S7-02, S7-05, the createBackup/restoreBackup half of S7-04, F-3 and F-4 are resolved by removal; S7-03 and the clearCache half of S7-04 are made unreachable, not repaired. DESKTOP-DATA-OWN-2B and the proposed -2C are retired; Step 4 prBudget stays 29.
+- Registered two blocked backlog units outside the closures and in no step: DESKTOP-BACKUP-DEADCODE-1 (dead backup code, settings fields and unmounted dialog parts; may split at admission) and DESKTOP-DATA-EXPORT-1 (a plain user Export data). The planned node R2.desktop-platform gains three ownership literals.
+- Leaf corrections to 15 files each: API-SAME-HOST-1 (variant B, fail-closed boot, 1 MiB frames), CAMPAIGN-LIVE-WRITE-1 (two test helpers and the dashboard page; the host's own DELETE is refused while a session runs), DESKTOP-DATA-OWN-1 (main.cleanup.ts; the ELECTRON_RUN_AS_NODE spike is an admission precondition), DESKTOP-GUARDS-1 (packaged-ipc-probe.js and the CI wiring test; the pre-upgrade safety copy is explicit; required CI depends on an owner setting that is not decided). RELEASE-PRODUCER-1's second proof now fails closed before an RC exists.
+- Step 3 rulings (annotations on L1-SMOKE-B, -A2, -A2F and -A2M; L1-SMOKE-A2FP is not edited) and a release-notes gate annotation (the topology page misses 2 of the 7 checker strings and the lobby string names B15-PRIV, which is not in v2.2.0).
+
+---
+
 ## 2026-10-25 L1-SMOKE-A2FP admitted (first Step 3 unit; ledger and evidence only)
 
 Admits L1-SMOKE-A2FP on baseline 57fd9064c, after the LSC-2P closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. GATE OPEN is the Root brief for this PR (owner decision 5: Step 3 starts once LSC-2P closes). The registered undated evidence literal is kept ([evidence](evidence/l1-smoke-a2fp-admission.json)).
