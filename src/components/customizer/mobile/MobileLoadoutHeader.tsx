@@ -12,6 +12,15 @@ import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 
+import {
+  CAUTION_TEXT_CLASS,
+  getCapacityStatus,
+  getHeatStatus,
+  getWeightStatus,
+  STAT_STATUS_TEXT_CLASS,
+  type StatStatus,
+} from '../shared/unitStatStatus';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -42,36 +51,18 @@ interface MobileLoadoutHeaderProps {
   isExpanded: boolean;
   onToggle: () => void;
   className?: string;
+  /** Hide the stats when the page header already shows them. */
+  showStats?: boolean;
 }
 
 // =============================================================================
 // Helper Functions
 // =============================================================================
 
-type StatusLevel = 'normal' | 'warning' | 'error';
+type StatusLevel = StatStatus;
 
-function getWeightStatus(used: number, max: number): StatusLevel {
-  if (used > max) return 'error';
-  if (max - used < 0.5) return 'warning';
-  return 'normal';
-}
-
-function getSlotsStatus(used: number, max: number): StatusLevel {
-  if (used > max) return 'error';
-  return 'normal';
-}
-
-function getHeatStatus(generated: number, dissipation: number): StatusLevel {
-  if (generated > dissipation) return 'error';
-  if (generated === dissipation) return 'warning';
-  return 'normal';
-}
-
-const statusColors: Record<StatusLevel, string> = {
-  normal: 'text-text-theme-primary',
-  warning: 'text-amber-400',
-  error: 'text-red-400',
-};
+/** Shared readout colors: cautions orange, errors red, never the accent. */
+const statusColors: Record<StatusLevel, string> = STAT_STATUS_TEXT_CLASS;
 
 // =============================================================================
 // Stat Display Component
@@ -119,9 +110,10 @@ export function MobileLoadoutHeader({
   isExpanded,
   onToggle,
   className = '',
+  showStats = true,
 }: MobileLoadoutHeaderProps): React.ReactElement {
   const weightStatus = getWeightStatus(stats.weightUsed, stats.weightMax);
-  const slotsStatus = getSlotsStatus(stats.slotsUsed, stats.slotsMax);
+  const slotsStatus = getCapacityStatus(stats.slotsUsed, stats.slotsMax);
   const heatStatus = getHeatStatus(stats.heatGenerated, stats.heatDissipation);
 
   return (
@@ -135,42 +127,51 @@ export function MobileLoadoutHeader({
         aria-expanded={isExpanded}
         aria-label={isExpanded ? 'Collapse loadout' : 'Expand loadout'}
       >
-        {/* Stats row */}
-        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
-          <StatDisplay
-            label="Weight"
-            value={stats.weightUsed.toFixed(1)}
-            max={stats.weightMax}
-            status={weightStatus}
-          />
+        {showStats ? (
+          /* Stats row */
+          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
+            <StatDisplay
+              label="Weight"
+              value={stats.weightUsed.toFixed(1)}
+              max={stats.weightMax}
+              status={weightStatus}
+            />
 
-          <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
+            <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
 
-          <StatDisplay
-            label="Slots"
-            value={stats.slotsUsed}
-            max={stats.slotsMax}
-            status={slotsStatus}
-          />
+            <StatDisplay
+              label="Slots"
+              value={stats.slotsUsed}
+              max={stats.slotsMax}
+              status={slotsStatus}
+            />
 
-          <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
+            <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
 
-          <StatDisplay
-            label="Heat"
-            value={stats.heatGenerated}
-            max={stats.heatDissipation}
-            status={heatStatus}
-          />
+            <StatDisplay
+              label="Heat"
+              value={stats.heatGenerated}
+              max={stats.heatDissipation}
+              status={heatStatus}
+            />
 
-          <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
+            <div className="bg-border-theme-subtle h-5 w-px flex-shrink-0" />
 
-          <StatDisplay label="BV" value={stats.battleValue.toLocaleString()} />
-        </div>
+            <StatDisplay
+              label="BV"
+              value={stats.battleValue.toLocaleString()}
+            />
+          </div>
+        ) : (
+          <span className="text-text-theme-primary text-sm font-semibold">
+            Loadout
+          </span>
+        )}
 
         {/* Expand indicator with equipment count */}
         <div className="ml-2 flex flex-shrink-0 items-center gap-1.5">
           {stats.unassignedCount > 0 && (
-            <span className="text-[9px] font-medium text-amber-400">
+            <span className={`text-[11px] font-medium ${CAUTION_TEXT_CLASS}`}>
               {stats.unassignedCount} unassigned
             </span>
           )}

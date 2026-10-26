@@ -97,6 +97,31 @@ describe('RecordSheetCanvasPreview zoom', () => {
     );
   });
 
+  it('starts at fit width on phones and preserves an explicit fit-page choice', async () => {
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+    viewport.width = 390;
+    viewport.height = 320;
+    try {
+      const user = userEvent.setup();
+      render(<ZoomHarness />);
+      expect(zoomOutput()).toHaveTextContent('56%');
+      expect(screen.getByRole('button', { name: 'Fit Width' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+      await user.click(screen.getByRole('button', { name: 'Fit Page' }));
+      fireResize(390, 400);
+      expect(zoomOutput()).toHaveTextContent('44%');
+      expect(screen.getByRole('button', { name: 'Fit Page' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
+    } finally {
+      window.matchMedia = originalMatchMedia;
+    }
+  });
+
   it('keeps a 44px control row and scrolls the sheet at large zoom', async () => {
     const user = userEvent.setup();
     render(<ZoomHarness />);

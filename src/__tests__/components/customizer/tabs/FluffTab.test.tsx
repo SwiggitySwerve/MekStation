@@ -91,6 +91,27 @@ describe('FluffTab', () => {
     expect(screen.getByLabelText('Manufacturer')).toBeDisabled();
   });
 
+  it('shows all-caps system keys as plain field labels without changing the stored key', () => {
+    const onFluffChange = jest.fn();
+    render(
+      <FluffTab
+        fluff={{
+          systemManufacturer: { CHASSIS: 'Foundation', ECM: 'Guardian' },
+        }}
+        onFluffChange={onFluffChange}
+      />,
+    );
+
+    expect(screen.getByLabelText('Chassis')).toHaveValue('Foundation');
+    expect(screen.getByLabelText('ECM')).toHaveValue('Guardian');
+    fireEvent.change(screen.getByLabelText('Chassis'), {
+      target: { value: 'Hild' },
+    });
+    expect(onFluffChange).toHaveBeenCalledWith({
+      systemManufacturer: { CHASSIS: 'Hild', ECM: 'Guardian' },
+    });
+  });
+
   it('applies the custom root class', () => {
     const { container } = render(<FluffTab className="custom-class" />);
 

@@ -28,7 +28,7 @@ import { SlotContextMenuShell } from './SlotContextMenuShell';
 import {
   getSlotContentClasses,
   getSlotDisplayName,
-  getSlotMarkerClasses,
+  getSlotSizeClasses,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -205,9 +205,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
   const selectionClasses = isSelected
     ? 'ring-2 ring-accent ring-offset-1 ring-offset-surface-deep'
     : '';
-  const sizeClasses = compact
-    ? 'px-1 py-0.5 text-[10px] sm:text-xs'
-    : 'px-1 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-sm';
+  const sizeClasses = getSlotSizeClasses(compact);
   const visualState = {
     primary,
     isAssignable,
@@ -232,7 +230,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         <div
           role="gridcell"
           tabIndex={0}
-          className={`focus-visible:ring-accent my-0.5 flex min-h-8 items-stretch rounded-sm border transition-all focus-visible:ring-2 ${selectionClasses} ${sizeClasses}`}
+          className={`focus-visible:ring-accent my-0.5 flex items-stretch rounded-sm border transition-all focus-visible:ring-2 ${selectionClasses} ${sizeClasses}`}
           onClick={onClick}
           onDoubleClick={() => handleDoubleSlotDoubleClick(removeState)}
           onContextMenu={(e) =>
@@ -253,11 +251,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
           >
             <span
               aria-hidden="true"
-              className={`mr-1 h-3.5 w-1 flex-shrink-0 rounded-full ${getSlotMarkerClasses(primary)}`}
-            />
-            <span
-              aria-hidden="true"
-              className="mr-1 text-[10px] text-inherit tabular-nums"
+              className="mr-1 text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
             >
               {primary.index + 1}
             </span>
@@ -271,11 +265,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
           >
             <span
               aria-hidden="true"
-              className={`mr-1 h-3.5 w-1 flex-shrink-0 rounded-full ${getSlotMarkerClasses(secondary)}`}
-            />
-            <span
-              aria-hidden="true"
-              className="mr-1 text-[10px] text-inherit tabular-nums"
+              className="mr-1 text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
             >
               {secondary.index + 1}
             </span>
@@ -307,7 +297,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         role="gridcell"
         tabIndex={0}
         draggable={canDrag}
-        className={`focus-visible:ring-accent my-0.5 flex min-h-8 items-center rounded-sm border transition-all focus-visible:ring-2 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${containerClasses} ${selectionClasses} ${sizeClasses}`}
+        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus-visible:ring-2 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${containerClasses} ${selectionClasses} ${sizeClasses}`}
         onClick={onClick}
         onDoubleClick={() => handleDoubleSlotDoubleClick(removeState)}
         onContextMenu={(e) => handleDoubleSlotContextMenu(e, contextMenuState)}
@@ -332,11 +322,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
       >
         <span
           aria-hidden="true"
-          className={`mr-1 h-4 w-1 flex-shrink-0 rounded-full ${getSlotMarkerClasses(primary)}`}
-        />
-        <span
-          aria-hidden="true"
-          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-[10px] text-inherit tabular-nums"
+          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
         >
           {primary.index + 1}
         </span>

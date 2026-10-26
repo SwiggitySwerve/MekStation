@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import { CATALOG_OTHER_CATEGORIES } from '@/stores/useEquipmentStore.filters';
 import { EquipmentCategory } from '@/types/equipment';
-import { getCategorySlotClasses } from '@/utils/colors/equipmentColors';
+import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 
 import { EquipmentControlPopover } from './EquipmentControlPopover';
 
@@ -43,6 +43,12 @@ interface CategoryConfig {
   category: EquipmentCategory;
   label: string;
 }
+
+const CHIP_CLASS =
+  'focus-visible:outline-accent inline-flex min-h-11 shrink-0 items-center gap-2 rounded border px-3 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2';
+const CHIP_SELECTED = 'border-accent bg-accent/10 text-accent';
+const CHIP_IDLE =
+  'border-border-theme-subtle bg-surface-raised/50 text-text-theme-secondary hover:border-border-theme hover:text-text-theme-primary';
 
 const CATEGORY_CONFIGS: CategoryConfig[] = [
   { category: EquipmentCategory.ENERGY_WEAPON, label: 'Energy' },
@@ -110,7 +116,7 @@ export function CompactFilterBar({
   return (
     <div className={`flex shrink-0 flex-col ${className}`}>
       <div
-        className="border-border-theme flex h-[52px] shrink-0 items-center gap-1 border-b px-3"
+        className="border-border-theme flex h-12 shrink-0 items-center gap-1 border-b px-3"
         data-testid="equipment-search-controls"
       >
         <div className="relative min-w-0 flex-1">
@@ -142,12 +148,7 @@ export function CompactFilterBar({
             <>
               <span>Filters</span>
               {activeHideCount > 0 && (
-                <span className="text-accent">{activeHideCount}</span>
-              )}
-              {hideUnavailable && availabilitySummary && (
-                <span className="hidden xl:inline">
-                  · {availabilitySummary}
-                </span>
+                <span className="text-accent">({activeHideCount})</span>
               )}
             </>
           }
@@ -210,6 +211,14 @@ export function CompactFilterBar({
             {sortControls}
           </EquipmentControlPopover>
         )}
+        {hideUnavailable && availabilitySummary && (
+          <span
+            className="text-text-theme-secondary bg-surface-deep border-border-theme-subtle hidden shrink-0 rounded-full border px-2 py-0.5 text-xs whitespace-nowrap md:inline-block"
+            title="Equipment is limited to what this unit can use"
+          >
+            {availabilitySummary}
+          </span>
+        )}
         {resultSummary && (
           <span
             className="text-text-theme-secondary hidden shrink-0 px-1 text-xs whitespace-nowrap md:block"
@@ -219,8 +228,8 @@ export function CompactFilterBar({
           </span>
         )}
         <EquipmentControlPopover
-          ariaLabel="Equipment help"
-          label="Help"
+          ariaLabel="How to add equipment"
+          label="How to add"
           className="hidden lg:block"
         >
           <p className="text-text-theme-secondary text-sm">
@@ -231,7 +240,7 @@ export function CompactFilterBar({
         </EquipmentControlPopover>
       </div>
       <div
-        className="border-border-theme flex h-[52px] shrink-0 items-center gap-1 overflow-x-auto px-3 py-1"
+        className="border-border-theme flex h-12 shrink-0 items-center gap-1.5 overflow-x-auto px-3 py-0.5"
         role="group"
         aria-label="Equipment categories"
         data-testid="equipment-category-controls"
@@ -241,7 +250,7 @@ export function CompactFilterBar({
           onClick={onShowAll}
           aria-pressed={showAll}
           title="Show all categories"
-          className={`focus-visible:outline-accent min-h-11 shrink-0 rounded border px-3 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 ${showAll ? 'border-accent bg-accent/10 text-accent' : 'border-border-theme bg-surface-raised text-text-theme-secondary'}`}
+          className={`${CHIP_CLASS} ${showAll ? CHIP_SELECTED : CHIP_IDLE}`}
         >
           All
         </button>
@@ -261,8 +270,12 @@ export function CompactFilterBar({
               aria-pressed={isActive}
               onClick={(event) => handleCategoryClick(category, event)}
               title={`${label} (Ctrl+click to multi-select)`}
-              className={`focus-visible:outline-accent min-h-11 shrink-0 rounded border px-3 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 ${getCategorySlotClasses(category)} ${!isActive ? 'opacity-60' : ''} ${isActive && !showAll ? 'ring-accent ring-offset-surface-base ring-1 ring-offset-1' : ''}`}
+              className={`${CHIP_CLASS} ${isActive && !showAll ? CHIP_SELECTED : CHIP_IDLE}`}
             >
+              <span
+                aria-hidden="true"
+                className={`h-2 w-2 shrink-0 rounded-full ${getCategoryIndicatorClass(category)}`}
+              />
               {label}
             </button>
           );

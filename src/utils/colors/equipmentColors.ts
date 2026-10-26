@@ -61,6 +61,7 @@ export const HEATSINK_COLORS: CategoryColorDefinition = {
   slotText: 'text-white',
   slotHoverBg: 'hover:bg-cyan-600',
   indicatorBg: 'bg-cyan-500',
+  accentBorder: 'border-l-cyan-500',
 };
 
 // =============================================================================
@@ -105,6 +106,25 @@ export function getCategoryIndicatorClass(category: EquipmentCategory): string {
   return EQUIPMENT_CATEGORY_COLORS[category].indicatorBg;
 }
 
+/**
+ * Get the left accent bar class for neutral list/card surfaces
+ */
+export function getCategoryAccentClass(category: EquipmentCategory): string {
+  return EQUIPMENT_CATEGORY_COLORS[category].accentBorder;
+}
+
+/**
+ * Heat-sink aware accent bar class, mirroring getEquipmentSlotClasses
+ */
+export function getEquipmentAccentClasses(
+  category: EquipmentCategory,
+  name: string,
+): string {
+  return classifyEquipmentByName(name) === 'heatsink'
+    ? HEATSINK_COLORS.accentBorder
+    : getCategoryAccentClass(category);
+}
+
 export function getEquipmentSlotClassesByName(name: string): string {
   const category = classifyEquipmentByName(name);
 
@@ -122,4 +142,21 @@ export function getEquipmentSlotClasses(
   return classifyEquipmentByName(name) === 'heatsink'
     ? getEquipmentSlotClassesByName(name)
     : getCategorySlotClasses(category);
+}
+
+/** Neutral equipment surface with the same category edge as the loadout rail. */
+export function getEquipmentSurfaceClasses(
+  category: EquipmentCategory,
+  name: string,
+): string {
+  return `bg-surface-raised border-border-theme border-l-4 text-text-theme-primary hover:bg-surface-base ${getEquipmentAccentClasses(category, name)}`;
+}
+
+/** Name-based counterpart for critical slots, which carry display names. */
+export function getEquipmentSurfaceClassesByName(name: string): string {
+  const category = classifyEquipmentByName(name);
+  return getEquipmentSurfaceClasses(
+    category === 'heatsink' ? EquipmentCategory.MISC_EQUIPMENT : category,
+    name,
+  );
 }

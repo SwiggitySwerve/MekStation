@@ -32,6 +32,16 @@ its separate Preview-before-Fluff order.
 - **THEN** the route-backed editor SHALL restore the selected tab from its URL
 - **AND** persisted unit/tab state SHALL restore the remembered valid tab when the URL omits its tab segment, without replacing an explicit valid URL selection including Structure
 
+#### Scenario: Phone section selection
+
+- **WHEN** the viewport is narrower than 640px
+- **THEN** a full-width, 48px-tall section selector SHALL show the full current section label and its position among the available sections
+- **AND** opening the selector SHALL disclose all section labels, the selected section, and the existing per-section validation counts
+- **AND** selecting a section SHALL use the existing tab change handler and close the disclosure
+- **AND** Escape SHALL close the disclosure and restore focus to its trigger; outside pointer interaction or focus leaving the disclosure SHALL also close it
+- **AND** undo, redo, and section tools SHALL remain reachable below the selector without reducing its width
+- **AND** at widths of 640px or greater the existing tablist, tab IDs, and panel associations SHALL remain intact
+
 ---
 
 ### Requirement: Tab Component Props

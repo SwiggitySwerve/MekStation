@@ -12,6 +12,7 @@
 import React, {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -66,6 +67,7 @@ export function ArmorTab({
   readOnly = false,
   className = '',
 }: ArmorTabProps): React.ReactElement {
+  const allocationStatusId = useId();
   // Get app settings - subscribe to computed values for reactivity
   const armorDiagramMode = useCustomizerSettingsStore((s) =>
     s.getEffectiveArmorDiagramMode(),
@@ -196,7 +198,7 @@ export function ArmorTab({
       {/* Compact Summary Bar - responsive */}
       <div className={cs.panel.summary}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="flex items-center gap-3 overflow-x-auto pb-1 text-sm sm:gap-6 sm:pb-0">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm sm:gap-x-6">
             <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Type:</span>
               <span className={cs.text.value}>
@@ -212,7 +214,7 @@ export function ArmorTab({
               <span className={cs.text.value}>{armorSlots}</span>
             </div>
           </div>
-          <div className="border-border-theme-subtle flex items-center gap-4 border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4">
+          <div className="border-border-theme-subtle flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4">
             <div className={cs.layout.statRow}>
               <span className={`text-sm ${cs.text.label}`}>Tonnage:</span>
               <span className="text-text-theme-primary text-lg font-bold tabular-nums">
@@ -220,11 +222,11 @@ export function ArmorTab({
               </span>
             </div>
             <div className={cs.layout.statRow}>
-              <span className={`text-sm ${cs.text.label}`}>Points:</span>
+              <span className={`text-sm ${cs.text.label}`}>Allocated:</span>
               <span
                 className={`text-lg font-bold tabular-nums ${allocatedPoints > maxTotalArmor ? 'text-red-400' : 'text-text-theme-primary'}`}
               >
-                {allocatedPoints} / {maxTotalArmor}
+                {allocatedPoints} / {maxTotalArmor} max
               </span>
             </div>
           </div>
@@ -242,13 +244,13 @@ export function ArmorTab({
             armorDiagramVariant={armorDiagramVariant}
             armorData={armorData}
             selectedLocation={selectedLocation}
-            pointsDelta={pointsDelta}
+            unallocatedPoints={unallocatedPoints}
             onLocationClick={handleLocationClick}
           />
         </section>
 
         {/* Compact inspector follows the diagram on smaller viewports. */}
-        <aside className="order-2 space-y-4">
+        <aside className="order-2 flex min-w-0 flex-col gap-4 xl:self-start">
           {/* Location Editor - shown at top when a location is selected */}
           {selectedLocation && selectedLocationData && (
             <div ref={locationEditorRef}>
@@ -264,17 +266,17 @@ export function ArmorTab({
           )}
 
           {/* Armor Configuration */}
-          <div className={cs.panel.main}>
-            <div className="mb-4 flex items-baseline justify-between gap-3">
-              <h3 className="text-text-theme-primary text-base font-semibold tracking-wide uppercase">
+          <div className={`${cs.panel.main} flex flex-col`}>
+            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h3 className="text-text-theme-primary text-lg font-semibold">
                 Armor inspector
               </h3>
               <span className="text-text-theme-secondary text-xs tabular-nums">
-                {availablePoints} points available
+                {availablePoints} pts from {armorTonnage} t
               </span>
             </div>
 
-            <div className="space-y-4">
+            <div className="flex flex-col gap-6">
               {/* Armor Type */}
               <div className={cs.layout.field}>
                 <div className={cs.layout.rowBetween}>
@@ -341,12 +343,27 @@ export function ArmorTab({
                 </button>
                 <button
                   onClick={handleAutoAllocate}
-                  disabled={readOnly}
-                  className="bg-accent hover:bg-accent-hover text-on-accent min-h-11 rounded px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={readOnly || pointsDelta === 0}
+                  aria-describedby={
+                    pointsDelta === 0 ? allocationStatusId : undefined
+                  }
+                  className={`min-h-11 rounded px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                    pointsDelta !== 0
+                      ? 'bg-accent hover:bg-accent-hover text-on-accent'
+                      : 'border-border-theme bg-surface-raised hover:bg-surface-raised-hover text-text-theme-primary border'
+                  }`}
                 >
                   Auto Allocate ({pointsDelta > 0 ? '+' : ''}
                   {pointsDelta} pts)
                 </button>
+                {pointsDelta === 0 && (
+                  <p
+                    id={allocationStatusId}
+                    className="text-text-theme-secondary text-xs sm:col-span-2 xl:col-span-1"
+                  >
+                    All allocatable points assigned
+                  </p>
+                )}
               </div>
 
               <div className="border-border-theme-subtle border-t pt-3">
@@ -367,7 +384,7 @@ export function ArmorTab({
                   </span>
                 </div>
                 <details className="group mt-3">
-                  <summary className="text-text-theme-secondary hover:text-text-theme-primary focus-visible:ring-accent cursor-pointer text-xs font-medium tracking-wide uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none">
+                  <summary className="text-text-theme-secondary hover:text-text-theme-primary focus-visible:ring-accent cursor-pointer text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none">
                     Advanced allocation details
                   </summary>
                   <div className="border-border-theme-subtle mt-3 space-y-2 border-l pl-3">
@@ -380,7 +397,7 @@ export function ArmorTab({
                       </span>
                     </div>
                     <div className={`${cs.layout.rowBetween} text-sm`}>
-                      <span className={cs.text.label}>Total Armor Points</span>
+                      <span className={cs.text.label}>Points from Tonnage</span>
                       <span className={`${cs.text.value} tabular-nums`}>
                         {availablePoints}
                       </span>

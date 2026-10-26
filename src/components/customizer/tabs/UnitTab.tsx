@@ -88,10 +88,10 @@ export function UnitTab({
 
   return (
     <div
-      className={`group flex min-h-11 max-w-[220px] min-w-[140px] shrink-0 items-center gap-1 rounded-t border-b-2 pl-2 transition-colors ${
+      className={`group flex min-h-11 max-w-[220px] min-w-[140px] shrink-0 items-center gap-1 rounded-t border-b-2 pl-2 transition-colors lg:max-w-[320px] ${
         isActive
           ? 'border-accent bg-surface-raised text-text-theme-primary'
-          : 'text-text-theme-secondary hover:bg-surface-raised hover:text-text-theme-primary border-transparent bg-transparent'
+          : 'text-text-theme-secondary [@media(hover:hover)]:hover:text-text-theme-primary border-transparent bg-transparent'
       } `}
     >
       {/* Tab name or input */}

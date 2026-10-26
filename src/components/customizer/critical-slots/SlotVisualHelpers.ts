@@ -1,31 +1,25 @@
-import { getEquipmentSlotClassesByName } from '@/utils/colors/equipmentColors';
+import { getEquipmentSurfaceClassesByName } from '@/utils/colors/equipmentColors';
 import {
   classifySystemComponent,
-  getSlotColors,
   getSlotColorClasses,
 } from '@/utils/colors/slotColors';
 import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
 import type { SlotContent } from './criticalSlotTypes';
 
+/** Dense mouse targets on desktop; phones and touch pointers keep 44px rows. */
+export function getSlotSizeClasses(compact: boolean): string {
+  return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-7 lg:pointer-fine:py-0.5 ${compact ? 'lg:pointer-fine:px-1 lg:pointer-fine:text-[13px]' : ''}`;
+}
+
 export function getSlotContentClasses(slot: SlotContent): string {
   if (slot.type === 'system' && slot.name) {
     return getSlotColorClasses(classifySystemComponent(slot.name));
   }
   if (slot.type === 'equipment' && slot.name) {
-    return getEquipmentSlotClassesByName(slot.name);
+    return getEquipmentSurfaceClassesByName(slot.name);
   }
   return 'bg-surface-base/80 border-border-theme border-dashed text-text-theme-muted';
-}
-
-export function getSlotMarkerClasses(slot: SlotContent): string {
-  if (slot.type === 'system' && slot.name) {
-    return getSlotColors(classifySystemComponent(slot.name)).bg;
-  }
-  if (slot.type === 'equipment' && slot.name) {
-    return getEquipmentSlotClassesByName(slot.name).split(' ')[0];
-  }
-  return 'bg-border-theme-strong/50';
 }
 
 export function getSlotStateClasses(

@@ -82,10 +82,8 @@ export function StructureTabMovementSection({
 
   return (
     <div className={cs.panel.main}>
-      <div className="border-border-theme-subtle mb-4 border-b pb-3">
-        <h3 className="text-text-theme-primary text-lg font-semibold">
-          Mobility
-        </h3>
+      <div className="border-border-theme mb-4 border-b pb-3">
+        <h3 className={cs.text.cardTitle}>Mobility</h3>
         <p className={`${cs.text.secondary} mt-0.5`}>
           Base settings and derived movement limits
         </p>
@@ -94,16 +92,8 @@ export function StructureTabMovementSection({
       <div className="space-y-5">
         <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
           <span></span>
-          <span
-            className={`${cs.text.secondary} text-center text-xs font-semibold tracking-[0.16em] uppercase`}
-          >
-            Base
-          </span>
-          <span
-            className={`${cs.text.secondary} text-center text-xs font-semibold tracking-[0.16em] uppercase`}
-          >
-            Final
-          </span>
+          <span className={`${cs.text.subsection} text-center`}>Base</span>
+          <span className={`${cs.text.subsection} text-center`}>Final</span>
         </div>
 
         <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
@@ -142,18 +132,18 @@ export function StructureTabMovementSection({
               <AppIcon name="add" size="inline" aria-hidden="true" />
             </button>
           </div>
-          <span className={`font-mono text-sm ${cs.text.value} text-center`}>
+          <span className={`text-sm tabular-nums ${cs.text.value} text-center`}>
             {walkMP}
           </span>
         </div>
 
         <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1.35fr)_minmax(4rem,0.75fr)] items-center gap-3">
           <span className={`${cs.text.label} font-medium`}>Run MP</span>
-          <span className={`font-mono text-sm ${cs.text.value} text-center`}>
+          <span className={`text-sm tabular-nums ${cs.text.value} text-center`}>
             {runMP}
           </span>
           <div className="flex items-center justify-center gap-1">
-            <span className={`font-mono text-sm ${cs.text.value}`}>
+            <span className={`text-sm tabular-nums ${cs.text.value}`}>
               {runMP}
             </span>
             {maxRunMP && (
@@ -209,7 +199,7 @@ export function StructureTabMovementSection({
               <AppIcon name="add" size="inline" aria-hidden="true" />
             </button>
           </div>
-          <span className={`font-mono text-sm ${cs.text.value} text-center`}>
+          <span className={`text-sm tabular-nums ${cs.text.value} text-center`}>
             {jumpMP}
           </span>
         </div>
@@ -241,7 +231,7 @@ export function StructureTabMovementSection({
             className={`${cs.text.label} font-medium`}
             htmlFor="mechanical-jump-booster-mp"
           >
-            Mech. J. Booster
+            Jump booster
           </label>
           <div className="flex items-center justify-center">
             <input
@@ -253,7 +243,9 @@ export function StructureTabMovementSection({
               className={`w-12 ${cs.input.compact} text-center opacity-50 ${cs.input.noSpinners}`}
             />
           </div>
-          <span></span>
+          <span className={`${cs.text.secondary} text-right`}>
+            Not editable
+          </span>
         </div>
 
         <div className={`${cs.layout.divider} mt-3`}>
@@ -274,9 +266,7 @@ export function StructureTabMovementSection({
         </div>
 
         <div className={`${cs.layout.divider} mt-2`}>
-          <h4 className="text-text-theme-secondary mb-3 text-sm font-semibold">
-            Enhancement
-          </h4>
+          <h4 className={`${cs.text.subsection} mb-3`}>Enhancement</h4>
           <div className="grid grid-cols-[minmax(5.5rem,1fr)_minmax(0,1fr)] items-center gap-3">
             <label className={cs.text.label}>Type</label>
             <select

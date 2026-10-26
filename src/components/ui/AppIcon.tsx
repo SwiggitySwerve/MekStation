@@ -205,6 +205,8 @@ const glyphs = {
       <path d="M4 9a8 8 0 0 1 14-5l3 5M3 15l3 5a8 8 0 0 0 14-5" />
     </>
   ),
+  undo: <path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3" />,
+  redo: <path d="m15 14 5-5-5-5m5 5H9a5 5 0 0 0 0 10h3" />,
   loader: (
     <>
       <circle cx="12" cy="12" r="9" opacity=".25" />

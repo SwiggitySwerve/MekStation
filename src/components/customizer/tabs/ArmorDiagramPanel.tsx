@@ -28,7 +28,7 @@ interface ArmorDiagramPanelProps {
   readonly armorDiagramVariant: ArmorDiagramVariant;
   readonly armorData: LocationArmorData[];
   readonly selectedLocation: MechLocation | null;
-  readonly pointsDelta: number;
+  readonly unallocatedPoints: number;
   readonly onLocationClick: (location: MechLocation) => void;
 }
 
@@ -38,7 +38,7 @@ export function ArmorDiagramPanel({
   armorDiagramVariant,
   armorData,
   selectedLocation,
-  pointsDelta,
+  unallocatedPoints,
   onLocationClick,
 }: ArmorDiagramPanelProps): React.ReactElement {
   return (
@@ -47,7 +47,7 @@ export function ArmorDiagramPanel({
         <QuadArmorDiagram
           armorData={armorData}
           selectedLocation={selectedLocation}
-          unallocatedPoints={pointsDelta}
+          unallocatedPoints={unallocatedPoints}
           onLocationClick={onLocationClick}
           variant={armorDiagramVariant}
         />
@@ -57,7 +57,7 @@ export function ArmorDiagramPanel({
         <TripodArmorDiagram
           armorData={armorData}
           selectedLocation={selectedLocation}
-          unallocatedPoints={pointsDelta}
+          unallocatedPoints={unallocatedPoints}
           onLocationClick={onLocationClick}
           variant={armorDiagramVariant}
         />
@@ -67,7 +67,7 @@ export function ArmorDiagramPanel({
         <LAMArmorDiagram
           armorData={armorData}
           selectedLocation={selectedLocation}
-          unallocatedPoints={pointsDelta}
+          unallocatedPoints={unallocatedPoints}
           onLocationClick={onLocationClick}
           variant={armorDiagramVariant}
         />
@@ -77,7 +77,7 @@ export function ArmorDiagramPanel({
         <QuadVeeArmorDiagram
           armorData={armorData}
           selectedLocation={selectedLocation}
-          unallocatedPoints={pointsDelta}
+          unallocatedPoints={unallocatedPoints}
           onLocationClick={onLocationClick}
           variant={armorDiagramVariant}
         />
@@ -98,7 +98,7 @@ export function ArmorDiagramPanel({
               <CleanTechDiagram
                 armorData={armorData}
                 selectedLocation={selectedLocation}
-                unallocatedPoints={pointsDelta}
+                unallocatedPoints={unallocatedPoints}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -107,7 +107,7 @@ export function ArmorDiagramPanel({
               <NeonOperatorDiagram
                 armorData={armorData}
                 selectedLocation={selectedLocation}
-                unallocatedPoints={pointsDelta}
+                unallocatedPoints={unallocatedPoints}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -116,7 +116,7 @@ export function ArmorDiagramPanel({
               <TacticalHUDDiagram
                 armorData={armorData}
                 selectedLocation={selectedLocation}
-                unallocatedPoints={pointsDelta}
+                unallocatedPoints={unallocatedPoints}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -125,7 +125,7 @@ export function ArmorDiagramPanel({
               <PremiumMaterialDiagram
                 armorData={armorData}
                 selectedLocation={selectedLocation}
-                unallocatedPoints={pointsDelta}
+                unallocatedPoints={unallocatedPoints}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -134,7 +134,7 @@ export function ArmorDiagramPanel({
               <MegaMekDiagram
                 armorData={armorData}
                 selectedLocation={selectedLocation}
-                unallocatedPoints={pointsDelta}
+                unallocatedPoints={unallocatedPoints}
                 onLocationClick={onLocationClick}
               />
             )}

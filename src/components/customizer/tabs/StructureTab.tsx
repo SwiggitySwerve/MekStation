@@ -280,7 +280,7 @@ export function StructureTab({
     <div className={`${cs.layout.tabContent} ${className}`}>
       <div className={cs.panel.summary}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="flex items-center gap-3 overflow-x-auto pb-1 text-sm sm:gap-6 sm:pb-0">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm sm:gap-x-6">
             <div className={`${cs.layout.statRow} flex-shrink-0`}>
               <span className={cs.text.label}>Engine:</span>
               <span className={cs.text.value}>
@@ -322,7 +322,7 @@ export function StructureTab({
             className={`${cs.layout.statRow} border-border-theme-subtle border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4`}
           >
             <span className={`text-sm ${cs.text.label}`}>Total:</span>
-            <span className="text-accent text-lg font-bold">
+            <span className="text-text-theme-primary text-lg font-bold tabular-nums">
               {calculations.totalStructuralWeight}t
             </span>
           </div>

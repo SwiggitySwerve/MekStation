@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { customizerStyles as cs } from '@/components/customizer/styles';
+import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
 
 export interface FluffTabProps {
@@ -69,14 +70,11 @@ export function FluffTab({
       )}
 
       <section
-        className="border-border-theme-subtle bg-surface-base/60 grid gap-3 rounded-lg border px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)] sm:items-end"
+        className="border-border-theme bg-surface-base grid gap-3 rounded-lg border px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)] sm:items-end"
         aria-labelledby="fluff-role-heading"
       >
         <div>
-          <h3
-            id="fluff-role-heading"
-            className="text-text-theme-secondary text-sm font-semibold tracking-[0.14em] uppercase"
-          >
+          <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
             Battlefield Role
           </h3>
           <p className="text-text-theme-secondary mt-1 text-xs">
@@ -102,10 +100,10 @@ export function FluffTab({
       </section>
 
       <section className={cs.panel.main} aria-labelledby="fluff-mfg-heading">
-        <h3 id="fluff-mfg-heading" className={cs.text.sectionTitle}>
+        <h3 id="fluff-mfg-heading" className={`${cs.text.cardTitle} mb-3`}>
           Manufacturing
         </h3>
-        <div className="divide-border-theme-subtle border-border-theme-subtle divide-y border-y">
+        <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
           <TextField
             label="Manufacturer"
             value={fluff.manufacturer ?? ''}
@@ -119,7 +117,9 @@ export function FluffTab({
             onChange={(value) => update('primaryFactory', value)}
           />
         </div>
-        <h4 className="text-text-theme-primary mt-5 mb-2 font-medium">
+        <h4
+          className={`${cs.text.subsection} border-border-theme mt-6 mb-3 border-t pt-4`}
+        >
           System Manufacturers
         </h4>
         {Object.keys(systems).length === 0 && (
@@ -127,35 +127,35 @@ export function FluffTab({
             No system manufacturers recorded.
           </p>
         )}
-        <div className="divide-border-theme-subtle border-border-theme-subtle divide-y border-y">
+        <div className="grid gap-x-6 gap-y-4 lg:grid-cols-2">
           {Object.entries(systems).map(([system, manufacturer]) => (
             <div
               key={system}
-              className="grid grid-cols-1 gap-2 py-3 sm:grid-cols-[minmax(8rem,0.42fr)_minmax(0,1fr)_auto] sm:items-end"
+              className="grid grid-cols-[minmax(0,1fr)_2.75rem] items-end gap-1.5"
             >
               <TextField
                 id={`fluff-system-${fieldId(system)}`}
-                label={system}
+                label={formatSystemLabel(system)}
                 value={manufacturer}
                 disabled={isReadOnly || !onFluffChange}
                 onChange={(value) => updateSystem(system, value)}
               />
               {!isReadOnly && onFluffChange && (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
                   aria-label={`Remove ${system} manufacturer`}
+                  title={`Remove ${formatSystemLabel(system)} manufacturer`}
                   onClick={() => removeSystem(system)}
+                  className="border-border-theme text-text-theme-secondary focus-visible:ring-accent flex h-11 w-11 items-center justify-center rounded border transition-colors hover:bg-red-950 hover:text-white focus-visible:ring-2 focus-visible:outline-none"
                 >
-                  Remove
-                </Button>
+                  <AppIcon name="trash" size="inline" aria-hidden="true" />
+                </button>
               )}
             </div>
           ))}
         </div>
         {!isReadOnly && onFluffChange && (
-          <div className="bg-surface-raised/40 mt-3 grid gap-2 rounded-md p-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)_auto] sm:items-end">
+          <div className="bg-surface-deep/40 border-border-theme-subtle mt-4 grid max-w-3xl gap-2 rounded-md border p-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)_auto] sm:items-end">
             <TextField
               label="New System"
               value={newSystem}
@@ -186,7 +186,7 @@ export function FluffTab({
         className={cs.panel.main}
         aria-labelledby="fluff-history-heading"
       >
-        <h3 id="fluff-history-heading" className={cs.text.sectionTitle}>
+        <h3 id="fluff-history-heading" className={`${cs.text.cardTitle} mb-3`}>
           Unit History and Description
         </h3>
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -247,6 +247,21 @@ const NARRATIVE_FIELDS: ReadonlyArray<[NarrativeField, string]> = [
 
 function fieldId(name: string): string {
   return `fluff-${name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}`;
+}
+
+/**
+ * System names arrive as data keys (often all caps, e.g. "CHASSIS"). Show
+ * them as ordinary field labels; the stored key is never changed. Short
+ * all-caps tokens (ECM, CASE) stay as acronyms.
+ */
+function formatSystemLabel(system: string): string {
+  if (system !== system.toUpperCase()) return system;
+  return system
+    .split(' ')
+    .map((word) =>
+      word.length <= 3 ? word : word.charAt(0) + word.slice(1).toLowerCase(),
+    )
+    .join(' ');
 }
 
 function disabledClasses(disabled: boolean): string {

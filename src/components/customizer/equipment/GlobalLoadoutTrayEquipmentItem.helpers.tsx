@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
-import { getEquipmentSlotClasses } from '@/utils/colors/equipmentColors';
+import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getLocationShorthand } from '@/utils/locationUtils';
 
 import { trayStyles } from './GlobalLoadoutTray.styles';
@@ -70,7 +70,11 @@ function buildRowClassName({
   isDragging: boolean;
   isSelected: boolean;
 }): string {
-  const classes = [trayStyles.equipmentRow, categoryClassName];
+  const classes = [
+    trayStyles.equipmentSurface,
+    trayStyles.equipmentRow,
+    categoryClassName,
+  ];
 
   if (canDrag) {
     classes.push('cursor-grab active:cursor-grabbing');
@@ -122,7 +126,7 @@ export function buildEquipmentItemView({
     confirmRemoveAccessibleName: `Confirm removal of ${displayName} from ${accessibleLocation}`,
     tooltip: getTooltip(isFixedOnOmni, canDrag),
     rowClassName: buildRowClassName({
-      categoryClassName: getEquipmentSlotClasses(item.category, item.name),
+      categoryClassName: getEquipmentAccentClasses(item.category, item.name),
       canDrag,
       isFixedOnOmni,
       isDragging,
@@ -203,12 +207,12 @@ export function EquipmentItemSummary({
   return (
     <div className="flex min-w-0 flex-1 flex-col justify-center py-1">
       <span
-        className={`w-full truncate leading-tight text-inherit ${trayStyles.text.primary}`}
+        className={`w-full truncate leading-tight font-medium text-inherit ${trayStyles.text.primary}`}
       >
         {displayName}
       </span>
       <span
-        className={`mt-0.5 w-full truncate leading-tight text-inherit ${trayStyles.text.secondary}`}
+        className={`text-text-theme-secondary mt-0.5 w-full truncate leading-tight tabular-nums ${trayStyles.text.secondary}`}
       >
         {item.weight}t · {item.criticalSlots} slot
         {item.criticalSlots !== 1 ? 's' : ''}
@@ -236,7 +240,7 @@ export function EquipmentRemoveControl({
   if (!isRemovable) {
     return (
       <span
-        className="text-[10px] text-inherit"
+        className="text-text-theme-muted text-[11px]"
         title="Managed by configuration"
       >
         <AppIcon name="lock" size="inline" aria-hidden="true" />
@@ -254,7 +258,7 @@ export function EquipmentRemoveControl({
       className={`focus-visible:ring-accent flex h-full min-h-11 w-full min-w-11 items-center justify-center rounded-r-md text-sm font-medium transition-all focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ${
         showConfirmRemove
           ? 'bg-red-950 text-white'
-          : 'text-inherit hover:bg-red-950 hover:text-white'
+          : 'text-text-theme-secondary hover:bg-red-950 hover:text-white'
       }`}
       title={showConfirmRemove ? 'Click again to confirm' : 'Remove from unit'}
     >

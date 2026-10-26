@@ -3,7 +3,7 @@ import React, { useId, useMemo } from 'react';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
 import { IEquipmentItem } from '@/types/equipment';
-import { getCategoryColors } from '@/utils/colors/equipmentColors';
+import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
@@ -28,15 +28,15 @@ export function EquipmentCatalogCard({
   const detailId = useId();
   const weapon = useMemo(() => getWeaponById(equipment.id), [equipment.id]);
   const variable = Boolean(equipment.variableEquipmentId);
-  const colors = getCategoryColors(equipment.category);
+  const accent = getEquipmentAccentClasses(equipment.category, equipment.name);
   return (
     <li
-      className={`group text-text-theme-primary relative isolate rounded-lg border border-solid ${colors.slotBorder} ${expanded ? 'ring-accent ring-2' : ''}`}
+      className={`group text-text-theme-primary relative isolate rounded-md border border-l-4 border-solid transition-colors ${accent} ${expanded ? 'border-accent/60' : 'border-border-theme-subtle'}`}
       data-testid="equipment-catalog-row"
     >
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 -z-10 rounded-[inherit] ${colors.slotBg} ${expanded ? 'opacity-40' : 'opacity-30 group-hover:opacity-40'}`}
+        className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 rounded-[inherit] ${expanded ? 'opacity-40' : 'opacity-30 group-hover:opacity-40'}`}
         data-testid="equipment-catalog-row-fill"
       />
       <div
@@ -49,46 +49,51 @@ export function EquipmentCatalogCard({
           aria-label={`Details for ${equipment.name}`}
           aria-expanded={expanded}
           aria-controls={detailId}
-          className="focus-visible:ring-accent min-h-11 min-w-0 flex-1 rounded text-left focus-visible:ring-2 lg:w-full lg:flex-none lg:text-center"
+          className="focus-visible:ring-accent min-h-11 min-w-0 flex-1 rounded text-left focus-visible:ring-2 lg:w-full lg:flex-none lg:!px-0"
         >
-          <span
-            className="block truncate text-sm font-semibold text-inherit"
-            title={equipment.name}
-          >
-            {equipment.name}
+          <span className="flex items-center gap-1">
+            <span
+              className="block min-w-0 flex-1 truncate text-sm font-semibold text-inherit"
+              title={equipment.name}
+            >
+              {equipment.name}
+            </span>
+            <AppIcon
+              name="chevron-down"
+              size="inline"
+              aria-hidden="true"
+              className={`text-text-theme-muted shrink-0 transition-transform lg:hidden ${expanded ? 'rotate-180' : ''}`}
+            />
           </span>
-          <span className="mt-1 block text-xs text-inherit lg:hidden">
-            {equipment.category} · {equipment.techBase}
-          </span>
-          <span className="mt-1 block text-xs text-inherit tabular-nums lg:hidden">
+          <span className="text-text-theme-secondary mt-0.5 block truncate text-xs tabular-nums lg:hidden">
+            {equipment.category} ·{' '}
             {variable
               ? 'Variable weight / slots'
-              : `${equipment.weight} t · ${equipment.criticalSlots} critical ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`}{' '}
-            · {expanded ? 'Hide details' : 'View details'}
+              : `${equipment.weight} t · ${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`}
           </span>
         </button>
         <span
           data-catalog-column="category"
-          className="hidden min-w-0 truncate text-xs text-inherit lg:block"
+          className="text-text-theme-secondary hidden min-w-0 truncate text-xs lg:block"
           title={equipment.category}
         >
           {equipment.category}
         </span>
         <span
           data-catalog-column="weight"
-          className="hidden text-xs text-inherit tabular-nums lg:block"
+          className="hidden text-sm text-inherit tabular-nums lg:block"
         >
           {variable ? 'Variable' : equipment.weight}
         </span>
         <span
           data-catalog-column="criticalSlots"
-          className="hidden text-xs text-inherit tabular-nums lg:block"
+          className="hidden text-sm text-inherit tabular-nums lg:block"
         >
           {variable ? 'Variable' : equipment.criticalSlots}
         </span>
         <span
           data-catalog-column="heat"
-          className="hidden text-xs text-inherit tabular-nums lg:block"
+          className={`hidden text-sm tabular-nums lg:block ${weapon?.heat ? 'text-inherit' : 'text-text-theme-muted'}`}
         >
           {weapon?.heat ?? '—'}
         </span>
@@ -114,6 +119,7 @@ export function EquipmentCatalogCard({
       {expanded && (
         <div id={detailId} className="border-border-theme-subtle border-t p-3">
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
+            <Detail label="Tech base" value={equipment.techBase} />
             <Detail label="Introduced" value={equipment.introductionYear} />
             <Detail label="Rules" value={equipment.rulesLevel} />
             <Detail
@@ -139,7 +145,7 @@ export function EquipmentCatalogCard({
             ) : null}
           </dl>
           {variable && (
-            <p className="mt-3 text-xs text-inherit">
+            <p className="text-text-theme-secondary mt-3 text-xs">
               Weight and slots are calculated for this unit when added. Check
               the loadout for the resulting values.
             </p>
@@ -175,7 +181,7 @@ function Detail({
 }): React.ReactElement {
   return (
     <div>
-      <dt className="text-xs text-inherit">{label}</dt>
+      <dt className="text-text-theme-secondary text-xs">{label}</dt>
       <dd className="mt-1 font-medium text-inherit">
         {value === undefined ? '—' : `${value}${suffix}`}
       </dd>

@@ -174,11 +174,11 @@ it('retries only the browser draft after a storage failure', () => {
   act(() => {
     expect(() => store.setState({ year: 3040 })).toThrow();
   });
-  expect(screen.getByText('Draft save failed')).toBeVisible();
+  expect(screen.getByText('Draft save failed in this browser')).toBeVisible();
   fail.mockRestore();
   fireEvent.click(screen.getByRole('button', { name: 'Retry browser draft' }));
   expect(JSON.parse(localStorage.getItem(key)!).state.year).toBe(3040);
-  expect(screen.getByText('Draft saved')).toBeVisible();
+  expect(screen.getByText('Draft saved in this browser')).toBeVisible();
   expect(customUnitApiService.create).not.toHaveBeenCalled();
   expect(customUnitApiService.save).not.toHaveBeenCalled();
 });

@@ -76,7 +76,7 @@ it('biped designs preserve geometry and status semantics while keeping distinct 
     );
     expect(
       view.container.querySelector('svg[viewBox="0 0 360 440"]'),
-    ).toHaveClass('max-w-[320px]');
+    ).toHaveClass('max-w-[360px]', 'xl:max-w-[400px]');
     expect(
       projection.find((p) => p.location === MechLocation.HEAD)?.status,
     ).toBe('#22c55e');

@@ -97,7 +97,7 @@ export function ArmorDiagramQuickSettings({
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-surface-raised/50 hover:bg-surface-raised border-border-theme-subtle hover:border-border-theme flex items-center gap-1.5 rounded border px-2 py-1 text-xs transition-colors"
+        className="bg-surface-raised/50 hover:bg-surface-raised border-border-theme-subtle hover:border-border-theme flex min-h-11 items-center gap-1.5 rounded border px-2 py-1 text-xs transition-colors"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >

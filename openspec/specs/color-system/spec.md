@@ -8,58 +8,73 @@ Defines Color System requirements for Critical Slot Colors, Equipment Type Color
 
 ### Requirement: Critical Slot Colors
 
-The system SHALL use distinct colors for system components in critical slots.
+The system SHALL keep fixed systems visually quieter than mounted equipment, using neutral surfaces and thin muted left accents.
 
 #### Scenario: Engine slot coloring
 
 - **WHEN** slot contains engine component
-- **THEN** slot background is orange (bg-orange-600)
-- **AND** border matches with darker shade
+- **THEN** slot uses bg-surface-base and text-text-theme-secondary
+- **AND** its 2px left accent uses border-l-orange-400/35
 
 #### Scenario: Gyro slot coloring
 
 - **WHEN** slot contains gyro component
-- **THEN** slot background is purple (bg-purple-600)
+- **THEN** slot uses bg-surface-base and text-text-theme-secondary
+- **AND** its 2px left accent uses border-l-purple-400/35
 
 #### Scenario: Actuator slot coloring
 
 - **WHEN** slot contains actuator (shoulder, upper arm, lower arm, hand, hip, upper leg, lower leg, foot)
-- **THEN** slot background is blue (bg-blue-600)
+- **THEN** slot uses bg-surface-base and text-text-theme-secondary
+- **AND** its 2px left accent uses border-l-blue-400/35
 
 #### Scenario: Cockpit system coloring
 
 - **WHEN** slot contains life support, sensors, or cockpit
-- **THEN** slot background is yellow (bg-yellow-600)
+- **THEN** slot uses bg-surface-base and text-text-theme-secondary
+- **AND** its 2px left accent uses border-l-slate-400/60, distinct from energy weapon accents
 
 #### Scenario: Empty slot coloring
 
-- **WHEN** slot is empty
-- **THEN** slot background is gray (bg-gray-600)
-- **AND** border is dashed
+- **WHEN** slot is empty and has no interaction highlight
+- **THEN** slot uses bg-surface-base/80 and text-text-theme-muted
+- **AND** border is dashed with border-border-theme
+
+#### Scenario: Unhittable slot coloring
+
+- **WHEN** slot contains Endo structure or Ferro armor
+- **THEN** slot retains bg-slate-500/40 and text-slate-300
+- **AND** border-slate-400 and border-dashed distinguish it from empty slots and fixed systems
 
 ### Requirement: Equipment Type Colors
 
-The system SHALL use consistent colors for equipment categories.
+The system SHALL render mounted critical-slot equipment on bg-surface-raised with text-text-theme-primary and a 4px left category accent from the same accentBorder token used by the loadout rail. Equipment names and multi-slot brackets SHALL remain visible independently of color.
 
 #### Scenario: Weapon coloring
 
-- **WHEN** equipment is a weapon
-- **THEN** background is red (bg-red-700)
+- **WHEN** a critical slot contains a weapon
+- **THEN** the left accent is border-l-yellow-300/70 for energy, border-l-red-500 for ballistic, or border-l-teal-500 for missile weapons
+- **AND** the energy accent is a paler, reduced-opacity yellow so it does not reuse the amber-400 selection accent used by active tabs and primary buttons
+- **AND** artillery uses border-l-violet-500, capital weapons use border-l-fuchsia-500, and physical weapons use border-l-rose-500
+- **AND** the surface remains neutral with high-contrast primary text
 
 #### Scenario: Ammunition coloring
 
-- **WHEN** equipment is ammunition
-- **THEN** background is orange (bg-orange-700)
+- **WHEN** a critical slot contains ammunition
+- **THEN** the left accent uses border-l-amber-600 on the neutral equipment surface
+- **AND** the ammunition accent is a deeper brown-amber that stays distinct from the amber-400 selection accent, the energy yellow, and the ballistic red
 
 #### Scenario: Heat sink coloring
 
-- **WHEN** equipment is heat sink
-- **THEN** background is cyan (bg-cyan-700)
+- **WHEN** a critical slot contains a heat sink
+- **THEN** the left accent uses border-l-cyan-500 on the neutral equipment surface
+- **AND** the cyan accent differs from the missile weapon teal accent
 
 #### Scenario: General equipment coloring
 
-- **WHEN** equipment is general equipment (electronics, physical)
-- **THEN** background is blue (bg-blue-700)
+- **WHEN** a critical slot contains other equipment
+- **THEN** electronics use border-l-cyan-500, movement equipment uses border-l-emerald-500, structural equipment uses border-l-lime-500, and miscellaneous equipment uses border-l-slate-500
+- **AND** the category accent accompanies readable equipment names on the neutral surface
 
 ### Requirement: Status Colors
 
@@ -78,7 +93,7 @@ The system SHALL use colors to indicate equipment allocation status.
 #### Scenario: Assignable slot indication
 
 - **WHEN** equipment is selected and slot can accept it
-- **THEN** slot shows green highlight
+- **THEN** slot shows an amber placement highlight (bg-amber-500/10 and border-amber-400/70)
 
 ### Requirement: Tech Base Colors
 
@@ -141,5 +156,5 @@ The system SHALL provide a collapsible color reference panel.
 #### Scenario: Legend display
 
 - **WHEN** user expands color legend
-- **THEN** all color categories are shown with swatches
+- **THEN** equipment category edges, thin fixed-system accents, empty and unhittable slots, and tech-base colors are shown with labeled swatches
 - **AND** descriptions explain each color's meaning

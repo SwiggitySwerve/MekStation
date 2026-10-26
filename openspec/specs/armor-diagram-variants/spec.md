@@ -37,9 +37,10 @@ The system SHALL provide a Clean Tech design focused on maximum readability.
 
 - **WHEN** Clean Tech variant is active
 - **THEN** diagram uses realistic mech contour silhouette
-- **AND** locations use solid gradient fills based on armor status
+- **AND** biped locations use a 20%-opacity health-color fill with a 2px health-color outline and white armor values; the fill boundary continues to show allocated capacity
+- **AND** other configurations retain their status-based gradient fills
 - **AND** armor values are displayed as plain bold numbers
-- **AND** capacity is shown as small text (e.g., "/ 32")
+- **AND** capacity is shown as secondary text (e.g., "/ 32"), with biped location labels and capacity values rendered at a readable size on desktop and phone
 - **AND** torso locations show stacked front/rear sections
 - **AND** selected location shows simple border highlight
 
