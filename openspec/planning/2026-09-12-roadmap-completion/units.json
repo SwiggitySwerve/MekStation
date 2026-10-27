@@ -8776,7 +8776,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-admission-20261026.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-review-20261026.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-review-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-merge-20261027.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-mainproof-20261027.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-source-review-20261027.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-owner-ruling-6454431751.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a720c5746-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8785,17 +8790,36 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+      "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda",
       "stageReceipts": {
         "admission": { "path": "evidence/mission-match-1-admission-20261026.json" },
         "red": { "path": "evidence/mission-match-1-red-20261026.json" },
         "local": { "path": "evidence/mission-match-1-local-20261026.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/mission-match-1-review-20261026.json",
+          "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+          "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "be5936a25e68f491d358c8859474446057edf4d377b3c38e29b332385ff28b83",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 795f7768119cade8a4ba693a788e49abed72adfb"
+        },
+        "merge": {
+          "path": "evidence/mission-match-1-merge-20261027.json",
+          "pr": 2343,
+          "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+          "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda"
+        },
+        "mainProof": {
+          "path": "evidence/mission-match-1-mainproof-20261027.json",
+          "mergeCommit": "a720c5746034a12ec4558d34c5250916fddc1bda",
+          "verdict": "PASS",
+          "runtime": "Focused 28 of 28 and 17 neighbour suites 228 of 228 at the clean exact merge; built-image neighbour run (A2F runner, run-l1-built-server-spectator-trusted-proof.mjs --build): 8 passed (0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8846,6 +8870,32 @@
         "evidenceName": "evidence/mission-match-1-admission-20261026.json; red, local and review literals unchanged.",
         "ownershipExceptionsAdded": "None: the registration already lists PROGRESS.md, V2.2.0-STEPS.md and the four evidence names.",
         "sizeCap": "No option A and no capException expected: all nine non-test leaves count and total far below 500."
+      },
+      "closureCarryForward20261027": {
+        "CF-A2F-1": {
+          "severity": "Medium",
+          "owner": "L1-SMOKE-A2M (built-image matrix; admitted by the next commit of this PR)",
+          "status": "OPEN; routed",
+          "item": "The live stale-first spectator row (stale assignment present before the actor acts, live delivery, then replay after restart) is proved only by Jest here (MM5). The A2F runner applies the stale assignment after the declaration, so the exact-main A2F run does not prove it. The six *-stale rows of the A2M matrix assert it on the built image; the Step 2/3 RC rerun repeats it."
+        },
+        "CF-A2F-2": {
+          "severity": "Medium",
+          "owner": "L1-SMOKE-A2M (built-image side); MM5 (Jest side, discharged)",
+          "status": "Jest side DISCHARGED; built-image side OPEN; routed",
+          "item": "The acting-player replay after the restart carries its own declaration in the MM5 replay/reconnect rows (focused suite 28 of 28 at the exact merge). The built-image actor replay is asserted by the A2M stale rows."
+        },
+        "CF-A2F-3": {
+          "severity": "Low",
+          "owner": "MISSION-MATCH-1 closure",
+          "status": "DISCHARGED",
+          "item": "The A2F built runner passed all eight cases with the 21-call witness sequence on the merged tree a720c5746 (mainProof receipt). A2F frozen comments and test name that describe the first-entry rule are historical; the stale rows stay discriminating because the spectator guard still precedes ownership."
+        },
+        "residual": {
+          "item": "Disclosed, not fixed: legacy self-spectator records created by the pre-fix bug are not migrated (a rostered player already holding a spectator seat stays a spectator-seat member and gets 409 on re-spectate); S5-02 (who may spectate) stays open; the real mission GM keeps the player viewer role because mission matches have no meta.coopCampaign (release-notes disclosure belongs to RELEASE-PRODUCER-1 admission); fog per-side ownership and per-unit command ownership (U38) are unchanged."
+        },
+        "suggestions": {
+          "item": "Nonblocking review suggestions, no frozen leaf changed: a future test-owning unit may assert seat and roster immutability after another spectator joins (Opus N2); a future spec-touching unit may normalize the heading and step formatting of the added Requirement (Opus N3)."
+        }
       }
     },
     {
@@ -8855,7 +8905,13 @@
       "behavior": "All nine B10 declaration/audience combinations in raw live frames and replay, actor/non-spectating-GM/public/reveal positives, no placeholder/authority-sequence/cursor leak, and withheld-secret controls through reconnect/restart on the same built image/private DB. Reuse frozen A1/A2F and export explicit matrix enumeration/callback for final A2; no co-op restart or concurrency acceptance.",
       "ownershipPaths": ["scripts"],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8864,12 +8920,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/l1-smoke-a2m-admission.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -8939,6 +8995,20 @@
         "s502": "S5-02 (who may spectate) stays OPEN. MISSION-MATCH-1 fixes roster eviction and the sealed-declaration owner only; permission to spectate remains unresolved and still gets no A2M row.",
         "gmRole": "Mission matches are created without meta.coopCampaign (coopMissionCreate.ts), so the real mission GM is a player-role viewer. Option (a): A2M keeps its fixture-branded GM matrix and discloses the real mission GM player role as a known issue in the A2M admission and the release notes. No GM fix unit in Step 3.",
         "liveStaleFirst": "The built-image live stale-first spectator row, and a replay/reconnect row for the acting player own declaration, belong to the A2M matrix after MISSION-MATCH-1 lands (A2F carry-forward CF-A2F-1 and CF-A2F-2)."
+      },
+      "admission20261027": {
+        "date": "2026-10-27",
+        "receipt": "evidence/l1-smoke-a2m-admission.json",
+        "authority": "Root brief to the implementation worker of the MISSION-MATCH-1 closure PR (A2M admission as the commit after the closure, the #2336 and #2339 riding pattern); the registered Step 3 predecessor order (A2F, then MISSION-MATCH-1, then A2M); owner decisions 2026-10-26 (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 3; Root rulings 2026-10-26 in carry-forward.md (GM viewer role option a; A2 cap watch); MISSION-MATCH-1 admission resolution R1.",
+        "placement": "P2: the admission rides the MISSION-MATCH-1 closure PR; implementation starts only after that PR merges and after the G-A0 re-verification.",
+        "liveStaleFirst": "R1 (MISSION-MATCH-1 admission) and CF-A2F-1: the matrix-*-player-stale and matrix-*-gm-stale rows assign the stale watcher BEFORE the actor acts, require the established stale-first state before the declaration, and require the actor to receive its own declaration live (accepted) and after the restart, while the watcher holds only the public lock. This is the built-image live stale-first row (six of the twelve rows); the Step 2/3 RC rerun repeats it.",
+        "gmRoleKnownIssue": "KNOWN ISSUE (Root ruling 2026-10-26, option a): mission matches are created without meta.coopCampaign (coopMissionCreate.ts), so the real mission GM is a player-role viewer: no GM policy exception and no sealed visibility beyond its seat. The nine GM-branded rows (six GM spectators, three GM participants) are fixture-branded policy coverage on ordinary 1v1 tactical matches, not evidence of the real mission GM role. A2M adds no GM fix, infers no GM from hostPlayerId or coop-gm labels, and discloses this here; the release-notes obligation belongs to RELEASE-PRODUCER-1 admission (Root ruling 2026-10-26). OQ-M1 (GM authority sequence gap) is separate and stays disclosed.",
+        "mutantRouting": "Moved to A2M by the A2F amendment (owner decisions 2026-10-26 item 3; Root clarification): P1, P4, P6 (product build mutants) and R6, R7, R8 (runner mutants). Owed at RED/GREEN on the built image; a survivor stops the unit unless shown equivalent. P7 (MISSION-MATCH-1 reverted on the image) is worker-proposed, optional and not gating (Root ruling on #2345); the 16 pure-function mutants are killed on the draft.",
+        "s502": "S5-02 (who may spectate) stays OPEN and gets no A2M row.",
+        "acceptanceReading": "Same-side live visibility after MISSION-MATCH-1; first-position fixture semantics (staleEffective) are a fixture witness only; built-image obligations stay unrun until the exact-main run.",
+        "evidenceName": "evidence/l1-smoke-a2m-admission.json (the registered literal; free on main). The red, local and review literals are unchanged.",
+        "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four evidence names (admission, red, local, review).",
+        "sizeCap": "Both counting rules agree: no fixture leaf. Counted leaves 252 (cases 223, runner 29) plus an estimated lifecycle of 56 to 80 lines against the cap of 500; no capException. The test leaf (221 lines) is exempt and file-counted."
       }
     },
     {
@@ -23061,10 +23131,22 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head authority and privacy review, required CI and OWNER-RULING. At the GREEN head the focused suite passes 28 of 28, the 17 neighbour suites pass 228 of 228, and 17 of 17 mutants are killed (M17, the replay path, only by the replay/reconnect rows); tsc, oxfmt and oxlint exit 0, and the A2F built runner passes all eight cases with its 21-call witness sequence. Review three things. Membership: roster mode applies only when there is no playing seat, spectators own no forces and a rostered player cannot register as a spectator (409). Epoch: it covers roster and spectator occupancy, so a spectator join does not revoke the roster and a roster removal does. Sealed delivery: ownership is the viewer's own first side assignment compared with the actor unit's side, teammates see each other's declarations live by owner policy, and opposing players and spectator seats, including a stale first assignment or a GM brand, wait for the reveal on live, replay and reconnect. This does not decide S5-02, the real mission GM role, fog owner semantics or per-unit command ownership. The live stale-first row on the built image belongs to the A2M matrix. No exact-main acceptance is claimed.",
+      "agentRecommendation": "Accept only after independent exact-head authority and privacy review, required CI and OWNER-RULING. At the GREEN head the focused suite passes 28 of 28, the 17 neighbour suites pass 228 of 228, and 17 of 17 mutants are killed (M17, the replay path, only by the replay/reconnect rows); tsc, oxfmt and oxlint exit 0, and the A2F built runner passes all eight cases with its 21-call witness sequence. Review three things. Membership: roster mode applies only when there is no playing seat, spectators own no forces and a rostered player cannot register as a spectator (409). Epoch: it covers roster and spectator occupancy, so a spectator join does not revoke the roster and a roster removal does. Sealed delivery: ownership is the viewer's own first side assignment compared with the actor unit's side, teammates see each other's declarations live by owner policy, and opposing players and spectator seats, including a stale first assignment or a GM brand, wait for the reveal on live, replay and reconnect. This does not decide S5-02, the real mission GM role, fog owner semantics or per-unit command ownership. The live stale-first row on the built image belongs to the A2M matrix. Closure (2026-10-27): the OWNER-RULING (comment 6454431751) accepted 795f77681; the exact-main run at a720c5746 passed the focused suite 28 of 28, the 17 neighbour suites 228 of 228 and all eight A2F built-runner cases with the 21-call witness sequence (CF-A2FP-1 discharged, no rerun); the real merge measured 133 counted lines and 14 counted files plus the exempt page, no capException. The live stale-first row is routed to the A2M matrix.",
       "revertCost": "Revert the nine product/spec leaves and the lifecycle additions; the test leaf rows go with them. No schema, store or wire-format change, so no migration.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-27T21:47:35Z",
+        "by": "SwiggitySwerve (GitHub account; Root acting on behalf of the owner under the standing merge and Full send instructions, per the live comment)",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2343#issuecomment-6454431751"
+      },
+      "ruling": {
+        "ruledHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+        "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+        "pr": 2343,
+        "commentId": 6454431751,
+        "author": "SwiggitySwerve",
+        "bodySha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785"
+      }
     },
     {
       "id": "PK-ts7s1a-ruling",

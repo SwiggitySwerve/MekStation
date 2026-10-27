@@ -1,0 +1,862 @@
+{
+  "unit": "MISSION-MATCH-1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-27T22:12:12.966Z",
+  "mergeCommit": "a720c5746034a12ec4558d34c5250916fddc1bda",
+  "verdict": "PASS",
+  "checkout": "C:/Users/wroll/.t3/worktrees/MekStation/t3-72cadc05",
+  "runtime": {
+    "playwright": "Built-image neighbour run (A2F runner, run-l1-built-server-spectator-trusted-proof.mjs --build at the clean exact merge): 8 passed (0 failed, 0 skipped, 0 flaky)",
+    "jest": "Focused sealedChoiceDelivery suite 28 of 28 passed; registered 17 neighbour suites 228 of 228 passed (0 failed); both at the clean exact merge",
+    "node": "v22.22.0",
+    "install": "Fresh npm ci (real node_modules, no junction) at the clean exact merge before any closure edit",
+    "build": "npm run build, run by the runner with --build: exit 0, 156819 ms",
+    "toolChecks": "Tool checks at the clean exact merge, all exit 0: v220 tests 130 / pass 130 / fail 0; generate-v220-steps --check; validate-roadmap plain, --git and --github; validate-roadmap.test.mjs 86 / pass 86 / fail 0; A2F node test 13 of 13; A2FP node test 16 of 16; A1 smoke test 17 of 17",
+    "scope": "Jest: real route, real host and SQLite rows of the registered suites (source evidence, not a built image). Built runner: built production standalone server on 127.0.0.1, owned processes only, ordinary authenticated APIs and sockets, offline fixtures against the stopped private DB. The A2F runner is a NEIGHBOUR proof (gate G-M6): it does not prove the MISSION-MATCH-1 live stale-first behavior on the built image, which the A2M matrix owns.",
+    "schemaNote": "runtime.playwright is the validator field for a result line; this is the registered built-image runner, not a Playwright run."
+  },
+  "proofClass": "full",
+  "machineGate": "heavy-run.mjs --lane mm1-closure --class build|jest --cwd C:/Users/wroll/.t3/worktrees/MekStation/t3-72cadc05 -- <command>; the idle gate was unmodified (no HEAVY_IDLE_CMD, no ALLOW_PIDS edit by this worker, nothing killed). The first ticket (npm ci) waited about 3 minutes at the gate behind another agent's UI dev server and Playwright browsers; Root then started an identity- and ancestry-scoped ALLOW_PIDS refresher for that authorized concurrent UI work (answer to the worker pending question).",
+  "queueEvents": [
+    {
+      "ts": "2026-10-27T21:53:17.114Z",
+      "event": "grant",
+      "class": "build",
+      "waitedMs": 159724,
+      "cmd": "npm ci"
+    },
+    {
+      "ts": "2026-10-27T21:54:44.588Z",
+      "event": "release",
+      "runMs": 87474,
+      "exitCode": 0
+    },
+    {
+      "ts": "2026-10-27T21:55:22.159Z",
+      "event": "grant",
+      "class": "jest",
+      "waitedMs": 975,
+      "cmd": "bash E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/mainproof-batch.sh C:/Users/wroll/.t3/worktrees/MekStation/t3-72cadc05 E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure mainproof"
+    },
+    {
+      "ts": "2026-10-27T22:03:53.981Z",
+      "event": "release",
+      "runMs": 511822,
+      "exitCode": 0
+    },
+    {
+      "ts": "2026-10-27T22:04:03.245Z",
+      "event": "grant",
+      "class": "build",
+      "waitedMs": 985,
+      "cmd": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=a720c5746034a12ec4558d34c5250916fddc1bda --output=E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/built-run/out"
+    },
+    {
+      "ts": "2026-10-27T22:10:28.338Z",
+      "event": "release",
+      "runMs": 385093,
+      "exitCode": 0
+    },
+    {
+      "ts": "2026-10-27T22:11:22.674Z",
+      "event": "grant",
+      "class": "jest",
+      "waitedMs": 1104,
+      "cmd": "node E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/a2m-freeze.cjs"
+    },
+    {
+      "ts": "2026-10-27T22:11:25.874Z",
+      "event": "release",
+      "runMs": 3200,
+      "exitCode": 0
+    }
+  ],
+  "execution": "Tool-prepared checkout (started at old main 8c3617f44), fetched; branch work/mm1-closure-a2m-admission created from the exact merge a720c5746034a12ec4558d34c5250916fddc1bda before any proof. Clean (git status --porcelain empty) before every job and after every job except the built run, whose npm run build rewrote next-env.d.ts; it was restored with git checkout before any ledger edit (sourceCleanliness.afterBuild). npm ci and the built-image run ran as build tickets, the Jest/node/tool checks as one jest ticket. The branch carries no commit before the closure edit.",
+  "ancestry": {
+    "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "originMain": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "isAncestorOfOriginMain": true,
+    "checkedAt": "2026-10-27T22:12:12.966Z",
+    "note": "git fetch origin reported a720c5746 as origin/main before the branch was created; git merge-base --is-ancestor exit 0"
+  },
+  "exactMain": {
+    "mergeTree": "8e1ff50cb10c6fe6b6e268f0414fce3dd023833b",
+    "equalsRuledHeadTree": true,
+    "ruledHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "opusReviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+    "leavesAtMerge": [
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "mergeBlob": "4deae01ed9ad3f75779970e6aa574b8791210378",
+        "mergeSha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+        "mergeBytes": 8170,
+        "localReceiptSha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+        "localReceiptBytes": 8170,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "mergeBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe",
+        "mergeSha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+        "mergeBytes": 5264,
+        "localReceiptSha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+        "localReceiptBytes": 5264,
+        "equal": true
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "mergeBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e",
+        "mergeSha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+        "mergeBytes": 5517,
+        "localReceiptSha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+        "localReceiptBytes": 5517,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/sideAssignments.ts",
+        "mergeBlob": "0621f84570cb58151f4db6b4021631726b437cd8",
+        "mergeSha256": "2715fd2a6cd2ae1d33441d3cadc2dd518466a4d7f20532307ba8b2a08380d5a3",
+        "mergeBytes": 507,
+        "localReceiptSha256": "2715fd2a6cd2ae1d33441d3cadc2dd518466a4d7f20532307ba8b2a08380d5a3",
+        "localReceiptBytes": 507,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "mergeBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8",
+        "mergeSha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+        "mergeBytes": 6051,
+        "localReceiptSha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+        "localReceiptBytes": 6051,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "mergeBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8",
+        "mergeSha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+        "mergeBytes": 22310,
+        "localReceiptSha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+        "localReceiptBytes": 22310,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "mergeBlob": "19e36080119d4f5684dba13ef2e77fde8365d597",
+        "mergeSha256": "6bee83b5ce76ef5e558d3f0f817804ec440d20ba0d3318ce6bb68be455302b48",
+        "mergeBytes": 10409,
+        "localReceiptSha256": "6bee83b5ce76ef5e558d3f0f817804ec440d20ba0d3318ce6bb68be455302b48",
+        "localReceiptBytes": 10409,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "mergeBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027",
+        "mergeSha256": "d28c7c47dbbee14764e9ed1d5086cbc4cc219bb27f3c898b4850495bc910178f",
+        "mergeBytes": 5976,
+        "localReceiptSha256": "d28c7c47dbbee14764e9ed1d5086cbc4cc219bb27f3c898b4850495bc910178f",
+        "localReceiptBytes": 5976,
+        "equal": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "mergeBlob": "882ad8b7bcb9c288668063765c8d22b72563ec4e",
+        "mergeSha256": "41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e",
+        "mergeBytes": 38771,
+        "localReceiptSha256": "41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e",
+        "localReceiptBytes": 38771,
+        "equal": true
+      },
+      {
+        "path": "openspec/specs/multiplayer-server/spec.md",
+        "mergeBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7",
+        "mergeSha256": "8e8a03f67bfc64fd248b6c22ae62ee2bad9678331d7e43bb584dce762f9f613c",
+        "mergeBytes": 50219,
+        "localReceiptSha256": "8e8a03f67bfc64fd248b6c22ae62ee2bad9678331d7e43bb584dce762f9f613c",
+        "localReceiptBytes": 50219,
+        "equal": true
+      }
+    ],
+    "gitFacts": {
+      "name": "git-facts.txt",
+      "sha256": "7e2a85c757a05067710fb59d85f2067da97a825d2f60ddad8e5d37d95bb1e706",
+      "bytes": 3808
+    }
+  },
+  "jest": {
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand ...",
+    "focused": {
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts --json --outputFile=E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/checks-mainproof/chk-focused.json",
+      "total": 28,
+      "passed": 28,
+      "failed": 0,
+      "suites": 1,
+      "json": {
+        "name": "chk-focused.json",
+        "sha256": "a7a316f684f1b0137450e0578ec63c1c538359abac8c6444febb37a49b1ac22f",
+        "bytes": 12908
+      }
+    },
+    "neighbors": {
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand multiplayer/server/(authorization/__tests__|__tests__/(spectatorSeats|ServerMatchHost.spectator|matchmaking.integration|sealedChoiceDelivery|handleRoomCodeGuestJoin|joinableLobbies|coopMissionCreate|fogOfWar|ServerMatchHost.fogOfWarIntegration|reconnectionFlow|ServerMatchHostUnitOwnership))|utils/gameplay/__tests__/visibility.test --json --outputFile=E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/checks-mainproof/chk-neighbors.json",
+      "suites": 17,
+      "total": 228,
+      "passed": 228,
+      "failed": 0,
+      "perSuite": [
+        {
+          "suite": "AuthorizedViewer.test.ts",
+          "tests": 10,
+          "passed": 10,
+          "status": "passed"
+        },
+        {
+          "suite": "HumanActionAuthorization.test.ts",
+          "tests": 10,
+          "passed": 10,
+          "status": "passed"
+        },
+        {
+          "suite": "MatchAdmission.test.ts",
+          "tests": 9,
+          "passed": 9,
+          "status": "passed"
+        },
+        {
+          "suite": "MatchSeatMembershipSource.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "status": "passed"
+        },
+        {
+          "suite": "ServerMatchHost.fogOfWarIntegration.test.ts",
+          "tests": 5,
+          "passed": 5,
+          "status": "passed"
+        },
+        {
+          "suite": "ServerMatchHost.spectator.test.ts",
+          "tests": 34,
+          "passed": 34,
+          "status": "passed"
+        },
+        {
+          "suite": "ServerMatchHostUnitOwnership.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "status": "passed"
+        },
+        {
+          "suite": "coopMissionCreate.refusals.test.ts",
+          "tests": 33,
+          "passed": 33,
+          "status": "passed"
+        },
+        {
+          "suite": "coopMissionCreate.test.ts",
+          "tests": 30,
+          "passed": 30,
+          "status": "passed"
+        },
+        {
+          "suite": "fogOfWar.test.ts",
+          "tests": 12,
+          "passed": 12,
+          "status": "passed"
+        },
+        {
+          "suite": "handleRoomCodeGuestJoin.test.ts",
+          "tests": 14,
+          "passed": 14,
+          "status": "passed"
+        },
+        {
+          "suite": "joinableLobbies.test.ts",
+          "tests": 6,
+          "passed": 6,
+          "status": "passed"
+        },
+        {
+          "suite": "matchmaking.integration.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "status": "passed"
+        },
+        {
+          "suite": "reconnectionFlow.test.ts",
+          "tests": 9,
+          "passed": 9,
+          "status": "passed"
+        },
+        {
+          "suite": "sealedChoiceDelivery.test.ts",
+          "tests": 28,
+          "passed": 28,
+          "status": "passed"
+        },
+        {
+          "suite": "spectatorSeats.test.ts",
+          "tests": 14,
+          "passed": 14,
+          "status": "passed"
+        },
+        {
+          "suite": "visibility.test.ts",
+          "tests": 6,
+          "passed": 6,
+          "status": "passed"
+        }
+      ],
+      "json": {
+        "name": "chk-neighbors.json",
+        "sha256": "b458caa4299e9c666d05ca0ebb39010bd67b802d59398266e3da620a7b650c92",
+        "bytes": 97320
+      }
+    },
+    "comparison": "Worker counts at the GREEN/test-fix head (local receipt): focused 28, 17 suites 228. The exact-main counts are equal. Neither independent reviewer rerun Jest, so this is the first execution after review, and the first on the merged tree."
+  },
+  "toolChecks": [
+    {
+      "name": "chk-focused",
+      "exit": 0,
+      "start": "2026-10-27T21:55:22.474Z",
+      "end": "2026-10-27T21:56:54.052Z",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts --json --outputFile=E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/checks-mainproof/chk-focused.json"
+    },
+    {
+      "name": "chk-neighbors",
+      "exit": 0,
+      "start": "2026-10-27T21:56:54.092Z",
+      "end": "2026-10-27T21:57:17.529Z",
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand multiplayer/server/(authorization/__tests__|__tests__/(spectatorSeats|ServerMatchHost.spectator|matchmaking.integration|sealedChoiceDelivery|handleRoomCodeGuestJoin|joinableLobbies|coopMissionCreate|fogOfWar|ServerMatchHost.fogOfWarIntegration|reconnectionFlow|ServerMatchHostUnitOwnership))|utils/gameplay/__tests__/visibility.test --json --outputFile=E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/mm1-closure/checks-mainproof/chk-neighbors.json"
+    },
+    {
+      "name": "chk-a2f-node-test",
+      "exit": 0,
+      "start": "2026-10-27T21:57:17.564Z",
+      "end": "2026-10-27T21:59:02.174Z",
+      "command": "node --test scripts/release/l1-built-server-spectator-fixture.test.mjs"
+    },
+    {
+      "name": "chk-a2fp-node-test",
+      "exit": 0,
+      "start": "2026-10-27T21:59:02.238Z",
+      "end": "2026-10-27T22:00:29.901Z",
+      "command": "node --test scripts/release/l1-built-server-spectator-reachability.test.mjs"
+    },
+    {
+      "name": "chk-a1-smoke-test",
+      "exit": 0,
+      "start": "2026-10-27T22:00:29.933Z",
+      "end": "2026-10-27T22:01:13.794Z",
+      "command": "node --test scripts/release/l1-built-server-smoke.test.mjs"
+    },
+    {
+      "name": "chk-v220tests",
+      "exit": 0,
+      "start": "2026-10-27T22:01:13.816Z",
+      "end": "2026-10-27T22:01:19.374Z",
+      "command": "node --test scripts/__tests__/v220-evidence.test.mjs scripts/__tests__/v220-format.test.mjs scripts/__tests__/v220-steps.test.mjs"
+    },
+    {
+      "name": "chk-gen",
+      "exit": 0,
+      "start": "2026-10-27T22:01:19.409Z",
+      "end": "2026-10-27T22:01:19.561Z",
+      "command": "node scripts/qc/generate-v220-steps.mjs --check"
+    },
+    {
+      "name": "chk-vr",
+      "exit": 0,
+      "start": "2026-10-27T22:01:19.591Z",
+      "end": "2026-10-27T22:01:25.096Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+    },
+    {
+      "name": "chk-vrgit",
+      "exit": 0,
+      "start": "2026-10-27T22:01:25.118Z",
+      "end": "2026-10-27T22:01:44.088Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git"
+    },
+    {
+      "name": "chk-vrgh",
+      "exit": 0,
+      "start": "2026-10-27T22:01:44.116Z",
+      "end": "2026-10-27T22:03:39.189Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github"
+    },
+    {
+      "name": "chk-vrtest",
+      "exit": 0,
+      "start": "2026-10-27T22:03:39.213Z",
+      "end": "2026-10-27T22:03:53.783Z",
+      "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+    }
+  ],
+  "toolChecksTree": {
+    "headBefore": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "statusBefore": 0,
+    "headAfter": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "statusAfter": 0,
+    "summaryLog": {
+      "sha256": "4f16b25a3e41b85cd730cd38288716f8b1a966500992b2b688ae22b1b22933f7",
+      "bytes": 2557,
+      "path": "evidence/mainproof-a720c5746-logs.bytes.json",
+      "payloadLocation": "top-level payload"
+    }
+  },
+  "builtImage": {
+    "command": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=a720c5746034a12ec4558d34c5250916fddc1bda --output=<abs-new-dir>",
+    "head": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "treeClean": true,
+    "node": "v22.22.0",
+    "built": true,
+    "image": {
+      "buildId": "1793138644757",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "6384124e21d494737c5074bc9fd103159168bb35b0d4fec5ff7bd9e870851e1a",
+      "sourceTreeSha256": "734e3ad550b7dd894664d7efcd4e1cc46ce76cf5ba66ab0a1646d4a2837d7d2b"
+    },
+    "verdict": "PASS",
+    "passed": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical",
+      "trusted-player-stale",
+      "trusted-gm-stale",
+      "trusted-gm-unassigned",
+      "trusted-gm-participant",
+      "gm-brand-recovered"
+    ],
+    "errors": [],
+    "ownedServerProcesses": 22,
+    "attempts": 1,
+    "processExitCodes": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "processExitNote": "Exit code 1 is the owned-process stop (taskkill-style termination) recorded by the harness; the A1 harness expects it and reports no early exit. 22 processes: one initial server plus one restart around each of the 21 offline witness calls.",
+    "eventKinds": {
+      "command": 22,
+      "process": 64,
+      "http": 16,
+      "socket": 122,
+      "frame": 519,
+      "offline-fixture": 21,
+      "case": 8
+    },
+    "witnessSequence": [
+      "ready",
+      "declared",
+      "ready",
+      "declared",
+      "ready",
+      "ready",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare"
+    ],
+    "expectedSequence": [
+      "ready",
+      "declared",
+      "ready",
+      "declared",
+      "ready",
+      "ready",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare",
+      "declared",
+      "ready",
+      "prepare"
+    ],
+    "witnessSequenceEqualsExpected": true,
+    "cfA2fp1": "CF-A2FP-1 discharged for this run: the offline-fixture records in evidence.jsonl show the 21-call op sequence ready,declared,ready,declared,ready,ready,declared (the three A2FP rows) then ready,prepare,declared for player-stale, gm-stale, gm-unassigned and gm-participant, and ready,prepare for gm-brand-recovered. The declared witness ran in every case that owns one.",
+    "cfA2fp2": "CF-A2FP-2: no readiness-probe timeout occurred; the single run passed on the first attempt and no rerun was taken.",
+    "runs": [
+      {
+        "id": "run-1",
+        "verdict": "PASS",
+        "summary": {
+          "name": "summary.json",
+          "sha256": "99b03d7c58259e22194f84b32c0d0d8a3626995008cf54186f0319c9dce3c80e",
+          "bytes": 5088
+        },
+        "manifest": {
+          "name": "manifest.json",
+          "sha256": "4cde7f058b0b574bfd817abb1ed47cfedc99d90f41f62251f04e2390304ae214",
+          "bytes": 997
+        },
+        "evidence": {
+          "name": "evidence.jsonl",
+          "sha256": "dba983f51ea563bb90c0122d32884a235d42bba757c8c8ac9800ef9ba94db6f8",
+          "bytes": 478635
+        },
+        "firstRecord": "2026-10-27T22:06:40.309Z",
+        "lastRecord": "2026-10-27T22:10:28.288Z",
+        "buildMs": 156819
+      }
+    ],
+    "logs": {
+      "envelope": "evidence/mainproof-a720c5746-logs.bytes.json",
+      "files": {
+        "npm-ci.log": {
+          "name": "npm-ci.log",
+          "sha256": "d9bed19bb726aa4362535d6feaa5d862a61aeefff0804e0999a26321c2e1266e",
+          "bytes": 1201
+        },
+        "built-run-stdout.log": {
+          "name": "built-run-stdout.log",
+          "sha256": "e9d3447fa5cc59dba500fa5f3b14a6a1a9db0b43371699e55747c2a974c07e5f",
+          "bytes": 288
+        },
+        "built-run-stderr.log": {
+          "name": "built-run-stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "summary.json": {
+          "name": "summary.json",
+          "sha256": "99b03d7c58259e22194f84b32c0d0d8a3626995008cf54186f0319c9dce3c80e",
+          "bytes": 5088
+        },
+        "manifest.json": {
+          "name": "manifest.json",
+          "sha256": "4cde7f058b0b574bfd817abb1ed47cfedc99d90f41f62251f04e2390304ae214",
+          "bytes": 997
+        },
+        "evidence.jsonl": {
+          "name": "evidence.jsonl",
+          "sha256": "dba983f51ea563bb90c0122d32884a235d42bba757c8c8ac9800ef9ba94db6f8",
+          "bytes": 478635
+        },
+        "server-1.log": {
+          "name": "server-1.log",
+          "sha256": "63c9d85f51cac6cfea7b9014229db7dd3e26c27b18df5d41f67698de69464f43",
+          "bytes": 3059
+        },
+        "server-2.log": {
+          "name": "server-2.log",
+          "sha256": "4701c6969efa1d56d11283a91848cf8171932362fcf598d51490f543daacdb7f",
+          "bytes": 2176
+        },
+        "server-3.log": {
+          "name": "server-3.log",
+          "sha256": "78cf05d30e5dee29189cadd3db1afec857d31f302b7e9b3917d37dd3ab3c526b",
+          "bytes": 4875
+        },
+        "server-4.log": {
+          "name": "server-4.log",
+          "sha256": "05c583374bcac885d3b6d8309c38e86cd38246857b3bcd8815bf603c2a263131",
+          "bytes": 2178
+        },
+        "server-5.log": {
+          "name": "server-5.log",
+          "sha256": "b8fba9a88cdf5daee4237f0c81914d6c89550ee55a7a17aef4a70696bbe5a879",
+          "bytes": 4666
+        },
+        "server-6.log": {
+          "name": "server-6.log",
+          "sha256": "935e2b22604e4d5f5fce73fa361d78ceab45599e708d2c3e02b51dd1a12065da",
+          "bytes": 2795
+        },
+        "server-7.log": {
+          "name": "server-7.log",
+          "sha256": "0f5fd32b77eac3bff347919adbe1228b930ec4e6d367fef6e0370bf6bdd79e85",
+          "bytes": 2180
+        },
+        "server-8.log": {
+          "name": "server-8.log",
+          "sha256": "fe7a00fd41d2c905fc8ecf2ca06f4715af794ae1cdf595561a86281a5219fce8",
+          "bytes": 4659
+        },
+        "server-9.log": {
+          "name": "server-9.log",
+          "sha256": "df31da469ebb7aea8263590198911cb802dc165d804842c0474b95d4ba5b4581",
+          "bytes": 2172
+        },
+        "server-10.log": {
+          "name": "server-10.log",
+          "sha256": "29fc3c7db038f141c095ee1e7a7a5907498403eb6988e41368205bdd80c6bded",
+          "bytes": 2755
+        },
+        "server-11.log": {
+          "name": "server-11.log",
+          "sha256": "45048f3f22f198b3f42d6913752fc4749bc88126510bdbdd241c2a1f792a66b9",
+          "bytes": 4662
+        },
+        "server-12.log": {
+          "name": "server-12.log",
+          "sha256": "6d125b1c5e1dd33b1d3e215a7338cee869555010b54b64a75bef35b95e94f94c",
+          "bytes": 2176
+        },
+        "server-13.log": {
+          "name": "server-13.log",
+          "sha256": "56f8b7cedb9fd1a2ae8dda1aa4e863bbce5320cae99faa1aa161f1f031ac278c",
+          "bytes": 2759
+        },
+        "server-14.log": {
+          "name": "server-14.log",
+          "sha256": "627386b66c1e56a9f640f4e5cac311e2efe85393db4a2f7af8ff7194f4cfad68",
+          "bytes": 4660
+        },
+        "server-15.log": {
+          "name": "server-15.log",
+          "sha256": "8bf5a81cf8e77b380925ae1e43e867422ce82ce72b02904a170626cbfe41744e",
+          "bytes": 1971
+        },
+        "server-16.log": {
+          "name": "server-16.log",
+          "sha256": "a7c44f340f93ba34385a225a7c1072cfd82b9b8b6e063e387838910626af8f58",
+          "bytes": 2951
+        },
+        "server-17.log": {
+          "name": "server-17.log",
+          "sha256": "b91b9b22d79cd94af1d9df18c2f0f8a6b4ee28d841050f6963d69b3ac1499efd",
+          "bytes": 4656
+        },
+        "server-18.log": {
+          "name": "server-18.log",
+          "sha256": "d8dccf00349d0a12dab259152a0b0fff1da986b513db2233f89c9083a8bed864",
+          "bytes": 1971
+        },
+        "server-19.log": {
+          "name": "server-19.log",
+          "sha256": "8292df4c3694eb7bd21ee7488a5d6be2d11c12f828126852e26aa4efe74d026c",
+          "bytes": 2172
+        },
+        "server-20.log": {
+          "name": "server-20.log",
+          "sha256": "55acec9d18841b373e203cfd94f0588c1aad95d6f06055c3be852d4b4ff929c0",
+          "bytes": 4649
+        },
+        "server-21.log": {
+          "name": "server-21.log",
+          "sha256": "1f96a8a424f59894f39a36253a0300e36a55a0dc5974bbe8656df3aaf7005c94",
+          "bytes": 2167
+        },
+        "server-22.log": {
+          "name": "server-22.log",
+          "sha256": "ce8e32d2578c01e17ac70fa8da9d7bb47f4fe38edf78bbba1e4b1320bdb3ba71",
+          "bytes": 1967
+        },
+        "inspect-run.txt": {
+          "name": "inspect-run.txt",
+          "sha256": "4e654d5b7fee4ef0788a9541c34d88b7c23432de22524fc30d808416e290ca1f",
+          "bytes": 3611
+        },
+        "git-facts.txt": {
+          "name": "git-facts.txt",
+          "sha256": "7e2a85c757a05067710fb59d85f2067da97a825d2f60ddad8e5d37d95bb1e706",
+          "bytes": 3808
+        },
+        "next-env-after-build.diff": {
+          "name": "next-env-after-build.diff",
+          "sha256": "0cdc2fa38460386b87c20497f50b914897f734261b4c235b398284d9ce9888e8",
+          "bytes": 429
+        },
+        "chk-a1-smoke-test.log": {
+          "name": "chk-a1-smoke-test.log",
+          "sha256": "2f4cb5fdcffcbaba903f2f397aa1b64be4d551c2d6123b6b206295d401e0e2de",
+          "bytes": 3688
+        },
+        "chk-a2f-node-test.log": {
+          "name": "chk-a2f-node-test.log",
+          "sha256": "8f3e04bab401b0d82cfbb045b4dae5b7a93bd1b7af59b5f8cbb159d973f83364",
+          "bytes": 3383
+        },
+        "chk-a2fp-node-test.log": {
+          "name": "chk-a2fp-node-test.log",
+          "sha256": "09059d576df77c714b1e23258320fc033234dc0436e30adc9fb26380a83d16ad",
+          "bytes": 3522
+        },
+        "chk-focused.json": {
+          "name": "chk-focused.json",
+          "sha256": "a7a316f684f1b0137450e0578ec63c1c538359abac8c6444febb37a49b1ac22f",
+          "bytes": 12908
+        },
+        "chk-focused.log": {
+          "name": "chk-focused.log",
+          "sha256": "7f805c4c29fdcc5c0ae92630ab79b3721417a864a5123a5c0ea956607a8856c4",
+          "bytes": 133872
+        },
+        "chk-gen.log": {
+          "name": "chk-gen.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "chk-neighbors.json": {
+          "name": "chk-neighbors.json",
+          "sha256": "b458caa4299e9c666d05ca0ebb39010bd67b802d59398266e3da620a7b650c92",
+          "bytes": 97320
+        },
+        "chk-neighbors.log": {
+          "name": "chk-neighbors.log",
+          "sha256": "b49a6612d93aceed18bc6ca28ad1ee54001cea6cc6e96492f1a4cb981c8b50c6",
+          "bytes": 231233
+        },
+        "chk-v220tests.log": {
+          "name": "chk-v220tests.log",
+          "sha256": "4753c81315cce3f9f283bf97542f3f911cbbc889e9ce85dab19fc7b5120aae83",
+          "bytes": 19873
+        },
+        "chk-vr.log": {
+          "name": "chk-vr.log",
+          "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0",
+          "bytes": 76
+        },
+        "chk-vrgh.log": {
+          "name": "chk-vrgh.log",
+          "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0",
+          "bytes": 76
+        },
+        "chk-vrgit.log": {
+          "name": "chk-vrgit.log",
+          "sha256": "f59673ded1d44592452fcc673053ce97defdaae41b54058e4c4ce1e467a8b726",
+          "bytes": 2354
+        },
+        "chk-vrtest.log": {
+          "name": "chk-vrtest.log",
+          "sha256": "8100e32dda07be362395b8e34e7c9d7aff868d962835066297312fec5a4fc67c",
+          "bytes": 16367
+        }
+      }
+    },
+    "comparisonToGreenRun": {
+      "greenRunHead": "9e36d48205b5ec3b7dbd974f7273df9efc72c1f9",
+      "greenRunVerdict": "PASS",
+      "greenRunProcesses": 22,
+      "greenImage": {
+        "buildId": "1793062131229",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "921293eb4e912ea5e6150423cd68e717f2617af3755e3ce1ce571fc8c382753f",
+        "sourceTreeSha256": "f030748b794f160809d310cfbfea67242273d719a81a2deeaaa18a619165e607"
+      },
+      "exactMainImage": {
+        "buildId": "1793138644757",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "6384124e21d494737c5074bc9fd103159168bb35b0d4fec5ff7bd9e870851e1a",
+        "sourceTreeSha256": "734e3ad550b7dd894664d7efcd4e1cc46ce76cf5ba66ab0a1646d4a2837d7d2b"
+      },
+      "serverShaEqual": true,
+      "note": "The worker run at the GREEN head 9e36d4820 passed first time before 4f5398b68 (#2344 UI work) merged. The earlier image is NOT reused as exact-main proof: this run built the merged tree. configSha256 and buildId differ per build; serverSha256 and sourceTreeSha256 are recorded as observed."
+    }
+  },
+  "sourceCleanliness": {
+    "beforeRuns": "git status --porcelain empty after npm ci and again after the Jest/node/tool batch (chk-summary.log head and head-after lines); the runner manifest records source.head a720c5746 and clean true at the start of the built run.",
+    "afterBuild": "npm run build (run by the runner) rewrote the tracked, Next-generated next-env.d.ts: the import changed from ./.next/dev/types/routes.d.ts to ./.next/types/routes.d.ts (one line; evidence next-env-after-build.diff, sha256 0cdc2fa38460386b87c20497f50b914897f734261b4c235b398284d9ce9888e8). The file is not an MM1 or A2F leaf and the run had already finished; it was restored with git checkout -- next-env.d.ts and the tree was clean again before any ledger edit. The same one-line difference is expected on any production build of this main, because main carries the dev-mode import (#2344 UI work).",
+    "note": "No source, test or script byte differed during any run."
+  },
+  "cleanup": {
+    "processesStarted": "only the runner-owned production server processes (22) and the heavy-run wrappers; the runner stops every server it starts.",
+    "leftoverProcesses": "none (checked by command line after the run)",
+    "portsReleased": true,
+    "note": "No installer, Electron app or service was started by this closure; no unrelated process was killed."
+  },
+  "review": {
+    "path": "evidence/mission-match-1-review-20261026.json",
+    "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc"
+  },
+  "ownerRuling": {
+    "ruledHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+    "pr": 2343,
+    "commentId": 6454431751,
+    "author": "SwiggitySwerve",
+    "bodySha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785"
+  },
+  "carryForwards": [
+    {
+      "id": "CF-A2FP-1",
+      "status": "discharged for the exact-main run",
+      "item": "Witness sequence checked from evidence.jsonl: ready,declared,ready,declared,ready,ready,declared,ready,prepare,declared,ready,prepare,declared,ready,prepare,declared,ready,prepare,declared,ready,prepare (21 calls)."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "status": "unused for this run; routed (units.json A2FP.carryForwardRouting20261026)",
+      "item": "The 15 s readiness probe at run-l1-built-server-smoke.mjs:134 belongs to the frozen A1 harness; no readiness timeout occurred and no rerun was taken."
+    },
+    {
+      "id": "CF-A2F-1",
+      "status": "open; routed to L1-SMOKE-A2M (admitted by the next commit of this PR)",
+      "item": "The built-image live stale-first row is owned by the A2M matrix (MISSION-MATCH-1 admission R1). Not proved here: the A2F runner applies the stale assignment after the declaration."
+    },
+    {
+      "id": "CF-A2F-2",
+      "status": "Jest side discharged by MM5; built-image side routed to L1-SMOKE-A2M",
+      "item": "The MM5 replay/reconnect rows pass in the focused suite at the exact merge (28 of 28). The acting-player replay on the built image is asserted by the A2M stale rows after the restart."
+    },
+    {
+      "id": "CF-A2F-3",
+      "status": "discharged for the exact-main run",
+      "item": "The A2F built runner was rerun on the merged tree as the neighbour proof for the MatchWireSealedChoices.ts edit: all eight cases passed."
+    }
+  ],
+  "successorRelease": {
+    "note": "L1-SMOKE-A2M is admitted by the next commit of this PR. Only A2M becomes admitted unfinished after this PR merges (Root ruling 2026-10-26).",
+    "releases": [
+      "L1-SMOKE-A2M (admission, next commit)"
+    ]
+  },
+  "validatorGithub": {
+    "argv": [
+      "node",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "--github"
+    ],
+    "rule": "DELIVERY.md:83 (sensitive review classes privacy and authority)",
+    "head": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "headNote": "Run at the clean exact merge (state local-verified). The same command is rerun at the final closure head and cited in the PR; a receipt cannot cite its own commit SHA.",
+    "exit": 0,
+    "start": "2026-10-27T22:01:44.116Z",
+    "end": "2026-10-27T22:03:39.189Z"
+  },
+  "limitations": [
+    "One built-image run on one machine (Windows, Node 22.22.0); the exact-main run is the closure proof. Jest evidence is source/SQLite evidence, not a built-image or browser proof.",
+    "The A2F runner is a neighbour proof. It does not exercise the live stale-first row, the real mission GM role, S5-02 or the legacy self-spectator data; those stay disclosed.",
+    "Neither independent reviewer rerun Jest; Sol and Opus inspected raw logs and CI. CI is cited from the PR (33 of 33 at 795f77681), not re-run here.",
+    "Mutants were run by the worker at the GREEN/test-fix head (17 of 17 killed) and are not rerun at the merge."
+  ]
+}

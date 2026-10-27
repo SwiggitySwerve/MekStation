@@ -1,0 +1,156 @@
+{
+  "unit": "MISSION-MATCH-1",
+  "stage": "review",
+  "recordedAt": "2026-10-27T22:12:12.966Z",
+  "evidenceNameNote": "File name keeps the literal frozen in the admission receipt and the unit ownershipExceptions (mission-match-1-review-20261026.json).",
+  "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+  "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+  "correctedHead": "8738a38004cb806bbc45b1d6d70d01ecf18d0b04",
+  "reviewedHeadNote": "The independent Opus review and Sol round 1 read 097102d4f. The PR then applied the evidence correction (R1/S1/N1) at 8738a3800 (two evidence files, +5/-5, no source, test, spec, ledger or page byte) and merged main 4f5398b68 (#2344) at 795f77681 with no overlap with the 15 MM1 files. Root verified the delta (all ten leaf hashes and byte counts, nine admission draft hashes, caps 133/14) and the OWNER-RULING (comment 6454431751) accepted 795f77681. All ten registered leaves are byte-identical at 097102d4f, 8738a3800, 795f77681 and the merge (merge receipt sourceIdentities).",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only review sub-agent (Claude Opus 5.5, high); the report names Claude as reviewer and Root identifies it as Opus.",
+  "secondReviewer": {
+    "model": "gpt-6.1-sol",
+    "effort": "high",
+    "tier": "priority",
+    "verdict": "APPROVE with one nit (S1)",
+    "head": "097102d4ff506cc98b5b95417776918f38d9fecc",
+    "report": "additionalPayload pr2343-sol-r1.md in evidence/mission-match-1-source-review-20261027.bytes.json",
+    "sha256": "0d42e1810fc77ab672ad97b5d55145a4501241f2c3c77566b092df9510804b15",
+    "bytes": 5407,
+    "note": "A separate reviewer fact. Sol did not rerun Jest."
+  },
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "Worker model per owner decision 2026-10-26 (Sonnet or Sol priority tier); repeats the MISSION-MATCH-1 admission contributor field.",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "ACCEPT WITH ONE REQUIRED EVIDENCE FIX (R1; applied at 8738a3800)",
+  "ownerDisposition": "ACCEPT at 795f7768119cade8a4ba693a788e49abed72adfb (OWNER-RULING comment 6454431751, Root on behalf of the owner)",
+  "classes": [
+    "authority",
+    "privacy"
+  ],
+  "outputPath": "evidence/mission-match-1-source-review-20261027.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority; its top-level payload is pr2343-review.md as written by the reviewer. Sol, Root ledger and Root summaries are additionalPayloads of the same envelope.",
+  "outputSha256": "be5936a25e68f491d358c8859474446057edf4d377b3c38e29b332385ff28b83",
+  "outputBytes": 15762,
+  "outputEnvelope": {
+    "path": "evidence/mission-match-1-source-review-20261027.bytes.json",
+    "payloadSha256": "be5936a25e68f491d358c8859474446057edf4d377b3c38e29b332385ff28b83",
+    "payloadBytes": 15762
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-27/pr2343-review/pr2343-review.md",
+  "byteExact": true,
+  "effectiveManifest": {
+    "statement": "The effective MISSION-MATCH-1 manifest is the ten registered leaves (nine counted source/spec leaves and the test leaf) plus the unit lifecycle (units.json, PROGRESS.md, V2.2.0-STEPS.md) and the red and local receipts; PR #2343 carried 15 files. This closure PR carries the reserved review receipt, the merge and mainProof receipts and the three byte envelopes.",
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/specs/multiplayer-server/spec.md",
+      "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+      "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+      "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+      "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "src/lib/multiplayer/server/sideAssignments.ts",
+      "src/pages/api/multiplayer/matches/[id]/spectate.ts"
+    ]
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "reviewer": "claude-opus-5-5",
+      "scope": "exact head 097102d4f",
+      "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+      "verdict": "ACCEPT WITH ONE REQUIRED EVIDENCE FIX (R1)",
+      "sha256": "be5936a25e68f491d358c8859474446057edf4d377b3c38e29b332385ff28b83",
+      "bytes": 15762,
+      "jestRerun": "not performed (machine-idle gate); worker counts verified through raw-log hashes",
+      "findings": [
+        {
+          "id": "R1",
+          "disposition": "FIXED in 8738a3800: the stale test-leaf hash in the local receipt now reads 41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e, 38771 bytes"
+        },
+        {
+          "id": "N1",
+          "disposition": "FIXED in 8738a3800: nine (not eight) admission-draft-equal leaves, five implementation commits named, row invariance starts at the refactor commit"
+        },
+        {
+          "id": "N2",
+          "disposition": "NOT CHANGED (nonblocking): the post-spectator self-spectate refusal returns before persistence; a future owning test unit may assert seat and roster immutability after another spectator joins"
+        },
+        {
+          "id": "N3",
+          "disposition": "DEFERRED (nonblocking): spec heading/step formatting to a future spec-touching unit; the frozen spec bytes stay unchanged"
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "reviewer": "gpt-6.1-sol",
+      "scope": "exact head 097102d4f",
+      "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+      "verdict": "APPROVE with nit S1",
+      "sha256": "0d42e1810fc77ab672ad97b5d55145a4501241f2c3c77566b092df9510804b15",
+      "bytes": 5407,
+      "jestRerun": "not performed (machine-idle gate never granted)",
+      "findings": [
+        {
+          "id": "S1",
+          "disposition": "FIXED in 8738a3800 (same stale hash as Opus R1)"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "097102d4ff506cc98b5b95417776918f38d9fecc..795f7768119cade8a4ba693a788e49abed72adfb",
+    "note": "Root verification, recorded in review-ledger.md and the two summaries in the source-review envelope: R1/S1/N1 evidence fix (two files, +5/-5), non-overlapping main integration of 4f5398b68, all ten leaf hashes and nine draft hashes recomputed, caps unchanged. Not a third reviewer round and not a fresh test run."
+  },
+  "receiptQualifications": [
+    {
+      "id": "REVIEWED-HEAD",
+      "target": "stageReceipts.review.head",
+      "qualification": "head and ownerDisposition name the ruled head 795f77681; reviewedHead names the head both reviewers read (097102d4f). The prHead of the unit is 795f77681."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+    "pr": 2343,
+    "commentId": 6454431751,
+    "author": "SwiggitySwerve",
+    "bodySha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785",
+    "at": "2026-10-27T21:47:35Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2343#issuecomment-6454431751",
+    "bodyBytes": 3601,
+    "envelope": {
+      "path": "evidence/mission-match-1-owner-ruling-6454431751.bytes.json",
+      "payloadSha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785",
+      "payloadBytes": 3601
+    }
+  },
+  "acceptedOnTheRecord": [
+    "Legacy self-spectator records created by the pre-fix bug are not migrated; a rostered player who already holds a spectator seat stays a spectator-seat member and gets 409 on re-spectate (Opus O1)",
+    "S5-02 (who may spectate) stays open; the real mission GM keeps the player viewer role (mission matches have no meta.coopCampaign); fog per-side ownership and U38 per-unit command ownership are outside this unit",
+    "sideOfPlayer answers a duplicated player on both sides with the first assignment only (Opus O2) and tolerates a missing assignments array (O3, unreachable through typed writers)",
+    "The built-image owner of the live stale-first row is L1-SMOKE-A2M; the A2F runner is only a neighbour proof"
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-A2FP-1",
+      "item": "The closure receipt checked the 21-call op sequence (mainProof receipt builtImage.witnessSequence)."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "item": "Unused at this closure; routed in units.json carryForwardRouting20261026 of A2FP."
+    },
+    {
+      "id": "CF-A2F-1..3",
+      "item": "Routed in units.json MISSION-MATCH-1.closureCarryForward20261027."
+    }
+  ]
+}
