@@ -1,3 +1,53 @@
+## 2026-10-26 MISSION-MATCH-1 admitted (Step 3 unit 3; ledger and evidence only)
+
+Admits MISSION-MATCH-1 on baseline f917a5259, after the A2F closure and the registration in the previous two commits of this PR (the #2336 and #2339 riding pattern). Implementation starts only after this PR merges. The receipt is [mission-match-1-admission-20261026.json](evidence/mission-match-1-admission-20261026.json).
+
+- Authority: owner decisions 2026-10-26 items 1 and 2 (verbatim in the receipt), the accepted-on-the-record items of the #2341 OWNER-RULING, and the 2026-10-26 Root rulings (GM role option a; A2 cap watch).
+- Fresh census at f917a5259 with the registration ledger: one open PR (draft #2113, 472 files, no collision), 16 registered worktrees with no commit-level overlap, no in-flight or literal claim on any leaf (35 unfinished units hold only coarse parent aliases).
+- Fit re-measured on current main: the prep patches reproduce byte for byte (no leaf or neighbour directory moved since 82d7a0f03): RED 9 failed and 8 passed, side refactor compatibility 9 passed, GREEN 23 of 23, 17 neighbour suites with 223 tests, tsc/oxfmt/oxlint exit 0. 90 counted added lines in nine counted leaves (the test leaf adds 473 exempt lines); lifecycle estimated 56 to 80; 146 to 170 of 500. Files: 14 of 15 in the implementation PR (15 of 15 by the registration convention), plus the exempt page.
+- From the #2341 review: the built-image owner of the live stale-first row is the A2M matrix; MM5 gains a replay/reconnect variant (existing test leaf, mutant M17); the A2F built runner is rerun as a neighbour proof at GREEN and at the closure exact-main run (gate G-M6).
+- The spec.md hash in the prep draft carried CR bytes; the receipt freezes the LF form git stores. The test leaf is frozen pre-variant and finally at RED.
+- `--next` prints U25 on this PR's final head (it printed U44 before the A2F closure); it is advisory and gives no admission permission.
+- Not admitted by this: GM viewer-role fix (A2M discloses it), S5-02, fog or per-unit command ownership.
+
+---
+
+## 2026-10-26 MISSION-MATCH-1 registered (Step 3 release-blocking; Step 3 prBudget 10 -> 12; ledger and docs only)
+
+Registers MISSION-MATCH-1 as one blocked release-blocking unit in Step 3, after L1-SMOKE-A2F and before L1-SMOKE-A2M, riding the A2F closure PR (the #2336 and #2339 pattern). Authority: owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 2, quoted verbatim in `ownerRuling20261026MissionMatch`. The registration is regenerated on f917a5259 by text splices; the draft cut on 82d7a0f03 was not applied.
+
+- Fixes two co-op mission match defects: the first spectator join no longer locks the roster out (rostered self-spectate gets 409) and a sealed declaration is delivered live to every non-spectating teammate through one sideOfPlayer rule. Ten registered leaves, release classes authority and privacy; not admitted (the admission is the next commit).
+- Edges: A2F.successors is MISSION-MATCH-1, A2M gains MISSION-MATCH-1 as a predecessor. The chain is A2F -> MISSION-MATCH-1 -> A2M -> A2 -> B.
+- Budget: v220-steps.json Step 3 prBudget 10 -> 12 and the pin in scripts/__tests__/v220-steps.test.mjs move together; Step 4 stays 29. If A2 must split, Root returns to the owner (Step 3 would need 14).
+- Closures: l1ReleaseChecklist20261018.closures 54 -> 55 (unitCount, the Step 7 scope text and V220-EVIDENCE.md follow); the page is regenerated.
+- S5-02 stays OPEN (annotated on A2M). The real mission GM keeps the player viewer role in Step 3 (Root ruling 2026-10-26, option a): A2M keeps its fixture-branded GM matrix and discloses it as a known issue in its admission and the release notes. A2 cap watch (option A 491 to 506; a Root ruling in carry-forward.md) is recorded in ownerRuling20261026MissionMatch.a2CapWatch.
+- No existing unit state, receipt, cap or historical evidence changes. `--next` (advisory, no admission permission) no longer prints U44 from the A2F closure on: it skips planned units whose ownershipPaths overlap an in-flight unit, and the scripts-owning A2F is no longer in flight (the admission in the same PR adds src/lib/multiplayer/server as an in-flight path; the final head prints U25).
+
+---
+
+## 2026-10-26 L1-SMOKE-A2F closed; main-verified (exact-main built-image proof); Step 3 PR 4 of 12 (the ledger budget reads 10 until the registration in the next commit of this PR)
+
+Closes L1-SMOKE-A2F (PR #2341, ruled and merged head 2815c144f, merge f917a5259) as main-verified. The OWNER-RULING (comment 6427223735) accepted that exact head; the merge tree equals the ruled head tree, so the three leaves are byte-identical to the reviewed bytes.
+
+- Exact-main proof at clean f917a5259: fresh `npm ci` (real node_modules), then the registered done-test `node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=f917a5259...` passed first time: all eight cases (accepted-Move, accepted-Attack, accepted-Physical, trusted-player-stale, trusted-gm-stale, trusted-gm-unassigned, trusted-gm-participant, gm-brand-recovered), 0 errors, 22 owned server processes, 21 offline witness calls in the expected order (CF-A2FP-1 checked from evidence.jsonl). No readiness-probe timeout, so no rerun (CF-A2FP-2). The A1 smoke test, the A2FP test file and the A2F node test (13 of 13) and the roadmap tool checks at the same clean tree exit 0.
+- Receipts: review (the Opus report at 945af2636 in one byte envelope; the F1/F2 delta was checked by Root), merge and mainProof; the ruling comment is byte-copied and equals the live comment and the Root copy; one envelope holds the install, run and tool-check output. PK-l1-smoke-a2f-ruling decision and ruling are filled.
+- capException.countedLines stays 533 (literal validator count of the merge diff, re-measured; option A 330).
+- Carry-forward (units.json A2F.closureCarryForward20261026): the live stale-first row, the actor replay defect and the neighbour rerun of this runner are routed to MISSION-MATCH-1 and the A2M matrix; R5 and P6 survive as disclosed.
+- No task row is ticked. MISSION-MATCH-1 is registered by the next commit of this PR and admitted by the third.
+
+---
+
+## 2026-10-26 L1-SMOKE-A2F local-verified (Step 3 PR 3; ledger budget 10, owner-approved 12 is recorded with the MISSION-MATCH-1 registration)
+
+Amended frozen leaves implement trusted-audience fixtures, the non-spectating-GM positive and recovered GM branding. Stale rows apply their assignment after the actor declaration and test spectator replay after restart. RED contains only the test; GREEN adds the two source leaves with the same frozen test bytes.
+
+- Proof: 13/13 node falsifiers and all eight built-image cases pass; the local receipt records image hashes, witness sequence, raw RED and vacuous-stand-in logs, mutants and limitations. P2 is killed by a named check with a compiling mutant (the first, non-compiling P2 is disclosed); R5 survives.
+- Root ruling 2026-10-26: R6-R8 move to A2M because they target its runRow/reveal leg; P1/P4/P6 remain informational A2M checks. Live stale-first behavior stays with MISSION-MATCH-1 plus the RC rerun.
+- Cap: literal 533 and option A 330 of 500 (fixture leaf is owner-confirmed test-support); capException records the literal overflow. 8 counted files, within the 15-file cap.
+- PK-l1-smoke-a2f-ruling recommends acceptance only after independent exact-head privacy/authority review, OWNER-RULING and CI. Merge, exact-main proof and closure remain open. CF-A2FP-1/2 carry forward.
+
+---
+
 ## 2026-10-26 L1-SMOKE-A2F admitted (Step 3 unit 2; ledger and evidence only)
 
 Admits L1-SMOKE-A2F on baseline 35fa2fb9c, after the A2FP closure in the previous commit of this PR. GOAL.md:10 and stepPlanDecision20261024.wip allow closure and the next admission to share one PR; implementation starts only after this PR merges. The admission receipt has the date-suffixed name [l1-smoke-a2f-admission-20261026.json](evidence/l1-smoke-a2f-admission-20261026.json), because evidence/l1-smoke-a2f-admission.json is the #2318 stop receipt and stays byte-identical.

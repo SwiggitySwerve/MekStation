@@ -62,7 +62,7 @@
     {
       "id": 3,
       "name": "Spectators cannot receive secrets on the built server",
-      "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F", "L1-SMOKE-A2M", "L1-SMOKE-A2", "L1-SMOKE-B"],
+      "units": ["L1-SMOKE-A2FP", "L1-SMOKE-A2F", "MISSION-MATCH-1", "L1-SMOKE-A2M", "L1-SMOKE-A2", "L1-SMOKE-B"],
       "witnesses": ["L1-SMOKE-A1", "B14-0A", "B14-0B", "B14-0", "B14-HEAD", "MP-RECOVERY-UNITS-1", "MP-RECOVERY-UNITS-2"],
       "gates": ["built-server-spectator-smoke"],
       "doneTests": [
@@ -72,8 +72,8 @@
           "description": "Combined built-server matrix including fog refusals, restart and captured rolls; A1 alone cannot pass. Invocation frozen at admission."
         }
       ],
-      "scope": "Proof leaves only; no containment changes.",
-      "prBudget": 10,
+      "scope": "Proof leaves plus the owner-approved MISSION-MATCH-1 roster-membership and sealed-delivery product exception; no other containment changes.",
+      "prBudget": 12,
       "userVisible": false
     },
     {
@@ -165,7 +165,7 @@
           "schema": "closure-rewind"
         }
       ],
-      "scope": "RELEASE-PRODUCER-1 first, before the freeze; recheck every l1ReleaseChecklist20261018 closure (54); rerun steps 2, 3, 5, 6 on RC (Step 2 joins the list through STEP2-RC-RERUN-1); no product changes after freeze.",
+      "scope": "RELEASE-PRODUCER-1 first, before the freeze; recheck every l1ReleaseChecklist20261018 closure (55); rerun steps 2, 3, 5, 6 on RC (Step 2 joins the list through STEP2-RC-RERUN-1); no product changes after freeze.",
       "prBudget": 3,
       "userVisible": false
     },

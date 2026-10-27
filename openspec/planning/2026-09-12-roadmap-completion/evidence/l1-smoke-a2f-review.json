@@ -1,0 +1,113 @@
+{
+  "unit": "L1-SMOKE-A2F",
+  "stage": "review",
+  "recordedAt": "2026-10-26T21:27:05.715Z",
+  "evidenceNameNote": "File name keeps the literal frozen in the admission receipt manifest (l1-smoke-a2f-review.json).",
+  "head": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+  "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+  "reviewedHeadNote": "The independent review read 945af2636. The PR then applied the review fixes F1 (compiling P2 mutant record) and F2 (budget wording) at 2815c144f; the delta was checked by Root (4 files +37/-8, no script or product change, 533 and 330 re-measured) and the OWNER-RULING of comment 6427223735 accepted 2815c144f. The three scripts/release leaves are byte-identical at both heads (merge receipt sourceIdentities).",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only review sub-agent; Root identifies the reviewer as Opus. The report does not state the model, as for the A2FP and LSC-2P reviews.",
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "Worker model per owner decision 2026-10-26 (Sonnet or Sol priority tier); the A2F implementation commits do not record a model, so this repeats the A2F admission contributor field.",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "APPROVE-WITH-IN-PR-FIXES (F1 required, F2 optional; both applied at 2815c144f)",
+  "ownerDisposition": "ACCEPT at 2815c144fddf519bfd0fc4da7386065d2e54c2a4 (OWNER-RULING comment 6427223735)",
+  "classes": [
+    "privacy",
+    "authority"
+  ],
+  "outputPath": "evidence/l1-smoke-a2f-source-review-20261026.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority; its payload is pr2341-review.md as written by the reviewer.",
+  "outputSha256": "47c8411877b2f0037542a86f9a4dbd1f24e889ab84fd6d95bda4ced0cf076486",
+  "outputBytes": 19330,
+  "outputEnvelope": {
+    "path": "evidence/l1-smoke-a2f-source-review-20261026.bytes.json",
+    "payloadSha256": "47c8411877b2f0037542a86f9a4dbd1f24e889ab84fd6d95bda4ced0cf076486",
+    "payloadBytes": 19330
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/pr2341-review.md",
+  "byteExact": true,
+  "effectiveManifest": {
+    "statement": "The effective A2F manifest is the three registered scripts/release leaves (runner, trusted fixtures, test file) plus the unit lifecycle (units.json, PROGRESS.md, V2.2.0-STEPS.md) and the amendment, red and local receipts; PR #2341 carried 9 files. This closure PR carries the reserved review receipt, the merge and mainProof receipts and the three byte envelopes.",
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-admission-amendment-20261026.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2f-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+      "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+      "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs"
+    ]
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "scope": "exact head 945af2636",
+      "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+      "verdict": "APPROVE-WITH-IN-PR-FIXES",
+      "sha256": "47c8411877b2f0037542a86f9a4dbd1f24e889ab84fd6d95bda4ced0cf076486",
+      "bytes": 19330,
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "FIXED in 2815c144f: a compiling P2 mutant was run on the built image and KILLED by a named check; the first, non-compiling P2 stays disclosed (local receipt mutants.built.P2, notes.P2)"
+        },
+        {
+          "id": "F2",
+          "disposition": "FIXED in 2815c144f: the PROGRESS heading says the ledger budget is 10 until the MISSION-MATCH-1 registration and the owner-approved 12"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "945af26365c04166f5f2a372595e5859c0f697a1..2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "note": "Root delta check recorded in the OWNER-RULING: F1 and F2 text and evidence fixes; 4 files +37/-8; no script or product change; 533/330 re-measured. Not a second reviewer round."
+  },
+  "receiptQualifications": [
+    {
+      "id": "REVIEWED-HEAD",
+      "target": "stageReceipts.review.head",
+      "qualification": "head and ownerDisposition name the ruled head 2815c144f; reviewedHead names the head the reviewer read (945af2636). The prHead of the unit is 2815c144f."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+    "reviewedHead": "945af26365c04166f5f2a372595e5859c0f697a1",
+    "pr": 2341,
+    "commentId": 6427223735,
+    "author": "SwiggitySwerve",
+    "bodySha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541",
+    "at": "2026-10-26T21:01:16Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2341#issuecomment-6427223735",
+    "bodyBytes": 4223,
+    "envelope": {
+      "path": "evidence/l1-smoke-a2f-owner-ruling-6427223735.bytes.json",
+      "payloadSha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541",
+      "payloadBytes": 4223
+    }
+  },
+  "acceptedOnTheRecord": [
+    "A2F stale rows show the sealed-owner product defect on replay (the acting player replay after restart lacks its own declaration); owned by MISSION-MATCH-1",
+    "The live stale-first case is deferred to MISSION-MATCH-1 plus the RC rerun; at MISSION-MATCH-1 admission the built-image owner (A2M matrix), a replay/reconnect variant and an A2F neighbour rerun are named",
+    "R5 survives as a redundant check; P6 survives; P1/P4 informational for A2M; R6-R8 deferred to A2M",
+    "Weak RED by absence plus a no-op stand-in failure, declared in the admission (A1 and A2FP precedent)",
+    "Owner-confirmed test-support classification of trusted-fixtures.ts (countedLines 533 literal, 330 option A)"
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-A2FP-1",
+      "item": "The closure receipt checked the 21-call op sequence (mainProof receipt builtImage.witnessSequence)."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "item": "Unused at this closure; routed in units.json carryForwardRouting20261026 of A2FP."
+    },
+    {
+      "id": "CF-A2F-1..3",
+      "item": "Routed in units.json A2F.closureCarryForward20261026."
+    }
+  ]
+}
