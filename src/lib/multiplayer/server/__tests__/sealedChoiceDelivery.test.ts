@@ -7,6 +7,7 @@ import type { IGameUnit } from '@/types/gameplay';
 import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { InteractiveSession } from '@/engine/InteractiveSession';
 import { _resetRateLimitBucketsForTests } from '@/lib/api/security';
 import spectateHandler from '@/pages/api/multiplayer/matches/[id]/spectate';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -35,7 +36,17 @@ import {
   createMatchWireSealedChoiceAudienceContext,
 } from '../projection';
 import { sealedDeclarationsRevealedBy } from '../projection/MatchWireSealedChoices';
+import { PendingPeerTracker } from '../reconnection/PendingPeerTracker';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
+import {
+  handleLobbyIntent,
+  type IServerMatchHostLobbyContext,
+} from '../ServerMatchHostLobbyIntents';
+import {
+  handleGraceTimeout,
+  type IServerMatchHostReconnectContext,
+} from '../ServerMatchHostReconnectLifecycle';
+import { sideOfPlayer } from '../sideAssignments';
 import { fixtureIdentity } from './coopMissionCreate.fixture';
 import {
   MissionReplySchema,
@@ -856,6 +867,38 @@ describe('same-side sealed declaration delivery', () => {
   });
 });
 
+describe('first player assignment compatibility', () => {
+  it('finds both teammates independently and preserves the first match for duplicate players', () => {
+    const assignments = [
+      { playerId: 'a', side: 'player' },
+      { playerId: 'b', side: 'player' },
+      { playerId: 'b', side: 'opponent' },
+    ];
+    expect(sideOfPlayer(assignments, 'a')).toBe('player');
+    expect(sideOfPlayer(assignments, 'b')).toBe('player');
+    expect(sideOfPlayer(assignments, 'missing')).toBeUndefined();
+    expect(sideOfPlayer(undefined, 'a')).toBeUndefined();
+    expect(sideOfPlayer(null, 'a')).toBeUndefined();
+    expect(sideOfPlayer([], 'a')).toBeUndefined();
+  });
+  it('preserves per-player command, forfeit and grace-expiry selections for every ordering', () => {
+    for (const assignments of [
+      [
+        { playerId: 'a', side: 'opponent' },
+        { playerId: 'b', side: 'player' },
+      ],
+      [
+        { playerId: 'b', side: 'player' },
+        { playerId: 'a', side: 'opponent' },
+      ],
+    ]) {
+      for (const player of ['a', 'b', 'missing'])
+        expect(sideOfPlayer(assignments, player)).toBe(
+          assignments.find((a) => a.playerId === player)?.side,
+        );
+    }
+  });
+});
 describe('mission membership modes', () => {
   it.each(['empty', 'spectator-only', 'human'] as const)(
     '%s preserves the matching membership contract',
@@ -903,6 +946,113 @@ describe('mission membership modes', () => {
     expect(() => withRoster([], watcher, ['watcher'])).toThrow();
     expect(() => withRoster(seats, watcher, ['watcher'])).toThrow();
   });
+});
+
+describe('concession side selection compatibility', () => {
+  it.each([
+    ['player', GameSide.Opponent],
+    ['opponent', GameSide.Player],
+  ] as const)(
+    'forfeit by %s host concedes the existing opposite side',
+    async (side, expected) => {
+      const { host, store } = await makeHost();
+      await store.updateMatchMeta(MATCH_ID, {
+        sideAssignments: [
+          { playerId: 'ally', side },
+          { playerId: 'player-one', side },
+        ],
+      });
+      const session = new InteractiveSession(
+        6,
+        5,
+        new SeededRandom(11),
+        createMinimalGrid(6),
+        [],
+        [],
+        [],
+      );
+      const concede = jest
+        .spyOn(session, 'concede')
+        .mockImplementation(() => undefined);
+      const ctx: IServerMatchHostLobbyContext = {
+        matchId: MATCH_ID,
+        store,
+        session,
+        playerRefs: new Map(),
+        pendingPeers: new PendingPeerTracker(),
+        broadcast: jest.fn(),
+        broadcastEvent: async () => undefined,
+        maybeResume: jest.fn(),
+        installFreshCapture: jest.fn(),
+        drainNewEvents: () => [],
+        stampRollsOnNewEvents: (e) => e,
+      };
+      await handleLobbyIntent(ctx, {
+        kind: 'Intent',
+        matchId: MATCH_ID,
+        ts: nowIso(),
+        playerId: 'player-one',
+        intent: { kind: 'ForfeitMatch' },
+      });
+      expect(concede).toHaveBeenCalledWith(expected);
+    },
+  );
+  it.each([
+    ['player', GameSide.Player],
+    ['opponent', GameSide.Opponent],
+  ] as const)(
+    'grace expiry for a non-first %s player concedes its own side',
+    async (side, expected) => {
+      const { host, store } = await makeHost();
+      await store.updateMatchMeta(MATCH_ID, {
+        sideAssignments: [
+          { playerId: 'ally', side },
+          { playerId: 'player-one', side },
+        ],
+      });
+      const session = new InteractiveSession(
+        6,
+        5,
+        new SeededRandom(11),
+        createMinimalGrid(6),
+        [],
+        [],
+        [],
+      );
+      const concede = jest
+        .spyOn(session, 'concede')
+        .mockImplementation(() => undefined);
+      let closed: () => void = () => undefined;
+      const completion = new Promise<void>((resolve) => {
+        closed = resolve;
+      });
+      const ctx: IServerMatchHostReconnectContext = {
+        matchId: MATCH_ID,
+        store,
+        session,
+        pendingPeers: new PendingPeerTracker(),
+        closed: false,
+        isPaused: true,
+        setPaused: jest.fn(),
+        broadcast: jest.fn(),
+        broadcastEvent: async () => undefined,
+        closeMatch: async () => {
+          closed();
+        },
+        tryPublishOutcome: jest.fn(),
+        installFreshCapture: jest.fn(),
+        drainNewEvents: () => [],
+        stampRollsOnNewEvents: (e) => e,
+      };
+      handleGraceTimeout(ctx, {
+        playerId: 'player-one',
+        slotId: 'alpha-1',
+        expiresAt: 1,
+      });
+      await completion;
+      expect(concede).toHaveBeenCalledWith(expected);
+    },
+  );
 });
 
 // MISSION-MATCH-1 MM5 (admission resolutions.R2): replay and reconnect apply

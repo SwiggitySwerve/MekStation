@@ -24,6 +24,7 @@ import {
   setHumanSlot,
   setReady,
 } from './lobby/lobbyStateMachine';
+import { sideOfPlayer } from './sideAssignments';
 
 export interface IServerMatchHostLobbyContext extends IServerMatchHostCaptureContext {
   readonly matchId: string;
@@ -228,11 +229,9 @@ async function handleForfeitMatch(
   meta: Pick<IMatchMeta, 'hostPlayerId' | 'sideAssignments'>,
 ): Promise<readonly IServerMessage[]> {
   const out: IServerMessage[] = [];
-  const hostAssignment = meta.sideAssignments.find(
-    (a) => a.playerId === meta.hostPlayerId,
-  );
+  const hostSide = sideOfPlayer(meta.sideAssignments, meta.hostPlayerId);
   const concededSide: GameSide =
-    hostAssignment?.side === 'opponent' ? GameSide.Player : GameSide.Opponent;
+    hostSide === 'opponent' ? GameSide.Player : GameSide.Opponent;
 
   ctx.pendingPeers.clearAll();
   ctx.installFreshCapture();
