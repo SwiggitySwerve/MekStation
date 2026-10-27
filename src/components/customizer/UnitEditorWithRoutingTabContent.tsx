@@ -16,6 +16,8 @@ interface UnitEditorWithRoutingTabContentProps {
   selectedEquipmentId: string | null;
   onSelectEquipment: (id: string | null) => void;
   workbench?: boolean;
+  /** Opens another customizer tab, e.g. from the Overview readiness rows. */
+  onNavigate?: (tabId: CustomizerTabId) => void;
 }
 
 export function UnitEditorWithRoutingTabContent({
@@ -23,6 +25,7 @@ export function UnitEditorWithRoutingTabContent({
   selectedEquipmentId,
   onSelectEquipment,
   workbench = false,
+  onNavigate,
 }: UnitEditorWithRoutingTabContentProps): React.ReactElement {
   return (
     <div
@@ -34,7 +37,7 @@ export function UnitEditorWithRoutingTabContent({
     >
       {activeTabId === 'overview' && (
         <ErrorBoundary componentName="OverviewTab">
-          <OverviewTab />
+          <OverviewTab onNavigate={onNavigate} />
         </ErrorBoundary>
       )}
       {activeTabId === 'structure' && (

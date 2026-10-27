@@ -4,7 +4,7 @@
  * Helper functions for weapon lookup, damage calculation, and equipment classification.
  */
 
-import { IWeapon, WeaponCategory } from '@/types/equipment';
+import { IAmmunition, IWeapon, WeaponCategory } from '@/types/equipment';
 
 /**
  * Get damage type code based on weapon category
@@ -92,6 +92,23 @@ export function lookupWeapon(
   );
 
   return byPartial;
+}
+
+/**
+ * Shots per ton for a mounted ammo bin, as printed on the record sheet.
+ * Only exact id or name matches count; a near-match could print a wrong shot
+ * count, so an unknown bin returns undefined and the sheet shows a dash.
+ */
+export function lookupAmmoShots(
+  ammunition: readonly IAmmunition[],
+  name: string,
+  id?: string,
+): number | undefined {
+  const lowerName = name.toLowerCase();
+  const match =
+    (id ? ammunition.find((a) => a.id === id) : undefined) ??
+    ammunition.find((a) => a.name.toLowerCase() === lowerName);
+  return match?.shotsPerTon;
 }
 
 /**

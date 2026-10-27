@@ -206,7 +206,7 @@ function ComponentRow({
       title={TECH_BASE_COMPONENT_DESCRIPTIONS[component]}
     >
       {/* Component Label */}
-      <div className={`${styles.text.label} w-24 flex-shrink-0`}>
+      <div className={`${styles.text.label} w-32 flex-shrink-0 leading-tight`}>
         {TECH_BASE_COMPONENT_LABELS[component]}
       </div>
 

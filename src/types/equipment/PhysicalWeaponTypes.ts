@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 /**
  * Physical Weapon Type Definitions
  *
@@ -27,7 +28,10 @@ export enum PhysicalWeaponType {
 /**
  * Physical weapon interface
  */
-export interface IPhysicalWeapon {
+export interface IPhysicalWeapon extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   readonly type: PhysicalWeaponType;
   readonly name: string;
   readonly techBase: TechBase;
@@ -54,8 +58,6 @@ export interface IPhysicalWeapon {
   readonly requiresHand: boolean;
   /** Valid locations for mounting */
   readonly validLocations: readonly string[];
-  /** Introduction year */
-  readonly introductionYear: number;
 }
 
 /**

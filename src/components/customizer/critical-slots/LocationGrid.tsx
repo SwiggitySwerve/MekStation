@@ -11,6 +11,7 @@ import React from 'react';
 
 import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 
+import styles from '../CustomizerWorkbench.module.css';
 import {
   type CritEntry,
   type LocationData,
@@ -58,6 +59,8 @@ interface LocationGridProps {
   isOmni?: boolean;
   /** Additional CSS classes */
   className?: string;
+  /** The phone selector already identifies the location. */
+  hideHeader?: boolean;
 }
 
 /**
@@ -75,6 +78,7 @@ export function LocationGrid({
   compact = false,
   isOmni = false,
   className = '',
+  hideHeader = false,
 }: LocationGridProps): React.ReactElement {
   const slotCount = LOCATION_SLOT_COUNTS[location];
   const label = getLocationLabel(location);
@@ -108,20 +112,22 @@ export function LocationGrid({
     <div
       role="group"
       aria-label={`${label} critical slots`}
-      className={`bg-surface-deep border-border-theme w-full min-w-0 overflow-hidden rounded-md border shadow-sm ${className}`}
+      className={`bg-surface-deep border-border-theme w-full min-w-0 overflow-hidden rounded-md border shadow-sm ${styles.criticalLocationGrid} ${className}`}
     >
       {/* Consistent location header keeps the diagram scannable at any width. */}
-      <div className="border-border-theme bg-surface-base/95 border-l-accent/70 flex min-h-11 items-center justify-between border-b border-l-2 px-2 py-1.5 lg:pointer-fine:min-h-[34px] lg:pointer-fine:py-1">
-        <span className="text-text-theme-primary block min-w-0 text-sm font-semibold tracking-wide break-words whitespace-normal uppercase">
-          {label}
-        </span>
-        <span className="text-text-theme-muted ml-2 flex-shrink-0 text-sm tabular-nums lg:pointer-fine:text-[13px]">
-          {slotCount}
-        </span>
-      </div>
+      {!hideHeader && (
+        <div className="border-border-theme bg-surface-base/95 border-l-accent/70 flex min-h-11 items-center justify-between border-b border-l-2 px-2 py-1.5 lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0.5">
+          <span className="text-text-theme-primary block min-w-0 text-sm font-semibold tracking-wide break-words whitespace-normal uppercase">
+            {label}
+          </span>
+          <span className="text-text-theme-muted ml-2 flex-shrink-0 text-sm tabular-nums lg:pointer-fine:text-[13px]">
+            {slotCount}
+          </span>
+        </div>
+      )}
 
       {/* Slots */}
-      <div className="p-1">
+      <div className={`p-1 ${styles.criticalSlotRows}`}>
         {entries.map((entry) =>
           isSuperheavy && entry.isDoubleSlot ? (
             <DoubleSlotRow

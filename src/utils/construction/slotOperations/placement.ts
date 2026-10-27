@@ -34,6 +34,38 @@ export function hasAssignedCriticalSlots(
   );
 }
 
+/**
+ * How much of the mounted equipment's slot demand is actually placed in
+ * critical slots. Items without a complete slot assignment (see
+ * `hasAssignedCriticalSlots`) count as pending: they reserve capacity in the
+ * slot budget but do not occupy a slot on the unit yet.
+ */
+export interface ISlotPlacementSummary {
+  /** Slots held by equipment that has a complete slot assignment. */
+  readonly placedSlots: number;
+  /** Slots the unplaced equipment will need once placed. */
+  readonly pendingSlots: number;
+  /** Number of mounted items still waiting for a slot assignment. */
+  readonly unplacedItems: number;
+}
+
+export function getSlotPlacementSummary(
+  equipment: readonly IMountedEquipmentInstance[],
+): ISlotPlacementSummary {
+  let placedSlots = 0;
+  let pendingSlots = 0;
+  let unplacedItems = 0;
+  for (const item of equipment) {
+    if (hasAssignedCriticalSlots(item)) {
+      placedSlots += item.criticalSlots;
+    } else {
+      pendingSlots += item.criticalSlots;
+      unplacedItems += 1;
+    }
+  }
+  return { placedSlots, pendingSlots, unplacedItems };
+}
+
 export function getEquipmentSlotIssues(
   equipment: readonly IMountedEquipmentInstance[],
   configuration: MechConfiguration,
@@ -44,11 +76,7 @@ export function getEquipmentSlotIssues(
   const issues: ICriticalSlotIssue[] = [];
   const locations = getLocationsForConfig(configuration);
   const occupants = new Map<string, IMountedEquipmentInstance>();
-  const add = (
-    item: IMountedEquipmentInstance,
-    message: string,
-    severity = UnitValidationSeverity.ERROR,
-  ): void => {
+  const add = (item: IMountedEquipmentInstance, message: string): void => {
     if (
       !issues.some(
         (issue) =>
@@ -59,16 +87,12 @@ export function getEquipmentSlotIssues(
         instanceId: item.instanceId,
         location: item.location,
         message,
-        severity,
+        severity: UnitValidationSeverity.ERROR,
       });
   };
   for (const item of equipment) {
     if (!item.location) {
-      add(
-        item,
-        `${item.name} needs a location.`,
-        UnitValidationSeverity.WARNING,
-      );
+      add(item, `${item.name} needs a location.`);
       continue;
     }
     const location = item.location as MechLocation;
@@ -85,9 +109,6 @@ export function getEquipmentSlotIssues(
       add(
         item,
         `${item.name} in ${location} needs ${item.criticalSlots} distinct critical slots.`,
-        item.slots?.length
-          ? UnitValidationSeverity.ERROR
-          : UnitValidationSeverity.WARNING,
       );
     const fixed = getFixedSlotIndices(
       location,

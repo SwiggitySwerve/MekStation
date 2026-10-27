@@ -45,7 +45,7 @@ test('customizer header symbols stay legible and preserve their actions @customi
   const unitUrl = page.url();
   const header = page.getByTestId('customizer-command-header');
   const toggle = header.getByRole('button', {
-    name: 'Wide workspace',
+    name: 'Hide loadout panel',
     exact: true,
   });
   const sidebarBackground = await toggle.evaluate(
@@ -71,7 +71,7 @@ test('customizer header symbols stay legible and preserve their actions @customi
     'Unit actions',
     'Save active unit to library',
     'Open loadout drawer',
-    'Wide workspace',
+    'Hide loadout panel',
   ]) {
     const button = header.getByRole('button', { name, exact: true });
     const symbol = await readSymbol(button);
@@ -83,7 +83,14 @@ test('customizer header symbols stay legible and preserve their actions @customi
     expect(symbol!.height).toEqual(symbol!.width);
     expect(symbol!.drawnWidth).toBeGreaterThanOrEqual(19);
     expect(symbol!.strokeWidth).toBe(2);
-    if (name === 'MekStation menu') {
+    // The menu, Add unit and Save show visible text labels on wide screens.
+    if (
+      [
+        'MekStation menu',
+        'Add unit (Ctrl+O)',
+        'Save active unit to library',
+      ].includes(name)
+    ) {
       expect(symbol!.targetWidth).toBeGreaterThanOrEqual(44);
     } else {
       expect(symbol!.targetWidth).toBe(44);
@@ -91,6 +98,16 @@ test('customizer header symbols stay legible and preserve their actions @customi
     expect(symbol!.targetHeight).toBe(44);
     measurements.push({ name, ...symbol });
   }
+  // Save state is spelled out beside Save, never a bare dot on the button.
+  await expect(header.getByTestId('unit-save-label')).toHaveText(
+    /^Not in library(?:\s*\u00b7\s*draft saved)?$/,
+  );
+  await expect(
+    header
+      .getByRole('button', { name: 'Save active unit to library', exact: true })
+      .getByText('Save to library', { exact: true }),
+  ).toBeVisible();
+  await expect(header.locator('[data-save-dot]')).toHaveCount(0);
   await header.screenshot({
     path: testInfo.outputPath('header-wide.png'),
     animations: 'disabled',
@@ -134,6 +151,8 @@ test('customizer header symbols stay legible and preserve their actions @customi
       const symbol = await readSymbol(
         header.getByRole('button', { name, exact: true }),
       );
+      // Phones keep the 24px symbols so drawn glyphs stay at least 20px; the
+      // 44px targets, not the symbols, set the header width.
       expect(symbol!.width).toBe(24);
       expect(symbol!.strokeWidth).toBe(2);
       expect(symbol!.targetHeight).toBe(44);

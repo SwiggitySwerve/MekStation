@@ -26,6 +26,7 @@ import type {
   AvailableLocation,
 } from './GlobalLoadoutTray';
 
+import workbenchStyles from '../CustomizerWorkbench.module.css';
 import {
   MobileLoadoutHeader,
   MobileLoadoutList,
@@ -195,10 +196,7 @@ export function BottomSheetTray({
     <>
       {/* Collapsed State: Status Bar */}
       <div
-        className={`fixed right-0 bottom-0 left-0 z-40 ${className} `}
-        style={{
-          bottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))',
-        }}
+        className={`${workbenchStyles.mobileLoadoutDock} fixed right-0 left-0 z-40 ${className}`}
       >
         <MobileLoadoutHeader
           stats={computedStats}

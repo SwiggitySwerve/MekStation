@@ -274,12 +274,62 @@ test('library save failures preserve the draft and successful saves reload the s
   await panel
     .getByRole('textbox', { name: 'History', exact: true })
     .fill('Customizer integration history');
-  const original = await readDraft(page);
-  const variant = `CUSTOMIZER-${Date.now()}`;
-  await page
-    .getByRole('button', { name: 'Save active unit to library', exact: true })
-    .click();
+  // Walk 2 shrinks the engine to 200, which holds 8 of the 20 heat sinks, so
+  // 12 heat sinks and the new MASC are unplaced: the draft keeps saving, but
+  // the library only accepts the unit once they are placed.
+  const unplaced = await readDraft(page);
+  expect(unplaced.enhancement).toBe('MASC');
+  expect(unplaced.equipment.filter((item) => !item.location)).toHaveLength(13);
+  const saveButton = page.getByRole('button', {
+    name: 'Save active unit to library',
+    exact: true,
+  });
+  await saveButton.click();
   const dialog = page.getByRole('dialog', { name: 'Save Unit', exact: true });
+  await expect(dialog.getByRole('alert')).toHaveText(
+    'Fix 13 construction errors before saving. Cancel to keep editing your draft.',
+  );
+  await expect(
+    dialog.getByRole('button', { name: 'Save', exact: true }),
+  ).toBeDisabled();
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole('tab', { name: 'Critical Slots', exact: true }).click();
+  const toPlace = page.getByRole('region', {
+    name: 'Equipment to place',
+    exact: true,
+  });
+  await expect(toPlace).toContainText(
+    '13 items to place: Heat Sink and 12 more',
+  );
+  // MASC needs five contiguous slots; the Left Arm has six free below its laser.
+  await page.getByRole('button', { name: /^Fixed systems/ }).click();
+  await page
+    .getByRole('button', {
+      name: 'Select MASC in unallocated loadout',
+      exact: true,
+    })
+    .click();
+  await page
+    .getByRole('group', { name: 'Left Arm critical slots', exact: true })
+    .getByRole('gridcell', { name: 'Empty slot 7', exact: true })
+    .click();
+  for (let placed = 0; placed < 12; placed += 1) {
+    await toPlace
+      .getByRole('button', { name: 'Select Heat Sink', exact: true })
+      .click();
+    await page
+      .getByRole('gridcell', { name: /^Empty slot / })
+      .first()
+      .click();
+  }
+  await expect(toPlace).toBeHidden();
+  await page.getByRole('tab', { name: 'Fluff', exact: true }).click();
+  const original = await readDraft(page);
+  expect(original.equipment).toHaveLength(unplaced.equipment.length);
+  expect(original.equipment.every((item) => item.location)).toBe(true);
+  const variant = `CUSTOMIZER-${Date.now()}`;
+  await saveButton.click();
   await dialog.getByLabel('Variant Designation', { exact: true }).fill(variant);
   await page.route('**/api/units/custom', async (route) => {
     if (route.request().method() === 'POST')
@@ -348,7 +398,9 @@ test('library save failures preserve the draft and successful saves reload the s
     await expect(
       panel.getByRole('textbox', { name: 'History', exact: true }),
     ).toHaveValue('Customizer integration history');
-    await page.getByTitle('Add unit (Ctrl+O)').click();
+    await page
+      .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+      .click();
     await page
       .getByPlaceholder('Search by chassis or variant...')
       .fill(variant);

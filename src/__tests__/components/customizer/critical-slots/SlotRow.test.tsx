@@ -23,6 +23,11 @@ describe('SlotRow', () => {
     render(<SlotRow {...defaultProps} />);
 
     expect(screen.getByText('Available')).toBeInTheDocument();
+    expect(screen.getByText('+')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('gridcell', { name: 'Empty slot 1' })).toHaveClass(
+      'border-border-theme-strong/60',
+      'border-dashed',
+    );
   });
 
   it('should render equipment slot', () => {
@@ -38,7 +43,7 @@ describe('SlotRow', () => {
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
   });
 
-  it('shows the equipment name and slot index in every occupied slot', () => {
+  it('hides continuation content while retaining its complete accessible name and actions', async () => {
     const slot: SlotContent = {
       index: 2,
       type: 'equipment',
@@ -51,9 +56,57 @@ describe('SlotRow', () => {
 
     render(<SlotRow {...defaultProps} slot={slot} />);
 
-    expect(screen.getByText('3')).toBeInTheDocument();
-    expect(screen.getByText('LPL Laser')).toBeInTheDocument();
-    expect(screen.queryByText('Continuation')).not.toBeInTheDocument();
+    expect(screen.queryByText('3')).not.toBeInTheDocument();
+    expect(screen.queryByText('LPL Laser')).not.toBeInTheDocument();
+    expect(screen.queryByText('↳')).not.toBeInTheDocument();
+    expect(screen.queryByText('2 slots')).not.toBeInTheDocument();
+    const cell = screen.getByRole('gridcell', {
+      name: 'Slot 3: Large Pulse Laser',
+    });
+    expect(cell).toHaveAttribute('draggable', 'true');
+    await userEvent.click(cell);
+    expect(defaultProps.onClick).toHaveBeenCalledTimes(1);
+    await userEvent.keyboard('{Delete}');
+    expect(defaultProps.onRemove).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows one equipment label and a muted slot count at the beginning of a merged block', () => {
+    render(
+      <SlotRow
+        {...defaultProps}
+        slot={{
+          index: 2,
+          type: 'equipment',
+          name: 'AC/20',
+          equipmentId: 'ac20',
+          totalSlots: 10,
+          isFirstSlot: true,
+          isLastSlot: false,
+        }}
+      />,
+    );
+    expect(screen.getByText('AC/20')).toBeInTheDocument();
+    expect(screen.getByText('3–12')).toBeInTheDocument();
+    expect(screen.getByText('10 slots')).toHaveClass(
+      'text-text-theme-secondary',
+    );
+    expect(
+      screen.getByRole('gridcell', { name: 'Slot 3: AC/20' }),
+    ).toHaveAttribute('tabindex', '0');
+  });
+
+  it('spells out Heat Sink while preserving its complete accessible name', () => {
+    render(
+      <SlotRow
+        {...defaultProps}
+        slot={{ index: 4, type: 'equipment', name: 'Heat Sink' }}
+      />,
+    );
+    expect(screen.getByText('Heat Sink')).toHaveAttribute('title', 'Heat Sink');
+    expect(screen.queryByText('HS')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('gridcell', { name: 'Slot 5: Heat Sink' }),
+    ).toBeInTheDocument();
   });
 
   it('should call onClick when clicked', async () => {

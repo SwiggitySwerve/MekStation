@@ -21,11 +21,14 @@ import type {
 } from './SlotInteractionTypes';
 
 import { SlotContextMenuShell } from './SlotContextMenuShell';
+import { SlotEquipmentLabel } from './SlotEquipmentLabel';
 import {
+  getMergedSlotClasses,
+  isMultiSlotEquipment,
   getOccupiedSpanClasses,
-  getSingleSlotDisplayName,
   getSlotSizeClasses,
   getSlotStateClasses,
+  getSlotColorStyle,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -275,7 +278,6 @@ export const SlotRow = memo(function SlotRow({
     ? 'ring-2 ring-accent ring-offset-1 ring-offset-surface-deep'
     : '';
   const spanClasses = getOccupiedSpanClasses(slot);
-  const displayName = getSingleSlotDisplayName(slot, isOmni);
   const title = getTitle(interactivityState);
 
   return (
@@ -286,7 +288,8 @@ export const SlotRow = memo(function SlotRow({
         draggable={canDrag}
         aria-label={getSlotAriaLabel(slot)}
         aria-selected={isSelected}
-        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)}`}
+        style={getSlotColorStyle(slot)}
+        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)} ${getMergedSlotClasses(slot)}`}
         onClick={onClick}
         onDoubleClick={() => handleSlotDoubleClick({ canUnassign, onRemove })}
         onContextMenu={(e) =>
@@ -327,15 +330,15 @@ export const SlotRow = memo(function SlotRow({
         }
         title={title}
       >
-        <span
-          aria-hidden="true"
-          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
-        >
-          {slot.index + 1}
-        </span>
-        <span className="min-w-0 flex-1 break-words whitespace-normal">
-          {displayName}
-        </span>
+        {!isMultiSlotEquipment(slot) && (
+          <span
+            aria-hidden="true"
+            className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
+          >
+            {slot.index + 1}
+          </span>
+        )}
+        <SlotEquipmentLabel slot={slot} isOmni={isOmni} />
         {spanClasses && (
           <span
             aria-hidden="true"

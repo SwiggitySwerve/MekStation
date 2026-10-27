@@ -30,6 +30,7 @@ const ammo = {
   category: EquipmentCategory.AMMUNITION,
   compatibleWeaponIds: ['ac-10'],
 };
+const otherWeapon: IEquipmentItem = { ...weapon, id: 'ac-5', name: 'AC/5' };
 const otherAmmo = {
   ...ammo,
   id: 'ac-5-ammo',
@@ -50,7 +51,7 @@ beforeEach(() => {
   store.toggleHideUnavailable();
   store.toggleHideAmmoWithoutWeapon();
   store.setUnitContext(null, null, []);
-  store.setEquipment([weapon, ammo, otherAmmo]);
+  store.setEquipment([weapon, otherWeapon, ammo, otherAmmo]);
 });
 
 it('refreshes filtered results and pagination immediately after real weapon edits and undo/redo', () => {
@@ -71,7 +72,7 @@ it('refreshes filtered results and pagination immediately after real weapon edit
     instanceId = unit.getState().addEquipment(weapon);
   });
   expect(visibleAmmo()).toEqual([ammo.id]);
-  expect(result.current.totalItems).toBe(2);
+  expect(result.current.totalItems).toBe(3);
   act(() => unit.getState().removeEquipment(instanceId));
   expect(visibleAmmo()).toEqual([]);
   act(() => getUnitEditHistory(unit).getState().undo());
@@ -84,7 +85,7 @@ it('updates the selected unit and availability without an extra filter interacti
   const one = makeUnit(),
     two = makeUnit();
   one.getState().addEquipment(weapon);
-  two.getState().addEquipment({ ...weapon, id: 'ac-5', name: 'AC/5' });
+  two.getState().addEquipment(otherWeapon);
   let active = one;
   const { result, rerender } = renderHook(() => useEquipmentBrowser(), {
     wrapper: ({ children }) => (
@@ -121,5 +122,5 @@ it('updates numeric constraints and keeps row counts and pages in agreement', ()
   act(() => result.current.goToLastPage());
   expect(result.current.currentPage).toBe(1);
   act(() => useEquipmentStore.getState().setMaxWeight(null));
-  expect(result.current.totalItems).toBe(3);
+  expect(result.current.totalItems).toBe(4);
 });

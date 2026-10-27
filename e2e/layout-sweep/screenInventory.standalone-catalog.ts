@@ -199,14 +199,14 @@ export const standaloneCatalogEntries: readonly SweptScreenEntry[] = [
       affordance({
         label: 'customizer new unit CTA',
         role: 'button',
-        name: /New Unit/i,
+        name: /^Add unit$/i,
       }),
     ],
     overlapTargets: [
       affordance({
         label: 'customizer new unit CTA',
         role: 'button',
-        name: /New Unit/i,
+        name: /^Add unit$/i,
       }),
       affordance({
         label: 'customizer library load CTA',

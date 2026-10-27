@@ -69,6 +69,12 @@ export interface BaseArmorDiagramProps {
 
 export interface ConfigurableArmorDiagramProps extends BaseArmorDiagramProps {
   mechConfigType?: MechConfigType;
+  /**
+   * Where the biped diagram shows its unallocated-points and legend footer.
+   * "below-xl" hides it on wide layouts, where the armor inspector carries the
+   * legend beside the diagram. Defaults to "always".
+   */
+  footerVisibility?: 'always' | 'below-xl';
 }
 
 export interface VariantArmorDiagramProps extends BaseArmorDiagramProps {

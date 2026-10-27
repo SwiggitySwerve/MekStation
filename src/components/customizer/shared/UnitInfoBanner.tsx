@@ -1,14 +1,18 @@
 /**
  * Unit Info Banner Component
  *
- * Unit identity and grouped readouts: the budget stats (weight, slots, heat,
- * armor) lead with fill bars against their caps; movement, engine and BV read
- * as secondary. Detailed phone readouts expand without displacing the editor.
+ * Unit identity and grouped readouts: seven equal-width cells at one value
+ * size, a 1px rule between every pair on wide screens. The budget stats (weight, slots, heat, armor) add fill bars against
+ * their caps; movement (walk / run / jump in one cell), engine and BV show the
+ * value alone. On phones the status chip sits in the strip beside the key
+ * readouts; the detailed readouts expand without displacing the editor.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
 import React, { useId, useState } from 'react';
+
+import type { IHeatGeneration } from '@/services/construction/CalculationService';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
@@ -18,17 +22,14 @@ import { ValidationStatus } from '@/utils/colors/statusColors';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { TechBaseBadge } from './TechBaseBadge';
+import { BudgetStat, MovementStat, SimpleStat } from './UnitInfoStats';
 import {
-  CAUTION_PILL_CLASS,
   describeHeat,
-  getBudgetFill,
+  describeSlotFill,
   getCapacityStatus,
-  getHeatExcess,
   getHeatStatus,
+  getSlotFillStatus,
   getWeightStatus,
-  STAT_STATUS_FILL_COLOR,
-  STAT_STATUS_TEXT_CLASS,
-  type StatStatus,
 } from './unitStatStatus';
 import { ValidationSummary } from './ValidationSummary';
 
@@ -49,10 +50,18 @@ export interface UnitStats {
   weightRemaining: number;
   armorPoints: number;
   maxArmorPoints: number;
+  /** Slots the build needs: system slots plus every mounted item's slots. */
   criticalSlotsUsed: number;
   criticalSlotsTotal: number;
+  /** Slots actually filled: `criticalSlotsUsed` minus pending ones. */
+  criticalSlotsPlaced?: number;
+  /** Slots needed by mounted items that are not placed yet. */
+  criticalSlotsPending?: number;
+  /** Mounted items that are not placed yet. */
+  unplacedItemCount?: number;
   heatGenerated: number;
   heatDissipation: number;
+  heatGeneration?: IHeatGeneration;
   battleValue?: number;
   validationStatus: ValidationStatus;
   errorCount: number;
@@ -66,169 +75,8 @@ interface UnitInfoBannerProps {
   className?: string;
   actions?: React.ReactNode;
   compact?: boolean;
-  /** Compact only: a status control that shares the metrics band. */
+  /** Compact only: a status chip in the metrics strip on phones. */
   status?: React.ReactNode;
-}
-
-// =============================================================================
-// Styles
-// =============================================================================
-
-const styles = {
-  label:
-    'text-[11px] leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wider',
-  value: {
-    key: 'text-base leading-6 font-bold sm:text-lg',
-    secondary: 'text-[13px] leading-5 font-semibold',
-  },
-  status: STAT_STATUS_TEXT_CLASS,
-  /** Caps and captions: 12px secondary text, legible at phone size. */
-  muted: 'text-xs text-text-theme-secondary',
-  box: 'flex min-w-0 flex-col items-center gap-0.5 text-center tabular-nums',
-} as const;
-
-function statTestId(label: string): string {
-  const normalized = label
-    .toLowerCase()
-    .replace(/\+/g, 'plus')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-  return `unit-info-stat-${normalized}`;
-}
-
-// =============================================================================
-// Stat Box Components
-// =============================================================================
-
-interface SimpleStatProps {
-  label: string;
-  value: number | string;
-}
-
-function SimpleStat({ label, value }: SimpleStatProps) {
-  return (
-    <div
-      className={`${styles.box} ${workbenchStyles.secondaryStat}`}
-      data-testid={statTestId(label)}
-    >
-      <span className={styles.label}>{label}</span>
-      <span className={`${styles.value.secondary} ${styles.status.normal}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
-
-interface BudgetStatProps {
-  label: string;
-  current: number;
-  max: number;
-  /** Display text for the current value. */
-  format?: (value: number) => string;
-  /** Display text for the maximum; defaults to `format`. */
-  formatMax?: (value: number) => string;
-  unit?: string;
-  status?: StatStatus;
-  /** Visible amount over the maximum, e.g. heat above dissipation. */
-  excess?: number;
-  /** Hover/focus explanation; also makes the readout focusable. */
-  title?: string;
-  /** Short wide-screen hint naming the two numbers, e.g. "gen / diss". */
-  caption?: string;
-  /** Phone: show only when all readouts are expanded. */
-  phoneDetail?: boolean;
-}
-
-/** Primary budget readout: value against its cap with a state-colored fill bar. */
-function BudgetStat({
-  label,
-  current,
-  max,
-  format = String,
-  formatMax = format,
-  unit = '',
-  status = 'normal',
-  excess,
-  title,
-  caption,
-  phoneDetail = false,
-}: BudgetStatProps) {
-  const tooltipId = useId();
-  const currentText = `${format(current)}${unit}`;
-  const maxText = `${formatMax(max)}${unit}`;
-  return (
-    <div
-      className={`${styles.box} ${workbenchStyles.budgetStat} ${title ? workbenchStyles.explainedStat : ''}`}
-      data-testid={statTestId(label)}
-      data-status={status}
-      data-phone-detail={phoneDetail || undefined}
-      title={title}
-      role={title ? 'group' : undefined}
-      aria-label={
-        title ? `${label}: ${currentText} / ${maxText}. ${title}` : undefined
-      }
-      aria-describedby={title ? tooltipId : undefined}
-      tabIndex={title ? 0 : undefined}
-    >
-      {caption ? (
-        <span className="flex items-baseline justify-center gap-1.5">
-          <span className={styles.label}>{label}</span>
-          <span
-            aria-hidden="true"
-            className={`${styles.muted} leading-[14px] whitespace-nowrap max-md:hidden`}
-          >
-            {caption}
-          </span>
-        </span>
-      ) : (
-        <span className={styles.label}>{label}</span>
-      )}
-      <span className="flex flex-col items-stretch gap-[3px]">
-        <span className="flex items-baseline justify-center gap-0.5">
-          <span
-            className={`${styles.value.key} ${workbenchStyles.budgetValue} ${styles.status[status]}`}
-          >
-            {currentText}
-          </span>
-          <span className={styles.muted}>/</span>
-          <span className={styles.muted}>{maxText}</span>
-          {excess !== undefined && excess > 0 && (
-            <span
-              className={`ml-1 inline-flex items-center gap-0.5 self-center rounded px-1.5 text-xs leading-4 font-semibold whitespace-nowrap ${CAUTION_PILL_CLASS}`}
-            >
-              <AppIcon
-                name="warning"
-                size="inline"
-                aria-hidden="true"
-                className="shrink-0 max-md:hidden"
-              />
-              +{excess}
-              <span className={workbenchStyles.excessWord}> over</span>
-            </span>
-          )}
-        </span>
-        <span aria-hidden="true" className={workbenchStyles.budgetTrack}>
-          <span
-            className={workbenchStyles.budgetFill}
-            data-status={status}
-            style={{
-              width: `${getBudgetFill(current, max) * 100}%`,
-              background: STAT_STATUS_FILL_COLOR[status],
-            }}
-          />
-        </span>
-      </span>
-      {title && (
-        <span
-          id={tooltipId}
-          role="tooltip"
-          className={workbenchStyles.statTooltip}
-        >
-          {title}
-        </span>
-      )}
-    </div>
-  );
 }
 
 // =============================================================================
@@ -246,13 +94,29 @@ export function UnitInfoBanner({
 }: UnitInfoBannerProps): React.ReactElement {
   const [showReadouts, setShowReadouts] = useState(false);
   const readoutsId = useId();
-  const heatExcess = getHeatExcess(stats.heatGenerated, stats.heatDissipation);
   const hasRunPlus = stats.maxRunMP && stats.maxRunMP > stats.runMP;
+  const slotFill = {
+    used: stats.criticalSlotsUsed,
+    total: stats.criticalSlotsTotal,
+    placed: stats.criticalSlotsPlaced,
+    pendingSlots: stats.criticalSlotsPending,
+    unplacedItems: stats.unplacedItemCount,
+  };
+  const slotStatus = getSlotFillStatus(slotFill);
+  // The readout counts placed slots; over capacity it keeps the full demand.
+  const slotsShown =
+    slotStatus === 'error'
+      ? stats.criticalSlotsUsed
+      : (stats.criticalSlotsPlaced ?? stats.criticalSlotsUsed);
+  const slotsTitle =
+    (stats.criticalSlotsPending ?? 0) > 0
+      ? describeSlotFill(slotFill)
+      : undefined;
 
   const readouts = (
     <div
       id={readoutsId}
-      className={`${workbenchStyles.readouts} ${hasRunPlus ? workbenchStyles.readoutsWithRunPlus : ''} ${showReadouts || compact ? workbenchStyles.readoutsExpanded : ''} ${compact && showReadouts ? workbenchStyles.readoutsDetailsOpen : ''}`}
+      className={`${workbenchStyles.readouts} ${showReadouts || compact ? workbenchStyles.readoutsExpanded : ''} ${compact && showReadouts ? workbenchStyles.readoutsDetailsOpen : ''}`}
     >
       <div
         role="group"
@@ -272,21 +136,22 @@ export function UnitInfoBanner({
           />
           <BudgetStat
             label="Slots"
-            current={stats.criticalSlotsUsed}
+            current={slotsShown}
             max={stats.criticalSlotsTotal}
-            status={getCapacityStatus(
-              stats.criticalSlotsUsed,
-              stats.criticalSlotsTotal,
-            )}
+            status={slotStatus}
+            title={slotsTitle}
           />
           <BudgetStat
             label="Heat"
             current={stats.heatGenerated}
             max={stats.heatDissipation}
             status={getHeatStatus(stats.heatGenerated, stats.heatDissipation)}
-            excess={heatExcess}
             caption="gen / diss"
-            title={describeHeat(stats.heatGenerated, stats.heatDissipation)}
+            title={describeHeat(
+              stats.heatGenerated,
+              stats.heatDissipation,
+              stats.heatGeneration,
+            )}
           />
           <BudgetStat
             label="Armor"
@@ -299,15 +164,19 @@ export function UnitInfoBanner({
       </div>
       <div
         role="group"
-        aria-label="Movement"
+        aria-label="Movement and engine"
         className={workbenchStyles.readoutGroup}
       >
-        <span className={workbenchStyles.readoutHeading}>Movement</span>
+        <span className={workbenchStyles.readoutHeading}>
+          Movement and engine
+        </span>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
-          <SimpleStat label="Walk" value={stats.walkMP} />
-          <SimpleStat label="Run" value={stats.runMP} />
-          {hasRunPlus && <SimpleStat label="Run+" value={stats.maxRunMP!} />}
-          <SimpleStat label="Jump" value={stats.jumpMP} />
+          <MovementStat
+            walk={stats.walkMP}
+            run={stats.runMP}
+            runPlus={hasRunPlus ? stats.maxRunMP : undefined}
+            jump={stats.jumpMP}
+          />
           <SimpleStat label="Engine" value={stats.engineRating} />
         </div>
       </div>
@@ -387,10 +256,14 @@ export function UnitInfoBanner({
             aria-expanded={showReadouts}
             aria-controls={readoutsId}
             aria-label={
-              showReadouts ? 'Hide all unit readouts' : 'Show all unit readouts'
+              showReadouts
+                ? 'Fewer stats (Armor, Movement, BV)'
+                : 'More stats (Armor, Movement, BV)'
             }
             title={
-              showReadouts ? 'Hide all unit readouts' : 'Show all unit readouts'
+              showReadouts
+                ? 'Fewer stats (Armor, Movement, BV)'
+                : 'More stats (Armor, Movement, BV)'
             }
             onClick={() => setShowReadouts((value) => !value)}
           >

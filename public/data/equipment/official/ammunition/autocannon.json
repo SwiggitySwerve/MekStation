@@ -14,7 +14,7 @@
       "costPerTon": 1000,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 2290
+      "introductionYear": 2300
     },
     {
       "id": "ac-5-ammo",
@@ -46,7 +46,7 @@
       "costPerTon": 6000,
       "battleValue": 15,
       "isExplosive": true,
-      "introductionYear": 2443
+      "introductionYear": 2460
     },
     {
       "id": "ac-20-ammo",
@@ -78,7 +78,7 @@
       "costPerTon": 4000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3059,
       "special": ["+4 damage vs armor"]
     },
     {
@@ -95,7 +95,7 @@
       "costPerTon": 9000,
       "battleValue": 14,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3059,
       "special": ["+4 damage vs armor"]
     },
     {
@@ -129,7 +129,7 @@
       "costPerTon": 1000,
       "battleValue": 8,
       "isExplosive": true,
-      "introductionYear": 2827
+      "introductionYear": 3057
     },
     {
       "id": "uac-5-ammo",
@@ -145,7 +145,9 @@
       "costPerTon": 9000,
       "battleValue": 15,
       "isExplosive": true,
-      "introductionYear": 2825
+      "introductionYear": 2640,
+      "extinctionYear": 2915,
+      "reintroductionYear": 3035
     },
     {
       "id": "uac-10-ammo",
@@ -161,7 +163,7 @@
       "costPerTon": 12000,
       "battleValue": 26,
       "isExplosive": true,
-      "introductionYear": 2825
+      "introductionYear": 3057
     },
     {
       "id": "uac-20-ammo",
@@ -177,7 +179,7 @@
       "costPerTon": 20000,
       "battleValue": 35,
       "isExplosive": true,
-      "introductionYear": 2825
+      "introductionYear": 3060
     },
     {
       "id": "lb-2-x-ammo",
@@ -193,7 +195,7 @@
       "costPerTon": 2000,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 2595
+      "introductionYear": 3058
     },
     {
       "id": "lb-5-x-ammo",
@@ -209,7 +211,7 @@
       "costPerTon": 9000,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 2595
+      "introductionYear": 3058
     },
     {
       "id": "lb-10-x-ammo",
@@ -225,7 +227,9 @@
       "costPerTon": 12000,
       "battleValue": 19,
       "isExplosive": true,
-      "introductionYear": 2595
+      "introductionYear": 2595,
+      "extinctionYear": 2840,
+      "reintroductionYear": 3035
     },
     {
       "id": "lb-20-x-ammo",
@@ -241,7 +245,7 @@
       "costPerTon": 20000,
       "battleValue": 30,
       "isExplosive": true,
-      "introductionYear": 2595
+      "introductionYear": 3058
     },
     {
       "id": "lb-10-x-cluster-ammo",
@@ -258,7 +262,9 @@
       "battleValue": 19,
       "isExplosive": true,
       "introductionYear": 2595,
-      "special": ["-2 to-hit vs aerospace", "Cluster damage"]
+      "special": ["-2 to-hit vs aerospace", "Cluster damage"],
+      "extinctionYear": 2840,
+      "reintroductionYear": 3035
     },
     {
       "id": "lb-20-x-cluster-ammo",
@@ -274,7 +280,7 @@
       "costPerTon": 25000,
       "battleValue": 30,
       "isExplosive": true,
-      "introductionYear": 2595,
+      "introductionYear": 3058,
       "special": ["-2 to-hit vs aerospace", "Cluster damage"]
     },
     {
@@ -291,7 +297,7 @@
       "costPerTon": 2000,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3062,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -308,7 +314,7 @@
       "costPerTon": 5000,
       "battleValue": 8,
       "isExplosive": true,
-      "introductionYear": 3062,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -316,7 +322,7 @@
       "name": "ProtoMech AC/2 Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 40,
@@ -325,7 +331,7 @@
       "costPerTon": 1200,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 1200,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -333,7 +339,7 @@
       "name": "ProtoMech AC/4 Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 20,
@@ -342,7 +348,7 @@
       "costPerTon": 4800,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 4800,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -350,7 +356,7 @@
       "name": "ProtoMech AC/8 Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 10,
@@ -359,7 +365,7 @@
       "costPerTon": 6300,
       "battleValue": 8,
       "isExplosive": true,
-      "introductionYear": 6300,
+      "introductionYear": 3070,
       "special": []
     },
     {
@@ -367,7 +373,7 @@
       "name": "LB 2-X Cluster Ammo",
       "category": "Autocannon",
       "variant": "Cluster",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
       "compatibleWeaponIds": ["lb-2-x-ac", "clan-lb-2-x-ac"],
       "shotsPerTon": 45,
@@ -376,7 +382,7 @@
       "costPerTon": 3300,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3300,
+      "introductionYear": 2826,
       "special": []
     },
     {
@@ -384,7 +390,7 @@
       "name": "LB 5-X Cluster Ammo",
       "category": "Autocannon",
       "variant": "Cluster",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 20,
@@ -393,7 +399,7 @@
       "costPerTon": 15000,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 1500,
+      "introductionYear": 2826,
       "special": []
     },
     {
@@ -401,7 +407,7 @@
       "name": "LB 2-X AC Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
       "compatibleWeaponIds": [],
       "shotsPerTon": 45,
@@ -410,7 +416,7 @@
       "costPerTon": 2000,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 2000,
+      "introductionYear": 2826,
       "special": []
     },
     {
@@ -418,7 +424,7 @@
       "name": "LB 5-X AC Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 20,
@@ -427,7 +433,7 @@
       "costPerTon": 9000,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 9000,
+      "introductionYear": 2826,
       "special": []
     },
     {
@@ -435,7 +441,7 @@
       "name": "LB 10-X AC Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
       "compatibleWeaponIds": [],
       "shotsPerTon": 10,
@@ -444,7 +450,7 @@
       "costPerTon": 12000,
       "battleValue": 19,
       "isExplosive": true,
-      "introductionYear": 1200,
+      "introductionYear": 2826,
       "special": []
     },
     {
@@ -452,7 +458,7 @@
       "name": "LB 20-X AC Ammo",
       "category": "Autocannon",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
       "compatibleWeaponIds": [],
       "shotsPerTon": 5,
@@ -461,7 +467,7 @@
       "costPerTon": 20000,
       "battleValue": 30,
       "isExplosive": true,
-      "introductionYear": 2000,
+      "introductionYear": 2826,
       "special": []
     },
     {
@@ -478,7 +484,7 @@
       "costPerTon": 3000,
       "battleValue": 15,
       "isExplosive": true,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -495,7 +501,7 @@
       "costPerTon": 12000,
       "battleValue": 31,
       "isExplosive": true,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -513,7 +519,9 @@
       "battleValue": 237,
       "isExplosive": true,
       "introductionYear": 2200,
-      "special": []
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-nac-20",
@@ -530,7 +538,9 @@
       "battleValue": 474,
       "isExplosive": true,
       "introductionYear": 2200,
-      "special": []
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-nac-25",
@@ -547,7 +557,9 @@
       "battleValue": 593,
       "isExplosive": true,
       "introductionYear": 2200,
-      "special": []
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-nac-30",
@@ -564,7 +576,9 @@
       "battleValue": 711,
       "isExplosive": true,
       "introductionYear": 2200,
-      "special": []
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-nac-35",
@@ -581,7 +595,9 @@
       "battleValue": 620,
       "isExplosive": true,
       "introductionYear": 2200,
-      "special": []
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-nac-40",
@@ -598,7 +614,9 @@
       "battleValue": 708,
       "isExplosive": true,
       "introductionYear": 2200,
-      "special": []
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-barracuda",
@@ -614,8 +632,10 @@
       "costPerTon": 8000,
       "battleValue": 65,
       "isExplosive": true,
-      "introductionYear": 2200,
-      "special": []
+      "introductionYear": 2305,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3051
     },
     {
       "id": "ammo-barracuda-t",
@@ -631,7 +651,7 @@
       "costPerTon": 8000,
       "battleValue": 65,
       "isExplosive": true,
-      "introductionYear": 3053,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -717,7 +737,9 @@
       "battleValue": 5,
       "isExplosive": true,
       "introductionYear": 2815,
-      "special": []
+      "special": [],
+      "extinctionYear": 2833,
+      "reintroductionYear": 3080
     },
     {
       "id": "impammoac5",
@@ -734,7 +756,9 @@
       "battleValue": 9,
       "isExplosive": true,
       "introductionYear": 2815,
-      "special": []
+      "special": [],
+      "extinctionYear": 2833,
+      "reintroductionYear": 3080
     },
     {
       "id": "impammoac10",
@@ -751,7 +775,9 @@
       "battleValue": 15,
       "isExplosive": true,
       "introductionYear": 2815,
-      "special": []
+      "special": [],
+      "extinctionYear": 2833,
+      "reintroductionYear": 3080
     },
     {
       "id": "impammoac20",
@@ -768,7 +794,9 @@
       "battleValue": 22,
       "isExplosive": true,
       "introductionYear": 2815,
-      "special": []
+      "special": [],
+      "extinctionYear": 2833,
+      "reintroductionYear": 3080
     },
     {
       "id": "ammo-ac-15",
@@ -784,7 +812,7 @@
       "costPerTon": 8500,
       "battleValue": 22,
       "isExplosive": true,
-      "introductionYear": 2488,
+      "introductionYear": 2500,
       "special": []
     },
     {
@@ -801,7 +829,7 @@
       "costPerTon": 3000,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -818,7 +846,7 @@
       "costPerTon": 15000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -835,7 +863,7 @@
       "costPerTon": 30000,
       "battleValue": 26,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -852,7 +880,7 @@
       "costPerTon": 4950,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -869,7 +897,7 @@
       "costPerTon": 25000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -886,7 +914,7 @@
       "costPerTon": 51000,
       "battleValue": 26,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -903,7 +931,7 @@
       "costPerTon": 2000,
       "battleValue": 8,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -920,7 +948,7 @@
       "costPerTon": 15000,
       "battleValue": 31,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -937,7 +965,7 @@
       "costPerTon": 30000,
       "battleValue": 42,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -988,7 +1016,7 @@
       "costPerTon": 10000,
       "battleValue": 9,
       "isExplosive": true,
-      "introductionYear": 3062,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -1005,7 +1033,7 @@
       "costPerTon": 20000,
       "battleValue": 15,
       "isExplosive": true,
-      "introductionYear": 3062,
+      "introductionYear": 3068,
       "special": []
     },
     {
@@ -1022,7 +1050,7 @@
       "costPerTon": 1000,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -1039,7 +1067,7 @@
       "costPerTon": 1000,
       "battleValue": 22,
       "isExplosive": true,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -1056,7 +1084,7 @@
       "costPerTon": 1000,
       "battleValue": 40,
       "isExplosive": true,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -1073,7 +1101,7 @@
       "costPerTon": 1000,
       "battleValue": 53,
       "isExplosive": true,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     }
   ],

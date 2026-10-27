@@ -15,10 +15,9 @@
       "costCBills": 200000,
       "battleValue": 10,
       "introductionYear": 2576,
-      "special": [
-        "4 hex detection range",
-        "Detects hidden units"
-      ]
+      "special": ["4 hex detection range", "Detects hidden units"],
+      "extinctionYear": 2835,
+      "reintroductionYear": 3045
     },
     {
       "id": "bloodhound-active-probe",
@@ -30,7 +29,7 @@
       "criticalSlots": 3,
       "costCBills": 500000,
       "battleValue": 25,
-      "introductionYear": 3058,
+      "introductionYear": 3082,
       "special": [
         "8 hex detection range",
         "Detects hidden units",
@@ -48,25 +47,20 @@
       "costCBills": 200000,
       "battleValue": 12,
       "introductionYear": 2832,
-      "special": [
-        "5 hex detection range",
-        "Detects hidden units"
-      ]
+      "special": ["5 hex detection range", "Detects hidden units"]
     },
     {
       "id": "light-active-probe",
       "name": "Light Active Probe",
       "category": "Active Probe",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "STANDARD",
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 7,
-      "introductionYear": 3052,
-      "special": [
-        "3 hex detection range"
-      ]
+      "introductionYear": 2900,
+      "special": ["3 hex detection range"]
     },
     {
       "id": "clan-light-active-probe",
@@ -78,10 +72,8 @@
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 7,
-      "introductionYear": 3058,
-      "special": [
-        "3 hex detection range"
-      ]
+      "introductionYear": 2900,
+      "special": ["3 hex detection range"]
     },
     {
       "id": "active-probe-beagle",
@@ -93,8 +85,10 @@
       "criticalSlots": 2,
       "costCBills": 200000,
       "battleValue": 10,
-      "introductionYear": 2560,
-      "special": []
+      "introductionYear": 2576,
+      "special": [],
+      "extinctionYear": 2835,
+      "reintroductionYear": 3045
     },
     {
       "id": "active-probe-beagle-prototype",
@@ -107,7 +101,8 @@
       "costCBills": 600000,
       "battleValue": 10,
       "introductionYear": 2560,
-      "special": []
+      "special": [],
+      "extinctionYear": 2576
     },
     {
       "id": "thbbloodhoundactiveprobe",
@@ -126,13 +121,13 @@
       "id": "active-probe",
       "name": "Active Probe",
       "category": "Active Probe",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "weight": 1,
       "criticalSlots": 1,
       "costCBills": 200000,
       "battleValue": 12,
-      "introductionYear": 2000,
+      "introductionYear": 2832,
       "special": []
     },
     {

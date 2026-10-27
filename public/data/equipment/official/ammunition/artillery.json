@@ -14,8 +14,10 @@
       "costPerTon": 10000,
       "battleValue": 30,
       "isExplosive": true,
-      "introductionYear": 2593,
-      "special": []
+      "introductionYear": 2600,
+      "special": [],
+      "extinctionYear": 2830,
+      "reintroductionYear": 3044
     },
     {
       "id": "longtomammo",
@@ -31,7 +33,7 @@
       "costPerTon": 10000,
       "battleValue": 46,
       "isExplosive": true,
-      "introductionYear": 1000,
+      "introductionYear": 2500,
       "special": []
     },
     {
@@ -48,7 +50,7 @@
       "costPerTon": 6000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -65,7 +67,7 @@
       "costPerTon": 4500,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 4500,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -82,7 +84,7 @@
       "costPerTon": 20000,
       "battleValue": 41,
       "isExplosive": true,
-      "introductionYear": 3012,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -99,7 +101,7 @@
       "costPerTon": 15000,
       "battleValue": 10,
       "isExplosive": true,
-      "introductionYear": 3012,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -116,7 +118,7 @@
       "costPerTon": 10000,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 3012,
+      "introductionYear": 3079,
       "special": []
     },
     {
@@ -150,8 +152,10 @@
       "costPerTon": 40000,
       "battleValue": 30,
       "isExplosive": true,
-      "introductionYear": 2593,
-      "special": []
+      "introductionYear": 2600,
+      "special": [],
+      "extinctionYear": 2830,
+      "reintroductionYear": 3044
     }
   ],
   "$schema": "../_schema/ammunition-schema.json"

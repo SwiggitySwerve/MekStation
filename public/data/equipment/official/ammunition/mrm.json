@@ -7,12 +7,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "mrm-10",
-        "mrm-20",
-        "mrm-30",
-        "mrm-40"
-      ],
+      "compatibleWeaponIds": ["mrm-10", "mrm-20", "mrm-30", "mrm-40"],
       "shotsPerTon": 240,
       "weight": 1,
       "criticalSlots": 1,
@@ -35,7 +30,7 @@
       "costPerTon": 5000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -52,7 +47,7 @@
       "costPerTon": 5000,
       "battleValue": 14,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -69,7 +64,7 @@
       "costPerTon": 5000,
       "battleValue": 21,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -86,7 +81,7 @@
       "costPerTon": 5000,
       "battleValue": 28,
       "isExplosive": true,
-      "introductionYear": 3052,
+      "introductionYear": 3058,
       "special": []
     },
     {
@@ -103,7 +98,7 @@
       "costPerTon": 0,
       "battleValue": 1,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -120,7 +115,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -137,7 +132,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -154,7 +149,7 @@
       "costPerTon": 0,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -171,7 +166,7 @@
       "costPerTon": 0,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3060,
       "special": []
     }
   ],

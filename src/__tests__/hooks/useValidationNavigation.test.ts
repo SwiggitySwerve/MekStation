@@ -123,7 +123,7 @@ describe('useValidationNavigation', () => {
       });
     });
 
-    it('should count errors by tab based on category', () => {
+    it('should count errors on the tab where they are fixed', () => {
       const validation = createMockValidationState([
         { errors: [{ category: ValidationCategory.WEIGHT }] },
         { errors: [{ category: ValidationCategory.ARMOR }] },
@@ -132,10 +132,11 @@ describe('useValidationNavigation', () => {
 
       const { result } = renderHook(() => useValidationNavigation(validation));
 
-      expect(result.current.errorsByTab.structure.errors).toBe(1);
+      // Weight is fixed by removing equipment (first fix tab), not on Structure.
+      expect(result.current.errorsByTab.equipment.errors).toBe(1);
+      expect(result.current.errorsByTab.structure.errors).toBe(0);
       expect(result.current.errorsByTab.armor.errors).toBe(1);
       expect(result.current.errorsByTab.criticals.errors).toBe(1);
-      expect(result.current.errorsByTab.equipment.errors).toBe(0);
     });
 
     it('should count critical errors as errors', () => {
@@ -152,7 +153,7 @@ describe('useValidationNavigation', () => {
 
       const { result } = renderHook(() => useValidationNavigation(validation));
 
-      expect(result.current.errorsByTab.structure.errors).toBe(1);
+      expect(result.current.errorsByTab.equipment.errors).toBe(1);
     });
 
     it('should count warnings separately', () => {

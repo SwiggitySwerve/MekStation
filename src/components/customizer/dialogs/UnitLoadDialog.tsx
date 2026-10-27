@@ -9,7 +9,6 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useId } from 'react';
 
-import { AppIcon } from '@/components/ui/AppIcon';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
@@ -22,7 +21,12 @@ import { logger } from '@/utils/logger';
 import { customizerStyles as cs } from '../styles';
 import { DialogCloseButton } from './dialogPresentation';
 import { ModalOverlay } from './ModalOverlay';
-import { UnitTableState, UnitWithSource } from './UnitLoadDialog.parts';
+import {
+  UnitSearchFilters,
+  UnitTableState,
+  type UnitSource,
+  UnitWithSource,
+} from './UnitLoadDialog.parts';
 
 // =============================================================================
 // Types
@@ -45,8 +49,6 @@ export interface UnitLoadDialogProps {
   /** Called when dialog is cancelled */
   onCancel: () => void;
 }
-
-type UnitSource = 'all' | 'canonical' | 'custom';
 
 function toCustomUnitWithSource(unit: ICustomUnitIndexEntry): UnitWithSource {
   return {
@@ -125,91 +127,9 @@ function sortUnitsBySourceAndName(a: UnitWithSource, b: UnitWithSource) {
     return a.source === 'custom' ? -1 : 1;
   }
 
-  return `${a.chassis} ${a.variant}`.localeCompare(`${b.chassis} ${b.variant}`);
-}
-
-function UnitSearchFilters({
-  searchQuery,
-  setSearchQuery,
-  setSourceFilter,
-  setTechBaseFilter,
-  setWeightClassFilter,
-  sourceFilter,
-  techBaseFilter,
-  weightClassFilter,
-}: {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  setSourceFilter: (source: UnitSource) => void;
-  setTechBaseFilter: (techBase: TechBase | 'all') => void;
-  setWeightClassFilter: (weightClass: WeightClass | 'all') => void;
-  sourceFilter: UnitSource;
-  techBaseFilter: TechBase | 'all';
-  weightClassFilter: WeightClass | 'all';
-}) {
-  return (
-    <div className="border-border-theme-subtle shrink-0 space-y-3 border-b p-4">
-      <div className="relative">
-        <AppIcon
-          name="search"
-          size="inline"
-          aria-hidden="true"
-          className="text-text-theme-secondary absolute top-1/2 left-3 -translate-y-1/2"
-        />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          placeholder="Search by chassis or variant..."
-          aria-label="Search by chassis or variant"
-          className={cs.dialog.inputSearch}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 [&>select]:min-w-0">
-        <select
-          aria-label="Unit source"
-          value={sourceFilter}
-          onChange={(event) =>
-            setSourceFilter(event.target.value as UnitSource)
-          }
-          className={cs.dialog.selectFilter}
-        >
-          <option value="all">All Sources</option>
-          <option value="custom">Custom Only</option>
-          <option value="canonical">Official Only</option>
-        </select>
-
-        <select
-          aria-label="Tech base"
-          value={techBaseFilter}
-          onChange={(event) =>
-            setTechBaseFilter(event.target.value as TechBase | 'all')
-          }
-          className={cs.dialog.selectFilter}
-        >
-          <option value="all">All Tech Bases</option>
-          <option value={TechBase.INNER_SPHERE}>Inner Sphere</option>
-          <option value={TechBase.CLAN}>Clan</option>
-        </select>
-
-        <select
-          aria-label="Weight class"
-          value={weightClassFilter}
-          onChange={(event) =>
-            setWeightClassFilter(event.target.value as WeightClass | 'all')
-          }
-          className={`${cs.dialog.selectFilter} col-span-2 sm:w-auto`}
-        >
-          <option value="all">All Weight Classes</option>
-          <option value={WeightClass.LIGHT}>Light (20-35t)</option>
-          <option value={WeightClass.MEDIUM}>Medium (40-55t)</option>
-          <option value={WeightClass.HEAVY}>Heavy (60-75t)</option>
-          <option value={WeightClass.ASSAULT}>Assault (80-100t)</option>
-        </select>
-      </div>
-    </div>
-  );
+  const nameKey = (unit: UnitWithSource) =>
+    `${unit.chassis} ${unit.variant}`.replace(/^[\p{P}\p{Z}\s]+/u, '');
+  return nameKey(a).localeCompare(nameKey(b));
 }
 
 // =============================================================================
@@ -363,28 +283,48 @@ export function UnitLoadDialog({
       </div>
 
       {onCreateBlankUnit && (
-        <div className="bg-surface-raised border-border-theme-subtle flex shrink-0 items-center justify-between gap-2 border-b p-4 sm:gap-3">
-          <div className="min-w-0">
-            <button
-              type="button"
-              onClick={onCreateBlankUnit}
-              className={`${cs.dialog.btnPrimary} min-h-11 max-sm:px-3 max-sm:text-xs`}
-            >
-              New blank unit
-            </button>
-            <p className="text-text-theme-secondary mt-2 hidden text-sm sm:block">
-              50-ton Inner Sphere BattleMech. Change settings in the editor.
-            </p>
+        <div className="bg-surface-raised border-border-theme-subtle shrink-0 border-b p-4">
+          {/* Each action carries its own caption directly under it, aligned to
+              the button's left edge. The two actions sit side by side at the
+              same height; on phones they stack with their captions. The
+              captions wrap at the button's width (w-0 min-w-full) so they
+              never push the second action away from the first. */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-start sm:gap-3">
+            <div className="flex flex-col gap-1.5 max-sm:w-full">
+              <button
+                type="button"
+                onClick={onCreateBlankUnit}
+                aria-describedby={`${titleId}-blank-help`}
+                className={`${cs.dialog.btnPrimary} h-11 max-sm:w-full max-sm:px-3 sm:min-w-52 sm:px-6`}
+              >
+                New blank unit
+              </button>
+              <p
+                id={`${titleId}-blank-help`}
+                className="text-text-theme-secondary m-0 w-0 min-w-full text-xs leading-snug"
+              >
+                Starts a 50-ton Inner Sphere BattleMech you can change.
+              </p>
+            </div>
+            {onConfigureNewUnit && (
+              <div className="flex flex-col gap-1.5 max-sm:w-full">
+                <button
+                  type="button"
+                  onClick={onConfigureNewUnit}
+                  aria-describedby={`${titleId}-configure-help`}
+                  className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:px-3 max-sm:text-sm`}
+                >
+                  Choose tonnage and tech first…
+                </button>
+                <p
+                  id={`${titleId}-configure-help`}
+                  className="text-text-theme-secondary m-0 w-0 min-w-full text-xs leading-snug"
+                >
+                  Pick unit type, tonnage and tech base.
+                </p>
+              </div>
+            )}
           </div>
-          {onConfigureNewUnit && (
-            <button
-              type="button"
-              onClick={onConfigureNewUnit}
-              className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base min-h-11 rounded border max-sm:px-3 max-sm:text-xs`}
-            >
-              Choose starting settings
-            </button>
-          )}
         </div>
       )}
       {onCreateBlankUnit && (
@@ -395,19 +335,21 @@ export function UnitLoadDialog({
       )}
 
       {/* Search and filters */}
-      <UnitSearchFilters
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setSourceFilter={setSourceFilter}
-        setTechBaseFilter={setTechBaseFilter}
-        setWeightClassFilter={setWeightClassFilter}
-        sourceFilter={sourceFilter}
-        techBaseFilter={techBaseFilter}
-        weightClassFilter={weightClassFilter}
-      />
+      <div className="contents">
+        <UnitSearchFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          setSourceFilter={setSourceFilter}
+          setTechBaseFilter={setTechBaseFilter}
+          setWeightClassFilter={setWeightClassFilter}
+          sourceFilter={sourceFilter}
+          techBaseFilter={techBaseFilter}
+          weightClassFilter={weightClassFilter}
+        />
+      </div>
 
       {/* Unit table */}
-      <div className="min-h-0 flex-1 overflow-auto overscroll-contain">
+      <div className="min-h-0 flex-1 scroll-pb-4 overflow-auto overscroll-contain pb-4">
         {loadError ? (
           <div className="space-y-3 p-4" role="alert">
             <p>{loadError}</p>
@@ -431,13 +373,21 @@ export function UnitLoadDialog({
 
       {/* Footer */}
       <div
-        className={`${cs.dialog.footerBetween} bg-surface-base shrink-0 gap-3 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]`}
+        className={`${cs.dialog.footerBetween} bg-surface-base shrink-0 gap-3 max-sm:flex-col max-sm:items-stretch max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]`}
       >
-        <span className="text-text-theme-secondary text-sm">
+        <span className="text-text-theme-secondary text-sm max-sm:w-full">
           {filteredUnits.length} unit{filteredUnits.length !== 1 ? 's' : ''}{' '}
           found
         </span>
-        <div className="flex flex-1 items-center justify-end gap-2 sm:flex-none">
+        <div className="flex w-full items-center justify-end gap-2 max-sm:flex-col sm:w-auto sm:flex-none">
+          {!selectedUnit && (
+            <span
+              id={`${titleId}-load-hint`}
+              className="text-text-theme-secondary order-last text-center text-xs sm:order-none sm:mr-1 sm:text-sm"
+            >
+              Select a unit to load
+            </span>
+          )}
           <button
             onClick={onCancel}
             className={`${cs.dialog.btnGhost} hidden sm:block`}
@@ -448,7 +398,10 @@ export function UnitLoadDialog({
             onClick={handleLoad}
             disabled={!selectedUnit || isLoadingUnit}
             aria-busy={isLoadingUnit}
-            className={`${cs.dialog.btnPrimary} w-full sm:w-auto`}
+            aria-describedby={
+              !selectedUnit ? `${titleId}-load-hint` : undefined
+            }
+            className={`${cs.dialog.btnPrimary} min-h-11 w-full sm:w-auto`}
           >
             {isLoadingUnit ? 'Loading Unit…' : 'Load Unit'}
           </button>

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -87,6 +87,22 @@ describe('UnitLoadDialog', () => {
     });
   });
 
+  it('sorts names ignoring leading punctuation while preserving labels and custom priority', async () => {
+    (getCanonicalUnitService().getIndex as jest.Mock).mockResolvedValue([
+      { ...mockCanonicalUnit, id: 'wing', chassis: "'Wing' Wraith" },
+      { ...mockCanonicalUnit, id: 'battle', chassis: '“Battle Tripod”' },
+      mockCanonicalUnit,
+    ]);
+    render(<UnitLoadDialog {...defaultProps} />);
+    await screen.findByText('Atlas');
+    const rows = within(screen.getByRole('table')).getAllByRole('row').slice(1);
+    expect(
+      rows.map((row) =>
+        within(row).getAllByRole('cell')[0].textContent?.trim(),
+      ),
+    ).toEqual(['Custom', 'Atlas', '“Battle Tripod”', "'Wing' Wraith"]);
+  });
+
   it('should not render when closed', () => {
     render(<UnitLoadDialog {...defaultProps} isOpen={false} />);
 
@@ -150,6 +166,82 @@ describe('UnitLoadDialog', () => {
       // Check that Custom appears (multiple instances are expected)
       expect(screen.getAllByText('Custom').length).toBeGreaterThan(0);
     });
+  });
+
+  it('explains the blank starting unit and why Load Unit is disabled', async () => {
+    render(<UnitLoadDialog {...defaultProps} onCreateBlankUnit={jest.fn()} />);
+    const explanation = screen.getByText(
+      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(explanation).not.toHaveClass('hidden');
+    expect(
+      screen.getByRole('button', { name: 'New blank unit' }),
+    ).toHaveAccessibleDescription(explanation.textContent ?? '');
+    const load = screen.getByRole('button', { name: 'Load Unit' });
+    expect(load).toBeDisabled();
+    expect(load).toHaveAccessibleDescription('Select a unit to load');
+    await userEvent.click(await screen.findByText('AS7-D'));
+    expect(load).toBeEnabled();
+    expect(screen.queryByText('Select a unit to load')).not.toBeInTheDocument();
+  });
+
+  it('puts New blank unit and the settings step side by side, each with its own caption under it', () => {
+    render(
+      <UnitLoadDialog
+        {...defaultProps}
+        onCreateBlankUnit={jest.fn()}
+        onConfigureNewUnit={jest.fn()}
+      />,
+    );
+
+    const blank = screen.getByRole('button', { name: 'New blank unit' });
+    const settings = screen.getByRole('button', {
+      name: 'Choose tonnage and tech first…',
+    });
+    // Two columns in one row: each button owns the caption right under it.
+    const blankColumn = blank.parentElement as HTMLElement;
+    const settingsColumn = settings.parentElement as HTMLElement;
+    expect(blankColumn).not.toBe(settingsColumn);
+    expect(blankColumn.parentElement).toBe(settingsColumn.parentElement);
+    expect(blankColumn.nextElementSibling).toBe(settingsColumn);
+    expect(blank.nextElementSibling).toHaveTextContent(
+      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(settings.nextElementSibling).toHaveTextContent(
+      'Pick unit type, tonnage and tech base.',
+    );
+    // The blank-unit caption describes only the blank-unit button.
+    expect(blank).toHaveAccessibleDescription(
+      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+    );
+    expect(settings).toHaveAccessibleDescription(
+      'Pick unit type, tonnage and tech base.',
+    );
+    expect(blank.className).toContain('h-11');
+    expect(settings.className).toContain('h-11');
+    expect(blank.className).toContain('dialog-btn-primary');
+    expect(settings.className).not.toContain('dialog-btn-primary');
+  });
+
+  it('marks the selected catalog row with a tint, accent bar and check', async () => {
+    const user = userEvent.setup();
+    render(<UnitLoadDialog {...defaultProps} />);
+    const row = await screen.findByRole('row', { name: /Atlas/ });
+    expect(row).not.toHaveClass('dialog-table-row-selected');
+
+    await user.click(row);
+
+    expect(row).toHaveClass('dialog-table-row-selected');
+    expect(row.className).toContain('inset_3px_0_0_var(--accent-primary)');
+    expect(row.querySelector('svg')).not.toBeNull();
+  });
+
+  it('shows a dash for units without a role', async () => {
+    render(<UnitLoadDialog {...defaultProps} />);
+
+    await screen.findByText('AS7-D');
+    const row = screen.getByText('AS7-D').closest('tr') as HTMLElement;
+    expect(within(row).getAllByText('\u2014').length).toBeGreaterThan(0);
   });
 
   it('should filter units by search query', async () => {

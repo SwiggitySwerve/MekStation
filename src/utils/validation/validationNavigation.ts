@@ -8,8 +8,11 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import type { IUnitValidationResult } from '@/types/validation/UnitValidationInterfaces';
+
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
+import { UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
 
 /**
  * Maps validation categories to the customizer tab that can resolve issues.
@@ -58,6 +61,24 @@ export function getTabLabel(tabId: CustomizerTabId): string {
   return TAB_LABELS[tabId] ?? tabId;
 }
 
+/**
+ * Tabs offered as fixes for an issue, most direct first. Weight is set by
+ * what the unit carries, so weight issues point at the equipment and armor
+ * that make up the difference; every other category offers its owning tab.
+ * Tab badges count an issue on its first fix tab (`getPrimaryFixTab`).
+ */
+export const CATEGORY_FIX_TABS: Partial<
+  Record<ValidationCategory, readonly CustomizerTabId[]>
+> = {
+  [ValidationCategory.WEIGHT]: ['equipment', 'armor'],
+};
+
+export function getFixTabsForCategory(
+  category: ValidationCategory,
+): readonly CustomizerTabId[] {
+  return CATEGORY_FIX_TABS[category] ?? [getTabForCategory(category)];
+}
+
 export interface TabValidationCounts {
   errors: number;
   warnings: number;
@@ -80,4 +101,43 @@ export function createEmptyValidationCounts(): ValidationCountsByTab {
     fluff: { errors: 0, warnings: 0, infos: 0 },
     preview: { errors: 0, warnings: 0, infos: 0 },
   };
+}
+
+/**
+ * Tab whose badge counts an issue: the first tab that fixes it, so the dot
+ * sits where the user acts (an overweight unit marks Equipment, not
+ * Structure).
+ */
+export function getPrimaryFixTab(
+  category: ValidationCategory,
+): CustomizerTabId {
+  return getFixTabsForCategory(category)[0] ?? getTabForCategory(category);
+}
+
+/**
+ * Per-tab badge counts for a validation result. Errors count critical and
+ * regular errors; each issue counts once, on its badge tab.
+ */
+export function countValidationIssuesByTab(
+  result: Pick<IUnitValidationResult, 'results'> | null | undefined,
+): ValidationCountsByTab {
+  const counts = createEmptyValidationCounts();
+  if (!result) return counts;
+  for (const ruleResult of result.results) {
+    for (const error of ruleResult.errors) {
+      if (
+        error.severity === UnitValidationSeverity.CRITICAL_ERROR ||
+        error.severity === UnitValidationSeverity.ERROR
+      ) {
+        counts[getPrimaryFixTab(error.category)].errors++;
+      }
+    }
+    for (const warning of ruleResult.warnings) {
+      counts[getPrimaryFixTab(warning.category)].warnings++;
+    }
+    for (const info of ruleResult.infos) {
+      counts[getPrimaryFixTab(info.category)].infos++;
+    }
+  }
+  return counts;
 }

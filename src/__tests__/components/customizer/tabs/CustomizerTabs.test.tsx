@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -7,6 +7,7 @@ import {
   DEFAULT_CUSTOMIZER_TABS,
   useCustomizerTabs,
 } from '@/components/customizer/tabs/CustomizerTabs';
+import { createEmptyValidationCounts } from '@/utils/validation/validationNavigation';
 
 // Mock keyboard navigation hook
 jest.mock('@/hooks/useKeyboardNavigation', () => ({
@@ -35,6 +36,105 @@ describe('CustomizerTabs', () => {
       screen.getByRole('tab', { name: 'Critical Slots' }),
     ).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Fluff' })).toBeInTheDocument();
+  });
+
+  it('shows validation counts as shaped, numbered badges in a fixed slot', () => {
+    const counts = createEmptyValidationCounts();
+    counts.structure = { errors: 2, warnings: 1, infos: 0 };
+    const { rerender } = render(
+      <CustomizerTabs {...defaultProps} validationCounts={counts} />,
+    );
+    const tab = screen.getByRole('tab', { name: 'Structure' });
+    const dot = tab.querySelector('[data-severity]');
+    expect(dot).toHaveAttribute('data-severity', 'error');
+    expect(dot).toHaveAccessibleName('Structure: 2 errors, 1 warning');
+    expect(tab).toHaveAccessibleDescription('2 errors, 1 warning');
+    // Shape and count, not color alone.
+    expect(
+      dot!.querySelector('[data-section-badge="error"]'),
+    ).toHaveTextContent(/^2$/);
+    expect(
+      dot!.querySelector('[data-section-badge="warning"]'),
+    ).toHaveTextContent(/^1$/);
+    // One pill shape for both; the decorative symbol inside carries the meaning.
+    const errorBadge = dot!.querySelector('[data-section-badge="error"]')!;
+    const warningBadge = dot!.querySelector('[data-section-badge="warning"]')!;
+    expect(errorBadge.className).toBe(warningBadge.className);
+    expect(
+      errorBadge.querySelector('svg[data-severity-icon="error"]'),
+    ).toHaveAttribute('aria-hidden', 'true');
+    expect(
+      warningBadge.querySelector('svg[data-severity-icon="warning"]'),
+    ).toHaveAttribute('aria-hidden', 'true');
+
+    rerender(
+      <CustomizerTabs
+        {...defaultProps}
+        validationCounts={{
+          ...counts,
+          structure: { errors: 0, warnings: 1, infos: 0 },
+        }}
+      />,
+    );
+    expect(dot).toHaveAttribute('data-severity', 'warning');
+    expect(dot).toHaveAccessibleName('Structure: 1 warning');
+    expect(dot!.querySelector('[data-section-badge="error"]')).toBeNull();
+
+    rerender(
+      <CustomizerTabs
+        {...defaultProps}
+        validationCounts={createEmptyValidationCounts()}
+      />,
+    );
+    expect(dot).toBeInTheDocument();
+    expect(dot).not.toHaveAttribute('data-severity');
+    expect(tab).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('lists the issues behind a badge in a tooltip on hover and keyboard focus', async () => {
+    const user = userEvent.setup();
+    const counts = createEmptyValidationCounts();
+    counts.structure = { errors: 0, warnings: 1, infos: 0 };
+    render(
+      <CustomizerTabs
+        {...defaultProps}
+        validationCounts={counts}
+        issueTitles={{
+          structure: { errors: [], warnings: ['Runs hot'] },
+        }}
+      />,
+    );
+    const tab = screen.getByRole('tab', { name: 'Structure' });
+    const badge = tab.querySelector('[data-tab-badge]')!;
+    // The tooltip replaces the slower native title, never doubles it.
+    expect(badge).not.toHaveAttribute('title');
+    expect(screen.queryByRole('tooltip')).toBeNull();
+
+    await user.hover(badge);
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      '1 warning: Runs hot',
+    );
+    await user.unhover(badge);
+    expect(screen.queryByRole('tooltip')).toBeNull();
+
+    // Keyboard users get the same words from the tab itself.
+    act(() => tab.focus());
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      '1 warning: Runs hot',
+    );
+    expect(tab).toHaveAccessibleDescription('1 warning: Runs hot');
+    act(() => tab.blur());
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('keeps the count title when no issue titles are supplied', () => {
+    const counts = createEmptyValidationCounts();
+    counts.structure = { errors: 0, warnings: 1, infos: 0 };
+    render(<CustomizerTabs {...defaultProps} validationCounts={counts} />);
+    const badge = screen
+      .getByRole('tab', { name: 'Structure' })
+      .querySelector('[data-tab-badge]')!;
+    expect(badge).toHaveAttribute('title', 'Structure: 1 warning');
   });
 
   it('should highlight active tab', () => {

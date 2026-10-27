@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 
+import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
 import {
@@ -11,6 +12,7 @@ import {
   TacticalHUDDiagram,
 } from '..';
 import { BipedArmorSurface } from '../BipedArmorSurface';
+import { BIPED_ARMOR_VIEWBOX } from '../CleanTechBipedDiagram.geometry';
 
 const components = [
   CleanTechDiagram,
@@ -52,11 +54,7 @@ it('biped designs preserve geometry and status semantics while keeping distinct 
     const projection = paths.map((path) => ({
       location: path.getAttribute('data-armor-plate'),
       geometry: path.getAttribute('d'),
-      status: view.container
-        .querySelector(
-          `circle[data-armor-status="${path.getAttribute('data-armor-plate')}"]`,
-        )
-        ?.getAttribute('fill'),
+      status: path.getAttribute('data-armor-status'),
     }));
     baseline ??= projection;
     expect(projection).toEqual(baseline);
@@ -75,20 +73,20 @@ it('biped designs preserve geometry and status semantics while keeping distinct 
       ),
     );
     expect(
-      view.container.querySelector('svg[viewBox="0 0 360 440"]'),
-    ).toHaveClass('max-w-[360px]', 'xl:max-w-[400px]');
+      view.container.querySelector(`svg[viewBox="${BIPED_ARMOR_VIEWBOX}"]`),
+    ).toHaveClass('max-w-[360px]', '@[40rem]:max-w-[440px]');
     expect(
       projection.find((p) => p.location === MechLocation.HEAD)?.status,
-    ).toBe('#22c55e');
+    ).toBe(ARMOR_STATUS.HEALTHY.color);
     expect(
       projection.find((p) => p.location === MechLocation.LEFT_ARM)?.status,
-    ).toBe('#f97316');
+    ).toBe(ARMOR_STATUS.LOW.color);
     expect(
       projection.find((p) => p.location === MechLocation.RIGHT_ARM)?.status,
-    ).toBe('#f59e0b');
+    ).toBe(ARMOR_STATUS.MODERATE.color);
     expect(
       projection.find((p) => p.location === MechLocation.CENTER_TORSO)?.status,
-    ).toBe('#ef4444');
+    ).toBe(ARMOR_STATUS.CRITICAL.color);
     for (const location of Object.values(MechLocation).filter((location) =>
       projection.some((p) => p.location === location),
     )) {

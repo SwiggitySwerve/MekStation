@@ -1,15 +1,36 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import type { CompactFilterBarProps } from '@/components/customizer/equipment/CompactFilterBar';
 
 import { EquipmentBrowser } from '@/components/customizer/equipment/EquipmentBrowser';
+import { EquipmentBrowserUnitContext } from '@/components/customizer/equipment/EquipmentBrowserUnitContext';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
+jest.mock('@/utils/equipment/weapons/utilities', () => ({
+  getWeaponById: (id: string) =>
+    id === 'medium-laser'
+      ? {
+          damage: 5,
+          heat: 3,
+          ranges: { short: 3, medium: 6, long: 9, minimum: 0 },
+        }
+      : undefined,
+}));
+
 jest.mock('@/hooks/useEquipmentBrowser', () => ({
   useEquipmentBrowser: jest.fn(),
+}));
+
+jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
+  getEquipmentLoader: () => ({
+    getAmmunitionById: (id: string) =>
+      id === 'ac10-ammo' ? { shotsPerTon: 10 } : null,
+    getElectronicsById: () => null,
+    getMiscEquipmentById: () => null,
+  }),
 }));
 
 jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
@@ -18,6 +39,7 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
     onSearchChange,
     onClearFilters,
     availabilitySummary,
+    capacity,
   }: CompactFilterBarProps) => (
     <div data-testid="compact-filter-bar">
       <input
@@ -28,6 +50,11 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
       />
       <button onClick={onClearFilters}>Clear</button>
       <span>{availabilitySummary}</span>
+      {capacity && (
+        <span data-testid="equipment-catalog-capacity">
+          {capacity.weightText} · {capacity.slotsText}
+        </span>
+      )}
     </div>
   ),
 }));
@@ -92,6 +119,41 @@ describe('EquipmentBrowser', () => {
     (useEquipmentBrowser as jest.Mock).mockReturnValue(defaultMockHook);
   });
 
+  it.each([1, 4])(
+    'puts the overflow cue outside rows with %i pages and hides it at the end',
+    (totalPages) => {
+      (useEquipmentBrowser as jest.Mock).mockReturnValue({
+        ...defaultMockHook,
+        totalPages,
+      });
+      const height = jest
+        .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+        .mockReturnValue(200);
+      const content = jest
+        .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+        .mockReturnValue(500);
+      try {
+        render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+        const scroll = screen.getByTestId('equipment-catalog-scroll');
+        const cue = screen.getByTestId('more-below-cue');
+        expect(cue).toHaveTextContent('Scroll for more on this page');
+        expect(scroll).not.toContainElement(cue);
+        expect(scroll.parentElement).not.toContainElement(cue);
+        if (totalPages > 1)
+          expect(screen.getByTestId('equipment-pagination')).toContainElement(
+            cue,
+          );
+        fireEvent.scroll(scroll, { target: { scrollTop: 300 } });
+        expect(screen.queryByTestId('more-below-cue')).not.toBeInTheDocument();
+        fireEvent.scroll(scroll, { target: { scrollTop: 0 } });
+        expect(screen.getByTestId('more-below-cue')).toBeInTheDocument();
+      } finally {
+        height.mockRestore();
+        content.mockRestore();
+      }
+    },
+  );
+
   it('keeps duplicate equipment IDs in different categories independent through filtering', async () => {
     const user = userEvent.setup();
     const ams = {
@@ -136,6 +198,53 @@ describe('EquipmentBrowser', () => {
     ).toBeInTheDocument();
   });
 
+  it('presents calculated capacity and current loadout counts without blocking Add', async () => {
+    const onAddEquipment = jest.fn();
+    render(
+      <EquipmentBrowserUnitContext.Provider
+        value={{
+          remainingWeight: 4,
+          remainingSlots: 16,
+          mountedCounts: new Map([['medium-laser', 3]]),
+        }}
+      >
+        <EquipmentBrowser onAddEquipment={onAddEquipment} />
+      </EquipmentBrowserUnitContext.Provider>,
+    );
+    expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
+      '4.0 t free · 16 slots free',
+    );
+    expect(screen.getByText('×3 mounted')).toBeInTheDocument();
+    // Only the 5 t Large Laser exceeds the 4 t free; no per-row chip.
+    expect(screen.getAllByText(/exceeds free weight by 1\.0 t/)).toHaveLength(
+      2,
+    );
+    expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Add Large Laser' }));
+    expect(onAddEquipment).toHaveBeenCalledWith(mockEquipment[1]);
+  });
+
+  it('says once that nothing is free instead of marking every row', () => {
+    render(
+      <EquipmentBrowserUnitContext.Provider
+        value={{
+          remainingWeight: 0,
+          remainingSlots: 12,
+          mountedCounts: new Map(),
+        }}
+      >
+        <EquipmentBrowser onAddEquipment={jest.fn()} />
+      </EquipmentBrowserUnitContext.Provider>,
+    );
+    expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
+      '0.0 t free · unit is at its tonnage limit',
+    );
+    expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\+\d+\.\d t over/)).not.toBeInTheDocument();
+  });
+
   it('should render equipment table', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
@@ -152,6 +261,186 @@ describe('EquipmentBrowser', () => {
     await user.click(screen.getByRole('button', { name: 'Add Medium Laser' }));
 
     expect(onAddEquipment).toHaveBeenCalledWith(mockEquipment[0]);
+  });
+
+  it('explains the add destinations and keeps the two actions separate', async () => {
+    const user = userEvent.setup();
+    const onAddEquipment = jest.fn();
+    const onAddAndPlace = jest.fn();
+    render(
+      <EquipmentBrowser
+        onAddEquipment={onAddEquipment}
+        onAddAndPlace={onAddAndPlace}
+      />,
+    );
+    expect(
+      screen.getByRole('button', { name: 'Add Medium Laser' }),
+    ).toHaveAttribute('title', 'Add to unassigned');
+    const options = screen.getByRole('button', {
+      name: 'Add options for Medium Laser',
+    });
+    expect(options).toHaveAttribute('title', 'More ways to add');
+    expect(
+      options.querySelector('[data-icon-name="more"]'),
+    ).toBeInTheDocument();
+    expect(
+      options.querySelector('[data-icon-name="chevron-down"]'),
+    ).not.toBeInTheDocument();
+    await user.click(options);
+    const quickPlace = screen.getByRole('menuitem', {
+      name: 'Add and place Medium Laser',
+    });
+    expect(quickPlace).toHaveTextContent('Add and choose location');
+    await user.click(quickPlace);
+    expect(onAddAndPlace).toHaveBeenCalledWith(mockEquipment[0]);
+    expect(onAddEquipment).not.toHaveBeenCalled();
+    onAddAndPlace.mockClear();
+    await user.click(
+      screen.getByRole('button', { name: 'Details for Medium Laser' }),
+    );
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole('button', { name: 'Add options for Medium Laser' }),
+    );
+    await user.click(
+      screen.getByRole('menuitem', { name: 'Add and place Medium Laser' }),
+    );
+    expect(onAddAndPlace).toHaveBeenCalledWith(mockEquipment[0]);
+    expect(onAddEquipment).not.toHaveBeenCalled();
+  });
+
+  it('disables both add destinations in read-only mode', async () => {
+    const user = userEvent.setup();
+    const onAddEquipment = jest.fn();
+    const onAddAndPlace = jest.fn();
+    render(
+      <EquipmentBrowser
+        readOnly
+        onAddEquipment={onAddEquipment}
+        onAddAndPlace={onAddAndPlace}
+      />,
+    );
+    const add = screen.getByRole('button', {
+      name: 'Add Medium Laser',
+    });
+    const place = screen.getByRole('button', {
+      name: 'Add options for Medium Laser',
+    });
+    expect(add).toBeDisabled();
+    expect(place).toBeDisabled();
+    await user.click(add);
+    await user.click(place);
+    expect(onAddEquipment).not.toHaveBeenCalled();
+    expect(onAddAndPlace).not.toHaveBeenCalled();
+  });
+
+  it('marks only the active sort and announces its direction', () => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      sortColumn: 'weight',
+      sortDirection: 'desc',
+    });
+    render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    const active = screen.getByRole('button', {
+      name: 'Sort by weight, descending',
+    });
+    expect(active).toHaveAttribute('aria-pressed', 'true');
+    expect(active).toHaveTextContent('▼');
+    expect(
+      screen.getByRole('button', { name: 'Sort by name' }),
+    ).toHaveAttribute('aria-pressed', 'false');
+    expect(
+      screen.getByRole('button', { name: 'Sort by slots' }),
+    ).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('shows weapon damage and ranges before expansion and leaves unsupported sorts plain', () => {
+    render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    const row = screen.getAllByRole('listitem')[0];
+    expect(
+      row.querySelector('[data-catalog-column="damage"]'),
+    ).toHaveTextContent('5');
+    expect(
+      row.querySelector('[data-catalog-column="range"]'),
+    ).toHaveTextContent('3 / 6 / 9');
+    expect(row.querySelector('[data-catalog-column="heat"]')).toHaveTextContent(
+      '3',
+    );
+    const stats = within(row).getByTestId('equipment-catalog-stats');
+    for (const pair of ['Damage 5 · Range 3/6/9', 'Heat 3 · 1 t · 1 slot']) {
+      expect(stats).toHaveTextContent(pair);
+    }
+    expect(stats).not.toHaveTextContent('Min');
+    expect(
+      row.querySelector('[data-catalog-column="minimumRange"]'),
+    ).toHaveTextContent('—');
+    expect(
+      screen.queryByRole('button', { name: /Sort by (heat|damage|range)/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(row).getByRole('button', { name: 'Details for Medium Laser' }),
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('shows dashes for non-weapon combat statistics', () => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      paginatedEquipment: [
+        {
+          ...mockEquipment[0],
+          id: 'non-weapon',
+          name: 'Utility',
+          category: EquipmentCategory.MISC_EQUIPMENT,
+        },
+      ],
+    });
+    render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    for (const column of ['damage', 'range', 'minimumRange', 'heat']) {
+      expect(
+        screen
+          .getByRole('listitem')
+          .querySelector(`[data-catalog-column="${column}"]`),
+      ).toHaveTextContent('—');
+    }
+  });
+
+  it.each([
+    ['ac10-ammo', '10 shots/t'],
+    ['unknown-ammo', undefined],
+  ])('shows only declared ammunition capacity for %s', (id, expected) => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      paginatedEquipment: [
+        {
+          ...mockEquipment[0],
+          id,
+          name: 'Ammo',
+          category: EquipmentCategory.AMMUNITION,
+        },
+      ],
+    });
+    render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    const row = screen.getByRole('listitem');
+    // Damage is reserved for weapons; capacity is its own field.
+    expect(
+      row.querySelector('[data-catalog-column="damage"]'),
+    ).toHaveTextContent('—');
+    const category = row.querySelector('[data-catalog-column="category"]');
+    if (expected) expect(category).toHaveTextContent(expected);
+    else expect(category).not.toHaveTextContent('shots');
+    expect(
+      row.querySelector('[data-catalog-column="range"]'),
+    ).toHaveTextContent('—');
+    const stats = within(row).getByTestId('equipment-catalog-stats');
+    if (id === 'ac10-ammo') {
+      expect(stats).toHaveTextContent('Shots 10 · 1 t · 1 slot');
+      expect(stats).not.toHaveTextContent('Damage');
+    } else {
+      // Unknown ammunition has no capacity and no combat data to show.
+      expect(stats).not.toHaveTextContent('Shots');
+      expect(stats).not.toHaveTextContent('Damage');
+      expect(stats).toHaveTextContent('1 t · 1 slot');
+    }
   });
 
   it('should display loading state', () => {
@@ -207,10 +496,40 @@ describe('EquipmentBrowser', () => {
     expect(screen.getByText('No equipment found')).toBeInTheDocument();
   });
 
-  it('should display pagination info', () => {
+  it('ends a single page with its result count and hides pagination', async () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
-    expect(screen.getByText('Page 1/1')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('equipment-pagination'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('End of results · 2 items')).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Medium Laser' }),
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Medium Laser. Added to the unit.',
+    );
+  });
+
+  it('keeps navigation on multiple pages and marks only the final page as the end', async () => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      totalPages: 2,
+      totalItems: 27,
+    });
+    const view = render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    expect(screen.getByText('Page 1 of 2 · 27 items')).toBeInTheDocument();
+    expect(screen.queryByText(/End of results/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(defaultMockHook.setPage).toHaveBeenCalledWith(2);
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      currentPage: 2,
+      totalPages: 2,
+      totalItems: 27,
+    });
+    view.rerender(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+    expect(screen.getByText('End of results · 27 items')).toBeInTheDocument();
   });
 
   it('should call setSearch when search input changes', async () => {
@@ -275,7 +594,9 @@ describe('EquipmentBrowser', () => {
 
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
-    expect(screen.getByText('Inner Sphere · up to 3050')).toBeInTheDocument();
+    expect(
+      screen.getByText('Inner Sphere · available in 3050'),
+    ).toBeInTheDocument();
   });
   it('allows keyboard inspection in read-only mode but cannot add equipment', async () => {
     const user = userEvent.setup();
@@ -287,7 +608,9 @@ describe('EquipmentBrowser', () => {
     details.focus();
     await user.keyboard('{Enter}');
     expect(details).toHaveAttribute('aria-expanded', 'true');
-    const add = screen.getByRole('button', { name: 'Add Medium Laser' });
+    const add = screen.getByRole('button', {
+      name: 'Add Medium Laser',
+    });
     expect(add).toBeDisabled();
     await user.click(add);
     expect(onAddEquipment).not.toHaveBeenCalled();

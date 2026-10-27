@@ -25,10 +25,14 @@ import {
   getSingleDoubleSlotAriaLabel,
 } from './DoubleSlotVisualHelpers';
 import { SlotContextMenuShell } from './SlotContextMenuShell';
+import { SlotEquipmentLabel } from './SlotEquipmentLabel';
 import {
+  getMergedSlotClasses,
+  isMultiSlotEquipment,
   getSlotContentClasses,
   getSlotDisplayName,
   getSlotSizeClasses,
+  getSlotColorStyle,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -247,6 +251,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         >
           {/* Primary half */}
           <div
+            style={getSlotColorStyle(primary)}
             className={`border-border-theme flex min-w-0 flex-1 items-center border-r border-dashed pr-1 ${getSlotContentClasses(primary)}`}
           >
             <span
@@ -261,6 +266,7 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
           </div>
           {/* Secondary half */}
           <div
+            style={getSlotColorStyle(secondary)}
             className={`flex min-w-0 flex-1 items-center pl-1 ${getSlotContentClasses(secondary)}`}
           >
             <span
@@ -297,7 +303,8 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         role="gridcell"
         tabIndex={0}
         draggable={canDrag}
-        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus-visible:ring-2 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${containerClasses} ${selectionClasses} ${sizeClasses}`}
+        style={getSlotColorStyle(primary)}
+        className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus-visible:ring-2 ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${containerClasses} ${selectionClasses} ${sizeClasses} ${getMergedSlotClasses(primary)}`}
         onClick={onClick}
         onDoubleClick={() => handleDoubleSlotDoubleClick(removeState)}
         onContextMenu={(e) => handleDoubleSlotContextMenu(e, contextMenuState)}
@@ -320,15 +327,15 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         title={singleSlotTitle}
         aria-label={getSingleDoubleSlotAriaLabel(entry)}
       >
-        <span
-          aria-hidden="true"
-          className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
-        >
-          {primary.index + 1}
-        </span>
-        <span className="min-w-0 flex-1 break-words whitespace-normal">
-          {getSlotDisplayName(primary)}
-        </span>
+        {!isMultiSlotEquipment(primary) && (
+          <span
+            aria-hidden="true"
+            className="mr-1 w-4 flex-shrink-0 pr-1 text-right text-sm text-inherit tabular-nums lg:pointer-fine:text-[13px]"
+          >
+            {primary.index + 1}
+          </span>
+        )}
+        <SlotEquipmentLabel slot={primary} />
         {/* Double-slot indicator dot */}
         {entry.isDoubleSlot &&
           primary.type === 'equipment' &&

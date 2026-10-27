@@ -6,6 +6,7 @@ import { getLocationShorthand } from '@/utils/locationUtils';
 
 import { trayStyles } from './GlobalLoadoutTray.styles';
 import { LoadoutEquipmentItem } from './GlobalLoadoutTray.types';
+import { GlobalLoadoutTrayPlacementStatus } from './GlobalLoadoutTrayPlacementStatus';
 
 interface EquipmentItemViewArgs {
   item: LoadoutEquipmentItem;
@@ -218,6 +219,12 @@ export function EquipmentItemSummary({
         {item.criticalSlots !== 1 ? 's' : ''}
         {item.isAllocated && item.location && (
           <> · {getLocationShorthand(item.location)}</>
+        )}
+        {!item.isAllocated && (
+          <>
+            {' '}
+            · <GlobalLoadoutTrayPlacementStatus />
+          </>
         )}
       </span>
     </div>

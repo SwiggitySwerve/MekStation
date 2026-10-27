@@ -17,7 +17,7 @@ import {
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
 import {
-  getTabForCategory,
+  getPrimaryFixTab,
   getTabLabel,
 } from '@/utils/validation/validationNavigation';
 
@@ -57,7 +57,7 @@ export function useValidationToast(
         UnitValidationSeverity.CRITICAL_ERROR,
       );
       if (newCriticalError) {
-        const tabId = getTabForCategory(newCriticalError.category);
+        const tabId = getPrimaryFixTab(newCriticalError.category);
         const tabLabel = getTabLabel(tabId);
 
         showToast({
@@ -81,7 +81,7 @@ export function useValidationToast(
         UnitValidationSeverity.ERROR,
       );
       if (newError) {
-        const tabId = getTabForCategory(newError.category);
+        const tabId = getPrimaryFixTab(newError.category);
         const tabLabel = getTabLabel(tabId);
 
         showToast({

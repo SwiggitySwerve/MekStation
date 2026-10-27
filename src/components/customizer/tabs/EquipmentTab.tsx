@@ -47,7 +47,9 @@ export function EquipmentTab({
   );
 
   return (
-    <div className={`flex h-full min-h-0 flex-col ${className}`}>
+    <div
+      className={`flex h-full min-h-0 flex-col max-sm:h-[calc(100%+var(--workspace-bottom-gap))] ${className}`}
+    >
       <EquipmentBrowser
         key={unitId}
         readOnly={readOnly}

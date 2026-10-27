@@ -9,21 +9,14 @@
       "rulesLevel": "STANDARD",
       "damage": "1-2/missile",
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 3,
-        "medium": 6,
-        "long": 9
-      },
+      "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 1.5,
       "criticalSlots": 2,
       "ammoPerTon": 40,
       "costCBills": 45000,
       "battleValue": 29,
-      "introductionYear": 3068,
-      "special": [
-        "Can fire LRM or SRM ammo"
-      ]
+      "introductionYear": 3067,
+      "special": ["Can fire LRM or SRM ammo"]
     },
     {
       "id": "mml-5",
@@ -34,21 +27,14 @@
       "rulesLevel": "STANDARD",
       "damage": "1-2/missile",
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 3,
-        "medium": 6,
-        "long": 9
-      },
+      "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 3,
       "criticalSlots": 3,
       "ammoPerTon": 24,
       "costCBills": 75000,
       "battleValue": 45,
-      "introductionYear": 3068,
-      "special": [
-        "Can fire LRM or SRM ammo"
-      ]
+      "introductionYear": 3067,
+      "special": ["Can fire LRM or SRM ammo"]
     },
     {
       "id": "mml-7",
@@ -59,21 +45,14 @@
       "rulesLevel": "STANDARD",
       "damage": "1-2/missile",
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 3,
-        "medium": 6,
-        "long": 9
-      },
+      "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 4.5,
       "criticalSlots": 4,
       "ammoPerTon": 17,
       "costCBills": 105000,
       "battleValue": 67,
-      "introductionYear": 3068,
-      "special": [
-        "Can fire LRM or SRM ammo"
-      ]
+      "introductionYear": 3067,
+      "special": ["Can fire LRM or SRM ammo"]
     },
     {
       "id": "mml-9",
@@ -84,21 +63,14 @@
       "rulesLevel": "STANDARD",
       "damage": "1-2/missile",
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 3,
-        "medium": 6,
-        "long": 9
-      },
+      "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 6,
       "criticalSlots": 5,
       "ammoPerTon": 13,
       "costCBills": 125000,
       "battleValue": 86,
-      "introductionYear": 3068,
-      "special": [
-        "Can fire LRM or SRM ammo"
-      ]
+      "introductionYear": 3067,
+      "special": ["Can fire LRM or SRM ammo"]
     },
     {
       "id": "narc",
@@ -109,12 +81,7 @@
       "rulesLevel": "STANDARD",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 3,
-        "medium": 6,
-        "long": 9
-      },
+      "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 3,
       "criticalSlots": 2,
       "ammoPerTon": 6,
@@ -122,9 +89,9 @@
       "battleValue": 30,
       "introductionYear": 2587,
       "isExplosive": true,
-      "special": [
-        "Homing beacon"
-      ]
+      "special": ["Homing beacon"],
+      "extinctionYear": 2795,
+      "reintroductionYear": 3035
     },
     {
       "id": "inarc",
@@ -135,12 +102,7 @@
       "rulesLevel": "STANDARD",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 4,
-        "medium": 9,
-        "long": 15
-      },
+      "ranges": { "minimum": 0, "short": 4, "medium": 9, "long": 15 },
       "weight": 5,
       "criticalSlots": 3,
       "ammoPerTon": 4,
@@ -148,9 +110,7 @@
       "battleValue": 75,
       "introductionYear": 3062,
       "isExplosive": true,
-      "special": [
-        "Multiple pod types"
-      ]
+      "special": ["Multiple pod types"]
     },
     {
       "id": "clan-narc",
@@ -161,22 +121,15 @@
       "rulesLevel": "STANDARD",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 4,
-        "medium": 8,
-        "long": 12
-      },
+      "ranges": { "minimum": 0, "short": 4, "medium": 8, "long": 12 },
       "weight": 2,
       "criticalSlots": 1,
       "ammoPerTon": 6,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 2831,
+      "introductionYear": 2828,
       "isExplosive": true,
-      "special": [
-        "Homing beacon"
-      ]
+      "special": ["Homing beacon"]
     },
     {
       "id": "cruisemissile120",
@@ -198,7 +151,7 @@
       "criticalSlots": 120,
       "costCBills": 3000000,
       "battleValue": 2281,
-      "introductionYear": 3065,
+      "introductionYear": 3095,
       "special": []
     },
     {
@@ -221,7 +174,7 @@
       "criticalSlots": 55,
       "costCBills": 900000,
       "battleValue": 601,
-      "introductionYear": 3065,
+      "introductionYear": 3095,
       "special": []
     },
     {
@@ -244,7 +197,7 @@
       "criticalSlots": 80,
       "costCBills": 1250000,
       "battleValue": 1031,
-      "introductionYear": 3065,
+      "introductionYear": 3095,
       "special": []
     },
     {
@@ -267,7 +220,7 @@
       "criticalSlots": 100,
       "costCBills": 1250000,
       "battleValue": 1530,
-      "introductionYear": 3065,
+      "introductionYear": 3095,
       "special": []
     },
     {
@@ -290,7 +243,7 @@
       "criticalSlots": 1,
       "costCBills": 15000,
       "battleValue": 16,
-      "introductionYear": 3060,
+      "introductionYear": 2875,
       "special": []
     },
     {
@@ -302,17 +255,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.2,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 17,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -324,17 +272,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2.5,
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 109,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -346,17 +289,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2.2,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 139,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -368,17 +306,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2.4,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 141,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -390,17 +323,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2.6,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 161,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -412,17 +340,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2.8,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 163,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -434,17 +357,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3.5,
       "criticalSlots": 2,
       "costCBills": 175000,
       "battleValue": 164,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -456,17 +374,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3.2,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 214,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -478,17 +391,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3.4,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 215,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -500,17 +408,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3.6,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 217,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -522,17 +425,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3.8,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 218,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -544,17 +442,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.4,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 24,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -566,17 +459,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 6,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 5,
       "criticalSlots": 4,
       "costCBills": 250000,
       "battleValue": 220,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -588,17 +476,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.6,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 35,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -610,17 +493,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.8,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 46,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -632,17 +510,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1,
       "criticalSlots": 1,
       "costCBills": 30000,
       "battleValue": 55,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -654,17 +527,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.2,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 69,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -676,17 +544,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.4,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 82,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -698,17 +561,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.6,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 93,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -720,17 +578,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.8,
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 95,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -742,17 +595,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2,
       "criticalSlots": 1,
       "costCBills": 80000,
       "battleValue": 22,
-      "introductionYear": 3058,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -764,17 +612,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3,
       "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 22,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -786,17 +629,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3,
       "criticalSlots": 2,
       "costCBills": 140000,
       "battleValue": 33,
-      "introductionYear": 3058,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -808,17 +646,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 4,
       "criticalSlots": 2,
       "costCBills": 87500,
       "battleValue": 33,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -830,17 +663,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 6,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 4.5,
       "criticalSlots": 4,
       "costCBills": 200000,
       "battleValue": 44,
-      "introductionYear": 3058,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -852,17 +680,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 6,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 5.5,
       "criticalSlots": 4,
       "costCBills": 125000,
       "battleValue": 44,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -874,17 +697,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 24000,
       "battleValue": 11,
-      "introductionYear": 3058,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -896,17 +714,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.5,
       "criticalSlots": 1,
       "costCBills": 15000,
       "battleValue": 11,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -1033,17 +846,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 7,
       "criticalSlots": 0,
       "costCBills": 175000,
       "battleValue": 127,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1055,17 +863,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 7,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 11,
       "criticalSlots": 0,
       "costCBills": 325000,
       "battleValue": 229,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1077,17 +880,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 8,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 15,
       "criticalSlots": 0,
       "costCBills": 450000,
       "battleValue": 305,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1099,17 +897,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3,
       "criticalSlots": 0,
       "costCBills": 50000,
       "battleValue": 64,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1121,17 +914,12 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 6.5,
       "criticalSlots": 0,
       "costCBills": 140000,
       "battleValue": 25,
-      "introductionYear": 3056,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -1143,17 +931,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 5,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 7.5,
       "criticalSlots": 0,
       "costCBills": 87500,
       "battleValue": 25,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1165,17 +948,12 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
       "heat": 7,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 10.5,
       "criticalSlots": 0,
       "costCBills": 260000,
       "battleValue": 46,
-      "introductionYear": 3056,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -1187,17 +965,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 7,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 11.5,
       "criticalSlots": 0,
       "costCBills": 162500,
       "battleValue": 46,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1209,17 +982,12 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
       "heat": 8,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 14.5,
       "criticalSlots": 0,
       "costCBills": 360000,
       "battleValue": 61,
-      "introductionYear": 3056,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -1231,17 +999,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 8,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 15.5,
       "criticalSlots": 0,
       "costCBills": 225000,
       "battleValue": 61,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1253,17 +1016,12 @@
       "rulesLevel": "EXPERIMENTAL",
       "damage": 0,
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2.5,
       "criticalSlots": 0,
       "costCBills": 40000,
       "battleValue": 13,
-      "introductionYear": 3056,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -1275,17 +1033,12 @@
       "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 3.5,
       "criticalSlots": 0,
       "costCBills": 25000,
       "battleValue": 13,
-      "introductionYear": 2300,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1377,7 +1130,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 2820,
+      "introductionYear": 2828,
       "special": []
     },
     {
@@ -1400,7 +1153,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 6,
-      "introductionYear": 3058,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -1423,7 +1176,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 6,
-      "introductionYear": 2820,
+      "introductionYear": 2828,
       "special": []
     },
     {
@@ -1446,7 +1199,7 @@
       "criticalSlots": 3,
       "costCBills": 250000,
       "battleValue": 75,
-      "introductionYear": 3054,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -1469,7 +1222,7 @@
       "criticalSlots": 2,
       "costCBills": 250000,
       "battleValue": 15,
-      "introductionYear": 3054,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -1493,7 +1246,8 @@
       "costCBills": 300000,
       "battleValue": 15,
       "introductionYear": 2580,
-      "special": []
+      "special": [],
+      "extinctionYear": 2587
     },
     {
       "id": "srt1",
@@ -1504,17 +1258,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.25,
       "criticalSlots": 1,
       "costCBills": 10000,
       "battleValue": 15,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -1526,17 +1275,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -1548,17 +1292,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.75,
       "criticalSlots": 1,
       "costCBills": 80000,
       "battleValue": 30,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -1570,17 +1309,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1,
       "criticalSlots": 1,
       "costCBills": 60000,
       "battleValue": 39,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -1592,17 +1326,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.25,
       "criticalSlots": 1,
       "costCBills": 80000,
       "battleValue": 47,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -1614,17 +1343,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.5,
       "criticalSlots": 1,
       "costCBills": 80000,
       "battleValue": 59,
-      "introductionYear": 2820,
+      "introductionYear": 2824,
       "special": []
     },
     {
@@ -1636,12 +1360,7 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 8000,
@@ -1658,18 +1377,15 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 2,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1,
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 4,
-      "introductionYear": 2665,
-      "special": []
+      "introductionYear": 2676,
+      "special": [],
+      "extinctionYear": 2800,
+      "reintroductionYear": 3030
     },
     {
       "id": "srt3os",
@@ -1680,17 +1396,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.75,
       "criticalSlots": 1,
       "costCBills": 80000,
       "battleValue": 6,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -1702,12 +1413,7 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 48000,
@@ -1724,18 +1430,15 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 3,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.5,
       "criticalSlots": 1,
       "costCBills": 30000,
       "battleValue": 8,
-      "introductionYear": 2665,
-      "special": []
+      "introductionYear": 2676,
+      "special": [],
+      "extinctionYear": 2800,
+      "reintroductionYear": 3030
     },
     {
       "id": "srt5os",
@@ -1746,17 +1449,12 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1.25,
       "criticalSlots": 1,
       "costCBills": 80000,
       "battleValue": 9,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -1768,12 +1466,7 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 1,
       "criticalSlots": 1,
       "costCBills": 64000,
@@ -1790,18 +1483,15 @@
       "rulesLevel": "UNOFFICIAL",
       "damage": 0,
       "heat": 4,
-      "ranges": {
-        "minimum": 0,
-        "short": 0,
-        "medium": 0,
-        "long": 0
-      },
+      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
       "weight": 2,
       "criticalSlots": 1,
       "costCBills": 40000,
       "battleValue": 12,
-      "introductionYear": 2665,
-      "special": []
+      "introductionYear": 2676,
+      "special": [],
+      "extinctionYear": 2800,
+      "reintroductionYear": 3030
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

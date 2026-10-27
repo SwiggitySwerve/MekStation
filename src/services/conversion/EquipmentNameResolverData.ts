@@ -15,6 +15,9 @@ export function getAllEquipmentItemsForResolver(): IEquipmentItem[] {
     items.push({
       id: weapon.id,
       name: weapon.name,
+      ammoPerTon: weapon.ammoPerTon,
+      flags: weapon.flags,
+      special: weapon.special,
       category,
       techBase: weapon.techBase,
       rulesLevel: weapon.rulesLevel,
@@ -23,6 +26,8 @@ export function getAllEquipmentItemsForResolver(): IEquipmentItem[] {
       costCBills: weapon.costCBills,
       battleValue: weapon.battleValue,
       introductionYear: weapon.introductionYear,
+      extinctionYear: weapon.extinctionYear,
+      reintroductionYear: weapon.reintroductionYear,
     });
   }
 
@@ -36,8 +41,11 @@ export function getAllEquipmentItemsForResolver(): IEquipmentItem[] {
       weight: ammo.weight,
       criticalSlots: ammo.criticalSlots,
       costCBills: ammo.costPerTon,
+      compatibleWeaponIds: ammo.compatibleWeaponIds,
       battleValue: ammo.battleValue,
       introductionYear: ammo.introductionYear,
+      extinctionYear: ammo.extinctionYear,
+      reintroductionYear: ammo.reintroductionYear,
     });
   }
 
@@ -53,6 +61,8 @@ export function getAllEquipmentItemsForResolver(): IEquipmentItem[] {
       costCBills: elec.costCBills,
       battleValue: elec.battleValue,
       introductionYear: elec.introductionYear,
+      extinctionYear: elec.extinctionYear,
+      reintroductionYear: elec.reintroductionYear,
     });
   }
 
@@ -68,6 +78,8 @@ export function getAllEquipmentItemsForResolver(): IEquipmentItem[] {
       costCBills: misc.costCBills,
       battleValue: misc.battleValue,
       introductionYear: misc.introductionYear,
+      extinctionYear: misc.extinctionYear,
+      reintroductionYear: misc.reintroductionYear,
     });
   }
 

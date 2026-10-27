@@ -12,9 +12,7 @@ This capability is the **customizer catalog**, not the read-only Compendium cata
 - **Data authority:** `getEquipmentLookupService()` (`src/services/equipment/EquipmentLookupService.ts`). Jump Jets and Heat Sinks omitted via `EXCLUDED_MISC_CATEGORIES`.
 - **Store:** `useEquipmentStore` + `useEquipmentStore.filters.ts` (`filterEquipment`, `CATALOG_OTHER_CATEGORIES`); `useEquipmentBrowser` loads `getAllEquipment()` and syncs unit year/tech base/weapon IDs from unit or vehicle store context. Compendium `/compendium/equipment` uses page-local state and `GET /api/equipment/catalog` — shared definitions, not shared store.
 - **Tray vs catalog Other:** catalog `CATALOG_OTHER_CATEGORIES` is MISC_EQUIPMENT, MOVEMENT, STRUCTURAL. Tray `OTHER_CATEGORIES` also includes PHYSICAL_WEAPON and ARTILLERY. Do not treat them as one filter.
-
 ## Requirements
-
 ### Requirement: Equipment Categories
 
 The Equipment Browser SHALL include all equipment types from the equipment database, including physical/melee weapons.
@@ -29,8 +27,9 @@ The Equipment Browser SHALL include all equipment types from the equipment datab
 #### Scenario: Variable property display
 
 - **WHEN** physical weapon is displayed in equipment table
-- **THEN** variable weight and critical slots are labeled Variable rather than presented as fixed zero values
-- **AND** expanded details explain that values are calculated for the active unit when added
+- **THEN** variable weight and critical slots read as a muted "Var." right-aligned in the same tabular Tons and Slots columns as the numbers (full words "Variable weight" / "Variable slots" in the tooltip and accessible name) rather than presented as fixed zero values
+- **AND** items the data flags as variable weight or slots (such as Communications Equipment, which carries 0 t / 0 slots and no formula id) also show "Var." instead of 0
+- **AND** expanded details explain that values are calculated for the active unit when added when a variable-equipment formula exists, and otherwise that weight and slots depend on the size chosen for the unit
 - **AND** Add or Add and place uses the existing construction calculations
 
 ### Requirement: Equipment Table Display
@@ -40,15 +39,23 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 #### Scenario: Desktop catalog columns
 
 - **WHEN** the equipment catalog is rendered at desktop width
-- **THEN** Name, Type, Tons, Slots, Heat, and Add occupy one six-column grid
-- **AND** Name, Tons, and Slots expose sort controls and the selected sort direction
+- **THEN** Name, Dmg, Range, Min, Heat, Tons, Slots, and Add occupy eight aligned content columns, with Type as secondary text directly under Name
+- **AND** rows use hairline dividers and a 4px category accent instead of full card borders
+- **AND** the table spans the full catalog width: Name uses a minmax(220px, 420px) track, numeric columns use fixed 52–108px right-aligned tracks with tabular figures, and Add with the ellipsis control is pinned to the right edge; spare space forms a gutter between Slots and the actions, with 12px gaps inside the comparison block
+- **AND** the Range header reads "Range (hex)" on one line, with a tooltip and accessible label describing short / medium / long range in hexes
+- **AND** only the active Name, Tons, or Slots sort shows a filled directional arrow in the accent color; inactive arrows appear faintly on hover or keyboard focus, with pressed state and direction conveyed by accessible names; combat statistics remain plain headers
+- **AND** damage, range, minimum range, and heat use the existing weapon lookup and display a dash for non-weapons; Min also displays a dash when minimum range is zero or unavailable
+- **AND** damage is reserved for weapons: an ammunition row keeps a dash in the Dmg column and shows its existing shots-per-ton value as `N shots/t` in the secondary line under Name
+- **AND** both desktop and phone detail toggles have a visible chevron
 - **AND** the sticky header remains in the same scroll region as the catalog rows
+- **AND** bottom list padding and row scroll margins allow the final row to be fully visible above pagination: after scrolling to the end at 1440?900 and 390?844, its bottom is no lower than the footer top
 
 #### Scenario: Narrow catalog
 
 - **WHEN** the catalog is displayed at a narrow viewport
-- **THEN** each row retains its equipment name, technology, weight or variable-property summary, detail toggle, and accessible Add control
+- **THEN** each row retains its equipment name, weight or variable-property summary, detail toggle, and accessible Add control
 - **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
+- **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 290px of the viewport top, plus only the height of the tab's issue notice when the unit has one, and at least five rows are fully visible
 - **AND** expanding details makes weapon and equipment statistics available
 
 ### Requirement: Equipment Filtering
@@ -140,6 +147,13 @@ The system SHALL paginate large equipment lists.
 - **AND** store default `pagination.pageSize` is 25; `setPageSize` exists on the store/hook
 - **AND** a visible 10/25/50/100 page-size control remains a desired requirement not on the current `EquipmentBrowser` footer
 
+#### Scenario: Short result lists
+
+- **WHEN** filtered results fit on one page
+- **THEN** pagination controls and the page counter are hidden
+- **AND** nonempty final pages end with a quiet `End of results · N items` line after the last row (singular `item` for one result)
+- **AND** add confirmations and read-only information remain available without pagination
+
 ### Requirement: Add Equipment Action
 
 The system SHALL provide an Add button for each equipment row to add it to the unit.
@@ -187,7 +201,7 @@ The Equipment Browser SHALL expose available weapon range data in an expandable 
 
 - **WHEN** the user expands a weapon row with range data
 - **THEN** details show Range (S / M / L) using the short, medium, and long values
-- **AND** a nonzero minimum range is shown separately
+- **AND** values already shown in the row columns, such as minimum range, are not repeated in the expanded details
 - **AND** these details remain available on desktop and narrow viewports
 
 #### Scenario: Equipment without weapon ranges
@@ -501,7 +515,7 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 - **AND** sort.direction toggles between 'asc' and 'desc' if same column
 - **AND** sort.direction is 'asc' if different column
 - **AND** pagination resets to page 1
-- **AND** filtered equipment is sorted by `compareEquipment` in `src/stores/useEquipmentStore.filters.ts`
+- **AND** filtered equipment is sorted by `compareEquipment` in `src/stores/useEquipmentStore.filters.ts`, comparing names with numeric collation so AC/2, AC/5, AC/10, AC/15 Ammo, and AC/20 read in numeric order (presentation key only; stored names are unchanged)
 - **AND** catalog headers currently sort name/weight/criticalSlots; store `SortColumn` also has category, techBase, damage, heat, but damage/heat getters currently compare `item.name` (parent product follow-up)
 
 #### Scenario: Pagination controls
@@ -602,8 +616,16 @@ The catalog SHALL use translucent category-colored row backgrounds with opaque r
 - **WHEN** rows render in supported themes and viewport sizes
 - **THEN** category colors remain recognizable without fully opaque fills
 - **AND** text, focus, selection, details and Add controls remain readable and operable
-- **AND** desktop headings and matching name, type, numeric and action cells share one six-column grid with a sticky header in the same scrolling region
+- **AND** desktop headings and matching name, type, numeric and action cells share aligned content columns with trailing flexible space and a sticky header in the same scrolling region
 - **AND** ordinary collapsed desktop rows are no taller than 48px while Add keeps a 44px hit target around a smaller plus control
+
+#### Scenario: Scroll boundary and comparison headers
+
+- **WHEN** the catalog first appears or is scrolled on desktop or phone
+- **THEN** the list clips at its own edge above a visible gap before the pagination footer; rows never draw beneath the footer
+- **AND** a 32px gradient to the list background softens the bottom edge while more content is below; it disappears at the end and when the list fits
+- **AND** the desktop Range header ("Range (hex)") stays on one line with short / medium / long explained by its tooltip and accessible label
+- **AND** ammunition with existing shots-per-ton data shows `N shots/t` in the desktop secondary line and a `Shots N` field (replacing Dmg, with a `Shots per ton` tooltip) in the phone stats; the Dmg column is never used for shot capacity; unavailable combat values remain `?`
 
 ### Requirement: Add and place from catalog
 
@@ -611,7 +633,7 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 
 #### Scenario: Valid placement
 
-- **WHEN** that row's details are expanded and a legal location is confirmed
+- **WHEN** Add and choose location? is selected from a row's Add options menu and a legal location is confirmed
 - **THEN** a new equipment instance is added and assigned legal slots
 - **AND** weight and critical slots include variable-equipment calculations
 - **AND** one Undo reverses the whole operation and Redo restores it
@@ -636,8 +658,107 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 
 - **WHEN** Add is used without placement
 - **THEN** a copy is added unassigned through the existing workflow
-- **AND** the collapsed-row Add control is a plus that keeps the Add name accessible
-- **AND** Add and place is not shown until that row's details are expanded
+- **AND** each row shows one low-emphasis split action in a fixed-width column on desktop and phone, with a plus and visible Add text, accessible name `Add <name>`, and tooltip `Add to unassigned`
+- **AND** when placement is available, an ellipsis button named `Add options for <name>` with tooltip `More ways to add` opens a menu with `Add to unassigned` and `Add and choose location?`; the placement item retains accessible name `Add and place <name>`
+- **AND** the ellipsis button is omitted when placement is unavailable; read-only mode disables both parts
+- **AND** the action stays in the same column and position when details expand
+- **AND** both parts and menu items have at least 44px hit areas; keyboard users can open the menu, navigate with arrow keys, and dismiss with Escape, returning focus to the ellipsis button
+
+### Requirement: Catalog comparison and filter clarity
+
+The catalog SHALL expose comparison data before expansion and describe the filters actually applied.
+
+#### Scenario: Phone comparison
+
+- **WHEN** browsing on a phone
+- **THEN** names use 16px text with the Add actions beside the name and stats; stats use at most two 14px lines of unbroken fields: weapons read "Damage 10 · Range 6/12/18 · Min 3" over "Heat 10 · 7 t · 3 slots", ammunition reads one line ("Shots 45 · 1 t · 1 slot"), and other equipment reads only "<weight> · <slots>"; fields that do not apply (including a zero minimum range) are omitted rather than shown as dashes, and a narrow line wraps between fields, never inside one, with each "·" kept (by a no-break space) at the end of the field before it
+- **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
+- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
+- **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · available in 3028")
+- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it; the add confirmation (e.g., "AC/2. Added unassigned. Choose a location in Critical Slots.") appears between the list and the pager, never between the pager and the Loadout bar
+- **AND** the pager reads "Page N of M · T items" on the left, and only while the current page itself overflows (rows hidden below) an opaque footer adds "Scroll for more on this page" in the pager (or a dedicated footer for a single page) without changing the pager's height, so the list viewport does not shift when the cue hides at the bottom; the footer stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
+- **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
+
+#### Scenario: Active filters
+
+- **WHEN** visibility filters are active
+- **THEN** the Filters label names those criteria and the button's accessible name starts with "Visibility filters" followed by the full criteria text
+- **AND** availability describes catalog tech base and listed introduction year, without claiming extinction, reintroduction, or rules legality checks
+
+#### Scenario: Expanded equipment details
+
+- **WHEN** equipment details are expanded on desktop
+- **THEN** metadata uses compact label/value pairs in two content-width columns on desktop and one on phones, aligned to the equipment name indent at content height, with labels at least 13px and values at least 14px
+- **AND** the expanded panel contains details only, without Add buttons
+
+### Requirement: Active BattleMech capacity context
+
+The catalog SHALL display the active BattleMech's existing calculated capacity and loadout counts without changing Add behavior.
+
+#### Scenario: Capacity and mounted equipment
+
+- **WHEN** a BattleMech catalog is open
+- **THEN** the result-count line also shows remaining tonnage to one decimal place and remaining slots from the existing unit summary, such as `182 items · 4.0 t free · 16 slots free`
+- **AND** a deficit is stated as the overage with its fix, such as `Over by 7.0 t — remove equipment or armor` (see Tonnage limit states)
+- **AND** a row already present in the loadout shows `×N mounted` as plain muted text of at least 13px beside its name, counting exact equipment IDs including unassigned instances, not as a miniature pill
+- **AND** secondary row metadata such as shots per ton uses at least 13px text
+- **AND** standalone browsing without a BattleMech context omits these annotations
+
+#### Scenario: Tonnage limit states
+
+- **GIVEN** the unit has exactly 0.0 t free, a legal, exactly-full unit
+- **WHEN** the catalog renders
+- **THEN** the capacity line reads `0.0 t free · unit is at its tonnage limit` as neutral secondary text, with no warning color, border, or icon, and no individual row carries an over-weight marker
+- **AND** on phones the line is shortened to `0.0 t free · at tonnage limit` so it stays on one row
+- **AND** only when free tonnage is negative does the line become a compact bordered callout with an error icon, error text and tint matching the over-weight header value, and 14px text, reading `Over by 7.0 t — remove equipment or armor` (`Over by 7.0 t` on phones)
+- **AND** the comparison against zero lives in `getCatalogCapacityNotice` in `EquipmentBrowser.model.ts`, which treats magnitudes up to 0.005 t as exactly full
+
+#### Scenario: Equipment exceeds remaining tonnage
+
+- **GIVEN** a fixed-weight item weighs 7 tons and the unit has 4 tons free
+- **WHEN** its catalog row renders
+- **THEN** the weight value in the Tons cell, and in the phone stats line, uses the warning text color with a dotted underline, and carries the accessible description `exceeds free weight by 3.0 t`; no chip is shown
+- **AND** the row stays visible and its Add action retains its existing behavior
+- **AND** an exact fit is not marked, and no row is marked when 0 t or less is free
+- **AND** variable-weight items retain their "Var." label without an estimated excess
+- **AND** the row split action remains visibly at least 44px tall
+
+### Requirement: Historical Availability Filter
+
+The Equipment Browser SHALL use the shared temporal availability predicate when hiding unavailable items for a unit year or applying an explicit year filter. Its context label SHALL describe availability in that year. Turning off the unit availability filter SHALL permit browsing extinct items unless another filter excludes them.
+
+#### Scenario: Inner Sphere equipment in 3028
+
+- **WHEN** an Inner Sphere unit has year 3028 and Hide Unavailable is enabled
+- **THEN** Inner Sphere ER PPC is absent during its 2860–3037 extinction interval
+- **AND** Enhanced ER PPC is absent because it is Clan technology and extinct during that year
+
+#### Scenario: Reintroduced equipment
+
+- **WHEN** the unit year changes to 3037
+- **THEN** Inner Sphere ER PPC is available again
+- **AND** the filter context describes availability in 3037
+
+### Requirement: Catalog-compatible Ammunition Visibility
+
+The Equipment Browser SHALL hide ammunition with no compatible catalog weapon under the same technology, year, prototype, and one-shot restrictions. It SHALL use the ammunition compatibility owner. Search, category, weight, and critical-slot restrictions SHALL apply to the displayed ammunition independently; they SHALL NOT require its weapon to match those presentation restrictions. The mounted-weapon ammunition toggle SHALL remain an additional independent restriction. Equipment data SHALL NOT be deleted.
+
+#### Scenario: Orphan ammunition
+
+- **WHEN** AC/15 ammunition has no compatible weapon in the catalog
+- **THEN** it is hidden even with the mounted-weapon ammunition toggle off
+- **AND** AC/10 ammunition remains visible if AC/10 is available
+
+#### Scenario: Historical weapon gap
+
+- **WHEN** ammunition is introduced but every compatible weapon is extinct, too new, or excluded by tech base
+- **THEN** that ammunition is hidden
+- **AND** it returns when a compatible weapon becomes available
+
+#### Scenario: Ammunition-only browsing
+
+- **WHEN** the user searches for ammunition or selects only the ammunition category
+- **THEN** compatible ammunition remains visible even though its weapon does not match the search or category
 
 ## Hook Architecture
 

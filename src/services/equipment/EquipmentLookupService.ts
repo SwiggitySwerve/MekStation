@@ -1,3 +1,7 @@
+import {
+  createSingleton,
+  type SingletonFactory,
+} from '@/services/core/createSingleton';
 /**
  * Equipment Lookup Service
  *
@@ -7,11 +11,6 @@
  *
  * @spec openspec/specs/equipment-services/spec.md
  */
-
-import {
-  createSingleton,
-  type SingletonFactory,
-} from '@/services/core/createSingleton';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   EquipmentCategory,
@@ -27,6 +26,7 @@ import {
   getAllWeapons as getAllWeaponsFallback,
 } from '@/utils/equipment/equipmentAggregation';
 import { logger } from '@/utils/logger';
+import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
 import { IEquipmentQueryCriteria } from '../common/types';
 import {
@@ -189,6 +189,9 @@ export class EquipmentLookupService implements IEquipmentLookupService {
       items.push({
         id: weapon.id,
         name: weapon.name,
+        ammoPerTon: weapon.ammoPerTon,
+        flags: weapon.flags,
+        special: weapon.special,
         category,
         additionalCategories,
         techBase: weapon.techBase,
@@ -198,6 +201,8 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         costCBills: weapon.costCBills,
         battleValue: weapon.battleValue,
         introductionYear: weapon.introductionYear,
+        extinctionYear: weapon.extinctionYear,
+        reintroductionYear: weapon.reintroductionYear,
       });
     }
 
@@ -215,6 +220,8 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         compatibleWeaponIds: ammo.compatibleWeaponIds,
         battleValue: ammo.battleValue,
         introductionYear: ammo.introductionYear,
+        extinctionYear: ammo.extinctionYear,
+        reintroductionYear: ammo.reintroductionYear,
       });
     }
 
@@ -231,6 +238,8 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         costCBills: electronics.costCBills,
         battleValue: electronics.battleValue,
         introductionYear: electronics.introductionYear,
+        extinctionYear: electronics.extinctionYear,
+        reintroductionYear: electronics.reintroductionYear,
         variableEquipmentId: electronics.variableEquipmentId,
       });
     }
@@ -252,6 +261,8 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         costCBills: misc.costCBills,
         battleValue: misc.battleValue,
         introductionYear: misc.introductionYear,
+        extinctionYear: misc.extinctionYear,
+        reintroductionYear: misc.reintroductionYear,
         variableEquipmentId: misc.variableEquipmentId,
       });
     }
@@ -300,7 +311,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Get equipment available in a given year
    */
   getByEra = (year: number): IEquipmentItem[] => {
-    return this.getEquipment().filter((e) => e.introductionYear <= year);
+    return this.getEquipment().filter((e) => isAvailableInYear(e, year));
   };
 
   /**
@@ -329,9 +340,9 @@ export class EquipmentLookupService implements IEquipmentLookupService {
       results = results.filter((e) => e.techBase === criteria.techBase);
     }
 
-    // Filter by year (introduction year)
+    // Filter by availability in the requested year
     if (criteria.year !== undefined) {
-      results = results.filter((e) => e.introductionYear <= criteria.year!);
+      results = results.filter((e) => isAvailableInYear(e, criteria.year!));
     }
 
     // Filter by name query

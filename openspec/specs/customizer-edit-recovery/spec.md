@@ -29,6 +29,13 @@ The customizer SHALL visibly distinguish completed browser writes, failed browse
 - **WHEN** Save opens again without changing the designation
 - **THEN** name validation checks the server library and offers Overwrite for the matching saved identity, while Save remains disabled until the fresh validation completes
 
+#### Scenario: Unplaced equipment blocks library saves until placed
+- **GIVEN** mounted equipment lacks a location or its critical slots, which is a construction error
+- **WHEN** the user opens Save
+- **THEN** the dialog reads "Fix N construction errors before saving. Cancel to keep editing your draft." and Save stays disabled, so the library holds only legal units
+- **AND** the browser draft keeps saving every edit
+- **AND** once every item is placed through Critical Slots, Save is enabled and the saved design reloads with those placements
+
 ### Requirement: Restore saved history into the selected draft
 The customizer SHALL offer saved history for a known library identity and SHALL restore a selected historical version as one undoable draft operation. Library history SHALL remain immutable.
 

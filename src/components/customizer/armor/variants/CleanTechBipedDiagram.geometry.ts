@@ -1,66 +1,153 @@
 import { MechLocation } from '@/types/construction';
 
-interface BipedArmorPlate {
+export interface BipedArmorPlate {
   readonly path: string;
+  /** Horizontal centre of the plate's text stack. */
   readonly x: number;
+  /** Baseline of the location abbreviation; the value lines hang below it. */
   readonly y: number;
   readonly label: string;
-  readonly rearY?: number;
+  /** Torso plates carry a second (rear) armor face. */
+  readonly hasRear?: boolean;
 }
 
-// Local presentation geometry; allocation limits come from ArmorTab's projection.
+/** Cropped to the drawn silhouette so its height sets the diagram's scale. */
+export const BIPED_ARMOR_VIEWBOX = '-30 20 420 402';
+
+/**
+ * Baselines below `plate.y` (the abbreviation baseline) for the one text stack
+ * every plate shares: the front value with its "/max" on one baseline, then on
+ * torsos a rear line; arms and legs add a fill bar.
+ */
+export const BIPED_PLATE_STACK = { value: 25, rear: 47, bar: 56 } as const;
+
+/** Mirror axis: the left-side plates reflect onto the right about this x. */
+const CENTRE_X = 180;
+
+type Point = readonly [number, number];
+
+function polygon(points: readonly Point[]): string {
+  const [first, ...rest] = points;
+  return `M${first[0]} ${first[1]} ${rest.map(([x, y]) => `L${x} ${y}`).join(' ')} Z`;
+}
+
+function mirror(points: readonly Point[]): Point[] {
+  return points.map(([x, y]) => [2 * CENTRE_X - x, y]);
+}
+
+/**
+ * Viewer's-left outlines, which carry the unit's LEFT locations: the record
+ * sheet (and MegaMekLab) draw Left Arm / Left Torso / Left Leg on the left of
+ * the page, so the diagram matches what a player transcribes. Every plate is
+ * wide enough at its text rows to keep the "<value>/<max>" stack at least 8
+ * units clear of the outline, so the right side is an exact mirror.
+ */
+const VIEWER_LEFT_SIDE = {
+  torso: [
+    [135, 93],
+    [57, 101],
+    [55, 186],
+    [78, 216],
+    [135, 208],
+  ],
+  arm: [
+    [54, 101],
+    [14, 108],
+    [-16, 150],
+    [-22, 215],
+    [-26, 252],
+    [-8, 272],
+    [38, 262],
+    [50, 222],
+    [52, 150],
+  ],
+  leg: [
+    [176, 235],
+    [104, 228],
+    [94, 290],
+    [102, 330],
+    [88, 399],
+    [104, 415],
+    [177, 415],
+    [176, 375],
+    [164, 328],
+    [176, 285],
+  ],
+} as const satisfies Record<string, readonly Point[]>;
+
+/**
+ * Local presentation geometry; allocation limits come from ArmorTab's
+ * projection. Plates are drawn wide where the text sits so the same stack
+ * (abbreviation, front value over its "/max", torso rear line) fits every
+ * location on a phone without touching the outline.
+ */
 export const BIPED_ARMOR_PLATES: Partial<
   Record<MechLocation, BipedArmorPlate>
 > = {
   [MechLocation.HEAD]: {
-    path: 'M156 28 H204 L214 44 L207 78 H153 L146 44 Z',
+    path: 'M156 26 H204 L214 42 L207 82 H153 L146 42 Z',
     x: 180,
-    y: 45,
+    y: 43,
     label: 'HD',
   },
   [MechLocation.CENTER_TORSO]: {
-    path: 'M149 93 H211 L220 131 L210 204 L198 220 H162 L150 204 L140 131 Z',
+    path: 'M148 93 H212 L221 125 L221 192 L210 212 H150 L139 192 L139 125 Z',
     x: 180,
-    y: 115,
-    label: 'CT-F',
-    rearY: 187,
+    y: 132,
+    label: 'CT',
+    hasRear: true,
   },
   [MechLocation.LEFT_TORSO]: {
-    path: 'M223 93 L280 104 L274 181 L254 215 L221 203 L228 133 Z',
-    x: 250,
-    y: 120,
-    label: 'LT-F',
-    rearY: 182,
+    path: polygon(VIEWER_LEFT_SIDE.torso),
+    x: 95,
+    y: 132,
+    label: 'LT',
+    hasRear: true,
   },
   [MechLocation.RIGHT_TORSO]: {
-    path: 'M137 93 L80 104 L86 181 L106 215 L139 203 L132 133 Z',
-    x: 110,
-    y: 120,
-    label: 'RT-F',
-    rearY: 182,
+    path: polygon(mirror(VIEWER_LEFT_SIDE.torso)),
+    x: 265,
+    y: 132,
+    label: 'RT',
+    hasRear: true,
   },
   [MechLocation.LEFT_ARM]: {
-    path: 'M288 99 L327 111 L339 161 L334 204 L343 250 L324 269 L289 256 L284 217 L293 176 L280 138 Z',
-    x: 312,
-    y: 169,
+    path: polygon(VIEWER_LEFT_SIDE.arm),
+    x: 17,
+    y: 160,
     label: 'LA',
   },
   [MechLocation.RIGHT_ARM]: {
-    path: 'M72 99 L33 111 L21 161 L26 204 L17 250 L36 269 L71 256 L76 217 L67 176 L80 138 Z',
-    x: 48,
-    y: 169,
+    path: polygon(mirror(VIEWER_LEFT_SIDE.arm)),
+    x: 343,
+    y: 160,
     label: 'RA',
   },
   [MechLocation.LEFT_LEG]: {
-    path: 'M190 235 L245 228 L258 290 L247 327 L264 399 L247 415 H185 L186 373 L199 326 L184 280 Z',
-    x: 222,
-    y: 283,
+    path: polygon(VIEWER_LEFT_SIDE.leg),
+    x: 134,
+    y: 285,
     label: 'LL',
   },
   [MechLocation.RIGHT_LEG]: {
-    path: 'M170 235 L115 228 L102 290 L113 327 L96 399 L113 415 H175 L174 373 L161 326 L176 280 Z',
-    x: 138,
-    y: 283,
+    path: polygon(mirror(VIEWER_LEFT_SIDE.leg)),
+    x: 226,
+    y: 285,
     label: 'RL',
   },
 };
+
+/**
+ * Plate reading order (top row, then left to right as drawn), so Tab moves
+ * across the silhouette the way the eye does.
+ */
+export const BIPED_PLATE_ORDER: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.LEFT_ARM,
+  MechLocation.LEFT_TORSO,
+  MechLocation.CENTER_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+];

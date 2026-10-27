@@ -54,9 +54,11 @@ describe('TacticalHUDDiagram', () => {
   it('should display front and rear labels on torso locations', () => {
     render(<TacticalHUDDiagram {...defaultProps} />);
 
-    // Torso locations show stacked front/rear with "-F" and "-R" labels
-    expect(screen.getByText('CT-F')).toBeInTheDocument();
-    expect(screen.getAllByText('REAR')).toHaveLength(3);
+    // Torso locations show the front value over a smaller "R" rear line
+    expect(screen.getByText('CT')).toBeInTheDocument();
+    expect(document.querySelectorAll('[data-armor-face="rear"]')).toHaveLength(
+      3,
+    );
   });
 
   // Note: Auto-allocate button was moved to ArmorTab.tsx
@@ -78,7 +80,9 @@ describe('TacticalHUDDiagram', () => {
     render(<TacticalHUDDiagram {...defaultProps} />);
 
     expect(
-      screen.getByText('Click a location to edit armor values'),
+      screen.getByText(
+        'Matches the record sheet · left side on the left · click a location to edit',
+      ),
     ).toBeInTheDocument();
   });
 

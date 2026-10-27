@@ -7,17 +7,15 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "gauss-rifle",
-        "clan-gauss-rifle"
-      ],
+      "compatibleWeaponIds": ["gauss-rifle", "clan-gauss-rifle"],
       "shotsPerTon": 8,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 40,
       "isExplosive": true,
-      "introductionYear": 2590
+      "introductionYear": 2590,
+      "reintroductionYear": 3038
     },
     {
       "id": "light-gauss-ammo",
@@ -26,9 +24,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "light-gauss-rifle"
-      ],
+      "compatibleWeaponIds": ["light-gauss-rifle"],
       "shotsPerTon": 16,
       "weight": 1,
       "criticalSlots": 1,
@@ -44,9 +40,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "heavy-gauss-rifle"
-      ],
+      "compatibleWeaponIds": ["heavy-gauss-rifle"],
       "shotsPerTon": 4,
       "weight": 1,
       "criticalSlots": 1,
@@ -62,9 +56,7 @@
       "variant": "Standard",
       "techBase": "CLAN",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "ap-gauss-rifle"
-      ],
+      "compatibleWeaponIds": ["ap-gauss-rifle"],
       "shotsPerTon": 40,
       "weight": 1,
       "criticalSlots": 1,
@@ -87,8 +79,9 @@
       "costPerTon": 20000,
       "battleValue": 40,
       "isExplosive": true,
-      "introductionYear": 2587,
-      "special": []
+      "introductionYear": 2590,
+      "special": [],
+      "reintroductionYear": 3038
     },
     {
       "id": "light-gauss",
@@ -104,7 +97,7 @@
       "costPerTon": 20000,
       "battleValue": 20,
       "isExplosive": true,
-      "introductionYear": 3049,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -121,7 +114,7 @@
       "costPerTon": 20000,
       "battleValue": 43,
       "isExplosive": true,
-      "introductionYear": 3051,
+      "introductionYear": 3061,
       "special": []
     },
     {
@@ -138,7 +131,7 @@
       "costPerTon": 1000,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 3065,
+      "introductionYear": 3069,
       "special": []
     },
     {
@@ -155,7 +148,7 @@
       "costPerTon": 20000,
       "battleValue": 48,
       "isExplosive": true,
-      "introductionYear": 3065,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -172,7 +165,7 @@
       "costPerTon": 25000,
       "battleValue": 25,
       "isExplosive": true,
-      "introductionYear": 3051,
+      "introductionYear": 3080,
       "special": []
     },
     {
@@ -189,8 +182,10 @@
       "costPerTon": 45000,
       "battleValue": 378,
       "isExplosive": true,
-      "introductionYear": 2440,
-      "special": []
+      "introductionYear": 2448,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3052
     },
     {
       "id": "ammo-medium-n-gauss",
@@ -206,8 +201,10 @@
       "costPerTon": 75000,
       "battleValue": 630,
       "isExplosive": true,
-      "introductionYear": 2440,
-      "special": []
+      "introductionYear": 2448,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3052
     },
     {
       "id": "ammo-heavy-n-gauss",
@@ -223,8 +220,10 @@
       "costPerTon": 90000,
       "battleValue": 756,
       "isExplosive": true,
-      "introductionYear": 2440,
-      "special": []
+      "introductionYear": 2448,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3052
     },
     {
       "id": "impgaussammo",
@@ -240,8 +239,10 @@
       "costPerTon": 20000,
       "battleValue": 40,
       "isExplosive": true,
-      "introductionYear": 2818,
-      "special": []
+      "introductionYear": 2821,
+      "special": [],
+      "extinctionYear": 2837,
+      "reintroductionYear": 3080
     }
   ],
   "$schema": "../_schema/ammunition-schema.json"

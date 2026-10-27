@@ -23,7 +23,7 @@ interface StatCellProps {
 
 const variantStyles = {
   default: 'text-text-theme-primary',
-  warning: 'text-yellow-400',
+  warning: 'text-warning',
   error: 'text-red-400',
   success: 'text-green-400',
 };

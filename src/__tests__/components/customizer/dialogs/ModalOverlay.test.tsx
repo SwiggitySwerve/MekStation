@@ -165,6 +165,33 @@ describe('ModalOverlay native ownership', () => {
     expect(document.body.style.overflow).toBe('scroll');
   });
 
+  it('StrictMode remount keeps focus the page moved inside the dialog', () => {
+    // Like a validation jump: an already-mounted owner focuses a row inside
+    // the drawer it just opened, before Strict Mode remounts the drawer.
+    function Host({ open }: { open: boolean }) {
+      React.useEffect(() => {
+        if (open) document.getElementById('destination')?.focus();
+      }, [open]);
+      return (
+        <ModalOverlay fullScreen isOpen={open} onClose={jest.fn()}>
+          <button>Close</button>
+          <button id="destination">Destination</button>
+        </ModalOverlay>
+      );
+    }
+    const view = render(
+      <React.StrictMode>
+        <Host open={false} />
+      </React.StrictMode>,
+    );
+    view.rerender(
+      <React.StrictMode>
+        <Host open />
+      </React.StrictMode>,
+    );
+    expect(screen.getByRole('button', { name: 'Destination' })).toHaveFocus();
+  });
+
   it('parent-first close does not move focus beneath a remaining child', () => {
     const opener = document.createElement('button');
     document.body.append(opener);

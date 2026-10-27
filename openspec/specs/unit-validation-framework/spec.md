@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines Unit Validation Framework requirements for Validation Hierarchy, Unit Type Registry, Rule Inheritance, and Universal Validation Rules, preserving the source-of-truth scope introduced by archived change add-comprehensive-unit-validation-framework.
-
 ## Requirements
-
 ### Requirement: Validation Hierarchy
 
 The system SHALL implement a three-level validation hierarchy for unit validation.
@@ -217,6 +215,15 @@ The system SHALL provide validation rules that apply to ALL unit types.
 - **THEN** any location exceeding slot capacity SHALL produce CRITICAL_ERROR
 - **AND** error message SHALL be "{Location} exceeds slot capacity by {overage}"
 - **AND** multiple overflowing locations SHALL produce separate errors
+
+#### Scenario: Unplaced equipment makes a unit not legal
+
+- **GIVEN** mounted equipment requires a location and critical slot assignment
+- **WHEN** its location is missing or its required critical slots are not fully assigned
+- **THEN** the placement owner SHALL report ERROR, including "<item> needs a location." for a missing location
+- **AND** VAL-UNIV-015 SHALL retain the error severity and identify the item in `criticalSlots.<instanceId>`
+- **AND** even when placement is the unit's only issue, validation SHALL return `isValid: false` with an error, not a warning; this regular ERROR SHALL NOT become CRITICAL_ERROR
+- **AND** assigning all required critical slots to a valid location SHALL clear the placement error
 - **AND** validation SHALL be skipped if slot data unavailable
 
 ---
@@ -518,7 +525,7 @@ The system SHALL provide React hooks for integrating validation into the customi
 
 - **WHEN** CustomizerTabs renders
 - **THEN** each tab SHALL display ValidationTabBadge if issues exist for that tab
-- **AND** badge SHALL show error count (red) or warning count (amber)
+- **AND** badge SHALL show error count (red) or warning count (orange)
 - **AND** badge SHALL be compact (18px circular)
 
 #### Scenario: Validation updates in real-time
@@ -527,3 +534,30 @@ The system SHALL provide React hooks for integrating validation into the customi
 - **THEN** validation SHALL re-run automatically
 - **AND** ValidationSummary SHALL update to reflect new validation state
 - **AND** status SHALL change from 'valid' to 'error' when errors exist
+
+### Requirement: Missing Ammunition Warning
+
+Construction validation SHALL emit one WARNING per distinct mounted weapon definition requiring external ammunition when the loadout contains zero tons of compatible ammunition. Compatibility SHALL use the shared weapon-ammunition matcher. This warning SHALL NOT make the unit illegal or prevent saving. The issue SHALL belong to Equipment and offer a hint to add compatible ammunition in Equipment.
+
+#### Scenario: Missing or wrong ammunition
+
+- **WHEN** an AC/20 is carried without positive-weight compatible ammunition
+- **THEN** validation reports "AC/20 has no ammunition" with an Equipment fix hint
+- **AND** unrelated ammunition does not suppress the warning
+
+#### Scenario: Shared ammunition
+
+- **WHEN** multiple weapons with the same definition share a positive-weight compatible ammunition bin
+- **THEN** no missing-ammunition warning is emitted
+- **AND** removing the final compatible bin produces exactly one warning for that definition
+
+#### Scenario: Weapons without external ammunition
+
+- **WHEN** a weapon uses no ammunition, is one-shot, or has internal ammunition
+- **THEN** it produces no missing-ammunition warning
+
+#### Scenario: Tech-base compatibility
+
+- **WHEN** ammunition explicitly lists compatible IS or Clan weapon definitions
+- **THEN** only listed definitions satisfy the warning rule
+

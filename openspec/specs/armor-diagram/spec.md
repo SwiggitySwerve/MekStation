@@ -69,17 +69,69 @@ The system SHALL display current armor values directly on the diagram.
 - **AND** rear armor value is displayed on the rear section (for CT, LT, RT)
 - **AND** values update immediately when changed
 
+#### Scenario: Maximum shown for every biped location
+
+- **WHEN** the biped armor diagram renders
+- **THEN** every location (head, torsos, arms and legs) uses one text stack centred on its plate and kept at least 8 viewBox units inside the outline: the location abbreviation in small bold capitals, then the location's armor in bold with its one "/<max>" muted on the same baseline (for example "34/34", "9/9"), and on torsos a muted "F<front>·R<rear>" split line under it; arms and legs add the fill bar beneath
+- **AND** each torso (CT, LT, RT) is labelled with its short name only ("CT", "LT", "RT", not "CT-F") and shows the location total as "<front + rear>/<location max>" (for example 61/62) with the smaller "F<front>·R<rear>" line (for example F47·R14) under it; front and rear share the location maximum, so no per-side maximum is drawn that a player could read as a fixed limit; there are no separate FRONT or REAR words on the cell
+- **AND** the location's accessible name still spells out the rear face ("<location> armor: <front> of <max>, rear: <rear> of <rear max>")
+- **AND** the largest value a face can take is still the location maximum minus the armor the other face currently holds, taken from one shared helper (`getArmorFaceMaximums`); it sets the range of the location editor's Front and Rear controls and is no longer printed on the plate, the table or the editor
+- **AND** the location editor labels each torso control with its current value ("Front 47", "Rear 14") without a per-side "max", and its Total line ("Total 61 / 62") shows front + rear over the location maximum; non-torso locations keep their single "max <n>" beside Front
+- **AND** the quad, tripod, LAM and QuadVee diagrams use a different cell renderer and keep their existing front/rear display
+
+#### Scenario: Biped plates stay legible and tappable on a phone
+
+- **WHEN** the biped silhouette renders at 390x844
+- **THEN** every SVG text and tspan is at least 12 rendered px, and the plate text, including the "/max" denominators, the rear line and the location names, is at least 14 rendered px (plate text uses 17 viewBox units, shown at about 0.83 px per unit because the figure is 420 units wide and its height is capped to the viewport; the bold values use 22 units)
+- **AND** every location plate (head, torsos, arms and legs) is a button at least 44 px wide and 44 px tall; arms, side torsos and legs are drawn wide at their text rows (about 70 to 80 units) so the "<value>/<max>" stack and the rear line never touch the outline
+- **AND** the viewBox is cropped to the drawn silhouette ("-30 20 420 402", exported as `BIPED_ARMOR_VIEWBOX` and shared with the style thumbnails) so the cropped height, not wasted margin, sets the scale
+
+#### Scenario: Neck and pelvis read as part of the silhouette
+
+- **WHEN** the biped silhouette renders
+- **THEN** the neck and pelvis are drawn as one structural group filled with the raised surface color, not the dark deep-surface color that read as a hole between the torso and legs
+- **AND** no extra bar is drawn behind the legs
+
+#### Scenario: Biped orientation matches the record sheet
+
+- **WHEN** the biped silhouette renders
+- **THEN** the unit's Left Arm, Left Torso and Left Leg plates are on the viewer's left and the Right plates on the viewer's right, matching the printed record sheet and MegaMekLab
+- **AND** the plates are focusable in reading order (Head, Left Arm, Left Torso, Center Torso, Right Torso, Right Arm, Left Leg, Right Leg)
+
+#### Scenario: Left and Right labels sit under the arms
+
+- **WHEN** the biped silhouette renders
+- **THEN** the words "Left" and "Right" are drawn directly beneath the left and right arm plates, not floating at the top corners of the card
+
+#### Scenario: Location table beside the silhouette
+
+- **WHEN** the biped silhouette card is at least 40rem wide inside (container query, not viewport width)
+- **THEN** the silhouette column (up to 440px) sits beside a compact table of every location with single-line columns "Location", "Front", "Rear" and "Total", centered as a pair so no blank band is left on the card's right
+- **AND** Front and Rear read as plain values, Rear shows an em dash for locations without rear armor, and Total reads "<front + rear> / <location max>" (for example "61 / 62", "34 / 34"); the table adds no calculations of its own, never overflows its card, and keeps the card's 16px padding to the right of the last column, so a selected row never touches the card edge
+- **AND** each row's location is a button (`aria-pressed` when selected) and clicking anywhere on the row selects or deselects that location exactly like its plate, so the plate, the row and the location editor always agree
+- **AND** a single-line 13px note directly under the table header row says "Front + rear share the location max."
+- **AND** each row carries a status dot using the plate's health color
+- **WHEN** the card is narrower (phones and narrow tablets)
+- **THEN** the table is omitted because the plates already show every value, and the figure keeps its viewport-capped height
+
 ### Requirement: Location Color Coding
 
-The system SHALL use color coding to distinguish location types.
+The system SHALL color each armor location by how full it is, using four clearly distinct health colors owned by `src/constants/armorStatus.ts`.
 
-#### Scenario: Location colors
+#### Scenario: Armor health colors
 
 - **WHEN** a location is displayed
-- **THEN** Head is green (bg-green-600)
-- **AND** Torso/Limbs are amber (bg-amber-600)
-- **AND** Rear armor sections are darker amber (bg-amber-800)
-- **AND** Selected location is blue (bg-blue-600)
+- **THEN** it is green (#22c55e) at 60% of its maximum or more
+- **AND** yellow (#facc15) from 40% up to 60%
+- **AND** orange (#f97316) from 20% up to 40%
+- **AND** red (#dc2626) below 20%
+- **AND** no two health colors are close in hue (amber and orange are not used side by side)
+- **AND** diagrams, legends, gradients and the schematic view read these colors from the single owner instead of repeating hex values
+
+#### Scenario: Selected location color
+
+- **WHEN** a location is selected
+- **THEN** it is highlighted with the accent/selected color rather than a health color
 
 ### Requirement: Hover Feedback
 
@@ -110,8 +162,20 @@ The system SHALL include a legend explaining color coding.
 #### Scenario: Legend display
 
 - **WHEN** diagram is rendered
-- **THEN** legend shows color indicators for Head, Torso/Limbs, Rear, Selected
-- **AND** instruction text explains click interaction
+- **THEN** legend is introduced by "Armor % of max:" and shows the four health colors with their thresholds (60%+, 40%+, 20%+, <20%)
+- **AND** on phones the legend text is 14px and shows the lead-in as "% of max:" (the word "Armor" stays in the accessible text) so the legend fits one line and the footer stays above the Loadout bar
+- **AND** the swatches use the same colors as the diagram fills
+- **AND** the biped diagram explains click interaction once, in its caption ("Matches the record sheet · left side on the left · click a location to edit"), with the keyboard instruction (Tab to a location, then press Enter) kept as screen-reader-only text
+- **AND** the biped diagram has no separate footnote or bottom instruction line
+
+#### Scenario: Legend and unallocated footer placement
+
+- **WHEN** the biped silhouette renders below the xl breakpoint (phones and tablets)
+- **THEN** a footer inside the diagram card shows "Unallocated: <n> points" (or "Over allocated" in red when negative), the "F = front · R = rear armor" key and the four-color legend
+- **AND** the SVG height is capped by the viewport (`100dvh - 31rem`, never below 20rem) so on a 390x844 phone the footer sits fully above the Loadout bar without scrolling
+- **WHEN** it renders at xl or wider in the Armor tab
+- **THEN** the diagram's footer is hidden and the armor inspector card ends with the legend (on its own line) and the "F = front · R = rear armor" key instead; the Unallocated Armor Points row already in the inspector is the single unallocated readout
+- **AND** configurations and views that keep their built-in legend (quad, tripod, LAM, QuadVee, schematic) are unchanged
 
 ### Requirement: Configuration-Specific Diagram Components
 

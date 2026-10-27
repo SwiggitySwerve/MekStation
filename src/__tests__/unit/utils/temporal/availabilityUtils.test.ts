@@ -130,10 +130,10 @@ describe('availabilityUtils', () => {
       expect(isAvailableInYear(entity, 3050)).toBe(true);
     });
 
-    it('should return true on extinction year', () => {
+    it('should return false on extinction year', () => {
       const entity = createEntity(3025, 3050);
 
-      expect(isAvailableInYear(entity, 3050)).toBe(true);
+      expect(isAvailableInYear(entity, 3050)).toBe(false);
     });
 
     it('should return false after extinction year', () => {
@@ -391,5 +391,31 @@ describe('availabilityUtils', () => {
       expect(eras).toContain(Era.STAR_LEAGUE);
       expect(eras).toContain(Era.CLAN_INVASION);
     });
+  });
+});
+
+describe('extinction and reintroduction boundaries', () => {
+  const entity = {
+    introductionYear: 2751,
+    extinctionYear: 2860,
+    reintroductionYear: 3037,
+  };
+  it.each([
+    [2750, false],
+    [2751, true],
+    [2859, true],
+    [2860, false],
+    [3028, false],
+    [3037, true],
+  ])('year %i is available: %s', (year, expected) => {
+    expect(isAvailableInYear(entity, year as number)).toBe(expected);
+  });
+  it('includes an era containing a reintroduction', () => {
+    expect(
+      isAvailableInEra(
+        { ...entity, reintroductionYear: 3055 },
+        Era.CLAN_INVASION,
+      ),
+    ).toBe(true);
   });
 });

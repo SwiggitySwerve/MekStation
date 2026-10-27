@@ -14,10 +14,8 @@
       "criticalSlots": 1,
       "costCBills": 2000,
       "battleValue": 0,
-      "introductionYear": 2022,
-      "special": [
-        "Dissipates 1 heat"
-      ]
+      "introductionYear": 2100,
+      "special": ["Dissipates 1 heat"]
     },
     {
       "id": "double-heat-sink",
@@ -30,9 +28,9 @@
       "costCBills": 6000,
       "battleValue": 0,
       "introductionYear": 2567,
-      "special": [
-        "Dissipates 2 heat"
-      ]
+      "special": ["Dissipates 2 heat"],
+      "extinctionYear": 2865,
+      "reintroductionYear": 3040
     },
     {
       "id": "clan-double-heat-sink",
@@ -44,10 +42,8 @@
       "criticalSlots": 2,
       "costCBills": 6000,
       "battleValue": 0,
-      "introductionYear": 2825,
-      "special": [
-        "Dissipates 2 heat"
-      ]
+      "introductionYear": 2827,
+      "special": ["Dissipates 2 heat"]
     },
     {
       "id": "compact-heat-sink",
@@ -59,11 +55,8 @@
       "criticalSlots": 1,
       "costCBills": 3000,
       "battleValue": 0,
-      "introductionYear": 3058,
-      "special": [
-        "Dissipates 1 heat",
-        "Fits in 1 slot"
-      ]
+      "introductionYear": 3079,
+      "special": ["Dissipates 1 heat", "Fits in 1 slot"]
     },
     {
       "id": "laser-heat-sink",
@@ -75,11 +68,8 @@
       "criticalSlots": 2,
       "costCBills": 6000,
       "battleValue": 0,
-      "introductionYear": 3075,
-      "special": [
-        "Dissipates 2 heat",
-        "Bonus for energy weapons"
-      ]
+      "introductionYear": 3051,
+      "special": ["Dissipates 2 heat", "Bonus for energy weapons"]
     }
   ]
 }

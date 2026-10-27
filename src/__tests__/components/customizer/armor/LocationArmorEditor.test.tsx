@@ -207,7 +207,7 @@ describe('LocationArmorEditor', () => {
     expect(screen.getByText('25')).toBeInTheDocument();
   });
 
-  it('should show max values for front and rear', () => {
+  it('labels torso sliders with their values and shows one total', () => {
     render(
       <LocationArmorEditor
         {...defaultProps}
@@ -222,10 +222,14 @@ describe('LocationArmorEditor', () => {
       />,
     );
 
-    // Should show "max X" indicators for both sliders
-    // The max for front is maxArmor - rear = 46 - 5 = 41 (but actual is calculated from tonnage)
-    // We just verify the "max" text appears
-    expect(screen.getAllByText(/max \d+/).length).toBeGreaterThanOrEqual(1);
+    // Front and rear share the location max, so neither slider shows a
+    // per-side "max X"; the sliders are labelled with their values and the
+    // one total carries the max (50 tons: 32-point center torso).
+    expect(screen.getByText('Front 20')).toBeInTheDocument();
+    expect(screen.getByText('Rear 5')).toBeInTheDocument();
+    expect(screen.queryByText(/^max \d+/)).toBeNull();
+    expect(screen.getByText('Total')).toBeInTheDocument();
+    expect(screen.getByText(/^25/)).toHaveTextContent(/^25\s*\/\s*\d+$/);
   });
 
   it('should disable both inputs in read-only mode for torso', () => {

@@ -9,12 +9,7 @@
       "rulesLevel": "INTRODUCTORY",
       "damage": 2,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 1,
-        "medium": 2,
-        "long": 3
-      },
+      "ranges": { "minimum": 0, "short": 1, "medium": 2, "long": 3 },
       "weight": 0.5,
       "criticalSlots": 1,
       "ammoPerTon": 200,
@@ -31,12 +26,7 @@
       "rulesLevel": "STANDARD",
       "damage": 1,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 2,
-        "medium": 4,
-        "long": 6
-      },
+      "ranges": { "minimum": 0, "short": 2, "medium": 4, "long": 6 },
       "weight": 0.25,
       "criticalSlots": 1,
       "ammoPerTon": 200,
@@ -53,12 +43,7 @@
       "rulesLevel": "STANDARD",
       "damage": 3,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 1,
-        "medium": 2,
-        "long": 2
-      },
+      "ranges": { "minimum": 0, "short": 1, "medium": 2, "long": 2 },
       "weight": 1,
       "criticalSlots": 1,
       "ammoPerTon": 100,
@@ -75,12 +60,7 @@
       "rulesLevel": "STANDARD",
       "damage": 2,
       "heat": 0,
-      "ranges": {
-        "minimum": 0,
-        "short": 1,
-        "medium": 2,
-        "long": 3
-      },
+      "ranges": { "minimum": 0, "short": 1, "medium": 2, "long": 3 },
       "weight": 0.25,
       "criticalSlots": 1,
       "ammoPerTon": 200,
@@ -108,7 +88,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 3050,
+      "introductionYear": 2868,
       "special": []
     },
     {
@@ -131,7 +111,7 @@
       "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 4,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -154,7 +134,7 @@
       "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 9,
-      "introductionYear": 3060,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -177,7 +157,7 @@
       "criticalSlots": 1,
       "costCBills": 7500,
       "battleValue": 6,
-      "introductionYear": 3068,
+      "introductionYear": 3059,
       "special": []
     },
     {
@@ -200,7 +180,7 @@
       "criticalSlots": 1,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 3068,
+      "introductionYear": 3060,
       "special": []
     },
     {

@@ -11,15 +11,12 @@ import { useMemo, useCallback } from 'react';
 
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
-import {
-  IUnitValidationError,
-  UnitValidationSeverity,
-} from '@/types/validation/UnitValidationInterfaces';
+import { IUnitValidationError } from '@/types/validation/UnitValidationInterfaces';
 import {
   CATEGORY_TAB_MAP,
+  countValidationIssuesByTab,
   getTabForCategory,
   getTabLabel,
-  createEmptyValidationCounts,
   ValidationCountsByTab,
   TabValidationCounts,
 } from '@/utils/validation/validationNavigation';
@@ -40,33 +37,11 @@ export interface UseValidationNavigationResult {
 export function useValidationNavigation(
   validation: UnitValidationState,
 ): UseValidationNavigationResult {
-  const errorsByTab = useMemo<ValidationCountsByTab>(() => {
-    const counts = createEmptyValidationCounts();
-
-    if (!validation.result) return counts;
-
-    for (const ruleResult of validation.result.results) {
-      for (const error of ruleResult.errors) {
-        const tabId = getTabForCategory(error.category);
-        if (
-          error.severity === UnitValidationSeverity.CRITICAL_ERROR ||
-          error.severity === UnitValidationSeverity.ERROR
-        ) {
-          counts[tabId].errors++;
-        }
-      }
-      for (const warning of ruleResult.warnings) {
-        const tabId = getTabForCategory(warning.category);
-        counts[tabId].warnings++;
-      }
-      for (const info of ruleResult.infos) {
-        const tabId = getTabForCategory(info.category);
-        counts[tabId].infos++;
-      }
-    }
-
-    return counts;
-  }, [validation.result]);
+  // Each issue is counted on the tab where it is fixed.
+  const errorsByTab = useMemo<ValidationCountsByTab>(
+    () => countValidationIssuesByTab(validation.result),
+    [validation.result],
+  );
 
   const getTabCounts = useCallback(
     (tabId: CustomizerTabId): TabValidationCounts => {

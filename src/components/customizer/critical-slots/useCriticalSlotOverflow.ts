@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { hasContentBelow } from '../shared/scrollOverflow';
+
 /** Track the visible location viewport, including content reflow and scrolling. */
 export function useCriticalSlotOverflow(isBiped: boolean): {
   rootRef: React.RefObject<HTMLDivElement | null>;
@@ -18,9 +20,7 @@ export function useCriticalSlotOverflow(isBiped: boolean): {
       setHasMoreBelow(
         viewports.some(
           (viewport) =>
-            viewport.clientHeight > 0 &&
-            viewport.scrollHeight - viewport.scrollTop >
-              viewport.clientHeight + 1,
+            viewport.getClientRects().length > 0 && hasContentBelow(viewport),
         ),
       );
     };
@@ -30,8 +30,8 @@ export function useCriticalSlotOverflow(isBiped: boolean): {
         : new ResizeObserver(update);
     for (const viewport of viewports) {
       observer?.observe(viewport);
-      if (viewport.firstElementChild)
-        observer?.observe(viewport.firstElementChild);
+      for (const content of Array.from(viewport.children))
+        observer?.observe(content);
       viewport.addEventListener('scroll', update, { passive: true });
     }
     update();

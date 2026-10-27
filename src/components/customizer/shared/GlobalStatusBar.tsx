@@ -110,14 +110,14 @@ export function GlobalStatusBar({
           <span
             className={
               isOverHeat
-                ? 'font-medium text-amber-400'
+                ? 'text-warning font-medium'
                 : 'text-text-theme-primary'
             }
           >
             {stats.heatGenerated} / {stats.heatDissipation}
           </span>
           {isOverHeat && (
-            <span className="text-xs text-amber-400">
+            <span className="text-warning text-xs">
               (+{stats.heatGenerated - stats.heatDissipation} buildup)
             </span>
           )}

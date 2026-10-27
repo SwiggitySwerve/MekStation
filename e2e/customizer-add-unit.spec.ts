@@ -29,7 +29,7 @@ for (const catalogState of ['loading', 'failed'] as const) {
     });
     try {
       await page.goto('/customizer');
-      await page.getByRole('button', { name: 'New Unit', exact: true }).click();
+      await page.getByRole('button', { name: 'Add unit', exact: true }).click();
       const dialog = page.getByRole('dialog', {
         name: 'Add unit',
         exact: true,
@@ -113,8 +113,37 @@ test('Add unit keeps catalog loading and optional starting settings in one flow 
   await page
     .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
     .click();
+  // Wide layout: the primary and secondary buttons sit side by side, left
+  // aligned, the same height, 12px apart. Each carries its own caption right
+  // under it, starting at that button's left edge.
+  const primary = dialog.getByRole('button', { name: 'New blank unit' });
+  const secondary = dialog.getByRole('button', {
+    name: 'Choose tonnage and tech first…',
+  });
+  const helper = dialog.getByText(
+    'Starts a 50-ton Inner Sphere BattleMech you can change.',
+  );
+  const secondaryHelper = dialog.getByText(
+    'Pick unit type, tonnage and tech base.',
+  );
+  const [pBox, sBox, hBox, shBox] = await Promise.all([
+    primary.boundingBox(),
+    secondary.boundingBox(),
+    helper.boundingBox(),
+    secondaryHelper.boundingBox(),
+  ]);
+  expect(Math.abs(pBox!.height - sBox!.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(pBox!.y - sBox!.y)).toBeLessThanOrEqual(1);
+  expect(sBox!.x - (pBox!.x + pBox!.width)).toBeCloseTo(12, 0);
+  expect(Math.abs(hBox!.x - pBox!.x)).toBeLessThanOrEqual(1);
+  expect(hBox!.y).toBeGreaterThanOrEqual(pBox!.y + pBox!.height);
+  // The blank-unit caption stays inside its own button's column ...
+  expect(hBox!.x + hBox!.width).toBeLessThanOrEqual(pBox!.x + pBox!.width + 1);
+  // ... and the settings caption sits under the settings button.
+  expect(Math.abs(shBox!.x - sBox!.x)).toBeLessThanOrEqual(1);
+  expect(shBox!.y).toBeGreaterThanOrEqual(sBox!.y + sBox!.height);
   await dialog
-    .getByRole('button', { name: 'Choose starting settings' })
+    .getByRole('button', { name: 'Choose tonnage and tech first…' })
     .click();
   await expect(dialog).toBeHidden();
   await expect(

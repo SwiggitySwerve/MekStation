@@ -33,6 +33,33 @@ import {
 // Constants Tests
 // =============================================================================
 
+describe('ARMOR_STATUS colour separation', () => {
+  const channels = (hex: string): number[] => [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
+  const distance = (a: string, b: string): number => {
+    const [ar, ag, ab] = channels(a);
+    const [br, bg, bb] = channels(b);
+    return Math.hypot(ar - br, ag - bg, ab - bb);
+  };
+
+  it('keeps every pair of health colours clearly distinct', () => {
+    const colours = [
+      ARMOR_STATUS.HEALTHY.color,
+      ARMOR_STATUS.MODERATE.color,
+      ARMOR_STATUS.LOW.color,
+      ARMOR_STATUS.CRITICAL.color,
+    ];
+    for (let i = 0; i < colours.length; i++) {
+      for (let j = i + 1; j < colours.length; j++) {
+        expect(distance(colours[i], colours[j])).toBeGreaterThan(70);
+      }
+    }
+  });
+});
+
 describe('ARMOR_STATUS', () => {
   it('should have correct threshold values', () => {
     expect(ARMOR_STATUS.HEALTHY.min).toBe(0.6);

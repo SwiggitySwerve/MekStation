@@ -663,6 +663,9 @@ describe('CalculationService', () => {
       // 3 + 8 + 2 (running) = 13
       expect(profile.heatGenerated).toBeGreaterThan(0);
       expect(profile.alphaStrikeHeat).toBe(11); // Just weapons, no movement
+      expect(profile.movementHeat).toBe(2);
+      expect(profile.movementMode).toBe('running');
+      expect(profile.heatGenerated).toBe(13);
     });
 
     it('should include movement heat', () => {
@@ -686,6 +689,11 @@ describe('CalculationService', () => {
 
       // 4 jump jets = 4 jump heat, higher than 2 running heat
       expect(profile.heatGenerated).toBeGreaterThanOrEqual(4);
+      expect(profile.movementHeat).toBe(4);
+      expect(profile.movementMode).toBe('jumping');
+      expect(profile.heatGenerated).toBe(
+        profile.alphaStrikeHeat + profile.movementHeat,
+      );
     });
 
     it('should calculate net heat correctly', () => {
@@ -713,6 +721,7 @@ describe('CalculationService', () => {
 
       expect(profile.heatGenerated).toBe(0);
       expect(profile.alphaStrikeHeat).toBe(0);
+      expect(profile.movementHeat).toBe(0);
       expect(profile.heatDissipated).toBe(10);
     });
 

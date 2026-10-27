@@ -1,0 +1,111 @@
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import React from 'react';
+
+import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+
+import {
+  ArmorLocationTable,
+  buildArmorLocationTableRows,
+} from '../ArmorLocationTable';
+
+const armorData: LocationArmorData[] = [
+  { location: MechLocation.HEAD, current: 9, maximum: 9 },
+  {
+    location: MechLocation.CENTER_TORSO,
+    current: 20,
+    maximum: 32,
+    rear: 8,
+    rearMaximum: 12,
+  },
+  { location: MechLocation.LEFT_ARM, current: 10, maximum: 24 },
+];
+const locations = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_ARM,
+];
+const withRear = new Set([MechLocation.CENTER_TORSO]);
+
+describe('buildArmorLocationTableRows', () => {
+  it('totals front and rear against one location max and leaves rear empty off the torsos', () => {
+    const rows = buildArmorLocationTableRows(armorData, locations, withRear);
+
+    expect(rows.map((r) => [r.front, r.rear, r.total, r.max])).toEqual([
+      [9, undefined, 9, 9],
+      [20, 8, 28, 32],
+      [10, undefined, 10, 24],
+    ]);
+  });
+
+  it('treats a missing location as empty', () => {
+    const [row] = buildArmorLocationTableRows(
+      [],
+      [MechLocation.HEAD],
+      new Set(),
+    );
+    expect(row).toMatchObject({ front: 0, total: 0, max: 0 });
+  });
+});
+
+describe('ArmorLocationTable', () => {
+  const rows = buildArmorLocationTableRows(armorData, locations, withRear);
+
+  it('renders a labelled column header set and one row per location', () => {
+    render(
+      <ArmorLocationTable
+        rows={rows}
+        selectedLocation={null}
+        onLocationClick={jest.fn()}
+      />,
+    );
+
+    expect(
+      screen.getAllByRole('columnheader').map((header) => header.textContent),
+    ).toEqual(['Location', 'Front', 'Rear', 'Total']);
+    // Header row, the note row directly under it, then one row per location.
+    expect(screen.getAllByRole('row')).toHaveLength(5);
+    const note = screen.getByTestId('armor-location-table-note');
+    expect(note.closest('thead')).not.toBeNull();
+    expect(note).toHaveClass('text-[13px]');
+    expect(note).toHaveClass('whitespace-nowrap');
+    expect(note).toHaveTextContent('Front + rear share the location max.');
+    const torso = screen.getByRole('row', { name: /Center Torso/ });
+    expect(
+      within(torso)
+        .getAllByRole('cell')
+        .map((c) => c.textContent),
+    ).toEqual(['20', '8', '28 / 32']);
+  });
+
+  it('selects through the row button, marks the selection and toggles by click', () => {
+    const onLocationClick = jest.fn();
+    render(
+      <ArmorLocationTable
+        rows={rows}
+        selectedLocation={MechLocation.LEFT_ARM}
+        onLocationClick={onLocationClick}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Left Arm' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Head' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Head' }));
+    expect(onLocationClick).toHaveBeenCalledTimes(1);
+    expect(onLocationClick).toHaveBeenCalledWith(MechLocation.HEAD);
+    fireEvent.click(
+      screen
+        .getByText('Total', { selector: 'th' })
+        .closest('table')!
+        .querySelectorAll('tbody tr')[1],
+    );
+    expect(onLocationClick).toHaveBeenLastCalledWith(MechLocation.CENTER_TORSO);
+  });
+});

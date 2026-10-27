@@ -203,8 +203,8 @@ export function GradientDefs(): React.ReactElement {
         x2="0%"
         y2="100%"
       >
-        <stop offset="0%" stopColor="#fbbf24" />
-        <stop offset="100%" stopColor="#d97706" />
+        <stop offset="0%" stopColor="#fde047" />
+        <stop offset="100%" stopColor="#ca8a04" />
       </linearGradient>
 
       <linearGradient id="armor-gradient-low" x1="0%" y1="0%" x2="0%" y2="100%">
