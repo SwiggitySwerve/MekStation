@@ -108,7 +108,11 @@ export function isSpectatorPlayer(
 export function addSpectatorSeat(
   seats: readonly IMatchSeat[],
   player: IPlayerRef,
+  rosterPlayerIds: readonly string[] = [],
 ): IMatchSeat[] {
+  if (rosterPlayerIds.includes(player.playerId)) {
+    throw new SpectatorSeatError('Rostered players cannot also spectate');
+  }
   const existing = findSpectatorSeat(seats, player.playerId);
   if (existing) {
     // Idempotent re-join — already spectating.
