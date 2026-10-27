@@ -243,11 +243,7 @@ export function UnitSaveAction({
         className={`group relative !h-11 !min-w-11 shrink-0 !p-0 whitespace-nowrap lg:!px-3 ${primary ? PHONE_OUTLINE_PRIMARY : '!text-text-theme-primary max-sm:!border-transparent max-sm:!bg-transparent'}`}
         onClick={onSave}
       >
-        <AppIcon
-          name="save"
-          size="toolbar"
-          className="max-sm:!h-5 max-sm:!w-5"
-        />
+        <AppIcon name="save" size="toolbar" />
         <span aria-hidden="true" className="hidden lg:inline">
           {SAVE_ACTION_LABEL}
         </span>

@@ -263,6 +263,21 @@ function EquipmentBrowserContent({
           )}
         </div>
       </div>
+      {/* Above the pager, so on phones the pager stays pinned to the Loadout bar. */}
+      <p
+        role="status"
+        aria-atomic="true"
+        className={
+          feedback.message || readOnly
+            ? 'text-text-theme-secondary shrink-0 px-3 py-1 text-xs'
+            : 'sr-only'
+        }
+      >
+        {feedback.message && (
+          <span key={feedback.count}>{feedback.message}</span>
+        )}
+        {readOnly && 'Read-only: equipment can be inspected but not added.'}
+      </p>
       {totalPages > 1 && (
         <div
           className={`border-border-theme flex min-h-12 shrink-0 items-center justify-between gap-2 border-t px-3 ${workbenchStyles.catalogFooter}`}
@@ -334,20 +349,6 @@ function EquipmentBrowserContent({
           />
         </div>
       )}
-      <p
-        role="status"
-        aria-atomic="true"
-        className={
-          feedback.message || readOnly
-            ? 'text-text-theme-secondary shrink-0 px-3 py-1 text-xs'
-            : 'sr-only'
-        }
-      >
-        {feedback.message && (
-          <span key={feedback.count}>{feedback.message}</span>
-        )}
-        {readOnly && 'Read-only: equipment can be inspected but not added.'}
-      </p>
     </section>
   );
 }

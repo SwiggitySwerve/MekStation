@@ -658,10 +658,16 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   expect(loadoutBar.y - (pagerBox.y + pagerBox.height)).toBeLessThanOrEqual(2);
   // Phone density: two 14px stat lines per row leave five full rows visible.
   const phoneScroll = (await scroll.boundingBox())!;
+  // The tab's issue notice, when this unit has one, sits above the catalog and
+  // may add only its own height to the 290px budget for the catalog controls.
+  const notice = page.getByTestId('tab-issue-notice');
+  const noticeHeight = (await notice.isVisible())
+    ? (await notice.boundingBox())!.height
+    : 0;
   expect(
     (await rows.first().boundingBox())!.y,
     'first phone row starts near the top',
-  ).toBeLessThanOrEqual(290);
+  ).toBeLessThanOrEqual(290 + noticeHeight);
   let fullyVisible = 0;
   for (const candidate of await rows.all()) {
     const box = (await candidate.boundingBox())!;
@@ -681,7 +687,10 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   // A weapon row: damage/range/min, then heat/weight/slots.
   await expect(firstStats.locator(':scope > span')).toHaveCount(2);
   await expect(firstStats).toContainText(/Damage .*Range \d+\/\d+\/\d+/);
-  await expect(firstStats).toContainText(/Heat \d+ . [\d.]+ t . \d+ slots?/);
+  // A no-break space keeps each "·" with the field before it when lines wrap.
+  await expect(firstStats).toContainText(
+    /Heat \d+\u00a0· [\d.]+ t\u00a0· \d+ slots?/,
+  );
   for (const field of await firstStats.locator(':scope > span > span').all()) {
     await expect(field).toHaveCSS('white-space', 'nowrap');
     expect((await field.boundingBox())!.height).toBeLessThanOrEqual(20);

@@ -57,7 +57,7 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 - **WHEN** the catalog is displayed at a narrow viewport
 - **THEN** each row retains its equipment name, weight or variable-property summary, detail toggle, and accessible Add control
 - **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
-- **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 290px of the viewport top and at least five rows are fully visible
+- **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 290px of the viewport top, plus only the height of the tab's issue notice when the unit has one, and at least five rows are fully visible
 - **AND** expanding details makes weapon and equipment statistics available
 
 ### Requirement: Equipment Filtering
@@ -673,11 +673,11 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 #### Scenario: Phone comparison
 
 - **WHEN** browsing on a phone
-- **THEN** names use 16px text with the Add actions beside the name and stats; stats use at most two 14px lines of unbroken fields: weapons read "Damage 10 · Range 6/12/18 · Min 3" over "Heat 10 · 7 t · 3 slots", ammunition reads one line ("Shots 45 · 1 t · 1 slot"), and other equipment reads only "<weight> · <slots>"; fields that do not apply (including a zero minimum range) are omitted rather than shown as dashes, and a narrow line wraps between fields, never inside one
+- **THEN** names use 16px text with the Add actions beside the name and stats; stats use at most two 14px lines of unbroken fields: weapons read "Damage 10 · Range 6/12/18 · Min 3" over "Heat 10 · 7 t · 3 slots", ammunition reads one line ("Shots 45 · 1 t · 1 slot"), and other equipment reads only "<weight> · <slots>"; fields that do not apply (including a zero minimum range) are omitted rather than shown as dashes, and a narrow line wraps between fields, never inside one, with each "·" kept (by a no-break space) at the end of the field before it
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
 - **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
 - **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · available in 3028")
-- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it
+- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it; the add confirmation (e.g., "AC/2. Added unassigned. Choose a location in Critical Slots.") appears between the list and the pager, never between the pager and the Loadout bar
 - **AND** the pager reads "Page N of M · T items" on the left, and only while the current page itself overflows (rows hidden below) an opaque footer adds "Scroll for more on this page" in the pager (or a dedicated footer for a single page) without changing the pager's height, so the list viewport does not shift when the cue hides at the bottom; the footer stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 
