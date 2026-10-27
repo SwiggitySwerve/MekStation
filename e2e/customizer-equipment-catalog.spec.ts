@@ -570,6 +570,12 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await first.getByRole('button', { name: `Add ${name}`, exact: true }).click();
   const afterAdd = (await draft(page)).equipment;
   expect(afterAdd).toHaveLength(before.length + 1);
+  // The add makes the unit overweight; let the tab's error notice settle
+  // above the catalog before measuring row positions.
+  await expect(page.getByTestId('tab-issue-notice')).toHaveAttribute(
+    'data-severity',
+    'error',
+  );
   await expect(
     page.getByRole('button', { name: /^Add options for / }),
   ).toHaveCount(25);
