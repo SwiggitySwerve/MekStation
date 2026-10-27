@@ -71,7 +71,7 @@
       "exitCode": 0
     }
   ],
-  "execution": "Tool-prepared checkout (started at old main 8c3617f44), fetched; branch work/mm1-closure-a2m-admission created from the exact merge a720c5746034a12ec4558d34c5250916fddc1bda before any proof. Clean (git status --porcelain empty) before and after every job. npm ci and the built-image run ran as build tickets, the Jest/node/tool checks as one jest ticket. The branch carries no commit before the closure edit.",
+  "execution": "Tool-prepared checkout (started at old main 8c3617f44), fetched; branch work/mm1-closure-a2m-admission created from the exact merge a720c5746034a12ec4558d34c5250916fddc1bda before any proof. Clean (git status --porcelain empty) before every job and after every job except the built run, whose npm run build rewrote next-env.d.ts; it was restored with git checkout before any ledger edit (sourceCleanliness.afterBuild). npm ci and the built-image run ran as build tickets, the Jest/node/tool checks as one jest ticket. The branch carries no commit before the closure edit.",
   "ancestry": {
     "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda",
     "originMain": "a720c5746034a12ec4558d34c5250916fddc1bda",
@@ -312,7 +312,7 @@
         "bytes": 97320
       }
     },
-    "comparison": "Worker counts at the GREEN/test-fix head (local receipt): focused 28, 17 suites 228. The exact-main counts are equal. Neither independent reviewer rerun Jest, so this is the first fresh independent execution on the merged tree."
+    "comparison": "Worker counts at the GREEN/test-fix head (local receipt): focused 28, 17 suites 228. The exact-main counts are equal. Neither independent reviewer rerun Jest, so this is the first execution after review, and the first on the merged tree."
   },
   "toolChecks": [
     {

@@ -34,7 +34,7 @@
         "id": "AUTH-4",
         "kind": "Root rulings 2026-10-26",
         "status": "SETTLED",
-        "text": "carry-forward.md, section \"2026-10-26 Root rulings\": \"GM viewer role on co-op mission matches (meta.coopCampaign absent, so the real mission GM is a player-role viewer): option (a). A2M keeps its fixture-branded GM matrix and DISCLOSES the real mission GM's player role as a known issue (release notes + A2M admission). No GM fix unit in Step 3.\" and the A2 cap watch (option A 491-506, literal 611-626; Root stops and asks the owner if the A2 freeze measures option A above 500)."
+        "text": "carry-forward.md, section \"2026-10-26 Root rulings (standing instruction + owner 2026-10-26 'other recommendations as we're going through')\": \"GM viewer role on co-op mission matches (meta.coopCampaign absent, so the real mission GM is a player-role viewer): option (a). A2M keeps its fixture-branded GM matrix and DISCLOSES the real mission GM's player role as a known issue (release notes + A2M admission). No GM fix unit in Step 3.\" and the A2 cap watch (option A 491-506, literal 611-626; Root stops and asks the owner if the A2 freeze measures option A above 500)."
       },
       {
         "id": "AUTH-5",
@@ -46,7 +46,7 @@
         "id": "AUTH-6",
         "kind": "workers and size cap",
         "status": "SETTLED",
-        "text": "Workers on Sonnet or Sol priority tier; reviews on Opus (carry-forward.md). No leaf of A2M is a fixture, so the size cap is the literal rule and option A is not needed."
+        "text": "Workers on Sonnet (claude-sonnet-5-5) and reviews on Opus; the 2026-10-26 Sol priority-tier option is suspended until the owner says otherwise (carry-forward.md, 2026-10-27 OpenAI quota entry). No leaf of A2M is a fixture, so the size cap is the literal rule and option A is not needed."
       }
     ]
   },
@@ -176,7 +176,7 @@
         56,
         80
       ],
-      "basis": "A2F implementation PR lifecycle actual: units.json +43, PROGRESS.md +11, page +2 = 56; bounded at 80. The admission commit measured here (rides the MISSION-MATCH-1 closure PR, not counted against A2M): units.json +28/-6, PROGRESS.md +12, page +2/-2."
+      "basis": "A2F implementation PR lifecycle actual: units.json +43, PROGRESS.md +11, page +2 = 56; bounded at 80. The admission commit (01bcf2727, rides the MISSION-MATCH-1 closure PR, not counted against A2M): units.json +24/-4, PROGRESS.md +14, page +2/-2."
     },
     "estimatedCountedTotal": [
       308,
@@ -325,13 +325,13 @@
     "note": "FREEZE RERUN of the prep evidence on the real merged tree, not a built-image proof. The built-image rows (12 matrix ids plus A1) are not run here; historical prep results are not reused as proof."
   },
   "mutantInventory": {
-    "pureFunction": "16 of 16 pure-function mutants killed by node:test at the freeze (m-mutants.cjs rerun on the closure head: M1-M14 as in the 2026-10-25 prep plus M15 stale-first not established before the declaration and M16 prepareAudience skipped); survivors: none. Rerun at RED and GREEN on the frozen leaves.",
+    "pureFunction": "16 of 16 pure-function mutants killed by node:test at the freeze (m-mutants.cjs rerun at the clean exact main a720c5746, before the closure commit, which changes no script: M1-M14 as in the 2026-10-25 prep plus M15 stale-first not established before the declaration and M16 prepareAudience skipped); survivors: none. Rerun at RED and GREEN on the frozen leaves.",
     "builtImage": [
       "R6 (runRow skips the live barrier wait), R7 (runRow skips prepareAudience), R8 (reveal leg skipped): runner mutants moved to A2M by the A2F amendment.",
       "P1 (delete the spectator guard, MatchWireSealedChoices.ts): the *-stale and gm-unassigned rows must go RED. After MISSION-MATCH-1 the guard is the line that keeps a first-listed stale watcher from owning the side.",
       "P4 (replay path unprojected, ServerMatchHostReplay): reconnect and restart legs RED, live leg GREEN.",
       "P6 (shouldRemoveAuthorityFieldForRole keeps sequence for every role): the player-stale rows RED (authority sequence); GM rows unchanged.",
-      "New for this admission: P7 (MISSION-MATCH-1 reverted on the image: first-entry owner restored): the six *-stale rows must go RED on the actor-positive (accepted times out) - proves the live stale-first row discriminates. Predicted from the A2F G-F1 probe; unverified."
+      "Worker-proposed at this admission, optional and not gating (Root ruling on #2345): P7 (MISSION-MATCH-1 reverted on the image: first-entry owner restored): the six *-stale rows must go RED on the actor-positive (accepted times out) - proves the live stale-first row discriminates. Predicted from the A2F G-F1 probe; unverified."
     ],
     "note": "Built-image mutants run only on a built image (class package, 30 min lease) and are owed at RED/GREEN. Survivors are disclosed in the local receipt."
   },
@@ -339,7 +339,7 @@
     "order": [
       "RED: tests-only commit (the node:test leaf) against the absent cases and runner leaves; fails at import (ERR_MODULE_NOT_FOUND), a weak RED declared in advance (the A1, A2FP and A2F precedent for new-leaf units). A vacuous stand-in run (a ctx whose check never throws and sockets that always return clean frames) must fail the test file.",
       "GREEN: add the cases and runner leaves within the frozen manifest; node:test 9 of 9; 16 pure-function mutants killed.",
-      "BUILT RUN: node scripts/release/run-l1-built-server-spectator-privacy.mjs --build --expected-sha=<head> --output=<abs-new-dir> under heavy-run (class package, 30 min lease, casesMs 1,800,000): A1 baseline once plus 12 matrix ids; then R6-R8, P1, P4, P6, P7.",
+      "BUILT RUN: node scripts/release/run-l1-built-server-spectator-privacy.mjs --build --expected-sha=<head> --output=<abs-new-dir> under heavy-run (class package, 30 min lease, casesMs 1,800,000): A1 baseline once plus 12 matrix ids; then R6-R8, P1, P4, P6 (P7 optional, outcome disclosed).",
       "LIFECYCLE: red and local receipts, units.json, PROGRESS.md, page."
     ],
     "noImplementationBeforeMerge": "No leaf is edited by the admission commit. The draft patch stays outside Git until RED."
@@ -388,6 +388,7 @@
   "controls": {
     "note": "sha256/bytes of git blobs at the frozen baseline a720c5746 (the merged tree). Re-hash at the implementation baseline; any change must be explained. MISSION-MATCH-1 edited five product controls; their hashes here are the real merged bytes (the prep stand-ins are dropped).",
     "driftVsPrep": {
+      "note": "equalToPrep false on the five MISSION-MATCH-1 product paths compares the real merged bytes with the prep BASE blobs at 86d0817b1, which predate MISSION-MATCH-1; those five equal the prep stand-ins (missionMatch1AgainstPrepStandIn). Every other row is a true drift check.",
       "prepBaseline": "86d0817b1e945ef1993f78ae19888f4022e503a0",
       "a1": [
         {
@@ -682,7 +683,7 @@
     {
       "id": "G-A0",
       "kind": "ruling before RED",
-      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main, rebase draft/a2m-leaves.patch, re-verify every control hash above against the merged tree (A2F and A2FP leaves must be byte-identical; the five MISSION-MATCH-1 product leaves must equal the merged MM1 bytes), re-run the open-PR and worktree census."
+      "text": "No RED commit before this PR merges. Then re-fetch origin/main, check main still equals the baseline (or re-hash the controls on the new main), apply E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/a2m-admission/draft/a2m-leaves.patch (outside Git), re-verify every control hash above against the merged tree (A2F and A2FP leaves must be byte-identical; the five MISSION-MATCH-1 product leaves must equal the merged MM1 bytes), re-run the open-PR and worktree census."
     },
     {
       "id": "G-A1",
@@ -692,17 +693,17 @@
     {
       "id": "G-A2",
       "kind": "GREEN",
-      "text": "Cases and runner leaves; node:test 9 of 9; oxfmt --check exit 0; 16 of 16 pure-function mutants killed."
+      "text": "Cases and runner leaves; node:test 9 of 9; oxfmt --check exit 0; 16 of 16 pure-function mutants killed. The cases and runner leaves must equal the measuredFit draftSha256 bytes; any deviation is listed in the local receipt with a re-measured counted total and re-checked against G-A7."
     },
     {
       "id": "G-A3",
       "kind": "built run, first contact",
-      "text": "The first --build run of the runner after MISSION-MATCH-1. Stop and tell Root (do not edit product) if matrix-*-player-stale/gm-stale fails at the actor-positive (MM1 did not reach the live path), if any non-stale row fails at the actor-positive, or if a spectator row reports a leaked sentinel (a real privacy finding)."
+      "text": "The first --build run of the runner after MISSION-MATCH-1. Stop and tell Root (do not edit product) if matrix-*-player-stale/gm-stale fails at the actor-positive (MM1 did not reach the live path), if any non-stale row fails at the actor-positive, or if a spectator row reports a leaked sentinel (a real privacy finding). Any other failure on the first --build run (staleEffective false before the declaration, A1 baseline failure, restart or reconnect leg, build failure) also stops the unit for Root; the worker does not edit a leaf to make it pass. The single permitted rerun is CF-A2FP-2: only when the 15-second readiness probe is the sole failure, disclosed in the local receipt."
     },
     {
       "id": "G-A4",
       "kind": "mutants",
-      "text": "R6-R8, P1, P4, P6, P7 on the built image; survivors disclosed; no compile-only or missing-module kill counted."
+      "text": "R6-R8, P1, P4, P6 on the built image; no compile-only or missing-module kill counted. A survivor of R6-R8, P1, P4 or P6 stops the unit for Root unless the local receipt shows it is an equivalent mutant. P7 is optional (worker-proposed, not a Root or owner ruling); if run, its outcome is disclosed and it does not gate."
     },
     {
       "id": "G-A5",
@@ -722,7 +723,7 @@
     {
       "id": "G-A8",
       "kind": "disclosure",
-      "text": "Disclosure: the real mission GM keeps the player viewer role (Root ruling option a), plus S5-02 and OQ-M1, are recorded here and in units.json. The release-notes obligation belongs to RELEASE-PRODUCER-1 admission (Root ruling 2026-10-26 Q5); this unit does not edit release notes."
+      "text": "Disclosure: the real mission GM keeps the player viewer role (Root ruling option a), plus S5-02 and OQ-M1, are recorded here and in units.json. The release-notes obligation belongs to RELEASE-PRODUCER-1 admission (Root ruling 2026-10-26 Q5); this unit does not edit release notes. This supersedes the older \"and the release notes\" wording in the A2M gmRole registration text and the MISSION-MATCH-1 note."
     }
   ],
   "resolutions": {
