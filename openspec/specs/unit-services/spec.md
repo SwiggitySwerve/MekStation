@@ -9,9 +9,7 @@ Provides services for loading, browsing, searching, and managing BattleMech unit
 `CustomUnitApiService` describes the current customizer library-save, loading, and version-history flow. The retained `CustomUnitService` separately persists browser IndexedDB data and does not define that flow. Browser drafts and per-unit session Undo/Redo are governed by customizer-edit-recovery. Server version reversion and restoring a saved version into an unsaved draft are distinct operations. Persistence or a library-save receipt does not establish combat eligibility.
 
 **Source**: `src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts:151-320`, `src/components/customizer/tabs/restoreLibraryVersionToDraft.ts:56-98`, `src/services/units/CustomUnitApiService.ts:60-95`, `src/services/units/CustomUnitService.ts:51-181`, `src/services/units/VersionRepository.ts:123-215`
-
 ## Requirements
-
 ### Requirement: Canonical Unit Index Loading
 
 The system SHALL load a lightweight unit index on application startup for search and browsing.
@@ -962,7 +960,6 @@ The UnitSearchService SHALL expose an accessor over the merged canonical + custo
 - **THEN** it SHALL return an empty set rather than throwing
 - **AND** after initialize() resolves, getAllUnits() SHALL return the full merged canonical + custom set
 
-
 ### Requirement: Server-backed Customizer Library Service
 
 Library-save-supported customizer tabs SHALL use CustomUnitApiService to save, load, list, and inspect versions through `/api/units/custom` and its unit/version routes. A successful server response with a complete id/version SHALL establish the library-save receipt.
@@ -982,6 +979,29 @@ Library-save-supported customizer tabs SHALL use CustomUnitApiService to save, l
 - **WHEN** the editor restores a server version into the selected draft
 - **THEN** the operation SHALL be one undoable local edit under customizer-edit-recovery
 - **AND** it SHALL NOT rewrite or revert the server history merely by previewing or restoring the draft
+
+### Requirement: Recover Catalog Ammunition from Critical Slots
+
+The unit loader SHALL recover resolvable ammunition bins from critical-slot tokens when absent from the serialized equipment array. It SHALL reuse equipment registry name resolution and the existing slot-claiming mechanism, without duplicating ammunition already listed in that array.
+
+#### Scenario: Danielle Atlas ammunition
+
+- **GIVEN** the canonical Atlas AS7-D (Danielle) definition has two ISAC20 Ammo tokens and two ISLRM20 Ammo tokens
+- **WHEN** it is loaded into the customizer
+- **THEN** it carries two AC/20 and two LRM-20 one-ton ammunition bins in their source slots
+- **AND** its loaded weight is 100.0 tons
+- **AND** MissingAmmunitionRule reports no missing-ammunition warning
+
+#### Scenario: Serialized ammunition is already present
+
+- **GIVEN** the same four bins are also listed in the serialized equipment array, with or without explicit slot indices
+- **WHEN** the definition is loaded
+- **THEN** each bin is carried once and occupies its matching critical slot
+
+#### Scenario: Existing display-name aliases remain compatible
+
+- **WHEN** the canonical 2755 Atlas AS7-D is loaded
+- **THEN** it retains two AC/20, two LRM-20, and one SRM-6 ammunition bins
 
 ## Data Model Requirements
 
