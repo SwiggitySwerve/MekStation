@@ -291,7 +291,6 @@ test('every biped location shows its max and torsos show one total against the l
     </UnitStoreContext.Provider>,
   );
 
-  const diagram = within(screen.getByTestId('armor-diagram'));
   // Every location uses one stack: the armor value with its "/max" muted on
   // the same baseline (head, four limbs and three torso totals); torsos add a
   // front / rear split line under it.

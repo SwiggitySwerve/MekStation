@@ -1094,7 +1094,7 @@
 }
 
 @media (min-width: 1024px) and (pointer: fine) {
-  :global([data-testid='critical-slots-grid-desktop']) {
+  .criticalDesktopViewport {
     padding-block: 0;
   }
 

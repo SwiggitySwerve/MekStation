@@ -356,7 +356,7 @@ export function CriticalSlotsTab({
             </div>
           </div>
           <div
-            className="hidden min-h-0 flex-1 overflow-y-auto px-3 py-2 lg:block"
+            className={`${styles.criticalDesktopViewport} hidden min-h-0 flex-1 overflow-y-auto px-3 py-2 lg:block`}
             data-testid="critical-slots-grid-desktop"
             role="region"
             aria-label="Critical slot locations"
