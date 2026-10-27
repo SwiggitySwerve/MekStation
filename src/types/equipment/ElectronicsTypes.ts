@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 /**
  * Electronics Equipment Type Definitions
  *
@@ -29,7 +30,10 @@ export enum ElectronicsCategory {
 /**
  * Electronics equipment interface
  */
-export interface IElectronics {
+export interface IElectronics extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   readonly id: string;
   readonly name: string;
   readonly category: ElectronicsCategory;
@@ -39,7 +43,6 @@ export interface IElectronics {
   readonly criticalSlots: number;
   readonly costCBills: number;
   readonly battleValue: number;
-  readonly introductionYear: number;
   readonly special?: readonly string[];
   /** ID for variable equipment formula lookup in FormulaRegistry */
   readonly variableEquipmentId?: string;

@@ -45,6 +45,23 @@ test('existing biped armor edits preserve caps, draft and unit isolation @custom
     'aria-label',
     'Center Torso armor: 47 of 62, rear: 14 of 15',
   );
+  await expect(page.getByTestId('armor-points-explanation')).toHaveText(
+    '304 pts from 19 t · 3 more need +0.5 t',
+  );
+  // Torso cells show the location total against the one location max
+  // ("61/62") and split it below ("F47", "R14"); front and rear share the
+  // max, so no per-side maximum is drawn.
+  // The inspector header no longer repeats the summary strip's "pts from" line.
+  await expect(
+    page.getByRole('heading', { name: 'Armor inspector' }).locator('..'),
+  ).not.toContainText('pts from');
+  await expect(
+    page.locator('[data-armor-face-location="Center Torso"]'),
+  ).toHaveText(['F47', 'R14']);
+  await expect(
+    page.locator('[data-armor-total-location="Center Torso"]'),
+  ).toHaveText('61/62');
+  await expect(page.getByTestId('location-armor-editor-empty')).toHaveCount(0);
   await torso.focus();
   await page.keyboard.press('Enter');
   const editor = page.getByTestId('location-armor-editor');
@@ -69,7 +86,9 @@ test('existing biped armor edits preserve caps, draft and unit isolation @custom
     fullPage: true,
   });
 
-  await page.getByTitle('Add unit (Ctrl+O)').click();
+  await page
+    .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+    .click();
   await page
     .getByRole('dialog')
     .getByRole('combobox')

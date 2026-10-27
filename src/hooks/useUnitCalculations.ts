@@ -12,7 +12,6 @@ import { IComponentSelections } from '@/stores/useMultiUnitStore';
 import { MechLocation } from '@/types/construction';
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
-import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
 import {
   MechConfiguration,
@@ -20,14 +19,12 @@ import {
   isLegLocation,
 } from '@/types/construction/MechConfigurationSystem';
 import { getArmorCriticalSlots } from '@/utils/construction/armorCalculations';
-import {
-  calculateEngineWeight,
-  calculateIntegralHeatSinks,
-} from '@/utils/construction/engineCalculations';
+import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import {
   calculateGyroWeight,
   getGyroCriticalSlots,
 } from '@/utils/construction/gyroCalculations';
+import { getHeatSinkSummary } from '@/utils/construction/heatSinkCalculations';
 import {
   JumpJetType,
   calculateJumpJetWeight,
@@ -63,6 +60,8 @@ export interface UnitCalculations {
   // Heat
   integralHeatSinks: number;
   externalHeatSinks: number;
+  freeHeatSinks: number;
+  heatSinksRequiringWeight: number;
   totalHeatDissipation: number;
 
   // Movement
@@ -95,7 +94,6 @@ export function useUnitCalculations(
       selections.internalStructureType,
     );
     const cockpitDef = getCockpitDefinition(selections.cockpitType);
-    const heatSinkDef = getHeatSinkDefinition(selections.heatSinkType);
 
     // =========================================================================
     // Weight Calculations
@@ -123,20 +121,20 @@ export function useUnitCalculations(
 
     // Heat sink calculations
     // Engine-integrated heat sinks don't require critical slots
-    const integralHeatSinks = calculateIntegralHeatSinks(
+    const heatSinkSummary = getHeatSinkSummary(
+      selections.heatSinkCount,
+      selections.heatSinkType,
       selections.engineRating,
       selections.engineType,
     );
-    const externalHeatSinks = Math.max(
-      0,
-      selections.heatSinkCount - integralHeatSinks,
-    );
+    const integralHeatSinks = heatSinkSummary.integrated;
+    const externalHeatSinks = heatSinkSummary.external;
+    const freeHeatSinks = heatSinkSummary.weightFree;
 
     // First 10 heat sinks are WEIGHT-FREE per BattleTech rules
     // Weight only applies to heat sinks beyond the free 10
-    const heatSinksRequiringWeight = Math.max(0, selections.heatSinkCount - 10);
-    const weightPerHeatSink = heatSinkDef?.weight ?? 1.0;
-    const heatSinkWeight = heatSinksRequiringWeight * weightPerHeatSink;
+    const heatSinksRequiringWeight = selections.heatSinkCount - freeHeatSinks;
+    const heatSinkWeight = heatSinkSummary.weight;
 
     // Armor weight - use armorTonnage directly (not calculated from allocated points)
     // The user sets armor tonnage in the Armor tab, and weight should reflect that setting
@@ -181,9 +179,7 @@ export function useUnitCalculations(
     // Heat sink slots (only external heat sinks need slots)
     // Note: heatSinkSlots is tracked for reference but NOT included in totalSystemSlots
     // because heat sinks are now in the equipment array (like Jump Jets, Endo Steel, Ferro-Fibrous)
-    const heatSinkSlots = heatSinkDef
-      ? externalHeatSinks * heatSinkDef.criticalSlots
-      : externalHeatSinks;
+    const heatSinkSlots = heatSinkSummary.slots;
 
     // Armor slots (Ferro-Fibrous requires slots)
     const armorSlots = getArmorCriticalSlots(selections.armorType);
@@ -210,8 +206,7 @@ export function useUnitCalculations(
     // Heat Calculations
     // =========================================================================
 
-    const dissipationPerSink = heatSinkDef?.dissipation ?? 1;
-    const totalHeatDissipation = selections.heatSinkCount * dissipationPerSink;
+    const totalHeatDissipation = heatSinkSummary.dissipation;
 
     // =========================================================================
     // Movement Calculations
@@ -244,6 +239,8 @@ export function useUnitCalculations(
       // Heat
       integralHeatSinks,
       externalHeatSinks,
+      freeHeatSinks,
+      heatSinksRequiringWeight,
       totalHeatDissipation,
 
       // Movement

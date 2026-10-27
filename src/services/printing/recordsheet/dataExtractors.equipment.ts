@@ -1,6 +1,6 @@
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { WeaponCategory } from '@/types/equipment';
+import { IAmmunition, WeaponCategory } from '@/types/equipment';
 import {
   IRecordSheetEquipment,
   LOCATION_ABBREVIATIONS,
@@ -12,6 +12,7 @@ import { COMBAT_EQUIPMENT } from './constants';
 import {
   getDamageCode,
   formatMissileDamage,
+  lookupAmmoShots,
   lookupWeapon,
 } from './equipmentUtils';
 
@@ -21,11 +22,17 @@ type WeaponLookupResult = NonNullable<ReturnType<typeof lookupWeapon>>;
 export function extractEquipment(
   unit: IUnitConfig,
 ): readonly IRecordSheetEquipment[] {
-  const allWeapons = getEquipmentLookupService().getAllWeapons();
+  const lookup = getEquipmentLookupService();
+  const allWeapons = lookup.getAllWeapons();
+  const allAmmunition = lookup.getAllAmmunition();
   return unit.equipment
     .filter(isCombatRecordSheetEquipment)
     .map((eq) =>
-      mapCombatEquipment(eq, lookupWeapon(allWeapons, eq.name, eq.id)),
+      mapCombatEquipment(
+        eq,
+        lookupWeapon(allWeapons, eq.name, eq.id),
+        allAmmunition,
+      ),
     );
 }
 
@@ -46,8 +53,9 @@ function isKnownCombatEquipment(name: string): boolean {
 function mapCombatEquipment(
   eq: UnitEquipment,
   weaponData: WeaponLookupResult | undefined,
+  allAmmunition: readonly IAmmunition[],
 ): IRecordSheetEquipment {
-  if (eq.isAmmo) return mapFallbackCombatEquipment(eq);
+  if (eq.isAmmo) return mapAmmoEquipment(eq, allAmmunition);
 
   if (weaponData) {
     return mapWeaponEquipment(eq, weaponData);
@@ -112,6 +120,17 @@ function mapNamedCombatEquipment(eq: UnitEquipment): IRecordSheetEquipment {
     isAmmo: false,
     isEquipment: true,
     ammoCount: undefined,
+  };
+}
+
+function mapAmmoEquipment(
+  eq: UnitEquipment,
+  allAmmunition: readonly IAmmunition[],
+): IRecordSheetEquipment {
+  const fallback = mapFallbackCombatEquipment(eq);
+  return {
+    ...fallback,
+    ammoCount: eq.ammoCount ?? lookupAmmoShots(allAmmunition, eq.name, eq.id),
   };
 }
 

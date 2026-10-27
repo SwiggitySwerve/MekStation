@@ -1,6 +1,11 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
-import { createAmmoWeaponMatcher } from '@/utils/equipment/ammunitionCompatibility';
+import {
+  createAmmoWeaponMatcher,
+  isOneShotEquipment,
+  isWeaponCategory,
+} from '@/utils/equipment/ammunitionCompatibility';
+import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
 import type {
   EquipmentFilters,
@@ -42,6 +47,15 @@ export function filterEquipment(
   unitContext: UnitContext,
   sort: SortState,
 ): IEquipmentItem[] {
+  const availableEquipment = equipment.filter((item) =>
+    matchesCatalogRestrictions(item, filters, unitContext),
+  );
+  const matchesAvailableWeapon = createAmmoWeaponMatcher(
+    availableEquipment
+      .filter((item) => isWeaponCategory(item.category))
+      .map((item) => item.id),
+    equipment,
+  );
   const matchesMountedWeapon = createAmmoWeaponMatcher(
     unitContext.unitWeaponIds,
     equipment,
@@ -50,13 +64,14 @@ export function filterEquipment(
     unitContext.unitYear !== null ||
     unitContext.unitTechBase !== null ||
     unitContext.unitWeaponIds.length > 0;
-  return equipment
+  return availableEquipment
     .filter((item) => matchesSearch(item, filters.search))
-    .filter((item) => matchesTechBase(item, filters.techBase))
     .filter((item) => matchesCategory(item, filters))
-    .filter((item) => matchesPrototypeFilter(item, filters.hidePrototype))
-    .filter((item) => matchesOneShotFilter(item, filters.hideOneShot))
-    .filter((item) => matchesAvailability(item, filters, unitContext))
+    .filter(
+      (item) =>
+        item.category !== EquipmentCategory.AMMUNITION ||
+        matchesAvailableWeapon(item),
+    )
     .filter(
       (item) =>
         !filters.hideAmmoWithoutWeapon ||
@@ -66,6 +81,21 @@ export function filterEquipment(
     )
     .filter((item) => matchesNumericFilters(item, filters))
     .sort((first, second) => compareEquipment(first, second, sort));
+}
+
+/** Weapon eligibility is independent of ammunition search, size and category. */
+function matchesCatalogRestrictions(
+  item: IEquipmentItem,
+  filters: EquipmentFilters,
+  unitContext: UnitContext,
+): boolean {
+  return (
+    matchesTechBase(item, filters.techBase) &&
+    matchesPrototypeFilter(item, filters.hidePrototype) &&
+    matchesOneShotFilter(item, filters.hideOneShot) &&
+    matchesAvailability(item, filters, unitContext) &&
+    (filters.maxYear === null || isAvailableInYear(item, filters.maxYear))
+  );
 }
 
 function exclusiveEquipmentCategories(
@@ -137,7 +167,7 @@ function matchesOneShotFilter(
   item: IEquipmentItem,
   hideOneShot: boolean,
 ): boolean {
-  return !hideOneShot || !/(?:one[ -]shot|\((?:i-)?os\))/i.test(item.name);
+  return !hideOneShot || !isOneShotEquipment(item);
 }
 
 function matchesAvailability(
@@ -148,7 +178,7 @@ function matchesAvailability(
   if (!filters.hideUnavailable) return true;
   if (
     unitContext.unitYear !== null &&
-    item.introductionYear > unitContext.unitYear
+    !isAvailableInYear(item, unitContext.unitYear)
   ) {
     return false;
   }
@@ -165,8 +195,7 @@ function matchesNumericFilters(
   return (
     (filters.maxWeight === null || item.weight <= filters.maxWeight) &&
     (filters.maxCriticalSlots === null ||
-      item.criticalSlots <= filters.maxCriticalSlots) &&
-    (filters.maxYear === null || item.introductionYear <= filters.maxYear)
+      item.criticalSlots <= filters.maxCriticalSlots)
   );
 }
 
@@ -185,6 +214,14 @@ const EQUIPMENT_SORT_VALUE_GETTERS: Readonly<
   heat: (item) => item.name.toLowerCase(),
 };
 
+/** Names compare numerically so AC/2, AC/5, AC/10 and AC/20 read in order. */
+const NATURAL_NAME_COLLATOR = new Intl.Collator('en', { numeric: true });
+const NATURAL_NAME_COLUMNS: ReadonlySet<SortColumn> = new Set([
+  'name',
+  'damage',
+  'heat',
+]);
+
 function compareEquipment(
   first: IEquipmentItem,
   second: IEquipmentItem,
@@ -193,7 +230,15 @@ function compareEquipment(
   const getValue = EQUIPMENT_SORT_VALUE_GETTERS[sort.column];
   const firstValue = getValue(first);
   const secondValue = getValue(second);
-  if (firstValue < secondValue) return sort.direction === 'asc' ? -1 : 1;
-  if (firstValue > secondValue) return sort.direction === 'asc' ? 1 : -1;
-  return 0;
+  const order =
+    NATURAL_NAME_COLUMNS.has(sort.column) &&
+    typeof firstValue === 'string' &&
+    typeof secondValue === 'string'
+      ? NATURAL_NAME_COLLATOR.compare(firstValue, secondValue)
+      : firstValue < secondValue
+        ? -1
+        : firstValue > secondValue
+          ? 1
+          : 0;
+  return sort.direction === 'asc' ? order : -order;
 }

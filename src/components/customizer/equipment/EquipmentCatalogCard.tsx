@@ -1,12 +1,22 @@
 import React, { useId, useMemo } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
-import { Button } from '@/components/ui/Button';
+import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService';
 import { IEquipmentItem } from '@/types/equipment';
 import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
+import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
+import {
+  describeCatalogWeightExcess,
+  getCatalogWeightExcess,
+  isVariableSizeEquipment,
+} from './EquipmentBrowser.model';
+import { CatalogAddAction } from './EquipmentCatalogCardActions';
+
+/** Warning hue plus a dotted underline, so the cue is not colour alone. */
+const WEIGHT_OVER_CLASS = `${BUILD_STATUS_KIND_TEXT_CLASS.warning} underline decoration-dotted underline-offset-4`;
 
 interface EquipmentCatalogCardProps {
   equipment: IEquipmentItem;
@@ -15,6 +25,8 @@ interface EquipmentCatalogCardProps {
   onInspect: () => void;
   onAdd: () => void;
   onAddAndPlace?: () => void;
+  mountedCount?: number;
+  remainingWeight?: number;
 }
 
 export function EquipmentCatalogCard({
@@ -24,24 +36,84 @@ export function EquipmentCatalogCard({
   onInspect,
   onAdd,
   onAddAndPlace,
+  mountedCount = 0,
+  remainingWeight,
 }: EquipmentCatalogCardProps): React.ReactElement {
   const detailId = useId();
   const weapon = useMemo(() => getWeaponById(equipment.id), [equipment.id]);
-  const variable = Boolean(equipment.variableEquipmentId);
+  const shotsPerTon = getEquipmentLoader().getAmmunitionById(
+    equipment.id,
+  )?.shotsPerTon;
+  const range = weapon?.ranges
+    ? `${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`
+    : '—';
+  const mobileRange = range.replaceAll(' ', '');
+  const minimumRange = weapon?.ranges?.minimum || '—';
+  // Damage belongs to weapons; ammunition shows its capacity as its own field.
+  const damage = weapon?.damage ?? '—';
+  // The browser's unified item drops the data's "Variable weight/slots"
+  // notes, so read them from the loaded electronics/misc record.
+  const loader = getEquipmentLoader();
+  const variable = isVariableSizeEquipment({
+    variableEquipmentId: equipment.variableEquipmentId,
+    special:
+      equipment.special ??
+      loader.getElectronicsById(equipment.id)?.special ??
+      loader.getMiscEquipmentById(equipment.id)?.special,
+  });
+  const weightExcess = getCatalogWeightExcess(equipment, remainingWeight);
+  const weightNote =
+    weightExcess === null
+      ? undefined
+      : describeCatalogWeightExcess(weightExcess);
+  // Phone stats: only the fields that apply to this kind of item. Ammunition
+  // is one line (capacity, weight, slots); a weapon adds a damage/range line
+  // above heat; other equipment shows weight and slots alone.
+  const sizeFields: StatField[] = [
+    {
+      text: variable ? 'Variable weight' : `${equipment.weight} t`,
+      className: weightNote ? WEIGHT_OVER_CLASS : undefined,
+      title: weightNote,
+      note: weightNote,
+    },
+    plainField(
+      variable
+        ? 'Variable slots'
+        : `${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`,
+    ),
+  ];
+  const statLines: StatField[][] =
+    shotsPerTon !== undefined
+      ? [[plainField(`Shots ${shotsPerTon}`), ...sizeFields]]
+      : weapon
+        ? [
+            [
+              plainField(`Damage ${damage}`),
+              ...(weapon.ranges ? [plainField(`Range ${mobileRange}`)] : []),
+              ...(weapon.ranges?.minimum
+                ? [plainField(`Min ${weapon.ranges.minimum}`)]
+                : []),
+            ],
+            [
+              ...(weapon.heat === undefined
+                ? []
+                : [plainField(`Heat ${weapon.heat}`)]),
+              ...sizeFields,
+            ],
+          ]
+        : [sizeFields];
   const accent = getEquipmentAccentClasses(equipment.category, equipment.name);
   return (
     <li
-      className={`group text-text-theme-primary relative isolate rounded-md border border-l-4 border-solid transition-colors ${accent} ${expanded ? 'border-accent/60' : 'border-border-theme-subtle'}`}
+      className={`group text-text-theme-primary border-border-theme-subtle/40 relative isolate border-b border-l-4 border-solid transition-colors ${workbenchStyles.catalogRow} ${accent}`}
       data-testid="equipment-catalog-row"
     >
       <span
         aria-hidden="true"
-        className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 rounded-[inherit] ${expanded ? 'opacity-40' : 'opacity-30 group-hover:opacity-40'}`}
+        className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 ${expanded ? 'opacity-40' : 'opacity-10 group-hover:opacity-30'}`}
         data-testid="equipment-catalog-row-fill"
       />
-      <div
-        className={`${workbenchStyles.catalogColumns} flex items-center gap-3 lg:grid`}
-      >
+      <div className={workbenchStyles.catalogColumns}>
         <button
           type="button"
           data-catalog-column="name"
@@ -49,76 +121,96 @@ export function EquipmentCatalogCard({
           aria-label={`Details for ${equipment.name}`}
           aria-expanded={expanded}
           aria-controls={detailId}
-          className="focus-visible:ring-accent min-h-11 min-w-0 flex-1 rounded text-left focus-visible:ring-2 lg:w-full lg:flex-none lg:!px-0"
+          className={`focus-visible:ring-accent min-h-11 min-w-0 flex-1 rounded text-left focus-visible:ring-2 ${workbenchStyles.catalogInspect}`}
         >
-          <span className="flex items-center gap-1">
-            <span
-              className="block min-w-0 flex-1 truncate text-sm font-semibold text-inherit"
-              title={equipment.name}
-            >
-              {equipment.name}
+          <AppIcon
+            name="chevron-right"
+            size="inline"
+            aria-hidden="true"
+            className={`text-text-theme-muted shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
+          />
+          <span className="min-w-0 flex-1">
+            <span className={workbenchStyles.catalogNameLine}>
+              <span
+                className="min-w-0 truncate text-base font-semibold text-inherit lg:text-sm"
+                title={equipment.name}
+              >
+                {equipment.name}
+              </span>
+              {mountedCount > 0 && (
+                <span className={workbenchStyles.catalogMounted}>
+                  ×{mountedCount} mounted
+                </span>
+              )}
             </span>
-            <AppIcon
-              name="chevron-down"
-              size="inline"
-              aria-hidden="true"
-              className={`text-text-theme-muted shrink-0 transition-transform lg:hidden ${expanded ? 'rotate-180' : ''}`}
-            />
+            <span
+              data-catalog-column="category"
+              className={`hidden lg:block ${workbenchStyles.catalogMeta}`}
+            >
+              {equipment.category}
+              {shotsPerTon !== undefined && ` · ${shotsPerTon} shots/t`}
+            </span>
           </span>
-          <span className="text-text-theme-secondary mt-0.5 block truncate text-xs tabular-nums lg:hidden">
-            {equipment.category} ·{' '}
-            {variable
-              ? 'Variable weight / slots'
-              : `${equipment.weight} t · ${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`}
+          <span
+            className={workbenchStyles.catalogMobileStats}
+            data-testid="equipment-catalog-stats"
+          >
+            {statLines.map((fields) => (
+              <StatLine key={fields[0].text} fields={fields} />
+            ))}
           </span>
         </button>
         <span
-          data-catalog-column="category"
-          className="text-text-theme-secondary hidden min-w-0 truncate text-xs lg:block"
-          title={equipment.category}
+          data-catalog-column="damage"
+          className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
         >
-          {equipment.category}
+          {damage}
+        </span>
+        <span
+          data-catalog-column="range"
+          className="hidden text-sm whitespace-nowrap tabular-nums lg:block"
+        >
+          {range}
+        </span>
+        <span
+          data-catalog-column="minimumRange"
+          className="hidden text-sm tabular-nums lg:block"
+        >
+          {minimumRange}
+        </span>
+        <span
+          data-catalog-column="heat"
+          className="hidden text-sm tabular-nums lg:block"
+        >
+          {weapon?.heat ?? '—'}
         </span>
         <span
           data-catalog-column="weight"
-          className="hidden text-sm text-inherit tabular-nums lg:block"
+          className={`hidden text-sm tabular-nums lg:block ${weightNote ? WEIGHT_OVER_CLASS : 'text-inherit'}`}
+          title={weightNote}
         >
-          {variable ? 'Variable' : equipment.weight}
+          {variable ? <VariableValue kind="weight" /> : equipment.weight}
+          {weightNote && <span className="sr-only">, {weightNote}</span>}
         </span>
         <span
           data-catalog-column="criticalSlots"
           className="hidden text-sm text-inherit tabular-nums lg:block"
         >
-          {variable ? 'Variable' : equipment.criticalSlots}
+          {variable ? <VariableValue kind="slots" /> : equipment.criticalSlots}
         </span>
-        <span
-          data-catalog-column="heat"
-          className={`hidden text-sm tabular-nums lg:block ${weapon?.heat ? 'text-inherit' : 'text-text-theme-muted'}`}
-        >
-          {weapon?.heat ?? '—'}
-        </span>
-        <div
-          data-catalog-column="actions"
-          className="flex h-11 w-11 shrink-0 items-center justify-center"
-        >
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={readOnly}
-            onClick={onAdd}
-            title={`Add ${equipment.name}`}
-            aria-label={`Add ${equipment.name}`}
-            className={`!h-11 !min-h-11 !w-11 !min-w-11 !p-0 ${workbenchStyles.catalogAddHit}`}
-          >
-            <span className={workbenchStyles.catalogAddGlyph}>
-              <AppIcon name="add" size="inline" aria-hidden="true" />
-            </span>
-          </Button>
-        </div>
+        <CatalogAddAction
+          name={equipment.name}
+          readOnly={readOnly}
+          onAdd={onAdd}
+          onAddAndPlace={onAddAndPlace}
+        />
       </div>
       {expanded && (
-        <div id={detailId} className="border-border-theme-subtle border-t p-3">
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
+        <div
+          id={detailId}
+          className={`border-border-theme-subtle border-t ${workbenchStyles.catalogDetails}`}
+        >
+          <dl className={workbenchStyles.catalogDetailGrid}>
             <Detail label="Tech base" value={equipment.techBase} />
             <Detail label="Introduced" value={equipment.introductionYear} />
             <Detail label="Rules" value={equipment.rulesLevel} />
@@ -128,45 +220,74 @@ export function EquipmentCatalogCard({
               suffix=" C-bills"
             />
             <Detail label="Battle value" value={equipment.battleValue} />
-            {weapon && (
-              <>
-                <Detail label="Damage" value={weapon.damage} />
-                <Detail label="Heat" value={weapon.heat} />
-              </>
-            )}
-            {weapon?.ranges && (
-              <Detail
-                label="Range (S / M / L)"
-                value={`${weapon.ranges.short} / ${weapon.ranges.medium} / ${weapon.ranges.long}`}
-              />
-            )}
-            {weapon?.ranges?.minimum ? (
-              <Detail label="Minimum range" value={weapon.ranges.minimum} />
-            ) : null}
           </dl>
           {variable && (
-            <p className="text-text-theme-secondary mt-3 text-xs">
-              Weight and slots are calculated for this unit when added. Check
-              the loadout for the resulting values.
+            <p className="text-text-theme-secondary col-span-full text-xs">
+              {equipment.variableEquipmentId
+                ? 'Weight and slots are calculated for this unit when added. Check the loadout for the resulting values.'
+                : 'Weight and slots depend on the size chosen for this unit; the catalog has no fixed values for this item.'}
             </p>
-          )}
-          {onAddAndPlace && (
-            <div className="mt-3">
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={readOnly}
-                onClick={onAddAndPlace}
-                title={`Add and place ${equipment.name}`}
-                aria-label={`Add and place ${equipment.name}`}
-              >
-                Add + place
-              </Button>
-            </div>
           )}
         </div>
       )}
     </li>
+  );
+}
+
+/**
+ * Variable size stays inside the numeric column: a short muted "Var." that
+ * right-aligns with the figures, with the full words for assistive tech and
+ * the tooltip.
+ */
+function VariableValue({
+  kind,
+}: {
+  kind: 'weight' | 'slots';
+}): React.ReactElement {
+  const full = `Variable ${kind}`;
+  return (
+    <span className="text-text-theme-muted" title={full}>
+      <span aria-hidden="true">Var.</span>
+      <span className="sr-only">{full}</span>
+    </span>
+  );
+}
+
+interface StatField {
+  text: string;
+  className?: string;
+  title?: string;
+  /** Screen-reader note appended to the field. */
+  note?: string;
+}
+
+const plainField = (text: string): StatField => ({ text });
+
+/**
+ * One phone stat line: unbreakable fields joined by a dot, so a narrow row
+ * wraps between fields and never inside one.
+ */
+function StatLine({
+  fields,
+}: {
+  fields: readonly StatField[];
+}): React.ReactElement {
+  return (
+    <span>
+      {fields.map((field, index) => (
+        <React.Fragment key={field.text}>
+          {index > 0 && ' '}
+          <span
+            className={`${workbenchStyles.catalogStatField} ${field.className ?? ''}`}
+            title={field.title}
+          >
+            {field.text}
+            {field.note && <span className="sr-only">, {field.note}</span>}
+          </span>
+          {index < fields.length - 1 && ' ·'}
+        </React.Fragment>
+      ))}
+    </span>
   );
 }
 
@@ -181,7 +302,7 @@ function Detail({
 }): React.ReactElement {
   return (
     <div>
-      <dt className="text-text-theme-secondary text-xs">{label}</dt>
+      <dt className="text-text-theme-secondary">{label}</dt>
       <dd className="mt-1 font-medium text-inherit">
         {value === undefined ? '—' : `${value}${suffix}`}
       </dd>

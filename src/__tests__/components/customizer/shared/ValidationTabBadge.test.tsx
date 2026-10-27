@@ -61,7 +61,7 @@ describe('ValidationTabBadge', () => {
 
       const badge = screen.getByLabelText('5 warnings');
       expect(badge).toHaveTextContent('5');
-      expect(badge).toHaveClass('text-yellow-400');
+      expect(badge).toHaveClass('text-warning');
       expect(
         badge.querySelector('[data-icon-name="warning"]'),
       ).toBeInTheDocument();
@@ -79,9 +79,7 @@ describe('ValidationTabBadge', () => {
       render(<ValidationTabBadge counts={mixedCounts} />);
 
       expect(screen.getByLabelText('2 errors')).toHaveClass('text-red-400');
-      expect(screen.getByLabelText('3 warnings')).toHaveClass(
-        'text-yellow-400',
-      );
+      expect(screen.getByLabelText('3 warnings')).toHaveClass('text-warning');
     });
   });
 
@@ -124,14 +122,14 @@ describe('ValidationTabBadgeCompact', () => {
   it('should expose the warning count', () => {
     render(<ValidationTabBadgeCompact errorCount={0} warningCount={3} />);
 
-    expect(screen.getByLabelText('3 warnings')).toHaveClass('text-yellow-400');
+    expect(screen.getByLabelText('3 warnings')).toHaveClass('text-warning');
   });
 
   it('should expose both counts when errors and warnings exist', () => {
     render(<ValidationTabBadgeCompact errorCount={2} warningCount={3} />);
 
     expect(screen.getByLabelText('2 errors')).toHaveClass('text-red-400');
-    expect(screen.getByLabelText('3 warnings')).toHaveClass('text-yellow-400');
+    expect(screen.getByLabelText('3 warnings')).toHaveClass('text-warning');
   });
 
   it('should apply custom className', () => {

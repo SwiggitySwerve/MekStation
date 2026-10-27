@@ -2,7 +2,10 @@
  * Location Armor Editor Component
  *
  * Compact panel for editing armor values on a selected location.
- * Direct controls for front and rear armor with independent sliders.
+ * Direct controls for front and rear armor with independent sliders. Front
+ * and rear share the location's maximum, so torsos label each slider with
+ * its current value ("Front 47", "Rear 14") and show the one total against
+ * the location max instead of a per-side maximum.
  *
  * @spec openspec/specs/armor-diagram/spec.md
  */
@@ -15,6 +18,7 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
 
+import { getArmorFaceMaximums } from './shared/ArmorFaceMaximums';
 import { FRONT_ARMOR_COLOR, REAR_ARMOR_COLOR } from './shared/ArmorFills';
 
 // =============================================================================
@@ -34,6 +38,11 @@ interface LocationArmorEditorProps {
   onChange: (front: number, rear?: number) => void;
   /** Called when closing the editor */
   onClose: () => void;
+  /**
+   * Render as an inset panel inside another card (the armor inspector)
+   * instead of a card of its own.
+   */
+  embedded?: boolean;
 }
 
 // =============================================================================
@@ -73,6 +82,7 @@ export function LocationArmorEditor({
   readOnly = false,
   onChange,
   onClose,
+  embedded = false,
 }: LocationArmorEditorProps): React.ReactElement {
   const showRear = hasRearArmor(location);
   const maxArmor = useMemo(
@@ -85,8 +95,11 @@ export function LocationArmorEditor({
   const total = front + rear;
 
   // Calculate max for each slider (capped by what the other allows)
-  const maxFront = maxArmor - rear;
-  const maxRear = maxArmor - front;
+  const { front: maxFront, rear: maxRear } = getArmorFaceMaximums(
+    maxArmor,
+    front,
+    rear,
+  );
 
   // Handlers
   const handleFrontChange = useCallback(
@@ -114,11 +127,17 @@ export function LocationArmorEditor({
 
   return (
     <div
-      className="bg-surface-base border-border-theme rounded-lg border p-4"
+      className={
+        embedded
+          ? 'bg-surface-deep border-border-theme-subtle rounded-lg border p-3'
+          : 'bg-surface-base border-border-theme rounded-lg border p-4'
+      }
       data-testid="location-armor-editor"
     >
       {/* Header Row */}
-      <div className="mb-4 flex items-center justify-between">
+      <div
+        className={`flex items-center justify-between ${embedded ? 'mb-1' : 'mb-4'}`}
+      >
         <h4 className="text-text-theme-primary text-base font-semibold">
           {getLocationName(location)}
         </h4>
@@ -140,11 +159,13 @@ export function LocationArmorEditor({
       <div className="mb-4">
         <div className="mb-1.5 flex items-center justify-between">
           <span className={labelClass} style={{ color: FRONT_ARMOR_COLOR }}>
-            Front
+            {showRear ? `Front ${front}` : 'Front'}
           </span>
-          <span className="text-text-theme-secondary text-xs">
-            max {maxFront}
-          </span>
+          {!showRear && (
+            <span className="text-text-theme-secondary text-xs">
+              max {maxFront}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -181,10 +202,7 @@ export function LocationArmorEditor({
         <div className="mb-4">
           <div className="mb-1.5 flex items-center justify-between">
             <span className={labelClass} style={{ color: REAR_ARMOR_COLOR }}>
-              Rear
-            </span>
-            <span className="text-text-theme-secondary text-xs">
-              max {maxRear}
+              {`Rear ${rear}`}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -252,25 +270,6 @@ export function LocationArmorEditor({
             />
           )}
         </div>
-        {/* Legend for torso */}
-        {showRear && (
-          <div className="mt-2 flex items-center justify-center gap-4 text-xs">
-            <div className="flex items-center gap-1">
-              <div
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: FRONT_ARMOR_COLOR }}
-              />
-              <span className="text-text-theme-secondary">Front ({front})</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: REAR_ARMOR_COLOR }}
-              />
-              <span className="text-text-theme-secondary">Rear ({rear})</span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

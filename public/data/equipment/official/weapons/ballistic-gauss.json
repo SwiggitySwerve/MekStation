@@ -9,19 +9,16 @@
       "rulesLevel": "STANDARD",
       "damage": 15,
       "heat": 1,
-      "ranges": {
-        "minimum": 2,
-        "short": 7,
-        "medium": 15,
-        "long": 22
-      },
+      "ranges": { "minimum": 2, "short": 7, "medium": 15, "long": 22 },
       "weight": 15,
       "criticalSlots": 7,
       "ammoPerTon": 8,
       "costCBills": 300000,
       "battleValue": 320,
       "introductionYear": 2590,
-      "isExplosive": true
+      "isExplosive": true,
+      "extinctionYear": 2865,
+      "reintroductionYear": 3040
     },
     {
       "id": "light-gauss-rifle",
@@ -32,12 +29,7 @@
       "rulesLevel": "STANDARD",
       "damage": 8,
       "heat": 1,
-      "ranges": {
-        "minimum": 3,
-        "short": 8,
-        "medium": 17,
-        "long": 25
-      },
+      "ranges": { "minimum": 3, "short": 8, "medium": 17, "long": 25 },
       "weight": 12,
       "criticalSlots": 5,
       "ammoPerTon": 16,
@@ -55,12 +47,7 @@
       "rulesLevel": "STANDARD",
       "damage": 25,
       "heat": 2,
-      "ranges": {
-        "minimum": 4,
-        "short": 6,
-        "medium": 13,
-        "long": 20
-      },
+      "ranges": { "minimum": 4, "short": 6, "medium": 13, "long": 20 },
       "weight": 18,
       "criticalSlots": 11,
       "ammoPerTon": 4,
@@ -78,12 +65,7 @@
       "rulesLevel": "STANDARD",
       "damage": 3,
       "heat": 1,
-      "ranges": {
-        "minimum": 0,
-        "short": 3,
-        "medium": 6,
-        "long": 9
-      },
+      "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 0.5,
       "criticalSlots": 1,
       "ammoPerTon": 40,
@@ -101,12 +83,7 @@
       "rulesLevel": "STANDARD",
       "damage": 15,
       "heat": 1,
-      "ranges": {
-        "minimum": 2,
-        "short": 7,
-        "medium": 15,
-        "long": 22
-      },
+      "ranges": { "minimum": 2, "short": 7, "medium": 15, "long": 22 },
       "weight": 12,
       "criticalSlots": 6,
       "ammoPerTon": 8,
@@ -135,7 +112,7 @@
       "criticalSlots": 2,
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 3066,
+      "introductionYear": 3069,
       "special": []
     },
     {
@@ -158,7 +135,7 @@
       "criticalSlots": 1,
       "costCBills": 22500,
       "battleValue": 7,
-      "introductionYear": 3058,
+      "introductionYear": 3063,
       "special": []
     },
     {
@@ -181,7 +158,7 @@
       "criticalSlots": 2,
       "costCBills": 8000,
       "battleValue": 6,
-      "introductionYear": 3055,
+      "introductionYear": 3059,
       "special": []
     },
     {
@@ -204,7 +181,7 @@
       "criticalSlots": 2,
       "costCBills": 30000,
       "battleValue": 7,
-      "introductionYear": 3058,
+      "introductionYear": 3063,
       "special": []
     },
     {
@@ -227,7 +204,7 @@
       "criticalSlots": 3,
       "costCBills": 10500,
       "battleValue": 15,
-      "introductionYear": 3057,
+      "introductionYear": 3059,
       "special": []
     },
     {
@@ -250,7 +227,7 @@
       "criticalSlots": 2,
       "costCBills": 9500,
       "battleValue": 6,
-      "introductionYear": 3054,
+      "introductionYear": 3056,
       "special": []
     },
     {
@@ -273,8 +250,10 @@
       "criticalSlots": 0,
       "costCBills": 50050000,
       "battleValue": 6048,
-      "introductionYear": 2440,
-      "special": []
+      "introductionYear": 2448,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3052
     },
     {
       "id": "naval-gauss-light",
@@ -296,8 +275,10 @@
       "criticalSlots": 0,
       "costCBills": 20300000,
       "battleValue": 3024,
-      "introductionYear": 2440,
-      "special": []
+      "introductionYear": 2448,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3052
     },
     {
       "id": "naval-gauss-medium",
@@ -319,8 +300,10 @@
       "criticalSlots": 0,
       "costCBills": 30350000,
       "battleValue": 5040,
-      "introductionYear": 2440,
-      "special": []
+      "introductionYear": 2448,
+      "special": [],
+      "extinctionYear": 2950,
+      "reintroductionYear": 3052
     },
     {
       "id": "improved-gauss-rifle",
@@ -342,8 +325,10 @@
       "criticalSlots": 6,
       "costCBills": 300000,
       "battleValue": 320,
-      "introductionYear": 2818,
-      "special": []
+      "introductionYear": 2821,
+      "special": [],
+      "extinctionYear": 2837,
+      "reintroductionYear": 3080
     },
     {
       "id": "improvedheavygaussrifle",
@@ -365,7 +350,7 @@
       "criticalSlots": 11,
       "costCBills": 700000,
       "battleValue": 385,
-      "introductionYear": 3065,
+      "introductionYear": 3081,
       "special": []
     },
     {
@@ -388,7 +373,7 @@
       "criticalSlots": 7,
       "costCBills": 350000,
       "battleValue": 198,
-      "introductionYear": 3051,
+      "introductionYear": 3080,
       "special": []
     },
     {
@@ -412,7 +397,9 @@
       "costCBills": 1200000,
       "battleValue": 320,
       "introductionYear": 2587,
-      "special": []
+      "special": [],
+      "extinctionYear": 2590,
+      "reintroductionYear": 3038
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

@@ -8,6 +8,9 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import type { IEquipmentItem } from '../equipment/EquipmentItem';
+import type { IMountedEquipmentInstance } from '../equipment/MountedEquipment';
+
 import { TechBase, RulesLevel, Era } from '../enums';
 import { UnitType } from '../unit/BattleMechInterfaces';
 import {
@@ -95,6 +98,12 @@ export interface IValidatableUnit {
   /** Per-location critical slot usage */
   readonly slotsByLocation?: ISlotsByLocation;
   readonly equipmentSlotIssues?: readonly ICriticalSlotIssue[];
+  /** Carried items include unallocated bins; placement is validated separately. */
+  readonly mountedEquipment?: readonly Pick<
+    IMountedEquipmentInstance,
+    'equipmentId' | 'weight'
+  >[];
+  readonly equipmentCatalog?: readonly IEquipmentItem[];
 }
 
 /**

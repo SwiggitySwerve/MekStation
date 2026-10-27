@@ -16,6 +16,9 @@ jest.mock('@/services/equipment/EquipmentLookupService', () => ({
         ranges: { minimum: 0, short: 3, medium: 6, long: 9 },
       },
     ],
+    getAllAmmunition: () => [
+      { id: 'ac-20-ammo', name: 'AC/20 Ammo', shotsPerTon: 5 },
+    ],
   }),
 }));
 
@@ -48,6 +51,27 @@ it('keeps ammunition distinct from the similarly named weapon in record sheets',
     isWeapon: false,
     ammoCount: 5,
   });
+});
+
+it('fills ammo shot counts from ammunition data when the unit omits them', () => {
+  const records = extractEquipment({
+    equipment: [
+      {
+        id: 'ammo-instance',
+        name: 'AC/20 Ammo',
+        location: 'Left Torso',
+        isAmmo: true,
+      },
+      {
+        id: 'unknown-ammo',
+        name: 'Mystery Ammo',
+        location: 'Left Torso',
+        isAmmo: true,
+      },
+    ],
+  } as IUnitConfig);
+  expect(records[0]).toMatchObject({ isAmmo: true, ammoCount: 5 });
+  expect(records[1].ammoCount).toBeUndefined();
 });
 
 it('keeps an unassigned location readable within the record-sheet column', () => {

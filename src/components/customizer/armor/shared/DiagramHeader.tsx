@@ -17,7 +17,7 @@ export interface DiagramHeaderProps {
   showQuickSettings?: boolean;
   /** Additional CSS classes for the title */
   titleClassName?: string;
-  /** Additional CSS classes for the container */
+  /** CSS classes for the container, including its bottom margin (default mb-4) */
   className?: string;
 }
 
@@ -29,10 +29,10 @@ export function DiagramHeader({
   subtitle,
   showQuickSettings = true,
   titleClassName = '',
-  className = '',
+  className = 'mb-4',
 }: DiagramHeaderProps): React.ReactElement {
   return (
-    <div className={`mb-4 flex items-center justify-between ${className}`}>
+    <div className={`flex items-center justify-between ${className}`}>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <h3
           className={`text-text-theme-primary text-lg font-semibold ${titleClassName}`}

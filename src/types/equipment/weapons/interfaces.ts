@@ -1,3 +1,4 @@
+import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 /**
  * Weapon Type Interfaces and Enumerations
  *
@@ -82,7 +83,10 @@ export interface WeaponRanges {
 /**
  * Weapon interface
  */
-export interface IWeapon {
+export interface IWeapon extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
   readonly id: string;
   readonly name: string;
   readonly category: WeaponCategory;
@@ -103,7 +107,6 @@ export interface IWeapon {
   readonly ammoPerTon?: number;
   readonly costCBills: number;
   readonly battleValue: number;
-  readonly introductionYear: number;
   readonly isExplosive?: boolean;
   readonly special?: readonly string[];
 

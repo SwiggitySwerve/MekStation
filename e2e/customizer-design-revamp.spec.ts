@@ -49,19 +49,83 @@ async function expectFittedPreview(page: Page) {
     name: 'Record sheet zoom controls',
   });
   await expect(controls).toBeInViewport({ ratio: 1 });
+  // One control names both the mode and percentage.
+  await expect(
+    controls.getByRole('button', { name: 'Zoom options', exact: true }),
+  ).toHaveText(/Fit width \u00b7 \d+%/);
+  await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
+    /^\d+%$/,
+  );
+  // The caption names the paper and page count; the zoom lives in the toolbar.
+  await expect(page.getByTestId('preview-sheet-caption')).toHaveText(
+    'Letter \u00b7 1 page',
+  );
   const paper = (await canvas.boundingBox())!;
-  const footer = (await controls.boundingBox())!;
+  const toolbar = (await controls.boundingBox())!;
   const viewport = page.viewportSize()!;
+  // Every screen opens fit-width: the sheet is as wide as the viewer allows
+  // (capped at 920px), fully inside the viewport horizontally, and starts
+  // below the toolbar that now holds the zoom controls.
+  expect(paper.x).toBeGreaterThanOrEqual(0);
+  expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
+  expect(paper.width).toBeLessThanOrEqual(921);
+  expect(paper.y).toBeGreaterThanOrEqual(toolbar.y + toolbar.height);
   if (viewport.width < 640) {
-    // Phones open the sheet fitted to width so it stays legible; the full
-    // width is visible and the rest of the page scrolls above the controls.
-    expect(paper.x).toBeGreaterThanOrEqual(0);
-    expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
-    expect(paper.y).toBeLessThan(footer.y);
-    return;
+    const statusRegion = page.getByRole('region', { name: 'Unit status' });
+    const capacity = (await statusRegion
+      .getByRole('group', { name: 'Capacity', exact: true })
+      .boundingBox())!;
+    const buildStatus = statusRegion.locator('[data-build-status]');
+    const statusBox = (await buildStatus.boundingBox())!;
+    // The status is a 44px chip in the stat strip, beside the key readouts,
+    // so the header stays one 48px row.
+    expect(statusBox.x).toBeGreaterThanOrEqual(capacity.x + capacity.width - 1);
+    expect(statusBox.height).toBe(44);
+    expect(statusBox.width).toBeLessThanOrEqual(140);
+    expect((await statusRegion.boundingBox())!.height).toBe(48);
+    await expect(buildStatus).toHaveCSS('font-size', '13px');
+    // Phones: exactly two toolbar rows, every control 44px tall with a
+    // visible text label, the sheet starting high, and a readability hint.
+    const rows = await page
+      .locator('.preview-toolbar')
+      .locator('button, [data-testid="paper-size-phone-label"]')
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((node) => (node as HTMLElement).offsetParent !== null)
+          .map((node) => {
+            const box = node.getBoundingClientRect();
+            return {
+              top: Math.round(box.top),
+              height: Math.round(box.height),
+              // The - and + steppers are icon buttons named by aria-label.
+              text:
+                (node.textContent ?? '').trim() ||
+                (node.getAttribute('aria-label') ?? ''),
+            };
+          }),
+      );
+    expect(new Set(rows.map((row) => row.top)).size).toBe(2);
+    for (const row of rows) {
+      expect(row.height).toBeGreaterThanOrEqual(44);
+      expect(row.text.length).toBeGreaterThan(0);
+    }
+    expect(paper.y).toBeLessThanOrEqual(340);
+    await expect(page.getByTestId('preview-sheet-hint')).toHaveText(
+      'Zoom in or pinch to read details',
+    );
   }
-  await expect(canvas).toBeInViewport({ ratio: 1 });
-  expect(paper.y + paper.height).toBeLessThanOrEqual(footer.y);
+  if (viewport.width >= 640) {
+    // Readable on desktop, not a 600px sheet between wide gutters.
+    expect(paper.width).toBeGreaterThan(800);
+    const toolbarRow = page.locator('.preview-toolbar');
+    await expect(toolbarRow.getByLabel('Paper Size:')).toBeVisible();
+    await expect(controls).toBeInViewport({ ratio: 1 });
+    expect(
+      await toolbarRow
+        .getByRole('group', { name: 'Record sheet zoom controls' })
+        .count(),
+    ).toBe(1);
+  }
 }
 
 const tabs = [
@@ -96,7 +160,7 @@ test('all workbench surfaces retain a stable sidebar and explicit wide mode @cus
     });
   }
   const wide = page.getByRole('button', {
-    name: 'Wide workspace',
+    name: 'Hide loadout panel',
     exact: true,
   });
   await wide.click();

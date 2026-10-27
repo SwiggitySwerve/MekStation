@@ -2,34 +2,40 @@
  * Unit readout states
  *
  * Presentation states for the customizer's budget readouts (weight, slots,
- * heat, armor) and the cautions derived from them. Every surface that colors
+ * heat, armor) and the notes derived from them. Every surface that colors
  * these readouts reads its state and color from here so the thresholds and
- * the caution hue stay in one place.
+ * the readout hue stay in one place.
  *
- * Running hot is legal, so heat above dissipation is a caution, never an error.
- * Cautions use orange so they never read as the amber accent that marks the
- * selected tab and primary actions; red stays reserved for errors.
+ * Running hot is legal but worth fixing, so heat above dissipation is a
+ * warning, never an error. A readout in that legal-but-high state shows its
+ * value and bar in the warning hue, the same color the build status, the
+ * panel and the Overview readiness rows use for that warning, so one
+ * condition never reads as two severities. Red stays reserved for errors.
+ * The hues themselves belong to the severity vocabulary (`BuildStatusLabel`).
+ * This is a presentation tier only; the validator does not report it.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
 
-import type { ValidationNote } from './ValidationSummary';
+import type { IHeatGeneration } from '@/services/construction/CalculationService';
 
+import type { ValidationNote } from './buildStatusSummary';
+
+import {
+  BUILD_STATUS_KIND_FILL_COLOR,
+  BUILD_STATUS_KIND_TEXT_CLASS,
+} from './BuildStatusLabel';
+import { COOLING_CARD_ID } from './tabIssueTargets';
+
+/** Readout state: in budget, legal but high (a warning), or over its cap. */
 export type StatStatus = 'normal' | 'warning' | 'error';
 
 /** Text color for a readout value by state. */
 export const STAT_STATUS_TEXT_CLASS: Record<StatStatus, string> = {
   normal: 'text-text-theme-primary',
-  warning: 'text-orange-400',
-  error: 'text-red-400',
+  warning: BUILD_STATUS_KIND_TEXT_CLASS.warning,
+  error: BUILD_STATUS_KIND_TEXT_CLASS.error,
 };
-
-/** Caution text: legal states worth a look, such as running hot. */
-export const CAUTION_TEXT_CLASS = STAT_STATUS_TEXT_CLASS.warning;
-
-/** Tinted pill for an explicit caution amount, e.g. heat "+11 over". */
-export const CAUTION_PILL_CLASS =
-  'bg-orange-400/15 text-orange-300 ring-1 ring-inset ring-orange-400/40';
 
 /**
  * Fill-bar colors by state; normal keeps the neutral bar. Inline values win
@@ -37,20 +43,61 @@ export const CAUTION_PILL_CLASS =
  */
 export const STAT_STATUS_FILL_COLOR: Record<StatStatus, string | undefined> = {
   normal: undefined,
-  warning: 'var(--color-orange-400, #fb923c)',
-  error: 'var(--color-red-400, #f87171)',
+  warning: BUILD_STATUS_KIND_FILL_COLOR.warning,
+  error: BUILD_STATUS_KIND_FILL_COLOR.error,
 };
 
-/** Overweight is an error; under half a ton of headroom is a caution. */
+/** Using the full tonnage is normal; only exceeding it is a problem. */
 export function getWeightStatus(used: number, max: number): StatStatus {
-  if (used > max) return 'error';
-  if (max - used < 0.5) return 'warning';
-  return 'normal';
+  return used > max ? 'error' : 'normal';
 }
 
 /** Used beyond the maximum (slots, armor) is an error; anything else is in budget. */
 export function getCapacityStatus(used: number, max: number): StatStatus {
   return used > max ? 'error' : 'normal';
+}
+
+/** Slot budget figures behind the Slots readout. */
+export interface ISlotFill {
+  /** Slots the build needs: system slots plus every mounted item's slots. */
+  readonly used: number;
+  readonly total: number;
+  /** Slots actually filled; defaults to `used` when nothing is pending. */
+  readonly placed?: number;
+  /** Slots needed by mounted items that are not placed yet. */
+  readonly pendingSlots?: number;
+  /** Mounted items that are not placed yet. */
+  readonly unplacedItems?: number;
+}
+
+/**
+ * Slots readout state: only over capacity is a problem. Slots reserved by
+ * unplaced items are not a second issue: the unplaced items are the warning
+ * (Unplaced equipment in the build status), so the budget itself stays
+ * neutral and one condition is never counted twice.
+ */
+export function getSlotFillStatus(fill: ISlotFill): StatStatus {
+  return getCapacityStatus(fill.used, fill.total);
+}
+
+/**
+ * Slots filled by placed items, not the slots reserved by unplaced ones, so
+ * the figure matches what a tabletop player would count on the sheet. The
+ * item count is added to the header tooltip only (`withItems`); the readiness
+ * row leaves it to the Unplaced equipment row beside it.
+ */
+export function describeSlotFill(fill: ISlotFill, withItems = true): string {
+  const pending = fill.pendingSlots ?? 0;
+  const placed = fill.placed ?? fill.used;
+  if (pending <= 0) {
+    return `${placed} of ${fill.total} slots filled, ${fill.total - placed} free.`;
+  }
+  const items = fill.unplacedItems ?? 0;
+  const itemNote =
+    withItems && items > 0
+      ? ` (${items} unplaced item${items === 1 ? '' : 's'})`
+      : '';
+  return `${placed} of ${fill.total} slots filled \u00b7 ${pending} pending${itemNote}.`;
 }
 
 /** Heat generated at full fire beyond dissipation; zero when in budget. */
@@ -71,33 +118,50 @@ export function getBudgetFill(used: number, max: number): number {
   return Math.min(1, Math.max(0, used / max));
 }
 
-/** What the two heat numbers mean, e.g. "33 heat at full fire / 22 dissipation". */
+/**
+ * Present the subtotals supplied by the heat calculation owner. Each number
+ * names its source ("31 from weapons + 2 from running") so the weapon figure
+ * never reads as a weapon count. The one formatter behind the Overview tile,
+ * the header tooltip and the running-hot message.
+ */
+export function describeHeatSources(generation: IHeatGeneration): string {
+  return `${generation.alphaStrikeHeat} from weapons + ${generation.movementHeat} from ${generation.movementMode}`;
+}
+
+/** What the generated and dissipated heat numbers include. */
 export function describeHeatBalance(
   generated: number,
   dissipation: number,
+  generation?: IHeatGeneration,
 ): string {
-  return `${generated} heat at full fire / ${dissipation} dissipation`;
+  const sources = generation ? ` (${describeHeatSources(generation)})` : '';
+  return `${generated} heat at full fire${sources} / ${dissipation} dissipation`;
 }
 
-/** Plain-language explanation of running hot, shared by tooltip and notes. */
+/** Plain-language explanation of running hot, shared by tooltip and panel. */
 export function describeHeatExcess(excess: number): string {
   return `${excess} over: legal; add heat sinks to run cool.`;
 }
 
 /** Full heat explanation for the readout's tooltip and accessible name. */
-export function describeHeat(generated: number, dissipation: number): string {
+export function describeHeat(
+  generated: number,
+  dissipation: number,
+  generation?: IHeatGeneration,
+): string {
   const excess = getHeatExcess(generated, dissipation);
-  const balance = `${describeHeatBalance(generated, dissipation)}.`;
+  const balance = `${describeHeatBalance(generated, dissipation, generation)}.`;
   return excess > 0 ? `${balance} ${describeHeatExcess(excess)}` : balance;
 }
 
 /**
- * Status-control note for running hot. It restates the heat readout already
+ * Build-status warning for running hot. It restates the heat readout already
  * shown and points to the heat sinks; it is not a validation result.
  */
 export function getHeatNote(
   generated: number,
   dissipation: number,
+  generation?: IHeatGeneration,
 ): ValidationNote | null {
   const excess = getHeatExcess(generated, dissipation);
   if (excess === 0) return null;
@@ -105,10 +169,25 @@ export function getHeatNote(
     id: 'heat-over-dissipation',
     label: 'Runs hot',
     amount: `+${excess}`,
-    icon: 'flame',
-    message: `Heat ${generated} at full fire vs ${dissipation} dissipation: ${excess} over.`,
+    heading: `Runs ${excess} heat over dissipation`,
+    message: `Heat ${generated} at full fire${generation ? ` (${describeHeatSources(generation)})` : ''} vs ${dissipation} dissipation: ${excess} over.`,
     suggestion:
       'Legal; add heat sinks in Structure to run cool, or fire fewer weapons each turn.',
+    action: 'add heat sinks in Cooling',
+    actionTarget: { text: 'Cooling', id: COOLING_CARD_ID },
     tabId: 'structure',
   };
+}
+
+/**
+ * Readout warnings the build status lists with the rule warnings. Every
+ * status surface takes them from here.
+ */
+export function getStatusNotes(
+  heatGenerated: number,
+  heatDissipation: number,
+  generation?: IHeatGeneration,
+): ValidationNote[] {
+  const heatNote = getHeatNote(heatGenerated, heatDissipation, generation);
+  return heatNote ? [heatNote] : [];
 }

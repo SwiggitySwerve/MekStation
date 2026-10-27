@@ -31,7 +31,8 @@ Each tab SHALL display unit name with modification indicator.
 
 - **WHEN** tab renders
 - **THEN** unit name is shown (truncated at 48 chars max)
-- **AND** modified indicator appears in orange if unsaved changes exist
+- **AND** a background (inactive) tab shows the accent modified dot, named "Changes not saved to library", if unsaved changes exist; the active unit's save state is spelled out beside the Save button instead (for example "Not in library · draft saved" on one line), so the header never repeats the same dot
+- **AND** on phones too the name stays on one line and ends in an ellipsis when it does not fit; the tab's accessible name and tooltip keep the full name
 - **AND** close button appears on hover
 
 #### Scenario: Active tab styling
@@ -231,6 +232,14 @@ The system SHALL provide a dialog for loading existing units into tabs.
 - **THEN** modal appears with search input at top
 - **AND** filter options for tech base and weight class
 - **AND** scrollable list of units below
+- **AND** search and filter controls use the shared field border (hover brightens it), retaining their focus rings and 44px touch targets
+
+#### Scenario: Default library name ordering
+
+- **WHEN** the dialog sorts units by source and name
+- **THEN** custom units retain priority over canonical units
+- **AND** names within each source sort using a presentation key that ignores leading punctuation, quotes, and whitespace
+- **AND** displayed names and the units passed to Load Unit remain unchanged
 
 #### Scenario: Unit sources
 
@@ -276,19 +285,54 @@ The empty state SHALL provide quick access to unit creation and loading.
 #### Scenario: Empty state buttons
 
 - **WHEN** empty state is displayed
-- **THEN** "New Unit" button with document icon appears
-- **AND** "Load from Library" button with folder icon appears
-- **AND** icons match toolbar styling
+- **THEN** a centered composition shows a large mech icon in a soft tinted circle, a title, and one explanatory sentence
+- **AND** "New Unit" and "Load from Library" actions use shared icons and at least 44px touch targets
+- **AND** phone layouts keep 16px side margins
+
+#### Scenario: Empty state quick-start units
+
+- **WHEN** empty state is displayed and the canonical unit index has loaded
+- **THEN** up to four well-known canonical BattleMechs (Locust LCT-1V, Hunchback HBK-4G, Marauder MAD-3R, Atlas AS7-D) appear under the buttons as quick-start chips showing the unit name, tonnage and weight class, each at least 44px tall
+- **AND** a unit missing from the index is not shown, and no chips appear if the index is empty or fails to load
+- **AND** clicking a chip loads that unit through the same load path as choosing it in the Add unit dialog (as a canonical unit, opening it in a new tab)
+- **AND** the chips are disabled while a unit is loading
 
 #### Scenario: Empty state new unit
 
 - **WHEN** user clicks "New Unit" in empty state
-- **THEN** NewTabModal opens
+- **THEN** the Add unit dialog opens with blank-unit, starting-settings, and library choices
+
+#### Scenario: Add unit dialog has one primary action
+
+- **WHEN** the Add unit dialog opens
+- **THEN** "New blank unit" is the only primary (filled) button and sits left-aligned beside a secondary outlined button labelled "Choose tonnage and tech first…" (so it reads as opening a step), both the same height with a 12px gap
+- **AND** the explanation "Starts a 50-ton Inner Sphere BattleMech you can change." sits directly under "New blank unit" only, starting at that button's left edge, and is linked to it with aria-describedby
+- **AND** the secondary button has its own caption, "Pick unit type, tonnage and tech base.", directly under it and linked to it with aria-describedby
+- **AND** on phones the two buttons stack full width, each followed by its own caption
+- **AND** both buttons keep at least 44px touch targets
+
+#### Scenario: Add unit dialog catalog table names its columns truthfully
+
+- **WHEN** the Add unit dialog lists catalog units on a screen 640px or wider
+- **THEN** the table's last column is headed "Era", because it shows each unit's era (for example "Dark Age" or "Clan Invasion"); saved designs show "Custom" in that cell, and the "All Sources" filter still separates catalog units from saved designs
+
+#### Scenario: Empty state icon matches the palette
+
+- **WHEN** the empty state is displayed
+- **THEN** its mech icon sits in a circle filled with the navy card surface (not a neutral grey) with a subtle accent ring
 
 #### Scenario: Empty state load unit
 
 - **WHEN** user clicks "Load from Library" in empty state
 - **THEN** UnitLoadDialog opens
+
+
+#### Scenario: Phone library dialog footer
+
+- **WHEN** the Add unit dialog is displayed on a phone
+- **THEN** the result count occupies its own line above a full-width Load Unit button
+- **AND** when no unit is selected, "Select a unit to load" is the button helper text
+- **AND** the scrollable unit list has bottom padding so its last row can be fully revealed above the footer
 
 ### Requirement: Tab Navigation Resilience
 

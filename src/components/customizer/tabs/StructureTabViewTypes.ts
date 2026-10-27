@@ -19,9 +19,12 @@ export interface StructureTabCalculations {
   readonly heatSinkSlots: number;
   readonly jumpJetWeight: number;
   readonly jumpJetSlots: number;
+  readonly armorWeight: number;
   readonly totalStructuralWeight: number;
   readonly integralHeatSinks: number;
   readonly externalHeatSinks: number;
+  readonly freeHeatSinks: number;
+  readonly heatSinksRequiringWeight: number;
   readonly totalHeatDissipation: number;
 }
 

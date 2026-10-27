@@ -90,19 +90,32 @@ function useModalLifecycle<T extends HTMLElement>(
   isOpen: boolean,
   native: boolean,
 ): void {
+  // Focus that was inside the dialog at teardown. A remount of the same
+  // dialog (Strict Mode) returns there instead of to the first control, so a
+  // destination the page focused inside the dialog is not lost.
+  const focusedInside = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => {
     const modal = modalRef.current;
     if (!isOpen || !modal) return;
     const opener = document.activeElement;
+    const kept = focusedInside.current;
+    focusedInside.current = null;
     const releaseScroll = acquireBodyScrollLock();
     try {
       if (native && modal instanceof HTMLDialogElement) modal.showModal();
-      (focusableElements(modal, native)[0] ?? modal).focus();
+      (
+        (kept && modal.contains(kept) ? kept : undefined) ??
+        focusableElements(modal, native)[0] ??
+        modal
+      ).focus();
     } catch (error) {
       releaseScroll();
       throw error;
     }
     return () => {
+      const active = document.activeElement;
+      focusedInside.current =
+        active instanceof HTMLElement && modal.contains(active) ? active : null;
       if (native && modal instanceof HTMLDialogElement) modal.close();
       releaseScroll();
       if (

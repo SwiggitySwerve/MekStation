@@ -53,13 +53,21 @@ const sharedModulePathIgnorePatterns = ['<rootDir>/.claude/worktrees/'];
 const perfSensitiveSimulationTestPattern =
   'src[/\\\\]simulation[/\\\\]__tests__[/\\\\](integration|simulation-combat-integration|swarm-pilot-skills-batch|swarm-throughput)\\.test\\.ts$';
 
+// Wall-clock frame budgets measured in jsdom; they fail on a loaded machine
+// (e.g. with the dev server running), so they run in the perf-sensitive lane.
+const perfSensitiveFrameBudgetTestPattern =
+  'src[/\\\\]components[/\\\\]gameplay[/\\\\]__tests__[/\\\\]perfBudgets\\.test\\.tsx$';
+
 const unitTestPathIgnorePatterns = [
   ...sharedTestPathIgnorePatterns,
   '\\.a11y\\.test\\.(ts|tsx)$',
 ];
 
 if (process.env.JEST_EXCLUDE_PERF_SENSITIVE === 'true') {
-  unitTestPathIgnorePatterns.push(perfSensitiveSimulationTestPattern);
+  unitTestPathIgnorePatterns.push(
+    perfSensitiveSimulationTestPattern,
+    perfSensitiveFrameBudgetTestPattern,
+  );
 }
 
 // =============================================================================

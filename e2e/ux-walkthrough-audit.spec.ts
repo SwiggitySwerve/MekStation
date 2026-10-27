@@ -340,7 +340,7 @@ test.describe('ux walkthrough audit — desktop', () => {
         ).toBeVisible({ timeout: 20_000 });
       });
 
-      // Since #1634 New Unit opens the combined 'Add unit' dialog: a blank
+      // Since #1634 the empty state's Add unit button opens the combined 'Add unit' dialog: a blank
       // unit, starting settings, or a library unit.
       const addUnit = page.getByRole('dialog', {
         name: 'Add unit',
@@ -348,13 +348,18 @@ test.describe('ux walkthrough audit — desktop', () => {
       });
 
       await walk.step('open the new-unit dialog', async () => {
-        await page.getByRole('button', { name: 'New Unit' }).first().click();
+        await page
+          .getByRole('button', { name: 'Add unit', exact: true })
+          .first()
+          .click();
         await expect(addUnit).toBeVisible();
         await expect(
           addUnit.getByRole('button', { name: 'New blank unit', exact: true }),
         ).toBeVisible();
         await expect(
-          addUnit.getByRole('button', { name: 'Choose starting settings' }),
+          addUnit.getByRole('button', {
+            name: 'Choose tonnage and tech first…',
+          }),
         ).toBeVisible();
       });
 

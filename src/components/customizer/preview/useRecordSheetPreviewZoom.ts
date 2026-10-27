@@ -15,26 +15,33 @@ export interface RecordSheetPreviewZoom {
   readonly zoomOut: () => void;
   readonly fitToWidth: () => void;
   readonly fitToPage: () => void;
+  readonly actualSize: () => void;
 }
 
+/**
+ * Zoom state shared by the preview toolbar (controls) and the canvas viewer
+ * (container to measure). Provided by `PreviewTabFrame`; a canvas rendered
+ * outside a frame manages its own zoom and shows its own controls.
+ */
+export const RecordSheetPreviewZoomContext =
+  React.createContext<RecordSheetPreviewZoom | null>(null);
+
+/**
+ * Opens fit-width so the sheet is readable at once on every screen; the fit
+ * modes cap the drawn width on very wide viewers (see `recordSheetPreviewZoom`).
+ * The 100% mode draws one CSS pixel per paper point and scrolls when the viewer
+ * is narrower than the sheet.
+ */
 export function useRecordSheetPreviewZoom(
   pageWidth: number,
   pageHeight: number,
 ): RecordSheetPreviewZoom {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [mode, setMode] =
-    React.useState<RecordSheetPreviewZoomMode>('fit-page');
+    React.useState<RecordSheetPreviewZoomMode>('fit-width');
   const [zoom, setZoom] = React.useState(1);
   const modeRef = React.useRef(mode);
   modeRef.current = mode;
-
-  // Pick the phone presentation after mount so server and client markup agree.
-  // Subsequent resizing preserves the user's chosen fit mode or manual zoom.
-  React.useEffect(() => {
-    if (window.matchMedia('(max-width: 639px)').matches) {
-      setMode('fit-width');
-    }
-  }, []);
 
   const applyFit = React.useCallback(
     (selected: RecordSheetPreviewZoomMode) => {
@@ -54,8 +61,10 @@ export function useRecordSheetPreviewZoom(
   );
 
   React.useEffect(() => {
-    if (mode === 'manual') return;
-    applyFit(mode);
+    const current = modeRef.current;
+    if (current === 'manual') return;
+    applyFit(current);
+    // `mode` re-runs this when the user picks a fit mode.
   }, [applyFit, mode]);
 
   React.useEffect(() => {
@@ -95,6 +104,11 @@ export function useRecordSheetPreviewZoom(
     applyFit('fit-page');
   }, [applyFit]);
 
+  const actualSize = React.useCallback(() => {
+    setMode('actual');
+    applyFit('actual');
+  }, [applyFit]);
+
   return {
     containerRef,
     zoom,
@@ -103,5 +117,6 @@ export function useRecordSheetPreviewZoom(
     zoomOut,
     fitToWidth,
     fitToPage,
+    actualSize,
   };
 }

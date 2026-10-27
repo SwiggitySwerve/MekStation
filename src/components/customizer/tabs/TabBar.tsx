@@ -12,6 +12,7 @@ import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 
 import type { TabDisplayInfo } from './tabTypes';
 
+import { ToolbarHint } from '../shared/ToolbarHint';
 import { UnitActionsMenu } from './UnitActionsMenu';
 import { UnitTab as UnitTabComponent } from './UnitTab';
 
@@ -102,15 +103,26 @@ export function TabBar({
           />
         ))}
       </div>
-      <div className="border-border-theme flex shrink-0 items-center gap-1 border-l pl-1">
+      {/* Secondary unit commands; Save and its state sit apart as the
+          primary group. */}
+      <div
+        className="flex shrink-0 items-center gap-0.5 pl-2 max-sm:gap-0 max-sm:pl-0"
+        data-testid="unit-command-group"
+      >
         <button
           type="button"
           onClick={onLoadUnit}
-          className="text-text-theme-primary border-border-theme bg-surface-raised hover:bg-surface-hover focus-visible:outline-accent flex h-11 w-11 items-center justify-center rounded border !p-0 focus-visible:outline-2 focus-visible:outline-offset-2"
-          title="Add unit (Ctrl+O)"
+          className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent relative flex h-11 min-w-11 items-center justify-center gap-2 rounded !p-0 text-sm font-medium whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 xl:!pr-3 xl:!pl-2"
           aria-label="Add unit (Ctrl+O)"
         >
           <AppIcon name="add" size="toolbar" />
+          <span aria-hidden="true" className="hidden xl:inline">
+            Add unit
+          </span>
+          <ToolbarHint>
+            Open or create a unit{' '}
+            <kbd className="text-text-theme-secondary font-sans">Ctrl+O</kbd>
+          </ToolbarHint>
         </button>
         <UnitActionsMenu
           tabs={tabs}

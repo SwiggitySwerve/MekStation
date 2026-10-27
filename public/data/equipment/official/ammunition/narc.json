@@ -7,17 +7,16 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "narc",
-        "clan-narc"
-      ],
+      "compatibleWeaponIds": ["narc", "clan-narc"],
       "shotsPerTon": 6,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 6000,
       "battleValue": 30,
       "isExplosive": true,
-      "introductionYear": 2587
+      "introductionYear": 2587,
+      "extinctionYear": 2795,
+      "reintroductionYear": 3035
     },
     {
       "id": "inarc-ammo",
@@ -26,9 +25,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "inarc"
-      ],
+      "compatibleWeaponIds": ["inarc"],
       "shotsPerTon": 4,
       "weight": 1,
       "criticalSlots": 1,
@@ -51,8 +48,10 @@
       "costPerTon": 6000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 2580,
-      "special": []
+      "introductionYear": 2587,
+      "special": [],
+      "extinctionYear": 2795,
+      "reintroductionYear": 3035
     },
     {
       "id": "narc-explosivepods",
@@ -68,7 +67,7 @@
       "costPerTon": 1500,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3054,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -85,7 +84,7 @@
       "costPerTon": 15000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3054,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -102,7 +101,7 @@
       "costPerTon": 1500,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3054,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -119,7 +118,7 @@
       "costPerTon": 20000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3054,
+      "introductionYear": 3062,
       "special": []
     },
     {
@@ -136,7 +135,7 @@
       "costPerTon": 10000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 3054,
+      "introductionYear": 3062,
       "special": []
     },
     {

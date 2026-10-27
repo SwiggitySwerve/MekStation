@@ -5,14 +5,22 @@ import type { IUnitValidationError } from '@/types/validation/UnitValidationInte
 import { ErrorBoundary } from '@/components/common';
 import { CampaignRefitCommandBar } from '@/components/customizer/campaign/CampaignRefitCommandBar';
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
+import { BrowserDraftStatus } from '@/components/customizer/shared/BrowserDraftStatus';
+import { addStatusNotesToTabCounts } from '@/components/customizer/shared/buildStatusSummary';
+import { TabIssueNotice } from '@/components/customizer/shared/TabIssueNotice';
+import {
+  getTabIssueNotice,
+  getTabIssueTitles,
+} from '@/components/customizer/shared/tabIssueTitles';
 import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import {
   UnitSaveDetails,
   UnitSaveSummary,
 } from '@/components/customizer/shared/UnitSaveSummary';
-import { getHeatNote } from '@/components/customizer/shared/unitStatStatus';
+import { getStatusNotes } from '@/components/customizer/shared/unitStatStatus';
 import { ValidationSummary } from '@/components/customizer/shared/ValidationSummary';
+import { getEquipmentNeedingPlacement } from '@/components/customizer/tabs/CriticalSlotsTab.placement';
 import {
   CustomizerTabs,
   DEFAULT_CUSTOMIZER_TABS,
@@ -152,6 +160,7 @@ export function UnitEditorWithRouting({
   const [toolbarTarget, setToolbarTarget] = useState<HTMLElement | null>(null);
   const [loadoutRequest, setLoadoutRequest] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [statusPanelRequest, setStatusPanelRequest] = useState(0);
   const [validationTarget, setValidationTarget] = useState<{
     unitId: string;
     tabId: CustomizerTabId;
@@ -225,17 +234,52 @@ export function UnitEditorWithRouting({
     return () => observer?.disconnect();
   }, [activeTabId, unitId, validationTarget, selectedEquipmentId]);
 
-  const { heatGenerated, heatDissipation } = unitStats;
-  const statusNotes = useMemo(() => {
-    const heatNote = getHeatNote(heatGenerated, heatDissipation);
-    return heatNote ? [heatNote] : [];
-  }, [heatGenerated, heatDissipation]);
+  const { heatGenerated, heatDissipation, heatGeneration } = unitStats;
+  const statusNotes = useMemo(
+    () => getStatusNotes(heatGenerated, heatDissipation, heatGeneration),
+    [heatGenerated, heatDissipation, heatGeneration],
+  );
+  const tabIssueCounts = useMemo(
+    () => addStatusNotesToTabCounts(validationNav.errorsByTab, statusNotes),
+    [validationNav.errorsByTab, statusNotes],
+  );
+  const tabIssueTitles = useMemo(
+    () => getTabIssueTitles(validation.result, statusNotes),
+    [validation.result, statusNotes],
+  );
+  // Overview lists every issue in its readiness rows and Preview is not an
+  // editing surface, so the notice appears on the other tabs only.
+  // Critical Slots shows its own "to place" banner for the same problem, so
+  // the notice stays out of the way while that banner is visible.
+  const placementBannerShowing =
+    activeTabId === 'criticals' &&
+    getEquipmentNeedingPlacement(
+      equipment,
+      configuration,
+      engineType,
+      gyroType,
+      armActuators,
+    ).length > 0;
+  const tabIssueNotice =
+    activeTabId === 'overview' ||
+    activeTabId === 'preview' ||
+    placementBannerShowing
+      ? null
+      : getTabIssueNotice(
+          tabIssueCounts[activeTabId],
+          tabIssueTitles[activeTabId],
+        );
+  const showAllIssues = useCallback(
+    () => setStatusPanelRequest((value) => value + 1),
+    [],
+  );
   const validationProps = {
     validation,
     unitName,
     notes: statusNotes,
     onIssueNavigate: handleValidationIssue,
     onNavigate: handleTabChange,
+    openRequest: statusPanelRequest,
   };
 
   return (
@@ -269,13 +313,16 @@ export function UnitEditorWithRouting({
             tabs={DEFAULT_CUSTOMIZER_TABS}
             activeTab={activeTabId}
             onTabChange={handleTabChange}
-            validationCounts={validationNav.errorsByTab}
+            validationCounts={tabIssueCounts}
+            issueTitles={tabIssueTitles}
             compact
             className="min-w-0 flex-1 !border-b-0"
           />
           <div ref={setToolbarTarget} className="flex shrink-0 items-center" />
           {isMobile && (
-            <UnitSaveSummary unitId={unitId} className="min-w-0 flex-1 px-2" />
+            <div className="hidden max-w-64 min-w-0 shrink px-2 sm:block">
+              <UnitSaveSummary unitId={unitId} />
+            </div>
           )}
           <UnitEditStatusSlot
             className={`${workbenchStyles.editStatusSlot} border-border-theme shrink-0 md:border-l md:pl-2`}
@@ -283,7 +330,6 @@ export function UnitEditorWithRouting({
           {!isMobile && (
             <div className={workbenchStyles.statusControl}>
               <ValidationSummary key={unitId} {...validationProps} />
-              <UnitSaveSummary unitId={unitId} className="min-w-0" />
             </div>
           )}
           <CustomizerWorkspaceControls
@@ -295,17 +341,43 @@ export function UnitEditorWithRouting({
             }}
           />
         </div>
-        <div className="flex min-h-0 flex-1 overflow-hidden pb-14 md:pb-0">
-          <div
-            className="min-h-0 min-w-0 flex-1 overflow-auto"
-            data-testid="customizer-workspace"
-          >
-            <UnitEditorWithRoutingTabContent
-              activeTabId={activeTabId}
-              selectedEquipmentId={selectedEquipmentId}
-              onSelectEquipment={handleSelectEquipment}
-              workbench
-            />
+        {isMobile && (
+          <BrowserDraftStatus
+            unitId={unitId}
+            compact
+            onlyWhenFailed
+            className="shrink-0 border-b border-red-400/40 bg-red-500/10 px-3 text-xs sm:hidden"
+          />
+        )}
+        <div
+          className={`${workbenchStyles.workspaceBody} flex min-h-0 flex-1 overflow-hidden pb-14 md:pb-0`}
+        >
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            {tabIssueNotice && (
+              <TabIssueNotice
+                notice={tabIssueNotice}
+                onShowAll={showAllIssues}
+                statusRowIssue={
+                  validation.errorCount === 0 &&
+                  validation.warningCount === 0 &&
+                  statusNotes.length === 1
+                    ? statusNotes[0].label
+                    : undefined
+                }
+              />
+            )}
+            <div
+              className={`${workbenchStyles.workspaceScroll} min-h-0 min-w-0 flex-1 overflow-auto`}
+              data-testid="customizer-workspace"
+            >
+              <UnitEditorWithRoutingTabContent
+                activeTabId={activeTabId}
+                selectedEquipmentId={selectedEquipmentId}
+                onSelectEquipment={handleSelectEquipment}
+                onNavigate={handleTabChange}
+                workbench
+              />
+            </div>
           </div>
           <ErrorBoundary componentName="ResponsiveLoadoutTray">
             <ResponsiveLoadoutTray

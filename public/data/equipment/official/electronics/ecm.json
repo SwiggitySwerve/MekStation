@@ -14,11 +14,10 @@
       "criticalSlots": 2,
       "costCBills": 200000,
       "battleValue": 61,
-      "introductionYear": 3045,
-      "special": [
-        "6 hex ECM bubble",
-        "Blocks enemy electronics"
-      ]
+      "introductionYear": 2597,
+      "special": ["6 hex ECM bubble", "Blocks enemy electronics"],
+      "extinctionYear": 2845,
+      "reintroductionYear": 3045
     },
     {
       "id": "clan-ecm",
@@ -31,10 +30,7 @@
       "costCBills": 200000,
       "battleValue": 61,
       "introductionYear": 2832,
-      "special": [
-        "6 hex ECM bubble",
-        "Blocks enemy electronics"
-      ]
+      "special": ["6 hex ECM bubble", "Blocks enemy electronics"]
     },
     {
       "id": "angel-ecm",
@@ -46,11 +42,8 @@
       "criticalSlots": 2,
       "costCBills": 750000,
       "battleValue": 100,
-      "introductionYear": 3063,
-      "special": [
-        "6 hex ECM bubble",
-        "Enhanced protection vs active probes"
-      ]
+      "introductionYear": 3080,
+      "special": ["6 hex ECM bubble", "Enhanced protection vs active probes"]
     },
     {
       "id": "watchdog-cews",
@@ -62,11 +55,8 @@
       "criticalSlots": 2,
       "costCBills": 600000,
       "battleValue": 68,
-      "introductionYear": 3059,
-      "special": [
-        "Combined ECM and Active Probe",
-        "4 hex probe range"
-      ]
+      "introductionYear": 3080,
+      "special": ["Combined ECM and Active Probe", "4 hex probe range"]
     },
     {
       "id": "guardianecmsuite",
@@ -78,8 +68,10 @@
       "criticalSlots": 2,
       "costCBills": 200000,
       "battleValue": 61,
-      "introductionYear": 2595,
-      "special": []
+      "introductionYear": 2597,
+      "special": [],
+      "extinctionYear": 2845,
+      "reintroductionYear": 3045
     },
     {
       "id": "guardianecmsuiteprototype",
@@ -92,7 +84,8 @@
       "costCBills": 1000000,
       "battleValue": 61,
       "introductionYear": 2595,
-      "special": []
+      "special": [],
+      "extinctionYear": 2597
     },
     {
       "id": "ecmsuite",
@@ -104,7 +97,7 @@
       "criticalSlots": 1,
       "costCBills": 200000,
       "battleValue": 61,
-      "introductionYear": 2830,
+      "introductionYear": 2832,
       "special": []
     },
     {
@@ -117,7 +110,7 @@
       "criticalSlots": 2,
       "costCBills": 1000000,
       "battleValue": 100,
-      "introductionYear": 3057,
+      "introductionYear": 3080,
       "special": []
     },
     {
@@ -130,34 +123,36 @@
       "criticalSlots": 4,
       "costCBills": 500000,
       "battleValue": 39,
-      "introductionYear": 3020,
-      "special": []
+      "introductionYear": 3025,
+      "special": [],
+      "extinctionYear": 3046
     },
     {
       "id": "watchdog-composite-electronic-warfare-system-cews",
       "name": "Watchdog Composite Electronic Warfare System (CEWS)",
       "category": "ECM",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 1.5,
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 68,
-      "introductionYear": 5000,
+      "introductionYear": 3080,
       "special": []
     },
     {
       "id": "nova-combined-electronic-warfare-system-cews",
       "name": "Nova Combined Electronic Warfare System (CEWS)",
       "category": "ECM",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "weight": 1.5,
       "criticalSlots": 1,
       "costCBills": 1100000,
       "battleValue": 68,
-      "introductionYear": 1100,
-      "special": []
+      "introductionYear": 3065,
+      "special": [],
+      "extinctionYear": 3085
     }
   ]
 }

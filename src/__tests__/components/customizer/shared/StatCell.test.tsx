@@ -29,7 +29,7 @@ describe('StatCell', () => {
       <StatCell label="Weight" value={50} variant="warning" />,
     );
 
-    const value = container.querySelector('.text-yellow-400');
+    const value = container.querySelector('.text-warning');
     expect(value).toBeInTheDocument();
   });
 

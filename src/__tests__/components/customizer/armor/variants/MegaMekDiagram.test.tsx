@@ -57,9 +57,9 @@ describe('MegaMekDiagram', () => {
     render(<MegaMekDiagram {...defaultProps} />);
 
     expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT-F')).toBeInTheDocument();
-    expect(screen.getByText('LT-F')).toBeInTheDocument();
-    expect(screen.getByText('RT-F')).toBeInTheDocument();
+    expect(screen.getByText('CT')).toBeInTheDocument();
+    expect(screen.getByText('LT')).toBeInTheDocument();
+    expect(screen.getByText('RT')).toBeInTheDocument();
     expect(screen.getByText('LA')).toBeInTheDocument();
     expect(screen.getByText('RA')).toBeInTheDocument();
     expect(screen.getByText('LL')).toBeInTheDocument();
@@ -69,7 +69,9 @@ describe('MegaMekDiagram', () => {
   it('should display rear armor labels for torso locations', () => {
     render(<MegaMekDiagram {...defaultProps} />);
 
-    expect(screen.getAllByText('REAR')).toHaveLength(3);
+    expect(document.querySelectorAll('[data-armor-face="rear"]')).toHaveLength(
+      3,
+    );
   });
 
   it('should call onLocationClick when a location is clicked', async () => {

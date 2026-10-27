@@ -3,10 +3,11 @@ import React from 'react';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
-import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import type {
+  StructureConfigurationOption,
   StructureTabCalculations,
   StructureTabFilteredOptions,
 } from './StructureTabViewTypes';
@@ -14,28 +15,31 @@ import type {
 import { customizerStyles as cs } from '../styles';
 import {
   EngineRatingSummary,
+  MotiveTypeControl,
   SystemSelects,
   TonnageControl,
 } from './StructureTabChassisControls';
-import { HeatSinkSection } from './StructureTabHeatSinkControls';
+import { STRUCTURE_CARD } from './StructureTabRowLayout';
 
 interface StructureTabChassisSectionProps {
   readonly readOnly: boolean;
   readonly tonnage: number;
   readonly isSuperheavy: boolean;
-  readonly isOmni: boolean;
+  readonly configuration: MechConfiguration;
+  readonly configurationOptions: readonly StructureConfigurationOption[];
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
   readonly internalStructureType: InternalStructureType;
   readonly cockpitType: CockpitType;
-  readonly heatSinkType: HeatSinkType;
-  readonly heatSinkCount: number;
-  readonly baseChassisHeatSinks: number;
   readonly calculations: StructureTabCalculations;
   readonly filteredOptions: StructureTabFilteredOptions;
   readonly engineRating: number;
   readonly isAtMaxEngineRating: boolean;
+  readonly walkMP: number;
   readonly handleTonnageChange: (newTonnage: number) => void;
+  readonly handleConfigurationChange: (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => void;
   readonly handleEngineTypeChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => void;
@@ -48,44 +52,36 @@ interface StructureTabChassisSectionProps {
   readonly handleCockpitTypeChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => void;
-  readonly handleHeatSinkTypeChange: (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => void;
-  readonly handleHeatSinkCountChange: (newCount: number) => void;
-  readonly handleBaseChassisHeatSinksChange: (newCount: number) => void;
 }
 
 export function StructureTabChassisSection({
   readOnly,
   tonnage,
   isSuperheavy,
-  isOmni,
+  configuration,
+  configurationOptions,
   engineType,
   gyroType,
   internalStructureType,
   cockpitType,
-  heatSinkType,
-  heatSinkCount,
-  baseChassisHeatSinks,
   calculations,
   filteredOptions,
   engineRating,
   isAtMaxEngineRating,
+  walkMP,
   handleTonnageChange,
+  handleConfigurationChange,
   handleEngineTypeChange,
   handleGyroTypeChange,
   handleStructureTypeChange,
   handleCockpitTypeChange,
-  handleHeatSinkTypeChange,
-  handleHeatSinkCountChange,
-  handleBaseChassisHeatSinksChange,
 }: StructureTabChassisSectionProps): React.ReactElement {
   return (
-    <div className={cs.panel.main}>
+    <div className={`${cs.panel.main} ${STRUCTURE_CARD}`}>
       <div className="border-border-theme mb-4 border-b pb-3">
         <h3 className={cs.text.cardTitle}>Chassis</h3>
         <p className={`${cs.text.secondary} mt-0.5`}>
-          Core structure, drive system, and cooling
+          Core structure and drive system
         </p>
       </div>
 
@@ -97,12 +93,20 @@ export function StructureTabChassisSection({
           >
             Chassis
           </h4>
-          <TonnageControl
-            readOnly={readOnly}
-            tonnage={tonnage}
-            isSuperheavy={isSuperheavy}
-            onChange={handleTonnageChange}
-          />
+          <div className="space-y-3">
+            <TonnageControl
+              readOnly={readOnly}
+              tonnage={tonnage}
+              isSuperheavy={isSuperheavy}
+              onChange={handleTonnageChange}
+            />
+            <MotiveTypeControl
+              readOnly={readOnly}
+              configuration={configuration}
+              options={configurationOptions}
+              onChange={handleConfigurationChange}
+            />
+          </div>
         </section>
 
         <SystemSelects
@@ -122,25 +126,9 @@ export function StructureTabChassisSection({
         <EngineRatingSummary
           engineRating={engineRating}
           isAtMaxEngineRating={isAtMaxEngineRating}
+          walkMP={walkMP}
+          tonnage={tonnage}
         />
-
-        <section aria-labelledby="cooling-heading">
-          <h4 id="cooling-heading" className={`${cs.text.subsection} mb-2`}>
-            Cooling
-          </h4>
-          <HeatSinkSection
-            readOnly={readOnly}
-            isOmni={isOmni}
-            heatSinkType={heatSinkType}
-            heatSinkCount={heatSinkCount}
-            baseChassisHeatSinks={baseChassisHeatSinks}
-            calculations={calculations}
-            heatSinkOptions={filteredOptions.heatSinks}
-            handleHeatSinkTypeChange={handleHeatSinkTypeChange}
-            handleHeatSinkCountChange={handleHeatSinkCountChange}
-            handleBaseChassisHeatSinksChange={handleBaseChassisHeatSinksChange}
-          />
-        </section>
       </div>
     </div>
   );

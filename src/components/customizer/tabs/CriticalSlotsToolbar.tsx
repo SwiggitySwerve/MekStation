@@ -2,8 +2,10 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { Button } from '@/components/ui/Button';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 
+import { ResetConfirmationDialog } from '../dialogs/ResetConfirmationDialog';
 import { ColorLegend } from '../shared/ColorLegend';
 
 export interface CriticalSlotsToolbarProps {
@@ -22,6 +24,7 @@ export interface CriticalSlotsToolbarProps {
   readonly onSelectIssue?: (id: string) => void;
   readonly notice?: string;
   readonly hasMoreLocationsBelow?: boolean;
+  readonly equipmentNames?: readonly string[];
 }
 
 export function CriticalSlotsToolbar({
@@ -31,14 +34,19 @@ export function CriticalSlotsToolbar({
   onAutoFillToggle,
   onAutoCompactToggle,
   onAutoSortToggle,
+  onFill,
+  onCompact,
+  onSort,
   onReset,
   readOnly,
   placementIssues = [],
   onSelectIssue,
   notice,
   hasMoreLocationsBelow = false,
+  equipmentNames = [],
 }: CriticalSlotsToolbarProps): React.ReactElement {
   const [open, setOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const trigger = useRef<HTMLButtonElement>(null),
     panel = useRef<HTMLDivElement>(null);
@@ -100,7 +108,17 @@ export function CriticalSlotsToolbar({
     },
   ];
   return (
-    <div className="border-border-theme-subtle bg-surface-base flex shrink-0 items-center gap-2 border-b px-3">
+    <div className="border-border-theme-subtle bg-surface-base flex shrink-0 items-center gap-1 border-b px-3 sm:gap-2">
+      <Button
+        size="sm"
+        variant="secondary"
+        disabled={readOnly}
+        onClick={onSort}
+        title="Sort equipment by size and compact slots within each location"
+        className="shrink-0"
+      >
+        Auto-arrange
+      </Button>
       <button
         ref={trigger}
         type="button"
@@ -108,16 +126,52 @@ export function CriticalSlotsToolbar({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((value) => !value)}
-        className="border-border-theme bg-surface-base text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent min-h-11 shrink-0 rounded border px-2 text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+        title="Critical slot tools"
+        className="border-border-theme bg-surface-base text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex h-11 w-11 shrink-0 items-center justify-center rounded border text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
       >
-        Tools <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
+        <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        aria-label="Reset slot assignments"
+        disabled={readOnly}
+        onClick={() => {
+          setOpen(false);
+          setResetOpen(true);
+        }}
+        className="text-text-theme-secondary hover:bg-surface-raised focus-visible:outline-accent min-h-11 shrink-0 rounded px-2 text-xs focus-visible:outline-2 disabled:opacity-40"
+      >
+        Reset…
       </button>
       {hasMoreLocationsBelow && (
         <span className="text-text-theme-secondary hidden text-xs sm:block">
           Scroll for more locations
         </span>
       )}
-      <ColorLegend className="ml-auto shrink-0" />
+      <ColorLegend
+        className="ml-auto min-w-0"
+        equipmentNames={equipmentNames}
+      />
+      <ResetConfirmationDialog
+        isOpen={resetOpen}
+        onClose={() => setResetOpen(false)}
+        onConfirm={async () => {
+          onReset();
+        }}
+        options={[
+          {
+            id: 'slots',
+            title: 'Reset slot assignments',
+            description: 'Return mounted equipment to the unassigned pool.',
+            removes: ['Equipment slot assignments'],
+            preserves: [
+              'Equipment inventory',
+              'Fixed systems',
+              'Armor and structure',
+            ],
+          },
+        ]}
+      />
       {open &&
         createPortal(
           <div
@@ -155,17 +209,25 @@ export function CriticalSlotsToolbar({
                 </span>
               </button>
             ))}
-            <button
-              type="button"
-              disabled={readOnly}
-              onClick={() => {
-                onReset();
-                setOpen(false);
-              }}
-              className="hover:bg-surface-raised focus-visible:outline-accent min-h-11 w-full rounded px-3 text-left text-xs text-red-400 focus-visible:outline-2 disabled:opacity-40"
-            >
-              Reset slot assignments
-            </button>
+            {[
+              { label: 'Fill', action: onFill },
+              { label: 'Compact', action: onCompact },
+              { label: 'Sort', action: onSort },
+            ].map(({ label, action }) => (
+              <button
+                key={label}
+                type="button"
+                disabled={readOnly}
+                onClick={() => {
+                  action();
+                  setOpen(false);
+                  trigger.current?.focus();
+                }}
+                className="text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent min-h-11 w-full rounded px-3 text-left text-xs focus-visible:outline-2 disabled:opacity-40"
+              >
+                {label}
+              </button>
+            ))}
             {placementIssues.length > 0 && (
               <details className="border-border-theme border-t px-2">
                 <summary className="flex min-h-11 cursor-pointer items-center text-xs text-yellow-400">

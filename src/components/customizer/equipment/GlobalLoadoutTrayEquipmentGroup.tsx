@@ -7,6 +7,7 @@ import { getLocationShorthand } from '@/utils/locationUtils';
 import { trayStyles } from './GlobalLoadoutTray.styles';
 import { LoadoutEquipmentItem } from './GlobalLoadoutTray.types';
 import { GlobalLoadoutTrayEquipmentItem } from './GlobalLoadoutTrayEquipmentItem';
+import { GlobalLoadoutTrayPlacementStatus } from './GlobalLoadoutTrayPlacementStatus';
 
 interface EquipmentGroupProps {
   items: LoadoutEquipmentItem[];
@@ -92,6 +93,12 @@ export function GlobalLoadoutTrayEquipmentGroup({
             slot
             {representative.criticalSlots === 1 ? '' : 's'}
             {representative.isAllocated && <> &middot; {location}</>}
+            {!representative.isAllocated && (
+              <>
+                {' '}
+                &middot; <GlobalLoadoutTrayPlacementStatus />
+              </>
+            )}
           </span>
         </span>
         <span className={trayStyles.rowActionCell} aria-hidden="true">

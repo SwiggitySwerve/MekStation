@@ -104,25 +104,37 @@ function ConfiguredTacticalHUDDiagram(
 
       <div className="mt-3 flex justify-center gap-3 font-mono text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-green-500" />
+          <div
+            className="h-2.5 w-2.5 rounded-sm"
+            style={{ backgroundColor: ARMOR_STATUS.HEALTHY.color }}
+          />
           <span className="text-text-theme-muted">
             {Math.round(ARMOR_STATUS.HEALTHY.min * 100)}%+
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-amber-500" />
+          <div
+            className="h-2.5 w-2.5 rounded-sm"
+            style={{ backgroundColor: ARMOR_STATUS.MODERATE.color }}
+          />
           <span className="text-text-theme-muted">
             {Math.round(ARMOR_STATUS.MODERATE.min * 100)}%+
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-orange-500" />
+          <div
+            className="h-2.5 w-2.5 rounded-sm"
+            style={{ backgroundColor: ARMOR_STATUS.LOW.color }}
+          />
           <span className="text-text-theme-muted">
             {Math.round(ARMOR_STATUS.LOW.min * 100)}%+
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-red-500" />
+          <div
+            className="h-2.5 w-2.5 rounded-sm"
+            style={{ backgroundColor: ARMOR_STATUS.CRITICAL.color }}
+          />
           <span className="text-text-theme-muted">
             &lt;{Math.round(ARMOR_STATUS.LOW.min * 100)}%
           </span>

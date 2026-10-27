@@ -4,10 +4,19 @@ import React, { useState, useRef, useEffect } from 'react';
  *
  * Individual tab with name, modification indicator, and close button.
  *
+ * The unsaved-changes dot marks background tabs only: the active unit's save
+ * state is on the Save button (its dot, label and description), so the
+ * header never shows two unexplained dots for the same fact. The name stays
+ * on one line and ends in an ellipsis when it does not fit (phones too); the
+ * tab's accessible name and tooltip keep the full name, and the Overview
+ * Identity card shows it in full. Phones drop the tech base badge so the
+ * name fits; the tooltip still names the tech base.
+ *
  * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { TECH_BASE_MODE_LABELS } from '@/types/construction/TechBaseConfiguration';
 
 import type { TabDisplayInfo } from './tabTypes';
 
@@ -42,6 +51,19 @@ export function UnitTab({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(tab.name);
   const inputRef = useRef<HTMLInputElement>(null);
+  const tabRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isActive) return;
+    const reveal = (): void => {
+      tabRef.current?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    };
+    reveal();
+    const observer = new ResizeObserver(reveal);
+    const tablist = tabRef.current?.parentElement;
+    if (tablist) observer.observe(tablist);
+    return () => observer.disconnect();
+  }, [isActive, tab.name]);
 
   // Focus input when entering edit mode
   useEffect(() => {
@@ -82,13 +104,10 @@ export function UnitTab({
     onClose();
   };
 
-  // Truncate long names
-  const displayName =
-    tab.name.length > 48 ? tab.name.substring(0, 45) + '...' : tab.name;
-
   return (
     <div
-      className={`group flex min-h-11 max-w-[220px] min-w-[140px] shrink-0 items-center gap-1 rounded-t border-b-2 pl-2 transition-colors lg:max-w-[320px] ${
+      ref={tabRef}
+      className={`group flex min-h-11 max-w-[220px] min-w-[140px] shrink-0 items-center gap-1 rounded-t border-b-2 pl-2 transition-colors lg:max-w-[320px] ${isActive ? 'max-sm:w-full max-sm:max-w-full' : ''} ${
         isActive
           ? 'border-accent bg-surface-raised text-text-theme-primary'
           : 'text-text-theme-secondary [@media(hover:hover)]:hover:text-text-theme-primary border-transparent bg-transparent'
@@ -114,27 +133,41 @@ export function UnitTab({
             aria-selected={isActive}
             aria-label={tab.name}
             tabIndex={isActive ? 0 : -1}
-            title={`${tab.name} · Double-click to rename`}
+            title={[
+              tab.name,
+              tab.techBaseMode && TECH_BASE_MODE_LABELS[tab.techBaseMode],
+              'Double-click to rename',
+            ]
+              .filter(Boolean)
+              .join(' \u00b7 ')}
             onClick={onSelect}
             onDoubleClick={handleDoubleClick}
-            className="focus-visible:outline-accent flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+            className="focus-visible:outline-accent flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px] max-sm:!px-0 max-sm:!py-0 max-sm:leading-4"
           >
-            <span className="truncate">{displayName}</span>
+            <span
+              data-unit-tab-name
+              className="min-w-0 truncate max-sm:text-[13px] max-sm:leading-5 max-sm:font-medium"
+            >
+              {tab.name}
+            </span>
             {tab.techBaseMode && (
               <TechBaseBadge
                 techBaseMode={tab.techBaseMode}
-                className="shrink-0 !px-1 !py-0 !text-[10px]"
+                className="shrink-0 !px-1 !py-0 !text-[10px] max-sm:hidden"
               />
             )}
           </button>
         )}
       </div>
 
-      {/* Modified indicator */}
-      {tab.isModified && !isEditing && (
+      {/* Modified indicator: background tabs only (see above). */}
+      {tab.isModified && !isActive && !isEditing && (
         <span
-          className="bg-accent h-2 w-2 flex-shrink-0 rounded-full"
+          role="img"
+          aria-label="Changes not saved to library"
           title="Changes not saved to library"
+          data-unsaved-dot
+          className="bg-accent h-2 w-2 flex-shrink-0 rounded-full"
         />
       )}
 

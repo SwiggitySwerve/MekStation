@@ -235,6 +235,8 @@ export function useUnitValidation(
       // Slot validation fields
       slotsByLocation: equipmentData.slotsByLocation,
       equipmentSlotIssues: equipmentData.equipmentSlotIssues,
+      mountedEquipment: equipmentData.mountedEquipment,
+      equipmentCatalog: equipmentData.equipmentCatalog,
     };
 
     try {

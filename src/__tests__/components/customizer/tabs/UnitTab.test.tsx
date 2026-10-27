@@ -28,6 +28,28 @@ describe('UnitTab', () => {
     expect(screen.getByText('Atlas AS7-D')).toBeInTheDocument();
   });
 
+  it('keeps the tab name on one line, ellipsized, with its complete accessible name', () => {
+    const name = 'Atlas AS7-D (Custom long-range fire support configuration)';
+    render(
+      <UnitTab
+        {...defaultProps}
+        isActive
+        tab={{ ...defaultProps.tab, name }}
+      />,
+    );
+    expect(screen.getByRole('tab', { name })).toHaveTextContent(name);
+    // One line with an ellipsis at every width, phones included; the tab's
+    // name and tooltip keep the full name.
+    expect(screen.getByText(name)).toHaveClass('truncate');
+    expect(screen.getByText(name).className).not.toMatch(
+      /line-clamp|whitespace-normal/,
+    );
+    expect(screen.getByRole('tab', { name })).toHaveAttribute(
+      'title',
+      expect.stringContaining(name),
+    );
+  });
+
   it('should call onSelect when clicked', async () => {
     const user = userEvent.setup();
     render(<UnitTab {...defaultProps} />);
@@ -92,9 +114,24 @@ describe('UnitTab', () => {
       />,
     );
 
-    // The modification indicator is now a colored dot with title "Changes not saved to library"
-    const indicator = screen.getByTitle('Changes not saved to library');
-    expect(indicator).toBeInTheDocument();
+    // Background tabs mark unsaved changes with a named dot.
+    const indicator = screen.getByRole('img', {
+      name: 'Changes not saved to library',
+    });
+    expect(indicator).toHaveAttribute('title', 'Changes not saved to library');
     expect(indicator).toHaveClass('bg-accent');
+  });
+
+  it('leaves the active tab unmarked: the Save button shows its save state', () => {
+    render(
+      <UnitTab
+        {...defaultProps}
+        isActive
+        tab={{ ...defaultProps.tab, isModified: true }}
+      />,
+    );
+    expect(
+      screen.queryByRole('img', { name: 'Changes not saved to library' }),
+    ).toBeNull();
   });
 });

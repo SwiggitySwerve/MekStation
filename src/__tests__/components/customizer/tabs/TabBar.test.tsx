@@ -132,7 +132,9 @@ describe('TabBar', () => {
     const user = userEvent.setup();
     render(<TabBar {...defaultProps} />);
 
-    const loadButton = screen.getByTitle(/Add unit/i);
+    const loadButton = screen.getByRole('button', {
+      name: 'Add unit (Ctrl+O)',
+    });
     await user.click(loadButton);
 
     expect(defaultProps.onLoadUnit).toHaveBeenCalledTimes(1);

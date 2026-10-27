@@ -91,7 +91,7 @@ function renderEquipmentRow(
   <text x="${cols.med}" y="${rowY}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.medium || '-')}</text>
   <text x="${cols.lng}" y="${rowY}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.long || '-')}</text>`;
   } else if (eq.isAmmo) {
-    out += `<text x="${cols.dmg}" y="${rowY}" font-family="${FONT}" font-size="6" fill="#555">(${esc(eq.ammoCount ?? 0)} shots)</text>`;
+    out += `<text x="${cols.dmg}" y="${rowY}" font-family="${FONT}" font-size="6" fill="#555">${eq.ammoCount ? `(${esc(eq.ammoCount)} shots)` : '-'}</text>`;
   }
 
   return out;

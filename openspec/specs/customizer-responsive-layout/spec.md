@@ -79,6 +79,9 @@ Tab content layouts SHALL adapt to available horizontal space.
 - **OR** viewport width is below 768px without sidebar
 - **THEN** two-column content layouts stack to single column
 - **AND** all content remains accessible via scrolling
+- **AND** below 640px the workspace scroll area SHALL end where the collapsed Loadout bar begins (bar height plus the safe-area inset) and keep a 16px gap under scrolling content, so the final summary legend or control can scroll fully clear of the bar
+- **AND** full-height tabs (Equipment, Critical Slots) SHALL extend through that gap so their lists and the Equipment pager reach the Loadout bar with no dead band
+- **AND** only while content remains below, Equipment SHALL show "Scroll for more on this page" in an opaque footer/pager beside "Page N of M · T items" (the hint appears only when the current page itself overflows) and phone Critical Slots SHALL show "Scroll for more slots" in a slim opaque footer below its list; neither cue SHALL overlay or dim any row
 
 #### Scenario: Two column on wide viewports
 

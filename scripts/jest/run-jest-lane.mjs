@@ -10,6 +10,7 @@ const perfSensitiveTests = [
   'src/simulation/__tests__/simulation-combat-integration.test.ts',
   'src/simulation/__tests__/swarm-pilot-skills-batch.test.ts',
   'src/simulation/__tests__/swarm-throughput.test.ts',
+  'src/components/gameplay/__tests__/perfBudgets.test.tsx',
 ];
 
 const lanes = {

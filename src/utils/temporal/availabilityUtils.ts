@@ -6,7 +6,10 @@
  * @spec openspec/specs/era-temporal-system/spec.md
  */
 
-import { ITemporalEntity } from '../../types/core/ITemporalEntity';
+import {
+  ITemporalEntity,
+  isAvailableInYear,
+} from '../../types/core/ITemporalEntity';
 import { Era, ERA_DEFINITIONS } from '../../types/temporal/Era';
 import { getEraForYear } from './eraUtils';
 
@@ -17,7 +20,7 @@ import { getEraForYear } from './eraUtils';
  */
 export type MinimalTemporalEntity = Pick<
   ITemporalEntity,
-  'introductionYear' | 'extinctionYear'
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
 >;
 
 /**
@@ -61,24 +64,7 @@ export function validateTemporalProperties(
  * @param year - Year to check availability
  * @returns True if entity is available in that year
  */
-export function isAvailableInYear(
-  entity: MinimalTemporalEntity,
-  year: number,
-): boolean {
-  if (!Number.isFinite(year) || !Number.isFinite(entity.introductionYear)) {
-    return false;
-  }
-
-  if (year < entity.introductionYear) {
-    return false;
-  }
-
-  if (entity.extinctionYear !== undefined && year > entity.extinctionYear) {
-    return false;
-  }
-
-  return true;
-}
+export { isAvailableInYear };
 
 /**
  * Check if an entity is available in a given era
@@ -96,20 +82,15 @@ export function isAvailableInEra(
     return false;
   }
 
-  // Entity must have been introduced by the end of the era
-  if (entity.introductionYear > eraDef.endYear) {
-    return false;
-  }
-
-  // Entity must not be extinct before the start of the era
-  if (
-    entity.extinctionYear !== undefined &&
-    entity.extinctionYear < eraDef.startYear
-  ) {
-    return false;
-  }
-
-  return true;
+  // Availability can start at introduction or resume at reintroduction.
+  const firstYear = Math.max(eraDef.startYear, entity.introductionYear);
+  return (
+    (firstYear <= eraDef.endYear && isAvailableInYear(entity, firstYear)) ||
+    (entity.reintroductionYear !== undefined &&
+      entity.reintroductionYear >= eraDef.startYear &&
+      entity.reintroductionYear <= eraDef.endYear &&
+      isAvailableInYear(entity, entity.reintroductionYear))
+  );
 }
 
 /**

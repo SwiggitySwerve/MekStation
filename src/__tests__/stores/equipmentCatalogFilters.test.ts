@@ -54,32 +54,53 @@ beforeEach(() => {
   store().setEquipment([...ammunition, electronics, misc]);
 });
 
-it.each([
-  ['srm-6', 'srm-ammo'],
-  ['clan-srm-6', 'srm-ammo'],
-  ['lrm-20', 'lrm-ammo'],
-  ['clan-lrm-20', 'lrm-ammo'],
-  ['gauss-rifle', 'gauss-ammo'],
-  ['ac-2', 'ac-2-ap-ammo'],
-])('keeps declared compatible ammunition for %s', (weaponId, ammoId) => {
-  store().setUnitContext(3150, TechBase.INNER_SPHERE, [weaponId]);
-  store().toggleHideAmmoWithoutWeapon();
-  expect(ids()).toContain(ammoId);
-  expect(ids()).toContain(electronics.id);
+// Ammunition is listed only while a compatible weapon is available in the
+// catalog, so each test's catalog carries the weapons its ammunition serves.
+const weapon = (id: string, name: string): CatalogItem => ({
+  ...electronics,
+  id,
+  name,
+  category: EquipmentCategory.BALLISTIC_WEAPON,
 });
+const withWeapons = (...weapons: CatalogItem[]) =>
+  store().setEquipment([...ammunition, ...weapons, electronics, misc]);
+
+it.each([
+  ['srm-6', 'SRM 6', 'srm-ammo'],
+  ['clan-srm-6', 'SRM 6', 'srm-ammo'],
+  ['lrm-20', 'LRM 20', 'lrm-ammo'],
+  ['clan-lrm-20', 'LRM 20', 'lrm-ammo'],
+  ['gauss-rifle', 'Gauss Rifle', 'gauss-ammo'],
+  ['ac-2', 'AC/2', 'ac-2-ap-ammo'],
+])(
+  'keeps declared compatible ammunition for %s',
+  (weaponId, weaponName, ammoId) => {
+    withWeapons(weapon(weaponId, weaponName));
+    store().setUnitContext(3150, TechBase.INNER_SPHERE, [weaponId]);
+    store().toggleHideAmmoWithoutWeapon();
+    expect(ids()).toContain(ammoId);
+    expect(ids()).toContain(electronics.id);
+  },
+);
 
 it('does not confuse AC/2 and AC/20 or override explicit declarations', () => {
+  const ac2 = weapon('ac-2', 'AC/2');
+  const ac20 = weapon('ac-20', 'AC/20');
+  withWeapons(ac2, ac20);
   store().setUnitContext(3150, TechBase.INNER_SPHERE, ['ac-2']);
   store().toggleHideAmmoWithoutWeapon();
   expect(ids()).toContain('ac-2-ammo');
   expect(ids()).not.toContain('ac-20-ammo');
   store().setEquipment([
+    ac2,
+    ac20,
     { ...ammunition[0], name: 'AC/2 Ammo', compatibleWeaponIds: ['ac-20'] },
   ]);
-  expect(ids()).toEqual([]);
+  expect(ids()).toEqual([ac2.id, ac20.id]);
 });
 
 it('uses exact imported identities when compatibility declarations are absent', () => {
+  withWeapons(weapon('srm-2', 'SRM 2'), weapon('srm-6', 'SRM 6'));
   store().setUnitContext(3150, TechBase.INNER_SPHERE, ['srm-2']);
   store().toggleHideAmmoWithoutWeapon();
   expect(ids()).toContain('ammo-srm-2');
@@ -87,10 +108,12 @@ it('uses exact imported identities when compatibility declarations are absent', 
 });
 
 it('distinguishes an empty loadout from standalone browsing', () => {
+  const launcher = weapon('srm-6', 'SRM 6');
+  withWeapons(launcher);
   store().toggleHideAmmoWithoutWeapon();
   expect(ids()).toContain('srm-ammo');
   store().setUnitContext(3150, TechBase.INNER_SPHERE, []);
-  expect(ids()).toEqual([electronics.id, misc.id]);
+  expect(ids()).toEqual([electronics.id, misc.id, launcher.id]);
 });
 
 it('keeps Electronics independent of Other and ammunition visibility', () => {

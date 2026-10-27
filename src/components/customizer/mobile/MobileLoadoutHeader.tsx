@@ -12,8 +12,8 @@ import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 
+import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
 import {
-  CAUTION_TEXT_CLASS,
   getCapacityStatus,
   getHeatStatus,
   getWeightStatus,
@@ -61,7 +61,7 @@ interface MobileLoadoutHeaderProps {
 
 type StatusLevel = StatStatus;
 
-/** Shared readout colors: cautions orange, errors red, never the accent. */
+/** Shared readout colors: legal-but-high in the note hue, errors red. */
 const statusColors: Record<StatusLevel, string> = STAT_STATUS_TEXT_CLASS;
 
 // =============================================================================
@@ -83,17 +83,17 @@ function StatDisplay({
 }: StatDisplayProps) {
   return (
     <div className="flex min-w-0 flex-col items-center px-1.5">
-      <span className="text-text-theme-secondary truncate text-[8px] tracking-wider uppercase">
+      <span className="text-text-theme-secondary truncate text-xs leading-4 tracking-wide uppercase">
         {label}
       </span>
       <div className="flex items-baseline gap-0.5">
-        <span className={`text-xs font-bold ${statusColors[status]}`}>
+        <span className={`text-sm leading-4 font-bold ${statusColors[status]}`}>
           {value}
         </span>
         {max !== undefined && (
           <>
-            <span className="text-text-theme-muted text-[9px]">/</span>
-            <span className="text-text-theme-muted text-[9px]">{max}</span>
+            <span className="text-text-theme-secondary text-xs">/</span>
+            <span className="text-text-theme-secondary text-xs">{max}</span>
           </>
         )}
       </div>
@@ -170,8 +170,11 @@ export function MobileLoadoutHeader({
 
         {/* Expand indicator with equipment count */}
         <div className="ml-2 flex flex-shrink-0 items-center gap-1.5">
+          {/* Unplaced equipment is a warning in the build status too. */}
           {stats.unassignedCount > 0 && (
-            <span className={`text-[11px] font-medium ${CAUTION_TEXT_CLASS}`}>
+            <span
+              className={`text-xs font-medium ${BUILD_STATUS_KIND_TEXT_CLASS.warning}`}
+            >
               {stats.unassignedCount} unassigned
             </span>
           )}

@@ -9,6 +9,7 @@ function Sections() {
   const [activeTab, setActiveTab] = useState('armor');
   const counts = createEmptyValidationCounts();
   counts.structure.errors = 2;
+  counts.equipment.warnings = 1;
   return (
     <>
       <CustomizerTabs
@@ -29,6 +30,10 @@ it('opens all seven full labels, retains validation counts and focuses the selec
     name: 'Section: Armor, 3 of 7',
   });
   expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  // Armor owns no issues, so its trigger carries no badge even though other
+  // sections do: the totals live in the status row, not here.
+  expect(within(trigger).queryByRole('img')).toBeNull();
+  expect(trigger).not.toHaveAccessibleDescription();
   fireEvent.click(trigger);
   expect(trigger).toHaveAttribute('aria-expanded', 'true');
   expect(
@@ -36,9 +41,14 @@ it('opens all seven full labels, retains validation counts and focuses the selec
   ).toEqual(DEFAULT_CUSTOMIZER_TABS.map((tab) => tab.label));
   expect(screen.getByRole('tab', { name: 'Armor' })).toHaveFocus();
   expect(
-    within(screen.getByRole('tab', { name: 'Structure' })).getByLabelText(
-      '2 errors',
-    ),
+    within(screen.getByRole('tab', { name: 'Structure' })).getByRole('img', {
+      name: 'Structure: 2 errors',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByRole('tab', { name: 'Equipment' })).getByRole('img', {
+      name: 'Equipment: 1 warning',
+    }),
   ).toBeInTheDocument();
 });
 
@@ -54,6 +64,17 @@ it.each(DEFAULT_CUSTOMIZER_TABS)(
     });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveFocus();
+    // The trigger badges only what the current section owns, like a wide tab.
+    const owned = {
+      structure: 'Structure: 2 errors',
+      equipment: 'Equipment: 1 warning',
+    }[id as 'structure' | 'equipment'];
+    if (owned) {
+      expect(within(trigger).getByRole('img')).toHaveAccessibleName(owned);
+      expect(trigger).toHaveAccessibleDescription(owned.split(': ')[1]);
+    } else {
+      expect(within(trigger).queryByRole('img')).toBeNull();
+    }
     expect(screen.getByRole('tab', { name: label })).toHaveAttribute(
       'aria-selected',
       'true',

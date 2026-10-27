@@ -23,7 +23,7 @@
       "costPerTon": 30000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 2295
+      "introductionYear": 2300
     },
     {
       "id": "lrm-fragmentation-ammo",
@@ -32,22 +32,17 @@
       "variant": "Fragmentation",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lrm-5",
-        "lrm-10",
-        "lrm-15",
-        "lrm-20"
-      ],
+      "compatibleWeaponIds": ["lrm-5", "lrm-10", "lrm-15", "lrm-20"],
       "shotsPerTon": 120,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 30000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 3054,
-      "special": [
-        "+2 damage vs infantry"
-      ]
+      "introductionYear": 2377,
+      "special": ["+2 damage vs infantry"],
+      "extinctionYear": 2790,
+      "reintroductionYear": 3054
     },
     {
       "id": "lrm-thunder-ammo",
@@ -56,22 +51,17 @@
       "variant": "Thunder",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lrm-5",
-        "lrm-10",
-        "lrm-15",
-        "lrm-20"
-      ],
+      "compatibleWeaponIds": ["lrm-5", "lrm-10", "lrm-15", "lrm-20"],
       "shotsPerTon": 120,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 3054,
-      "special": [
-        "Minefield deployment"
-      ]
+      "introductionYear": 2620,
+      "special": ["Minefield deployment"],
+      "extinctionYear": 2840,
+      "reintroductionYear": 3052
     },
     {
       "id": "lrm-swarm-ammo",
@@ -80,22 +70,17 @@
       "variant": "Swarm",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
-      "compatibleWeaponIds": [
-        "lrm-5",
-        "lrm-10",
-        "lrm-15",
-        "lrm-20"
-      ],
+      "compatibleWeaponIds": ["lrm-5", "lrm-10", "lrm-15", "lrm-20"],
       "shotsPerTon": 120,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 30000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 3049,
-      "special": [
-        "Ignore AMS"
-      ]
+      "introductionYear": 2621,
+      "special": ["Ignore AMS"],
+      "extinctionYear": 2833,
+      "reintroductionYear": 3053
     },
     {
       "id": "ammo-lrm-5",
@@ -111,7 +96,7 @@
       "costPerTon": 30000,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 2295,
+      "introductionYear": 2300,
       "special": []
     },
     {
@@ -128,7 +113,7 @@
       "costPerTon": 30000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 2295,
+      "introductionYear": 2300,
       "special": []
     },
     {
@@ -145,7 +130,7 @@
       "costPerTon": 30000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 2295,
+      "introductionYear": 2300,
       "special": []
     },
     {
@@ -162,7 +147,7 @@
       "costPerTon": 30000,
       "battleValue": 23,
       "isExplosive": true,
-      "introductionYear": 2295,
+      "introductionYear": 2300,
       "special": []
     },
     {
@@ -179,7 +164,7 @@
       "costPerTon": 31000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3082,
       "special": []
     },
     {
@@ -196,7 +181,7 @@
       "costPerTon": 31000,
       "battleValue": 13,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3082,
       "special": []
     },
     {
@@ -213,7 +198,7 @@
       "costPerTon": 31000,
       "battleValue": 20,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3082,
       "special": []
     },
     {
@@ -230,7 +215,7 @@
       "costPerTon": 31000,
       "battleValue": 26,
       "isExplosive": true,
-      "introductionYear": 3058,
+      "introductionYear": 3082,
       "special": []
     },
     {
@@ -306,7 +291,7 @@
       "name": "Streak LRM 5 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 24,
@@ -315,7 +300,7 @@
       "costPerTon": 60000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -323,7 +308,7 @@
       "name": "Streak LRM 10 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 12,
@@ -332,7 +317,7 @@
       "costPerTon": 60000,
       "battleValue": 22,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -340,7 +325,7 @@
       "name": "Streak LRM 15 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 8,
@@ -349,7 +334,7 @@
       "costPerTon": 60000,
       "battleValue": 32,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -357,7 +342,7 @@
       "name": "Streak LRM 20 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 6,
@@ -366,7 +351,7 @@
       "costPerTon": 60000,
       "battleValue": 43,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -374,7 +359,7 @@
       "name": "Streak LRM 1 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -383,7 +368,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -391,7 +376,7 @@
       "name": "Streak LRM 2 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -400,7 +385,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -408,7 +393,7 @@
       "name": "Streak LRM 3 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -417,7 +402,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -425,7 +410,7 @@
       "name": "Streak LRM 4 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -434,7 +419,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -442,7 +427,7 @@
       "name": "Streak LRM 6 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -451,7 +436,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -459,7 +444,7 @@
       "name": "Streak LRM 7 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -468,7 +453,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -476,7 +461,7 @@
       "name": "Streak LRM 8 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -485,7 +470,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -493,7 +478,7 @@
       "name": "Streak LRM 9 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -502,7 +487,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -510,7 +495,7 @@
       "name": "Streak LRM 11 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -519,7 +504,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -527,7 +512,7 @@
       "name": "Streak LRM 12 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -536,7 +521,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -544,7 +529,7 @@
       "name": "Streak LRM 13 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -553,7 +538,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -561,7 +546,7 @@
       "name": "Streak LRM 14 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -570,7 +555,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -578,7 +563,7 @@
       "name": "Streak LRM 16 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -587,7 +572,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -595,7 +580,7 @@
       "name": "Streak LRM 17 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -604,7 +589,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -612,7 +597,7 @@
       "name": "Streak LRM 18 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -621,7 +606,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -629,7 +614,7 @@
       "name": "Streak LRM 19 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "EXPERIMENTAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -638,7 +623,7 @@
       "costPerTon": 60000,
       "battleValue": 0,
       "isExplosive": true,
-      "introductionYear": 6000,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -646,7 +631,7 @@
       "name": "LRM 1 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -655,7 +640,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -663,7 +648,7 @@
       "name": "LRM 2 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -672,7 +657,7 @@
       "costPerTon": 0,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -680,7 +665,7 @@
       "name": "LRM 3 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -689,7 +674,7 @@
       "costPerTon": 0,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -697,7 +682,7 @@
       "name": "LRM 4 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -706,7 +691,7 @@
       "costPerTon": 0,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -714,7 +699,7 @@
       "name": "LRM 6 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -723,7 +708,7 @@
       "costPerTon": 0,
       "battleValue": 9,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -731,7 +716,7 @@
       "name": "LRM 7 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -740,7 +725,7 @@
       "costPerTon": 0,
       "battleValue": 10,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -748,7 +733,7 @@
       "name": "LRM 8 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -757,7 +742,7 @@
       "costPerTon": 0,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -765,7 +750,7 @@
       "name": "LRM 9 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -774,7 +759,7 @@
       "costPerTon": 0,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -782,7 +767,7 @@
       "name": "LRM 11 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -791,7 +776,7 @@
       "costPerTon": 0,
       "battleValue": 18,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -799,7 +784,7 @@
       "name": "LRM 12 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -808,7 +793,7 @@
       "costPerTon": 0,
       "battleValue": 18,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -816,7 +801,7 @@
       "name": "LRM 13 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -825,7 +810,7 @@
       "costPerTon": 0,
       "battleValue": 20,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -833,7 +818,7 @@
       "name": "LRM 14 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -842,7 +827,7 @@
       "costPerTon": 0,
       "battleValue": 21,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -850,7 +835,7 @@
       "name": "LRM 16 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -859,7 +844,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -867,7 +852,7 @@
       "name": "LRM 17 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -876,7 +861,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -884,7 +869,7 @@
       "name": "LRM 18 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -893,7 +878,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -901,7 +886,7 @@
       "name": "LRM 19 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -910,7 +895,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -986,7 +971,7 @@
       "name": "Improved LRM 5 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 24,
@@ -995,15 +980,17 @@
       "costPerTon": 30000,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3000,
-      "special": []
+      "introductionYear": 2818,
+      "special": [],
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080
     },
     {
       "id": "clanimprovedlrm10ammo",
       "name": "Improved LRM 10 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 12,
@@ -1012,15 +999,17 @@
       "costPerTon": 30000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 3000,
-      "special": []
+      "introductionYear": 2818,
+      "special": [],
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080
     },
     {
       "id": "clanimprovedlrm15ammo",
       "name": "Improved LRM 15 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 8,
@@ -1029,15 +1018,17 @@
       "costPerTon": 30000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 3000,
-      "special": []
+      "introductionYear": 2818,
+      "special": [],
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080
     },
     {
       "id": "clanimprovedlrm20ammo",
       "name": "Improved LRM 20 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 6,
@@ -1046,15 +1037,17 @@
       "costPerTon": 30000,
       "battleValue": 23,
       "isExplosive": true,
-      "introductionYear": 3000,
-      "special": []
+      "introductionYear": 2818,
+      "special": [],
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080
     },
     {
       "id": "clan-torpedo-lrm5",
       "name": "Torpedo/LRM 5 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "STANDARD",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
@@ -1063,7 +1056,7 @@
       "costPerTon": 30000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 2300,
+      "introductionYear": 2820,
       "special": []
     },
     {
@@ -1080,7 +1073,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -1097,7 +1090,7 @@
       "costPerTon": 0,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -1114,7 +1107,7 @@
       "costPerTon": 0,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -1131,7 +1124,7 @@
       "costPerTon": 0,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -1148,7 +1141,7 @@
       "costPerTon": 0,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3057,
       "special": []
     }
   ],

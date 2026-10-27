@@ -17,6 +17,9 @@ function Fixture() {
 it('shows the cue only for content below the viewport and updates after resize and scroll', () => {
   render(<Fixture />);
   const viewport = screen.getByRole('region');
+  jest
+    .spyOn(viewport, 'getClientRects')
+    .mockReturnValue([{}] as unknown as DOMRectList);
   Object.defineProperties(viewport, {
     clientHeight: { configurable: true, value: 600 },
     scrollHeight: { configurable: true, value: 600 },
@@ -44,6 +47,27 @@ it('shows the cue only for content below the viewport and updates after resize a
   Object.defineProperty(viewport, 'clientHeight', {
     configurable: true,
     value: 0,
+  });
+  fireEvent(window, new Event('resize'));
+  expect(screen.getByText('Fits')).toBeInTheDocument();
+});
+
+it('ignores hidden viewports and insignificant rounding overflow', () => {
+  render(<Fixture />);
+  const viewport = screen.getByRole('region');
+  const rects = jest
+    .spyOn(viewport, 'getClientRects')
+    .mockReturnValue([] as unknown as DOMRectList);
+  Object.defineProperties(viewport, {
+    clientHeight: { configurable: true, value: 600 },
+    scrollHeight: { configurable: true, value: 900 },
+  });
+  fireEvent(window, new Event('resize'));
+  expect(screen.getByText('Fits')).toBeInTheDocument();
+  rects.mockReturnValue([{}] as unknown as DOMRectList);
+  Object.defineProperty(viewport, 'scrollHeight', {
+    configurable: true,
+    value: 602,
   });
   fireEvent(window, new Event('resize'));
   expect(screen.getByText('Fits')).toBeInTheDocument();

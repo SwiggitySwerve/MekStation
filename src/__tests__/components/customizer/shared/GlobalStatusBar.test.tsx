@@ -83,7 +83,7 @@ describe('GlobalStatusBar', () => {
     render(<GlobalStatusBar stats={stats} />);
 
     const heatText = screen.getByText(/35 \/ 30/);
-    expect(heatText).toHaveClass('text-amber-400');
+    expect(heatText).toHaveClass('text-warning');
 
     expect(screen.getByText(/\+5 buildup/)).toBeInTheDocument();
   });

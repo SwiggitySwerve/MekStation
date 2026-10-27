@@ -7,7 +7,11 @@
  * @module services/equipment/aliases
  */
 
-export { addAmmunitionAliases, addAmmunitionSlugAliases } from './ammunition';
+export {
+  addAmmunitionAliases,
+  addAmmunitionSlugAliases,
+  ammunitionAliasKey,
+} from './ammunition';
 export { parseLegacyMegaMekId, convertMegaMekNameToSlug } from './legacy';
 export { addMiscEquipmentAliases } from './misc';
 export { addStaticAliasMappings } from './static';

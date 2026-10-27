@@ -32,6 +32,7 @@ import {
   isUnitTypeAllowed,
   TURRET_CAPABLE_UNIT_TYPES,
 } from './EquipmentUnitTypeRuleTypes';
+import { MissingAmmunitionRule } from './MissingAmmunitionRule';
 
 const EQUIPMENT_UNIT_TYPE_RULES_EQUIPMENT_CATEGORY =
   ValidationCategory.EQUIPMENT;
@@ -253,4 +254,5 @@ export const EQUIPMENT_UNIT_TYPE_RULES: readonly IUnitValidationRuleDefinition[]
     TurretMountingRequirements,
     IncompatibleEquipmentCheck,
     RequiredEquipmentCheck,
+    MissingAmmunitionRule,
   ];

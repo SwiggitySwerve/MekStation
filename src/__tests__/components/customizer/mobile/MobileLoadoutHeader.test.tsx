@@ -6,7 +6,7 @@ import {
   MobileLoadoutHeader,
   MobileLoadoutStats,
 } from '@/components/customizer/mobile/MobileLoadoutHeader';
-import { CAUTION_TEXT_CLASS } from '@/components/customizer/shared/unitStatStatus';
+import { STAT_STATUS_TEXT_CLASS } from '@/components/customizer/shared/unitStatStatus';
 
 describe('MobileLoadoutHeader', () => {
   const createStats = (
@@ -78,14 +78,15 @@ describe('MobileLoadoutHeader', () => {
       expect(slotValue).toBeInTheDocument();
     });
 
-    it('shows heat overage in the shared caution color, not an error or the amber accent', () => {
+    it('shows heat overage in the shared warning hue, not an error or the amber accent', () => {
       const stats = createStats({ heatGenerated: 25, heatDissipation: 20 });
       const { container } = render(
         <MobileLoadoutHeader {...defaultProps} stats={stats} />,
       );
-      expect(
-        container.querySelector(`.${CAUTION_TEXT_CLASS}`),
-      ).toHaveTextContent('25');
+      expect(STAT_STATUS_TEXT_CLASS.warning).toBe('text-warning');
+      expect(screen.getByText('25')).toHaveClass(
+        STAT_STATUS_TEXT_CLASS.warning,
+      );
       expect(container.querySelector('.text-red-400')).toBeNull();
       expect(container.querySelector('.text-amber-400')).toBeNull();
     });

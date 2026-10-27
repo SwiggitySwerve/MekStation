@@ -13,8 +13,6 @@ import {
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { useToast } from '@/components/shared/Toast';
-import { AppIcon } from '@/components/ui/AppIcon';
-import { Button } from '@/components/ui/Button';
 import { useUnitValidation } from '@/hooks/useUnitValidation';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { UnitStoreContext } from '@/stores/useUnitStore';
@@ -22,7 +20,7 @@ import { UnitStoreContext } from '@/stores/useUnitStore';
 import { CustomizerCommandBar } from '../CustomizerCommandBar';
 import { UnitEditControls } from '../shared/UnitEditControls';
 import { UnitEditStatusSlotContext } from '../shared/UnitEditStatusSlot';
-import { UnitSaveSummary } from '../shared/UnitSaveSummary';
+import { UnitSaveAction, UnitSaveSummary } from '../shared/UnitSaveSummary';
 
 // Lazy-load the two heaviest vault dialogs (~360 + ~300 LOC pulling
 // CSV/JSON parsers, Zod, and Toast plumbing). They only mount when
@@ -208,29 +206,12 @@ export function MultiUnitTabs({
           onOpenSavedHistory={openSavedHistory}
           savedHistoryDisabledReason={savedHistoryDisabledReason}
         />
-        <div className="bg-surface-base flex shrink-0 items-center px-1">
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            aria-label="Save active unit to library"
-            aria-describedby={
-              librarySaveDisabledReason
-                ? 'library-save-disabled-reason'
-                : undefined
-            }
-            title={librarySaveDisabledReason ?? 'Save active unit to library'}
-            disabled={librarySaveDisabledReason !== null}
-            className="!text-text-theme-primary !h-11 !w-11 shrink-0 !p-0"
-            onClick={openSaveDialog}
-          >
-            <AppIcon name="save" size="toolbar" />
-          </Button>
-          {librarySaveDisabledReason && (
-            <span id="library-save-disabled-reason" className="sr-only">
-              {librarySaveDisabledReason}
-            </span>
-          )}
+        <div className="bg-surface-base flex min-w-0 shrink-0 items-center pr-1 pl-3 max-sm:pl-0">
+          <UnitSaveAction
+            unitId={activeTabId}
+            disabledReason={librarySaveDisabledReason}
+            onSave={openSaveDialog}
+          />
         </div>
       </CustomizerCommandBar>
 

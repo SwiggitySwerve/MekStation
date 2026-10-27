@@ -8,10 +8,12 @@ test.beforeEach(async ({ page }) => {
 });
 const CATALOG_COLUMNS = [
   'name',
-  'category',
+  'damage',
+  'range',
+  'minimumRange',
+  'heat',
   'weight',
   'criticalSlots',
-  'heat',
   'actions',
 ] as const;
 const SORT_LABEL_COLUMNS = ['name', 'weight', 'criticalSlots'] as const;
@@ -42,9 +44,7 @@ async function loadAtlas(page: Page) {
   await page.getByRole('tab', { name: 'Equipment', exact: true }).click();
 }
 async function hideUnmatchedAmmo(page: Page, hidden: boolean) {
-  await page
-    .getByRole('button', { name: 'Visibility filters', exact: true })
-    .click();
+  await page.getByRole('button', { name: /^Visibility filters/ }).click();
   const toggle = page.getByRole('button', {
     name: 'Ammo without weapon',
     exact: true,
@@ -133,6 +133,79 @@ async function rowName(row: Locator) {
   return label?.slice('Details for '.length) ?? '';
 }
 
+async function expectInitialScrollBoundary(page: Page) {
+  const scroll = page.getByTestId('equipment-catalog-scroll');
+  await expect(scroll).toHaveJSProperty('scrollTop', 0);
+  const list = (await scroll.boundingBox())!;
+  const footer = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  expect(
+    footer.y - list.y - list.height,
+    'visible separation above pagination',
+  ).toBeGreaterThanOrEqual(8);
+  await expect(scroll).toHaveCSS('overflow-y', 'auto');
+  await expect(scroll.locator('..')).toHaveAttribute('data-more-below', 'true');
+  const cue = page
+    .getByTestId('equipment-pagination')
+    .getByTestId('more-below-cue');
+  await expect(cue).toBeVisible();
+  await expect(cue).toContainText('Scroll for more on this page');
+  const footerStyle = await cue.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      position: style.position,
+      background: style.backgroundImage,
+      pointerEvents: style.pointerEvents,
+    };
+  });
+  expect(footerStyle.position).toBe('static');
+  expect(footerStyle.background).toBe('none');
+  expect(footerStyle.pointerEvents).toBe('none');
+  const cueBox = (await cue.boundingBox())!;
+  expect(
+    cueBox.y,
+    'cue stays below the scroll viewport',
+  ).toBeGreaterThanOrEqual(list.y + list.height);
+  await expect(scroll.getByTestId('more-below-cue')).toHaveCount(0);
+  const rowInGap = await page.evaluate(
+    ({ x, y }) =>
+      document
+        .elementsFromPoint(x, y)
+        .some((element) =>
+          element.closest('[data-testid="equipment-catalog-row"]'),
+        ),
+    { x: list.x + list.width / 2, y: list.y + list.height + 4 },
+  );
+  expect(rowInGap, 'rows must be clipped before the pagination gap').toBe(
+    false,
+  );
+}
+
+test('short catalog results have an end marker without pagination @customizer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loadAtlas(page);
+  await page
+    .getByRole('textbox', { name: 'Search equipment', exact: true })
+    .fill('ER PPC');
+  await expect(page.getByTestId('equipment-catalog-row')).toHaveCount(1);
+  await expect(page.getByTestId('equipment-pagination')).toHaveCount(0);
+  await expect(page.getByText('End of results · 1 item')).toBeVisible();
+  await details(page, 'ER PPC').click();
+  await expect(
+    page.getByTestId('equipment-catalog-scroll').locator('..'),
+  ).toHaveAttribute('data-more-below', 'false');
+  await expect(page.getByText('End of results · 1 item')).toBeInViewport({
+    ratio: 1,
+  });
+  await page.getByRole('button', { name: 'Add ER PPC', exact: true }).click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'ER PPC.' }),
+  ).toBeVisible();
+});
+
 test('electronics and compatible ammo update without changing unrelated filters @customizer', async ({
   page,
 }, testInfo) => {
@@ -191,10 +264,15 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .fill('Small Laser');
   const before = (await draft(page)).equipment;
   await details(page, 'Small Laser').click();
-  const add = page.getByRole('button', {
+  const options = page.getByRole('button', {
+    name: 'Add options for Small Laser',
+    exact: true,
+  });
+  const add = page.getByRole('menuitem', {
     name: 'Add and place Small Laser',
     exact: true,
   });
+  await options.click();
   await add.click();
   const dialog = page.getByRole('dialog', {
     name: 'Add and place equipment',
@@ -212,6 +290,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .selectOption('Left Arm');
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect((await draft(page)).equipment).toEqual(before);
+  await options.click();
   await add.click();
   await dialog
     .getByRole('combobox', { name: 'Equipment location' })
@@ -239,9 +318,10 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .getByRole('textbox', { name: 'Search equipment', exact: true })
     .fill('Small Laser');
   await details(page, 'Small Laser').click();
-  await expect(add).toBeVisible();
+  await expect(options).toBeVisible();
   expect((await draft(page)).equipment).toEqual(placed);
   await page.setViewportSize({ width: 390, height: 844 });
+  await options.click();
   await add.click();
   await expect(dialog).toBeInViewport();
   await dialog
@@ -283,7 +363,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
 test('catalog rows stay dense and column-aligned on desktop and mobile @customizer', async ({
   page,
 }, testInfo) => {
-  await page.setViewportSize({ width: 1318, height: 912 });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await loadAtlas(page);
   const search = page.getByRole('textbox', {
     name: 'Search equipment',
@@ -291,11 +371,33 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   });
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(
-    page.getByRole('button', { name: /^Add and place / }),
-  ).toHaveCount(0);
+    page.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCount(25);
   const rows = page.getByTestId('equipment-catalog-row');
+  await expectInitialScrollBoundary(page);
+  const rangeHeader = catalogHeader(page).locator(
+    '[data-catalog-column="range"]',
+  );
+  await expect(rangeHeader).toHaveText('Range (hex)');
+  await expect(rangeHeader).toHaveAttribute(
+    'title',
+    'Short / medium / long range in hexes',
+  );
+  expect((await rangeHeader.boundingBox())!.height).toBeLessThan(20);
+  const ammoRow = rows.filter({ has: details(page, 'AC/10 Ammo') });
+  await expect(ammoRow.locator('[data-catalog-column="damage"]')).toHaveText(
+    '—',
+  );
+  await expect(
+    ammoRow.locator('[data-catalog-column="category"]'),
+  ).toContainText('10 shots/t');
+  await page.mouse.move(0, 0);
+  await page.screenshot({
+    path: testInfo.outputPath('catalog-initial-wide.png'),
+    animations: 'disabled',
+  });
   const visible = await rows.count();
-  expect(visible).toBeGreaterThan(0);
+  expect(visible).toBe(25);
   let longest = { name: '', length: 0, index: 0 };
   for (let index = 0; index < visible; index += 1) {
     const row = rows.nth(index);
@@ -304,14 +406,138 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     expect(box!.height, `collapsed row ${index} height`).toBeLessThanOrEqual(
       48,
     );
+    // Bound names so comparison columns remain grouped together.
+    const nameCell = row.locator('[data-catalog-column="name"]');
+    expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(220);
+    expect((await nameCell.boundingBox())!.width).toBeLessThanOrEqual(420);
+    await expect(
+      nameCell.locator('[data-icon-name="chevron-right"]'),
+    ).toBeVisible();
+    await expect(row.locator('[data-icon-name="chevron-down"]')).toHaveCount(0);
+    await expect(row.locator('[data-icon-name="more"]')).toHaveCount(1);
     const name = await rowName(row);
     if (name.length > longest.length)
       longest = { name, length: name.length, index };
     await expectClickTarget(
       row.getByRole('button', { name: `Add ${name}`, exact: true }),
     );
+    await expectClickTarget(
+      row.getByRole('button', { name: `Add options for ${name}`, exact: true }),
+    );
     await expectColumnsAligned(page, row);
   }
+  const firstRow = rows.first();
+  const rowBounds = (await firstRow.boundingBox())!;
+  const actionBounds = (await firstRow
+    .locator('[data-catalog-column="actions"]')
+    .boundingBox())!;
+  expect(actionBounds.x + actionBounds.width).toBeLessThanOrEqual(
+    rowBounds.x + rowBounds.width,
+  );
+  // Add and "..." are pinned to the right edge (row padding only), and the
+  // spare width is a deliberate gutter after the comparison columns.
+  expect(
+    rowBounds.x + rowBounds.width - (actionBounds.x + actionBounds.width),
+    'actions pinned to the right edge',
+  ).toBeLessThanOrEqual(16);
+  const firstNameBounds = (await firstRow
+    .locator('[data-catalog-column="name"]')
+    .boundingBox())!;
+  expect(
+    firstNameBounds.width,
+    'name column remains bounded',
+  ).toBeLessThanOrEqual(420);
+  await expect(
+    catalogHeader(page).locator('[data-catalog-column="minimumRange"]'),
+  ).toHaveText('Min');
+  await expect(
+    firstRow.locator('[data-catalog-column="minimumRange"]'),
+  ).toHaveText('4');
+  const internalGaps = await firstRow.evaluate((row) => {
+    const columns = [
+      'name',
+      'damage',
+      'range',
+      'minimumRange',
+      'heat',
+      'weight',
+      'criticalSlots',
+    ];
+    const bounds = columns.map((column) =>
+      row
+        .querySelector(`[data-catalog-column="${column}"]`)!
+        .getBoundingClientRect(),
+    );
+    return bounds.slice(1).map((box, index) => box.left - bounds[index].right);
+  });
+  expect(
+    Math.max(...internalGaps),
+    'largest gap inside the comparison block',
+  ).toBeLessThanOrEqual(12);
+  await expect(
+    firstRow.getByRole('button', { name: /^Add options for / }),
+    'persistent outline on the more-ways-to-add control',
+  ).toHaveCSS('border-top-width', '1px');
+  await expect(
+    firstRow.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCSS('border-top-style', 'solid');
+  await expect(
+    firstRow.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  // The Atlas is exactly at its limit: a legal state, so one neutral line
+  // above the list (no warning callout, no border) and no per-row chip.
+  const capacity = page.getByTestId('equipment-catalog-capacity');
+  await expect(capacity).toContainText(
+    '0.0 t free \u00B7 unit is at its tonnage limit',
+  );
+  await expect(capacity).toHaveAttribute('data-capacity-state', 'full');
+  await expect(capacity).toHaveCSS('border-top-width', '0px');
+  await expect(capacity.locator('[data-icon-name]')).toHaveCount(0);
+  await expect(rows.filter({ hasText: /\+\d+(\.\d)? t over/ })).toHaveCount(0);
+  // Names sort naturally; orphan AC/15 ammunition has no catalog weapon.
+  const visibleNames = await Promise.all(
+    (await rows.all()).map((candidate) => rowName(candidate)),
+  );
+  expect(visibleNames).not.toContain('AC/15 Ammo');
+  const acOrder = ['AC/2', 'AC/5', 'AC/10', 'AC/20'].map((name) =>
+    visibleNames.indexOf(name),
+  );
+  expect(acOrder.every((index) => index >= 0)).toBe(true);
+  expect(acOrder).toEqual([...acOrder].sort((a, b) => a - b));
+  // Secondary metadata is plain text at 13px or larger, not a miniature pill.
+  const mounted = page.getByText(/^×\d+ mounted$/).first();
+  await expect(mounted).toBeVisible();
+  expect(
+    Number.parseFloat(
+      await mounted.evaluate((element) => getComputedStyle(element).fontSize),
+    ),
+  ).toBeGreaterThanOrEqual(13);
+  await expect(mounted).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await page.mouse.move(0, 0);
+  const sortButtons = catalogHeader(page).getByRole('button');
+  for (const button of await sortButtons.all()) {
+    const active = (await button.getAttribute('aria-pressed')) === 'true';
+    await expect(button.locator('span[aria-hidden="true"]')).toHaveCSS(
+      'opacity',
+      active ? '1' : '0',
+    );
+  }
+  const weightSort = catalogHeader(page).locator(
+    '[data-catalog-column="weight"]',
+  );
+  await weightSort.focus();
+  await expect(weightSort.locator('span[aria-hidden="true"]')).toHaveCSS(
+    'opacity',
+    '0.4',
+  );
+  await weightSort.click();
+  await expect(weightSort).toHaveAttribute('aria-pressed', 'true');
+  await expect(weightSort).toHaveAccessibleName('Sort by weight, ascending');
+  await weightSort.click();
+  await expect(weightSort).toHaveAccessibleName('Sort by weight, descending');
+  await catalogHeader(page)
+    .getByRole('button', { name: 'Sort by name', exact: true })
+    .click();
   expect(longest.length).toBeGreaterThan(0);
   await page.screenshot({
     path: testInfo.outputPath('density-desktop-sidebar.png'),
@@ -323,6 +549,13 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   });
   const scrolled = rows.last();
   await expect(scrolled).toBeVisible();
+  const lastBounds = (await scrolled.boundingBox())!;
+  const footerBounds = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  expect(lastBounds.y + lastBounds.height).toBeLessThanOrEqual(
+    footerBounds.y - 12,
+  );
   await expectColumnsAligned(page, scrolled);
   await page.screenshot({
     path: testInfo.outputPath('density-desktop-scrolled.png'),
@@ -337,33 +570,59 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await first.getByRole('button', { name: `Add ${name}`, exact: true }).click();
   const afterAdd = (await draft(page)).equipment;
   expect(afterAdd).toHaveLength(before.length + 1);
+  // The add makes the unit overweight; let the tab's error notice settle
+  // above the catalog before measuring row positions.
+  await expect(page.getByTestId('tab-issue-notice')).toHaveAttribute(
+    'data-severity',
+    'error',
+  );
   await expect(
-    page.getByRole('button', { name: /^Add and place / }),
-  ).toHaveCount(0);
+    page.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCount(25);
   const detailsBtn = first.getByRole('button', {
     name: `Details for ${name}`,
     exact: true,
   });
+  const rowAdd = first.getByRole('button', {
+    name: `Add ${name}`,
+    exact: true,
+  });
+  const collapsedAction = (await rowAdd.boundingBox())!;
   await detailsBtn.focus();
   await page.keyboard.press('Enter');
-  const place = page.getByRole('button', {
+  expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
+  expect(await first.getByRole('button').count()).toBe(3);
+  for (const label of await first.locator('dt').all()) {
+    await expect(label).toHaveCSS('font-size', '13px');
+  }
+  for (const value of await first.locator('dd').all()) {
+    await expect(value).toHaveCSS('font-size', '14px');
+  }
+  await page.keyboard.press('Tab');
+  await expect(rowAdd).toBeFocused();
+  await page.keyboard.press('Tab');
+  const options = first.getByRole('button', {
+    name: `Add options for ${name}`,
+    exact: true,
+  });
+  await expect(options).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(
+    page.getByRole('menuitem', { name: 'Add to unassigned', exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  const place = page.getByRole('menuitem', {
     name: `Add and place ${name}`,
     exact: true,
   });
-  await expect(place).toBeVisible();
-  let reachedPlace = false;
-  for (let step = 0; step < 8; step += 1) {
-    await page.keyboard.press('Tab');
-    if (await place.evaluate((element) => element === document.activeElement)) {
-      reachedPlace = true;
-      break;
-    }
-  }
-  expect(reachedPlace).toBe(true);
+  await expect(place).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(options).toBeFocused();
+  await expect(place).toBeHidden();
   await detailsBtn.click();
-  await expect(place).toHaveCount(0);
+  expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
   const wide = page.getByRole('button', {
-    name: 'Wide workspace',
+    name: 'Hide loadout panel',
     exact: true,
   });
   await expect(wide).toBeVisible();
@@ -394,9 +653,85 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByTestId('equipment-catalog-row').first()).toBeVisible();
   await expect(catalogHeader(page)).toBeHidden();
+  await expectInitialScrollBoundary(page);
+  // The pager is pinned directly above the Loadout bar, with no dead band.
+  const pagerBox = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  const loadoutBar = (await page
+    .getByRole('button', { name: 'Expand loadout', exact: true })
+    .boundingBox())!;
+  expect(loadoutBar.y - (pagerBox.y + pagerBox.height)).toBeLessThanOrEqual(2);
+  // Phone density: two 14px stat lines per row leave five full rows visible.
+  const phoneScroll = (await scroll.boundingBox())!;
+  // The tab's issue notice, when this unit has one, sits above the catalog and
+  // may add only its own height to the 290px budget for the catalog controls.
+  const notice = page.getByTestId('tab-issue-notice');
+  const noticeHeight = (await notice.isVisible())
+    ? (await notice.boundingBox())!.height
+    : 0;
+  expect(
+    (await rows.first().boundingBox())!.y,
+    'first phone row starts near the top',
+  ).toBeLessThanOrEqual(290 + noticeHeight);
+  let fullyVisible = 0;
+  for (const candidate of await rows.all()) {
+    const box = (await candidate.boundingBox())!;
+    if (
+      box.y >= phoneScroll.y - 1 &&
+      box.y + box.height <= phoneScroll.y + phoneScroll.height + 1
+    )
+      fullyVisible += 1;
+  }
+  expect(fullyVisible, 'phone rows fully visible').toBeGreaterThanOrEqual(5);
+  const firstStats = page.getByTestId('equipment-catalog-stats').first();
+  expect(
+    (await firstStats.boundingBox())!.height,
+    'first row stats fit in two 20px lines',
+  ).toBeLessThanOrEqual(40);
+  await expect(firstStats).toHaveCSS('font-size', '14px');
+  // A weapon row: damage/range/min, then heat/weight/slots.
+  await expect(firstStats.locator(':scope > span')).toHaveCount(2);
+  await expect(firstStats).toContainText(/Damage .*Range \d+\/\d+\/\d+/);
+  // A no-break space keeps each "·" with the field before it when lines wrap.
+  await expect(firstStats).toContainText(
+    /Heat \d+\u00a0· [\d.]+ t\u00a0· \d+ slots?/,
+  );
+  for (const field of await firstStats.locator(':scope > span > span').all()) {
+    await expect(field).toHaveCSS('white-space', 'nowrap');
+    expect((await field.boundingBox())!.height).toBeLessThanOrEqual(20);
+  }
+  await page.mouse.move(0, 0);
+  await page.screenshot({
+    path: testInfo.outputPath('catalog-initial-phone.png'),
+    animations: 'disabled',
+  });
+  const categories = page.getByTestId('equipment-category-controls');
+  expect(
+    await categories.evaluate(
+      (element) => element.scrollWidth > element.clientWidth,
+    ),
+  ).toBe(true);
+  expect(
+    await categories.evaluate((element) => getComputedStyle(element).maskImage),
+  ).not.toBe('none');
+  const moreCategories = page.getByRole('button', {
+    name: 'More equipment categories',
+  });
+  await expectClickTarget(moreCategories);
+  await moreCategories.click();
+  expect(
+    await categories.evaluate((element) => element.scrollLeft),
+  ).toBeGreaterThan(0);
+  await categories
+    .getByRole('button', { name: 'Other', exact: true })
+    .scrollIntoViewIfNeeded();
   await expect(
-    page.getByRole('button', { name: /^Add and place / }),
-  ).toHaveCount(0);
+    categories.getByRole('button', { name: 'Other', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: /^Add options for / }),
+  ).toHaveCount(25);
   const mobileRows = page.getByTestId('equipment-catalog-row');
   const mobileCount = Math.min(await mobileRows.count(), 6);
   for (let index = 0; index < mobileCount; index += 1) {
@@ -405,18 +740,48 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     await expectClickTarget(
       row.getByRole('button', { name: `Add ${mobileName}`, exact: true }),
     );
+    await expectClickTarget(
+      row.getByRole('button', {
+        name: `Add options for ${mobileName}`,
+        exact: true,
+      }),
+    );
+    await expect(row.getByText(mobileName, { exact: true })).toHaveCSS(
+      'font-size',
+      '16px',
+    );
   }
   const mobileFirst = mobileRows.first();
   const mobileName = await rowName(mobileFirst);
   await mobileFirst
     .getByRole('button', { name: `Details for ${mobileName}`, exact: true })
     .click();
+  await mobileFirst
+    .getByRole('button', { name: `Add options for ${mobileName}`, exact: true })
+    .click();
   await expect(
-    page.getByRole('button', {
+    page.getByRole('menuitem', {
       name: `Add and place ${mobileName}`,
       exact: true,
     }),
   ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await scroll.evaluate((element) => {
+    element.scrollTop = element.scrollHeight;
+  });
+  const mobileLast = (await mobileRows.last().boundingBox())!;
+  const mobileFooter = (await page
+    .getByTestId('equipment-pagination')
+    .boundingBox())!;
+  expect(mobileLast.y + mobileLast.height).toBeLessThanOrEqual(
+    mobileFooter.y - 12,
+  );
+  await mobileRows
+    .last()
+    .getByRole('button', { name: /^Add options for / })
+    .click();
+  await expect(page.getByRole('menu')).toBeInViewport({ ratio: 1 });
+  await page.keyboard.press('Escape');
   await noDocumentOverflow(page);
   await page.screenshot({
     path: testInfo.outputPath('density-mobile.png'),

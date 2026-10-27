@@ -4,7 +4,7 @@ import { AppIcon } from '@/components/ui/AppIcon';
 export type ValidationIconSeverity = 'error' | 'warning' | 'info';
 export const validationIconColors: Record<ValidationIconSeverity, string> = {
   error: 'text-red-400',
-  warning: 'text-yellow-400',
+  warning: 'text-warning',
   info: 'text-blue-400',
 };
 

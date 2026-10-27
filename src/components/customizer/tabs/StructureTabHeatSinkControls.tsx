@@ -1,10 +1,18 @@
 import React from 'react';
 
-import { AppIcon } from '@/components/ui/AppIcon';
-
 import type { StructureTabCalculations } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
+import {
+  STRUCTURE_HELP,
+  STRUCTURE_CONTROL_WIDTH,
+  STRUCTURE_META_END,
+  STRUCTURE_ROW_GRID,
+  STRUCTURE_ROW_LABEL,
+  STRUCTURE_ROW_STACK,
+  STRUCTURE_SELECT,
+} from './StructureTabRowLayout';
+import { StructureStepper } from './StructureTabStepper';
 
 interface StructureOption {
   readonly type: string;
@@ -37,18 +45,26 @@ export function HeatSinkSection({
   readonly handleBaseChassisHeatSinksChange: (newCount: number) => void;
 }): React.ReactElement {
   return (
-    <div className="space-y-3">
+    <div className={STRUCTURE_ROW_STACK}>
       <HeatSinkCountControl
         readOnly={readOnly}
         heatSinkType={heatSinkType}
         heatSinkCount={heatSinkCount}
-        calculations={calculations}
         heatSinkOptions={heatSinkOptions}
         handleHeatSinkTypeChange={handleHeatSinkTypeChange}
         handleHeatSinkCountChange={handleHeatSinkCountChange}
       />
 
-      <HeatSinkStats calculations={calculations} />
+      <p
+        className={`${cs.text.secondary} m-0`}
+        data-testid="structure-heat-sink-weight-help"
+      >
+        {heatSinkCount} heat sinks {'\u00b7'} {calculations.integralHeatSinks}{' '}
+        fit inside the engine, {calculations.externalHeatSinks} mounted outside{' '}
+        {'\u00b7'} first {calculations.freeHeatSinks} weigh nothing;{' '}
+        {calculations.heatSinksRequiringWeight} add{' '}
+        {calculations.heatSinkWeight} t
+      </p>
 
       {isOmni && (
         <BaseChassisHeatSinkControl
@@ -67,7 +83,6 @@ function HeatSinkCountControl({
   readOnly,
   heatSinkType,
   heatSinkCount,
-  calculations,
   heatSinkOptions,
   handleHeatSinkTypeChange,
   handleHeatSinkCountChange,
@@ -75,7 +90,6 @@ function HeatSinkCountControl({
   readonly readOnly: boolean;
   readonly heatSinkType: string;
   readonly heatSinkCount: number;
-  readonly calculations: StructureTabCalculations;
   readonly heatSinkOptions: readonly StructureOption[];
   readonly handleHeatSinkTypeChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -83,17 +97,14 @@ function HeatSinkCountControl({
   readonly handleHeatSinkCountChange: (newCount: number) => void;
 }): React.ReactElement {
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
-        <label
-          className={`${cs.text.label} font-medium`}
-          htmlFor="heat-sink-type"
-        >
+    <div className={STRUCTURE_ROW_STACK}>
+      <div className={STRUCTURE_ROW_GRID}>
+        <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-type">
           Heat sink type
         </label>
         <select
           id="heat-sink-type"
-          className={cs.select.full}
+          className={STRUCTURE_SELECT}
           disabled={readOnly}
           aria-label="Heat sink type"
           value={heatSinkType}
@@ -106,91 +117,56 @@ function HeatSinkCountControl({
             </option>
           ))}
         </select>
-        <span aria-hidden="true" />
       </div>
 
-      <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
-        <label
-          className={`${cs.text.label} font-medium`}
-          htmlFor="heat-sink-count"
-        >
+      <div className={STRUCTURE_ROW_GRID}>
+        <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-count">
           Installed
         </label>
-        <div className="flex items-center">
-          <button
-            type="button"
-            onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
-            disabled={readOnly || heatSinkCount <= 10}
-            className={cs.button.stepperLeft}
-            data-testid="structure-heat-sink-decrement"
-            aria-label="Decrease heat sink count"
-          >
-            <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-          </button>
-          <input
-            id="heat-sink-count"
-            type="number"
-            aria-label="Heat sink count"
-            value={heatSinkCount}
-            onChange={(e) =>
-              handleHeatSinkCountChange(parseInt(e.target.value, 10) || 10)
-            }
-            disabled={readOnly}
-            min={10}
-            className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-          />
-          <button
-            type="button"
-            onClick={() => handleHeatSinkCountChange(heatSinkCount + 1)}
-            disabled={readOnly}
-            className={cs.button.stepperRight}
-            data-testid="structure-heat-sink-increment"
-            aria-label="Increase heat sink count"
-          >
-            {' '}
-            <AppIcon name="add" size="inline" aria-hidden="true" />
-          </button>
-        </div>
-        <span className={`${cs.text.secondary} text-right tabular-nums`}>
-          {calculations.integralHeatSinks} fit in engine
-        </span>
+        <StructureStepper
+          id="heat-sink-count"
+          inputLabel="Heat sink count"
+          decreaseLabel="Decrease heat sink count"
+          increaseLabel="Increase heat sink count"
+          value={heatSinkCount}
+          min={10}
+          disabled={readOnly}
+          decreaseDisabled={heatSinkCount <= 10}
+          increaseDisabled={false}
+          decreaseTestId="structure-heat-sink-decrement"
+          increaseTestId="structure-heat-sink-increment"
+          onDecrease={() => handleHeatSinkCountChange(heatSinkCount - 1)}
+          onIncrease={() => handleHeatSinkCountChange(heatSinkCount + 1)}
+          onInputChange={(raw) =>
+            handleHeatSinkCountChange(parseInt(raw, 10) || 10)
+          }
+        />
       </div>
     </div>
   );
 }
 
-function HeatSinkStats({
+/**
+ * Compact cooling readout shown in the Cooling section header. Plain counts, so
+ * no status colour; colour is reserved for state (over-budget, errors).
+ */
+export function HeatSinkStats({
   calculations,
 }: {
   readonly calculations: StructureTabCalculations;
 }): React.ReactElement {
   return (
-    <div className="grid grid-cols-3 gap-2 text-center">
-      <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div
-          className={`text-lg font-semibold tabular-nums ${cs.text.valuePositive}`}
-        >
-          {calculations.integralHeatSinks}
-        </div>
-        <div className="text-text-theme-secondary text-xs">In engine</div>
-      </div>
-      <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div
-          className={`text-lg font-semibold tabular-nums ${calculations.externalHeatSinks > 0 ? cs.text.valueWarning : cs.text.value}`}
-        >
-          {calculations.externalHeatSinks}
-        </div>
-        <div className="text-text-theme-secondary text-xs">External</div>
-      </div>
-      <div className="border-border-theme-subtle bg-surface-deep/50 rounded border px-2 py-2">
-        <div
-          className={`text-lg font-semibold tabular-nums ${cs.text.valueHighlight}`}
-        >
+    <p
+      className="m-0 flex flex-wrap items-baseline justify-end gap-x-2 gap-y-0.5 text-right"
+      data-testid="structure-heat-sink-stats"
+    >
+      <span className="inline-flex items-baseline gap-1">
+        <span className={`text-sm font-semibold tabular-nums ${cs.text.value}`}>
           {calculations.totalHeatDissipation}
-        </div>
-        <div className="text-text-theme-secondary text-xs">Dissipation</div>
-      </div>
-    </div>
+        </span>
+        <span className={cs.text.secondary}>dissipation</span>
+      </span>
+    </p>
   );
 }
 
@@ -212,14 +188,14 @@ function BaseChassisHeatSinkControl({
 
   return (
     <div className="border-border-theme-subtle border-t pt-3">
-      <div className="grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3">
+      <div className={STRUCTURE_ROW_GRID}>
         <label
-          className={`${cs.text.label} font-medium`}
+          className={STRUCTURE_ROW_LABEL}
           htmlFor="base-chassis-heat-sinks"
         >
           Base chassis
         </label>
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${STRUCTURE_CONTROL_WIDTH}`}>
           <button
             type="button"
             onClick={() => onChange(-1)}
@@ -233,52 +209,36 @@ function BaseChassisHeatSinkControl({
           >
             Auto
           </button>
-          <div className="flex flex-1 items-center">
-            <button
-              type="button"
-              onClick={() => onChange(displayedCount - 1)}
-              disabled={readOnly || baseChassisHeatSinks <= 1}
-              className={cs.button.stepperLeft}
-              aria-label="Decrease base chassis heat sinks"
-            >
-              <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-            </button>
-            <input
-              id="base-chassis-heat-sinks"
-              type="number"
-              aria-label="Base chassis heat sinks"
-              value={displayedCount}
-              onChange={(e) => onChange(parseInt(e.target.value, 10) || 10)}
-              disabled={readOnly}
-              min={1}
-              max={heatSinkCount}
-              className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-            />
-            <button
-              type="button"
-              onClick={() => onChange(displayedCount + 1)}
-              disabled={
-                readOnly ||
-                (baseChassisHeatSinks !== -1 &&
-                  baseChassisHeatSinks >= heatSinkCount)
-              }
-              className={cs.button.stepperRight}
-              aria-label="Increase base chassis heat sinks"
-            >
-              {' '}
-              <AppIcon name="add" size="inline" aria-hidden="true" />
-            </button>
-          </div>
+          <StructureStepper
+            id="base-chassis-heat-sinks"
+            className="min-w-0 flex-1"
+            inputLabel="Base chassis heat sinks"
+            decreaseLabel="Decrease base chassis heat sinks"
+            increaseLabel="Increase base chassis heat sinks"
+            value={displayedCount}
+            min={1}
+            max={heatSinkCount}
+            disabled={readOnly}
+            decreaseDisabled={baseChassisHeatSinks <= 1}
+            increaseDisabled={
+              baseChassisHeatSinks !== -1 &&
+              baseChassisHeatSinks >= heatSinkCount
+            }
+            onDecrease={() => onChange(displayedCount - 1)}
+            onIncrease={() => onChange(displayedCount + 1)}
+            onInputChange={(raw) => onChange(parseInt(raw, 10) || 10)}
+          />{' '}
         </div>
-        <span className={`${cs.text.secondary} text-right`}>
+        <span className={STRUCTURE_META_END}>
           {baseChassisHeatSinks === -1
             ? 'Auto'
             : `${baseChassisHeatSinks} fixed`}
         </span>
+        <p className={`${STRUCTURE_HELP} m-0`}>
+          Heat sinks permanently fixed to the base chassis (cannot be
+          pod-mounted)
+        </p>
       </div>
-      <p className="text-text-theme-muted mt-2 text-[10px]">
-        Heat sinks permanently fixed to the base chassis (cannot be pod-mounted)
-      </p>
     </div>
   );
 }

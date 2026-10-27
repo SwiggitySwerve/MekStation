@@ -210,10 +210,10 @@ export function getVariantStyle(
  * Status color mappings for legend
  */
 export const LEGEND_COLORS = {
-  healthy: '#22c55e', // green-500
-  moderate: '#f59e0b', // amber-500
-  low: '#f97316', // orange-500
-  critical: '#ef4444', // red-500
+  healthy: ARMOR_STATUS.HEALTHY.color,
+  moderate: ARMOR_STATUS.MODERATE.color,
+  low: ARMOR_STATUS.LOW.color,
+  critical: ARMOR_STATUS.CRITICAL.color,
 };
 
 /**

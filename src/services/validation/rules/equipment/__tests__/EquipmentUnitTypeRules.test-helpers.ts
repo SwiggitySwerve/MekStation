@@ -90,7 +90,7 @@ describe('Equipment Unit Type Rules', () => {
   describe('EQUIPMENT_UNIT_TYPE_RULES export', () => {
     it('should export all equipment unit type rules', () => {
       expect(EQUIPMENT_UNIT_TYPE_RULES).toBeDefined();
-      expect(EQUIPMENT_UNIT_TYPE_RULES.length).toBe(5);
+      expect(EQUIPMENT_UNIT_TYPE_RULES.length).toBe(6);
     });
 
     it('should contain all expected rule IDs', () => {
@@ -104,7 +104,7 @@ describe('Equipment Unit Type Rules', () => {
 
     it('should have correct priorities (ascending order)', () => {
       const priorities = EQUIPMENT_UNIT_TYPE_RULES.map((r) => r.priority);
-      expect(priorities).toEqual([100, 101, 102, 103, 104]);
+      expect(priorities).toEqual([100, 101, 102, 103, 104, 105]);
     });
   });
 

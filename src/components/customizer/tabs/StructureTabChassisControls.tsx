@@ -1,14 +1,27 @@
 import React from 'react';
 
-import { AppIcon } from '@/components/ui/AppIcon';
 import { BATTLEMECH_TONNAGE } from '@/services/construction/constructionConstants';
 
 import type {
+  StructureConfigurationOption,
   StructureTabCalculations,
   StructureTabFilteredOptions,
 } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
+import {
+  STRUCTURE_HELP,
+  STRUCTURE_META_END,
+  STRUCTURE_ROW_GRID,
+  STRUCTURE_ROW_LABEL,
+  STRUCTURE_SELECT,
+} from './StructureTabRowLayout';
+import { StructureStepper } from './StructureTabStepper';
+
+/** "19t · 6 slots": a component's weight and critical-slot cost. */
+function formatCostMeta(weight: number, slots: number): string {
+  return `${weight}t · ${slots} ${slots === 1 ? 'slot' : 'slots'}`;
+}
 
 interface StructureOption {
   readonly type: string;
@@ -42,53 +55,79 @@ export function TonnageControl({
   readonly onChange: (newTonnage: number) => void;
 }): React.ReactElement {
   return (
-    <div className="grid grid-cols-[minmax(6rem,1fr)_auto_minmax(5rem,0.8fr)] items-center gap-3">
-      <label className={`${cs.text.label} font-medium`} htmlFor="tonnage">
+    <div className={STRUCTURE_ROW_GRID}>
+      <label className={STRUCTURE_ROW_LABEL} htmlFor="tonnage">
         Tonnage
       </label>
-      <div className="flex items-center justify-self-start">
-        <button
-          type="button"
-          onClick={() => onChange(tonnage - BATTLEMECH_TONNAGE.step)}
-          disabled={readOnly || tonnage <= BATTLEMECH_TONNAGE.min}
-          className={cs.button.stepperLeft}
-          aria-label="Decrease tonnage"
-        >
-          <AppIcon name="remove" size="inline" aria-hidden="true" />{' '}
-        </button>
-        <input
-          id="tonnage"
-          type="number"
-          aria-label="Tonnage"
-          value={tonnage}
-          onChange={(e) =>
-            onChange(parseInt(e.target.value, 10) || BATTLEMECH_TONNAGE.min)
-          }
-          disabled={readOnly}
-          min={BATTLEMECH_TONNAGE.min}
-          max={BATTLEMECH_TONNAGE.max}
-          step={BATTLEMECH_TONNAGE.step}
-          className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
-        />
-        <button
-          type="button"
-          onClick={() => onChange(tonnage + BATTLEMECH_TONNAGE.step)}
-          disabled={readOnly || tonnage >= BATTLEMECH_TONNAGE.max}
-          className={cs.button.stepperRight}
-          aria-label="Increase tonnage"
-        >
-          {' '}
-          <AppIcon name="add" size="inline" aria-hidden="true" />
-        </button>
-      </div>
-      <span className={`${cs.text.secondary} text-right tabular-nums`}>
-        {BATTLEMECH_TONNAGE.min}–{BATTLEMECH_TONNAGE.max}t
-      </span>
+      <StructureStepper
+        id="tonnage"
+        inputLabel="Tonnage"
+        decreaseLabel="Decrease tonnage"
+        increaseLabel="Increase tonnage"
+        value={tonnage}
+        min={BATTLEMECH_TONNAGE.min}
+        max={BATTLEMECH_TONNAGE.max}
+        step={BATTLEMECH_TONNAGE.step}
+        disabled={readOnly}
+        decreaseDisabled={tonnage <= BATTLEMECH_TONNAGE.min}
+        increaseDisabled={tonnage >= BATTLEMECH_TONNAGE.max}
+        describedBy="tonnage-help"
+        onDecrease={() => onChange(tonnage - BATTLEMECH_TONNAGE.step)}
+        onIncrease={() => onChange(tonnage + BATTLEMECH_TONNAGE.step)}
+        onInputChange={(raw) =>
+          onChange(parseInt(raw, 10) || BATTLEMECH_TONNAGE.min)
+        }
+      />
+      <p id="tonnage-help" className={`${STRUCTURE_HELP} m-0`}>
+        Range {BATTLEMECH_TONNAGE.min}&ndash;{BATTLEMECH_TONNAGE.max}t.
+      </p>
       {isSuperheavy && (
         <div className="col-span-full rounded border border-amber-600/40 bg-amber-900/20 px-3 py-2 text-xs text-amber-300">
           Superheavy: double-slot crits, SUPERHEAVY cockpit/gyro required
         </div>
       )}
+    </div>
+  );
+}
+/**
+ * Motive Type (biped, quad, ...) is chassis configuration, so it sits with
+ * Tonnage in the Chassis card. Its warning stays attached to the control.
+ */
+export function MotiveTypeControl({
+  readOnly,
+  configuration,
+  options,
+  onChange,
+}: {
+  readonly readOnly: boolean;
+  readonly configuration: string;
+  readonly options: readonly StructureConfigurationOption[];
+  readonly onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}): React.ReactElement {
+  return (
+    <div className={STRUCTURE_ROW_GRID}>
+      <label className={STRUCTURE_ROW_LABEL} htmlFor="motive-type">
+        Motive Type
+      </label>
+      <select
+        id="motive-type"
+        className={STRUCTURE_SELECT}
+        disabled={readOnly}
+        aria-label="Motive type"
+        aria-describedby="configuration-change-help"
+        value={configuration}
+        onChange={onChange}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <p id="configuration-change-help" className={`${STRUCTURE_HELP} m-0`}>
+        Changing configuration clears armor in removed locations and returns
+        their equipment to unassigned.
+      </p>
     </div>
   );
 }
@@ -125,7 +164,10 @@ export function SystemSelects({
         </div>
         <LabeledSelect
           label="Engine"
-          meta={`${calculations.engineWeight}t / ${calculations.engineSlots} slots`}
+          meta={formatCostMeta(
+            calculations.engineWeight,
+            calculations.engineSlots,
+          )}
           disabled={readOnly}
           value={engineType}
           options={filteredOptions.engines}
@@ -143,7 +185,10 @@ export function SystemSelects({
         <div className="space-y-2">
           <LabeledSelect
             label="Gyro"
-            meta={`${calculations.gyroWeight}t / ${calculations.gyroSlots} slots`}
+            meta={formatCostMeta(
+              calculations.gyroWeight,
+              calculations.gyroSlots,
+            )}
             disabled={readOnly}
             value={gyroType}
             options={filteredOptions.gyros}
@@ -151,7 +196,10 @@ export function SystemSelects({
           />
           <LabeledSelect
             label="Structure"
-            meta={`${calculations.structureWeight}t / ${calculations.structureSlots} slots`}
+            meta={formatCostMeta(
+              calculations.structureWeight,
+              calculations.structureSlots,
+            )}
             disabled={readOnly}
             value={internalStructureType}
             options={filteredOptions.structures}
@@ -159,7 +207,10 @@ export function SystemSelects({
           />
           <LabeledSelect
             label="Cockpit"
-            meta={`${calculations.cockpitWeight}t / ${calculations.cockpitSlots} slots`}
+            meta={formatCostMeta(
+              calculations.cockpitWeight,
+              calculations.cockpitSlots,
+            )}
             disabled={readOnly}
             value={cockpitType}
             options={filteredOptions.cockpits}
@@ -189,13 +240,13 @@ function LabeledSelect({
   const id = `${label.toLowerCase()}-select`;
 
   return (
-    <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)]">
-      <label className={`${cs.text.label} font-medium`} htmlFor={id}>
+    <div className={STRUCTURE_ROW_GRID}>
+      <label className={STRUCTURE_ROW_LABEL} htmlFor={id}>
         {label}
       </label>
       <select
         id={id}
-        className={cs.select.full}
+        className={STRUCTURE_SELECT}
         disabled={disabled}
         aria-label={label}
         value={value}
@@ -207,11 +258,7 @@ function LabeledSelect({
           </option>
         ))}
       </select>
-      <span
-        className={`${cs.text.secondary} col-start-2 tabular-nums sm:col-start-auto sm:text-right`}
-      >
-        {meta}
-      </span>
+      <span className={STRUCTURE_META_END}>{meta}</span>
     </div>
   );
 }
@@ -219,21 +266,33 @@ function LabeledSelect({
 export function EngineRatingSummary({
   engineRating,
   isAtMaxEngineRating,
+  walkMP,
+  tonnage,
 }: {
   readonly engineRating: number;
   readonly isAtMaxEngineRating: boolean;
+  readonly walkMP: number;
+  readonly tonnage: number;
 }): React.ReactElement {
   return (
-    <div className="border-border-theme-subtle grid grid-cols-[minmax(6rem,1fr)_minmax(0,1.35fr)_minmax(5rem,0.8fr)] items-center gap-3 border-t pt-3">
+    <div
+      className={`${STRUCTURE_ROW_GRID} border-border-theme-subtle border-t pt-3`}
+    >
       <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
       <span
         className={`text-sm tabular-nums ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.value}`}
       >
         {engineRating}
       </span>
-      <span className={`${cs.text.secondary} text-right`}>
+      <span className={STRUCTURE_META_END}>
         {isAtMaxEngineRating ? 'Maximum' : 'Derived'}
       </span>
+      <p
+        className={`${cs.text.secondary} col-span-full m-0 tabular-nums`}
+        data-testid="structure-engine-rating-formula"
+      >
+        Rating = Walk MP × tonnage ({walkMP} × {tonnage} = {engineRating})
+      </p>
       {isAtMaxEngineRating && (
         <p className="text-accent col-span-full text-xs">
           Warning: Maximum engine rating reached. Cannot increase Walk MP

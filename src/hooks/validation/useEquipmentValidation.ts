@@ -9,10 +9,13 @@
 
 import { useMemo } from 'react';
 
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useUnitStore } from '@/stores/useUnitStore';
 import {
   ICriticalSlotIssue,
   ISlotsByLocation,
+  IValidatableUnit,
 } from '@/types/validation/UnitValidationInterfaces';
 import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
 import { buildSlotsByLocation } from '@/utils/validation/slotValidationUtils';
@@ -24,6 +27,8 @@ export interface EquipmentValidationData {
   /** Per-location critical slot usage */
   slotsByLocation: ISlotsByLocation;
   equipmentSlotIssues: readonly ICriticalSlotIssue[];
+  mountedEquipment: IValidatableUnit['mountedEquipment'];
+  equipmentCatalog: IValidatableUnit['equipmentCatalog'];
 }
 
 /**
@@ -32,6 +37,7 @@ export interface EquipmentValidationData {
  * Dependencies: equipment, configuration (2 total)
  */
 export function useEquipmentValidation(): EquipmentValidationData {
+  const { isReady } = useEquipmentRegistry();
   const equipment = useUnitStore((s) => s.equipment);
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
@@ -43,6 +49,10 @@ export function useEquipmentValidation(): EquipmentValidationData {
     const slotsByLocation = buildSlotsByLocation(equipment, configuration);
 
     return {
+      mountedEquipment: equipment,
+      equipmentCatalog: isReady
+        ? getEquipmentLookupService().getAllEquipment()
+        : [],
       slotsByLocation,
       equipmentSlotIssues: getEquipmentSlotIssues(
         equipment,
@@ -52,5 +62,5 @@ export function useEquipmentValidation(): EquipmentValidationData {
         armActuators,
       ),
     };
-  }, [equipment, configuration, engineType, gyroType, armActuators]);
+  }, [equipment, configuration, engineType, gyroType, armActuators, isReady]);
 }

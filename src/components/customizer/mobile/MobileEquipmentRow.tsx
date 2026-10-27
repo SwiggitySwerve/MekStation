@@ -15,6 +15,7 @@ import { EquipmentCategory } from '@/types/equipment';
 import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 import { getLocationShorthand } from '@/utils/locationUtils';
 
+import { GlobalLoadoutTrayPlacementStatus } from '../equipment/GlobalLoadoutTrayPlacementStatus';
 import { MobileLocationMenu } from './MobileLocationMenu';
 
 // =============================================================================
@@ -397,6 +398,11 @@ export function MobileEquipmentRow({
         }}
       >
         <EquipmentSummary item={item} isOmni={isOmni} />
+        {!item.isAllocated && (
+          <span className="block text-[10px]">
+            <GlobalLoadoutTrayPlacementStatus />
+          </span>
+        )}
       </button>
       <LocationCell item={item} />
       <RangeCell ranges={item.ranges} />

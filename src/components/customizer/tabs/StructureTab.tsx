@@ -35,6 +35,7 @@ import type {
 
 import { customizerStyles as cs } from '../styles';
 import { StructureTabChassisSection } from './StructureTabChassisSection';
+import { StructureTabCoolingSection } from './StructureTabCoolingSection';
 import { StructureTabMovementSection } from './StructureTabMovementSection';
 import { useMechStructureFields } from './useMechStructureFields';
 
@@ -317,66 +318,85 @@ export function StructureTab({
                 </span>
               </div>
             )}
+            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+              <span className={cs.text.label}>Armor:</span>
+              <span className={cs.text.value}>{calculations.armorWeight}t</span>
+            </div>
           </div>
           <div
             className={`${cs.layout.statRow} border-border-theme-subtle border-t pt-2 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4`}
+            data-testid="structure-subtotal"
+            title="Chassis, systems and armor only. Equipment weight is counted in the header total."
           >
-            <span className={`text-sm ${cs.text.label}`}>Total:</span>
+            <span className={`text-sm ${cs.text.label}`}>
+              Structure, systems &amp; armor:
+            </span>
             <span className="text-text-theme-primary text-lg font-bold tabular-nums">
               {calculations.totalStructuralWeight}t
+            </span>
+            <span className={`text-sm ${cs.text.label} tabular-nums`}>
+              of {tonnage}t
             </span>
           </div>
         </div>
       </div>
 
-      <div className={cs.layout.twoColumnSidebar}>
+      <div className={`${cs.layout.twoColumnSidebar} items-start`}>
         <StructureTabChassisSection
           readOnly={readOnly}
           tonnage={tonnage}
           isSuperheavy={isSuperheavy}
-          isOmni={isOmni}
+          configuration={configuration}
+          configurationOptions={CONFIGURATION_OPTIONS}
           engineType={engineType}
           gyroType={gyroType}
           internalStructureType={internalStructureType}
           cockpitType={cockpitType}
-          heatSinkType={heatSinkType}
-          heatSinkCount={heatSinkCount}
-          baseChassisHeatSinks={baseChassisHeatSinks}
           calculations={calculations}
           filteredOptions={filteredOptions}
           engineRating={engineRating}
           isAtMaxEngineRating={isAtMaxEngineRating}
+          walkMP={walkMP}
           handleTonnageChange={handleTonnageChange}
+          handleConfigurationChange={handleConfigurationChange}
           handleEngineTypeChange={handleEngineTypeChange}
           handleGyroTypeChange={handleGyroTypeChange}
           handleStructureTypeChange={handleStructureTypeChange}
           handleCockpitTypeChange={handleCockpitTypeChange}
-          handleHeatSinkTypeChange={handleHeatSinkTypeChange}
-          handleHeatSinkCountChange={handleHeatSinkCountChange}
-          handleBaseChassisHeatSinksChange={handleBaseChassisHeatSinksChange}
         />
 
-        <StructureTabMovementSection
-          readOnly={readOnly}
-          walkMP={walkMP}
-          runMP={runMP}
-          walkMPRange={walkMPRange}
-          maxJumpMP={maxJumpMP}
-          maxRunMP={maxRunMP}
-          jumpMP={jumpMP}
-          jumpJetType={jumpJetType}
-          enhancement={enhancement}
-          enhancementOptions={enhancementOptions}
-          configuration={configuration}
-          configurationOptions={CONFIGURATION_OPTIONS}
-          tonnage={tonnage}
-          calculations={calculations}
-          handleWalkMPChange={handleWalkMPChange}
-          handleJumpMPChange={handleJumpMPChange}
-          handleJumpJetTypeChange={handleJumpJetTypeChange}
-          handleEnhancementChange={handleEnhancementChange}
-          handleConfigurationChange={handleConfigurationChange}
-        />
+        <div className="flex flex-col gap-4">
+          <StructureTabMovementSection
+            readOnly={readOnly}
+            walkMP={walkMP}
+            runMP={runMP}
+            walkMPRange={walkMPRange}
+            maxJumpMP={maxJumpMP}
+            maxRunMP={maxRunMP}
+            jumpMP={jumpMP}
+            jumpJetType={jumpJetType}
+            enhancement={enhancement}
+            enhancementOptions={enhancementOptions}
+            tonnage={tonnage}
+            calculations={calculations}
+            handleWalkMPChange={handleWalkMPChange}
+            handleJumpMPChange={handleJumpMPChange}
+            handleJumpJetTypeChange={handleJumpJetTypeChange}
+            handleEnhancementChange={handleEnhancementChange}
+          />
+          <StructureTabCoolingSection
+            readOnly={readOnly}
+            isOmni={isOmni}
+            heatSinkType={heatSinkType}
+            heatSinkCount={heatSinkCount}
+            baseChassisHeatSinks={baseChassisHeatSinks}
+            calculations={calculations}
+            filteredOptions={filteredOptions}
+            handleHeatSinkTypeChange={handleHeatSinkTypeChange}
+            handleHeatSinkCountChange={handleHeatSinkCountChange}
+            handleBaseChassisHeatSinksChange={handleBaseChassisHeatSinksChange}
+          />
+        </div>
       </div>
     </div>
   );

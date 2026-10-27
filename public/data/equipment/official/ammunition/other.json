@@ -14,7 +14,9 @@
       "costPerTon": 2000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 2617
+      "introductionYear": 2617,
+      "extinctionYear": 2835,
+      "reintroductionYear": 3045
     },
     {
       "id": "clan-ams-ammo",
@@ -46,8 +48,10 @@
       "costPerTon": 2000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 2613,
-      "special": []
+      "introductionYear": 2617,
+      "special": [],
+      "extinctionYear": 2835,
+      "reintroductionYear": 3045
     },
     {
       "id": "ammo-lrtorpedo-5",
@@ -63,7 +67,7 @@
       "costPerTon": 30000,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 2370,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -80,7 +84,7 @@
       "costPerTon": 30000,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 2365,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -97,7 +101,7 @@
       "costPerTon": 30000,
       "battleValue": 17,
       "isExplosive": true,
-      "introductionYear": 2365,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -114,7 +118,7 @@
       "costPerTon": 30000,
       "battleValue": 23,
       "isExplosive": true,
-      "introductionYear": 2365,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -131,7 +135,7 @@
       "costPerTon": 27000,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 2370,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -148,7 +152,7 @@
       "costPerTon": 27000,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 2370,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -165,7 +169,7 @@
       "costPerTon": 27000,
       "battleValue": 7,
       "isExplosive": true,
-      "introductionYear": 2370,
+      "introductionYear": 2380,
       "special": []
     },
     {
@@ -173,7 +177,7 @@
       "name": "LRT 1 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -182,7 +186,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -190,7 +194,7 @@
       "name": "LRT 2 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -199,7 +203,7 @@
       "costPerTon": 0,
       "battleValue": 3,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -207,7 +211,7 @@
       "name": "LRT 3 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -216,7 +220,7 @@
       "costPerTon": 0,
       "battleValue": 5,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -224,7 +228,7 @@
       "name": "LRT 4 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -233,7 +237,7 @@
       "costPerTon": 0,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -241,7 +245,7 @@
       "name": "LRT 6 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -250,7 +254,7 @@
       "costPerTon": 0,
       "battleValue": 9,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -258,7 +262,7 @@
       "name": "LRT 7 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -267,7 +271,7 @@
       "costPerTon": 0,
       "battleValue": 10,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -275,7 +279,7 @@
       "name": "LRT 8 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -284,7 +288,7 @@
       "costPerTon": 0,
       "battleValue": 11,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -292,7 +296,7 @@
       "name": "LRT 9 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -301,7 +305,7 @@
       "costPerTon": 0,
       "battleValue": 12,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -309,7 +313,7 @@
       "name": "LRT 11 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -318,7 +322,7 @@
       "costPerTon": 0,
       "battleValue": 18,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -326,7 +330,7 @@
       "name": "LRT 12 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -335,7 +339,7 @@
       "costPerTon": 0,
       "battleValue": 18,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -343,7 +347,7 @@
       "name": "LRT 13 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -352,7 +356,7 @@
       "costPerTon": 0,
       "battleValue": 20,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -360,7 +364,7 @@
       "name": "LRT 14 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -369,7 +373,7 @@
       "costPerTon": 0,
       "battleValue": 21,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -377,7 +381,7 @@
       "name": "LRT 16 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -386,7 +390,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -394,7 +398,7 @@
       "name": "LRT 17 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -403,7 +407,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -411,7 +415,7 @@
       "name": "LRT 18 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -420,7 +424,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -428,7 +432,7 @@
       "name": "LRT 19 Ammo",
       "category": "LRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -437,7 +441,7 @@
       "costPerTon": 0,
       "battleValue": 27,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -445,7 +449,7 @@
       "name": "SRT 1 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -454,7 +458,7 @@
       "costPerTon": 0,
       "battleValue": 2,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -462,7 +466,7 @@
       "name": "SRT 3 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -471,7 +475,7 @@
       "costPerTon": 0,
       "battleValue": 4,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {
@@ -479,7 +483,7 @@
       "name": "SRT 5 Ammo",
       "category": "SRM",
       "variant": "Standard",
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 100,
@@ -488,7 +492,7 @@
       "costPerTon": 0,
       "battleValue": 6,
       "isExplosive": true,
-      "introductionYear": 3055,
+      "introductionYear": 3060,
       "special": []
     },
     {

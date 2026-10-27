@@ -35,7 +35,10 @@ import {
   getMovementModifiersFromEquipment,
   type JumpJetType,
 } from '@/utils/construction/movementCalculations';
-import { hasAssignedCriticalSlots } from '@/utils/construction/slotOperations/placement';
+import {
+  getSlotPlacementSummary,
+  hasAssignedCriticalSlots,
+} from '@/utils/construction/slotOperations/placement';
 import { logger } from '@/utils/logger';
 
 interface UnitEditorStatsInput {
@@ -208,6 +211,8 @@ export function useUnitEditorRoutingStats(
       heatDissipated: calculations.totalHeatDissipation,
       netHeat: -calculations.totalHeatDissipation,
       alphaStrikeHeat: 0,
+      movementHeat: 0,
+      movementMode: 'running' as const,
     };
     try {
       return registryReady
@@ -243,6 +248,10 @@ export function useUnitEditorRoutingStats(
   );
   const totalSlotsUsed =
     calculations.totalSystemSlots + equipmentCalcs.totalSlots;
+  const slotPlacement = useMemo(
+    () => getSlotPlacementSummary(equipment),
+    [equipment],
+  );
 
   const unitStats: UnitStats = useMemo(
     () => ({
@@ -260,8 +269,12 @@ export function useUnitEditorRoutingStats(
       maxArmorPoints,
       criticalSlotsUsed: totalSlotsUsed,
       criticalSlotsTotal: totalSlots,
+      criticalSlotsPlaced: totalSlotsUsed - slotPlacement.pendingSlots,
+      criticalSlotsPending: slotPlacement.pendingSlots,
+      unplacedItemCount: slotPlacement.unplacedItems,
       heatGenerated: heatProfile.heatGenerated,
       heatDissipation: heatProfile.heatDissipated,
+      heatGeneration: heatProfile,
       battleValue,
       validationStatus: validation.status,
       errorCount: validation.errorCount,
@@ -282,6 +295,7 @@ export function useUnitEditorRoutingStats(
       maxArmorPoints,
       totalSlotsUsed,
       totalSlots,
+      slotPlacement,
       heatProfile,
       battleValue,
     ],

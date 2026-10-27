@@ -20,6 +20,41 @@ import { getEquipmentPlacementOption } from '@/utils/construction/slotOperations
 
 import type { LocationData } from '../critical-slots';
 
+/**
+ * Equipment the Critical Slots tab lists in its "to place" banner: not yet in
+ * slots, or flagged by a placement issue. The editor shell uses the same
+ * answer to avoid repeating the banner's message in the tab issue notice.
+ */
+export function selectEquipmentNeedingPlacement(
+  equipment: readonly IMountedEquipmentInstance[],
+  placementIssues: readonly ICriticalSlotIssue[],
+): readonly IMountedEquipmentInstance[] {
+  return equipment.filter(
+    (item) =>
+      !hasAssignedCriticalSlots(item) ||
+      placementIssues.some((issue) => issue.instanceId === item.instanceId),
+  );
+}
+
+export function getEquipmentNeedingPlacement(
+  equipment: readonly IMountedEquipmentInstance[],
+  configuration: MechConfiguration,
+  engineType: EngineType,
+  gyroType: GyroType,
+  armActuators?: ArmActuatorConfig,
+): readonly IMountedEquipmentInstance[] {
+  return selectEquipmentNeedingPlacement(
+    equipment,
+    getEquipmentSlotIssues(
+      equipment,
+      configuration,
+      engineType,
+      gyroType,
+      armActuators,
+    ),
+  );
+}
+
 export interface CriticalSlotPlacementOption {
   readonly location: MechLocation;
   readonly start?: number;
@@ -149,12 +184,7 @@ export function useCriticalSlotPlacement({
   }, [clearEquipmentLocation, isOmni, readOnly, selectedEquipment]);
 
   const unassignedEquipment = useMemo(
-    () =>
-      equipment.filter(
-        (item) =>
-          !hasAssignedCriticalSlots(item) ||
-          placementIssues.some((issue) => issue.instanceId === item.instanceId),
-      ),
+    () => selectEquipmentNeedingPlacement(equipment, placementIssues),
     [equipment, placementIssues],
   );
 

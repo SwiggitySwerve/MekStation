@@ -21,6 +21,7 @@ import { LAMArmorDiagram } from '../armor/variants/LAMArmorDiagram';
 import { QuadArmorDiagram } from '../armor/variants/QuadArmorDiagram';
 import { QuadVeeArmorDiagram } from '../armor/variants/QuadVeeArmorDiagram';
 import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
+import { diagramLegendMovesToInspector } from './ArmorTab.logic';
 
 interface ArmorDiagramPanelProps {
   readonly configuration: MechConfiguration;
@@ -41,8 +42,18 @@ export function ArmorDiagramPanel({
   unallocatedPoints,
   onLocationClick,
 }: ArmorDiagramPanelProps): React.ReactElement {
+  // On wide layouts the armor inspector carries the legend next to the diagram.
+  const footerVisibility = diagramLegendMovesToInspector(
+    configuration,
+    armorDiagramMode,
+  )
+    ? 'below-xl'
+    : 'always';
   return (
-    <div className="space-y-4" data-testid="armor-diagram">
+    <div
+      className="flex flex-col xl:flex-1 xl:[&>*]:flex-1"
+      data-testid="armor-diagram"
+    >
       {configuration === MechConfiguration.QUAD && (
         <QuadArmorDiagram
           armorData={armorData}
@@ -99,6 +110,7 @@ export function ArmorDiagramPanel({
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
+                footerVisibility={footerVisibility}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -108,6 +120,7 @@ export function ArmorDiagramPanel({
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
+                footerVisibility={footerVisibility}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -117,6 +130,7 @@ export function ArmorDiagramPanel({
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
+                footerVisibility={footerVisibility}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -126,6 +140,7 @@ export function ArmorDiagramPanel({
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
+                footerVisibility={footerVisibility}
                 onLocationClick={onLocationClick}
               />
             )}
@@ -135,6 +150,7 @@ export function ArmorDiagramPanel({
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
+                footerVisibility={footerVisibility}
                 onLocationClick={onLocationClick}
               />
             )}
