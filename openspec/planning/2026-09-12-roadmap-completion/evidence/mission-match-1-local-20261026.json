@@ -104,8 +104,8 @@
     },
     {
       "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
-      "sha256": "b275198f38a657969b2b014e800b0eeb2f26d7ceafcb4a2063ebefef061ae927",
-      "bytes": 38783,
+      "sha256": "41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e",
+      "bytes": 38771,
       "equalsAdmissionDraft": false,
       "newFile": false
     },
@@ -117,7 +117,7 @@
       "newFile": false
     }
   ],
-  "leafNote": "Eight production/spec leaves equal the admission draft byte for byte (the hook formatting changed nothing). The test leaf is the frozen final leaf of the red receipt.",
+  "leafNote": "Nine production/spec leaves equal the admission draft byte for byte (the hook formatting changed nothing). The test leaf is the frozen final leaf of the red receipt.",
   "focused": {
     "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
     "head": "623613c85303de370c7a213c520d41945e1c5388",
@@ -274,7 +274,7 @@
     "tsc": "exit 0 (tsc --noEmit --skipLibCheck, whole project)",
     "oxfmt": "exit 0 --check on the nine ts leaves",
     "oxlint": "exit 0 on the nine ts leaves (0 warnings, 0 errors)",
-    "hook": "The pre-commit hook (oxlint --fix, oxfmt --write, project tsc) passed on each of the three commits; no hook was skipped."
+    "hook": "The pre-commit hook passed on all five implementation commits; it runs oxlint, oxfmt and project tsc when applicable to the staged paths. No hook was skipped."
   },
   "mutants": {
     "head": "623613c85303de370c7a213c520d41945e1c5388",

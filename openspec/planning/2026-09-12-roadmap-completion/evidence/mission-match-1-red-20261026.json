@@ -19,7 +19,7 @@
       "finalSha256": "41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e",
       "finalBytes": 38771,
       "finalLines": 1150,
-      "finalNote": "Frozen final leaf: the refactor commit adds the six compatibility rows to the RED bytes; GREEN does not touch the test; the test-only commit 623613c85303de370c7a213c520d41945e1c5388 removes two unused host bindings (the refactor and GREEN commits hold the same bytes with them). Rows and assertions are identical across the four commits.",
+      "finalNote": "Frozen final leaf: the refactor commit adds the six compatibility rows to the RED bytes; GREEN does not touch the test; the test-only commit 623613c85303de370c7a213c520d41945e1c5388 removes two unused host bindings (the refactor and GREEN commits hold the same bytes with them). Rows and assertions are identical from the refactor commit through GREEN, the test-only cleanup and the lifecycle commit.",
       "was": {
         "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4",
         "bytes": 19346,
