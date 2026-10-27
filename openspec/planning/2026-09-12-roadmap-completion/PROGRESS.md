@@ -1,3 +1,17 @@
+## 2026-10-27 L1-SMOKE-A2M admitted (Step 3 PR 6 of 12, second commit of the MISSION-MATCH-1 closure PR; ledger and evidence only)
+
+Admits L1-SMOKE-A2M on baseline a720c5746 (the MISSION-MATCH-1 implementation merge), after the MISSION-MATCH-1 closure in the previous commit of this PR (the #2336 and #2339 riding pattern). Only A2M becomes admitted unfinished when this PR merges; no A2M leaf is committed here. Implementation starts only after this PR merges. The receipt is [l1-smoke-a2m-admission.json](evidence/l1-smoke-a2m-admission.json).
+
+- Authority: owner decisions 2026-10-26 items 1 and 3, the Root rulings 2026-10-26 (GM role option a; A2 cap watch; the six A2M admission-prep answers) and MISSION-MATCH-1 resolution R1. Controls (A1, A2FP, A2F and the product leaves, including the five real MISSION-MATCH-1 leaves) are re-hashed at a720c5746.
+- The matrix gains the built-image live stale-first row (the six *-stale rows assign the stale watcher before the actor acts; the actor still gets its own declaration live and after the restart). P1, P4, P6 and R6-R8 are owed at RED/GREEN.
+- KNOWN ISSUE, disclosed here (the release-notes obligation belongs to RELEASE-PRODUCER-1 admission): the real mission GM keeps the player viewer role (no meta.coopCampaign on mission matches). The nine GM-branded rows are fixture-branded policy coverage, not evidence of the real mission GM. No GM fix unit in Step 3. S5-02 stays open and gets no row.
+- Fit: counted leaves 252 (cases 223, runner 29) plus an estimated lifecycle of 56 to 80 lines (308 to 332 of 500) under both counting rules; no capException. Files: 3 leaves, units.json, PROGRESS.md, admission, red and local receipts plus the exempt page.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md and the four evidence names. The new scripts/release leaves need git add -f (scripts/** is ignored).
+- Census at a720c5746: one open draft PR (#2113, 472 files read through the pulls API) with no overlap, 20 registered worktrees with no leaf overlap, no in-flight or exact claimant of the three leaves. Controls are byte-identical to the prep except the five MISSION-MATCH-1 leaves, whose real merged hashes equal the prep stand-ins. The freeze rerun (node:test 9 of 9, 16 of 16 pure-function mutants killed, oxfmt exit 0) is not a built-image proof.
+- `--next` prints U24b on the closure commit and U44 on this head (A2M in flight holds the scripts path); it is advisory and grants no admission.
+
+---
+
 ## 2026-10-27 MISSION-MATCH-1 closed; main-verified (exact-main Jest and neighbour built-image proof); Step 3 PR 6 of 12 (A2M admission is the next commit of this PR)
 
 Closes MISSION-MATCH-1 (PR #2343, ruled and merged head 795f77681, merge a720c5746) as main-verified. The OWNER-RULING (comment 6454431751, Root on behalf of the owner under the standing merge and Full send instructions; Root commentary, not a verbatim owner quote) accepted that exact head; the merge tree equals the ruled head tree, so all ten leaves are byte-identical to the reviewed bytes.

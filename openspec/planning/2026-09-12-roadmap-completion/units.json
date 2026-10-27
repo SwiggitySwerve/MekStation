@@ -8905,7 +8905,13 @@
       "behavior": "All nine B10 declaration/audience combinations in raw live frames and replay, actor/non-spectating-GM/public/reveal positives, no placeholder/authority-sequence/cursor leak, and withheld-secret controls through reconnect/restart on the same built image/private DB. Reuse frozen A1/A2F and export explicit matrix enumeration/callback for final A2; no co-op restart or concurrency acceptance.",
       "ownershipPaths": ["scripts"],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8914,12 +8920,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/l1-smoke-a2m-admission.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -8989,6 +8995,20 @@
         "s502": "S5-02 (who may spectate) stays OPEN. MISSION-MATCH-1 fixes roster eviction and the sealed-declaration owner only; permission to spectate remains unresolved and still gets no A2M row.",
         "gmRole": "Mission matches are created without meta.coopCampaign (coopMissionCreate.ts), so the real mission GM is a player-role viewer. Option (a): A2M keeps its fixture-branded GM matrix and discloses the real mission GM player role as a known issue in the A2M admission and the release notes. No GM fix unit in Step 3.",
         "liveStaleFirst": "The built-image live stale-first spectator row, and a replay/reconnect row for the acting player own declaration, belong to the A2M matrix after MISSION-MATCH-1 lands (A2F carry-forward CF-A2F-1 and CF-A2F-2)."
+      },
+      "admission20261027": {
+        "date": "2026-10-27",
+        "receipt": "evidence/l1-smoke-a2m-admission.json",
+        "authority": "Root brief to the implementation worker of the MISSION-MATCH-1 closure PR (A2M admission as the commit after the closure, the #2336 and #2339 riding pattern); the registered Step 3 predecessor order (A2F, then MISSION-MATCH-1, then A2M); owner decisions 2026-10-26 (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 3; Root rulings 2026-10-26 in carry-forward.md (GM viewer role option a; A2 cap watch); MISSION-MATCH-1 admission resolution R1.",
+        "placement": "P2: the admission rides the MISSION-MATCH-1 closure PR; implementation starts only after that PR merges and after the G-A0 re-verification.",
+        "liveStaleFirst": "R1 (MISSION-MATCH-1 admission) and CF-A2F-1: the matrix-*-player-stale and matrix-*-gm-stale rows assign the stale watcher BEFORE the actor acts, require the established stale-first state before the declaration, and require the actor to receive its own declaration live (accepted) and after the restart, while the watcher holds only the public lock. This is the built-image live stale-first row (six of the twelve rows); the Step 2/3 RC rerun repeats it.",
+        "gmRoleKnownIssue": "KNOWN ISSUE (Root ruling 2026-10-26, option a): mission matches are created without meta.coopCampaign (coopMissionCreate.ts), so the real mission GM is a player-role viewer: no GM policy exception and no sealed visibility beyond its seat. The nine GM-branded rows (six GM spectators, three GM participants) are fixture-branded policy coverage on ordinary 1v1 tactical matches, not evidence of the real mission GM role. A2M adds no GM fix, infers no GM from hostPlayerId or coop-gm labels, and discloses this here; the release-notes obligation belongs to RELEASE-PRODUCER-1 admission (Root ruling 2026-10-26). OQ-M1 (GM authority sequence gap) is separate and stays disclosed.",
+        "mutantRouting": "Moved to A2M by the A2F amendment (owner decisions 2026-10-26 item 3; Root clarification): P1, P4, P6 (product build mutants) and R6, R7, R8 (runner mutants). Owed at RED/GREEN on the built image; the 16 pure-function mutants are killed on the draft.",
+        "s502": "S5-02 (who may spectate) stays OPEN and gets no A2M row.",
+        "acceptanceReading": "Same-side live visibility after MISSION-MATCH-1; first-position fixture semantics (staleEffective) are a fixture witness only; built-image obligations stay unrun until the exact-main run.",
+        "evidenceName": "evidence/l1-smoke-a2m-admission.json (the registered literal; free on main). The red, local and review literals are unchanged.",
+        "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four evidence names (admission, red, local, review).",
+        "sizeCap": "Both counting rules agree: no fixture leaf. Counted leaves 252 (cases 223, runner 29) plus an estimated lifecycle of 56 to 80 lines against the cap of 500; no capException. The test leaf (221 lines) is exempt and file-counted."
       }
     },
     {
