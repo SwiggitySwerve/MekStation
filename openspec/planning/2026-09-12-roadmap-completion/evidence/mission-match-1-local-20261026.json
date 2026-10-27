@@ -1,0 +1,666 @@
+{
+  "schemaVersion": 1,
+  "unit": "MISSION-MATCH-1",
+  "stage": "local",
+  "date": "20261026",
+  "recordedAt": "2026-10-27T01:07:53.564Z",
+  "implementationBase": "86d0817b1e945ef1993f78ae19888f4022e503a0",
+  "redCommit": "6f8ace4d4377255e719ac656cf4b8b571c684689",
+  "refactorCommit": "734990ee84a0b244546b2fe670a786a7ac9dcc6f",
+  "greenCommit": "9e36d48205b5ec3b7dbd974f7273df9efc72c1f9",
+  "testFixCommit": "623613c85303de370c7a213c520d41945e1c5388",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-admission-20261026.json"
+  },
+  "red": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json"
+  },
+  "gates": {
+    "G-M0": "PASS: the ten baseline sha256 values matched on 86d0817b1 (nine files, sideAssignments.ts absent); census below.",
+    "G-M1": "PASS: see the red receipt (13 failed, 9 passed on main; the no-op stand-in also fails the four variant rows).",
+    "G-M2": "PASS: refactor commit; six compatibility rows pass, the 13 behavior rows are still red, three neighbour suites pass.",
+    "G-M3": "PASS: focused suite and the 17-suite neighbour set pass; touched-file tsc, oxfmt and oxlint exit 0.",
+    "G-M4": "PASS: 17 of 17 mutants killed by named assertions.",
+    "G-M5": "PASS: privacyAuthorityPacket below; the same text is the agentRecommendation of PK-mission-match-1-ruling.",
+    "G-M6": "PASS on the first attempt, no rerun.",
+    "G-M7": "OPEN: independent exact-head review, required CI, OWNER-RULING, guarded merge, exact-main run and closure.",
+    "G-M8": "See cap."
+  },
+  "census": {
+    "originMain": "86d0817b1e945ef1993f78ae19888f4022e503a0",
+    "openPrs": {
+      "count": 1,
+      "list": [
+        "#2113 (draft, codex/thread-transfer-history-20261002, 472 changed files read through the pulls files API)"
+      ],
+      "overlap": "none: no file of #2113 is a MISSION-MATCH-1 leaf or lies under src/lib/multiplayer/server, src/pages/api/multiplayer, visibility.ts, openspec/specs/multiplayer-server or openspec/planning",
+      "censusSha256": "816494682b5a024fcc2dc120ac5459f677d9b7f5bcf75eaa2f6f6204845ae5cf",
+      "filesSha256": "d3e06315f24e44dfc17ed2d7609e2d8674758d2a1af6aeda27f5c1d6b8082fd0"
+    },
+    "worktrees": {
+      "registered": 17,
+      "detached": 2,
+      "locked": 3,
+      "overlap": "none at the commit level (git worktree list --porcelain, merge-base diff against origin/main; uncommitted edits elsewhere are not visible)",
+      "censusSha256": "4ee5413e33e6bede4c296373af6888e8dea44602585fab960e4d48e531230030"
+    }
+  },
+  "leaves": [
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "sha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+      "bytes": 8170,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+      "sha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+      "bytes": 5264,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+      "sha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+      "bytes": 5517,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/sideAssignments.ts",
+      "sha256": "2715fd2a6cd2ae1d33441d3cadc2dd518466a4d7f20532307ba8b2a08380d5a3",
+      "bytes": 507,
+      "equalsAdmissionDraft": true,
+      "newFile": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "sha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+      "bytes": 6051,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "sha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+      "bytes": 22310,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+      "sha256": "6bee83b5ce76ef5e558d3f0f817804ec440d20ba0d3318ce6bb68be455302b48",
+      "bytes": 10409,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+      "sha256": "d28c7c47dbbee14764e9ed1d5086cbc4cc219bb27f3c898b4850495bc910178f",
+      "bytes": 5976,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "sha256": "41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e",
+      "bytes": 38771,
+      "equalsAdmissionDraft": false,
+      "newFile": false
+    },
+    {
+      "path": "openspec/specs/multiplayer-server/spec.md",
+      "sha256": "8e8a03f67bfc64fd248b6c22ae62ee2bad9678331d7e43bb584dce762f9f613c",
+      "bytes": 50219,
+      "equalsAdmissionDraft": true,
+      "newFile": false
+    }
+  ],
+  "leafNote": "Nine production/spec leaves equal the admission draft byte for byte (the hook formatting changed nothing). The test leaf is the frozen final leaf of the red receipt.",
+  "focused": {
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+    "head": "623613c85303de370c7a213c520d41945e1c5388",
+    "lane": "mm1-impl",
+    "class": "jest",
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/logs/green-focused.json",
+      "sha256": "4825165aee516bbaef8ffbac60731ab24a2aecd9f7d22774075155ad91e4567c",
+      "bytes": 12907
+    }
+  },
+  "refactorProof": {
+    "head": "734990ee84a0b244546b2fe670a786a7ac9dcc6f",
+    "suites": 4,
+    "passed": 60,
+    "failedBehaviorRows": 13,
+    "compatibilityRows": [
+      {
+        "row": "finds both teammates independently and preserves the first match for duplicate p",
+        "status": "passed"
+      },
+      {
+        "row": "preserves per-player command, forfeit and grace-expiry selections for every orde",
+        "status": "passed"
+      },
+      {
+        "row": "forfeit by player host concedes the existing opposite side",
+        "status": "passed"
+      },
+      {
+        "row": "forfeit by opponent host concedes the existing opposite side",
+        "status": "passed"
+      },
+      {
+        "row": "grace expiry for a non-first player player concedes its own side",
+        "status": "passed"
+      },
+      {
+        "row": "grace expiry for a non-first opponent player concedes its own side",
+        "status": "passed"
+      }
+    ],
+    "note": "The four suites are the focused file and the ServerMatchHost.spectator, reconnectionFlow and ServerMatchHostUnitOwnership neighbours; the 13 failures are the RED rows, unchanged by a behavior-preserving commit.",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/logs/refactor.json",
+      "sha256": "75fd20654767ffce4d3a84dbab69714a07f8c0c76e69ca249b73016d508d54c7",
+      "bytes": 60905
+    }
+  },
+  "neighbors": {
+    "head": "623613c85303de370c7a213c520d41945e1c5388",
+    "pattern": "multiplayer/server/(authorization/__tests__|__tests__/(spectatorSeats|ServerMatchHost.spectator|matchmaking.integration|sealedChoiceDelivery|handleRoomCodeGuestJoin|joinableLobbies|coopMissionCreate|fogOfWar|ServerMatchHost.fogOfWarIntegration|reconnectionFlow|ServerMatchHostUnitOwnership))|utils/gameplay/__tests__/visibility.test",
+    "suites": 17,
+    "passed": 228,
+    "failed": 0,
+    "perSuite": [
+      {
+        "suite": "sealedChoiceDelivery.test.ts",
+        "tests": 28,
+        "status": "passed"
+      },
+      {
+        "suite": "coopMissionCreate.test.ts",
+        "tests": 30,
+        "status": "passed"
+      },
+      {
+        "suite": "coopMissionCreate.refusals.test.ts",
+        "tests": 33,
+        "status": "passed"
+      },
+      {
+        "suite": "handleRoomCodeGuestJoin.test.ts",
+        "tests": 14,
+        "status": "passed"
+      },
+      {
+        "suite": "ServerMatchHost.spectator.test.ts",
+        "tests": 34,
+        "status": "passed"
+      },
+      {
+        "suite": "HumanActionAuthorization.test.ts",
+        "tests": 10,
+        "status": "passed"
+      },
+      {
+        "suite": "reconnectionFlow.test.ts",
+        "tests": 9,
+        "status": "passed"
+      },
+      {
+        "suite": "ServerMatchHostUnitOwnership.test.ts",
+        "tests": 2,
+        "status": "passed"
+      },
+      {
+        "suite": "ServerMatchHost.fogOfWarIntegration.test.ts",
+        "tests": 5,
+        "status": "passed"
+      },
+      {
+        "suite": "MatchAdmission.test.ts",
+        "tests": 9,
+        "status": "passed"
+      },
+      {
+        "suite": "matchmaking.integration.test.ts",
+        "tests": 2,
+        "status": "passed"
+      },
+      {
+        "suite": "spectatorSeats.test.ts",
+        "tests": 14,
+        "status": "passed"
+      },
+      {
+        "suite": "MatchSeatMembershipSource.test.ts",
+        "tests": 4,
+        "status": "passed"
+      },
+      {
+        "suite": "joinableLobbies.test.ts",
+        "tests": 6,
+        "status": "passed"
+      },
+      {
+        "suite": "visibility.test.ts",
+        "tests": 6,
+        "status": "passed"
+      },
+      {
+        "suite": "fogOfWar.test.ts",
+        "tests": 12,
+        "status": "passed"
+      },
+      {
+        "suite": "AuthorizedViewer.test.ts",
+        "tests": 10,
+        "status": "passed"
+      }
+    ],
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/logs/green-neighbors.json",
+      "sha256": "a834fdc0da58f11ecdc3e202155f60181eaf9cf33abc55987e0641373b4c7e67",
+      "bytes": 97308
+    }
+  },
+  "staticChecks": {
+    "head": "623613c85303de370c7a213c520d41945e1c5388",
+    "tsc": "exit 0 (tsc --noEmit --skipLibCheck, whole project)",
+    "oxfmt": "exit 0 --check on the nine ts leaves",
+    "oxlint": "exit 0 on the nine ts leaves (0 warnings, 0 errors)",
+    "hook": "The pre-commit hook passed on all five implementation commits; it runs oxlint, oxfmt and project tsc when applicable to the staged paths. No hook was skipped."
+  },
+  "mutants": {
+    "head": "623613c85303de370c7a213c520d41945e1c5388",
+    "runner": "run-mutants.cjs (outside Git): one source replacement per mutant, the permanent suite under one heavy-run jest ticket, original bytes restored in finally, git status clean afterwards.",
+    "required": 12,
+    "killed": 17,
+    "total": 17,
+    "survivors": [],
+    "note": "Jest transforms with SWC and does not type-check, so a kill is always a failed assertion; a suite that fails to load would be recorded as INFRASTRUCTURE and count as no kill (none occurred). M14 is killed by the compatibility row that calls sideOfPlayer(undefined, ...) and asserts undefined.",
+    "m17": "M17 is applied at the replay call site in src/lib/multiplayer/server/ServerMatchHostReplay.ts (sealedChoiceAudienceContext wraps the leaf context so only the first sideAssignments entry for the unit side owns it). The file is not one of the ten leaves and the mutant was never committed. Only the four replay/reconnect variant rows kill it.",
+    "results": [
+      {
+        "id": "M01",
+        "description": "spectator-only loses roster",
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "status": "KILLED",
+        "failingRows": 3,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "AuthorizedViewerError: No active membership for the requested session |     at AuthorizedViewerResolver.resolve (C:\\User"
+      },
+      {
+        "id": "M02",
+        "description": "outsider roster admission",
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "status": "KILLED",
+        "failingRows": 3,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "Error: expect(received).toBeNull() |  | Received: {\"campaignId\": \"coop-e1e6efcf95151b1c38f9ba6bfea99993d8c1026350d5db478"
+      },
+      {
+        "id": "M03",
+        "description": "roster not in spectator-mode epoch",
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "status": "KILLED",
+        "failingRows": 1,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "Error: expect(received).not.toBe(expected) // Object.is equality |  | Expected: not 256055408617143 |     at Object.toBe"
+      },
+      {
+        "id": "M04",
+        "description": "spectator changes absent from epoch",
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "status": "KILLED",
+        "failingRows": 1,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "Error: expect(received).not.toBe(expected) // Object.is equality |  | Expected: not 44199906609344 |     at Object.toBe "
+      },
+      {
+        "id": "M05",
+        "description": "self-spectate allowed",
+        "file": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "status": "KILLED",
+        "failingRows": 3,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality |  | Expected: 409 | Received: 201"
+      },
+      {
+        "id": "M06",
+        "description": "route does not pass roster",
+        "file": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "status": "KILLED",
+        "failingRows": 2,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality |  | Expected: 409 | Received: 201"
+      },
+      {
+        "id": "M07",
+        "description": "last assignment replaces first",
+        "file": "src/lib/multiplayer/server/sideAssignments.ts",
+        "status": "KILLED",
+        "failingRows": 1,
+        "firstFailingRow": "first player assignment compatibility finds both teammates independently and preserves the first match for duplicate players",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality |  | Expected: \"player\" | Received: \"opponent\""
+      },
+      {
+        "id": "M08",
+        "description": "wrong lookup key",
+        "file": "src/lib/multiplayer/server/sideAssignments.ts",
+        "status": "KILLED",
+        "failingRows": 14,
+        "firstFailingRow": "sealed two-player tactical choices withholds a committed move without a delivery gap, then delivers its original after movement finalization",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf |  | Expected value: \"aa9f5804-215d-4014-9af6-5f775c379d4f\" | Rec"
+      },
+      {
+        "id": "M09",
+        "description": "first teammate monopolizes declarations",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "status": "KILLED",
+        "failingRows": 8,
+        "firstFailingRow": "same-side sealed declaration delivery delivers a real non-first player move live to both teammates only",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf |  | Expected value: \"59ccc2ae-3501-4c20-81f3-cc340b9179b9\" | Rec"
+      },
+      {
+        "id": "M10",
+        "description": "GM spectator bypass",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "status": "KILLED",
+        "failingRows": 7,
+        "firstFailingRow": "sealed choices to a current spectator seat gm-branded spectator: live withholds the move until the reveal, then delivers the committed row",
+        "firstAssertion": "Error: expect(received).not.toContain(expected) // indexOf |  | Expected value: not \"9221ec33-f2a2-43db-90f3-496ff9b6f6f"
+      },
+      {
+        "id": "M11",
+        "description": "all viewers receive sealed declarations",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "status": "KILLED",
+        "failingRows": 10,
+        "firstFailingRow": "sealed two-player tactical choices withholds a committed move without a delivery gap, then delivers its original after movement finalization",
+        "firstAssertion": "Error: expect(received).not.toContain(expected) // indexOf |  | Expected value: not \"4d6e467d-6a56-47be-8399-0e4a3e07132"
+      },
+      {
+        "id": "M12",
+        "description": "all players lose live declaration",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "status": "KILLED",
+        "failingRows": 9,
+        "firstFailingRow": "sealed two-player tactical choices withholds a committed move without a delivery gap, then delivers its original after movement finalization",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf |  | Expected value: \"644b1751-ef27-40bc-9bae-db9e99b4a05b\" | Rec"
+      },
+      {
+        "id": "M13",
+        "description": "constant membership epoch",
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "status": "KILLED",
+        "failingRows": 1,
+        "firstFailingRow": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "Error: expect(received).not.toBe(expected) // Object.is equality |  | Expected: not 1 |     at Object.toBe (C:\\Users\\wro"
+      },
+      {
+        "id": "M14",
+        "description": "absent assignments throw",
+        "file": "src/lib/multiplayer/server/sideAssignments.ts",
+        "status": "KILLED",
+        "failingRows": 1,
+        "firstFailingRow": "first player assignment compatibility finds both teammates independently and preserves the first match for duplicate players",
+        "firstAssertion": "TypeError: Cannot read properties of undefined (reading 'find') |     at find (C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t"
+      },
+      {
+        "id": "M15",
+        "description": "inverted forfeit side",
+        "file": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "status": "KILLED",
+        "failingRows": 2,
+        "firstFailingRow": "concession side selection compatibility forfeit by player host concedes the existing opposite side",
+        "firstAssertion": "Error: expect(jest.fn()).toHaveBeenCalledWith(...expected) |  | Expected: \"opponent\" | Received: \"player\""
+      },
+      {
+        "id": "M16",
+        "description": "inverted grace side",
+        "file": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "status": "KILLED",
+        "failingRows": 2,
+        "firstFailingRow": "concession side selection compatibility grace expiry for a non-first player player concedes its own side",
+        "firstAssertion": "Error: expect(jest.fn()).toHaveBeenCalledWith(...expected) |  | Expected: \"player\" | Received: \"opponent\""
+      },
+      {
+        "id": "M17",
+        "description": "replay path: first sideAssignments entry owns the side (ServerMatchHostReplay.ts call site)",
+        "file": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "status": "KILLED",
+        "failingRows": 4,
+        "firstFailingRow": "same-side sealed declarations on replay and reconnect replay with the watcher listed-last: both teammates get the declaration, opponents and the spectator seat do not, until the reveal",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf |  | Expected value: \"a9ecf390-75fd-4cee-9628-4afdef9a6644\" | Rec"
+      }
+    ],
+    "resultsFile": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/mutants-results.json",
+      "sha256": "87bdde41b9ca85234eb164ea61b33f2a164b88f92eb2c0e4f5a83511bd985616",
+      "bytes": 33314
+    }
+  },
+  "privacyAuthorityPacket": {
+    "id": "PK-mission-match-1-ruling",
+    "scope": "MISSION-MATCH-1 changes who is admitted to a seat-less co-op mission match after a spectator joins, and who receives a player's sealed Move, Attack and Physical declarations before the reveal. Both are authority and privacy decisions on the authoritative multiplayer server.",
+    "authorityChanges": [
+      "Membership mode is decided once, by usesRosterMembership(seats) in MatchSeatMembershipSource: a match with no playing seats (absent, empty or spectator-only seats) keeps deriving playing membership from the durable playerIds roster. A playing-seat grid keeps the existing seat membership and lobby-invitee rules.",
+      "A spectator occupant derives its own membership from its spectator seat, owns no forces, and still receives spectator-cannot-act for commands. Admission of an unregistered stranger is unchanged (refused).",
+      "A rostered player can no longer register as a spectator in a roster-mode match: POST spectate returns 409 and leaves the match unchanged, so the first spectator call cannot evict or demote the roster.",
+      "The membership epoch covers roster membership in roster mode and every spectator occupancy change: a spectator join changes the epoch without revoking roster members, a repeat join leaves it stable, and removing a roster member changes it and revokes that member."
+    ],
+    "privacyChanges": [
+      "sideOfPlayer(assignments, playerId) answers the first assignment of that one player. Sealed delivery asks whether the viewer is on the actor unit's side; before, the first-listed player of a side was its only owner, so a second player on the side was denied its own declaration and the first-listed one saw it live.",
+      "Owner policy (owner decisions 2026-10-26 item 1): teammates on a side see each other's sealed declarations live. Opposing players and spectator seats receive only the public locked frame until the existing authoritative reveal, live, on replay and on reconnect.",
+      "The spectator-seat guard still runs first, so neither a GM brand nor a stale side assignment can turn a spectator seat into an owner. A non-spectating GM keeps its existing delivery."
+    ],
+    "unchanged": [
+      "S5-02: the spectate door still checks no membership; any authenticated principal can still register as a spectator on a match it is not in.",
+      "Mission GM viewer role: coopMissionCreate still omits meta.coopCampaign, so the real mission GM is a player-role viewer. A2M discloses it (Root ruling option a).",
+      "Fog and visibility keep their two first-entry-per-side owner readers; fog admission and per-unit command ownership (U38) are untouched.",
+      "Command admission, Forfeit and grace expiry keep first-assignment-per-player semantics through the shared function (compatibility rows)."
+    ],
+    "residualRisks": [
+      "Side assignments are trusted host-written data. A player whose first assignment names the actor's side sees that side's sealed declarations; this unit adds no writer for assignments.",
+      "A match already locked out by the old first spectate call is not migrated; the fix prevents the lockout, it does not repair stored seats.",
+      "Evidence is Jest on the real route, host and SQLite plus the A2F built runner; the live stale-first row on the built image belongs to the A2M matrix and the RC rerun."
+    ],
+    "evidenceRows": {
+      "MM1": "mission membership modes (empty, spectator-only, human)",
+      "MM2": "mission match membership after spectating: host and guest stay admitted, reconnect and act; the watcher cannot act; an unregistered stranger is refused",
+      "MM3": "rostered self-spectate returns 409 before and after another spectator joins",
+      "MM4": "epoch changes on a spectator join, is stable on repeat and on a new source instance, changes and revokes on roster removal",
+      "MM5": "same-side sealed declaration delivery (live, three event types) and the replay/reconnect variant, including a stale first side assignment",
+      "MM6": "first player assignment compatibility; concession side selection compatibility",
+      "MM7": "17 of 17 mutants killed, M17 only by the replay/reconnect rows"
+    },
+    "reviewFocus": [
+      "usesRosterMembership and the epoch material in MatchSeatMembershipSource.ts: no input path lets a non-roster principal into roster mode.",
+      "The order of isSpectatorPlayer, the GM branch and sideOfPlayer in MatchWireSealedChoices.ts.",
+      "The 409 path and the rosterPlayerIds argument in spectate.ts and spectatorSeats.ts."
+    ],
+    "agentRecommendation": "Accept only after independent exact-head authority and privacy review, required CI and OWNER-RULING. At the GREEN head the focused suite passes 28 of 28, the 17 neighbour suites pass 228 of 228, and 17 of 17 mutants are killed (M17, the replay path, only by the replay/reconnect rows); tsc, oxfmt and oxlint exit 0, and the A2F built runner passes all eight cases with its 21-call witness sequence. Review three things. Membership: roster mode applies only when there is no playing seat, spectators own no forces and a rostered player cannot register as a spectator (409). Epoch: it covers roster and spectator occupancy, so a spectator join does not revoke the roster and a roster removal does. Sealed delivery: ownership is the viewer's own first side assignment compared with the actor unit's side, teammates see each other's declarations live by owner policy, and opposing players and spectator seats, including a stale first assignment or a GM brand, wait for the reveal on live, replay and reconnect. This does not decide S5-02, the real mission GM role, fog owner semantics or per-unit command ownership. The live stale-first row on the built image belongs to the A2M matrix. No exact-main acceptance is claimed."
+  },
+  "neighbourProof": {
+    "gate": "G-M6",
+    "head": "9e36d48205b5ec3b7dbd974f7273df9efc72c1f9",
+    "command": "node scripts/release/run-l1-built-server-spectator-trusted-proof.mjs --build --expected-sha=9e36d48205b5ec3b7dbd974f7273df9efc72c1f9 --output=E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/built-run/out",
+    "lane": "mm1-impl",
+    "class": "build",
+    "verdict": "PASS",
+    "passed": [
+      "accepted-Move",
+      "accepted-Attack",
+      "accepted-Physical",
+      "trusted-player-stale",
+      "trusted-gm-stale",
+      "trusted-gm-unassigned",
+      "trusted-gm-participant",
+      "gm-brand-recovered"
+    ],
+    "errors": [],
+    "processes": 22,
+    "attempts": 1,
+    "cfA2fp1": {
+      "witnessSequence": [
+        "ready",
+        "declared",
+        "ready",
+        "declared",
+        "ready",
+        "ready",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare",
+        "declared",
+        "ready",
+        "prepare"
+      ],
+      "calls": 21,
+      "expectedCalls": 21,
+      "sequenceVerified": true
+    },
+    "cfA2fp2": "Not used: the first run passed, so no readiness-probe rerun was taken.",
+    "manifest": {
+      "node": "v22.22.0",
+      "platform": "win32",
+      "built": true,
+      "source": {
+        "head": "9e36d48205b5ec3b7dbd974f7273df9efc72c1f9",
+        "clean": true
+      },
+      "image": {
+        "buildId": "1793062131229",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "921293eb4e912ea5e6150423cd68e717f2617af3755e3ce1ce571fc8c382753f",
+        "sourceTreeSha256": "f030748b794f160809d310cfbfea67242273d719a81a2deeaaa18a619165e607"
+      }
+    },
+    "summary": {
+      "sha256": "844489b54bf200100586ff932cd2ab968162b6e5d700938be8a7e5389532df9f",
+      "bytes": 5085
+    },
+    "evidence": {
+      "sha256": "6513314c9f6eea3984011398737bbb7b791c4c6fa851fa13dc6a01a44eb572da",
+      "bytes": 478410
+    },
+    "manifestFile": {
+      "sha256": "ce57371b6ecd738128538f0527da5f60014e5454ea1551ba88997c9c9d231fa2",
+      "bytes": 994
+    },
+    "note": "The runner built the source of GREEN commit 9e36d4820; the lifecycle commit adds only ledger and evidence files. A2F frozen comments and test name that describe the first-entry rule are now historical; the stale rows stay discriminating because the spectator guard still precedes ownership. G-M6 repeats at the closure exact-main run."
+  },
+  "cap": {
+    "countedAddedLeafLines": 90,
+    "perLeaf": [
+      {
+        "file": "openspec/specs/multiplayer-server/spec.md",
+        "added": 37,
+        "deleted": 3,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "added": 2,
+        "deleted": 3,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "added": 3,
+        "deleted": 4,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "added": 5,
+        "deleted": 6,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "added": 573,
+        "deleted": 3,
+        "counted": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "added": 15,
+        "deleted": 5,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "added": 4,
+        "deleted": 0,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "added": 3,
+        "deleted": 3,
+        "counted": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/sideAssignments.ts",
+        "added": 15,
+        "deleted": 0,
+        "counted": true
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "added": 6,
+        "deleted": 1,
+        "counted": true
+      }
+    ],
+    "testLeafExempt": "sealedChoiceDelivery.test.ts is line-exempt (U41 UNCOUNTED_FILES) and file-counted.",
+    "lifecycle": "The counted lifecycle lines (units.json, PROGRESS.md, generated page) and the final total are measured by validate-roadmap --git on the final head and recorded in PROGRESS.md and the PR body; measured on the final head by the validator rule (evidence directory skipped, tests exempt): units.json +30, PROGRESS.md +11, V2.2.0-STEPS.md +2 plus the 90 leaf lines = 133 of 500.",
+    "files": "14 counted files (10 leaves, units.json, PROGRESS.md, the red and the local receipt) plus the exempt generated page; one file of slack remains.",
+    "capException": "none expected; no option A claimed."
+  },
+  "disclosures": [
+    "lint:units failed on the first lifecycle head by two findings (the unused host bindings above); the test-only commit 623613c85303de370c7a213c520d41945e1c5388 fixes them. The focused suite, the 17-suite neighbour set and the 17 mutants were rerun on that head; the built runner was not (the only change since 9e36d48205b5ec3b7dbd974f7273df9efc72c1f9 is two lines of that Jest test file, so every production byte is the one the runner built).",
+    "RED proof history: the first reconnect variant rows were defective (asserted on a socket after the reveal) and the local history (RED, refactor, GREEN) was rebuilt before any push; see the red receipt historyNote.",
+    "The pre-commit hook type-checks the whole project, so the RED test types the three-argument addSpectatorSeat call through a local binding (red receipt nonRowEdits). The first form of that binding (a rest tuple extending Parameters) stopped compiling once GREEN added the parameter and was replaced by explicit parameter types before the final commits were created.",
+    "The admission draft leaf began with a byte-order mark; the final leaf does not.",
+    "Jest evidence is source/SQLite preparation, not a browser proof. The built-image owner of the live stale-first row is the A2M matrix (resolutions.R1).",
+    "heavy-run waited many minutes for the machine-idle gate before the first grant (npm ci) because another agent's Playwright browser processes were running; nothing was killed.",
+    "The built runner records exit code 1 for all 22 server processes: the runner stops each server it starts."
+  ],
+  "carryForward": [
+    "CF-A2F-1 (live stale-first row): resolutions.R1",
+    "CF-A2F-2 (actor replay defect): MM5 replay/reconnect variant, resolutions.R2",
+    "CF-A2F-3 (neighbour rerun): gate G-M6",
+    "CF-A2FP-1: the A2F neighbour rerun checks the 21-call op sequence",
+    "CF-A2FP-2: one disclosed rerun if only the 15 s readiness probe fails (routed to the first unit that must amend the A1 harness; this unit does not)",
+    "Mission GM viewer role (carry-forward option a): not fixed here; A2M discloses it",
+    "A2 cap watch: carried on ownerRuling20261026MissionMatch"
+  ],
+  "exclusionsKept": [
+    "S5-02 access-to-spectate policy remains open",
+    "Mission GM-role derivation deferred to A2M admission",
+    "Fog per-side owner semantics and fog admission unchanged",
+    "Per-unit command ownership remains U38"
+  ],
+  "limitations": [
+    "Local proof only: no independent review, CI, OWNER-RULING, merge or exact-main run is claimed.",
+    "The worktree census cannot see uncommitted edits in other worktrees.",
+    "S5-02 (who may spectate), the real mission GM viewer role, fog per-side owner semantics and per-unit command ownership are unchanged and out of scope."
+  ]
+}

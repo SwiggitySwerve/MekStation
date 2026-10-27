@@ -23,6 +23,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
+import { usesRosterMembership } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import {
   MatchNotFoundError,
@@ -140,7 +141,11 @@ export default async function handler(
 
   let nextSeats;
   try {
-    nextSeats = addSpectatorSeat(meta.seats ?? [], spectatorRef);
+    nextSeats = addSpectatorSeat(
+      meta.seats ?? [],
+      spectatorRef,
+      usesRosterMembership(meta.seats) ? meta.playerIds : [],
+    );
   } catch (e) {
     if (e instanceof SpectatorSeatError) {
       res.status(409).json({ error: e.message });

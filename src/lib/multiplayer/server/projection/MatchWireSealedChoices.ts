@@ -11,6 +11,7 @@ import type { IAuthorizedViewer } from '../authorization/AuthorizedViewer';
 import type { IViewerAudienceRuntimeContext } from './ViewerAudienceProjector';
 
 import { isSpectatorPlayer } from '../lobby/spectatorSeats';
+import { sideOfPlayer } from '../sideAssignments';
 
 /** Tactical choices that are withheld until their authoritative reveal. */
 export const MATCH_WIRE_SEALED_DECLARATION_TYPES = new Set<GameEventType>([
@@ -83,10 +84,9 @@ export function createMatchWireSealedChoiceAudienceContext(
       if (actorId === null) return false;
       const unit = state.units[actorId];
       if (unit === undefined) return false;
-      const assignment = state.sideAssignments?.find(
-        (candidate) => candidate.side === unit.side,
+      return (
+        sideOfPlayer(state.sideAssignments, viewer.principalId) === unit.side
       );
-      return assignment?.playerId === viewer.principalId;
     },
   };
 }
