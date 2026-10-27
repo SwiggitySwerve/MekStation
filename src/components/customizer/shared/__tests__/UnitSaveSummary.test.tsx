@@ -61,6 +61,20 @@ describe('UnitSaveSummary', () => {
     ).toBe('In library v3');
   });
 
+  it('labels an existing restored draft beside Save before any session write', () => {
+    mockGetUnitStore.mockReturnValue(undefined);
+    localStorage.setItem(
+      'megamek-unit-restored-summary',
+      '{"state":{"id":"restored-summary"}}',
+    );
+    const write = jest.spyOn(Storage.prototype, 'setItem');
+    render(<UnitSaveLabel unitId="restored-summary" />);
+    expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
+      /^Not in library · draft saved$/,
+    );
+    expect(write).not.toHaveBeenCalled();
+  });
+
   it('words the save state in two parts until the library copy matches', () => {
     expect(unitSaveLines('pending', { state: 'none' })).toEqual({
       first: 'Not in library',

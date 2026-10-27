@@ -73,9 +73,10 @@ test('armor designs retain distinct materials, common geometry and themed panels
   expect(baseline.geometry.width).toBeGreaterThanOrEqual(360);
   expect(baseline.geometry.width).toBeLessThanOrEqual(440);
   expect(baseline.geometry.plates).toHaveLength(8);
+  // Record-sheet orientation: the unit's left side is on the viewer's left.
   expect(
     baseline.geometry.plates.find((p) => p.location === 'Left Arm')!.x,
-  ).toBeGreaterThan(
+  ).toBeLessThan(
     baseline.geometry.plates.find((p) => p.location === 'Right Arm')!.x,
   );
   const variants = ['Standard', 'Glow', 'HUD', 'Chromatic'];

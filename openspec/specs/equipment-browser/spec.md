@@ -29,8 +29,8 @@ The Equipment Browser SHALL include all equipment types from the equipment datab
 #### Scenario: Variable property display
 
 - **WHEN** physical weapon is displayed in equipment table
-- **THEN** variable weight and critical slots are labeled Variable rather than presented as fixed zero values
-- **AND** items the data flags as variable weight or slots (such as Communications Equipment, which carries 0 t / 0 slots and no formula id) also show Variable instead of 0
+- **THEN** variable weight and critical slots read as a muted "Var." right-aligned in the same tabular Tons and Slots columns as the numbers (full words "Variable weight" / "Variable slots" in the tooltip and accessible name) rather than presented as fixed zero values
+- **AND** items the data flags as variable weight or slots (such as Communications Equipment, which carries 0 t / 0 slots and no formula id) also show "Var." instead of 0
 - **AND** expanded details explain that values are calculated for the active unit when added when a variable-equipment formula exists, and otherwise that weight and slots depend on the size chosen for the unit
 - **AND** Add or Add and place uses the existing construction calculations
 
@@ -678,7 +678,7 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 - **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
 - **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · available in 3028")
 - **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it
-- **AND** only while rows are hidden below, an opaque footer reads "Scroll for more equipment" in the pager (or a dedicated footer for a single page); the footer stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
+- **AND** the pager reads "Page N of M · T items" on the left, and only while the current page itself overflows (rows hidden below) an opaque footer adds "Scroll for more on this page" in the pager (or a dedicated footer for a single page) without changing the pager's height, so the list viewport does not shift when the cue hides at the bottom; the footer stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
 - **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
 
 #### Scenario: Active filters
@@ -722,7 +722,7 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 - **THEN** the weight value in the Tons cell, and in the phone stats line, uses the warning text color with a dotted underline, and carries the accessible description `exceeds free weight by 3.0 t`; no chip is shown
 - **AND** the row stays visible and its Add action retains its existing behavior
 - **AND** an exact fit is not marked, and no row is marked when 0 t or less is free
-- **AND** variable-weight items retain their Variable label without an estimated excess
+- **AND** variable-weight items retain their "Var." label without an estimated excess
 - **AND** the row split action remains visibly at least 44px tall
 ## Hook Architecture
 

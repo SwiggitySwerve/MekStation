@@ -178,7 +178,7 @@ export function ValidationSummaryLine({
   return (
     <p
       id={id}
-      className="border-border-theme flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-3"
+      className="border-border-theme flex flex-wrap items-center gap-x-2 gap-y-2 border-b px-4 py-3"
     >
       <span className="flex items-center gap-2 text-base leading-6 font-semibold">
         <BuildStateIcon state={summary.state} />
@@ -189,7 +189,7 @@ export function ValidationSummaryLine({
           <span className="sr-only">{BUILD_STATUS_SEPARATOR}</span>
           <span
             data-build-status-part={chip.kind}
-            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs leading-5 font-medium whitespace-nowrap ${BUILD_STATE_TINT_CLASS[chip.kind]} ${
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs leading-5 font-medium whitespace-nowrap ${BUILD_STATE_TINT_CLASS[chip.kind]} ${
               chip.kind === 'ready'
                 ? 'text-text-theme-primary'
                 : BUILD_STATUS_KIND_TEXT_CLASS[chip.kind]
@@ -252,7 +252,7 @@ function FixButton({
       data-validation-fix={destination.tabId}
       aria-describedby={describedBy}
       onClick={destination.onSelect}
-      className="text-text-theme-secondary hover:border-border-theme-strong hover:bg-surface-raised hover:text-text-theme-primary focus-visible:outline-accent -ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-md border border-transparent !px-2 !py-0 text-sm font-normal focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="text-text-theme-secondary hover:border-border-theme-strong hover:bg-surface-raised hover:text-text-theme-primary focus-visible:outline-accent inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md border border-transparent !px-1 !py-0 text-sm font-normal whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       Go to {getTabLabel(destination.tabId)}
       <AppIcon name="arrow-right" size="inline" aria-hidden="true" />
@@ -287,38 +287,37 @@ function BuildStatusItem({
     <li
       data-validation-issue={kind === 'issue' ? '' : undefined}
       data-validation-note={kind === 'note' ? '' : undefined}
-      className="border-border-theme flex gap-3 border-b px-4 py-3 last:border-b-0"
+      className="border-border-theme flex gap-2 border-b px-4 py-2 last:border-b-0"
     >
       <span className="flex h-6 shrink-0 items-center">{icon}</span>
       <div className="min-w-0 flex-1">
         <h5
           id={headingId}
-          className="text-text-theme-primary text-base leading-6 font-semibold"
+          className="text-text-theme-primary text-sm leading-5 font-semibold"
         >
           <span className="sr-only">{severityLabel}: </span>
           {heading}
         </h5>
-        {explanation && (
-          <p className="text-text-theme-secondary mt-0.5 text-sm leading-5">
-            {explanation}
-          </p>
-        )}
-        {suggestion && (
-          <p className="text-text-theme-secondary mt-1 text-sm leading-5">
-            {suggestion}
-          </p>
-        )}
-        {destinations.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-x-2">
-            {destinations.map((destination) => (
+        <div className="text-text-theme-secondary text-sm leading-5">
+          {explanation && (
+            <>
+              <p className="inline">{explanation}</p>{' '}
+            </>
+          )}
+          {suggestion && (
+            <>
+              <p className="inline">{suggestion}</p>{' '}
+            </>
+          )}
+          {destinations.map((destination) => (
+            <React.Fragment key={destination.tabId}>
               <FixButton
-                key={destination.tabId}
                 destination={destination}
                 describedBy={headingId}
-              />
-            ))}
-          </div>
-        )}
+              />{' '}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </li>
   );

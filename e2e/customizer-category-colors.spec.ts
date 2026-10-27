@@ -1,5 +1,10 @@
 import { test, expect, type Locator } from '@playwright/test';
 
+import { PROTECTED_SLOT_COLORS } from '../src/components/customizer/protected/protectedSlotColors';
+import { EquipmentCategory } from '../src/types/equipment/EquipmentCategory';
+
+const { tint, fixedSystems, equipment } = PROTECTED_SLOT_COLORS;
+
 async function paint(locator: Locator) {
   return locator.evaluate((element) => {
     const style = getComputedStyle(element);
@@ -48,6 +53,26 @@ async function textContrast(locator: Locator) {
 async function accent(locator: Locator) {
   return locator.evaluate(
     (element) => getComputedStyle(element).borderLeftColor,
+  );
+}
+
+/** The bar and tint a protected hue computes to, read from a probe in `locator`. */
+async function hueValues(locator: Locator, hue: string) {
+  return locator.evaluate(
+    (element, [token, mix]) => {
+      const probe = document.createElement('span');
+      probe.style.borderLeft = `1px solid var(--color-${token})`;
+      probe.style.backgroundColor = `color-mix(in oklab, var(--color-${token}) ${mix}, var(--surface-base))`;
+      element.append(probe);
+      const style = getComputedStyle(probe);
+      const values = {
+        bar: style.borderLeftColor,
+        tint: style.backgroundColor,
+      };
+      probe.remove();
+      return values;
+    },
+    [hue, tint.restMix] as const,
   );
 }
 
@@ -155,38 +180,50 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     .getByRole('gridcell', { name: 'Slot 7: Small Laser', exact: true });
   await expect(mounted).toBeVisible();
   await page.mouse.move(0, 0);
-  // Critical slots use the owner's full-opacity hue; the catalog may mute it.
-  const energyStripe = await mounted.evaluate((element) => {
-    const probe = document.createElement('span');
-    probe.style.color = 'var(--color-yellow-300)';
-    element.append(probe);
-    const color = getComputedStyle(probe).color;
-    probe.remove();
-    return color;
-  });
-  await expect.poll(() => accent(mounted)).toBe(energyStripe);
+  // Every occupied slot is tinted, and its 4px bar coloured, in its owner hue
+  // (approved values: protectedSlotColors.ts).
+  const expectTinted = async (cell: Locator, hue: string) => {
+    const expected = await hueValues(cell, hue);
+    // Slots animate colour changes; wait for the settled paint before sampling.
+    await expect.poll(() => accent(cell)).toBe(expected.bar);
+    await expect
+      .poll(async () => (await paint(cell)).background)
+      .toBe(expected.tint);
+    await expect(cell).toHaveCSS('border-left-style', 'solid');
+    await expect(cell).toHaveCSS('border-left-width', tint.barWidth);
+    expect(await textContrast(cell)).toBeGreaterThanOrEqual(4.5);
+  };
+  await expectTinted(mounted, equipment[EquipmentCategory.ENERGY_WEAPON]);
+  const energyStripe = await accent(mounted);
   const mountedPaint = await paint(mounted);
-  expect(mountedPaint.background).not.toBe('rgba(0, 0, 0, 0)');
-  expect(await textContrast(mounted)).toBeGreaterThanOrEqual(4.5);
+  await mounted.hover();
+  await expect.poll(() => textContrast(mounted)).toBeGreaterThanOrEqual(4.5);
+  await page.mouse.move(0, 0);
   const engine = page
     .getByRole('gridcell', { name: /: .*Engine$|: Engine$/ })
     .first();
   const gyro = page.getByRole('gridcell', { name: /: Standard Gyro$/ }).first();
   await expect(engine).toBeVisible();
-  expect(await textContrast(engine)).toBeGreaterThanOrEqual(4.5);
-  expect(await textContrast(gyro)).toBeGreaterThanOrEqual(4.5);
-  expect((await paint(engine)).background).toBe((await paint(gyro)).background);
+  // Fixed systems are tinted in their own family hue, so they differ at a glance.
+  await expectTinted(engine, fixedSystems.engine);
+  await expectTinted(gyro, fixedSystems.gyro);
+  expect((await paint(engine)).background).not.toBe(
+    (await paint(gyro)).background,
+  );
+  expect(await accent(engine)).not.toBe(await accent(gyro));
   expect(mountedPaint.background).not.toBe((await paint(engine)).background);
   const heatSink = page
     .getByRole('gridcell', { name: /: .*Heat Sink$/ })
     .first();
-  await expect(heatSink).toHaveCSS('border-left-style', 'solid');
-  await expect(mounted).toHaveCSS('border-left-style', 'solid');
-  expect(await accent(engine)).toBe(await accent(gyro));
+  await expectTinted(heatSink, equipment.heatsink);
+  // Heat sinks share the electronics cyan, so they keep a faint hatch.
   await expect(heatSink).not.toHaveCSS('background-image', 'none');
   await expect(mounted).toHaveCSS('background-image', 'none');
-  await expect(engine).toHaveCSS('border-left-color', 'rgba(0, 0, 0, 0)');
-  await expect(mounted).toHaveCSS('border-left-width', '4px');
+  // Every row of a merged block is tinted in the category hue.
+  const ac20Rows = page.getByRole('gridcell', { name: /^Slot \d+: AC\/20$/ });
+  await expect(ac20Rows).toHaveCount(10);
+  for (const row of await ac20Rows.all())
+    await expectTinted(row, equipment[EquipmentCategory.BALLISTIC_WEAPON]);
   await page.reload();
   await expect(mounted).toBeVisible();
   await expect.poll(() => paint(mounted)).toEqual(mountedPaint);

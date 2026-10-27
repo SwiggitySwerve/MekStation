@@ -23,14 +23,24 @@ describe('computeStatusPanelLayout', () => {
     ).toEqual({ mode: 'sheet' });
   });
 
-  it('docks a drawer over the loadout rail: same edge and width, full height below the header', () => {
+  it('widens a narrow loadout rail to 320px while keeping its right edge', () => {
     expect(computeStatusPanelLayout({ ...desktop, rail, workspace })).toEqual({
       mode: 'drawer',
-      left: 1200,
+      left: 1120,
       top: 153,
-      width: 240,
+      width: 320,
       height: 747,
       maxHeight: 747,
+    });
+  });
+
+  it('matches a rail wider than 320px', () => {
+    expect(
+      computeStatusPanelLayout({ ...desktop, rail: { ...rail, left: 1040 } }),
+    ).toMatchObject({
+      mode: 'drawer',
+      left: 1040,
+      width: 400,
     });
   });
 

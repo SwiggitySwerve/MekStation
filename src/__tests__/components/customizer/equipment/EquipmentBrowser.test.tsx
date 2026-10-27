@@ -136,7 +136,7 @@ describe('EquipmentBrowser', () => {
         render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
         const scroll = screen.getByTestId('equipment-catalog-scroll');
         const cue = screen.getByTestId('more-below-cue');
-        expect(cue).toHaveTextContent('Scroll for more equipment');
+        expect(cue).toHaveTextContent('Scroll for more on this page');
         expect(scroll).not.toContainElement(cue);
         expect(scroll.parentElement).not.toContainElement(cue);
         if (totalPages > 1)
@@ -518,7 +518,7 @@ describe('EquipmentBrowser', () => {
       totalItems: 27,
     });
     const view = render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    expect(screen.getByText('Page 1/2')).toBeInTheDocument();
+    expect(screen.getByText('Page 1 of 2 · 27 items')).toBeInTheDocument();
     expect(screen.queryByText(/End of results/)).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
     expect(defaultMockHook.setPage).toHaveBeenCalledWith(2);

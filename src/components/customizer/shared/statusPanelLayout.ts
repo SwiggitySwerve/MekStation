@@ -3,7 +3,7 @@
  *
  * Pure geometry, so the panel component only measures the page and renders.
  * Phones get a bottom sheet. On a desktop workbench the panel is a drawer
- * docked over the Loadout rail column (same left edge and width, full height
+ * docked over the Loadout rail column (at least 320px wide, full height
  * below the header), so the tab content it describes stays visible. Without
  * a rail it docks to the right edge of the workspace, and without a
  * workspace at all (the panel used outside the workbench) it falls back to a
@@ -12,8 +12,9 @@
 
 /** Below this width the panel opens as a bottom sheet. */
 export const STATUS_SHEET_MAX_WIDTH = 639;
-/** Popover width, and the drawer width when no rail is there to match. */
+/** Popover width outside the workbench. */
 export const STATUS_PANEL_WIDTH = 384;
+/** Minimum docked width, also used when the Loadout rail is hidden. */
 export const STATUS_DRAWER_FALLBACK_WIDTH = 320;
 const EDGE = 8;
 
@@ -61,12 +62,12 @@ export function computeStatusPanelLayout({
   if (dock || isVisible(workspace)) {
     const top = dock ? dock.top : workspace!.top;
     const width = dock
-      ? dock.right - dock.left
+      ? Math.max(dock.right - dock.left, STATUS_DRAWER_FALLBACK_WIDTH)
       : Math.min(STATUS_DRAWER_FALLBACK_WIDTH, viewportWidth - 2 * EDGE);
     const height = Math.max(0, viewportHeight - top);
     return {
       mode: 'drawer',
-      left: dock ? dock.left : viewportWidth - width,
+      left: dock ? Math.max(0, dock.right - width) : viewportWidth - width,
       top,
       width,
       height,

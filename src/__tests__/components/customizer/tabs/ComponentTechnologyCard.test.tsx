@@ -50,7 +50,6 @@ describe('ComponentTechnologyCard', () => {
       'Engine',
       'Heat sinks',
       'Myomer',
-      'Movement enhancement',
     ];
     for (const label of structureRows) {
       fireEvent.click(
@@ -70,6 +69,25 @@ describe('ComponentTechnologyCard', () => {
       }),
     );
     expect(onNavigate).toHaveBeenCalledWith('armor');
+  });
+
+  it('renders every "None" value as plain text, never a link', () => {
+    renderCard({ onNavigate: jest.fn() });
+    const card = screen.getByTestId('overview-component-technology');
+    const rows = Array.from(card.querySelectorAll('dl > div'));
+    const noneRows = rows.filter(
+      (row) => row.querySelector('dd')?.textContent?.trim() === 'None',
+    );
+
+    // Movement enhancement and Targeting computer both default to None.
+    expect(noneRows.length).toBeGreaterThanOrEqual(2);
+    for (const row of noneRows) {
+      expect(row.querySelector('button')).toBeNull();
+      expect(row.querySelector('dd span')).toHaveTextContent('None');
+    }
+    expect(
+      within(card).queryByRole('button', { name: /^Movement enhancement/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('keeps the visible value as the link text and leaves targeting plain', () => {

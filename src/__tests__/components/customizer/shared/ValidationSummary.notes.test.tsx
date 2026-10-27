@@ -207,7 +207,7 @@ describe('ValidationSummary readout warnings', () => {
     });
     // The phone chip shows each group as its severity shape and count; the
     // words stay in the accessible name and tooltip.
-    expect(error).toHaveTextContent(/^1\s*\u00b7\s*1$/);
+    expect(error).toHaveTextContent(/^11Issues$/);
     expect(
       error.querySelector('[data-build-status-part="error"]'),
     ).toHaveTextContent(/^1$/);
@@ -292,9 +292,9 @@ describe('ValidationSummary readout warnings', () => {
       const dialog = screen.getByRole('dialog', { name: /Atlas.*Not legal/ });
       expect(dialog).toHaveAttribute('data-panel-layout', 'drawer');
       expect(dialog).toHaveStyle({
-        left: '1200px',
+        left: '1120px',
         top: '153px',
-        width: '240px',
+        width: '320px',
         height: '747px',
       });
       expect(
@@ -331,10 +331,28 @@ describe('ValidationSummary readout warnings', () => {
       />,
     );
     const button = screen.getByRole('button', { name: /show issues$/ });
-    expect(button).toHaveTextContent(/^1\s*\u00b7\s*2\s*\u00b7\s*3$/);
+    expect(button).toHaveTextContent(/^123$/);
+    expect(
+      button.querySelector('[data-icon-name="chevron-right"]'),
+    ).toBeInTheDocument();
     expect(button).toHaveAccessibleName(
       /Not legal \u00b7 1 error \u00b7 2 warnings \u00b7 3 notes/,
     );
+  });
+
+  it('names the issue action visibly beside two phone severity counts', () => {
+    render(
+      <ValidationSummary
+        validation={{ ...withOneError(), warningCount: 1 }}
+        compact
+      />,
+    );
+    const button = screen.getByRole('button', { name: /show issues$/ });
+    expect(button).toHaveTextContent('Issues');
+    expect(
+      button.querySelector('[data-icon-name="chevron-right"]'),
+    ).toBeInTheDocument();
+    expect(button).toHaveAccessibleName(/Not legal · 1 error · 1 warning/);
   });
 
   it('keeps the same running-hot wording on phone and shows details in the panel', () => {

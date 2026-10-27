@@ -8,31 +8,31 @@ Defines Color System requirements for Critical Slot Colors, Equipment Type Color
 
 ### Requirement: Critical Slot Colors
 
-The system SHALL keep fixed systems visually quieter than mounted equipment, using neutral surfaces and thin muted left accents.
+The system SHALL tint each fixed-system slot in its family hue, taken from the hue token of the slot colour owner's accent class, with primary text and a 4px left bar in the same hue, so families differ at a glance. The approved critical-slot values are pinned in `src/components/customizer/protected/protectedSlotColors.ts`.
 
 #### Scenario: Engine slot coloring
 
 - **WHEN** slot contains engine component
-- **THEN** slot uses bg-surface-base and text-text-theme-secondary
-- **AND** its 2px left accent uses border-l-orange-400/35
+- **THEN** slot is tinted in orange-400 (owner accent border-l-orange-400/35)
+- **AND** its 4px left bar uses the full orange-400 hue
 
 #### Scenario: Gyro slot coloring
 
 - **WHEN** slot contains gyro component
-- **THEN** slot uses bg-surface-base and text-text-theme-secondary
-- **AND** its 2px left accent uses border-l-purple-400/35
+- **THEN** slot is tinted in purple-400 (owner accent border-l-purple-400/35)
+- **AND** its 4px left bar uses the full purple-400 hue
 
 #### Scenario: Actuator slot coloring
 
 - **WHEN** slot contains actuator (shoulder, upper arm, lower arm, hand, hip, upper leg, lower leg, foot)
-- **THEN** slot uses bg-surface-base and text-text-theme-secondary
-- **AND** its 2px left accent uses border-l-blue-400/35
+- **THEN** slot is tinted in blue-400 (owner accent border-l-blue-400/35)
+- **AND** its 4px left bar uses the full blue-400 hue
 
 #### Scenario: Cockpit system coloring
 
 - **WHEN** slot contains life support, sensors, or cockpit
-- **THEN** slot uses bg-surface-base and text-text-theme-secondary
-- **AND** its 2px left accent uses border-l-slate-400/60, distinct from energy weapon accents
+- **THEN** slot is tinted in slate-400 (owner accent border-l-slate-400/60)
+- **AND** its 4px left bar uses the full slate-400 hue, distinct from energy weapon hues
 
 #### Scenario: Empty slot coloring
 
@@ -48,33 +48,34 @@ The system SHALL keep fixed systems visually quieter than mounted equipment, usi
 
 ### Requirement: Equipment Type Colors
 
-The system SHALL render mounted critical-slot equipment on bg-surface-raised with text-text-theme-primary and a 4px left category accent from the same accentBorder token used by the loadout rail. Equipment names and multi-slot brackets SHALL remain visible independently of color.
+The system SHALL tint mounted critical-slot equipment in its category hue, the hue token of the same accentBorder used by the loadout rail, with text-text-theme-primary and a 4px left bar in the full hue. Equipment names and multi-slot brackets SHALL remain visible independently of color.
 
 #### Scenario: Weapon coloring
 
 - **WHEN** a critical slot contains a weapon
-- **THEN** the left accent is border-l-yellow-300/70 for energy, border-l-red-500 for ballistic, or border-l-teal-500 for missile weapons
-- **AND** the energy accent is a paler, reduced-opacity yellow so it does not reuse the amber-400 selection accent used by active tabs and primary buttons
-- **AND** artillery uses border-l-violet-500, capital weapons use border-l-fuchsia-500, and physical weapons use border-l-rose-500
-- **AND** the surface remains neutral with high-contrast primary text
+- **THEN** the slot hue is yellow-300 for energy, red-500 for ballistic, or teal-500 for missile weapons
+- **AND** list views keep the paler, reduced-opacity energy accent border-l-yellow-300/70 so it does not reuse the amber-400 selection accent used by active tabs and primary buttons
+- **AND** artillery uses violet-500, capital weapons use fuchsia-500, and physical weapons use rose-500
+- **AND** the tinted surface keeps high-contrast primary text
 
 #### Scenario: Ammunition coloring
 
 - **WHEN** a critical slot contains ammunition
-- **THEN** the left accent uses border-l-amber-600 on the neutral equipment surface
+- **THEN** the slot is tinted in amber-600 with a 4px amber-600 bar
 - **AND** the ammunition accent is a deeper brown-amber that stays distinct from the amber-400 selection accent, the energy yellow, and the ballistic red
 
 #### Scenario: Heat sink coloring
 
 - **WHEN** a critical slot contains a heat sink
-- **THEN** the left accent uses border-l-cyan-500 on the neutral equipment surface
+- **THEN** the slot is tinted in cyan-500 with a 4px cyan-500 bar
 - **AND** the cyan accent differs from the missile weapon teal accent
+- **AND** because electronics share border-l-cyan-500, heat sinks add a faint hatch in the same cyan as a non-colour cue
 
 #### Scenario: General equipment coloring
 
 - **WHEN** a critical slot contains other equipment
 - **THEN** electronics use border-l-cyan-500, movement equipment uses border-l-emerald-500, structural equipment uses border-l-lime-500, and miscellaneous equipment uses border-l-slate-500
-- **AND** the category accent accompanies readable equipment names on the neutral surface
+- **AND** the category tint accompanies readable equipment names
 
 ### Requirement: Status Colors
 
@@ -156,13 +157,13 @@ The system SHALL provide a collapsible Colour key reference panel and an always-
 #### Scenario: Desktop critical-slot colour key
 
 - **WHEN** critical slots are displayed at desktop width
-- **THEN** a compact inline row shows labelled swatches for the equipment categories present on the unit, fixed systems, and empty slots
-- **AND** swatches use the same category colour definitions as the displayed slots, with a stronger dashed outline for Empty
-- **AND** swatches are at least 20px wide by 16px high with visible borders and labels are 13px
+- **THEN** a compact inline row shows labelled swatches for the equipment categories present on the unit, one swatch per fixed-system family (engine, gyro, actuators, cockpit / life support / sensors), and empty slots
+- **AND** each category and family swatch is filled with exactly its slot bar colour, using the same classes and hue as the displayed slots, with a stronger dashed outline for Empty
+- **AND** swatches are 12px by 12px and labels are 13px
 - **AND** phone layouts use the Colour key disclosure
 
 #### Scenario: Legend display
 
 - **WHEN** user expands color legend
-- **THEN** equipment category edges, thin fixed-system accents, empty and unhittable slots, and tech-base colors are shown with labeled swatches
+- **THEN** equipment category tints, fixed-system family tints, empty and unhittable slots, and tech-base colors are shown with labeled swatches
 - **AND** descriptions explain each color's meaning

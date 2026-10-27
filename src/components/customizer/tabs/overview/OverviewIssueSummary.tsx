@@ -32,7 +32,7 @@ export function OverviewIssueSummary({
   if (failing.length === 0) return null;
   return (
     <div
-      className={`${BUILD_STATE_TINT_CLASS[readiness.status.state]} min-w-0 rounded-lg border p-4 sm:hidden`}
+      className={`${BUILD_STATE_TINT_CLASS[readiness.status.state]} min-w-0 rounded-lg border p-3 sm:hidden`}
       data-testid="overview-issue-summary"
     >
       <BuildReadinessList
@@ -42,6 +42,7 @@ export function OverviewIssueSummary({
         title="Needs attention"
         idPrefix="overview-issues"
         headingLevel="h3"
+        compact
       />
     </div>
   );

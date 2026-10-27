@@ -12,12 +12,15 @@ import workbenchStyles from '../CustomizerWorkbench.module.css';
 interface MoreBelowCueProps {
   visible: boolean;
   label: string;
+  /** Shorter text for phones, so the footer stays on one line. */
+  compactLabel?: string;
   className?: string;
 }
 
 export function MoreBelowCue({
   visible,
   label,
+  compactLabel,
   className = '',
 }: MoreBelowCueProps): React.ReactElement | null {
   if (!visible) return null;
@@ -27,7 +30,14 @@ export function MoreBelowCue({
       data-testid="more-below-cue"
       className={`${workbenchStyles.moreBelowCue} ${className}`}
     >
-      {label}
+      {compactLabel ? (
+        <>
+          <span className="sm:hidden">{compactLabel}</span>
+          <span className="hidden sm:inline">{label}</span>
+        </>
+      ) : (
+        label
+      )}
     </span>
   );
 }

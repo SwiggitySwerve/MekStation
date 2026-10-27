@@ -21,7 +21,7 @@ export const BIPED_ARMOR_VIEWBOX = '-30 20 420 402';
  */
 export const BIPED_PLATE_STACK = { value: 25, rear: 47, bar: 56 } as const;
 
-/** Mirror axis: the right-side plates reflect onto the left about this x. */
+/** Mirror axis: the left-side plates reflect onto the right about this x. */
 const CENTRE_X = 180;
 
 type Point = readonly [number, number];
@@ -36,11 +36,13 @@ function mirror(points: readonly Point[]): Point[] {
 }
 
 /**
- * Right-side (figure's right, viewer's left) outlines. Every plate is wide
- * enough at its text rows to keep the "<value>/<max>" stack at least 8 units
- * clear of the outline, so the left side is an exact mirror.
+ * Viewer's-left outlines, which carry the unit's LEFT locations: the record
+ * sheet (and MegaMekLab) draw Left Arm / Left Torso / Left Leg on the left of
+ * the page, so the diagram matches what a player transcribes. Every plate is
+ * wide enough at its text rows to keep the "<value>/<max>" stack at least 8
+ * units clear of the outline, so the right side is an exact mirror.
  */
-const RIGHT_SIDE = {
+const VIEWER_LEFT_SIDE = {
   torso: [
     [135, 93],
     [57, 101],
@@ -95,42 +97,57 @@ export const BIPED_ARMOR_PLATES: Partial<
     label: 'CT',
     hasRear: true,
   },
-  [MechLocation.RIGHT_TORSO]: {
-    path: polygon(RIGHT_SIDE.torso),
-    x: 95,
-    y: 132,
-    label: 'RT',
-    hasRear: true,
-  },
   [MechLocation.LEFT_TORSO]: {
-    path: polygon(mirror(RIGHT_SIDE.torso)),
-    x: 265,
+    path: polygon(VIEWER_LEFT_SIDE.torso),
+    x: 95,
     y: 132,
     label: 'LT',
     hasRear: true,
   },
-  [MechLocation.RIGHT_ARM]: {
-    path: polygon(RIGHT_SIDE.arm),
-    x: 17,
-    y: 160,
-    label: 'RA',
+  [MechLocation.RIGHT_TORSO]: {
+    path: polygon(mirror(VIEWER_LEFT_SIDE.torso)),
+    x: 265,
+    y: 132,
+    label: 'RT',
+    hasRear: true,
   },
   [MechLocation.LEFT_ARM]: {
-    path: polygon(mirror(RIGHT_SIDE.arm)),
-    x: 343,
+    path: polygon(VIEWER_LEFT_SIDE.arm),
+    x: 17,
     y: 160,
     label: 'LA',
   },
-  [MechLocation.RIGHT_LEG]: {
-    path: polygon(RIGHT_SIDE.leg),
-    x: 134,
-    y: 285,
-    label: 'RL',
+  [MechLocation.RIGHT_ARM]: {
+    path: polygon(mirror(VIEWER_LEFT_SIDE.arm)),
+    x: 343,
+    y: 160,
+    label: 'RA',
   },
   [MechLocation.LEFT_LEG]: {
-    path: polygon(mirror(RIGHT_SIDE.leg)),
-    x: 226,
+    path: polygon(VIEWER_LEFT_SIDE.leg),
+    x: 134,
     y: 285,
     label: 'LL',
   },
+  [MechLocation.RIGHT_LEG]: {
+    path: polygon(mirror(VIEWER_LEFT_SIDE.leg)),
+    x: 226,
+    y: 285,
+    label: 'RL',
+  },
 };
+
+/**
+ * Plate reading order (top row, then left to right as drawn), so Tab moves
+ * across the silhouette the way the eye does.
+ */
+export const BIPED_PLATE_ORDER: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.LEFT_ARM,
+  MechLocation.LEFT_TORSO,
+  MechLocation.CENTER_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+];

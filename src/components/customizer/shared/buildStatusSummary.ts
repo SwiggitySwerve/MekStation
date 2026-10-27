@@ -24,6 +24,8 @@
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import type { ValidationCountsByTab } from '@/utils/validation/validationNavigation';
 
+import type { IssueTarget } from './tabIssueTargets';
+
 /**
  * A status item derived from readouts already on screen (e.g. running hot).
  * It is presented as a warning (counted, worded and colored with the rule
@@ -45,6 +47,8 @@ export interface ValidationNote {
    * notices that have no room for the longer suggestion.
    */
   action?: string;
+  /** Section the `action` points at; its `text` is linked inside the action. */
+  actionTarget?: IssueTarget;
   /** Tab where the user can address the item. */
   tabId: CustomizerTabId;
 }

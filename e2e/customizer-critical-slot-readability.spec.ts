@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { PROTECTED_SLOT_COLORS } from '../src/components/customizer/protected/protectedSlotColors';
+
 test('critical panels use the workspace and keep slot names readable @customizer', async ({
   page,
 }, testInfo) => {
@@ -152,6 +154,8 @@ test('critical panels use the workspace and keep slot names readable @customizer
           top: bounds.top,
           bottom: bounds.bottom,
           background: style.backgroundColor,
+          bar: style.borderLeftWidth,
+          barColor: style.borderLeftColor,
           topBorder: style.borderTopWidth,
           bottomBorder: style.borderBottomWidth,
           tabIndex: (cell as HTMLElement).tabIndex,
@@ -168,6 +172,9 @@ test('critical panels use the workspace and keep slot names readable @customizer
       expect(item.tabIndex).toBe(0);
       expect(item.rowNumber ?? '').toBe('');
       expect(item.background).toBe(grouping[0].background);
+      // Every row of the block keeps the category bar, not just the first.
+      expect(item.bar).toBe(PROTECTED_SLOT_COLORS.tint.barWidth);
+      expect(item.barColor).toBe(grouping[0].barColor);
       expect(item.topBorder).toBe(index === 0 ? '1px' : '0px');
       expect(item.bottomBorder).toBe(
         index === grouping.length - 1 ? '1px' : '0px',

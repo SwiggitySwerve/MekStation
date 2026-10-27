@@ -304,6 +304,15 @@ test('validation keeps section badges, guidance and focused destinations @custom
     name: /Atlas AS7-D.*Build status.*Not legal/,
   });
   await expect(issues).toBeVisible();
+  const railBox = (await page
+    .getByRole('complementary', { name: 'Unit loadout', exact: true })
+    .boundingBox())!;
+  const drawerBox = (await issues.boundingBox())!;
+  expect(drawerBox.width).toBe(Math.max(railBox.width, 320));
+  expect(drawerBox.x + drawerBox.width).toBeCloseTo(
+    railBox.x + railBox.width,
+    0,
+  );
   const issue = issues
     .getByRole('region', { name: 'Errors' })
     .locator('[data-validation-issue]')
@@ -414,10 +423,17 @@ test('critical locations fit below pinned tools and offer one phone location pil
       'Ballistic',
       'Missile',
       'Heat Sink',
-      'Fixed systems',
+      'Engine',
+      'Gyro',
+      'Actuators',
+      'Cockpit / life support / sensors',
       'Empty',
     ])
       await expect(key.getByText(label, { exact: true })).toBeVisible();
+    // Fixed systems show their family accents, not one grey chip.
+    await expect(key.getByText('Fixed systems', { exact: true })).toHaveCount(
+      0,
+    );
     for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
       const box = (await swatch.boundingBox())!;
       expect(box.width).toBe(12);
@@ -516,7 +532,7 @@ test('critical locations fit below pinned tools and offer one phone location pil
     ),
   ).toBe(0);
   await expect(
-    page.getByText('Front view · Right side on the left'),
+    page.getByText('Matches the record sheet · left side on the left'),
   ).toBeHidden();
   const phone = page.getByTestId('critical-slots-grid-mobile');
   const shortcuts = phone.getByRole('navigation', {
@@ -526,7 +542,7 @@ test('critical locations fit below pinned tools and offer one phone location pil
   const pills = locationTabs.getByRole('tab');
   await expect(shortcuts.getByRole('combobox')).toHaveCount(0);
   await expect(pills).toHaveCount(8);
-  // All eight locations show at once as a 4x2 grid in front-view order.
+  // All eight locations show at once as a 4x2 grid in record-sheet order.
   const pillBoxes = await pills.evaluateAll((items) =>
     items.map((pill) => {
       const rect = pill.getBoundingClientRect();
@@ -546,21 +562,21 @@ test('critical locations fit below pinned tools and offer one phone location pil
     true,
   );
   await expect(pills.nth(4)).toHaveAccessibleName(
-    /^Left Torso, \d+ of 12 used$/,
+    /^Right Torso, \d+ of 12 used$/,
   );
   await expect(
-    phone.getByRole('heading', { name: /^Right Arm \u2014 \d+ of 12 used$/ }),
+    phone.getByRole('heading', { name: /^Left Arm \u2014 \d+ of 12 used$/ }),
   ).toBeVisible();
   expect(await pills.allTextContents()).toEqual(
     [
-      /^RA \d+\/12$/,
-      /^RT \d+\/12$/,
+      /^LA \d+\/12$/,
+      /^LT \d+\/12$/,
       /^HD \d+\/6$/,
       /^CT \d+\/12$/,
-      /^LT \d+\/12$/,
-      /^LA \d+\/12$/,
-      /^RL \d+\/6$/,
+      /^RT \d+\/12$/,
+      /^RA \d+\/12$/,
       /^LL \d+\/6$/,
+      /^RL \d+\/6$/,
     ].map((pattern) => expect.stringMatching(pattern)),
   );
   const sizes = await pills.evaluateAll((items) =>
@@ -586,7 +602,7 @@ test('critical locations fit below pinned tools and offer one phone location pil
     .getByRole('button', { name: 'Select ER PPC', exact: true })
     .click();
   const arm = phone.getByRole('group', {
-    name: 'Right Arm critical slots',
+    name: 'Left Arm critical slots',
     exact: true,
   });
   await expect(arm).toBeVisible();
@@ -620,6 +636,51 @@ test('critical locations fit below pinned tools and offer one phone location pil
   ).toBe(true);
 });
 
+test('phone issue card stays compact and orders errors before warnings @customizer', async ({
+  page,
+}) => {
+  await page.goto('/customizer');
+  await loadUnit(page);
+  await page.getByRole('tab', { name: 'Equipment', exact: true }).click();
+  await page
+    .getByRole('textbox', { name: 'Search equipment', exact: true })
+    .fill('ER PPC');
+  await page.getByRole('button', { name: 'Add ER PPC', exact: true }).click();
+  await page.getByRole('tab', { name: 'Overview', exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const card = page.getByTestId('overview-issue-summary');
+  await expect(card).toBeVisible();
+  expect(
+    await card
+      .locator('li')
+      .evaluateAll((rows) =>
+        rows.map((row) => row.getAttribute('data-severity')),
+      ),
+  ).toEqual(['error', 'error', 'warning']);
+  expect((await card.boundingBox())!.height).toBeLessThanOrEqual(240);
+  const action = card.getByRole('button', { name: 'Weight: go to Equipment' });
+  await expect(action).toContainText('Go to Equipment');
+  expect((await action.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  const chip = page.locator('[data-build-status="error"]');
+  await expect(chip).toContainText('Issues');
+  await expect(chip.locator('[data-icon-name="chevron-right"]')).toBeVisible();
+  expect((await chip.boundingBox())!.height).toBe(44);
+  const sizes = await page
+    .getByRole('region', { name: 'Unit status' })
+    .locator('[data-testid^="unit-info-stat-"] span')
+    .evaluateAll((spans) =>
+      spans
+        .filter(
+          (span) =>
+            span.children.length === 0 &&
+            /\d/.test(span.textContent ?? '') &&
+            span.getBoundingClientRect().width > 0,
+        )
+        .map((span) => parseFloat(getComputedStyle(span).fontSize)),
+    );
+  expect(Math.min(...sizes)).toBeGreaterThanOrEqual(13);
+});
+
 test('heat explanations reconcile and phone navigation keeps issue badges @customizer', async ({
   page,
 }) => {
@@ -628,9 +689,9 @@ test('heat explanations reconcile and phone navigation keeps issue badges @custo
   await loadUnit(page);
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
   const heat = page.getByTestId('overview-stat-heat');
-  await expect(heat).toContainText(/\d+ weapons \+ \d+ running/);
+  await expect(heat).toContainText(/\d+ from weapons \+ \d+ from running/);
   const sources = (await heat.innerText()).match(
-    /\d+ weapons \+ \d+ running/,
+    /\d+ from weapons \+ \d+ from running/,
   )![0];
   await expect(page.getByTestId('unit-info-stat-heat')).toHaveAttribute(
     'title',
@@ -806,10 +867,12 @@ test('unit switching never attributes another draft validation to the selected u
     .click();
   const atlasMessages = await errorItems.allTextContents();
   expect(atlasMessages).not.toEqual(baselineMessages);
-  expect(atlasMessages).toHaveLength(1);
+  // Overweight, plus the unplaced ER PPC: unplaced equipment is an error.
+  expect(atlasMessages).toHaveLength(2);
   expect(atlasMessages[0]).toContain(
     'Unit exceeds maximum tonnage by 7.0 tons',
   );
+  expect(atlasMessages[1]).toContain('ER PPC needs a location');
   await page.keyboard.press('Escape');
   await page.evaluate(() => {
     const auditWindow = window as typeof window & {

@@ -266,6 +266,44 @@ describe('biped armor diagram layout', () => {
     }
   });
 
+  it("puts the unit's left side on the viewer's left, like the record sheet", () => {
+    const centre = BIPED_ARMOR_PLATES[MechLocation.CENTER_TORSO]!.x;
+    for (const location of [
+      MechLocation.LEFT_ARM,
+      MechLocation.LEFT_TORSO,
+      MechLocation.LEFT_LEG,
+    ])
+      expect(BIPED_ARMOR_PLATES[location]!.x).toBeLessThan(centre);
+    for (const location of [
+      MechLocation.RIGHT_ARM,
+      MechLocation.RIGHT_TORSO,
+      MechLocation.RIGHT_LEG,
+    ])
+      expect(BIPED_ARMOR_PLATES[location]!.x).toBeGreaterThan(centre);
+
+    const { container } = render(<CleanTechDiagram {...props} />);
+    const sideLabels = Array.from(container.querySelectorAll('svg text'))
+      .filter((text) => /^(Left|Right)$/.test(text.textContent ?? ''))
+      .map((text) => [text.textContent, Number(text.getAttribute('x'))]);
+    expect(sideLabels).toEqual([
+      ['Left', 16],
+      ['Right', 344],
+    ]);
+    // Tab order follows the drawing: top row, then left to right.
+    const order = Array.from(
+      container.querySelectorAll('[role="button"][aria-label]'),
+    ).map((button) => button.getAttribute('aria-label')!.split(' armor')[0]);
+    expect(order).toEqual([
+      'Head',
+      'Left Arm',
+      'Left Torso',
+      'Center Torso',
+      'Right Torso',
+      'Right Arm',
+      'Left Leg',
+      'Right Leg',
+    ]);
+  });
   it('gives the head denominator room above its bottom outline', () => {
     const { container } = render(<CleanTechDiagram {...props} />);
     const head = BIPED_ARMOR_PLATES[MechLocation.HEAD]!;

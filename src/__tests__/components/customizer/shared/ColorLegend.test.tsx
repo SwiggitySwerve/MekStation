@@ -5,7 +5,7 @@ import React from 'react';
 import { ColorLegend } from '@/components/customizer/shared/ColorLegend';
 
 describe('ColorLegend', () => {
-  it('shows only the unit equipment categories plus fixed systems and empty inline', () => {
+  it('shows only the unit equipment categories plus fixed-system families and empty inline', () => {
     const view = render(
       <ColorLegend
         equipmentNames={[
@@ -21,16 +21,30 @@ describe('ColorLegend', () => {
     expect(within(key).getByText('Heat Sink')).toBeInTheDocument();
     expect(within(key).getByText('Ballistic')).toBeInTheDocument();
     expect(within(key).queryByText('Missile')).not.toBeInTheDocument();
-    expect(within(key).getByText('Fixed systems')).toBeInTheDocument();
+    expect(within(key).queryByText('Fixed systems')).not.toBeInTheDocument();
+    for (const family of [
+      'Engine',
+      'Gyro',
+      'Actuators',
+      'Cockpit / life support / sensors',
+    ])
+      expect(within(key).getByText(family)).toBeInTheDocument();
     expect(within(key).getByText('Empty')).toBeInTheDocument();
+    // Chips are the slot bar itself: the same tile and accent classes.
     const energyChip = within(key).getByText('Energy').previousElementSibling;
-    expect(energyChip).toHaveClass('criticalLegendCategoryChip');
-    expect(energyChip).toHaveStyle(
-      '--critical-category-color: var(--color-yellow-300)',
+    expect(energyChip).toHaveClass(
+      'criticalLegendSlotChip',
+      'bg-surface-raised',
+      'border-l-yellow-300/70',
     );
     expect(
-      within(key).getByText('Fixed systems').previousElementSibling,
-    ).toHaveClass('criticalLegendFixedChip');
+      within(key).getByText('Heat Sink').previousElementSibling,
+    ).toHaveClass('criticalHeatSink', 'border-l-cyan-500');
+    const accentOf = (label: string) =>
+      [...within(key).getByText(label).previousElementSibling!.classList].find(
+        (name) => /^border-l-.+-\d/.test(name),
+      );
+    expect(new Set(['Engine', 'Gyro', 'Actuators'].map(accentOf)).size).toBe(3);
     expect(within(key).getByText('Empty').previousElementSibling).toHaveClass(
       'criticalLegendEmptyChip',
     );

@@ -53,10 +53,14 @@ function normalizeIdentity(identity: string): string {
   return identity.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-/** Exact fallback for imported ammunition whose compatibility list is absent. */
+/**
+ * Exact fallback for imported ammunition whose compatibility list is absent.
+ * A trailing bin size ("Machine Gun Ammo [Full]") names the bin, not the weapon.
+ */
 function ammunitionIdentity(identity: string): string {
   return normalizeIdentity(
     identity
+      .replace(/\s*\[(?:full|half)\]$/i, '')
       .replace(/^ammo[-\s]+/i, '')
       .replace(/[-\s]+ammo(?:unition)?$/i, ''),
   );

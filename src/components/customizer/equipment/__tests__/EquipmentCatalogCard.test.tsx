@@ -139,12 +139,13 @@ it('shows variable-size placeholders instead of 0 for items flagged variable wit
     },
   });
   const row = screen.getByTestId('equipment-catalog-row');
-  expect(row.querySelector('[data-catalog-column="weight"]')).toHaveTextContent(
-    'Variable',
-  );
-  expect(
-    row.querySelector('[data-catalog-column="criticalSlots"]'),
-  ).toHaveTextContent('Variable');
+  const weightCell = row.querySelector('[data-catalog-column="weight"]');
+  const slotsCell = row.querySelector('[data-catalog-column="criticalSlots"]');
+  expect(weightCell).toHaveTextContent('Var.');
+  expect(weightCell).toHaveTextContent('Variable weight');
+  expect(weightCell?.querySelector('[title="Variable weight"]')).not.toBeNull();
+  expect(slotsCell).toHaveTextContent('Var.');
+  expect(slotsCell).toHaveTextContent('Variable slots');
   expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
     'Variable weight',
   );

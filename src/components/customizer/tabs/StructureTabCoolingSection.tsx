@@ -5,6 +5,7 @@ import type {
   StructureTabFilteredOptions,
 } from './StructureTabViewTypes';
 
+import { COOLING_CARD_ID } from '../shared/tabIssueTargets';
 import { customizerStyles as cs } from '../styles';
 import { HeatSinkSection, HeatSinkStats } from './StructureTabHeatSinkControls';
 import { STRUCTURE_CARD } from './StructureTabRowLayout';
@@ -43,7 +44,9 @@ export function StructureTabCoolingSection({
 }: StructureTabCoolingSectionProps): React.ReactElement {
   return (
     <section
+      id={COOLING_CARD_ID}
       aria-labelledby="cooling-heading"
+      data-focus-target="heat-sink-count"
       className={`${cs.panel.main} ${STRUCTURE_CARD}`}
     >
       <div className="border-border-theme mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b pb-3">

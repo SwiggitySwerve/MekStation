@@ -137,6 +137,24 @@ it('recognizes imported ammunition with no explicit compatibility list', () => {
   ).toEqual([]);
 });
 
+it('recognizes full and half machine gun bins by name, exactly', () => {
+  const mg = { ...weapon, id: 'machine-gun', name: 'Machine Gun' };
+  const lightMg = { ...mg, id: 'light-mg', name: 'Light Machine Gun' };
+  const bin = (id: string, name: string) => ({
+    ...ammo,
+    id,
+    name,
+    compatibleWeaponIds: [],
+  });
+  const full = bin('ammo-mg-full', 'Machine Gun Ammo [Full]');
+  const half = bin('ammo-mg-half', 'Machine Gun Ammo [Half]');
+  const lightFull = bin('ammo-light-mg-full', 'Light Machine Gun Ammo [Full]');
+  const catalog = [mg, lightMg, full, half, lightFull];
+  expect(run(unit([mg.id, full.id], catalog)).warnings).toEqual([]);
+  expect(run(unit([mg.id, half.id], catalog)).warnings).toEqual([]);
+  expect(run(unit([mg.id, lightFull.id], catalog)).warnings).toHaveLength(1);
+});
+
 it('runs through the registered construction validation boundary', () => {
   initializeUnitValidationRules();
   const result = validateUnit(unit(['ac-20']), {

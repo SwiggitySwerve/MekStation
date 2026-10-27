@@ -58,7 +58,7 @@ its separate Preview-before-Fluff order.
 #### Scenario: Active tab explains its badge
 
 - **WHEN** the active section has an error or warning badge and is not Overview or Preview
-- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the status chip, while remaining visible on desktop and whenever the chip only counts the issues
+- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion; when the note names a target section, as the heat note does, its section word "Cooling" is a link that scrolls that card into view and focuses its heat sink count control), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the status chip, while remaining visible on desktop and whenever the chip only counts the issues
 - **AND** a "Show all issues" button in the notice opens the build status panel
 - **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues, and on Critical Slots while its "items to place" banner is showing (the banner already states the issue and its action); it returns once nothing is waiting to be placed
 
@@ -131,7 +131,7 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 
 - **WHEN** the Component technology card renders
 - **THEN** a muted helper line under the card title reads "Set in Structure and Armor; change the tech base below." ("Set in Structure and Armor." when the unit is read-only)
-- **AND** each component value (Internal structure, Gyro, Engine, Heat sinks, Myomer, Movement enhancement) is a quiet link, dotted underline at rest and tinted on hover and focus, that opens the Structure tab, and the Armor value opens the Armor tab, through the existing tab navigation callback; Targeting computer stays plain text
+- **AND** each component value (Internal structure, Gyro, Engine, Heat sinks, Myomer, Movement enhancement) is a quiet link, dotted underline at rest and tinted on hover and focus, that opens the Structure tab, and the Armor value opens the Armor tab, through the existing tab navigation callback; any value that is "None" (Targeting computer, and Movement enhancement when none is installed) is plain text, never a link
 - **AND** each link's accessible name carries the component, its value and the destination tab (e.g. "Engine: Standard Fusion 300. Change in Structure"), and the links reach 44px on coarse pointers
 
 #### Scenario: Slots readiness counts placed slots
@@ -145,7 +145,7 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 
 - **WHEN** the Overview tab renders on a narrow canvas
 - **THEN** the cards stack as Identity, Build summary, then Component technology, so the unit's identity is visible on first view
-- **AND** below 640px, when the unit has errors or warnings, a "Needs attention" card above Identity lists the readiness rows that are not passing (the Build readiness rows and counts, each with its link to the fixing tab); with nothing to fix it is absent and Identity stays first, and from 640px it is hidden because the Build summary card lists the same rows
+- **AND** below 640px, when the unit has errors or warnings, a compact "Needs attention" card above Identity shows a severity summary and lists failing readiness rows with errors before warnings using the shared ordering owner; each row has a title, one-line reason (full text accessible and in a tooltip) and an inline "Go to <tab> ›" action of at least 44px; the three-issue overweight case fits within about 240px at 390×844; with nothing to fix it is absent and Identity stays first, and from 640px it is hidden because the Build summary card lists the same rows
 - **AND** Identity is compact: Chassis and Model share a row, Year and Tech Level share a row, and Clan Name and MUL ID share the next row
 
 #### Scenario: Tonnage change from Overview
@@ -181,7 +181,7 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **AND** Structure dropdown is shown with weight and slots
 - **AND** Cockpit dropdown is shown with weight and slots
 - **AND** Enhancement dropdown is shown (None, MASC, TSM)
-- **AND** Engine Rating is displayed as derived info
+- **AND** Engine Rating is displayed as derived info with a one-line helper showing the existing values ("Rating = Walk MP × tonnage (3 × 100 = 300)")
 
 #### Scenario: Walk MP drives engine rating
 
@@ -257,7 +257,7 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 
 - **WHEN** no armor location is selected on a wide layout
 - **THEN** no hint card is shown above the Armor inspector, so the inspector card starts at the same top edge as the Armor Allocation card
-- **AND** the one visible instruction lives in the diagram caption ("Front view · click a location to edit"), and the keyboard instruction (Tab to a location, then press Enter) remains available to assistive technology
+- **AND** the one visible instruction lives in the diagram caption ("Matches the record sheet · left side on the left · click a location to edit"), and the keyboard instruction (Tab to a location, then press Enter) remains available to assistive technology
 - **AND** when a location is selected the location editor opens inside the Armor inspector card, directly under its title, as an inset panel with its own close button
 
 #### Scenario: Diagram and inspector cards end together

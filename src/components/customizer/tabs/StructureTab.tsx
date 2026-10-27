@@ -356,6 +356,7 @@ export function StructureTab({
           filteredOptions={filteredOptions}
           engineRating={engineRating}
           isAtMaxEngineRating={isAtMaxEngineRating}
+          walkMP={walkMP}
           handleTonnageChange={handleTonnageChange}
           handleConfigurationChange={handleConfigurationChange}
           handleEngineTypeChange={handleEngineTypeChange}

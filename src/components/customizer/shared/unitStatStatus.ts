@@ -25,6 +25,7 @@ import {
   BUILD_STATUS_KIND_FILL_COLOR,
   BUILD_STATUS_KIND_TEXT_CLASS,
 } from './BuildStatusLabel';
+import { COOLING_CARD_ID } from './tabIssueTargets';
 
 /** Readout state: in budget, legal but high (a warning), or over its cap. */
 export type StatStatus = 'normal' | 'warning' | 'error';
@@ -173,6 +174,7 @@ export function getHeatNote(
     suggestion:
       'Legal; add heat sinks in Structure to run cool, or fire fewer weapons each turn.',
     action: 'add heat sinks in Cooling',
+    actionTarget: { text: 'Cooling', id: COOLING_CARD_ID },
     tabId: 'structure',
   };
 }

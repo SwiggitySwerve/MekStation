@@ -189,14 +189,14 @@ export function EquipmentCatalogCard({
           className={`hidden text-sm tabular-nums lg:block ${weightNote ? WEIGHT_OVER_CLASS : 'text-inherit'}`}
           title={weightNote}
         >
-          {variable ? 'Variable' : equipment.weight}
+          {variable ? <VariableValue kind="weight" /> : equipment.weight}
           {weightNote && <span className="sr-only">, {weightNote}</span>}
         </span>
         <span
           data-catalog-column="criticalSlots"
           className="hidden text-sm text-inherit tabular-nums lg:block"
         >
-          {variable ? 'Variable' : equipment.criticalSlots}
+          {variable ? <VariableValue kind="slots" /> : equipment.criticalSlots}
         </span>
         <CatalogAddAction
           name={equipment.name}
@@ -231,6 +231,25 @@ export function EquipmentCatalogCard({
         </div>
       )}
     </li>
+  );
+}
+
+/**
+ * Variable size stays inside the numeric column: a short muted "Var." that
+ * right-aligns with the figures, with the full words for assistive tech and
+ * the tooltip.
+ */
+function VariableValue({
+  kind,
+}: {
+  kind: 'weight' | 'slots';
+}): React.ReactElement {
+  const full = `Variable ${kind}`;
+  return (
+    <span className="text-text-theme-muted" title={full}>
+      <span aria-hidden="true">Var.</span>
+      <span className="sr-only">{full}</span>
+    </span>
   );
 }
 

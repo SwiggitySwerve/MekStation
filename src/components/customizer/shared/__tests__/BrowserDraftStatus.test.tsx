@@ -10,6 +10,43 @@ describe('BrowserDraftStatus', () => {
     localStorage.clear();
   });
 
+  it('recognizes a restored draft without writing and updates when switching units', () => {
+    localStorage.setItem(
+      'megamek-unit-restored',
+      '{"state":{"id":"restored"}}',
+    );
+    const write = jest.spyOn(Storage.prototype, 'setItem');
+    const { rerender } = render(<BrowserDraftStatus unitId="restored" />);
+    expect(screen.getByRole('status')).toHaveAttribute('data-state', 'saved');
+    rerender(<BrowserDraftStatus unitId="never-written" />);
+    expect(screen.getByRole('status')).toHaveAttribute('data-state', 'pending');
+    rerender(<BrowserDraftStatus unitId="restored" />);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Draft saved in this browser',
+    );
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it('does not claim a saved draft when storage cannot be read', () => {
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('Storage unavailable');
+    });
+    render(<BrowserDraftStatus unitId="unreadable" />);
+    expect(screen.getByRole('status')).toHaveAttribute('data-state', 'pending');
+  });
+
+  it('keeps a failed write visible even when an older draft exists', () => {
+    localStorage.setItem('megamek-unit-restored-failed', '{"state":{}}');
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+      throw new Error('full');
+    });
+    expect(() =>
+      clientSafeStorage.setItem('megamek-unit-restored-failed', '{}'),
+    ).toThrow('full');
+    render(<BrowserDraftStatus unitId="restored-failed" />);
+    expect(screen.getByRole('status')).toHaveAttribute('data-state', 'failed');
+  });
+
   it('reports only successful writes for the active draft', () => {
     const { rerender } = render(<BrowserDraftStatus unitId="visible-first" />);
     expect(screen.getByRole('status')).toHaveTextContent(

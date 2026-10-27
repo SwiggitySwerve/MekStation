@@ -50,6 +50,7 @@ const COMPONENTS = Object.values(TechBaseComponent);
 /**
  * The tab where each component's selection is changed. Targeting computers
  * are chosen with equipment, so that row has no single tab and stays plain.
+ * A "None" value is always plain text; only real values link.
  */
 const COMPONENT_EDIT_TAB: Partial<Record<TechBaseComponent, CustomizerTabId>> =
   {
@@ -185,10 +186,10 @@ export function ComponentTechnologyCard({
           const value = componentValues[component];
           const techBase = componentTechBases[component];
           const editTab = COMPONENT_EDIT_TAB[component];
-          const valueClass =
-            value === 'None'
-              ? 'text-text-theme-secondary'
-              : 'text-text-theme-primary';
+          const isNone = value === 'None';
+          const valueClass = isNone
+            ? 'text-text-theme-secondary'
+            : 'text-text-theme-primary';
           return (
             <div
               key={component}
@@ -199,7 +200,7 @@ export function ComponentTechnologyCard({
                 {TECH_BASE_COMPONENT_LABELS[component]}
               </dt>
               <dd className="flex min-w-0 items-center justify-end gap-2">
-                {onNavigate && editTab ? (
+                {onNavigate && editTab && !isNone ? (
                   <button
                     type="button"
                     onClick={() => onNavigate(editTab)}

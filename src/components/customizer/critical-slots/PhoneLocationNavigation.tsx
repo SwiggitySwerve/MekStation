@@ -21,7 +21,7 @@ interface PhoneLocationNavigationProps {
   ) => React.ReactNode;
 }
 
-/** Locations per row in the phone selector (front view: RA RT HD CT / LT LA RL LL). */
+/** Locations per row in the phone selector (record-sheet order: LA LT HD CT / RT RA LL RL). */
 const PILL_COLUMNS = 4;
 
 /** Phone-only navigation over the same slot rows and placement callbacks. */

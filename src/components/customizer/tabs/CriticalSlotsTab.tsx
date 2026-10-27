@@ -40,15 +40,16 @@ interface CriticalSlotsTabProps {
   className?: string;
 }
 
+/** Record-sheet order: the unit's left side on the viewer's left. */
 const PHONE_LOCATION_ORDER = [
-  MechLocation.RIGHT_ARM,
-  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.LEFT_TORSO,
   MechLocation.HEAD,
   MechLocation.CENTER_TORSO,
-  MechLocation.LEFT_TORSO,
-  MechLocation.LEFT_ARM,
-  MechLocation.RIGHT_LEG,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.RIGHT_ARM,
   MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
 ];
 
 export function CriticalSlotsTab({
@@ -190,7 +191,9 @@ export function CriticalSlotsTab({
             ) : (
               <span className="hidden sm:inline">
                 {' '}
-                — select, then tap a highlighted slot or drag.
+                {selectedEquipmentId === firstUnassigned.instanceId
+                  ? '— select, then tap a highlighted slot or drag.'
+                  : `— select ${unassignedEquipment.length === 1 ? 'it' : 'one'} in the Loadout, then tap a highlighted slot.`}
               </span>
             )}
           </p>
@@ -321,7 +324,7 @@ export function CriticalSlotsTab({
       {isBiped && (
         <>
           <p className="text-text-theme-secondary hidden shrink-0 px-2 pt-1 text-center text-sm sm:block">
-            Front view · Right side on the left
+            Matches the record sheet · left side on the left
           </p>
           <div className="relative flex min-h-0 flex-1 flex-col lg:hidden">
             <div
@@ -360,19 +363,19 @@ export function CriticalSlotsTab({
             tabIndex={0}
           >
             <div className={styles.criticalDesktopGrid}>
-              {renderLocation(MechLocation.RIGHT_ARM)}
-              {renderLocation(MechLocation.RIGHT_TORSO)}
+              {renderLocation(MechLocation.LEFT_ARM)}
+              {renderLocation(MechLocation.LEFT_TORSO)}
               <div className={styles.criticalCenterColumn}>
                 {renderLocation(MechLocation.HEAD)}
                 {renderLocation(MechLocation.CENTER_TORSO)}
               </div>
-              {renderLocation(MechLocation.LEFT_TORSO)}
-              {renderLocation(MechLocation.LEFT_ARM)}
-              <div className={styles.criticalRightLeg}>
-                {renderLocation(MechLocation.RIGHT_LEG)}
-              </div>
+              {renderLocation(MechLocation.RIGHT_TORSO)}
+              {renderLocation(MechLocation.RIGHT_ARM)}
               <div className={styles.criticalLeftLeg}>
                 {renderLocation(MechLocation.LEFT_LEG)}
+              </div>
+              <div className={styles.criticalRightLeg}>
+                {renderLocation(MechLocation.RIGHT_LEG)}
               </div>
             </div>
           </div>

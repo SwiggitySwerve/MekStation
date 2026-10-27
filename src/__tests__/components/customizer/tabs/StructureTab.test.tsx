@@ -93,7 +93,7 @@ describe('StructureTab', () => {
   it('should render structure tab', () => {
     render(<StructureTab />);
 
-    expect(screen.getByText(/Tonnage/i)).toBeInTheDocument();
+    expect(screen.getByText('Tonnage')).toBeInTheDocument();
   });
 
   it('should display unit tonnage', () => {
@@ -122,6 +122,25 @@ describe('StructureTab', () => {
     const subtotal = screen.getByTestId('structure-subtotal');
     expect(subtotal).toHaveTextContent(/Structure, systems & armor/);
     expect(subtotal).toHaveTextContent(/of 50t/);
+  });
+
+  it('explains the derived engine rating from walk MP and tonnage', () => {
+    render(<StructureTab />);
+
+    expect(
+      screen.getByTestId('structure-engine-rating-formula'),
+    ).toHaveTextContent('Rating = Walk MP × tonnage (5 × 50 = 250)');
+  });
+
+  it('marks the Cooling card as a link target that focuses the heat sink count', () => {
+    render(<StructureTab />);
+
+    const card = screen
+      .getByRole('heading', { name: 'Cooling' })
+      .closest('section') as HTMLElement;
+    expect(card).toHaveAttribute('id', 'structure-cooling-card');
+    expect(card).toHaveAttribute('data-focus-target', 'heat-sink-count');
+    expect(card.querySelector('#heat-sink-count')).not.toBeNull();
   });
 
   it('shows heat sink stats in the Cooling header, not as a separate row', () => {

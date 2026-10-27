@@ -110,7 +110,9 @@ describe('CleanTechDiagram', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
     expect(
-      screen.getByText('Front view · click a location to edit'),
+      screen.getByText(
+        'Matches the record sheet · left side on the left · click a location to edit',
+      ),
     ).toBeInTheDocument();
   });
 

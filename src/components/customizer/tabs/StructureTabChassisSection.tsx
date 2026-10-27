@@ -35,6 +35,7 @@ interface StructureTabChassisSectionProps {
   readonly filteredOptions: StructureTabFilteredOptions;
   readonly engineRating: number;
   readonly isAtMaxEngineRating: boolean;
+  readonly walkMP: number;
   readonly handleTonnageChange: (newTonnage: number) => void;
   readonly handleConfigurationChange: (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -67,6 +68,7 @@ export function StructureTabChassisSection({
   filteredOptions,
   engineRating,
   isAtMaxEngineRating,
+  walkMP,
   handleTonnageChange,
   handleConfigurationChange,
   handleEngineTypeChange,
@@ -124,6 +126,8 @@ export function StructureTabChassisSection({
         <EngineRatingSummary
           engineRating={engineRating}
           isAtMaxEngineRating={isAtMaxEngineRating}
+          walkMP={walkMP}
+          tonnage={tonnage}
         />
       </div>
     </div>

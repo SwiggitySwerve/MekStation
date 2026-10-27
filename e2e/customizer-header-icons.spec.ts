@@ -151,7 +151,11 @@ test('customizer header symbols stay legible and preserve their actions @customi
       const symbol = await readSymbol(
         header.getByRole('button', { name, exact: true }),
       );
-      expect(symbol!.width).toBe(24);
+      // Below 640px the unit commands draw at 20px so the unit name fits;
+      // the app menu keeps its 24px symbol.
+      expect(symbol!.width).toBe(
+        width < 640 && name !== 'MekStation menu' ? 20 : 24,
+      );
       expect(symbol!.strokeWidth).toBe(2);
       expect(symbol!.targetHeight).toBe(44);
       expect(symbol!.centerY).toBeLessThanOrEqual(1);

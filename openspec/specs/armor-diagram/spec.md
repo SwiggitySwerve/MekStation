@@ -92,10 +92,16 @@ The system SHALL display current armor values directly on the diagram.
 - **THEN** the neck and pelvis are drawn as one structural group filled with the raised surface color, not the dark deep-surface color that read as a hole between the torso and legs
 - **AND** no extra bar is drawn behind the legs
 
-#### Scenario: Right and Left labels sit under the arms
+#### Scenario: Biped orientation matches the record sheet
 
 - **WHEN** the biped silhouette renders
-- **THEN** the words "Right" and "Left" are drawn directly beneath the right and left arm plates (the figure's own sides, so "Left" is on the viewer's right), not floating at the top corners of the card
+- **THEN** the unit's Left Arm, Left Torso and Left Leg plates are on the viewer's left and the Right plates on the viewer's right, matching the printed record sheet and MegaMekLab
+- **AND** the plates are focusable in reading order (Head, Left Arm, Left Torso, Center Torso, Right Torso, Right Arm, Left Leg, Right Leg)
+
+#### Scenario: Left and Right labels sit under the arms
+
+- **WHEN** the biped silhouette renders
+- **THEN** the words "Left" and "Right" are drawn directly beneath the left and right arm plates, not floating at the top corners of the card
 
 #### Scenario: Location table beside the silhouette
 
@@ -159,7 +165,7 @@ The system SHALL include a legend explaining color coding.
 - **THEN** legend is introduced by "Armor % of max:" and shows the four health colors with their thresholds (60%+, 40%+, 20%+, <20%)
 - **AND** on phones the legend text is 14px and shows the lead-in as "% of max:" (the word "Armor" stays in the accessible text) so the legend fits one line and the footer stays above the Loadout bar
 - **AND** the swatches use the same colors as the diagram fills
-- **AND** the biped diagram explains click interaction once, in its caption ("Front view · click a location to edit"), with the keyboard instruction (Tab to a location, then press Enter) kept as screen-reader-only text
+- **AND** the biped diagram explains click interaction once, in its caption ("Matches the record sheet · left side on the left · click a location to edit"), with the keyboard instruction (Tab to a location, then press Enter) kept as screen-reader-only text
 - **AND** the biped diagram has no separate footnote or bottom instruction line
 
 #### Scenario: Legend and unallocated footer placement

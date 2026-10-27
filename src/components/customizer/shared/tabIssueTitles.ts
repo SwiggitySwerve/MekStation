@@ -17,6 +17,8 @@ import {
   type TabValidationCounts,
 } from '@/utils/validation/validationNavigation';
 
+import type { IssueTarget } from './tabIssueTargets';
+
 import {
   buildStatusCountText,
   type ValidationNote,
@@ -33,6 +35,8 @@ export interface TabIssueTitles {
    * several issues, because one fix would not describe them.
    */
   readonly hint?: string;
+  /** Section the single issue's fix points at, when its note names one. */
+  readonly hintTarget?: IssueTarget;
 }
 
 export type TabIssueTitlesByTab = Partial<Record<string, TabIssueTitles>>;
@@ -48,31 +52,43 @@ export function getTabIssueTitles(
 ): TabIssueTitlesByTab {
   const byTab: Record<
     string,
-    { errors: string[]; warnings: string[]; hints: (string | undefined)[] }
+    {
+      errors: string[];
+      warnings: string[];
+      hints: (string | undefined)[];
+      targets: (IssueTarget | undefined)[];
+    }
   > = {};
   const slot = (tabId: string) =>
-    (byTab[tabId] ??= { errors: [], warnings: [], hints: [] });
+    (byTab[tabId] ??= { errors: [], warnings: [], hints: [], targets: [] });
   for (const issue of flattenErrors(result)) {
     if (issue.severity === 'info') continue;
     const tab = slot(getPrimaryFixTab(issue.error.category));
     const title = describeIssue(issue.error).heading;
     (issue.severity === 'error' ? tab.errors : tab.warnings).push(title);
     tab.hints.push(cleanHint(issue.error.suggestion));
+    tab.targets.push(undefined);
   }
   for (const note of notes) {
     const tab = slot(note.tabId);
     tab.warnings.push(note.label);
     tab.hints.push(cleanHint(note.action));
+    tab.targets.push(note.actionTarget);
   }
   return Object.fromEntries(
-    Object.entries(byTab).map(([tabId, { errors, warnings, hints }]) => [
-      tabId,
-      {
-        errors,
-        warnings,
-        ...(hints.length === 1 && hints[0] ? { hint: hints[0] } : {}),
-      },
-    ]),
+    Object.entries(byTab).map(
+      ([tabId, { errors, warnings, hints, targets }]) => [
+        tabId,
+        {
+          errors,
+          warnings,
+          ...(hints.length === 1 && hints[0] ? { hint: hints[0] } : {}),
+          ...(hints.length === 1 && hints[0] && targets[0]
+            ? { hintTarget: targets[0] }
+            : {}),
+        },
+      ],
+    ),
   );
 }
 
@@ -122,6 +138,8 @@ export interface TabIssueNotice {
   readonly summary: string;
   /** The fix in a few words, when the tab has exactly one issue. */
   readonly hint?: string;
+  /** Words in `hint` that link to the section holding the fix. */
+  readonly hintTarget?: IssueTarget;
 }
 
 /**
@@ -139,5 +157,6 @@ export function getTabIssueNotice(
     severity: counts.errors > 0 ? 'error' : 'warning',
     summary: lines.join(' \u00b7 '),
     hint: titles?.hint,
+    hintTarget: titles?.hintTarget,
   };
 }

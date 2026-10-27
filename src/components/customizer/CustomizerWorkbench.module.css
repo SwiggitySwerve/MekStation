@@ -962,33 +962,30 @@
     bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   }
 }
+/* Every occupied slot shows its category or system-family hue twice: a 4px
+   left bar and a background tint, so engine, gyro, actuators and each weapon
+   category read at a glance. The hue comes from the colour owners
+   (slotColors.ts, equipmentColors.ts) as --critical-slot-color; text stays
+   the primary text colour. */
 .criticalTintedSlot {
   background-color: color-mix(
-    in srgb,
-    var(--critical-category-color) 18%,
+    in oklab,
+    var(--critical-slot-color) 24%,
     var(--surface-base)
   );
+  border-left: 4px solid var(--critical-slot-color);
   color: var(--text-primary);
-  border-color: var(--border-subtle);
-  border-left: 4px solid var(--critical-category-color);
 }
 
 .criticalTintedSlot:hover {
   background-color: color-mix(
-    in srgb,
-    var(--critical-category-color) 20%,
+    in oklab,
+    var(--critical-slot-color) 32%,
     var(--surface-base)
   );
 }
 
 .criticalFixedSlot {
-  background-color: color-mix(
-    in srgb,
-    var(--surface-raised) 35%,
-    var(--surface-deep)
-  );
-  border-color: transparent;
-  color: var(--text-secondary);
   margin-block: 0;
 }
 
@@ -1049,11 +1046,14 @@
   display: none;
 }
 
+/* Non-colour cue for heat sinks, which share the electronics cyan: thin lines
+   of that cyan over the cyan tint, so the texture reads as part of the
+   category rather than grey. */
 .criticalHeatSink {
   background-image: repeating-linear-gradient(
     135deg,
-    transparent 0 5px,
-    color-mix(in srgb, var(--critical-category-color) 12%, transparent) 5px 7px
+    transparent 0 7px,
+    color-mix(in oklab, var(--critical-slot-color) 35%, transparent) 7px 8px
   );
 }
 
@@ -1063,21 +1063,25 @@
   opacity: 1;
 }
 
-.criticalLegendCategoryChip {
-  background-color: var(--critical-category-color);
-  border-color: var(--critical-category-color);
+/* A chip that is all bar: the slot's own tile and accent classes with the
+   left border widened to the whole chip, so it is exactly the bar colour. */
+.criticalLegendSlotChip {
+  position: relative;
+  border-width: 0 0 0 12px;
 }
 
-.criticalLegendCategoryChip.criticalHeatSink {
+/* The chip stays the same solid cyan as the slot bar; darker cyan lines
+   repeat the slot's hatch cue without greying the swatch. */
+.criticalLegendSlotChip.criticalHeatSink::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 -12px;
+  border-radius: inherit;
   background-image: repeating-linear-gradient(
     135deg,
     transparent 0 3px,
-    color-mix(in srgb, var(--surface-deep) 65%, transparent) 3px 5px
+    color-mix(in oklab, var(--surface-deep) 35%, transparent) 3px 4px
   );
-}
-
-.criticalLegendFixedChip {
-  background-color: var(--text-secondary);
 }
 
 .criticalLegendEmptyChip {
@@ -1125,13 +1129,14 @@
   gap: 8px;
 }
 
-.criticalRightLeg {
+/* Record-sheet orientation: the unit's left side sits on the viewer's left. */
+.criticalLeftLeg {
   min-width: 0;
   grid-column: 2;
   grid-row: 2;
 }
 
-.criticalLeftLeg {
+.criticalRightLeg {
   min-width: 0;
   grid-column: 4;
   grid-row: 2;

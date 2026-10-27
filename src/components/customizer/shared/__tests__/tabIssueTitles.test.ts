@@ -7,6 +7,7 @@ import {
 } from '@/types/validation/UnitValidationInterfaces';
 import { countValidationIssuesByTab } from '@/utils/validation/validationNavigation';
 
+import { COOLING_CARD_ID } from '../tabIssueTargets';
 import {
   describeTabIssues,
   getTabIssueNotice,
@@ -50,6 +51,8 @@ describe('getTabIssueTitles', () => {
       errors: [],
       warnings: ['Runs hot'],
       hint: 'add heat sinks in Cooling',
+      // The note also names the card its fix lives in, so the notice can link.
+      hintTarget: { text: 'Cooling', id: COOLING_CARD_ID },
     });
     expect(
       describeTabIssues({ errors: 0, warnings: 1, infos: 0 }, titles.structure),
@@ -108,6 +111,7 @@ describe('getTabIssueTitles', () => {
       severity: 'warning',
       summary: '1 warning: Runs hot',
       hint: 'add heat sinks in Cooling',
+      hintTarget: { text: 'Cooling', id: COOLING_CARD_ID },
     });
   });
 

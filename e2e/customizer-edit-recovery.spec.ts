@@ -131,6 +131,12 @@ test('undo restores structure, armor and placement with metrics and independent 
   });
   await page.reload();
   await expect(
+    page.getByRole('button', {
+      name: 'Save active unit to library',
+      exact: true,
+    }),
+  ).toHaveAccessibleDescription(/Draft saved in this browser/);
+  await expect(
     page.getByRole('button', { name: 'Undo', exact: true }),
   ).toBeDisabled();
 });

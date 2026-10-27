@@ -266,9 +266,13 @@ function LabeledSelect({
 export function EngineRatingSummary({
   engineRating,
   isAtMaxEngineRating,
+  walkMP,
+  tonnage,
 }: {
   readonly engineRating: number;
   readonly isAtMaxEngineRating: boolean;
+  readonly walkMP: number;
+  readonly tonnage: number;
 }): React.ReactElement {
   return (
     <div
@@ -283,6 +287,12 @@ export function EngineRatingSummary({
       <span className={STRUCTURE_META_END}>
         {isAtMaxEngineRating ? 'Maximum' : 'Derived'}
       </span>
+      <p
+        className={`${cs.text.secondary} col-span-full m-0 tabular-nums`}
+        data-testid="structure-engine-rating-formula"
+      >
+        Rating = Walk MP × tonnage ({walkMP} × {tonnage} = {engineRating})
+      </p>
       {isAtMaxEngineRating && (
         <p className="text-accent col-span-full text-xs">
           Warning: Maximum engine rating reached. Cannot increase Walk MP

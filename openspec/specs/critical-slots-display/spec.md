@@ -22,7 +22,8 @@ The system SHALL display critical slots organized by mech location in a responsi
 - **WHEN** the Critical Slots tab renders at desktop width with a fine pointer
 - **THEN** slot rows are 30–32px tall on shared tracks with no per-row margins; slot text is 14px and slot-count annotations are at least 13px
 - **AND** rows remain at least 44px tall on phones or with a coarse pointer
-- **AND** the existing five-column front-view arrangement shows all eight Atlas AS7-D locations without scrolling at 1440x900, with or without the one-item equipment-to-place banner; shorter viewports may scroll
+- **AND** the five-column arrangement follows the record sheet, with the unit's left side on the viewer's left (Left Arm, Left Torso, Head over Center Torso, Right Torso, Right Arm; Left Leg under Left Torso and Right Leg under Right Torso) and the caption "Matches the record sheet · left side on the left"
+- **AND** that arrangement shows all eight Atlas AS7-D locations without scrolling at 1440x900, with or without the one-item equipment-to-place banner; shorter viewports may scroll
 - **AND** both legs start on the same shared grid row directly below their torso columns, with matching widths; the arm and torso slot rows align
 - **AND** the toolbar, colour key and equipment-to-place banner remain above the scrolling locations
 
@@ -32,7 +33,7 @@ The system SHALL display critical slots organized by mech location in a responsi
 - **THEN** Left Torso SHALL show engine slots at indices 0 through (sideTorsoSlots - 1)
 - **AND** Right Torso SHALL show engine slots at indices 0 through (sideTorsoSlots - 1)
 - **AND** engine slots SHALL be displayed with "Engine" label
-- **AND** engine slots SHALL use the same neutral grey fixed-system presentation as other engine slots, without a coloured stripe
+- **AND** engine slots SHALL use the same engine-family tint and bar as centre-torso engine slots
 - **AND** remaining slots SHALL show as empty or equipment
 
 #### Scenario: Side torso display without engine slots
@@ -49,22 +50,29 @@ The system SHALL use consistent color coding to distinguish slot contents and eq
 #### Scenario: System component colors
 
 - **WHEN** a slot contains a system component
-- **THEN** Engine, Gyro, Actuator, Cockpit, Life Support and Sensor slots use a flat, low-contrast neutral fill with muted text at a contrast ratio of at least 4.5:1
-- **AND** fixed systems have no coloured stripe
+- **THEN** Engine, Gyro, Actuator, Cockpit, Life Support and Sensor slots are tinted in their family hue from the slot colour owner (engine orange, gyro purple, actuators blue, cockpit / life support / sensors slate) with a 4px left bar in the same hue
+- **AND** engine, gyro, actuator and cockpit-family rows differ at a glance, and primary text keeps a contrast ratio of at least 4.5:1 at rest and on hover
 
 #### Scenario: Equipment type colors
 
 - **WHEN** a slot contains equipment
-- **THEN** equipment uses a solid 4px left stripe in the full-opacity hue defined by the equipment colour owner
-- **AND** single slots and merged blocks mix that same full-opacity category hue at 18% over the base surface (20% on hover), without darkening merged blocks
-- **AND** slot text has contrast of at least 4.5:1 on the tint
-- **AND** heat sinks retain a subtle diagonal fill pattern alongside their solid cyan stripe, without changing global category colours
+- **THEN** every occupied equipment row, including every row of a merged block, is tinted in its category hue from the equipment colour owner (a 24% mix over the surface, 32% on hover) with a 4px left bar in the same full hue
+- **AND** text stays the primary text colour and is never covered
+- **AND** slot text has contrast of at least 4.5:1 at rest and on hover
+- **AND** heat sinks keep the cyan tint and bar plus a faint diagonal hatch drawn in that cyan as their non-colour cue, because electronics share the same cyan; the hatch never reads as grey
+
+#### Scenario: Protected slot colours
+
+- **WHEN** the colour owners, slot rows or slot-row CSS change
+- **THEN** the approved fixed-system and equipment hues, the 4px bar and the tint strengths recorded in `src/components/customizer/protected/protectedSlotColors.ts`, with its dated approval decisions, still hold
+- **AND** its guard test runs in the stable Jest lane and fails if the owners, the rendered rows (single slots, every merged row, each fixed family) or row-level CSS overrides drift from that registry
 
 #### Scenario: Colour key chips
 
 - **WHEN** the Critical Slots colour key renders
-- **THEN** category swatches use the same full-opacity hue as the slot stripes, with visible neutral grey Fixed systems and Empty chips
-- **AND** swatches are solid 12px by 12px chips with 13–14px labels; heat sinks retain a hatch and Empty retains a dashed outline
+- **THEN** each category swatch is filled with exactly its slot bar colour, using the slot's own classes and hue
+- **AND** fixed systems show one swatch per family (Engine, Gyro, Actuators, Cockpit / life support / sensors) in their slot hues instead of a single grey chip, followed by Empty
+- **AND** swatches are solid 12px by 12px chips with 13–14px labels; the heat-sink chip keeps darker cyan hatch lines and Empty retains a dashed outline
 - **AND** heat-sink cells spell out "Heat Sink"; labels truncate with ellipsis only when needed and retain their complete accessible names
 
 #### Scenario: Empty slot display
@@ -105,8 +113,8 @@ The system SHALL display multi-slot equipment as a connected visual group.
 
 - **WHEN** equipment occupies multiple slots
 - **THEN** the occupied rows form one merged block with its slot range (for example, "1–10") at the top-left beside the equipment name, shown once above a muted "N slots" caption
-- **AND** continuation rows have no repeated name, glyph, gap or internal border
-- **AND** the category tint and stripe span the whole block
+- **AND** continuation rows have no repeated name, glyph, gap, internal border or seam, so nothing crosses the "N slots" caption
+- **AND** every row of the block keeps the category tint and 4px bar, so the block reads as the same category as single-slot siblings
 - **AND** per-row slot numbers are visually hidden within the block; each slot retains its complete accessible name including its slot number and existing selection, removal and drag behavior
 
 ### Requirement: Equipment Selection and Assignment
@@ -219,7 +227,7 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 #### Scenario: Phone location navigation
 
 - **WHEN** critical slots are displayed on a phone
-- **THEN** one Location tablist presents all eight locations at once as a 4x2 grid of pills at least 44px tall with 14px text, in front-view order (RA, RT, HD, CT on the first row; LT, LA, RL, LL on the second), with no horizontal scrolling
+- **THEN** one Location tablist presents all eight locations at once as a 4x2 grid of pills at least 44px tall with 14px text, in record-sheet order (LA, LT, HD, CT on the first row; RT, RA, LL, RL on the second), with no horizontal scrolling
 - **AND** each pill shows its abbreviation and existing used/total occupancy (for example, "LT 8/12") with the full location name and used count in its accessible name (for example, "Left Torso, 8 of 12 used")
 - **AND** the selected pill has a filled background and underline; no duplicate selector is displayed
 - **AND** selecting a pill displays only its associated slot panel, headed by the full name and occupancy (for example, Left Torso — 8 of 12 used) above the slot list, without an accordion

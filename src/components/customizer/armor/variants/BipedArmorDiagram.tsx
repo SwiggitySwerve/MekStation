@@ -22,6 +22,7 @@ import { BipedArmorSurface } from './BipedArmorSurface';
 import {
   BIPED_ARMOR_PLATES,
   BIPED_ARMOR_VIEWBOX,
+  BIPED_PLATE_ORDER,
 } from './CleanTechBipedDiagram.geometry';
 
 /** Locations whose plate carries a rear face. */
@@ -77,8 +78,9 @@ export function BipedArmorDiagram({
       <DiagramHeader title="Armor Allocation" className="mb-2 sm:mb-4" />
       <div className="flex flex-col @[40rem]:flex-row @[40rem]:items-center @[40rem]:justify-center @[40rem]:gap-6">
         <div className="min-w-0 @[40rem]:max-w-[440px] @[40rem]:flex-1">
-          <p className="text-text-theme-secondary mb-1 text-center text-xs sm:mb-2">
-            Front view &middot; click a location to edit
+          <p className="text-text-theme-secondary mb-1 text-center text-xs text-balance sm:mb-2">
+            Matches the record sheet &middot; left side on the left &middot;{' '}
+            click a location to edit
           </p>
           <ArmorDiagramSvgFrame
             viewBox={BIPED_ARMOR_VIEWBOX}
@@ -91,10 +93,10 @@ export function BipedArmorDiagram({
               aria-hidden="true"
             >
               <text x="16" y="294">
-                Right
+                Left
               </text>
               <text x="344" y="294">
-                Left
+                Right
               </text>
             </g>
             <defs>
@@ -129,7 +131,7 @@ export function BipedArmorDiagram({
               strokeDasharray="3 7"
               aria-hidden="true"
             />
-            {BIPED_ARMOR_LOCATIONS.map((location) => {
+            {BIPED_PLATE_ORDER.map((location) => {
               const plate = BIPED_ARMOR_PLATES[location];
               if (!plate) return null;
               const data = armorData.find((item) => item.location === location);

@@ -129,8 +129,8 @@ function CountBadge({
  * summary: "1 error \u00b7 1 warning \u00b7 1 note", each group in its own
  * color after the worst group's icon. A lone readout warning reads as itself
  * ("Runs hot +11") and truncates before its amount. The phone chip in the
- * stat strip shows every group as its severity shape and count ("⊗ 1 ·
- * ⚠ 2"); the words stay in the button's accessible name and tooltip, so the
+ * stat strip shows every group as its severity shape and count with an
+ * Issues label and chevron; the full words stay in its accessible name, so the
  * breakdown never relies on color or on the shapes alone.
  */
 export function BuildStatusLabel({
@@ -158,17 +158,31 @@ export function BuildStatusLabel({
             <span className="shrink-0">{headlineNote.amount}</span>
           )}
         </span>
+        {compact && (
+          <AppIcon
+            name="chevron-right"
+            size="inline"
+            aria-hidden="true"
+            className="shrink-0"
+          />
+        )}
       </>
     );
   if (compact) {
     return (
-      <span className="flex min-w-0 items-center justify-center gap-x-1.5 leading-4">
-        {parts.map((part, index) => (
-          <React.Fragment key={part.kind}>
-            {index > 0 && <Separator />}
-            <CountBadge kind={part.kind} count={part.count} />
-          </React.Fragment>
+      <span className="flex min-w-0 items-center justify-center gap-x-1 leading-4">
+        {parts.map((part) => (
+          <CountBadge key={part.kind} kind={part.kind} count={part.count} />
         ))}
+        {parts.length <= 2 && parts.every((part) => part.count < 10) && (
+          <span>Issues</span>
+        )}
+        <AppIcon
+          name="chevron-right"
+          size="inline"
+          aria-hidden="true"
+          className="shrink-0"
+        />
       </span>
     );
   }

@@ -72,6 +72,71 @@ const unplacedResult = resultOf([
 ]);
 
 describe('Overview build readiness', () => {
+  it('orders errors before warnings and passing rows on every readiness list', () => {
+    const rows = getReadinessRows(
+      {
+        ...balanced,
+        weightUsed: 107,
+        weightRemaining: -7,
+        heatGenerated: 33,
+        unplacedInstanceIds: ['ppc-1'],
+        unplacedItemNames: ['ER PPC'],
+      },
+      unplacedResult,
+    );
+    expect(rows.map(({ id }) => id)).toEqual([
+      'weight',
+      'unplaced',
+      'heat',
+      'slots',
+      'armor',
+    ]);
+    expect(rows.map(({ severity }) => severity)).toEqual([
+      'error',
+      'error',
+      'warning',
+      'ok',
+      'ok',
+    ]);
+  });
+
+  it('keeps compact issue actions with their text and preserves full reasons', () => {
+    const rows = getReadinessRows(
+      { ...balanced, weightUsed: 107, weightRemaining: -7 },
+      null,
+    );
+    const onNavigate = jest.fn();
+    render(
+      <BuildReadinessList
+        rows={rows.filter(({ severity }) => severity !== 'ok')}
+        status={getReadinessStatus(
+          { errorCount: 1, warningCount: 0, infoCount: 0 },
+          20,
+          20,
+        )}
+        compact
+        onNavigate={onNavigate}
+      />,
+    );
+    const row = screen.getByTestId('overview-readiness-weight');
+    expect(row).toHaveClass('flex');
+    expect(
+      screen.getByText(
+        '7.0 t over the 100.0 t limit. Remove equipment or armor.',
+      ),
+    ).toHaveAttribute(
+      'title',
+      '7.0 t over the 100.0 t limit. Remove equipment or armor.',
+    );
+    const action = screen.getByRole('button', {
+      name: 'Weight: go to Equipment',
+    });
+    expect(action).toHaveTextContent('Go to Equipment');
+    expect(action).toHaveClass('min-h-11');
+    action.click();
+    expect(onNavigate).toHaveBeenCalledWith('equipment');
+  });
+
   it('passes every row for a balanced build', () => {
     const rows = byId(getReadinessRows(balanced, null));
     expect(Object.values(rows).map((row) => row.status)).toEqual([

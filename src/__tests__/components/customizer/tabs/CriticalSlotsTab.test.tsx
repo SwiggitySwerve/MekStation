@@ -139,14 +139,26 @@ describe('CriticalSlotsTab', () => {
     );
     const banner = screen.getByRole('region', { name: 'Equipment to place' });
     expect(banner).toHaveTextContent('1 item to place: ER PPC');
+    // Nothing is highlighted before a selection, so the hint starts there.
     expect(banner).toHaveTextContent(
-      'select, then tap a highlighted slot or drag.',
+      'select it in the Loadout, then tap a highlighted slot.',
     );
+    expect(banner).not.toHaveTextContent('or drag');
     fireEvent.click(
       within(banner).getByRole('button', { name: 'Select ER PPC' }),
     );
     expect(onSelectEquipment).toHaveBeenCalledWith('er-ppc-1');
     expect(updateEquipmentLocation).not.toHaveBeenCalled();
+    view.rerender(
+      <CriticalSlotsTab
+        hideLoadoutTray={false}
+        selectedEquipmentId="er-ppc-1"
+        onSelectEquipment={onSelectEquipment}
+      />,
+    );
+    expect(banner).toHaveTextContent(
+      'select, then tap a highlighted slot or drag.',
+    );
     view.rerender(
       <CriticalSlotsTab readOnly onSelectEquipment={onSelectEquipment} />,
     );
@@ -154,23 +166,24 @@ describe('CriticalSlotsTab', () => {
     expect(banner).toHaveTextContent('read-only');
   });
 
-  it('groups desktop locations in front-view columns with head above center torso', () => {
+  it('groups desktop locations in record-sheet columns with head above center torso', () => {
     render(<CriticalSlotsTab />);
     expect(
-      screen.getByText('Front view · Right side on the left'),
+      screen.getByText('Matches the record sheet · left side on the left'),
     ).toBeInTheDocument();
     expect(
       screen.queryByText('Scroll for more locations'),
     ).not.toBeInTheDocument();
     const grid = screen.getByTestId('critical-slots-grid-desktop');
     const columns = grid.firstElementChild!.children;
-    expect(columns[0]).toHaveTextContent('Right Arm');
-    expect(columns[1]).toHaveTextContent('Right Torso');
+    // The unit's left side is on the viewer's left, as on the record sheet.
+    expect(columns[0]).toHaveTextContent('Left Arm');
+    expect(columns[1]).toHaveTextContent('Left Torso');
     expect(columns[2]).toHaveTextContent('HeadCenter Torso');
-    expect(columns[3]).toHaveTextContent('Left Torso');
-    expect(columns[4]).toHaveTextContent('Left Arm');
-    expect(columns[5]).toHaveTextContent('Right Leg');
-    expect(columns[6]).toHaveTextContent('Left Leg');
+    expect(columns[3]).toHaveTextContent('Right Torso');
+    expect(columns[4]).toHaveTextContent('Right Arm');
+    expect(columns[5]).toHaveTextContent('Left Leg');
+    expect(columns[6]).toHaveTextContent('Right Leg');
     expect(columns).toHaveLength(7);
     expect(within(grid).getAllByTestId('location-grid')).toHaveLength(8);
     const tools = screen.getByRole('button', { name: 'Critical slot tools' });

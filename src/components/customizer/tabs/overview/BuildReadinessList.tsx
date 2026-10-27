@@ -36,6 +36,8 @@ interface BuildReadinessListProps {
   /** Prefix of the element ids and test ids, unique per list on a page. */
   readonly idPrefix?: string;
   readonly headingLevel?: 'h3' | 'h4';
+  /** Phone issue card: one two-line text block and an inline action per row. */
+  readonly compact?: boolean;
 }
 
 /** Checklist of the unit's budgets, each with a way to the tab that fixes it. */
@@ -46,11 +48,14 @@ export function BuildReadinessList({
   title = 'Build readiness',
   idPrefix = 'overview-readiness',
   headingLevel = 'h4',
+  compact = false,
 }: BuildReadinessListProps): React.ReactElement {
   const Heading = headingLevel;
   return (
     <section aria-labelledby={`${idPrefix}-title`}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <div
+        className={`flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 ${compact ? 'flex-col' : ''}`}
+      >
         <Heading
           id={`${idPrefix}-title`}
           className={
@@ -90,13 +95,13 @@ export function BuildReadinessList({
           const tabLabel = getTabLabel(row.tabId);
           const needsAction = row.severity !== 'ok';
           return (
-            // Phones stack each row: icon + title + full-width explanation,
-            // then the action under the text. The actions are quiet links
-            // (text + chevron, outlined only on hover/focus) so the five of
-            // them never outweigh the rows they belong to.
             <li
               key={row.id}
-              className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-2 sm:flex sm:items-center"
+              className={
+                compact
+                  ? 'flex min-w-0 items-center gap-2 py-1'
+                  : 'grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-2 sm:flex sm:items-center'
+              }
               data-testid={`${idPrefix}-${row.id}`}
               data-status={row.status}
               data-severity={row.severity}
@@ -118,7 +123,10 @@ export function BuildReadinessList({
                 )}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-text-theme-primary text-sm font-medium">
+                <p
+                  className={`text-text-theme-primary text-sm font-medium ${compact ? 'truncate' : ''}`}
+                  title={compact ? row.label : undefined}
+                >
                   <span className="sr-only">
                     {row.pending && row.severity === 'ok'
                       ? 'Pending'
@@ -127,10 +135,13 @@ export function BuildReadinessList({
                   </span>
                   {row.label}
                 </p>
-                <p className="text-text-theme-secondary text-sm tabular-nums">
-                  {row.sentence}
+                <p
+                  className={`text-text-theme-secondary text-sm tabular-nums ${compact ? 'truncate' : ''}`}
+                  title={compact ? (row.detail ?? row.sentence) : undefined}
+                >
+                  {compact ? (row.detail ?? row.sentence) : row.sentence}
                 </p>
-                {row.detail && (
+                {row.detail && !compact && (
                   <p
                     className={`${BUILD_STATUS_KIND_TEXT_CLASS[row.detailSeverity ?? 'warning']} text-[13px] leading-[18px]`}
                   >
@@ -143,13 +154,13 @@ export function BuildReadinessList({
                   type="button"
                   onClick={() => onNavigate(row.tabId)}
                   aria-label={`${row.label}: go to ${tabLabel}`}
-                  className={`hover:border-border-theme hover:bg-surface-raised focus-visible:ring-accent col-start-2 -ml-2 inline-flex min-h-11 w-fit shrink-0 items-center gap-1 justify-self-start rounded border border-transparent bg-transparent !px-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none sm:ml-0 ${
+                  className={`hover:border-border-theme hover:bg-surface-raised focus-visible:ring-accent inline-flex min-h-11 w-fit shrink-0 items-center gap-1 rounded border border-transparent bg-transparent !px-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none ${compact ? '-mr-2' : 'col-start-2 -ml-2 justify-self-start sm:ml-0'} ${
                     needsAction
                       ? 'text-text-theme-primary'
                       : 'text-text-theme-secondary hover:text-text-theme-primary'
                   }`}
                 >
-                  {tabLabel}
+                  {compact ? `Go to ${tabLabel}` : tabLabel}
                   <AppIcon
                     name="chevron-right"
                     size="inline"

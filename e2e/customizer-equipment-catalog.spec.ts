@@ -150,7 +150,7 @@ async function expectInitialScrollBoundary(page: Page) {
     .getByTestId('equipment-pagination')
     .getByTestId('more-below-cue');
   await expect(cue).toBeVisible();
-  await expect(cue).toContainText('Scroll for more equipment');
+  await expect(cue).toContainText('Scroll for more on this page');
   const footerStyle = await cue.evaluate((element) => {
     const style = getComputedStyle(element);
     return {

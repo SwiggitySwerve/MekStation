@@ -168,7 +168,9 @@ test('draft appearance changes can revert or save without mutating armor', () =>
     </UnitStoreContext.Provider>,
   );
   expect(
-    screen.getByText('Front view · click a location to edit'),
+    screen.getByText(
+      'Matches the record sheet · left side on the left · click a location to edit',
+    ),
   ).toBeInTheDocument();
   act(() =>
     useCustomizerSettingsStore
@@ -178,14 +180,18 @@ test('draft appearance changes can revert or save without mutating armor', () =>
   expect(screen.getByText('HUD')).toBeInTheDocument();
   act(() => useCustomizerSettingsStore.getState().revertCustomizer());
   expect(
-    screen.getByText('Front view · click a location to edit'),
+    screen.getByText(
+      'Matches the record sheet · left side on the left · click a location to edit',
+    ),
   ).toBeInTheDocument();
   act(() => {
     useCustomizerSettingsStore.getState().setDraftArmorDiagramMode('schematic');
     useCustomizerSettingsStore.getState().saveCustomizer();
   });
   expect(
-    screen.queryByText('Front view · click a location to edit'),
+    screen.queryByText(
+      'Matches the record sheet · left side on the left · click a location to edit',
+    ),
   ).not.toBeInTheDocument();
   expect(useCustomizerSettingsStore.getState().armorDiagramMode).toBe(
     'schematic',
@@ -207,7 +213,9 @@ test.each([
   );
   expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
   expect(
-    screen.queryByText('Front view · click a location to edit'),
+    screen.queryByText(
+      'Matches the record sheet · left side on the left · click a location to edit',
+    ),
   ).not.toBeInTheDocument();
 });
 

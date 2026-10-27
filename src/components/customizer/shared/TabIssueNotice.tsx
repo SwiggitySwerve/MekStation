@@ -18,6 +18,38 @@ import {
   BUILD_STATUS_KIND_TEXT_CLASS,
   BuildStateIcon,
 } from './BuildStatusLabel';
+import { focusIssueTarget, type IssueTarget } from './tabIssueTargets';
+
+/** A quiet in-sentence link: dotted underline, solid on hover or focus. */
+const HINT_LINK =
+  'text-text-theme-primary hover:text-accent focus-visible:ring-accent rounded !p-0 underline decoration-dotted underline-offset-4 transition-colors hover:decoration-solid focus-visible:ring-2 focus-visible:outline-none [@media(pointer:coarse)]:inline-flex [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:items-center';
+
+/** The fix text, with the words that name its section turned into a link. */
+function HintText({
+  hint,
+  target,
+}: {
+  hint: string;
+  target?: IssueTarget;
+}): React.ReactElement {
+  const at = target ? hint.indexOf(target.text) : -1;
+  if (!target || at < 0) return <>{hint}</>;
+  return (
+    <>
+      {hint.slice(0, at)}
+      <button
+        type="button"
+        className={HINT_LINK}
+        aria-label={`Go to ${target.text}`}
+        data-testid="tab-issue-notice-target"
+        onClick={() => focusIssueTarget(target.id)}
+      >
+        {target.text}
+      </button>
+      {hint.slice(at + target.text.length)}
+    </>
+  );
+}
 
 interface TabIssueNoticeProps {
   readonly notice: TabIssueNoticeData;
@@ -60,7 +92,7 @@ export function TabIssueNotice({
               data-testid="tab-issue-notice-hint"
             >
               {' \u2014 '}
-              {notice.hint}
+              <HintText hint={notice.hint} target={notice.hintTarget} />
             </span>
           )}
         </span>

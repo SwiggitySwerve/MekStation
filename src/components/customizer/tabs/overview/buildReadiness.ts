@@ -278,7 +278,7 @@ export function getReadinessRows(
     isUnplacedField,
   );
 
-  return [
+  const rows: ReadinessRow[] = [
     withRules(
       {
         id: 'weight',
@@ -337,6 +337,9 @@ export function getReadinessRows(
       unplacedIssues,
     ),
   ];
+  return rows.sort(
+    (a, b) => SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity],
+  );
 }
 
 /**

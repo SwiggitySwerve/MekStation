@@ -21,6 +21,10 @@ import {
 } from './EquipmentBrowserUnitContext';
 import { EquipmentCatalogCard } from './EquipmentCatalogCard';
 
+/** Shown only when the current page itself overflows its viewport. */
+const SCROLL_HINT = 'Scroll for more on this page';
+const SCROLL_HINT_COMPACT = 'More below';
+
 export interface EquipmentBrowserProps {
   onAddEquipment: (equipment: IEquipmentItem) => void;
   onAddAndPlace?: (equipment: IEquipmentItem) => void;
@@ -264,13 +268,17 @@ function EquipmentBrowserContent({
           className={`border-border-theme flex min-h-12 shrink-0 items-center justify-between gap-2 border-t px-3 ${workbenchStyles.catalogFooter}`}
           data-testid="equipment-pagination"
         >
+          {/* Page line plus cue fit the 48px pager, so the pager keeps its
+              height when the cue hides at the bottom of the list. */}
           <div className="min-w-0">
-            <span className="text-text-theme-secondary text-xs">
-              Page {Math.min(currentPage, lastPage)}/{lastPage}
+            <span className="text-text-theme-secondary block text-xs">
+              Page {Math.min(currentPage, lastPage)} of {lastPage} ·{' '}
+              {totalItems} {totalItems === 1 ? 'item' : 'items'}
             </span>
             <MoreBelowCue
               visible={hasMoreBelow}
-              label="Scroll for more equipment"
+              label={SCROLL_HINT}
+              compactLabel={SCROLL_HINT_COMPACT}
             />
           </div>
           <div className="flex gap-1">
@@ -319,7 +327,11 @@ function EquipmentBrowserContent({
         <div
           className={`border-border-theme shrink-0 border-t px-3 ${workbenchStyles.catalogFooter}`}
         >
-          <MoreBelowCue visible label="Scroll for more equipment" />
+          <MoreBelowCue
+            visible
+            label={SCROLL_HINT}
+            compactLabel={SCROLL_HINT_COMPACT}
+          />
         </div>
       )}
       <p

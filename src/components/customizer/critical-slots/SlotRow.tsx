@@ -28,7 +28,7 @@ import {
   getOccupiedSpanClasses,
   getSlotSizeClasses,
   getSlotStateClasses,
-  getSlotTintStyle,
+  getSlotColorStyle,
 } from './SlotVisualHelpers';
 
 // =============================================================================
@@ -288,7 +288,7 @@ export const SlotRow = memo(function SlotRow({
         draggable={canDrag}
         aria-label={getSlotAriaLabel(slot)}
         aria-selected={isSelected}
-        style={getSlotTintStyle(slot)}
+        style={getSlotColorStyle(slot)}
         className={`focus-visible:ring-accent my-0.5 flex items-center rounded-sm border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${styleClasses} ${selectionClasses} ${getSlotSizeClasses(compact)} ${getMergedSlotClasses(slot)}`}
         onClick={onClick}
         onDoubleClick={() => handleSlotDoubleClick({ canUnassign, onRemove })}

@@ -2,9 +2,7 @@ import type { CSSProperties } from 'react';
 
 import {
   classifyEquipmentByName,
-  getCategoryColors,
-  HEATSINK_COLORS,
-  type CategoryColorDefinition,
+  getEquipmentSurfaceClassesByName,
 } from '@/utils/colors/equipmentColors';
 import {
   classifySystemComponent,
@@ -22,22 +20,26 @@ export function getSlotSizeClasses(compact: boolean): string {
   return `min-h-11 px-2 py-1 text-sm lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0 ${compact ? 'lg:pointer-fine:px-1' : ''}`;
 }
 
-/** Use the owner's hue at full opacity; slots apply one shared tint strength. */
-export function getCriticalCategoryTint(
-  colors: CategoryColorDefinition,
-): CSSProperties {
-  const [token] = colors.accentBorder.replace('border-l-', '').split('/');
-  return {
-    '--critical-category-color': `var(--color-${token})`,
-  } as CSSProperties;
+/**
+ * The owner's category or family hue (the token in its `border-l-<token>`
+ * accent class) as `--critical-slot-color`, which tints the slot, its bar,
+ * the heat-sink hatch and the matching colour-key chip.
+ */
+export function getSlotColorStyleFromClasses(
+  classes: string,
+): CSSProperties | undefined {
+  const token = /border-l-([a-z]+-\d+)/.exec(classes)?.[1];
+  return token
+    ? ({ '--critical-slot-color': `var(--color-${token})` } as CSSProperties)
+    : undefined;
 }
 
-export function getSlotTintStyle(slot: SlotContent): CSSProperties | undefined {
-  if (slot.type !== 'equipment' || !slot.name) return undefined;
-  const category = classifyEquipmentByName(slot.name);
-  return getCriticalCategoryTint(
-    category === 'heatsink' ? HEATSINK_COLORS : getCategoryColors(category),
-  );
+export function getSlotColorStyle(
+  slot: SlotContent,
+): CSSProperties | undefined {
+  return slot.name
+    ? getSlotColorStyleFromClasses(getSlotContentClasses(slot))
+    : undefined;
 }
 
 export function isMultiSlotEquipment(slot: SlotContent): boolean {
@@ -48,10 +50,16 @@ export function isSlotContinuation(slot: SlotContent): boolean {
   return isMultiSlotEquipment(slot) && slot.isFirstSlot === false;
 }
 
+/** Fixed systems are tinted in their family hue; rows sit flush. */
 export function getSystemSlotClasses(type: SystemComponentType): string {
   return type !== 'structure' && type !== 'armor' && type !== 'empty'
-    ? styles.criticalFixedSlot
+    ? `${getSlotColorClasses(type)} ${styles.criticalFixedSlot} ${styles.criticalTintedSlot}`
     : getSlotColorClasses(type);
+}
+
+/** Equipment is tinted in its category hue; heat sinks add a faint hatch. */
+export function getEquipmentSlotClasses(name: string): string {
+  return `${getEquipmentSurfaceClassesByName(name)} ${styles.criticalTintedSlot} ${classifyEquipmentByName(name) === 'heatsink' ? styles.criticalHeatSink : ''}`;
 }
 
 /** Join adjacent occupied rows without removing their individual hit targets. */
@@ -65,7 +73,7 @@ export function getSlotContentClasses(slot: SlotContent): string {
     return getSystemSlotClasses(classifySystemComponent(slot.name));
   }
   if (slot.type === 'equipment' && slot.name) {
-    return `${styles.criticalTintedSlot} ${classifyEquipmentByName(slot.name) === 'heatsink' ? styles.criticalHeatSink : ''}`;
+    return getEquipmentSlotClasses(slot.name);
   }
   return 'bg-transparent border-border-theme-strong/60 border-dashed text-text-theme-muted';
 }

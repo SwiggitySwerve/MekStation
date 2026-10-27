@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import {
   getLatestStorageWriteReceipt,
+  safeGetItem,
   subscribeToStorageWriteReceipts,
 } from '@/stores/utils/clientSafeStorage';
 
 export type DraftState = 'pending' | 'saved' | 'failed';
 
 /**
- * Browser-draft wording. A pending draft has had no write yet, so surfaces
+ * Browser-draft wording. A pending unit has no known stored draft, so surfaces
  * that pair it with the library state leave it out rather than imply the
  * unit is saved.
  */
@@ -34,16 +35,23 @@ function receiptForUnit(
   unitId: string,
 ): { unitId: string; failed: boolean } | null {
   const latest = getLatestStorageWriteReceipt(draftStorageKey(unitId));
-  if (!latest) return null;
-  return { unitId, failed: latest.status === 'failed' };
+  if (latest) return { unitId, failed: latest.status === 'failed' };
+  try {
+    return safeGetItem(draftStorageKey(unitId)) !== null
+      ? { unitId, failed: false }
+      : null;
+  } catch {
+    // An unavailable read cannot establish that a draft was saved.
+    return null;
+  }
 }
 
-/** The active draft's last completed browser write: pending, saved or failed. */
+/** Existing browser drafts count as saved; newer write receipts take priority. */
 export function useBrowserDraftState(unitId: string): DraftState {
   const [receipt, setReceipt] = useState<{
     unitId: string;
     failed: boolean;
-  } | null>(() => receiptForUnit(unitId));
+  } | null>(null);
 
   useEffect(() => {
     setReceipt(receiptForUnit(unitId));

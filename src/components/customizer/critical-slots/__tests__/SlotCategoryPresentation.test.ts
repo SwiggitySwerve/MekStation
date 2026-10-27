@@ -1,43 +1,56 @@
 import { EquipmentCategory } from '@/types/equipment';
 import {
-  getCategoryColors,
+  getEquipmentSurfaceClasses,
   HEATSINK_COLORS,
 } from '@/utils/colors/equipmentColors';
+import { getSlotColorClasses } from '@/utils/colors/slotColors';
 
-import {
-  getCriticalCategoryTint,
-  getSlotTintStyle,
-} from '../SlotVisualHelpers';
+import { getSlotColorStyle, getSlotContentClasses } from '../SlotVisualHelpers';
 
-it('uses the colour owner hue at full opacity, including energy', () => {
+const hue = (accent: string) =>
+  `var(--color-${accent.replace('border-l-', '').split('/')[0]})`;
+
+it('gives every occupied slot its owner hue, and empty slots none', () => {
   expect(
-    getCriticalCategoryTint(getCategoryColors(EquipmentCategory.ENERGY_WEAPON)),
-  ).toEqual({
-    '--critical-category-color': 'var(--color-yellow-300)',
-  });
+    getSlotColorStyle({ index: 0, type: 'equipment', name: 'Heat Sink' }),
+  ).toEqual({ '--critical-slot-color': hue(HEATSINK_COLORS.accentBorder) });
   expect(
-    getSlotTintStyle({ index: 0, type: 'equipment', name: 'Heat Sink' }),
-  ).toEqual(getCriticalCategoryTint(HEATSINK_COLORS));
+    getSlotColorStyle({ index: 0, type: 'equipment', name: 'Medium Laser' }),
+  ).toEqual({ '--critical-slot-color': 'var(--color-yellow-300)' });
+  expect(
+    getSlotColorStyle({ index: 0, type: 'system', name: 'Engine' }),
+  ).toEqual({ '--critical-slot-color': 'var(--color-orange-400)' });
+  expect(getSlotColorStyle({ index: 0, type: 'empty' })).toBeUndefined();
 });
 
-it('keeps the same category colour for single slots and every merged row', () => {
+it('keeps the same owner classes for single slots and every merged row', () => {
   const single = { index: 0, type: 'equipment' as const, name: 'AC/20' };
-  const expected = getCriticalCategoryTint(
-    getCategoryColors(EquipmentCategory.BALLISTIC_WEAPON),
+  const expected = getEquipmentSurfaceClasses(
+    EquipmentCategory.BALLISTIC_WEAPON,
+    'AC/20',
   );
-  expect(getSlotTintStyle(single)).toEqual(expected);
+  expect(getSlotContentClasses(single)).toContain(expected);
   for (let index = 0; index < 10; index++) {
-    expect(
-      getSlotTintStyle({
-        ...single,
-        index,
-        totalSlots: 10,
-        isFirstSlot: index === 0,
-        isLastSlot: index === 9,
-      }),
-    ).toEqual(expected);
+    const merged = {
+      ...single,
+      index,
+      totalSlots: 10,
+      isFirstSlot: index === 0,
+      isLastSlot: index === 9,
+    };
+    expect(getSlotContentClasses(merged)).toBe(getSlotContentClasses(single));
+    expect(getSlotColorStyle(merged)).toEqual(getSlotColorStyle(single));
   }
-  expect(
-    getSlotTintStyle({ index: 0, type: 'system', name: 'Engine' }),
-  ).toBeUndefined();
+});
+
+it('routes fixed systems through the slot colour owner', () => {
+  for (const [name, type] of [
+    ['Engine', 'engine'],
+    ['Standard Gyro', 'gyro'],
+    ['Shoulder', 'actuator'],
+    ['Standard Cockpit', 'cockpit'],
+  ] as const)
+    expect(getSlotContentClasses({ index: 0, type: 'system', name })).toContain(
+      getSlotColorClasses(type),
+    );
 });
