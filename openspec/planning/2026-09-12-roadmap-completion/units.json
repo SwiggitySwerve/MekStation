@@ -8776,7 +8776,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-admission-20261026.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-review-20261026.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-review-20261026.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-merge-20261027.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-mainproof-20261027.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-source-review-20261027.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-owner-ruling-6454431751.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-a720c5746-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8785,17 +8790,36 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+      "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda",
       "stageReceipts": {
         "admission": { "path": "evidence/mission-match-1-admission-20261026.json" },
         "red": { "path": "evidence/mission-match-1-red-20261026.json" },
         "local": { "path": "evidence/mission-match-1-local-20261026.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/mission-match-1-review-20261026.json",
+          "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+          "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "be5936a25e68f491d358c8859474446057edf4d377b3c38e29b332385ff28b83",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 795f7768119cade8a4ba693a788e49abed72adfb"
+        },
+        "merge": {
+          "path": "evidence/mission-match-1-merge-20261027.json",
+          "pr": 2343,
+          "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+          "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda"
+        },
+        "mainProof": {
+          "path": "evidence/mission-match-1-mainproof-20261027.json",
+          "mergeCommit": "a720c5746034a12ec4558d34c5250916fddc1bda",
+          "verdict": "PASS",
+          "runtime": "Focused 28 of 28 and 17 neighbour suites 228 of 228 at the clean exact merge; built-image neighbour run (A2F runner, run-l1-built-server-spectator-trusted-proof.mjs --build): 8 passed (0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -8846,6 +8870,32 @@
         "evidenceName": "evidence/mission-match-1-admission-20261026.json; red, local and review literals unchanged.",
         "ownershipExceptionsAdded": "None: the registration already lists PROGRESS.md, V2.2.0-STEPS.md and the four evidence names.",
         "sizeCap": "No option A and no capException expected: all nine non-test leaves count and total far below 500."
+      },
+      "closureCarryForward20261027": {
+        "CF-A2F-1": {
+          "severity": "Medium",
+          "owner": "L1-SMOKE-A2M (built-image matrix; admitted by the next commit of this PR)",
+          "status": "OPEN; routed",
+          "item": "The live stale-first spectator row (stale assignment present before the actor acts, live delivery, then replay after restart) is proved only by Jest here (MM5). The A2F runner applies the stale assignment after the declaration, so the exact-main A2F run does not prove it. The six *-stale rows of the A2M matrix assert it on the built image; the Step 2/3 RC rerun repeats it."
+        },
+        "CF-A2F-2": {
+          "severity": "Medium",
+          "owner": "L1-SMOKE-A2M (built-image side); MM5 (Jest side, discharged)",
+          "status": "Jest side DISCHARGED; built-image side OPEN; routed",
+          "item": "The acting-player replay after the restart carries its own declaration in the MM5 replay/reconnect rows (focused suite 28 of 28 at the exact merge). The built-image actor replay is asserted by the A2M stale rows."
+        },
+        "CF-A2F-3": {
+          "severity": "Low",
+          "owner": "MISSION-MATCH-1 closure",
+          "status": "DISCHARGED",
+          "item": "The A2F built runner passed all eight cases with the 21-call witness sequence on the merged tree a720c5746 (mainProof receipt). A2F frozen comments and test name that describe the first-entry rule are historical; the stale rows stay discriminating because the spectator guard still precedes ownership."
+        },
+        "residual": {
+          "item": "Disclosed, not fixed: legacy self-spectator records created by the pre-fix bug are not migrated (a rostered player already holding a spectator seat stays a spectator-seat member and gets 409 on re-spectate); S5-02 (who may spectate) stays open; the real mission GM keeps the player viewer role because mission matches have no meta.coopCampaign (release-notes disclosure belongs to RELEASE-PRODUCER-1 admission); fog per-side ownership and per-unit command ownership (U38) are unchanged."
+        },
+        "suggestions": {
+          "item": "Nonblocking review suggestions, no frozen leaf changed: a future test-owning unit may assert seat and roster immutability after another spectator joins (Opus N2); a future spec-touching unit may normalize the heading and step formatting of the added Requirement (Opus N3)."
+        }
       }
     },
     {
@@ -23061,10 +23111,22 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head authority and privacy review, required CI and OWNER-RULING. At the GREEN head the focused suite passes 28 of 28, the 17 neighbour suites pass 228 of 228, and 17 of 17 mutants are killed (M17, the replay path, only by the replay/reconnect rows); tsc, oxfmt and oxlint exit 0, and the A2F built runner passes all eight cases with its 21-call witness sequence. Review three things. Membership: roster mode applies only when there is no playing seat, spectators own no forces and a rostered player cannot register as a spectator (409). Epoch: it covers roster and spectator occupancy, so a spectator join does not revoke the roster and a roster removal does. Sealed delivery: ownership is the viewer's own first side assignment compared with the actor unit's side, teammates see each other's declarations live by owner policy, and opposing players and spectator seats, including a stale first assignment or a GM brand, wait for the reveal on live, replay and reconnect. This does not decide S5-02, the real mission GM role, fog owner semantics or per-unit command ownership. The live stale-first row on the built image belongs to the A2M matrix. No exact-main acceptance is claimed.",
+      "agentRecommendation": "Accept only after independent exact-head authority and privacy review, required CI and OWNER-RULING. At the GREEN head the focused suite passes 28 of 28, the 17 neighbour suites pass 228 of 228, and 17 of 17 mutants are killed (M17, the replay path, only by the replay/reconnect rows); tsc, oxfmt and oxlint exit 0, and the A2F built runner passes all eight cases with its 21-call witness sequence. Review three things. Membership: roster mode applies only when there is no playing seat, spectators own no forces and a rostered player cannot register as a spectator (409). Epoch: it covers roster and spectator occupancy, so a spectator join does not revoke the roster and a roster removal does. Sealed delivery: ownership is the viewer's own first side assignment compared with the actor unit's side, teammates see each other's declarations live by owner policy, and opposing players and spectator seats, including a stale first assignment or a GM brand, wait for the reveal on live, replay and reconnect. This does not decide S5-02, the real mission GM role, fog owner semantics or per-unit command ownership. The live stale-first row on the built image belongs to the A2M matrix. Closure (2026-10-27): the OWNER-RULING (comment 6454431751) accepted 795f77681; the exact-main run at a720c5746 passed the focused suite 28 of 28, the 17 neighbour suites 228 of 228 and all eight A2F built-runner cases with the 21-call witness sequence (CF-A2FP-1 discharged, no rerun); the real merge measured 133 counted lines and 14 counted files plus the exempt page, no capException. The live stale-first row is routed to the A2M matrix.",
       "revertCost": "Revert the nine product/spec leaves and the lifecycle additions; the test leaf rows go with them. No schema, store or wire-format change, so no migration.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-27T21:47:35Z",
+        "by": "SwiggitySwerve (GitHub account; Root acting on behalf of the owner under the standing merge and Full send instructions, per the live comment)",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2343#issuecomment-6454431751"
+      },
+      "ruling": {
+        "ruledHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+        "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+        "pr": 2343,
+        "commentId": 6454431751,
+        "author": "SwiggitySwerve",
+        "bodySha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785"
+      }
     },
     {
       "id": "PK-ts7s1a-ruling",
