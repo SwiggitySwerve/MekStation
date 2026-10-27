@@ -955,7 +955,7 @@ describe('concession side selection compatibility', () => {
   ] as const)(
     'forfeit by %s host concedes the existing opposite side',
     async (side, expected) => {
-      const { host, store } = await makeHost();
+      const { store } = await makeHost();
       await store.updateMatchMeta(MATCH_ID, {
         sideAssignments: [
           { playerId: 'ally', side },
@@ -1003,7 +1003,7 @@ describe('concession side selection compatibility', () => {
   ] as const)(
     'grace expiry for a non-first %s player concedes its own side',
     async (side, expected) => {
-      const { host, store } = await makeHost();
+      const { store } = await makeHost();
       await store.updateMatchMeta(MATCH_ID, {
         sideAssignments: [
           { playerId: 'ally', side },
