@@ -1,3 +1,14 @@
+## 2026-10-26 MISSION-MATCH-1 local-verified (Step 3 PR 5 of 12)
+
+Keeps roster members admitted when a spectator joins a seat-less mission match, refuses a rostered self-spectate with 409, and delivers sealed Move, Attack and Physical declarations live to every non-spectating teammate while opposing players and spectator seats (including a stale first side assignment) wait for the reveal, live, on replay and on reconnect. RED is tests only, the sideOfPlayer refactor is behavior-preserving, GREEN adds the fixes and the canonical rules.
+
+- Proof: RED 13 failed and 9 passed on main (the nine admission failures plus the four MM5 replay/reconnect rows; a no-op stand-in also fails them); refactor compatibility 6 of 6; GREEN focused 28 of 28 and 17 neighbour suites 228 of 228; tsc, oxfmt, oxlint exit 0. 17 of 17 mutants killed (M17, the replay call site, only by the new rows). The A2F built runner passes all eight cases at the GREEN head with the 21-call witness sequence, first attempt.
+- Disclosed: the local history was rebuilt once after a defective reconnect row; the RED leaf types one three-argument call through a local binding, drops a byte-order mark and two unused host bindings from the admission draft (the pre-commit tsc and the lint:units ratchet reject the draft form; red receipt).
+- Cap: 90 counted added lines in nine leaves; 133 counted added lines in the whole diff against 500 (validator rule: evidence skipped, tests exempt); 14 counted files plus the exempt page. No capException.
+- PK-mission-match-1-ruling carries the privacy/authority packet. Independent exact-head review, required CI, OWNER-RULING, merge, the exact-main run and closure remain open. S5-02, the real mission GM role, fog owner semantics and per-unit command ownership are unchanged.
+
+---
+
 ## 2026-10-26 MISSION-MATCH-1 admitted (Step 3 unit 3; ledger and evidence only)
 
 Admits MISSION-MATCH-1 on baseline f917a5259, after the A2F closure and the registration in the previous two commits of this PR (the #2336 and #2339 riding pattern). Implementation starts only after this PR merges. The receipt is [mission-match-1-admission-20261026.json](evidence/mission-match-1-admission-20261026.json).

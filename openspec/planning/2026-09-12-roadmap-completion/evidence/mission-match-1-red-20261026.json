@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "unit": "MISSION-MATCH-1",
+  "stage": "red",
+  "date": "20261026",
+  "recordedAt": "2026-10-27T01:07:53.124Z",
+  "baseline": "86d0817b1e945ef1993f78ae19888f4022e503a0",
+  "redCommit": "6f8ace4d4377255e719ac656cf4b8b571c684689",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-admission-20261026.json"
+  },
+  "productUnchanged": "RED adds only the frozen test leaf. The proof ran at the RED commit itself (detached checkout, clean tree), whose parent is origin/main 86d0817b1e945ef1993f78ae19888f4022e503a0; no production file differs from main.",
+  "tests": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "redSha256": "a2a33225afbd2a787d557054e6f2f192113cfabc551987fe3459ebe6c463aff6",
+      "redBytes": 34105,
+      "redLines": 1000,
+      "finalSha256": "41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e",
+      "finalBytes": 38771,
+      "finalLines": 1150,
+      "finalNote": "Frozen final leaf: the refactor commit adds the six compatibility rows to the RED bytes; GREEN does not touch the test; the test-only commit 623613c85303de370c7a213c520d41945e1c5388 removes two unused host bindings (the refactor and GREEN commits hold the same bytes with them). Rows and assertions are identical across the four commits.",
+      "was": {
+        "sha256": "82ea39b22e8588b5ed65ad206f661385589f45b6152f63f002a584e67f54dcf4",
+        "bytes": 19346,
+        "lines": 580
+      }
+    }
+  ],
+  "diffFromAdmissionDraft": {
+    "draftSha256": "b47554540e65642e1826e50efb502042bc6294076beff38329a293f59c74244c",
+    "method": "diff of the final leaf (test-fix commit) against the admission draft final-tree copy (CR bytes removed); diffSha256 is the sha256 of that diff output.",
+    "diffSha256": "fca402d3647f6bd6a83727c70c75292621b356bba9e62e024e470bda7e4c604f",
+    "addedLines": 105,
+    "removedLines": 5,
+    "onlyAdds": "No row of the draft is edited or removed. The added lines are the MM5 replay/reconnect variant (one describe block appended after the draft end: four it.each rows and one control row) and the non-row text listed in nonRowEdits.",
+    "nonRowEdits": [
+      "Line 1: the draft began with a UTF-8 byte-order mark before the first import (no other .ts file under src has one); the final leaf starts at the import. This line and the two calls in the next entry are three of the removed lines; the two host bindings are the other two.",
+      "Rows \"forfeit by ...\" and \"grace expiry ...\" (admission draft patch 02): their `const { host, store } = await makeHost()` binds an unused host, which lint:units counts as two findings over the src-tests ceiling; the final commit binds only store (two lines).",
+      "Row \"the pure spectator owner rejects roster membership before idempotent rejoin\": its two addSpectatorSeat(..., ['watcher']) calls go through a local withRoster binding typed with the roster parameter (6 added lines, assertions unchanged). The pre-commit hook runs a project-wide tsc and the direct three-argument call does not compile against main (TS2554), so the RED commit could not be created without skipping the hook. The binding compiles before and after the parameter exists."
+    ],
+    "variantRows": [
+      "replay with the watcher listed-last",
+      "reconnect with the watcher listed-last",
+      "replay with the watcher stale-first",
+      "reconnect with the watcher stale-first",
+      "after the reveal every viewer replays the committed declaration once (control)"
+    ]
+  },
+  "runtime": {
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+    "node": "v22.22.0",
+    "lane": "mm1-impl",
+    "class": "jest",
+    "exitCode": 1,
+    "total": 22,
+    "failed": 13,
+    "passed": 9,
+    "failures": [
+      {
+        "row": "mission match membership after spectating keeps host and guest admitted, acting and current when a stranger spectates",
+        "firstAssertion": "AuthorizedViewerError: No active membership for the requested session"
+      },
+      {
+        "row": "mission match membership after spectating refuses a rostered self-spectator before any spectator seats exist",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality"
+      },
+      {
+        "row": "same-side sealed declaration delivery delivers a real non-first player move live to both teammates only",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf"
+      },
+      {
+        "row": "same-side sealed declaration delivery movement_declared uses the viewer side at the live boundary",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality"
+      },
+      {
+        "row": "same-side sealed declaration delivery attack_declared uses the viewer side at the live boundary",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality"
+      },
+      {
+        "row": "same-side sealed declaration delivery physical_attack_declared uses the viewer side at the live boundary",
+        "firstAssertion": "Error: expect(received).toBe(expected) // Object.is equality"
+      },
+      {
+        "row": "mission membership modes empty preserves the matching membership contract",
+        "firstAssertion": "Error: expect(received).toMatchObject(expected)"
+      },
+      {
+        "row": "mission membership modes spectator-only preserves the matching membership contract",
+        "firstAssertion": "Error: expect(received).toMatchObject(expected)"
+      },
+      {
+        "row": "mission membership modes the pure spectator owner rejects roster membership before idempotent rejoin",
+        "firstAssertion": "Error: expect(received).toThrow()"
+      },
+      {
+        "row": "same-side sealed declarations on replay and reconnect replay with the watcher listed-last: both teammates get the declaration, opponents and the spectator seat do not, until the reveal",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf"
+      },
+      {
+        "row": "same-side sealed declarations on replay and reconnect reconnect with the watcher listed-last: both teammates get the declaration, opponents and the spectator seat do not, until the reveal",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf"
+      },
+      {
+        "row": "same-side sealed declarations on replay and reconnect replay with the watcher stale-first: both teammates get the declaration, opponents and the spectator seat do not, until the reveal",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf"
+      },
+      {
+        "row": "same-side sealed declarations on replay and reconnect reconnect with the watcher stale-first: both teammates get the declaration, opponents and the spectator seat do not, until the reveal",
+        "firstAssertion": "Error: expect(received).toContain(expected) // indexOf"
+      }
+    ],
+    "controlsPassed": [
+      "sealed two-player tactical choices withholds a committed move without a delivery gap, then delivers its original after movement finalization",
+      "sealed two-player tactical choices reveals the COMMITTED declaration, byte-identical to what replay serves the same viewer",
+      "sealed two-player tactical choices withholds the reveal entirely when no committed row answers for it",
+      "sealed choices to a current spectator seat player-branded spectator: live withholds the move until the reveal, then delivers the committed row",
+      "sealed choices to a current spectator seat gm-branded spectator: live withholds the move until the reveal, then delivers the committed row",
+      "sealed choices to a current spectator seat player-branded spectator: replay before the reveal withholds the committed move",
+      "sealed choices to a current spectator seat gm-branded spectator: replay before the reveal withholds the committed move",
+      "mission membership modes human preserves the matching membership contract",
+      "same-side sealed declarations on replay and reconnect after the reveal every viewer replays the committed declaration once"
+    ],
+    "expected": "The nine admission failures (testInventory.redOnMain) plus the four MM5 variant rows fail on assertions, never on a missing module or a compile error; the eight admission controls (seven existing rows and the human-seat row) and the new post-reveal control pass.",
+    "rawLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/logs/red-main.json",
+      "sha256": "e686c88800c816d97e1e79052a041051205dfc8d464c8a1965f0d8be7bcc9ab8",
+      "bytes": 40194
+    }
+  },
+  "noOpStandIn": {
+    "description": "The production files of the side refactor (sideAssignments.ts and the three consumers, draft patch 02 without its test hunks) were applied over the RED commit: sideOfPlayer exists and every import resolves, but nothing changes behavior. The same frozen test file was rerun, then the tree was restored.",
+    "exitCode": 1,
+    "failed": 13,
+    "passed": 9,
+    "variantRows": [
+      {
+        "row": "replay with the watcher listed-last: both teammates get the ",
+        "status": "failed"
+      },
+      {
+        "row": "reconnect with the watcher listed-last: both teammates get t",
+        "status": "failed"
+      },
+      {
+        "row": "replay with the watcher stale-first: both teammates get the ",
+        "status": "failed"
+      },
+      {
+        "row": "reconnect with the watcher stale-first: both teammates get t",
+        "status": "failed"
+      },
+      {
+        "row": "after the reveal every viewer replays the committed declarat",
+        "status": "passed"
+      }
+    ],
+    "rawLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/mm1-impl/logs/red-noop-standin.json",
+      "sha256": "47a6b9cfac4ec7c7a526c29688257de135d12bb2dbf83f017555a353dd82b790",
+      "bytes": 40194
+    }
+  },
+  "historyNote": "The local history was rebuilt once before any push: the first reconnect variant rows read the socket after the reveal and failed on GREEN (a test defect, not a product one: a reconnected socket legitimately receives the reveal live). The rows now snapshot each viewer before the reveal. Every figure here is from the rebuilt commits."
+}

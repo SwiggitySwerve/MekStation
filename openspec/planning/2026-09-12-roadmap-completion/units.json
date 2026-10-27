@@ -8785,14 +8785,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "state": "local-verified",
       "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/mission-match-1-admission-20261026.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/mission-match-1-red-20261026.json" },
+        "local": { "path": "evidence/mission-match-1-local-20261026.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -23038,6 +23038,33 @@
         "author": "SwiggitySwerve",
         "bodySha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541"
       }
+    },
+    {
+      "id": "PK-mission-match-1-ruling",
+      "blocks": [
+        "MISSION-MATCH-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept roster-mode membership with observer seats and teammate sealed-declaration delivery after independent exact-head authority and privacy review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge and the exact-main run (focused suite, neighbour set, A2F built runner) before A2M admission.",
+          "effort": "Independent review, CI, exact-main run and closure"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete in-scope findings, then rerun the affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head authority and privacy review, required CI and OWNER-RULING. At the GREEN head the focused suite passes 28 of 28, the 17 neighbour suites pass 228 of 228, and 17 of 17 mutants are killed (M17, the replay path, only by the replay/reconnect rows); tsc, oxfmt and oxlint exit 0, and the A2F built runner passes all eight cases with its 21-call witness sequence. Review three things. Membership: roster mode applies only when there is no playing seat, spectators own no forces and a rostered player cannot register as a spectator (409). Epoch: it covers roster and spectator occupancy, so a spectator join does not revoke the roster and a roster removal does. Sealed delivery: ownership is the viewer's own first side assignment compared with the actor unit's side, teammates see each other's declarations live by owner policy, and opposing players and spectator seats, including a stale first assignment or a GM brand, wait for the reveal on live, replay and reconnect. This does not decide S5-02, the real mission GM role, fog owner semantics or per-unit command ownership. The live stale-first row on the built image belongs to the A2M matrix. No exact-main acceptance is claimed.",
+      "revertCost": "Revert the nine product/spec leaves and the lifecycle additions; the test leaf rows go with them. No schema, store or wire-format change, so no migration.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-ts7s1a-ruling",
