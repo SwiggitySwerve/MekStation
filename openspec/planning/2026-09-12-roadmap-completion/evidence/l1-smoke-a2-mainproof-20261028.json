@@ -788,7 +788,7 @@
   "sourceCleanliness": {
     "beforeRuns": "git status --porcelain empty after npm ci and again after the node/tool batch (chk-summary.log head and head-after lines); the runner manifest records source.head d5fb4d867 and clean true at the start of the built run.",
     "afterBuild": "npm run build (run by the runner) rewrote the tracked, Next-generated next-env.d.ts (\".next/dev/types/routes.d.ts\" to \".next/types/routes.d.ts\"; evidence next-env-after-build.diff); the file is not an A2 leaf and the run had already finished; it was restored with git checkout -- next-env.d.ts and the tree was clean again before any ledger edit.",
-    "note": "No source, test or script byte differed during any run."
+    "note": "No A2 leaf, test or script byte differed during any run; the only tracked change was next-env.d.ts, rewritten by npm run build and restored (sourceCleanliness.afterBuild)."
   },
   "cleanup": {
     "processesStarted": "only the runner-owned production server processes and the heavy-run wrappers; the runner stops every server it starts.",

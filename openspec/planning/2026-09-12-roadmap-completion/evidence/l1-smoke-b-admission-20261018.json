@@ -367,7 +367,7 @@
       "BB4: a captured sentinel is appended to a refusal body: fog-refusals-secret-free must fail.",
       "BB5: the restart is skipped between the flip and the refusals: the refusals must fail (the server holds the old config)."
     ],
-    "note": "Built-image mutants need a built image (class package, 30 min lease) and are owed at RED/GREEN if time allows; they are optional because the pure-function mutants gate the node leaf and the product B14 pins gate the product. Survivors are disclosed in the local receipt."
+    "note": "Built-image mutants need a built image (class package, 30 min lease) and are owed at RED/GREEN if time allows; they are optional because the pure-function mutants gate the node leaf and the product B14 pins gate the product. Survivors are disclosed in the local receipt. Record every survivor. A survivor that deletes an assertion follows Root's 2026-10-28 MA5 paired-mutant procedure and fallback without a new stop: use a scoped scratch product witness; require the unmutated harness to fail the named assertion and the mutated harness to pass on the same image; record a kill in combination. If no single-seam witness reaches that check after one scoped retry, disclose a non-equivalent survivor, add it to CF-A2M-1's combined-mutant follow-up list, and continue. Any other survivor stops for Root unless shown equivalent. No compile-only or missing-module failure counts as a kill."
   },
   "redPlan": {
     "order": [
@@ -698,7 +698,7 @@
     {
       "id": "G-B0",
       "kind": "ruling before RED",
-      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main, take the B leaves from the frozen directory E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/b-admission/frozen-20261028/scripts/release (read-only; sha256 in measuredFit.leaves and SHA256SUMS.txt), not from a patch; re-verify every control hash above against the merged tree (A1, A2FP, A2F, A2M leaves byte-identical to their frozen bytes; the A2 leaves equal the A2 measuredFit bytes). Q6 standing rule: if the A2 implementation PR changed A2_REQUIRED_CASES or runA2Cases relative to the frozen A2 bytes, rerun G-B0 and validate-leaves.sh before the B freeze. Re-run the open-PR and worktree census and re-measure the leaves (fit.json). Q6 check at the freeze: A2_REQUIRED_CASES, runA2Cases and runOwnCases are textually unchanged between the A2 frozen bytes and main (the #2349 first-rolls fix added the exported selectDice and its wiring inside coop-first-rolls-captured only), so the Q6 rerun was not strictly required; it was done anyway (B node tests 12 of 12 and the A2 and A2M tests 18 of 18 against main's A2 leaves)."
+      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main, take the B leaves from the frozen directory E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/b-admission/frozen-20261028/scripts/release (read-only; sha256 in measuredFit.leaves and SHA256SUMS.txt), not from a patch; re-verify every control hash above against the merged tree (A1, A2FP, A2F, A2M leaves byte-identical to their frozen bytes; the A2 leaves equal controls.a2Leaves (the d5fb4d867 merge blobs: fixtures and runner equal the A2 measuredFit bytes; cases b8037309 and test f8300968 carry the #2349 first-rolls fix b836e06b2, a G-A3 deviation; the original A2 measuredFit cases/test hashes are superseded and must not be restored)). Q6 standing rule: if the A2 implementation PR changed A2_REQUIRED_CASES or runA2Cases relative to the frozen A2 bytes, rerun G-B0 and validate-leaves.sh before the B freeze. Re-run the open-PR and worktree census and re-measure the leaves (fit.json). Q6 check at the freeze: A2_REQUIRED_CASES, runA2Cases and runOwnCases are textually unchanged between the A2 frozen bytes and main (the #2349 first-rolls fix added the exported selectDice and its wiring inside coop-first-rolls-captured only), so the Q6 rerun was not strictly required; it was done anyway (B node tests 12 of 12 and the A2 and A2M tests 18 of 18 against main's A2 leaves)."
     },
     {
       "id": "G-B1",
@@ -723,7 +723,7 @@
     {
       "id": "G-B5",
       "kind": "mutants",
-      "text": "The 22 node-leaf mutants rerun on the final leaf bytes; the optional built-image mutants; survivors disclosed; no compile-only or missing-module kill counted."
+      "text": "The 22 node-leaf mutants rerun on the final leaf bytes; the optional built-image mutants. Record every survivor. A survivor that deletes an assertion follows Root's 2026-10-28 MA5 paired-mutant procedure and fallback without a new stop: use a scoped scratch product witness; require the unmutated harness to fail the named assertion and the mutated harness to pass on the same image; record a kill in combination. If no single-seam witness reaches that check after one scoped retry, disclose a non-equivalent survivor, add it to CF-A2M-1's combined-mutant follow-up list, and continue. Any other survivor stops for Root unless shown equivalent. No compile-only or missing-module failure counts as a kill."
     },
     {
       "id": "G-B6",
@@ -743,7 +743,7 @@
     {
       "id": "G-B9",
       "kind": "cap",
-      "text": "Re-measure the real squash diff after the lifecycle edit and record capException on the unit L1-SMOKE-B entry in units.json with countedLines measured from git diff --numstat --no-renames <mergeSha>^1 <mergeSha> (the first parent, as the validator does; measure-cap.cjs); an option-A count above 500 or a 16th file stops the unit for Root."
+      "text": "Re-measure the real merge diff against its first parent after the lifecycle edit and record capException on the unit L1-SMOKE-B entry in units.json with countedLines measured from git diff --numstat --no-renames <mergeSha>^1 <mergeSha> (the first parent, as the validator does; measure-cap.cjs); an option-A count above 500 or a 16th file stops the unit for Root."
     },
     {
       "id": "G-B10",
