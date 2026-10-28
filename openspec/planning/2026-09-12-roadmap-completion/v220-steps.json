@@ -67,7 +67,9 @@
       "gates": ["built-server-spectator-smoke"],
       "doneTests": [
         {
-          "argv": ["node", "scripts/release/run-l1-built-server-fog-refusal.mjs", "--build"]
+          "status": "PROOF NOT IMPLEMENTED",
+          "plannedIn": "L1-SMOKE-B",
+          "description": "Combined built-server matrix including fog refusals, restart and captured rolls; A1 alone cannot pass. Invocation frozen at admission."
         }
       ],
       "scope": "Proof leaves plus the owner-approved MISSION-MATCH-1 roster-membership and sealed-delivery product exception; no other containment changes.",
