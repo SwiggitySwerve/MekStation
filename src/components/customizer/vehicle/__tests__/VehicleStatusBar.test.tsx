@@ -121,7 +121,8 @@ describe('VehicleStatusBar — full layout', () => {
         rotationArc: 360,
       },
     });
-    expect(item('Turret')).toEqual(['2.0', ' / 5.0 t']);
+    // Turret weight is derived from its equipment, not read from currentWeight
+    expect(item('Turret')).toEqual(['0.0', ' / 5.0 t']);
   });
 
   it('surfaces the validation error count and first rule id', () => {
@@ -145,19 +146,6 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
     const view = renderBar();
     const before = weightFree();
     rerenderBar(view, { armorTonnage: 12 });
-    expect(weightFree()).toBeLessThan(before);
-  });
-
-  it('weight free drops when the turret gains weight', () => {
-    const turret = (currentWeight: number) => ({
-      type: TurretType.SINGLE,
-      maxWeight: 5,
-      currentWeight,
-      rotationArc: 360,
-    });
-    const view = renderBar({ turret: turret(0) });
-    const before = weightFree();
-    rerenderBar(view, { turret: turret(3) });
     expect(weightFree()).toBeLessThan(before);
   });
 

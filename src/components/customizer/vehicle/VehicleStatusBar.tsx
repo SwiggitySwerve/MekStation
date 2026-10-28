@@ -14,10 +14,7 @@ import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupS
 import { useVehicleStore, type VehicleStore } from '@/stores/useVehicleStore';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
-import {
-  EngineType,
-  getEngineDefinition,
-} from '@/types/construction/EngineType';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
@@ -26,6 +23,10 @@ import { formatTons } from '@/utils/formatting';
 
 import { StatusItem, type StatusLevel } from '../tabs/StatusItem';
 import { VehicleBVBreakdownDialog } from './VehicleBVBreakdownDialog';
+import {
+  computeVehicleWeightBreakdown,
+  type VehicleWeightBreakdown,
+} from './VehicleStatusBar.utils';
 
 // =============================================================================
 // Types
@@ -76,21 +77,6 @@ const MOTION_LABELS: Record<GroundMotionType, string> = {
   [GroundMotionType.MAGLEV]: 'MAG',
 };
 
-/**
- * Calculate engine weight based on type and rating
- */
-function calculateEngineWeight(
-  engineRating: number,
-  engineType: EngineType,
-): number {
-  const engineDef = getEngineDefinition(engineType);
-  if (!engineDef) return 0;
-
-  // Base engine weight calculation (simplified)
-  const baseWeight = Math.ceil(engineRating / 25) * 0.5;
-  return baseWeight * engineDef.weightMultiplier;
-}
-
 function getWeightStatus(remainingWeight: number): StatusLevel {
   if (remainingWeight < 0) return 'error';
   if (remainingWeight === 0) return 'success';
@@ -108,60 +94,27 @@ function getCompactStatusClass(status: StatusLevel): string {
   return 'text-text-theme-secondary';
 }
 
-/**
- * Total tonnage of the mounted equipment, from the equipment catalog.
- * Items the catalog cannot resolve (or every item, before the catalog has
- * loaded) count as 0.
- */
-function calculateEquipmentWeight(
-  equipment: VehicleStatusStoreState['equipment'],
-  catalogReady: boolean,
-): number {
-  if (!catalogReady) return 0;
-  const lookup = getEquipmentLookupService();
-  return equipment.reduce(
-    (total, item) => total + (lookup.getById(item.equipmentId)?.weight ?? 0),
-    0,
-  );
-}
-
 function calculateWeightBreakdown(
   state: Pick<
     VehicleStatusStoreState,
     | 'tonnage'
     | 'engineRating'
     | 'engineType'
+    | 'structureType'
     | 'armorTonnage'
     | 'equipment'
     | 'turret'
+    | 'secondaryTurret'
+    | 'powerAmpWeight'
   >,
   catalogReady: boolean,
-) {
-  const engineWeight = calculateEngineWeight(
-    state.engineRating,
-    state.engineType,
+): VehicleWeightBreakdown {
+  // Before the catalog has loaded no mounted item can be resolved, so every
+  // equipment-derived term is 0.
+  const lookup = getEquipmentLookupService();
+  return computeVehicleWeightBreakdown(state, (equipmentId) =>
+    catalogReady ? lookup.getById(equipmentId) : undefined,
   );
-  const armorWeight = state.armorTonnage;
-
-  const equipmentWeight = calculateEquipmentWeight(
-    state.equipment,
-    catalogReady,
-  );
-
-  // Turret weight (typically 10% of weapon weight in turret)
-  const turretWeight = state.turret?.currentWeight ?? 0;
-
-  // Internal structure (roughly 10% of tonnage)
-  const structureWeight = state.tonnage * 0.1;
-
-  const totalUsed =
-    engineWeight +
-    armorWeight +
-    equipmentWeight +
-    turretWeight +
-    structureWeight;
-
-  return { remaining: state.tonnage - totalUsed };
 }
 
 function calculateArmorStats(
@@ -187,6 +140,22 @@ function calculateArmorStats(
   };
 }
 
+/**
+ * Armor left on a turret that has been removed is not on the vehicle: drop it
+ * so BV counts the same armor points as the Armor item.
+ */
+function getInstalledArmorAllocation(
+  allocation: VehicleStatusStoreState['armorAllocation'],
+  hasTurret: boolean,
+  hasSecondaryTurret: boolean,
+): VehicleStatusStoreState['armorAllocation'] {
+  return {
+    ...allocation,
+    ...(hasTurret ? {} : { [VehicleLocation.TURRET]: 0 }),
+    ...(hasSecondaryTurret ? {} : { [VehicleLocation.TURRET_2]: 0 }),
+  };
+}
+
 function computeBvBreakdown(
   state: Pick<
     VehicleStatusStoreState,
@@ -208,7 +177,11 @@ function computeBvBreakdown(
       tonnage: state.tonnage,
       cruiseMP: state.cruiseMP,
       armorType: String(state.armorType),
-      armorAllocation: state.armorAllocation as Record<string, unknown>,
+      armorAllocation: getInstalledArmorAllocation(
+        state.armorAllocation,
+        state.turret !== null,
+        state.secondaryTurret !== null,
+      ) as Record<string, unknown>,
       structureType: String(state.structureType),
       turret: state.turret ? { type: state.turret.type } : null,
       secondaryTurret: state.secondaryTurret
@@ -236,6 +209,7 @@ function validateStatusBarState(
     | 'powerAmpWeight'
     | 'structureType'
   >,
+  weights: VehicleWeightBreakdown,
 ): VehicleValidation {
   return validateVehicleConstruction({
     tonnage: state.tonnage,
@@ -243,14 +217,16 @@ function validateStatusBarState(
     engineType: state.engineType,
     cruiseMP: state.cruiseMP,
     turretType: state.turret?.type ?? TurretType.NONE,
-    turretEquipmentWeight: 0, // equipment weights not fully resolved here
-    turretStructureWeight: state.turret?.currentWeight ?? 0,
-    secondaryTurretEquipmentWeight: 0,
-    secondaryTurretStructureWeight: 0,
+    turretEquipmentWeight: weights.turretEquipment,
+    // Nothing declares turret structure weight; it is derived from the
+    // turret's equipment, so the turret weight rule checks the derived value.
+    turretStructureWeight: weights.turret,
+    secondaryTurretEquipmentWeight: weights.secondaryTurretEquipment,
+    secondaryTurretStructureWeight: weights.secondaryTurret,
     armorType: state.armorType,
     armorAllocation: state.armorAllocation as Record<string, number>,
     crewSize: state.crewSize,
-    energyWeaponWeight: 0, // resolved by equipment tab; power amp check deferred
+    energyWeaponWeight: weights.energyWeapons,
     powerAmpWeight: state.powerAmpWeight,
     structureType: state.structureType,
   });
@@ -305,9 +281,12 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           tonnage,
           engineRating,
           engineType,
+          structureType,
           armorTonnage,
           equipment,
           turret,
+          secondaryTurret,
+          powerAmpWeight,
         },
         catalogReady,
       ),
@@ -315,9 +294,12 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       tonnage,
       engineRating,
       engineType,
+      structureType,
       armorTonnage,
       equipment,
       turret,
+      secondaryTurret,
+      powerAmpWeight,
       catalogReady,
     ],
   );
@@ -365,18 +347,21 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
   // Run full VAL-VEHICLE-* validation result surfaced in status bar.
   const validationResult = useMemo(
     () =>
-      validateStatusBarState({
-        tonnage,
-        motionType,
-        engineType,
-        cruiseMP,
-        turret,
-        armorType,
-        armorAllocation,
-        crewSize,
-        powerAmpWeight,
-        structureType,
-      }),
+      validateStatusBarState(
+        {
+          tonnage,
+          motionType,
+          engineType,
+          cruiseMP,
+          turret,
+          armorType,
+          armorAllocation,
+          crewSize,
+          powerAmpWeight,
+          structureType,
+        },
+        weightBreakdown,
+      ),
     [
       tonnage,
       motionType,
@@ -388,6 +373,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       crewSize,
       powerAmpWeight,
       structureType,
+      weightBreakdown,
     ],
   );
 
@@ -499,9 +485,11 @@ export function VehicleStatusBar({
       {turret && (
         <StatusItem
           label="Turret"
-          value={turret.currentWeight.toFixed(1)}
+          value={weightBreakdown.turret.toFixed(1)}
           subValue={` / ${formatTons(turret.maxWeight)}`}
-          status={turret.currentWeight > turret.maxWeight ? 'error' : 'normal'}
+          status={
+            weightBreakdown.turret > turret.maxWeight ? 'error' : 'normal'
+          }
         />
       )}
 
