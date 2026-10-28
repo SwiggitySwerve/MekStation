@@ -1,0 +1,716 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2",
+  "stage": "admission",
+  "date": "2026-10-28",
+  "proofClass": "full",
+  "proofClassNote": "Registered reviewClasses privacy and authority and admissionRequires (finite admission, a pre-RED co-op reachability gate, RED tests-only, privacy/authority packet, independent exact-head review, OWNER-RULING, CI, exact-main PASS, closure) make the unit full. It adds four proof-harness leaves only (no product edit); its proof is the built-image run (--build) of the registered runner plus node:test falsifiers.",
+  "evidenceNameNote": "The registered literals l1-smoke-a2-implementation-admission.json, -red.json, -local.json and -review.json are free on main (checked at the freeze, Root ruling Q7 2026-10-28). Closure receipts (merge, mainproof, source-review, owner-ruling, mainproof logs) are frozen at the closure PR and added to ownershipExceptions there.",
+  "recordedAt": "2026-10-28T05:04:27.250Z",
+  "baseline": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
+  "baselineNote": "Baseline is the L1-SMOKE-A2M implementation merge b78909c5e0470ff3fc629ea6d375ef97a3116e6e (PR #2346, ruled head 242454d93), per Root. origin/main has since moved to 996c914a98f207778b96b3be271f7d1fb0a6d2a2 (PR #2347, a UI-only merge: no file under scripts/, openspec/planning, package*, next.config, server.js, src/lib/multiplayer or src/pages/api changed between b78909c5e and 996c914a9); Root ruled that is fine and the baseline stays b78909c5e. The parent of this admission commit is the A2M closure head (commits 63e817b9c and 4188752de); controls are hashed at that parent, whose non-ledger files equal b78909c5e.",
+  "authority": {
+    "summary": "Root and owner authority for A2 admission. Admission only; no implementation ruling or acceptance.",
+    "clauses": [
+      {
+        "id": "AUTH-1",
+        "kind": "owner decision, scope and order",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-26 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md, sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) item 1 settles the A2F -> MISSION-MATCH-1 -> A2M order and the same-side live visibility (\"teammates on a side see each other's sealed declarations live\") that the co-op restart row relies on; item 2 sets the Step 3 budget of 12 and returns an A2 split to the owner."
+      },
+      {
+        "id": "AUTH-2",
+        "kind": "owner decision, reachability gate and size cap",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-25b (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025b.md, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2): item 1 (the fixtures leaf counts as proof-harness test-support); item 3 (\"A2: run a co-op setup reachability check before RED and accept zero margin; if it does not fit, Root returns to the owner about a Step 3 budget of 12\"). The check is gate G-A1 below; the cap is measuredFit."
+      },
+      {
+        "id": "AUTH-3",
+        "kind": "predecessors closed",
+        "status": "SETTLED (conditional on this PR merging)",
+        "text": "L1-SMOKE-A2M is main-verified by the closure commit of this PR (PR #2346, merge b78909c5e0470ff3fc629ea6d375ef97a3116e6e; exact-main PASS: node:test 9 of 9 and the A2M built runner, the A1 baseline plus all 12 matrix ids = 22 cases on the first attempt). L1-SMOKE-A2F and MISSION-MATCH-1 are main-verified (receipts in the ledger). GATE OPEN for this admission is conditional on this PR merging (the #2336, #2339 and #2345 riding pattern)."
+      },
+      {
+        "id": "AUTH-4",
+        "kind": "Root rulings 2026-10-26",
+        "status": "SETTLED",
+        "text": "carry-forward.md, \"2026-10-26 Root rulings (standing instruction + owner 2026-10-26 'other recommendations as we're going through')\": GM viewer role option (a) (the real mission GM is a player-role viewer, disclosed as a known issue, no GM fix unit in Step 3); the A2 cap watch (stop and ask the owner if the freeze measures option A above 500; a split would take Step 3 to 14); the A2 setup fix (the refresh draft corrects the invalid lobby-spectate setup of the concurrency row)."
+      },
+      {
+        "id": "AUTH-5",
+        "kind": "Root rulings 2026-10-28 (A2M R6 and its correction)",
+        "status": "SETTLED (Root rulings, not owner decisions)",
+        "text": "A2M gating mutant R6 survived and is accepted as a disclosed non-equivalent survivor; the first ruling overstated reconnect/restart coverage of P1 and P6 and P7 is witnessed on matrix-Move-player-stale only (correction). CF-A2M-1 (live-leg public-lock assertion, R6+P1/R6+P6 combined mutants, nested-A1 check) belongs to the next unit that amends the A2M harness. A2 runs the frozen matrix unchanged and carries the disclosure."
+      },
+      {
+        "id": "AUTH-6",
+        "kind": "registered carry (not re-ruled here)",
+        "status": "SETTLED",
+        "text": "OQ-M1 and S5-02 stay as registered (units.json registration20261025bCorrection): A2 adds no row for either. The real-mission-GM release-notes paragraph belongs to RELEASE-PRODUCER-1 admission (Root ruling 2026-10-26)."
+      },
+      {
+        "id": "AUTH-7",
+        "kind": "workers and reviewers",
+        "status": "SETTLED",
+        "text": "Claude only since 2026-10-27 (carry-forward.md): workers claude-sonnet-5-5, independent reviews claude-opus-5-5, the Sol second pass replaced by a second independent Claude review."
+      }
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (L1-SMOKE-A2M closure and L1-SMOKE-A2 admission); the A2 draft was prepared 2026-10-28 by a prep worker",
+    "coordinator": "Root"
+  },
+  "predecessors": {
+    "L1-SMOKE-A1": "main-verified",
+    "MP-RECOVERY-UNITS-1": "main-verified",
+    "MP-HOST-DEDUPE-1": "main-verified",
+    "MP-RECOVERY-UNITS-2": "main-verified",
+    "L1-SMOKE-A2F": "main-verified (f917a5259)",
+    "MISSION-MATCH-1": "main-verified (a720c5746)",
+    "L1-SMOKE-A2M": "main-verified by the closure commit of this PR (PR #2346, merge b78909c5e; closure receipts l1-smoke-a2m-review/merge/mainproof)",
+    "successors": "L1-SMOKE-B and P2CG1H stay blocked until this unit is main-verified"
+  },
+  "acceptance": {
+    "source": "units.json L1-SMOKE-A2.registration20261020.acceptance (unchanged) plus the amendments below",
+    "amendments": [
+      "A1: the final runner composes the A1 baseline exactly once (A1_REQUIRED_CASES), the 12 frozen A2M ids exactly once through runMatrixCases, and four owned ids: concurrent-first-sockets, coop-mission-provisioned, coop-restart-action-accepted, coop-first-rolls-captured. A2_REQUIRED_CASES is that ordered list of 26 ids and is what B imports.",
+      "A2 (setup fix, Root ruling 2026-10-26): concurrent-first-sockets uses two participant sockets (host and guest) whose first upgrades and joins are in flight at once on a fresh lobby match, then the lobby launch, one accepted AdvancePhase whose event id the host reply and the guest delivery must both carry, no Error frame on either socket, and a stored journal with eventCount === maxSequence + 1. It makes no spectate call (the route accepts spectators only on an active match) and claims no concurrent spectator.",
+      "A3 (co-op journey): coop-mission-provisioned is a real mission created through ordinary authenticated APIs (campaign PUT, co-op session, three campaign-channel joins, two CampaignParticipation messages, campaign head, mission POST with unitBootstrap and contributions) plus one accepted pre-restart action. coop-restart-action-accepted stops the owned server, reads the active unit and its owner from the product activation order with the read-only witness, restarts the same image on the same private DB, reconnects all three identities and requires the owner to get an accepted Event movement_declared for a real Move. coop-first-rolls-captured requires the first dice event after the restart to carry nonempty d6 rolls, the live and replayed rolls to match, and the stored event to carry the same rolls and intent id.",
+      "A4 (MISSION-MATCH-1): teammates on a side see each other's sealed declarations live, so the owner of the active unit is accepted whichever side entry it holds; the row asserts the accepted command and the movement_declared event, not any teammate-exclusion.",
+      "A5 (GM): the real mission GM keeps the player viewer role (known issue). The coop-gm identity is a harness label; A2 adds no GM assertion, fix or inference. S5-02 and OQ-M1 add no row.",
+      "A6 (pre-RED reachability gate): G-A1 below must pass before the RED commit; a refusal repaired inside the four owned leaves is allowed, a product seam or predecessor edit stops the unit.",
+      "A7 (unrun obligations): nothing in this admission is a built-image PASS; every owned row, the 12 inherited rows through A2 and the mutants are owed at RED/GREEN on the exact-main image."
+    ]
+  },
+  "manifest": {
+    "sourceLeaves": [
+      "scripts/release/l1-built-server-spectator-cases.mjs",
+      "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "scripts/release/l1-built-server-spectator.test.mjs",
+      "scripts/release/run-l1-built-server-spectator-matrix.mjs"
+    ],
+    "sourceLeafCount": 4,
+    "registeredManifest": {
+      "count": 10,
+      "files": [
+        "scripts/release/l1-built-server-spectator-cases.mjs",
+        "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "scripts/release/l1-built-server-spectator.test.mjs",
+        "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-review.json"
+      ],
+      "note": "Registered prospective manifest (registration20261020.prospectiveStageManifest): 4 leaves + units.json + PROGRESS.md + 4 evidence = 10, plus the exempt page as the eleventh path."
+    },
+    "implementationPrFiles": [
+      "scripts/release/l1-built-server-spectator-cases.mjs",
+      "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "scripts/release/l1-built-server-spectator.test.mjs",
+      "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json"
+    ],
+    "implementationPrFileCount": 8,
+    "implementationPrFileNote": "8 counted files plus the generated page V2.2.0-STEPS.md (exempt from the file count by ownerRuling20261024StepsPageFileCap). The admission receipt rides the A2M closure PR and the review receipt lands in the A2 closure PR. Seven files of slack (15 - 8) are unused; no extra leaf is requested. An amendment receipt would be file 9.",
+    "closurePrExpected": [
+      "evidence/l1-smoke-a2-implementation-review.json (registered literal)",
+      "evidence/l1-smoke-a2-merge-<closure date>.json",
+      "evidence/l1-smoke-a2-mainproof-<closure date>.json",
+      "evidence/l1-smoke-a2-source-review-<closure date>.bytes.json",
+      "evidence/l1-smoke-a2-owner-ruling-<comment id>.bytes.json",
+      "evidence/mainproof-<sha9>-logs.bytes.json",
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md (exempt)"
+    ],
+    "closurePrNote": "The five closure names after the review literal are added to ownershipExceptions by the A2 closure PR, as for A2M.",
+    "gitForce": "scripts/** is ignored (.gitignore:38): the four new leaves need git add -f."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "sizeCapRule": "ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-25b item 1: the fixtures leaf is test-support)",
+    "testsAndEvidenceLineExempt": "U41 UNCOUNTED_FILES (*.test.*, evidence directory)",
+    "v2220StepsPageFileExempt": true,
+    "v2220StepsPageLineCounted": "the page lines count toward the validator literal count (A2M measured 2 of its 51 lifecycle lines)"
+  },
+  "measuredFit": {
+    "basis": "MEASURED at the freeze in the closure checkout (HEAD 4188752de, A2 draft leaves in place as ignored files, NOT committed) on the oxfmt-clean leaves (oxfmt --check exit 0) with measure-fit.cjs: leaf lines by newline count, lifecycle from the real A2M implementation range 962f8ae9c..242454d93 (units.json +39, PROGRESS.md +10, page +2 = 51) plus the A2-only capException block (7) and up to 4 further disclosure keys. The cases leaf is 398 lines (389 in the prep draft; +9 for the post-restart GM campaign-sync reconnect after the pre-RED probe finding) and the test leaf 234 (220 + the source-order test). Option A is 415 leaf lines: with the lifecycle at 58 to 62 it is 473 to 477 and at the 80 bound 495, all at or under 500, so the cap watch does not trip (maximum lifecycle for option A to fit: 85). The literal count is 535 leaf lines plus the lifecycle = 593 to 597, over 500 by design and recorded by capException at the implementation PR (Root ruling 2026-10-28 Q5). The A2 lifecycle edit that rides this PR is not part of the A2 implementation PR.",
+    "leaves": [
+      {
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "newFile": true,
+        "draftSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+        "draftBytes": 11924,
+        "draftLines": 398,
+        "added": 398,
+        "deleted": 0,
+        "counted": true,
+        "optionACounted": true,
+        "lineExempt": false
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "newFile": true,
+        "draftSha256": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b",
+        "draftBytes": 3886,
+        "draftLines": 120,
+        "added": 120,
+        "deleted": 0,
+        "counted": true,
+        "optionACounted": false,
+        "lineExempt": false,
+        "note": "proof-harness test-support under ownerRuling20261020SizeCapOptionA: counts literally, not under option A"
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator.test.mjs",
+        "newFile": true,
+        "draftSha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+        "draftBytes": 8315,
+        "draftLines": 234,
+        "added": 234,
+        "deleted": 0,
+        "counted": false,
+        "optionACounted": false,
+        "lineExempt": true
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "newFile": true,
+        "draftSha256": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d",
+        "draftBytes": 783,
+        "draftLines": 17,
+        "added": 17,
+        "deleted": 0,
+        "counted": true,
+        "optionACounted": true,
+        "lineExempt": false
+      }
+    ],
+    "countedAdditions": 535,
+    "optionACountedAdditions": 415,
+    "countedAdditionsNote": "literal 535 = cases + fixtures + runner; option A 415 excludes the fixtures leaf; the test leaf adds 234 exempt lines. Deletions give no credit.",
+    "lifecycleEstimate": {
+      "lines": [
+        58,
+        62
+      ],
+      "bound": 80,
+      "basis": "A2M actual + capException block (7) + 0..4 disclosure keys",
+      "a2mActual": {
+        "counted": 51,
+        "rows": [
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "added": 10,
+            "deleted": 0,
+            "counted": true
+          },
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "added": 2,
+            "deleted": 2,
+            "counted": true
+          },
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+            "added": 471,
+            "deleted": 0,
+            "counted": false
+          },
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+            "added": 53,
+            "deleted": 0,
+            "counted": false
+          },
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "added": 39,
+            "deleted": 3,
+            "counted": true
+          }
+        ]
+      }
+    },
+    "scenarios": [
+      {
+        "id": "S-literal",
+        "rule": "validate-roadmap.mjs UNCOUNTED_FILES as written (only generated files, __tests__/, e2e/, *.test.* and *.spec.*, evidence exempt)",
+        "estimated": [
+          593,
+          597
+        ],
+        "atBound": 615,
+        "cap": 500,
+        "verdict": "OVER 500 by design: recorded, not a stop. The validator requires capException.countedLines to equal the literal merge-diff count (validate-roadmap.mjs:723-726); the implementation PR records it as A2FP (667) and A2F (533) did, then re-measures with the capException lines added."
+      },
+      {
+        "id": "S-optionA",
+        "rule": "ownerRuling20261020SizeCapOptionA with the fixtures leaf as test-support",
+        "estimated": [
+          473,
+          477
+        ],
+        "atBound": 495,
+        "cap": 500,
+        "maxLifecycleForFit": 85,
+        "verdict": "FITS; the A2 cap watch (Root ruling 2026-10-26) does not trip."
+      }
+    ],
+    "previousEstimate": "a2m-a2-refresh (2026-10-26): option A 491-506 (cases 394 + runner 50 + lifecycle 47-62), literal 611-626; fit only for a lifecycle at or under 56 lines. The prep draft was 406 counted option-A lines (415 after the +9-line probe fix) because the refresh draft carried a leftover reference to a removed watcher socket (an undefined `w`, fixed here), the shared-event wait lost its Promise.all wrapper, and the runner reuses the A2FP runDirect (50 -> 17 lines) as the A2M runner does.",
+    "verdict": "Option A fits with 23 to 27 lines of slack (5 at the 80-line bound); the literal count exceeds 500 and is recorded by capException. Files: 8 counted of 15 in the implementation PR (10 of 15 under the registration convention) plus the exempt page. A split would take Step 3 to 14 PRs and is not needed."
+  },
+  "capException": {
+    "rule": "validate-roadmap.mjs:723-726: a merged unit fails when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, counted being the added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` outside evidence/ and UNCOUNTED_FILES. It does not know option A.",
+    "needed": "At the implementation merge: the literal count (535 leaf lines plus the lifecycle) exceeds 500, so capException is required.",
+    "shape": "{countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines: <literal minus 120>, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-fixtures.ts]}. Place it as capException on the unit L1-SMOKE-A2 in units.json (sibling of caps, as L1-SMOKE-A2FP and L1-SMOKE-A2F do), not in the receipt. countedLines is the validator's literal count of git diff --numstat --no-renames <mergeSha>^1 <mergeSha> outside evidence and uncounted files; it includes the capException lines themselves, so measure after adding them.",
+    "tool": "measure-fit.cjs (this directory) for the estimate; the closure tool measure-cap.cjs (_reports/2026-10-27/a2m-impl/measure-cap.cjs) for the real merge-diff count",
+    "stop": "An option-A count over 500 or a 16th file stops the unit for Root (a split takes Step 3 to 14)."
+  },
+  "testInventory": {
+    "run": "node --import tsx --test scripts/release/l1-built-server-spectator.test.mjs, Node v22.22.0, closure checkout at the freeze (HEAD 4188752de) with the four leaves in place; pure checks and the real runHarness over a stub repo; no server, no build.",
+    "nodeTest": "6 of 6 pass, 0 fail (5 prep tests plus the source-order test that the co-op restart row reopens the GM campaign channel after the restart and before the first Move); heavy-run lane a2m-closure, class jest, raw log in the closure report folder validate-leaves/node-test.log",
+    "staticChecks": "oxfmt --check on the four leaves exit 0; oxlint --no-ignore exit 0; eslint no-undef/no-unused-vars exit 0; npm run lint:units PASS (the leaves are not in its counted set)",
+    "prepRun": "Prep run (superseded by nodeTest above): 5 of 5 node tests, oxfmt exit 0, eslint no-undef exit 0 on the prep leaves.",
+    "note": "The node tests cannot run the cases leaf against a server: the rows are only discriminated by the built run. The stale-references class of bug fixed in the refresh draft (an undefined `w`) is caught by no-undef or by any built run, not by these tests. The source-order test is textual: it guards deleting or reordering the reopenGm call, not a no-op reopenGm; the built run is the real guard. The coop-restart-action-accepted observation reads previousPid after ctx.stop(), so it is always null; the restart is evidenced by the harness process records, not by that field."
+  },
+  "mutantInventory": {
+    "pureFunction": "The node leaf covers the composite enumeration (omitted A1, matrix or owned row, a doubled row, an unexpected row), capturedRolls (missing, empty, non-d6, non-integer) and the read-only event witness (missing, doubled id, live pid). Owed at RED/GREEN: a mutant list killing each, named in the red receipt.",
+    "builtImage": [
+      "MA1: concurrent-first-sockets compares only the guest delivery to itself (a one-element id set).",
+      "MA2: the restart is skipped between the pre-restart action and the post-restart Move.",
+      "MA3: the Move is sent on a non-owner connection.",
+      "MA4: captured rolls are compared with the wrong event or accepted when empty.",
+      "MA5: the journal check after the concurrent round is dropped.",
+      "The A2M mutants (R6-R8, P1, P4, P6, P7) are not repeated: A2 runs the frozen matrix unchanged and carries the A2M survivor disclosure."
+    ],
+    "note": "Built-image mutants need a built image (class package, 30 min lease) and are owed at RED/GREEN. Survivors are disclosed in the local receipt."
+  },
+  "redPlan": {
+    "order": [
+      "PRE-RED GATE (G-A1): the co-op setup reachability check, run on a built image of the admitted baseline.",
+      "RED: tests-only commit (the node:test leaf) against the absent cases, fixtures and runner leaves; fails at import (ERR_MODULE_NOT_FOUND), a weak RED declared in advance (the A1, A2FP, A2F and A2M precedent). A vacuous stand-in run (a ctx whose check never throws) must fail the test file.",
+      "GREEN: add the cases, fixtures and runner leaves within the frozen manifest; node:test green; oxfmt --check exit 0; oxlint --no-ignore clean; lint:units at its 50/50 ceiling.",
+      "BUILT RUN: node scripts/release/run-l1-built-server-spectator-matrix.mjs --build --expected-sha=<head> --output=<abs-new-dir> under heavy-run (class package, 30 min lease, casesMs 1,800,000): A1 baseline once, 12 matrix ids, 4 owned ids; then the A2-owned mutants.",
+      "LIFECYCLE: red and local receipts, capException, units.json, PROGRESS.md, page."
+    ],
+    "noImplementationBeforeMerge": "No leaf is edited by the admission commit. The draft patch stays outside Git until RED."
+  },
+  "reachabilityGate": {
+    "id": "G-A1",
+    "requires": [
+      "a built image of the admitted baseline (standalone BUILD_ID equal to the repo .next BUILD_ID, HEAD equal to --expected-sha, clean tree, Node 22);",
+      "a heavy-run package-class ticket (30 min lease) because the harness starts the owned production server on a private DB;",
+      "only the setup half of the owned rows: campaign PUT, co-op session with a coopCampaign state, three CampaignJoin messages, two CampaignParticipation messages, the campaign head, the mission POST, the three mission sockets, one accepted pre-restart AdvancePhase, and the offline active witness after stop."
+    ],
+    "canRunWithoutBuild": "Yes, and it did: the pre-RED probe ran at the freeze on the A2M closure exact-main image (built from b78909c5e in the closure checkout, no new build) with HEAD at the closure head.",
+    "probe": {
+      "status": "PASS on the second run (one permitted rerun after a harness-leaf fix, Root ruling 2026-10-28)",
+      "image": {
+        "buildId": "1793160601467",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "288e8d0856d7a36b5671cb9287cca8a5384053248d997200bb4e494908ab19b3",
+        "sourceTreeSha256": "734e3ad550b7dd894664d7efcd4e1cc46ce76cf5ba66ab0a1646d4a2837d7d2b",
+        "built": false,
+        "node": "v22.22.0",
+        "note": "Image built by the A2M closure built-runner run from the exact merge b78909c5e (run-l1-built-server-spectator-privacy.mjs --build, buildId 1793160601467); the probe ran with build:false at HEAD 4188752de (docs-only commits after the merge), standalone and repo BUILD_ID equal."
+      },
+      "command": "node run-coop-probe.mjs <wt> 4188752debb27c53499b9001c08b261ad03164b8 <abs-new-dir> <wt>/.next/standalone (heavy-run lane a2m-closure, class package); runs only the four A2-owned rows (A2_OWN_CASES via runOwnCases), 600000 ms cases window",
+      "firstRun": {
+        "startedAt": "2026-10-28T04:52:57.435Z",
+        "endedAt": "2026-10-28T04:54:13.424Z",
+        "verdict": "FAIL",
+        "passed": [
+          "concurrent-first-sockets",
+          "coop-mission-provisioned"
+        ],
+        "error": "[coop-restart-action-accepted] post-restart unit action refused: {\"kind\":\"Error\",\"matchId\":\"coop-29a58afe9c1cd24e3c8d7501f0abf567d14a986a90d03350c0c96f3c9596f5b0\",\"ts\":\"2026-10-28T04:54:13.221Z\",\"code\":\"MATCH_PAUSED\",\"reason\":\"Match is paused waiting for a peer to reconnect\",\"intentId\":\"coop-one-2-1\"}",
+        "files": {
+          "pre.txt": {
+            "sha256": "6e7359502285c47ca2a467c11e277c22fd65a6027eeda5a21e453effd4545ad2",
+            "bytes": 191
+          },
+          "stdout.log": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "stderr.log": {
+            "sha256": "1485a71533ca5c29581633d78b938a18682645e1802f192bde54cc0ffc4ac5c7",
+            "bytes": 331
+          },
+          "out/summary.json": {
+            "sha256": "d95accfbe78e4f5a732e28c183fa443efd18faeeddbd71bc15e59258f3ab95ec",
+            "bytes": 2095
+          },
+          "out/manifest.json": {
+            "sha256": "08070338b5e17cc6584ef4f0cf2b008d23771ccf3521b7cd53d58465b15c2064",
+            "bytes": 925
+          },
+          "out/evidence.jsonl": {
+            "sha256": "fde6493dfa2f7e0bf2b561f80999b27665bfcfc906d6731083dfedf2ef5bc04a",
+            "bytes": 53584
+          }
+        },
+        "cause": "Not the real-mission-GM AdvancePhase case: the GM issued the pre-restart AdvancePhase (an Event) so coop-mission-provisioned passed. After the restart the draft cases leaf reconnected only the three match sockets; it had closed the campaign-sync sockets before the restart. A rebuilt campaign session is paused until the GM campaign-sync connection returns (CampaignHostRegistry.ts:394 pauseUntilGmReturns; bindCampaignSyncConnection.ts:1231 noteGmConnected), so the post-restart Move was refused with MATCH_PAUSED (waiting for a peer to reconnect)."
+      },
+      "ruling": "Root ruling 2026-10-28 (carry-forward.md, \"A2 pre-RED probe, coop-restart-action-accepted MATCH_PAUSED\"; a Root ruling, not an owner decision): a harness gap, not a product defect; fix inside the four owned leaves; one rerun on the same image; the admission freezes the new leaf bytes and the first failure and fix are disclosed.",
+      "fix": "cases leaf: provisionCoop returns reopenGm (a host CampaignJoin on the campaign channel, waiting for CampaignSnapshot); coopRestart calls it right after ctx.restart() and before connectAll and the first Move (+9 lines; oxfmt clean). Test leaf: a source-order test (restart, then reopenGm, then the Move). No product, predecessor or fifth-leaf edit.",
+      "secondRun": {
+        "startedAt": "2026-10-28T04:59:13.131Z",
+        "endedAt": "2026-10-28T04:59:27.745Z",
+        "verdict": "PASS",
+        "passed": [
+          "concurrent-first-sockets",
+          "coop-mission-provisioned",
+          "coop-restart-action-accepted",
+          "coop-first-rolls-captured"
+        ],
+        "errors": [],
+        "files": {
+          "pre.txt": {
+            "sha256": "fbce8f42800d366f53d01e7da4a837628086745f1412263d642d4c6cde22709c",
+            "bytes": 191
+          },
+          "stdout.log": {
+            "sha256": "a23a6a6d52cbd55a73e46330c4717a2756a9e0a4c9c35f3219e8121e1567961f",
+            "bytes": 143
+          },
+          "stderr.log": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "out/summary.json": {
+            "sha256": "913a20c3ba87fc9be315338e7d0eeee4f13b36a17f1e391bb1f9c112543468eb",
+            "bytes": 1986
+          },
+          "out/manifest.json": {
+            "sha256": "08070338b5e17cc6584ef4f0cf2b008d23771ccf3521b7cd53d58465b15c2064",
+            "bytes": 925
+          },
+          "out/evidence.jsonl": {
+            "sha256": "18dc6e10fb9eb58acb05dbc75e5d01fda621230b1226dfde501309fca31e39d2",
+            "bytes": 169933
+          }
+        }
+      },
+      "gmAdvancePhase": "The real mission GM (a player-role viewer, GM role known issue unchanged) issued the pre-restart AdvancePhase and the roll-loop AdvancePhase calls and they were accepted Events, so the contributor switch (Root ruling Q6) was not needed.",
+      "limits": "The probe proves the setup half of the four owned rows on the ordinary APIs only (concurrent first sockets with a shared event, co-op provisioning, restart, the owner-of-the-active-unit Move and the first captured rolls with matching live and replayed rolls). It is not the registered built-image PASS of the runner: RED, GREEN, the 26-case run and the A2 mutants are owed at the implementation PR."
+    }
+  },
+  "census": {
+    "baseline": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
+    "ledgerRef": "4188752debb27c53499b9001c08b261ad03164b8",
+    "ledgerRefNote": "The ledger census ran on the A2M closure head (the parent of this admission commit); every other census input was taken from fetched origin/main.",
+    "observedAt": "2026-10-28T04:53:24.361Z",
+    "originMainAtCensus": "996c914a98f207778b96b3be271f7d1fb0a6d2a2",
+    "originMainNote": "origin/main was 996c914a98f207778b96b3be271f7d1fb0a6d2a2 at the census (b78909c5e plus PR #2347, hill-climb customizer UI work, 258 files, none under scripts/, openspec/planning, package*, next.config, server.js, src/lib/multiplayer or src/pages/api). It is unrelated to A2 and does not move the baseline (Root).",
+    "openPrs": {
+      "count": 1,
+      "list": [
+        "#2113 (draft, codex/thread-transfer-history-20261002, 472 changed files)"
+      ],
+      "files": "gh pr list lists at most 100 files per PR, so the full file list of #2113 was read through the pulls files API (472 files, paginated, census-pr2113-files.txt)",
+      "overlap": "none: no file of #2113 lies under scripts/release or the roadmap planning directory, or is an A2 leaf",
+      "censusSha256": "31bb2c039c2827d89a5061b8f2203c57a5ac67e74a21bec528d3c407bf1c0592",
+      "filesSha256": "d3e06315f24e44dfc17ed2d7609e2d8674758d2a1af6aeda27f5c1d6b8082fd0"
+    },
+    "worktrees": {
+      "registered": 26,
+      "detached": 7,
+      "locked": 3,
+      "leafOverlap": "none: no worktree HEAD differs from its merge-base with origin/main on any of the four A2 leaves",
+      "ledgerFileOverlap": "This worktree (branch work/a2m-closure-a2-admission-20261028) changes the ledger by design: its closure commits are the parent of this admission. Two old unmerged branches (codex/ndc1-native-delivery-20261009 and -r2-) changed ledger files long ago; they are not open PRs, do not touch scripts/release and would rebase the ledger on any future merge. Disclosed, not a leaf collision.",
+      "method": "git worktree list --porcelain; per worktree HEAD: merge-base with origin/main, then git diff --name-only mergeBase HEAD. Objects only: no git status or index read inside other worktrees, so uncommitted edits are not seen.",
+      "censusSha256": "4e423e3f054147a2216a6b52c5a7394efa129a998e75b379515eaf531f1c9b31"
+    },
+    "ledger": {
+      "censusSha256": "0ee28e797bc22e11f87e326138c84b581923b33e05d178df5c6157f0cda42ea5",
+      "summary": {
+        "ledgerUnits": 285,
+        "leaves": 4,
+        "inFlightClaimants": [],
+        "exactUnfinishedClaims": [],
+        "unfinishedAliasClaimants": [
+          "L1-SMOKE-B",
+          "STEP2-RC-RERUN-1"
+        ]
+      },
+      "note": "No in-flight claimant and no exact unfinished claim other than A2 itself (excluded from the census). L1-SMOKE-B and STEP2-RC-RERUN-1 are alias-only claimants through the scripts navigation alias; B is blocked and imports A2 read-only after it closes."
+    },
+    "priorPrepCensus": "At 242454d93 (prep): none of the four A2 leaf paths exists on main or in the #2346 diff (the A2M leaves are the l1-built-server-spectator-privacy-* names); the only literal claimant is A2 itself (registeredSourceLeaves, registration20261020 prospectiveStageManifest). Re-run at the freeze above."
+  },
+  "controls": {
+    "note": "sha256/bytes of git blobs at the A2M closure head 4188752debb27c53499b9001c08b261ad03164b8 (parent of this admission commit; the non-ledger files equal b78909c5e). Re-hash at the implementation baseline; any change must be explained. A2 edits no control.",
+    "a1Leaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "bytes": 16500,
+        "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "bytes": 15615,
+        "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "bytes": 3309,
+        "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "bytes": 25830,
+        "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+      }
+    ],
+    "a2fpLeaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "bytes": 2638,
+        "sha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-context.mjs",
+        "bytes": 7932,
+        "sha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+        "bytes": 9448,
+        "sha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+        "bytes": 16540,
+        "sha256": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894"
+      }
+    ],
+    "a2fLeaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "bytes": 8899,
+        "sha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "bytes": 6851,
+        "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "bytes": 17032,
+        "sha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85"
+      }
+    ],
+    "a2mLeaves": [
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "bytes": 6876,
+        "sha256": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35",
+        "note": "A2M leaf at the PR #2346 head; re-hash from main after the A2M closure merge (must be byte-identical to the frozen measuredFit bytes)"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "bytes": 980,
+        "sha256": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8",
+        "note": "A2M leaf at the PR #2346 head; re-hash from main after the A2M closure merge (must be byte-identical to the frozen measuredFit bytes)"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "bytes": 7185,
+        "sha256": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f",
+        "note": "A2M leaf at the PR #2346 head; re-hash from main after the A2M closure merge (must be byte-identical to the frozen measuredFit bytes)"
+      }
+    ],
+    "productAndConfig": [
+      {
+        "path": "server.js",
+        "bytes": 32625,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+      },
+      {
+        "path": "package.json",
+        "bytes": 35833,
+        "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 656778,
+        "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/index.ts",
+        "bytes": 11957,
+        "sha256": "b2cce8463b107b2c8b7a71f6582eacc0eb4e06976467703c5347a429400f481d"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "bytes": 5517,
+        "sha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394"
+      },
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "bytes": 14319,
+        "sha256": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462"
+      },
+      {
+        "path": "src/pages/api/campaigns/[id]/head.ts",
+        "bytes": 71,
+        "sha256": "77bd9d666731f13f4bf372ec722bbe2a05b176cd736310c3d96cc3ec0b5272f5"
+      },
+      {
+        "path": "src/lib/multiplayer/server/coopMissionCreate.ts",
+        "bytes": 11566,
+        "sha256": "238245aace299df317a4628f1762ba6b1c1800b091036d9a256a2d0871e9284e"
+      },
+      {
+        "path": "src/lib/multiplayer/server/coopMissionAdmission.ts",
+        "bytes": 8178,
+        "sha256": "8a265fe89d1072249aeb7a8e401a5560e146f6742d64986183209e05175630af"
+      },
+      {
+        "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "bytes": 57655,
+        "sha256": "bc7405199b37c489ce0748699bbddf70b21ac43b509ed6cdeaaf552ec0ea31f0"
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorizeCampaignParticipation.ts",
+        "bytes": 5476,
+        "sha256": "6291093ddf803541a156032af47241825359f1caa2a885fc1953841bfa29bb3e"
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "bytes": 8170,
+        "sha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab"
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "bytes": 6051,
+        "sha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "bytes": 22310,
+        "sha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736"
+      },
+      {
+        "path": "src/lib/multiplayer/server/durableCapabilityPorts.ts",
+        "bytes": 3577,
+        "sha256": "05751e964fb5febdb7d402f0f9af5c22e31ca6cea594601b2152c38582086f50"
+      },
+      {
+        "path": "src/utils/gameplay/gameSessionActivation.ts",
+        "bytes": 2630,
+        "sha256": "c6352e4c357d7dcc04fa16e290c4b80346bf2b866b1cd136f9eeb1423a776a1e"
+      },
+      {
+        "path": "src/utils/gameplay/gameSession.ts",
+        "bytes": 1644,
+        "sha256": "14e0b4d14671b8ed99d5add4083efdaab0a024ed56fd1f3e77b5c2766cac10c1"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "id": "G-A0",
+      "kind": "ruling before RED",
+      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main and place the four frozen leaves from E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/a2-admission/frozen-20261028/scripts/release/ (outside Git; each must equal measuredFit.leaves[].draftSha256 and draftBytes; the older prep draft/a2-leaves.patch predates the probe fix and must not be used). Re-verify every control hash above against the merged tree (A1, A2FP, A2F and the three A2M leaves byte-identical to the frozen bytes), re-run the open-PR and worktree census, and re-measure the leaves (fit.json)."
+    },
+    {
+      "id": "G-A1",
+      "kind": "pre-RED reachability",
+      "text": "SATISFIED at this freeze (see reachabilityGate.probe): the co-op setup reachability check ran on the exact-main A2M closure image before RED and passed on the second run after the harness-leaf fix. It is not repeated before RED unless a leaf byte changes the setup half; the GREEN built run (--build) is the registered proof. Stop and tell Root (do not edit product, no mock) if a later run refuses a setup step for a product reason, if concurrent first upgrades race MatchHostRegistry (A1 serialises them for that reason), or if reaching the active unit needs a leaf outside the four registered ones."
+    },
+    {
+      "id": "G-A2",
+      "kind": "RED",
+      "text": "Tests-only commit; the weak RED and the vacuous stand-in run above; the test leaf hash is frozen in the red receipt."
+    },
+    {
+      "id": "G-A3",
+      "kind": "GREEN",
+      "text": "Cases, fixtures and runner leaves; node:test green; oxfmt --check exit 0; oxlint --no-ignore clean; lint:units not above its 50/50 ceiling. The cases, fixtures and runner leaves must equal the measuredFit draftSha256 bytes; any deviation is listed in the local receipt with a re-measured counted total and re-checked against G-A8."
+    },
+    {
+      "id": "G-A4",
+      "kind": "built run, first contact",
+      "text": "The first --build run of the A2 runner. Stop and tell Root if an inherited matrix row fails (a regression of the frozen A2M proof), if the co-op rows fail for a product reason, or if a spectator row reports a leaked sentinel (a real privacy finding). A sole 15 s readiness timeout (CF-A2FP-2) is not a stop; take one disclosed rerun. Restore next-env.d.ts with git checkout before staging; it is outside the manifest."
+    },
+    {
+      "id": "G-A5",
+      "kind": "mutants",
+      "text": "The A2-owned built-image mutants; survivors disclosed; no compile-only or missing-module kill counted."
+    },
+    {
+      "id": "G-A6",
+      "kind": "privacy/authority packet",
+      "text": "Genuine PK packet before local-verified (agentRecommendation not a placeholder)."
+    },
+    {
+      "id": "G-A7",
+      "kind": "review and merge",
+      "text": "Independent exact-head authority and privacy review, required CI, OWNER-RULING on the exact head, merge with --match-head-commit, then the exact-main built run and closure."
+    },
+    {
+      "id": "G-A8",
+      "kind": "cap",
+      "text": "Re-measure the real merge diff against the first parent after the lifecycle edit and record capException with the literal count; an option-A count above 500 or a 16th file stops the unit for Root (the cap watch)."
+    },
+    {
+      "id": "G-A9",
+      "kind": "disclosure",
+      "text": "Release notes carry the real-mission-GM player-role known issue, S5-02 and OQ-M1; Root owns the edit (RELEASE-PRODUCER-1). The A2M R6 survivor disclosure rides into the local receipt."
+    }
+  ],
+  "resolutions": {
+    "R1": "No new row IDs beyond the four registered owned ids; A2_REQUIRED_CASES is A1 (10) + A2M (12) + 4 = 26.",
+    "R2": "The concurrency row is repaired inside the registered leaf: no spectate on a lobby, shared event id compared between the host reply and the guest delivery.",
+    "R3": "The runner reuses the A2FP runDirect (frozen) exactly as the A2M runner does; no A1/A2FP/A2M edit."
+  },
+  "carryIn": [
+    "CF-MPRU2-3 and CF-MPHD-5: the owned rows",
+    "A2 cap watch: measured here; does not trip",
+    "A2 setup fix (Root ruling 2026-10-26): applied in the draft leaves",
+    "A2M R6 survivor and its correction (Root rulings 2026-10-28): disclosed in the local receipt",
+    "CF-A2M-1: not discharged by A2; owed by the next unit that amends the A2M harness",
+    "CF-A2FP-2 (15 s readiness probe in the frozen A1 harness): one disclosed rerun only if it is the sole failure; A2 starts more servers than any earlier unit",
+    "OQ-M1, S5-02: registered; unchanged",
+    "Mission GM viewer role (option a): disclosed, not fixed"
+  ],
+  "exclusions": [
+    "S5-02 access-to-spectate policy remains open; no refusal row",
+    "No concurrent spectator, no three-way first-socket case and no real mission-spectate row",
+    "The real mission GM viewer role is not fixed and not asserted",
+    "No fog-on acceptance and no timeline row (B owns history checks)",
+    "No product, helper, config or dependency edit; A1, A2FP, A2F and A2M leaves are imported read-only"
+  ],
+  "openQuestions": [
+    "Q1 (RESOLVED, Root 2026-10-28): the pre-RED probe ran on the A2M closure exact-main image with no new build.",
+    "Q2 (RESOLVED, Root 2026-10-28): the 26-id enumeration and the runner casesMs (1,800,000, equal to the A2M runner) are confirmed.",
+    "Q3 (RESOLVED): the probe ran; the first failure (MATCH_PAUSED after the restart) was a harness gap fixed inside the owned cases leaf, and the rerun passed (reachabilityGate.probe)."
+  ],
+  "limitations": [
+    "Admission only; no leaf is committed by this PR (the four frozen leaves are preserved outside Git at E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/a2-admission/frozen-20261028/scripts/release/, each equal to measuredFit.leaves[].draftSha256) and nothing here is a registered built-image PASS of the A2 runner.",
+    "The co-op setup, the restart, the active-unit witness and the first captured rolls were probed on the exact-main A2M image (second run PASS, reachabilityGate.probe); that is a setup reachability check, not the 26-case GREEN run, and RED, GREEN and the mutants are owed at the implementation PR.",
+    "The inherited A2M disclosures ride into A2: R6 survived (Root ruling 2026-10-28), P1/P6 reconnect and restart coverage is inferred, and only matrix-Move-player-stale is witnessed under P7; CF-A2M-1 stays with the next unit that amends the A2M harness.",
+    "The worktree census cannot see uncommitted edits in other worktrees."
+  ],
+  "parentOfAdmissionCommit": "4188752debb27c53499b9001c08b261ad03164b8",
+  "preparedAt": "4188752debb27c53499b9001c08b261ad03164b8",
+  "preparedFrom": {
+    "readme": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/a2-admission/README.md",
+    "refresh": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/a2m-a2-refresh/ (a2-refresh.patch, cap-fit.json)",
+    "note": "Prep 2026-10-28 on the A2M PR head; this receipt is the freeze: the closure checkout re-measured, re-hashed and probed everything above. Historical prep is not built-image proof."
+  }
+}

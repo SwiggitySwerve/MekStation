@@ -1,0 +1,291 @@
+{
+  "unit": "L1-SMOKE-A2M",
+  "stage": "merge",
+  "recordedAt": "2026-10-28T04:20:14.596Z",
+  "pr": 2346,
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2346",
+  "head": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+  "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+  "mergeSha": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
+  "mergedAt": "2026-10-28T03:46:01Z",
+  "mergedBy": "SwiggitySwerve",
+  "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
+  "implementationBase": "962f8ae9c67a6da15916202dd44d803676a35c9d",
+  "baselineNote": "The admission baseline is a720c5746 (the MISSION-MATCH-1 implementation merge). The PR base and parent 1 of the merge commit is 962f8ae9c (the #2345 closure and A2M admission merge); the cap is measured against it.",
+  "prBaseRefOid": "962f8ae9c67a6da15916202dd44d803676a35c9d",
+  "parents": [
+    "962f8ae9c67a6da15916202dd44d803676a35c9d",
+    "242454d935ad52ad6bd15e1300decb3eff79c1f5"
+  ],
+  "mainBeforeMerge": "962f8ae9c67a6da15916202dd44d803676a35c9d",
+  "mergedTree": "d98fbe574c22ebbbfa5846c6a1c7a06890e853f3",
+  "reconstructedTree": "d98fbe574c22ebbbfa5846c6a1c7a06890e853f3",
+  "integrationClean": true,
+  "topology": "two-parent merge commit; ordered parent2 equals the exact ruled head; the merged tree equals git merge-tree --write-tree of the two parents and equals the tree of the PR head (d98fbe574)",
+  "treeEqualsPrHeadTree": true,
+  "mergeCommitMessageSha256": "2eeaaeb7414a734d846dceb92ae12fcff018013b9adfaa9d0790534098486033",
+  "mergeCommitMessageBytes": 147,
+  "mergeCommitMessageNote": "sha256 of the raw message bytes from git cat-file commit (after the header block and the blank separator), hashed in Node without text conversion.",
+  "mergeCommand": "Merged with --merge --match-head-commit 242454d935ad52ad6bd15e1300decb3eff79c1f5 (OWNER-RULING comment 6460133719).",
+  "commitSequence": {
+    "implementationBase": "962f8ae9c67a6da15916202dd44d803676a35c9d",
+    "red": "9363f5d8bb2417aa6d5be9339b54e6fb01acd680",
+    "green": "2cefdfe623eb6eb4f643ac90cae296bcb261a67e",
+    "lifecycle": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+    "reviewFixes": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+    "note": "RED 9363f5d8b is tests-only; GREEN 2cefdfe62 is the cases and runner leaves; 83ae34807 is the lifecycle commit (units.json, PROGRESS.md, page, red and local receipts); 242454d93 applies the review fixes as in-place text."
+  },
+  "sourceIdentities": [
+    {
+      "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+      "reviewedBlob": "761d530a8df0a2d3e58ddd50ef0fc039f6c01c82",
+      "prHeadBlob": "761d530a8df0a2d3e58ddd50ef0fc039f6c01c82",
+      "mergeBlob": "761d530a8df0a2d3e58ddd50ef0fc039f6c01c82",
+      "greenBlob": "761d530a8df0a2d3e58ddd50ef0fc039f6c01c82",
+      "redBlob": null
+    },
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+      "reviewedBlob": "21f7118b640e234d5217a98727a323f8cf07760b",
+      "prHeadBlob": "21f7118b640e234d5217a98727a323f8cf07760b",
+      "mergeBlob": "21f7118b640e234d5217a98727a323f8cf07760b",
+      "greenBlob": "21f7118b640e234d5217a98727a323f8cf07760b",
+      "redBlob": null
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+      "reviewedBlob": "b4680736e72d482a9cde7447b7eb0d540dfecc1b",
+      "prHeadBlob": "b4680736e72d482a9cde7447b7eb0d540dfecc1b",
+      "mergeBlob": "b4680736e72d482a9cde7447b7eb0d540dfecc1b",
+      "greenBlob": "b4680736e72d482a9cde7447b7eb0d540dfecc1b",
+      "redBlob": "b4680736e72d482a9cde7447b7eb0d540dfecc1b"
+    }
+  ],
+  "sourceIdentityNote": "All three registered leaves have one blob at the reviewed head 83ae34807, the ruled head 242454d93, the merge and GREEN 2cefdfe62. The test leaf is unchanged since RED 9363f5d8b (redBlob equals the merge blob); the cases and runner leaves did not exist at RED (redBlob null). The review fixes touched no leaf.",
+  "reviewFixDelta": {
+    "range": "83ae3480748a1c16ffdfe871341b3de386edcb80..242454d935ad52ad6bd15e1300decb3eff79c1f5",
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "numstat": [
+      "1\t1\topenspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "6\t3\topenspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+      "4\t4\topenspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "note": "No source or test leaf byte changed after the review. The fixes are in-place text edits to units.json and the local receipt, and the regenerated page; counted lines unchanged (303)."
+  },
+  "evidenceReceiptBlobs": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+      "blobAt83ae34807": "d6b349bbc62739e013b96971bf32162a7e19ef24",
+      "blobAt242454d93": "d6b349bbc62739e013b96971bf32162a7e19ef24",
+      "blobAtMerge": "d6b349bbc62739e013b96971bf32162a7e19ef24"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+      "blobAt83ae34807": "4a5b99511146bd60caf63679293debecbded8820",
+      "blobAt242454d93": "6e14883ac512c249d81a0b06ba8205cb279aff70",
+      "blobAtMerge": "6e14883ac512c249d81a0b06ba8205cb279aff70"
+    }
+  ],
+  "commits": [
+    {
+      "oid": "9363f5d8bb2417aa6d5be9339b54e6fb01acd680",
+      "headline": "test(release): add L1-SMOKE-A2M spectator privacy falsifiers (RED)"
+    },
+    {
+      "oid": "2cefdfe623eb6eb4f643ac90cae296bcb261a67e",
+      "headline": "test(release): add L1-SMOKE-A2M spectator privacy cases and runner (G…"
+    },
+    {
+      "oid": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+      "headline": "docs(roadmap): L1-SMOKE-A2M local-verified (red and local receipts)"
+    },
+    {
+      "oid": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+      "headline": "docs(roadmap): PR #2346 review fixes"
+    }
+  ],
+  "sourceCensus": {
+    "files": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "additions": 10,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "additions": 2,
+        "deletions": 2
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+        "additions": 471,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+        "additions": 53,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "additions": 39,
+        "deletions": 3
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "additions": 223,
+        "deletions": 0
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "additions": 221,
+        "deletions": 0
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "additions": 29,
+        "deletions": 0
+      }
+    ],
+    "note": "gh pr view 2346 files; 8 files, +1048/-5 against the PR base"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "files": 8,
+    "evidenceFiles": 2,
+    "countedFiles": 7,
+    "filesNote": "8 changed files = 7 counted files (three leaves, units.json, PROGRESS.md and the red and local receipts, which the plan counts as files) plus the generated page, which is exempt from the file count (ownerRuling20261024StepsPageFileCap)",
+    "counted": 303,
+    "capExceptionNeeded": false,
+    "measuredOn": "git diff --numstat --no-renames 962f8ae9c67a6da15916202dd44d803676a35c9d b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
+    "tool": "validate-roadmap.mjs:705-727 semantics (UNCOUNTED_FILES, evidence directory skipped)",
+    "perFile": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "added": 10,
+        "deleted": 0,
+        "countedLines": 10,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "added": 2,
+        "deleted": 2,
+        "countedLines": 2,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+        "added": 471,
+        "deleted": 0,
+        "countedLines": 0,
+        "evidence": true,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+        "added": 53,
+        "deleted": 0,
+        "countedLines": 0,
+        "evidence": true,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 39,
+        "deleted": 3,
+        "countedLines": 39,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "added": 223,
+        "deleted": 0,
+        "countedLines": 223,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "added": 221,
+        "deleted": 0,
+        "countedLines": 0,
+        "evidence": false,
+        "testExempt": true
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "added": 29,
+        "deleted": 0,
+        "countedLines": 29,
+        "evidence": false,
+        "testExempt": false
+      }
+    ]
+  },
+  "ownerRuling": {
+    "ruledHead": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+    "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+    "pr": 2346,
+    "commentId": 6460133719,
+    "author": "SwiggitySwerve",
+    "bodySha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0",
+    "at": "2026-10-28T03:45:57Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2346#issuecomment-6460133719",
+    "bodyBytes": 3253,
+    "authorNote": "The live comment is posted from the owner GitHub account and states \"Claude Opus 5.5 responding on behalf of @SwiggitySwerve\": Root acting on behalf of the owner under the standing merge and Full send instructions. It is Root commentary, not a verbatim owner quote.",
+    "envelope": {
+      "path": "evidence/l1-smoke-a2m-owner-ruling-6460133719.bytes.json",
+      "payloadSha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0",
+      "payloadBytes": 3253
+    },
+    "rootCopy": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/pr2346-owner-ruling-242454d93.md",
+      "sha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0",
+      "equalsLive": true
+    }
+  },
+  "ci": {
+    "run": 40627781742,
+    "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40627781742",
+    "headSha": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+    "event": "pull_request",
+    "conclusion": "success",
+    "jobs": 33,
+    "checks": "33/33 SUCCESS at the ruled head 242454d93 (gh pr checks 2346; PR Checks run 40627781742), re-read at closure."
+  },
+  "reviewRounds": [
+    {
+      "round": 1,
+      "reviewer": "claude-opus-5-5",
+      "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+      "verdict": "ACCEPT-WITH-IN-PR-FIXES (F-1..F-3)",
+      "report": "evidence/l1-smoke-a2m-source-review-20261028.bytes.json"
+    },
+    {
+      "round": 1,
+      "reviewer": "claude-sonnet-5-5",
+      "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+      "verdict": "APPROVE-WITH-FIXES (F1..F6)",
+      "report": "additionalPayload pr2346-review2.md in evidence/l1-smoke-a2m-source-review-20261028.bytes.json"
+    },
+    {
+      "round": 2,
+      "reviewedHead": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+      "verdict": "Root fix commit 242454d93 (not a reviewer round)",
+      "scope": "in-place text edits for Sonnet F1-F5 and Opus F-1/F-2; PR body edits for Opus F-1/F-3; Sonnet F6 carried to CF-A2M-1; no leaf byte changed; caps 303/7 unchanged"
+    }
+  ],
+  "mergeNotes": [
+    "The merge commit tree equals the ruled head tree, so every leaf at the merge is byte-identical to the reviewed bytes (leavesAtMerge in the mainProof receipt).",
+    "Neither independent reviewer ran a built image. Opus independently reran node:test 9/9 and oxfmt --check (exit 0); the exact-main built run in the mainProof receipt is the first built-image execution by anyone other than the implementation worker."
+  ]
+}

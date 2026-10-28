@@ -1,3 +1,29 @@
+## 2026-10-28 L1-SMOKE-A2 admitted (Step 3 PR 8 of 12, second commit of the L1-SMOKE-A2M closure PR; ledger and evidence only)
+
+Admits L1-SMOKE-A2 on baseline b78909c5e (the L1-SMOKE-A2M implementation merge), after the L1-SMOKE-A2M closure in the previous commit of this PR (the #2336, #2339 and #2345 riding pattern). Only A2 becomes admitted unfinished when this PR merges; no A2 leaf is committed here. Implementation starts only after this PR merges and after the pre-RED co-op reachability gate. G-A1 is already SATISFIED by the probe recorded here (second run PASS); it is repeated before RED only if a leaf byte that affects the setup half changes. The receipt is [l1-smoke-a2-implementation-admission.json](evidence/l1-smoke-a2-implementation-admission.json).
+
+- Authority: owner decisions 2026-10-25b items 1 and 3, owner decisions 2026-10-26, and the Root rulings 2026-10-26 (GM role option a; A2 cap watch; A2 setup fix) and 2026-10-28 (A2M R6 survivor and its correction). A2 imports A1, A2FP and the closed A2M matrix read-only and creates only its four registered leaves.
+- The concurrent-first-sockets row is corrected: two participant sockets in flight at once on a lobby match (no spectate call, which the route refuses on a lobby), then the shared accepted event and the journal check. The three co-op rows run on a real co-op mission restarted on the same image and private DB; the pre-RED gate proves the setup is reachable through ordinary APIs before any RED.
+- KNOWN ISSUE carried from A2M and disclosed for the release notes (RELEASE-PRODUCER-1 admission): the real mission GM keeps the player viewer role. A2 adds no GM row. S5-02 stays open. The A2M R6 survivor and unrun P1/P6 reconnect coverage ride into A2 because the matrix runs unchanged.
+- Fit: option A 473 to 477 of 500 (leaves 415 plus lifecycle 58 to 62; the fixtures leaf is test-support), literal 593 to 597 recorded by capException at the implementation PR; the cap watch does not trip. Files: 4 leaves, units.json, PROGRESS.md, red and local receipts = 8 counted plus the exempt page.
+- Pre-RED probe (G-A1) taken at the freeze on the A2M closure exact-main image (BUILD_ID 1793160601467, no new build): the first run failed at coop-restart-action-accepted with MATCH_PAUSED (a rebuilt campaign session stays paused until the GM sync connection returns); Root ruled a harness gap (2026-10-28), the owned cases leaf now reopens the GM campaign channel after the restart, and the one rerun passed all four owned rows. The GM could issue AdvancePhase.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md and the four registered evidence names. The new scripts/release leaves need git add -f (scripts/** is ignored).
+
+---
+
+## 2026-10-28 L1-SMOKE-A2M closed; main-verified (exact-main built-image proof); Step 3 PR 8 of 12 (A2 admission is the next commit of this PR)
+
+Closes L1-SMOKE-A2M (PR #2346, ruled and merged head 242454d93, merge b78909c5e) as main-verified. The OWNER-RULING (comment 6460133719, Root on behalf of the owner under the standing merge and Full send instructions; Root commentary, not a verbatim owner quote) accepted that exact head; the merge tree equals the ruled head tree, so all three leaves are byte-identical to the reviewed bytes.
+
+- Exact-main proof at clean b78909c5e: real `npm ci`, the A2M node test (9 of 9), the A1 smoke test (17 of 17), the A2FP test file (16 of 16), the A2F node test (13 of 13), and the A2M built runner `run-l1-built-server-spectator-privacy.mjs --build --expected-sha=b78909c5e...`: the A1 baseline plus all 12 matrix ids passed (22 cases), on the first attempt, no readiness timeout, no rerun (CF-A2FP-2 unused).
+- Receipts: review (the Opus report at 83ae34807 in one byte envelope; the Sonnet second review, Root's fix script and PR body edits, and the Root R6 ruling sections are separate payloads), merge and mainProof; the ruling comment is byte-copied and equals the live comment and the Root copy; one envelope holds the install, run and tool-check output. Opus independently reran node:test 9/9 and oxfmt only; neither reviewer ran a built image, so the exact-main run is the first built-image execution by anyone but the implementation worker.
+- Review history, kept as it happened: both reviews read 83ae34807; the fixes (Sonnet F1-F5, Opus F-1/F-2, PR body F-3) landed in place at 242454d93 with no leaf byte and no counted line; Sonnet F6 (shallow nested-A1 guard) is carried to CF-A2M-1. Old receipts are not rewritten.
+- Cap: the real merge measured against its first parent 962f8ae9c is 303 counted added lines and 7 counted files plus the exempt page; no capException.
+- Carry-forward (units.json L1-SMOKE-A2M.closureCarryForward20261028): CF-A2M-1 stays open (live-leg lock-frame assertion and R6 rerun, R6+P1 and R6+P6 combined mutants, tighter nested-A1 check); R6 stays a disclosed non-equivalent survivor (Root ruling 2026-10-28, not an owner decision); S5-02, the real mission GM player viewer role (release-notes paragraph to RELEASE-PRODUCER-1) and OQ-M1 stay open. CF-A2F-1 and CF-A2F-2 built-image sides are exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7). Treated as discharged to the extent exercised; not discharged for individual discrimination. For CF-A2F-2, P7 failed at the live Move before the restart, so the post-restart replay assertion is not separately witnessed; the residual gap is carried by CF-A2M-1.
+- No task row is ticked.
+
+---
+
 ## 2026-10-27 L1-SMOKE-A2M local-verified (Step 3 PR 7 of 12)
 
 Adds the A2M cases and runner leaves behind the frozen test leaf: nine sealed-declaration/audience rows (Move, Attack, Physical times player-stale, gm-stale, gm-unassigned) plus the three non-spectating-GM controls. RED contains only the test; GREEN adds the two source leaves, byte-equal to the admission measuredFit bytes. No product edit.

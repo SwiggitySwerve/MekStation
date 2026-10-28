@@ -1,0 +1,152 @@
+{
+  "unit": "L1-SMOKE-A2M",
+  "stage": "review",
+  "recordedAt": "2026-10-28T04:20:14.596Z",
+  "evidenceNameNote": "File name keeps the literal frozen in the admission receipt and the unit ownershipExceptions (l1-smoke-a2m-review.json).",
+  "head": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+  "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+  "reviewedHeadNote": "The independent Opus review and the Sonnet second review read 83ae34807. The PR then applied the review fixes at 242454d93 (in-place text edits to units.json and the local receipt, and the regenerated page; no leaf byte; counted lines unchanged). The OWNER-RULING (comment 6460133719, Root on behalf of the owner) accepted 242454d93. All three registered leaves are byte-identical at 83ae34807, 242454d93, GREEN and the merge (merge receipt sourceIdentities).",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only review sub-agent (Claude Opus 5.5); the report names Claude as reviewer and Root identifies it as Opus.",
+  "secondReviewer": {
+    "model": "claude-sonnet-5-5",
+    "verdict": "APPROVE-WITH-FIXES (F1..F6)",
+    "head": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+    "report": "additionalPayload pr2346-review2.md in evidence/l1-smoke-a2m-source-review-20261028.bytes.json",
+    "sha256": "e3ccf4096ba7c9ea17354d804fc1d5e04984ae49b62c0f5e55d11fd9ca9ccad0",
+    "bytes": 9548,
+    "note": "A separate reviewer fact: an independent Claude pass (not sol-loop; the OpenAI quota is exhausted). It ran no Jest and no build."
+  },
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "Worker model per owner decision 2026-10-26; repeats the A2M admission contributor field.",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "ACCEPT-WITH-IN-PR-FIXES (F-1..F-3; applied at 242454d93 or in the PR body)",
+  "ownerDisposition": "ACCEPT at 242454d935ad52ad6bd15e1300decb3eff79c1f5 (OWNER-RULING comment 6460133719, Root on behalf of the owner)",
+  "classes": [
+    "authority",
+    "privacy"
+  ],
+  "outputPath": "evidence/l1-smoke-a2m-source-review-20261028.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority; its top-level payload is pr2346-review.md as written by the reviewer. The Sonnet review, Root fix script, PR bodies and the R6 ruling sections are additionalPayloads of the same envelope.",
+  "outputSha256": "b25c898006d2fc7bc4d788d69e0f7e72a04a54ab1bea33c76b0aa55bd06e1107",
+  "outputBytes": 15640,
+  "outputEnvelope": {
+    "path": "evidence/l1-smoke-a2m-source-review-20261028.bytes.json",
+    "payloadSha256": "b25c898006d2fc7bc4d788d69e0f7e72a04a54ab1bea33c76b0aa55bd06e1107",
+    "payloadBytes": 15640
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2346-review.md",
+  "byteExact": true,
+  "independentRuns": "Opus independently reran node:test 9/9 and oxfmt --check (exit 0, 3 leaves) at 83ae34807 after a real npm ci, and re-hashed 31 admission controls with zero drift. Neither reviewer ran a built image; the first built-image run by anyone other than the implementation worker is the exact-main run in the mainProof receipt.",
+  "effectiveManifest": {
+    "statement": "The effective L1-SMOKE-A2M manifest is the three registered leaves plus the unit lifecycle (units.json, PROGRESS.md, V2.2.0-STEPS.md) and the red and local receipts; PR #2346 carried 8 files (7 counted). This closure PR carries the reserved review receipt, the merge and mainProof receipts and the three byte envelopes.",
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+      "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+      "scripts/release/run-l1-built-server-spectator-privacy.mjs"
+    ]
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "reviewer": "claude-opus-5-5",
+      "scope": "exact head 83ae34807",
+      "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+      "verdict": "ACCEPT-WITH-IN-PR-FIXES",
+      "sha256": "b25c898006d2fc7bc4d788d69e0f7e72a04a54ab1bea33c76b0aa55bd06e1107",
+      "bytes": 15640,
+      "findings": [
+        {
+          "id": "F-1",
+          "disposition": "FIXED at 242454d93 (units.json PK recommendation) and in the PR body: P7 is witnessed on matrix-Move-player-stale only"
+        },
+        {
+          "id": "F-2",
+          "disposition": "FIXED at 242454d93 (units.json disclosures and PK): OQ-M1 rows assert sealed content absent, no placeholder and a contiguous cursor; the sequence gap is recorded, not asserted"
+        },
+        {
+          "id": "F-3",
+          "disposition": "FIXED in the PR body: 7 counted files of 15 plus the exempt page, 8 paths in the diff"
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "reviewer": "claude-sonnet-5-5",
+      "scope": "exact head 83ae34807",
+      "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+      "verdict": "APPROVE-WITH-FIXES",
+      "sha256": "e3ccf4096ba7c9ea17354d804fc1d5e04984ae49b62c0f5e55d11fd9ca9ccad0",
+      "bytes": 9548,
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "FIXED at 242454d93: P4 observed at the reconnect leg; P1 and P6 coverage at reconnect and restart is inferred, not run (Root correction 2026-10-28)"
+        },
+        {
+          "id": "F2",
+          "disposition": "FIXED at 242454d93: race timestamps corrected to 00:27:38.399Z / .400Z (matrix-Move-player-stale)"
+        },
+        {
+          "id": "F3",
+          "disposition": "FIXED in the PR body: 7 counted files of 15"
+        },
+        {
+          "id": "F4",
+          "disposition": "FIXED at 242454d93: the P7 revert is 9 files"
+        },
+        {
+          "id": "F5",
+          "disposition": "FIXED at 242454d93: textSha256 added beside sectionSha256 with an explanatory note"
+        },
+        {
+          "id": "F6",
+          "disposition": "CARRIED to CF-A2M-1 (nested-A1 guard is shallow); the frozen leaf bytes are unchanged"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "83ae3480748a1c16ffdfe871341b3de386edcb80..242454d935ad52ad6bd15e1300decb3eff79c1f5",
+    "note": "Root fix commit; files openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md, openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json, openspec/planning/2026-09-12-roadmap-completion/units.json. Not a third reviewer round and not a fresh test run."
+  },
+  "receiptQualifications": [
+    {
+      "id": "REVIEWED-HEAD",
+      "target": "stageReceipts.review.head",
+      "qualification": "head and ownerDisposition name the ruled head 242454d93; reviewedHead names the head both reviewers read (83ae34807). The prHead of the unit is 242454d93."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+    "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+    "pr": 2346,
+    "commentId": 6460133719,
+    "author": "SwiggitySwerve",
+    "bodySha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0",
+    "at": "2026-10-28T03:45:57Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2346#issuecomment-6460133719",
+    "bodyBytes": 3253,
+    "envelope": {
+      "path": "evidence/l1-smoke-a2m-owner-ruling-6460133719.bytes.json",
+      "payloadSha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0",
+      "payloadBytes": 3253
+    }
+  },
+  "acceptedOnTheRecord": [
+    "R6 (runRow skips the live barrier wait) survived and is accepted as a disclosed, non-equivalent survivor (Root ruling 2026-10-28, not an owner decision; A2F R5 precedent)",
+    "P7 discrimination is witnessed on matrix-Move-player-stale only; P1, P4, P6 are each witnessed on the first stale row (a mutant run stops at its first failure); reconnect/restart coverage of P1 and P6 is inferred",
+    "S5-02 (who may spectate) stays open; the real mission GM keeps the player viewer role (mission matches have no meta.coopCampaign; release-notes paragraph goes to RELEASE-PRODUCER-1); OQ-M1 (GM-branded authority sequence gap) is recorded, not asserted"
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-A2M-1",
+      "item": "Open; routed to the next unit that amends the A2M harness (live-leg lock-frame assertion and R6 rerun, R6+P1 and R6+P6 combined mutants, tighter nested-A1 check)."
+    }
+  ]
+}
