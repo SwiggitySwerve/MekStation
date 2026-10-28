@@ -2,6 +2,13 @@ import { spawnSync } from 'child_process';
 import path from 'path';
 
 const repoRoot = path.resolve(__dirname, '../..');
+// WSL config imports use tsx's nested esbuild, not hydration's root version.
+const configTestEnv = {
+  ...process.env,
+  ESBUILD_BINARY_PATH:
+    process.env.CONFIG_TEST_ESBUILD_BINARY_PATH ??
+    process.env.ESBUILD_BINARY_PATH,
+};
 
 describe('production builder alias parity', () => {
   it.each([
@@ -41,7 +48,7 @@ describe('production builder alias parity', () => {
         {
           cwd: repoRoot,
           encoding: 'utf8',
-          env: { ...process.env, ANALYZE: String(analyze) },
+          env: { ...configTestEnv, ANALYZE: String(analyze) },
         },
       );
       expect(result.status).toBe(0);
@@ -109,7 +116,7 @@ describe('production builder alias parity', () => {
           cwd: repoRoot,
           encoding: 'utf8',
           env: {
-            ...process.env,
+            ...configTestEnv,
             CONFIG_TEST_PHASE: phase,
             NEXT_PUBLIC_E2E_MODE: e2e,
             MEKSTATION_SKIP_NEXT_TYPECHECK: 'false',
