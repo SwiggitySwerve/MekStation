@@ -1,0 +1,1319 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2",
+  "stage": "local",
+  "status": "PASS",
+  "date": "2026-10-28",
+  "recordedAt": "2026-10-28T08:54:06.688Z",
+  "implementationBase": "4ef0b45166b51c2e857b31b5e54895db1e253e3c",
+  "redCommit": "51539564c7230de130b464144d97e9b001d093af",
+  "greenCommit": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
+    "sha256": "8388c61e6a99873f5a0245e72af97dfa3c708a4ef356a35289c9b9dceb19b2bb",
+    "bytes": 48042
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/l1-built-server-spectator-cases.mjs",
+      "sha256": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+      "bytes": 12617,
+      "matchesFrozenHash": false,
+      "draftSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "preFixSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "preFixBytes": 11924,
+      "g3Deviation": true
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "sha256": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b",
+      "bytes": 3886,
+      "matchesFrozenHash": true,
+      "draftSha256": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator.test.mjs",
+      "sha256": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb",
+      "bytes": 11006,
+      "matchesFrozenHash": false,
+      "draftSha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+      "preFixSha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+      "preFixBytes": 8315,
+      "g3Deviation": true
+    },
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+      "sha256": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d",
+      "bytes": 783,
+      "matchesFrozenHash": true,
+      "draftSha256": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d"
+    }
+  ],
+  "nodeTests": {
+    "command": "node --import tsx --test scripts/release/l1-built-server-spectator.test.mjs",
+    "pass": 9,
+    "fail": 0,
+    "node": "v22.22.0",
+    "lane": "a2-impl",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/fix/green-node-test.log",
+      "sha256": "b52e30fc0fdc1b52f80bc8bd60a162619a976e72e5405afbe5f27003e445a436",
+      "bytes": 2339
+    },
+    "preFix": {
+      "command": "node --import tsx --test scripts/release/l1-built-server-spectator.test.mjs",
+      "pass": 6,
+      "fail": 0,
+      "node": "v22.22.0",
+      "lane": "a2-impl",
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-node-test.log",
+        "sha256": "7a889a72dcb39b4bab4a832f6214119402403b205276b41b0fcaeb29011b636f",
+        "bytes": 3186
+      }
+    }
+  },
+  "pureFunctionMutants": {
+    "total": 27,
+    "killed": 27,
+    "note": "The 18 original mutants were rerun on the post-fix leaf bytes (fix/old18); 9 new mutants (X1-X9) target the exported selectDice. The first X5 run was killed by a TypeError rather than an assertion, so the test was strengthened (bare?.event.type) and all nine were rerun; the logs of that first run were discarded.",
+    "results": [
+      {
+        "id": "E1-omit-a1",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E1-omit-a1.log"
+      },
+      {
+        "id": "E2-omit-matrix",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E2-omit-matrix.log"
+      },
+      {
+        "id": "E3-omit-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E3-omit-owned.log"
+      },
+      {
+        "id": "E4-doubled-row",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E4-doubled-row.log"
+      },
+      {
+        "id": "E5-unexpected-row",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E5-unexpected-row.log"
+      },
+      {
+        "id": "C1-skip-a1",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C1-skip-a1.log"
+      },
+      {
+        "id": "C2-skip-matrix",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C2-skip-matrix.log"
+      },
+      {
+        "id": "C3-skip-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C3-skip-owned.log"
+      },
+      {
+        "id": "C4-double-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C4-double-owned.log"
+      },
+      {
+        "id": "R1-missing-rolls",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R1-missing-rolls.log"
+      },
+      {
+        "id": "R2-empty-rolls",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R2-empty-rolls.log"
+      },
+      {
+        "id": "R3-low-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R3-low-die.log"
+      },
+      {
+        "id": "R4-high-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R4-high-die.log"
+      },
+      {
+        "id": "R5-fractional-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R5-fractional-die.log"
+      },
+      {
+        "id": "W1-missing-event",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-W1-missing-event.log"
+      },
+      {
+        "id": "W2-doubled-event",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-W2-doubled-event.log"
+      },
+      {
+        "id": "W3-live-pid",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-W3-live-pid.log"
+      },
+      {
+        "id": "S1-reopen-removed",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "co-op restart row reopens",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-S1-reopen-removed.log"
+      },
+      {
+        "id": "X1-early-check-removed",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X1-early-check-removed.log"
+      },
+      {
+        "id": "X2-early-comparator-flipped",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X2-early-comparator-flipped.log"
+      },
+      {
+        "id": "X3-early-always-true",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X3-early-always-true.log"
+      },
+      {
+        "id": "X4-rolls-not-a-dice-reply",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X4-rolls-not-a-dice-reply.log"
+      },
+      {
+        "id": "X5-dice-type-not-a-dice-reply",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X5-dice-type-not-a-dice-reply.log"
+      },
+      {
+        "id": "X6-any-event-is-early",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X6-any-event-is-early.log"
+      },
+      {
+        "id": "X7-event-kind-unchecked",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X7-event-kind-unchecked.log"
+      },
+      {
+        "id": "X8-parsed-unguarded",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X8-parsed-unguarded.log"
+      },
+      {
+        "id": "X9-intent-dropped",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "selectDice",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "fix/pure-X9-intent-dropped.log"
+      }
+    ],
+    "preFixOriginal18": {
+      "total": 18,
+      "killed": 18,
+      "results": [
+        {
+          "id": "E1-omit-a1",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "composite enumeration",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-E1-omit-a1.log"
+        },
+        {
+          "id": "E2-omit-matrix",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "composite enumeration",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-E2-omit-matrix.log"
+        },
+        {
+          "id": "E3-omit-owned",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "composite enumeration",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-E3-omit-owned.log"
+        },
+        {
+          "id": "E4-doubled-row",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "composite enumeration",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-E4-doubled-row.log"
+        },
+        {
+          "id": "E5-unexpected-row",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "composite enumeration",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-E5-unexpected-row.log"
+        },
+        {
+          "id": "C1-skip-a1",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "runA2Cases runs",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-C1-skip-a1.log"
+        },
+        {
+          "id": "C2-skip-matrix",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "runA2Cases runs",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-C2-skip-matrix.log"
+        },
+        {
+          "id": "C3-skip-owned",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "runA2Cases runs",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-C3-skip-owned.log"
+        },
+        {
+          "id": "C4-double-owned",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "runA2Cases runs",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-C4-double-owned.log"
+        },
+        {
+          "id": "R1-missing-rolls",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "capturedRolls accepts",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-R1-missing-rolls.log"
+        },
+        {
+          "id": "R2-empty-rolls",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "capturedRolls accepts",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-R2-empty-rolls.log"
+        },
+        {
+          "id": "R3-low-die",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "capturedRolls accepts",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-R3-low-die.log"
+        },
+        {
+          "id": "R4-high-die",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "capturedRolls accepts",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-R4-high-die.log"
+        },
+        {
+          "id": "R5-fractional-die",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "capturedRolls accepts",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-R5-fractional-die.log"
+        },
+        {
+          "id": "W1-missing-event",
+          "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "namedCheck": "event witness returns",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-W1-missing-event.log"
+        },
+        {
+          "id": "W2-doubled-event",
+          "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "namedCheck": "event witness returns",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-W2-doubled-event.log"
+        },
+        {
+          "id": "W3-live-pid",
+          "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "namedCheck": "event witness returns",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-W3-live-pid.log"
+        },
+        {
+          "id": "S1-reopen-removed",
+          "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "namedCheck": "co-op restart row reopens",
+          "exit": 1,
+          "result": "KILLED",
+          "log": "pure-S1-reopen-removed.log"
+        }
+      ]
+    }
+  },
+  "staticChecks": {
+    "oxfmt": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-oxfmt.log",
+      "sha256": "dd8d19a1428b08da051e97bf439d3b018c4808580fc85f4f751ed39c59e0b04a",
+      "bytes": 234
+    },
+    "lintUnits": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-lint-units.log",
+      "sha256": "1a24869515709235066946d07349937514420375d32e381419762abd75b0d323",
+      "bytes": 730
+    },
+    "oxlintDefault": "--no-ignore exits 0 but config excludes all four leaves (0 files).",
+    "oxlintExplicit": "Same repository rules with ignorePatterns removed in an external config checks four leaves: no errors, one no-console warning for required CLI JSON stdout. Allowing only no-console for the CLI gives 0 warnings/errors.",
+    "oxlintExplicitLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-oxlint-effective.log",
+      "sha256": "b6f229ac854d3ebcea8ac6d7aa4200debb1e972e97470fab5909f39df8e0e2c9",
+      "bytes": 824
+    },
+    "oxlintCliLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-oxlint-cli.log",
+      "sha256": "dd36d9ab66c20997fdcc40934499d19e0a50d5593162b6eb5b5e821a29afdd46",
+      "bytes": 186
+    },
+    "noUndef": {
+      "exit": 0,
+      "note": "ESLint no-undef/no-unused-vars command returned 0 with no output in the implementation turn; Tee-Object did not create an empty log. No raw log is claimed."
+    },
+    "postFix": {
+      "oxfmt": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/fix/green-oxfmt.log",
+        "sha256": "ead410b4a23b7172cc0fad1275f6fb2b51c1f0a6f7ae0b2c75d5fc4e03942f29",
+        "bytes": 112
+      },
+      "lintUnits": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/fix/green-lint-units.log",
+        "sha256": "3c4453d175584e8ea46f100032de7ac62423e37a0cd7bf20e6bac6491f4cf0ef",
+        "bytes": 355
+      },
+      "note": "oxfmt --check exit 0 on the four leaves; lint:units 17899/17899 at its ceilings."
+    }
+  },
+  "builtImage": {
+    "head": "b836e06b2ae8102d03a14f2653ee7d073bcc8eb4",
+    "verdict": "PASS",
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "image": {
+      "buildId": "1793176598957",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "c6544d551d71dbe622a4bf358d1e193a693a712418ae06f17bf9d89783c12a46",
+      "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+    },
+    "firstAttempt": true,
+    "readinessRerun": false,
+    "processCount": 45,
+    "summary": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/built-run-fix/summary.json",
+      "sha256": "ceed06003d9e0c97d3f42fe857c93aad56ba2fd2a61cdc2d557f0a1b08a8efa9",
+      "bytes": 10739
+    },
+    "evidence": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/built-run-fix/evidence.jsonl",
+      "sha256": "474f9c09bca2677e1a52677474f61ee31a84e65777687fd48d88a99684dbf845",
+      "bytes": 1481732
+    },
+    "firstRollsRow": "coop-first-rolls-captured selected attack_locked, intent coop-gm-2-2, stored sequence 15 (the first post-restart dice-producing batch).",
+    "supersedes": "builtImage (BUILD_ID 1793170760492) recorded as supersededBuiltImage"
+  },
+  "rootRulingMA1": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: A2 gating mutant MA1 survived (assertion removal)",
+    "verbatim": "## 2026-10-28 Root ruling: A2 gating mutant MA1 survived (assertion removal)\n\nFacts (from _reports/2026-10-28/a2-impl/STOPPED.json, head 04d9f2d42): GREEN built run 26/26 on the first attempt. MA1 removes the actor reply id from `ids = new Set([acted.reply.event?.id, seen.frame.event.id])` in concurrent-first-sockets. It passed 26/26. The worker correctly found it is not equivalent, and stopped.\n\nRoot reading: MA1 deletes an assertion. On a correct product the actor's reply and the guest's delivery carry the same event id, so no run on an unmutated server can kill it. This is a gap in how the mutant was specified at admission, not a missing harness check. The fault classes differ:\n- A MatchHostRegistry race (two hosts for one match) is caught before the equality check: the guest's intentId-correlated waitFor times out.\n- The equality check exists only for id divergence: the guest receives the same intent's event under a different id than the actor's reply.\n\nRuling: discharge MA1 as a paired (combined) mutant, the method CF-A2M-1 already asks for on R6.\n1. Build one image with a product mutant PA1, so that the guest-visible event id diverges from the actor's reply id for the same intent.\n   - It goes at the narrowest seam (for example the publish/broadcast envelope in ServerMatchHostPublication.ts or ServerMatchHostCommandResults.ts).\n   - If it breaks an earlier row, scope it to the cfs match. Disclose the scoping.\n   - PA1 is scratch only. It is never committed and is restored byte-exact afterwards.\n2. Run the unmutated A2 harness against PA1. Required: concurrent-first-sockets fails on the named check \"concurrent first sockets conflicted\", with two ids. A failure at an earlier row or a different check does not count.\n3. Run the MA1 harness against the same PA1 image, without a rebuild. Required: concurrent-first-sockets passes, which shows MA1's deleted assertion was the only thing that caught PA1.\n4. Record MA1 as killed in combination, with PA1 as its witness, and disclose it as such. It is not a plain kill.\n\nIf no single-seam PA1 can make the ids diverge without breaking the build, stop and report. Root will then rule MA1 a disclosed survivor (R6 precedent). MA2-MA5 continue under the unchanged rule: a survivor stops the unit unless shown equivalent.\n",
+    "verbatimSha256": "6f5f828d9a859272b167de4b66fd5eb5f4305fd93b561828d72746bc73b390b2"
+  },
+  "ma1OriginalSurvivor": {
+    "id": "MA1",
+    "description": "concurrent-first-sockets compares only the guest delivery to itself (a one-element id set)",
+    "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+    "originalBranch": "work/a2-impl-20261028",
+    "startedAt": "2026-10-28T07:09:00.904Z",
+    "gating": true,
+    "mutantSha": "29847ab7f7020fde7f115d1bc6e37354aa70215b",
+    "exit": 0,
+    "verdict": "PASS",
+    "errors": [],
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "image": {
+      "buildId": "1793170760492",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "eab66dea9d84d64e2140d1c10df1459cf51de32d985f3ead17012634dfc42181",
+      "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+    },
+    "result": "SURVIVED",
+    "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+    "restoredLeafSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+    "finishedAt": "2026-10-28T07:12:58.661Z"
+  },
+  "ma1Paired": {
+    "classification": "killed in combination (witness PA1)",
+    "result": {
+      "startedAt": "2026-10-28T07:23:44.244Z",
+      "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "originalBranch": "work/a2-impl-20261028",
+      "pa1Image": {
+        "buildId": "1793171845368",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "3f73dcd58d8ec10a8fc3cf473c92531e6b818065918383f170b4dc1b5788c26d",
+        "sourceTreeSha256": "b036b0abfc7aba11398512138faf14a83c08450b5cd0e41045b2566b72978d8d"
+      },
+      "pa1Failure": "[concurrent-first-sockets] concurrent first sockets conflicted: {\"whole\":true,\"ids\":[\"fb5e61fd-e131-46ff-aeee-39d3f53485d8\",\"fb5e61fd-e131-46ff-aeee-39d3f53485d8-PA1\"],\"errors\":[]}",
+      "divergentIds": [
+        "fb5e61fd-e131-46ff-aeee-39d3f53485d8",
+        "fb5e61fd-e131-46ff-aeee-39d3f53485d8-PA1"
+      ],
+      "ma1Sha": "29847ab7f7020fde7f115d1bc6e37354aa70215b",
+      "exit": 0,
+      "ma1Verdict": "PASS",
+      "ma1Errors": [],
+      "ma1Passed": [
+        "credential-malformed-refused",
+        "credential-url-refused",
+        "participants-authenticated",
+        "credential-foreign-refused",
+        "participant-action-accepted",
+        "spectator-seat-witnessed",
+        "spectator-replay-public",
+        "spectator-live-public",
+        "spectator-cannot-act",
+        "callbacks-exercised",
+        "matrix-Move-player-stale",
+        "matrix-Move-gm-stale",
+        "matrix-Move-gm-unassigned",
+        "matrix-Move-gm-participant",
+        "matrix-Attack-player-stale",
+        "matrix-Attack-gm-stale",
+        "matrix-Attack-gm-unassigned",
+        "matrix-Attack-gm-participant",
+        "matrix-Physical-player-stale",
+        "matrix-Physical-gm-stale",
+        "matrix-Physical-gm-unassigned",
+        "matrix-Physical-gm-participant",
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "sameImage": true,
+      "result": "killed in combination (witness PA1)",
+      "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "finishedAt": "2026-10-28T07:29:55.841Z"
+    },
+    "productMutation": {
+      "startedAt": "2026-10-28T07:17:24.296Z",
+      "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "scope": "Only intentId prefix cfs- and recipient occupying bravo-1. Guest event id gains -PA1; actor, intentId, sequence, delivery number and stored event unchanged.",
+      "originalSha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "mutantSha256": "2e5830985e4edb81516e19a82ce15d547e63d45c0ebb4178bed30dcac6e521e7",
+      "committed": false,
+      "exit": 0,
+      "restoredSha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "finishedAt": "2026-10-28T07:19:38.509Z"
+    },
+    "singleSeam": "ServerMatchHostEvents.ts per-viewer send, after projection and delivery numbering. Only cfs- intentIds and occupied bravo-1 guest receive event.id + -PA1. Actor reply and guest delivery are independently selected intentId-correlated live Events from their sockets; binding does not send the handleIntent return messages.",
+    "scopingDisclosure": "Scoped in advance to cfs intent prefix and guest seat so inherited A1/A2M rows remain unaffected; no earlier unscoped run attempted.",
+    "scratchOnly": "PA1 never staged or committed. External runHarness buildCommand temporarily applies it after the harness clean-source check, builds normally, then restores the exact original bytes in finally. Manifest source.head is canonical source; pa1-build-source.json and image hashes explicitly bind the scratch mutation.",
+    "unmutatedHarness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa1-unmutated-harness-v2/summary.json",
+      "sha256": "b57c586d4d7a0dc95b24572dab66d6a676d0f54db90b71b646919871a61926c2",
+      "bytes": 10338
+    },
+    "ma1Harness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa1-ma1-harness/summary.json",
+      "sha256": "85d60ec443a5205e333fe9a6cb9beba0e012fb8916a1dd772283cac28e959083",
+      "bytes": 10743
+    },
+    "invalidAttempts": [
+      "First original MA1 invocation failed before server start due absent evidence parent; not a kill.",
+      "First PA1 build failed typecheck because guarded.value.event is unknown; no kill counted. Corrected IGameEvent cast at the same single seam; product restored in both attempts."
+    ],
+    "leafSha256AtRun": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+    "fixNote": "Not rerun after the first-rolls fix: this mutant touches a row whose bytes are unchanged by the fix. Run on the pre-fix cases leaf (sha256 3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f, head 04d9f2d42/0175450f1/2581096fb)."
+  },
+  "remainingBuiltMutants": [
+    {
+      "id": "MA2",
+      "description": "Skip the owned co-op restart after stopped-DB active witness; first post-restart connection cannot be opened.",
+      "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:37:01.749Z",
+      "mutantSha": "6a14f4cb822abb1eaf57d40fa3ab15f2b6b8975b",
+      "exit": 1,
+      "verdict": "FAIL",
+      "errors": [
+        "connect ECONNREFUSED 127.0.0.1:54071"
+      ],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned"
+      ],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "KILLED_BY_TEXTUAL_CHECK_BUILT_RECONNECT_FAILURE",
+      "namedTextualCheck": {
+        "name": "the co-op restart row reopens the GM campaign channel before the first post-restart action",
+        "exit": 1,
+        "assertionKilled": true
+      },
+      "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:37:23.024Z",
+      "qualification": "Named textual source-order test kills deletion; built owned callback also fails on reopening sync to stopped listener. No built ctx.check kill is claimed.",
+      "classification": "KILLED by named node:test source-order assertion (pure level); built ECONNREFUSED is unnamed and is not counted as a built kill",
+      "gatingDischargedBy": "Root MA3/MA2 ruling 2026-10-28",
+      "leafSha256AtRun": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "fixNote": "Not rerun after the first-rolls fix: this mutant touches a row whose bytes are unchanged by the fix. Run on the pre-fix cases leaf (sha256 3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f, head 04d9f2d42/0175450f1/2581096fb)."
+    },
+    {
+      "id": "MA3",
+      "description": "Send the post-restart Move on the other contributor connection rather than the active unit owner.",
+      "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:37:23.263Z",
+      "mutantSha": "23ccf9d4ab1037045a7cfda89bb393b97d58cdea",
+      "exit": 0,
+      "verdict": "PASS",
+      "errors": [],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "SURVIVED",
+      "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:37:52.895Z",
+      "classification": "SURVIVED: expected on main; co-op per-unit command ownership is not enforced until U38",
+      "gating": false,
+      "countedAsKill": false,
+      "knownGapOwner": "U38",
+      "leafSha256AtRun": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "fixNote": "Not rerun after the first-rolls fix: this mutant touches a row whose bytes are unchanged by the fix. Run on the pre-fix cases leaf (sha256 3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f, head 04d9f2d42/0175450f1/2581096fb)."
+    },
+    {
+      "id": "MA4",
+      "description": "Look the replayed event up by a nonexistent id (an absent replay event), so the live/replay rolls comparison sees undefined.",
+      "originalHead": "b836e06b2ae8102d03a14f2653ee7d073bcc8eb4",
+      "originalBranch": "work/a2-impl-20261028",
+      "leafSha256": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+      "startedAt": "2026-10-28T08:51:28.344Z",
+      "mutantSha": "bb73e92f14794441bd9dc9128a8dfebe184e05e7",
+      "exit": 1,
+      "verdict": "FAIL",
+      "errors": [
+        "[coop-first-rolls-captured] replay rolls differ from live rolls: {\"rolls\":[6,4,3,5]}"
+      ],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted"
+      ],
+      "image": {
+        "buildId": "1793176598957",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "c6544d551d71dbe622a4bf358d1e193a693a712418ae06f17bf9d89783c12a46",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "sameImageAsFixBuiltRun": true,
+      "result": "KILLED_BY_NAMED_CHECK",
+      "restoredHead": "b836e06b2ae8102d03a14f2653ee7d073bcc8eb4",
+      "restoredSha256": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+      "finishedAt": "2026-10-28T08:51:58.867Z",
+      "namedCheck": "coop-first-rolls-captured: replay rolls differ from live rolls",
+      "mutationNote": "The mutant looks the replayed event up by a nonexistent id, so it proves that an ABSENT replay event fails, not that a present-but-different one does. The empty-rolls half of the admitted MA4 (\"or accepted when empty\") is covered only by the pure R2 mutant.",
+      "preFixResult": {
+        "id": "MA4",
+        "description": "Compare live captured rolls to the wrong replay event (a deliberately absent event id).",
+        "originalHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+        "originalBranch": "work/a2-impl-20261028",
+        "startedAt": "2026-10-28T07:43:54.961Z",
+        "mutantSha": "346eae65322c318e012dcdfdcd438a92a23314a7",
+        "exit": 1,
+        "verdict": "FAIL",
+        "errors": [
+          "[coop-first-rolls-captured] replay rolls differ from live rolls: {\"rolls\":[2,3,2,6]}"
+        ],
+        "passed": [
+          "concurrent-first-sockets",
+          "coop-mission-provisioned",
+          "coop-restart-action-accepted"
+        ],
+        "image": {
+          "buildId": "1793172695427",
+          "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+          "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+          "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+        },
+        "result": "KILLED_BY_NAMED_CHECK",
+        "restoredHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+        "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+        "finishedAt": "2026-10-28T07:44:08.476Z",
+        "namedCheck": "coop-first-rolls-captured: replay rolls differ from live rolls"
+      }
+    },
+    {
+      "id": "MA5",
+      "description": "Drop the journal gap/duplicate assertion after the concurrent round.",
+      "originalHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:44:08.794Z",
+      "mutantSha": "0a11f7568276599a4d24240be0a9c581f8dd6e12",
+      "exit": 0,
+      "verdict": "PASS",
+      "errors": [],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "KILLED_IN_COMBINATION_WITNESS_PA5",
+      "restoredHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:44:26.344Z",
+      "originalResult": "SURVIVED",
+      "classification": "killed in combination (witness PA5); not a plain kill",
+      "gatingDischargedBy": "Root MA5 ruling 2026-10-28 (paired-mutant method of the MA1 ruling)",
+      "leafSha256AtRun": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "fixNote": "Not rerun after the first-rolls fix: this mutant touches a row whose bytes are unchanged by the fix. Run on the pre-fix cases leaf (sha256 3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f, head 04d9f2d42/0175450f1/2581096fb)."
+    }
+  ],
+  "ma3Analysis": {
+    "reason": "Known-gap witness reclassified by Root; not an A2 defect and not a kill",
+    "ownerPlayerId": "pid_5mtAz6RUNJwo9H5PQE3KFfm9z4x",
+    "senderPlayerId": "pid_BgZdaKJ7ppyNLknh6t3PY38Ew5Q",
+    "distinctOwnerAndSender": true,
+    "activeWitness": {
+      "at": "2026-10-28T07:37:42.172Z",
+      "kind": "offline-fixture",
+      "script": "scripts\\release\\l1-built-server-spectator-fixtures.ts",
+      "args": [
+        "active",
+        "--match=coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138"
+      ],
+      "dbBefore": "ba87c8ac426f6c33cbac370c236c5e198e0912ed532590ad0595608bd8f862c4",
+      "dbAfter": "ba87c8ac426f6c33cbac370c236c5e198e0912ed532590ad0595608bd8f862c4",
+      "result": {
+        "op": "active",
+        "unitId": "a2-u1",
+        "ownerPlayerId": "pid_5mtAz6RUNJwo9H5PQE3KFfm9z4x",
+        "phase": "movement",
+        "facing": 0,
+        "to": {
+          "q": -1,
+          "r": 4
+        }
+      }
+    },
+    "sentFrame": {
+      "at": "2026-10-28T07:37:47.649Z",
+      "kind": "frame",
+      "conn": "coop-two-2",
+      "dir": "out",
+      "raw": "{\"matchId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"ts\":\"2026-10-28T07:37:47.649Z\",\"kind\":\"Intent\",\"playerId\":\"pid_BgZdaKJ7ppyNLknh6t3PY38Ew5Q\",\"intentId\":\"coop-two-2-1\",\"intent\":{\"kind\":\"Move\",\"unitId\":\"a2-u1\",\"to\":{\"q\":-1,\"r\":4},\"facing\":0,\"movementType\":\"walk\"}}"
+    },
+    "acceptedOnSendingConnection": {
+      "at": "2026-10-28T07:37:47.658Z",
+      "kind": "frame",
+      "conn": "coop-two-2",
+      "dir": "in",
+      "index": 3,
+      "raw": "{\"kind\":\"Event\",\"matchId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"ts\":\"2026-10-28T07:37:47.658Z\",\"event\":{\"id\":\"31114f66-eeda-421e-ae96-e0c0e23bd7af\",\"gameId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"timestamp\":\"2026-10-28T07:37:47.656Z\",\"type\":\"movement_declared\",\"turn\":1,\"phase\":\"movement\",\"actorId\":\"a2-u1\",\"payload\":{\"unitId\":\"a2-u1\",\"from\":{\"q\":-2,\"r\":5},\"to\":{\"q\":-1,\"r\":4},\"facing\":0,\"movementType\":\"walk\",\"mode\":\"walk\",\"path\":[{\"q\":-2,\"r\":5},{\"q\":-1,\"r\":4}],\"mpUsed\":2,\"heatGenerated\":1,\"intentId\":\"coop-two-2-1\"}},\"deliverySequence\":5}"
+    },
+    "interpretation": "The positive A2 journey selects the active unit owner as its actor. It does not claim exclusive-owner enforcement. Root ruled that co-op teammate unit commands are unconstrained on main, a known gap already registered to blocked U38. MA3 is a witness of that gap; no product edit is granted.",
+    "sourceContext": {
+      "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "function": "refuseForeignUnitCommand",
+      "lines": "549-580; the co-op early return is at :567 (comment :559-566)",
+      "observation": "if (meta?.coopCampaign) return null; at :567 exempts every co-op campaign match from the unit-ownership check before the side comparison, so the wrong contributor is accepted. This does not settle per-unit authorization policy; the registered fix is U38."
+    },
+    "remaining": [
+      "U38 built-image refusal proof equivalent to MA3",
+      "MA5 Root ruling",
+      "lifecycle and final gates after MA5 discharge"
+    ]
+  },
+  "pristineRebuildControl": {
+    "verdict": "PASS",
+    "required": [
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "passed": [
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "errors": [],
+    "processes": [
+      {
+        "n": 1,
+        "pid": 59480,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 2,
+        "pid": 74504,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 3,
+        "pid": 82428,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 4,
+        "pid": 60760,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      }
+    ],
+    "manifest": {
+      "node": "v22.22.0",
+      "platform": "win32",
+      "repoRoot": "C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t3-4ff0f332",
+      "standaloneDir": "C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t3-4ff0f332\\.next\\standalone",
+      "dbPath": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\a2-impl\\pristine-owned-control\\db\\smoke.sqlite",
+      "required": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "built": false,
+      "source": {
+        "head": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+        "clean": true
+      },
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      }
+    }
+  },
+  "pkPacket": {
+    "id": "PK-l1-smoke-a2-ruling",
+    "blocks": [
+      "L1-SMOKE-A2"
+    ],
+    "nodes": [
+      "R2.authority-live"
+    ],
+    "taskKeys": [],
+    "question": "Accept the A2 composed privacy and authority smoke proof (concurrent first sockets and co-op restart) after independent exact-head review and required CI?",
+    "options": [
+      {
+        "label": "accept after verified review and CI",
+        "consequence": "Permit guarded merge and exact-main proof before B admission.",
+        "effort": "Independent privacy/authority review, CI, exact-main build and closure."
+      },
+      {
+        "label": "request bounded fixes",
+        "consequence": "Hold merge and repair concrete in-scope findings, or obtain a scope ruling.",
+        "effort": "Finding-dependent; repeat the affected proofs."
+      }
+    ],
+    "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). Two independent reviews of 5dd8d6aa9 found that coop-first-rolls-captured skipped the first post-restart dice batch; Root ruled it fixed in this PR. The cases and test leaves deviate from the frozen bytes (G-A3, old and new sha256 recorded) with an exported pure selectDice that validates the earliest dice batch and fails rather than skipping ahead. GREEN: 9/9 node tests and 27/27 pure-function mutants (18 original rerun plus 9 selectDice). The post-fix built run (BUILD_ID 1793176598957) passed 26/26 on its first attempt (A1 10, A2M 12, owned 4); the earlier 1793170760492 run is superseded. Built-image mutants: MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults, never committed, run on the pre-fix leaf with unchanged rows), MA2 is killed at the pure level only by the named source-order assertion, MA4 was rerun on the new image and is killed by the named replay-rolls check (it proves an absent replay event fails), and MA3 SURVIVED as expected on main: co-op teammate unit commands are unconstrained until U38 (CF-A2-1, open, routed to U38 and the G-A9 release notes); A2 makes no claim that only the unit owner can move. Inherited: the A2M R6 survivor with its correction and CF-A2M-1 (open). Review selectDice and its wiring, the paired-mutant method (PA1/PA5 scoping), the owned-only harness used for MA2-MA5, the textual source-order test, that previousPid is always null, and the disclosures (real mission GM player role, S5-02, OQ-M1). The cap is recorded in the unit capException (literal validator count over 500 by design, option A at or under 500). No product or frozen predecessor change; no exact-main acceptance is claimed.",
+    "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 and PA5 were scratch-only and are restored; product and predecessors are unchanged.",
+    "decision": null,
+    "ruling": null
+  },
+  "carryIn": [
+    {
+      "id": "CF-A2M-1",
+      "status": "OPEN",
+      "text": "A2 imports A2M unchanged. The next amendment of the A2M harness asserts the live public-lock frame, reruns R6 and the R6+P1/R6+P6 combined mutants, and tightens the nested-A1 check. A2 does not discharge it. MA5 is not added to this list because it was killed in combination (PA5)."
+    },
+    {
+      "id": "A2M-R6",
+      "status": "DISCLOSED NON-EQUIVALENT SURVIVOR",
+      "text": "Accepted by prior Root ruling (A2F R5 precedent). Correction (Root, 2026-10-28): P4 was observed at reconnect; P1 and P6 were killed at live, so their reconnect and restart coverage is inferred; P7 was witnessed only on matrix-Move-player-stale. A2 runs the frozen matrix unchanged and inherits this survivor; the A2M mutants were not repeated."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "status": "Not used: the post-fix built run passed on its first attempt with no readiness rerun (the superseded run also had none)."
+    },
+    {
+      "id": "CF-A2-1",
+      "status": "OPEN",
+      "owner": "U38",
+      "text": "Co-op teammate unit commands are unconstrained on main. MA3 on BUILD_ID 1793172695427 accepted a Move sent by the other contributor for the active owner unit. When U38 lands, its proof must include an equivalent built-image row that is refused.",
+      "releaseNotesOwner": "RELEASE-PRODUCER-1",
+      "gate": "G-A9"
+    }
+  ],
+  "disclosures": [
+    "SUPERSEDED RUN: the first built run (GREEN 04d9f2d42, BUILD_ID 1793170760492, 26/26) validated the turn-2 initiative_rolled for coop-first-rolls-captured and skipped the first post-restart dice batch (attack_locked seq 15, rolls ride on attack_locked, attack_resolved carries only roll). The Root ruling of 2026-10-28 required the fix; the post-fix run (FIX b836e06b2, BUILD_ID 1793176598957, 26/26 on its first attempt, no readiness rerun) is the registered GREEN built run. The cases and test leaves deviate from the frozen draftSha256 (G-A3, old and new sha256 in g3Deviations).",
+    "MA1/PA1, MA5/PA5, MA2 and MA3 were run on the pre-fix leaf (cases sha256 3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f) and were not rerun: their rows are unchanged. MA4 was rerun on the new image.",
+    "MA2-MA5 ran through an external owned-only driver (owned-mutant-run.mjs: requiredCases = the four A2-owned ids, runOwnCases) on the pristine rebuild BUILD_ID 1793172695427 (same sourceTreeSha256 as the GREEN images), with a 4/4 pristine control on that image; the 22 inherited rows were not rerun per mutant. MA1 and the MA5 pairing ran the full 26-case runner. The post-fix MA4 rerun used the same owned-only driver on the post-fix image.",
+    "MA4 is a missing replay event, not a wrong one: the mutant looks up a nonexistent id. The empty-rolls half of the admitted MA4 is covered only by the pure R2 mutant.",
+    "The source-order node test is textual: it checks the order and presence of reopenGm, not a no-op implementation. The built run guards real reconnect behaviour.",
+    "The loop wiring of selectDice (replies and frames passed from the live connection) has no pure falsifier; it is guarded by the built row, which now fails if an earlier dice resolution event precedes the selected reply.",
+    "next-env.d.ts is rewritten by every production build and was restored with git checkout -- next-env.d.ts after each (first built run, PA1 build, pristine rebuild, PA5 build, post-fix build); the diffs are retained outside Git (next-env-after-*.diff).",
+    "Invalid setup attempts, none counted as a kill or survivor: (1) first MA1 invocation, no server, ENOENT because the built-mutants parent directory was absent; (2) first PA1 build failed typecheck (guarded.value.event is unknown), corrected with a scratch cast at the same seam; (3) the first MA5-half invocation ran under Node v24.15.0 and was refused by the harness (Node 22 required), then rerun under v22.22.0; (4) the first post-fix MA4 invocation hit ENOENT creating its output parent (fix/built-mutants) before any server started.",
+    "MA1 and MA5 are killed only in combination (witnesses PA1 and PA5): each deletes an assertion that no unmutated server can falsify, so a scratch product fault on the same image is the discriminator. PA1 (ServerMatchHostEvents.ts, guest event id gains -PA1, scoped to cfs- intents and the bravo-1 recipient) and PA5 (DurableMatchStore.ts, SQL event sequence +1 for the last event of cfs- batches) were scratch only, never committed, and restored byte-exact.",
+    "MA2 counts as killed at the pure level only (named node:test source-order assertion); the built-image ECONNREFUSED is not a named check.",
+    "MA3 SURVIVED as expected: refuseForeignUnitCommand returns early for every co-op campaign match, so a teammate Move for another contributor unit is accepted on main (BUILD_ID 1793172695427). This is CF-A2-1, routed to U38 and to the G-A9 release notes. No A2 text claims only the unit owner can move.",
+    "Inherited from A2M: R6 survivor and its correction, and CF-A2M-1 (OPEN). A2 imports the A2M matrix unchanged.",
+    "The source-order node test is textual: it checks the order and presence of reopenGm, not a no-op implementation. The built run guards real reconnect behaviour.",
+    "previousPid is always null because it is read after the server is stopped; the PID change across the restart is evidenced by the process records.",
+    "A numeric-PID-only cleanup probe after the MA3 stop matched four recycled PIDs belonging to unrelated processes; CIM names and command lines showed no owned server alive and no unrelated process was touched (ma3-cleanup-process-snapshot.json).",
+    "The PA5 build and the PA1 build each changed only a scratch copy of one product file inside the checkout; no product file is part of this PR.",
+    "Real mission GM stays a player-role viewer (no GM role fix or inference). S5-02 and OQ-M1 remain open; fog acceptance and the B timeline rows are excluded.",
+    "Exact-head independent reviews, the OWNER-RULING, required CI, the merge and exact-main closure remain owed.",
+    "Exact-head independent re-review of the fix, the OWNER-RULING, required CI, the merge and exact-main closure remain owed."
+  ],
+  "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl",
+  "rootRulingMA3": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: A2 mutant MA3 survived (co-op unit command ownership is a known, registered gap), and MA2 qualification",
+    "verbatim": "## 2026-10-28 Root ruling: A2 mutant MA3 survived (co-op unit command ownership is a known, registered gap), and MA2 qualification\n\nFacts (from _reports/2026-10-28/a2-impl/ma3-analysis.json, head 0175450f1):\n- MA3 sends the post-restart Move for a2-u1, owned by pid_5mtAz6..., on the other contributor's connection (pid_BgZdaK..., same `player` side).\n- The built server accepted it: movement_declared, intentId coop-two-2-1. All 4 owned rows passed.\n\nRoot reading:\n- On main, `refuseForeignUnitCommand` in src/lib/multiplayer/server/ServerMatchHostIntent.ts returns early for every co-op campaign match (`if (meta?.coopCampaign) return null;`, comment at :559-566: \"Until that map reaches the host, co-op unit commands are unconstrained\").\n- The fix is already registered: units.json U38 (node R2.authority-live, state blocked). It deletes that exemption and refuses a teammate commanding another player's unit with AUTH_REJECTED unit-not-owned. It applies the owner's earlier answer \"control only their own units\" (docs/audits/2026-10-17-l1-amendment-draft.md row 17 -> U38).\n- So MA3 asserted behaviour main does not yet have. This is not a new owner policy question and not a new product finding: it is the known gap U38 owns. A2 may not edit product code, and its admission does not claim per-unit command ownership.\n\nRuling:\n1. MA3 is reclassified from gating to a known-gap witness. Record it as \"SURVIVED: expected on main; co-op per-unit command ownership is not enforced until U38\". It is not an A2 defect, and it does not count as a kill.\n2. CF-A2-1, new and open: co-op teammate unit commands are unconstrained on main (witness: the MA3 built run on BUILD_ID 1793172695427). Owner: U38. When U38 lands, its proof must include a built-image row equivalent to MA3 that is refused.\n   - Disclosure: the A2 local receipt, the PR body, and the release-notes known issue via RELEASE-PRODUCER-1 (G-A9 list).\n   - No A2 text may claim that only the unit owner can move.\n3. MA2 counts as killed by the named node:test source-order assertion (pure level). Its built-image failure (ECONNREFUSED) is not a named check: disclose it, and do not count it as a built kill.\n4. MA4 and MA5 continue under the unchanged rule: a survivor stops the unit unless shown equivalent, or unless it is shown to be the same registered gap, which Root rules.\n",
+    "verbatimSha256": "2828613954d090dc1649514a4bf0fa92b275814686e2fa763dbb50ad68341753"
+  },
+  "frozenOwnerClaimAudit": {
+    "verdict": "No frozen leaf claims that only the unit owner may issue commands.",
+    "details": "cases.mjs selects owner.label for the positive Move; fixtures.ts reads ownerPlayerId. These are actor selection and witness facts, not a claim of enforced exclusivity. Tests and runner contain no exclusive-owner statement.",
+    "leavesEdited": false
+  },
+  "releaseNotesKnownIssues": {
+    "gate": "G-A9",
+    "owner": "RELEASE-PRODUCER-1",
+    "items": [
+      "Real mission GM keeps player viewer role",
+      "S5-02 remains open",
+      "OQ-M1 authority sequence gap remains disclosed",
+      "CF-A2-1: co-op teammate unit commands unconstrained; owner U38; MA3 witness BUILD_ID 1793172695427"
+    ]
+  },
+  "ma5Original": {
+    "result": "SURVIVED",
+    "equivalent": false,
+    "description": "MA5 removes only the journal eventCount === maxSequence + 1 assertion after the concurrent round. Correct main has a contiguous journal, so the original and mutated runs both pass. The omitted assertion can detect a gap if one is introduced; deleting it is not equivalent. No PA5 or extrapolation of MA1 ruling has been attempted.",
+    "witness": "built-mutants/MA5/summary.json",
+    "buildId": "1793172695427",
+    "requiredAction": "Stop and obtain Root ruling under unchanged MA5 rule."
+  },
+  "ma5Paired": {
+    "classification": "killed in combination (witness PA5)",
+    "result": {
+      "startedAt": "2026-10-28T08:00:01.602Z",
+      "originalHead": "2581096fbee97351ac18bb333f32ba59ad3efd5c",
+      "originalBranch": "work/a2-impl-20261028",
+      "unmutatedFailure": "[concurrent-first-sockets] journal has a gap or duplicate: {\"matchId\":\"db7dae1d-6ec1-42d2-83f4-3fd26e40fd09\",\"status\":\"active\",\"fogOfWar\":false,\"playerIds\":[\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"],\"sideAssignments\":[{\"playerId\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"side\":\"player\"},{\"playerId\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\",\"side\":\"opponent\"}],\"seats\":[{\"slotId\":\"alpha-1\",\"kind\":\"human\",\"occupant\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\"},{\"slotId\":\"bravo-1\",\"kind\":\"human\",\"occupant\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"}],\"eventCount\":5,\"maxSequence\":5}",
+      "pa5Image": {
+        "buildId": "1793173855854",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "4a51a596df507966b6525b31c0e77a2b2e81fc54de5091b9d9efaa29173fc264",
+        "sourceTreeSha256": "c286fed95e79996ad625719824cc08ec334c6efd74bdd08b403aa21f53a67c8e"
+      },
+      "ma5Sha": "0a11f7568276599a4d24240be0a9c581f8dd6e12",
+      "exit": 0,
+      "ma5Verdict": "PASS",
+      "ma5Passed": [
+        "credential-malformed-refused",
+        "credential-url-refused",
+        "participants-authenticated",
+        "credential-foreign-refused",
+        "participant-action-accepted",
+        "spectator-seat-witnessed",
+        "spectator-replay-public",
+        "spectator-live-public",
+        "spectator-cannot-act",
+        "callbacks-exercised",
+        "matrix-Move-player-stale",
+        "matrix-Move-gm-stale",
+        "matrix-Move-gm-unassigned",
+        "matrix-Move-gm-participant",
+        "matrix-Attack-player-stale",
+        "matrix-Attack-gm-stale",
+        "matrix-Attack-gm-unassigned",
+        "matrix-Attack-gm-participant",
+        "matrix-Physical-player-stale",
+        "matrix-Physical-gm-stale",
+        "matrix-Physical-gm-unassigned",
+        "matrix-Physical-gm-participant",
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "ma5Errors": [],
+      "sameImage": true,
+      "result": "killed in combination (witness PA5)",
+      "restoredHead": "2581096fbee97351ac18bb333f32ba59ad3efd5c",
+      "finishedAt": "2026-10-28T08:03:41.560Z"
+    },
+    "productMutation": {
+      "startedAt": "2026-10-28T07:50:49.561Z",
+      "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "scope": "Only commandId prefix cfs- and last event of its append batch. Shift mp_match_events SQL sequence by +1; leave JSON event sequence/id/payload, outbox, receipt and wire unchanged.",
+      "originalSha256": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475",
+      "mutantSha256": "a71a43f597f69b1006e1f1845a3ff0618915ae337c94ba4c1f994e84e080fc9c",
+      "committed": false,
+      "exit": 0,
+      "restoredSha256": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475",
+      "finishedAt": "2026-10-28T07:54:08.974Z"
+    },
+    "singleSeam": "DurableMatchStore.ts, the mp_match_events insertEvent.run call in the append path. Only commands whose commandId starts with cfs- and only the last event of the append batch: the SQL sequence column is shifted by +1. The JSON event sequence, id and payload, the outbox, the receipt and the wire are unchanged, so every earlier row and check still passes.",
+    "scopingDisclosure": "Scoped in advance to the cfs- command prefix and the last event of its batch so the inherited A1/A2M rows and the other owned rows are unaffected; no unscoped run was attempted. One build attempt; the scoped retry the ruling allowed was not needed.",
+    "scratchOnly": "PA5 was never staged or committed. The external runHarness buildCommand (pa5-build.cjs) wrote the mutated file after the harness clean-source check, ran npm run build, and restored the exact original bytes in finally (restoredSha256 equals originalSha256). After the job ended DurableMatchStore.ts equalled HEAD.",
+    "unmutatedHarness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa5-unmutated-harness/summary.json",
+      "sha256": "26f8770d4157363b6095ec5c9bf782157166ae009e866d199f5198fb2d1a87ae",
+      "bytes": 10780
+    },
+    "unmutatedFailure": "[concurrent-first-sockets] journal has a gap or duplicate: {\"matchId\":\"db7dae1d-6ec1-42d2-83f4-3fd26e40fd09\",\"status\":\"active\",\"fogOfWar\":false,\"playerIds\":[\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"],\"sideAssignments\":[{\"playerId\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"side\":\"player\"},{\"playerId\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\",\"side\":\"opponent\"}],\"seats\":[{\"slotId\":\"alpha-1\",\"kind\":\"human\",\"occupant\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\"},{\"slotId\":\"bravo-1\",\"kind\":\"human\",\"occupant\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"}],\"eventCount\":5,\"maxSequence\":5}",
+    "ma5Harness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa5-ma5-harness/summary.json",
+      "sha256": "c420bad40fec7113ea7b73088826682ff4d7670385a0bb6bd245711ee2f0a44f",
+      "bytes": 10743
+    },
+    "invalidAttempts": [
+      "The first MA5-half invocation (pair-ma5.cjs) ran under Node v24.15.0 in the continuing shell and the harness refused (Node 22 required); no summary was written, the branch was restored clean. It is neither a kill nor a survivor. It was rerun under Node v22.22.0 on the same PA5 image without a rebuild. Raw log: pa5-ma5-harness-invalid-node24.log."
+    ],
+    "result_summary": "Unmutated harness on the PA5 image: 22 earlier checks passed and concurrent-first-sockets failed on \"journal has a gap or duplicate\" (eventCount 5, maxSequence 5). The MA5 harness on the same image (same buildId, server, config and source-tree hashes, no rebuild) passed 26/26 including concurrent-first-sockets, so MA5 deleted the only assertion that catches PA5.",
+    "leafSha256AtRun": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+    "fixNote": "Not rerun after the first-rolls fix: this mutant touches a row whose bytes are unchanged by the fix. Run on the pre-fix cases leaf (sha256 3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f, head 04d9f2d42/0175450f1/2581096fb)."
+  },
+  "rootRulingMA5": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: A2 mutant MA5 survived (assertion removal, same class as MA1)",
+    "verbatim": "## 2026-10-28 Root ruling: A2 mutant MA5 survived (assertion removal, same class as MA1)\n\nFacts: MA5 deletes the journal gap/duplicate assertion (`row.eventCount === row.maxSequence + 1`) after the concurrent round in concurrent-first-sockets. It passed all 4 owned rows on BUILD_ID 1793172695427 (head 2581096fb). The worker correctly found it is not equivalent.\n\nRuling: same method as MA1.\n1. Build one scratch image with a product mutant PA5 that leaves a journal gap or a duplicate sequence for the cfs match during the concurrent round, at the narrowest append seam (for example the sequence assignment in the match journal append path).\n   - Scope it to the cfs match and disclose that.\n   - Never commit it; restore it byte-exact.\n2. Run the unmutated harness. concurrent-first-sockets must fail on \"journal has a gap or duplicate\".\n3. Run the MA5 harness on the same image, without a rebuild. concurrent-first-sockets must pass.\n4. Record MA5 as \"killed in combination (witness PA5)\".\n\nIf no single-seam PA5 reaches that named check (for example, the fault fails an earlier check or breaks the build after one scoped retry), do not stop again. Record MA5 as a disclosed, non-equivalent survivor under the R6 precedent and this ruling, add it to CF-A2M-1's combined-mutant follow-up list, and continue to the lifecycle and the PR.\n\nStanding rule for the rest of Step 3 (B included): a survivor that deletes an assertion is handled this way without a new stop. Any other survivor still stops for Root.\n",
+    "verbatimSha256": "02bad86bd24f7eea5085eb975f9c01fbdffd6c77c60bef4f9c5ccfc978b1a81e"
+  },
+  "mutantSummary": [
+    "MA1: killed in combination (witness PA1), a paired kill and not a plain kill. Run on the pre-fix leaf; row unchanged.",
+    "MA2: killed by the named node:test source-order assertion at the pure level only; the built ECONNREFUSED is not a named check and is not counted as a built kill. Run on the pre-fix leaf; row unchanged.",
+    "MA3: SURVIVED, expected on main; co-op per-unit command ownership is not enforced until U38. A known-gap witness (CF-A2-1), not an A2 defect, not a kill. Run on the pre-fix leaf; row unchanged.",
+    "MA4: rerun on the post-fix image BUILD_ID 1793176598957 and killed by the named runtime check [coop-first-rolls-captured] replay rolls differ from live rolls. The mutant looks up a nonexistent event id, so it proves an absent replay event fails, not a present-but-different one; the empty-rolls half of the admitted MA4 is the pure R2 kill.",
+    "MA5: killed in combination (witness PA5), a paired kill and not a plain kill. Run on the pre-fix leaf; row unchanged."
+  ],
+  "g3Deviations": [
+    {
+      "path": "scripts/release/l1-built-server-spectator-cases.mjs",
+      "draftSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "oldSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "newSha256": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+      "newBytes": 12617,
+      "commit": "b836e06b2ae8102d03a14f2653ee7d073bcc8eb4",
+      "reason": "Root ruling 2026-10-28 (#2349 first-rolls finding): exported pure selectDice validates the earliest post-restart dice batch; fails instead of skipping ahead when a dice event precedes it. +21 counted lines."
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator.test.mjs",
+      "draftSha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+      "oldSha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+      "newSha256": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb",
+      "newBytes": 11006,
+      "commit": "b836e06b2ae8102d03a14f2653ee7d073bcc8eb4",
+      "reason": "Three selectDice falsifiers (earlier attack batch without rolls must fail; earlier valid attack batch must be selected; nothing selected before a dice reply). Exempt test leaf."
+    }
+  ],
+  "fixCommit": "b836e06b2ae8102d03a14f2653ee7d073bcc8eb4",
+  "contributor": {
+    "workers": [
+      {
+        "provider": "openai",
+        "model": "gpt-6.1-sol",
+        "commits": [
+          "51539564c",
+          "04d9f2d42",
+          "0175450f1",
+          "2581096fb"
+        ],
+        "scope": "RED, GREEN, the first built run, MA1-MA5 and PA1; stopped during the PA5 pairing on the provider content flag"
+      },
+      {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5-5",
+        "commits": [
+          "b540704d1",
+          "5dd8d6aa9"
+        ],
+        "scope": "MA5 pairing completion, lifecycle, gates, PR"
+      },
+      {
+        "provider": "anthropic",
+        "model": "claude-sonnet-5-5",
+        "commits": [
+          "b836e06b2"
+        ],
+        "scope": "the #2349 review fixes (selectDice, new built run, MA4 rerun, receipt and lifecycle text)"
+      }
+    ],
+    "coordinator": "Root",
+    "note": "commit Co-Authored-By trailers are harness defaults and do not identify the worker; history is not rewritten"
+  },
+  "supersededBuiltImage": {
+    "note": "First built run on GREEN 04d9f2d42 (the 5dd8d6aa9-era evidence). SUPERSEDED by the post-fix run below: its coop-first-rolls-captured row validated the turn-2 initiative_rolled (seq 34), not the first post-restart dice batch.",
+    "head": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+    "verdict": "PASS",
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "image": {
+      "buildId": "1793170760492",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "eab66dea9d84d64e2140d1c10df1459cf51de32d985f3ead17012634dfc42181",
+      "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+    },
+    "firstAttempt": true,
+    "readinessRerun": false,
+    "processCount": 45,
+    "summary": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/built-run/summary.json",
+      "sha256": "492a3f05b665247a201bc283d5ec979d9da1cc766df21193c1cc7b2ed950b621",
+      "bytes": 10738
+    },
+    "evidence": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/built-run/evidence.jsonl",
+      "sha256": "4f48c689549f37b4a3b894fcc7a41eec790304cc6a33a414971a1acd18be17e2",
+      "bytes": 1522334
+    }
+  },
+  "rootRulingFirstRolls": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: #2349 first-rolls finding (GPT F1 = Opus F1)",
+    "verbatim": "## 2026-10-28 Root ruling: #2349 first-rolls finding (GPT F1 = Opus F1)\n\nFacts: both reviews of head 5dd8d6aa9 independently found that coop-first-rolls-captured does not check the FIRST post-restart dice-producing batch.\n- The row accepts only AdvancePhase replies of type initiative_rolled, attack_resolved or physical_attack_resolved.\n- The product stamps the captured rolls and the intentId on the first event of a command batch. For an attack batch that is attack_locked (built run: intent coop-gm-2-2, attack_locked seq 15, rolls [3,1]).\n- So the row skipped that batch and validated the turn-2 initiative_rolled (seq 34).\n- The registered acceptance (units.json L1-SMOKE-A2, A3) requires the first post-restart dice-producing event. Opus confirmed from the database that the first batch's rolls were in fact captured; the harness just never asserts it.\n\nRuling: fix it in this PR. The disclose-and-carry option is rejected because the acceptance is registered and the fix is small.\n1. Change the selection in the cases leaf so that:\n   - the row validates the earliest post-restart dice-producing batch: its first event, carrying the captured rolls and the accepted intentId;\n   - the row fails, rather than skipping ahead, if an earlier batch with a dice resolution event lacks captured rolls on its first event.\n   Keep the change minimal and put the selection in an exported pure function so it can be unit-tested. This is a disclosed G-A3 deviation from the frozen draftSha256: list it with the old and new sha256, re-measure, and re-check against G-A8 (option A must stay at or under 500).\n2. Node falsifiers in the test leaf (which is exempt):\n   - an earlier attack batch with missing rolls and a later valid initiative batch must fail;\n   - an earlier attack batch with valid rolls must be the one selected.\n   Add pure mutants for the new function, and all of them must be killed.\n3. Run a new full built run on the new head (--build, all 26 cases). It becomes the registered GREEN built run; the 5dd8d6aa9-era run is disclosed as superseded. CF-A2FP-2 applies as before.\n4. Rerun MA4 on the new image. The MA1/PA1 and MA5/PA5 pairings and MA2 and MA3 are not rerun: their rows' bytes are unchanged. Disclose that, and record their leaf hash as the pre-fix bytes.\n5. Also apply Opus F2 (MA2-MA5 used the owned-rows-only harness on a pristine rebuild; disclose), F3 (MA4 tests a missing replay event, not a wrong one; the empty-rolls half is covered only by pure R2), F4 (contributor block in the local receipt: GPT gpt-6.1-sol made commits 1-4, Claude Sonnet made 5-6 after the content-filter handover; one line in the PR body; no history rewrite), INFO-3 (ma3 sourceContext cites the co-op early return at ServerMatchHostIntent.ts:567) and INFO-5 (the PR body's description of 2581096fb).\n6. U38 picking up CF-A2-1 (Opus INFO-2) is routed in the A2 closure PR's carry-forward, not by editing U38 here.\n",
+    "verbatimSha256": "5e387917e6eb0913c33a226d3ee1139ef44cbb855306f2586e6cd826c305c699"
+  },
+  "reviewFindings": {
+    "head": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+    "reviews": [
+      {
+        "reviewer": "Claude Opus 5.5",
+        "verdict": "ACCEPT-WITH-IN-PR-FIXES",
+        "findings": "F1 (first-rolls), F2 (owned-only harness for MA2-MA5), F3 (MA4 absent event), F4 (contributors), INFO-3, INFO-5",
+        "report": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2349-review.md"
+      },
+      {
+        "reviewer": "GPT Sol",
+        "verdict": "REQUEST-CHANGES",
+        "findings": "F1 (same as Opus F1)",
+        "report": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2349-review2.md"
+      }
+    ],
+    "resolution": "F1 fixed by FIX commit b836e06b2 under the Root ruling; F2-F4, INFO-3 and INFO-5 are disclosures and wording fixes in this receipt, units.json, PROGRESS.md and the PR body.",
+    "stalePageCorrection": "The first final-gate run failed gen-check because the V2.2.0 page was generated before the capException values were written into units.json (an ordering mistake of this worker), not because of a commit-hook reformat as the first PR body said."
+  }
+}

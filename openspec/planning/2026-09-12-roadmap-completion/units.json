@@ -9094,14 +9094,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "capException": {
+        "countedLines": 617,
+        "recordedBy": "ownerRuling20261020SizeCapOptionA",
+        "optionACountedLines": 497,
+        "optionAExemptLeaves": ["scripts/release/l1-built-server-spectator-fixtures.ts"]
+      },
+      "state": "local-verified",
       "baseline": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2-implementation-admission.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/l1-smoke-a2-implementation-red.json" },
+        "local": { "path": "evidence/l1-smoke-a2-implementation-local.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -9214,6 +9220,21 @@
         "evidenceName": "evidence/l1-smoke-a2-implementation-admission.json (the registered literal l1-smoke-a2-implementation-*.json names; free on main). The red, local and review literals are unchanged.",
         "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four registered evidence names (implementation admission, red, local, review).",
         "sizeCap": "Measured on oxfmt-clean leaves: cases 398, fixtures 120, runner 17 (counted 535 literal), test 234 (exempt, file-counted). The fixtures leaf is proof-harness test-support under ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-25b item 1), so option A counts 415. With the lifecycle estimated at 58 to 62 lines (the real A2M lifecycle was 51 plus a capException block) and bounded at 80: option A 473 to 477 (at most 495) of 500, so the A2 cap watch does not trip (option A fits while the lifecycle stays at or under 85 lines); the literal validator count is 593 to 597 and the implementation PR records capException {countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-fixtures.ts]} as A2FP and A2F did, then re-measures with those lines added. An option-A count over 500 or a 16th file stops the unit for Root (a split would take Step 3 to 14)."
+      },
+      "closureCarryForward20261028": {
+        "CF-A2-1": {
+          "owner": "U38",
+          "status": "OPEN; known registered gap",
+          "item": "Co-op teammate unit commands are unconstrained on main; MA3 witnessed an accepted non-owner contributor Move on BUILD_ID 1793172695427. U38 must prove an equivalent built-image row is refused. A2 makes no exclusive-owner enforcement claim.",
+          "releaseNotes": "G-A9: RELEASE-PRODUCER-1 carries this known issue with the real mission GM player role, S5-02 and OQ-M1."
+        }
+      },
+      "localVerified20261028": {
+        "date": "2026-10-28",
+        "receipts": "evidence/l1-smoke-a2-implementation-red.json and evidence/l1-smoke-a2-implementation-local.json; packet PK-l1-smoke-a2-ruling",
+        "proof": "RED 51539564c (weak ERR_MODULE_NOT_FOUND; the vacuous stand-in also fails), GREEN 04d9f2d42, then the FIX commit b836e06b2 under the Root ruling on the #2349 first-rolls finding: the cases and test leaves deviate from the frozen draftSha256 (G-A3: cases 3edd4b50 -> b8037309, test 780c0934 -> f8300968) with an exported pure selectDice so coop-first-rolls-captured validates the earliest post-restart dice batch (attack_locked seq 15 on the built run). node:test 9/9, oxfmt 0, 27/27 pure-function mutants (18 original rerun plus 9 selectDice). The post-fix --build run PASSED 26/26 (A1 10, A2M 12, owned 4) on its first attempt, BUILD_ID 1793176598957; the earlier run on BUILD_ID 1793170760492 is superseded. Built mutants: MA4 rerun on the new image and killed by the named replay-rolls check (absent replay event); MA1 and MA5 killed only in combination (witnesses PA1, PA5; scratch product faults, never committed); MA2 killed at the pure level only; MA3 SURVIVED as expected (CF-A2-1). MA1, MA2, MA3 and MA5 ran on the pre-fix leaf and were not rerun (their rows are unchanged).",
+        "rootRulings": "Root rulings 2026-10-28 (carry-forward.md; Root rulings, not owner decisions): MA1 paired-mutant method; MA3 known-gap witness and MA2 qualification; MA5 paired-mutant method.",
+        "disclosures": "Inherited A2M R6 survivor and CF-A2M-1 (open); MA2-MA5 used an owned-rows-only harness on the pristine rebuild BUILD_ID 1793172695427 (22 inherited rows not rerun per mutant); MA4 is an absent replay event, the empty-rolls half is covered by pure R2 only; the source-order test is textual; previousPid is always null; next-env.d.ts restores; invalid setup attempts are listed in the local receipt; contributors: GPT gpt-6.1-sol made commits 1-4, Claude Sonnet the rest (trailers are harness defaults). Real mission GM keeps the player viewer role, S5-02 and OQ-M1 stay open (G-A9 release notes)."
       }
     },
     {
@@ -23226,6 +23247,33 @@
         "author": "SwiggitySwerve",
         "bodySha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0"
       }
+    },
+    {
+      "id": "PK-l1-smoke-a2-ruling",
+      "blocks": [
+        "L1-SMOKE-A2"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the A2 composed privacy and authority smoke proof (concurrent first sockets and co-op restart) after independent exact-head review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge and exact-main proof before B admission.",
+          "effort": "Independent privacy/authority review, CI, exact-main build and closure."
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete in-scope findings, or obtain a scope ruling.",
+          "effort": "Finding-dependent; repeat the affected proofs."
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). Two independent reviews of 5dd8d6aa9 found that coop-first-rolls-captured skipped the first post-restart dice batch; Root ruled it fixed in this PR. The cases and test leaves deviate from the frozen bytes (G-A3, old and new sha256 recorded) with an exported pure selectDice that validates the earliest dice batch and fails rather than skipping ahead. GREEN: 9/9 node tests and 27/27 pure-function mutants (18 original rerun plus 9 selectDice). The post-fix built run (BUILD_ID 1793176598957) passed 26/26 on its first attempt (A1 10, A2M 12, owned 4); the earlier 1793170760492 run is superseded. Built-image mutants: MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults, never committed, run on the pre-fix leaf with unchanged rows), MA2 is killed at the pure level only by the named source-order assertion, MA4 was rerun on the new image and is killed by the named replay-rolls check (it proves an absent replay event fails), and MA3 SURVIVED as expected on main: co-op teammate unit commands are unconstrained until U38 (CF-A2-1, open, routed to U38 and the G-A9 release notes); A2 makes no claim that only the unit owner can move. Inherited: the A2M R6 survivor with its correction and CF-A2M-1 (open). Review selectDice and its wiring, the paired-mutant method (PA1/PA5 scoping), the owned-only harness used for MA2-MA5, the textual source-order test, that previousPid is always null, and the disclosures (real mission GM player role, S5-02, OQ-M1). The cap is recorded in the unit capException (literal validator count over 500 by design, option A at or under 500). No product or frozen predecessor change; no exact-main acceptance is claimed.",
+      "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 and PA5 were scratch-only and are restored; product and predecessors are unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-mission-match-1-ruling",
