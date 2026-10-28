@@ -16,7 +16,7 @@
     "schemaNote": "runtime.playwright is the validator field for a result line; this is the registered built-image runner, not a Playwright run."
   },
   "proofClass": "full",
-  "machineGate": "heavy-run.mjs --lane a2m-closure --class build|jest|package --cwd C:/Users/wroll/.t3/worktrees/MekStation/t3-a95d63fa -- <command>; the idle gate was unmodified (no HEAVY_IDLE_CMD, no ALLOW_PIDS edit by this worker, nothing killed). Disclosure: the worker first started npm ci directly, outside the queue, by mistake; it stopped that process (its own PIDs only) after about 3 minutes, kept the log as npm-ci-aborted.log, and ran the real npm ci as a build ticket. The queue wait is in queueEvents.",
+  "machineGate": "heavy-run.mjs --lane a2m-closure --class build|jest|package --cwd C:/Users/wroll/.t3/worktrees/MekStation/t3-a95d63fa -- <command>; the idle gate was unmodified (no HEAVY_IDLE_CMD, no ALLOW_PIDS edit by this worker, nothing killed). Disclosure: the worker first started npm ci directly, outside the queue, by mistake; it stopped that process (its own PIDs only) after about 3 minutes, kept the log as npm-ci-aborted.log, and ran the real npm ci as a build ticket. The queue wait is in queueEvents. Root exempted the idle-gate blockers (UI agent t3-a5e0af13 and TowerPilot) via allow-refresh.ps1 at about 03:55Z, so the npm ci, jest and built-run tickets ran while those processes were up.",
   "queueEvents": [
     {
       "ts": "2026-10-28T03:58:39.275Z",
@@ -58,7 +58,7 @@
       "exitCode": 0
     }
   ],
-  "execution": "Tool-prepared checkout (started at old main 8c3617f44), fetched; branch work/a2m-closure-a2-admission-20261028 created from the exact merge b78909c5e0470ff3fc629ea6d375ef97a3116e6e before any proof. Clean (git status --porcelain empty) before and after every job. npm ci and the built-image run ran as heavy-run tickets, the node and tool checks as one jest ticket. The branch carries no commit before the closure edit.",
+  "execution": "Tool-prepared checkout (started at old main 8c3617f44), fetched; branch work/a2m-closure-a2-admission-20261028 created from the exact merge b78909c5e0470ff3fc629ea6d375ef97a3116e6e before any proof. Clean (git status --porcelain empty) before every job and after every job except the built run, whose npm run build rewrote next-env.d.ts; it was restored with git checkout before any ledger edit (sourceCleanliness.afterBuild). npm ci and the built-image run ran as heavy-run tickets, the node and tool checks as one jest ticket. The branch carries no commit before the closure edit.",
   "ancestry": {
     "mergeSha": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
     "originMain": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
@@ -734,7 +734,7 @@
   },
   "sourceCleanliness": {
     "beforeRuns": "git status --porcelain empty after npm ci and again after the node/tool batch (chk-summary.log head and head-after lines); the runner manifest records source.head b78909c5e and clean true at the start of the built run.",
-    "afterBuild": "npm run build (run by the runner) rewrote the tracked, Next-generated next-env.d.ts (evidence next-env-after-build.diff); the file is not an A2M leaf and the run had already finished; it was restored with git checkout -- next-env.d.ts and the tree was clean again before any ledger edit.",
+    "afterBuild": "npm run build (run by the runner) rewrote the tracked, Next-generated next-env.d.ts (evidence next-env-after-build.diff); the file is not an A2M leaf; the rewrite came from the build step and was observed after the run (the standalone sourceTreeSha256 reads its own src, so the run is unaffected); it was restored with git checkout -- next-env.d.ts and the tree was clean again before any ledger edit.",
     "note": "No source, test or script byte differed during any run."
   },
   "cleanup": {
@@ -769,12 +769,12 @@
     },
     {
       "id": "CF-A2F-1",
-      "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7); qualified by CF-A2M-1",
+      "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7); qualified by CF-A2M-1. Treated as discharged to the extent exercised; not discharged for individual discrimination.",
       "item": "All six *-stale rows (matrix-*-player-stale and matrix-*-gm-stale) passed on the image built from the merge: the stale watcher assignment is established before the actor acts, the actor receives its own declaration live and after the restart, and the watcher holds only the public lock. Discrimination was witnessed on matrix-Move-player-stale only (P7, local receipt); the other five stale rows are not individually witnessed."
     },
     {
       "id": "CF-A2F-2",
-      "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7)",
+      "status": "built-image side exercised by the six stale rows passing on the merged image; P7 failed matrix-Move-player-stale at the live Move, before the restart, so the post-restart replay assertion itself is not separately witnessed; residual discrimination gap carried by CF-A2M-1. Treated as discharged to the extent exercised; not discharged for individual discrimination.",
       "item": "The acting-player replay after the restart is asserted by the stale rows and passed on the merged image; discrimination was witnessed on matrix-Move-player-stale only (P7)."
     }
   ],

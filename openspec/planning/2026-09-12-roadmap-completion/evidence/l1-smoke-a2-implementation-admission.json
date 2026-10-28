@@ -16,7 +16,7 @@
         "id": "AUTH-1",
         "kind": "owner decision, scope and order",
         "status": "SETTLED",
-        "text": "Owner decisions 2026-10-26 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md, sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 3 settle the A2F -> MISSION-MATCH-1 -> A2M -> A2 order and the same-side live visibility that the co-op restart row relies on."
+        "text": "Owner decisions 2026-10-26 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md, sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) item 1 settles the A2F -> MISSION-MATCH-1 -> A2M order and the same-side live visibility (\"teammates on a side see each other's sealed declarations live\") that the co-op restart row relies on; item 2 sets the Step 3 budget of 12 and returns an A2 split to the owner."
       },
       {
         "id": "AUTH-2",
@@ -34,7 +34,7 @@
         "id": "AUTH-4",
         "kind": "Root rulings 2026-10-26",
         "status": "SETTLED",
-        "text": "carry-forward.md, \"2026-10-26 Root rulings\": GM viewer role option (a) (the real mission GM is a player-role viewer, disclosed as a known issue, no GM fix unit in Step 3); the A2 cap watch (stop and ask the owner if the freeze measures option A above 500; a split would take Step 3 to 14); the A2 setup fix (the refresh draft corrects the invalid lobby-spectate setup of the concurrency row)."
+        "text": "carry-forward.md, \"2026-10-26 Root rulings (standing instruction + owner 2026-10-26 'other recommendations as we're going through')\": GM viewer role option (a) (the real mission GM is a player-role viewer, disclosed as a known issue, no GM fix unit in Step 3); the A2 cap watch (stop and ask the owner if the freeze measures option A above 500; a split would take Step 3 to 14); the A2 setup fix (the refresh draft corrects the invalid lobby-spectate setup of the concurrency row)."
       },
       {
         "id": "AUTH-5",
@@ -274,7 +274,7 @@
   "capException": {
     "rule": "validate-roadmap.mjs:723-726: a merged unit fails when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, counted being the added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` outside evidence/ and UNCOUNTED_FILES. It does not know option A.",
     "needed": "At the implementation merge: the literal count (535 leaf lines plus the lifecycle) exceeds 500, so capException is required.",
-    "shape": "{countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines: <literal minus 120>, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-fixtures.ts]}",
+    "shape": "{countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines: <literal minus 120>, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-fixtures.ts]}. Place it as capException on the unit L1-SMOKE-A2 in units.json (sibling of caps, as L1-SMOKE-A2FP and L1-SMOKE-A2F do), not in the receipt. countedLines is the validator's literal count of git diff --numstat --no-renames <mergeSha>^1 <mergeSha> outside evidence and uncounted files; it includes the capException lines themselves, so measure after adding them.",
     "tool": "measure-fit.cjs (this directory) for the estimate; the closure tool measure-cap.cjs (_reports/2026-10-27/a2m-impl/measure-cap.cjs) for the real merge-diff count",
     "stop": "An option-A count over 500 or a 16th file stops the unit for Root (a split takes Step 3 to 14)."
   },
@@ -283,7 +283,7 @@
     "nodeTest": "6 of 6 pass, 0 fail (5 prep tests plus the source-order test that the co-op restart row reopens the GM campaign channel after the restart and before the first Move); heavy-run lane a2m-closure, class jest, raw log in the closure report folder validate-leaves/node-test.log",
     "staticChecks": "oxfmt --check on the four leaves exit 0; oxlint --no-ignore exit 0; eslint no-undef/no-unused-vars exit 0; npm run lint:units PASS (the leaves are not in its counted set)",
     "prepRun": "Prep run (superseded by nodeTest above): 5 of 5 node tests, oxfmt exit 0, eslint no-undef exit 0 on the prep leaves.",
-    "note": "The node tests cannot run the cases leaf against a server: the rows are only discriminated by the built run. The stale-references class of bug fixed in the refresh draft (an undefined `w`) is caught by no-undef or by any built run, not by these tests."
+    "note": "The node tests cannot run the cases leaf against a server: the rows are only discriminated by the built run. The stale-references class of bug fixed in the refresh draft (an undefined `w`) is caught by no-undef or by any built run, not by these tests. The source-order test is textual: it guards deleting or reordering the reopenGm call, not a no-op reopenGm; the built run is the real guard. The coop-restart-action-accepted observation reads previousPid after ctx.stop(), so it is always null; the restart is evidenced by the harness process records, not by that field."
   },
   "mutantInventory": {
     "pureFunction": "The node leaf covers the composite enumeration (omitted A1, matrix or owned row, a doubled row, an unexpected row), capturedRolls (missing, empty, non-d6, non-integer) and the read-only event witness (missing, doubled id, live pid). Owed at RED/GREEN: a mutant list killing each, named in the red receipt.",
@@ -625,7 +625,7 @@
     {
       "id": "G-A0",
       "kind": "ruling before RED",
-      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main, rebase draft/a2-leaves.patch, re-verify every control hash above against the merged tree (A1, A2FP, A2F and the three A2M leaves byte-identical to the frozen bytes), re-run the open-PR and worktree census, and re-measure the leaves (fit.json)."
+      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main and place the four frozen leaves from E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/a2-admission/frozen-20261028/scripts/release/ (outside Git; each must equal measuredFit.leaves[].draftSha256 and draftBytes; the older prep draft/a2-leaves.patch predates the probe fix and must not be used). Re-verify every control hash above against the merged tree (A1, A2FP, A2F and the three A2M leaves byte-identical to the frozen bytes), re-run the open-PR and worktree census, and re-measure the leaves (fit.json)."
     },
     {
       "id": "G-A1",
@@ -640,12 +640,12 @@
     {
       "id": "G-A3",
       "kind": "GREEN",
-      "text": "Cases, fixtures and runner leaves; node:test green; oxfmt --check exit 0; oxlint --no-ignore clean; lint:units not above its 50/50 ceiling."
+      "text": "Cases, fixtures and runner leaves; node:test green; oxfmt --check exit 0; oxlint --no-ignore clean; lint:units not above its 50/50 ceiling. The cases, fixtures and runner leaves must equal the measuredFit draftSha256 bytes; any deviation is listed in the local receipt with a re-measured counted total and re-checked against G-A8."
     },
     {
       "id": "G-A4",
       "kind": "built run, first contact",
-      "text": "The first --build run of the A2 runner. Stop and tell Root if an inherited matrix row fails (a regression of the frozen A2M proof), if the co-op rows fail for a product reason, or if a spectator row reports a leaked sentinel (a real privacy finding)."
+      "text": "The first --build run of the A2 runner. Stop and tell Root if an inherited matrix row fails (a regression of the frozen A2M proof), if the co-op rows fail for a product reason, or if a spectator row reports a leaked sentinel (a real privacy finding). A sole 15 s readiness timeout (CF-A2FP-2) is not a stop; take one disclosed rerun. Restore next-env.d.ts with git checkout before staging; it is outside the manifest."
     },
     {
       "id": "G-A5",
@@ -665,7 +665,7 @@
     {
       "id": "G-A8",
       "kind": "cap",
-      "text": "Re-measure the real squash diff after the lifecycle edit and record capException with the literal count; an option-A count above 500 or a 16th file stops the unit for Root (the cap watch)."
+      "text": "Re-measure the real merge diff against the first parent after the lifecycle edit and record capException with the literal count; an option-A count above 500 or a 16th file stops the unit for Root (the cap watch)."
     },
     {
       "id": "G-A9",
@@ -701,7 +701,7 @@
     "Q3 (RESOLVED): the probe ran; the first failure (MATCH_PAUSED after the restart) was a harness gap fixed inside the owned cases leaf, and the rerun passed (reachabilityGate.probe)."
   ],
   "limitations": [
-    "Admission only; no leaf is committed by this PR (the four leaves exist as ignored files in the closure checkout) and nothing here is a registered built-image PASS of the A2 runner.",
+    "Admission only; no leaf is committed by this PR (the four frozen leaves are preserved outside Git at E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/a2-admission/frozen-20261028/scripts/release/, each equal to measuredFit.leaves[].draftSha256) and nothing here is a registered built-image PASS of the A2 runner.",
     "The co-op setup, the restart, the active-unit witness and the first captured rolls were probed on the exact-main A2M image (second run PASS, reachabilityGate.probe); that is a setup reachability check, not the 26-case GREEN run, and RED, GREEN and the mutants are owed at the implementation PR.",
     "The inherited A2M disclosures ride into A2: R6 survived (Root ruling 2026-10-28), P1/P6 reconnect and restart coverage is inferred, and only matrix-Move-player-stale is witnessed under P7; CF-A2M-1 stays with the next unit that amends the A2M harness.",
     "The worktree census cannot see uncommitted edits in other worktrees."
