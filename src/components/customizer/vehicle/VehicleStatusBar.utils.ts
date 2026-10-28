@@ -14,6 +14,7 @@ import { computeVehicleEngineWeight } from '@/utils/construction/vehicle/engine'
 import { computeTurretEquipmentWeight } from '@/utils/construction/vehicle/equipmentMounts';
 import {
   computePowerAmplifierWeight,
+  isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
 } from '@/utils/construction/vehicle/powerAmplifier';
 import { computeVehicleStructureWeight } from '@/utils/construction/vehicle/structure';
@@ -44,10 +45,12 @@ export interface VehicleWeightBreakdown {
   turret: number;
   secondaryTurret: number;
   powerAmplifiers: number;
-  /** Tons of equipment mounted in the primary turret */
+  /** Tons of non-ammunition equipment in the primary turret (structure basis) */
   turretEquipment: number;
-  /** Tons of equipment mounted in the secondary turret */
+  /** Tons of non-ammunition equipment in the secondary turret */
   secondaryTurretEquipment: number;
+  /** Tons of everything mounted in the primary turret, ammunition included */
+  turretMounted: number;
   /** Tons of energy weapons (what power amplifiers are sized from) */
   energyWeapons: number;
   remaining: number;
@@ -65,7 +68,8 @@ export function computeVehicleWeightBreakdown(
     const item = resolve(e.equipmentId);
     return {
       weight: item?.weight ?? 0,
-      isEnergyWeapon: item?.category === EquipmentCategory.ENERGY_WEAPON,
+      isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
+      needsAmplifier: item !== undefined && isPowerAmplifierEnergyWeapon(item),
       inSecondaryTurret: e.location === VehicleLocation.TURRET_2,
       inPrimaryTurret:
         e.isTurretMounted && e.location !== VehicleLocation.TURRET_2,
@@ -73,20 +77,27 @@ export function computeVehicleWeightBreakdown(
   });
 
   const equipment = mounted.reduce((sum, m) => sum + m.weight, 0);
+  // Turret structure is 10% of the turret's equipment, ammunition excluded.
   const turretEquipment = computeTurretEquipmentWeight(
     mounted.map((m) => ({
-      isTurretMounted: m.inPrimaryTurret,
+      isTurretMounted: m.inPrimaryTurret && !m.isAmmunition,
       weight: m.weight,
     })),
   );
   const secondaryTurretEquipment = computeTurretEquipmentWeight(
     mounted.map((m) => ({
-      isTurretMounted: m.inSecondaryTurret,
+      isTurretMounted: m.inSecondaryTurret && !m.isAmmunition,
+      weight: m.weight,
+    })),
+  );
+  const turretMounted = computeTurretEquipmentWeight(
+    mounted.map((m) => ({
+      isTurretMounted: m.inPrimaryTurret,
       weight: m.weight,
     })),
   );
   const energyWeapons = mounted
-    .filter((m) => m.isEnergyWeapon)
+    .filter((m) => m.needsAmplifier)
     .reduce((sum, m) => sum + m.weight, 0);
 
   const engine = computeVehicleEngineWeight(
@@ -130,6 +141,7 @@ export function computeVehicleWeightBreakdown(
     powerAmplifiers,
     turretEquipment,
     secondaryTurretEquipment,
+    turretMounted,
     energyWeapons,
     remaining: state.tonnage - totalUsed,
   };

@@ -86,7 +86,11 @@ export function computeVehicleEngineWeight(
   rating: number,
   engineType: EngineType,
 ): number {
-  const baseWeight = getBaseEngineWeight(rating);
+  // The engine table has entries only at multiples of 5 (minimum 10); a
+  // rating in between is looked up at the next entry up.
+  const baseWeight = getBaseEngineWeight(
+    Math.max(10, Math.ceil(rating / 5) * 5),
+  );
   const def = getEngineDefinition(engineType);
   if (!def) return baseWeight;
   return ceilToHalfTon(baseWeight * def.weightMultiplier);

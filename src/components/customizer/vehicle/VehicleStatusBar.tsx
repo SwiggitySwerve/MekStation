@@ -206,7 +206,6 @@ function validateStatusBarState(
     | 'armorType'
     | 'armorAllocation'
     | 'crewSize'
-    | 'powerAmpWeight'
     | 'structureType'
   >,
   weights: VehicleWeightBreakdown,
@@ -227,7 +226,9 @@ function validateStatusBarState(
     armorAllocation: state.armorAllocation as Record<string, number>,
     crewSize: state.crewSize,
     energyWeaponWeight: weights.energyWeapons,
-    powerAmpWeight: state.powerAmpWeight,
+    // Derived like the turret weight: the bar installs (and charges) the
+    // amplifiers the energy weapons require.
+    powerAmpWeight: weights.powerAmplifiers,
     structureType: state.structureType,
   });
 }
@@ -357,7 +358,6 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           armorType,
           armorAllocation,
           crewSize,
-          powerAmpWeight,
           structureType,
         },
         weightBreakdown,
@@ -371,7 +371,6 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       armorType,
       armorAllocation,
       crewSize,
-      powerAmpWeight,
       structureType,
       weightBreakdown,
     ],
@@ -485,10 +484,12 @@ export function VehicleStatusBar({
       {turret && (
         <StatusItem
           label="Turret"
-          value={weightBreakdown.turret.toFixed(1)}
+          value={weightBreakdown.turretMounted.toFixed(1)}
           subValue={` / ${formatTons(turret.maxWeight)}`}
           status={
-            weightBreakdown.turret > turret.maxWeight ? 'error' : 'normal'
+            weightBreakdown.turretMounted > turret.maxWeight
+              ? 'error'
+              : 'normal'
           }
         />
       )}
