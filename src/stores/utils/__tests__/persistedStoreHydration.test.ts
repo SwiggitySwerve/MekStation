@@ -95,29 +95,40 @@ describe('Persisted store hydration boundary', () => {
   });
 
   describe('useAppearanceStore (mekstation-appearance)', () => {
-    it.each(['petrol', 'field', 'slate', 'violet', 'burgundy', 'copper'])(
-      'rehydrates the saved %s palette',
-      (uiTheme) => {
-        localStorage.setItem(
-          'mekstation-appearance',
-          JSON.stringify({
-            state: {
-              accentColor: 'violet',
-              fontSize: 'medium',
-              animationLevel: 'full',
-              compactMode: false,
-              uiTheme,
-            },
-            version: 0,
-          }),
-        );
-        jest.isolateModules(() => {
-          const { useAppearanceStore } = require('@/stores/useAppearanceStore');
-          expect(useAppearanceStore.getState().uiTheme).toBe(uiTheme);
-          expect(useAppearanceStore.getState().accentColor).toBe('violet');
-        });
-      },
-    );
+    it.each([
+      ['gunmetal', 'gunmetal'],
+      ['cobalt', 'cobalt'],
+      ['hangar', 'hangar'],
+      ['olive-steel', 'olive-steel'],
+      ['petrol', 'petrol'],
+      ['field', 'field'],
+      ['slate', 'slate'],
+      ['violet', 'violet'],
+      ['burgundy', 'burgundy'],
+      ['copper', 'copper'],
+      // The retired Midnight blue id restores as Gunmetal and keeps the rest
+      // of the payload instead of failing validation.
+      ['default', 'gunmetal'],
+    ])('rehydrates the saved %s palette as %s', (uiTheme, expected) => {
+      localStorage.setItem(
+        'mekstation-appearance',
+        JSON.stringify({
+          state: {
+            accentColor: 'violet',
+            fontSize: 'medium',
+            animationLevel: 'full',
+            compactMode: false,
+            uiTheme,
+          },
+          version: 0,
+        }),
+      );
+      jest.isolateModules(() => {
+        const { useAppearanceStore } = require('@/stores/useAppearanceStore');
+        expect(useAppearanceStore.getState().uiTheme).toBe(expected);
+        expect(useAppearanceStore.getState().accentColor).toBe('violet');
+      });
+    });
 
     it('hydrates a valid persisted payload', () => {
       localStorage.setItem(
@@ -151,9 +162,9 @@ describe('Persisted store hydration boundary', () => {
       );
       jest.isolateModules(() => {
         const { useAppearanceStore } = require('@/stores/useAppearanceStore');
-        // Defaults: accentColor 'amber', uiTheme 'default'.
+        // Defaults: accentColor 'amber', uiTheme 'gunmetal'.
         expect(useAppearanceStore.getState().accentColor).toBe('amber');
-        expect(useAppearanceStore.getState().uiTheme).toBe('default');
+        expect(useAppearanceStore.getState().uiTheme).toBe('gunmetal');
       });
     });
   });

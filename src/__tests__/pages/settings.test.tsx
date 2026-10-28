@@ -296,11 +296,14 @@ describe('Settings Page', () => {
       expect(animationSelect).toBeInTheDocument();
     });
 
-    it('renders all 10 application palettes', () => {
+    it('renders all 13 application palettes', () => {
       renderSettings();
 
       for (const name of [
-        'Midnight blue',
+        'Gunmetal',
+        'Cobalt',
+        'Hangar',
+        'Olive steel',
         'Petrol teal',
         'Field olive',
         'Classic slate',

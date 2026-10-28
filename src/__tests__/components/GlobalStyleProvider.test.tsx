@@ -43,10 +43,10 @@ describe('GlobalStyleProvider', () => {
         </GlobalStyleProvider>,
       );
 
-      expect(document.body.classList.contains('theme-default')).toBe(true);
-      expect(document.documentElement.classList.contains('theme-default')).toBe(
-        true,
-      );
+      expect(document.body.classList.contains('theme-gunmetal')).toBe(true);
+      expect(
+        document.documentElement.classList.contains('theme-gunmetal'),
+      ).toBe(true);
       expect(document.documentElement.dataset.colorScheme).toBe('dark');
     });
 
@@ -62,7 +62,7 @@ describe('GlobalStyleProvider', () => {
       );
 
       expect(document.body.classList.contains('theme-neon')).toBe(true);
-      expect(document.body.classList.contains('theme-default')).toBe(false);
+      expect(document.body.classList.contains('theme-gunmetal')).toBe(false);
     });
 
     it('should apply tactical theme class when uiTheme is tactical', () => {
@@ -109,7 +109,7 @@ describe('GlobalStyleProvider', () => {
       act(() => useAppearanceStore.getState().setUITheme('slate'));
       expect(document.body.className).toBe('theme-slate');
       act(() => useAppearanceStore.getState().resetToDefaults());
-      expect(document.body.className).toBe('theme-default');
+      expect(document.body.className).toBe('theme-gunmetal');
     });
 
     it('should remove old theme class when switching themes', () => {

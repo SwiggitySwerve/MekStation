@@ -18,7 +18,7 @@ export default function Document(): React.ReactElement {
           #__splash {
             position: fixed;
             inset: 0;
-            background: var(--surface-deep, #09162b);
+            background: var(--surface-deep, #0c0f11);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -36,14 +36,14 @@ export default function Document(): React.ReactElement {
           #__splash-spinner {
             width: 48px;
             height: 48px;
-            border: 3px solid var(--surface-raised, #21466c);
+            border: 3px solid var(--surface-raised, #212629);
             border-top-color: var(--accent-primary, #f59e0b);
             border-radius: 50%;
             animation: splash-spin 0.8s linear infinite;
           }
           #__splash-text {
             margin-top: 16px;
-            color: var(--text-secondary, #adc4dc);
+            color: var(--text-secondary, #b6bfc6);
             font-family: system-ui, -apple-system, sans-serif;
             font-size: 14px;
             letter-spacing: 0.05em;
@@ -71,7 +71,7 @@ export default function Document(): React.ReactElement {
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 
         {/* Theme Color */}
-        <meta name="theme-color" content="#09162b" />
+        <meta name="theme-color" content="#0c0f11" />
 
         {/* PWA Meta Tags */}
         <meta name="application-name" content="MekStation" />

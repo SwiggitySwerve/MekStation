@@ -1260,23 +1260,83 @@ button:disabled {
  * Use these for theme-specific style overrides.
  */
 
-/* Base palettes share the same semantic equipment and accent colors. */
+/* Base palettes share the same semantic equipment and accent colors.
+   The four skins below step one OKLCH lightness ladder (deep 0.165, base
+   0.205, raised 0.265, border 0.385, strong 0.80) and differ only in hue and
+   chroma, so each keeps the same contrast; the near-neutral ones leave colour
+   to the accent and the equipment categories. `:root` carries the default
+   skin (DEFAULT_UI_THEME). */
+/* Gunmetal (default): cool graphite with a faint steel tint. */
 :root,
-.theme-default {
-  --background: #09162b;
+.theme-gunmetal {
+  --background: #0c0f11;
   --foreground: #f6f4ed;
-  --surface-deep: #09162b;
-  --surface-base: #122e50;
-  --surface-raised: #21466c;
-  --border-subtle: #21466c;
-  --border-default: #365f86;
-  --border-strong: #adc4dc;
+  --surface-deep: #0c0f11;
+  --surface-base: #14181a;
+  --surface-raised: #212629;
+  --border-subtle: #212629;
+  --border-default: #3e4549;
+  --border-strong: #b6bfc6;
   --text-primary: #f6f4ed;
-  --text-secondary: #adc4dc;
-  --text-muted: #adc4dc;
-  --scrollbar-thumb: #365f86;
-  --scrollbar-thumb-hover: #adc4dc;
-  --scrollbar-track: #09162b;
+  --text-secondary: #b6bfc6;
+  --text-muted: #b6bfc6;
+  --scrollbar-thumb: #3e4549;
+  --scrollbar-thumb-hover: #b6bfc6;
+  --scrollbar-track: #0c0f11;
+}
+
+/* Cobalt: deep saturated blue on a tight ladder (hue 264). */
+.theme-cobalt {
+  --background: #060e23;
+  --foreground: #f6f4ed;
+  --surface-deep: #060e23;
+  --surface-base: #091737;
+  --surface-raised: #122653;
+  --border-subtle: #122653;
+  --border-default: #2e4880;
+  --border-strong: #aebedf;
+  --text-primary: #f6f4ed;
+  --text-secondary: #aebedf;
+  --text-muted: #aebedf;
+  --scrollbar-thumb: #2e4880;
+  --scrollbar-thumb-hover: #aebedf;
+  --scrollbar-track: #060e23;
+}
+
+/* Hangar: warm carbon with a brown-black undertone. */
+.theme-hangar {
+  --background: #100e0b;
+  --foreground: #f6f4ed;
+  --surface-deep: #100e0b;
+  --surface-base: #1a1713;
+  --surface-raised: #29241f;
+  --border-subtle: #29241f;
+  --border-default: #49423b;
+  --border-strong: #c7bcaf;
+  --text-primary: #f6f4ed;
+  --text-secondary: #c7bcaf;
+  --text-muted: #c7bcaf;
+  --scrollbar-thumb: #49423b;
+  --scrollbar-thumb-hover: #c7bcaf;
+  --scrollbar-track: #100e0b;
+}
+
+/* Olive steel: desaturated military olive-grey. */
+.theme-olive-steel {
+  --background: #0e0f0a;
+  --foreground: #f6f4ed;
+  --surface-deep: #0e0f0a;
+  --surface-base: #161812;
+  --surface-raised: #24271e;
+  --border-subtle: #24271e;
+  --border-default: #424639;
+  --border-strong: #bbc1ae;
+  --text-primary: #f6f4ed;
+  --text-secondary: #bbc1ae;
+  --text-muted: #bbc1ae;
+  --scrollbar-thumb: #424639;
+  --scrollbar-thumb-hover: #bbc1ae;
+  --scrollbar-track: #0e0f0a;
 }
 
 .theme-petrol {
