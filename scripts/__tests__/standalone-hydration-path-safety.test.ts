@@ -31,7 +31,7 @@ function prepareFixture(root: string): void {
   writeFile(path.join(root, '.next/static/chunks/app.js'), 'static');
   writeFile(
     path.join(root, 'server.js'),
-    "server.on('upgrade', () => undefined); /api/multiplayer/socket",
+    "server.on('upgrade', () => undefined); const socketPath = '/api/multiplayer/socket';",
   );
   writeFile(path.join(root, 'tsconfig.json'), '{}');
   writeFile(path.join(root, 'src/index.ts'), 'export {};');
@@ -49,6 +49,10 @@ function prepareFixture(root: string): void {
     writeFile(
       path.join(root, 'node_modules', runtimeDir, 'package.json'),
       '{}',
+    );
+    writeFile(
+      path.join(root, 'node_modules', runtimeDir, 'index.js'),
+      'module.exports = {};',
     );
   }
   writeFile(path.join(root, 'node_modules/tsx/sentinel.txt'), 'preserve-me');
