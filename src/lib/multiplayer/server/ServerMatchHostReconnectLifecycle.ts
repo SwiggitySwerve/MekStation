@@ -14,6 +14,8 @@ import type {
 } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
+import { sideOfPlayer } from './sideAssignments';
+
 export interface IServerMatchHostReconnectContext extends IServerMatchHostCaptureContext {
   readonly matchId: string;
   readonly store: IMatchStore;
@@ -136,12 +138,9 @@ async function completeExpiredPendingMatch(
   let concededSide: GameSide | null = null;
   try {
     const meta = await ctx.store.getMatchMeta(ctx.matchId);
-    const assignment = meta.sideAssignments.find(
-      (a) => a.playerId === timedOutPlayerId,
-    );
-    if (assignment) {
-      concededSide =
-        assignment.side === 'player' ? GameSide.Player : GameSide.Opponent;
+    const side = sideOfPlayer(meta.sideAssignments, timedOutPlayerId);
+    if (side !== undefined) {
+      concededSide = side === 'player' ? GameSide.Player : GameSide.Opponent;
     }
   } catch {
     concededSide = null;

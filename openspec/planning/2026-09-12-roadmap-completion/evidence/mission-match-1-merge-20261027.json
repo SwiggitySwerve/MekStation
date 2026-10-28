@@ -1,0 +1,453 @@
+{
+  "unit": "MISSION-MATCH-1",
+  "stage": "merge",
+  "recordedAt": "2026-10-27T22:12:12.966Z",
+  "pr": 2343,
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2343",
+  "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+  "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+  "correctedHead": "8738a38004cb806bbc45b1d6d70d01ecf18d0b04",
+  "mergeSha": "a720c5746034a12ec4558d34c5250916fddc1bda",
+  "mergedAt": "2026-10-27T21:47:48Z",
+  "mergedBy": "SwiggitySwerve",
+  "baseline": "f917a5259ac8b2fa5f216337338d48d92bdc5960",
+  "implementationBase": "86d0817b1e945ef1993f78ae19888f4022e503a0",
+  "baselineNote": "The admission baseline (f917a5259, the #2341 merge) differs from the implementation base 86d0817b1 (the #2342 merge) and from the PR base 4f5398b68 (#2344, UI optimization, merged during review). The ruled head 795f77681 merged 4f5398b68 into the PR branch with no overlap with the 15 MM1 files; parent 1 of the merge commit is 4f5398b68 and the cap is measured against it, not against 86d0817b1 (which includes unrelated UI work).",
+  "prBaseRefOid": "4f5398b68f88d799fdfb5e5f8372dd5caa576418",
+  "parents": [
+    "4f5398b68f88d799fdfb5e5f8372dd5caa576418",
+    "795f7768119cade8a4ba693a788e49abed72adfb"
+  ],
+  "mainBeforeMerge": "4f5398b68f88d799fdfb5e5f8372dd5caa576418",
+  "mergedTree": "8e1ff50cb10c6fe6b6e268f0414fce3dd023833b",
+  "reconstructedTree": "8e1ff50cb10c6fe6b6e268f0414fce3dd023833b",
+  "integrationClean": true,
+  "topology": "two-parent merge commit; ordered parent2 equals the exact ruled head; the merged tree equals git merge-tree --write-tree of the two parents and equals the tree of the PR head (8e1ff50cb)",
+  "treeEqualsPrHeadTree": true,
+  "mergeCommitMessageSha256": "5b62885dd324e2787e9c453aea7be3f947f0f5471047f58e999fe35e2755b4bb",
+  "mergeCommitMessageBytes": 177,
+  "mergeCommitMessageNote": "sha256 of the raw message bytes from git cat-file commit (after the header block and the blank separator), hashed in Node without text conversion.",
+  "mergeCommand": "Merged with --match-head-commit 795f7768119cade8a4ba693a788e49abed72adfb (OWNER-RULING comment 6454431751).",
+  "commitSequence": {
+    "implementationBase": "86d0817b1e945ef1993f78ae19888f4022e503a0",
+    "red": "6f8ace4d4377255e719ac656cf4b8b571c684689",
+    "refactor": "734990ee84a0b244546b2fe670a786a7ac9dcc6f",
+    "green": "9e36d48205b5ec3b7dbd974f7273df9efc72c1f9",
+    "testFix": "623613c85303de370c7a213c520d41945e1c5388",
+    "reviewedLifecycle": "097102d4ff506cc98b5b95417776918f38d9fecc",
+    "correction": "8738a38004cb806bbc45b1d6d70d01ecf18d0b04",
+    "mainIntegration": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "note": "RED, refactor, GREEN and the test-only fix are the original implementation commits; the original five implementation commits are 6f8ace4d4, 734990ee8, 9e36d4820, 623613c85 and 097102d4f. Row invariance starts at the refactor commit."
+  },
+  "sourceIdentities": [
+    {
+      "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+      "reviewedBlob": "4deae01ed9ad3f75779970e6aa574b8791210378",
+      "correctedBlob": "4deae01ed9ad3f75779970e6aa574b8791210378",
+      "prHeadBlob": "4deae01ed9ad3f75779970e6aa574b8791210378",
+      "mergeBlob": "4deae01ed9ad3f75779970e6aa574b8791210378",
+      "greenBlob": "4deae01ed9ad3f75779970e6aa574b8791210378",
+      "testFixBlob": "4deae01ed9ad3f75779970e6aa574b8791210378"
+    },
+    {
+      "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+      "reviewedBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe",
+      "correctedBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe",
+      "prHeadBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe",
+      "mergeBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe",
+      "greenBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe",
+      "testFixBlob": "62e144431971811a4cf64fcefd6ba4fc38573dfe"
+    },
+    {
+      "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+      "reviewedBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e",
+      "correctedBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e",
+      "prHeadBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e",
+      "mergeBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e",
+      "greenBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e",
+      "testFixBlob": "cbcad55275e98af7c42d0641bc27fb24c188b47e"
+    },
+    {
+      "path": "src/lib/multiplayer/server/sideAssignments.ts",
+      "reviewedBlob": "0621f84570cb58151f4db6b4021631726b437cd8",
+      "correctedBlob": "0621f84570cb58151f4db6b4021631726b437cd8",
+      "prHeadBlob": "0621f84570cb58151f4db6b4021631726b437cd8",
+      "mergeBlob": "0621f84570cb58151f4db6b4021631726b437cd8",
+      "greenBlob": "0621f84570cb58151f4db6b4021631726b437cd8",
+      "testFixBlob": "0621f84570cb58151f4db6b4021631726b437cd8"
+    },
+    {
+      "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+      "reviewedBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8",
+      "correctedBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8",
+      "prHeadBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8",
+      "mergeBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8",
+      "greenBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8",
+      "testFixBlob": "2a6c8cba2d90aa2c79d8c845bb5abdf2e552c7a8"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "reviewedBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8",
+      "correctedBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8",
+      "prHeadBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8",
+      "mergeBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8",
+      "greenBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8",
+      "testFixBlob": "d721af4e2e5e76f1b3316185cc1c352316d90ab8"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+      "reviewedBlob": "19e36080119d4f5684dba13ef2e77fde8365d597",
+      "correctedBlob": "19e36080119d4f5684dba13ef2e77fde8365d597",
+      "prHeadBlob": "19e36080119d4f5684dba13ef2e77fde8365d597",
+      "mergeBlob": "19e36080119d4f5684dba13ef2e77fde8365d597",
+      "greenBlob": "19e36080119d4f5684dba13ef2e77fde8365d597",
+      "testFixBlob": "19e36080119d4f5684dba13ef2e77fde8365d597"
+    },
+    {
+      "path": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+      "reviewedBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027",
+      "correctedBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027",
+      "prHeadBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027",
+      "mergeBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027",
+      "greenBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027",
+      "testFixBlob": "b9c0b593d03176848c4d2d5db2c7faf773b0f027"
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+      "reviewedBlob": "882ad8b7bcb9c288668063765c8d22b72563ec4e",
+      "correctedBlob": "882ad8b7bcb9c288668063765c8d22b72563ec4e",
+      "prHeadBlob": "882ad8b7bcb9c288668063765c8d22b72563ec4e",
+      "mergeBlob": "882ad8b7bcb9c288668063765c8d22b72563ec4e",
+      "greenBlob": "59be35b2ff76df7d012b2893f3a2feb515d8734e",
+      "testFixBlob": "882ad8b7bcb9c288668063765c8d22b72563ec4e"
+    },
+    {
+      "path": "openspec/specs/multiplayer-server/spec.md",
+      "reviewedBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7",
+      "correctedBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7",
+      "prHeadBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7",
+      "mergeBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7",
+      "greenBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7",
+      "testFixBlob": "448e723c57e5658f45c32efd0e172f8ff3de9ad7"
+    }
+  ],
+  "sourceIdentityNote": "All ten registered leaves have one blob at the Opus-reviewed head 097102d4f, the correction head 8738a3800, the ruled head 795f77681 and the merge. The nine non-test leaves also equal the GREEN blob; the test leaf at GREEN (9e36d4820) differs from the final one by the two-line test-only fix 623613c85 (testFixBlob equals the final). The correction touched only the red and local receipts; the main integration changed no MM1 byte.",
+  "evidenceReceiptBlobs": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
+      "blobAt097102d4f": "9126508fd7677d85fe4185e8f101f5f7e26f4989",
+      "blobAt8738a3800": "6a5eb1cedb39643e6852630a80d33c030d017629",
+      "blobAt795f77681": "6a5eb1cedb39643e6852630a80d33c030d017629",
+      "blobAtMerge": "6a5eb1cedb39643e6852630a80d33c030d017629"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
+      "blobAt097102d4f": "d7e1de4183ff586a22247a1246311db75a0ef576",
+      "blobAt8738a3800": "4605a65a4b746801a18adfdc199c8b4a284503fb",
+      "blobAt795f77681": "4605a65a4b746801a18adfdc199c8b4a284503fb",
+      "blobAtMerge": "4605a65a4b746801a18adfdc199c8b4a284503fb"
+    }
+  ],
+  "correctionNote": "8738a3800 fixed R1/S1 (stale test-leaf hash and bytes in the local receipt, now 41cee81e3ba5f98ad161a49d7c111c1a4b9306ffd93bc67298fad7ab7a298e0e, 38771 bytes) and wording N1 in the red and local receipts: two evidence files, five additions and five deletions. No source, test, spec, ledger or generated-page byte changed. Old receipts are not rewritten by this closure.",
+  "commits": [
+    {
+      "oid": "6f8ace4d4377255e719ac656cf4b8b571c684689",
+      "headline": "test(multiplayer): add MISSION-MATCH-1 falsifiers (RED)"
+    },
+    {
+      "oid": "734990ee84a0b244546b2fe670a786a7ac9dcc6f",
+      "headline": "refactor(multiplayer): extract sideOfPlayer for per-player side lookup"
+    },
+    {
+      "oid": "9e36d48205b5ec3b7dbd974f7273df9efc72c1f9",
+      "headline": "fix(multiplayer): keep roster members admitted and deliver sealed dec…"
+    },
+    {
+      "oid": "623613c85303de370c7a213c520d41945e1c5388",
+      "headline": "test(multiplayer): drop unused host binding in concession rows"
+    },
+    {
+      "oid": "097102d4ff506cc98b5b95417776918f38d9fecc",
+      "headline": "docs(roadmap): record MISSION-MATCH-1 local proof (RED and local rece…"
+    },
+    {
+      "oid": "8738a38004cb806bbc45b1d6d70d01ecf18d0b04",
+      "headline": "docs(roadmap): correct MM1 reviewed evidence metadata"
+    },
+    {
+      "oid": "795f7768119cade8a4ba693a788e49abed72adfb",
+      "headline": "Merge remote-tracking branch 'origin/main' into work/mission-match-1-…"
+    }
+  ],
+  "sourceCensus": {
+    "files": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "additions": 11,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "additions": 2,
+        "deletions": 2
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
+        "additions": 666,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
+        "additions": 165,
+        "deletions": 0
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "additions": 30,
+        "deletions": 3
+      },
+      {
+        "path": "openspec/specs/multiplayer-server/spec.md",
+        "additions": 37,
+        "deletions": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "additions": 2,
+        "deletions": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "additions": 3,
+        "deletions": 4
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "additions": 5,
+        "deletions": 6
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "additions": 573,
+        "deletions": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "additions": 15,
+        "deletions": 5
+      },
+      {
+        "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "additions": 4,
+        "deletions": 0
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "additions": 3,
+        "deletions": 3
+      },
+      {
+        "path": "src/lib/multiplayer/server/sideAssignments.ts",
+        "additions": 15,
+        "deletions": 0
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "additions": 6,
+        "deletions": 1
+      }
+    ],
+    "note": "gh pr view 2343 files; 15 files, +1537/-33 against the PR base"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "files": 15,
+    "evidenceFiles": 2,
+    "countedFiles": 14,
+    "filesNote": "15 changed files = 14 counted files (ten leaves, units.json, PROGRESS.md and the red and local receipts, which the plan counts as files) plus the generated page, which is exempt from the file count (ownerRuling20261024StepsPageFileCap)",
+    "counted": 133,
+    "capExceptionNeeded": false,
+    "measuredOn": "git diff --numstat --no-renames 4f5398b68f88d799fdfb5e5f8372dd5caa576418 a720c5746034a12ec4558d34c5250916fddc1bda",
+    "tool": "validate-roadmap.mjs:705-727 semantics (UNCOUNTED_FILES, evidence directory skipped)",
+    "perFile": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "added": 11,
+        "deleted": 0,
+        "countedLines": 11,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "added": 2,
+        "deleted": 2,
+        "countedLines": 2,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-local-20261026.json",
+        "added": 666,
+        "deleted": 0,
+        "countedLines": 0,
+        "evidence": true,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/mission-match-1-red-20261026.json",
+        "added": 165,
+        "deleted": 0,
+        "countedLines": 0,
+        "evidence": true,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "added": 30,
+        "deleted": 3,
+        "countedLines": 30,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "openspec/specs/multiplayer-server/spec.md",
+        "added": 37,
+        "deleted": 3,
+        "countedLines": 37,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "added": 2,
+        "deleted": 3,
+        "countedLines": 2,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+        "added": 3,
+        "deleted": 4,
+        "countedLines": 3,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts",
+        "added": 5,
+        "deleted": 6,
+        "countedLines": 5,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/sealedChoiceDelivery.test.ts",
+        "added": 573,
+        "deleted": 3,
+        "countedLines": 0,
+        "evidence": false,
+        "testExempt": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "added": 15,
+        "deleted": 5,
+        "countedLines": 15,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "added": 4,
+        "deleted": 0,
+        "countedLines": 4,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "added": 3,
+        "deleted": 3,
+        "countedLines": 3,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/lib/multiplayer/server/sideAssignments.ts",
+        "added": 15,
+        "deleted": 0,
+        "countedLines": 15,
+        "evidence": false,
+        "testExempt": false
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "added": 6,
+        "deleted": 1,
+        "countedLines": 6,
+        "evidence": false,
+        "testExempt": false
+      }
+    ]
+  },
+  "ownerRuling": {
+    "ruledHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+    "pr": 2343,
+    "commentId": 6454431751,
+    "author": "SwiggitySwerve",
+    "bodySha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785",
+    "at": "2026-10-27T21:47:35Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2343#issuecomment-6454431751",
+    "bodyBytes": 3601,
+    "authorNote": "The live comment is posted from the owner GitHub account and states \"GPT-6 Astra responding on behalf of @SwiggitySwerve\": Root acting on behalf of the owner under the standing merge and Full send instructions. It is Root commentary, not a verbatim owner quote; the authority it cites is owner-decisions-20261026.md (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc) items 1 and 2.",
+    "envelope": {
+      "path": "evidence/mission-match-1-owner-ruling-6454431751.bytes.json",
+      "payloadSha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785",
+      "payloadBytes": 3601
+    },
+    "rootCopy": {
+      "path": "E:/Projects/Personal/MekStation-wt/_receipts/pr2343-owner-ruling-795f77681.md",
+      "sha256": "68a30e613cf41f392d790f9492cf0c28237be642235a444c9f359c65bca76785",
+      "equalsLive": true
+    }
+  },
+  "ci": {
+    "run": 40588804719,
+    "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40588804719",
+    "headSha": "795f7768119cade8a4ba693a788e49abed72adfb",
+    "event": "pull_request",
+    "conclusion": "success",
+    "jobs": 33,
+    "checks": "33/33 SUCCESS at the ruled head 795f77681 (gh pr checks 2343; PR Checks run 40588804719), re-read at closure."
+  },
+  "reviewRounds": [
+    {
+      "round": 1,
+      "reviewer": "claude-opus-5-5",
+      "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+      "verdict": "ACCEPT WITH ONE REQUIRED EVIDENCE FIX (R1)",
+      "report": "evidence/mission-match-1-source-review-20261027.bytes.json"
+    },
+    {
+      "round": 1,
+      "reviewer": "GPT-6.1 Sol (high, priority)",
+      "reviewedHead": "097102d4ff506cc98b5b95417776918f38d9fecc",
+      "verdict": "APPROVE with nit S1",
+      "report": "additionalPayload pr2343-sol-r1.md in evidence/mission-match-1-source-review-20261027.bytes.json"
+    },
+    {
+      "round": 2,
+      "reviewedHead": "795f7768119cade8a4ba693a788e49abed72adfb",
+      "verdict": "Root delta verification (not a reviewer round)",
+      "scope": "8738a3800 correction (2 evidence files +5/-5) and the 795f77681 main integration (no overlap with the 15 MM1 files); all ten leaf hashes and nine admission draft hashes recomputed by Root; caps 133/14 unchanged"
+    }
+  ],
+  "mergeNotes": [
+    "The merge commit tree equals the ruled head tree, so every leaf at the merge is byte-identical to the ruled head (leavesAtMerge in the mainProof receipt).",
+    "Neither independent reviewer rerun Jest; the exact-main run in the mainProof receipt is the first fresh execution of the focused and neighbour suites since the worker runs."
+  ]
+}

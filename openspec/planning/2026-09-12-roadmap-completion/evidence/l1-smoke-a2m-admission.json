@@ -1,0 +1,766 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2M",
+  "stage": "admission",
+  "date": "2026-10-27",
+  "proofClass": "full",
+  "proofClassNote": "Registered reviewClasses privacy and authority and admissionRequires (finite admission, RED tests-only, privacy/authority packet, independent exact-head review, OWNER-RULING, CI, exact-main PASS, closure) make the unit full. It adds proof-harness leaves only (no product edit); its proof is the built-image run (--build) of the registered runner plus node:test falsifiers.",
+  "evidenceNameNote": "The registered literals l1-smoke-a2m-admission.json, -red.json, -local.json and -review.json are free on main (no date suffix needed, unlike A2F whose literal held the #2318 stop receipt; Root ruling 2026-10-26 Q2). Closure receipts (merge, mainproof, source-review, owner-ruling, mainproof logs) are frozen at the A2M closure PR and added to ownershipExceptions there.",
+  "recordedAt": "2026-10-27T22:14:01.995Z",
+  "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
+  "baselineNote": "Frozen at the fetched origin/main a720c5746 (the #2343 MISSION-MATCH-1 implementation merge, ruled head 795f77681). The 2026-10-26 prep measured at 86d0817b1 (the #2342 merge) with MISSION-MATCH-1 final-tree stand-ins; the stand-ins are dropped and every control below is re-hashed from the real merged tree (Root ruling 2026-10-26 Q3/Q6). The ledger splices were regenerated on the closure head, not applied from the prep patch.",
+  "authority": {
+    "summary": "Root and owner authority for A2M admission. Admission only; no implementation ruling or acceptance.",
+    "clauses": [
+      {
+        "id": "AUTH-1",
+        "kind": "owner decision, scope",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-26 (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261026.md, sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc), items 1 and 3. Item 1 registers MISSION-MATCH-1 \"right after L1-SMOKE-A2F closes and before A2M\" (spectate lockout and sealed-declaration owner; \"teammates on a side see each other's sealed declarations live\"). Item 3: \"Mutants P1, P4, P6 (watcher-visibility) are A2M's, not A2F's.\" The owner answered: \"then yes, lets go and fix the 2 bugs and other recommendations as we're going through\"."
+      },
+      {
+        "id": "AUTH-2",
+        "kind": "predecessors closed",
+        "status": "SETTLED (conditional on this PR merging)",
+        "text": "L1-SMOKE-A2F is main-verified (merge f917a5259, PR #2341, OWNER-RULING comment 6427223735). MISSION-MATCH-1 is main-verified by the closure commit of this PR (PR #2343, merge a720c5746034a12ec4558d34c5250916fddc1bda, ruled head 795f7768119cade8a4ba693a788e49abed72adfb, OWNER-RULING comment 6454431751; exact-main PASS in evidence/mission-match-1-mainproof-20261027.json). GATE OPEN for this admission is conditional on this PR merging (the #2336 and #2339 riding pattern)."
+      },
+      {
+        "id": "AUTH-3",
+        "kind": "carry-in from the #2341 ruling and the MISSION-MATCH-1 admission",
+        "status": "SETTLED (resolution R1)",
+        "text": "MISSION-MATCH-1 admission resolution R1: \"The built-image owner is the L1-SMOKE-A2M matrix, whose live legs import prepareAudience from A2F and run after this unit. ... A2M admission must carry the row; the Step 2/3 RC rerun repeats it.\" CF-A2F-1 (live stale-first) is owned here; CF-A2F-2 (the actor replay) is covered by the MISSION-MATCH-1 MM5 replay/reconnect variant and by this matrix's actor-positive after the restart."
+      },
+      {
+        "id": "AUTH-4",
+        "kind": "Root rulings 2026-10-26",
+        "status": "SETTLED",
+        "text": "carry-forward.md, section \"2026-10-26 Root rulings (standing instruction + owner 2026-10-26 'other recommendations as we're going through')\": \"GM viewer role on co-op mission matches (meta.coopCampaign absent, so the real mission GM is a player-role viewer): option (a). A2M keeps its fixture-branded GM matrix and DISCLOSES the real mission GM's player role as a known issue (release notes + A2M admission). No GM fix unit in Step 3.\" and the A2 cap watch (option A 491-506, literal 611-626; Root stops and asks the owner if the A2 freeze measures option A above 500)."
+      },
+      {
+        "id": "AUTH-5",
+        "kind": "registered carry (not re-ruled here)",
+        "status": "SETTLED",
+        "text": "units.json registration20261025bCorrection: OQ-M1 (GM-branded spectator rows assert sealed content absent, no placeholder, contiguous delivery cursor; the authority sequence gap is a disclosed known issue) and S5-02 (no A2M row; fix is a product seam Step 3 forbids). Both stay."
+      },
+      {
+        "id": "AUTH-6",
+        "kind": "workers and size cap",
+        "status": "SETTLED",
+        "text": "Workers on Sonnet (claude-sonnet-5-5) and reviews on Opus; the 2026-10-26 Sol priority-tier option is suspended until the owner says otherwise (carry-forward.md, 2026-10-27 OpenAI quota entry). No leaf of A2M is a fixture, so the size cap is the literal rule and option A is not needed."
+      }
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (MISSION-MATCH-1 closure and A2M admission); the A2M draft was prepared 2026-10-26 by a prep worker",
+    "coordinator": "Root"
+  },
+  "predecessors": {
+    "L1-SMOKE-A1": "main-verified",
+    "MP-RECOVERY-UNITS-1": "main-verified",
+    "MP-HOST-DEDUPE-1": "main-verified",
+    "MP-RECOVERY-UNITS-2": "main-verified",
+    "L1-SMOKE-A2F": "main-verified (f917a5259)",
+    "MISSION-MATCH-1": "main-verified by the closure commit of this PR (a720c5746)",
+    "successor": "L1-SMOKE-A2 stays blocked until this unit is main-verified"
+  },
+  "acceptance": {
+    "source": "units.json L1-SMOKE-A2M.registration20261020.acceptance (unchanged) plus the amendments below",
+    "amendments": [
+      "A1: the nine spectator audiences are three declarations (Move, Attack, Physical) x three withheld audiences (player-stale, gm-stale, gm-unassigned); the three gm-participant rows are the non-spectating-GM positive controls. All twelve are built on ordinary 1v1 tactical matches with fixture branding; none claims a real mission match or the real mission GM role.",
+      "A2 (live stale-first, R1): the stale watcher assignment is applied BEFORE the actor acts for the six *-stale rows; prepareAudience must report staleEffective before the declaration; the actor receives its own declaration live (accepted) and in the replay after the restart; the watcher holds only the public lock.",
+      "A3 (same-side visibility, MISSION-MATCH-1): there is no teammate row; the opposing-actor negative is kept and renamed (opposing actor, not second actor). Same-side teammate visibility is MISSION-MATCH-1's Jest rows and A2's coop-restart row.",
+      "A4 (fixture position): staleEffective is the first-position witness of the A2F fixture, not a claim about product ownership after MISSION-MATCH-1 (owner is sideOfPlayer). The spectator guard precedes ownership in MatchWireSealedChoices, so the stale rows stay discriminating.",
+      "A5 (GM disclosure): the real mission GM keeps the player viewer role (known issue, Root ruling option a); GM rows are policy coverage only; A2M never infers GM from hostPlayerId, coop-gm or campaign UI labels.",
+      "A6 (pre-reveal authority): the six GM spectator rows record the pre-reveal authority sequences (authorityBeforeReveal) instead of asserting their absence (OQ-M1).",
+      "A7 (unrun obligations): every built-image behaviour, including R6-R8 and P1/P4/P6, is owed at RED/GREEN on the exact-main image; nothing in this admission is a built-image PASS."
+    ]
+  },
+  "manifest": {
+    "sourceLeaves": [
+      "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+      "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+      "scripts/release/l1-built-server-spectator-privacy.test.mjs"
+    ],
+    "sourceLeafCount": 3,
+    "registeredManifest": {
+      "count": 9,
+      "files": [
+        "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-review.json"
+      ],
+      "note": "Registered prospective manifest: 3 leaves + units.json + PROGRESS.md + 4 evidence = 9, plus the exempt page as the tenth path."
+    },
+    "implementationPrFiles": [
+      "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+      "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+      "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json"
+    ],
+    "implementationPrFileCount": 7,
+    "implementationPrFileNote": "7 counted files plus the generated page V2.2.0-STEPS.md (exempt from the file count by ownerRuling20261024StepsPageFileCap). The admission receipt rides the MISSION-MATCH-1 closure PR and the review receipt lands in the A2M closure PR. Eight files of slack (15 - 7) are unused; no extra leaf is requested. An amendment receipt (the A2F precedent) would be file 8.",
+    "closurePrExpected": [
+      "evidence/l1-smoke-a2m-review.json (registered literal)",
+      "evidence/l1-smoke-a2m-merge-<closure date>.json",
+      "evidence/l1-smoke-a2m-mainproof-<closure date>.json",
+      "evidence/l1-smoke-a2m-source-review-<closure date>.bytes.json",
+      "evidence/l1-smoke-a2m-owner-ruling-<comment id>.bytes.json",
+      "evidence/mainproof-<sha9>-logs.bytes.json",
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md (exempt)"
+    ],
+    "closurePrNote": "The five closure names after the review literal are added to ownershipExceptions by the A2M closure PR, as for A2FP, A2F and MISSION-MATCH-1.",
+    "gitForce": "scripts/** is ignored (.gitignore:38): the three new leaves need git add -f."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "testsAndEvidenceLineExempt": "U41 UNCOUNTED_FILES (*.test.*, evidence directory)",
+    "v2220StepsPageFileExempt": true
+  },
+  "measuredFit": {
+    "basis": "MEASURED at the freeze on the draft leaves from prep/a2m-admission/draft (byte-identical to the prep copies; hashes below), line counts by git diff --no-index --numstat against /dev/null (equal to the prep git add -N -f measurement at 86d0817b1) and oxfmt --check; see testInventory for the freeze reruns. The leaves are NOT committed by this PR.",
+    "leaves": [
+      {
+        "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "newFile": true,
+        "draftSha256": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35",
+        "draftBytes": 6876,
+        "draftLines": 223,
+        "added": 223,
+        "deleted": 0,
+        "counted": true,
+        "lineExempt": false
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "newFile": true,
+        "draftSha256": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8",
+        "draftBytes": 980,
+        "draftLines": 29,
+        "added": 29,
+        "deleted": 0,
+        "counted": true,
+        "lineExempt": false
+      },
+      {
+        "file": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "newFile": true,
+        "draftSha256": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f",
+        "draftBytes": 7185,
+        "draftLines": 221,
+        "added": 221,
+        "deleted": 0,
+        "counted": false,
+        "lineExempt": true
+      }
+    ],
+    "countedAdditions": 252,
+    "countedAdditionsNote": "cases 223 + runner 29; the test leaf adds 221 exempt lines. No fixture leaf, so the literal and option-A counts are equal. Deletions give no credit.",
+    "lifecycleEstimate": {
+      "lines": [
+        56,
+        80
+      ],
+      "basis": "A2F implementation PR lifecycle actual: units.json +43, PROGRESS.md +11, page +2 = 56; bounded at 80. The admission commit (01bcf2727, rides the MISSION-MATCH-1 closure PR, not counted against A2M): units.json +24/-4, PROGRESS.md +14, page +2/-2."
+    },
+    "estimatedCountedTotal": [
+      308,
+      332
+    ],
+    "cap": 500,
+    "verdict": "FITS under both counting rules with 168 to 192 lines of slack. Files: 7 counted of 15 in the implementation PR (9 of 15 under the registration convention) plus the exempt page. No capException.",
+    "previousDraft": "a2m-a2-refresh (2026-10-26, base 82d7a0f03): 247 counted (cases 218, runner 29). This draft adds 5 counted lines, all in the cases leaf (prepared binding, established check, staleBeforeDeclaration field, header comment) for the R1 live stale-first assertion."
+  },
+  "testInventory": {
+    "run": "node --test scripts/release/l1-built-server-spectator-privacy.test.mjs, Node v22.22.0, at the clean exact main a720c5746 (the closure commit changes no script) with the three draft leaves temporarily placed in scripts/release and removed again; heavy-run lane mm1-closure, class jest. Pure functions and a source-order guard; no server, no build.",
+    "freeze": {
+      "head": "a720c5746034a12ec4558d34c5250916fddc1bda",
+      "startedAt": "2026-10-27T22:11:22.742Z",
+      "leaves": [
+        {
+          "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+          "sha256": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35",
+          "bytes": 6876,
+          "hasCR": false,
+          "hasBOM": false
+        },
+        {
+          "file": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+          "sha256": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8",
+          "bytes": 980,
+          "hasCR": false,
+          "hasBOM": false
+        },
+        {
+          "file": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+          "sha256": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f",
+          "bytes": 7185,
+          "hasCR": false,
+          "hasBOM": false
+        }
+      ],
+      "lines": {
+        "l1-built-server-spectator-privacy-cases.mjs": 223,
+        "run-l1-built-server-spectator-privacy.mjs": 29,
+        "l1-built-server-spectator-privacy.test.mjs": 221
+      },
+      "countedLines": 252,
+      "nodeTest": {
+        "exit": 0,
+        "total": 9,
+        "pass": 9,
+        "fail": 0,
+        "note": "counts parsed from node-test.log (the freeze script regex had a typo and returned null on the first run; exit and log are unchanged)"
+      },
+      "oxfmt": {
+        "exit": 0,
+        "output": " | All matched files use the correct format. | Finished in 42ms on 3 files using 16 threads."
+      },
+      "mutants": {
+        "total": 16,
+        "killed": 16,
+        "survivors": [],
+        "results": [
+          {
+            "name": "M1 drop sentinel scan",
+            "result": "KILLED",
+            "failingTests": 3
+          },
+          {
+            "name": "M2 drop placeholder check",
+            "result": "KILLED",
+            "failingTests": 2
+          },
+          {
+            "name": "M14 placeholder check ignores the phase",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M3 cursor always contiguous",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M4 drop player sequence check",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M5 flag sequence for gm too",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M6 GM control branch no-op",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M7 spectator check skipped",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M8 drop gm-unassigned audience",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M9 drop last required case",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M10 nested A1 in matrix",
+            "result": "KILLED",
+            "failingTests": 1
+          },
+          {
+            "name": "M11 barrier ignores unit",
+            "result": "KILLED",
+            "failingTests": 2
+          },
+          {
+            "name": "M12 reconnect cut ignored",
+            "result": "KILLED",
+            "failingTests": 2
+          },
+          {
+            "name": "M15 stale-first not established before the declaration",
+            "result": "KILLED",
+            "failingTests": 2
+          },
+          {
+            "name": "M16 prepareAudience skipped (R7)",
+            "result": "KILLED",
+            "failingTests": 2
+          },
+          {
+            "name": "M13 events ignores replay chunks",
+            "result": "KILLED",
+            "failingTests": 2
+          }
+        ]
+      },
+      "leavesUnchangedAfterMutants": true,
+      "leavesRemoved": true,
+      "finishedAt": "2026-10-27T22:11:25.867Z"
+    },
+    "note": "FREEZE RERUN of the prep evidence on the real merged tree, not a built-image proof. The built-image rows (12 matrix ids plus A1) are not run here; historical prep results are not reused as proof."
+  },
+  "mutantInventory": {
+    "pureFunction": "16 of 16 pure-function mutants killed by node:test at the freeze (m-mutants.cjs rerun at the clean exact main a720c5746, before the closure commit, which changes no script: M1-M14 as in the 2026-10-25 prep plus M15 stale-first not established before the declaration and M16 prepareAudience skipped); survivors: none. Rerun at RED and GREEN on the frozen leaves.",
+    "builtImage": [
+      "R6 (runRow skips the live barrier wait), R7 (runRow skips prepareAudience), R8 (reveal leg skipped): runner mutants moved to A2M by the A2F amendment.",
+      "P1 (delete the spectator guard, MatchWireSealedChoices.ts): the *-stale and gm-unassigned rows must go RED. After MISSION-MATCH-1 the guard is the line that keeps a first-listed stale watcher from owning the side.",
+      "P4 (replay path unprojected, ServerMatchHostReplay): reconnect and restart legs RED, live leg GREEN.",
+      "P6 (shouldRemoveAuthorityFieldForRole keeps sequence for every role): the player-stale rows RED (authority sequence); GM rows unchanged.",
+      "Worker-proposed at this admission, optional and not gating (Root ruling on #2345): P7 (MISSION-MATCH-1 reverted on the image: first-entry owner restored): the six *-stale rows must go RED on the actor-positive (accepted times out) - proves the live stale-first row discriminates. Predicted from the A2F G-F1 probe; unverified."
+    ],
+    "note": "Built-image mutants run only on a built image (class package, 30 min lease) and are owed at RED/GREEN. Survivors are disclosed in the local receipt."
+  },
+  "redPlan": {
+    "order": [
+      "RED: tests-only commit (the node:test leaf) against the absent cases and runner leaves; fails at import (ERR_MODULE_NOT_FOUND), a weak RED declared in advance (the A1, A2FP and A2F precedent for new-leaf units). A vacuous stand-in run (a ctx whose check never throws and sockets that always return clean frames) must fail the test file.",
+      "GREEN: add the cases and runner leaves within the frozen manifest; node:test 9 of 9; 16 pure-function mutants killed.",
+      "BUILT RUN: node scripts/release/run-l1-built-server-spectator-privacy.mjs --build --expected-sha=<head> --output=<abs-new-dir> under heavy-run (class package, 30 min lease, casesMs 1,800,000): A1 baseline once plus 12 matrix ids; then R6-R8, P1, P4, P6 (P7 optional, outcome disclosed).",
+      "LIFECYCLE: red and local receipts, units.json, PROGRESS.md, page."
+    ],
+    "noImplementationBeforeMerge": "No leaf is edited by the admission commit. The draft patch stays outside Git until RED."
+  },
+  "census": {
+    "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
+    "ledgerRef": "b6ec48b80b7837a48f80f20573287ac9075c2740",
+    "ledgerRefNote": "The ledger census ran on the MISSION-MATCH-1 closure commit (the parent of this admission commit); every other census input was taken from fetched origin/main a720c5746.",
+    "observedAt": "2026-10-27T22:13:46.934Z",
+    "openPrs": {
+      "count": 1,
+      "list": [
+        "#2113 (draft, codex/thread-transfer-history-20261002, 472 changed files)"
+      ],
+      "files": "gh pr list lists at most 100 files per PR, so the full file list of #2113 was read through the pulls files API (472 files, paginated)",
+      "overlap": "none: no file of #2113 lies under scripts/release or the roadmap planning directory, or is an A2M leaf",
+      "censusSha256": "bdf67b0e84289ba7afee1848a593176ef0574df5c2abb30ff2378c4048312ba7",
+      "filesSha256": "d3e06315f24e44dfc17ed2d7609e2d8674758d2a1af6aeda27f5c1d6b8082fd0"
+    },
+    "worktrees": {
+      "registered": 20,
+      "detached": 4,
+      "locked": 3,
+      "leafOverlap": "none: no worktree HEAD differs from its merge-base with origin/main on any of the three A2M leaves",
+      "ledgerFileOverlap": "Two old unmerged branches (codex/ndc1-native-delivery-20261009 and -r2-, three and eight commits ahead of main, merge base 07990c0aa) changed ledger files (units.json, roadmap.json, evidence). They are not open PRs and do not touch scripts/release; any future merge would rebase the ledger. This worktree (branch work/mm1-closure-a2m-admission) also touches the ledger by design: its closure commit is the parent of this admission. Disclosed, not a leaf collision.",
+      "method": "git worktree list --porcelain; per worktree HEAD: merge-base with origin/main, then git diff --name-only mergeBase HEAD. Objects only: no git status or index read inside other worktrees, so uncommitted edits are not seen.",
+      "censusSha256": "8269149c7c5f3ca74988c329a2a919fd07f179071e63fcb19ef5ab50a7df2f46"
+    },
+    "ledger": {
+      "censusSha256": "6d00989dc3b59385285dc45c3a8cae051e17299c7fe0cf15f65080b5ed0371f1",
+      "summary": {
+        "ledgerUnits": 285,
+        "leaves": 3,
+        "inFlightClaimants": [],
+        "exactUnfinishedClaims": [],
+        "unfinishedAliasClaimants": [
+          "L1-SMOKE-A2",
+          "L1-SMOKE-B",
+          "STEP2-RC-RERUN-1"
+        ]
+      },
+      "note": "No in-flight claimant and no exact unfinished claim other than A2M itself (excluded from the census). L1-SMOKE-A2, L1-SMOKE-B and STEP2-RC-RERUN-1 are alias-only claimants through the scripts navigation alias; A2 imports the A2M leaves read-only after A2M closes and is blocked."
+    },
+    "priorPrepCensus": "At 86d0817b1 (prep): the three A2M leaves are unclaimed on main (no file exists); the only literal claimant is A2M itself (registeredSourceLeaves, registration20261020 prospectiveStageManifest). The `scripts` alias is navigation only. A2 (blocked) imports these leaves read-only after A2M closes. No consumer of the new leaves exists; scripts/release has no CI wiring. Re-run at freeze."
+  },
+  "controls": {
+    "note": "sha256/bytes of git blobs at the frozen baseline a720c5746 (the merged tree). Re-hash at the implementation baseline; any change must be explained. MISSION-MATCH-1 edited five product controls; their hashes here are the real merged bytes (the prep stand-ins are dropped).",
+    "driftVsPrep": {
+      "note": "equalToPrep false on the five MISSION-MATCH-1 product paths compares the real merged bytes with the prep BASE blobs at 86d0817b1, which predate MISSION-MATCH-1; those five equal the prep stand-ins (missionMatch1AgainstPrepStandIn). Every other row is a true drift check.",
+      "prepBaseline": "86d0817b1e945ef1993f78ae19888f4022e503a0",
+      "a1": [
+        {
+          "path": "scripts/release/run-l1-built-server-smoke.mjs",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-socket-cases.mjs",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-fixtures.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-smoke.test.mjs",
+          "equalToPrep": true
+        }
+      ],
+      "a2fp": [
+        {
+          "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-context.mjs",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+          "equalToPrep": true
+        }
+      ],
+      "a2f": [
+        {
+          "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+          "equalToPrep": true
+        }
+      ],
+      "product": [
+        {
+          "path": "server.js",
+          "equalToPrep": true
+        },
+        {
+          "path": "package.json",
+          "equalToPrep": true
+        },
+        {
+          "path": "package-lock.json",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+          "equalToPrep": false
+        },
+        {
+          "path": "src/pages/api/multiplayer/matches/index.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+          "equalToPrep": false
+        },
+        {
+          "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+          "equalToPrep": false
+        },
+        {
+          "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/projection/ViewerAudienceProjector.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/projection/MatchWireAudienceCatalog.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+          "equalToPrep": false
+        },
+        {
+          "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+          "equalToPrep": false
+        },
+        {
+          "path": "src/lib/multiplayer/server/durableCapabilityPorts.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/services/persistence/SQLiteService.sessionParticipants.migration.ts",
+          "equalToPrep": true
+        },
+        {
+          "path": "src/utils/gameplay/gameSessionActivation.ts",
+          "equalToPrep": true
+        }
+      ],
+      "missionMatch1AgainstPrepStandIn": [
+        {
+          "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+          "actualSha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+          "prepStandInSha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+          "equal": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+          "actualSha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+          "prepStandInSha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+          "equal": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+          "actualSha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+          "prepStandInSha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+          "equal": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+          "actualSha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+          "prepStandInSha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+          "equal": true
+        },
+        {
+          "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+          "actualSha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+          "prepStandInSha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+          "equal": true
+        }
+      ]
+    },
+    "a1Leaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "bytes": 16500,
+        "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "bytes": 15615,
+        "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "bytes": 3309,
+        "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "bytes": 25830,
+        "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+      }
+    ],
+    "a2fpLeaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "bytes": 2638,
+        "sha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-context.mjs",
+        "bytes": 7932,
+        "sha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+        "bytes": 9448,
+        "sha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+        "bytes": 16540,
+        "sha256": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894"
+      }
+    ],
+    "a2fLeaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "bytes": 8899,
+        "sha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "bytes": 6851,
+        "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "bytes": 17032,
+        "sha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85"
+      }
+    ],
+    "productAndConfig": [
+      {
+        "path": "server.js",
+        "bytes": 32625,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+      },
+      {
+        "path": "package.json",
+        "bytes": 35833,
+        "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 656778,
+        "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id]/spectate.ts",
+        "bytes": 5517,
+        "sha256": "0ae642c750d584b4e610284ddfc4ee6d072f3b463cf7b8a4f3688b504b218394",
+        "note": "MISSION-MATCH-1 leaf: the bytes at the baseline are the merged MM1 bytes (a720c5746, PR #2343); equal to the local receipt leaf hash"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/index.ts",
+        "bytes": 11957,
+        "sha256": "b2cce8463b107b2c8b7a71f6582eacc0eb4e06976467703c5347a429400f481d"
+      },
+      {
+        "path": "src/lib/multiplayer/server/authorization/MatchSeatMembershipSource.ts",
+        "bytes": 8170,
+        "sha256": "61d02d5da5b39704c84ce17c3e536ab58065f8c172130b737a8ea29239fd68ab",
+        "note": "MISSION-MATCH-1 leaf: the bytes at the baseline are the merged MM1 bytes (a720c5746, PR #2343); equal to the local receipt leaf hash"
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "bytes": 6051,
+        "sha256": "9e0590410cee9c43fe71eba655222f5b03b7bbcb2b43fed4ca43b0d1fb91bc51",
+        "note": "MISSION-MATCH-1 leaf: the bytes at the baseline are the merged MM1 bytes (a720c5746, PR #2343); equal to the local receipt leaf hash"
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+        "bytes": 9592,
+        "sha256": "f19a5df823c5daa366f64dc639043287d57c5406279deb26501779648143acf5"
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/ViewerAudienceProjector.ts",
+        "bytes": 7612,
+        "sha256": "c454cf29aae336223c2a9915db8135c333a71fff020af6064d0fcbde7ab021ff"
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/MatchWireAudienceCatalog.ts",
+        "bytes": 7447,
+        "sha256": "0a5504c5cfd528ee058ad9c71be1939b6123a5a93c22a905445a2593d46d11d8"
+      },
+      {
+        "path": "src/lib/multiplayer/server/lobby/spectatorSeats.ts",
+        "bytes": 5264,
+        "sha256": "0bea8fb58b14b2a96a48a9c22d9279ec8050cd747af67966842c842d8ab3ddfa",
+        "note": "MISSION-MATCH-1 leaf: the bytes at the baseline are the merged MM1 bytes (a720c5746, PR #2343); equal to the local receipt leaf hash"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+        "bytes": 22310,
+        "sha256": "be0b300eb651dfe8b2f760e137a273db8879ce0fe61fa5093d1332547548b736",
+        "note": "MISSION-MATCH-1 leaf: the bytes at the baseline are the merged MM1 bytes (a720c5746, PR #2343); equal to the local receipt leaf hash"
+      },
+      {
+        "path": "src/lib/multiplayer/server/durableCapabilityPorts.ts",
+        "bytes": 3577,
+        "sha256": "05751e964fb5febdb7d402f0f9af5c22e31ca6cea594601b2152c38582086f50"
+      },
+      {
+        "path": "src/services/persistence/SQLiteService.sessionParticipants.migration.ts",
+        "bytes": 2650,
+        "sha256": "d29f30a4c556cddc68e901666a3b18583323dfe1bca2bd20433836abf1f4f602"
+      },
+      {
+        "path": "src/utils/gameplay/gameSessionActivation.ts",
+        "bytes": 2630,
+        "sha256": "c6352e4c357d7dcc04fa16e290c4b80346bf2b866b1cd136f9eeb1423a776a1e"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "id": "G-A0",
+      "kind": "ruling before RED",
+      "text": "No RED commit before this PR merges. Then re-fetch origin/main, check main still equals the baseline (or re-hash the controls on the new main), apply E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/a2m-admission/draft/a2m-leaves.patch (outside Git), re-verify every control hash above against the merged tree (A2F and A2FP leaves must be byte-identical; the five MISSION-MATCH-1 product leaves must equal the merged MM1 bytes), re-run the open-PR and worktree census."
+    },
+    {
+      "id": "G-A1",
+      "kind": "RED",
+      "text": "Tests-only commit; the weak RED and the vacuous stand-in run above; the test leaf hash is frozen in the red receipt."
+    },
+    {
+      "id": "G-A2",
+      "kind": "GREEN",
+      "text": "Cases and runner leaves; node:test 9 of 9; oxfmt --check exit 0; 16 of 16 pure-function mutants killed. The cases and runner leaves must equal the measuredFit draftSha256 bytes; any deviation is listed in the local receipt with a re-measured counted total and re-checked against G-A7."
+    },
+    {
+      "id": "G-A3",
+      "kind": "built run, first contact",
+      "text": "The first --build run of the runner after MISSION-MATCH-1. Stop and tell Root (do not edit product) if matrix-*-player-stale/gm-stale fails at the actor-positive (MM1 did not reach the live path), if any non-stale row fails at the actor-positive, or if a spectator row reports a leaked sentinel (a real privacy finding). Any other failure on the first --build run (staleEffective false before the declaration, A1 baseline failure, restart or reconnect leg, build failure) also stops the unit for Root; the worker does not edit a leaf to make it pass. The single permitted rerun is CF-A2FP-2: only when the 15-second readiness probe is the sole failure, disclosed in the local receipt."
+    },
+    {
+      "id": "G-A4",
+      "kind": "mutants",
+      "text": "R6-R8, P1, P4, P6 on the built image; no compile-only or missing-module kill counted. A survivor of R6-R8, P1, P4 or P6 stops the unit for Root unless the local receipt shows it is an equivalent mutant. P7 is optional (worker-proposed, not a Root or owner ruling); if run, its outcome is disclosed and it does not gate."
+    },
+    {
+      "id": "G-A5",
+      "kind": "privacy/authority packet",
+      "text": "Genuine PK packet before local-verified (agentRecommendation not a placeholder)."
+    },
+    {
+      "id": "G-A6",
+      "kind": "review and merge",
+      "text": "Independent exact-head authority and privacy review, required CI, OWNER-RULING on the exact head, merge with --match-head-commit, then the exact-main built run and closure."
+    },
+    {
+      "id": "G-A7",
+      "kind": "cap",
+      "text": "Re-measure the real squash diff after the lifecycle edit; counted lines above 500 or a 16th file stops the unit for Root (no capException expected)."
+    },
+    {
+      "id": "G-A8",
+      "kind": "disclosure",
+      "text": "Disclosure: the real mission GM keeps the player viewer role (Root ruling option a), plus S5-02 and OQ-M1, are recorded here and in units.json. The release-notes obligation belongs to RELEASE-PRODUCER-1 admission (Root ruling 2026-10-26 Q5); this unit does not edit release notes. This supersedes the older \"and the release notes\" wording in the A2M gmRole registration text and the MISSION-MATCH-1 note."
+    }
+  ],
+  "resolutions": {
+    "R1": "Live stale-first row: carried by the six *-stale matrix rows, with the stale-first state established before the declaration and asserted by prepareAudience; the actor receives its own declaration live and after the restart.",
+    "R2": "No replay/reconnect row is added beyond the existing actor-positive after the restart plus the viewer reconnect and restart legs (MISSION-MATCH-1 MM5 owns the Jest replay variant).",
+    "R3": "No new row IDs: A2M_REQUIRED_CASES stays the 12 matrix ids that A2 imports."
+  },
+  "carryIn": [
+    "CF-A2F-1 (live stale-first row): AUTH-3 and resolutions.R1",
+    "CF-A2F-2 (actor replay): MM5 variant plus the actor-positive after the restart",
+    "CF-A2F-3: neighbour rerun of the A2F runner belongs to MISSION-MATCH-1 (G-M6); not repeated here",
+    "P1, P4, P6, R6-R8: mutantInventory.builtImage",
+    "OQ-M1, S5-02: registered; unchanged",
+    "Mission GM viewer role (option a): disclosed, not fixed",
+    "A2 cap watch: carried to the A2 admission (A2M leaves A2 no new burden; A2 imports the matrix read-only)",
+    "CF-A2FP-2 (15 s readiness probe): one disclosed rerun only if it is the sole failure"
+  ],
+  "exclusions": [
+    "S5-02 access-to-spectate policy remains open; no refusal row",
+    "Real mission GM viewer role is not fixed and not asserted",
+    "No real co-op mission spectate row (MISSION-MATCH-1 owns its Jest regression; A2 owns the mission journey)",
+    "No product, helper, config or dependency edit; A1, A2FP and A2F leaves are imported read-only"
+  ],
+  "openQuestions": [
+    "None block the admission. Open questions Q-1..Q-5 of the prep were settled by Root (carry-forward.md, 2026-10-26 Root rulings on A2M admission prep): six *-stale rows keep their IDs; the registered literal is used; the baseline is the real main after the MISSION-MATCH-1 merge; no throwaway six-row probe (the first live proof is the full A1 plus 12-row run at A2M RED/GREEN, not admission); the real-mission-GM known-issue paragraph for the release notes belongs to RELEASE-PRODUCER-1 admission.",
+    "--next is advisory and grants no admission."
+  ],
+  "limitations": [
+    "Admission only; no A2M leaf is committed by this PR (the draft leaves were placed temporarily for the freeze reruns and removed) and nothing in the A2M receipt is a built-image PASS. The built-image evidence in this PR (MISSION-MATCH-1 closure) is the A2F neighbour run.",
+    "Built-image behaviour of the stale-first state under MISSION-MATCH-1 is predicted from source reading, the A2F G-F1 probe and the MM1 Jest rows (MM5), not run on a built image; the first live contact is the full A1 plus 12-row run at A2M RED/GREEN.",
+    "The pure-function tests cannot discriminate the stale-first ordering except through the source-order guard.",
+    "The worktree census cannot see uncommitted edits in other worktrees."
+  ],
+  "parentOfAdmissionCommit": "b6ec48b80b7837a48f80f20573287ac9075c2740",
+  "preparedFrom": {
+    "readme": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-26/prep/a2m-admission/README.md",
+    "draftReceiptSha256": "1844b1a1733ac29d6c3f4e962ec6133426f080cbc3a4cc3a96e7caf428c44418",
+    "note": "Historical prep (2026-10-26, base 86d0817b1) is not built-image proof; this receipt re-froze it at a720c5746."
+  }
+}

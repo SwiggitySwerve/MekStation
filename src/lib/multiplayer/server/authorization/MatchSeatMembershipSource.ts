@@ -4,7 +4,7 @@
  *
  * Membership for a match session derives ONLY from durable state: a
  * HUMAN- or SPECTATOR-kind seat whose occupant is the principal, or -
- * for pre-lobby matches persisted before seats existed - the durable
+ * for matches without playing seats - the durable
  * `playerIds` roster. Client-supplied role/ownership claims have no
  * path in; AI seats never produce membership (no principal occupies
  * them as a human).
@@ -62,6 +62,13 @@ export class MembershipSourceUnavailableError extends Error {
 
 const MEMBER_SEAT_KINDS: ReadonlySet<string> = new Set(['human', 'spectator']);
 
+/** Only a playing-seat grid replaces durable roster membership. */
+export function usesRosterMembership(
+  seats: readonly IMatchSeat[] | undefined,
+): boolean {
+  return !seats?.some((seat) => seat.kind !== 'spectator');
+}
+
 function membershipEpoch(meta: IMatchMeta): number {
   const seats = meta.seats ?? null;
   // Status participates: lobby-phase invitee membership ends when the
@@ -71,6 +78,9 @@ function membershipEpoch(meta: IMatchMeta): number {
       ? { status: meta.status, roster: [...meta.playerIds].sort() }
       : {
           status: meta.status,
+          ...(usesRosterMembership(seats)
+            ? { roster: [...meta.playerIds].sort() }
+            : {}),
           seats: seats
             .map((seat) => ({
               slotId: seat.slotId,
@@ -147,10 +157,11 @@ export class MatchSeatMembershipSource implements IMembershipSource {
     const meta = await this.metaFor(campaignSessionId);
     if (meta === null) return null;
     const epoch = membershipEpoch(meta);
-    const seats = meta.seats ?? null;
+    const seats = meta.seats ?? [];
+    const owned = ownedSeats(seats, principalId);
 
-    if (seats === null) {
-      // Pre-lobby durable roster (Wave-1 matches).
+    if (usesRosterMembership(meta.seats) && owned.length === 0) {
+      // Mission roster remains authoritative alongside observer-only seats.
       if (!meta.playerIds.includes(principalId)) return null;
       const role = deriveMembershipRole(this.store, meta, principalId);
       return {
@@ -167,7 +178,6 @@ export class MatchSeatMembershipSource implements IMembershipSource {
       };
     }
 
-    const owned = ownedSeats(seats, principalId);
     if (owned.length === 0) {
       // LOBBY-PHASE INVITEE MEMBERSHIP: room-code joiners connect the
       // socket BEFORE occupying a seat (the lobby client waits for

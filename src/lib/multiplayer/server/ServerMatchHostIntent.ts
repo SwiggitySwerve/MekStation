@@ -57,6 +57,7 @@ import {
   errorMessage,
   outboxCommitDeps,
 } from './ServerMatchHostPublication';
+import { sideOfPlayer } from './sideAssignments';
 
 /** Per-host journal-authority handle. Absent / disabled = live dispatch. */
 export interface IJournalAuthorityHostHandle {
@@ -565,9 +566,7 @@ async function refuseForeignUnitCommand(
   // commands are unconstrained, exactly as they were before this guard.
   if (meta?.coopCampaign) return null;
 
-  const callerSide = meta?.sideAssignments.find(
-    (assignment) => assignment.playerId === verifiedPrincipalId,
-  )?.side;
+  const callerSide = sideOfPlayer(meta?.sideAssignments, verifiedPrincipalId);
   if (callerSide === undefined) return null;
 
   if (callerSide === unitSide) return null;

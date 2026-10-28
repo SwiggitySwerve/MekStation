@@ -912,7 +912,7 @@ The system SHALL allow a `spectator`-kind seat to connect to an `active` match o
 
 ### Requirement: Spectator Fog-of-War Scope
 
-The server SHALL treat a spectator as a distinct fog audience. In a fog-on match a spectator SHALL receive only the most-redacted view — never more information than the least-informed participant — so spectating cannot reveal a unit hidden from a player. In a fog-off match a spectator SHALL receive the full unredacted event stream.
+The server SHALL treat a spectator as a distinct fog audience. In a fog-on match a spectator SHALL receive only the most-redacted view — never more information than the least-informed participant — so spectating cannot reveal a unit hidden from a player. In a fog-off match a spectator SHALL receive the full unredacted event stream, subject to the Teammate sealed match-wire delivery requirement for unrevealed tactical declarations.
 
 #### Scenario: Spectator of a fog-on match sees no hidden units
 
@@ -920,10 +920,10 @@ The server SHALL treat a spectator as a distinct fog audience. In a fog-on match
 - **WHEN** the server broadcasts events to a connected spectator
 - **THEN** the spectator SHALL NOT receive an event revealing a unit that is hidden from a participant
 
-#### Scenario: Spectator of a fog-off match sees everything
+#### Scenario: Spectator of a fog-off match sees unsealed events
 
 - **GIVEN** a match with `config.fogOfWar: false` and a connected spectator
-- **WHEN** the server broadcasts an event
+- **WHEN** the server broadcasts an event that is public or authoritatively revealed
 - **THEN** the spectator SHALL receive the identical unredacted event
 
 ### Requirement: Recovered Session Has Populated Adapted Units
@@ -1045,3 +1045,37 @@ The server SHALL bind actor, match, branch, command kind, and payload digest to 
 - **THEN** the server SHALL return the original receipt and committed event range
 - **AND** it SHALL not apply or publish the command a second time
 
+
+
+### Requirement: Roster membership with observer seats
+
+For a match with no playing seats (absent seats, an empty array, or only spectator seats), the server SHALL continue deriving playing membership from the durable playerIds roster. Spectator occupants SHALL derive their own membership from spectator seats and SHALL own no forces. A playing-seat grid SHALL preserve the existing seat membership and lobby invitee rules. A rostered player SHALL NOT register as a spectator in a roster-mode match; POST spectate SHALL return 409 without changing the match.
+
+The membership epoch SHALL cover roster membership in roster mode and all spectator occupancy changes. A spectator join SHALL change the epoch without revoking roster membership. Repeating the same spectator join SHALL leave it stable. Removing a roster member while spectator seats exist SHALL change the epoch and revoke that member. Unchanged state SHALL yield a stable epoch across a new membership-source instance.
+
+#### Scenario: Stranger watches a co-op mission
+
+- GIVEN an active co-op mission with durable host and guest roster membership and no playing seats
+- WHEN a stranger successfully registers a spectator seat
+- THEN the host and guest remain admitted, can reconnect, and can issue otherwise valid commands
+- AND the spectator can watch public events but receives spectator-cannot-act for commands
+- AND an unregistered stranger has no membership
+
+#### Scenario: Rostered self-spectate is refused
+
+- GIVEN a roster-mode mission before or after another spectator joins
+- WHEN a rostered player registers as a spectator
+- THEN the server returns 409 and leaves membership and seats unchanged
+
+### Requirement: Teammate sealed match-wire delivery
+
+The first side assignment for a player SHALL determine that player's side; entries for other players SHALL NOT shadow it. Before reveal, movement_declared, attack_declared and physical_attack_declared SHALL be delivered to an admitted non-spectating viewer assigned to the actor unit's side, including every teammate on that side. Other-side players and spectator-seat occupants SHALL remain excluded until the existing authoritative phase reveal. A spectator assignment or GM brand SHALL NOT override the spectator-seat exclusion. Existing non-spectating GM delivery and single-player-side behavior SHALL remain unchanged.
+
+#### Scenario: Second teammate declares
+
+- GIVEN two admitted players assigned to the same side and two players on the other side
+- WHEN the non-first teammate declares movement, attack or physical attack
+- THEN both teammates receive the live declaration
+- AND neither opposing player nor a spectator receives it before reveal
+
+This is a match-wire sealed delivery rule. It does not change the separate fog LOS ownership model, grant membership from side assignments, or grant per-unit command authority.
