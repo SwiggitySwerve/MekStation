@@ -1,6 +1,5 @@
 import type React from 'react';
 
-import type { TacticalAnimation } from '@/stores/useAnimationQueue';
 import type { IHexCoordinate, IUnitToken } from '@/types/gameplay';
 
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
@@ -10,10 +9,7 @@ import {
   battleArmorPassengerHostId,
   battleArmorPassengerSlot,
 } from './BattleArmorPassengerBadges';
-import {
-  tokenCombatProjectionData,
-  tokenDisplayPosition,
-} from './UnitTokenForType.state';
+import { tokenCombatProjectionData } from './UnitTokenForType.state';
 
 export type TokenWrapperMetadata = Record<
   `data-${string}`,
@@ -24,13 +20,13 @@ export type UnitTokenWrapperAttributes = React.SVGProps<SVGGElement> &
   TokenWrapperMetadata;
 
 export function tokenTweenPath(
-  token: IUnitToken,
-  movementAnimation: TacticalAnimation | undefined,
+  displayPosition: IHexCoordinate,
+  animationPath: readonly IHexCoordinate[] | undefined,
 ): readonly IHexCoordinate[] {
-  if (movementAnimation?.path && movementAnimation.path.length > 0) {
-    return movementAnimation.path;
+  if (animationPath && animationPath.length > 0) {
+    return animationPath;
   }
-  return [tokenDisplayPosition(token)];
+  return [displayPosition];
 }
 
 export function createAnimationDoneHandler(
