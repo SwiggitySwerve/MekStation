@@ -76,12 +76,15 @@ test('customizer header symbols stay legible and preserve their actions @customi
     const button = header.getByRole('button', { name, exact: true });
     const symbol = await readSymbol(button);
     expect(symbol).not.toBeNull();
-    expect(symbol!.width).toBe(24);
-    expect(symbol!.size).toBe('toolbar');
+    // From 1024px Save is a compact labelled button (36px tall, 16px icon),
+    // so it no longer outweighs the header's 24px icon commands.
+    const save = name === 'Save active unit to library';
+    expect(symbol!.width).toBe(save ? 16 : 24);
+    expect(symbol!.size).toBe(save ? 'inline' : 'toolbar');
     expect(symbol!.name).toBeTruthy();
     expect(symbol!.centerY).toBeLessThanOrEqual(1);
     expect(symbol!.height).toEqual(symbol!.width);
-    expect(symbol!.drawnWidth).toBeGreaterThanOrEqual(19);
+    expect(symbol!.drawnWidth).toBeGreaterThanOrEqual(save ? 12 : 19);
     expect(symbol!.strokeWidth).toBe(2);
     // The menu, Add Unit and Save show visible text labels on wide screens.
     if (
@@ -95,7 +98,7 @@ test('customizer header symbols stay legible and preserve their actions @customi
     } else {
       expect(symbol!.targetWidth).toBe(44);
     }
-    expect(symbol!.targetHeight).toBe(44);
+    expect(symbol!.targetHeight).toBe(save ? 36 : 44);
     measurements.push({ name, ...symbol });
   }
   // Save state is spelled out beside Save, never a bare dot on the button.
@@ -142,6 +145,20 @@ test('customizer header symbols stay legible and preserve their actions @customi
   });
   for (const width of [1055, 390]) {
     await page.setViewportSize({ width, height: 844 });
+    // Save changes height at 1024px and buttons transition their size, so
+    // read the symbols once it has settled.
+    await expect
+      .poll(async () =>
+        Math.round(
+          (await readSymbol(
+            header.getByRole('button', {
+              name: 'Save active unit to library',
+              exact: true,
+            }),
+          ))!.targetHeight,
+        ),
+      )
+      .toBe(width >= 1024 ? 36 : 44);
     for (const name of [
       'MekStation menu',
       'Add Unit (Ctrl+O)',
@@ -152,10 +169,13 @@ test('customizer header symbols stay legible and preserve their actions @customi
         header.getByRole('button', { name, exact: true }),
       );
       // Phones keep the 24px symbols so drawn glyphs stay at least 20px; the
-      // 44px targets, not the symbols, set the header width.
-      expect(symbol!.width).toBe(24);
+      // 44px targets, not the symbols, set the header width. From 1024px
+      // Save is the compact labelled button (16px icon, 36px tall).
+      const compactSave =
+        name === 'Save active unit to library' && width >= 1024;
+      expect(symbol!.width).toBe(compactSave ? 16 : 24);
       expect(symbol!.strokeWidth).toBe(2);
-      expect(symbol!.targetHeight).toBe(44);
+      expect(symbol!.targetHeight).toBe(compactSave ? 36 : 44);
       expect(symbol!.centerY).toBeLessThanOrEqual(1);
     }
     const close = header.getByRole('button', { name: /^Close / }).first();

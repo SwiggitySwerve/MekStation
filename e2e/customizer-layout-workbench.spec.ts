@@ -77,19 +77,39 @@ test('workbench preserves readable metrics and a stable scrolling workspace @cus
   ]) {
     await page.setViewportSize(viewport);
     const before = await bounds(page);
-    expect(before.metrics.height).toBe(48);
+    // From 1024px the strip is one line of label-value pairs, 38px tall (was
+    // 48px of stacked label-over-value cells).
+    expect(before.metrics.height).toBe(38);
     const editControls = await page
       .getByRole('group', { name: 'Edit history', exact: true })
       .boundingBox();
     expect(editControls?.height).toBe(44);
-    // The section tabs fill the bar: no empty band before the edit controls.
-    const lastSection = await page
+    // The section tabs keep their natural widths, left-aligned so the first
+    // label shares the page's 16px left edge; edit history ends at the
+    // Loadout rail column, beside the status control above the rail.
+    const sectionTabs = await page
       .getByTestId('customizer-section-bar')
-      .getByRole('tab', { name: 'Preview', exact: true })
-      .boundingBox();
+      .getByRole('tab')
+      .evaluateAll((tabs) =>
+        tabs.map((tab) => {
+          const box = tab.getBoundingClientRect();
+          const label = tab.querySelector('span')!.getBoundingClientRect();
+          return { left: box.left, right: box.right, labelLeft: label.left };
+        }),
+      );
+    expect(sectionTabs[0].labelLeft).toBe(before.section.x + 16);
+    for (let index = 1; index < sectionTabs.length; index++)
+      expect(sectionTabs[index].left).toBeCloseTo(
+        sectionTabs[index - 1].right,
+        0,
+      );
+    const rail = (await page
+      .getByRole('complementary', { name: 'Unit loadout', exact: true })
+      .boundingBox())!;
     expect(
-      editControls!.x - (lastSection!.x + lastSection!.width),
-    ).toBeLessThanOrEqual(24);
+      rail.x - (editControls!.x + editControls!.width),
+    ).toBeLessThanOrEqual(4);
+    expect(editControls!.x + editControls!.width).toBeLessThanOrEqual(rail.x);
     // Edit history shares the section bar instead of adding its own band.
     expect(editControls!.y).toBeGreaterThanOrEqual(before.section.y);
     expect(editControls!.y + editControls!.height).toBeLessThanOrEqual(

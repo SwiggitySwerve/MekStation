@@ -306,7 +306,7 @@ export function UnitEditorWithRouting({
           />
         </div>
         <div
-          className={`${workbenchStyles.sectionBar} bg-surface-base border-border-theme flex h-12 shrink-0 items-center gap-1 border-b px-1`}
+          className={`${workbenchStyles.sectionBar} bg-surface-base border-border-theme flex h-[45px] shrink-0 items-center gap-1 border-b px-1 sm:pl-0`}
           data-testid="customizer-section-bar"
         >
           <CustomizerTabs

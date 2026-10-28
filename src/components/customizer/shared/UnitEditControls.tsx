@@ -86,7 +86,11 @@ export function StoreEditControls({
     return () => window.removeEventListener('keydown', handleKey);
   }, [history, perform]);
 
-  const buttonClass = `disabled:!text-text-theme-muted disabled:!opacity-50 !min-h-11 ${compact ? '!h-11 !w-11 !p-0' : '!px-3'}`;
+  // Compact hosts get ghost icon buttons (no border, even when disabled),
+  // like the header's other icon commands. Enabled ones take the primary
+  // text colour so they read clearly brighter than the dimmed disabled state.
+  const variant = compact ? 'ghost' : 'secondary';
+  const buttonClass = `disabled:!text-text-theme-muted disabled:!opacity-50 !min-h-11 ${compact ? '!h-11 !w-11 !p-0 disabled:!border-transparent enabled:!text-text-theme-primary' : '!px-3'}`;
   return (
     <div
       className="flex shrink-0 items-center gap-1"
@@ -95,7 +99,7 @@ export function StoreEditControls({
     >
       <Button
         size="sm"
-        variant="secondary"
+        variant={variant}
         disabled={!state.canUndo}
         aria-label={state.undoLabel ? `Undo: ${state.undoLabel}` : 'Undo'}
         title={
@@ -111,7 +115,7 @@ export function StoreEditControls({
       </Button>
       <Button
         size="sm"
-        variant="secondary"
+        variant={variant}
         disabled={!state.canRedo}
         aria-label={state.redoLabel ? `Redo: ${state.redoLabel}` : 'Redo'}
         title={

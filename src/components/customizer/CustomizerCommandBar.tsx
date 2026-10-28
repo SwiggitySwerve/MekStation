@@ -14,7 +14,7 @@ export function CustomizerCommandBar({
 
   const content = (
     <div
-      className="flex h-14 min-w-0 flex-1 items-center"
+      className="flex h-full min-w-0 flex-1 items-center"
       data-testid="customizer-unit-commands"
     >
       {children}

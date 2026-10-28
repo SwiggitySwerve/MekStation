@@ -14,7 +14,7 @@ The system SHALL display a horizontal tab bar with icon-based toolbar actions.
 - **WHEN** at least one unit tab exists
 - **THEN** tab bar appears with slate-800 background
 - **AND** bottom border separates tabs from content
-- **AND** toolbar icons appear at right edge (document icon, folder icon)
+- **AND** the Add Unit button follows the last unit tab, browser style, and the unit commands (the save state, Save and the "…" Unit Actions menu) sit together at the right edge
 
 #### Scenario: No tabs state
 
@@ -313,7 +313,7 @@ The empty state SHALL provide quick access to unit creation and loading.
 - **AND** from 640px the Year column keeps 32px of padding before its right-aligned years, so it reads apart from the right-aligned Weight column beside it
 - **AND** unselected catalog rows take the raised-surface tint on hover, and the selected row keeps its amber tint, left bar and check
 - **AND** on phones the catalog list ends on a whole row above the sticky footer (`useWholeRowsHeight` cuts the list to the last row that fits; any spare height stays empty) and snaps row by row while scrolling, so no row is ever cut in half and no text is faded
-- **AND** disabled Load Unit uses the shared disabled-button style (`disabledButtonClasses` in `src/components/ui/Button.tsx`): a solid 1px outline in the default border color (about 2.3:1 against the panel, so the button's shape stays visible), never dashed (dashed means an empty slot to fill), no fill, and secondary text dimmed to 85% (about 6:1); unavailable Undo and Redo use the app's disabled treatment
+- **AND** disabled Load Unit uses the shared disabled-button style (`disabledButtonClasses` in `src/components/ui/Button.tsx`): a solid 1px outline in the default border color (about 2.3:1 against the panel, so the button's shape stays visible), never dashed (dashed means an empty slot to fill), no fill, and secondary text dimmed to 85% (about 6:1); unavailable Undo and Redo use the app's disabled treatment, except the workbench section bar's icon-only Undo and Redo, which are ghost buttons and show a dimmed symbol with no outline
 - **AND** on phones the two buttons sit side by side in two equal columns, each followed by its own caption in 13px secondary text, short enough to stay one even line in its column at 390px, so the catalog list keeps more height
 - **AND** from 640px the three catalog filters share the filter row in equal widths
 - **AND** both buttons keep at least 44px touch targets

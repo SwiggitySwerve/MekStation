@@ -365,16 +365,19 @@ export function CustomizerTabs({
                 // scrolling strip would clip one outside the tab). That
                 // leaves a 2px gap above the 2px amber underline and 4px
                 // from a neighbouring tab, so it never reads as the active
-                // tab or touches its underline.
+                // tab or touches its underline. The active tab is amber text
+                // on that underline alone, with no fill.
                 className={`${workbenchStyles.sectionTab} focus-visible:outline-text-theme-primary flex min-h-[44px] min-w-[72px] flex-shrink-0 flex-row items-center justify-center gap-2 border-b-2 px-2 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-6px] sm:min-h-[44px] sm:min-w-[44px] ${compact ? 'sm:flex-none sm:px-2' : 'sm:flex-1 sm:px-4'} sm:flex-row sm:gap-2 ${
                   tab.id === activeTab
-                    ? 'text-accent border-accent bg-accent/5'
+                    ? 'text-accent border-accent bg-transparent'
                     : 'text-text-theme-secondary border-transparent bg-transparent'
                 } ${tab.disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${readOnly ? 'pointer-events-none' : ''} `}
               >
                 {!compact && tab.icon}
                 <span className="text-xs sm:text-sm">{tab.label}</span>
-                {tab.id === activeTab && (
+                {/* The check marks the current section in the open phone
+                    list only, so it is not rendered otherwise. */}
+                {tab.id === activeTab && sectionsOpen && (
                   <AppIcon
                     name="check"
                     size="inline"
