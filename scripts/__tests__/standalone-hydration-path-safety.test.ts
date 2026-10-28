@@ -79,6 +79,78 @@ function runHydrator(cwd: string) {
 }
 
 describe('standalone hydration path safety', () => {
+  it('refuses a linked runtime package source before writing output', () => {
+    const root = makeTempRoot();
+    const outside = makeTempRoot();
+    try {
+      prepareFixture(root);
+      writeFile(path.join(outside, 'package.json'), '{}');
+      writeFile(path.join(outside, 'index.js'), 'module.exports = {};');
+      makeDirectoryLink(outside, path.join(root, 'node_modules/linked'));
+      writeFile(
+        path.join(root, 'src/runtime.ts'),
+        "export { default } from 'linked';",
+      );
+      fs.appendFileSync(
+        path.join(root, 'server.js'),
+        "\nrequire('./src/runtime.ts');",
+      );
+
+      const result = runHydrator(root);
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('Linked runtime package linked');
+      expect(
+        fs.readFileSync(
+          path.join(root, '.next/standalone/server.next-config.json'),
+          'utf8',
+        ),
+      ).toBe('preserve-before-preflight');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores packages installed only above the checkout', () => {
+    const parent = makeTempRoot();
+    const root = path.join(parent, 'checkout');
+    try {
+      prepareFixture(root);
+      writeFile(
+        path.join(parent, 'node_modules/opt-elsewhere/package.json'),
+        '{}',
+      );
+      writeFile(
+        path.join(root, 'node_modules/pkg/package.json'),
+        JSON.stringify({ optionalDependencies: { 'opt-elsewhere': '*' } }),
+      );
+      writeFile(
+        path.join(root, 'node_modules/pkg/index.js'),
+        'module.exports = {};',
+      );
+      writeFile(
+        path.join(root, 'src/runtime.ts'),
+        "export { default } from 'pkg';",
+      );
+      fs.appendFileSync(
+        path.join(root, 'server.js'),
+        "\nrequire('./src/runtime.ts');",
+      );
+
+      const result = runHydrator(root);
+
+      expect(result.status).toBe(0);
+      expect(
+        fs.existsSync(
+          path.join(root, '.next/standalone/node_modules/opt-elsewhere'),
+        ),
+      ).toBe(false);
+    } finally {
+      fs.rmSync(parent, { recursive: true, force: true });
+    }
+  });
+
   it('refuses a platform directory link before removing the source or writing output', () => {
     const tmpRoot = makeTempRoot();
     try {

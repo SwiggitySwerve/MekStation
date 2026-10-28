@@ -192,7 +192,7 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
     prepareStandaloneFixture(root);
     addRuntimeImport(
       root,
-      "import dual from 'dual'; import other from 'other'; export { dual, other };",
+      "import type { T } from 'types-only'; import dual from 'dual'; import other from 'other'; export { dual, other };",
     );
     const dual = {
       name: 'dual',
@@ -245,6 +245,11 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
 
     const result = runHydrator(root);
     expect(result.status).toBe(0);
+    expect(
+      fs.existsSync(
+        path.join(root, '.next/standalone/node_modules/types-only'),
+      ),
+    ).toBe(false);
     const isolated = makeTempRoot();
     fs.cpSync(path.join(root, '.next/standalone'), isolated, {
       recursive: true,

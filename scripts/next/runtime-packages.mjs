@@ -13,14 +13,34 @@ function packageName(request) {
   return name;
 }
 
-function findPackage(name, importer, optional = false) {
+function isOutside(parent, candidate) {
+  const relative = path.relative(parent, candidate);
+  return (
+    path.isAbsolute(relative) ||
+    relative === '..' ||
+    relative.startsWith(`..${path.sep}`)
+  );
+}
+
+function findPackage(root, name, importer, optional = false) {
   // Resolve the installed directory, not package.json through exports: some
   // packages hide that subpath or expose only conditional/subpath entries.
   const resolver = createRequire(importer);
   for (const directory of resolver.resolve.paths(`${name}/package.json`) ??
     []) {
+    // Ancestor and global folders are not part of the image.
+    if (isOutside(root, directory)) break;
     const candidate = path.join(directory, name);
-    if (fs.existsSync(path.join(candidate, 'package.json'))) return candidate;
+    if (!fs.existsSync(path.join(candidate, 'package.json'))) continue;
+    if (
+      fs.lstatSync(candidate).isSymbolicLink() ||
+      isOutside(fs.realpathSync.native(root), fs.realpathSync.native(candidate))
+    ) {
+      throw new Error(
+        `Linked runtime package ${name} is not supported: ${candidate}`,
+      );
+    }
+    return candidate;
   }
   if (optional) return null;
   throw new Error(`Missing runtime package ${name} required by ${importer}`);
@@ -52,7 +72,10 @@ export async function collectRuntimePackages(root, loaders) {
   ]);
   const directories = new Set();
   function visit(name, importer, optional = false) {
-    const directory = findPackage(name, importer, optional);
+    // Next owns its own framework deployment and native dependencies. This
+    // supplements the separate raw-TS server graph, not Next's trace.
+    if (name === 'next') return;
+    const directory = findPackage(root, name, importer, optional);
     if (!directory || directories.has(directory)) return;
     directories.add(directory);
     const manifestPath = path.join(directory, 'package.json');
@@ -79,9 +102,7 @@ export async function collectRuntimePackages(root, loaders) {
     for (const entry of metadata.imports) {
       if (!entry.external || !requests.has(entry.path)) continue;
       const name = packageName(entry.path);
-      // Next owns its own framework deployment and native dependencies. This
-      // supplements the separate raw-TS server graph, not Next's trace.
-      if (name !== 'next') visit(name, path.resolve(root, input));
+      visit(name, path.resolve(root, input));
     }
   }
   return {

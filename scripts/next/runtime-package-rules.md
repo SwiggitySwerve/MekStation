@@ -9,8 +9,9 @@ conditions Next's application bundler traced.
 executing it. Only emitted external imports seed package discovery, so type-only
 imports and local TypeScript modules are not mistaken for npm packages. Existing
 runtime loaders also seed discovery. Follow installed dependencies, installed
-optional dependencies, and peers from each package's location; missing required
-packages fail. Preserve nested versions and complete package contents, including
+optional dependencies, and peers from each package's location, searching only
+inside the checkout and rejecting linked packages; missing required packages
+fail. Preserve nested versions and complete package contents, including
 conditional CommonJS entries and native binaries. Copy parents before children.
 
 The hydration owner preflights every destination and source/target identity
