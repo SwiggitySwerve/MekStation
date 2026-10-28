@@ -46,6 +46,23 @@ it('restores the saved palette and accent before React starts', () => {
   ).toBe(ACCENT_COLOR_CSS.cyan.primary);
 });
 
+it('paints the retired Midnight blue id as Gunmetal before React starts', () => {
+  localStorage.setItem(
+    'mekstation-appearance',
+    JSON.stringify({
+      state: {
+        uiTheme: 'default',
+        accentColor: 'amber',
+        fontSize: 'medium',
+        compactMode: false,
+        animationLevel: 'full',
+      },
+    }),
+  );
+  window.eval(APPEARANCE_BOOTSTRAP_SCRIPT);
+  expect(document.documentElement.className).toBe('theme-gunmetal');
+});
+
 it.each([
   '{broken',
   JSON.stringify({ state: { uiTheme: 'malicious class' } }),

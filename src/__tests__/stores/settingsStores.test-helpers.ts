@@ -70,9 +70,9 @@ describe('useAppearanceStore', () => {
       expect(result.current.animationLevel).toBe('full');
     });
 
-    it('defaults uiTheme to default', () => {
+    it('defaults uiTheme to gunmetal', () => {
       const { result } = renderHook(() => useAppearanceStore());
-      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.uiTheme).toBe('gunmetal');
     });
 
     it('defaults compactMode to false', () => {
@@ -158,7 +158,7 @@ describe('useAppearanceStore', () => {
 
     it('accepts every valid theme', () => {
       const { result } = renderHook(() => useAppearanceStore());
-      const themes = ['default', 'neon', 'tactical', 'minimal'] as const;
+      const themes = ['gunmetal', 'neon', 'tactical', 'minimal'] as const;
       themes.forEach((theme) => {
         act(() => result.current.setUITheme(theme));
         expect(result.current.uiTheme).toBe(theme);
@@ -175,7 +175,7 @@ describe('useAppearanceStore', () => {
         fontSize: 'medium',
         animationLevel: 'full',
         compactMode: false,
-        uiTheme: 'default',
+        uiTheme: 'gunmetal',
       });
       expect(result.current.hasUnsavedUITheme).toBe(false);
       expect(result.current.hasUnsavedOtherAppearance).toBe(false);
@@ -194,7 +194,7 @@ describe('useAppearanceStore', () => {
       const { result } = renderHook(() => useAppearanceStore());
       act(() => result.current.setDraftUITheme('neon'));
       expect(result.current.draftAppearance?.uiTheme).toBe('neon');
-      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.uiTheme).toBe('gunmetal');
       expect(result.current.hasUnsavedUITheme).toBe(true);
       expect(result.current.hasUnsavedOtherAppearance).toBe(false);
     });
@@ -225,7 +225,7 @@ describe('useAppearanceStore', () => {
       expect(result.current.fontSize).toBe('large');
       expect(result.current.hasUnsavedOtherAppearance).toBe(false);
       // Theme still draft-only.
-      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.uiTheme).toBe('gunmetal');
       expect(result.current.hasUnsavedUITheme).toBe(true);
     });
 
@@ -282,7 +282,7 @@ describe('useAppearanceStore', () => {
       expect(result.current.fontSize).toBe('medium');
       expect(result.current.animationLevel).toBe('full');
       expect(result.current.compactMode).toBe(false);
-      expect(result.current.uiTheme).toBe('default');
+      expect(result.current.uiTheme).toBe('gunmetal');
       expect(result.current.draftAppearance).toBeNull();
       expect(result.current.hasUnsavedUITheme).toBe(false);
       expect(result.current.hasUnsavedOtherAppearance).toBe(false);
@@ -590,7 +590,7 @@ describe('Cross-slice independence', () => {
     act(() => appearance.result.current.revertAppearance());
 
     expect(appearance.result.current.draftAppearance).toBeNull();
-    expect(appearance.result.current.uiTheme).toBe('default');
+    expect(appearance.result.current.uiTheme).toBe('gunmetal');
     expect(customizer.result.current.armorDiagramVariant).toBe('neon-operator');
   });
 
@@ -599,7 +599,7 @@ describe('Cross-slice independence', () => {
     const customizer = renderHook(() => useCustomizerSettingsStore());
 
     act(() => customizer.result.current.setArmorDiagramVariant('tactical-hud'));
-    expect(appearance.result.current.uiTheme).toBe('default');
+    expect(appearance.result.current.uiTheme).toBe('gunmetal');
 
     act(() => appearance.result.current.setUITheme('neon'));
     expect(customizer.result.current.armorDiagramVariant).toBe('tactical-hud');

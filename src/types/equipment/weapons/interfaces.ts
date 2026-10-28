@@ -127,4 +127,11 @@ export interface IWeapon extends Pick<
    * If undefined, weapon can be mounted in any valid weapon location for the unit type.
    */
   readonly allowedLocations?: readonly string[];
+
+  /**
+   * Formula id for weapons sized by the unit (physical weapons): weight,
+   * slots and damage come from `variableEquipmentFormulas`, not the fixed
+   * fields above.
+   */
+  readonly variableEquipmentId?: string;
 }

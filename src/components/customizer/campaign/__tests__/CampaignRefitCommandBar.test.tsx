@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
@@ -26,6 +26,14 @@ jest.mock('@/lib/campaign/customizer/campaignCustomizerNavigation', () => ({
 
 jest.mock('@/stores/campaign/campaignRefitActions', () => ({
   commitRefitOrder: jest.fn(),
+}));
+
+const mockSaveCampaign = jest.fn();
+
+jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  useCampaignPersistenceStore: {
+    getState: () => ({ saveCampaign: mockSaveCampaign }),
+  },
 }));
 
 const mockCommitRefitOrder = commitRefitOrder as jest.MockedFunction<
@@ -94,6 +102,7 @@ describe('CampaignRefitCommandBar', () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockNavigateToCampaignCustomizerReturn.mockReset();
+    mockSaveCampaign.mockReset().mockResolvedValue({ status: 'saved' });
     mockCommitRefitOrder.mockReset().mockReturnValue({
       applied: true,
       order: {
@@ -110,7 +119,7 @@ describe('CampaignRefitCommandBar', () => {
     });
   });
 
-  it('commits a valid campaign-origin edit as a refit order and returns to readiness', () => {
+  it('commits a valid campaign-origin edit as a refit order and returns to readiness', async () => {
     renderCommandBar({ changed: true });
 
     expect(screen.getByTestId('campaign-refit-command-bar')).toHaveTextContent(
@@ -142,10 +151,29 @@ describe('CampaignRefitCommandBar', () => {
         currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
       }),
     );
-    expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledWith(
-      expect.objectContaining({ push: mockPush }),
-      '/gameplay/campaigns/campaign-1/missions/mission-1/launch?unit=campaign-unit-atlas&refresh=deployment-validation&customizerResult=saved&refitOrderId=refit-1',
-    );
+    expect(mockSaveCampaign).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledWith(
+        expect.objectContaining({ push: mockPush }),
+        '/gameplay/campaigns/campaign-1/missions/mission-1/launch?unit=campaign-unit-atlas&refresh=deployment-validation&customizerResult=saved&refitOrderId=refit-1',
+      );
+    });
+  });
+
+  it('stays in the customizer when the server refuses the refit save', async () => {
+    mockSaveCampaign.mockResolvedValue({
+      status: 'conflict',
+      conflictServerRecord: {},
+      conflict: null,
+    });
+    renderCommandBar({ changed: true });
+
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+
+    expect(
+      await screen.findByTestId('campaign-refit-save-error'),
+    ).toHaveTextContent('Campaign changed on another client');
+    expect(mockNavigateToCampaignCustomizerReturn).not.toHaveBeenCalled();
   });
 
   it('keeps no-delta refit saves disabled', () => {

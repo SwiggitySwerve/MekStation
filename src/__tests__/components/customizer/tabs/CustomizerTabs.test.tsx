@@ -143,6 +143,9 @@ describe('CustomizerTabs', () => {
     const armorTab = screen.getByRole('tab', { name: 'Armor' });
     expect(armorTab).toHaveClass('text-accent');
     expect(armorTab).toHaveClass('border-accent');
+    // Amber text on the underline alone: no filled box behind the label.
+    expect(armorTab).toHaveClass('bg-transparent');
+    expect(armorTab).not.toHaveClass('bg-accent/5');
   });
 
   it('should call onTabChange when tab is clicked', async () => {

@@ -229,12 +229,13 @@ export function UnitSaveLabel({
  * state is its description.
  */
 /**
- * Phones: a needed save is an amber outline with an amber icon rather than a
- * solid fill, so it is not the heaviest object in a 390px header; a unit that
- * matches its library copy shows a plain icon, so the two stay distinct.
+ * Below 1024px Save is icon-only: a needed save is an amber outline with an
+ * amber icon rather than a solid 44px fill, so it is not the heaviest object
+ * in the header; a unit that matches its library copy shows a plain icon, so
+ * the two stay distinct.
  */
-const PHONE_OUTLINE_PRIMARY =
-  'max-sm:!border max-sm:!border-accent max-sm:!bg-transparent max-sm:!text-accent';
+const ICON_ONLY_OUTLINE_PRIMARY =
+  'max-lg:!border max-lg:!border-accent max-lg:!bg-transparent max-lg:!text-accent';
 
 export function UnitSaveAction({
   unitId,
@@ -248,9 +249,9 @@ export function UnitSaveAction({
   const { needsSave } = useUnitSaveState(unitId ?? '');
   const primary = unitId !== null && needsSave;
   return (
-    // 24px to Save: the header cluster keeps one 24px gap between the visible
-    // edges of Add Unit, the unit menu, the rule, these words, Save and the
-    // panel toggle.
+    // 24px to Save: the header's right group keeps one 24px gap between the
+    // visible edges of these words, Save, the unit menu glyph and the panel
+    // toggle glyph.
     <div className="flex min-w-0 shrink-0 items-center gap-6">
       {unitId && <UnitSaveLabel unitId={unitId} />}
       <Button
@@ -268,10 +269,17 @@ export function UnitSaveAction({
         }
         data-save-emphasis={primary ? 'primary' : 'quiet'}
         disabled={disabledReason !== null}
-        className={`group relative !h-11 !min-w-11 shrink-0 !p-0 whitespace-nowrap lg:!px-3 ${primary ? PHONE_OUTLINE_PRIMARY : '!text-text-theme-primary max-sm:!border-transparent max-sm:!bg-transparent'}`}
+        // From 1024px a compact 36px labelled button with a 16px icon (44px
+        // on touch screens); below that a 44px icon-only target whose glyph
+        // matches the header's other 24px symbols.
+        className={`group relative !h-11 !min-w-11 shrink-0 !p-0 whitespace-nowrap lg:!px-3 lg:pointer-fine:!h-9 lg:pointer-fine:!min-h-9 ${primary ? ICON_ONLY_OUTLINE_PRIMARY : '!text-text-theme-primary max-lg:!border-transparent max-lg:!bg-transparent'}`}
         onClick={onSave}
       >
-        <AppIcon name="save" size="toolbar" />
+        <AppIcon
+          name="save"
+          size="inline"
+          className="max-lg:!h-6 max-lg:!w-6"
+        />
         <span aria-hidden="true" className="hidden lg:inline">
           {SAVE_ACTION_LABEL}
         </span>

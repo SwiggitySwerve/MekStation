@@ -13,11 +13,13 @@ import {
   convertAmmunition,
   convertElectronics,
   convertMiscEquipment,
+  convertPhysicalWeapon,
   convertWeapon,
   type IEquipmentFile,
   type IRawAmmunitionData,
   type IRawElectronicsData,
   type IRawMiscEquipmentData,
+  type IRawPhysicalWeaponData,
   type IRawWeaponData,
 } from './EquipmentConverters';
 import { readJsonFile } from './EquipmentFileReader';
@@ -125,8 +127,15 @@ export async function loadOfficialEquipmentSource(
           weaponData.items,
           WEAPON_SHAPE,
         );
+        // physical.json shares the weapons/ directory but is sized by
+        // tonnage, so it has its own converter.
+        const isPhysical = weaponData.$schema?.endsWith(
+          'physical-weapon-schema.json',
+        );
         weaponData.items.forEach((item) => {
-          const weapon = convertWeapon(item);
+          const weapon = isPhysical
+            ? convertPhysicalWeapon(item as unknown as IRawPhysicalWeaponData)
+            : convertWeapon(item);
           targets.weapons.set(weapon.id, weapon);
           itemsLoaded++;
         });
