@@ -4,7 +4,11 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
-import { collectRuntimePackages } from './next/runtime-packages.mjs';
+import {
+  collectRuntimePackages,
+  collectTurbopackExternals,
+  createPackageSourcePreflight,
+} from './next/runtime-packages.mjs';
 
 const root = process.cwd();
 const nextDir = path.resolve(
@@ -261,8 +265,51 @@ async function main() {
     'esbuild native package scope',
   );
   validateHydrationDestinations();
-  const runtimePackages = await collectRuntimePackages(root, runtimeModuleDirs);
+  const preflightSource = createPackageSourcePreflight(root);
+  const runtimePackages = await collectRuntimePackages(
+    root,
+    runtimeModuleDirs,
+    preflightSource,
+  );
+  for (const scope of runtimeScopedDirs) {
+    preflightSource(path.join(root, 'node_modules', scope));
+  }
   validateHydrationDestinations(runtimePackages.directories);
+  const aliasRoot = path.join(
+    standaloneDir,
+    path.relative(root, nextDir),
+    'node_modules',
+  );
+  assertSafeDestinationPath(
+    standaloneDir,
+    aliasRoot,
+    'Turbopack external aliases',
+  );
+  const turbopackExternals = collectTurbopackExternals(
+    root,
+    aliasRoot,
+    standaloneDir,
+    preflightSource,
+  );
+
+  // Match by realpath: Windows cwd keeps typed casing, junction targets do not.
+  const closureByRealpath = new Map(
+    runtimePackages.directories.map((directory) => [
+      fs.realpathSync.native(directory),
+      directory,
+    ]),
+  );
+  for (const external of turbopackExternals) {
+    if (!external.canForwardNativeEntry) continue;
+    external.canonicalDirectory = closureByRealpath.get(
+      fs.realpathSync.native(external.source),
+    );
+    if (!external.canonicalDirectory) {
+      throw new Error(
+        `Native Turbopack external has no canonical runtime package; refusing a second native copy: ${rel(external.target)}`,
+      );
+    }
+  }
 
   const generatedServer = fs.readFileSync(generatedServerPath, 'utf8');
   const nextConfigJson =
@@ -293,6 +340,39 @@ async function main() {
     'standalone source tree',
   );
   copyRuntimeLoaders(runtimePackages.directories);
+  for (const {
+    source,
+    target,
+    canForwardNativeEntry,
+    canonicalDirectory,
+  } of turbopackExternals) {
+    // Remove only Next's preflighted link; copyDir then validates a physical
+    // destination. Absolute checkout links cannot ship in a portable image.
+    fs.unlinkSync(target);
+    if (canForwardNativeEntry) {
+      // A CommonJS native entry must use the canonical package: Electron
+      // rebuilds that one binding, and both imports must load the same ABI.
+      assertSafeDestinationPath(standaloneDir, target, 'native external entry');
+      fs.mkdirSync(target, { recursive: true });
+      fs.writeFileSync(
+        path.join(target, 'package.json'),
+        JSON.stringify({ private: true, main: 'index.cjs' }),
+      );
+      const canonical = path.join(
+        standaloneDir,
+        path.relative(root, canonicalDirectory),
+      );
+      const request = path
+        .relative(target, canonical)
+        .replaceAll(path.sep, '/');
+      fs.writeFileSync(
+        path.join(target, 'index.cjs'),
+        `module.exports = require(${JSON.stringify(request)});\n`,
+      );
+    } else {
+      copyDir(source, target, 'Turbopack external package');
+    }
+  }
   copyPublicAssets();
   copyMegaMekBVCache();
   copyNextStaticAssets();
