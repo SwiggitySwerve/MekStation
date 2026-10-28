@@ -22,6 +22,7 @@ import {
   A2_REQUIRED_CASES,
   capturedRolls,
   runA2Cases,
+  selectDice,
 } from './l1-built-server-spectator-cases.mjs';
 import { A2M_REQUIRED_CASES } from './l1-built-server-spectator-privacy-cases.mjs';
 import { runHarness } from './run-l1-built-server-smoke.mjs';
@@ -155,6 +156,68 @@ test('capturedRolls accepts nonempty d6 rolls only', () => {
   ]) {
     assert.throws(() => capturedRolls(bad), /no captured d6 rolls/);
   }
+});
+
+// Shapes follow the built-run frames: Event frames carry deliverySequence; the intent-tagged
+// event of an attack batch is attack_locked (rolls), later attack_resolved has none.
+const frame = (deliverySequence, type, payload = {}) => ({
+  parsed: { kind: 'Event', event: { type, payload }, deliverySequence },
+});
+const reply = (deliverySequence, type, payload, intentId) => ({
+  reply: frame(deliverySequence, type, payload).parsed,
+  intentId,
+});
+const noise = [
+  { parsed: undefined },
+  { parsed: { kind: 'ReplayChunk', events: [{ type: 'attack_resolved' }] } },
+  frame(7, 'movement_locked'),
+];
+
+test('selectDice fails when an earlier attack batch lacks rolls even though a later initiative batch has them', () => {
+  const frames = [
+    ...noise,
+    frame(13, 'attack_locked', { intentId: 'gm-2' }),
+    frame(19, 'attack_resolved', { roll: 4 }),
+    frame(33, 'initiative_rolled', { rolls: [1, 3], intentId: 'gm-6' }),
+  ];
+  const replies = [
+    reply(13, 'attack_locked', { intentId: 'gm-2' }, 'gm-2'),
+    reply(22, 'phase_changed', { intentId: 'gm-3' }, 'gm-3'),
+    reply(33, 'initiative_rolled', { rolls: [1, 3], intentId: 'gm-6' }, 'gm-6'),
+  ];
+  assert.throws(
+    () => selectDice(replies, frames),
+    /\[coop-first-rolls-captured\] earlier dice batch lacks captured rolls: attack_resolved/,
+  );
+});
+
+test('selectDice selects the earliest attack batch that carries rolls, not the later initiative', () => {
+  const frames = [
+    ...noise,
+    frame(13, 'attack_locked', { rolls: [3, 1], intentId: 'gm-2' }),
+    frame(19, 'attack_resolved', { roll: 4 }),
+    frame(33, 'initiative_rolled', { rolls: [1, 3], intentId: 'gm-6' }),
+  ];
+  const replies = [
+    reply(13, 'attack_locked', { rolls: [3, 1], intentId: 'gm-2' }, 'gm-2'),
+    reply(33, 'initiative_rolled', { rolls: [1, 3], intentId: 'gm-6' }, 'gm-6'),
+  ];
+  assert.doesNotThrow(() => selectDice(replies, frames));
+  const picked = selectDice(replies, frames);
+  assert.equal(picked.event.type, 'attack_locked');
+  assert.equal(picked.intentId, 'gm-2');
+  assert.deepEqual(capturedRolls(picked.event), [3, 1]);
+});
+
+test('selectDice selects nothing before a dice reply and a dice-typed reply without rolls is still selected', () => {
+  const frames = [...noise, frame(19, 'attack_resolved', { roll: 4 })];
+  assert.doesNotThrow(() =>
+    selectDice([reply(8, 'phase_changed', {}, 'gm-1')], frames),
+  );
+  assert.ok(!selectDice([reply(8, 'phase_changed', {}, 'gm-1')], frames));
+  const bare = selectDice([reply(19, 'attack_resolved', {}, 'gm-3')], frames);
+  assert.equal(bare?.event.type, 'attack_resolved');
+  assert.throws(() => capturedRolls(bare.event), /no captured d6 rolls/);
 });
 
 test('the event witness returns one stored event and refuses a missing or doubled id and a live pid', () => {

@@ -57,6 +57,24 @@ export function capturedRolls(event) {
   return rolls;
 }
 
+/** The first GM reply with rolls or a dice type; fails if a dice event was delivered before it. */
+export function selectDice(replies, frames) {
+  const first = replies.find(
+    ({ reply: r }) => DICE.has(r.event.type) || r.event.payload?.rolls,
+  );
+  const early = frames.find(
+    ({ parsed: m }) =>
+      m?.kind === 'Event' &&
+      DICE.has(m.event.type) &&
+      m.deliverySequence < first?.reply.deliverySequence,
+  );
+  if (early)
+    throw new Error(
+      `[coop-first-rolls-captured] earlier dice batch lacks captured rolls: ${early.parsed.event.type}`,
+    );
+  return first && { event: first.reply.event, intentId: first.intentId };
+}
+
 /** CF-MPHD-5: every first upgrade and join of a fresh match is in flight at once. */
 async function concurrentFirstSockets(ctx) {
   const who = await Promise.all(
@@ -339,6 +357,7 @@ async function coopRestart(ctx) {
     pid: ctx.pid,
     previousPid: pidBefore,
   });
+  const replies = [];
   let dice = null;
   for (let i = 0; i < 8 && !dice; i += 1) {
     const { reply, intentId } = await conns['coop-gm'].intent({
@@ -350,7 +369,8 @@ async function coopRestart(ctx) {
       'phase advance refused',
       reply,
     );
-    if (DICE.has(reply.event.type)) dice = { event: reply.event, intentId };
+    replies.push({ reply, intentId });
+    dice = selectDice(replies, conns['coop-gm'].frames);
   }
   const rolls = capturedRolls(dice?.event);
   const { replay } = await ctx.reconnect(conns['coop-gm']);
