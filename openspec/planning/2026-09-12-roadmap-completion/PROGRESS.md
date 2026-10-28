@@ -1,3 +1,16 @@
+## 2026-10-28 L1-SMOKE-A2M closed; main-verified (exact-main built-image proof); Step 3 PR 8 of 12 (A2 admission may follow in this PR)
+
+Closes L1-SMOKE-A2M (PR #2346, ruled and merged head 242454d93, merge b78909c5e) as main-verified. The OWNER-RULING (comment 6460133719, Root on behalf of the owner under the standing merge and Full send instructions; Root commentary, not a verbatim owner quote) accepted that exact head; the merge tree equals the ruled head tree, so all three leaves are byte-identical to the reviewed bytes.
+
+- Exact-main proof at clean b78909c5e: real `npm ci`, the A2M node test (null of null), the A1 smoke test (null of null), the A2FP test file (null of null), the A2F node test (null of null), and the A2M built runner `run-l1-built-server-spectator-privacy.mjs --build --expected-sha=b78909c5e...`: the A1 baseline plus all 12 matrix ids passed (22 cases), on the first attempt, no readiness timeout, no rerun (CF-A2FP-2 unused).
+- Receipts: review (the Opus report at 83ae34807 in one byte envelope; the Sonnet second review, Root's fix script and PR body edits, and the Root R6 ruling sections are separate payloads), merge and mainProof; the ruling comment is byte-copied and equals the live comment and the Root copy; one envelope holds the install, run and tool-check output. Opus independently reran node:test 9/9 and oxfmt only; neither reviewer ran a built image, so the exact-main run is the first built-image execution by anyone but the implementation worker.
+- Review history, kept as it happened: both reviews read 83ae34807; the fixes (Sonnet F1-F5, Opus F-1/F-2, PR body F-3) landed in place at 242454d93 with no leaf byte and no counted line; Sonnet F6 (shallow nested-A1 guard) is carried to CF-A2M-1. Old receipts are not rewritten.
+- Cap: the real merge measured against its first parent 962f8ae9c is 303 counted added lines and 7 counted files plus the exempt page; no capException.
+- Carry-forward (units.json L1-SMOKE-A2M.closureCarryForward20261028): CF-A2M-1 stays open (live-leg lock-frame assertion and R6 rerun, R6+P1 and R6+P6 combined mutants, tighter nested-A1 check); R6 stays a disclosed non-equivalent survivor (Root ruling 2026-10-28, not an owner decision); S5-02, the real mission GM player viewer role (release-notes paragraph to RELEASE-PRODUCER-1) and OQ-M1 stay open. CF-A2F-1 and CF-A2F-2 built-image sides are proved by the six stale rows on the merged image.
+- No task row is ticked.
+
+---
+
 ## 2026-10-27 L1-SMOKE-A2M local-verified (Step 3 PR 7 of 12)
 
 Adds the A2M cases and runner leaves behind the frozen test leaf: nine sealed-declaration/audience rows (Move, Attack, Physical times player-stale, gm-stale, gm-unassigned) plus the three non-spectating-GM controls. RED contains only the test; GREEN adds the two source leaves, byte-equal to the admission measuredFit bytes. No product edit.

@@ -8911,7 +8911,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-admission.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-local.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-review.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-merge-20261028.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-mainproof-20261028.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-source-review-20261028.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-owner-ruling-6460133719.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-b78909c5e-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -8920,17 +8925,36 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+      "mergeSha": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2m-admission.json" },
         "red": { "path": "evidence/l1-smoke-a2m-red.json" },
         "local": { "path": "evidence/l1-smoke-a2m-local.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/l1-smoke-a2m-review.json",
+          "head": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+          "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "b25c898006d2fc7bc4d788d69e0f7e72a04a54ab1bea33c76b0aa55bd06e1107",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 242454d935ad52ad6bd15e1300decb3eff79c1f5"
+        },
+        "merge": {
+          "path": "evidence/l1-smoke-a2m-merge-20261028.json",
+          "pr": 2346,
+          "head": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+          "mergeSha": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e"
+        },
+        "mainProof": {
+          "path": "evidence/l1-smoke-a2m-mainproof-20261028.json",
+          "mergeCommit": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
+          "verdict": "PASS",
+          "runtime": "A2M node:test 9 of 9 at the clean exact merge; built-image run (A2M runner, run-l1-built-server-spectator-privacy.mjs --build): 22 passed (A1 baseline plus all 12 matrix ids; 0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9018,6 +9042,29 @@
         "carryForward": "CF-A2M-1: the next unit that amends the A2M harness adds a live-leg assertion that the watcher holds the public-lock frame for the declaration before the scan, and re-runs R6.",
         "p7": "P7 (optional, non-gating): the MISSION-MATCH-1 product files reverted on a detached throwaway commit and built; the run failed on the actor's Move (matrix-Move-player-stale-guest3: timeout waiting for reply to Move), so the first stale row (matrix-Move-player-stale) discriminates; the other five stale rows are not individually witnessed. A first P7 attempt reverted nothing (git checkout failed on the MM1-added sideAssignments.ts) and is recorded as invalid.",
         "disclosures": "G-A8: the real mission GM keeps the player viewer role (Root ruling 2026-10-26 option a), S5-02 stays open with no A2M row, and OQ-M1 (GM-branded spectators see an authority sequence gap) is asserted as sealed content absent, no placeholder and a contiguous cursor; the sequence gap itself is recorded, not asserted. The release-notes obligation belongs to RELEASE-PRODUCER-1 admission."
+      },
+      "closureCarryForward20261028": {
+        "CF-A2M-1": {
+          "severity": "Medium",
+          "owner": "the next unit that amends the A2M harness",
+          "status": "OPEN; routed",
+          "item": "Add a live-leg assertion that the watcher holds the public-lock frame for the declaration before the scan and rerun R6 (survived; Root ruling 2026-10-28, not an owner decision); also run the R6+P1 and R6+P6 combined mutants; and tighten the nested-A1 check (privacy.test.mjs:82 inspects only the runMatrixCases wrapper; Sonnet F6). No frozen leaf was edited at closure."
+        },
+        "CF-A2F-1": {
+          "severity": "Medium",
+          "owner": "L1-SMOKE-A2M",
+          "status": "built-image side PROVED by the exact-main run; qualified by CF-A2M-1",
+          "item": "All six *-stale rows passed on the image built from the merge b78909c5e (stale assignment established before the actor acts, actor receives its own declaration live and after the restart, watcher holds only the public lock). P7 witnessed discrimination on matrix-Move-player-stale only."
+        },
+        "CF-A2F-2": {
+          "severity": "Medium",
+          "owner": "L1-SMOKE-A2M",
+          "status": "built-image side PROVED by the exact-main run",
+          "item": "The acting-player replay after the restart is asserted by the A2M stale rows and passed on the merged image."
+        },
+        "residual": {
+          "item": "Disclosed, not fixed: the real mission GM keeps the player viewer role (mission matches have no meta.coopCampaign; the release-notes paragraph belongs to RELEASE-PRODUCER-1 admission); S5-02 (who may spectate) stays open with no A2M row; OQ-M1 (GM-branded authority sequence gap) is recorded, not asserted; reconnect and restart coverage of P1 and P6 is inferred, not run."
+        }
       }
     },
     {
@@ -23140,10 +23187,22 @@
           "effort": "Finding-dependent"
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. Nine node falsifiers, 16 pure-function mutants and the first post-MISSION-MATCH-1 built-image run (A1 baseline plus all 12 matrix ids, no rerun) pass on the frozen measuredFit leaves. Built-image mutants R7, R8, P1, P4 and P6 are killed by named checks and P7 (MISSION-MATCH-1 reverted) fails the actor's Move, so the first stale row (matrix-Move-player-stale) discriminates; the other five are not individually witnessed. R6 (runRow skips the live barrier wait) SURVIVES and is not equivalent: accepted() returns on the actor reply and the lock frame lands about 1 ms later, so only the barrier makes the live leg deterministic; the reconnect and restart legs cover P4 (observed); P1 and P6 there are inferred, not run (Root correction 2026-10-28). Root ruled on 2026-10-28 to accept R6 as a disclosed survivor (Root ruling, not an owner decision) and registered CF-A2M-1. Review the live barrier, the stale-first establishment before the declaration, the GM-branded rows (OQ-M1: sealed content absent, no placeholder and a contiguous cursor asserted; the sequence gap recorded, not asserted), and the disclosures (real mission GM player role, S5-02 open). No product or frozen predecessor change; no exact-main acceptance is claimed.",
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. Nine node falsifiers, 16 pure-function mutants and the first post-MISSION-MATCH-1 built-image run (A1 baseline plus all 12 matrix ids, no rerun) pass on the frozen measuredFit leaves. Built-image mutants R7, R8, P1, P4 and P6 are killed by named checks and P7 (MISSION-MATCH-1 reverted) fails the actor's Move, so the first stale row (matrix-Move-player-stale) discriminates; the other five are not individually witnessed. R6 (runRow skips the live barrier wait) SURVIVES and is not equivalent: accepted() returns on the actor reply and the lock frame lands about 1 ms later, so only the barrier makes the live leg deterministic; the reconnect and restart legs cover P4 (observed); P1 and P6 there are inferred, not run (Root correction 2026-10-28). Root ruled on 2026-10-28 to accept R6 as a disclosed survivor (Root ruling, not an owner decision) and registered CF-A2M-1. Review the live barrier, the stale-first establishment before the declaration, the GM-branded rows (OQ-M1: sealed content absent, no placeholder and a contiguous cursor asserted; the sequence gap recorded, not asserted), and the disclosures (real mission GM player role, S5-02 open). No product or frozen predecessor change. Closure (2026-10-28): the OWNER-RULING (comment 6460133719) accepted 242454d93; the exact-main run at b78909c5e passed the A2M node test 9 of 9 and the built runner (the A1 baseline plus all 12 matrix ids, 22 cases, first attempt, no rerun); the real merge measured 303 counted lines and 7 counted files plus the exempt page, no capException. R6 stays a disclosed survivor and CF-A2M-1 stays open.",
       "revertCost": "Delete the three A2M leaves and own lifecycle additions. Product and predecessor leaves are unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-28T03:45:57Z",
+        "by": "SwiggitySwerve (GitHub account; Root acting on behalf of the owner under the standing merge and Full send instructions, per the live comment)",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2346#issuecomment-6460133719"
+      },
+      "ruling": {
+        "ruledHead": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+        "reviewedHead": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+        "pr": 2346,
+        "commentId": 6460133719,
+        "author": "SwiggitySwerve",
+        "bodySha256": "e3d57be5a9250d0ae5352947260823f1bfbceba1877d4c5b0532d4ae33a4fbb0"
+      }
     },
     {
       "id": "PK-mission-match-1-ruling",
