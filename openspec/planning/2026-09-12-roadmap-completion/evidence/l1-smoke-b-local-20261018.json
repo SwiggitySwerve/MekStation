@@ -4,11 +4,17 @@
   "stage": "local",
   "status": "PASS",
   "date": "2026-10-28",
-  "recordedAt": "2026-10-28T10:36:48.962Z",
+  "recordedAt": "2026-10-28T11:11:13.813Z",
   "implementationBase": "25f60b66759fdd9c944494afde3a1c01c2e6fa54",
   "redCommit": "0586ec91967df0374b47b679bba16415f8be32aa",
   "greenCommit": "5c61c779da89717451621e364cc987c7fa546788",
   "redReceiptCommit": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
+  "reviewFixCommits": {
+    "firstLifecycle": "5bf719765523f3602fe7efbcbff833c01f184da0",
+    "firstFlip": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+    "revertOfFirstFlip": "5f4e15b81f89d399bf77f2ec2fbda882365e0718",
+    "fix": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e"
+  },
   "admission": {
     "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-20261018.json",
     "sha256": "040000a44814e1cd5d5882a591b54c7ff4f1e74d8fa027ad45e3dde36ea4a2cf",
@@ -25,7 +31,7 @@
       "sha256": "2e1e93aec81dd793e3997b2e11f0b48d72c10bff8f8e7ab8df1a85ea4c3cae5a",
       "bytes": 11060
     },
-    "note": "37 control blobs (A1, A2FP, A2F, A2M, A2 leaves and product/config files) re-hashed against 25f60b667: zero drift; the A2 leaves equal controls.a2Leaves. Real npm ci on Node v22.22.0 (no junction). Open-PR census: only #2113 (draft, no overlap). Worktree census (32): only two old ndc1 branches touch the ledger directory (disclosed at admission); no B leaf overlap.",
+    "note": "37 control blobs (A1, A2FP, A2F, A2M, A2 leaves and product/config files) re-hashed against 25f60b667: zero drift; the A2 leaves equal controls.a2Leaves. At the implementation head 36 of 37 are unchanged: v220-steps.json, a control, changes only by the admitted G-B6 done-test hunk (a7ced34a8 to 4d8ebe1b4). Real npm ci on Node v22.22.0 (no junction). Open-PR census: only #2113 (draft, no overlap). Worktree census (32): only two old ndc1 branches touch the ledger directory (disclosed at admission); no B leaf overlap.",
     "openPrCensus": {
       "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/open-pr-census.json",
       "sha256": "3c3ca02e94668fc8a4985bb671534914327c07d7a0c8a3ea8c30f3f064d3ed65",
@@ -45,10 +51,11 @@
   "leaves": [
     {
       "path": "scripts/release/l1-built-server-fog-cases.mjs",
-      "sha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
-      "bytes": 10658,
+      "sha256": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292",
+      "bytes": 11838,
       "draftSha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
-      "matchesFrozenHash": true
+      "matchesFrozenHash": false,
+      "g3Deviation": true
     },
     {
       "path": "scripts/release/l1-built-server-fog-fixtures.ts",
@@ -59,10 +66,11 @@
     },
     {
       "path": "scripts/release/l1-built-server-fog.test.mjs",
-      "sha256": "9fe25255ee1f0cf7c58f707183d6bb9c62635f491da7434e5eaaf0253ef3beb6",
-      "bytes": 16803,
+      "sha256": "9e2a6e27e6d55fb549718d8c48d51cebf453ee80ca07b4d10644fe990b91374a",
+      "bytes": 18246,
       "draftSha256": "9fe25255ee1f0cf7c58f707183d6bb9c62635f491da7434e5eaaf0253ef3beb6",
-      "matchesFrozenHash": true
+      "matchesFrozenHash": false,
+      "g3Deviation": true
     },
     {
       "path": "scripts/release/run-l1-built-server-fog-refusal.mjs",
@@ -72,16 +80,34 @@
       "matchesFrozenHash": true
     }
   ],
+  "g3Deviations": [
+    {
+      "path": "scripts/release/l1-built-server-fog-cases.mjs",
+      "frozenSha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
+      "newSha256": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292",
+      "newBytes": 11838,
+      "commit": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
+      "reason": "Root ruling 2026-10-28 (#2351 review findings; GPT F1, F2): B-owned rawApi keeps each HTTP refusal body as raw text, which is scanned even when it is not JSON; malformed JSON fails where the route requires JSON; the unauthenticated /head body is read and scanned (expectUnauthenticated); checkMemberRefusal rejects any property outside kind, matchId, ts, code and reason. +40 counted lines."
+    },
+    {
+      "path": "scripts/release/l1-built-server-fog.test.mjs",
+      "frozenSha256": "9fe25255ee1f0cf7c58f707183d6bb9c62635f491da7434e5eaaf0253ef3beb6",
+      "newSha256": "9e2a6e27e6d55fb549718d8c48d51cebf453ee80ca07b4d10644fe990b91374a",
+      "newBytes": 18246,
+      "commit": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
+      "reason": "Falsifiers: a 200 non-JSON timeline carrying a sentinel (kept in the scan input), a 401 /head JSON body carrying a sentinel, a 401 check on a 200, and digest, revision and deliverySequence each added to a valid Close; one valid Close with ts still passes. Exempt test leaf."
+    }
+  ],
   "nodeTests": {
     "command": "node --import tsx --test scripts/release/l1-built-server-fog.test.mjs",
-    "pass": 12,
+    "pass": 13,
     "fail": 0,
     "node": "v22.22.0",
     "lane": "b-impl",
     "log": {
       "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/green-node-test.log",
-      "sha256": "a15066573de2c0f3e449b12073898eefd1f565831c2578d6cd8b45b50fa14784",
-      "bytes": 2913
+      "sha256": "a2f53b8756a82b4caf4ccbaaecb1ea450546d03b3908d3a2327fa07d38d21c28",
+      "bytes": 3123
     },
     "inherited": {
       "pass": 64,
@@ -89,16 +115,352 @@
       "note": "A2, A2M, A1, A2FP and A2F test leaves that B imports",
       "log": {
         "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/green-node-test-inherited.log",
-        "sha256": "3f67d4600ae1a5c092a44bd55cd4e9b6473ae867f8959f9b57f8410b823a7a31",
-        "bytes": 14755
+        "sha256": "ea24d4b6cf4107920079385d603c5069506133ff51d8b13d32cb397fdac58f67",
+        "bytes": 14754
+      }
+    },
+    "preFix": {
+      "pass": 12,
+      "fail": 0,
+      "log": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/pre-fix/green-node-test.log",
+        "sha256": "a15066573de2c0f3e449b12073898eefd1f565831c2578d6cd8b45b50fa14784",
+        "bytes": 2913
       }
     }
   },
   "pureFunctionMutants": {
-    "total": 22,
-    "killed": 22,
-    "note": "BM01-BM22 rerun on the final leaf bytes; each kill requires an assertion failure and no ERR_MODULE_NOT_FOUND or SyntaxError.",
+    "total": 31,
+    "killed": 31,
+    "note": "BM01-BM22 rerun on the fixed leaf bytes plus BM23-BM31 for the new checks (extra Close properties, widened allowlist per key, raw-body scan input, malformed-JSON acceptance, unauthenticated head body and status, dropped raw body); each kill requires an assertion failure and no ERR_MODULE_NOT_FOUND or SyntaxError. The unmutated baseline passed 13/13.",
     "results": [
+      {
+        "id": "BM01",
+        "what": "wire contract literal changed",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 1 - the combined enumeration is the A2 rows then the B rows, unique, with no overlap"
+        ]
+      },
+      {
+        "id": "BM02",
+        "what": "member refusal tolerates extra frames",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 2 - checkMemberRefusal accepts only one fixed Close and the matching 1008",
+          "not ok 6 - refusedSocket captures a good refusal and the contract checks falsify a replay, reason or code"
+        ]
+      },
+      {
+        "id": "BM03",
+        "what": "member refusal accepts any close code",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 2 - checkMemberRefusal accepts only one fixed Close and the matching 1008",
+          "not ok 6 - refusedSocket captures a good refusal and the contract checks falsify a replay, reason or code"
+        ]
+      },
+      {
+        "id": "BM04",
+        "what": "non-member refusal ignores close code",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 4 - checkStrangerRefusal rejects any frame or reason that names fog"
+        ]
+      },
+      {
+        "id": "BM05",
+        "what": "non-member refusal may name fog",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 4 - checkStrangerRefusal rejects any frame or reason that names fog"
+        ]
+      },
+      {
+        "id": "BM06",
+        "what": "sentinel scan never fails",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 5 - scanReceived fails on one leaked sentinel and returns the scanned size otherwise",
+          "not ok 8 - a non-JSON body and an unauthenticated head body are kept and scanned"
+        ]
+      },
+      {
+        "id": "BM07",
+        "what": "hidden-dependent keys allowed in refusals",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 7 - expectAnswers rejects a wrong status, a different body, a hidden key and a refusal naming fog"
+        ]
+      },
+      {
+        "id": "BM08",
+        "what": "HTTP status not compared",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 7 - expectAnswers rejects a wrong status, a different body, a hidden key and a refusal naming fog"
+        ]
+      },
+      {
+        "id": "BM09",
+        "what": "refused socket never tries join, resume or intent",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 6 - refusedSocket captures a good refusal and the contract checks falsify a replay, reason or code"
+        ]
+      },
+      {
+        "id": "BM10",
+        "what": "refusal may name fog",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 7 - expectAnswers rejects a wrong status, a different body, a hidden key and a refusal naming fog"
+        ]
+      },
+      {
+        "id": "BM11",
+        "what": "combined enumeration drops the B rows",
+        "file": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 1 - the combined enumeration is the A2 rows then the B rows, unique, with no overlap",
+          "not ok 10 - the real harness passes the complete combined enumeration",
+          "not ok 11 - an omitted predecessor row, an omitted refusal row or an unexpected row fails the run"
+        ]
+      },
+      {
+        "id": "BM12",
+        "what": "case window shrunk to the A1 default",
+        "file": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 9 - runFogRefusal derives the argv-stable options from the checkout and names every combined row"
+        ]
+      },
+      {
+        "id": "BM13",
+        "what": "runner skips the refusal step",
+        "file": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 10 - the real harness passes the complete combined enumeration",
+          "not ok 11 - an omitted predecessor row, an omitted refusal row or an unexpected row fails the run"
+        ]
+      },
+      {
+        "id": "BM14",
+        "what": "default SHA is not the checkout HEAD",
+        "file": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 9 - runFogRefusal derives the argv-stable options from the checkout and names every combined row",
+          "not ok 10 - the real harness passes the complete combined enumeration",
+          "not ok 11 - an omitted predecessor row, an omitted refusal row or an unexpected row fails the run"
+        ]
+      },
+      {
+        "id": "BM15",
+        "what": "default run never builds",
+        "file": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 9 - runFogRefusal derives the argv-stable options from the checkout and names every combined row"
+        ]
+      },
+      {
+        "id": "BM16",
+        "what": "flip fixture skips the stopped-PID guard",
+        "file": "scripts/release/l1-built-server-fog-fixtures.ts",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 12 - the flip fixture changes only config.fogOfWar and refuses a live pid, a second flip and a missing DB"
+        ]
+      },
+      {
+        "id": "BM17",
+        "what": "flip fixture accepts a non-active match",
+        "file": "scripts/release/l1-built-server-fog-fixtures.ts",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 13 - the flip fixture refuses a lobby match and a flip that would touch the journal"
+        ]
+      },
+      {
+        "id": "BM18",
+        "what": "flip changes more than fogOfWar",
+        "file": "scripts/release/l1-built-server-fog-fixtures.ts",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 12 - the flip fixture changes only config.fogOfWar and refuses a live pid, a second flip and a missing DB",
+          "not ok 13 - the flip fixture refuses a lobby match and a flip that would touch the journal"
+        ]
+      },
+      {
+        "id": "BM19",
+        "what": "flip does not check the journal fingerprint",
+        "file": "scripts/release/l1-built-server-fog-fixtures.ts",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 13 - the flip fixture refuses a lobby match and a flip that would touch the journal"
+        ]
+      },
+      {
+        "id": "BM20",
+        "what": "sentinel scan accepts an empty sentinel set",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 5 - scanReceived fails on one leaked sentinel and returns the scanned size otherwise"
+        ]
+      },
+      {
+        "id": "BM21",
+        "what": "head control accepts any 404",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 3 - headLive accepts a digest or an unjournaled 404 and rejects a refusal or a bare 200"
+        ]
+      },
+      {
+        "id": "BM22",
+        "what": "head control accepts a 200 without a digest",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 3 - headLive accepts a digest or an unjournaled 404 and rejects a refusal or a bare 200"
+        ]
+      },
+      {
+        "id": "BM23",
+        "what": "member refusal tolerates extra frame properties",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 2 - checkMemberRefusal accepts only one fixed Close and the matching 1008"
+        ]
+      },
+      {
+        "id": "BM24",
+        "what": "member refusal allows a digest property",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 2 - checkMemberRefusal accepts only one fixed Close and the matching 1008"
+        ]
+      },
+      {
+        "id": "BM25",
+        "what": "member refusal allows a revision property",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 2 - checkMemberRefusal accepts only one fixed Close and the matching 1008"
+        ]
+      },
+      {
+        "id": "BM26",
+        "what": "member refusal allows a deliverySequence property",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 2 - checkMemberRefusal accepts only one fixed Close and the matching 1008"
+        ]
+      },
+      {
+        "id": "BM27",
+        "what": "scan input is the parsed JSON, not the raw body",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 8 - a non-JSON body and an unauthenticated head body are kept and scanned"
+        ]
+      },
+      {
+        "id": "BM28",
+        "what": "malformed JSON is accepted where JSON is required",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 8 - a non-JSON body and an unauthenticated head body are kept and scanned"
+        ]
+      },
+      {
+        "id": "BM29",
+        "what": "unauthenticated head body is not scanned",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 8 - a non-JSON body and an unauthenticated head body are kept and scanned"
+        ]
+      },
+      {
+        "id": "BM30",
+        "what": "unauthenticated head status is not compared",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 8 - a non-JSON body and an unauthenticated head body are kept and scanned"
+        ]
+      },
+      {
+        "id": "BM31",
+        "what": "raw body dropped by the request helper",
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "status": "KILLED",
+        "exit": 1,
+        "failing": [
+          "not ok 7 - expectAnswers rejects a wrong status, a different body, a hidden key and a refusal naming fog",
+          "not ok 8 - a non-JSON body and an unauthenticated head body are kept and scanned"
+        ]
+      }
+    ],
+    "plan": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/pure-mutant-plan-fix.json",
+      "sha256": "18d6653079f8eaaf0eed1d41302c9a4a5420ab95610ec14669dd05be75ea92fb",
+      "bytes": 4137
+    },
+    "preFixOriginal22": [
       {
         "id": "BM01",
         "what": "wire contract literal changed",
@@ -327,18 +689,12 @@
           "not ok 3 - headLive accepts a digest or an unjournaled 404 and rejects a refusal or a bare 200"
         ]
       }
-    ],
-    "baseline": {
-      "exit": 0,
-      "tests": 12,
-      "pass": 12,
-      "fail": 0
-    }
+    ]
   },
   "staticChecks": {
     "oxfmt": {
       "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/green-oxfmt.log",
-      "sha256": "f0b64fb5b6d05e512e2e18d77c73b673bd3110cd1da19d73cee976dacd3046e0",
+      "sha256": "4f87031810340ba72b0f430a0b7ba949505eee6db25bd377fdfa9598eedfe336",
       "bytes": 112
     },
     "lintUnits": {
@@ -348,18 +704,18 @@
     },
     "oxlintDefault": {
       "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/green-oxlint.log",
-      "sha256": "09418795407c070394f4c425ddbae7a6d9390b6be27b6dde71e985b3f4a5260a",
-      "bytes": 91
+      "sha256": "f247072bf43dbdc28677ffdccdc6dbaa587ed327eb4f7de788ae70fd9771d774",
+      "bytes": 90
     },
     "oxlintExplicit": {
       "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/green-oxlint-effective.log",
-      "sha256": "94e31d7476019692e3342f355fc2d64d2022271988c628d6d94e40412f7512b5",
+      "sha256": "b8f035833757b36610ab6eb583197c4b2a6016e39f1fae6897e9b072393d87ae",
       "bytes": 1031
     },
     "note": "oxfmt --check exit 0 on the four leaves; lint:units 17899/17899 with scripts at 50/50; repository oxlint --no-ignore exits 0 but its config excludes all four leaves (0 files); the same rules with ignorePatterns removed check the four leaves: 0 errors and 3 expected no-console warnings for the runner and cases CLI output."
   },
   "builtImage": {
-    "head": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
+    "head": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
     "command": "node scripts/release/run-l1-built-server-fog-refusal.mjs --build (heavy-run lane b-impl, class package)",
     "verdict": "PASS",
     "required": 34,
@@ -400,43 +756,64 @@
       "fog-on-state-intact"
     ],
     "image": {
-      "buildId": "1793182573182",
+      "buildId": "1793185373032",
       "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
-      "configSha256": "14a1188c1df799fdb583f4b60e7a8acf7adff6ec0067afc6f9a7985c54298da8",
+      "configSha256": "906398cb315686eaa3dc3082e2c67ed8880bd46713cf96e85218fb47cd4da756",
       "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
     },
     "firstAttempt": true,
     "readinessRerun": false,
     "processCount": 46,
     "summary": {
-      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run/summary.json",
-      "sha256": "ab0413d1af38b54a110c7e0f00d8ed5bc8a0c139f0f79647702bad53e78b8d0c",
-      "bytes": 11584
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run-fix/summary.json",
+      "sha256": "568b7a9c57fd17151e99b444634b88a0af1a78d77ac49b5545d686776d993894",
+      "bytes": 11587
     },
     "manifest": {
-      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run/manifest.json",
-      "sha256": "e09bd916ba322abae5fef190efde886bef41e80b2d45294e89978932dab6716c",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run-fix/manifest.json",
+      "sha256": "9f480473624b4d9f422f7dace43094a03275690288b49e5d489bb59e8c7b6768",
       "bytes": 1849
     },
     "evidence": {
-      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run/evidence.jsonl",
-      "sha256": "4e5625a2c19474dbd7679e9767c055fceeee95140e9823ef18929d5abd0b1db8",
-      "bytes": 1555600
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run-fix/evidence.jsonl",
+      "sha256": "a228e6833e4fe1ae0820cd8af39391bb07e20e80f372599e9bb2b14552878ae2",
+      "bytes": 1555920
     },
     "stdout": {
-      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run.log",
-      "sha256": "4c574295a723951af93c443ed89e54fe13ca1046ade74a8f5d5262eb70a67cca",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/built-run-fix.log",
+      "sha256": "0f1844d6ce86d64aef244ecda9051ab1a39c5196d36b76830523b72c460d7abb",
       "bytes": 1118
     },
     "nextEnvDiff": {
-      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/next-env-after-build.diff",
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/next-env-after-fix-build.diff",
       "sha256": "0cdc2fa38460386b87c20497f50b914897f734261b4c235b398284d9ce9888e8",
       "bytes": 429
+    },
+    "supersededBuiltImage": {
+      "note": "First built run on 6f6140f73 (before the review fixes), 34/34 on its first attempt. SUPERSEDED by the run above, which runs the fixed cases leaf.",
+      "head": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
+      "verdict": "PASS",
+      "image": {
+        "buildId": "1793182573182",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "14a1188c1df799fdb583f4b60e7a8acf7adff6ec0067afc6f9a7985c54298da8",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "summary": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/pre-fix/built-run/summary.json",
+        "sha256": "ab0413d1af38b54a110c7e0f00d8ed5bc8a0c139f0f79647702bad53e78b8d0c",
+        "bytes": 11584
+      },
+      "evidence": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/pre-fix/built-run/evidence.jsonl",
+        "sha256": "4e5625a2c19474dbd7679e9767c055fceeee95140e9823ef18929d5abd0b1db8",
+        "bytes": 1555600
+      }
     }
   },
   "builtMutants": {
     "control": {
-      "description": "Unmutated B rows only on the registered image (the base for BB1, BB4, BB5): PASS 8/8.",
+      "description": "Unmutated B rows only on the registered image (the base for BB1 and BB4): PASS 8/8.",
       "log": {
         "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl/control-owned-run.log",
         "sha256": "c1bee38b62e1bf09ca3b3fbf989e2bdfe7bb9dbb8d4070e10f0ef391d6b141c0",
@@ -447,10 +824,10 @@
       {
         "id": "BB1",
         "description": "The flip is skipped: the match stays fog-off but the flip result is faked so the state check passes; the refusal rows must fail.",
-        "originalHead": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
+        "originalHead": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
         "originalBranch": "work/b-impl-20261028",
-        "startedAt": "2026-10-28T10:26:41.467Z",
-        "mutantSha": "bac39bdbc76bbf06345454c676dcf596ed44d66f",
+        "startedAt": "2026-10-28T11:08:53.142Z",
+        "mutantSha": "3bd82fd5c8d959cebcbe3613ef00bf5f82231f9d",
         "exit": 1,
         "verdict": "FAIL",
         "errors": [
@@ -460,17 +837,18 @@
           "fog-off-controls"
         ],
         "image": {
-          "buildId": "1793182573182",
+          "buildId": "1793185373032",
           "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
-          "configSha256": "14a1188c1df799fdb583f4b60e7a8acf7adff6ec0067afc6f9a7985c54298da8",
+          "configSha256": "906398cb315686eaa3dc3082e2c67ed8880bd46713cf96e85218fb47cd4da756",
           "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
         },
         "result": "KILLED_REQUIRES_NAMED_CHECK",
-        "restoredHead": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
-        "restoredSha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
+        "restoredHead": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
+        "restoredSha256": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292",
         "dirty": "",
-        "finishedAt": "2026-10-28T10:27:05.898Z",
-        "namedCheck": true
+        "finishedAt": "2026-10-28T11:09:17.160Z",
+        "namedCheck": true,
+        "rerunOnRegisteredImage": true
       },
       {
         "id": "BB2",
@@ -500,7 +878,10 @@
         "result": "KILLED_REQUIRES_NAMED_CHECK",
         "dirty": "",
         "finishedAt": "2026-10-28T10:33:33.296Z",
-        "namedCheck": true
+        "namedCheck": true,
+        "rerunOnRegisteredImage": false,
+        "ranOnPreFixLeaf": true,
+        "notRerunReason": "named check unchanged by the fix (Root ruling)"
       },
       {
         "id": "BB3",
@@ -533,15 +914,18 @@
         "result": "KILLED_REQUIRES_NAMED_CHECK",
         "dirty": "",
         "finishedAt": "2026-10-28T10:30:22.073Z",
-        "namedCheck": true
+        "namedCheck": true,
+        "rerunOnRegisteredImage": false,
+        "ranOnPreFixLeaf": true,
+        "notRerunReason": "named check unchanged by the fix (Root ruling)"
       },
       {
         "id": "BB4",
         "description": "A captured sentinel is appended to what the refusals received: the secret-free scan must fail.",
-        "originalHead": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
+        "originalHead": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
         "originalBranch": "work/b-impl-20261028",
-        "startedAt": "2026-10-28T10:27:06.113Z",
-        "mutantSha": "1bb88bd17923a78107884a7ce6efd0bef5093653",
+        "startedAt": "2026-10-28T11:09:17.350Z",
+        "mutantSha": "3139959903f5c159f70d42df96516a3e8a76da1d",
         "exit": 1,
         "verdict": "FAIL",
         "errors": [
@@ -555,17 +939,18 @@
           "fog-on-head-refused"
         ],
         "image": {
-          "buildId": "1793182573182",
+          "buildId": "1793185373032",
           "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
-          "configSha256": "14a1188c1df799fdb583f4b60e7a8acf7adff6ec0067afc6f9a7985c54298da8",
+          "configSha256": "906398cb315686eaa3dc3082e2c67ed8880bd46713cf96e85218fb47cd4da756",
           "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
         },
         "result": "KILLED_REQUIRES_NAMED_CHECK",
-        "restoredHead": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
-        "restoredSha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
+        "restoredHead": "05f065eff7a5b824c60c6e48fc1ea1e6cd011f6e",
+        "restoredSha256": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292",
         "dirty": "",
-        "finishedAt": "2026-10-28T10:27:16.156Z",
-        "namedCheck": true
+        "finishedAt": "2026-10-28T11:09:26.759Z",
+        "namedCheck": true,
+        "rerunOnRegisteredImage": true
       },
       {
         "id": "BB5",
@@ -588,20 +973,23 @@
           "configSha256": "14a1188c1df799fdb583f4b60e7a8acf7adff6ec0067afc6f9a7985c54298da8",
           "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
         },
-        "result": "KILLED_REQUIRES_NAMED_CHECK",
+        "result": "NOT_REALIZABLE_AS_SPECIFIED",
         "restoredHead": "6f6140f73f4ad43cb2af236550021f5d9a68993d",
         "restoredSha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
         "dirty": "",
         "finishedAt": "2026-10-28T10:27:22.904Z",
-        "namedCheck": false
+        "driverLabel": "KILLED_REQUIRES_NAMED_CHECK",
+        "namedCheck": false,
+        "rerunOnRegisteredImage": false,
+        "classification": "not realizable as specified: unnamed ECONNREFUSED, no kill credited, not a survivor; its fault class is guarded by the stopped-PID guard (pure mutant BM16 killed)"
       }
     ],
     "summary": [
-      "BB1 (flip skipped): KILLED at the named check [fog-on-socket-refused].",
-      "BB2 (product: admission never refuses): KILLED at the named check \"member refusal broke it\" (the member socket received ReplayStart and LobbyUpdated before the Close).",
-      "BB3 (product: head route skips the fog gate): KILLED at the named check [fog-on-head-refused].",
-      "BB4 (sentinel appended to the received set): KILLED at the named check \"refusal leaked 1 sentinels\" (fog-refusals-secret-free).",
-      "BB5 (restart skipped): failed with ECONNREFUSED only; not a named-check kill, not counted as a built kill, not a survivor (see disclosures)."
+      "BB1 (flip skipped): KILLED at the named check [fog-on-socket-refused]; rerun on BUILD_ID 1793185373032.",
+      "BB2 (product: admission never refuses): KILLED at the named check \"member refusal broke it\" (the member socket received ReplayStart and LobbyUpdated before the Close); ran on the pre-fix leaf, not rerun.",
+      "BB3 (product: head route skips the fog gate): KILLED at the named check [fog-on-head-refused]; ran on the pre-fix leaf, not rerun.",
+      "BB4 (sentinel appended to the received set): KILLED at the named check \"refusal leaked 1 sentinels\" (fog-refusals-secret-free); rerun on BUILD_ID 1793185373032.",
+      "BB5 (restart skipped): NOT_REALIZABLE_AS_SPECIFIED per the Root BB5 ruling: unnamed ECONNREFUSED, no kill credited, not a survivor; the driver label KILLED_REQUIRES_NAMED_CHECK is superseded."
     ],
     "survivors": []
   },
@@ -618,6 +1006,38 @@
     "section": "2026-10-28 Root ruling: A2 mutant MA5 survived",
     "verbatim": "## 2026-10-28 Root ruling: A2 mutant MA5 survived (assertion removal, same class as MA1)\n\nFacts: MA5 deletes the journal gap/duplicate assertion (`row.eventCount === row.maxSequence + 1`) after the concurrent round in concurrent-first-sockets. It passed all 4 owned rows on BUILD_ID 1793172695427 (head 2581096fb). The worker correctly found it is not equivalent.\n\nRuling: same method as MA1.\n1. Build one scratch image with a product mutant PA5 that leaves a journal gap or a duplicate sequence for the cfs match during the concurrent round, at the narrowest append seam (for example the sequence assignment in the match journal append path).\n   - Scope it to the cfs match and disclose that.\n   - Never commit it; restore it byte-exact.\n2. Run the unmutated harness. concurrent-first-sockets must fail on \"journal has a gap or duplicate\".\n3. Run the MA5 harness on the same image, without a rebuild. concurrent-first-sockets must pass.\n4. Record MA5 as \"killed in combination (witness PA5)\".\n\nIf no single-seam PA5 reaches that named check (for example, the fault fails an earlier check or breaks the build after one scoped retry), do not stop again. Record MA5 as a disclosed, non-equivalent survivor under the R6 precedent and this ruling, add it to CF-A2M-1's combined-mutant follow-up list, and continue to the lifecycle and the PR.\n\nStanding rule for the rest of Step 3 (B included): a survivor that deletes an assertion is handled this way without a new stop. Any other survivor still stops for Root.\n\n- 2026-10-28: the A2 GPT worker (gpt-6.1-sol) failed on the OpenAI cybersecurity content flag during the PA5 pairing. Root moved the rest of PR 9 to Claude Sonnet in the same checkout (t3-4ff0f332), which waits for the still-running PA5 ticket first. Rule: mutation and fault-injection workers run on Claude.\n",
     "verbatimSha256": "e5ea12b7017b3c253cebb757271d0e10b2315795a308ce83c49f41f4cd8a1bb8"
+  },
+  "rootRulingBB5": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: B mutant BB5",
+    "verbatim": "## 2026-10-28 Root ruling: B mutant BB5 (restart skipped) is not realizable as specified\n\nFacts (_reports/2026-10-28/b-impl/HANDOFF.md, image 1793182573182): BB5 skips the restart between the offline fog flip and the refusals. The run failed with ECONNREFUSED: the owned server was stopped for the flip and was never restarted.\n\nRoot reading: the flip fixture requires a stopped server (the stopped-PID guard). So the fault BB5 names, refusals checked against a server still holding the old fog-off config, cannot arise from skipping the restart, because skipping it leaves no server at all. That fault class is prevented by the stopped-PID guard. Removing the guard is the pure mutant \"flip fixture skips the stopped-PID guard\", which was killed by assertion. Built-image mutants are optional under G-B5.\n\nRuling: record BB5 as \"not realizable as specified: unnamed ECONNREFUSED, no kill credited, not a survivor; its fault class is guarded by the stopped-PID guard (pure mutant killed)\". No rerun is required, and the B closure keeps this disclosure.\n",
+    "verbatimSha256": "ca5d45986f731df64bf708ae1a2161a32dcdf5068562dee738482ae338611587"
+  },
+  "rootRuling2351Reviews": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: #2351 review findings",
+    "verbatim": "## 2026-10-28 Root ruling: #2351 review findings (GPT F1/F2 fixed in PR; Opus F1-F3 applied in PR; flip stays last)\n\nFacts: at head 1c0bfd56f, the Opus review returned ACCEPT with three LOW disclosure items and the GPT Sol second review returned REQUEST-CHANGES with two P2 harness gaps.\n- **GPT F1.** `expectAnswers` scans only `JSON.stringify(answer.json)`. A non-JSON body is lost (json null), and the unauthenticated `/head` 401 body is never read. Admission acceptance B4 requires every received HTTP body to be scanned.\n- **GPT F2.** `checkMemberRefusal` compares field values but does not reject extra properties, such as a digest or deliverySequence, on an otherwise valid single Close.\n\nRuling:\n1. **Fix GPT F1 and F2 in this PR,** as the registered acceptance requires (the #2349 first-rolls precedent). The changes are minimal and confined to the B cases leaf, plus falsifiers in the B test leaf.\n   - Keep each HTTP response's raw text, scan it even when JSON parsing fails, and fail on malformed JSON where the route requires JSON.\n   - Read and scan the unauthenticated `/head` body.\n   - `checkMemberRefusal` rejects every property outside `kind`, `matchId`, `ts`, `code` and `reason`.\n   - Falsifiers: a 200 non-JSON timeline carrying a sentinel; a 401 `/head` JSON body carrying a sentinel; and digest, revision and deliverySequence each added to a valid Close. Each must fail.\n   - Do not edit frozen predecessor leaves. If a B-owned request helper is needed, it lives in the B cases leaf.\n   - This is a disclosed G-B3 deviation from the frozen bytes, authorized by Root: list the old and new sha256 values, then re-measure and re-check G-B9 (option A must stay at or under 500).\n2. **Reruns.**\n   - Run the 22 pure mutants on the new bytes, plus pure mutants for the new checks, and kill all of them.\n   - Run a new full built run, 34 ids with the frozen argv. It becomes the registered GREEN run, and the run at 6f6140f73 is disclosed as superseded.\n   - Rerun BB1 and BB4 on the new image; they are harness mutants and need no product build.\n   - BB2 and BB3 are not rerun, because their named checks are unchanged. Disclose this.\n3. **Apply Opus F1-F3 in this PR** instead of deferring them to the closure.\n   - BB5 is recorded per the Root BB5 ruling, quoted verbatim with its sha256. The driver's `KILLED_REQUIRES_NAMED_CHECK` label is superseded.\n   - Disclose that the timeline arm proves only that no public event id appears; a populated fog-on timeline is unproven on a default build. This is the same cause as Q2.\n   - State that 36 of the 37 controls are unchanged at the head, and that v220-steps.json changes only by the G-B6 hunk.\n4. **Commit order (G-B6), with no history rewrite and no force push.**\n   - `git revert` the flip commit 1c0bfd56f.\n   - Then the fix, receipt and lifecycle commits.\n   - Then re-apply the identical flip hunk as the last commit and rerun the flip checks.\n   - Disclose the revert and re-flip in the PR body and the local receipt. The final tree's Step 3 JSON must equal the admitted flip hunk byte for byte.\n",
+    "verbatimSha256": "c5905b9d743a0dbc96db305cd1be2b415546318d4f3493ecb853760dcc724601"
+  },
+  "reviewFindings": {
+    "head": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+    "reviews": [
+      {
+        "reviewer": "Claude Opus 5.5",
+        "verdict": "ACCEPT",
+        "findings": "F1 BB5 label, F2 timeline arm disclosure, F3 controls count (all LOW), plus INFO notes",
+        "report": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2351-review.md"
+      },
+      {
+        "reviewer": "GPT Sol",
+        "verdict": "REQUEST-CHANGES",
+        "findings": "F1 secret scan misses non-JSON and unauthenticated /head bodies; F2 checkMemberRefusal permits extra properties",
+        "report": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2351-review2.md"
+      }
+    ],
+    "resolution": "GPT F1 and F2 fixed in 05f065eff (flip reverted first by 5f4e15b81, identical flip re-applied last); Opus F1-F3 applied in this receipt, units.json, PROGRESS.md and the PR body."
   },
   "pkPacket": {
     "id": "PK-l1-smoke-b-ruling",
@@ -641,7 +1061,7 @@
         "effort": "Finding-dependent; repeat the affected proofs."
       }
     ],
-    "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. The four leaves equal the frozen admission bytes. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). GREEN passed 12/12 node tests, 64/64 inherited node tests and 22/22 pure-function mutants. The first built run (BUILD_ID 1793182573182) passed all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt with no readiness rerun. Built-image mutants: BB1 and BB4 killed at named fog checks, BB2 and BB3 (scratch product faults, never committed, restored byte-exact) killed at named checks, BB5 failed with ECONNREFUSED only (not a named check, not counted as a built kill; not a survivor). Disclosed limits: the post-admission live refusal stays a Jest pin (Root Q3); a default build keeps no journal, so the /head digest sentinel and a positive /head 200 are unproven (Root Q2); inherited A2M R6 survivor and CF-A2M-1; CF-A2-1 (co-op teammate unit commands unconstrained until U38); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open. Review the refusal contract literals, the sentinel scan, the flip fixture guards (stopped PID, active fog-off match, journal fingerprint), that no fog-on frame is delivered and no capability is mocked, and the cap (literal validator count over 500 by design, option A at or under 500, capException recorded). The last commit flips the Step 3 done-test; the exact-main run and the Step 3 evidence ride the closure PR. No product or frozen predecessor change.",
+    "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. The reviews of 1c0bfd56f (Opus ACCEPT F1-F3, GPT Sol REQUEST-CHANGES F1-F2) were resolved in this PR: the flip was reverted, the cases leaf now keeps and scans every HTTP body and rejects extra Close properties (a Root-authorized G-B3 deviation from the frozen cases and test leaves), and the identical flip is the last commit. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). GREEN passed 13/13 node tests, 64/64 inherited node tests and 31/31 pure-function mutants. The registered built run (BUILD_ID 1793185373032) passed all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt with no readiness rerun; the earlier run on BUILD_ID 1793182573182 is superseded. Built-image mutants: BB1 and BB4 rerun and killed at named fog checks on the new image; BB2 and BB3 (scratch product faults, never committed, restored byte-exact) killed at named checks on the pre-fix leaf and not rerun because their named checks are unchanged; BB5 is not realizable as specified (Root ruling: unnamed ECONNREFUSED, no kill credited, not a survivor, fault class guarded by the stopped-PID guard and pure mutant BM16). Disclosed limits: the post-admission live refusal stays a Jest pin (Root Q3); a default build keeps no journal, so the /head digest and a positive /head 200 are unproven, and the timeline arm proves only that no public event id appears (Root Q2); inherited A2M R6 survivor and CF-A2M-1; CF-A2-1 (co-op teammate unit commands unconstrained until U38); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open. Review the refusal contract literals, the raw-body sentinel scan, the Close property allowlist, the flip fixture guards (stopped PID, active fog-off match, journal fingerprint), that no fog-on frame is delivered and no capability is mocked, and the cap (literal validator count over 500 by design, option A at or under 500, capException recorded). The exact-main done-test run and the Step 3 evidence ride the closure PR. No product or frozen predecessor change.",
     "revertCost": "Delete the four B harness leaves, the flip hunk and the own lifecycle/evidence additions. BB2 and BB3 were scratch-only and are restored; product and predecessors are unchanged.",
     "decision": null,
     "ruling": null
@@ -664,7 +1084,7 @@
     },
     {
       "id": "CF-A2FP-2",
-      "status": "Not used: the built run passed on its first attempt with no readiness rerun."
+      "status": "Not used: the registered built run passed on its first attempt with no readiness rerun."
     },
     {
       "id": "CF-SMOKEA1-4",
@@ -673,28 +1093,32 @@
     }
   ],
   "disclosures": [
+    "Review fixes in this PR (Root ruling on the #2351 reviews): the flip commit 1c0bfd56f was reverted by 5f4e15b81 (no history rewrite, no force push), the cases and test leaves were changed in 05f065eff (a Root-authorized G-B3 deviation, old and new sha256 in g3Deviations), a new full built run is the registered GREEN run, and the identical flip hunk is re-applied as the last commit of the PR. The earlier built run (BUILD_ID 1793182573182, head 6f6140f73) and the first lifecycle commit 5bf719765 are superseded.",
     "Root Q3: the post-admission live refusal (refuseFogSocket on delivery) is proved by the Jest pin b14FogContainment.test.ts, not by this run. A built black box cannot reach it without changing config under a running server. The built image proves the stored-match refusal on every entrance (socket, metadata, history, head).",
-    "Root Q2: a default build keeps no journal, so the host /head answers 404 {error: no head} both before and after an accepted action. The head digest sentinel and a positive /head 200 are unproven on the built image; the fog-off control accepts a digest or exactly that 404, and the fog-on host /head is 403 with the fixed body, so the gate precedes the journal read. The sentinels are the public event ids.",
+    "Root Q2: a default build keeps no journal, so the host /head answers 404 {error: no head} both before and after an accepted action. The head digest sentinel and a positive /head 200 are unproven on the built image; the fog-off control accepts a digest or exactly that 404, and the fog-on host /head is 403 with the fixed body, so the gate precedes the journal read. The sentinels are the public event ids (the 4 public replay ids; the journal holds 5 events).",
+    "fog-on-history-refused (Opus F2): export and private-preview refuse with the fixed body; the timeline arm accepts any 200 JSON body and on a default build answered an empty timeline (timeline [], timelineDigest = sha256('[]'), no effective head), so it proves only that no public event id appears; the observation 'audit rows only' is a fixed label. A populated fog-on timeline is unproven on the built image (same cause as Root Q2).",
+    "Secret scan scope after the fix: every refusal HTTP body is kept as raw text and scanned even when it is not JSON, the unauthenticated /head body is scanned, and all inbound refused-socket frames are scanned. The sentinels are the public event ids only; the bodies of the fog-off control routes are not part of the scan input.",
+    "G-B0 controls (Opus F3): 37 blobs re-hashed against 25f60b667 with zero drift; at the implementation head 36 of 37 are unchanged, and v220-steps.json, a control, changes only by the admitted G-B6 done-test hunk (blob a7ced34a8 to 4d8ebe1b4, equal to step3-done-test-flip.patch). The admission note \"B edits no control\" excludes that admitted flip.",
     "Fog semantics unchanged: no fog-on frame is delivered, no capability is mocked. The unreadable-config path (WS 1011) and public lobby summaries are not proved here. S5-02 (who may spectate), OQ-M1 and the GM viewer role are not decided or asserted.",
     "Inherited A2M R6 survivor and CF-A2M-1 (OPEN); CF-A2-1 (co-op teammate unit commands unconstrained until U38; routed, not edited here); the real mission GM keeps the player viewer role (option a).",
-    "BB5 (restart skipped between the flip and the refusals) failed with connect ECONNREFUSED because the owned server is stopped for the offline flip, so the skipped restart leaves no server rather than a server holding the old config. It is not a named-check kill and is not counted as a built kill (A2 MA2 precedent); it is not a survivor. The flip order cannot be mutated to leave a live server with the old config because the flip fixture requires a stopped PID.",
-    "BB2 and BB3 are scratch product faults (fogMatchAdmission.ts: matchLacksRevealProjection never refuses; matchHeadRoute.ts: the head fog gate is skipped). Each was applied only for its own npm run build, never staged or committed, and restored byte-exact (restoredSha256 equals originalSha256). BB1, BB4 and BB5 are mutated copies of the cases leaf committed on detached HEADs and discarded. The scratch builds replaced the .next image, so the registered BUILD_ID run is the one before them; the BB runs used the B rows only on the mutated image (BB2 BUILD_ID 1793183431719, BB3 1793183266751).",
-    "No readiness rerun and no stop condition fired in the built run. The configSha256 of the built image differs from the G-B1 probe image (e5b237a2...) while serverSha256 and sourceTreeSha256 are equal; the config hash covers build-specific values.",
-    "next-env.d.ts is rewritten by every production build and was restored with git checkout -- next-env.d.ts after each (the registered built run, BB2, BB3); the registered run diff is retained outside Git (next-env-after-build.diff).",
-    "The frozen leaf copies kept their read-only attribute from the frozen directory; it was cleared (chmod u+w) before the pure-mutant run, whose first invocation failed with EPERM before any mutation. No byte changed; every leaf equals its frozen hash.",
-    "The 22 B pure mutants were rerun on the final leaf bytes and each was killed by an assertion failure; the mutated leaf was restored byte-exact after every run.",
+    "BB5 (Opus F1, Root BB5 ruling quoted verbatim): NOT_REALIZABLE_AS_SPECIFIED. Unnamed ECONNREFUSED, no kill credited, not a survivor; the flip fixture requires a stopped server, so skipping the restart leaves no server rather than one holding the old config, and that fault class is guarded by the stopped-PID guard (pure mutant BM16 killed). The driver label KILLED_REQUIRES_NAMED_CHECK on BB5 (and the generic label on BB1-BB4, whose errors are named checks) is the driver's non-zero-exit label and is superseded by this classification. BB5 was not rerun.",
+    "BB2 and BB3 are scratch product faults (fogMatchAdmission.ts: matchLacksRevealProjection never refuses; matchHeadRoute.ts: the head fog gate is skipped). Each was applied only for its own npm run build, never staged or committed, and restored byte-exact. They ran on the pre-fix cases leaf (6033c9d2) and were not rerun after the fix: their named checks (member refusal broke it; fog-on-head-refused) are unchanged, and the stricter checks can only fail more. BB1 and BB4 are harness mutants of the cases leaf and were rerun on the new image (1793185373032).",
+    "No readiness rerun and no stop condition fired in either built run. configSha256 changes on every build because server.next-config.json embeds env.BUILD_TIME and BUILD_VERSION; the server and source-tree hashes of both runs equal the G-B1 probe image.",
+    "next-env.d.ts is rewritten by every production build and was restored with git checkout -- next-env.d.ts after each (both registered runs, BB2, BB3); the diffs of the two registered runs are retained outside Git.",
+    "The frozen leaf copies kept their read-only attribute from the frozen directory; it was cleared (chmod u+w) before the first pure-mutant run (that invocation failed with EPERM before any mutation) and before the leaf edits. Every pre-fix leaf equalled its frozen hash.",
+    "The 31 B pure mutants (the 22 originals plus BM23-BM31 for the new checks) were run on the fixed leaf bytes; each was killed by an assertion failure and the mutated leaf was restored byte-exact after every run.",
     "Release notes (Root, RELEASE-PRODUCER-1, G-B10): the spectate-policy caveat (S5-02), the RC cost of the done-test, and the printed headSha versus rcSha binding. Routed; Root owns that edit.",
     "Contributors: the worker is Claude Sonnet 5.5 (claude-sonnet-5-5); the commit Co-Authored-By trailers follow the Root brief (Claude Opus 5.5) and do not identify the worker.",
-    "Independent exact-head reviews, the OWNER-RULING, required CI, the merge and the exact-main done-test run remain owed."
+    "Independent exact-head reviews of the fixed head, the OWNER-RULING, required CI, the merge and the exact-main done-test run remain owed."
   ],
   "cap": {
     "rule": "git diff --numstat --no-renames <base>..HEAD, counted outside evidence/ and U41 UNCOUNTED_FILES",
-    "literalCountedLines": 554,
-    "optionACountedLines": 457,
+    "literalCountedLines": 594,
+    "optionACountedLines": 497,
     "optionAExemptLeaves": [
       "scripts/release/l1-built-server-fog-fixtures.ts"
     ],
-    "note": "The literal validator count is over 500 by design (the leaves alone are 499) and is recorded by capException on the unit; option A (fixtures leaf is test-support) is at or under 500. Nine counted files plus the exempt generated page."
+    "note": "The literal validator count is over 500 by design and is recorded by capException on the unit; option A (fixtures leaf is test-support) is at or under 500. The review fix added 40 counted lines to the cases leaf (320 to 360). Nine counted files plus the exempt generated page."
   },
   "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-impl"
 }
