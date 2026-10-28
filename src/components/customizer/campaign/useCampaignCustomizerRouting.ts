@@ -1,7 +1,7 @@
 import type { NextRouter } from 'next/router';
 import type { ParsedUrlQuery } from 'querystring';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
@@ -93,6 +93,8 @@ export function useCampaignCustomizerRouting({
   const baseVersion = useCampaignPersistenceStore((state) => state.baseVersion);
   const dirty = useCampaignPersistenceStore((state) => state.dirty);
   const rosterUnits = useCampaignRosterStore((state) => state.units);
+  // The campaign id whose server load has settled, success or failure.
+  const [loadSettledFor, setLoadSettledFor] = useState<string | null>(null);
 
   const campaignRoute = useMemo(() => {
     const parsedRoute = parseCampaignCustomizerRouteState(nextRouter.query);
@@ -102,6 +104,20 @@ export function useCampaignCustomizerRouting({
       ? parseCampaignCustomizerRouteState(fallbackQuery)
       : null;
   }, [nextRouter.asPath, nextRouter.query]);
+  // Same rule as the campaign page shell (`useCampaignRouteLoader`): a
+  // storage-rehydrated copy this session has not validated against the
+  // server (baseVersion 0) is refetched, or the refit save writes against
+  // version 0 and is refused. The editor is built once from the campaign,
+  // so nothing is built from that copy until its load settles; a failed
+  // load falls back to the cached copy.
+  const awaitingServerCopy = Boolean(
+    campaignRoute &&
+    campaign?.id === campaignRoute.campaignId &&
+    !dirty &&
+    baseVersion === 0 &&
+    rehydratedCampaignId === campaignRoute.campaignId &&
+    loadSettledFor !== campaignRoute.campaignId,
+  );
   const campaignUnit = useMemo(
     () =>
       campaignRoute
@@ -112,7 +128,9 @@ export function useCampaignCustomizerRouting({
   );
   const campaignSession = useMemo(() => {
     if (!campaignRoute || !campaign || !campaignUnit) return null;
-    if (campaign.id !== campaignRoute.campaignId) return null;
+    if (campaign.id !== campaignRoute.campaignId || awaitingServerCopy) {
+      return null;
+    }
     return {
       route: campaignRoute,
       unit: campaignUnit,
@@ -123,7 +141,7 @@ export function useCampaignCustomizerRouting({
       ),
       returnHref: buildCampaignCustomizerReturnHref(campaignRoute),
     };
-  }, [campaign, campaignRoute, campaignUnit]);
+  }, [awaitingServerCopy, campaign, campaignRoute, campaignUnit]);
 
   useEffect(() => {
     if (!campaignRoute) return;
@@ -132,26 +150,12 @@ export function useCampaignCustomizerRouting({
 
   useEffect(() => {
     if (!campaignRoute) return;
-    // Same rule as the campaign page shell (`useCampaignRouteLoader`): a
-    // storage-rehydrated copy this session has not validated against the
-    // server (baseVersion 0) is refetched, or the refit save writes against
-    // version 0 and is refused.
-    const cacheNeedsValidation =
-      !dirty &&
-      baseVersion === 0 &&
-      rehydratedCampaignId === campaignRoute.campaignId;
-    if (campaign?.id === campaignRoute.campaignId && !cacheNeedsValidation) {
+    if (campaign?.id === campaignRoute.campaignId && !awaitingServerCopy) {
       return;
     }
-    void loadCampaign(campaignRoute.campaignId);
-  }, [
-    baseVersion,
-    campaign?.id,
-    campaignRoute,
-    dirty,
-    loadCampaign,
-    rehydratedCampaignId,
-  ]);
+    const { campaignId } = campaignRoute;
+    void loadCampaign(campaignId).finally(() => setLoadSettledFor(campaignId));
+  }, [awaitingServerCopy, campaign?.id, campaignRoute, loadCampaign]);
 
   useEffect(() => {
     if (
@@ -159,7 +163,8 @@ export function useCampaignCustomizerRouting({
       !campaign ||
       !campaignUnit ||
       !isHydrated ||
-      !routerIsReady
+      !routerIsReady ||
+      awaitingServerCopy
     ) {
       return;
     }
@@ -217,6 +222,7 @@ export function useCampaignCustomizerRouting({
   }, [
     activeTabId,
     addTab,
+    awaitingServerCopy,
     campaign,
     campaignRoute,
     campaignUnit,
@@ -238,6 +244,7 @@ export function useCampaignCustomizerRouting({
     campaignRoute &&
     (!campaign ||
       campaign.id !== campaignRoute.campaignId ||
+      awaitingServerCopy ||
       !campaignRoute.editorUnitId),
   );
   const unavailableUnitId =
