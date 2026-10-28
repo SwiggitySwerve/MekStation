@@ -276,7 +276,11 @@ async function main() {
     aliasRoot,
     'Turbopack external aliases',
   );
-  const turbopackExternals = collectTurbopackExternals(root, aliasRoot);
+  const turbopackExternals = collectTurbopackExternals(
+    root,
+    aliasRoot,
+    standaloneDir,
+  );
 
   const generatedServer = fs.readFileSync(generatedServerPath, 'utf8');
   const nextConfigJson =

@@ -46,16 +46,27 @@ function findPackage(root, name, importer, optional = false) {
   throw new Error(`Missing runtime package ${name} required by ${importer}`);
 }
 
-/** Next copies Turbopack's generated package aliases as checkout links. */
-export function collectTurbopackExternals(root, aliasRoot) {
+/** Next preserves absolute checkout links and relative standalone links. */
+export function collectTurbopackExternals(root, aliasRoot, standaloneDir) {
   if (!fs.existsSync(aliasRoot)) return [];
+  const checkout = fs.realpathSync.native(root);
+  const standalone = fs.realpathSync.native(standaloneDir);
   const packages = [];
   function visit(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const target = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) {
-        const source = fs.realpathSync.native(target);
-        if (isOutside(path.join(root, 'node_modules'), source)) {
+        const linkedSource = fs.realpathSync.native(target);
+        // On Linux, Next preserves ../../node_modules/<package>, which now
+        // resolves into the traced image. Copy from its installed counterpart,
+        // never from the traced copy or an arbitrary directory in the checkout.
+        const source = isOutside(standalone, linkedSource)
+          ? linkedSource
+          : path.join(root, path.relative(standalone, linkedSource));
+        if (
+          isOutside(checkout, linkedSource) ||
+          isOutside(path.join(root, 'node_modules'), source)
+        ) {
           throw new Error(
             `Turbopack external source is outside installed packages: ${target}`,
           );

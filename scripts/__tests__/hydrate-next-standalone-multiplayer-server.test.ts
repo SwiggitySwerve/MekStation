@@ -104,6 +104,52 @@ function prepareStandaloneFixture(root: string): void {
 }
 
 describe('hydrate-next-standalone-multiplayer-server', () => {
+  it('hydrates a relative Turbopack alias copied into the standalone package tree', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    addRuntimeImport(root, "export { default } from 'native-library';");
+    writePackage(
+      root,
+      'node_modules/native-library',
+      { name: 'native-library', main: 'index.cjs' },
+      { 'binding.gyp': '{}', 'index.cjs': 'module.exports = { answer: 42 };' },
+    );
+    const standalone = path.join(root, '.next/standalone');
+    const tracedPackage = path.join(standalone, 'node_modules/native-library');
+    fs.cpSync(path.join(root, 'node_modules/native-library'), tracedPackage, {
+      recursive: true,
+    });
+    const alias = path.join(
+      standalone,
+      '.next/node_modules/native-library-0123456789abcdef',
+    );
+    mkdirp(path.dirname(alias));
+    // Next preserves ../../node_modules/native-library on Linux. A Windows
+    // junction resolves the same target inside the standalone package tree.
+    fs.symlinkSync(
+      path.relative(path.dirname(alias), tracedPackage),
+      alias,
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+    writeFile(
+      path.join(standalone, '.next/server/probe.cjs'),
+      "const direct = require('native-library'); const alias = require('native-library-0123456789abcdef'); console.log(JSON.stringify({ same: direct === alias, answer: alias.answer }));",
+    );
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(0);
+    expect(fs.lstatSync(alias).isSymbolicLink()).toBe(false);
+    const isolated = makeTempRoot();
+    fs.cpSync(standalone, isolated, { recursive: true });
+    const probe = spawnSync(
+      NODE,
+      [path.join(isolated, '.next/server/probe.cjs')],
+      { cwd: isolated, encoding: 'utf8' },
+    );
+    expect(probe.status).toBe(0);
+    expect(JSON.parse(probe.stdout)).toEqual({ same: true, answer: 42 });
+  });
+
   it('forwards a native CommonJS alias to the single canonical package after relocation', () => {
     const root = makeTempRoot();
     prepareStandaloneFixture(root);

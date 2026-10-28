@@ -79,6 +79,86 @@ function runHydrator(cwd: string) {
 }
 
 describe('standalone hydration path safety', () => {
+  it('refuses a relative alias when its canonical installed package is linked', () => {
+    const root = makeTempRoot();
+    try {
+      prepareFixture(root);
+      const manifest = JSON.stringify({ name: 'native-library' });
+      const installedSource = path.join(root, 'vendor/native-library');
+      writeFile(path.join(installedSource, 'package.json'), manifest);
+      makeDirectoryLink(
+        installedSource,
+        path.join(root, 'node_modules/native-library'),
+      );
+      const tracedPackage = path.join(
+        root,
+        '.next/standalone/node_modules/native-library',
+      );
+      writeFile(path.join(tracedPackage, 'package.json'), manifest);
+      const alias = path.join(
+        root,
+        '.next/standalone/.next/node_modules/native-library-0123456789abcdef',
+      );
+      fs.mkdirSync(path.dirname(alias), { recursive: true });
+      makeDirectoryLink(tracedPackage, alias);
+
+      const result = runHydrator(root);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        'Linked runtime package native-library is not supported',
+      );
+      expect(
+        fs.readFileSync(
+          path.join(root, '.next/standalone/server.next-config.json'),
+          'utf8',
+        ),
+      ).toBe('preserve-before-preflight');
+      expect(fs.lstatSync(alias).isSymbolicLink()).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('refuses an alias to a noncanonical package directory inside the checkout', () => {
+    const root = makeTempRoot();
+    try {
+      prepareFixture(root);
+      const manifest = JSON.stringify({ name: 'native-library' });
+      writeFile(
+        path.join(root, 'node_modules/native-library/package.json'),
+        manifest,
+      );
+      writeFile(
+        path.join(root, 'node_modules/renamed-package/package.json'),
+        manifest,
+      );
+      const tracedPackage = path.join(
+        root,
+        '.next/standalone/node_modules/renamed-package',
+      );
+      writeFile(path.join(tracedPackage, 'package.json'), manifest);
+      const alias = path.join(
+        root,
+        '.next/standalone/.next/node_modules/native-library-0123456789abcdef',
+      );
+      fs.mkdirSync(path.dirname(alias), { recursive: true });
+      makeDirectoryLink(tracedPackage, alias);
+
+      const result = runHydrator(root);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('does not match installed package');
+      expect(
+        fs.readFileSync(
+          path.join(root, '.next/standalone/server.next-config.json'),
+          'utf8',
+        ),
+      ).toBe('preserve-before-preflight');
+      expect(fs.lstatSync(alias).isSymbolicLink()).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('refuses a Turbopack external outside installed packages before writing output', () => {
     const root = makeTempRoot();
     const outside = makeTempRoot();

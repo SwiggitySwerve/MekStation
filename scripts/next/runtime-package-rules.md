@@ -20,8 +20,11 @@ the server's CommonJS entry requests after copying and reject ancestor checkout
 fallback. The isolated fixture test proves that an incomplete ESM trace is
 repaired without relying on the checkout's node_modules.
 
-Next copies Turbopack's generated external-package aliases as links into the
-checkout. Preflight their installed package sources and physical parent paths,
+Next preserves Turbopack's external-package links: absolute checkout targets on
+Windows and relative targets into the standalone package tree on Linux. Map a
+standalone target to its exact installed counterpart; refuse outside-checkout
+targets, noncanonical sources and linked installed packages. Preflight the
+canonical installed package sources and physical parent paths,
 then replace those links with complete package directories. A native CommonJS
 package without conditional exports can instead forward its entry to the exact
 canonical package already copied by the runtime closure. This keeps one native
