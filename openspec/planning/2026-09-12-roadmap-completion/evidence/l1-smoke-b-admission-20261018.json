@@ -1,0 +1,802 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-B",
+  "stage": "admission",
+  "date": "2026-10-28",
+  "proofClass": "full",
+  "proofClassNote": "Registered reviewClasses privacy and authority and admissionRequires (finite admission, RED tests-only, privacy/authority packet, independent exact-head review, OWNER-RULING, CI, exact-main PASS, closure) make the unit full. It adds four proof-harness leaves only (no product edit); its proof is the built-image run (--build) of the registered runner plus node:test falsifiers. It is also the Step 3 done-test owner: the same command is rerun on the release candidate.",
+  "evidenceNameNote": "The registered literals l1-smoke-b-admission-20261018.json, l1-smoke-b-red-20261018.json, l1-smoke-b-local-20261018.json and l1-smoke-b-admission-review-20261018.json (l1SmokeRegistration20261018.prospectiveManifests) are free on main (checked at prep). Closure receipts (merge, mainproof, source-review, owner-ruling, mainproof logs) are frozen at the closure PR and added to ownershipExceptions there.",
+  "recordedAt": "2026-10-28T09:40:42.202Z",
+  "baseline": "d5fb4d86708bd9535d791372460361bdbe79a225",
+  "baselineNote": "Baseline is the L1-SMOKE-A2 implementation merge d5fb4d86708bd9535d791372460361bdbe79a225 (PR #2349, ruled head 3265e015d), which was origin/main at the freeze. Controls are hashed at the A2 closure head ea2418ae7a65581220ea66a9e1250f8080586471 (the parent of this admission commit); its non-ledger files equal d5fb4d867.",
+  "authority": {
+    "summary": "Root and owner authority for B admission. Admission only; no implementation ruling or acceptance.",
+    "clauses": [
+      {
+        "id": "AUTH-1",
+        "kind": "owner decision, scope",
+        "status": "SETTLED",
+        "text": "Owner decision 2026-10-28: \"Finish step 3 / Full send\". Root runs Step 3 PRs 8-12 (carry-forward.md, 2026-10-28 RESUMED section); B admission prep started in parallel and stops only for an owner-policy question or a cap/budget overflow."
+      },
+      {
+        "id": "AUTH-2",
+        "kind": "owner decision, fixtures leaf and timeline",
+        "status": "SETTLED",
+        "text": "Owner decisions 2026-10-25b (E:/Projects/Personal/MekStation-wt/_receipts/owner-decisions-20261025b.md, sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2), answer \"yes and yes\", recorded in units.json L1-SMOKE-B.registration20261025bCorrection: scripts/release/l1-built-server-fog-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA; the timeline is accepted as audit rows only (200, audit rows, body scanned for the captured secrets)."
+      },
+      {
+        "id": "AUTH-3",
+        "kind": "size cap rule",
+        "status": "SETTLED",
+        "text": "ownerRuling20261020SizeCapOptionA with Root interpretation (proof-harness test-support leaves are line-exempt, the file cap still counts them). The validator does not enforce it (UNCOUNTED_FILES), so the implementation merge records capException.countedLines equal to the literal merge-diff count."
+      },
+      {
+        "id": "AUTH-4",
+        "kind": "predecessors closed",
+        "status": "SETTLED (conditional on this PR merging)",
+        "text": "L1-SMOKE-A2 is main-verified by the closure commit of this PR (PR #2349, merge d5fb4d86708bd9535d791372460361bdbe79a225; exact-main PASS: node:test 9 of 9 and the A2 built runner, all 26 cases (A1 10, the 12 A2M ids, the four A2-owned rows) on the first attempt). L1-SMOKE-A1, B14-0A, B14-0B, B14-0 and B14-HEAD are main-verified (receipts in the ledger). GATE OPEN for this admission is conditional on this PR merging (the #2336, #2339, #2342 and #2345 riding pattern)."
+      },
+      {
+        "id": "AUTH-5",
+        "kind": "Root rulings 2026-10-26 and 2026-10-28",
+        "status": "SETTLED (Root rulings, not owner decisions)",
+        "text": "GM viewer role option (a): the real mission GM is a player-role viewer, disclosed, not fixed. A2M gating mutant R6 survived and is accepted as a disclosed non-equivalent survivor; the correction narrows the P1/P6 reconnect/restart coverage claim; P7 is witnessed on matrix-Move-player-stale only. CF-A2M-1 belongs to the next unit that amends the A2M harness; B imports it read-only."
+      },
+      {
+        "id": "AUTH-6",
+        "kind": "registered carry (not re-ruled here)",
+        "status": "SETTLED",
+        "text": "S5-02 (who may spectate) and OQ-M1 stay as registered: B adds no row for either. The release-notes paragraphs belong to RELEASE-PRODUCER-1 admission."
+      },
+      {
+        "id": "AUTH-8",
+        "kind": "Root rulings 2026-10-28 on B admission prep",
+        "status": "SETTLED (Root rulings, not owner decisions)",
+        "text": "carry-forward.md, \"2026-10-28 Root rulings on B admission prep\": Q1 G-B1 reruns the 8 fog rows without a build on the A2 closure exact-main image at the freeze (the prep run is the first-contact record); Q2 the missing /head digest and positive /head 200 are an accepted, disclosed limit; Q3 the post-admission live refusal stays proved by the Jest pin b14FogContainment.test.ts and is disclosed in the admission and local receipts and the PR body; Q4 no RC-B-1 record, ownershipExceptions plus registeredSourceLeaves; Q5 34 ids and casesMs 1,800,000; Q6 standing rule: if the A2 implementation PR changes A2_REQUIRED_CASES or runA2Cases relative to the frozen bytes, rerun G-B0 and validate-leaves before the B freeze; Q7 comment-only trim of the B leaves to at least 15 lines of margin at the 80-line bound, done. None changes fog semantics, S5-02 or the GM role."
+      },
+      {
+        "id": "AUTH-7",
+        "kind": "workers and reviewers",
+        "status": "SETTLED",
+        "text": "Workers and reviewers: the owner restored OpenAI usage on 2026-10-28 (\"GPT usage is back, use it as you see fit\"); #2349 was reviewed by Claude Opus 5.5 and GPT Sol. This closure and admission worker is claude-sonnet-5-5."
+      }
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation worker (L1-SMOKE-A2 closure and L1-SMOKE-B admission); the B draft was prepared 2026-10-28 by a prep worker",
+    "coordinator": "Root"
+  },
+  "predecessors": {
+    "L1-SMOKE-A1": "main-verified",
+    "L1-SMOKE-A2": "main-verified by the closure commit of this PR (PR #2349, merge d5fb4d867; closure receipts l1-smoke-a2-implementation-review, l1-smoke-a2-merge and l1-smoke-a2-mainproof)",
+    "B14-0A": "main-verified",
+    "B14-0B": "main-verified",
+    "B14-0": "main-verified",
+    "B14-HEAD": "main-verified",
+    "successors": "P2CG1H and CF-SMOKEA1-4 stay blocked until this unit is main-verified"
+  },
+  "acceptance": {
+    "source": "units.json L1-SMOKE-B.registration20261018L1Smoke.acceptance (unchanged) plus the amendments below",
+    "amendments": [
+      "B1: the final runner composes COMBINED_REQUIRED_CASES = A2_REQUIRED_CASES (A1 10 + A2M 12 + four A2-owned = 26) followed by B_REQUIRED_CASES (8) = 34 ids on one verified build/image lineage; the A1 harness fails on any missing, doubled or extra id. B node:test falsifiers include an omitted predecessor row, an omitted refusal row and an unexpected row.",
+      "B2 (fog-on setup): fog-off-controls, fog-on-socket-refused, fog-on-metadata-refused, fog-on-history-refused, fog-on-head-refused, fog-refusals-secret-free, fog-on-state-intact, fog-off-controls-after. A real fog-off match is played; the owned server is stopped; one stored match is flipped to fog-on by the registered offline fixture (the only write; stopped-PID guard, active fog-off match required, journal fingerprint before and after); the same image restarts. The capability is never mocked and no fog-on frame is delivered.",
+      "B3 (refusal contract, restated as literals, not imported from src): a fog-on participant (host, guest, spectator) gets exactly one Close {code AUTH_REJECTED, reason fog-projection-unavailable} and WS 1008 even after SessionJoin (lastSeq 0 and 1) and an Intent; a non-member gets the generic admission answer naming nothing; metadata 403 fixed for participants and 404 for non-participants; export and private-preview 500 fixed; timeline 200 audit rows only; /head 403 fixed for the host, generic 403 for others, 401 unauthenticated.",
+      "B4 (no secret): every received byte (sockets and HTTP bodies) is scanned for the captured public event ids and journal-head digest; a hit fails the run and would be a real B14 finding that stops the unit.",
+      "B5 (state and controls): a sibling fog-off match keeps delivering on the refusing process (fog-off-controls-after); after a second stop the stored lineage of both matches is unchanged except the one flipped field (fog-on-state-intact).",
+      "B6 (scope limits): the post-admission live refusal is a Jest pin and is not claimed from the built server; the unreadable-config path (WS 1011), public lobby summaries and S5-02 are not proved here.",
+      "B7 (done-test): the Step 3 done-test is the frozen argv in doneTestInvocation; the v220-steps.json flip rides the implementation PR as its last commit; Step 3 step-evidence rides the closure PR.",
+      "B8 (head control, found at first built contact): a default build does not journal a live match, so the host /head answers 404 {error: no head} both before and after an accepted action. The fog-off control accepts a digest (200) or exactly that 404, both past the auth and fog gates; the head digest is a sentinel only when present, and the sentinels are otherwise the public event ids (4 in the probe). The fog-on host /head is 403 with the fixed body, which differs from the 404 control, so the gate precedes the journal read.",
+      "B9 (unrun obligations): nothing in this admission is a built-image PASS; every owned row, the 26 inherited ids and the mutants are owed at RED/GREEN on the exact-main image."
+    ]
+  },
+  "doneTestInvocation": {
+    "argv": [
+      "node",
+      "scripts/release/run-l1-built-server-fog-refusal.mjs",
+      "--build"
+    ],
+    "frozen": "FROZEN by this admission. Defaults: --expected-sha = the clean checkout HEAD, --output = a new temp directory; last stdout line {verdict, headSha, buildId, required, passed, output}.",
+    "rcContract": "scripts/qc/v220-evidence.mjs:198-216: for every argv done-test of steps 3, 5 and 6 the RC evidence needs a rerun record with equal JSON.stringify(argv), rcSha, verdict PASS and inputSha256 === stepInputSha(plan, ledger, id). RELEASE-PRODUCER-1 compares the printed headSha to rcSha and binds argv and inputSha256 itself.",
+    "environment": "Node 22; a real node_modules (a junction fails the hydrate step); a clean tree at the RC tag; os.tmpdir() receives the evidence directory (set TMPDIR to a workspace path and archive it); heavy-run class package (30 min lease) on the build machine.",
+    "flipPatch": "step3-done-test-flip.patch (against 996c914a9) and apply-step3-flip.cjs (text splice, then generate-v220-steps.mjs --write)."
+  },
+  "manifest": {
+    "frozenLeafDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/b-admission/frozen-20261028/scripts/release/",
+    "frozenLeafNote": "Read-only copy of the four B leaves outside Git (SHA256SUMS.txt beside it); G-B0 takes the leaves from here and G-B3 requires GREEN to equal these bytes.",
+    "sourceLeaves": [
+      "scripts/release/l1-built-server-fog-cases.mjs",
+      "scripts/release/l1-built-server-fog-fixtures.ts",
+      "scripts/release/l1-built-server-fog.test.mjs",
+      "scripts/release/run-l1-built-server-fog-refusal.mjs"
+    ],
+    "sourceLeafCount": 4,
+    "registeredManifest": {
+      "count": 9,
+      "files": [
+        "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "scripts/release/l1-built-server-fog-cases.mjs",
+        "scripts/release/l1-built-server-fog-fixtures.ts",
+        "scripts/release/l1-built-server-fog.test.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-review-20261018.json"
+      ],
+      "note": "Registered prospective manifest (l1SmokeRegistration20261018.prospectiveManifests.L1-SMOKE-B): 4 leaves + units.json + 4 evidence = 9. PROGRESS.md, v220-steps.json and the exempt page are added by ownershipExceptions at this admission (the A2M pattern)."
+    },
+    "implementationPrFiles": [
+      "scripts/release/run-l1-built-server-fog-refusal.mjs",
+      "scripts/release/l1-built-server-fog-cases.mjs",
+      "scripts/release/l1-built-server-fog-fixtures.ts",
+      "scripts/release/l1-built-server-fog.test.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json"
+    ],
+    "implementationPrFileCount": 9,
+    "implementationPrFileNote": "9 counted files plus the generated page V2.2.0-STEPS.md (exempt from the file count by ownerRuling20261024StepsPageFileCap). The admission receipt rides the A2 closure PR and the admission-review receipt lands in the B closure PR. Six files of slack (15 - 9); no extra leaf is requested. An amendment receipt would be file 10.",
+    "closurePrExpected": [
+      "evidence/l1-smoke-b-admission-review-20261018.json (registered literal)",
+      "evidence/l1-smoke-b-merge-<closure date>.json",
+      "evidence/l1-smoke-b-mainproof-<closure date>.json",
+      "evidence/l1-smoke-b-source-review-<closure date>.bytes.json",
+      "evidence/l1-smoke-b-owner-ruling-<comment id>.bytes.json",
+      "evidence/mainproof-<sha9>-logs.bytes.json",
+      "v220-step-evidence.json (Step 3 complete/PASS; gate built-server-spectator-smoke accepted)",
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md (exempt)"
+    ],
+    "closurePrNote": "The closure names after the admission-review literal are added to ownershipExceptions by the B closure PR, as for A2M. v220-step-evidence.json is not a unit merge diff (validate-roadmap --git does not see it).",
+    "gitForce": "scripts/** is ignored (.gitignore:38): the four new leaves need git add -f."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "sizeCapRule": "ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-25b: the fixtures leaf is test-support)",
+    "testsAndEvidenceLineExempt": "U41 UNCOUNTED_FILES (*.test.*, evidence directory)",
+    "v2220StepsPageFileExempt": true,
+    "v2220StepsPageLineCounted": "the page lines count toward the validator literal count (every Step 3 implementation measured 2 of its lifecycle lines)",
+    "v220StepsJsonCounted": "v220-steps.json is not in UNCOUNTED_FILES: the done-test flip adds 1 counted line"
+  },
+  "measuredFit": {
+    "basis": "MEASURED in the prep checkout (origin/main 996c914a9, frozen A2 leaves in place) on the oxfmt-clean B leaves (oxfmt --check exit 0) with measure-fit.cjs: leaf lines by newline count; lifecycle from the real Step 3 implementation merges 35fa2fb9c (48), f917a5259 (56), b78909c5e (51), d5fb4d867 (62) (everything but scripts/release leaves), plus B's done-test hunk (+1) and, over A2M, a capException block (7) and up to 4 disclosure keys. Re-measured at the freeze in the A2 closure checkout (HEAD ea2418ae7a65581220ea66a9e1250f8080586471, B leaves placed as ignored files from the frozen directory, hashes equal to SHA256SUMS.txt), with the REAL A2 lifecycle: the merge diff of d5fb4d867 against its first parent is PROGRESS.md 9, V2.2.0-STEPS.md 2 and units.json 51 = 62 counted lines (it already contains the A2 capException block), so B's estimate is 63 to 67 (62 + the flip hunk 1 + up to 4 disclosure keys), bounded at 80: option A 465 to 469 (at most 482) of 500, a margin of 18 lines at the bound.",
+    "leaves": [
+      {
+        "file": "scripts/release/l1-built-server-fog-cases.mjs",
+        "newFile": true,
+        "draftSha256": "6033c9d2d746fd7179bd719207522867a1f1dc56adf75aec2f94ebee4a1272a1",
+        "draftBytes": 10658,
+        "draftLines": 320,
+        "added": 320,
+        "deleted": 0,
+        "counted": true,
+        "optionACounted": true,
+        "lineExempt": false
+      },
+      {
+        "file": "scripts/release/l1-built-server-fog-fixtures.ts",
+        "newFile": true,
+        "draftSha256": "86b76c32691b9643d634b7e05116adc0c877669aadc9be93e853522cd80573e0",
+        "draftBytes": 3479,
+        "draftLines": 97,
+        "added": 97,
+        "deleted": 0,
+        "counted": true,
+        "optionACounted": false,
+        "lineExempt": false,
+        "note": "proof-harness test-support under ownerRuling20261020SizeCapOptionA (registration20261025bCorrection.fixturesLeaf): counts literally, not under option A"
+      },
+      {
+        "file": "scripts/release/l1-built-server-fog.test.mjs",
+        "newFile": true,
+        "draftSha256": "9fe25255ee1f0cf7c58f707183d6bb9c62635f491da7434e5eaaf0253ef3beb6",
+        "draftBytes": 16803,
+        "draftLines": 491,
+        "added": 491,
+        "deleted": 0,
+        "counted": false,
+        "optionACounted": false,
+        "lineExempt": true
+      },
+      {
+        "file": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "newFile": true,
+        "draftSha256": "95a5b6de82f58a4df4aa8afb376a25b7902630d5877a7148aebc9e454bea62ec",
+        "draftBytes": 2740,
+        "draftLines": 82,
+        "added": 82,
+        "deleted": 0,
+        "counted": true,
+        "optionACounted": true,
+        "lineExempt": false
+      }
+    ],
+    "countedAdditions": 499,
+    "optionACountedAdditions": 402,
+    "countedAdditionsNote": "literal 499 = cases + fixtures + runner; option A 402 excludes the fixtures leaf; the test leaf adds 491 exempt lines. Deletions give no credit.",
+    "lifecycleEstimate": {
+      "lines": [
+        63,
+        67
+      ],
+      "bound": 80,
+      "basis": "max(real)+flip hunk .. real A2 (includes its capException block) + flip hunk(1) + 4 disclosure keys",
+      "realLifecycles": [
+        {
+          "merge": "35fa2fb9c",
+          "counted": 48,
+          "rows": [
+            {
+              "file": "PROGRESS.md",
+              "added": 10,
+              "deleted": 0
+            },
+            {
+              "file": "V2.2.0-STEPS.md",
+              "added": 2,
+              "deleted": 2
+            },
+            {
+              "file": "units.json",
+              "added": 36,
+              "deleted": 3
+            }
+          ]
+        },
+        {
+          "merge": "f917a5259",
+          "counted": 56,
+          "rows": [
+            {
+              "file": "PROGRESS.md",
+              "added": 11,
+              "deleted": 0
+            },
+            {
+              "file": "V2.2.0-STEPS.md",
+              "added": 2,
+              "deleted": 2
+            },
+            {
+              "file": "units.json",
+              "added": 43,
+              "deleted": 3
+            }
+          ]
+        },
+        {
+          "merge": "b78909c5e",
+          "counted": 51,
+          "rows": [
+            {
+              "file": "PROGRESS.md",
+              "added": 10,
+              "deleted": 0
+            },
+            {
+              "file": "V2.2.0-STEPS.md",
+              "added": 2,
+              "deleted": 2
+            },
+            {
+              "file": "units.json",
+              "added": 39,
+              "deleted": 3
+            }
+          ]
+        },
+        {
+          "merge": "d5fb4d867",
+          "counted": 62,
+          "rows": [
+            {
+              "file": "PROGRESS.md",
+              "added": 9,
+              "deleted": 0
+            },
+            {
+              "file": "V2.2.0-STEPS.md",
+              "added": 2,
+              "deleted": 2
+            },
+            {
+              "file": "units.json",
+              "added": 51,
+              "deleted": 3
+            }
+          ]
+        }
+      ]
+    },
+    "scenarios": [
+      {
+        "id": "S-literal",
+        "rule": "validate-roadmap.mjs UNCOUNTED_FILES as written (only generated files, __tests__/, e2e/, *.test.* and *.spec.*, evidence exempt)",
+        "estimated": [
+          562,
+          566
+        ],
+        "atBound": 579,
+        "cap": 500,
+        "verdict": "OVER 500 by design (the leaves alone are 499): recorded, not a stop. The validator requires capException.countedLines to equal the literal merge-diff count (validate-roadmap.mjs:723-726); the implementation PR records it as A2FP (667), A2F (533) and A2 do, then re-measures with the capException lines added."
+      },
+      {
+        "id": "S-optionA",
+        "rule": "ownerRuling20261020SizeCapOptionA with the fixtures leaf as test-support",
+        "estimated": [
+          465,
+          469
+        ],
+        "atBound": 482,
+        "cap": 500,
+        "maxLifecycleForFit": 98,
+        "verdict": "FITS with 31 to 35 lines of slack (18 at the bound)."
+      }
+    ],
+    "previousEstimate": "a2-b prep (2026-10-25): option A 453-468 (runner 87 + cases 318 + lifecycle 48-63), strict 550-565. The leaf bytes changed three times: the runner case window (2,400,000 -> 1,800,000), the cases leaf (+14 lines) after the first built contact (README section 7), and a comment-only trim (cases 332 -> 320, runner 87 -> 82, Root ruling Q7) that is the frozen set; the lifecycle is now measured from three real implementations.",
+    "verdict": "Option A fits (465-469 of 500); the literal count exceeds 500 and is recorded by capException. Files: 9 counted of 15 in the implementation PR plus the exempt page. A split would take Step 3 to 13 PRs and is not needed."
+  },
+  "capException": {
+    "rule": "validate-roadmap.mjs:723-726: a merged unit fails when counted > caps.maxNonGeneratedLines and capException.countedLines !== counted, counted being the added lines of `git diff --numstat --no-renames <mergeSha>^1 <mergeSha>` outside evidence/ and UNCOUNTED_FILES. It does not know option A.",
+    "needed": "At the implementation merge the literal count (499 leaf lines plus the lifecycle) exceeds 500, so capException is required.",
+    "shape": "{countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines: <literal minus 97>, optionAExemptLeaves: [scripts/release/l1-built-server-fog-fixtures.ts]}",
+    "tool": "measure-fit.cjs (this directory) for the estimate; the closure tool measure-cap.cjs (_reports/2026-10-27/a2m-impl/measure-cap.cjs) for the real merge-diff count",
+    "stop": "An option-A count over 500 or a 16th file stops the unit for Root (a split takes Step 3 to 13)."
+  },
+  "testInventory": {
+    "run": "node --import tsx --test scripts/release/l1-built-server-fog.test.mjs, Node v22.22.0, A2 closure checkout at the freeze (HEAD ea2418ae7a65581220ea66a9e1250f8080586471) with the four frozen B leaves in place as ignored files and the real A2 leaves from main; stub image and stub WebSocket/HTTP servers; no production build, no server.",
+    "nodeTest": "B: 12 of 12 pass, 0 fail. The A2 and A2M test leaves that B imports, run against the A2 leaves on main: 18 of 18 pass, 0 fail. 22 of 22 pure-function mutants BM01-BM22 killed on the frozen bytes. Heavy-run lane a2-closure, class jest; raw logs in the A2 closure report folder validate-leaves/.",
+    "staticChecks": "oxfmt --check exit 0, eslint no-undef/no-unused-vars exit 0, oxlint --no-ignore exit 0 on the four B leaves (validate-leaves/); npm run lint:units PASS 17899/17899 with scripts at 50/50 on the closure head (the B leaves are not committed).",
+    "prepRun": "Prep run (superseded by nodeTest above, same frozen bytes): 12 of 12 B node tests, oxfmt exit 0, eslint no-undef exit 0, 22 of 22 mutants killed.",
+    "note": "The 12 node tests cannot run the cases leaf against a real server: the rows are only discriminated by the built run."
+  },
+  "mutantInventory": {
+    "pureFunction": "BM01-BM22 (draft/mutants/run-mutants.cjs): wire literal; extra frames; close code; non-member close code; non-member naming fog; sentinel scan never fails; hidden keys; HTTP status; refused socket never sends; refusal naming fog; combined enumeration drops B rows; case window shrunk; runner skips the refusal step; default SHA; default never builds; flip fixture skips the stopped-PID guard, accepts a non-active match, changes more than fogOfWar, skips the journal fingerprint; empty sentinel set; the head control accepts any 404 or a bare 200. All 22 killed in prep on the final leaf bytes.",
+    "builtImage": [
+      "BB1: the flip is skipped (the match stays fog-off): the refusal rows must fail.",
+      "BB2: a refused member socket is allowed to join (SessionJoin dispatched): the single-Close check must fail.",
+      "BB3: the head route answers the host 200: fog-on-head-refused must fail.",
+      "BB4: a captured sentinel is appended to a refusal body: fog-refusals-secret-free must fail.",
+      "BB5: the restart is skipped between the flip and the refusals: the refusals must fail (the server holds the old config)."
+    ],
+    "note": "Built-image mutants need a built image (class package, 30 min lease) and are owed at RED/GREEN if time allows; they are optional because the pure-function mutants gate the node leaf and the product B14 pins gate the product. Survivors are disclosed in the local receipt."
+  },
+  "redPlan": {
+    "order": [
+      "PRE-RED GATE (G-B1, Root ruling Q1): at the freeze rerun the 8 fog rows (probe/run-fog-probe.mjs, no build) on the A2 closure exact-main image, binding the probe to the baseline B is admitted on; the prep run (probe-out/run3 to run5, 8 of 8) is the first-contact record. Stop for Root on a contradicted row.",
+      "RED: tests-only commit (the node:test leaf) against the absent cases, fixtures and runner leaves; fails at import (ERR_MODULE_NOT_FOUND), a weak RED declared in advance (the A1, A2FP, A2F, A2M precedent). A vacuous stand-in run must fail the test file.",
+      "GREEN: copy the cases, fixtures, runner and test leaves from frozen-20261028/scripts/release (G-B3: every leaf equals its measuredFit draftSha256); node:test green; oxfmt --check exit 0; lint:units not above its 50/50 ceiling.",
+      "BUILT RUN: node scripts/release/run-l1-built-server-fog-refusal.mjs --build (exactly the frozen argv) under heavy-run class package (30 min lease, casesMs 1,800,000): 34 ids; then the optional built-image mutants. After any build, restore next-env.d.ts (git checkout -- next-env.d.ts) and confirm a clean tree before committing.",
+      "FLIP: v220-steps.json Step 3 done-test flip as the last commit of the implementation PR; generate-v220-steps.mjs --write and --check.",
+      "LIFECYCLE: red and local receipts, units.json (capException on unit L1-SMOKE-B), PROGRESS.md, page."
+    ],
+    "noImplementationBeforeMerge": "No leaf is edited by the admission commit. The frozen leaves (frozen-20261028/scripts/release, read-only, SHA256SUMS.txt) stay outside Git until RED; draft/b-leaves.patch is regenerated from them."
+  },
+  "reachabilityGate": {
+    "id": "G-B1",
+    "requires": [
+      "a built image of the admitted baseline (standalone BUILD_ID equal to the repo .next BUILD_ID, HEAD equal to --expected-sha, clean tree, Node 22);",
+      "a heavy-run package-class ticket (30 min lease) because the harness starts the owned production server on a private DB;",
+      "only the B-owned half: provision two matches, play fog-off controls, stop, flip, restart, refusals, sibling controls, stop."
+    ],
+    "canRunWithoutBuild": "Yes, on the exact-main image of the A2 closure PR (copy .next/BUILD_ID and .next/standalone into the implementation checkout, ignored paths). Root ruling Q1: this rerun is required at the freeze.",
+    "why": "B14 refusals are pinned in Jest only (R-B-5): the first built run may contradict a row, and the B case bodies have never executed against a server.",
+    "prepProbe": "First-contact record: RAN in prep (README section 7), B-only and without --build, on the A2M closure image (BUILD_ID 1793160601467, built at b78909c5e; HEAD 996c914 differs only in UI files): 8 of 8 B rows PASS in 4.1 s after two draft defects were found and fixed (the fog-off /head control and a label scanned by the non-member check). Evidence: probe-out/run3 and run4 (8 of 8), and probe-out/run5 on the trimmed frozen bytes (8 of 8). It is the first-contact record (Root ruling Q1). It is not product proof and not the registered run; the A2 co-op rows were not exercised.",
+    "status": "SATISFIED at this freeze (Root ruling Q1): the 8 fog rows ran without a build on the A2 closure exact-main image and passed.",
+    "probe": {
+      "status": "PASS 8 of 8 on the first run, no rerun (Root ruling Q1; a freeze gate, not product proof)",
+      "image": {
+        "buildId": "1793178767093",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "e5b237a2d0662811a8da44fce1f712a17642c5fb5b21562752b7d8fc84188a6f",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4",
+        "built": false,
+        "node": "v22.22.0",
+        "note": "Image built by the A2 closure built-runner run from the exact merge d5fb4d867 (run-l1-built-server-spectator-matrix.mjs --build, 26 of 26, buildId 1793178767093); the probe ran with build:false at HEAD d5fb4d867 (a clean checkout, the closure edits parked outside the working tree for the run), standalone and repo BUILD_ID equal."
+      },
+      "leaves": "The four frozen B leaves were copied into scripts/release as ignored files (sha256 equal to SHA256SUMS.txt and to measuredFit.leaves[].draftSha256) and removed before any commit.",
+      "command": "node run-fog-probe.mjs <wt> d5fb4d86708bd9535d791372460361bdbe79a225 <abs-new-dir> <wt>/.next/standalone (heavy-run lane a2-closure, class package); runs only the eight B-owned rows (B_REQUIRED_CASES via runFogCases) through the A1 harness, 600000 ms cases window",
+      "run": {
+        "startedAt": "2026-10-28T09:30:12.470Z",
+        "endedAt": "2026-10-28T09:30:20.123Z",
+        "verdict": "PASS",
+        "passed": [
+          "fog-off-controls",
+          "fog-on-socket-refused",
+          "fog-on-metadata-refused",
+          "fog-on-history-refused",
+          "fog-on-head-refused",
+          "fog-refusals-secret-free",
+          "fog-off-controls-after",
+          "fog-on-state-intact"
+        ],
+        "errors": [],
+        "ownedServerProcesses": 2,
+        "files": {
+          "pre.txt": {
+            "sha256": "5d5e45bbba57c1a07a3cfd745e4fb088eb4ec21c72cfb12431db9447ec554c63",
+            "bytes": 191
+          },
+          "stdout.log": {
+            "sha256": "5426e5408bf50a38d287263c54a8e1bc88bb58bacabb0fa4d72c4def782e9637",
+            "bytes": 311
+          },
+          "stderr.log": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          "out/summary.json": {
+            "sha256": "3521049bd287a6c56ff9c99e6360ff74fa864d36e8fe9717684392da78531783",
+            "bytes": 1966
+          },
+          "out/manifest.json": {
+            "sha256": "c9cbaf8284e9609ba6939a40ef3cb1a4c834d41a0f28a961ad616ae80f3444d5",
+            "bytes": 1021
+          },
+          "out/evidence.jsonl": {
+            "sha256": "d994f9df357b7f609e0d65469d3a83115cb2b1eafd9e8095eceed9b2e73343f3",
+            "bytes": 71488
+          }
+        }
+      },
+      "limits": "The probe proves only the eight B rows against a real server (fog-off controls, flip, restart, refusals on every entrance, secret scan, sibling controls, stored state). It is not the registered built-image PASS of the 34-id runner; RED, GREEN, the combined run and the mutants are owed at the implementation PR. The /head digest sentinel and a positive /head 200 stay unproven on a default build (Root ruling Q2) and the post-admission live refusal stays a Jest pin (Root ruling Q3)."
+    }
+  },
+  "census": {
+    "baseline": "d5fb4d86708bd9535d791372460361bdbe79a225",
+    "ledgerRef": "ea2418ae7a65581220ea66a9e1250f8080586471",
+    "ledgerRefNote": "The ledger census ran on the A2 closure head (the parent of this admission commit); every other census input was taken from fetched origin/main.",
+    "observedAt": "2026-10-28T09:38:36.866Z",
+    "originMainAtCensus": "d5fb4d86708bd9535d791372460361bdbe79a225",
+    "openPrs": {
+      "count": 1,
+      "list": [
+        "#2113 (draft, codex/thread-transfer-history-20261002, 472 changed files)"
+      ],
+      "files": "gh pr list lists at most 100 files per PR, so the full file list of #2113 was read through the pulls files API (472 files, paginated, census-pr2113-files.txt)",
+      "overlap": "none: no file of #2113 lies under scripts/release or the roadmap planning directory, or is a B leaf",
+      "censusSha256": "0193cb524ee2b37c9fd6e442ab3b4b790d000a1f578e97a9050cf522afad73f9",
+      "filesSha256": "d3e06315f24e44dfc17ed2d7609e2d8674758d2a1af6aeda27f5c1d6b8082fd0"
+    },
+    "worktrees": {
+      "registered": 30,
+      "detached": 10,
+      "locked": 3,
+      "leafOverlap": "none: no worktree HEAD differs from its merge-base with origin/main on any of the four B leaves",
+      "ledgerFileOverlap": "This worktree (branch work/a2-closure-b-admission-20261028) changes the ledger by design: its closure commit is the parent of this admission. Two old unmerged branches (codex/ndc1-native-delivery-20261009 and -r2-) changed ledger files long ago; they are not open PRs, do not touch scripts/release and would rebase the ledger on any future merge. Disclosed, not a leaf collision.",
+      "method": "git worktree list --porcelain; per worktree HEAD: merge-base with origin/main, then git diff --name-only mergeBase HEAD. Objects only: no git status or index read inside other worktrees, so uncommitted edits are not seen.",
+      "censusSha256": "45a017cded1f61f06011d3acc7d6d4ddeeba9a071cc14d52b68e80b503d9fc1b"
+    },
+    "ledger": {
+      "censusSha256": "746a0c0907275e295cd7469ccf468ba67947ae1e988fbec82ce0aeb51727fbc5",
+      "summary": {
+        "ledgerUnits": 285,
+        "leaves": 4,
+        "inFlightClaimants": [],
+        "exactUnfinishedClaims": [],
+        "unfinishedAliasClaimants": [
+          "STEP2-RC-RERUN-1"
+        ]
+      },
+      "note": "No in-flight claimant and no exact unfinished claim other than B itself (excluded from the census). STEP2-RC-RERUN-1 is an alias-only claimant through the scripts navigation alias. L1-SMOKE-A2 is main-verified and no longer a claimant."
+    },
+    "priorPrepCensus": "At 996c914a9 (prep): none of the four B leaf paths exists on main; B itself is the only literal claimant (registration20261018L1Smoke.exactScriptLeaves, prospectiveManifests). Re-run at the freeze above: still true at d5fb4d867."
+  },
+  "controls": {
+    "note": "sha256/bytes of git blobs at the A2 closure head ea2418ae7a65581220ea66a9e1250f8080586471 (parent of this admission commit; the non-ledger files equal d5fb4d867). Re-hash at the implementation baseline; any change must be explained. B edits no control. G-B0 at the freeze: the A1, A2FP, A2F and A2M leaves and the product and config files common to the A2 admission receipt hash identically to it (18 of 18, zero drift); against the B prep draft (taken on the frozen A2 leaves at 996c914a9) the only differences are the A2 cases and test leaves, which differ by the #2349 first-rolls fix b836e06b2 (G-A3 deviation, cases 3edd4b50 -> b8037309, test 780c0934 -> f8300968).",
+    "a1Leaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "bytes": 16500,
+        "sha256": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "bytes": 15615,
+        "sha256": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "bytes": 3309,
+        "sha256": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "bytes": 25830,
+        "sha256": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+      }
+    ],
+    "a2fpLeaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "bytes": 2638,
+        "sha256": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-context.mjs",
+        "bytes": 7932,
+        "sha256": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+        "bytes": 9448,
+        "sha256": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+        "bytes": 16540,
+        "sha256": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894"
+      }
+    ],
+    "a2fLeaves": [
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "bytes": 8899,
+        "sha256": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "bytes": 6851,
+        "sha256": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "bytes": 17032,
+        "sha256": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85"
+      }
+    ],
+    "a2mLeaves": [
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "bytes": 6876,
+        "sha256": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "bytes": 980,
+        "sha256": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "bytes": 7185,
+        "sha256": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f"
+      }
+    ],
+    "a2Leaves": [
+      {
+        "path": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "bytes": 12617,
+        "sha256": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+        "note": "A2 leaf on main (blob at the A2 closure head). Fixtures and runner are byte-equal to the A2 frozen bytes; the cases and test leaves differ from them by the #2349 first-rolls fix b836e06b2 (G-A3 deviation: cases 3edd4b50 -> b8037309, test 780c0934 -> f8300968), which changed only the dice selection of coop-first-rolls-captured (selectDice), not A2_REQUIRED_CASES or runA2Cases."
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "bytes": 3886,
+        "sha256": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b",
+        "note": "A2 leaf on main (blob at the A2 closure head). Fixtures and runner are byte-equal to the A2 frozen bytes; the cases and test leaves differ from them by the #2349 first-rolls fix b836e06b2 (G-A3 deviation: cases 3edd4b50 -> b8037309, test 780c0934 -> f8300968), which changed only the dice selection of coop-first-rolls-captured (selectDice), not A2_REQUIRED_CASES or runA2Cases."
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator.test.mjs",
+        "bytes": 11006,
+        "sha256": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb",
+        "note": "A2 leaf on main (blob at the A2 closure head). Fixtures and runner are byte-equal to the A2 frozen bytes; the cases and test leaves differ from them by the #2349 first-rolls fix b836e06b2 (G-A3 deviation: cases 3edd4b50 -> b8037309, test 780c0934 -> f8300968), which changed only the dice selection of coop-first-rolls-captured (selectDice), not A2_REQUIRED_CASES or runA2Cases."
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "bytes": 783,
+        "sha256": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d",
+        "note": "A2 leaf on main (blob at the A2 closure head). Fixtures and runner are byte-equal to the A2 frozen bytes; the cases and test leaves differ from them by the #2349 first-rolls fix b836e06b2 (G-A3 deviation: cases 3edd4b50 -> b8037309, test 780c0934 -> f8300968), which changed only the dice selection of coop-first-rolls-captured (selectDice), not A2_REQUIRED_CASES or runA2Cases."
+      }
+    ],
+    "productAndConfig": [
+      {
+        "path": "server.js",
+        "bytes": 32625,
+        "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+      },
+      {
+        "path": "package.json",
+        "bytes": 35833,
+        "sha256": "aad2269569ddc16d07f913e8637aeeb9d46464758c18688f6ef54ee17bd14696"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 656778,
+        "sha256": "9b5881bbd63f6ee8347935f843543ec230185eac706d43bb93c3aca3c0f51a80"
+      },
+      {
+        "path": "src/lib/multiplayer/server/fogMatchAdmission.ts",
+        "bytes": 3016,
+        "sha256": "d01e320852f121d466a6450e6d62bd91039b6d48ce9f8bc863648126f388c8a1"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "bytes": 66053,
+        "sha256": "788b255171c2a8334d5a67a1592e44a3ab88653f3998fc63e289819126436b04"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "bytes": 17345,
+        "sha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763"
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "bytes": 16635,
+        "sha256": "615360ae807ff30f1ac49048fb995ab68a25ddde6459cda90bcf40406ad58eed"
+      },
+      {
+        "path": "src/lib/multiplayer/server/projection/FogAwareMatchProjection.ts",
+        "bytes": 12634,
+        "sha256": "9066d70df0352daed25e11700ccc6938212e9aa866315075b3df4459f01e1634"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/index.ts",
+        "bytes": 11957,
+        "sha256": "b2cce8463b107b2c8b7a71f6582eacc0eb4e06976467703c5347a429400f481d"
+      },
+      {
+        "path": "src/pages/api/multiplayer/matches/[id].ts",
+        "bytes": 4915,
+        "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36"
+      },
+      {
+        "path": "src/pages/api/matches/[id]/head.ts",
+        "bytes": 62,
+        "sha256": "6829bab1c1bb5a7672c449be852772a250e969eb13e8b711c608a8d8b50d5c9c"
+      },
+      {
+        "path": "src/pages-modules/api/matchHeadRoute.ts",
+        "bytes": 3328,
+        "sha256": "d0e3ef8ecf13a7958f0df01bd5f2e9d40f73a56379b5bfa974d7fb1372ef5dc5"
+      },
+      {
+        "path": "src/pages-modules/api/matchHistoryViewerChain.ts",
+        "bytes": 10808,
+        "sha256": "390fbdf4074bb20c59ef33e847de5ffdeed66972d034537cc6d44ca843fdb218"
+      },
+      {
+        "path": "src/pages-modules/api/matchHistoryExportRoute.ts",
+        "bytes": 2117,
+        "sha256": "733884ffb755ffa4d5b26dbfafb3d6d9c220cd6932545efbf700ab162ff54c70"
+      },
+      {
+        "path": "src/pages-modules/api/matchHistoryTimelineRoute.ts",
+        "bytes": 2138,
+        "sha256": "e5b90626133444d02226aeae4014c41663f4042a5b01973176cd52e97d9c63f0"
+      },
+      {
+        "path": "src/pages-modules/api/matchPrivatePreviewRoute.ts",
+        "bytes": 4664,
+        "sha256": "7ba9f59f6cd4e43cf44bca9d812924f46824999e0a836c6fe6e5d51e4121d055"
+      },
+      {
+        "path": "scripts/qc/generate-v220-steps.mjs",
+        "bytes": 9678,
+        "sha256": "48ea378bc55e27ac8cba9a1cb5a377dd28cbf1679165dc2bd2aa560e0ef87dd3"
+      },
+      {
+        "path": "scripts/qc/v220-evidence.mjs",
+        "bytes": 11984,
+        "sha256": "1350bf72e5dc2d33801b423d9f6894de9e029cf9fb8cda6ba8a543bef2d7a7b4"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+        "bytes": 8145,
+        "sha256": "09cc88f88edd14e1c34bba4fc8e3674e32b0d4f9c64600ad1849d32ea36203a7"
+      }
+    ]
+  },
+  "gates": [
+    {
+      "id": "G-B0",
+      "kind": "ruling before RED",
+      "text": "No RED commit before this PR merges. Then re-fetch and union-merge main, take the B leaves from the frozen directory E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/b-admission/frozen-20261028/scripts/release (read-only; sha256 in measuredFit.leaves and SHA256SUMS.txt), not from a patch; re-verify every control hash above against the merged tree (A1, A2FP, A2F, A2M leaves byte-identical to their frozen bytes; the A2 leaves equal the A2 measuredFit bytes). Q6 standing rule: if the A2 implementation PR changed A2_REQUIRED_CASES or runA2Cases relative to the frozen A2 bytes, rerun G-B0 and validate-leaves.sh before the B freeze. Re-run the open-PR and worktree census and re-measure the leaves (fit.json). Q6 check at the freeze: A2_REQUIRED_CASES, runA2Cases and runOwnCases are textually unchanged between the A2 frozen bytes and main (the #2349 first-rolls fix added the exported selectDice and its wiring inside coop-first-rolls-captured only), so the Q6 rerun was not strictly required; it was done anyway (B node tests 12 of 12 and the A2 and A2M tests 18 of 18 against main's A2 leaves)."
+    },
+    {
+      "id": "G-B1",
+      "kind": "pre-RED reachability",
+      "text": "SATISFIED at this freeze (see reachabilityGate.probe, Root ruling Q1): the 8 fog rows ran without a build on the A2 closure exact-main image and passed (8 of 8, first run, no rerun). It is repeated before RED only if a leaf byte or the image baseline changes. Stop and tell Root (do not edit product, no mock) if a later run contradicts a refusal row (decide per row whether the draft or main is wrong), if a captured secret appears in any refusal or the timeline body (a real B14 finding), or if reaching the rows needs a leaf outside the four registered ones."
+    },
+    {
+      "id": "G-B2",
+      "kind": "RED",
+      "text": "Tests-only commit; the weak RED and the vacuous stand-in run above; the test leaf hash is frozen in the red receipt."
+    },
+    {
+      "id": "G-B3",
+      "kind": "GREEN",
+      "text": "GREEN must equal the frozen bytes: each of the four leaves is byte-identical to its measuredFit.leaves[].draftSha256 (cmp against frozen-20261028/scripts/release); any difference stops for Root and forces a re-measure. node:test green; oxfmt --check exit 0; lint:units not above its 50/50 ceiling."
+    },
+    {
+      "id": "G-B4",
+      "kind": "built run, first contact",
+      "text": "The first --build run of the B runner (the frozen argv). Stop and tell Root if an inherited A1/A2M/A2 row fails (a regression of a frozen proof), if a fog row fails for a product reason, or if a refusal body or the timeline carries a captured secret. CF-A2FP-2: a sole 15 s readiness-probe timeout allows one disclosed rerun; any other failure, or a second timeout, stops. After the build restore next-env.d.ts (git checkout -- next-env.d.ts)."
+    },
+    {
+      "id": "G-B5",
+      "kind": "mutants",
+      "text": "The 22 node-leaf mutants rerun on the final leaf bytes; the optional built-image mutants; survivors disclosed; no compile-only or missing-module kill counted."
+    },
+    {
+      "id": "G-B6",
+      "kind": "done-test flip",
+      "text": "Last commit of the implementation PR: the v220-steps.json hunk, generate-v220-steps.mjs --write then --check, the negative control (runner absent -> Missing command target), validate-roadmap and the v220 tests green. Step 3 JSON is not touched afterwards."
+    },
+    {
+      "id": "G-B7",
+      "kind": "privacy/authority packet",
+      "text": "Genuine PK packet before local-verified (agentRecommendation not a placeholder)."
+    },
+    {
+      "id": "G-B8",
+      "kind": "review and merge",
+      "text": "Independent exact-head authority and privacy review, required CI, OWNER-RULING on the exact head, merge with --match-head-commit, then the exact-main built run (the done-test argv) and closure."
+    },
+    {
+      "id": "G-B9",
+      "kind": "cap",
+      "text": "Re-measure the real squash diff after the lifecycle edit and record capException on the unit L1-SMOKE-B entry in units.json with countedLines measured from git diff --numstat --no-renames <mergeSha>^1 <mergeSha> (the first parent, as the validator does; measure-cap.cjs); an option-A count above 500 or a 16th file stops the unit for Root."
+    },
+    {
+      "id": "G-B10",
+      "kind": "disclosure",
+      "text": "The local receipt says the post-admission live refusal is a Jest pin and carries the A2M R6 survivor, the real-mission-GM player role and S5-02. Release notes (Root, RELEASE-PRODUCER-1): the spectate-policy caveat, the RC cost of the done-test, the printed headSha vs rcSha binding."
+    }
+  ],
+  "resolutions": {
+    "R1": "No new row IDs beyond the eight registered-by-prose B rows; COMBINED_REQUIRED_CASES is A2 (26) + B (8) = 34.",
+    "R2": "The timeline is audit rows only (AUTH-2): the history row asserts 200 and scans the body.",
+    "R3": "The case window is 1,800,000 ms (equal to A2M and A2, inside the package lease), measured: the A2M built run spent 183 s in cases.",
+    "R5": "Root rulings Q1-Q7 (2026-10-28) are carried in AUTH-8, G-B0, G-B1, G-B3, G-B4 and G-B9; the Q7 trim is applied to the frozen bytes.",
+    "R4": "No registration correction record (RC-B-1) is needed: ownershipExceptions and registeredSourceLeaves are set by this admission, as A2M did; the done-test owner is already Step 3 doneTests.plannedIn."
+  },
+  "carryIn": [
+    "registration20261025bCorrection: fixtures leaf is test-support, timeline is audit rows only",
+    "A2M R6 survivor and its correction (Root rulings 2026-10-28): disclosed in the local receipt",
+    "CF-A2M-1: not discharged by B; owed by the next unit that amends the A2M harness",
+    "CF-A2FP-2 (15 s readiness probe in the frozen A1 harness): a sole 15 s readiness timeout allows one disclosed rerun; B starts about 40 servers",
+    "Restore next-env.d.ts after a build (git checkout -- next-env.d.ts)",
+    "CF-SMOKEA1-4: scripts/release is not CI-wired; the done-test runs only at the exact-main proof and the RC rerun",
+    "OQ-M1, S5-02: registered; unchanged",
+    "Mission GM viewer role (option a): disclosed, not fixed"
+  ],
+  "exclusions": [
+    "S5-02 access-to-spectate policy remains open; no refusal row for who may spectate",
+    "The post-admission live refusal (proved by the Jest pin b14FogContainment.test.ts, Root ruling Q3), the unreadable-config path (WS 1011) and public lobby summaries are not proved by the built run",
+    "The head digest sentinel and a positive /head 200 are unproven on the built image: a default build keeps no journal (Root ruling Q2)",
+    "No product, helper, config or dependency edit; A1, A2FP, A2F, A2M and A2 leaves are imported read-only",
+    "No GM row and no fix for the real mission GM viewer role"
+  ],
+  "openQuestions": [],
+  "rulings20261028": {
+    "Q1": "G-B1 reruns the 8 fog rows, no build, on the A2 closure exact-main image at the freeze; the prep run is the first-contact record.",
+    "Q2": "Disclosed limit: no journal on a default build, so /head answers 404 no head; the digest sentinel and a positive /head 200 are unproven on the built image.",
+    "Q3": "Disclosed limit: the post-admission live refusal stays proved by b14FogContainment.test.ts; disclosed in the admission and local receipts and the PR body.",
+    "Q4": "No RC-B-1 record; ownershipExceptions plus registeredSourceLeaves.",
+    "Q5": "34 case ids, casesMs 1,800,000.",
+    "Q6": "If the A2 implementation PR changes A2_REQUIRED_CASES or runA2Cases relative to the frozen bytes, rerun G-B0 and validate-leaves before the B freeze.",
+    "Q7": "Comment-only trim applied; option A 402 leaf lines."
+  },
+  "limitations": [
+    "Admission only; no B leaf is committed by this PR (the four frozen leaves were placed as ignored files for the G-B1 probe and the validation, and removed) and nothing here is a registered built-image PASS of the B runner.",
+    "The eight B rows ran against a real server only as the G-B1 probe on the A2 closure exact-main image (8 of 8, no build); the combined 34-id run, the mutants on a built image and the head digest sentinel are owed or unproven (a default build keeps no journal; Root ruling Q2). The post-admission live refusal stays a Jest pin (Root ruling Q3).",
+    "B composes the frozen A2M matrix and the A2 rows unchanged, so their disclosures ride into B: the real mission GM keeps the player viewer role, the A2M R6 survivor and CF-A2M-1, unrun P1/P6 reconnect coverage, and the A2 disclosures (CF-A2-1: co-op teammate unit commands are unconstrained until U38; MA1 and MA5 killed only in combination; S5-02, OQ-M1 open).",
+    "The worktree census cannot see uncommitted edits in other worktrees."
+  ],
+  "parentOfAdmissionCommit": "ea2418ae7a65581220ea66a9e1250f8080586471",
+  "preparedAt": "2026-10-28T09:40:42.202Z",
+  "preparedFrom": {
+    "readme": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/b-admission/README.md",
+    "previousPrep": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/a2-b/ (README, census, mutants)",
+    "a2Prep": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/prep/a2-admission/",
+    "note": "Prep 2026-10-28 on origin/main 996c914a9; this receipt is the freeze: the A2 closure checkout re-measured, re-hashed and probed everything above on d5fb4d867. Historical prep is not built-image proof."
+  }
+}

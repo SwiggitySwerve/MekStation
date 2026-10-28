@@ -1,3 +1,17 @@
+## 2026-10-28 L1-SMOKE-B admitted (Step 3 PR 10 of 12, second commit of the L1-SMOKE-A2 closure PR; ledger and evidence only)
+
+Admits L1-SMOKE-B on baseline d5fb4d867 (the L1-SMOKE-A2 implementation merge), after the L1-SMOKE-A2 closure in the previous commit of this PR (the #2336, #2339, #2342 and #2345 riding pattern). Only B becomes admitted unfinished when this PR merges; no B leaf is committed here. Implementation starts only after this PR merges. The receipt is [l1-smoke-b-admission-20261018.json](evidence/l1-smoke-b-admission-20261018.json).
+
+- Authority: owner decisions 2026-10-25b ("yes and yes": the fixtures leaf is test-support, the timeline is audit rows only), the Root rulings 2026-10-26 (GM role option a) and 2026-10-28 (A2M R6 survivor and its correction). B imports A1, A2FP, A2M and A2 read-only and creates only its four registered leaves.
+- Done-test invocation FROZEN: `node scripts/release/run-l1-built-server-fog-refusal.mjs --build`. It carries no SHA or output path (defaults: clean checkout HEAD, new temp directory) so a release candidate reruns it byte for byte. The v220-steps.json flip rides the B implementation PR as its last commit (the generator refuses it while the runner is absent); Step 3 step-evidence rides the B closure PR.
+- Rows: the 26 A2 ids (A1, the 12 A2M matrix ids, concurrent first sockets, co-op restart with captured rolls) plus eight fog rows: a played fog-off match is stored as fog-on while the owned server is stopped, then every entrance (socket, metadata, history, head) must refuse with the fixed contract and no secret byte, with a fog-off sibling still delivering and the stored state unchanged. The post-admission live refusal stays a Jest pin; the built run proves the admission-time refusals.
+- Root rulings 2026-10-28 on this prep: G-B1 reruns the 8 fog rows (no build) on the A2 closure exact-main image at the freeze; the missing /head digest (no journal on a default build) and the Jest-pinned post-admission live refusal are disclosed limits; the B leaves are frozen outside Git (read-only, per-file sha256 in the receipt) and GREEN must equal those bytes; a sole 15 s readiness timeout allows one disclosed rerun; next-env.d.ts is restored after a build.
+- Disclosures riding in from A2M and A2 (matrix and rows run unchanged): the real mission GM keeps the player viewer role, the A2M R6 survivor, unrun P1/P6 reconnect coverage, S5-02 open.
+- Fit: option A 465 to 469 of 500 (leaves 402 plus lifecycle 63 to 67; the fixtures leaf is test-support), literal 562 to 566 recorded by capException at the implementation PR. Files: 4 leaves, units.json, PROGRESS.md, v220-steps.json, red and local receipts = 9 counted plus the exempt page.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md, v220-steps.json and the four registered evidence names; registeredSourceLeaves is added. The new scripts/release leaves need git add -f (scripts/** is ignored).
+
+---
+
 ## 2026-10-28 L1-SMOKE-A2 closed; main-verified (exact-main built-image proof); Step 3 PR 10 of 12 (L1-SMOKE-B admission is the next commit of this PR)
 
 Closes L1-SMOKE-A2 (PR #2349, ruled and merged head 3265e015d, merge d5fb4d867) as main-verified. The OWNER-RULING (comment 6464950488, Root on behalf of the owner under the standing merge and Full send instructions; Root commentary, not a verbatim owner quote) accepted that exact head; the merge tree equals the ruled head tree, so all four leaves are byte-identical to the accepted bytes.
