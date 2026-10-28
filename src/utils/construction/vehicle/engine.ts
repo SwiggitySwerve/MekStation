@@ -36,7 +36,9 @@ const FUSION_REQUIRED_MOTION_TYPES: ReadonlySet<GroundMotionType> = new Set([
 ]);
 
 /**
- * Engine types considered non-fusion (require power amps for energy weapons)
+ * Engine types considered non-fusion for engine classification and motion
+ * restrictions. Power-amplifier requirements are decided separately by
+ * requiresPowerAmplifiers; fission is exempt there.
  */
 export const NON_FUSION_ENGINE_TYPES: ReadonlySet<EngineType> = new Set([
   EngineType.ICE,
@@ -86,7 +88,11 @@ export function computeVehicleEngineWeight(
   rating: number,
   engineType: EngineType,
 ): number {
-  const baseWeight = getBaseEngineWeight(rating);
+  // The engine table has entries only at multiples of 5 (minimum 10); a
+  // rating in between is looked up at the next entry up.
+  const baseWeight = getBaseEngineWeight(
+    Math.max(10, Math.ceil(rating / 5) * 5),
+  );
   const def = getEngineDefinition(engineType);
   if (!def) return baseWeight;
   return ceilToHalfTon(baseWeight * def.weightMultiplier);

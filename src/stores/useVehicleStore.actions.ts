@@ -3,7 +3,6 @@ import {
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
-import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
@@ -12,6 +11,7 @@ import {
 } from '@/types/unit/VehicleInterfaces';
 import {
   computePowerAmplifierWeight,
+  isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
 } from '@/utils/construction/vehicle/powerAmplifier';
 
@@ -327,9 +327,7 @@ export function derivePowerAmpWeightLogic(
   // Sum weights of energy weapons that are actually mounted on this vehicle
   const totalEnergyWeight = resolvedItems
     .filter(
-      (item) =>
-        mountedIds.has(item.id) &&
-        item.category === EquipmentCategory.ENERGY_WEAPON,
+      (item) => mountedIds.has(item.id) && isPowerAmplifierEnergyWeapon(item),
     )
     .reduce((sum, item) => sum + item.weight, 0);
 

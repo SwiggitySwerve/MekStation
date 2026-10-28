@@ -1,17 +1,18 @@
 /**
  * Vehicle Power Amplifier Calculations
  *
- * Non-fusion engines (ICE, Fuel Cell, Fission) cannot power energy weapons
- * directly. Power amplifiers compensate at 10% of total energy-weapon weight,
- * rounded up to the nearest half-ton.
+ * ICE and fuel-cell combat vehicles require power amplifiers for qualifying
+ * energy weapons. Fusion and fission engines are exempt. Vehicle flamers and
+ * Clan chemical lasers do not contribute amplifier weight.
  *
  * Rules (TechManual):
- * - Required when engine is ICE, Fuel Cell, or Fission AND energy weapons present
  * - Weight = ceil(totalEnergyWeaponWeight × 0.10 / 0.5) × 0.5
- * - Power amps NOT required for fusion-powered vehicles
  */
 
+import type { IEquipmentItem } from '@/types/equipment';
+
 import { EngineType } from '@/types/construction/EngineType';
+import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { NON_FUSION_ENGINE_TYPES } from './engine';
@@ -36,11 +37,30 @@ export function computePowerAmplifierWeight(
 /**
  * Check whether power amplifiers are required for this engine/vehicle combination.
  *
+ * Fission engines are exempt (MegaMek TestTank.getWeightPowerAmp).
+ *
  * @param engineType - The vehicle's engine type
  * @returns true if power amps are needed for any energy weapons
  */
 export function requiresPowerAmplifiers(engineType: EngineType): boolean {
-  return NON_FUSION_ENGINE_TYPES.has(engineType);
+  return (
+    NON_FUSION_ENGINE_TYPES.has(engineType) && engineType !== EngineType.FISSION
+  );
+}
+
+/**
+ * Whether a piece of equipment counts towards the power amplifier weight:
+ * an energy weapon that is not ammunition-fed. Clan chemical lasers and
+ * vehicle flamers burn ammunition, so they need no amplifier
+ * (MegaMek TestTank.getWeightPowerAmp).
+ */
+export function isPowerAmplifierEnergyWeapon(
+  item: Pick<IEquipmentItem, 'category' | 'special'>,
+): boolean {
+  return (
+    item.category === EquipmentCategory.ENERGY_WEAPON &&
+    !item.special?.includes('Requires ammo')
+  );
 }
 
 // =============================================================================
