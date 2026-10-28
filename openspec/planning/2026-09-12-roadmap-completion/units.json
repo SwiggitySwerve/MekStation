@@ -9082,7 +9082,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-red.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-review.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-review.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-merge-20261028.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-mainproof-20261028.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-source-review-20261028.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-owner-ruling-6464950488.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-d5fb4d867-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9100,17 +9105,36 @@
         "optionACountedLines": 497,
         "optionAExemptLeaves": ["scripts/release/l1-built-server-spectator-fixtures.ts"]
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+      "mergeSha": "d5fb4d86708bd9535d791372460361bdbe79a225",
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2-implementation-admission.json" },
         "red": { "path": "evidence/l1-smoke-a2-implementation-red.json" },
         "local": { "path": "evidence/l1-smoke-a2-implementation-local.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/l1-smoke-a2-implementation-review.json",
+          "head": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+          "reviewedHead": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "gpt-6.1-sol and claude-sonnet-5-5",
+          "outputSha256": "0f62be7bb6faef95d879b9e121e458a44659b51b078818b470841dd2f47ddcc0",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 3265e015dbfe1be3e6b7c271329c616c85d7e263"
+        },
+        "merge": {
+          "path": "evidence/l1-smoke-a2-merge-20261028.json",
+          "pr": 2349,
+          "head": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+          "mergeSha": "d5fb4d86708bd9535d791372460361bdbe79a225"
+        },
+        "mainProof": {
+          "path": "evidence/l1-smoke-a2-mainproof-20261028.json",
+          "mergeCommit": "d5fb4d86708bd9535d791372460361bdbe79a225",
+          "verdict": "PASS",
+          "runtime": "A2 node:test 9 of 9 at the clean exact merge; built-image run (A2 runner, run-l1-built-server-spectator-matrix.mjs --build): 26 passed (A1 10, A2M 12, owned 4; 0 failed, 0 skipped, 0 flaky)"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9224,9 +9248,28 @@
       "closureCarryForward20261028": {
         "CF-A2-1": {
           "owner": "U38",
-          "status": "OPEN; known registered gap",
+          "status": "OPEN; known registered gap; routed to U38 by the A2 closure (the U38 unit is not edited here)",
           "item": "Co-op teammate unit commands are unconstrained on main; MA3 witnessed an accepted non-owner contributor Move on BUILD_ID 1793172695427. U38 must prove an equivalent built-image row is refused. A2 makes no exclusive-owner enforcement claim.",
+          "u38Obligation": "When U38 lands, its proof must include a built-image row equivalent to MA3 (a same-side contributor commands another player's unit) that is REFUSED with AUTH_REJECTED unit-not-owned on the built image. U38's own behaviour text asks for refusal in both directions but does not yet say built image (Opus INFO-2); the obligation lives here until U38 is admitted.",
           "releaseNotes": "G-A9: RELEASE-PRODUCER-1 carries this known issue with the real mission GM player role, S5-02 and OQ-M1."
+        },
+        "CF-A2M-1": {
+          "owner": "the next unit that amends the A2M harness",
+          "status": "OPEN; routed",
+          "item": "Inherited unchanged: live-leg assertion that the watcher holds the public-lock frame (R6 survived), the R6+P1 and R6+P6 combined mutants, and a tighter nested-A1 check. A2 imports the A2M matrix read-only and does not amend it."
+        },
+        "releaseNotesRoute": {
+          "route": "G-A9 / RELEASE-PRODUCER-1 (Root owns the edit)",
+          "items": [
+            "CF-A2-1: co-op teammate unit commands are unconstrained until U38",
+            "The real mission GM keeps the player viewer role (mission matches have no meta.coopCampaign)",
+            "S5-02: who may spectate is undecided and has no A2 row",
+            "OQ-M1: the GM-branded authority sequence gap is recorded, not asserted",
+            "Inherited A2M R6 survivor, with P1 and P6 reconnect and restart coverage inferred rather than run"
+          ]
+        },
+        "residual": {
+          "item": "Disclosed, not fixed: MA1 and MA5 are killed in combination only (witnesses PA1, PA5), MA2 at the pure level only, MA4 proves an absent replay event fails, and MA2-MA5 ran on an owned-rows-only harness over a pristine rebuild. Neither independent reviewer saw the first-rolls fix commits; Root re-checked them."
         }
       },
       "localVerified20261028": {
@@ -23270,10 +23313,22 @@
           "effort": "Finding-dependent; repeat the affected proofs."
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). Two independent reviews of 5dd8d6aa9 found that coop-first-rolls-captured skipped the first post-restart dice batch; Root ruled it fixed in this PR. The cases and test leaves deviate from the frozen bytes (G-A3, old and new sha256 recorded) with an exported pure selectDice that validates the earliest dice batch and fails rather than skipping ahead. GREEN: 9/9 node tests and 27/27 pure-function mutants (18 original rerun plus 9 selectDice). The post-fix built run (BUILD_ID 1793176598957) passed 26/26 on its first attempt (A1 10, A2M 12, owned 4); the earlier 1793170760492 run is superseded. Built-image mutants: MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults, never committed, run on the pre-fix leaf with unchanged rows), MA2 is killed at the pure level only by the named source-order assertion, MA4 was rerun on the new image and is killed by the named replay-rolls check (it proves an absent replay event fails), and MA3 SURVIVED as expected on main: co-op teammate unit commands are unconstrained until U38 (CF-A2-1, open, routed to U38 and the G-A9 release notes); A2 makes no claim that only the unit owner can move. Inherited: the A2M R6 survivor with its correction and CF-A2M-1 (open). Review selectDice and its wiring, the paired-mutant method (PA1/PA5 scoping), the owned-only harness used for MA2-MA5, the textual source-order test, that previousPid is always null, and the disclosures (real mission GM player role, S5-02, OQ-M1). The cap is recorded in the unit capException (literal validator count over 500 by design, option A at or under 500). No product or frozen predecessor change; no exact-main acceptance is claimed.",
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). Two independent reviews of 5dd8d6aa9 found that coop-first-rolls-captured skipped the first post-restart dice batch; Root ruled it fixed in this PR. The cases and test leaves deviate from the frozen bytes (G-A3, old and new sha256 recorded) with an exported pure selectDice that validates the earliest dice batch and fails rather than skipping ahead. GREEN: 9/9 node tests and 27/27 pure-function mutants (18 original rerun plus 9 selectDice). The post-fix built run (BUILD_ID 1793176598957) passed 26/26 on its first attempt (A1 10, A2M 12, owned 4); the earlier 1793170760492 run is superseded. Built-image mutants: MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults, never committed, run on the pre-fix leaf with unchanged rows), MA2 is killed at the pure level only by the named source-order assertion, MA4 was rerun on the new image and is killed by the named replay-rolls check (it proves an absent replay event fails), and MA3 SURVIVED as expected on main: co-op teammate unit commands are unconstrained until U38 (CF-A2-1, open, routed to U38 and the G-A9 release notes); A2 makes no claim that only the unit owner can move. Inherited: the A2M R6 survivor with its correction and CF-A2M-1 (open). Review selectDice and its wiring, the paired-mutant method (PA1/PA5 scoping), the owned-only harness used for MA2-MA5, the textual source-order test, that previousPid is always null, and the disclosures (real mission GM player role, S5-02, OQ-M1). The cap is recorded in the unit capException (literal validator count over 500 by design, option A at or under 500). No product or frozen predecessor change. Closure (2026-10-28): the OWNER-RULING (comment 6464950488) accepted 3265e015d; the exact-main run at d5fb4d867 passed the A2 node test 9 of 9 and the A2 built runner (A1 10, A2M 12 and the four owned rows, 26 cases, first attempt, no rerun); the real merge measured 617 counted lines (capException, literal) and 497 under option A, 8 counted files plus the exempt page. CF-A2-1 (U38), CF-A2M-1, S5-02, the real mission GM player role and OQ-M1 stay open.",
       "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 and PA5 were scratch-only and are restored; product and predecessors are unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-28T09:05:01Z",
+        "by": "SwiggitySwerve (GitHub account; Root acting on behalf of the owner under the standing merge and Full send instructions, per the live comment)",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2349#issuecomment-6464950488"
+      },
+      "ruling": {
+        "ruledHead": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+        "reviewedHead": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+        "pr": 2349,
+        "commentId": 6464950488,
+        "author": "SwiggitySwerve",
+        "bodySha256": "589a6631300b775e9b77f0d202198ce81cb84c17df04b01b5f73bb52a614718e"
+      }
     },
     {
       "id": "PK-mission-match-1-ruling",

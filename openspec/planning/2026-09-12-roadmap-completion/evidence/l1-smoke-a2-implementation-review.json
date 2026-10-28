@@ -1,0 +1,153 @@
+{
+  "unit": "L1-SMOKE-A2",
+  "stage": "review",
+  "recordedAt": "2026-10-28T09:29:24.451Z",
+  "evidenceNameNote": "File name keeps the literal frozen in the admission receipt and the unit ownershipExceptions (l1-smoke-a2-implementation-review.json).",
+  "head": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+  "reviewedHead": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+  "reviewedHeadNote": "The independent Opus review and the GPT Sol second review read 5dd8d6aa9. Both found the same first-rolls defect. Root ruled it fixed in the PR: b836e06b2 changes the cases and test leaves (G-A3 deviation) and 3265e015d records it. The OWNER-RULING (comment 6464950488, Root on behalf of the owner) accepted 3265e015d. The fixtures and runner leaves are byte-identical at 5dd8d6aa9, 3265e015d and the merge; the cases and test leaves are not (merge receipt sourceIdentities). The fix commits were re-checked by Root, not independently reviewed.",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only review sub-agent (Claude Opus 5.5); the report names Claude as reviewer and Root identifies it as Opus.",
+  "secondReviewer": {
+    "model": "gpt-6.1-sol",
+    "verdict": "REQUEST-CHANGES (F1)",
+    "head": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+    "report": "additionalPayload pr2349-review2.md in evidence/l1-smoke-a2-source-review-20261028.bytes.json",
+    "sha256": "1d5190168119b4389955b1726b670452fa4b63ba0075dff4abb7caa9d165c5a8",
+    "bytes": 5739,
+    "note": "An independent GPT Sol pass (OpenAI quota restored 2026-10-28). It ran no tests, builds, tickets or mutation jobs."
+  },
+  "implementerModel": "gpt-6.1-sol (commits 51539564c, 04d9f2d42, 0175450f1, 2581096fb) and claude-sonnet-5-5 (commits b540704d1, 5dd8d6aa9, b836e06b2, 3265e015d)",
+  "implementerModelNote": "Contributor block in the local receipt; the commit Co-Authored-By trailers are harness defaults and do not identify the worker. Neither reviewer is an implementer.",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "ACCEPT-WITH-IN-PR-FIXES (F1-F4, INFO-3, INFO-5; all applied at b836e06b2 and 3265e015d)",
+  "ownerDisposition": "ACCEPT at 3265e015dbfe1be3e6b7c271329c616c85d7e263 (OWNER-RULING comment 6464950488, Root on behalf of the owner)",
+  "classes": [
+    "authority",
+    "privacy"
+  ],
+  "outputPath": "evidence/l1-smoke-a2-source-review-20261028.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority; its top-level payload is pr2349-review.md as written by the reviewer. The GPT Sol review, the worker fix script, the PR bodies, the first-rolls ruling and the four A2 Root rulings are additionalPayloads of the same envelope.",
+  "outputSha256": "0f62be7bb6faef95d879b9e121e458a44659b51b078818b470841dd2f47ddcc0",
+  "outputBytes": 19175,
+  "outputEnvelope": {
+    "path": "evidence/l1-smoke-a2-source-review-20261028.bytes.json",
+    "payloadSha256": "0f62be7bb6faef95d879b9e121e458a44659b51b078818b470841dd2f47ddcc0",
+    "payloadBytes": 19175
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2349-review.md",
+  "byteExact": true,
+  "independentRuns": "Opus independently reran node:test 6/6 (the pre-fix test leaf) at 5dd8d6aa9 after a real npm ci (Node v22.22.0) through heavy-run, re-hashed 31 admission controls with zero drift, and ran generate-v220-steps --check and validate-roadmap plain, --git and --github (all pass). GPT Sol ran nothing. Neither ran a built image and neither saw the fix commits; the first built-image run on the merged tree by anyone other than the implementation worker is the exact-main run in the mainProof receipt, which also reran the post-fix node test leaf 9/9.",
+  "effectiveManifest": {
+    "statement": "The effective L1-SMOKE-A2 manifest is the four registered leaves plus the unit lifecycle (units.json, PROGRESS.md, V2.2.0-STEPS.md) and the red and local receipts; PR #2349 carried 9 changed paths (8 counted files plus the exempt page). The admission receipt rode the #2348 closure PR. This closure PR carries the reserved review receipt, the merge and mainProof receipts and the three byte envelopes.",
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-red.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "scripts/release/l1-built-server-spectator-cases.mjs",
+      "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "scripts/release/l1-built-server-spectator.test.mjs",
+      "scripts/release/run-l1-built-server-spectator-matrix.mjs"
+    ]
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "reviewer": "claude-opus-5-5",
+      "scope": "exact head 5dd8d6aa9",
+      "reviewedHead": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+      "verdict": "ACCEPT-WITH-IN-PR-FIXES",
+      "sha256": "0f62be7bb6faef95d879b9e121e458a44659b51b078818b470841dd2f47ddcc0",
+      "bytes": 19175,
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "FIXED at b836e06b2 under the Root first-rolls ruling: selectDice validates the earliest post-restart dice batch and fails rather than skipping ahead (G-A3 deviation, new built run 26/26 BUILD_ID 1793176598957, 27/27 pure mutants, MA4 rerun)"
+        },
+        {
+          "id": "F2",
+          "disposition": "FIXED at 3265e015d: local receipt, units.json, PROGRESS.md and PR body disclose that MA2-MA5 ran on the owned-rows-only harness over the pristine rebuild BUILD_ID 1793172695427"
+        },
+        {
+          "id": "F3",
+          "disposition": "FIXED at 3265e015d: MA4 is described as an absent replay event; the empty-rolls half is the pure R2 kill"
+        },
+        {
+          "id": "F4",
+          "disposition": "FIXED at 3265e015d: contributor block in the local receipt (gpt-6.1-sol commits 1-4, Claude Sonnet the rest); no history rewrite"
+        },
+        {
+          "id": "INFO-3",
+          "disposition": "FIXED at 3265e015d: ma3 sourceContext cites the co-op early return at ServerMatchHostIntent.ts:567"
+        },
+        {
+          "id": "INFO-5",
+          "disposition": "FIXED in the PR body: 2581096fb also edits units.json (+8) and the page"
+        },
+        {
+          "id": "INFO-2",
+          "disposition": "ROUTED in this closure: CF-A2-1 is recorded in A2 closureCarryForward20261028 with the built-image refusal obligation; U38 itself is not edited here"
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "reviewer": "gpt-6.1-sol",
+      "scope": "exact head 5dd8d6aa9",
+      "reviewedHead": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+      "verdict": "REQUEST-CHANGES",
+      "sha256": "1d5190168119b4389955b1726b670452fa4b63ba0075dff4abb7caa9d165c5a8",
+      "bytes": 5739,
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "FIXED at b836e06b2 (same finding as Opus F1)"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "5dd8d6aa9f33b4c931e8efd435601facb67728bb..3265e015dbfe1be3e6b7c271329c616c85d7e263",
+    "note": "Root-ruled fix commits; files openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md, openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md, openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json, openspec/planning/2026-09-12-roadmap-completion/units.json, scripts/release/l1-built-server-spectator-cases.mjs, scripts/release/l1-built-server-spectator.test.mjs. Re-checked by Root (owner-ruling comment); not a third reviewer round and not an independent review."
+  },
+  "receiptQualifications": [
+    {
+      "id": "REVIEWED-HEAD",
+      "target": "stageReceipts.review.head",
+      "qualification": "head and ownerDisposition name the ruled head 3265e015d; reviewedHead names the head both reviewers read (5dd8d6aa9). The cases and test leaves changed in between (first-rolls fix); the fixtures and runner leaves did not."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+    "reviewedHead": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+    "pr": 2349,
+    "commentId": 6464950488,
+    "author": "SwiggitySwerve",
+    "bodySha256": "589a6631300b775e9b77f0d202198ce81cb84c17df04b01b5f73bb52a614718e",
+    "at": "2026-10-28T09:05:01Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2349#issuecomment-6464950488",
+    "bodyBytes": 3956,
+    "envelope": {
+      "path": "evidence/l1-smoke-a2-owner-ruling-6464950488.bytes.json",
+      "payloadSha256": "589a6631300b775e9b77f0d202198ce81cb84c17df04b01b5f73bb52a614718e",
+      "payloadBytes": 3956
+    }
+  },
+  "acceptedOnTheRecord": [
+    "MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults never committed, run on the pre-fix leaf with unchanged rows); MA2 counts at the pure level only; MA3 SURVIVED as expected on main (co-op per-unit command ownership is not enforced until U38, CF-A2-1); MA4 was rerun on the fix image and proves an absent replay event fails (Root rulings 2026-10-28, not owner decisions)",
+    "MA2-MA5 ran on the owned-rows-only harness over a pristine rebuild; the 22 inherited rows were not rerun per mutant",
+    "The A2M R6 survivor and CF-A2M-1 ride in unchanged; S5-02, the real mission GM player viewer role and OQ-M1 stay open (release notes via RELEASE-PRODUCER-1)"
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-A2-1",
+      "item": "Open; owner U38; its proof must include a built-image row equivalent to MA3 that is refused. Release-notes known issue via RELEASE-PRODUCER-1."
+    },
+    {
+      "id": "CF-A2M-1",
+      "item": "Open; routed to the next unit that amends the A2M harness (live-leg lock-frame assertion and R6 rerun, R6+P1 and R6+P6 combined mutants, tighter nested-A1 check)."
+    }
+  ]
+}
