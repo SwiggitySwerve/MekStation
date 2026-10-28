@@ -9076,7 +9076,13 @@
         "scripts"
       ],
       "ownershipExceptions": [
-        "openspec/planning/2026-09-12-roadmap-completion/units.json"
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-red.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-local.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-review.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9088,12 +9094,12 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
-      "baseline": null,
+      "state": "admitted",
+      "baseline": "b78909c5e0470ff3fc629ea6d375ef97a3116e6e",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": { "path": "evidence/l1-smoke-a2-implementation-admission.json" },
         "red": null,
         "local": null,
         "review": null,
@@ -9191,6 +9197,23 @@
         "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
         "fixturesLeaf": "scripts/release/l1-built-server-spectator-fixtures.ts counts as proof-harness test-support under ownerRuling20261020SizeCapOptionA",
         "reachability": "a co-op setup reachability probe runs before RED; zero size margin is accepted (about 497-512 of 500 with lifecycle); overflow returns to the owner as the Step 3 budget 12 question (A2C + A2 final), never a silent cap raise"
+      },
+      "admission20261028": {
+        "date": "2026-10-28",
+        "receipt": "evidence/l1-smoke-a2-implementation-admission.json",
+        "authority": "Root brief to the implementation worker of the L1-SMOKE-A2M closure PR (A2 admission as the commit after the closure, the #2336, #2339 and #2345 riding pattern); the registered Step 3 order (A2F, MISSION-MATCH-1, A2M, A2); owner decisions 2026-10-25b (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) item 3 (co-op setup reachability check before RED, zero margin, Step 3 budget 12 question) and item 1 (fixtures leaf counts as test-support); owner decisions 2026-10-26 (sha256 1bff42f7ff8c6d91686bda5a6ac8f396ac21e2f5d9d57348a4865d72afb872bc); Root rulings 2026-10-26 in carry-forward.md (GM viewer role option a; A2 cap watch; A2 setup fix) and 2026-10-28 (A2M R6 survivor and its correction).",
+        "placement": "P2: the admission rides the L1-SMOKE-A2M closure PR; implementation starts only after that PR merges, after the G-A0 re-verification and after the pre-RED co-op reachability gate (G-A1).",
+        "setupFix": "Root ruling 2026-10-26: the concurrent-first-sockets row no longer POSTs spectate on a lobby match (the route accepts spectators only on an active match, so the old row failed before any concurrency). It now opens two participant sockets (host and guest) in flight at once, then runs the existing lobby launch, one shared accepted AdvancePhase event whose id the host reply and the guest delivery must agree on, and the stored journal check. No concurrent spectator and no real mission-spectate flow is claimed.",
+        "importContract": "A2 imports the A1 modules, the A2FP runDirect/context, and the closed A2M cases leaf (A2M_REQUIRED_CASES, runMatrixCases) read-only; the 12 matrix ids run exactly once through the frozen callback and A1 runs exactly once. A2 creates only its four registered leaves and exports A2_REQUIRED_CASES (A1 + A2M + four owned ids), A2_OWN_CASES, runA2Cases(ctx, steps), runOwnCases and capturedRolls for B.",
+        "reachabilityGate": "G-A1 (before RED, owner decisions 2026-10-25b item 3): on a built image of the admitted baseline, run only the setup half of the four owned rows through ordinary APIs (campaign PUT, co-op session with a coopCampaign state, three campaign-channel joins, two CampaignParticipation messages, the campaign head, the mission POST, two mission sockets, a pre-restart action, the offline active witness) and record each step. Any refusal is repaired inside the four owned leaves only; a product seam, a predecessor edit or an unreachable step stops the unit for Root as an unrun-row and scope question, never a mock. PROBE RESULT (taken at the freeze on the L1-SMOKE-A2M closure exact-main image b78909c5e, BUILD_ID 1793160601467, serverSha256 d44599ade809d57e..., configSha256 288e8d0856d7a36b..., sourceTreeSha256 734e3ad550b7dd89..., no new build; probe HEAD 4188752de): the first run failed at coop-restart-action-accepted with MATCH_PAUSED (the draft closed the campaign sync sockets and reconnected only match sockets, but a rebuilt campaign session stays paused until the GM sync connection returns: CampaignHostRegistry.ts:394 pauseUntilGmReturns, bindCampaignSyncConnection.ts:1231 noteGmConnected). Root ruling 2026-10-28 (carry-forward.md, A2 pre-RED probe; a Root ruling, not an owner decision): a harness gap, not a product defect, fixed inside the owned cases leaf (reopenGm after the restart, plus a source-order node test); the one permitted rerun PASSED all four owned rows. The real mission GM could issue AdvancePhase, so no contributor switch was needed.",
+        "coopRowsAfterMissionMatch1": "coop-restart-action-accepted moves the active unit through its OWN owner (named by the offline active witness, which reads the product activation order): after MISSION-MATCH-1 a same-side teammate receives its own sealed declaration live whether or not it is first-listed, so the accepted-command plus movement_declared assertion no longer depends on position. coop-first-rolls-captured needs a real dice event, persisted rolls and matching live and replayed rolls; MISSION-MATCH-1 alone proves none of those. concurrent-first-sockets is independent of it.",
+        "gmRoleKnownIssue": "KNOWN ISSUE carried unchanged from the A2M admission (Root ruling 2026-10-26, option a): the real mission GM is a player-role viewer (no meta.coopCampaign on mission matches). The co-op GM identity in the A2 rows is a harness label, not an assertion about its viewer role, and A2 adds no GM row, fix or inference. The release-notes obligation belongs to RELEASE-PRODUCER-1 admission.",
+        "inheritedA2mDisclosures": "The A2M closure disclosures ride into A2 because A2 runs the frozen matrix unchanged: R6 (runRow skips the live barrier wait) SURVIVES as a Root-accepted, non-equivalent survivor, P1/P6 reconnect and restart coverage is inferred rather than run, and only matrix-Move-player-stale is witnessed under P7 (Root rulings 2026-10-28). CF-A2M-1 falls to the next unit that AMENDS the A2M harness; A2 imports it read-only and does not amend it.",
+        "s502": "S5-02 (who may spectate) stays OPEN and gets no A2 row; B owns the fog refusal and the timeline history checks.",
+        "mutantRouting": "Owed at RED/GREEN on the node leaf and built image (see the receipt mutantInventory): omitted inherited row, omitted owned row, doubled row, missing d6 rolls, stale or doubled event witness, concurrent-sockets shared-event-id check, restart skipped, rolls compared against the wrong event.",
+        "evidenceName": "evidence/l1-smoke-a2-implementation-admission.json (the registered literal l1-smoke-a2-implementation-*.json names; free on main). The red, local and review literals are unchanged.",
+        "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four registered evidence names (implementation admission, red, local, review).",
+        "sizeCap": "Measured on oxfmt-clean leaves: cases 398, fixtures 120, runner 17 (counted 535 literal), test 234 (exempt, file-counted). The fixtures leaf is proof-harness test-support under ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-25b item 1), so option A counts 415. With the lifecycle estimated at 58 to 62 lines (the real A2M lifecycle was 51 plus a capException block) and bounded at 80: option A 473 to 477 (at most 495) of 500, so the A2 cap watch does not trip (option A fits while the lifecycle stays at or under 85 lines); the literal validator count is 593 to 597 and the implementation PR records capException {countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-fixtures.ts]} as A2FP and A2F did, then re-measures with those lines added. An option-A count over 500 or a 16th file stops the unit for Root (a split would take Step 3 to 14)."
       }
     },
     {

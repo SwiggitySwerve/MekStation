@@ -1,3 +1,16 @@
+## 2026-10-28 L1-SMOKE-A2 admitted (Step 3 PR 8 of 12, second commit of the L1-SMOKE-A2M closure PR; ledger and evidence only)
+
+Admits L1-SMOKE-A2 on baseline b78909c5e (the L1-SMOKE-A2M implementation merge), after the L1-SMOKE-A2M closure in the previous commit of this PR (the #2336, #2339 and #2345 riding pattern). Only A2 becomes admitted unfinished when this PR merges; no A2 leaf is committed here. Implementation starts only after this PR merges and after the pre-RED co-op reachability gate. The receipt is [l1-smoke-a2-implementation-admission.json](evidence/l1-smoke-a2-implementation-admission.json).
+
+- Authority: owner decisions 2026-10-25b items 1 and 3, owner decisions 2026-10-26, and the Root rulings 2026-10-26 (GM role option a; A2 cap watch; A2 setup fix) and 2026-10-28 (A2M R6 survivor and its correction). A2 imports A1, A2FP and the closed A2M matrix read-only and creates only its four registered leaves.
+- The concurrent-first-sockets row is corrected: two participant sockets in flight at once on a lobby match (no spectate call, which the route refuses on a lobby), then the shared accepted event and the journal check. The three co-op rows run on a real co-op mission restarted on the same image and private DB; the pre-RED gate proves the setup is reachable through ordinary APIs before any RED.
+- KNOWN ISSUE carried from A2M and disclosed for the release notes (RELEASE-PRODUCER-1 admission): the real mission GM keeps the player viewer role. A2 adds no GM row. S5-02 stays open. The A2M R6 survivor and unrun P1/P6 reconnect coverage ride into A2 because the matrix runs unchanged.
+- Fit: option A 473 to 477 of 500 (leaves 415 plus lifecycle 58 to 62; the fixtures leaf is test-support), literal 593 to 597 recorded by capException at the implementation PR; the cap watch does not trip. Files: 4 leaves, units.json, PROGRESS.md, red and local receipts = 8 counted plus the exempt page.
+- Pre-RED probe (G-A1) taken at the freeze on the A2M closure exact-main image (BUILD_ID 1793160601467, no new build): the first run failed at coop-restart-action-accepted with MATCH_PAUSED (a rebuilt campaign session stays paused until the GM sync connection returns); Root ruled a harness gap (2026-10-28), the owned cases leaf now reopens the GM campaign channel after the restart, and the one rerun passed all four owned rows. The GM could issue AdvancePhase.
+- ownershipExceptions gain PROGRESS.md, V2.2.0-STEPS.md and the four registered evidence names. The new scripts/release leaves need git add -f (scripts/** is ignored).
+
+---
+
 ## 2026-10-28 L1-SMOKE-A2M closed; main-verified (exact-main built-image proof); Step 3 PR 8 of 12 (A2 admission may follow in this PR)
 
 Closes L1-SMOKE-A2M (PR #2346, ruled and merged head 242454d93, merge b78909c5e) as main-verified. The OWNER-RULING (comment 6460133719, Root on behalf of the owner under the standing merge and Full send instructions; Root commentary, not a verbatim owner quote) accepted that exact head; the merge tree equals the ruled head tree, so all three leaves are byte-identical to the reviewed bytes.
