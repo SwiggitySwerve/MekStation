@@ -9,6 +9,8 @@
 
 import React, { useMemo, useState } from 'react';
 
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useVehicleStore, type VehicleStore } from '@/stores/useVehicleStore';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
@@ -106,15 +108,45 @@ function getCompactStatusClass(status: StatusLevel): string {
   return 'text-text-theme-secondary';
 }
 
-function calculateWeightBreakdown(state: VehicleStatusStoreState) {
+/**
+ * Total tonnage of the mounted equipment, from the equipment catalog.
+ * Items the catalog cannot resolve (or every item, before the catalog has
+ * loaded) count as 0.
+ */
+function calculateEquipmentWeight(
+  equipment: VehicleStatusStoreState['equipment'],
+  catalogReady: boolean,
+): number {
+  if (!catalogReady) return 0;
+  const lookup = getEquipmentLookupService();
+  return equipment.reduce(
+    (total, item) => total + (lookup.getById(item.equipmentId)?.weight ?? 0),
+    0,
+  );
+}
+
+function calculateWeightBreakdown(
+  state: Pick<
+    VehicleStatusStoreState,
+    | 'tonnage'
+    | 'engineRating'
+    | 'engineType'
+    | 'armorTonnage'
+    | 'equipment'
+    | 'turret'
+  >,
+  catalogReady: boolean,
+) {
   const engineWeight = calculateEngineWeight(
     state.engineRating,
     state.engineType,
   );
   const armorWeight = state.armorTonnage;
 
-  // Simplified equipment weight (would need equipment database for real values)
-  const equipmentWeight = state.equipment.length * 1; // Placeholder
+  const equipmentWeight = calculateEquipmentWeight(
+    state.equipment,
+    catalogReady,
+  );
 
   // Turret weight (typically 10% of weapon weight in turret)
   const turretWeight = state.turret?.currentWeight ?? 0;
@@ -133,7 +165,10 @@ function calculateWeightBreakdown(state: VehicleStatusStoreState) {
 }
 
 function calculateArmorStats(
-  state: VehicleStatusStoreState,
+  state: Pick<
+    VehicleStatusStoreState,
+    'armorAllocation' | 'armorType' | 'armorTonnage'
+  >,
   hasTurret: boolean,
   hasSecondaryTurret: boolean,
 ) {
@@ -153,7 +188,19 @@ function calculateArmorStats(
 }
 
 function computeBvBreakdown(
-  state: VehicleStatusStoreState,
+  state: Pick<
+    VehicleStatusStoreState,
+    | 'motionType'
+    | 'tonnage'
+    | 'cruiseMP'
+    | 'armorType'
+    | 'armorAllocation'
+    | 'structureType'
+    | 'turret'
+    | 'secondaryTurret'
+    | 'barRating'
+    | 'equipment'
+  >,
 ): VehicleBvBreakdown | null {
   try {
     return computeVehicleBVFromState({
@@ -176,7 +223,19 @@ function computeBvBreakdown(
 }
 
 function validateStatusBarState(
-  state: VehicleStatusStoreState,
+  state: Pick<
+    VehicleStatusStoreState,
+    | 'tonnage'
+    | 'motionType'
+    | 'engineType'
+    | 'cruiseMP'
+    | 'turret'
+    | 'armorType'
+    | 'armorAllocation'
+    | 'crewSize'
+    | 'powerAmpWeight'
+    | 'structureType'
+  >,
 ): VehicleValidation {
   return validateVehicleConstruction({
     tonnage: state.tonnage,
@@ -218,64 +277,117 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
 }
 
 function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
-  const hasTurret = storeState.turret !== null;
-  const hasSecondaryTurret = storeState.secondaryTurret !== null;
+  const {
+    tonnage,
+    motionType,
+    cruiseMP,
+    engineType,
+    engineRating,
+    armorType,
+    armorTonnage,
+    armorAllocation,
+    turret,
+    secondaryTurret,
+    barRating,
+    equipment,
+    crewSize,
+    structureType,
+    powerAmpWeight,
+  } = storeState;
+  const { isReady: catalogReady } = useEquipmentRegistry();
+  const hasTurret = turret !== null;
+  const hasSecondaryTurret = secondaryTurret !== null;
 
   const weightBreakdown = useMemo(
-    () => calculateWeightBreakdown(storeState),
+    () =>
+      calculateWeightBreakdown(
+        {
+          tonnage,
+          engineRating,
+          engineType,
+          armorTonnage,
+          equipment,
+          turret,
+        },
+        catalogReady,
+      ),
     [
-      storeState.tonnage,
-      storeState.engineRating,
-      storeState.engineType,
-      storeState.armorTonnage,
-      storeState.equipment.length,
-      storeState.turret,
+      tonnage,
+      engineRating,
+      engineType,
+      armorTonnage,
+      equipment,
+      turret,
+      catalogReady,
     ],
   );
 
   const armorStats = useMemo(
-    () => calculateArmorStats(storeState, hasTurret, hasSecondaryTurret),
-    [
-      storeState.armorAllocation,
-      hasTurret,
-      hasSecondaryTurret,
-      storeState.armorType,
-      storeState.armorTonnage,
-    ],
+    () =>
+      calculateArmorStats(
+        { armorAllocation, armorType, armorTonnage },
+        hasTurret,
+        hasSecondaryTurret,
+      ),
+    [armorAllocation, hasTurret, hasSecondaryTurret, armorType, armorTonnage],
   );
 
   // Compute live Battle Value (defensive/offensive split + pilot-adjusted final)
   // @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
   const bvBreakdown = useMemo(
-    () => computeBvBreakdown(storeState),
+    () =>
+      computeBvBreakdown({
+        motionType,
+        tonnage,
+        cruiseMP,
+        armorType,
+        armorAllocation,
+        structureType,
+        turret,
+        secondaryTurret,
+        barRating,
+        equipment,
+      }),
     [
-      storeState.motionType,
-      storeState.tonnage,
-      storeState.cruiseMP,
-      storeState.armorType,
-      storeState.armorAllocation,
-      storeState.structureType,
-      storeState.turret,
-      storeState.secondaryTurret,
-      storeState.barRating,
-      storeState.equipment,
+      motionType,
+      tonnage,
+      cruiseMP,
+      armorType,
+      armorAllocation,
+      structureType,
+      turret,
+      secondaryTurret,
+      barRating,
+      equipment,
     ],
   );
 
   // Run full VAL-VEHICLE-* validation result surfaced in status bar.
   const validationResult = useMemo(
-    () => validateStatusBarState(storeState),
+    () =>
+      validateStatusBarState({
+        tonnage,
+        motionType,
+        engineType,
+        cruiseMP,
+        turret,
+        armorType,
+        armorAllocation,
+        crewSize,
+        powerAmpWeight,
+        structureType,
+      }),
     [
-      storeState.tonnage,
-      storeState.motionType,
-      storeState.engineType,
-      storeState.cruiseMP,
-      storeState.turret,
-      storeState.armorType,
-      storeState.armorAllocation,
-      storeState.crewSize,
-      storeState.powerAmpWeight,
-      storeState.structureType,
+      tonnage,
+      motionType,
+      engineType,
+      cruiseMP,
+      turret,
+      armorType,
+      armorAllocation,
+      crewSize,
+      powerAmpWeight,
+      structureType,
     ],
   );
 
