@@ -23,6 +23,9 @@ import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { VehicleStatusBar } from '../VehicleStatusBar';
 
 jest.mock('@/stores/useVehicleStore');
+jest.mock('@/hooks/useEquipmentRegistry', () => ({
+  useEquipmentRegistry: () => ({ isReady: false, recheckReady: jest.fn() }),
+}));
 const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
   typeof useVehicleStore
 >;
