@@ -31,7 +31,7 @@
 
 import { z } from 'zod';
 
-import { UI_THEMES } from '@/constants/appearance';
+import { LEGACY_UI_THEMES, UI_THEMES } from '@/constants/appearance';
 
 // =============================================================================
 // theme-preference  (useThemeStore)
@@ -66,7 +66,13 @@ export const AppearancePersistedSchema = z.object({
   fontSize: z.enum(['small', 'medium', 'large']),
   animationLevel: z.enum(['full', 'reduced', 'none']),
   compactMode: z.boolean(),
-  uiTheme: z.enum(UI_THEMES),
+  // A retired theme id restores as its replacement rather than discarding
+  // the whole appearance payload.
+  uiTheme: z.preprocess(
+    (theme) =>
+      typeof theme === 'string' ? (LEGACY_UI_THEMES[theme] ?? theme) : theme,
+    z.enum(UI_THEMES),
+  ),
 });
 export type AppearancePersisted = z.infer<typeof AppearancePersistedSchema>;
 

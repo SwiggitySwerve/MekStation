@@ -7,8 +7,11 @@ import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { logger } from '@/utils/logger';
 
-jest.mock('@/utils/logger', () => ({ logger: { error: jest.fn() } }));
+jest.mock('@/utils/logger', () => ({
+  logger: { error: jest.fn(), warn: jest.fn() },
+}));
 
 // Mock ModalOverlay
 jest.mock('@/components/customizer/dialogs/ModalOverlay', () => ({
@@ -399,6 +402,13 @@ describe('UnitLoadDialog', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Could not load the library',
     );
+    // The alert reports the failure, so it is logged as a warning: an
+    // error-level log opens the Next.js dev overlay over the dialog.
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Failed to load units:',
+      expect.any(Error),
+    );
+    expect(logger.error).not.toHaveBeenCalled();
     await user.click(
       screen.getByRole('button', { name: 'Retry Loading Library' }),
     );

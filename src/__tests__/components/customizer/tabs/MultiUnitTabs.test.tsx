@@ -42,18 +42,22 @@ jest.mock('@/stores/unitStoreRegistry', () => ({
   getUnitStore: jest.fn(),
 }));
 
-// Mock TabBar with click handlers to test tab selection
+// Mock TabBar with click handlers to test tab selection; it renders the
+// caller's right-hand actions (Save) as the real TabBar does.
 jest.mock('@/components/customizer/tabs/TabBar', () => ({
   TabBar: ({
     onSelectTab,
     tabs,
     activeTabId,
+    actions,
   }: {
     onSelectTab: (id: string) => void;
     tabs: { id: string; name: string }[];
     activeTabId: string | null;
+    actions?: React.ReactNode;
   }) => (
     <div data-testid="tab-bar">
+      {actions}
       {tabs.map((tab: { id: string; name: string }) => (
         <button
           key={tab.id}

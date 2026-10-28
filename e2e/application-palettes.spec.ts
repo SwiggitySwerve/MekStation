@@ -1,7 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const palettes = [
-  { name: 'Midnight blue', id: 'default', base: '#122e50' },
+  { name: 'Gunmetal', id: 'gunmetal', base: '#14181a' },
+  { name: 'Cobalt', id: 'cobalt', base: '#091737' },
+  { name: 'Hangar', id: 'hangar', base: '#1a1713' },
+  { name: 'Olive steel', id: 'olive-steel', base: '#161812' },
   { name: 'Petrol teal', id: 'petrol', base: '#0e353d' },
   { name: 'Field olive', id: 'field', base: '#2a381e' },
   { name: 'Classic slate', id: 'slate', base: '#1e293b' },
@@ -268,7 +271,14 @@ test('palette changes update another open application tab without discarding fon
   await page.goto('/settings#appearance');
   const other = await context.newPage();
   await other.goto('/settings#appearance');
-  await other.getByLabel('Font Size', { exact: true }).selectOption('large');
+  // A choice made before React hydrates is reset by hydration, so retry
+  // until the page registers it (Save Appearance enables on a draft change).
+  await expect(async () => {
+    await other.getByLabel('Font Size', { exact: true }).selectOption('large');
+    await expect(
+      other.getByRole('button', { name: 'Save Appearance', exact: true }),
+    ).toBeEnabled({ timeout: 1000 });
+  }).toPass();
   await page.getByRole('button', { name: 'Petrol teal', exact: true }).click();
   await page.getByRole('button', { name: 'Violet', exact: true }).click();
   await expect.poll(() => paletteSurface(other)).toBe('#0e353d');
@@ -314,7 +324,7 @@ test('storage failure is reported and a retry saves the selected colors @appeara
 }, testInfo) => {
   await page.goto('/settings#appearance');
   await expect(
-    page.getByRole('button', { name: 'Midnight blue', exact: true }),
+    page.getByRole('button', { name: 'Gunmetal', exact: true }),
   ).toBeVisible();
   await page.evaluate(() => {
     const original = Storage.prototype.setItem;
@@ -335,7 +345,7 @@ test('storage failure is reported and a retry saves the selected colors @appeara
   await expect(
     page.getByRole('alert').filter({ hasText: 'Couldn’t save colors' }),
   ).toBeVisible();
-  expect(await appearance(page)).toMatchObject({ uiTheme: 'default' });
+  expect(await appearance(page)).toMatchObject({ uiTheme: 'gunmetal' });
   await page.screenshot({
     path: testInfo.outputPath('palette-save-failure.png'),
     animations: 'disabled',

@@ -149,6 +149,33 @@ describe('TabBar', () => {
     expect(tabBar).toHaveClass('custom-class');
   });
 
+  it('follows the last unit tab with Add Unit and leads the right group with the actions', () => {
+    render(
+      <TabBar
+        {...defaultProps}
+        tabs={[
+          createTab({ id: 'tab-1', name: 'Unit 1' }),
+          createTab({ id: 'tab-2', name: 'Unit 2' }),
+        ]}
+        actions={<button type="button">Save</button>}
+      />,
+    );
+
+    const tablist = screen.getByRole('tablist', { name: 'Open units' });
+    const add = screen.getByRole('button', { name: 'Add Unit (Ctrl+O)' });
+    expect(tablist.nextElementSibling).toBe(add);
+
+    const group = screen.getByTestId('unit-command-group');
+    const save = screen.getByRole('button', { name: 'Save' });
+    const menu = screen.getByRole('button', { name: 'Unit Actions' });
+    expect(group).toContainElement(save);
+    expect(group).toContainElement(menu);
+    expect(group).not.toContainElement(add);
+    expect(
+      save.compareDocumentPosition(menu) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it('should handle empty tabs array', () => {
     render(<TabBar {...defaultProps} tabs={[]} />);
 

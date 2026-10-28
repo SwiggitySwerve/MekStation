@@ -18,8 +18,11 @@ export function CustomizerWorkspaceControls({
   useEffect(() => {
     setHost(document.getElementById('customizer-workspace-controls'));
   }, []);
+  // Ghost icon buttons like Add Unit and the unit menu: no box at rest. The
+  // 2px margin puts this glyph 24px past the unit menu's, and the last
+  // button's right edge on the Loadout rail's controls below.
   const buttonClass =
-    'group text-text-theme-primary bg-surface-raised border-border-theme-strong hover:bg-surface-base focus-visible:outline-text-theme-primary relative ml-1 hidden h-11 w-11 shrink-0 items-center justify-center rounded border !p-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:flex';
+    'group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-text-theme-primary relative ml-0.5 hidden h-11 w-11 shrink-0 items-center justify-center rounded !p-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:flex';
   const content = (
     <>
       {wide && (
@@ -44,7 +47,7 @@ export function CustomizerWorkspaceControls({
         aria-pressed={wide}
         aria-label="Hide Loadout Panel"
         onClick={onToggle}
-        className={`${buttonClass} aria-pressed:border-accent aria-pressed:bg-accent/15`}
+        className={`${buttonClass} aria-pressed:bg-accent/15 aria-pressed:text-accent`}
         data-testid="customizer-workspace-toggle"
       >
         <AppIcon

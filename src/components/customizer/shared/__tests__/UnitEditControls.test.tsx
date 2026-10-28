@@ -42,6 +42,26 @@ it('names the next operation and routes buttons and shortcuts to the selected un
   expect(two.getState().year).toBe(3050);
 });
 
+it('draws compact undo and redo as borderless ghost icon buttons', () => {
+  render(<StoreEditControls store={makeStore()} compact />);
+  for (const name of ['Undo', 'Redo']) {
+    const button = screen.getByRole('button', { name });
+    expect(button).toHaveClass('bg-transparent', 'border-transparent');
+    expect(button).toHaveClass(
+      'disabled:!border-transparent',
+      '!h-11',
+      '!w-11',
+    );
+    // Enabled reads in the primary colour; disabled stays dimmed.
+    expect(button).toHaveClass(
+      'enabled:!text-text-theme-primary',
+      'disabled:!opacity-50',
+    );
+    expect(button).not.toHaveClass('border-border-theme');
+    expect(button).toHaveTextContent('');
+  }
+});
+
 it('leaves text editing, composition, and modal shortcuts alone', () => {
   const store = makeStore();
   render(

@@ -19,9 +19,9 @@ test('appearance palettes save immediately and survive navigation and reload @ap
 }, testInfo) => {
   await page.goto('/settings#appearance');
   await expect(
-    page.getByRole('button', { name: 'Midnight blue', exact: true }),
+    page.getByRole('button', { name: 'Gunmetal', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
-  await expect.poll(() => surface(page)).toBe('#122e50');
+  await expect.poll(() => surface(page)).toBe('#14181a');
   const palettes = [
     ['Petrol teal', 'petrol', '#0e353d'],
     ['Field olive', 'field', '#2a381e'],
@@ -32,7 +32,10 @@ test('appearance palettes save immediately and survive navigation and reload @ap
     ['Neon', 'neon', '#0f172a'],
     ['Tactical', 'tactical', '#0c1220'],
     ['Obsidian', 'minimal', '#161b22'],
-    ['Midnight blue', 'default', '#122e50'],
+    ['Cobalt', 'cobalt', '#091737'],
+    ['Hangar', 'hangar', '#1a1713'],
+    ['Olive steel', 'olive-steel', '#161812'],
+    ['Gunmetal', 'gunmetal', '#14181a'],
   ];
   for (const [name, id, color] of palettes) {
     await page.getByRole('button', { name, exact: true }).click();
@@ -72,26 +75,27 @@ test('appearance palettes save immediately and survive navigation and reload @ap
   await page.getByRole('button', { name: 'Field olive', exact: true }).click();
   await expect.poll(() => surface(page)).toBe('#2a381e');
   await page.getByRole('link', { name: 'Dashboard', exact: true }).click();
+  // Arrive first: checked mid-navigation the palette trivially still holds,
+  // and the late route change would then override the next page.goto.
+  await expect(page).toHaveURL(/\/$/);
   await expect.poll(() => surface(page)).toBe('#2a381e');
   expect(await savedAppearance(page)).toMatchObject({
     uiTheme: 'field',
     accentColor: 'violet',
   });
   await page.goto('/settings#appearance');
-  await page
-    .getByRole('button', { name: 'Midnight blue', exact: true })
-    .click();
+  await page.getByRole('button', { name: 'Gunmetal', exact: true }).click();
   await page.reload();
-  await expect.poll(() => surface(page)).toBe('#122e50');
+  await expect.poll(() => surface(page)).toBe('#14181a');
   const palettePicker = page
-    .getByRole('button', { name: 'Midnight blue', exact: true })
+    .getByRole('button', { name: 'Gunmetal', exact: true })
     .locator('xpath=../..');
   await palettePicker.screenshot({
     path: testInfo.outputPath('appearance-palettes.png'),
     animations: 'disabled',
   });
   await page
-    .getByRole('button', { name: 'Midnight blue', exact: true })
+    .getByRole('button', { name: 'Gunmetal', exact: true })
     .scrollIntoViewIfNeeded();
   await page.screenshot({
     path: testInfo.outputPath('appearance-desktop.png'),
@@ -100,7 +104,7 @@ test('appearance palettes save immediately and survive navigation and reload @ap
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(
-    page.getByRole('button', { name: 'Midnight blue', exact: true }),
+    page.getByRole('button', { name: 'Gunmetal', exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -115,7 +119,7 @@ test('appearance palettes save immediately and survive navigation and reload @ap
     expect(box!.height).toBeGreaterThanOrEqual(44);
   }
   await page
-    .getByRole('button', { name: 'Midnight blue', exact: true })
+    .getByRole('button', { name: 'Gunmetal', exact: true })
     .scrollIntoViewIfNeeded();
   await palettePicker.screenshot({
     path: testInfo.outputPath('appearance-palettes-mobile.png'),
@@ -155,14 +159,37 @@ test('catalog density and focus outlines fit the annotated viewport @appearance'
     exact: true,
   });
   await energy.click();
-  await energy.focus();
+  // Reach Energy by keyboard so its :focus-visible outline is drawn.
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  await expect(energy).toBeFocused();
   const bounds = await categories.boundingBox();
   const button = await energy.boundingBox();
-  expect(button!.x - bounds!.x).toBeGreaterThanOrEqual(4);
-  expect(button!.y - bounds!.y).toBeGreaterThanOrEqual(4);
+  // The scrolling row clips anything outside it, so the focus outline must
+  // fit inside. The chips are full-height underline tabs that draw their
+  // outline inset (negative offset), so it reaches `outset` px past the chip.
+  const outline = await energy.evaluate((el) => {
+    // Settle the global button transition so the outline reads at rest.
+    el.getAnimations().forEach((animation) => animation.finish());
+    const style = getComputedStyle(el);
+    return {
+      style: style.outlineStyle,
+      width: parseFloat(style.outlineWidth),
+      offset: parseFloat(style.outlineOffset),
+    };
+  });
+  expect(outline.style).not.toBe('none');
+  expect(outline.width).toBeGreaterThanOrEqual(2);
+  const outset = Math.max(0, outline.width + outline.offset);
+  expect(button!.x - bounds!.x).toBeGreaterThanOrEqual(outset);
+  expect(button!.y - bounds!.y).toBeGreaterThanOrEqual(outset);
   expect(
     bounds!.y + bounds!.height - button!.y - button!.height,
-  ).toBeGreaterThanOrEqual(4);
+  ).toBeGreaterThanOrEqual(outset);
+  // Back to every category, so the list runs to several pages and the pager
+  // shows (Energy alone fits one page now that physical weapons are filed
+  // under Physical).
+  await categories.getByRole('button', { name: 'All', exact: true }).click();
   const row = page
     .getByRole('region', { name: 'Equipment catalog' })
     .locator('li')

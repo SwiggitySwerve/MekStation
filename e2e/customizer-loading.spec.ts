@@ -99,7 +99,13 @@ for (const width of [1440, 390]) {
       await expect(
         page.getByRole('button', { name: 'Loading Unit…', exact: true }),
       ).toBeDisabled();
-      await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+      // Phones hide the footer Cancel (sm:block); the header ✕ cancels there.
+      await page
+        .getByRole('button', {
+          name: width < 640 ? 'Close dialog' : 'Cancel',
+          exact: true,
+        })
+        .click();
       await expect(page.getByRole('dialog')).toBeHidden();
       await page
         .getByRole('button', { name: 'Load from Library', exact: true })

@@ -89,7 +89,7 @@ const TopBar: React.FC = () => {
   if (router.pathname.startsWith('/customizer')) {
     return (
       <header
-        className="bg-surface-base border-border-theme relative z-40 flex h-14 shrink-0 items-center gap-1 border-b px-1 sm:px-2 print:hidden"
+        className="bg-surface-base border-border-theme relative z-40 flex h-14 shrink-0 items-center gap-1 border-b px-1 sm:px-2 md:h-12 md:gap-0 print:hidden"
         data-testid="customizer-command-header"
       >
         <CustomizerAppMenu
@@ -102,7 +102,7 @@ const TopBar: React.FC = () => {
         />
         <div
           id="customizer-command-bar"
-          className="flex h-full min-w-0 flex-1 items-center"
+          className="flex h-full min-w-0 flex-1 items-center md:ml-1"
         />
         <div
           id="customizer-workspace-controls"

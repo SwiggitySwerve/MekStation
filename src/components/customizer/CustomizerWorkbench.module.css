@@ -645,6 +645,53 @@
   }
 }
 
+/* Desktop strip: one 38px line of "LABEL value" pairs at their natural
+   widths, starting on the page's 16px left edge, with 16px either side of
+   the hairline between pairs. Each value keeps its bar (or bar-height
+   spacer) under it, so labels and values share one baseline. */
+@media (min-width: 1024px) {
+  .compactMetrics {
+    padding: 0 16px;
+    min-height: 38px;
+  }
+
+  .compactBar,
+  .compactMetrics .readouts {
+    min-height: 38px;
+  }
+
+  .compactMetrics .readouts {
+    display: flex;
+  }
+
+  .compactMetrics .readoutGroup {
+    flex: none;
+  }
+
+  .compactMetrics .readoutGroup > div {
+    display: flex;
+  }
+
+  .compactMetrics .readoutGroup > div > * {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+    padding-inline: 16px;
+  }
+
+  .compactMetrics .readoutGroupKey > div > :first-child {
+    padding-left: 0;
+  }
+}
+
+/* A fine pointer needs no 44px row for the explained readouts, so they keep
+   the strip's height; touch screens keep the 44px target. */
+@media (min-width: 1024px) and (pointer: fine) {
+  .compactMetrics .explainedStat {
+    min-height: 0;
+  }
+}
+
 /* Budget readouts lead; a 3px bar shows use against the cap by state. */
 .budgetTrack {
   display: block;
@@ -749,22 +796,17 @@
   gap: 8px;
 }
 
-/* Wide section bar: the section tabs share the free width up to a cap, so no
-   empty band sits between the last tab and the edit controls. Tabs never
-   shrink below their label, so a narrow bar still scrolls instead of
-   crowding. */
+/* Wide section bar: tabs keep their natural width with 16px each side, left
+   aligned so the first label shares the page's 16px left edge, and a narrow
+   bar scrolls instead of crowding. An empty badge slot would only push a
+   label off centre, so it reappears with a count. */
+@media (min-width: 640px) {
+  .sectionBar .sectionTab {
+    padding-inline: 16px;
+  }
+}
+
 @media (min-width: 768px) {
-  .sectionBar .sectionTablist > * {
-    flex: 1 1 0%;
-    max-width: 11rem;
-  }
-
-  .sectionBar .sectionTablist > * > .sectionTab {
-    flex: 1 1 auto;
-  }
-
-  /* Tabs share the bar equally here, so an empty badge slot only pushes the
-     label off centre; it reappears with a count. */
   .sectionBar .sectionTablist .sectionValidationDot:not([data-severity]) {
     display: none;
   }
