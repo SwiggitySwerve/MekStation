@@ -22,7 +22,36 @@ function isOutside(parent, candidate) {
   );
 }
 
-function findPackage(root, name, importer, optional = false) {
+/** Validate copied package trees once, rejecting escapes and directory cycles. */
+export function createPackageSourcePreflight(root) {
+  const checkout = fs.realpathSync.native(root);
+  const validated = new Set();
+  const active = new Set();
+  function visit(source) {
+    const real = fs.realpathSync.native(source);
+    if (isOutside(checkout, real)) {
+      throw new Error(`Runtime package source escapes checkout: ${source}`);
+    }
+    if (active.has(real)) {
+      throw new Error(`Cyclic runtime package source: ${source}`);
+    }
+    if (validated.has(real)) return;
+    if (fs.statSync(source).isDirectory()) {
+      active.add(real);
+      try {
+        for (const entry of fs.readdirSync(source)) {
+          visit(path.join(source, entry));
+        }
+      } finally {
+        active.delete(real);
+      }
+    }
+    validated.add(real);
+  }
+  return visit;
+}
+
+function findPackage(root, name, importer, preflightSource, optional = false) {
   // Resolve the installed directory, not package.json through exports: some
   // packages hide that subpath or expose only conditional/subpath entries.
   const resolver = createRequire(importer);
@@ -40,6 +69,7 @@ function findPackage(root, name, importer, optional = false) {
         `Linked runtime package ${name} is not supported: ${candidate}`,
       );
     }
+    preflightSource(candidate);
     return candidate;
   }
   if (optional) return null;
@@ -47,7 +77,12 @@ function findPackage(root, name, importer, optional = false) {
 }
 
 /** Next preserves absolute checkout links and relative standalone links. */
-export function collectTurbopackExternals(root, aliasRoot, standaloneDir) {
+export function collectTurbopackExternals(
+  root,
+  aliasRoot,
+  standaloneDir,
+  preflightSource = createPackageSourcePreflight(root),
+) {
   if (!fs.existsSync(aliasRoot)) return [];
   const checkout = fs.realpathSync.native(root);
   const standalone = fs.realpathSync.native(standaloneDir);
@@ -60,9 +95,10 @@ export function collectTurbopackExternals(root, aliasRoot, standaloneDir) {
         // On Linux, Next preserves ../../node_modules/<package>, which now
         // resolves into the traced image. Copy from its installed counterpart,
         // never from the traced copy or an arbitrary directory in the checkout.
-        const source = isOutside(standalone, linkedSource)
-          ? linkedSource
-          : path.join(root, path.relative(standalone, linkedSource));
+        const inStandalone = !isOutside(standalone, linkedSource);
+        const source = inStandalone
+          ? path.join(root, path.relative(standalone, linkedSource))
+          : linkedSource;
         if (
           isOutside(checkout, linkedSource) ||
           isOutside(path.join(root, 'node_modules'), source)
@@ -71,16 +107,33 @@ export function collectTurbopackExternals(root, aliasRoot, standaloneDir) {
             `Turbopack external source is outside installed packages: ${target}`,
           );
         }
+        preflightSource(source);
         const manifestPath = path.join(source, 'package.json');
         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
         const name = packageName(manifest.name);
         if (
-          fs.realpathSync.native(findPackage(root, name, manifestPath)) !==
-          source
+          fs.realpathSync.native(
+            findPackage(root, name, manifestPath, preflightSource),
+          ) !== fs.realpathSync.native(source)
         ) {
           throw new Error(
             `Turbopack external source does not match installed package ${name}: ${target}`,
           );
+        }
+        if (inStandalone) {
+          preflightSource(linkedSource);
+          const tracedManifest = JSON.parse(
+            fs.readFileSync(path.join(linkedSource, 'package.json'), 'utf8'),
+          );
+          if (
+            tracedManifest.name !== manifest.name ||
+            typeof manifest.version !== 'string' ||
+            tracedManifest.version !== manifest.version
+          ) {
+            throw new Error(
+              `Turbopack external package identity mismatch: ${target}`,
+            );
+          }
         }
         packages.push({
           source,
@@ -101,7 +154,11 @@ export function collectTurbopackExternals(root, aliasRoot, standaloneDir) {
 }
 
 /** Discover raw server imports without executing server.js or its TS modules. */
-export async function collectRuntimePackages(root, loaders) {
+export async function collectRuntimePackages(
+  root,
+  loaders,
+  preflightSource = createPackageSourcePreflight(root),
+) {
   const server = path.join(root, 'server.js');
   const { metafile } = await build({
     absWorkingDir: root,
@@ -129,7 +186,13 @@ export async function collectRuntimePackages(root, loaders) {
     // Next owns its own framework deployment and native dependencies. This
     // supplements the separate raw-TS server graph, not Next's trace.
     if (name === 'next') return;
-    const directory = findPackage(root, name, importer, optional);
+    const directory = findPackage(
+      root,
+      name,
+      importer,
+      preflightSource,
+      optional,
+    );
     if (!directory || directories.has(directory)) return;
     directories.add(directory);
     const manifestPath = path.join(directory, 'package.json');
