@@ -8920,14 +8920,14 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "state": "local-verified",
       "baseline": "a720c5746034a12ec4558d34c5250916fddc1bda",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-a2m-admission.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/l1-smoke-a2m-red.json" },
+        "local": { "path": "evidence/l1-smoke-a2m-local.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -9009,6 +9009,15 @@
         "evidenceName": "evidence/l1-smoke-a2m-admission.json (the registered literal; free on main). The red, local and review literals are unchanged.",
         "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four evidence names (admission, red, local, review).",
         "sizeCap": "Both counting rules agree: no fixture leaf. Counted leaves 252 (cases 223, runner 29) plus an estimated lifecycle of 56 to 80 lines against the cap of 500; no capException. The test leaf (221 lines) is exempt and file-counted."
+      },
+      "localVerified20261027": {
+        "date": "2026-10-27",
+        "receipts": "evidence/l1-smoke-a2m-red.json and evidence/l1-smoke-a2m-local.json; packet PK-l1-smoke-a2m-ruling",
+        "proof": "RED 9363f5d8b (weak ERR_MODULE_NOT_FOUND; the no-op ctx.check stand-in fails the test file), GREEN 2cefdfe62 (leaves equal the measuredFit bytes; node:test 9/9, oxfmt 0, 16/16 pure-function mutants). First --build run of the runner after MISSION-MATCH-1 PASSED the A1 baseline plus all 12 matrix ids with no rerun (CF-A2FP-2 unused). Built-image mutants R7, R8, P1, P4, P6 KILLED by named checks; P7 (MISSION-MATCH-1 reverted) KILLED on the actor's Move.",
+        "survivorR6": "ROOT RULING 2026-10-28 (carry-forward.md, 'Root ruling: A2M gating mutant R6 survived'; a Root ruling, not an owner decision): R6 (runRow skips the live barrier wait) SURVIVED the built run. It is NOT equivalent: accepted() returns on the actor's own reply and the watcher's public-lock frame lands about 1 ms later, so without the barrier the live-leg scan can run before the frame arrives. The reconnect and restart legs cover P4 (observed); P1 and P6 coverage there is inferred, not run (Root correction 2026-10-28); only a live-path-only leak combined with a missing barrier would escape. Accepted as a disclosed survivor (A2F R5 precedent), not a privacy-proof gap: the shipped runner keeps the barrier and every product mutant is killed. No leaf was edited.",
+        "carryForward": "CF-A2M-1: the next unit that amends the A2M harness adds a live-leg assertion that the watcher holds the public-lock frame for the declaration before the scan, and re-runs R6.",
+        "p7": "P7 (optional, non-gating): the MISSION-MATCH-1 product files reverted on a detached throwaway commit and built; the run failed on the actor's Move (matrix-Move-player-stale-guest3: timeout waiting for reply to Move), so the first stale row (matrix-Move-player-stale) discriminates; the other five stale rows are not individually witnessed. A first P7 attempt reverted nothing (git checkout failed on the MM1-added sideAssignments.ts) and is recorded as invalid.",
+        "disclosures": "G-A8: the real mission GM keeps the player viewer role (Root ruling 2026-10-26 option a), S5-02 stays open with no A2M row, and OQ-M1 (GM-branded spectators see an authority sequence gap) is asserted as sealed content absent, no placeholder and a contiguous cursor; the sequence gap itself is recorded, not asserted. The release-notes obligation belongs to RELEASE-PRODUCER-1 admission."
       }
     },
     {
@@ -23108,6 +23117,33 @@
         "author": "SwiggitySwerve",
         "bodySha256": "3a038d324d9e0bf01bf43e6e578d7fa3019e8c3d47ceec480821ee5db4fe5541"
       }
+    },
+    {
+      "id": "PK-l1-smoke-a2m-ruling",
+      "blocks": [
+        "L1-SMOKE-A2M"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the A2M nine-row spectator privacy matrix proof after independent exact-head privacy/authority review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge and exact-main proof before A2 admission.",
+          "effort": "Independent review, CI, exact-main build and closure"
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete in-scope findings, then rerun affected proof.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. Nine node falsifiers, 16 pure-function mutants and the first post-MISSION-MATCH-1 built-image run (A1 baseline plus all 12 matrix ids, no rerun) pass on the frozen measuredFit leaves. Built-image mutants R7, R8, P1, P4 and P6 are killed by named checks and P7 (MISSION-MATCH-1 reverted) fails the actor's Move, so the first stale row (matrix-Move-player-stale) discriminates; the other five are not individually witnessed. R6 (runRow skips the live barrier wait) SURVIVES and is not equivalent: accepted() returns on the actor reply and the lock frame lands about 1 ms later, so only the barrier makes the live leg deterministic; the reconnect and restart legs cover P4 (observed); P1 and P6 there are inferred, not run (Root correction 2026-10-28). Root ruled on 2026-10-28 to accept R6 as a disclosed survivor (Root ruling, not an owner decision) and registered CF-A2M-1. Review the live barrier, the stale-first establishment before the declaration, the GM-branded rows (OQ-M1: sealed content absent, no placeholder and a contiguous cursor asserted; the sequence gap recorded, not asserted), and the disclosures (real mission GM player role, S5-02 open). No product or frozen predecessor change; no exact-main acceptance is claimed.",
+      "revertCost": "Delete the three A2M leaves and own lifecycle additions. Product and predecessor leaves are unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-mission-match-1-ruling",

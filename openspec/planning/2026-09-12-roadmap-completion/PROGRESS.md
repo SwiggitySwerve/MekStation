@@ -1,3 +1,13 @@
+## 2026-10-27 L1-SMOKE-A2M local-verified (Step 3 PR 7 of 12)
+
+Adds the A2M cases and runner leaves behind the frozen test leaf: nine sealed-declaration/audience rows (Move, Attack, Physical times player-stale, gm-stale, gm-unassigned) plus the three non-spectating-GM controls. RED contains only the test; GREEN adds the two source leaves, byte-equal to the admission measuredFit bytes. No product edit.
+
+- Proof: 9/9 node falsifiers, 16/16 pure-function mutants, and the first built-image run after MISSION-MATCH-1 passed the A1 baseline plus all 12 matrix ids with no rerun. Built-image mutants R7, R8, P1, P4 and P6 are killed by named checks; P7 (MISSION-MATCH-1 reverted) fails the actor's Move.
+- R6 (runRow skips the live barrier wait) SURVIVES and is not equivalent: accepted() returns on the actor's reply and the lock frame lands about 1 ms later. Root ruling 2026-10-28 (not an owner decision) accepts it as a disclosed survivor (A2F R5 precedent); CF-A2M-1 owes a live-leg lock-frame assertion at the next A2M harness amendment.
+- PK-l1-smoke-a2m-ruling recommends acceptance only after independent exact-head privacy/authority review, OWNER-RULING and CI. Merge, exact-main proof and closure remain open. G-A8 disclosures stand (real mission GM player role, S5-02, OQ-M1).
+
+---
+
 ## 2026-10-27 L1-SMOKE-A2M admitted (Step 3 PR 6 of 12, second commit of the MISSION-MATCH-1 closure PR; ledger and evidence only)
 
 Admits L1-SMOKE-A2M on baseline a720c5746 (the MISSION-MATCH-1 implementation merge), after the MISSION-MATCH-1 closure in the previous commit of this PR (the #2336 and #2339 riding pattern). Only A2M becomes admitted unfinished when this PR merges; no A2M leaf is committed here. Implementation starts only after this PR merges. The receipt is [l1-smoke-a2m-admission.json](evidence/l1-smoke-a2m-admission.json).
