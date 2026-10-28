@@ -14,8 +14,6 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # The Type Check job gates types; PR builds skip Next's duplicate pass.
-  MEKSTATION_SKIP_NEXT_TYPECHECK: 'true'
 
 jobs:
   # ---------------------------------------------------------------
@@ -192,6 +190,10 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+
+      - name: Generate Next.js route types
+        if: needs.detect-changes.outputs.code == 'true'
+        run: npx next typegen
 
       - name: Run type check
         if: needs.detect-changes.outputs.code == 'true'

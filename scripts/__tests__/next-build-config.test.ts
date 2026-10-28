@@ -29,7 +29,7 @@ describe('production builder alias parity', () => {
             isServer: false,
             webpack: { ProgressPlugin: class {} },
           };
-          const browser = config.webpack({ resolve: { alias: {} }, plugins: [] }, context);
+          const browser = config.webpack({ resolve: { alias: {} }, plugins: [], optimization: {}, module: { rules: [] } }, context);
           const server = config.webpack({ resolve: { alias: {} }, plugins: [] }, { ...context, isServer: true });
           console.log(JSON.stringify({
             turbo: config.turbopack.resolveAlias,
@@ -38,6 +38,10 @@ describe('production builder alias parity', () => {
             output: config.output,
             tracingRoot: config.outputFileTracingRoot,
             skipTypes: config.typescript.ignoreBuildErrors,
+            webpackSideEffects: browser.optimization.sideEffects,
+            equipmentRules: browser.module.rules.map(rule => ({ test: rule.test.source, sideEffects: rule.sideEffects })),
+            progressPlugins: browser.plugins.length,
+            esmExternals: config.experimental.esmExternals,
           }));
         `,
         ],
@@ -61,6 +65,10 @@ describe('production builder alias parity', () => {
         output: string;
         tracingRoot: string;
         skipTypes: boolean;
+        webpackSideEffects?: boolean;
+        equipmentRules: { test: string; sideEffects: boolean }[];
+        progressPlugins: number;
+        esmExternals: boolean;
       };
       const harness = '@/testing/TacticalMapE2EHarness';
       const target = './src/testing/emptyTacticalMapE2EHarness.tsx';
@@ -80,7 +88,16 @@ describe('production builder alias parity', () => {
       }
       expect(config.output).toBe('standalone');
       expect(config.tracingRoot).toBe(repoRoot);
-      expect(config.skipTypes).toBe(false);
+      expect(config.skipTypes).toBe(true);
+      const production = phase === 'phase-production-build';
+      expect(config.webpackSideEffects).toBe(production ? false : undefined);
+      expect(config.equipmentRules).toEqual(
+        production
+          ? [{ test: 'src\\/data\\/equipment.*\\.ts$', sideEffects: false }]
+          : [],
+      );
+      expect(config.progressPlugins).toBe(production ? 1 : 0);
+      expect(config.esmExternals).toBe(true);
     },
   );
 });

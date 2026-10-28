@@ -123,10 +123,10 @@ const nextConfig = (phase: string): NextConfig => ({
   // This creates a self-contained build with all dependencies
   output: 'standalone',
 
-  // PR CI sets MEKSTATION_SKIP_NEXT_TYPECHECK: its Type Check job already
-  // gates types, so each PR `next build` skips a duplicate ~75s TypeScript pass.
+  // Artifact creation is separate from validation. PR's required Lint and Test
+  // aggregator and release validation gate typecheck, lint and desktop types.
   typescript: {
-    ignoreBuildErrors: process.env.MEKSTATION_SKIP_NEXT_TYPECHECK === 'true',
+    ignoreBuildErrors: true,
   },
 
   // Pin the file-tracing root to this app directory. Without this, Next walks
@@ -135,9 +135,8 @@ const nextConfig = (phase: string): NextConfig => ({
   // .next/standalone/.claude/worktrees/<name>/ and breaks the hydrate step.
   outputFileTracingRoot: process.cwd(),
 
-  // Optimize for production builds
+  // Retain Next's ESM externals policy for the remaining --webpack commands.
   experimental: {
-    // Enable modern output for better tree-shaking
     esmExternals: true,
   },
 
@@ -146,11 +145,12 @@ const nextConfig = (phase: string): NextConfig => ({
     config: Configuration,
     { dev, isServer, webpack }: WebpackContext,
   ): Configuration => {
-    // Enable tree-shaking for equipment data files
+    // Preserve the existing --webpack side-effect policy. This disables
+    // package sideEffects optimization; Turbopack does not use this callback.
     if (!dev && config.optimization && config.module?.rules) {
       config.optimization.sideEffects = false;
 
-      // Add specific tree-shaking rules for equipment files
+      // Retain the legacy equipment rule for webpack builds on POSIX paths.
       config.module.rules.push({
         test: /src\/data\/equipment.*\.ts$/,
         sideEffects: false,
@@ -168,7 +168,7 @@ const nextConfig = (phase: string): NextConfig => ({
       );
     }
 
-    // Add progress plugin for build feedback
+    // Keep progress feedback for webpack analysis/profile/debug and CAMP-00.
     if (!dev && config.plugins) {
       config.plugins.push(
         new webpack.ProgressPlugin({
