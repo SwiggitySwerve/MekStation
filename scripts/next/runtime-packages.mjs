@@ -71,7 +71,15 @@ export function collectTurbopackExternals(root, aliasRoot) {
             `Turbopack external source does not match installed package ${name}: ${target}`,
           );
         }
-        packages.push({ source, target });
+        packages.push({
+          source,
+          target,
+          canForwardNativeEntry:
+            fs.existsSync(path.join(source, 'binding.gyp')) &&
+            manifest.type !== 'module' &&
+            !manifest.exports &&
+            path.extname(manifest.main ?? 'index.js') !== '.mjs',
+        });
       } else if (entry.isDirectory()) {
         visit(target);
       }

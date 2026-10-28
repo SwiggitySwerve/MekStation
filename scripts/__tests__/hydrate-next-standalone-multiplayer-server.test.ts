@@ -104,6 +104,67 @@ function prepareStandaloneFixture(root: string): void {
 }
 
 describe('hydrate-next-standalone-multiplayer-server', () => {
+  it('forwards a native CommonJS alias to the single canonical package after relocation', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    addRuntimeImport(root, "export { default } from 'native-library';");
+    writePackage(
+      root,
+      'node_modules/native-library',
+      {
+        name: 'native-library',
+        main: 'index.cjs',
+      },
+      {
+        'binding.gyp': '{}',
+        'build/Release/fixture.node': 'node-abi-fixture',
+        'index.cjs':
+          "module.exports = { binding: require.resolve('./build/Release/fixture.node') };",
+      },
+    );
+    const alias = path.join(
+      root,
+      '.next/standalone/.next/node_modules/native-library-0123456789abcdef',
+    );
+    mkdirp(path.dirname(alias));
+    fs.symlinkSync(
+      path.join(root, 'node_modules/native-library'),
+      alias,
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+    writeFile(
+      path.join(root, '.next/standalone/.next/server/probe.cjs'),
+      "const direct = require('native-library'); const alias = require('native-library-0123456789abcdef'); console.log(JSON.stringify({ same: direct === alias, binding: alias.binding }));",
+    );
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(0);
+    expect(fs.lstatSync(alias).isSymbolicLink()).toBe(false);
+    expect(fs.existsSync(path.join(alias, 'build/Release/fixture.node'))).toBe(
+      false,
+    );
+    const isolated = makeTempRoot();
+    fs.cpSync(path.join(root, '.next/standalone'), isolated, {
+      recursive: true,
+    });
+    const probe = spawnSync(
+      NODE,
+      [path.join(isolated, '.next/server/probe.cjs')],
+      {
+        cwd: isolated,
+        encoding: 'utf8',
+      },
+    );
+    expect(probe.status).toBe(0);
+    expect(JSON.parse(probe.stdout)).toEqual({
+      same: true,
+      binding: path.join(
+        isolated,
+        'node_modules/native-library/build/Release/fixture.node',
+      ),
+    });
+  });
+
   it('materializes Turbopack external aliases for an isolated image', () => {
     const root = makeTempRoot();
     prepareStandaloneFixture(root);
@@ -113,10 +174,14 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
       'node_modules/dual',
       {
         name: 'dual',
-        main: 'index.cjs',
+        exports: { import: './esm.js', require: './index.cjs' },
         dependencies: { child: '*' },
       },
-      { 'index.cjs': "module.exports = require('child');" },
+      {
+        'index.cjs': "module.exports = require('child');",
+        'esm.js': 'export default 99;',
+        'binding.gyp': '{}',
+      },
     );
     writePackage(
       root,
@@ -144,6 +209,7 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
     const result = runHydrator(root);
     expect(result.status).toBe(0);
     expect(fs.lstatSync(alias).isSymbolicLink()).toBe(false);
+    expect(fs.existsSync(path.join(alias, 'esm.js'))).toBe(true);
     const isolated = makeTempRoot();
     fs.cpSync(path.join(root, '.next/standalone'), isolated, {
       recursive: true,

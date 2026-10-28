@@ -22,8 +22,12 @@ repaired without relying on the checkout's node_modules.
 
 Next copies Turbopack's generated external-package aliases as links into the
 checkout. Preflight their installed package sources and physical parent paths,
-then replace those links with complete package directories. An isolated image
-must resolve both the generated alias and its dependencies inside the image.
+then replace those links with complete package directories. A native CommonJS
+package without conditional exports can instead forward its entry to the exact
+canonical package already copied by the runtime closure. This keeps one native
+binding for Node and Electron's isolated ABI rebuild. Packages with ESM or
+conditional exports retain complete contents. An isolated image must resolve
+both the generated alias and its dependencies inside the image.
 
 Do not replace this discovery with a hand-maintained package list or change the
 server's imports to accommodate a bundler. Keep the frozen built-server A1 and

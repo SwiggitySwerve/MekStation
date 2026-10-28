@@ -307,11 +307,30 @@ async function main() {
     'standalone source tree',
   );
   copyRuntimeLoaders(runtimePackages.directories);
-  for (const { source, target } of turbopackExternals) {
+  for (const { source, target, canForwardNativeEntry } of turbopackExternals) {
     // Remove only Next's preflighted link; copyDir then validates a physical
     // destination. Absolute checkout links cannot ship in a portable image.
     fs.unlinkSync(target);
-    copyDir(source, target, 'Turbopack external package');
+    if (canForwardNativeEntry && runtimePackages.directories.includes(source)) {
+      // A CommonJS native entry must use the canonical package: Electron
+      // rebuilds that one binding, and both imports must load the same ABI.
+      assertSafeDestinationPath(standaloneDir, target, 'native external entry');
+      fs.mkdirSync(target, { recursive: true });
+      fs.writeFileSync(
+        path.join(target, 'package.json'),
+        JSON.stringify({ private: true, main: 'index.cjs' }),
+      );
+      const canonical = path.join(standaloneDir, path.relative(root, source));
+      const request = path
+        .relative(target, canonical)
+        .replaceAll(path.sep, '/');
+      fs.writeFileSync(
+        path.join(target, 'index.cjs'),
+        `module.exports = require(${JSON.stringify(request)});\n`,
+      );
+    } else {
+      copyDir(source, target, 'Turbopack external package');
+    }
   }
   copyPublicAssets();
   copyMegaMekBVCache();
