@@ -38,6 +38,9 @@ const ARMOR = {
   [VehicleLocation.REAR]: 20,
 };
 
+const NO_EQUIPMENT: readonly unknown[] = [];
+const FRONT_40 = { ...ARMOR, [VehicleLocation.FRONT]: 40 };
+
 function makeState(overrides: Record<string, unknown> = {}) {
   return {
     ...createDefaultVehicleState({
@@ -48,15 +51,14 @@ function makeState(overrides: Record<string, unknown> = {}) {
     }),
     armorTonnage: 8,
     armorAllocation: ARMOR,
-    equipment: [],
+    equipment: NO_EQUIPMENT,
     ...overrides,
   };
 }
 
 function mockStoreState(overrides: Record<string, unknown> = {}) {
-  mockUseVehicleStore.mockImplementation((selector) =>
-    selector(makeState(overrides) as unknown as VehicleStore),
-  );
+  const state = makeState(overrides) as unknown as VehicleStore;
+  mockUseVehicleStore.mockImplementation((selector) => selector(state));
 }
 
 function renderBar(
@@ -159,6 +161,13 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
     expect(weightFree()).toBeLessThan(before);
   });
 
+  it('weight free rises when tonnage rises', () => {
+    const view = renderBar();
+    const before = weightFree();
+    rerenderBar(view, { tonnage: 60 });
+    expect(weightFree()).toBeGreaterThan(before);
+  });
+
   it('weight free is unaffected by cruise MP alone', () => {
     const view = renderBar();
     const before = item('Weight Free');
@@ -169,15 +178,10 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
 
   it('armor stats follow armor allocation and armor tonnage', () => {
     const view = renderBar();
-    rerenderBar(view, {
-      armorAllocation: { ...ARMOR, [VehicleLocation.FRONT]: 40 },
-    });
+    rerenderBar(view, { armorAllocation: FRONT_40 });
     expect(item('Armor')).toEqual(['110', '+18 unalloc']);
 
-    rerenderBar(view, {
-      armorAllocation: { ...ARMOR, [VehicleLocation.FRONT]: 40 },
-      armorTonnage: 4,
-    });
+    rerenderBar(view, { armorAllocation: FRONT_40, armorTonnage: 4 });
     expect(item('Armor')).toEqual(['110', '-46 unalloc']);
   });
 
