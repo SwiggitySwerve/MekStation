@@ -63,7 +63,108 @@
         },
         "priorObservation": "Equivalent Jest run of the same test file (node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --watchAll=false --cacheDirectory <private> --json --outputFile <file> --runTestsByPath src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts), 28/28 at 6d180495883c057a4ed1cb91807cbb76a91a7223, recorded in the referenced mainProof receipt (runs[name=owned], ownedProof)."
       }
+    },
+    "3": {
+      "state": "complete",
+      "doneTest": "PASS",
+      "inputSha256": "45e78d7d1b1fc87b4cccb3e849d430581a51e2f1f7ebdab9c9d684ff5cf047e6",
+      "reference": {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-mainproof-20261028.json",
+        "sha256": "9722f8f2c45daf2d9449f9a97cd3cddce5e39a4acee3952003df4f2bb173412f"
+      },
+      "observation": {
+        "note": "Local observation of the registered done-test on exact main. It does not replace the ledger closure; the generator does not read these fields.",
+        "argv": [
+          "node",
+          "scripts/release/run-l1-built-server-fog-refusal.mjs",
+          "--build"
+        ],
+        "mainSha": "ad84867355c85270086977ad3d9a83b93107c09a",
+        "containsMerges": {
+          "implementation": "ad84867355c85270086977ad3d9a83b93107c09a",
+          "closure": null
+        },
+        "closureNote": "The B closure and this entry ride one PR whose merge follows mainSha, so the closure merge cannot be named here. The observation is the exact-main run of the implementation merge recorded in the referenced mainProof receipt.",
+        "workingTree": "Clean exact main ad8486735 (git status --porcelain empty before the run, manifest source.clean true). The production build rewrote the tracked next-env.d.ts after the run; it was restored with git checkout before any ledger edit.",
+        "node": "v22.22.0",
+        "start": "2026-10-28T11:26:41.256Z",
+        "end": "2026-10-28T11:32:31.336Z",
+        "timeSource": "heavy/log.jsonl grant and release events for ticket P1-1793186800376-b-closure.json",
+        "exitCode": 0,
+        "cases": {
+          "passed": 34,
+          "total": 34
+        },
+        "printedHeadSha": "ad84867355c85270086977ad3d9a83b93107c09a",
+        "buildId": "1793186803130",
+        "image": {
+          "buildId": "1793186803130",
+          "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+          "configSha256": "cf9277a3ccd150051231dc0d9328933f9382fc6a44b02ba7f157e51ee31d3d8b",
+          "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+        },
+        "attempts": 1,
+        "log": {
+          "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/b-closure/built-run/stdout.log",
+          "bytes": 1148,
+          "sha256": "ba1da60118e5ab2e1222709e86119883023d83d62995bf27df89e4355b235973",
+          "repoCopy": true,
+          "repoCopyNote": "Byte copy inside the logs envelope evidence/mainproof-ad8486735-logs.bytes.json (name built-run-stdout.log)"
+        },
+        "covers": {
+          "A1 baseline": [
+            "credential-malformed-refused",
+            "credential-url-refused",
+            "participants-authenticated",
+            "credential-foreign-refused",
+            "participant-action-accepted",
+            "spectator-seat-witnessed",
+            "spectator-replay-public",
+            "spectator-live-public",
+            "spectator-cannot-act",
+            "callbacks-exercised"
+          ],
+          "A2M matrix": [
+            "matrix-Move-player-stale",
+            "matrix-Move-gm-stale",
+            "matrix-Move-gm-unassigned",
+            "matrix-Move-gm-participant",
+            "matrix-Attack-player-stale",
+            "matrix-Attack-gm-stale",
+            "matrix-Attack-gm-unassigned",
+            "matrix-Attack-gm-participant",
+            "matrix-Physical-player-stale",
+            "matrix-Physical-gm-stale",
+            "matrix-Physical-gm-unassigned",
+            "matrix-Physical-gm-participant"
+          ],
+          "A2 owned rows": [
+            "concurrent-first-sockets",
+            "coop-mission-provisioned",
+            "coop-restart-action-accepted",
+            "coop-first-rolls-captured"
+          ],
+          "B fog rows": [
+            "fog-off-controls",
+            "fog-on-socket-refused",
+            "fog-on-metadata-refused",
+            "fog-on-history-refused",
+            "fog-on-head-refused",
+            "fog-refusals-secret-free",
+            "fog-off-controls-after",
+            "fog-on-state-intact"
+          ]
+        }
+      }
     }
   },
-  "gates": {}
+  "gates": {
+    "built-server-spectator-smoke": {
+      "status": "accepted",
+      "reference": {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-mainproof-20261028.json",
+        "sha256": "9722f8f2c45daf2d9449f9a97cd3cddce5e39a4acee3952003df4f2bb173412f"
+      }
+    }
+  }
 }
