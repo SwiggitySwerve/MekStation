@@ -399,7 +399,7 @@
       "id": "P7",
       "optional": true,
       "gating": false,
-      "desc": "MISSION-MATCH-1 reverted on the image: the eight MM1 product files and the MM1 test restored to their pre-merge bytes and the MM1-added sideAssignments.ts removed, on a detached throwaway commit",
+      "desc": "MISSION-MATCH-1 reverted on the image: 9 files changed: the seven MM1 product files and the MM1 test restored to their pre-merge bytes, and the MM1-added sideAssignments.ts removed, on a detached throwaway commit",
       "mutantSha": "c4ecfee968368da400217058ab88697fc8ef8aa2",
       "exit": 1,
       "result": "KILLED",
@@ -417,14 +417,17 @@
     "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md, section 2026-10-28 Root ruling: A2M gating mutant R6 survived (worker STOP at G-A4)",
     "sectionSha256": "a3500d131b26554b9ce6df4800c36c6e290a40767fe4201c94ad51a18a3c7c0a",
     "text": "## 2026-10-28 Root ruling: A2M gating mutant R6 survived (worker STOP at G-A4)\n- Facts (_reports/2026-10-27/a2m-impl/HANDOFF.md, bm/built-mutants.json): built run G-A3 PASS first attempt (A1 + 12 matrix ids). R7, R8, P1, P4, P6 KILLED. R6 (runRow skips the live barrier wait) SURVIVED; it is not equivalent: accepted() returns on the actor's own reply and the watcher's public-lock frame arrives ~1 ms later, so without the barrier the live-leg scan can run before the frame arrives. Reconnect/restart legs still cover P1/P4/P6; only a live-path-only leak combined with a missing barrier would escape.\n- Ruling (option A, A2F R5 precedent): accept R6 as a DISCLOSED, NON-EQUIVALENT survivor. It is a test-of-the-harness gap, not a privacy-proof gap: the shipped runner keeps the barrier, and every product mutant (P1, P4, P6) is killed. This narrows the #2345 rule \"a survivor stops the unit unless shown equivalent\" for R6 only. The local receipt states the race analysis and this ruling.\n- No leaf edit now (it would break the frozen measuredFit bytes, force a fresh RED/GREEN, and kill R6 only probabilistically).\n- CF-A2M-1: the next unit that amends the A2M harness adds a live-leg assertion that the watcher holds the public-lock frame for the declaration before the scan, and re-runs R6.\n- Run P7 as a disclosure if time allows; it does not gate.\n- 2026-10-28 Root: the UI agent's dev server moved to port 3600 (npm run dev chain 78576/54492/7016/66624, started 7:35 PM); old 11640 is gone. Root started _locks/heavy/a2m-concurrent-ui.ps1 (PID 83360) exempting only that chain for 2 h while 66624 lives with its original creation time; it clears ALLOW_PIDS on exit. Stop via a2m-concurrent-ui.stop after A2M heavy work.",
-    "effect": "Narrows the #2345 rule that a survivor stops the unit unless shown equivalent, for R6 only."
+    "effect": "Narrows the #2345 rule that a survivor stops the unit unless shown equivalent, for R6 only.",
+    "sectionSha256Note": "sectionSha256 was taken over the section as it stood on disk, which then also held a later dev-server bullet; textSha256 is the hash of the quoted text above.",
+    "textSha256": "57e43226f89e48b2efd98880750d6838a0e870bec19fbf7a02b4abd1a4e3b887",
+    "correction": "Root correction 2026-10-28 (carry-forward.md, section 2026-10-28 Root correction to the R6 ruling): the quoted sentence \"Reconnect/restart legs still cover P1/P4/P6\" overstated the evidence. P4 is observed at the reconnect leg; P1 and P6 coverage there is inferred, not run. The ruling stands; CF-A2M-1 adds R6+P1 and R6+P6 combined mutants and a tighter nested-A1 check."
   },
   "survivorR6": {
     "id": "R6",
     "desc": "runRow skips the live barrier wait",
     "result": "SURVIVED",
     "equivalent": false,
-    "raceAnalysis": "accepted() resolves on the actor's own Event reply. The watcher's public-lock frame for the same declaration is delivered separately and lands about 1 ms later (evidence.jsonl of the R6 run: actor movement_declared at :58399, watcher movement_locked at :58400). Without the barrier the live-leg scan can run before that frame arrives and then has nothing to flag. The reconnect and restart legs rescan the full history from the start, so P1, P4 and P6 are still caught there without the live leg. A live-path-only leak combined with a missing barrier would escape; that is a harness gap, not a privacy-proof gap, because the shipped runner keeps the barrier and every product mutant is killed.",
+    "raceAnalysis": "accepted() resolves on the actor's own Event reply. The watcher's public-lock frame for the same declaration is delivered separately and lands about 1 ms later (evidence.jsonl of the R6 run, row matrix-Move-player-stale: actor movement_declared at 00:27:38.399Z, watcher movement_locked at 00:27:38.400Z; other rows show 1-2 ms gaps). Without the barrier the live-leg scan can run before that frame arrives and then has nothing to flag. The reconnect and restart legs rescan the full history from the start: P4 was observed killed there; P1 and P6 were killed at the live leg (a run stops at its first failure), so their reconnect/restart coverage is inferred from the shared projection code, not run (Root correction 2026-10-28, carry-forward.md). A live-path-only leak combined with a missing barrier would escape; that is a harness gap, not a privacy-proof gap, because the shipped runner keeps the barrier and every product mutant is killed.",
     "noLeafEdit": true
   },
   "carryForward": [
