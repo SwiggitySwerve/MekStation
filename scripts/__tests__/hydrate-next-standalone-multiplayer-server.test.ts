@@ -104,6 +104,62 @@ function prepareStandaloneFixture(root: string): void {
 }
 
 describe('hydrate-next-standalone-multiplayer-server', () => {
+  it('materializes Turbopack external aliases for an isolated image', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    addRuntimeImport(root, "export { default } from 'dual';");
+    writePackage(
+      root,
+      'node_modules/dual',
+      {
+        name: 'dual',
+        main: 'index.cjs',
+        dependencies: { child: '*' },
+      },
+      { 'index.cjs': "module.exports = require('child');" },
+    );
+    writePackage(
+      root,
+      'node_modules/child',
+      { name: 'child', main: 'index.cjs' },
+      {
+        'index.cjs': 'module.exports = 7;',
+      },
+    );
+    const alias = path.join(
+      root,
+      '.next/standalone/.next/node_modules/dual-0123456789abcdef',
+    );
+    mkdirp(path.dirname(alias));
+    fs.symlinkSync(
+      path.join(root, 'node_modules/dual'),
+      alias,
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+    writeFile(
+      path.join(root, '.next/standalone/.next/server/probe.cjs'),
+      "console.log(require('dual-0123456789abcdef'));",
+    );
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(0);
+    expect(fs.lstatSync(alias).isSymbolicLink()).toBe(false);
+    const isolated = makeTempRoot();
+    fs.cpSync(path.join(root, '.next/standalone'), isolated, {
+      recursive: true,
+    });
+    const probe = spawnSync(
+      NODE,
+      [path.join(isolated, '.next/server/probe.cjs')],
+      {
+        cwd: isolated,
+        encoding: 'utf8',
+      },
+    );
+    expect(probe.status).toBe(0);
+    expect(probe.stdout.trim()).toBe('7');
+  });
+
   it('copies runtime assets and the authoritative BV cache into the standalone payload', () => {
     const tmpRoot = makeTempRoot();
     prepareStandaloneFixture(tmpRoot);

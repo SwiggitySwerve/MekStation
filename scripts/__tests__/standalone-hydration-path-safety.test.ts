@@ -79,6 +79,38 @@ function runHydrator(cwd: string) {
 }
 
 describe('standalone hydration path safety', () => {
+  it('refuses a Turbopack external outside installed packages before writing output', () => {
+    const root = makeTempRoot();
+    const outside = makeTempRoot();
+    try {
+      prepareFixture(root);
+      writeFile(path.join(outside, 'package.json'), '{"name":"outside"}');
+      const alias = path.join(
+        root,
+        '.next/standalone/.next/node_modules/outside-0123456789abcdef',
+      );
+      fs.mkdirSync(path.dirname(alias), { recursive: true });
+      makeDirectoryLink(outside, alias);
+
+      const result = runHydrator(root);
+
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(
+        'Turbopack external source is outside installed packages',
+      );
+      expect(
+        fs.readFileSync(
+          path.join(root, '.next/standalone/server.next-config.json'),
+          'utf8',
+        ),
+      ).toBe('preserve-before-preflight');
+      expect(fs.lstatSync(alias).isSymbolicLink()).toBe(true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
   it('refuses a linked runtime package source before writing output', () => {
     const root = makeTempRoot();
     const outside = makeTempRoot();

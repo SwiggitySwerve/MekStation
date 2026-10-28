@@ -46,6 +46,41 @@ function findPackage(root, name, importer, optional = false) {
   throw new Error(`Missing runtime package ${name} required by ${importer}`);
 }
 
+/** Next copies Turbopack's generated package aliases as checkout links. */
+export function collectTurbopackExternals(root, aliasRoot) {
+  if (!fs.existsSync(aliasRoot)) return [];
+  const packages = [];
+  function visit(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const target = path.join(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        const source = fs.realpathSync.native(target);
+        if (isOutside(path.join(root, 'node_modules'), source)) {
+          throw new Error(
+            `Turbopack external source is outside installed packages: ${target}`,
+          );
+        }
+        const manifestPath = path.join(source, 'package.json');
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        const name = packageName(manifest.name);
+        if (
+          fs.realpathSync.native(findPackage(root, name, manifestPath)) !==
+          source
+        ) {
+          throw new Error(
+            `Turbopack external source does not match installed package ${name}: ${target}`,
+          );
+        }
+        packages.push({ source, target });
+      } else if (entry.isDirectory()) {
+        visit(target);
+      }
+    }
+  }
+  visit(aliasRoot);
+  return packages.sort((a, b) => a.target.localeCompare(b.target));
+}
+
 /** Discover raw server imports without executing server.js or its TS modules. */
 export async function collectRuntimePackages(root, loaders) {
   const server = path.join(root, 'server.js');
