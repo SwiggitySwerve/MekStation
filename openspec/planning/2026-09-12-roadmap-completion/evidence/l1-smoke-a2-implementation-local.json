@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "unit": "L1-SMOKE-A2",
   "stage": "local",
-  "status": "INCOMPLETE-HOLD",
+  "status": "PASS",
   "date": "2026-10-28",
-  "recordedAt": "2026-10-28T07:45:21.636Z",
+  "recordedAt": "2026-10-28T08:05:42.488Z",
   "implementationBase": "4ef0b45166b51c2e857b31b5e54895db1e253e3c",
   "redCommit": "51539564c7230de130b464144d97e9b001d093af",
   "greenCommit": "04d9f2d425048f42b31ab9ec2b6767099af80847",
@@ -434,8 +434,13 @@
       "mutantSha": "6a14f4cb822abb1eaf57d40fa3ab15f2b6b8975b",
       "exit": 1,
       "verdict": "FAIL",
-      "errors": ["connect ECONNREFUSED 127.0.0.1:54071"],
-      "passed": ["concurrent-first-sockets", "coop-mission-provisioned"],
+      "errors": [
+        "connect ECONNREFUSED 127.0.0.1:54071"
+      ],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned"
+      ],
       "image": {
         "buildId": "1793172695427",
         "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
@@ -537,10 +542,13 @@
         "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
         "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
       },
-      "result": "SURVIVED",
+      "result": "KILLED_IN_COMBINATION_WITNESS_PA5",
       "restoredHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
       "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
-      "finishedAt": "2026-10-28T07:44:26.344Z"
+      "finishedAt": "2026-10-28T07:44:26.344Z",
+      "originalResult": "SURVIVED",
+      "classification": "killed in combination (witness PA5); not a plain kill",
+      "gatingDischargedBy": "Root MA5 ruling 2026-10-28 (paired-mutant method of the MA1 ruling)"
     }
   ],
   "ma3Analysis": {
@@ -682,24 +690,28 @@
   },
   "pkPacket": {
     "id": "PK-l1-smoke-a2-ruling",
-    "blocks": ["L1-SMOKE-A2"],
-    "nodes": ["R2.authority-live"],
+    "blocks": [
+      "L1-SMOKE-A2"
+    ],
+    "nodes": [
+      "R2.authority-live"
+    ],
     "taskKeys": [],
-    "question": "Accept the A2 composed privacy and authority smoke proof after gating mutants, independent exact-head review and required CI?",
+    "question": "Accept the A2 composed privacy and authority smoke proof (concurrent first sockets and co-op restart) after independent exact-head review and required CI?",
     "options": [
       {
-        "label": "accept after all gates",
-        "consequence": "Allow guarded merge and exact-main proof before B admission.",
-        "effort": "Complete gating mutants, independent reviews, CI, OWNER-RULING and exact-main closure."
+        "label": "accept after verified review and CI",
+        "consequence": "Permit guarded merge and exact-main proof before B admission.",
+        "effort": "Independent privacy/authority review, CI, exact-main build and closure."
       },
       {
         "label": "request bounded fixes",
-        "consequence": "Hold merge and repair concrete findings within admitted scope, or obtain a scope ruling.",
-        "effort": "Finding-dependent; repeat affected proofs."
+        "consequence": "Hold merge and repair concrete in-scope findings, or obtain a scope ruling.",
+        "effort": "Finding-dependent; repeat the affected proofs."
       }
     ],
-    "agentRecommendation": "HOLD solely pending the new gating MA5 survivor ruling. The original pristine build passed 26/26, six node tests and 18 pure mutants pass; MA1 is killed in combination (witness PA1), MA2 counts as a named node:test kill at pure level only, MA3 is the Root-classified U38 known-gap witness (not a kill or A2 defect), and MA4 is killed by the named replay-rolls check. MA5 deletes the journal assertion and survives all four owned rows. Do not infer a waiver or mark local-verified. Acceptance after MA5 discharge still requires independent exact-head reviews, CI and OWNER-RULING, with CF-A2-1 and inherited disclosures.",
-    "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 is scratch-only and already restored; product and predecessors are unchanged.",
+    "agentRecommendation": "Accept only after independent exact-head privacy/authority review, required CI and OWNER-RULING. The frozen leaves equal the admission bytes. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). GREEN passed 6/6 node tests and 18/18 pure-function mutants. The first pristine built run (BUILD_ID 1793170760492) passed 26/26 (A1 10, A2M 12, owned 4) on its first attempt. Built-image mutants: MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults, never committed), MA2 is killed at the pure level only by the named source-order assertion, MA4 is killed by the named replay-rolls check, and MA3 SURVIVED as expected on main: co-op teammate unit commands are unconstrained until U38 (CF-A2-1, open, routed to U38 and the G-A9 release notes); A2 makes no claim that only the unit owner can move. Inherited: the A2M R6 survivor with its correction and CF-A2M-1 (open). Review the paired-mutant method (PA1/PA5 scoping and same-image pairing), the textual source-order test, that previousPid is always null, the cfs-only fault scoping, and the disclosures (real mission GM player role, S5-02, OQ-M1). The cap is recorded in the unit capException (literal validator count over 500 by design, option A at or under 500). No product or frozen predecessor change; no exact-main acceptance is claimed.",
+    "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 and PA5 were scratch-only and are restored; product and predecessors are unchanged.",
     "decision": null,
     "ruling": null
   },
@@ -707,16 +719,16 @@
     {
       "id": "CF-A2M-1",
       "status": "OPEN",
-      "text": "A2 imports A2M unchanged. Next amendment must assert the live public-lock frame, rerun R6 and R6+P1/R6+P6 combined mutants, and tighten the nested-A1 check."
+      "text": "A2 imports A2M unchanged. The next amendment of the A2M harness asserts the live public-lock frame, reruns R6 and the R6+P1/R6+P6 combined mutants, and tightens the nested-A1 check. A2 does not discharge it. MA5 is not added to this list because it was killed in combination (PA5)."
     },
     {
       "id": "A2M-R6",
       "status": "DISCLOSED NON-EQUIVALENT SURVIVOR",
-      "text": "Accepted by prior Root ruling. Correction: P4 was observed at reconnect; P1/P6 were killed at live, so reconnect/restart coverage is inferred; P7 was witnessed only on matrix-Move-player-stale."
+      "text": "Accepted by prior Root ruling (A2F R5 precedent). Correction (Root, 2026-10-28): P4 was observed at reconnect; P1 and P6 were killed at live, so their reconnect and restart coverage is inferred; P7 was witnessed only on matrix-Move-player-stale. A2 runs the frozen matrix unchanged and inherits this survivor; the A2M mutants were not repeated."
     },
     {
       "id": "CF-A2FP-2",
-      "status": "No readiness rerun used in original pristine GREEN run."
+      "status": "Not used: the pristine GREEN built run passed on its first attempt with no readiness rerun."
     },
     {
       "id": "CF-A2-1",
@@ -728,29 +740,26 @@
     }
   ],
   "disclosures": [
-    "Source-order node test is textual: it checks ordering/deletion of reopenGm, not a no-op implementation. Built run guards real reconnect behavior.",
-    "previousPid is always null because it is read after stop; actual PID change is evidenced by process records.",
-    "next-env.d.ts rewrites from builds restored with git checkout; diffs retained outside Git.",
-    "Real mission GM remains player-role viewer; no GM role fix or inference. S5-02 and OQ-M1 remain open; fog acceptance and B timeline rows excluded.",
-    "Exact-main acceptance, independent reviews, OWNER-RULING, required CI and closure remain owed.",
-    "CF-A2-1: co-op teammate unit commands are unconstrained until U38; MA3 survived as expected on main, not an A2 defect or kill. Release notes via G-A9 / RELEASE-PRODUCER-1."
+    "MA1 and MA5 are killed only in combination (witnesses PA1 and PA5): each deletes an assertion that no unmutated server can falsify, so a scratch product fault on the same image is the discriminator. PA1 (ServerMatchHostEvents.ts, guest event id gains -PA1, scoped to cfs- intents and the bravo-1 recipient) and PA5 (DurableMatchStore.ts, SQL event sequence +1 for the last event of cfs- batches) were scratch only, never committed, and restored byte-exact.",
+    "MA2 counts as killed at the pure level only (named node:test source-order assertion); the built-image ECONNREFUSED is not a named check.",
+    "MA3 SURVIVED as expected: refuseForeignUnitCommand returns early for every co-op campaign match, so a teammate Move for another contributor unit is accepted on main (BUILD_ID 1793172695427). This is CF-A2-1, routed to U38 and to the G-A9 release notes. No A2 text claims only the unit owner can move.",
+    "Inherited from A2M: R6 survivor and its correction, and CF-A2M-1 (OPEN). A2 imports the A2M matrix unchanged.",
+    "The source-order node test is textual: it checks the order and presence of reopenGm, not a no-op implementation. The built run guards real reconnect behaviour.",
+    "previousPid is always null because it is read after the server is stopped; the PID change across the restart is evidenced by the process records.",
+    "next-env.d.ts is rewritten by every production build and was restored with git checkout -- next-env.d.ts after each (first built run, PA1 build, pristine rebuild, PA5 build); the diffs are retained outside Git (next-env-after-*.diff).",
+    "Invalid setup attempts, none counted as a kill or survivor: (1) first MA1 invocation, no server, ENOENT because the built-mutants parent directory was absent; (2) first PA1 build failed typecheck (guarded.value.event is unknown), corrected with a scratch cast at the same seam; (3) the first MA5-half invocation ran under Node v24.15.0 and was refused by the harness (Node 22 required) and was rerun under v22.22.0.",
+    "A numeric-PID-only cleanup probe after the MA3 stop matched four recycled PIDs belonging to unrelated processes; CIM names and command lines showed no owned server alive and no unrelated process was touched (ma3-cleanup-process-snapshot.json).",
+    "The PA5 build and the PA1 build each changed only a scratch copy of one product file inside the checkout; no product file is part of this PR.",
+    "Real mission GM stays a player-role viewer (no GM role fix or inference). S5-02 and OQ-M1 remain open; fog acceptance and the B timeline rows are excluded.",
+    "Exact-head independent reviews, the OWNER-RULING, required CI, the merge and exact-main closure remain owed."
   ],
   "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl",
-  "holdReason": "MA5 gating mutant survived; new Root ruling required. MA3 is a discharged non-gating known-gap witness, not an A2 defect.",
   "rootRulingMA3": {
     "kind": "Root ruling, not an owner decision",
     "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
     "section": "2026-10-28 Root ruling: A2 mutant MA3 survived (co-op unit command ownership is a known, registered gap), and MA2 qualification",
     "verbatim": "## 2026-10-28 Root ruling: A2 mutant MA3 survived (co-op unit command ownership is a known, registered gap), and MA2 qualification\n\nFacts (from _reports/2026-10-28/a2-impl/ma3-analysis.json, head 0175450f1):\n- MA3 sends the post-restart Move for a2-u1, owned by pid_5mtAz6..., on the other contributor's connection (pid_BgZdaK..., same `player` side).\n- The built server accepted it: movement_declared, intentId coop-two-2-1. All 4 owned rows passed.\n\nRoot reading:\n- On main, `refuseForeignUnitCommand` in src/lib/multiplayer/server/ServerMatchHostIntent.ts returns early for every co-op campaign match (`if (meta?.coopCampaign) return null;`, comment at :559-566: \"Until that map reaches the host, co-op unit commands are unconstrained\").\n- The fix is already registered: units.json U38 (node R2.authority-live, state blocked). It deletes that exemption and refuses a teammate commanding another player's unit with AUTH_REJECTED unit-not-owned. It applies the owner's earlier answer \"control only their own units\" (docs/audits/2026-10-17-l1-amendment-draft.md row 17 -> U38).\n- So MA3 asserted behaviour main does not yet have. This is not a new owner policy question and not a new product finding: it is the known gap U38 owns. A2 may not edit product code, and its admission does not claim per-unit command ownership.\n\nRuling:\n1. MA3 is reclassified from gating to a known-gap witness. Record it as \"SURVIVED: expected on main; co-op per-unit command ownership is not enforced until U38\". It is not an A2 defect, and it does not count as a kill.\n2. CF-A2-1, new and open: co-op teammate unit commands are unconstrained on main (witness: the MA3 built run on BUILD_ID 1793172695427). Owner: U38. When U38 lands, its proof must include a built-image row equivalent to MA3 that is refused.\n   - Disclosure: the A2 local receipt, the PR body, and the release-notes known issue via RELEASE-PRODUCER-1 (G-A9 list).\n   - No A2 text may claim that only the unit owner can move.\n3. MA2 counts as killed by the named node:test source-order assertion (pure level). Its built-image failure (ECONNREFUSED) is not a named check: disclose it, and do not count it as a built kill.\n4. MA4 and MA5 continue under the unchanged rule: a survivor stops the unit unless shown equivalent, or unless it is shown to be the same registered gap, which Root rules.\n",
     "verbatimSha256": "2828613954d090dc1649514a4bf0fa92b275814686e2fa763dbb50ad68341753"
-  },
-  "ma5Analysis": {
-    "result": "SURVIVED",
-    "equivalent": false,
-    "description": "MA5 removes only the journal eventCount === maxSequence + 1 assertion after the concurrent round. Correct main has a contiguous journal, so the original and mutated runs both pass. The omitted assertion can detect a gap if one is introduced; deleting it is not equivalent. No PA5 or extrapolation of MA1 ruling has been attempted.",
-    "witness": "built-mutants/MA5/summary.json",
-    "buildId": "1793172695427",
-    "requiredAction": "Stop and obtain Root ruling under unchanged MA5 rule."
   },
   "frozenOwnerClaimAudit": {
     "verdict": "No frozen leaf claims that only the unit owner may issue commands.",
@@ -766,5 +775,107 @@
       "OQ-M1 authority sequence gap remains disclosed",
       "CF-A2-1: co-op teammate unit commands unconstrained; owner U38; MA3 witness BUILD_ID 1793172695427"
     ]
-  }
+  },
+  "ma5Original": {
+    "result": "SURVIVED",
+    "equivalent": false,
+    "description": "MA5 removes only the journal eventCount === maxSequence + 1 assertion after the concurrent round. Correct main has a contiguous journal, so the original and mutated runs both pass. The omitted assertion can detect a gap if one is introduced; deleting it is not equivalent. No PA5 or extrapolation of MA1 ruling has been attempted.",
+    "witness": "built-mutants/MA5/summary.json",
+    "buildId": "1793172695427",
+    "requiredAction": "Stop and obtain Root ruling under unchanged MA5 rule."
+  },
+  "ma5Paired": {
+    "classification": "killed in combination (witness PA5)",
+    "result": {
+      "startedAt": "2026-10-28T08:00:01.602Z",
+      "originalHead": "2581096fbee97351ac18bb333f32ba59ad3efd5c",
+      "originalBranch": "work/a2-impl-20261028",
+      "unmutatedFailure": "[concurrent-first-sockets] journal has a gap or duplicate: {\"matchId\":\"db7dae1d-6ec1-42d2-83f4-3fd26e40fd09\",\"status\":\"active\",\"fogOfWar\":false,\"playerIds\":[\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"],\"sideAssignments\":[{\"playerId\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"side\":\"player\"},{\"playerId\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\",\"side\":\"opponent\"}],\"seats\":[{\"slotId\":\"alpha-1\",\"kind\":\"human\",\"occupant\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\"},{\"slotId\":\"bravo-1\",\"kind\":\"human\",\"occupant\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"}],\"eventCount\":5,\"maxSequence\":5}",
+      "pa5Image": {
+        "buildId": "1793173855854",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "4a51a596df507966b6525b31c0e77a2b2e81fc54de5091b9d9efaa29173fc264",
+        "sourceTreeSha256": "c286fed95e79996ad625719824cc08ec334c6efd74bdd08b403aa21f53a67c8e"
+      },
+      "ma5Sha": "0a11f7568276599a4d24240be0a9c581f8dd6e12",
+      "exit": 0,
+      "ma5Verdict": "PASS",
+      "ma5Passed": [
+        "credential-malformed-refused",
+        "credential-url-refused",
+        "participants-authenticated",
+        "credential-foreign-refused",
+        "participant-action-accepted",
+        "spectator-seat-witnessed",
+        "spectator-replay-public",
+        "spectator-live-public",
+        "spectator-cannot-act",
+        "callbacks-exercised",
+        "matrix-Move-player-stale",
+        "matrix-Move-gm-stale",
+        "matrix-Move-gm-unassigned",
+        "matrix-Move-gm-participant",
+        "matrix-Attack-player-stale",
+        "matrix-Attack-gm-stale",
+        "matrix-Attack-gm-unassigned",
+        "matrix-Attack-gm-participant",
+        "matrix-Physical-player-stale",
+        "matrix-Physical-gm-stale",
+        "matrix-Physical-gm-unassigned",
+        "matrix-Physical-gm-participant",
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "ma5Errors": [],
+      "sameImage": true,
+      "result": "killed in combination (witness PA5)",
+      "restoredHead": "2581096fbee97351ac18bb333f32ba59ad3efd5c",
+      "finishedAt": "2026-10-28T08:03:41.560Z"
+    },
+    "productMutation": {
+      "startedAt": "2026-10-28T07:50:49.561Z",
+      "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "scope": "Only commandId prefix cfs- and last event of its append batch. Shift mp_match_events SQL sequence by +1; leave JSON event sequence/id/payload, outbox, receipt and wire unchanged.",
+      "originalSha256": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475",
+      "mutantSha256": "a71a43f597f69b1006e1f1845a3ff0618915ae337c94ba4c1f994e84e080fc9c",
+      "committed": false,
+      "exit": 0,
+      "restoredSha256": "942b6143aa9d25097ce392203d1c29cc0b92d0a2298fb70b4ebbfc9658aff475",
+      "finishedAt": "2026-10-28T07:54:08.974Z"
+    },
+    "singleSeam": "DurableMatchStore.ts, the mp_match_events insertEvent.run call in the append path. Only commands whose commandId starts with cfs- and only the last event of the append batch: the SQL sequence column is shifted by +1. The JSON event sequence, id and payload, the outbox, the receipt and the wire are unchanged, so every earlier row and check still passes.",
+    "scopingDisclosure": "Scoped in advance to the cfs- command prefix and the last event of its batch so the inherited A1/A2M rows and the other owned rows are unaffected; no unscoped run was attempted. One build attempt; the scoped retry the ruling allowed was not needed.",
+    "scratchOnly": "PA5 was never staged or committed. The external runHarness buildCommand (pa5-build.cjs) wrote the mutated file after the harness clean-source check, ran npm run build, and restored the exact original bytes in finally (restoredSha256 equals originalSha256). After the job ended DurableMatchStore.ts equalled HEAD.",
+    "unmutatedHarness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa5-unmutated-harness/summary.json",
+      "sha256": "26f8770d4157363b6095ec5c9bf782157166ae009e866d199f5198fb2d1a87ae",
+      "bytes": 10780
+    },
+    "unmutatedFailure": "[concurrent-first-sockets] journal has a gap or duplicate: {\"matchId\":\"db7dae1d-6ec1-42d2-83f4-3fd26e40fd09\",\"status\":\"active\",\"fogOfWar\":false,\"playerIds\":[\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"],\"sideAssignments\":[{\"playerId\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\",\"side\":\"player\"},{\"playerId\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\",\"side\":\"opponent\"}],\"seats\":[{\"slotId\":\"alpha-1\",\"kind\":\"human\",\"occupant\":\"pid_92oEeQeAfpt7n9feu7GWkTtDZ1x\"},{\"slotId\":\"bravo-1\",\"kind\":\"human\",\"occupant\":\"pid_KrdXvn5Qbnepkzs98n8BAXYThb5\"}],\"eventCount\":5,\"maxSequence\":5}",
+    "ma5Harness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa5-ma5-harness/summary.json",
+      "sha256": "c420bad40fec7113ea7b73088826682ff4d7670385a0bb6bd245711ee2f0a44f",
+      "bytes": 10743
+    },
+    "invalidAttempts": [
+      "The first MA5-half invocation (pair-ma5.cjs) ran under Node v24.15.0 in the continuing shell and the harness refused (Node 22 required); no summary was written, the branch was restored clean. It is neither a kill nor a survivor. It was rerun under Node v22.22.0 on the same PA5 image without a rebuild. Raw log: pa5-ma5-harness-invalid-node24.log."
+    ],
+    "result_summary": "Unmutated harness on the PA5 image: 22 earlier checks passed and concurrent-first-sockets failed on \"journal has a gap or duplicate\" (eventCount 5, maxSequence 5). The MA5 harness on the same image (same buildId, server, config and source-tree hashes, no rebuild) passed 26/26 including concurrent-first-sockets, so MA5 deleted the only assertion that catches PA5."
+  },
+  "rootRulingMA5": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: A2 mutant MA5 survived (assertion removal, same class as MA1)",
+    "verbatim": "## 2026-10-28 Root ruling: A2 mutant MA5 survived (assertion removal, same class as MA1)\n\nFacts: MA5 deletes the journal gap/duplicate assertion (`row.eventCount === row.maxSequence + 1`) after the concurrent round in concurrent-first-sockets. It passed all 4 owned rows on BUILD_ID 1793172695427 (head 2581096fb). The worker correctly found it is not equivalent.\n\nRuling: same method as MA1.\n1. Build one scratch image with a product mutant PA5 that leaves a journal gap or a duplicate sequence for the cfs match during the concurrent round, at the narrowest append seam (for example the sequence assignment in the match journal append path).\n   - Scope it to the cfs match and disclose that.\n   - Never commit it; restore it byte-exact.\n2. Run the unmutated harness. concurrent-first-sockets must fail on \"journal has a gap or duplicate\".\n3. Run the MA5 harness on the same image, without a rebuild. concurrent-first-sockets must pass.\n4. Record MA5 as \"killed in combination (witness PA5)\".\n\nIf no single-seam PA5 reaches that named check (for example, the fault fails an earlier check or breaks the build after one scoped retry), do not stop again. Record MA5 as a disclosed, non-equivalent survivor under the R6 precedent and this ruling, add it to CF-A2M-1's combined-mutant follow-up list, and continue to the lifecycle and the PR.\n\nStanding rule for the rest of Step 3 (B included): a survivor that deletes an assertion is handled this way without a new stop. Any other survivor still stops for Root.\n",
+    "verbatimSha256": "02bad86bd24f7eea5085eb975f9c01fbdffd6c77c60bef4f9c5ccfc978b1a81e"
+  },
+  "mutantSummary": [
+    "MA1: killed in combination (witness PA1), a paired kill and not a plain kill.",
+    "MA2: killed by the named node:test source-order assertion at the pure level only; the built ECONNREFUSED is not a named check and is not counted as a built kill.",
+    "MA3: SURVIVED, expected on main; co-op per-unit command ownership is not enforced until U38. A known-gap witness (CF-A2-1), not an A2 defect, not a kill.",
+    "MA4: killed by the named runtime check [coop-first-rolls-captured] replay rolls differ from live rolls.",
+    "MA5: killed in combination (witness PA5), a paired kill and not a plain kill."
+  ]
 }

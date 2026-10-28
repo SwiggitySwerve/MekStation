@@ -1,3 +1,12 @@
+## 2026-10-28 L1-SMOKE-A2 local-verified (Step 3 PR 9 of 12)
+
+Adds the A2 cases, fixtures and runner leaves behind the frozen test leaf: the concurrent first authenticated sockets row and the co-op mission restart rows (post-restart accepted action, first rolls captured with faithful replay), composed with the A1 baseline and the 12 A2M matrix ids. RED contains only the test; GREEN adds the three source leaves, byte-equal to the admission measuredFit bytes. No product edit.
+
+- Proof: 6/6 node falsifiers, 18/18 pure-function mutants, and the first built run (BUILD_ID 1793170760492) passed all 26 cases with no rerun. Built mutants: MA1 and MA5 are killed only in combination (witnesses PA1 and PA5, scratch product faults never committed), MA2 at the pure level only, MA4 by the named replay-rolls check. MA3 survived as expected: co-op teammate unit commands are unconstrained until U38 (CF-A2-1, open; G-A9 release notes). A2 makes no claim that only the unit owner can move.
+- Inherited and disclosed: A2M R6 survivor and CF-A2M-1 (open); the source-order test is textual; previousPid is always null; next-env.d.ts restores; the invalid setup attempts. Size cap: capException on the unit, option A at or under 500. PK-l1-smoke-a2-ruling recommends acceptance only after independent exact-head review, OWNER-RULING and CI; merge, exact-main proof and closure remain open.
+
+---
+
 ## 2026-10-28 L1-SMOKE-A2 admitted (Step 3 PR 8 of 12, second commit of the L1-SMOKE-A2M closure PR; ledger and evidence only)
 
 Admits L1-SMOKE-A2 on baseline b78909c5e (the L1-SMOKE-A2M implementation merge), after the L1-SMOKE-A2M closure in the previous commit of this PR (the #2336, #2339 and #2345 riding pattern). Only A2 becomes admitted unfinished when this PR merges; no A2 leaf is committed here. Implementation starts only after this PR merges and after the pre-RED co-op reachability gate. G-A1 is already SATISFIED by the probe recorded here (second run PASS); it is repeated before RED only if a leaf byte that affects the setup half changes. The receipt is [l1-smoke-a2-implementation-admission.json](evidence/l1-smoke-a2-implementation-admission.json).
