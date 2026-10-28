@@ -1,3 +1,12 @@
+## 2026-10-28 L1-SMOKE-B local-verified (Step 3 PR 11 of 12)
+
+Adds the B cases, fixtures and runner leaves behind the test leaf: eight fog-on refusal rows (socket, metadata, history, head, secret scan, stored-state and fog-off controls) composed with the A1 baseline, the 12 A2M matrix ids and the four A2 rows, 34 ids on one image. RED contains only the test; GREEN adds the three source leaves, byte-equal to the frozen admission bytes. The #2351 reviews found the secret scan skipped non-JSON and unauthenticated /head bodies and checkMemberRefusal tolerated extra Close properties; a disclosed Root-authorized G-B3 deviation (cases and test leaves) fixes both, the first flip was reverted and the identical flip is the last commit. No product edit.
+
+- Proof: 13/13 node falsifiers, 31/31 pure-function mutants, and the post-fix --build run (BUILD_ID 1793185373032) passed all 34 ids on its first attempt; the run on 1793182573182 is superseded. Built mutants BB1 and BB4 rerun and killed at named checks, BB2 and BB3 (scratch product faults, never committed) killed on the pre-fix leaf and not rerun, BB5 not realizable as specified (no kill credited, not a survivor). No assertion-removal survivor occurred.
+- Inherited and disclosed: the post-admission live refusal stays a Jest pin (Q3); a default build keeps no journal, so the /head digest, a positive /head 200 and a populated fog-on timeline are unproven (Q2); A2M R6 survivor and CF-A2M-1; CF-A2-1 (U38); the real mission GM keeps the player viewer role; S5-02 and OQ-M1. Size cap: capException on the unit, option A at or under 500. PK-l1-smoke-b-ruling recommends acceptance only after independent exact-head review, OWNER-RULING and CI; merge, the exact-main done-test run and closure remain open.
+
+---
+
 ## 2026-10-28 L1-SMOKE-B admitted (Step 3 PR 10 of 12, second commit of the L1-SMOKE-A2 closure PR; ledger and evidence only)
 
 Admits L1-SMOKE-B on baseline d5fb4d867 (the L1-SMOKE-A2 implementation merge), after the L1-SMOKE-A2 closure in the previous commit of this PR (the #2336, #2339, #2342 and #2345 riding pattern). Only B becomes admitted unfinished when this PR merges; no B leaf is committed here. Implementation starts only after this PR merges. The receipt is [l1-smoke-b-admission-20261018.json](evidence/l1-smoke-b-admission-20261018.json).

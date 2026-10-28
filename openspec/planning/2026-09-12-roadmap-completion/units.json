@@ -9308,14 +9308,20 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "admitted",
+      "capException": {
+        "countedLines": 594,
+        "recordedBy": "ownerRuling20261020SizeCapOptionA",
+        "optionACountedLines": 497,
+        "optionAExemptLeaves": ["scripts/release/l1-built-server-fog-fixtures.ts"]
+      },
+      "state": "local-verified",
       "baseline": "d5fb4d86708bd9535d791372460361bdbe79a225",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-b-admission-20261018.json" },
-        "red": null,
-        "local": null,
+        "red": { "path": "evidence/l1-smoke-b-red-20261018.json" },
+        "local": { "path": "evidence/l1-smoke-b-local-20261018.json" },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -9420,6 +9426,13 @@
         "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md, v220-steps.json (the done-test flip) and the four registered evidence names (admission, red, local, admission-review).",
         "registeredSourceLeavesAdded": "The four registered leaves (registration20261018L1Smoke.exactScriptLeaves), as every sibling Step 3 unit carries them, so the open-PR and ledger census sees B as a literal claimant.",
         "sizeCap": "Measured on oxfmt-clean leaves: cases 320, fixtures 97, runner 82 (counted 499 literal), test 491 (exempt, file-counted). The fixtures leaf is proof-harness test-support under ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-25b), so option A counts 402. The real Step 3 implementation lifecycles were 35fa2fb9c 48, f917a5259 56, b78909c5e 51, d5fb4d867 62; B adds the done-test hunk (+1) and a capException block, so the estimate is 63 to 67 lines, bounded at 80: option A 465 to 469 (at most 482) of 500, fitting while the lifecycle stays at or under 98 lines; the literal validator count is 562 to 566 (over 500 by the leaves alone: 499), so the implementation PR records, on unit L1-SMOKE-B, capException {countedLines: <literal measured from the merge diff against the first parent>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines, optionAExemptLeaves: [scripts/release/l1-built-server-fog-fixtures.ts]} as A2FP and A2F did, then re-measures with those lines added. An option-A count over 500 or a 16th file stops the unit for Root; there is no Step 3 PR slack."
+      },
+      "localVerified20261028": {
+        "date": "2026-10-28",
+        "receipts": "evidence/l1-smoke-b-red-20261018.json and evidence/l1-smoke-b-local-20261018.json; packet PK-l1-smoke-b-ruling",
+        "proof": "RED 0586ec919 (weak ERR_MODULE_NOT_FOUND; the vacuous stand-in also fails), GREEN 5c61c779d (the four leaves equal the frozen bytes), then the review-fix commit 05f065eff under the Root ruling on the #2351 reviews (GPT F1, F2): the cases and test leaves deviate from the frozen draftSha256 (G-B3: cases 6033c9d2 -> 654eab6e, test 9fe25255 -> 9e2a6e27); every refusal HTTP body is kept raw and scanned, the unauthenticated /head body is scanned, and checkMemberRefusal rejects any Close property outside kind, matchId, ts, code and reason. node:test 13/13 (inherited 64/64), oxfmt 0, 31/31 pure-function mutants. The post-fix --build run PASSED all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt, BUILD_ID 1793185373032; the earlier run on 1793182573182 is superseded. Built mutants BB1 and BB4 rerun on the new image and killed at named checks; BB2 and BB3 (scratch product faults, never committed) killed at named checks on the pre-fix leaf and not rerun; BB5 is not realizable as specified (no kill credited, not a survivor). The first flip 1c0bfd56f was reverted (5f4e15b81); the identical flip is the last commit of this PR.",
+        "rootRulings": "Root rulings 2026-10-28 (carry-forward.md; Root rulings, not owner decisions): B prep Q1-Q7 and the B freeze; the MA5 standing rule (no assertion-removal survivor occurred); BB5 not realizable as specified; the #2351 review findings.",
+        "disclosures": "Post-admission live refusal stays a Jest pin (Q3); no journal on a default build so the /head digest and a positive /head 200 are unproven and the timeline arm proves only that no public event id appears (Q2); inherited A2M R6 survivor and CF-A2M-1 (open); CF-A2-1 (U38, open); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open; 36 of 37 controls unchanged at the head (v220-steps.json changes only by the G-B6 hunk); next-env.d.ts restores; release notes via RELEASE-PRODUCER-1 (spectate-policy caveat, RC cost of the done-test, headSha vs rcSha binding)."
       }
     },
     {
@@ -23387,6 +23400,33 @@
         "author": "SwiggitySwerve",
         "bodySha256": "589a6631300b775e9b77f0d202198ce81cb84c17df04b01b5f73bb52a614718e"
       }
+    },
+    {
+      "id": "PK-l1-smoke-b-ruling",
+      "blocks": [
+        "L1-SMOKE-B"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the B combined built-server fog-refusal proof (A1, A2M, A2 and eight fog-on refusal rows) and the Step 3 done-test flip after independent exact-head review and required CI?",
+      "options": [
+        {
+          "label": "accept after verified review and CI",
+          "consequence": "Permit guarded merge, the exact-main done-test run and the B closure.",
+          "effort": "Independent privacy/authority review, CI, exact-main build and closure."
+        },
+        {
+          "label": "request bounded fixes",
+          "consequence": "Hold merge and repair concrete in-scope findings, or obtain a scope ruling.",
+          "effort": "Finding-dependent; repeat the affected proofs."
+        }
+      ],
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. The reviews of 1c0bfd56f (Opus ACCEPT F1-F3, GPT Sol REQUEST-CHANGES F1-F2) were resolved in this PR: the flip was reverted, the cases leaf now keeps and scans every HTTP body and rejects extra Close properties (a Root-authorized G-B3 deviation from the frozen cases and test leaves), and the identical flip is the last commit. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). GREEN passed 13/13 node tests, 64/64 inherited node tests and 31/31 pure-function mutants. The registered built run (BUILD_ID 1793185373032) passed all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt with no readiness rerun; the earlier run on BUILD_ID 1793182573182 is superseded. Built-image mutants: BB1 and BB4 rerun and killed at named fog checks on the new image; BB2 and BB3 (scratch product faults, never committed, restored byte-exact) killed at named checks on the pre-fix leaf and not rerun because their named checks are unchanged; BB5 is not realizable as specified (Root ruling: unnamed ECONNREFUSED, no kill credited, not a survivor, fault class guarded by the stopped-PID guard and pure mutant BM16). Disclosed limits: the post-admission live refusal stays a Jest pin (Root Q3); a default build keeps no journal, so the /head digest and a positive /head 200 are unproven, and the timeline arm proves only that no public event id appears (Root Q2); inherited A2M R6 survivor and CF-A2M-1; CF-A2-1 (co-op teammate unit commands unconstrained until U38); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open. Review the refusal contract literals, the raw-body sentinel scan, the Close property allowlist, the flip fixture guards (stopped PID, active fog-off match, journal fingerprint), that no fog-on frame is delivered and no capability is mocked, and the cap (literal validator count over 500 by design, option A at or under 500, capException recorded). The exact-main done-test run and the Step 3 evidence ride the closure PR. No product or frozen predecessor change.",
+      "revertCost": "Delete the four B harness leaves, the flip hunk and the own lifecycle/evidence additions. BB2 and BB3 were scratch-only and are restored; product and predecessors are unchanged.",
+      "decision": null,
+      "ruling": null
     },
     {
       "id": "PK-mission-match-1-ruling",
