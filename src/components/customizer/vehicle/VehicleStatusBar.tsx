@@ -9,6 +9,8 @@
 
 import React, { useMemo, useState } from 'react';
 
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useVehicleStore, type VehicleStore } from '@/stores/useVehicleStore';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
@@ -106,6 +108,23 @@ function getCompactStatusClass(status: StatusLevel): string {
   return 'text-text-theme-secondary';
 }
 
+/**
+ * Total tonnage of the mounted equipment, from the equipment catalog.
+ * Items the catalog cannot resolve (or every item, before the catalog has
+ * loaded) count as 0.
+ */
+function calculateEquipmentWeight(
+  equipment: VehicleStatusStoreState['equipment'],
+  catalogReady: boolean,
+): number {
+  if (!catalogReady) return 0;
+  const lookup = getEquipmentLookupService();
+  return equipment.reduce(
+    (total, item) => total + (lookup.getById(item.equipmentId)?.weight ?? 0),
+    0,
+  );
+}
+
 function calculateWeightBreakdown(
   state: Pick<
     VehicleStatusStoreState,
@@ -116,6 +135,7 @@ function calculateWeightBreakdown(
     | 'equipment'
     | 'turret'
   >,
+  catalogReady: boolean,
 ) {
   const engineWeight = calculateEngineWeight(
     state.engineRating,
@@ -123,8 +143,10 @@ function calculateWeightBreakdown(
   );
   const armorWeight = state.armorTonnage;
 
-  // Simplified equipment weight (would need equipment database for real values)
-  const equipmentWeight = state.equipment.length * 1; // Placeholder
+  const equipmentWeight = calculateEquipmentWeight(
+    state.equipment,
+    catalogReady,
+  );
 
   // Turret weight (typically 10% of weapon weight in turret)
   const turretWeight = state.turret?.currentWeight ?? 0;
@@ -272,20 +294,32 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     structureType,
     powerAmpWeight,
   } = storeState;
+  const { isReady: catalogReady } = useEquipmentRegistry();
   const hasTurret = turret !== null;
   const hasSecondaryTurret = secondaryTurret !== null;
 
   const weightBreakdown = useMemo(
     () =>
-      calculateWeightBreakdown({
-        tonnage,
-        engineRating,
-        engineType,
-        armorTonnage,
-        equipment,
-        turret,
-      }),
-    [tonnage, engineRating, engineType, armorTonnage, equipment, turret],
+      calculateWeightBreakdown(
+        {
+          tonnage,
+          engineRating,
+          engineType,
+          armorTonnage,
+          equipment,
+          turret,
+        },
+        catalogReady,
+      ),
+    [
+      tonnage,
+      engineRating,
+      engineType,
+      armorTonnage,
+      equipment,
+      turret,
+      catalogReady,
+    ],
   );
 
   const armorStats = useMemo(
