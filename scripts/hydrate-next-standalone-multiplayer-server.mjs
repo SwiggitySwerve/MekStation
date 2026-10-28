@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
+
+import { collectRuntimePackages } from './next/runtime-packages.mjs';
 
 const root = process.cwd();
 const nextDir = path.resolve(
@@ -112,12 +115,13 @@ function extractNextConfig(generatedServer) {
   return JSON.stringify(parsed, null, 2);
 }
 
-function copyRuntimeLoaders() {
-  for (const dirName of runtimeModuleDirs) {
+function copyRuntimeLoaders(runtimePackages) {
+  for (const source of runtimePackages) {
+    const relative = path.relative(root, source);
     copyDir(
-      path.join(root, 'node_modules', dirName),
-      path.join(standaloneDir, 'node_modules', dirName),
-      `runtime loader ${dirName}`,
+      source,
+      path.join(standaloneDir, relative),
+      `runtime package ${relative}`,
     );
   }
   for (const dirName of runtimeScopedDirs) {
@@ -169,7 +173,7 @@ function copyNextStaticAssets() {
   );
 }
 
-function validateHydrationDestinations() {
+function validateHydrationDestinations(runtimePackages = []) {
   assertSafeDestinationPath(root, standaloneDir, 'Next standalone output');
 
   const destinations = [
@@ -184,6 +188,10 @@ function validateHydrationDestinations() {
     ...runtimeScopedDirs.map((dirName) => [
       path.join(standaloneDir, 'node_modules', dirName),
       `runtime loader ${dirName}`,
+    ]),
+    ...runtimePackages.map((source) => [
+      path.join(standaloneDir, path.relative(root, source)),
+      `runtime package ${rel(source)}`,
     ]),
     [path.join(standaloneDir, 'public'), 'public assets'],
     [
@@ -213,6 +221,11 @@ function validateHydrationDestinations() {
       path.join(standaloneDir, 'node_modules', dirName),
       `runtime loader ${dirName}`,
     ]),
+    ...runtimePackages.map((source) => [
+      source,
+      path.join(standaloneDir, path.relative(root, source)),
+      `runtime package ${rel(source)}`,
+    ]),
     [
       path.join(root, 'public'),
       path.join(standaloneDir, 'public'),
@@ -229,7 +242,7 @@ function validateHydrationDestinations() {
   }
 }
 
-function main() {
+async function main() {
   if (nextDir === root || !nextDir.startsWith(`${root}${path.sep}`)) {
     throw new Error('Next output directory escaped the repository root.');
   }
@@ -248,6 +261,8 @@ function main() {
     'esbuild native package scope',
   );
   validateHydrationDestinations();
+  const runtimePackages = await collectRuntimePackages(root, runtimeModuleDirs);
+  validateHydrationDestinations(runtimePackages.directories);
 
   const generatedServer = fs.readFileSync(generatedServerPath, 'utf8');
   const nextConfigJson =
@@ -277,10 +292,20 @@ function main() {
     path.join(standaloneDir, 'src'),
     'standalone source tree',
   );
-  copyRuntimeLoaders();
+  copyRuntimeLoaders(runtimePackages.directories);
   copyPublicAssets();
   copyMegaMekBVCache();
   copyNextStaticAssets();
+
+  const requireStandalone = createRequire(generatedServerPath);
+  for (const request of runtimePackages.requests) {
+    const resolved = requireStandalone.resolve(request);
+    if (isPathOutside(standaloneDir, resolved)) {
+      throw new Error(
+        `Runtime package ${request} resolved outside standalone output: ${resolved}`,
+      );
+    }
+  }
 
   const hydratedServer = fs.readFileSync(generatedServerPath, 'utf8');
   if (
@@ -299,6 +324,7 @@ function main() {
         hydratedStandaloneServer: rel(generatedServerPath),
         nextConfig: rel(standaloneConfigPath),
         runtimeLoaders: [...runtimeModuleDirs, ...runtimeScopedDirs],
+        runtimePackages: runtimePackages.directories.map(rel),
         publicAssets: rel(path.join(standaloneDir, 'public')),
         megaMekBVCache: rel(
           path.join(standaloneDir, megaMekBVCacheRelativePath),
@@ -312,9 +338,7 @@ function main() {
   );
 }
 
-try {
-  main();
-} catch (error) {
+main().catch((error) => {
   console.error(
     JSON.stringify(
       {
@@ -327,4 +351,4 @@ try {
     ),
   );
   process.exit(1);
-}
+});
