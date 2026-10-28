@@ -1,0 +1,679 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2",
+  "stage": "local",
+  "status": "INCOMPLETE-HOLD",
+  "date": "2026-10-28",
+  "recordedAt": "2026-10-28T07:39:13.403Z",
+  "implementationBase": "4ef0b45166b51c2e857b31b5e54895db1e253e3c",
+  "redCommit": "51539564c7230de130b464144d97e9b001d093af",
+  "greenCommit": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
+    "sha256": "8388c61e6a99873f5a0245e72af97dfa3c708a4ef356a35289c9b9dceb19b2bb",
+    "bytes": 48042
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/l1-built-server-spectator-cases.mjs",
+      "sha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "bytes": 11924,
+      "matchesFrozenHash": true,
+      "draftSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-fixtures.ts",
+      "sha256": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b",
+      "bytes": 3886,
+      "matchesFrozenHash": true,
+      "draftSha256": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator.test.mjs",
+      "sha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+      "bytes": 8315,
+      "matchesFrozenHash": true,
+      "draftSha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac"
+    },
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+      "sha256": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d",
+      "bytes": 783,
+      "matchesFrozenHash": true,
+      "draftSha256": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d"
+    }
+  ],
+  "nodeTests": {
+    "command": "node --import tsx --test scripts/release/l1-built-server-spectator.test.mjs",
+    "pass": 6,
+    "fail": 0,
+    "node": "v22.22.0",
+    "lane": "a2-impl",
+    "log": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-node-test.log",
+      "sha256": "7a889a72dcb39b4bab4a832f6214119402403b205276b41b0fcaeb29011b636f",
+      "bytes": 3186
+    }
+  },
+  "pureFunctionMutants": {
+    "total": 18,
+    "killed": 18,
+    "results": [
+      {
+        "id": "E1-omit-a1",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E1-omit-a1.log"
+      },
+      {
+        "id": "E2-omit-matrix",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E2-omit-matrix.log"
+      },
+      {
+        "id": "E3-omit-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E3-omit-owned.log"
+      },
+      {
+        "id": "E4-doubled-row",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E4-doubled-row.log"
+      },
+      {
+        "id": "E5-unexpected-row",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-E5-unexpected-row.log"
+      },
+      {
+        "id": "C1-skip-a1",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C1-skip-a1.log"
+      },
+      {
+        "id": "C2-skip-matrix",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C2-skip-matrix.log"
+      },
+      {
+        "id": "C3-skip-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C3-skip-owned.log"
+      },
+      {
+        "id": "C4-double-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-C4-double-owned.log"
+      },
+      {
+        "id": "R1-missing-rolls",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R1-missing-rolls.log"
+      },
+      {
+        "id": "R2-empty-rolls",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R2-empty-rolls.log"
+      },
+      {
+        "id": "R3-low-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R3-low-die.log"
+      },
+      {
+        "id": "R4-high-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R4-high-die.log"
+      },
+      {
+        "id": "R5-fractional-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-R5-fractional-die.log"
+      },
+      {
+        "id": "W1-missing-event",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-W1-missing-event.log"
+      },
+      {
+        "id": "W2-doubled-event",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-W2-doubled-event.log"
+      },
+      {
+        "id": "W3-live-pid",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-W3-live-pid.log"
+      },
+      {
+        "id": "S1-reopen-removed",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "co-op restart row reopens",
+        "exit": 1,
+        "result": "KILLED",
+        "log": "pure-S1-reopen-removed.log"
+      }
+    ]
+  },
+  "staticChecks": {
+    "oxfmt": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-oxfmt.log",
+      "sha256": "dd8d19a1428b08da051e97bf439d3b018c4808580fc85f4f751ed39c59e0b04a",
+      "bytes": 234
+    },
+    "lintUnits": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-lint-units.log",
+      "sha256": "1a24869515709235066946d07349937514420375d32e381419762abd75b0d323",
+      "bytes": 730
+    },
+    "oxlintDefault": "--no-ignore exits 0 but config excludes all four leaves (0 files).",
+    "oxlintExplicit": "Same repository rules with ignorePatterns removed in an external config checks four leaves: no errors, one no-console warning for required CLI JSON stdout. Allowing only no-console for the CLI gives 0 warnings/errors.",
+    "oxlintExplicitLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-oxlint-effective.log",
+      "sha256": "b6f229ac854d3ebcea8ac6d7aa4200debb1e972e97470fab5909f39df8e0e2c9",
+      "bytes": 824
+    },
+    "oxlintCliLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/green-oxlint-cli.log",
+      "sha256": "dd36d9ab66c20997fdcc40934499d19e0a50d5593162b6eb5b5e821a29afdd46",
+      "bytes": 186
+    },
+    "noUndef": {
+      "exit": 0,
+      "note": "ESLint no-undef/no-unused-vars command returned 0 with no output in the implementation turn; Tee-Object did not create an empty log. No raw log is claimed."
+    }
+  },
+  "builtImage": {
+    "head": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+    "verdict": "PASS",
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "image": {
+      "buildId": "1793170760492",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "eab66dea9d84d64e2140d1c10df1459cf51de32d985f3ead17012634dfc42181",
+      "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+    },
+    "firstAttempt": true,
+    "readinessRerun": false,
+    "processCount": 45,
+    "summary": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/built-run/summary.json",
+      "sha256": "492a3f05b665247a201bc283d5ec979d9da1cc766df21193c1cc7b2ed950b621",
+      "bytes": 10738
+    },
+    "evidence": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/built-run/evidence.jsonl",
+      "sha256": "4f48c689549f37b4a3b894fcc7a41eec790304cc6a33a414971a1acd18be17e2",
+      "bytes": 1522334
+    }
+  },
+  "rootRulingMA1": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: A2 gating mutant MA1 survived (assertion removal)",
+    "verbatim": "## 2026-10-28 Root ruling: A2 gating mutant MA1 survived (assertion removal)\n\nFacts (from _reports/2026-10-28/a2-impl/STOPPED.json, head 04d9f2d42): GREEN built run 26/26 on the first attempt. MA1 removes the actor reply id from `ids = new Set([acted.reply.event?.id, seen.frame.event.id])` in concurrent-first-sockets. It passed 26/26. The worker correctly found it is not equivalent, and stopped.\n\nRoot reading: MA1 deletes an assertion. On a correct product the actor's reply and the guest's delivery carry the same event id, so no run on an unmutated server can kill it. This is a gap in how the mutant was specified at admission, not a missing harness check. The fault classes differ:\n- A MatchHostRegistry race (two hosts for one match) is caught before the equality check: the guest's intentId-correlated waitFor times out.\n- The equality check exists only for id divergence: the guest receives the same intent's event under a different id than the actor's reply.\n\nRuling: discharge MA1 as a paired (combined) mutant, the method CF-A2M-1 already asks for on R6.\n1. Build one image with a product mutant PA1, so that the guest-visible event id diverges from the actor's reply id for the same intent.\n   - It goes at the narrowest seam (for example the publish/broadcast envelope in ServerMatchHostPublication.ts or ServerMatchHostCommandResults.ts).\n   - If it breaks an earlier row, scope it to the cfs match. Disclose the scoping.\n   - PA1 is scratch only. It is never committed and is restored byte-exact afterwards.\n2. Run the unmutated A2 harness against PA1. Required: concurrent-first-sockets fails on the named check \"concurrent first sockets conflicted\", with two ids. A failure at an earlier row or a different check does not count.\n3. Run the MA1 harness against the same PA1 image, without a rebuild. Required: concurrent-first-sockets passes, which shows MA1's deleted assertion was the only thing that caught PA1.\n4. Record MA1 as killed in combination, with PA1 as its witness, and disclose it as such. It is not a plain kill.\n\nIf no single-seam PA1 can make the ids diverge without breaking the build, stop and report. Root will then rule MA1 a disclosed survivor (R6 precedent). MA2-MA5 continue under the unchanged rule: a survivor stops the unit unless shown equivalent.\n",
+    "verbatimSha256": "6f5f828d9a859272b167de4b66fd5eb5f4305fd93b561828d72746bc73b390b2"
+  },
+  "ma1OriginalSurvivor": {
+    "id": "MA1",
+    "description": "concurrent-first-sockets compares only the guest delivery to itself (a one-element id set)",
+    "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+    "originalBranch": "work/a2-impl-20261028",
+    "startedAt": "2026-10-28T07:09:00.904Z",
+    "gating": true,
+    "mutantSha": "29847ab7f7020fde7f115d1bc6e37354aa70215b",
+    "exit": 0,
+    "verdict": "PASS",
+    "errors": [],
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "image": {
+      "buildId": "1793170760492",
+      "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+      "configSha256": "eab66dea9d84d64e2140d1c10df1459cf51de32d985f3ead17012634dfc42181",
+      "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+    },
+    "result": "SURVIVED",
+    "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+    "restoredLeafSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+    "finishedAt": "2026-10-28T07:12:58.661Z"
+  },
+  "ma1Paired": {
+    "classification": "killed in combination (witness PA1)",
+    "result": {
+      "startedAt": "2026-10-28T07:23:44.244Z",
+      "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "originalBranch": "work/a2-impl-20261028",
+      "pa1Image": {
+        "buildId": "1793171845368",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "3f73dcd58d8ec10a8fc3cf473c92531e6b818065918383f170b4dc1b5788c26d",
+        "sourceTreeSha256": "b036b0abfc7aba11398512138faf14a83c08450b5cd0e41045b2566b72978d8d"
+      },
+      "pa1Failure": "[concurrent-first-sockets] concurrent first sockets conflicted: {\"whole\":true,\"ids\":[\"fb5e61fd-e131-46ff-aeee-39d3f53485d8\",\"fb5e61fd-e131-46ff-aeee-39d3f53485d8-PA1\"],\"errors\":[]}",
+      "divergentIds": [
+        "fb5e61fd-e131-46ff-aeee-39d3f53485d8",
+        "fb5e61fd-e131-46ff-aeee-39d3f53485d8-PA1"
+      ],
+      "ma1Sha": "29847ab7f7020fde7f115d1bc6e37354aa70215b",
+      "exit": 0,
+      "ma1Verdict": "PASS",
+      "ma1Errors": [],
+      "ma1Passed": [
+        "credential-malformed-refused",
+        "credential-url-refused",
+        "participants-authenticated",
+        "credential-foreign-refused",
+        "participant-action-accepted",
+        "spectator-seat-witnessed",
+        "spectator-replay-public",
+        "spectator-live-public",
+        "spectator-cannot-act",
+        "callbacks-exercised",
+        "matrix-Move-player-stale",
+        "matrix-Move-gm-stale",
+        "matrix-Move-gm-unassigned",
+        "matrix-Move-gm-participant",
+        "matrix-Attack-player-stale",
+        "matrix-Attack-gm-stale",
+        "matrix-Attack-gm-unassigned",
+        "matrix-Attack-gm-participant",
+        "matrix-Physical-player-stale",
+        "matrix-Physical-gm-stale",
+        "matrix-Physical-gm-unassigned",
+        "matrix-Physical-gm-participant",
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "sameImage": true,
+      "result": "killed in combination (witness PA1)",
+      "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "finishedAt": "2026-10-28T07:29:55.841Z"
+    },
+    "productMutation": {
+      "startedAt": "2026-10-28T07:17:24.296Z",
+      "file": "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "scope": "Only intentId prefix cfs- and recipient occupying bravo-1. Guest event id gains -PA1; actor, intentId, sequence, delivery number and stored event unchanged.",
+      "originalSha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "mutantSha256": "2e5830985e4edb81516e19a82ce15d547e63d45c0ebb4178bed30dcac6e521e7",
+      "committed": false,
+      "exit": 0,
+      "restoredSha256": "98ba1eca09b5e1ecf071d61bdabd8393d5c1f4bd6cd6fa194c4ae4b59cf03763",
+      "finishedAt": "2026-10-28T07:19:38.509Z"
+    },
+    "singleSeam": "ServerMatchHostEvents.ts per-viewer send, after projection and delivery numbering. Only cfs- intentIds and occupied bravo-1 guest receive event.id + -PA1. Actor reply and guest delivery are independently selected intentId-correlated live Events from their sockets; binding does not send the handleIntent return messages.",
+    "scopingDisclosure": "Scoped in advance to cfs intent prefix and guest seat so inherited A1/A2M rows remain unaffected; no earlier unscoped run attempted.",
+    "scratchOnly": "PA1 never staged or committed. External runHarness buildCommand temporarily applies it after the harness clean-source check, builds normally, then restores the exact original bytes in finally. Manifest source.head is canonical source; pa1-build-source.json and image hashes explicitly bind the scratch mutation.",
+    "unmutatedHarness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa1-unmutated-harness-v2/summary.json",
+      "sha256": "b57c586d4d7a0dc95b24572dab66d6a676d0f54db90b71b646919871a61926c2",
+      "bytes": 10338
+    },
+    "ma1Harness": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl/pa1-ma1-harness/summary.json",
+      "sha256": "85d60ec443a5205e333fe9a6cb9beba0e012fb8916a1dd772283cac28e959083",
+      "bytes": 10743
+    },
+    "invalidAttempts": [
+      "First original MA1 invocation failed before server start due absent evidence parent; not a kill.",
+      "First PA1 build failed typecheck because guarded.value.event is unknown; no kill counted. Corrected IGameEvent cast at the same single seam; product restored in both attempts."
+    ]
+  },
+  "remainingBuiltMutants": [
+    {
+      "id": "MA2",
+      "description": "Skip the owned co-op restart after stopped-DB active witness; first post-restart connection cannot be opened.",
+      "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:37:01.749Z",
+      "mutantSha": "6a14f4cb822abb1eaf57d40fa3ab15f2b6b8975b",
+      "exit": 1,
+      "verdict": "FAIL",
+      "errors": ["connect ECONNREFUSED 127.0.0.1:54071"],
+      "passed": ["concurrent-first-sockets", "coop-mission-provisioned"],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "KILLED_BY_TEXTUAL_CHECK_BUILT_RECONNECT_FAILURE",
+      "namedTextualCheck": {
+        "name": "the co-op restart row reopens the GM campaign channel before the first post-restart action",
+        "exit": 1,
+        "assertionKilled": true
+      },
+      "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:37:23.024Z",
+      "qualification": "Named textual source-order test kills deletion; built owned callback also fails on reopening sync to stopped listener. No built ctx.check kill is claimed."
+    },
+    {
+      "id": "MA3",
+      "description": "Send the post-restart Move on the other contributor connection rather than the active unit owner.",
+      "originalHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:37:23.263Z",
+      "mutantSha": "23ccf9d4ab1037045a7cfda89bb393b97d58cdea",
+      "exit": 0,
+      "verdict": "PASS",
+      "errors": [],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "SURVIVED",
+      "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:37:52.895Z"
+    },
+    {
+      "id": "MA4",
+      "result": "UNRUN"
+    },
+    {
+      "id": "MA5",
+      "result": "UNRUN"
+    }
+  ],
+  "ma3Analysis": {
+    "reason": "STOP: gating MA3 survived; no equivalence claimed",
+    "ownerPlayerId": "pid_5mtAz6RUNJwo9H5PQE3KFfm9z4x",
+    "senderPlayerId": "pid_BgZdaKJ7ppyNLknh6t3PY38Ew5Q",
+    "distinctOwnerAndSender": true,
+    "activeWitness": {
+      "at": "2026-10-28T07:37:42.172Z",
+      "kind": "offline-fixture",
+      "script": "scripts\\release\\l1-built-server-spectator-fixtures.ts",
+      "args": [
+        "active",
+        "--match=coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138"
+      ],
+      "dbBefore": "ba87c8ac426f6c33cbac370c236c5e198e0912ed532590ad0595608bd8f862c4",
+      "dbAfter": "ba87c8ac426f6c33cbac370c236c5e198e0912ed532590ad0595608bd8f862c4",
+      "result": {
+        "op": "active",
+        "unitId": "a2-u1",
+        "ownerPlayerId": "pid_5mtAz6RUNJwo9H5PQE3KFfm9z4x",
+        "phase": "movement",
+        "facing": 0,
+        "to": {
+          "q": -1,
+          "r": 4
+        }
+      }
+    },
+    "sentFrame": {
+      "at": "2026-10-28T07:37:47.649Z",
+      "kind": "frame",
+      "conn": "coop-two-2",
+      "dir": "out",
+      "raw": "{\"matchId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"ts\":\"2026-10-28T07:37:47.649Z\",\"kind\":\"Intent\",\"playerId\":\"pid_BgZdaKJ7ppyNLknh6t3PY38Ew5Q\",\"intentId\":\"coop-two-2-1\",\"intent\":{\"kind\":\"Move\",\"unitId\":\"a2-u1\",\"to\":{\"q\":-1,\"r\":4},\"facing\":0,\"movementType\":\"walk\"}}"
+    },
+    "acceptedOnSendingConnection": {
+      "at": "2026-10-28T07:37:47.658Z",
+      "kind": "frame",
+      "conn": "coop-two-2",
+      "dir": "in",
+      "index": 3,
+      "raw": "{\"kind\":\"Event\",\"matchId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"ts\":\"2026-10-28T07:37:47.658Z\",\"event\":{\"id\":\"31114f66-eeda-421e-ae96-e0c0e23bd7af\",\"gameId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"timestamp\":\"2026-10-28T07:37:47.656Z\",\"type\":\"movement_declared\",\"turn\":1,\"phase\":\"movement\",\"actorId\":\"a2-u1\",\"payload\":{\"unitId\":\"a2-u1\",\"from\":{\"q\":-2,\"r\":5},\"to\":{\"q\":-1,\"r\":4},\"facing\":0,\"movementType\":\"walk\",\"mode\":\"walk\",\"path\":[{\"q\":-2,\"r\":5},{\"q\":-1,\"r\":4}],\"mpUsed\":2,\"heatGenerated\":1,\"intentId\":\"coop-two-2-1\"}},\"deliverySequence\":5}"
+    },
+    "interpretation": "The mutation changes the sender required by admission (actual owner to other contributor). It is not equivalent to that contract even though both players share the player side and the product accepts the Move. No product-policy ruling or fix is inferred.",
+    "sourceContext": {
+      "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
+      "function": "refuseForeignUnitCommand",
+      "lines": "549-580",
+      "observation": "Guard compares caller side with unit side and returns null for the same side; co-op branch is also exempt. This explains why the wrong contributor can be accepted, but does not settle per-unit authorization policy."
+    },
+    "remaining": [
+      "MA4",
+      "MA5",
+      "MA2 named built-check qualification",
+      "G-A8 final cap and lifecycle",
+      "final gates",
+      "push/PR"
+    ]
+  },
+  "pristineRebuildControl": {
+    "verdict": "PASS",
+    "required": [
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "passed": [
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured"
+    ],
+    "errors": [],
+    "processes": [
+      {
+        "n": 1,
+        "pid": 59480,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 2,
+        "pid": 74504,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 3,
+        "pid": 82428,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      },
+      {
+        "n": 4,
+        "pid": 60760,
+        "port": 52896,
+        "exit": {
+          "code": 1,
+          "signal": null
+        },
+        "readyRecords": 1
+      }
+    ],
+    "manifest": {
+      "node": "v22.22.0",
+      "platform": "win32",
+      "repoRoot": "C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t3-4ff0f332",
+      "standaloneDir": "C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t3-4ff0f332\\.next\\standalone",
+      "dbPath": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\a2-impl\\pristine-owned-control\\db\\smoke.sqlite",
+      "required": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "built": false,
+      "source": {
+        "head": "04d9f2d425048f42b31ab9ec2b6767099af80847",
+        "clean": true
+      },
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      }
+    }
+  },
+  "pkPacket": {
+    "id": "PK-l1-smoke-a2-ruling",
+    "blocks": ["L1-SMOKE-A2"],
+    "nodes": ["R2.authority-live"],
+    "taskKeys": [],
+    "question": "Accept the A2 composed privacy and authority smoke proof after gating mutants, independent exact-head review and required CI?",
+    "options": [
+      {
+        "label": "accept after all gates",
+        "consequence": "Allow guarded merge and exact-main proof before B admission.",
+        "effort": "Complete gating mutants, independent reviews, CI, OWNER-RULING and exact-main closure."
+      },
+      {
+        "label": "request bounded fixes",
+        "consequence": "Hold merge and repair concrete findings within admitted scope, or obtain a scope ruling.",
+        "effort": "Finding-dependent; repeat affected proofs."
+      }
+    ],
+    "agentRecommendation": "HOLD. First pristine built run passed 26/26, node tests passed 6/6 and pure mutants killed 18/18. MA1 is discharged as killed in combination (witness PA1) under the quoted Root ruling, but MA3 survived (distinct non-owner contributor sent an accepted Move). MA2 has a named textual assertion kill and a built reconnect failure, not a named built ctx.check kill. MA4/MA5 are unrun after the mandatory MA3 stop. Do not mark local-verified, approve merge or infer a waiver from the A2M R6 exception.",
+    "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 is scratch-only and already restored; product and predecessors are unchanged.",
+    "decision": null,
+    "ruling": null
+  },
+  "carryIn": [
+    {
+      "id": "CF-A2M-1",
+      "status": "OPEN",
+      "text": "A2 imports A2M unchanged. Next amendment must assert the live public-lock frame, rerun R6 and R6+P1/R6+P6 combined mutants, and tighten the nested-A1 check."
+    },
+    {
+      "id": "A2M-R6",
+      "status": "DISCLOSED NON-EQUIVALENT SURVIVOR",
+      "text": "Accepted by prior Root ruling. Correction: P4 was observed at reconnect; P1/P6 were killed at live, so reconnect/restart coverage is inferred; P7 was witnessed only on matrix-Move-player-stale."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "status": "No readiness rerun used in original pristine GREEN run."
+    }
+  ],
+  "disclosures": [
+    "Source-order node test is textual: it checks ordering/deletion of reopenGm, not a no-op implementation. Built run guards real reconnect behavior.",
+    "previousPid is always null because it is read after stop; actual PID change is evidenced by process records.",
+    "next-env.d.ts rewrites from builds restored with git checkout; diffs retained outside Git.",
+    "Real mission GM remains player-role viewer; no GM role fix or inference. S5-02 and OQ-M1 remain open; fog acceptance and B timeline rows excluded.",
+    "Exact-main acceptance, independent reviews, OWNER-RULING, required CI and closure remain owed."
+  ],
+  "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl"
+}
