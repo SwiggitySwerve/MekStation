@@ -5,9 +5,10 @@ the Next wrapper's 12 GB default heap limit, and multiplayer hydration. It skips
 Next's duplicate TypeScript pass unconditionally. A successful artifact build
 does not establish source validity.
 
-PR CI runs `next typegen` before `npm run typecheck` so generated route types
-participate in the full root program. The separate lint and desktop typecheck
-jobs remain mandatory dependencies of the unconditional `Lint and Test`
+PR CI unconditionally runs checkout, setup, `next typegen` and
+`npm run typecheck`, including for E2E, OpenSpec and root TypeScript changes.
+Generated route types participate in the full root program. The separate lint
+and desktop typecheck jobs remain mandatory dependencies of the unconditional `Lint and Test`
 aggregator. That aggregator refuses any non-success dependency result. Main's
 required context must include `Lint and Test`.
 

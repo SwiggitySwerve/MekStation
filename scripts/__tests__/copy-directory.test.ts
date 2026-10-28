@@ -35,7 +35,7 @@ function run(root: string, setup = '') {
        ${setup}
        fs.cpSync(path.join(root, 'input'), path.join(root, 'expected'), { recursive: true, force: true });
        await copyDirectory(path.join(root, 'input'), path.join(root, 'actual'));
-       function snapshot(directory, relative = '', rows = []) {
+       function snapshot(directory, relative = '', rows = [{ name: '.', directory: true, mode: fs.lstatSync(directory).mode }]) {
          for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
            const file = path.join(directory, entry.name), name = path.posix.join(relative, entry.name);
            const stats = fs.lstatSync(file);
@@ -56,6 +56,51 @@ afterEach(() => {
 });
 
 describe('standalone complete directory copying', () => {
+  (process.platform === 'win32' ? it.skip : it).each([0o700, 0o555])(
+    'uses default directory permissions like fs.cpSync for source mode %s',
+    (mode) => {
+      const root = fixture();
+      const directories = ['input', 'input/nested'];
+      try {
+        for (const directory of directories)
+          fs.chmodSync(path.join(root, directory), mode);
+        const result = run(root, 'process.umask(0o022);');
+        expect(result.status).toBe(0);
+        expect(result.stderr).toBe('');
+        const output = JSON.parse(result.stdout);
+        expect(output.actual).toEqual(output.expected);
+      } finally {
+        for (const tree of ['input', 'expected', 'actual'])
+          for (const suffix of ['', '/nested']) {
+            const directory = path.join(root, tree + suffix);
+            if (fs.existsSync(directory)) fs.chmodSync(directory, 0o755);
+          }
+      }
+    },
+  );
+
+  (process.platform === 'win32' ? it : it.skip)(
+    'uses default directory permissions like fs.cpSync for a Windows read-only directory',
+    () => {
+      const root = fixture();
+      const directory = path.join(root, 'input/nested');
+      try {
+        expect(spawnSync('attrib.exe', ['+r', directory]).status).toBe(0);
+        expect(fs.statSync(directory).mode & 0o222).toBe(0);
+        const result = run(root);
+        expect(result.status).toBe(0);
+        expect(result.stderr).toBe('');
+        const output = JSON.parse(result.stdout);
+        expect(output.actual).toEqual(output.expected);
+      } finally {
+        for (const tree of ['input', 'expected', 'actual']) {
+          const target = path.join(root, tree, 'nested');
+          if (fs.existsSync(target)) spawnSync('attrib.exe', ['-r', target]);
+        }
+      }
+    },
+  );
+
   it('bounds parallel file copying and drains in-flight work before rejecting', () => {
     const root = fixture();
     const result = spawnSync(

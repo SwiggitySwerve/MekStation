@@ -172,31 +172,23 @@ jobs:
 
   typecheck:
     name: Type Check
-    needs: [detect-changes, install-deps]
+    needs: install-deps
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
 
       - name: Generate Next.js route types
-        if: needs.detect-changes.outputs.code == 'true'
         run: npx next typegen
 
       - name: Run type check
-        if: needs.detect-changes.outputs.code == 'true'
         run: npm run typecheck
 
   # Advisory only: never add this job to lint-and-test.needs or branch protection.

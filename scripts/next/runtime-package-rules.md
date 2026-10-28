@@ -23,10 +23,11 @@ sources use this preflight, including the copied runtime loader scope.
 All source, identity and destination preflights still finish before image writes.
 The hydration owner removes each validated destination before calling
 `copy-directory.mjs`. Physical trees copy every file with at most eight I/O
-workers into the fresh target, preserving file permissions and applying directory
-modes with the caller's umask after the children. The copier waits for all in-flight work before
-returning a failure. Trees containing links or special entries use the original
-`fs.cpSync` behavior. This changes I/O scheduling, not the payload or preflight.
+workers into the fresh target, preserving file permissions. Directories use
+default creation permissions (0777 masked by the caller's umask), matching
+Node 22's no-filter `fs.cpSync` path rather than preserving source directory
+modes. The copier waits for all in-flight work before returning a failure.
+Trees containing links or special entries use the original `fs.cpSync` behavior.
 
 The hydration owner preflights every destination and source/target identity
 before writing anything, using its existing symlink/junction protections. Resolve

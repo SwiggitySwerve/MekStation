@@ -7,7 +7,7 @@ interface Step {
   name?: string;
   run?: string;
   uses?: string;
-  if?: string;
+  if?: string | boolean;
   'continue-on-error'?: boolean;
   'working-directory'?: string;
   with?: Record<string, string>;
@@ -64,8 +64,22 @@ describe('artifact validation boundaries', () => {
     const job = pr.jobs.typecheck;
     const generate = command(job, 'npx next typegen');
     const check = command(job, 'npm run typecheck');
-    expect(generate.if).toBe(check.if);
     expect(job.steps.indexOf(generate)).toBeLessThan(job.steps.indexOf(check));
+  });
+
+  it.each<[string, Job]>([
+    ['PR lint', pr.jobs.lint],
+    ['PR typecheck', pr.jobs.typecheck],
+    ['PR desktop typecheck', pr.jobs['desktop-typecheck']],
+    ['release validate-source', release.jobs['validate-source']],
+  ])('runs every %s step unconditionally and fails on errors', (_name, job) => {
+    for (const step of job.steps) {
+      expect({ name: step.name, if: step.if }).toEqual({
+        name: step.name,
+        if: undefined,
+      });
+      expect(step['continue-on-error']).toBeUndefined();
+    }
   });
 
   it('validates the selected release source before all artifact builds', () => {

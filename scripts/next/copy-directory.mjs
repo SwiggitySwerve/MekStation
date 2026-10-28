@@ -11,7 +11,7 @@ export async function copyDirectory(source, target) {
   function scan(from, to) {
     const stats = fs.lstatSync(from);
     if (!stats.isDirectory() || stats.isSymbolicLink()) return false;
-    directories.push({ target: to, mode: stats.mode & ~process.umask() });
+    directories.push(to);
     for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
       const input = path.join(from, entry.name);
       const output = path.join(to, entry.name);
@@ -29,8 +29,9 @@ export async function copyDirectory(source, target) {
     fs.cpSync(source, target, { recursive: true, force: true });
     return;
   }
+  // Node 22's no-filter cpSync uses default mkdir permissions, not source modes.
   for (const directory of directories)
-    fs.mkdirSync(directory.target, { recursive: true });
+    fs.mkdirSync(directory, { recursive: true });
   let next = 0;
   let failed = false;
   let failure;
@@ -51,7 +52,4 @@ export async function copyDirectory(source, target) {
     Array.from({ length: Math.min(8, files.length) }, () => worker()),
   );
   if (failed) throw failure;
-  // Match cpSync's directory creation permissions, including the caller's umask.
-  for (const directory of directories.reverse())
-    fs.chmodSync(directory.target, directory.mode);
 }
