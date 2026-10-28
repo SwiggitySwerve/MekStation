@@ -10,8 +10,14 @@
   /* Empty capacity: the page tone, darker than the card, so missing armor
      reads as a hole in the plate rather than a second shade of steel. */
   --bp-well: var(--surface-deep);
-  /* Allocated armor. */
-  --bp-fill: var(--border-default);
+  /* Allocated armor: the border tone tinted toward slate, the Build Summary's
+     armor key colour, so plates read as armor on neutral skins too. Cream
+     plate text keeps at least 5.5:1 on it in every base skin. */
+  --bp-fill: color-mix(
+    in srgb,
+    var(--border-default) 80%,
+    var(--color-slate-400)
+  );
   /* Plate outline at rest: brighter than the drafting lines so every plate
      reads as a control, still well under the cream hover and amber selection. */
   --bp-edge: color-mix(

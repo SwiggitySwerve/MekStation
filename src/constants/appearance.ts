@@ -1,7 +1,10 @@
 import type { AccentColor, FontSize } from '@/stores/useAppearanceStore';
 
 export const UI_THEMES = [
-  'default',
+  'gunmetal',
+  'cobalt',
+  'hangar',
+  'olive-steel',
   'petrol',
   'field',
   'slate',
@@ -12,6 +15,18 @@ export const UI_THEMES = [
   'tactical',
   'minimal',
 ] as const;
+
+/** The skin new and reset profiles start on; `:root` in globals.css carries its tokens. */
+export const DEFAULT_UI_THEME = 'gunmetal';
+
+/**
+ * Retired theme ids mapped to their replacement, so a saved choice survives a
+ * rename instead of failing validation. `default` was Midnight blue, the
+ * default skin until Gunmetal replaced it.
+ */
+export const LEGACY_UI_THEMES: Readonly<Record<string, string>> = {
+  default: DEFAULT_UI_THEME,
+};
 
 /**
  * Accent color CSS variable mappings

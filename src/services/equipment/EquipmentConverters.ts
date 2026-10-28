@@ -2,7 +2,11 @@ import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
 import type { IAmmunition } from '@/types/equipment/AmmunitionTypes';
 import type { IElectronics } from '@/types/equipment/ElectronicsTypes';
 import type { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
-import type { IWeapon } from '@/types/equipment/weapons/interfaces';
+
+import {
+  WeaponCategory,
+  type IWeapon,
+} from '@/types/equipment/weapons/interfaces';
 
 import {
   parseAllowedUnitTypes,
@@ -46,6 +50,19 @@ export interface IRawWeaponData extends Pick<
   allowedUnitTypes?: string[];
   flags?: string[];
   allowedLocations?: string[];
+}
+
+/** A physical.json row (PhysicalWeaponContract): sized by the 'Mech's tonnage. */
+export interface IRawPhysicalWeaponData extends Pick<
+  ITemporalEntity,
+  'introductionYear' | 'extinctionYear' | 'reintroductionYear'
+> {
+  id: string;
+  type: string;
+  name: string;
+  techBase: string;
+  rulesLevel: string;
+  allowedUnitTypes?: string[];
 }
 
 export interface IRawAmmunitionData extends Pick<
@@ -149,6 +166,36 @@ export function convertWeapon(raw: IRawWeaponData): IWeapon {
     ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
     ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
+  };
+}
+
+/**
+ * Physical weapons have no fixed weight, slots or damage: each follows the
+ * 'Mech's tonnage through its `variableEquipmentFormulas` entry, keyed by id.
+ * Fixed fields are 0, as in the constants fallback (`equipmentAggregation`),
+ * and physical attacks build no heat.
+ */
+export function convertPhysicalWeapon(raw: IRawPhysicalWeaponData): IWeapon {
+  const allowedUnitTypes = parseAllowedUnitTypes(raw.allowedUnitTypes);
+
+  return {
+    id: raw.id,
+    name: raw.name,
+    category: WeaponCategory.PHYSICAL,
+    subType: raw.type,
+    techBase: parseTechBase(raw.techBase),
+    rulesLevel: parseRulesLevel(raw.rulesLevel),
+    damage: 'Variable',
+    heat: 0,
+    weight: 0,
+    criticalSlots: 0,
+    costCBills: 0,
+    battleValue: 0,
+    introductionYear: raw.introductionYear,
+    extinctionYear: raw.extinctionYear,
+    reintroductionYear: raw.reintroductionYear,
+    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    variableEquipmentId: raw.id,
   };
 }
 

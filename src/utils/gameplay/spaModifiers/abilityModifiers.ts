@@ -10,7 +10,7 @@ import {
   TerrainType,
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
-import { movementModeForPath } from '@/utils/gameplay/movement';
+import { movementModeForPath } from '@/utils/gameplay/movement/mode';
 
 import { hasSPA } from './canonicalize';
 

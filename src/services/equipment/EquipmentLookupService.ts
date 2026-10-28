@@ -203,6 +203,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         introductionYear: weapon.introductionYear,
         extinctionYear: weapon.extinctionYear,
         reintroductionYear: weapon.reintroductionYear,
+        variableEquipmentId: weapon.variableEquipmentId,
       });
     }
 

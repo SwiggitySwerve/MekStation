@@ -199,7 +199,8 @@ export function UnitLoadDialog({
         setLoadError(
           'Could not load the library. Check your connection and try again.',
         );
-        logger.error('Failed to load units:', error);
+        // Handled: the alert above reports it and offers Retry.
+        logger.warn('Failed to load units:', error);
         setIsLoading(false);
       });
     return () => {
@@ -333,7 +334,7 @@ export function UnitLoadDialog({
                   type="button"
                   onClick={onConfigureNewUnit}
                   aria-describedby={`${titleId}-configure-help`}
-                  className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:!px-3 max-sm:text-sm`}
+                  className={`${cs.dialog.btnGhost} hover:border-border-theme-strong hover:bg-surface-base h-11 rounded border border-[var(--field-border)] max-sm:w-full max-sm:!px-3 max-sm:text-sm`}
                 >
                   Set Up a New Unit…
                 </button>

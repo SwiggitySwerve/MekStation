@@ -1,6 +1,7 @@
 import {
   ACCENT_COLOR_CSS,
   FONT_SIZE_CSS,
+  LEGACY_UI_THEMES,
   UI_THEMES,
 } from '@/constants/appearance';
 
@@ -10,6 +11,8 @@ export const APPEARANCE_BOOTSTRAP_SCRIPT = `(() => {
     const state = JSON.parse(localStorage.getItem('mekstation-appearance') || 'null')?.state;
     const accents = ${JSON.stringify(ACCENT_COLOR_CSS)};
     const fonts = ${JSON.stringify(FONT_SIZE_CSS)};
+    const legacy = ${JSON.stringify(LEGACY_UI_THEMES)};
+    if (state && Object.hasOwn(legacy, state.uiTheme)) state.uiTheme = legacy[state.uiTheme];
     if (!state || !${JSON.stringify(UI_THEMES)}.includes(state.uiTheme) ||
         !Object.hasOwn(accents, state.accentColor) || !Object.hasOwn(fonts, state.fontSize) ||
         !['full', 'reduced', 'none'].includes(state.animationLevel) || typeof state.compactMode !== 'boolean') return;

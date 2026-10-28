@@ -71,7 +71,6 @@ interface UseCriticalSlotPlacementArgs {
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
   readonly armActuators?: ArmActuatorConfig;
-  readonly unitIsSuperheavy: boolean;
   readonly getLocationData: (
     location: MechLocation,
     excludedEquipmentId?: string,
@@ -104,7 +103,6 @@ export function useCriticalSlotPlacement({
   engineType,
   gyroType,
   armActuators,
-  unitIsSuperheavy,
   getLocationData,
   updateEquipmentLocation,
   clearEquipmentLocation,
@@ -140,14 +138,7 @@ export function useCriticalSlotPlacement({
             ),
           )
         : [],
-    [
-      getLocationData,
-      isOmni,
-      locations,
-      readOnly,
-      selectedEquipment,
-      unitIsSuperheavy,
-    ],
+    [getLocationData, isOmni, locations, readOnly, selectedEquipment],
   );
   const handlePlaceInLocation = useCallback(
     (location: MechLocation) => {

@@ -36,7 +36,7 @@ The system SHALL fill each fixed-system slot with its family hue's fill, with pr
 
 #### Scenario: Fills keep their hue on every theme
 
-- **WHEN** the user switches between themes such as navy, petrol, field or slate
+- **WHEN** the user switches between themes such as gunmetal, cobalt, hangar, olive steel, petrol or slate
 - **THEN** every slot fill renders the same colour, because no fill is mixed with the theme surface
 - **AND** each hued fill keeps an OKLCH chroma of at least 0.05 within 30 degrees of its bar hue, and primary text on every fill keeps a contrast ratio of at least 4.5:1 at rest and on hover
 

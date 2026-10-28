@@ -72,7 +72,7 @@ test('armor designs retain distinct materials, common geometry and themed panels
   await expect(blueprint).toBeVisible();
   expect(
     await blueprint.evaluate((root) => getComputedStyle(root).backgroundColor),
-  ).toBe('rgb(18, 46, 80)');
+  ).toBe('rgb(20, 24, 26)');
   const standardPlates = await blueprint
     .locator('path[data-armor-plate]')
     .evaluateAll((paths) =>
@@ -160,7 +160,10 @@ test('armor designs retain distinct materials, common geometry and themed panels
     ['Neon', 'rgb(15, 23, 42)'],
     ['Tactical', 'rgb(12, 18, 32)'],
     ['Obsidian', 'rgb(22, 27, 34)'],
-    ['Midnight blue', 'rgb(18, 46, 80)'],
+    ['Cobalt', 'rgb(9, 23, 55)'],
+    ['Hangar', 'rgb(26, 23, 19)'],
+    ['Olive steel', 'rgb(22, 24, 18)'],
+    ['Gunmetal', 'rgb(20, 24, 26)'],
   ]) {
     await page.goto('/settings#appearance');
     await page.getByRole('button', { name, exact: true }).click();

@@ -8,6 +8,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { DEFAULT_UI_THEME } from '@/constants/appearance';
 import {
   AppearancePersistedSchema,
   type AppearancePersisted,
@@ -121,7 +122,7 @@ const DEFAULT_APPEARANCE: Omit<AppearanceState, ActionKeys> = {
   fontSize: 'medium',
   animationLevel: 'full',
   compactMode: false,
-  uiTheme: 'default',
+  uiTheme: DEFAULT_UI_THEME,
   draftAppearance: null,
   hasUnsavedUITheme: false,
   hasUnsavedOtherAppearance: false,

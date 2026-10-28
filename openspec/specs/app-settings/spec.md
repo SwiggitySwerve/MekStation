@@ -46,13 +46,27 @@ The system SHALL provide appearance customization options.
 #### Scenario: UI theme selection
 
 - **WHEN** user views appearance settings
-- **THEN** 4 UI theme options are displayed in a 2x2 grid:
-  - Default (clean slate design)
-  - Neon (cyberpunk with glow effects)
-  - Tactical (military HUD style)
-  - Minimal (reduced visual noise)
+- **THEN** 13 UI theme options are displayed in a two-column grid, starting with the four base skins:
+  - Gunmetal (the default: cool graphite)
+  - Cobalt (deep cobalt blue)
+  - Hangar (warm carbon)
+  - Olive steel (muted olive-grey)
+- **AND** the rest follow: Petrol teal, Field olive, Classic slate, Royal violet, Burgundy, Copper, Neon, Tactical and Obsidian
 - **AND** selecting a theme applies it immediately
 - **AND** selection indicator uses accent color
+
+#### Scenario: Base skins share one lightness ladder
+
+- **WHEN** the user switches between Gunmetal, Cobalt, Hangar and Olive steel
+- **THEN** each skin sets the same semantic tokens (surface-deep, surface-base, surface-raised, border and text tokens) as hex values
+- **AND** the four skins step the same OKLCH lightness ladder and differ only in hue and chroma, so primary and secondary text keep at least 4.5:1 on every surface in each
+
+#### Scenario: Retired theme id restores as its replacement
+
+- **GIVEN** a saved appearance whose uiTheme is the retired `default` id (Midnight blue)
+- **WHEN** the app restores appearance, before scripts load and when the store rehydrates
+- **THEN** the theme restores as Gunmetal
+- **AND** the saved accent color, font size and other appearance settings are kept
 
 #### Scenario: Font size selection
 
@@ -209,7 +223,7 @@ The system SHALL provide a GlobalStyleProvider component that connects settings 
 | fontSize                 | FontSize            | 'medium'     | Base font size                             |
 | animationLevel           | AnimationLevel      | 'full'       | Animation amount                           |
 | compactMode              | boolean             | false        | Reduce spacing                             |
-| uiTheme                  | UITheme             | 'default'    | Global UI theme (independent of armor diagram) |
+| uiTheme                  | UITheme             | 'gunmetal'   | Global UI theme (independent of armor diagram) |
 | armorDiagramVariant      | ArmorDiagramVariant | 'clean-tech' | Diagram design (independent customizer setting) |
 | showArmorDiagramSelector | boolean             | true         | Show UAT selector                          |
 | sidebarDefaultCollapsed  | boolean             | false        | Start collapsed                            |

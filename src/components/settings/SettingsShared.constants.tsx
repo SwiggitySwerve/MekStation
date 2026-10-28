@@ -217,10 +217,25 @@ export const UI_THEME_INFO: Record<
   UITheme,
   { name: string; description: string; preview: string }
 > = {
-  default: {
-    name: 'Midnight blue',
-    description: 'Default. Deep blue surfaces and clear borders.',
-    preview: 'theme-default',
+  gunmetal: {
+    name: 'Gunmetal',
+    description: 'Default. Cool graphite that leaves color to the equipment.',
+    preview: 'theme-gunmetal',
+  },
+  cobalt: {
+    name: 'Cobalt',
+    description: 'Deep cobalt blue surfaces with crisp borders.',
+    preview: 'theme-cobalt',
+  },
+  hangar: {
+    name: 'Hangar',
+    description: 'Warm carbon surfaces with a mech-bay feel.',
+    preview: 'theme-hangar',
+  },
+  'olive-steel': {
+    name: 'Olive steel',
+    description: 'Muted olive-grey surfaces with a field-kit feel.',
+    preview: 'theme-olive-steel',
   },
   petrol: {
     name: 'Petrol teal',
