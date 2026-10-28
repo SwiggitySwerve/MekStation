@@ -769,13 +769,13 @@
     },
     {
       "id": "CF-A2F-1",
-      "status": "built-image side proved by this run, qualified by CF-A2M-1",
-      "item": "All six *-stale rows (matrix-*-player-stale and matrix-*-gm-stale) passed on the image built from the merge: the stale watcher assignment is established before the actor acts, the actor receives its own declaration live and after the restart, and the watcher holds only the public lock. P7 witnessed discrimination on matrix-Move-player-stale only (local receipt)."
+      "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7); qualified by CF-A2M-1",
+      "item": "All six *-stale rows (matrix-*-player-stale and matrix-*-gm-stale) passed on the image built from the merge: the stale watcher assignment is established before the actor acts, the actor receives its own declaration live and after the restart, and the watcher holds only the public lock. Discrimination was witnessed on matrix-Move-player-stale only (P7, local receipt); the other five stale rows are not individually witnessed."
     },
     {
       "id": "CF-A2F-2",
-      "status": "built-image side proved by this run",
-      "item": "The acting-player replay after the restart is asserted by the stale rows and passed."
+      "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7)",
+      "item": "The acting-player replay after the restart is asserted by the stale rows and passed on the merged image; discrimination was witnessed on matrix-Move-player-stale only (P7)."
     }
   ],
   "successorRelease": {

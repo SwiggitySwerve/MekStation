@@ -9053,14 +9053,14 @@
         "CF-A2F-1": {
           "severity": "Medium",
           "owner": "L1-SMOKE-A2M",
-          "status": "built-image side PROVED by the exact-main run; qualified by CF-A2M-1",
-          "item": "All six *-stale rows passed on the image built from the merge b78909c5e (stale assignment established before the actor acts, actor receives its own declaration live and after the restart, watcher holds only the public lock). P7 witnessed discrimination on matrix-Move-player-stale only."
+          "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7); qualified by CF-A2M-1",
+          "item": "All six *-stale rows passed on the image built from the merge b78909c5e (stale assignment established before the actor acts, actor receives its own declaration live and after the restart, watcher holds only the public lock). Discrimination was witnessed on matrix-Move-player-stale only (P7); the other five stale rows are not individually witnessed."
         },
         "CF-A2F-2": {
           "severity": "Medium",
           "owner": "L1-SMOKE-A2M",
-          "status": "built-image side PROVED by the exact-main run",
-          "item": "The acting-player replay after the restart is asserted by the A2M stale rows and passed on the merged image."
+          "status": "built-image side exercised by the six stale rows passing on the merged image; discrimination witnessed on matrix-Move-player-stale only (P7)",
+          "item": "The acting-player replay after the restart is asserted by the A2M stale rows and passed on the merged image; discrimination was witnessed on matrix-Move-player-stale only (P7)."
         },
         "residual": {
           "item": "Disclosed, not fixed: the real mission GM keeps the player viewer role (mission matches have no meta.coopCampaign; the release-notes paragraph belongs to RELEASE-PRODUCER-1 admission); S5-02 (who may spectate) stays open with no A2M row; OQ-M1 (GM-branded authority sequence gap) is recorded, not asserted; reconnect and restart coverage of P1 and P6 is inferred, not run."
