@@ -27,3 +27,9 @@ The webpack callback remains for `build:analyze`, `build:profile`, `build:debug`
 equipment rule, progress plugin and ESM externals setting do not accelerate the
 default Turbopack build. Preserve their behavior unless a separate webpack
 experiment and runtime proof justify a change.
+
+The synchronous webpack callback loads `webpack-bundle-analyzer` only when
+development client analysis is requested and a plugin list is present. Normal
+config loading avoids that dependency; analyzer options and load failures in
+the active mode retain the existing behavior. Next does not await this callback,
+so keep it synchronous.

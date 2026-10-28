@@ -4,8 +4,8 @@ import type { Configuration, WebpackPluginInstance } from 'webpack';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join, resolve, sep } from 'node:path';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 import { buildSecurityHeaders } from './desktop/electron/securityPolicy';
 
@@ -159,6 +159,9 @@ const nextConfig = (phase: string): NextConfig => ({
 
     // Analyze development bundles only when explicitly requested.
     if (dev && !isServer && process.env.ANALYZE === 'true' && config.plugins) {
+      const { BundleAnalyzerPlugin } = createRequire(
+        join(process.cwd(), 'next.config.ts'),
+      )('webpack-bundle-analyzer') as typeof import('webpack-bundle-analyzer');
       config.plugins.push(
         new BundleAnalyzerPlugin({
           analyzerMode: 'server',
