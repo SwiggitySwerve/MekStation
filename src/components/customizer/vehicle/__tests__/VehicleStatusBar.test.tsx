@@ -50,7 +50,7 @@ function makeState(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function useState_(overrides: Record<string, unknown> = {}) {
+function mockStoreState(overrides: Record<string, unknown> = {}) {
   mockUseVehicleStore.mockImplementation((selector) =>
     selector(makeState(overrides) as unknown as VehicleStore),
   );
@@ -60,7 +60,7 @@ function renderBar(
   overrides: Record<string, unknown> = {},
   props: { compact?: boolean } = {},
 ) {
-  useState_(overrides);
+  mockStoreState(overrides);
   return render(<VehicleStatusBar {...props} />);
 }
 
@@ -69,7 +69,7 @@ function rerenderBar(
   overrides: Record<string, unknown>,
   props: { compact?: boolean } = {},
 ) {
-  useState_(overrides);
+  mockStoreState(overrides);
   view.rerender(<VehicleStatusBar {...props} />);
 }
 
