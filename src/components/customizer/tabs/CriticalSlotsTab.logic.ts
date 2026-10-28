@@ -367,7 +367,6 @@ export function useCriticalSlotsTabLogic({
     engineType,
     gyroType,
     armActuators,
-    unitIsSuperheavy,
     getLocationData,
     updateEquipmentLocation,
     clearEquipmentLocation,

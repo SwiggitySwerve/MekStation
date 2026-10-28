@@ -29,7 +29,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { CoopSessionMode } from '@/types/campaign/CoopSession';
-import type { CampaignAuthority } from '@/types/campaign/SerializedCampaign';
 
 import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';

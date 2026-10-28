@@ -64,7 +64,7 @@ export const REPLAY_LIBRARY_CENSUS_PROJECTOR =
   new ReplayProjector<IReplayLibraryCensusState>({
     projectorId: 'replay-library.census',
     projectorVersion: 1,
-    initialState: () => ({ eventsApplied: 0 }),
+    initialState: (): IReplayLibraryCensusState => ({ eventsApplied: 0 }),
     decisions: REPLAY_BASELINE_CANONICAL_EVENT_TYPES.map((eventType) => ({
       eventType,
       decision: {

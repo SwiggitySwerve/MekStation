@@ -121,14 +121,11 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     [token.unitId, events],
   );
   const movementAnimationId = movementAnimation?.id;
+  const animationPath = movementAnimation?.path;
+  const displayPosition = tokenDisplayPosition(token);
   const tweenPath = useMemo(
-    () => tokenTweenPath(token, movementAnimation),
-    [
-      movementAnimation?.path,
-      token.fogStatus,
-      token.lastKnownPosition,
-      token.position,
-    ],
+    () => tokenTweenPath(displayPosition, animationPath),
+    [animationPath, displayPosition],
   );
   const tweenMode = movementAnimation?.mode ?? MovementType.Walk;
   const handleAnimationDone = useMemo(
@@ -177,7 +174,6 @@ export const UnitTokenForType = React.memo(function UnitTokenForType({
     return null;
   }
 
-  const displayPosition = tokenDisplayPosition(token);
   const { x, y } = movementAnimation
     ? { x: tween.x, y: tween.y }
     : hexToPixel(displayPosition);
