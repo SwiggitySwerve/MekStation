@@ -6,9 +6,8 @@ import {
   MechLocation,
 } from '@/types/construction';
 
-import type { LocationData } from './criticalSlotTypes';
-
 import styles from '../CustomizerWorkbench.module.css';
+import { countOccupiedEntries, type LocationData } from './criticalSlotTypes';
 
 interface PhoneLocationNavigationProps {
   selectedEquipmentId?: string | null;
@@ -51,16 +50,12 @@ export function PhoneLocationNavigation({
     // Count displayed occupied rows, including fixed systems, rather than
     // estimating availability from equipment sizes or construction rules.
     const used = data.entries.length
-      ? data.entries.filter(
-          (entry) =>
-            entry.primary.type !== 'empty' ||
-            (entry.secondary && entry.secondary.type !== 'empty'),
-        ).length
+      ? countOccupiedEntries(data.entries)
       : data.slots.filter((slot) => slot.type !== 'empty').length;
     const total = LOCATION_SLOT_COUNTS[location];
     return {
       location,
-      count: `${used}/${total}`,
+      count: `${used} / ${total}`,
       summary: `${used} of ${total} used`,
     };
   });

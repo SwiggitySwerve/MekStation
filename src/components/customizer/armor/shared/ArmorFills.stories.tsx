@@ -240,7 +240,8 @@ const DARKEN_AMOUNTS = [0, 0.1, 0.2, 0.3, 0.4];
 
 export const ColorTransforms: Story = {
   render: () => {
-    const baseColor = FRONT_ARMOR_COLOR;
+    // The transforms need a hex colour; REAR_ARMOR_COLOR is a theme token.
+    const baseColor = '#adc4dc';
     return (
       <div className="flex flex-col gap-3">
         <div>

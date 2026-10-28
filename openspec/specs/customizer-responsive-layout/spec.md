@@ -54,7 +54,7 @@ The loadout tray SHALL use a desktop sidebar or drawer and a mobile status bar w
 
 - **WHEN** the desktop layout displays the sidebar
 - **THEN** its expanded state SHALL follow the user's persisted toggle rather than automatic collapse on resize
-- **WHEN** the workbench hides the permanent sidebar and the user opens Unit loadout
+- **WHEN** the workbench hides the permanent sidebar and the user opens Unit Loadout
 - **THEN** a dismissible named drawer SHALL show the same loadout and placement actions
 
 **Source**: `src/components/customizer/equipment/ResponsiveLoadoutTray.tsx`
@@ -80,8 +80,9 @@ Tab content layouts SHALL adapt to available horizontal space.
 - **THEN** two-column content layouts stack to single column
 - **AND** all content remains accessible via scrolling
 - **AND** below 640px the workspace scroll area SHALL end where the collapsed Loadout bar begins (bar height plus the safe-area inset) and keep a 16px gap under scrolling content, so the final summary legend or control can scroll fully clear of the bar
-- **AND** full-height tabs (Equipment, Critical Slots) SHALL extend through that gap so their lists and the Equipment pager reach the Loadout bar with no dead band
-- **AND** only while content remains below, Equipment SHALL show "Scroll for more on this page" in an opaque footer/pager beside "Page N of M · T items" (the hint appears only when the current page itself overflows) and phone Critical Slots SHALL show "Scroll for more slots" in a slim opaque footer below its list; neither cue SHALL overlay or dim any row
+- **AND** the full-height Equipment tab SHALL extend through that gap so its list and pager reach the Loadout bar with no dead band
+- **AND** below 640px the Critical Slots location list SHALL grow with the page instead of scrolling in a nested box, so every slot of the selected location (Left Arm slots 11 and 12 included) is reached by scrolling the workspace; the tab still extends at least through the gap
+- **AND** only while content remains below, Equipment SHALL show "More below" in an opaque footer/pager beside "Page N of M" (the hint appears only when the current page itself overflows), and Critical Slots between 640px and 1023px SHALL show "Scroll for more locations" in its toolbar; neither cue SHALL overlay or dim any row
 
 #### Scenario: Two column on wide viewports
 

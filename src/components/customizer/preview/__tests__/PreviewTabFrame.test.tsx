@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -54,7 +54,7 @@ describe('PreviewTabFrame', () => {
       name: 'Record sheet zoom controls',
     });
     expect(within(zoomGroup).getByLabelText('Zoom in')).toBeInTheDocument();
-    expect(within(toolbar).getByLabelText('Paper Size:')).toBeInTheDocument();
+    expect(within(toolbar).getByLabelText('Paper Size')).toBeInTheDocument();
     expect(
       within(toolbar).getByRole('button', { name: 'Print' }),
     ).toBeInTheDocument();
@@ -70,10 +70,10 @@ describe('PreviewTabFrame', () => {
 
     expect(
       screen.getByRole('button', { name: 'Zoom options' }),
-    ).toHaveTextContent('Fit width');
+    ).toHaveTextContent('Fit Width');
     expect(
       screen.getByRole('button', { name: 'Zoom options' }),
-    ).not.toHaveTextContent('Fit page');
+    ).not.toHaveTextContent('Fit Page');
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     // (900 - 48) / 612
     expect(screen.getByLabelText('Current zoom')).toHaveTextContent('139%');
@@ -96,46 +96,95 @@ describe('PreviewTabFrame', () => {
     ).toHaveTextContent('100%');
     expect(
       screen.getByRole('button', { name: 'Zoom options' }),
-    ).not.toHaveTextContent('Fit width');
+    ).not.toHaveTextContent('Fit Width');
     expect(screen.getByLabelText('Current zoom')).toHaveTextContent('100%');
     expect(screen.getByTestId('sheet-canvas').style.width).toBe('612px');
   });
 
-  it('captions the sheet with its paper size and page count', () => {
+  it('shows the page count in the toolbar without repeating the paper size', () => {
     installViewport(900, 700);
-    render(<Harness />);
+    const { container } = render(<Harness />);
 
-    expect(screen.getByTestId('preview-sheet-caption')).toHaveTextContent(
-      'Letter \u00b7 1 page',
+    const toolbar = container.querySelector('.preview-toolbar') as HTMLElement;
+    const caption = within(toolbar).getByTestId('preview-sheet-caption');
+    expect(caption).toHaveTextContent(/^1 page$/);
+    expect(caption).toHaveClass('hidden', 'sm:block');
+    // The toolbar sits on the sheet's axis at the sheet's drawn width.
+    expect(toolbar.style.getPropertyValue('--preview-sheet-width')).toBe(
+      'max(852px, 48rem)',
     );
+    // Phones keep the page count in a panel-tone footer; wider screens have
+    // no footer.
+    const footer = screen.getByTestId('preview-sheet-footer');
+    expect(footer).toHaveClass('sm:hidden', 'bg-surface-raised/40');
+    expect(
+      within(footer).getByTestId('preview-sheet-caption-phone'),
+    ).toHaveTextContent(/^1 page$/);
   });
 
-  it('hints how to read a small sheet and names the paper in the phone toolbar', () => {
+  it('opens phones at Fit Width with the whole page visible, hints how to read it, and names the paper', async () => {
     installViewport(390, 700);
     render(<Harness />);
 
-    // (390 - 48) / 612 = 56%: too small to read, so the hint shows.
+    // (390 - 48) / 612 = 56%: the whole page fits, but its small print needs
+    // zooming, so the hint shows.
+    expect(screen.getByLabelText('Current zoom')).toHaveTextContent('56%');
+    expect(screen.getByTestId('sheet-canvas').style.width).toBe('342px');
     expect(screen.getByTestId('preview-sheet-hint')).toHaveTextContent(
       'Zoom in or pinch to read details',
     );
-    expect(screen.getByTestId('preview-sheet-hint')).toHaveClass('sm:hidden');
-    // The caption no longer repeats the zoom; the toolbar readout shows it.
-    expect(screen.getByTestId('preview-sheet-caption')).toHaveTextContent(
-      /^Letter \u00b7 1 page$/,
+    // The hint lives in the phone-only footer, beside the page count.
+    expect(
+      within(screen.getByTestId('preview-sheet-footer')).getByTestId(
+        'preview-sheet-hint',
+      ),
+    ).toBeInTheDocument();
+    // The page count does not repeat the paper name or the zoom.
+    expect(screen.getByTestId('preview-sheet-caption-phone')).toHaveTextContent(
+      /^1 page$/,
     );
-    expect(screen.getByLabelText('Current zoom')).toHaveTextContent('56%');
+    // Phones show the paper name alone, so it never truncates; the select
+    // stays named "Paper Size".
     expect(screen.getByTestId('paper-size-phone-label')).toHaveTextContent(
-      'Paper: Letter',
-    );
-    // Print and Download PDF always carry visible text, not sr-only text.
-    expect(screen.getByRole('button', { name: 'Print' }).textContent).toBe(
-      'Print',
+      /^Letter$/,
     );
     expect(
-      screen
-        .getByRole('button', { name: 'Download PDF' })
-        .querySelector('.sr-only'),
-    ).toBeNull();
+      screen.getByRole('combobox', { name: 'Paper Size' }),
+    ).toBeInTheDocument();
+    // Phones draw Print as a 44px icon button and Download with a short
+    // visible "PDF" beside its icon; the full text stays as each accessible
+    // name (and tooltip), shown from 640px.
+    for (const name of ['Print', 'Download PDF']) {
+      const button = screen.getByRole('button', { name });
+      expect(button).toHaveClass('min-h-11');
+      expect(button).toHaveAttribute('title', name);
+      expect(button.querySelector('span')).toHaveClass('max-sm:sr-only');
+      expect(button.querySelector('svg')).not.toBeNull();
+    }
+    expect(screen.getByRole('button', { name: 'Print' })).toHaveClass(
+      'max-sm:w-11',
+    );
+    const phoneLabel = within(
+      screen.getByRole('button', { name: 'Download PDF' }),
+    ).getByText('PDF', { exact: true });
+    expect(phoneLabel).toHaveClass('sm:hidden');
+    expect(phoneLabel).toHaveAttribute('aria-hidden', 'true');
+    // A Zoom In button sits in the footer beside the hint, off the sheet,
+    // and opens it at 100%.
+    const zoomIn = screen.getByRole('button', { name: 'Zoom in to 100%' });
+    expect(
+      within(screen.getByTestId('preview-sheet-footer')).getByRole('button', {
+        name: 'Zoom in to 100%',
+      }),
+    ).toBe(zoomIn);
+    expect(zoomIn).toHaveTextContent(/^Zoom In$/);
+    expect(zoomIn.querySelector('svg')).not.toBeNull();
+    await userEvent.setup().click(zoomIn);
+    expect(screen.getByLabelText('Current zoom')).toHaveTextContent('100%');
+    expect(
+      screen.queryByRole('button', { name: 'Zoom in to 100%' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('preview-sheet-hint')).not.toBeInTheDocument();
   });
 
   it('omits the hint once the sheet is readable', () => {
@@ -143,6 +192,35 @@ describe('PreviewTabFrame', () => {
     render(<Harness />);
 
     expect(screen.queryByTestId('preview-sheet-hint')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Zoom in to 100%' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('cues scrolling only while the sheet continues below the viewer', () => {
+    installViewport(1100, 700);
+    const scrollHeight = jest
+      .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+      .mockReturnValue(1300);
+    try {
+      render(<Harness />);
+      expect(screen.getByTestId('preview-sheet-scroll-cue')).toHaveTextContent(
+        'Scroll for the rest of the sheet',
+      );
+      expect(screen.getByTestId('preview-sheet-fade')).toBeInTheDocument();
+      scrollHeight.mockReturnValue(700);
+      fireEvent.scroll(
+        screen.getByTestId('sheet-canvas').parentElement!.parentElement!,
+      );
+      expect(
+        screen.queryByTestId('preview-sheet-scroll-cue'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('preview-sheet-fade'),
+      ).not.toBeInTheDocument();
+    } finally {
+      scrollHeight.mockRestore();
+    }
   });
   it('caps the opening width at a readable 920px on wide viewers', () => {
     installViewport(2600, 900);

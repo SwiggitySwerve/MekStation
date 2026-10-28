@@ -9,11 +9,17 @@ import workbenchStyles from '../CustomizerWorkbench.module.css';
 export function CatalogAddAction({
   name,
   readOnly,
+  limitNoteId,
   onAdd,
   onAddAndPlace,
 }: {
   name: string;
   readOnly: boolean;
+  /**
+   * Set while the unit is at its tonnage limit: Add stays enabled but takes
+   * the quieter outline style and is described by the limit notice.
+   */
+  limitNoteId?: string;
   onAdd: () => void;
   onAddAndPlace?: () => void;
 }): React.ReactElement {
@@ -76,12 +82,14 @@ export function CatalogAddAction({
     >
       <Button
         size="sm"
-        variant="ghost"
+        variant="secondary"
         disabled={readOnly}
         onClick={onAdd}
         title="Add to unassigned"
         aria-label={`Add ${name}`}
         aria-description="Add to unassigned in the Loadout"
+        aria-describedby={limitNoteId}
+        data-at-limit={limitNoteId ? 'true' : undefined}
         className={workbenchStyles.catalogAddHit}
       >
         <AppIcon name="add" size="inline" aria-hidden="true" />
@@ -165,7 +173,7 @@ export function CatalogAddAction({
               tabIndex={-1}
               onClick={() => run(onAdd)}
             >
-              Add to unassigned
+              Add to Unassigned
             </Button>
             <Button
               variant="ghost"
@@ -174,7 +182,7 @@ export function CatalogAddAction({
               aria-label={`Add and place ${name}`}
               onClick={() => onAddAndPlace && run(onAddAndPlace)}
             >
-              Add and choose location…
+              Add and Choose Location…
             </Button>
           </div>,
           document.body,

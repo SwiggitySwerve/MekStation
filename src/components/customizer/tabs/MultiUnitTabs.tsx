@@ -206,7 +206,13 @@ export function MultiUnitTabs({
           onOpenSavedHistory={openSavedHistory}
           savedHistoryDisabledReason={savedHistoryDisabledReason}
         />
-        <div className="bg-surface-base flex min-w-0 shrink-0 items-center pr-1 pl-3 max-sm:pl-0">
+        {/* The save state and Save form one status cluster, set off from Add
+            Unit and the unit menu by a rule. From 768px every visible gap in
+            the header's right cluster is 24px: the unit menu's glyph sits
+            12px inside its button, so 12px more to the rule, 24px after it,
+            and 24px from Save to the panel toggle (16px here plus the
+            header's 4px gap and the toggle's 4px margin). */}
+        <div className="bg-surface-base md:border-border-theme-subtle flex min-w-0 shrink-0 items-center pr-1 pl-3 max-sm:pl-0 md:ml-3 md:border-l md:pr-4 md:pl-6">
           <UnitSaveAction
             unitId={activeTabId}
             disabledReason={librarySaveDisabledReason}

@@ -38,12 +38,15 @@ export const BUILD_STATUS_KIND_FILL_COLOR: Record<BuildStatusKind, string> = {
   note: 'var(--color-sky-300, #7dd3fc)',
 };
 
-/** Border and tint of a control whose worst state is this one. */
+/**
+ * Border and tint of a control whose worst state is this one. Ready is the
+ * OK green, like its check, so every state wears the same tinted chip frame.
+ */
 export const BUILD_STATE_TINT_CLASS: Record<BuildState, string> = {
   error: 'border-red-400/60 bg-red-400/10',
   warning: 'border-warning/50 bg-warning/10',
   note: 'border-sky-300/50 bg-sky-300/10',
-  ready: 'border-border-theme bg-surface-base',
+  ready: 'border-green-400/50 bg-green-400/10',
 };
 
 /** One symbol per severity; decorative, the words carry the meaning. */
@@ -128,10 +131,11 @@ function CountBadge({
  * Visible wording of the build-status button, rendered from the shared
  * summary: "1 error \u00b7 1 warning \u00b7 1 note", each group in its own
  * color after the worst group's icon. A lone readout warning reads as itself
- * ("Runs hot +11") and truncates before its amount. The phone chip in the
- * stat strip shows every group as its severity shape and count with an
- * Issues label and chevron; the full words stay in its accessible name, so the
- * breakdown never relies on color or on the shapes alone.
+ * ("Runs Hot +11") and truncates before its amount on wide bars. The phone
+ * chip in the stat strip ends every state with the same chevron; otherwise it
+ * shows every group as its severity shape and count alone (no plural noun to
+ * misread as "1 Issues"). The full words stay in its accessible name and
+ * tooltip, so the breakdown never relies on color or on the shapes alone.
  */
 export function BuildStatusLabel({
   summary,
@@ -154,8 +158,12 @@ export function BuildStatusLabel({
         <BuildStateIcon state={state} />
         <span className={`contents ${BUILD_STATUS_KIND_TEXT_CLASS[state]}`}>
           <span className="min-w-0 truncate">{headlineNote.label}</span>
+          {/* A full word space before the amount, also in the tight phone
+              chip ("Runs Hot +11", never "Hot+11"). */}
           {headlineNote.amount && (
-            <span className="shrink-0">{headlineNote.amount}</span>
+            <span className={`shrink-0 ${compact ? 'ml-[3px]' : ''}`}>
+              {headlineNote.amount}
+            </span>
           )}
         </span>
         {compact && (
@@ -163,25 +171,24 @@ export function BuildStatusLabel({
             name="chevron-right"
             size="inline"
             aria-hidden="true"
-            className="shrink-0"
+            className="-mr-1 shrink-0"
           />
         )}
       </>
     );
   if (compact) {
     return (
-      <span className="flex min-w-0 items-center justify-center gap-x-1 leading-4">
+      <span className="flex min-w-0 items-center justify-center gap-x-2 leading-4">
         {parts.map((part) => (
           <CountBadge key={part.kind} kind={part.kind} count={part.count} />
         ))}
-        {parts.length <= 2 && parts.every((part) => part.count < 10) && (
-          <span>Issues</span>
-        )}
+        {/* The chevron's narrow ink leaves its box edge empty; pull it in so
+            the chip's content sits optically centred. */}
         <AppIcon
           name="chevron-right"
           size="inline"
           aria-hidden="true"
-          className="shrink-0"
+          className="-mr-1 shrink-0"
         />
       </span>
     );

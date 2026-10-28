@@ -25,7 +25,15 @@ export interface CriticalSlotsToolbarProps {
   readonly notice?: string;
   readonly hasMoreLocationsBelow?: boolean;
   readonly equipmentNames?: readonly string[];
+  /** Small muted note about the grid's arrangement, shown in the toolbar row. */
+  readonly caption?: string;
 }
+
+/**
+ * The toolbar's secondary buttons: the standard secondary border with cream
+ * text, so enabled tools never read as disabled grey chips.
+ */
+const TOOL_BUTTON_CLASS = '!h-11 shrink-0 !px-3 !py-0 !text-text-theme-primary';
 
 export function CriticalSlotsToolbar({
   autoFillUnhittables,
@@ -44,6 +52,7 @@ export function CriticalSlotsToolbar({
   notice,
   hasMoreLocationsBelow = false,
   equipmentNames = [],
+  caption,
 }: CriticalSlotsToolbarProps): React.ReactElement {
   const [open, setOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -92,32 +101,32 @@ export function CriticalSlotsToolbar({
   }, [open]);
   const toggles = [
     {
-      label: 'Automatically fill slots',
+      label: 'Automatically Fill Slots',
       active: autoFillUnhittables,
       toggle: onAutoFillToggle,
     },
     {
-      label: 'Automatically compact slots',
+      label: 'Automatically Compact Slots',
       active: autoCompact,
       toggle: onAutoCompactToggle,
     },
     {
-      label: 'Automatically sort equipment',
+      label: 'Automatically Sort Equipment',
       active: autoSort,
       toggle: onAutoSortToggle,
     },
   ];
   return (
-    <div className="border-border-theme-subtle bg-surface-base flex shrink-0 items-center gap-1 border-b px-3 sm:gap-2">
+    <div className="border-border-theme-subtle bg-surface-base @container flex shrink-0 items-center gap-1 border-b px-3 sm:gap-2">
       <Button
         size="sm"
         variant="secondary"
         disabled={readOnly}
         onClick={onSort}
         title="Sort equipment by size and compact slots within each location"
-        className="shrink-0"
+        className={TOOL_BUTTON_CLASS}
       >
-        Auto-arrange
+        Auto-Arrange
       </Button>
       <button
         ref={trigger}
@@ -127,11 +136,13 @@ export function CriticalSlotsToolbar({
         aria-controls={id}
         onClick={() => setOpen((value) => !value)}
         title="Critical slot tools"
-        className="border-border-theme bg-surface-base text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex h-11 w-11 shrink-0 items-center justify-center rounded border text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+        className="bg-surface-raised hover:bg-border-theme border-border-theme text-text-theme-primary focus-visible:ring-accent inline-flex !h-11 !w-11 shrink-0 items-center justify-center rounded-lg border !p-0 focus-visible:ring-2 focus-visible:outline-none"
       >
         <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
       </button>
-      <button
+      <Button
+        size="sm"
+        variant="secondary"
         type="button"
         aria-label="Reset slot assignments"
         disabled={readOnly}
@@ -139,13 +150,25 @@ export function CriticalSlotsToolbar({
           setOpen(false);
           setResetOpen(true);
         }}
-        className="text-text-theme-secondary hover:bg-surface-raised focus-visible:outline-accent min-h-11 shrink-0 rounded px-2 text-xs focus-visible:outline-2 disabled:opacity-40"
+        // Destructive: a red outline on hover and keyboard focus.
+        className={`${TOOL_BUTTON_CLASS} hover:!border-red-400 focus-visible:!border-red-400`}
       >
         Reset…
-      </button>
+      </Button>
       {hasMoreLocationsBelow && (
         <span className="text-text-theme-secondary hidden text-xs sm:block">
           Scroll for more locations
+        </span>
+      )}
+      {/* One line: shown only where the toolbar (the query container) has
+          room for it beside the two-row key, so it never wraps, leaves a
+          dangling "·" or pushes the key onto extra lines. */}
+      {caption && (
+        <span
+          data-testid="critical-slots-caption"
+          className="text-text-theme-secondary hidden shrink-0 text-xs leading-4 whitespace-nowrap @[66rem]:block"
+        >
+          {caption}
         </span>
       )}
       <ColorLegend
@@ -161,7 +184,7 @@ export function CriticalSlotsToolbar({
         options={[
           {
             id: 'slots',
-            title: 'Reset slot assignments',
+            title: 'Reset Slot Assignments',
             description: 'Return mounted equipment to the unassigned pool.',
             removes: ['Equipment slot assignments'],
             preserves: [

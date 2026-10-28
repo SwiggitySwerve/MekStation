@@ -2,12 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 
 async function loadUnit(page: Page, name = 'Atlas AS7-D', variant = 'AS7-D') {
   const open = page.getByRole('button', {
-    name: 'Add unit (Ctrl+O)',
+    name: 'Add Unit (Ctrl+O)',
     exact: true,
   });
   if (await open.isVisible()) await open.click();
   else
-    await page.getByRole('button', { name: 'Add unit', exact: true }).click();
+    await page.getByRole('button', { name: 'Add Unit', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await page.getByPlaceholder('Search by chassis or variant...').fill(name);
@@ -204,7 +204,7 @@ test('unit commands preserve live tech identity, rename and unit isolation @cust
   const atlasTab = page.getByRole('tab', { name: 'Atlas AS7-D', exact: true });
   await expect(atlasTab.getByText('IS', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
-  await page.getByText('Change tech base', { exact: true }).click();
+  await page.getByText('Change Tech Base', { exact: true }).click();
   await page
     .getByTitle('All components use Clan technology', { exact: true })
     .click();
@@ -238,7 +238,7 @@ test('unit commands preserve live tech identity, rename and unit isolation @cust
       .getByRole('tab', { name: 'Layout Atlas', exact: true })
       .getByText('Clan', { exact: true }),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Unit actions', exact: true }).click();
+  await page.getByRole('button', { name: 'Unit Actions', exact: true }).click();
   await page
     .getByRole('combobox', { name: 'Switch open unit' })
     .selectOption({ label: 'Locust LCT-1V' });
@@ -270,7 +270,7 @@ test('validation keeps section badges, guidance and focused destinations @custom
   // One build-status button names every group, in the shared wording, and
   // opens one panel.
   const statusButton = overall.getByRole('button', {
-    name: /Not legal · \d+ errors? · \d+ warnings?.*, show issues$/,
+    name: /Not Legal · \d+ errors? · \d+ warnings?.*, show issues$/,
   });
   await expect(statusButton).toBeVisible();
   await expect(statusButton).toHaveAttribute('data-build-status', 'error');
@@ -301,7 +301,7 @@ test('validation keeps section badges, guidance and focused destinations @custom
   await statusButton.focus();
   await statusButton.press('Enter');
   const issues = page.getByRole('dialog', {
-    name: /Atlas AS7-D.*Build status.*Not legal/,
+    name: /Atlas AS7-D.*Build Status.*Not Legal/,
   });
   await expect(issues).toBeVisible();
   const railBox = (await page
@@ -340,33 +340,34 @@ test('validation keeps section badges, guidance and focused destinations @custom
   await expect(placement).toContainText('ER PPC');
   expect((await readDraft(page)).id).toBe(id);
   await statusButton.click();
-  // Overweight names its cause and offers the tabs that change carried weight.
+  // Overweight names its cause, the readiness row's fix sentence and the same
+  // one link the readiness row offers.
   const errorIssue = issues
     .getByRole('region', { name: 'Errors' })
     .locator('[data-validation-issue]')
     .filter({ hasText: /Overweight by/ })
     .first();
+  await expect(errorIssue).toContainText('Remove equipment or armor.');
   await expect(errorIssue.locator('[data-validation-fix]')).toHaveText([
     /Go to Equipment/,
-    /Go to Armor/,
   ]);
   await errorIssue
-    .getByRole('button', { name: 'Go to Armor', exact: true })
+    .getByRole('button', { name: 'Go to Equipment', exact: true })
     .click();
   await expect(
-    page.getByRole('tab', { name: 'Armor', exact: true }),
+    page.getByRole('tab', { name: 'Equipment', exact: true }),
   ).toHaveAttribute('aria-selected', 'true');
   await expect(
-    page.getByRole('tabpanel', { name: 'Armor', exact: true }),
+    page.getByRole('tabpanel', { name: 'Equipment', exact: true }),
   ).toBeFocused();
   expect((await readDraft(page)).id).toBe(id);
   await page
-    .getByRole('button', { name: 'Hide loadout panel', exact: true })
+    .getByRole('button', { name: 'Hide Loadout Panel', exact: true })
     .click();
   await statusButton.click();
   await placeIssue.click();
   const wideDrawer = page.getByRole('dialog', {
-    name: 'Unit loadout',
+    name: 'Unit Loadout',
     exact: true,
   });
   await expect(wideDrawer).toBeVisible();
@@ -426,17 +427,19 @@ test('critical locations fit below pinned tools and offer one phone location pil
       'Engine',
       'Gyro',
       'Actuators',
-      'Cockpit / life support / sensors',
+      'Cockpit / Life Support / Sensors',
       'Empty',
     ])
       await expect(key.getByText(label, { exact: true })).toBeVisible();
     // Fixed systems show their family accents, not one grey chip.
-    await expect(key.getByText('Fixed systems', { exact: true })).toHaveCount(
+    await expect(key.getByText('Fixed Systems', { exact: true })).toHaveCount(
       0,
     );
+    // Each swatch is a miniature slot (4px bar plus fill), 14px by 12px
+    // (critical-slots-display spec).
     for (const swatch of await key.locator('[aria-hidden="true"]').all()) {
       const box = (await swatch.boundingBox())!;
-      expect(box.width).toBe(12);
+      expect(box.width).toBe(14);
       expect(box.height).toBeGreaterThanOrEqual(12);
       expect(box.height).toBe(12);
     }
@@ -448,10 +451,10 @@ test('critical locations fit below pinned tools and offer one phone location pil
       ).toBe(13);
     }
     await expect(
-      page.getByRole('button', { name: 'Colour key', exact: true }),
+      page.getByRole('button', { name: 'Colour Key', exact: true }),
     ).toBeHidden();
     await expect(
-      page.getByRole('button', { name: 'Auto-arrange', exact: true }),
+      page.getByRole('button', { name: 'Auto-Arrange', exact: true }),
     ).toBeVisible();
     await expect
       .poll(() =>
@@ -495,7 +498,7 @@ test('critical locations fit below pinned tools and offer one phone location pil
       await expect(location).toBeInViewport({ ratio: 1 });
     expect((await key.boundingBox())!.y).toBe(toolbarTop);
     await expect(
-      page.getByRole('button', { name: 'Auto-arrange', exact: true }),
+      page.getByRole('button', { name: 'Auto-Arrange', exact: true }),
     ).toBeInViewport({ ratio: 1 });
     const banner = page.getByRole('region', { name: 'Equipment to place' });
     if (await banner.isVisible()) {
@@ -524,7 +527,7 @@ test('critical locations fit below pinned tools and offer one phone location pil
     page.getByRole('group', { name: 'Colour key', exact: true }),
   ).toBeHidden();
   await expect(
-    page.getByRole('button', { name: 'Colour key', exact: true }),
+    page.getByRole('button', { name: 'Colour Key', exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -569,14 +572,14 @@ test('critical locations fit below pinned tools and offer one phone location pil
   ).toBeVisible();
   expect(await pills.allTextContents()).toEqual(
     [
-      /^LA \d+\/12$/,
-      /^LT \d+\/12$/,
-      /^HD \d+\/6$/,
-      /^CT \d+\/12$/,
-      /^RT \d+\/12$/,
-      /^RA \d+\/12$/,
-      /^LL \d+\/6$/,
-      /^RL \d+\/6$/,
+      /^LA \d+ \/ 12$/,
+      /^LT \d+ \/ 12$/,
+      /^HD \d+ \/ 6$/,
+      /^CT \d+ \/ 12$/,
+      /^RT \d+ \/ 12$/,
+      /^RA \d+ \/ 12$/,
+      /^LL \d+ \/ 6$/,
+      /^RL \d+ \/ 6$/,
     ].map((pattern) => expect.stringMatching(pattern)),
   );
   const sizes = await pills.evaluateAll((items) =>
@@ -657,12 +660,31 @@ test('phone issue card stays compact and orders errors before warnings @customiz
         rows.map((row) => row.getAttribute('data-severity')),
       ),
   ).toEqual(['error', 'error', 'warning']);
-  expect((await card.boundingBox())!.height).toBeLessThanOrEqual(240);
-  const action = card.getByRole('button', { name: 'Weight: go to Equipment' });
+  // Each action sits on its own line under its reason (about 361px here).
+  expect((await card.boundingBox())!.height).toBeLessThanOrEqual(380);
+  // Every reason wraps in full: none is cut before its fix.
+  expect(
+    await card
+      .locator('li p')
+      .evaluateAll((lines) =>
+        lines.every((line) => line.scrollWidth <= line.clientWidth + 1),
+      ),
+  ).toBe(true);
+  // The row takes the status panel's title for its issue.
+  const action = card.getByRole('button', {
+    name: /^Overweight by \d+\.\d t: go to Equipment$/,
+  });
   await expect(action).toContainText('Go to Equipment');
   expect((await action.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const chip = page.locator('[data-build-status="error"]');
-  await expect(chip).toContainText('Issues');
+  // Icon counts alone ("⊗2 ⚠1 ›"): no "Issues" noun to misread as "1 Issues".
+  await expect(chip).not.toContainText('Issues');
+  await expect(chip.locator('[data-build-status-part="error"]')).toHaveText(
+    '2',
+  );
+  await expect(chip.locator('[data-build-status-part="warning"]')).toHaveText(
+    '1',
+  );
   await expect(chip.locator('[data-icon-name="chevron-right"]')).toBeVisible();
   expect((await chip.boundingBox())!.height).toBe(44);
   const sizes = await page
@@ -718,7 +740,7 @@ test('heat explanations reconcile and phone navigation keeps issue badges @custo
   await expect(
     page.getByTestId('structure-heat-sink-weight-help'),
   ).toContainText(
-    /\d+ heat sinks · \d+ fit inside the engine, \d+ mounted outside · first 10 weigh nothing; \d+ add \d+ t/,
+    /\d+ heat sinks · \d+ fit inside the engine, \d+ mounted outside\s*First 10 weigh nothing; \d+ add [\d.]+ t/,
   );
   await expect(
     page.getByRole('button', {
@@ -823,7 +845,7 @@ test('unit switching never attributes another draft validation to the selected u
   const locustErrors = page
     .locator('[aria-label="Unit validation"]')
     .getByRole('button', {
-      name: 'Locust LCT-1V: Not legal · 2 errors, show issues',
+      name: 'Locust LCT-1V: Not Legal · 2 errors, show issues',
       exact: true,
     });
   await expect(locustErrors).toBeVisible();
@@ -869,9 +891,8 @@ test('unit switching never attributes another draft validation to the selected u
   expect(atlasMessages).not.toEqual(baselineMessages);
   // Overweight, plus the unplaced ER PPC: unplaced equipment is an error.
   expect(atlasMessages).toHaveLength(2);
-  expect(atlasMessages[0]).toContain(
-    'Unit exceeds maximum tonnage by 7.0 tons',
-  );
+  // Each issue shows one title, the same one the readiness row uses.
+  expect(atlasMessages[0]).toContain('Overweight by 7.0 t');
   expect(atlasMessages[1]).toContain('ER PPC needs a location');
   await page.keyboard.press('Escape');
   await page.evaluate(() => {
@@ -906,7 +927,7 @@ test('unit switching never attributes another draft validation to the selected u
     page
       .getByRole('region', { name: 'Unit status' })
       .getByTestId('unit-info-stat-weight'),
-  ).toContainText('/20t');
+  ).toContainText('/ 20.0 t');
   await expect(locustErrors).toBeVisible();
   await locustErrors.click();
   expect(await errorItems.allTextContents()).toEqual(baselineMessages);

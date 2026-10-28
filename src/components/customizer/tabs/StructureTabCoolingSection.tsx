@@ -47,7 +47,7 @@ export function StructureTabCoolingSection({
       id={COOLING_CARD_ID}
       aria-labelledby="cooling-heading"
       data-focus-target="heat-sink-count"
-      className={`${cs.panel.main} ${STRUCTURE_CARD}`}
+      className={`${cs.panel.main} ${STRUCTURE_CARD} flex-1`}
     >
       <div className="border-border-theme mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b pb-3">
         <h3 id="cooling-heading" className={cs.text.cardTitle}>

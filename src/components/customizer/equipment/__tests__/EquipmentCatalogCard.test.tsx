@@ -53,12 +53,19 @@ const laser: IEquipmentItem = {
 it('shows mounted count as plain text and marks an overweight item in the Tons cells', async () => {
   const user = userEvent.setup();
   const { onAdd } = setup({ mountedCount: 3, remainingWeight: 0.25 });
-  expect(screen.getByText('×3 mounted')).toBeInTheDocument();
+  // Desktop subtitle and phone name line each carry the count.
+  const mounted = screen.getAllByText('×3 mounted');
+  expect(mounted).toHaveLength(2);
+  expect(mounted[0]).toHaveClass('lg:hidden');
+  expect(
+    mounted[1].closest('[data-catalog-column="category"]'),
+  ).toHaveTextContent('Energy Weapon · ×3 mounted');
   // Desktop Tons cell and phone stats line each carry the warning and a
   // description; no per-row "t over" chip remains.
   expect(screen.getAllByText(/exceeds free weight by 0\.3 t/)).toHaveLength(2);
   expect(screen.queryByText(/t over/)).not.toBeInTheDocument();
   const add = screen.getByRole('button', { name: 'Add Small Laser' });
+  expect(add).toHaveClass('border', 'bg-surface-raised', 'catalogAddHit');
   expect(add).toBeEnabled();
   await user.click(add);
   expect(onAdd).toHaveBeenCalledTimes(1);
@@ -120,7 +127,7 @@ it('keeps damage for weapons and shows ammunition capacity as its own field', ()
   ).toHaveTextContent('Ammunition · 45 shots/t');
   // Ammunition is one line: capacity, weight, slots.
   const stats = screen.getByTestId('equipment-catalog-stats');
-  expect(stats).toHaveTextContent('Shots 45 · 0.5 t · 1 slot');
+  expect(stats).toHaveTextContent('45 shots/t · 0.5 t · 1 slot');
   for (const label of ['Damage', 'Range', 'Min', 'Heat'])
     expect(stats).not.toHaveTextContent(label);
   expect(stats.children).toHaveLength(1);
@@ -142,12 +149,12 @@ it('shows variable-size placeholders instead of 0 for items flagged variable wit
   const weightCell = row.querySelector('[data-catalog-column="weight"]');
   const slotsCell = row.querySelector('[data-catalog-column="criticalSlots"]');
   expect(weightCell).toHaveTextContent('Var.');
-  expect(weightCell).toHaveTextContent('Variable weight');
-  expect(weightCell?.querySelector('[title="Variable weight"]')).not.toBeNull();
+  expect(weightCell).toHaveTextContent('Variable Weight');
+  expect(weightCell?.querySelector('[title="Variable Weight"]')).not.toBeNull();
   expect(slotsCell).toHaveTextContent('Var.');
-  expect(slotsCell).toHaveTextContent('Variable slots');
+  expect(slotsCell).toHaveTextContent('Variable Slots');
   expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
-    'Variable weight',
+    'Variable Weight',
   );
   expect(row).toHaveTextContent('depend on the size chosen');
 });
@@ -163,14 +170,14 @@ it('reads variable-size notes from the loaded record when the catalog item omits
     },
   });
   expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
-    'Variable slots',
+    'Variable Slots',
   );
 });
 
 it('repeats no column value in the expanded details', () => {
   setup({ expanded: true, equipment: { ...laser, id: 'ac-2' } });
   expect(screen.queryByText('Minimum range')).not.toBeInTheDocument();
-  expect(screen.getByText('Battle value')).toBeInTheDocument();
+  expect(screen.getByText('Battle Value')).toBeInTheDocument();
 });
 
 it('omits mounted and weight annotations when the item is absent and fits exactly', () => {
@@ -229,7 +236,7 @@ it('adds to unassigned from the menu and returns focus', async () => {
     name: 'Add options for Small Laser',
   });
   await user.click(trigger);
-  await user.click(screen.getByRole('menuitem', { name: 'Add to unassigned' }));
+  await user.click(screen.getByRole('menuitem', { name: 'Add to Unassigned' }));
   expect(onAdd).toHaveBeenCalledTimes(1);
   expect(onAddAndPlace).not.toHaveBeenCalled();
   expect(trigger).toHaveFocus();
@@ -262,7 +269,7 @@ it('ignores queued scroll events but dismisses when its anchor moves', async () 
   fireEvent.scroll(window);
   expect(screen.getByRole('menu')).toBeVisible();
   expect(
-    screen.getByRole('menuitem', { name: 'Add to unassigned' }),
+    screen.getByRole('menuitem', { name: 'Add to Unassigned' }),
   ).toHaveFocus();
 
   bounds.mockReturnValue(new DOMRect(300, 580, 44, 44));
@@ -281,7 +288,7 @@ it('supports arrow navigation, Escape, Tab and outside dismissal', async () => {
   trigger.focus();
   await user.keyboard('{ArrowDown}');
   expect(
-    screen.getByRole('menuitem', { name: 'Add to unassigned' }),
+    screen.getByRole('menuitem', { name: 'Add to Unassigned' }),
   ).toHaveFocus();
   await user.keyboard('{ArrowDown}');
   expect(
@@ -289,7 +296,7 @@ it('supports arrow navigation, Escape, Tab and outside dismissal', async () => {
   ).toHaveFocus();
   await user.keyboard('{ArrowDown}');
   expect(
-    screen.getByRole('menuitem', { name: 'Add to unassigned' }),
+    screen.getByRole('menuitem', { name: 'Add to Unassigned' }),
   ).toHaveFocus();
   await user.keyboard('{Escape}');
   expect(trigger).toHaveFocus();
@@ -322,4 +329,19 @@ it('disables add actions when readOnly but keeps details available', () => {
   expect(
     screen.getByRole('button', { name: 'Details for Small Laser' }),
   ).toBeEnabled();
+});
+
+it.each([
+  [6, '6.0'],
+  [7.5, '7.5'],
+  [12, '12.0'],
+])('shows catalog tonnage %s with one decimal', (weight, expected) => {
+  setup({ equipment: { ...laser, weight: Number(weight) } });
+  const row = screen.getByTestId('equipment-catalog-row');
+  expect(row.querySelector('[data-catalog-column="weight"]')).toHaveTextContent(
+    String(expected),
+  );
+  expect(screen.getByTestId('equipment-catalog-stats')).toHaveTextContent(
+    `${expected} t`,
+  );
 });

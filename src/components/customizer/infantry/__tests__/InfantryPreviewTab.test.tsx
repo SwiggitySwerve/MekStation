@@ -90,10 +90,10 @@ describe('InfantryPreviewTab — non-mech crash regression gate', () => {
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Zoom options' }));
     expect(
-      screen.getByRole('menuitemradio', { name: 'Fit width' }),
+      screen.getByRole('menuitemradio', { name: 'Fit Width' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('menuitemradio', { name: 'Fit page' }),
+      screen.getByRole('menuitemradio', { name: 'Fit Page' }),
     ).toBeInTheDocument();
   });
 });

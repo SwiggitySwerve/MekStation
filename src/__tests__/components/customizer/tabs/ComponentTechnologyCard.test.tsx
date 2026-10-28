@@ -26,9 +26,7 @@ describe('ComponentTechnologyCard', () => {
 
     expect(
       screen.getByTestId('overview-component-tech-help'),
-    ).toHaveTextContent(
-      'Set in Structure and Armor; change the tech base below.',
-    );
+    ).toHaveTextContent('Set in Structure, Armor and Equipment.');
   });
 
   it('drops the tech base editor hint when read-only', () => {
@@ -36,7 +34,7 @@ describe('ComponentTechnologyCard', () => {
 
     expect(
       screen.getByTestId('overview-component-tech-help'),
-    ).toHaveTextContent('Set in Structure and Armor.');
+    ).toHaveTextContent('Set in Structure, Armor and Equipment.');
   });
 
   it('links each value to the tab that changes it', () => {
@@ -45,10 +43,10 @@ describe('ComponentTechnologyCard', () => {
     const card = screen.getByTestId('overview-component-technology');
 
     const structureRows = [
-      'Internal structure',
+      'Internal Structure',
       'Gyro',
       'Engine',
-      'Heat sinks',
+      'Heat Sinks',
       'Myomer',
     ];
     for (const label of structureRows) {
@@ -71,26 +69,37 @@ describe('ComponentTechnologyCard', () => {
     expect(onNavigate).toHaveBeenCalledWith('armor');
   });
 
-  it('renders every "None" value as plain text, never a link', () => {
-    renderCard({ onNavigate: jest.fn() });
+  it('links every "None" value to the tab that changes it', () => {
+    const onNavigate = jest.fn();
+    renderCard({ onNavigate });
     const card = screen.getByTestId('overview-component-technology');
     const rows = Array.from(card.querySelectorAll('dl > div'));
     const noneRows = rows.filter(
       (row) => row.querySelector('dd')?.textContent?.trim() === 'None',
     );
 
-    // Movement enhancement and Targeting computer both default to None.
+    // Movement Enhancement and Targeting Computer both default to None.
     expect(noneRows.length).toBeGreaterThanOrEqual(2);
     for (const row of noneRows) {
-      expect(row.querySelector('button')).toBeNull();
-      expect(row.querySelector('dd span')).toHaveTextContent('None');
+      // The "Go to" treatment: a trailing chevron, no underline.
+      const link = row.querySelector('dd button');
+      expect(link).not.toHaveClass('underline', 'decoration-dotted');
+      expect(
+        link?.querySelector('[data-icon-name="chevron-right"]'),
+      ).not.toBeNull();
+      expect(link).toHaveTextContent('None');
     }
-    expect(
-      within(card).queryByRole('button', { name: /^Movement enhancement/ }),
-    ).not.toBeInTheDocument();
+    fireEvent.click(
+      within(card).getByRole('button', { name: /^Movement Enhancement/ }),
+    );
+    expect(onNavigate).toHaveBeenLastCalledWith('structure');
+    fireEvent.click(
+      within(card).getByRole('button', { name: /^Targeting Computer/ }),
+    );
+    expect(onNavigate).toHaveBeenLastCalledWith('equipment');
   });
 
-  it('keeps the visible value as the link text and leaves targeting plain', () => {
+  it('keeps the visible value as the link text for selections and None', () => {
     renderCard({ onNavigate: jest.fn() });
     const card = screen.getByTestId('overview-component-technology');
 
@@ -98,11 +107,11 @@ describe('ComponentTechnologyCard', () => {
       within(card).getByRole('button', { name: /^Engine: / }),
     ).toHaveTextContent(/^Standard Fusion \d+$/);
     expect(
-      within(card).queryByRole('button', { name: /^Targeting computer/ }),
-    ).not.toBeInTheDocument();
+      within(card).getByRole('button', { name: /^Targeting Computer/ }),
+    ).toHaveTextContent('None');
     expect(
       within(card.querySelector('dl') as HTMLElement).getByText(
-        'Targeting computer',
+        'Targeting Computer',
       ),
     ).toBeInTheDocument();
   });

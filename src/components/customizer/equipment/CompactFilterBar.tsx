@@ -15,11 +15,7 @@ import { getCategoryIndicatorClass } from '@/utils/colors/equipmentColors';
 import type { ICatalogCapacityNotice } from './EquipmentBrowser.model';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
-import {
-  BUILD_STATUS_KIND_TEXT_CLASS,
-  BUILD_STATE_TINT_CLASS,
-  SeverityIcon,
-} from '../shared/BuildStatusLabel';
+import { CatalogSummaryLine } from './CatalogSummaryLine';
 import { EquipmentControlPopover } from './EquipmentControlPopover';
 
 export interface CompactFilterBarProps {
@@ -45,6 +41,8 @@ export interface CompactFilterBarProps {
   resultSummary?: string;
   /** Free tonnage and slots, shown on the result-count line. */
   capacity?: ICatalogCapacityNotice;
+  /** Id for the at-limit notice, which the Add buttons reference. */
+  limitNoteId?: string;
   availabilitySummary?: string;
   /** Short availability text for the phone Filters button, e.g. "IS · 3028". */
   compactAvailabilitySummary?: string;
@@ -98,6 +96,7 @@ export function CompactFilterBar({
   className = '',
   resultSummary,
   capacity,
+  limitNoteId,
   availabilitySummary,
   compactAvailabilitySummary,
   sortControls,
@@ -106,15 +105,29 @@ export function CompactFilterBar({
   const [categoryOverflow, setCategoryOverflow] = useState<
     'none' | 'forward' | 'backward'
   >('none');
+  // How many category tabs are cut off on the side the scroll button points
+  // to, so the button can say "+5" instead of showing a bare chevron.
+  const [hiddenCategoryCount, setHiddenCategoryCount] = useState(0);
   const updateCategoryOverflow = useCallback(() => {
     const element = categoriesRef.current;
     if (!element) return;
-    setCategoryOverflow(
+    const overflow =
       element.scrollWidth <= element.clientWidth + 1
         ? 'none'
         : element.scrollLeft + element.clientWidth < element.scrollWidth - 1
           ? 'forward'
-          : 'backward',
+          : 'backward';
+    setCategoryOverflow(overflow);
+    const bounds = element.getBoundingClientRect();
+    setHiddenCategoryCount(
+      overflow === 'none'
+        ? 0
+        : Array.from(element.children).filter((chip) => {
+            const rect = chip.getBoundingClientRect();
+            return overflow === 'forward'
+              ? rect.right > bounds.right + 1
+              : rect.left < bounds.left - 1;
+          }).length,
     );
   }, []);
   useEffect(() => {
@@ -127,9 +140,9 @@ export function CompactFilterBar({
   }, [updateCategoryOverflow]);
   const activeFilterNames = [
     hideUnavailable && (availabilitySummary || 'Availability'),
-    hidePrototype && 'No prototypes',
-    hideOneShot && 'No one-shot',
-    hideAmmoWithoutWeapon && 'Matched ammo',
+    hidePrototype && 'No Prototypes',
+    hideOneShot && 'No One-Shot',
+    hideAmmoWithoutWeapon && 'Matched Ammo',
   ].filter(Boolean);
   const activeFilters = activeFilterNames.join(', ');
   // Phone: the first active filter in short form, plus how many more apply.
@@ -148,9 +161,9 @@ export function CompactFilterBar({
   );
   const toggles = [
     { label: 'Prototype', active: hidePrototype, toggle: onTogglePrototype },
-    { label: 'One-shot', active: hideOneShot, toggle: onToggleOneShot },
+    { label: 'One-Shot', active: hideOneShot, toggle: onToggleOneShot },
     {
-      label: 'Ammo without weapon',
+      label: 'Ammo Without Weapon',
       active: hideAmmoWithoutWeapon,
       toggle: onToggleAmmoWithoutWeapon,
     },
@@ -166,7 +179,9 @@ export function CompactFilterBar({
         className="border-border-theme flex min-h-12 shrink-0 flex-wrap items-center gap-x-2 gap-y-0 border-b px-3 py-0.5"
         data-testid="equipment-search-controls"
       >
-        <div className="relative max-w-full min-w-32 flex-1 basis-0">
+        {/* Wide screens give Search its own row, so the Filters summary and
+            How to Add get a full row under it instead of squeezing beside it. */}
+        <div className="relative max-w-full min-w-32 flex-1 basis-0 lg:basis-full">
           <input
             type="text"
             aria-label="Search equipment"
@@ -252,10 +267,10 @@ export function CompactFilterBar({
             title="Clear all filters"
             className="mt-2 w-full"
           >
-            Clear filters
+            Clear Filters
           </Button>
           <p className="text-text-theme-secondary mt-3 text-xs">
-            Ammo without weapon hides ammunition that has no compatible weapon
+            Ammo Without Weapon hides ammunition that has no compatible weapon
             on this unit. Electronics has its own category. Ctrl-click or
             Command-click categories to combine them.
           </p>
@@ -270,9 +285,9 @@ export function CompactFilterBar({
           </EquipmentControlPopover>
         )}
         <EquipmentControlPopover
-          ariaLabel="How to add equipment"
-          label="How to add"
-          className="hidden lg:block"
+          ariaLabel="How to Add Equipment"
+          label="How to Add"
+          className="hidden lg:ml-auto lg:block"
         >
           <p className="text-text-theme-secondary text-sm">
             Add a copy unassigned, or use Add + place to choose a legal
@@ -330,13 +345,23 @@ export function CompactFilterBar({
         {categoryOverflow !== 'none' && (
           <Button
             size="sm"
-            variant="ghost"
+            variant="secondary"
             aria-label={
-              categoryOverflow === 'forward'
-                ? 'More equipment categories'
-                : 'Previous equipment categories'
+              hiddenCategoryCount > 0
+                ? `${hiddenCategoryCount} ${categoryOverflow === 'forward' ? 'more' : 'previous'} equipment categories`
+                : categoryOverflow === 'forward'
+                  ? 'More equipment categories'
+                  : 'Previous equipment categories'
             }
-            className="!h-11 !w-11 !min-w-11 shrink-0 !p-0"
+            // A full 44px bordered button, like the edit-history buttons,
+            // with 2px above and below so it clears the row's divider. The
+            // chevron's glyph sits inside its box with blank space on its
+            // outer side, so the padding is uneven to centre what shows.
+            className={`my-0.5 mr-1 !h-11 !min-w-11 shrink-0 !gap-0.5 tabular-nums ${
+              categoryOverflow === 'forward'
+                ? '!pr-[5px] !pl-[11px]'
+                : '!pr-[11px] !pl-[5px]'
+            }`}
             onClick={() => {
               const element = categoriesRef.current;
               if (!element) return;
@@ -349,62 +374,27 @@ export function CompactFilterBar({
               });
             }}
           >
-            <AppIcon
-              name={
-                categoryOverflow === 'forward'
-                  ? 'chevron-right'
-                  : 'chevron-left'
-              }
-              size="control"
-              aria-hidden="true"
-            />
+            {/* The count makes the overflow explicit: "+5 ›" says five more
+                categories are off to the right. */}
+            {categoryOverflow === 'backward' && (
+              <AppIcon name="chevron-left" size="control" aria-hidden="true" />
+            )}
+            {hiddenCategoryCount > 0 && (
+              <span className="text-xs font-medium">
+                +{hiddenCategoryCount}
+              </span>
+            )}
+            {categoryOverflow === 'forward' && (
+              <AppIcon name="chevron-right" size="control" aria-hidden="true" />
+            )}
           </Button>
         )}
       </div>
-      <p className={workbenchStyles.catalogSummary}>
-        {resultSummary && <span aria-live="polite">{resultSummary}</span>}
-        {capacity && ' · '}
-        {capacity && (
-          <span
-            data-testid="equipment-catalog-capacity"
-            data-capacity-state={capacity.state}
-            className={
-              capacity.state === 'over'
-                ? `${workbenchStyles.catalogCapacityWarning} ${BUILD_STATUS_KIND_TEXT_CLASS.error} ${BUILD_STATE_TINT_CLASS.error}`
-                : undefined
-            }
-          >
-            {capacity.state === 'over' && <SeverityIcon kind="error" />}
-            <span>
-              <span>
-                {capacity.compactWeightText === capacity.weightText ? (
-                  capacity.weightText
-                ) : (
-                  <>
-                    <span className="sm:hidden">
-                      {capacity.compactWeightText}
-                    </span>
-                    <span className="hidden sm:inline">
-                      {capacity.weightText}
-                    </span>
-                  </>
-                )}
-              </span>
-              {/* A long notice drops the slot count on phones to stay on one row. */}
-              <span
-                className={
-                  capacity.compactWeightText === capacity.weightText
-                    ? ''
-                    : 'hidden sm:inline'
-                }
-              >
-                {' · '}
-                {capacity.slotsText}
-              </span>
-            </span>
-          </span>
-        )}
-      </p>
+      <CatalogSummaryLine
+        resultSummary={resultSummary}
+        capacity={capacity}
+        limitNoteId={limitNoteId}
+      />
     </div>
   );
 }

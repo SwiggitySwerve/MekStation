@@ -16,15 +16,19 @@ export type DraftState = 'pending' | 'saved' | 'failed';
  */
 export const DRAFT_LABEL: Record<DraftState, string> = {
   pending: 'No browser draft yet',
-  saved: 'Draft saved in this browser',
-  failed: 'Draft save failed in this browser',
+  saved: 'Draft saved in browser',
+  failed: 'Draft save failed in browser',
 };
 
-/** Short wording for bands that pair the draft with the library state. */
+/**
+ * Short wording for bands that pair the draft with the library state. The
+ * header and the status panel both say "Draft Saved"; the panel's sentence
+ * under it says the draft is kept in this browser.
+ */
 export const DRAFT_SHORT_LABEL: Record<DraftState, string> = {
-  pending: 'No browser draft',
-  saved: 'Draft saved in browser',
-  failed: 'Browser draft not saved',
+  pending: 'No Browser Draft',
+  saved: 'Draft Saved',
+  failed: 'Browser Draft Not Saved',
 };
 
 function draftStorageKey(unitId: string): string {
@@ -65,6 +69,36 @@ export function useBrowserDraftState(unitId: string): DraftState {
   const current = receipt?.unitId === unitId ? receipt : null;
   if (current?.failed) return 'failed';
   return current ? 'saved' : 'pending';
+}
+
+/** How long the header's "Draft Saved" stays emphasised after a write. */
+export const DRAFT_SAVE_PULSE_MS = 1500;
+
+/**
+ * True for a moment after a draft write for this unit succeeds, so the header
+ * save state can confirm each automatic save in place of a toast.
+ */
+export function useDraftSavePulse(unitId: string): boolean {
+  const [pulseUnitId, setPulseUnitId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const unsubscribe = subscribeToStorageWriteReceipts((next) => {
+      if (next.key !== draftStorageKey(unitId) || next.status === 'failed')
+        return;
+      setPulseUnitId(unitId);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => setPulseUnitId(null), DRAFT_SAVE_PULSE_MS);
+    });
+    return () => {
+      unsubscribe();
+      if (timer) clearTimeout(timer);
+      // A pulse cut short by a unit switch must not be left on for later.
+      setPulseUnitId(null);
+    };
+  }, [unitId]);
+
+  return pulseUnitId === unitId;
 }
 
 /** Show only completed writes for the active draft, separately from library save. */
@@ -112,7 +146,7 @@ export function BrowserDraftStatus({
       {failed && getUnitStore(unitId) && (
         <button
           type="button"
-          aria-label="Retry browser draft"
+          aria-label="Retry Browser Draft"
           className="-ml-1 min-h-11 px-1 underline underline-offset-2"
           onClick={() => {
             try {
@@ -122,7 +156,7 @@ export function BrowserDraftStatus({
             }
           }}
         >
-          {compact ? 'Retry' : 'Retry browser draft'}
+          {compact ? 'Retry' : 'Retry Browser Draft'}
         </button>
       )}
     </span>

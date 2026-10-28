@@ -113,25 +113,25 @@ export const AEROSPACE_TEMPLATES: readonly AerospaceTemplate[] = [
 export const BATTLE_ARMOR_TEMPLATES: readonly BattleArmorTemplate[] = [
   {
     id: 'light-ba',
-    name: 'Light BA (4-trooper)',
+    name: 'Light BA (4-Trooper)',
     squadSize: 4,
     techBase: TechBase.INNER_SPHERE,
   },
   {
     id: 'medium-ba',
-    name: 'Medium BA (4-trooper)',
+    name: 'Medium BA (4-Trooper)',
     squadSize: 4,
     techBase: TechBase.INNER_SPHERE,
   },
   {
     id: 'heavy-ba',
-    name: 'Heavy BA (4-trooper)',
+    name: 'Heavy BA (4-Trooper)',
     squadSize: 4,
     techBase: TechBase.INNER_SPHERE,
   },
   {
     id: 'clan-ba',
-    name: 'Clan Elemental (5-point)',
+    name: 'Clan Elemental (5-Point)',
     squadSize: 5,
     techBase: TechBase.CLAN,
   },

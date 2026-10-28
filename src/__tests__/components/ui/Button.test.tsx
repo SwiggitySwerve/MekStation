@@ -28,7 +28,7 @@ describe('Button', () => {
     it('should apply primary variant', () => {
       render(<Button variant="primary">Primary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-accent-hover');
+      expect(button).toHaveClass('bg-accent', 'hover:bg-accent-hover');
     });
 
     it('should apply secondary variant (default)', () => {
@@ -85,6 +85,23 @@ describe('Button', () => {
     it('should be disabled when disabled prop is true', () => {
       render(<Button disabled>Disabled</Button>);
       expect(screen.getByRole('button')).toBeDisabled();
+    });
+
+    it('uses the shared solid disabled style, never a dashed border', () => {
+      render(
+        <Button variant="primary" disabled>
+          Disabled
+        </Button>,
+      );
+      const button = screen.getByRole('button');
+      expect(button).toHaveClass(
+        'disabled:!border-solid',
+        'disabled:!border-border-theme',
+        'disabled:!bg-transparent',
+        'disabled:!text-text-theme-secondary/85',
+        'disabled:!cursor-not-allowed',
+      );
+      expect(button.className).not.toContain('dashed');
     });
 
     it('should be disabled when loading', () => {

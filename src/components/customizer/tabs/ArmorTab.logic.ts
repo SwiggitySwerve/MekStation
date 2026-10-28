@@ -1,4 +1,7 @@
-import type { ArmorDiagramMode } from '@/stores/useCustomizerSettingsStore';
+import type {
+  ArmorDiagramMode,
+  ArmorDiagramVariant,
+} from '@/stores/useCustomizerSettingsStore';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
@@ -10,6 +13,7 @@ import {
   hasRearArmor,
 } from '@/types/construction/MechConfigurationSystem';
 import { getMaxArmorForLocation } from '@/utils/construction/armorCalculations';
+import { formatTons } from '@/utils/formatting';
 
 function getRearValue(
   armorAllocation: IArmorAllocation,
@@ -60,14 +64,64 @@ export function buildArmorData(
 
 /**
  * Biped silhouette diagrams drop their own legend on wide layouts; the armor
- * inspector shows it beside the diagram instead. Every other configuration and
- * the schematic keep their built-in legend.
+ * inspector shows it beside the diagram instead. The Standard (Blueprint)
+ * silhouette has no status-colour legend at all: it explains fill height in
+ * its own one-line key. Every other configuration and the schematic keep their
+ * built-in legend.
  */
 export function diagramLegendMovesToInspector(
   configuration: MechConfiguration,
   mode: ArmorDiagramMode,
+  variant: ArmorDiagramVariant,
 ): boolean {
-  return configuration === MechConfiguration.BIPED && mode === 'silhouette';
+  return (
+    configuration === MechConfiguration.BIPED &&
+    mode === 'silhouette' &&
+    variant !== 'clean-tech'
+  );
+}
+
+/**
+ * The Armor tab's xl column split. The Standard biped silhouette (Blueprint)
+ * needs 40rem for the figure beside its rear inset and location list; the
+ * other styles keep the wider column for their location table.
+ */
+export function armorTabColumns(
+  configuration: MechConfiguration,
+  mode: ArmorDiagramMode,
+  variant: ArmorDiagramVariant,
+): string {
+  return configuration === MechConfiguration.BIPED &&
+    mode === 'silhouette' &&
+    variant === 'clean-tech'
+    ? 'xl:grid-cols-[minmax(40rem,1.25fr)_minmax(19rem,1fr)]'
+    : 'xl:grid-cols-[minmax(0,1.7fr)_minmax(19rem,0.8fr)]';
+}
+
+/**
+ * What Maximize Tonnage adds: the tonnage step up to the smallest half ton
+ * that covers the chassis maximum, and the usable points it buys (points past
+ * the chassis maximum cannot be placed, so they are not counted).
+ * "+0.5 t, +3 pts", or null when the tonnage is already at that maximum.
+ */
+export function describeMaximizeGain({
+  armorTonnage,
+  availablePoints,
+  maxTotalArmor,
+  maxUsefulTonnage,
+  pointsAtMaxUsefulTonnage,
+}: {
+  readonly armorTonnage: number;
+  readonly availablePoints: number;
+  readonly maxTotalArmor: number;
+  readonly maxUsefulTonnage: number;
+  /** Points `maxUsefulTonnage` buys of the current armor type. */
+  readonly pointsAtMaxUsefulTonnage: number;
+}): string | null {
+  if (armorTonnage >= maxUsefulTonnage) return null;
+  const usable = (points: number) => Math.min(points, maxTotalArmor);
+  const gained = usable(pointsAtMaxUsefulTonnage) - usable(availablePoints);
+  return `+${formatTons(maxUsefulTonnage - armorTonnage)}, +${gained} pts`;
 }
 
 export function calculatePointsDelta(
@@ -103,7 +157,7 @@ export function describeArmorPoints({
   maxTotalArmor,
   maxUsefulTonnage,
 }: ArmorPointsExplanationInput): string {
-  const parts = [`${availablePoints} pts from ${armorTonnage} t`];
+  const parts = [`${availablePoints} pts from ${formatTons(armorTonnage)}`];
   const unassigned = availablePoints - allocatedPoints;
   const room = maxTotalArmor - allocatedPoints;
 
@@ -119,7 +173,9 @@ export function describeArmorPoints({
   } else if (unassigned > 0) {
     parts.push(`${unassigned} left to place`);
   } else if (room > 0 && armorTonnage < maxUsefulTonnage) {
-    parts.push(`${room} more need +${maxUsefulTonnage - armorTonnage} t`);
+    parts.push(
+      `${room} more need +${formatTons(maxUsefulTonnage - armorTonnage)}`,
+    );
   }
   return parts.join(' · ');
 }

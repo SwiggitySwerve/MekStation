@@ -21,8 +21,8 @@ async function load(
   if (initial) {
     await page.goto('/customizer');
     await page.getByRole('button', { name: 'Load from Library' }).click();
-  } else await page.getByRole('button', { name: 'Add unit (Ctrl+O)' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  } else await page.getByRole('button', { name: 'Add Unit (Ctrl+O)' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await dialog
     .getByPlaceholder('Search by chassis or variant...')
     .fill(`${chassis} ${variant}`);
@@ -68,7 +68,7 @@ test('undo restores structure, armor and placement with metrics and independent 
   await undo(page);
   await page.getByRole('tab', { name: 'Armor', exact: true }).click();
   await page
-    .getByRole('spinbutton', { name: 'Armor tonnage', exact: true })
+    .getByRole('spinbutton', { name: 'Armor Tonnage', exact: true })
     .fill('18');
   const preAllocation = await draft(page);
   await page.getByRole('button', { name: /^Auto Allocate/ }).click();
@@ -135,7 +135,7 @@ test('undo restores structure, armor and placement with metrics and independent 
       name: 'Save active unit to library',
       exact: true,
     }),
-  ).toHaveAccessibleDescription(/Draft saved in this browser/);
+  ).toHaveAccessibleDescription(/Draft saved in browser/);
   await expect(
     page.getByRole('button', { name: 'Undo', exact: true }),
   ).toBeDisabled();
@@ -165,7 +165,7 @@ async function saveLibrary(page: Page, variant?: string) {
   return receipt;
 }
 async function openHistory(page: Page) {
-  await page.getByRole('button', { name: 'Unit actions', exact: true }).click();
+  await page.getByRole('button', { name: 'Unit Actions', exact: true }).click();
   await page
     .getByRole('button', { name: /saved history|version history/i })
     .click();
@@ -179,7 +179,7 @@ test('save, reload and restore history retain exact library versions and undo on
 }, testInfo) => {
   await load(page, 'Atlas', 'AS7-D', true);
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
-  await page.getByLabel('Clan name', { exact: true }).fill('Recovery One');
+  await page.getByLabel('Clan Name', { exact: true }).fill('Recovery One');
   const originalId = (await draft(page)).id;
   const variant = `RECOVERY-${Date.now()}`;
   const receipt = await saveLibrary(page, variant);
@@ -194,8 +194,8 @@ test('save, reload and restore history retain exact library versions and undo on
     await expect
       .poll(async () => (await draft(page)).librarySave?.id)
       .toBe(receipt.id);
-    await expect(page.getByText(/library v1\b/).first()).toBeVisible();
-    await page.getByLabel('Clan name', { exact: true }).fill('Recovery Two');
+    await expect(page.getByText(/Library v1\b/).first()).toBeVisible();
+    await page.getByLabel('Clan Name', { exact: true }).fill('Recovery Two');
     const second = await saveLibrary(page);
     expect(second.id).toBe(receipt.id);
     expect(second.version).toBe(2);
@@ -210,7 +210,7 @@ test('save, reload and restore history retain exact library versions and undo on
       .getByRole('tab', { name: `Atlas ${variant}`, exact: true })
       .click();
     await page.reload();
-    await expect(page.getByText(/library v2\b/).first()).toBeVisible();
+    await expect(page.getByText(/Library v2\b/).first()).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Undo', exact: true }),
     ).toBeDisabled();
@@ -258,7 +258,7 @@ test('save, reload and restore history retain exact library versions and undo on
     expect((await draft(page)).id).toBe(originalId);
     expect((await draft(page)).clanName).toBe('Recovery One');
     expect((await draft(page)).librarySave.version).toBe(2);
-    await expect(page.getByText(/Changed since v2\b/).first()).toBeVisible();
+    await expect(page.getByText(/Changed Since v2\b/).first()).toBeVisible();
     // Unsaved library changes make Save the primary action; no bare dot.
     const saveButton = page.getByRole('button', {
       name: 'Save active unit to library',
@@ -301,7 +301,7 @@ test('save, reload and restore history retain exact library versions and undo on
       v1,
     );
     await page.reload();
-    await expect(page.getByText(/library v3\b/).first()).toBeVisible();
+    await expect(page.getByText(/Library v3\b/).first()).toBeVisible();
     await openHistory(page);
     const latestDialog = page.getByRole('dialog');
     await latestDialog.getByRole('button', { name: /^v3(?: |$)/ }).click();
@@ -311,7 +311,7 @@ test('save, reload and restore history retain exact library versions and undo on
     await latestDialog.getByRole('button', { name: /Restore.*v3/i }).click();
     await expect(latestDialog).toBeHidden();
     expect((await draft(page)).isModified).toBe(false);
-    await expect(page.getByText(/In library v3\b/).first()).toBeVisible();
+    await expect(page.getByText(/In Library v3\b/).first()).toBeVisible();
     await expect(
       page.getByRole('button', {
         name: 'Save active unit to library',
@@ -332,10 +332,10 @@ test('save, reload and restore history retain exact library versions and undo on
         original.call(this, key, value);
       };
     });
-    await page.getByLabel('Clan name', { exact: true }).fill('Browser Retry');
+    await page.getByLabel('Clan Name', { exact: true }).fill('Browser Retry');
     const failedDraft = page
       .getByRole('status')
-      .filter({ hasText: 'Browser draft not saved' });
+      .filter({ hasText: 'Browser Draft Not Saved' });
     await expect(failedDraft).toBeVisible();
     await page.evaluate(() => {
       (
@@ -343,7 +343,7 @@ test('save, reload and restore history retain exact library versions and undo on
       ).restoreDraftStorage();
     });
     await failedDraft
-      .getByRole('button', { name: 'Retry browser draft', exact: true })
+      .getByRole('button', { name: 'Retry Browser Draft', exact: true })
       .click();
     await expect(failedDraft).toBeHidden();
     await expect(
@@ -351,7 +351,7 @@ test('save, reload and restore history retain exact library versions and undo on
         name: 'Save active unit to library',
         exact: true,
       }),
-    ).toHaveAccessibleDescription(/Draft saved in this browser/);
+    ).toHaveAccessibleDescription(/Draft saved in browser/);
     expect((await draft(page)).clanName).toBe('Browser Retry');
     expect((await (await page.request.get(url)).json()).currentVersion).toBe(3);
     await undo(page);

@@ -79,7 +79,7 @@ describe('QuickStartUnits', () => {
     render(<QuickStartUnits isLoadingUnit={false} onLoadUnit={jest.fn()} />);
 
     const atlas = await screen.findByRole('button', { name: /Atlas AS7-D/ });
-    expect(atlas).toHaveTextContent('100t · Assault');
+    expect(atlas).toHaveTextContent('100 t · Assault');
     expect(screen.getAllByRole('button')).toHaveLength(4);
   });
 

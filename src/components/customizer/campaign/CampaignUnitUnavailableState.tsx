@@ -18,7 +18,7 @@ export function CampaignUnitUnavailableState({
           onClick={onReturn}
           className="bg-accent text-surface-deep hover:bg-accent-hover rounded px-4 py-2 transition-colors"
         >
-          Return to campaign
+          Return to Campaign
         </button>
       </div>
     </div>

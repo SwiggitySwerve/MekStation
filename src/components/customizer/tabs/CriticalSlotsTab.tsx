@@ -23,7 +23,7 @@ import { PhoneLocationNavigation } from '../critical-slots/PhoneLocationNavigati
 import { useCriticalSlotOverflow } from '../critical-slots/useCriticalSlotOverflow';
 import { CustomizerToolbarContext } from '../CustomizerToolbarContext';
 import styles from '../CustomizerWorkbench.module.css';
-import { MoreBelowCue } from '../shared/MoreBelowCue';
+import { CriticalSlotsPlaceBanner } from './CriticalSlotsPlaceBanner';
 import { useCriticalSlotsTabLogic } from './CriticalSlotsTab.logic';
 import { CriticalSlotsToolbar } from './CriticalSlotsToolbar';
 
@@ -92,7 +92,6 @@ export function CriticalSlotsTab({
   });
 
   const { rootRef, hasMoreBelow } = useCriticalSlotOverflow(isBiped);
-  const firstUnassigned = unassignedEquipment[0];
 
   const renderLocation = (location: MechLocation, hideHeader = false) => (
     <LocationGrid
@@ -135,7 +134,7 @@ export function CriticalSlotsTab({
   return (
     <div
       ref={rootRef}
-      className={`bg-surface-deep flex h-full min-h-0 flex-col max-sm:h-[calc(100%+var(--workspace-bottom-gap))] ${className}`}
+      className={`bg-surface-deep flex h-full min-h-0 flex-col max-sm:h-auto max-sm:min-h-[calc(100%+var(--workspace-bottom-gap))] ${className}`}
     >
       <CriticalSlotsToolbar
         equipmentNames={[
@@ -147,6 +146,11 @@ export function CriticalSlotsTab({
           ...unassignedEquipment.map((item) => item.name),
         ]}
         hasMoreLocationsBelow={hasMoreBelow}
+        caption={
+          isBiped
+            ? 'Matches the record sheet · left side on the left'
+            : undefined
+        }
         autoFillUnhittables={autoModeSettings.autoFillUnhittables}
         autoCompact={autoModeSettings.autoCompact}
         autoSort={autoModeSettings.autoSort}
@@ -170,45 +174,12 @@ export function CriticalSlotsTab({
         }
       />
 
-      {firstUnassigned && (
-        <section
-          aria-label="Equipment to place"
-          className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-amber-500/20 bg-amber-500/5 px-3 py-0.5 text-sm max-sm:flex-nowrap"
-        >
-          <p
-            className="text-text-theme-secondary min-w-0 max-sm:flex-1 max-sm:truncate"
-            title={firstUnassigned.name}
-          >
-            <span className="font-medium text-amber-400">
-              {unassignedEquipment.length}{' '}
-              {unassignedEquipment.length === 1 ? 'item' : 'items'} to place:{' '}
-              {firstUnassigned.name}
-              {unassignedEquipment.length > 1 &&
-                ` and ${unassignedEquipment.length - 1} more`}
-            </span>
-            {readOnly ? (
-              ' — read-only.'
-            ) : (
-              <span className="hidden sm:inline">
-                {' '}
-                {selectedEquipmentId === firstUnassigned.instanceId
-                  ? '— select, then tap a highlighted slot or drag.'
-                  : `— select ${unassignedEquipment.length === 1 ? 'it' : 'one'} in the Loadout, then tap a highlighted slot.`}
-              </span>
-            )}
-          </p>
-          {onSelectEquipment && !readOnly && (
-            <Button
-              size="sm"
-              variant="secondary"
-              aria-pressed={selectedEquipmentId === firstUnassigned.instanceId}
-              onClick={() => onSelectEquipment(firstUnassigned.instanceId)}
-            >
-              Select {firstUnassigned.name}
-            </Button>
-          )}
-        </section>
-      )}
+      <CriticalSlotsPlaceBanner
+        unassignedEquipment={unassignedEquipment}
+        selectedEquipmentId={selectedEquipmentId}
+        readOnly={readOnly}
+        onSelectEquipment={onSelectEquipment}
+      />
 
       {isSuperheavy && !workbench && (
         <p className="text-text-theme-secondary px-4 py-2 text-sm">
@@ -269,7 +240,7 @@ export function CriticalSlotsTab({
               variant="ghost"
               onClick={() => onSelectEquipment?.(null)}
             >
-              Cancel selection
+              Cancel Selection
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -296,8 +267,8 @@ export function CriticalSlotsTab({
       {hideLoadoutTray && !workbench && unassignedEquipment.length > 0 && (
         <div className="bg-surface-base/50 border-border-theme-subtle flex-shrink-0 border-b px-3 py-2">
           <div className="mb-1 flex items-center gap-2">
-            <span className="text-xs font-medium text-amber-400 uppercase">
-              Needs placement
+            <span className="text-xs font-medium text-red-400 uppercase">
+              Needs Placement
             </span>
             <span className="text-text-theme-muted text-xs tabular-nums">
               ({unassignedEquipment.length})
@@ -323,12 +294,13 @@ export function CriticalSlotsTab({
       )}
       {isBiped && (
         <>
-          <p className="text-text-theme-secondary hidden shrink-0 px-2 pt-1 text-center text-sm sm:block">
-            Matches the record sheet · left side on the left
-          </p>
-          <div className="relative flex min-h-0 flex-1 flex-col lg:hidden">
+          {/* Phones: the location grows with the page, so every slot is
+              reachable by scrolling the page, not a nested scroll box. Its
+              end padding matches the Loadout bar's height, so the last slot
+              scrolls fully clear of the fade and the bar. */}
+          <div className="relative flex min-h-0 flex-1 flex-col max-sm:flex-none lg:hidden">
             <div
-              className="min-h-0 flex-1 overflow-y-auto p-2"
+              className="min-h-0 flex-1 overflow-y-auto p-2 max-sm:flex-none max-sm:overflow-visible max-sm:pb-[var(--loadout-bar-height,45px)]"
               data-testid="critical-slots-grid-mobile"
               role="region"
               aria-label="Critical slot locations"
@@ -347,13 +319,15 @@ export function CriticalSlotsTab({
                 )}
               </div>
             </div>
-            {/* Tablets get the toolbar's "Scroll for more locations" text instead. */}
-            <div className="border-border-theme-subtle shrink-0 sm:hidden">
-              <MoreBelowCue
-                visible={hasMoreBelow}
-                label="Scroll for more slots"
-              />
-            </div>
+            {/* Phones: a fade pinned to the bottom of the visible page, just
+                above the Loadout bar, so a slot cut by the screen edge reads
+                as continuing below, not clipped. Tablets get the toolbar's
+                "Scroll for more locations" text instead. */}
+            <div
+              aria-hidden="true"
+              data-testid="critical-slots-end-fade"
+              className="pointer-events-none sticky bottom-0 -mt-8 h-8 shrink-0 bg-gradient-to-b from-transparent to-[var(--surface-deep)] sm:hidden"
+            />
           </div>
           <div
             className={`${styles.criticalDesktopViewport} hidden min-h-0 flex-1 overflow-y-auto px-3 py-2 lg:block`}
@@ -401,7 +375,7 @@ export function CriticalSlotsTab({
             className={
               unassignedEquipment.length === 0
                 ? 'text-green-400'
-                : 'text-amber-400'
+                : 'text-red-400'
             }
           >
             {unassignedEquipment.length === 0

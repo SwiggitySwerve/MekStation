@@ -69,8 +69,8 @@ The Equipment Tray SHALL allow users to remove equipment using a click-to-confir
 
 #### Scenario: Single item removal with confirmation
 
-- **WHEN** user clicks the remove (X) button on a removable equipment item
-- **THEN** button displays confirmation indicator (?)
+- **WHEN** user opens a removable item's actions with its trailing chevron and clicks its "Remove" button (trash icon)
+- **THEN** the button changes to "Confirm Remove" (check icon)
 - **AND** clicking again within 3 seconds removes the item
 - **AND** item disappears from tray
 - **AND** statistics update immediately
@@ -170,7 +170,7 @@ The Loadout Tray SHALL display action buttons in a fixed header that does not sc
 #### Scenario: Header layout
 
 - **WHEN** tray is expanded
-- **THEN** header shows "Loadout" title and item count
+- **THEN** header shows "Loadout" title and item count, worded "<n> items" ("1 item") so it reads as the sum of the Unassigned, Mounted and Fixed Systems counts below
 - **AND** "Remove" button is in header (removes selected item)
 - **AND** "Remove All" button is in header
 - **AND** header remains fixed when equipment list scrolls
@@ -191,6 +191,7 @@ The Loadout Tray SHALL group mounted equipment by category with collapsible sect
 - **WHEN** equipment is mounted
 - **THEN** items are grouped into collapsible sections: Energy Weapons, Ballistic Weapons, Missile Weapons, Ammunition, Electronics, Physical Weapons, Misc Equipment
 - **AND** each section header shows category name and item count
+- **AND** a category header that cannot be clicked is a flat label above its item cards, with no row fill, box or hover, so it never reads as an item row
 - **AND** empty categories are hidden
 
 #### Scenario: Category collapse/expand
@@ -205,6 +206,7 @@ The Loadout Tray SHALL group mounted equipment by category with collapsible sect
 - **THEN** row shows: Name, Weight (tons), Slots, Location (if allocated)
 - **AND** unallocated items show "Unallocated" in amber text
 - **AND** clicking row selects it for removal
+- **AND** every card, single or grouped ("3×"), ends in the same trailing chevron in a 44px-wide target flush with the card's right edge, behind the same thin divider: a group's chevron shows its instances, a single item's chevron ("Show actions for <item> in <location>", `aria-expanded`) opens an actions row inside the card holding its labelled "Remove" button, or "Managed by Configuration" with a lock for items that cannot be removed; both kinds of card start their name at the same inset and share the same 44px minimum height
 
 ### Requirement: Structural Slot Components
 

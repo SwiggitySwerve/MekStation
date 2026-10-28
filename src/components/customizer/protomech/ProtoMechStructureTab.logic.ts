@@ -21,7 +21,7 @@ export const ULTRAHEAVY_TONNAGE_OPTIONS = [10, 11, 12, 13, 14, 15];
 export const CHASSIS_LABELS: Record<ProtoChassis, string> = {
   [ProtoChassis.BIPED]: 'Biped',
   [ProtoChassis.QUAD]: 'Quad',
-  [ProtoChassis.GLIDER]: 'Glider (Light only)',
+  [ProtoChassis.GLIDER]: 'Glider (Light Only)',
   [ProtoChassis.ULTRAHEAVY]: 'Ultraheavy (10-15 t)',
 };
 

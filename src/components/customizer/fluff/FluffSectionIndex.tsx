@@ -9,6 +9,8 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { fieldId } from './FluffFields';
 import {
   NARRATIVE_FIELDS,
+  sectionFilledCount,
+  sectionOptionText,
   sectionRoleValue,
   sectionWordCount,
 } from './fluffSections';
@@ -40,27 +42,33 @@ export function FluffSectionIndex({
     {
       id: 'fluff-manufacturer',
       label: 'Manufacturing',
-      status: sectionWordCount(
-        [
-          fluff.manufacturer,
-          fluff.primaryFactory,
-          ...Object.values(fluff.systemManufacturer ?? {}),
-        ]
-          .filter(Boolean)
-          .join(' '),
-      ),
+      status: sectionFilledCount([
+        fluff.manufacturer,
+        fluff.primaryFactory,
+        ...Object.values(fluff.systemManufacturer ?? {}),
+      ]),
     },
   ];
 
   if (compact) {
     return (
-      <div className="@[64rem]:hidden">
-        <label htmlFor="fluff-jump" className={`${cs.text.label} mb-1.5 block`}>
-          Jump to section
+      // Pinned to the top of the scrolling page, right under the tab picker,
+      // so it stays in reach on the long narrative. It bleeds over the tab's
+      // padding with an opaque page background so text scrolls under it.
+      <div
+        className="bg-surface-deep border-border-theme-subtle sticky top-0 z-10 -mx-4 -mt-4 flex items-center gap-3 border-b px-4 py-2 @[64rem]:hidden"
+        data-testid="fluff-jump-bar"
+      >
+        {/* The same size as the other field labels. */}
+        <label
+          htmlFor="fluff-jump"
+          className={`${cs.text.label} shrink-0 whitespace-nowrap`}
+        >
+          Jump to Section
         </label>
         <select
           id="fluff-jump"
-          className={`${cs.select.full} min-h-11`}
+          className={`${cs.select.full} min-h-11 min-w-0 flex-1`}
           value=""
           onChange={(event) => onJump(event.target.value)}
         >
@@ -69,7 +77,7 @@ export function FluffSectionIndex({
           </option>
           {sections.map(({ id, label, status }) => (
             <option key={id} value={id}>
-              {label} · {status.text}
+              {sectionOptionText(label, status)}
             </option>
           ))}
         </select>
@@ -79,9 +87,13 @@ export function FluffSectionIndex({
 
   return (
     <nav aria-labelledby="fluff-sections-heading" className={cs.panel.main}>
-      <h3 id="fluff-sections-heading" className={`${cs.text.cardTitle} mb-2`}>
+      <h3 id="fluff-sections-heading" className={`${cs.text.cardTitle} mb-3`}>
         Sections
       </h3>
+      {/* No row dividers in either column; the two-line rows line up across
+          the columns instead. Every row is one pattern: label with its
+          detail under it, then the status ("Filled" or a dimmer "Empty") and
+          the chevron of a link. */}
       <ul className="@[24rem]:grid @[24rem]:grid-flow-col @[24rem]:grid-rows-4 @[24rem]:gap-x-3">
         {sections.map(({ id, label, status }) => (
           <li key={id}>
@@ -91,20 +103,31 @@ export function FluffSectionIndex({
                 event.preventDefault();
                 onJump(id);
               }}
-              className="group text-text-theme-primary hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:ring-accent flex min-h-11 min-w-0 items-center gap-2 rounded px-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+              className={`group hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:ring-accent flex min-h-11 min-w-0 items-center gap-2 rounded px-2 text-sm focus-visible:ring-2 focus-visible:outline-none ${
+                status.empty
+                  ? 'text-text-theme-secondary'
+                  : 'text-text-theme-primary'
+              }`}
             >
-              <span className="min-w-0 flex-1 group-hover:underline group-focus-visible:underline">
-                {label}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate group-hover:underline group-focus-visible:underline">
+                  {label}
+                </span>
+                <span
+                  title={status.detail}
+                  className="text-text-theme-secondary block truncate text-xs leading-4 tabular-nums"
+                >
+                  {status.detail}
+                </span>
               </span>
               <span
-                title={status.text}
-                className={`max-w-[9rem] truncate text-xs tabular-nums ${
+                className={`shrink-0 text-xs ${
                   status.empty
-                    ? 'text-text-theme-muted/70'
+                    ? 'text-text-theme-muted'
                     : 'text-text-theme-secondary'
                 }`}
               >
-                {status.text}
+                {status.status}
               </span>
               <AppIcon
                 name="chevron-right"

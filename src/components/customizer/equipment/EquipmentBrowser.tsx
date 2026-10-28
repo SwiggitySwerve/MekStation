@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useId, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +14,8 @@ import { CompactFilterBar } from './CompactFilterBar';
 import {
   getCatalogCapacityNotice,
   getCompactAvailabilitySummary,
+  getRowFillPadding,
+  getWholeRowListHeight,
 } from './EquipmentBrowser.model';
 import {
   EquipmentBrowserUnitContext,
@@ -21,9 +23,11 @@ import {
 } from './EquipmentBrowserUnitContext';
 import { EquipmentCatalogCard } from './EquipmentCatalogCard';
 
-/** Shown only when the current page itself overflows its viewport. */
-const SCROLL_HINT = 'Scroll for more on this page';
-const SCROLL_HINT_COMPACT = 'More below';
+/**
+ * Shown only when a single-page list overflows its viewport. A paged list
+ * shows its page line alone, so paging and scrolling cues never mix.
+ */
+const SCROLL_HINT = 'More below';
 
 export interface EquipmentBrowserProps {
   onAddEquipment: (equipment: IEquipmentItem) => void;
@@ -52,6 +56,10 @@ function EquipmentBrowserContent({
 }: EquipmentBrowserProps): React.ReactElement {
   const browser = useEquipmentBrowser();
   const unit = useContext(EquipmentBrowserUnitContext);
+  const capacity = unit ? getCatalogCapacityNotice(unit) : undefined;
+  // At the limit every Add names the notice as its description.
+  const limitNoteId = useId();
+  const atLimitNoteId = capacity?.limitText ? limitNoteId : undefined;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState({ message: '', count: 0 });
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -73,14 +81,39 @@ function EquipmentBrowserContent({
     const viewport = scrollRef.current;
     if (!viewport) return;
     const update = () => setHasMoreBelow(hasContentBelow(viewport));
+    // End the list on a whole row on every width, so the pager (or the
+    // viewport edge above it) never cuts one, and grow the rows slightly so
+    // those whole rows reach the pager instead of leaving an empty band.
+    const fitRows = () => {
+      viewport.style.maxHeight = '';
+      viewport.style.removeProperty('--catalog-row-fill');
+      const contentTop =
+        viewport.getBoundingClientRect().top - viewport.scrollTop;
+      const rowBottoms = Array.from(
+        viewport.querySelectorAll(':scope > ul > li'),
+        (row) => row.getBoundingClientRect().bottom - contentTop,
+      );
+      const height = getWholeRowListHeight(rowBottoms, viewport.clientHeight);
+      const fill = getRowFillPadding(rowBottoms, viewport.clientHeight);
+      const fitting = rowBottoms.filter(
+        (bottom) => bottom <= viewport.clientHeight,
+      ).length;
+      if (fill > 0)
+        viewport.style.setProperty('--catalog-row-fill', `${fill}px`);
+      // max-height is border-box: add the bottom border back.
+      if (height !== null)
+        viewport.style.maxHeight = `${Math.ceil(height + fitting * fill) + viewport.offsetHeight - viewport.clientHeight}px`;
+      update();
+    };
     const observer =
       typeof ResizeObserver === 'undefined'
         ? undefined
-        : new ResizeObserver(update);
+        : new ResizeObserver(fitRows);
+    if (viewport.parentElement) observer?.observe(viewport.parentElement);
     observer?.observe(viewport);
     for (const child of Array.from(viewport.children)) observer?.observe(child);
     viewport.addEventListener('scroll', update, { passive: true });
-    update();
+    fitRows();
     return () => {
       observer?.disconnect();
       viewport.removeEventListener('scroll', update);
@@ -151,7 +184,8 @@ function EquipmentBrowserContent({
         onToggleAmmoWithoutWeapon={browser.toggleHideAmmoWithoutWeapon}
         onSearchChange={browser.setSearch}
         onClearFilters={browser.clearFilters}
-        capacity={unit ? getCatalogCapacityNotice(unit) : undefined}
+        capacity={capacity}
+        limitNoteId={limitNoteId}
         resultSummary={
           isLoading
             ? 'Loading…'
@@ -159,7 +193,7 @@ function EquipmentBrowserContent({
         }
         availabilitySummary={[
           unitTechBase,
-          unitYear ? `available in ${unitYear}` : null,
+          unitYear ? `Available in ${unitYear}` : null,
         ]
           .filter(Boolean)
           .join(' · ')}
@@ -225,7 +259,7 @@ function EquipmentBrowserContent({
               <p className="text-text-theme-secondary my-3 text-sm">
                 Try a shorter search or clear the filters.
               </p>
-              <Button onClick={browser.clearFilters}>Clear filters</Button>
+              <Button onClick={browser.clearFilters}>Clear Filters</Button>
             </div>
           ) : (
             <ul>
@@ -243,6 +277,7 @@ function EquipmentBrowserContent({
                     remainingWeight={unit?.remainingWeight}
                     expanded={selectedId === entryKey}
                     readOnly={readOnly}
+                    limitNoteId={atLimitNoteId}
                     onInspect={() =>
                       setSelectedId(selectedId === entryKey ? null : entryKey)
                     }
@@ -283,19 +318,12 @@ function EquipmentBrowserContent({
           className={`border-border-theme flex min-h-12 shrink-0 items-center justify-between gap-2 border-t px-3 ${workbenchStyles.catalogFooter}`}
           data-testid="equipment-pagination"
         >
-          {/* Page line plus cue fit the 48px pager, so the pager keeps its
-              height when the cue hides at the bottom of the list. */}
-          <div className="min-w-0">
-            <span className="text-text-theme-secondary block text-xs">
-              Page {Math.min(currentPage, lastPage)} of {lastPage} ·{' '}
-              {totalItems} {totalItems === 1 ? 'item' : 'items'}
-            </span>
-            <MoreBelowCue
-              visible={hasMoreBelow}
-              label={SCROLL_HINT}
-              compactLabel={SCROLL_HINT_COMPACT}
-            />
-          </div>
+          {/* The page line alone: paging is the list's navigation, so no
+              scroll cue sits beside it. The item count is in the summary line
+              above the list. */}
+          <span className="text-text-theme-secondary min-w-0 text-xs">
+            Page {Math.min(currentPage, lastPage)} of {lastPage}
+          </span>
           <div className="flex gap-1">
             <Button
               size="sm"
@@ -342,11 +370,7 @@ function EquipmentBrowserContent({
         <div
           className={`border-border-theme shrink-0 border-t px-3 ${workbenchStyles.catalogFooter}`}
         >
-          <MoreBelowCue
-            visible
-            label={SCROLL_HINT}
-            compactLabel={SCROLL_HINT_COMPACT}
-          />
+          <MoreBelowCue visible label={SCROLL_HINT} />
         </div>
       )}
     </section>

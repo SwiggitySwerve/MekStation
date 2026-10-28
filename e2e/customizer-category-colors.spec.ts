@@ -3,7 +3,7 @@ import { test, expect, type Locator } from '@playwright/test';
 import { PROTECTED_SLOT_COLORS } from '../src/components/customizer/protected/protectedSlotColors';
 import { EquipmentCategory } from '../src/types/equipment/EquipmentCategory';
 
-const { tint, fixedSystems, equipment } = PROTECTED_SLOT_COLORS;
+const { tint, fixedSystems, equipment, fills } = PROTECTED_SLOT_COLORS;
 
 async function paint(locator: Locator) {
   return locator.evaluate((element) => {
@@ -56,13 +56,13 @@ async function accent(locator: Locator) {
   );
 }
 
-/** The bar and tint a protected hue computes to, read from a probe in `locator`. */
-async function hueValues(locator: Locator, hue: string) {
+/** The bar and fill a protected hue computes to, read from a probe in `locator`. */
+async function hueValues(locator: Locator, hue: keyof typeof fills) {
   return locator.evaluate(
-    (element, [token, mix]) => {
+    (element, [token, fill]) => {
       const probe = document.createElement('span');
       probe.style.borderLeft = `1px solid var(--color-${token})`;
-      probe.style.backgroundColor = `color-mix(in oklab, var(--color-${token}) ${mix}, var(--surface-base))`;
+      probe.style.backgroundColor = fill;
       element.append(probe);
       const style = getComputedStyle(probe);
       const values = {
@@ -72,7 +72,7 @@ async function hueValues(locator: Locator, hue: string) {
       probe.remove();
       return values;
     },
-    [hue, tint.restMix] as const,
+    [hue, fills[hue]] as const,
   );
 }
 
@@ -80,7 +80,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   page,
 }, testInfo) => {
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
+  await page.getByRole('button', { name: 'Add Unit', exact: true }).click();
   await page
     .getByRole('dialog')
     .getByRole('combobox')
@@ -117,6 +117,13 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     neutralFill = background;
     await expect(fill).toHaveCSS('opacity', '0.1');
     await expect(row).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    // Ammunition paints its bar as stripes; weapon rows keep a solid bar.
+    if (name.endsWith(' Ammo'))
+      await expect(row).toHaveCSS(
+        'background-image',
+        /repeating-linear-gradient/,
+      );
+    else await expect(row).toHaveCSS('background-image', 'none');
     await expect(row).toHaveCSS('opacity', '1');
     await expect(details).toHaveCSS('opacity', '1');
     const content = details.locator('span').first();
@@ -137,7 +144,11 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     await expect(fill).toHaveCSS('opacity', '0.3');
     await expect(content).toHaveCSS('opacity', '1');
   }
-  expect(new Set(Object.values(colors)).size).toBe(4);
+  // Ammunition takes its weapon type's hue and adds stripes (decision of
+  // 2026-10-27 in protectedSlotColors.ts), so AC/20 Ammo shares the AC/20
+  // hue: three distinct weapon hues, the ammo told apart by its stripes.
+  expect(new Set(Object.values(colors)).size).toBe(3);
+  expect(colors['AC/20 Ammo']).toBe(colors['AC/20']);
   await search.fill('Small Laser');
   await expect(
     page.getByRole('region', { name: 'Equipment catalog' }).locator('li'),
@@ -164,7 +175,8 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
       exact: true,
     })
     .first();
-  expect(await accent(item.locator('..'))).toBe(colors['Small Laser']);
+  // The select button sits in the card's first line; the card carries the bar.
+  expect(await accent(item.locator('../..'))).toBe(colors['Small Laser']);
   await page.screenshot({
     path: testInfo.outputPath('equipment-restored.png'),
     fullPage: true,
@@ -182,7 +194,7 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   await page.mouse.move(0, 0);
   // Every occupied slot is tinted, and its 4px bar coloured, in its owner hue
   // (approved values: protectedSlotColors.ts).
-  const expectTinted = async (cell: Locator, hue: string) => {
+  const expectTinted = async (cell: Locator, hue: keyof typeof fills) => {
     const expected = await hueValues(cell, hue);
     // Slots animate colour changes; wait for the settled paint before sampling.
     await expect.poll(() => accent(cell)).toBe(expected.bar);
@@ -216,8 +228,8 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
     .getByRole('gridcell', { name: /: .*Heat Sink$/ })
     .first();
   await expectTinted(heatSink, equipment.heatsink);
-  // Heat sinks share the electronics cyan, so they keep a faint hatch.
-  await expect(heatSink).not.toHaveCSS('background-image', 'none');
+  // Heat sinks are a solid fill with no pattern.
+  await expect(heatSink).toHaveCSS('background-image', 'none');
   await expect(mounted).toHaveCSS('background-image', 'none');
   // Every row of a merged block is tinted in the category hue.
   const ac20Rows = page.getByRole('gridcell', { name: /^Slot \d+: AC\/20$/ });

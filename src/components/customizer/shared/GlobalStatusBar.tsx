@@ -10,6 +10,7 @@
 import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { formatTons } from '@/utils/formatting';
 
 // =============================================================================
 // Types
@@ -69,13 +70,13 @@ export function GlobalStatusBar({
                 : 'text-text-theme-primary'
             }
           >
-            {stats.weightUsed.toFixed(1)} / {stats.weightMax}t
+            {stats.weightUsed.toFixed(1)} / {formatTons(stats.weightMax)}
           </span>
           <span
             className={`text-xs ${isOverWeight ? 'text-red-400' : 'text-green-400'}`}
           >
             ({isOverWeight ? '' : '+'}
-            {stats.weightRemaining.toFixed(1)}t rem)
+            {formatTons(stats.weightRemaining)} rem)
           </span>
         </div>
 

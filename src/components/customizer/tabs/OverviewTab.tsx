@@ -187,15 +187,19 @@ function IdentityCard({
         <h3 id="overview-identity-title" className={cs.text.cardTitle}>
           Identity
         </h3>
-        <p className={`${cs.text.secondary} @sm:text-right`}>
-          {TECH_BASE_MODE_LABELS[techBaseMode]} · {rulesLevel}
+        {/* Tech base only: the Tech Level field below shows the rules level.
+            The same meta style as the Build Summary's "100.0 / 100.0 t used". */}
+        <p className="text-text-theme-secondary text-sm @sm:text-right">
+          {TECH_BASE_MODE_LABELS[techBaseMode]}
         </p>
       </div>
 
       <div className="space-y-4">
-        {/* Chassis, model, year and tech level lead (two rows of two on
-            phones, one row on wide cards); the optional fields follow. */}
-        <div className="grid grid-cols-2 gap-x-3 gap-y-4 @lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,0.7fr)_minmax(0,1fr)] @lg:gap-x-4">
+        {/* Chassis, model, year and tech level lead in two rows of two; the
+            optional fields follow as a third row. Three rows on wide cards
+            too, so Identity and Component Technology together fill the
+            column beside the Build Summary at a 44px component-row pitch. */}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-4 @lg:gap-x-4">
           <div className={cs.layout.field}>
             <label className={cs.text.label}>Chassis</label>
             <input
@@ -239,7 +243,7 @@ function IdentityCard({
           <div className={cs.layout.field}>
             <label className={cs.text.label}>Tech Level</label>
             <select
-              aria-label="Tech level"
+              aria-label="Tech Level"
               value={rulesLevel}
               onChange={handleRulesLevelChange}
               disabled={readOnly}
@@ -253,13 +257,14 @@ function IdentityCard({
             </select>
           </div>
 
-          <div className={`${cs.layout.field} @lg:col-span-2`}>
+          <div className={cs.layout.field}>
             <label className={cs.text.label}>
-              Clan Name <span className={cs.text.secondary}>(opt)</span>
+              Clan Name{' '}
+              <span className="text-text-theme-muted text-sm">(Optional)</span>
             </label>
             <input
               type="text"
-              aria-label="Clan name"
+              aria-label="Clan Name"
               value={clanName}
               onChange={handleClanNameChange}
               disabled={readOnly}
@@ -268,7 +273,7 @@ function IdentityCard({
             />
           </div>
 
-          <div className={`${cs.layout.field} @lg:col-span-2`}>
+          <div className={cs.layout.field}>
             <label className={cs.text.label}>MUL ID</label>
             <input
               type="text"

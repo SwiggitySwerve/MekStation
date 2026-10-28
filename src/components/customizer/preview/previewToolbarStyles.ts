@@ -21,3 +21,9 @@ export const PREVIEW_SEGMENT_GROUP_CLASS = `${CONTROL_BOX} inline-flex items-str
  * a tint, accent text and an underline bar, so it never relies on colour alone.
  */
 export const PREVIEW_SEGMENT_CLASS = `${CONTROL_FOCUS} inline-flex min-h-11 min-w-11 items-center justify-center px-2.5 text-[13px] font-medium text-text-theme-secondary transition-colors hover:bg-surface-base hover:text-text-theme-primary aria-pressed:bg-accent/20 aria-pressed:font-semibold aria-pressed:text-accent aria-pressed:shadow-[inset_0_-3px_0_var(--accent-primary)] sm:px-3`;
+
+/**
+ * One part of a joined control (the zoom stepper): no box of its own, square
+ * corners and a hover fill, inside a `PREVIEW_SEGMENT_GROUP_CLASS` box.
+ */
+export const PREVIEW_JOINED_SEGMENT_CLASS = `${CONTROL_FOCUS} inline-flex min-h-11 items-center justify-center rounded-none! bg-transparent text-[13px] font-medium text-text-theme-primary transition-colors hover:bg-surface-base`;

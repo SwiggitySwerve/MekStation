@@ -47,9 +47,9 @@ describe('MobileEquipmentRow', () => {
       // Default item has weight=1, criticalSlots=1, heat=0
       // Structure is: [Location] [Heat] [Crits] [Weight]
       render(<MobileEquipmentRow {...defaultProps} />);
-      // Weight and crits are both 1, heat is 0 - find all "1"s and verify count
-      const ones = screen.getAllByText('1');
-      expect(ones.length).toBeGreaterThanOrEqual(2); // weight + crits
+      // Weight keeps one decimal while critical slots remain integers.
+      expect(screen.getByText('1')).toBeInTheDocument(); // crits
+      expect(screen.getByText('1.0')).toBeInTheDocument(); // weight
     });
 
     it('should render critical slots', () => {
@@ -57,7 +57,7 @@ describe('MobileEquipmentRow', () => {
       const item = createItem({ criticalSlots: 3, weight: 2 });
       render(<MobileEquipmentRow {...defaultProps} item={item} />);
       expect(screen.getByText('3')).toBeInTheDocument(); // crits
-      expect(screen.getByText('2')).toBeInTheDocument(); // weight
+      expect(screen.getByText('2.0')).toBeInTheDocument(); // weight
     });
 
     it('should show dashes for empty location and range columns', () => {

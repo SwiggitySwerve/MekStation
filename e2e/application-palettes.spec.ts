@@ -203,7 +203,7 @@ for (const palette of palettes) {
     await page
       .getByRole('button', { name: 'Load from Library', exact: true })
       .click();
-    const dialog = page.getByRole('dialog', { name: 'Add unit', exact: true });
+    const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
     await dialog.getByRole('combobox').first().selectOption('canonical');
     await dialog
       .getByPlaceholder('Search by chassis or variant...')

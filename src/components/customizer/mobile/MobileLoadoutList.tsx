@@ -172,7 +172,7 @@ export function MobileLoadoutList({
     requestConfirmation({
       title: 'Clear equipment loadout?',
       message: `Remove all ${requested.removableCount} equipment items?`,
-      confirmLabel: 'Clear equipment',
+      confirmLabel: 'Clear Equipment',
       isCurrent: () => {
         const current = committed.current;
         return (
@@ -273,10 +273,10 @@ export function MobileLoadoutList({
                     count={unassigned.length}
                     isExpanded={unassignedExpanded}
                     onToggle={() => setUnassignedExpanded(!unassignedExpanded)}
-                    titleColor="text-amber-400"
+                    titleColor="text-red-400"
                   />
                   {unassignedExpanded && (
-                    <div className="bg-amber-900/10">
+                    <div className="bg-red-400/5">
                       <SectionColumnHeaders />
                       {unassigned.map((item) => (
                         <MobileEquipmentRow

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { formatTons } from '@/utils/formatting';
 
 import type { MobileLoadoutStats } from './MobileLoadoutHeader';
 
@@ -63,7 +64,8 @@ export function StatsSummary({ stats }: StatsSummaryProps): React.ReactElement {
         >
           {stats.weightUsed.toFixed(1)}
           <span className="text-text-theme-muted font-normal">
-            /{stats.weightMax}t
+            {' / '}
+            {formatTons(stats.weightMax)}
           </span>
         </div>
       </div>

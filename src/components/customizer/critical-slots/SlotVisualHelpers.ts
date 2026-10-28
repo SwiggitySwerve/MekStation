@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 
+import { EquipmentCategory } from '@/types/equipment';
 import {
   classifyEquipmentByName,
   getEquipmentSurfaceClassesByName,
@@ -9,6 +10,7 @@ import {
   getSlotColorClasses,
   type SystemComponentType,
 } from '@/utils/colors/slotColors';
+import { getSlotFill } from '@/utils/colors/slotFills';
 import { abbreviateEquipmentName } from '@/utils/equipmentNameAbbreviations';
 
 import type { SlotContent } from './criticalSlotTypes';
@@ -22,16 +24,20 @@ export function getSlotSizeClasses(compact: boolean): string {
 
 /**
  * The owner's category or family hue (the token in its `border-l-<token>`
- * accent class) as `--critical-slot-color`, which tints the slot, its bar,
- * the heat-sink hatch and the matching colour-key chip.
+ * accent class) as `--critical-slot-color` for the bar and patterns, and that
+ * token's fill (slotFills.ts) as `--critical-slot-fill`. The slot and its
+ * colour-key chip both read these.
  */
 export function getSlotColorStyleFromClasses(
   classes: string,
 ): CSSProperties | undefined {
   const token = /border-l-([a-z]+-\d+)/.exec(classes)?.[1];
-  return token
-    ? ({ '--critical-slot-color': `var(--color-${token})` } as CSSProperties)
-    : undefined;
+  if (!token) return undefined;
+  const fill = getSlotFill(token);
+  return {
+    '--critical-slot-color': `var(--color-${token})`,
+    ...(fill ? { '--critical-slot-fill': fill } : {}),
+  } as CSSProperties;
 }
 
 export function getSlotColorStyle(
@@ -57,9 +63,19 @@ export function getSystemSlotClasses(type: SystemComponentType): string {
     : getSlotColorClasses(type);
 }
 
-/** Equipment is tinted in its category hue; heat sinks add a faint hatch. */
+/** Ammunition adds stripes to its weapon's fill; every other category is solid. */
+function getEquipmentPatternClass(name: string): string {
+  return classifyEquipmentByName(name) === EquipmentCategory.AMMUNITION
+    ? styles.criticalAmmo
+    : '';
+}
+
+/**
+ * Equipment is tinted in its category hue. Ammunition takes its weapon's
+ * colour and adds stripes.
+ */
 export function getEquipmentSlotClasses(name: string): string {
-  return `${getEquipmentSurfaceClassesByName(name)} ${styles.criticalTintedSlot} ${classifyEquipmentByName(name) === 'heatsink' ? styles.criticalHeatSink : ''}`;
+  return `${getEquipmentSurfaceClassesByName(name)} ${styles.criticalTintedSlot} ${getEquipmentPatternClass(name)}`;
 }
 
 /** Join adjacent occupied rows without removing their individual hit targets. */

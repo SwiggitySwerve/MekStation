@@ -45,7 +45,7 @@ test('customizer header symbols stay legible and preserve their actions @customi
   const unitUrl = page.url();
   const header = page.getByTestId('customizer-command-header');
   const toggle = header.getByRole('button', {
-    name: 'Hide loadout panel',
+    name: 'Hide Loadout Panel',
     exact: true,
   });
   const sidebarBackground = await toggle.evaluate(
@@ -67,11 +67,11 @@ test('customizer header symbols stay legible and preserve their actions @customi
   const measurements = [];
   for (const name of [
     'MekStation menu',
-    'Add unit (Ctrl+O)',
-    'Unit actions',
+    'Add Unit (Ctrl+O)',
+    'Unit Actions',
     'Save active unit to library',
-    'Open loadout drawer',
-    'Hide loadout panel',
+    'Open Loadout Drawer',
+    'Hide Loadout Panel',
   ]) {
     const button = header.getByRole('button', { name, exact: true });
     const symbol = await readSymbol(button);
@@ -83,11 +83,11 @@ test('customizer header symbols stay legible and preserve their actions @customi
     expect(symbol!.height).toEqual(symbol!.width);
     expect(symbol!.drawnWidth).toBeGreaterThanOrEqual(19);
     expect(symbol!.strokeWidth).toBe(2);
-    // The menu, Add unit and Save show visible text labels on wide screens.
+    // The menu, Add Unit and Save show visible text labels on wide screens.
     if (
       [
         'MekStation menu',
-        'Add unit (Ctrl+O)',
+        'Add Unit (Ctrl+O)',
         'Save active unit to library',
       ].includes(name)
     ) {
@@ -100,12 +100,12 @@ test('customizer header symbols stay legible and preserve their actions @customi
   }
   // Save state is spelled out beside Save, never a bare dot on the button.
   await expect(header.getByTestId('unit-save-label')).toHaveText(
-    /^Not in library(?:\s*\u00b7\s*draft saved)?$/,
+    /^Not in Library(?:\s*\u00b7\s*Draft Saved)?$/,
   );
   await expect(
     header
       .getByRole('button', { name: 'Save active unit to library', exact: true })
-      .getByText('Save to library', { exact: true }),
+      .getByText('Save to Library', { exact: true }),
   ).toBeVisible();
   await expect(header.locator('[data-save-dot]')).toHaveCount(0);
   await header.screenshot({
@@ -113,7 +113,7 @@ test('customizer header symbols stay legible and preserve their actions @customi
     animations: 'disabled',
   });
   const open = header.getByRole('button', {
-    name: 'Add unit (Ctrl+O)',
+    name: 'Add Unit (Ctrl+O)',
     exact: true,
   });
   await open.click();
@@ -121,12 +121,12 @@ test('customizer header symbols stay legible and preserve their actions @customi
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
   const drawerButton = header.getByRole('button', {
-    name: 'Open loadout drawer',
+    name: 'Open Loadout Drawer',
     exact: true,
   });
   await drawerButton.click();
   const drawer = page.getByRole('dialog', {
-    name: 'Unit loadout',
+    name: 'Unit Loadout',
     exact: true,
   });
   await expect(drawer).toBeVisible();
@@ -144,8 +144,8 @@ test('customizer header symbols stay legible and preserve their actions @customi
     await page.setViewportSize({ width, height: 844 });
     for (const name of [
       'MekStation menu',
-      'Add unit (Ctrl+O)',
-      'Unit actions',
+      'Add Unit (Ctrl+O)',
+      'Unit Actions',
       'Save active unit to library',
     ]) {
       const symbol = await readSymbol(

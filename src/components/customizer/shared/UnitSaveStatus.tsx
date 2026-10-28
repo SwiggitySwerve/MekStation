@@ -12,17 +12,17 @@ export interface LibrarySaveState {
 
 /**
  * The one wording of the library state, used beside the Save button, on
- * phones and in the status panel: "Not in library", "In library v3" or
- * "Changed since v3".
+ * phones and in the status panel: "Not in Library", "In Library v3" or
+ * "Changed Since v3".
  */
 export function librarySaveLabel(
   state: LibraryState,
   version?: number,
 ): string {
-  if (state === 'none') return 'Not in library';
+  if (state === 'none') return 'Not in Library';
   return state === 'changed'
-    ? `Changed since v${version}`
-    : `In library v${version}`;
+    ? `Changed Since v${version}`
+    : `In Library v${version}`;
 }
 
 /** Tooltip explaining a library state in a full sentence. */
@@ -31,10 +31,10 @@ export function librarySaveExplanation(
   version?: number,
 ): string {
   if (state === 'none')
-    return 'Not in library: no library save has been recorded for this unit yet.';
+    return 'Not in Library: no library save has been recorded for this unit yet.';
   return state === 'changed'
-    ? `Changed since v${version}: this unit has edits that are not in its last known library save (v${version}).`
-    : `In library v${version}: this unit matches its last known library save. This is not a claim that v${version} is the server latest.`;
+    ? `Changed Since v${version}: this unit has edits that are not in its last known library save (v${version}).`
+    : `In Library v${version}: this unit matches its last known library save. This is not a claim that v${version} is the server latest.`;
 }
 
 /** Library states that call for a Save: never saved, or edited since. */

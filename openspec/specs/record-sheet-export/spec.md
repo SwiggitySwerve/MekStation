@@ -213,15 +213,18 @@ The system SHALL provide zoom controls in the preview toolbar, beside the paper 
 #### Scenario: Zoom control display
 
 - **WHEN** preview is displayed
-- **THEN** show Zoom out, Zoom options and Zoom in in the toolbar above the sheet; Zoom options opens menu items named Fit page, Fit width and 100%
-- **AND** the middle button combines the current mode with the Current zoom percentage, such as "Fit width · 150%" or "Fit page · 85%"; actual size and manual zoom show only the percentage, such as "100%" or "165%", on phones and desktop alike
+- **THEN** show Zoom out, Zoom options and Zoom in in the toolbar above the sheet; Zoom options opens menu items named Fit Page, Fit Width and 100%
+- **AND** the middle button shows the Current zoom percentage as its value, such as "150%", on phones and desktop alike; while a fit mode is active the value is led by a short muted tag ("Fit · 150%" for Fit Width, "Page · 80%" for Fit Page) so the button says whether the zoom tracks the viewer, and manual or 100% zoom shows the percentage alone; the fit mode is also the checked choice in its menu and is part of the button's accessible description (for example "Fit Width, 150%"), with the visible tag hidden from assistive tech
 - **AND** the menu uses radio menu items with `aria-checked="true"` on the active fit or actual-size choice, and none checked after manual zoom; opening focuses the active item (or first item), arrow keys and Home/End move focus, Escape closes and restores focus, and choosing an item closes the menu and restores focus
 - **AND** the paper size select, the zoom controls, Print and Download PDF share one 44px control height and baseline
-- **AND** a caption under the sheet names the paper size and page count, for example "Letter · 1 page"
+- **AND** Zoom out, the zoom menu button and Zoom in are joined in one bordered segmented control with dividers between the parts, not three separate boxes
+- **AND** on 640px and wider the paper select's visible label is "Paper", with no colon; below 640px the control shows the paper name alone with its chevron ("Letter"), so it never truncates; its accessible name stays "Paper Size" on every width
+- **AND** Download PDF is the tab's main action drawn as a strong secondary (strong border, raised fill, semibold primary text), so the header's amber "Save to Library" stays the only amber primary on the screen; Print is the quieter secondary
+- **AND** the page count ("1 page") is shown once, without repeating the paper name the selector already shows: in the toolbar after the zoom controls from 640px, and in a phone-only footer in the toolbar's panel tone below 640px; wider screens have no footer under the sheet
 - **AND** Current zoom remains an accessible output containing only the displayed percentage inside the middle button; the middle button has accessible name "Zoom options"
-- **AND** below 640px the toolbar is exactly two rows of controls at least 44px tall, each with a visible text label: row one holds Zoom out, the combined mode-and-percentage menu button, and Zoom in; row two holds a "Paper: Letter" select (a labelled control over the native select, still named Paper Size:), Print and Download PDF (icon plus text)
+- **AND** below 640px the toolbar is exactly one row of controls at least 44px tall: Zoom out, the percentage menu button and Zoom in, then the "Letter" select (a labelled control over the native select, still named Paper Size), then Print as a 44px icon button and Download PDF as its icon plus a short visible "PDF" label, each keeping its full text as its accessible name and tooltip; from 640px Print and Download PDF show icon plus text
 - **AND** the phone sheet starts no lower than about 340px from the top of a 390x844 screen, and the viewer keeps a 24px gutter on every side of the sheet (12px above it on phones), including on its right edge when the sheet is zoomed past the viewer width
-- **AND** on phones, while the zoom is below 90%, a hint under the sheet reads "Zoom in or pinch to read details"; desktop never shows it
+- **AND** on phones, while the zoom is below 90%, the footer's hint reads "Zoom in or pinch to read details" and a "Zoom In" button (accessible name "Zoom in to 100%") sits in that footer beside the hint, off the sheet so it covers nothing, as a standard bordered 44px secondary button with the zoom-in magnifier icon and the label "Zoom In", and opens the sheet at 100%; desktop never shows either
 
 #### Scenario: Zoom in/out
 
@@ -243,21 +246,28 @@ The system SHALL provide zoom controls in the preview toolbar, beside the paper 
 - **AND** only the selected paper's aspect is applied at that zoom
 - **AND** ResizeObserver SHALL NOT recompute a fit mode
 
-#### Scenario: Fit width
+#### Scenario: Fit Width
 
-- **WHEN** the user activates Fit width
+- **WHEN** the user activates Fit Width
 - **THEN** calculate scale to fit container width, clamped to 20–300%
 - **AND** the canvas CSS width matches the visible scroll viewport content width, capped at 920 CSS pixels and at 3× paper width, within 2px
-- **AND** while Fit width remains selected, resize recomputes that width fit to the same CSS-width contract
-- **AND** a later Zoom in or Zoom out ends Fit width tracking and keeps the new manual zoom across resize
+- **AND** while Fit Width remains selected, resize recomputes that width fit to the same CSS-width contract
+- **AND** a later Zoom in or Zoom out ends Fit Width tracking and keeps the new manual zoom across resize
 
 #### Scenario: Preview opens fit to width
 
 - **WHEN** preview first opens, on any screen size
-- **THEN** the mode is Fit width, so the sheet fits the available width
+- **THEN** the mode is Fit Width, so the whole sheet fits the available width (on phones, e.g. 56% at 390px, with the "Zoom in or pinch to read details" hint)
 - **AND** the 100% option is prominent and retains horizontal scrolling for reading at actual size
 - **AND** on very wide viewers the sheet is drawn no wider than 920 CSS pixels
 - **AND** on phones the same control is shown, so 100% is one tap away and the sheet then scrolls horizontally
+
+#### Scenario: Sheet edge
+
+- **WHEN** the sheet is displayed in the viewer
+- **THEN** it carries a hairline edge and a drop shadow that lift it off the dark viewer
+- **AND** while the sheet continues below the viewer, the bottom of the viewer fades into the viewer background and a "Scroll for the rest of the sheet" cue sits over the fade, so the cut-off reads as scrolling rather than clipped; once the end of the sheet is in view both are gone
+- **AND** the toolbar above the sheet is a rounded strip inset from the tab edges (8px on phones, at least 16px on wider screens), like the summary strips that open the other tabs; from 640px it is centred on the sheet's axis at the sheet's drawn width (at least 48rem), so the toolbar panel and the sheet share their left and right edges
 
 #### Scenario: 100%
 
@@ -265,11 +275,11 @@ The system SHALL provide zoom controls in the preview toolbar, beside the paper 
 - **THEN** the sheet is drawn at one CSS pixel per paper point
 - **AND** the mode stays 100% across resize until another mode or a manual zoom is chosen
 
-#### Scenario: Fit page
+#### Scenario: Fit Page
 
-- **WHEN** the user activates Fit page
+- **WHEN** the user activates Fit Page
 - **THEN** calculate scale to fit the container while preserving paper aspect, clamped to 20–300%
-- **AND** while Fit page remains selected, resize recomputes only Fit page
+- **AND** while Fit Page remains selected, resize recomputes only Fit Page
 - **AND** explicit fit modes SHALL NOT recompute a mode the user did not select
 
 ### Requirement: Print Functionality

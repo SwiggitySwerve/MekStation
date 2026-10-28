@@ -85,11 +85,11 @@ describe('Color Constants', () => {
     expect(SELECTED_STROKE).toMatch(hexPattern);
   });
 
-  it('should have valid front/rear armor colors', () => {
-    expect(FRONT_ARMOR_COLOR).toMatch(hexPattern);
-    expect(REAR_ARMOR_COLOR).toMatch(hexPattern);
-    expect(FRONT_ARMOR_LIGHT).toMatch(hexPattern);
-    expect(REAR_ARMOR_LIGHT).toMatch(hexPattern);
+  it('should use the theme cream for front armor and the secondary text tone for rear armor', () => {
+    expect(FRONT_ARMOR_COLOR).toBe('var(--text-primary)');
+    expect(REAR_ARMOR_COLOR).toBe('var(--text-secondary)');
+    expect(FRONT_ARMOR_LIGHT).toBe('var(--text-primary)');
+    expect(REAR_ARMOR_LIGHT).toBe('var(--text-secondary)');
   });
 
   it('should have valid MegaMek colors', () => {

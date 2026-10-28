@@ -5,7 +5,6 @@ import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
 import {
-  CleanTechDiagram,
   MegaMekDiagram,
   NeonOperatorDiagram,
   PremiumMaterialDiagram,
@@ -14,8 +13,9 @@ import {
 import { BipedArmorSurface } from '../BipedArmorSurface';
 import { BIPED_ARMOR_VIEWBOX } from '../CleanTechBipedDiagram.geometry';
 
+// The styles that share the status-colour biped diagram. Standard draws the
+// Blueprint diagram instead (BlueprintArmorDiagram.test.tsx).
 const components = [
-  CleanTechDiagram,
   MegaMekDiagram,
   NeonOperatorDiagram,
   PremiumMaterialDiagram,
@@ -98,7 +98,7 @@ it('biped designs preserve geometry and status semantics while keeping distinct 
     }
     view.unmount();
   }
-  expect(materials.size).toBe(5);
+  expect(materials.size).toBe(4);
 });
 
 it.each([

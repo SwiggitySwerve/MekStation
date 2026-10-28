@@ -18,6 +18,7 @@ import {
   IVehicleMountedEquipment,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 
@@ -201,12 +202,12 @@ function TurretStatsPanel({
     <div className={`${cs.panel.summary} mb-4`}>
       <div className="grid grid-cols-2 gap-2 text-sm">
         <TurretStat label="Max Capacity">
-          {stats.maxWeight.toFixed(1)} tons
+          {formatTons(stats.maxWeight)}
         </TurretStat>
         <div>
           <span className={cs.text.label}>Weight Used:</span>
           <span className={`ml-2 ${usedClass}`}>
-            {stats.weightUsed.toFixed(1)} tons
+            {formatTons(stats.weightUsed)}
           </span>
         </div>
         <TurretStat label="Rotation Arc">
@@ -238,7 +239,7 @@ function TurretWeightInfo({ tonnage }: { tonnage: number }) {
       </p>
       <p>
         Maximum turret weight is typically 10% of vehicle tonnage (
-        {(tonnage * 0.1).toFixed(1)} tons for this {tonnage}-ton vehicle).
+        {formatTons(tonnage * 0.1)} for this {formatTons(tonnage)} vehicle).
       </p>
     </div>
   );
@@ -484,7 +485,7 @@ function TurretEquipmentRow({
           {item.name}
         </span>
         {item.isRearMounted && (
-          <span className="text-xs text-cyan-400">Rear-facing</span>
+          <span className="text-xs text-cyan-400">Rear-Facing</span>
         )}
       </div>
       <button

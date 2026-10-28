@@ -86,7 +86,7 @@ export function StoreEditControls({
     return () => window.removeEventListener('keydown', handleKey);
   }, [history, perform]);
 
-  const buttonClass = `!text-text-theme-primary !min-h-11 ${compact ? '!h-11 !w-11 !p-0' : '!px-3'}`;
+  const buttonClass = `disabled:!text-text-theme-muted disabled:!opacity-50 !min-h-11 ${compact ? '!h-11 !w-11 !p-0' : '!px-3'}`;
   return (
     <div
       className="flex shrink-0 items-center gap-1"

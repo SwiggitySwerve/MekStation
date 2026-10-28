@@ -4,7 +4,10 @@ import React from 'react';
 
 import { CompactFilterBar } from '@/components/customizer/equipment/CompactFilterBar';
 import { getCatalogCapacityNotice } from '@/components/customizer/equipment/EquipmentBrowser.model';
-import { BUILD_STATE_TINT_CLASS } from '@/components/customizer/shared/BuildStatusLabel';
+import {
+  BUILD_STATE_TINT_CLASS,
+  BUILD_STATUS_KIND_TEXT_CLASS,
+} from '@/components/customizer/shared/BuildStatusLabel';
 import { EquipmentCategory } from '@/types/equipment';
 
 describe('CompactFilterBar', () => {
@@ -69,6 +72,53 @@ describe('CompactFilterBar', () => {
         ).not.toBeInTheDocument();
         expect(defaultProps.onSelectCategory).not.toHaveBeenCalled();
       } finally {
+        scrollWidth.mockRestore();
+        clientWidth.mockRestore();
+      }
+    });
+
+    it('counts the categories cut off on the scroll button side', () => {
+      const scrollWidth = jest
+        .spyOn(HTMLElement.prototype, 'scrollWidth', 'get')
+        .mockReturnValue(900);
+      const clientWidth = jest
+        .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+        .mockReturnValue(300);
+      // The row spans x 0-300; its nine tabs are 100px apart, so the
+      // fourth (300-400) and later ones are cut off: six of them.
+      const rect = jest
+        .spyOn(Element.prototype, 'getBoundingClientRect')
+        .mockImplementation(function (this: Element) {
+          const siblings = this.parentElement
+            ? Array.from(this.parentElement.children)
+            : [];
+          const index =
+            this.parentElement?.getAttribute('aria-label') ===
+            'Equipment categories'
+              ? siblings.indexOf(this)
+              : -1;
+          const left = index < 0 ? 0 : index * 100;
+          const width = index < 0 ? 300 : 100;
+          return {
+            left,
+            right: left + width,
+            top: 0,
+            bottom: 44,
+            width,
+            height: 44,
+            x: left,
+            y: 0,
+            toJSON: () => ({}),
+          } as DOMRect;
+        });
+      try {
+        render(<CompactFilterBar {...defaultProps} />);
+        const more = screen.getByRole('button', {
+          name: '6 more equipment categories',
+        });
+        expect(more).toHaveTextContent(/^\+6$/);
+      } finally {
+        rect.mockRestore();
         scrollWidth.mockRestore();
         clientWidth.mockRestore();
       }
@@ -171,7 +221,7 @@ describe('CompactFilterBar', () => {
       );
       expect(
         screen.getByRole('button', { name: /^Visibility filters/ }),
-      ).toHaveTextContent('Filters · No prototypes, No one-shot');
+      ).toHaveTextContent('Filters · No Prototypes, No One-Shot');
     });
 
     it('includes the applied availability criteria in the Filters label', () => {
@@ -204,7 +254,7 @@ describe('CompactFilterBar', () => {
       );
     });
 
-    it('shows a legal, exactly-full unit as neutral text without a callout', () => {
+    it('keeps the free tonnage neutral and adds a warning note when exactly full', () => {
       render(
         <CompactFilterBar
           {...defaultProps}
@@ -216,12 +266,69 @@ describe('CompactFilterBar', () => {
         />,
       );
       const capacity = screen.getByTestId('equipment-catalog-capacity');
-      expect(capacity).toHaveTextContent(
-        '0.0 t free \u00B7 unit is at its tonnage limit',
-      );
+      expect(capacity).toHaveTextContent('0.0 t free');
+      expect(capacity).not.toHaveTextContent(/tonnage limit/);
       expect(capacity).toHaveAttribute('data-capacity-state', 'full');
       expect(capacity.className).toBe('');
       expect(capacity.querySelector('[data-icon-name]')).toBeNull();
+      // The limit is a plain warning note: orange text and its triangle
+      // icon, one wording on every width, and no bordered, tinted box, so it
+      // never looks like the clickable status chip.
+      const limit = screen.getByTestId('equipment-catalog-limit');
+      expect(limit).toHaveTextContent(/^At tonnage limit$/);
+      expect(
+        screen.queryByTestId('equipment-catalog-limit-reason'),
+      ).not.toBeInTheDocument();
+      expect(limit).toHaveClass(BUILD_STATUS_KIND_TEXT_CLASS.warning);
+      for (const tint of BUILD_STATE_TINT_CLASS.warning.split(' '))
+        expect(limit).not.toHaveClass(tint);
+      expect(
+        limit.querySelector('[data-severity-icon="warning"]'),
+      ).toBeInTheDocument();
+    });
+
+    it('says why the limit matters, visibly from 640px and to assistive tech on phones', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          resultSummary="182 items"
+          capacity={getCatalogCapacityNotice({
+            remainingWeight: 0,
+            remainingSlots: 12,
+            tonnage: 100,
+          })}
+        />,
+      );
+      expect(screen.getByTestId('equipment-catalog-limit')).toHaveTextContent(
+        'At tonnage limit — adding equipment will exceed 100.0 t',
+      );
+      expect(screen.getByTestId('equipment-catalog-limit-reason')).toHaveClass(
+        'sr-only',
+        'sm:not-sr-only',
+      );
+    });
+
+    it('leads the count line with the limit note, under the id Add buttons reference', () => {
+      render(
+        <CompactFilterBar
+          {...defaultProps}
+          resultSummary="182 items"
+          limitNoteId="catalog-limit"
+          capacity={getCatalogCapacityNotice({
+            remainingWeight: 0,
+            remainingSlots: 12,
+            tonnage: 100,
+          })}
+        />,
+      );
+      const limit = screen.getByTestId('equipment-catalog-limit');
+      expect(limit).toHaveAttribute('id', 'catalog-limit');
+      // The cause reads before the counts.
+      expect(limit.parentElement!.firstElementChild).toBe(limit);
+      expect(
+        limit.compareDocumentPosition(screen.getByText('182 items')) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
     });
 
     it('warns in the error callout only when over the limit', () => {
@@ -250,7 +357,7 @@ describe('CompactFilterBar', () => {
           {...defaultProps}
           hideUnavailable={true}
           hidePrototype={true}
-          availabilitySummary="Inner Sphere · available in 3028"
+          availabilitySummary="Inner Sphere · Available in 3028"
           compactAvailabilitySummary="IS · 3028"
         />,
       );
@@ -258,7 +365,7 @@ describe('CompactFilterBar', () => {
         name: /^Visibility filters/,
       });
       expect(button).toHaveAccessibleName(
-        'Visibility filters: Inner Sphere · available in 3028, No prototypes',
+        'Visibility filters: Inner Sphere · Available in 3028, No Prototypes',
       );
       expect(button.querySelector('.sm\\:hidden')).toHaveTextContent(
         '· IS · 3028 +1',
@@ -274,8 +381,8 @@ describe('CompactFilterBar', () => {
     it('labels the help popover in plain words', () => {
       render(<CompactFilterBar {...defaultProps} />);
       expect(
-        screen.getByRole('button', { name: 'How to add equipment' }),
-      ).toHaveTextContent('How to add');
+        screen.getByRole('button', { name: 'How to Add Equipment' }),
+      ).toHaveTextContent('How to Add');
     });
 
     it('should toggle hide filters when clicked', async () => {
@@ -288,8 +395,8 @@ describe('CompactFilterBar', () => {
       await user.click(hideButton!);
 
       expect(screen.getByText('Prototype')).toBeInTheDocument();
-      expect(screen.getByText('One-shot')).toBeInTheDocument();
-      expect(screen.getByText('Ammo without weapon')).toBeInTheDocument();
+      expect(screen.getByText('One-Shot')).toBeInTheDocument();
+      expect(screen.getByText('Ammo Without Weapon')).toBeInTheDocument();
       expect(screen.getByText('Unavailable')).toBeInTheDocument();
     });
 
@@ -317,7 +424,7 @@ describe('CompactFilterBar', () => {
         .closest('button');
       await user.click(hideButton!);
 
-      const oneShotButton = screen.getByText('One-shot');
+      const oneShotButton = screen.getByText('One-Shot');
       await user.click(oneShotButton);
 
       expect(defaultProps.onToggleOneShot).toHaveBeenCalledTimes(1);
@@ -380,7 +487,7 @@ describe('CompactFilterBar', () => {
       fireEvent.click(
         screen.getByRole('button', { name: /^Visibility filters/ }),
       );
-      expect(screen.getByText('Clear filters')).toBeInTheDocument();
+      expect(screen.getByText('Clear Filters')).toBeInTheDocument();
     });
 
     it('should show Clear button when showAll is false', () => {
@@ -388,7 +495,7 @@ describe('CompactFilterBar', () => {
       fireEvent.click(
         screen.getByRole('button', { name: /^Visibility filters/ }),
       );
-      expect(screen.getByText('Clear filters')).toBeInTheDocument();
+      expect(screen.getByText('Clear Filters')).toBeInTheDocument();
     });
 
     it('should show Clear button when hide filters are active', () => {
@@ -396,12 +503,12 @@ describe('CompactFilterBar', () => {
       fireEvent.click(
         screen.getByRole('button', { name: /^Visibility filters/ }),
       );
-      expect(screen.getByText('Clear filters')).toBeInTheDocument();
+      expect(screen.getByText('Clear Filters')).toBeInTheDocument();
     });
 
     it('keeps reset inside the closed filters menu', () => {
       render(<CompactFilterBar {...defaultProps} showAll={true} />);
-      expect(screen.queryByText('Clear filters')).not.toBeInTheDocument();
+      expect(screen.queryByText('Clear Filters')).not.toBeInTheDocument();
     });
 
     it('should call onClearFilters when Clear is clicked', async () => {
@@ -411,7 +518,7 @@ describe('CompactFilterBar', () => {
       await user.click(
         screen.getByRole('button', { name: /^Visibility filters/ }),
       );
-      const clearButton = screen.getByText('Clear filters');
+      const clearButton = screen.getByText('Clear Filters');
       await user.click(clearButton);
 
       expect(defaultProps.onClearFilters).toHaveBeenCalledTimes(1);

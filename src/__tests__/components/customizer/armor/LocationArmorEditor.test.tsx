@@ -40,6 +40,15 @@ describe('LocationArmorEditor', () => {
     expect(screen.getByText(/\/ 9/)).toBeInTheDocument();
   });
 
+  it('uses the torso header pattern for a single-face location too', () => {
+    render(<LocationArmorEditor {...defaultProps} />);
+
+    // "Front" alone, with the max once on the Total line, never "Max 9".
+    expect(screen.getByText('Front')).toBeInTheDocument();
+    expect(screen.queryByText(/^max \d+/i)).toBeNull();
+    expect(screen.getByText('Total')).toBeInTheDocument();
+  });
+
   it('should call onChange when armor changes', async () => {
     const user = userEvent.setup();
     render(<LocationArmorEditor {...defaultProps} />);
@@ -207,7 +216,7 @@ describe('LocationArmorEditor', () => {
     expect(screen.getByText('25')).toBeInTheDocument();
   });
 
-  it('labels torso sliders with their values and shows one total', () => {
+  it('labels torso sliders plainly and shows one total', () => {
     render(
       <LocationArmorEditor
         {...defaultProps}
@@ -223,11 +232,11 @@ describe('LocationArmorEditor', () => {
     );
 
     // Front and rear share the location max, so neither slider shows a
-    // per-side "max X"; the sliders are labelled with their values and the
+    // per-side "max X"; the labels carry no value (the inputs do) and the
     // one total carries the max (50 tons: 32-point center torso).
-    expect(screen.getByText('Front 20')).toBeInTheDocument();
-    expect(screen.getByText('Rear 5')).toBeInTheDocument();
-    expect(screen.queryByText(/^max \d+/)).toBeNull();
+    expect(screen.getByText('Front')).toBeInTheDocument();
+    expect(screen.getByText('Rear')).toBeInTheDocument();
+    expect(screen.queryByText(/^max \d+/i)).toBeNull();
     expect(screen.getByText('Total')).toBeInTheDocument();
     expect(screen.getByText(/^25/)).toHaveTextContent(/^25\s*\/\s*\d+$/);
   });

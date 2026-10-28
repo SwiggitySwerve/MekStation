@@ -12,11 +12,12 @@ export const SELECTED_COLOR = '#3b82f6'; // blue-500
 export const SELECTED_STROKE = '#60a5fa'; // blue-400
 export const HOVER_LIGHTEN = 0.15;
 
-// Front/Rear armor colors for consistent UI
-export const FRONT_ARMOR_COLOR = '#f59e0b'; // amber-500
-export const REAR_ARMOR_COLOR = '#0ea5e9'; // sky-500
-export const FRONT_ARMOR_LIGHT = '#fbbf24'; // amber-400
-export const REAR_ARMOR_LIGHT = '#38bdf8'; // sky-400
+export {
+  FRONT_ARMOR_COLOR,
+  REAR_ARMOR_COLOR,
+  FRONT_ARMOR_LIGHT,
+  REAR_ARMOR_LIGHT,
+} from '@/utils/armor/armorColors';
 
 /**
  * MegaMek-specific record sheet colors

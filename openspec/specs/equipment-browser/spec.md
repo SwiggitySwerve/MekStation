@@ -27,7 +27,7 @@ The Equipment Browser SHALL include all equipment types from the equipment datab
 #### Scenario: Variable property display
 
 - **WHEN** physical weapon is displayed in equipment table
-- **THEN** variable weight and critical slots read as a muted "Var." right-aligned in the same tabular Tons and Slots columns as the numbers (full words "Variable weight" / "Variable slots" in the tooltip and accessible name) rather than presented as fixed zero values
+- **THEN** variable weight and critical slots read as a muted "Var." right-aligned in the same tabular Tons and Slots columns as the numbers (full words "Variable Weight" / "Variable Slots" in the tooltip and accessible name) rather than presented as fixed zero values
 - **AND** items the data flags as variable weight or slots (such as Communications Equipment, which carries 0 t / 0 slots and no formula id) also show "Var." instead of 0
 - **AND** expanded details explain that values are calculated for the active unit when added when a variable-equipment formula exists, and otherwise that weight and slots depend on the size chosen for the unit
 - **AND** Add or Add and place uses the existing construction calculations
@@ -57,6 +57,7 @@ The system SHALL display a dense catalog whose desktop header and collapsed rows
 - **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
 - **AND** the search field, Filters, and Sort share one row, and the result count and free capacity share one line, so that on a 390x844 phone the first row starts within 290px of the viewport top, plus only the height of the tab's issue notice when the unit has one, and at least five rows are fully visible
 - **AND** expanding details makes weapon and equipment statistics available
+- **AND** on desktop (1024px and wider) the search field takes its own full-width row, and the Filters summary (left) and How to Add (right) share a row directly under it, so neither is squeezed beside the search field
 
 ### Requirement: Equipment Filtering
 
@@ -223,7 +224,7 @@ The equipment catalog SHALL separate search and visibility controls from an inde
 #### Scenario: Search and visibility
 
 - **WHEN** the user searches equipment or opens Filters
-- **THEN** search and the Prototype, One-shot, Ammo without weapon, and Unavailable toggles remain independently operable
+- **THEN** search and the Prototype, One-Shot, Ammo Without Weapon, and Unavailable toggles remain independently operable
 - **AND** the interface explains ammunition compatibility and category multi-selection
 - **AND** enabled visibility filters remain observable and can be cleared
 
@@ -633,7 +634,7 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 
 #### Scenario: Valid placement
 
-- **WHEN** Add and choose location? is selected from a row's Add options menu and a legal location is confirmed
+- **WHEN** Add and Choose Location… is selected from a row's Add options menu and a legal location is confirmed
 - **THEN** a new equipment instance is added and assigned legal slots
 - **AND** weight and critical slots include variable-equipment calculations
 - **AND** one Undo reverses the whole operation and Redo restores it
@@ -659,7 +660,11 @@ The catalog SHALL offer optional Add and place with preview and validation throu
 - **WHEN** Add is used without placement
 - **THEN** a copy is added unassigned through the existing workflow
 - **AND** each row shows one low-emphasis split action in a fixed-width column on desktop and phone, with a plus and visible Add text, accessible name `Add <name>`, and tooltip `Add to unassigned`
-- **AND** when placement is available, an ellipsis button named `Add options for <name>` with tooltip `More ways to add` opens a menu with `Add to unassigned` and `Add and choose location?`; the placement item retains accessible name `Add and place <name>`
+- **AND** on the wide table the Add button is drawn 34px tall, centred inside its 44px hit area, so consecutive rows' Add buttons stay visibly separate instead of stacking into one column of boxes; the drawn button takes the hover fill and the shared disabled look
+- **AND** the Add options ellipsis is a bordered button on every width, with a faint border-subtle outline drawn at Add's height (34px on the wide table), so wide and phone rows show the same two boxed actions
+- **AND** on phones (and touch screens below 1024px, where rows are two-line cards) Add and the Add options ellipsis are drawn at their full 44px target, so what is drawn matches what can be tapped
+- **AND** when the category tabs overflow, a 56px fade at the overflowing edge reaches into the last visible tab beside the arrow button, so the cut-off reads as scrollable
+- **AND** when placement is available, an ellipsis button named `Add options for <name>` with tooltip `More ways to add` opens a menu with `Add to Unassigned` and `Add and Choose Location…`; the placement item retains accessible name `Add and place <name>`
 - **AND** the ellipsis button is omitted when placement is unavailable; read-only mode disables both parts
 - **AND** the action stays in the same column and position when details expand
 - **AND** both parts and menu items have at least 44px hit areas; keyboard users can open the menu, navigate with arrow keys, and dismiss with Escape, returning focus to the ellipsis button
@@ -673,11 +678,12 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 - **WHEN** browsing on a phone
 - **THEN** names use 16px text with the Add actions beside the name and stats; stats use at most two 14px lines of unbroken fields: weapons read "Damage 10 · Range 6/12/18 · Min 3" over "Heat 10 · 7 t · 3 slots", ammunition reads one line ("Shots 45 · 1 t · 1 slot"), and other equipment reads only "<weight> · <slots>"; fields that do not apply (including a zero minimum range) are omitted rather than shown as dashes, and a narrow line wraps between fields, never inside one, with each "·" kept (by a no-break space) at the end of the field before it
 - **AND** the whole name cell toggles details with one left chevron that rotates when expanded; the Add options ellipsis does not resemble an expander
-- **AND** both split-action parts are visibly at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
-- **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · available in 3028")
-- **AND** on phones the list fills the space down to the Loadout bar with the pager pinned directly above it; the add confirmation (e.g., "AC/2. Added unassigned. Choose a location in Critical Slots.") appears between the list and the pager, never between the pager and the Loadout bar
-- **AND** the pager reads "Page N of M · T items" on the left, and only while the current page itself overflows (rows hidden below) an opaque footer adds "Scroll for more on this page" in the pager (or a dedicated footer for a single page) without changing the pager's height, so the list viewport does not shift when the cue hides at the bottom; the footer stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
-- **AND** categories remain on one horizontally scrollable row with an edge fade and a visible 44px scroll button when overflowing; at the end the button scrolls back toward earlier categories
+- **AND** both split-action parts have hit areas at least 44px tall and wide, with Add text retained; the ellipsis control keeps a subtle persistent border-subtle boundary without fill, strengthening the outline on hover or keyboard focus
+- **AND** the Filters label shows the first active filter in short form on phones (such as "IS · 3028", plus "+N" for further filters) and names the criteria on wider screens; the button's accessible name carries the full filter text ("Visibility filters: Inner Sphere · Available in 3028")
+- **AND** on every width the list ends on the last whole row or card that fits (`getWholeRowListHeight` in `EquipmentBrowser.model.ts`), so the pager or the viewport edge above it never cuts a row or its Add button; the rows that fit then grow evenly (by at most 12px each, `getRowFillPadding`) so they reach the pager instead of leaving an empty band of list above it; on phones the list fills the space down to the Loadout bar with the pager pinned directly above it; the add confirmation (e.g., "AC/2. Added unassigned. Choose a location in Critical Slots.") appears between the list and the pager, never between the pager and the Loadout bar
+- **AND** the pager reads "Page N of M" alone on the left (the item count is said once, in the summary line above the list), with no scroll cue beside it, so paging and scrolling cues never mix; only a single-page list that overflows (rows hidden below) shows an opaque "More below" footer, which stays outside the scrolling content and never overlays, fades or reduces the contrast of any row or Add button
+- **AND** categories remain on one horizontally scrollable row with an edge fade and a visible scroll button when overflowing, drawn as a full 44px-tall bordered secondary button (like the edit-history buttons) with 2px above and below so it clears the row divider; the button states how many categories are cut off on its side ("+5 ›", accessible name "5 more equipment categories"), and at the end it scrolls back toward earlier categories ("‹ +4", "4 previous equipment categories")
+- **AND** every category tab marks its colour with the same 8px round dot; the Ammo dot is striped like ammunition slots, with its stripes centred so the dot keeps a round outline
 
 #### Scenario: Active filters
 
@@ -690,6 +696,7 @@ The catalog SHALL expose comparison data before expansion and describe the filte
 - **WHEN** equipment details are expanded on desktop
 - **THEN** metadata uses compact label/value pairs in two content-width columns on desktop and one on phones, aligned to the equipment name indent at content height, with labels at least 13px and values at least 14px
 - **AND** the expanded panel contains details only, without Add buttons
+- **AND** the expanded row's highlight and the details panel end on the action column's right edge (the "⋯" button), not at the list's outer edge
 
 ### Requirement: Active BattleMech capacity context
 
@@ -700,7 +707,7 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 - **WHEN** a BattleMech catalog is open
 - **THEN** the result-count line also shows remaining tonnage to one decimal place and remaining slots from the existing unit summary, such as `182 items · 4.0 t free · 16 slots free`
 - **AND** a deficit is stated as the overage with its fix, such as `Over by 7.0 t — remove equipment or armor` (see Tonnage limit states)
-- **AND** a row already present in the loadout shows `×N mounted` as plain muted text of at least 13px beside its name, counting exact equipment IDs including unassigned instances, not as a miniature pill
+- **AND** a row already present in the loadout shows `×N mounted` as plain muted text of at least 13px, counting exact equipment IDs including unassigned instances, not as a miniature pill: on desktop it ends the secondary subtitle line (`Ballistic Weapon · ×1 mounted`), and on phones, which show no subtitle, it sits beside the name
 - **AND** secondary row metadata such as shots per ton uses at least 13px text
 - **AND** standalone browsing without a BattleMech context omits these annotations
 
@@ -708,8 +715,11 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 
 - **GIVEN** the unit has exactly 0.0 t free, a legal, exactly-full unit
 - **WHEN** the catalog renders
-- **THEN** the capacity line reads `0.0 t free · unit is at its tonnage limit` as neutral secondary text, with no warning color, border, or icon, and no individual row carries an over-weight marker
-- **AND** on phones the line is shortened to `0.0 t free · at tonnage limit` so it stays on one row
+- **THEN** the capacity line reads `0.0 t free` as neutral secondary text, and no individual row carries an over-weight marker
+- **AND** a separate warning note `At tonnage limit` (sentence case, because it is a status sentence), worded the same on every width, leads the summary line at its left, before the result count and free capacity, so the cause reads before the counts, as plain warning text: orange text with the warning triangle icon, in the count line's 13px size, regular weight and 20px line height, on the count line's text baseline, with no border, tint or box (so it is never mistaken for the clickable status chip), never the amber accent
+- **AND** from 640px the note adds its reason, `At tonnage limit — adding equipment will exceed 100.0 t` (the unit's tonnage); phones keep the reason for assistive technology only, and Add stays enabled because adding is still allowed
+- **AND** while the note shows, each row's Add steps back to a quieter secondary style (the same `--border-default` outline with a transparent fill instead of the `--surface-raised` fill, and the usual fill on hover) so it no longer reads as the main call to action; it stays enabled and clickable, and its accessible description is the note (`aria-describedby` on the note's id)
+- **AND** on phones the slot count is dropped so the summary stays on one row
 - **AND** only when free tonnage is negative does the line become a compact bordered callout with an error icon, error text and tint matching the over-weight header value, and 14px text, reading `Over by 7.0 t — remove equipment or armor` (`Over by 7.0 t` on phones)
 - **AND** the comparison against zero lives in `getCatalogCapacityNotice` in `EquipmentBrowser.model.ts`, which treats magnitudes up to 0.005 t as exactly full
 
@@ -721,7 +731,7 @@ The catalog SHALL display the active BattleMech's existing calculated capacity a
 - **AND** the row stays visible and its Add action retains its existing behavior
 - **AND** an exact fit is not marked, and no row is marked when 0 t or less is free
 - **AND** variable-weight items retain their "Var." label without an estimated excess
-- **AND** the row split action remains visibly at least 44px tall
+- **AND** the row split action keeps a hit area at least 44px tall
 
 ### Requirement: Historical Availability Filter
 

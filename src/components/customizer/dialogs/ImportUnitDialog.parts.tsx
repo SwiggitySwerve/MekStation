@@ -219,7 +219,7 @@ function ParsedUnitInfo({ parsedUnit }: { parsedUnit: ParsedUnit }) {
             {parsedUnit.chassis} {parsedUnit.variant}
           </div>
           <div className="text-text-theme-secondary text-sm">
-            Ready to import
+            Ready to Import
           </div>
         </div>
         <CheckIcon size="toolbar" className="text-green-400" />
@@ -263,7 +263,7 @@ function ConflictResolution({
             className="border-border-theme bg-surface-raised focus:ring-offset-surface-base h-4 w-4 rounded text-blue-500 focus:ring-blue-500"
           />
           <span className="text-text-theme-secondary text-sm">
-            Import with alternate name
+            Import with Alternate Name
           </span>
         </label>
 

@@ -34,6 +34,14 @@ interface PreviewToolbarProps {
   onPaperSizeChange: (size: PaperSize) => void;
   /** Zoom controls shown beside the paper size (owned by the preview frame). */
   zoomControls?: React.ReactNode;
+  /** Page count shown after the zoom controls on wider screens, e.g. "1 page". */
+  pageCount?: string;
+  /**
+   * Drawn width of the sheet in px. Wider screens centre the toolbar on the
+   * sheet's axis at the sheet's width (at least 48rem), so the toolbar panel
+   * and the sheet below share their edges.
+   */
+  sheetWidth?: number;
   /** CSS class name */
   className?: string;
 }
@@ -67,6 +75,8 @@ export function PreviewToolbar({
   paperSize,
   onPaperSizeChange,
   zoomControls,
+  pageCount,
+  sheetWidth,
   className = '',
 }: PreviewToolbarProps): React.ReactElement {
   const [pendingAction, setPendingAction] = useState<ToolbarAction | null>(
@@ -113,31 +123,41 @@ export function PreviewToolbar({
   const isExporting = pendingAction === 'export';
 
   return (
+    // One row on phones (zoom, paper, then icon-only Print and a short
+    // "PDF" Download).
+    // Wider screens centre the panel on the sheet's axis at the sheet's width.
     <div
-      className={`preview-toolbar border-border-theme-subtle bg-surface-base grid shrink-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-1.5 gap-y-1 border-b px-2 py-1.5 sm:flex sm:flex-wrap sm:gap-3 sm:px-4 sm:py-3 ${className}`}
+      className={`preview-toolbar border-border-theme-subtle bg-surface-raised/40 m-2 flex shrink-0 flex-wrap items-center gap-1 rounded-lg border px-1.5 py-1.5 sm:mx-[max(1rem,calc((100%_-_var(--preview-sheet-width))_/_2))] sm:mt-4 sm:mb-3 sm:gap-3 sm:px-4 sm:py-3 ${className}`}
+      style={
+        sheetWidth
+          ? ({
+              '--preview-sheet-width': `max(${sheetWidth}px, 48rem)`,
+            } as React.CSSProperties)
+          : undefined
+      }
     >
-      {/* Paper Size Select. Phones show a labelled 44px "Paper: Letter"
-          control over the native select; desktop shows the label and select. */}
-      <div className="max-sm:has-[select:focus-visible]:ring-accent relative flex min-w-0 items-center gap-2 max-sm:rounded-md max-sm:has-[select:disabled]:opacity-70 max-sm:has-[select:focus-visible]:ring-2 sm:shrink-0">
+      {/* Paper Size Select. Desktop shows the visible label "Paper" and the
+          select; phones show a 44px "Letter" control over the native select,
+          so the paper name never truncates and the toolbar keeps one row.
+          The select keeps the accessible name "Paper Size". */}
+      <div className="max-sm:has-[select:focus-visible]:ring-accent relative flex min-w-0 shrink-0 items-center gap-2 max-sm:rounded-md max-sm:has-[select:disabled]:opacity-70 max-sm:has-[select:focus-visible]:ring-2">
         <label
           htmlFor="paper-size"
           className="text-text-theme-secondary sr-only text-[13px] font-medium whitespace-nowrap sm:not-sr-only"
         >
-          Paper Size:
+          Paper
         </label>
         <span
           aria-hidden="true"
           data-testid="paper-size-phone-label"
-          className={`${PREVIEW_CONTROL_CLASS} flex w-full min-w-0 items-center justify-between gap-1.5 whitespace-nowrap sm:hidden`}
+          className={`${PREVIEW_CONTROL_CLASS} flex w-full min-w-0 items-center justify-between gap-1 whitespace-nowrap max-sm:px-2 sm:hidden`}
         >
-          <span className="truncate">
-            <span className="text-text-theme-secondary">Paper: </span>
-            {PAPER_SHORT_LABEL[paperSize]}
-          </span>
+          <span className="truncate">{PAPER_SHORT_LABEL[paperSize]}</span>
           <AppIcon name="chevron-down" size="inline" />
         </span>
         <select
           id="paper-size"
+          aria-label="Paper Size"
           className={`${PREVIEW_CONTROL_CLASS} max-sm:absolute max-sm:inset-0 max-sm:h-full max-sm:w-full max-sm:cursor-pointer max-sm:opacity-0`}
           value={paperSize}
           onChange={(e) => onPaperSizeChange(e.target.value as PaperSize)}
@@ -150,32 +170,49 @@ export function PreviewToolbar({
         </select>
       </div>
 
-      {/* Zoom: the first row on phones, between paper size and actions on
-          desktop. */}
+      {/* Zoom: first and flexible on phones, between paper size and actions
+          on desktop. */}
       {zoomControls ? (
-        <div className="max-sm:order-first max-sm:col-span-3">
+        <div className="max-sm:order-first max-sm:min-w-0 max-sm:flex-1">
           {zoomControls}
         </div>
       ) : null}
 
-      {/* Print + Download PDF: grid cells on phones (second row, icon and
-          text), one trailing group on desktop. */}
+      {/* The page count; the paper name is already in the selector. */}
+      {pageCount ? (
+        <p
+          data-testid="preview-sheet-caption"
+          className="text-text-theme-secondary m-0 hidden text-[13px] whitespace-nowrap tabular-nums sm:block"
+        >
+          {pageCount}
+        </p>
+      ) : null}
+
+      {/* Print + Download PDF: on phones Print is a 44px icon button and
+          Download keeps a short visible "PDF" beside its icon (the full text
+          stays as each accessible name); one trailing text group on
+          desktop. */}
       <div className="contents sm:ml-auto sm:flex sm:shrink-0 sm:items-center sm:gap-2">
         {/* Print Button */}
         <button
           type="button"
-          className={`${PREVIEW_CONTROL_CLASS} inline-flex items-center justify-center gap-1.5 whitespace-nowrap max-sm:px-2.5 sm:px-4`}
+          className={`${PREVIEW_CONTROL_CLASS} inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap max-sm:w-11 max-sm:px-0 sm:px-4`}
           onClick={() => {
             void runAction('print');
           }}
           disabled={isBusy}
           aria-busy={isPrinting}
+          title="Print"
         >
           <PrintIcon />
-          <span>{isPrinting ? 'Printing...' : 'Print'}</span>
+          <span className="max-sm:sr-only">
+            {isPrinting ? 'Printing...' : 'Print'}
+          </span>
         </button>
 
-        {/* Download PDF Button */}
+        {/* Download PDF: the tab's main action as a strong secondary
+            (stronger border, semibold), so "Save to Library" in the header
+            stays the screen's only amber primary. */}
         <button
           type="button"
           onClick={() => {
@@ -183,20 +220,25 @@ export function PreviewToolbar({
           }}
           disabled={isBusy}
           aria-busy={isExporting}
-          className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset max-sm:px-2.5 sm:px-4 ${
+          title="Download PDF"
+          className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md border px-3 text-[13px] leading-none font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset max-sm:gap-1 max-sm:!px-2 sm:px-4 ${
             isBusy
               ? 'border-border-theme bg-surface-raised text-text-theme-primary cursor-not-allowed opacity-70'
-              : 'bg-accent text-on-accent hover:bg-accent-hover focus-visible:ring-on-accent border-transparent'
+              : 'border-border-theme-strong bg-surface-raised text-text-theme-primary hover:bg-border-theme focus-visible:ring-accent font-semibold'
           }`}
         >
           <DownloadIcon />
-          <span>{isExporting ? 'Exporting...' : 'Download PDF'}</span>
+          <span className="max-sm:sr-only">
+            {isExporting ? 'Exporting...' : 'Download PDF'}
+          </span>
+          <span aria-hidden="true" className="sm:hidden">
+            PDF
+          </span>
         </button>
       </div>
       {actionError ? (
         <div
           role="alert"
-          className="max-sm:col-span-3"
           style={{
             flexBasis: '100%',
             display: 'flex',

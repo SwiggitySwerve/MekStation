@@ -38,7 +38,7 @@ describe('MobileLoadoutHeader', () => {
     it('should display weight stats', () => {
       render(<MobileLoadoutHeader {...defaultProps} />);
       expect(screen.getByText('45.0')).toBeInTheDocument();
-      expect(screen.getByText('75')).toBeInTheDocument();
+      expect(screen.getByText('75.0 t')).toBeInTheDocument();
     });
 
     it('should display slot stats', () => {
@@ -87,21 +87,34 @@ describe('MobileLoadoutHeader', () => {
       expect(screen.getByText('25')).toHaveClass(
         STAT_STATUS_TEXT_CLASS.warning,
       );
-      expect(container.querySelector('.text-red-400')).toBeNull();
+      expect(screen.getByText('25')).not.toHaveClass('text-red-400');
+      expect(screen.getByText('3 unassigned')).toHaveClass('text-red-400');
       expect(container.querySelector('.text-amber-400')).toBeNull();
     });
   });
 
   describe('Equipment Count Badge', () => {
-    it('should show equipment count', () => {
+    it('should name what the equipment count counts', () => {
       render(<MobileLoadoutHeader {...defaultProps} />);
-      expect(screen.getByText('12')).toBeInTheDocument();
+      expect(screen.getByText('12 items')).toBeInTheDocument();
+    });
+
+    it('should use the singular for one item', () => {
+      const stats = createStats({ equipmentCount: 1 });
+      render(<MobileLoadoutHeader {...defaultProps} stats={stats} />);
+      expect(screen.getByText('1 item')).toBeInTheDocument();
     });
 
     it('should show unassigned count if greater than zero', () => {
       const stats = createStats({ unassignedCount: 5 });
       render(<MobileLoadoutHeader {...defaultProps} stats={stats} />);
       expect(screen.getByText('5 unassigned')).toBeInTheDocument();
+      // The error icon goes with the red text, so colour is not the only cue.
+      expect(
+        screen
+          .getByTestId('mobile-loadout-unassigned')
+          .querySelector('svg[aria-hidden="true"]'),
+      ).not.toBeNull();
     });
   });
 
@@ -144,7 +157,7 @@ describe('MobileLoadoutHeader', () => {
     it('should handle zero equipment count', () => {
       const stats = createStats({ equipmentCount: 0 });
       render(<MobileLoadoutHeader {...defaultProps} stats={stats} />);
-      expect(screen.getByText('0')).toBeInTheDocument();
+      expect(screen.getByText('0 items')).toBeInTheDocument();
     });
   });
 });

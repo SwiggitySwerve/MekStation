@@ -145,7 +145,7 @@ describe('record sheet preview async rendering and print', () => {
 
     await user.click(screen.getByRole('button', { name: 'Zoom in' }));
     await user.click(screen.getByRole('button', { name: 'Zoom options' }));
-    await user.click(screen.getByRole('menuitemradio', { name: 'Fit width' }));
+    await user.click(screen.getByRole('menuitemradio', { name: 'Fit Width' }));
 
     expect(mockRenderPreview).toHaveBeenCalledTimes(1);
   });

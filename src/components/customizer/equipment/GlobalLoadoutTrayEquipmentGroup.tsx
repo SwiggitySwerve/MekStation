@@ -2,6 +2,7 @@ import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
+import { formatTons } from '@/utils/formatting';
 import { getLocationShorthand } from '@/utils/locationUtils';
 
 import { trayStyles } from './GlobalLoadoutTray.styles';
@@ -64,13 +65,16 @@ export function GlobalLoadoutTrayEquipmentGroup({
     <div
       className={`my-0.5 ${trayStyles.equipmentSurface} ${getEquipmentAccentClasses(representative.category, representative.name)}`}
     >
+      {/* Important padding beats the global button rule, so the chevron
+          cell sits flush right in the same 44px slot as a single item's
+          remove cell, and the name starts at the same inset. */}
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={isExpanded}
         aria-label={`${isExpanded ? 'Hide' : 'Show'} ${count} instances of ${groupName}`}
         title={`${count} identical items. ${isExpanded ? 'Hide' : 'Show'} each one.`}
-        className="focus-visible:ring-accent hover:bg-surface-raised flex min-h-11 w-full items-stretch gap-1.5 rounded-md pl-2 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+        className="focus-visible:ring-text-theme-primary hover:bg-surface-raised flex min-h-11 w-full items-stretch gap-1.5 rounded-md !py-0 !pr-0 !pl-6 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
       >
         <span className="flex min-w-0 flex-1 flex-col justify-center py-1">
           <span className="flex min-w-0 items-center gap-1.5">
@@ -89,8 +93,8 @@ export function GlobalLoadoutTrayEquipmentGroup({
           <span
             className={`text-text-theme-secondary mt-0.5 block truncate leading-tight tabular-nums ${trayStyles.text.secondary}`}
           >
-            {representative.weight}t &middot; {representative.criticalSlots}{' '}
-            slot
+            {formatTons(representative.weight)} &middot;{' '}
+            {representative.criticalSlots} slot
             {representative.criticalSlots === 1 ? '' : 's'}
             {representative.isAllocated && <> &middot; {location}</>}
             {!representative.isAllocated && (

@@ -145,9 +145,9 @@ describe('UnitLoadDialog', () => {
       );
       if (state === 'failed') await screen.findByRole('alert');
       expect(
-        screen.getByRole('heading', { name: 'Add unit' }),
+        screen.getByRole('heading', { name: 'Add Unit' }),
       ).toBeInTheDocument();
-      const button = screen.getByRole('button', { name: 'New blank unit' });
+      const button = screen.getByRole('button', { name: 'New Blank Unit' });
       expect(button).toBeEnabled();
       await userEvent.click(button);
       expect(onCreateBlankUnit).toHaveBeenCalledTimes(1);
@@ -170,22 +170,39 @@ describe('UnitLoadDialog', () => {
 
   it('explains the blank starting unit and why Load Unit is disabled', async () => {
     render(<UnitLoadDialog {...defaultProps} onCreateBlankUnit={jest.fn()} />);
-    const explanation = screen.getByText(
-      'Starts a 50-ton Inner Sphere BattleMech you can change.',
-    );
+    const explanation = screen.getByText('A 50-ton Inner Sphere Mech.');
     expect(explanation).not.toHaveClass('hidden');
     expect(
-      screen.getByRole('button', { name: 'New blank unit' }),
+      screen.getByRole('button', { name: 'New Blank Unit' }),
     ).toHaveAccessibleDescription(explanation.textContent ?? '');
     const load = screen.getByRole('button', { name: 'Load Unit' });
     expect(load).toBeDisabled();
+    expect(load).toHaveClass(
+      'border',
+      // Shared disabled style: solid default outline (never dashed), no fill,
+      // slightly dimmed text.
+      'disabled:!border-solid',
+      'disabled:!border-border-theme',
+      'disabled:!bg-transparent',
+      'disabled:!text-text-theme-secondary/85',
+      'disabled:!opacity-100',
+      'disabled:!cursor-not-allowed',
+    );
+    expect(load).not.toHaveClass('disabled:!border-dashed');
     expect(load).toHaveAccessibleDescription('Select a unit to load');
+    // The reason sits right beside the disabled button, after Cancel; on
+    // phones the stacked footer keeps that order, so it reads directly above
+    // the button at 13px.
+    const reason = screen.getByText('Select a unit to load');
+    expect(reason.nextElementSibling).toBe(load);
+    expect(reason).not.toHaveClass('order-last');
+    expect(reason).toHaveClass('text-[13px]');
     await userEvent.click(await screen.findByText('AS7-D'));
     expect(load).toBeEnabled();
     expect(screen.queryByText('Select a unit to load')).not.toBeInTheDocument();
   });
 
-  it('puts New blank unit and the settings step side by side, each with its own caption under it', () => {
+  it('puts New Blank Unit and the settings step side by side, each with its own caption under it', () => {
     render(
       <UnitLoadDialog
         {...defaultProps}
@@ -194,9 +211,9 @@ describe('UnitLoadDialog', () => {
       />,
     );
 
-    const blank = screen.getByRole('button', { name: 'New blank unit' });
+    const blank = screen.getByRole('button', { name: 'New Blank Unit' });
     const settings = screen.getByRole('button', {
-      name: 'Choose tonnage and tech first…',
+      name: 'Set Up a New Unit…',
     });
     // Two columns in one row: each button owns the caption right under it.
     const blankColumn = blank.parentElement as HTMLElement;
@@ -205,17 +222,15 @@ describe('UnitLoadDialog', () => {
     expect(blankColumn.parentElement).toBe(settingsColumn.parentElement);
     expect(blankColumn.nextElementSibling).toBe(settingsColumn);
     expect(blank.nextElementSibling).toHaveTextContent(
-      'Starts a 50-ton Inner Sphere BattleMech you can change.',
+      'A 50-ton Inner Sphere Mech.',
     );
     expect(settings.nextElementSibling).toHaveTextContent(
-      'Pick unit type, tonnage and tech base.',
+      'Pick type, tonnage and tech.',
     );
     // The blank-unit caption describes only the blank-unit button.
-    expect(blank).toHaveAccessibleDescription(
-      'Starts a 50-ton Inner Sphere BattleMech you can change.',
-    );
+    expect(blank).toHaveAccessibleDescription('A 50-ton Inner Sphere Mech.');
     expect(settings).toHaveAccessibleDescription(
-      'Pick unit type, tonnage and tech base.',
+      'Pick type, tonnage and tech.',
     );
     expect(blank.className).toContain('h-11');
     expect(settings.className).toContain('h-11');
@@ -385,7 +400,7 @@ describe('UnitLoadDialog', () => {
       'Could not load the library',
     );
     await user.click(
-      screen.getByRole('button', { name: 'Retry loading library' }),
+      screen.getByRole('button', { name: 'Retry Loading Library' }),
     );
     expect(await screen.findByText('Atlas')).toBeVisible();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();

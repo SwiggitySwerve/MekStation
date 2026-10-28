@@ -309,7 +309,7 @@ const routeProofs: readonly RouteProof[] = [
     label: 'customizer',
     heading: 'No Units Open',
     affordances: [
-      { label: 'customizer new unit CTA', role: 'button', name: /^Add unit$/i },
+      { label: 'customizer new unit CTA', role: 'button', name: /^Add Unit$/i },
       {
         label: 'customizer library load CTA',
         role: 'button',

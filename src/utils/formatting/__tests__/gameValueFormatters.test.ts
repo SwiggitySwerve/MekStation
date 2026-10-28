@@ -5,6 +5,7 @@
 import {
   formatBV,
   formatWeight,
+  formatTons,
   formatCost,
   formatCostFull,
   formatArmorPoints,
@@ -15,6 +16,22 @@ import {
 } from '../gameValueFormatters';
 
 describe('gameValueFormatters', () => {
+  it.each([20, 50, 100, 200])(
+    'formats a whole-ton unit size %s without decimals',
+    (tons) => {
+      expect(formatTons(tons, 0)).toBe(`${tons} t`);
+    },
+  );
+  it.each<[number, string]>([
+    [0, '0.0 t'],
+    [1, '1.0 t'],
+    [0.5, '0.5 t'],
+    [19, '19.0 t'],
+    [100, '100.0 t'],
+    [12.25, '12.3 t'],
+  ])('formats %s tons for the customizer', (tons, expected) => {
+    expect(formatTons(tons)).toBe(expected);
+  });
   describe('formatBV', () => {
     it('should format Battle Value with thousands separator', () => {
       expect(formatBV(1234)).toBe('1,234 BV');

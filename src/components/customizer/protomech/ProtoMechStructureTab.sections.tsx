@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import {
@@ -115,7 +116,7 @@ export function ProtoMechTonnageSection({
           >
             {controls.tonnageOptions.map((tonnage) => (
               <option key={tonnage} value={tonnage}>
-                {tonnage} tons
+                {formatTons(tonnage)}
               </option>
             ))}
           </select>

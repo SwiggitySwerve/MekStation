@@ -158,7 +158,7 @@ export function InfantryPlatoonCounter({
         <span className="text-text-theme-primary font-mono">
           {numberOfSquads}
         </span>
-        <span className="text-text-theme-secondary">Per squad</span>
+        <span className="text-text-theme-secondary">Per Squad</span>
         <span className="text-text-theme-primary font-mono">{squadSize}</span>
         {specialization && (
           <>

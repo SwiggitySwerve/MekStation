@@ -43,3 +43,15 @@ export interface LocationData {
   entries: CritEntry[];
   isSuperheavy: boolean;
 }
+
+/**
+ * Occupied rows in a location, fixed systems included: the "8 / 12" count in
+ * the wide location headers and the phone location pills.
+ */
+export function countOccupiedEntries(entries: readonly CritEntry[]): number {
+  return entries.filter(
+    (entry) =>
+      entry.primary.type !== 'empty' ||
+      (entry.secondary !== undefined && entry.secondary.type !== 'empty'),
+  ).length;
+}

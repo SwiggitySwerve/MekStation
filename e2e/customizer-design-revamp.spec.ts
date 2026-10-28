@@ -49,23 +49,33 @@ async function expectFittedPreview(page: Page) {
     name: 'Record sheet zoom controls',
   });
   await expect(controls).toBeInViewport({ ratio: 1 });
-  // One control names both the mode and percentage.
-  await expect(
-    controls.getByRole('button', { name: 'Zoom options', exact: true }),
-  ).toHaveText(/Fit width \u00b7 \d+%/);
+  // Every width opens at Fit Width. The zoom button shows the percentage as
+  // its value, led by a muted "Fit ·" tag while Fit Width is active; the mode
+  // is also a checked menu choice and part of its description.
+  const zoomButton = controls.getByRole('button', {
+    name: 'Zoom options',
+    exact: true,
+  });
+  await expect(zoomButton).toHaveAccessibleDescription(/^Fit Width, \d+%$/);
+  await expect(zoomButton.getByTestId('zoom-mode-tag')).toHaveText('Fit ·');
   await expect(page.getByLabel('Current zoom', { exact: true })).toHaveText(
     /^\d+%$/,
   );
-  // The caption names the paper and page count; the zoom lives in the toolbar.
-  await expect(page.getByTestId('preview-sheet-caption')).toHaveText(
-    'Letter \u00b7 1 page',
-  );
+  // The page count does not repeat the paper name; the zoom lives in the
+  // toolbar. Wide screens show it in the toolbar, phones in the footer.
+  await expect(
+    page.getByTestId(
+      (page.viewportSize()?.width ?? 0) < 640
+        ? 'preview-sheet-caption-phone'
+        : 'preview-sheet-caption',
+    ),
+  ).toHaveText('1 page');
   const paper = (await canvas.boundingBox())!;
   const toolbar = (await controls.boundingBox())!;
   const viewport = page.viewportSize()!;
   // Every screen opens fit-width: the sheet is as wide as the viewer allows
   // (capped at 920px), fully inside the viewport horizontally, and starts
-  // below the toolbar that now holds the zoom controls.
+  // below the toolbar that holds the zoom controls.
   expect(paper.x).toBeGreaterThanOrEqual(0);
   expect(paper.x + paper.width).toBeLessThanOrEqual(viewport.width);
   expect(paper.width).toBeLessThanOrEqual(921);
@@ -84,8 +94,10 @@ async function expectFittedPreview(page: Page) {
     expect(statusBox.width).toBeLessThanOrEqual(140);
     expect((await statusRegion.boundingBox())!.height).toBe(48);
     await expect(buildStatus).toHaveCSS('font-size', '13px');
-    // Phones: exactly two toolbar rows, every control 44px tall with a
-    // visible text label, the sheet starting high, and a readability hint.
+    // Phones: one toolbar row, every control 44px tall with a visible text
+    // label or (the steppers, Print and Download PDF) an accessible name,
+    // the sheet starting high, a readability hint and a Zoom In button.
+    // Hidden button text is only the sr-only name, so read the name.
     const rows = await page
       .locator('.preview-toolbar')
       .locator('button, [data-testid="paper-size-phone-label"]')
@@ -97,14 +109,14 @@ async function expectFittedPreview(page: Page) {
             return {
               top: Math.round(box.top),
               height: Math.round(box.height),
-              // The - and + steppers are icon buttons named by aria-label.
+              // Icon buttons are named by aria-label or sr-only text.
               text:
                 (node.textContent ?? '').trim() ||
                 (node.getAttribute('aria-label') ?? ''),
             };
           }),
       );
-    expect(new Set(rows.map((row) => row.top)).size).toBe(2);
+    expect(new Set(rows.map((row) => row.top)).size).toBe(1);
     for (const row of rows) {
       expect(row.height).toBeGreaterThanOrEqual(44);
       expect(row.text.length).toBeGreaterThan(0);
@@ -113,12 +125,37 @@ async function expectFittedPreview(page: Page) {
     await expect(page.getByTestId('preview-sheet-hint')).toHaveText(
       'Zoom in or pinch to read details',
     );
+    // Zoom In sits in the footer beside the hint, off the sheet, as a
+    // bordered 44px button.
+    const zoomIn = page
+      .getByTestId('preview-sheet-footer')
+      .getByRole('button', { name: 'Zoom in to 100%', exact: true });
+    await expect(zoomIn).toBeVisible();
+    await expect(zoomIn).toHaveText('Zoom In');
+    await expect(zoomIn).toHaveCSS('border-top-width', '1px');
+    const zoomBox = (await zoomIn.boundingBox())!;
+    expect(zoomBox.height).toBe(44);
+    expect(zoomBox.y).toBeGreaterThanOrEqual(paper.y + paper.height);
+    // Download keeps a short visible "PDF" beside its icon.
+    await expect(
+      page
+        .getByRole('button', { name: 'Download PDF', exact: true })
+        .getByText('PDF', { exact: true }),
+    ).toBeVisible();
   }
   if (viewport.width >= 640) {
     // Readable on desktop, not a 600px sheet between wide gutters.
     expect(paper.width).toBeGreaterThan(800);
     const toolbarRow = page.locator('.preview-toolbar');
-    await expect(toolbarRow.getByLabel('Paper Size:')).toBeVisible();
+    // The toolbar panel is centred on the sheet's axis at its width.
+    const panel = (await toolbarRow.boundingBox())!;
+    expect(Math.abs(panel.x - paper.x)).toBeLessThanOrEqual(2);
+    expect(
+      Math.abs(panel.x + panel.width - (paper.x + paper.width)),
+    ).toBeLessThanOrEqual(2);
+    await expect(
+      toolbarRow.getByLabel('Paper Size', { exact: true }),
+    ).toBeVisible();
     await expect(controls).toBeInViewport({ ratio: 1 });
     expect(
       await toolbarRow
@@ -160,7 +197,7 @@ test('all workbench surfaces retain a stable sidebar and explicit wide mode @cus
     });
   }
   const wide = page.getByRole('button', {
-    name: 'Hide loadout panel',
+    name: 'Hide Loadout Panel',
     exact: true,
   });
   await wide.click();

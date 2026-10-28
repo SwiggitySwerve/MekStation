@@ -200,6 +200,9 @@ describe('ValidationSummary', () => {
       expect(
         screen.getByText('Consider adding more armor'),
       ).toBeInTheDocument();
+      expect(
+        screen.getByText('Legal').querySelector('[data-icon-name="check"]'),
+      ).toHaveClass('text-green-400');
     });
   });
 
@@ -246,7 +249,7 @@ describe('ValidationSummary', () => {
 
       // One button names every severity, worst first.
       const status = screen.getByRole('button', {
-        name: 'Unit: Not legal · 1 error · 2 warnings · 1 note, show issues',
+        name: 'Unit: Not Legal · 1 error · 2 warnings · 1 note, show issues',
       });
       expect(status).toHaveTextContent(
         /^1 error\s*·\s*2 warnings\s*·\s*1 note$/,

@@ -208,7 +208,7 @@ export function GlobalLoadoutTray({
     requestConfirmation({
       title: 'Remove removable equipment?',
       message: `Remove all ${requested.removableCount} removable equipment items?`,
-      confirmLabel: 'Remove equipment',
+      confirmLabel: 'Remove Equipment',
       isCurrent: () => {
         const current = committed.current;
         return (
@@ -254,7 +254,7 @@ export function GlobalLoadoutTray({
           type="button"
           onClick={onToggleExpand}
           aria-label={`Expand loadout with ${equipmentCount} items`}
-          className="text-text-theme-secondary focus-visible:ring-accent hover:text-text-theme-primary flex min-h-11 w-11 flex-col items-center gap-1 !px-0 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
+          className="text-text-theme-secondary focus-visible:ring-text-theme-primary hover:text-text-theme-primary flex min-h-11 w-11 flex-col items-center gap-1 !px-0 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset"
           title="Expand loadout"
         >
           <AppIcon name="chevrons-left" size="toolbar" />
@@ -316,10 +316,9 @@ export function GlobalLoadoutTray({
                 size="feature"
                 className="text-text-theme-secondary/50 mx-auto mb-2"
               />
+              {/* One line: the stat strip already says the loadout is
+                  empty, so the header shows no "0 items" chip either. */}
               <p className="text-text-theme-primary text-xs">No equipment</p>
-              <p className="text-text-theme-secondary mt-1 text-xs">
-                Add equipment from the Equipment tab.
-              </p>
             </div>
           ) : (
             <>
@@ -330,7 +329,7 @@ export function GlobalLoadoutTray({
                 onToggle={() => setUnassignedOverride(!unassignedExpanded)}
                 titleColor={
                   unassigned.length > 0
-                    ? 'text-accent'
+                    ? 'text-red-300'
                     : 'text-text-theme-secondary'
                 }
                 isDropZone
@@ -362,7 +361,7 @@ export function GlobalLoadoutTray({
 
               {fixedSystems.length > 0 && (
                 <GlobalLoadoutTrayAllocationSection
-                  title="Fixed systems"
+                  title="Fixed Systems"
                   count={fixedSystems.length}
                   isExpanded={fixedExpanded}
                   onToggle={() => setFixedExpanded((current) => !current)}

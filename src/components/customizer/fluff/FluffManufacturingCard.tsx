@@ -14,12 +14,7 @@ import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 import { customizerStyles as cs } from '@/components/customizer/styles';
 import { Button } from '@/components/ui/Button';
 
-import {
-  fieldId,
-  formatSystemLabel,
-  NameValueRow,
-  TextField,
-} from './FluffFields';
+import { fieldId, formatSystemLabel, NameValueRow } from './FluffFields';
 
 interface FluffManufacturingCardProps {
   fluff: ISerializedFluff;
@@ -119,23 +114,26 @@ export function FluffManufacturingCard({
       </div>
 
       {editable && (
-        <div className="border-border-theme-subtle mt-4 flex flex-col gap-3 border-t border-dashed pt-4">
-          <div className="grid grid-cols-2 gap-3">
-            <TextField
-              label="New System"
-              placeholder="e.g. Targeting"
-              value={newSystem}
-              disabled={false}
-              onChange={setNewSystem}
-            />
-            <TextField
-              label="New Manufacturer"
-              placeholder="e.g. Dalban Hirez"
-              value={newManufacturer}
-              disabled={false}
-              onChange={setNewManufacturer}
-            />
-          </div>
+        <div className="border-border-theme mt-4 flex flex-col gap-3 border-t pt-4">
+          {/* Side labels, like every other field in this column. */}
+          <NameValueRow
+            id={fieldId('New System')}
+            label="New System"
+            placeholder="e.g. Targeting"
+            value={newSystem}
+            disabled={false}
+            onChange={setNewSystem}
+          />
+          <NameValueRow
+            id={fieldId('New Manufacturer')}
+            label="New Manufacturer"
+            placeholder="e.g. Dalban Hirez"
+            value={newManufacturer}
+            disabled={false}
+            onChange={setNewManufacturer}
+          />
+          {/* Disabled uses the Button's shared look: a solid subtle border,
+              never dashed. */}
           <Button
             type="button"
             variant="secondary"
@@ -146,7 +144,7 @@ export function FluffManufacturingCard({
             disabled={!trimmedSystem || isDuplicate}
             onClick={addSystem}
           >
-            Add system
+            Add System
           </Button>
           <p id={ADD_HINT_ID} className={cs.text.secondary}>
             {isDuplicate

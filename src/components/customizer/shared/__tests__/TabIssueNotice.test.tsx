@@ -11,7 +11,7 @@ describe('TabIssueNotice', () => {
       <TabIssueNotice
         notice={{
           severity: 'warning',
-          summary: '1 warning: Runs hot',
+          summary: '1 warning: Runs Hot',
           hint: 'add heat sinks in Cooling',
         }}
         onShowAll={onShowAll}
@@ -21,9 +21,9 @@ describe('TabIssueNotice', () => {
     const notice = screen.getByTestId('tab-issue-notice');
     expect(notice).toHaveAttribute('data-severity', 'warning');
     expect(notice).toHaveTextContent(
-      '1 warning: Runs hot — add heat sinks in Cooling',
+      '1 warning: Runs Hot — add heat sinks in Cooling',
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Show all issues' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Show All Issues' }));
     expect(onShowAll).toHaveBeenCalledTimes(1);
   });
 
@@ -38,13 +38,13 @@ describe('TabIssueNotice', () => {
             if (node) node.scrollIntoView = scrollIntoView;
           }}
         >
-          <select aria-label="Heat sink type" />
+          <select aria-label="Heat Sink Type" />
           <input id="heat-sink-count" aria-label="Heat sink count" />
         </section>
         <TabIssueNotice
           notice={{
             severity: 'warning',
-            summary: '1 warning: Runs hot',
+            summary: '1 warning: Runs Hot',
             hint: 'add heat sinks in Cooling',
             hintTarget: { text: 'Cooling', id: COOLING_CARD_ID },
           }}
@@ -66,7 +66,7 @@ describe('TabIssueNotice', () => {
       <TabIssueNotice
         notice={{
           severity: 'warning',
-          summary: '1 warning: Runs hot',
+          summary: '1 warning: Runs Hot',
           hint: 'add heat sinks in Cooling',
         }}
         onShowAll={jest.fn()}
@@ -89,10 +89,10 @@ describe('TabIssueNotice', () => {
   });
 
   it.each([
-    ['1 warning: Runs hot', 'Runs hot', true],
-    ['1 warning: Runs hot', undefined, false],
-    ['2 warnings: Runs hot; Unplaced equipment', 'Runs hot', false],
-    ['1 warning: Unplaced equipment', 'Runs hot', false],
+    ['1 warning: Runs Hot', 'Runs Hot', true],
+    ['1 warning: Runs Hot', undefined, false],
+    ['2 warnings: Runs Hot; Unplaced equipment', 'Runs Hot', false],
+    ['1 warning: Unplaced equipment', 'Runs Hot', false],
   ] as const)(
     'suppresses %s on phones only when already named (%s)',
     (summary, statusRowIssue, hidden) => {

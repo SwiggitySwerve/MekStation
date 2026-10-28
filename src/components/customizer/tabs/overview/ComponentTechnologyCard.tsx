@@ -28,7 +28,6 @@ import {
   isEffectivelyMixed,
   TECH_BASE_COMPONENT_DESCRIPTIONS,
   TECH_BASE_COMPONENT_LABELS,
-  TECH_BASE_MODE_LABELS,
   TechBaseComponent,
   TechBaseMode,
 } from '@/types/construction/TechBaseConfiguration';
@@ -48,9 +47,8 @@ import { customizerStyles as cs } from '../../styles';
 const COMPONENTS = Object.values(TechBaseComponent);
 
 /**
- * The tab where each component's selection is changed. Targeting computers
- * are chosen with equipment, so that row has no single tab and stays plain.
- * A "None" value is always plain text; only real values link.
+ * The tab where each component's selection is changed, including values
+ * currently set to "None". Targeting computers are chosen with equipment.
  */
 const COMPONENT_EDIT_TAB: Partial<Record<TechBaseComponent, CustomizerTabId>> =
   {
@@ -61,11 +59,16 @@ const COMPONENT_EDIT_TAB: Partial<Record<TechBaseComponent, CustomizerTabId>> =
     [TechBaseComponent.MYOMER]: 'structure',
     [TechBaseComponent.MOVEMENT]: 'structure',
     [TechBaseComponent.ARMOR]: 'armor',
+    [TechBaseComponent.TARGETING]: 'equipment',
   };
 
-/** A quiet link: dotted underline at rest, solid and tinted on hover/focus. */
+/**
+ * The value as a "go to" link, the same treatment as the readiness rows'
+ * "Go to <tab> ›": plain value text with a trailing chevron, tinted on hover
+ * and focus. No underline, so it never reads as a different kind of control.
+ */
 const VALUE_LINK =
-  'focus-visible:ring-accent hover:text-accent min-w-0 truncate rounded !p-0 text-left underline decoration-dotted underline-offset-4 transition-colors hover:decoration-solid focus-visible:ring-2 focus-visible:outline-none [@media(pointer:coarse)]:min-h-11';
+  'group focus-visible:ring-accent inline-flex min-w-0 items-center gap-1 rounded !p-0 text-left !leading-6 transition-colors hover:text-text-theme-primary focus-visible:ring-2 focus-visible:outline-none [@media(pointer:coarse)]:min-h-11';
 
 function useComponentValues(): IComponentValues {
   const engineType = useUnitStore((s) => s.engineType);
@@ -158,30 +161,32 @@ export function ComponentTechnologyCard({
       className={`${cs.panel.main} @container flex flex-1 flex-col`}
       data-testid="overview-component-technology"
     >
-      <div className="border-border-theme mb-3 flex flex-col gap-1 border-b pb-3 @sm:flex-row @sm:items-baseline @sm:justify-between">
+      {/* No gap under the rule: the first row starts on the same pitch as the
+          rest of the list. */}
+      <div className="border-border-theme flex flex-col gap-1 border-b pb-3 @sm:flex-row @sm:items-baseline @sm:justify-between">
         <div className="min-w-0">
           <h3 id="overview-component-tech-title" className={cs.text.cardTitle}>
-            Component technology
+            Component Technology
           </h3>
           <p
             className={`${cs.text.secondary} mt-1`}
             data-testid="overview-component-tech-help"
           >
-            {readOnly
-              ? 'Set in Structure and Armor.'
-              : 'Set in Structure and Armor; change the tech base below.'}
+            {/* Short enough for one line; "Change Tech Base" sits right below. */}
+            Set in Structure, Armor and Equipment.
           </p>
         </div>
-        <p className={`${cs.text.secondary} @sm:text-right`}>
-          {showPerComponentTech
-            ? 'Mixed tech: each component sets its own tech base.'
-            : `${TECH_BASE_MODE_LABELS[techBaseMode]} applies across the unit.`}
-        </p>
+        {/* A single tech base is already in the Identity header. */}
+        {showPerComponentTech && (
+          <p className={`${cs.text.secondary} @sm:text-right`}>
+            Mixed tech: each component sets its own tech base.
+          </p>
+        )}
       </div>
 
       {/* Rows share any height the card is stretched to, so the card can end on
           the same line as the column beside it without a void at the bottom. */}
-      <dl className="grid flex-1 auto-rows-fr grid-cols-1 gap-x-6 @lg:grid-cols-2">
+      <dl className="grid flex-1 auto-rows-fr grid-cols-1 gap-x-6 @md:grid-cols-2">
         {COMPONENTS.map((component) => {
           const value = componentValues[component];
           const techBase = componentTechBases[component];
@@ -193,21 +198,27 @@ export function ComponentTechnologyCard({
           return (
             <div
               key={component}
-              className="border-border-theme-subtle flex min-h-9 items-center justify-between gap-3 border-b py-1.5 text-sm"
+              className="border-border-theme-subtle flex min-h-11 items-center justify-between gap-3 border-b py-1 text-sm"
               title={TECH_BASE_COMPONENT_DESCRIPTIONS[component]}
             >
               <dt className="text-text-theme-secondary shrink-0">
                 {TECH_BASE_COMPONENT_LABELS[component]}
               </dt>
               <dd className="flex min-w-0 items-center justify-end gap-2">
-                {onNavigate && editTab && !isNone ? (
+                {onNavigate && editTab ? (
                   <button
                     type="button"
                     onClick={() => onNavigate(editTab)}
                     aria-label={`${TECH_BASE_COMPONENT_LABELS[component]}: ${value}. Change in ${getTabLabel(editTab)}`}
                     className={`${VALUE_LINK} ${valueClass}`}
                   >
-                    {value}
+                    <span className="min-w-0 truncate">{value}</span>
+                    <AppIcon
+                      name="chevron-right"
+                      size="inline"
+                      aria-hidden="true"
+                      className="text-text-theme-muted group-hover:text-accent group-focus-visible:text-accent shrink-0 transition-colors"
+                    />
                   </button>
                 ) : (
                   <span className={`truncate ${valueClass}`}>{value}</span>
@@ -225,13 +236,17 @@ export function ComponentTechnologyCard({
         })}
       </dl>
 
+      {/* Full-width footer row; its rule overlaps the last rows' rules so the
+          divider runs unbroken under both columns. */}
       <details
-        className="group mt-3"
+        className="group border-border-theme -mt-px border-t"
         open={isEditorOpen}
         onToggle={(event) => setIsEditorOpen(event.currentTarget.open)}
       >
-        <summary className="focus-visible:ring-accent text-text-theme-secondary hover:text-text-theme-primary inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded text-sm font-medium focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
-          {readOnly ? 'Tech base settings' : 'Change tech base'}
+        {/* The same disclosure row as Armor's "Advanced Allocation Details":
+            trailing chevron, secondary text that brightens on hover. */}
+        <summary className="focus-visible:ring-accent text-text-theme-secondary hover:text-text-theme-primary flex min-h-11 w-full cursor-pointer list-none items-center justify-between gap-2 rounded text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+          {readOnly ? 'Tech Base Settings' : 'Change Tech Base'}
           <AppIcon
             name="chevron-down"
             size="inline"

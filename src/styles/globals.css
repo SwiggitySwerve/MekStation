@@ -848,8 +848,9 @@ button:disabled {
   @apply sticky top-0 bg-surface-base border-b border-border-theme-strong text-text-theme-secondary text-left;
 }
 
+/* Same header voice as the equipment catalog: small uppercase tracked labels. */
 .dialog-table-header th {
-  @apply px-3 py-2 font-medium;
+  @apply px-3 py-2 text-xs font-semibold tracking-[0.08em] uppercase;
 }
 
 .dialog-table-body {
@@ -1448,6 +1449,59 @@ button:disabled {
   --border-subtle: #333c46;
   --border-default: #505c69;
   --border-strong: #aeb9c5;
+}
+
+/* ========================================
+   EQUIPMENT PATTERN MARKS
+   ======================================== */
+
+/* Ammunition takes its weapon's colour, so its category bar carries the same
+   dark diagonal stripes as its critical slots: on slots, loadout cards, catalog
+   rows and the colour key. The striped bar is drawn whole in the ammunition's
+   bar colour (--ammo-bar, set per weapon type) over the host's 4px left bar. */
+.ammo-accent {
+  position: relative;
+}
+
+.ammo-accent::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  width: 4px;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--ammo-bar) 0 4px,
+    color-mix(in oklab, var(--ammo-bar) 38%, black) 4px 7px
+  );
+}
+
+.ammo-accent-missile {
+  --ammo-bar: var(--color-teal-500);
+}
+
+.ammo-accent-ballistic {
+  --ammo-bar: var(--color-red-500);
+}
+
+.ammo-accent-generic {
+  --ammo-bar: var(--color-slate-300);
+}
+
+/* The ammunition category dot (catalog tab, loadout group header): two
+   stripes centred on the 8px dot's diagonal, so the light rim stays whole
+   and the dot reads round like every other category dot, not as a diamond. */
+.ammo-dot {
+  background-image: linear-gradient(
+    45deg,
+    transparent 0 3.2px,
+    rgb(0 0 0 / 0.55) 3.2px 4.5px,
+    transparent 4.5px 6.8px,
+    rgb(0 0 0 / 0.55) 6.8px 8.1px,
+    transparent 8.1px
+  );
 }
 
 /* ========================================

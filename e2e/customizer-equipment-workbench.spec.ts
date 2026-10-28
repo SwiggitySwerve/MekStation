@@ -68,7 +68,7 @@ test('catalog copies mount, move and persist independently @customizer', async (
     page.getByRole('status').filter({ hasText: 'Small Laser.' }),
   ).toContainText('unassigned');
   await page
-    .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+    .getByRole('button', { name: 'Add Unit (Ctrl+O)', exact: true })
     .click();
   await page
     .getByRole('dialog')
@@ -177,7 +177,7 @@ test('catalog copies mount, move and persist independently @customizer', async (
     .getByRole('gridcell', { name: 'Slot 12: Small Laser', exact: true })
     .click();
   await placement
-    .getByRole('button', { name: 'Unassign selected equipment', exact: true })
+    .getByRole('button', { name: 'Unassign Selected Equipment', exact: true })
     .click();
   await expect
     .poll(
@@ -259,6 +259,13 @@ test('catalog copies mount, move and persist independently @customizer', async (
   await select.focus();
   await page.keyboard.press('Enter');
   await expect(select).toHaveAttribute('aria-pressed', 'true');
+  // The card's trailing chevron opens its actions, Remove among them.
+  const actions = page.getByRole('button', {
+    name: 'Show actions for Small Laser in Right Arm',
+    exact: true,
+  });
+  await actions.focus();
+  await page.keyboard.press('Enter');
   const remove = page.getByRole('button', {
     name: 'Remove Small Laser from Right Arm',
     exact: true,

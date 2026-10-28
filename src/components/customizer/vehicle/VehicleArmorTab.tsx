@@ -20,6 +20,7 @@ import {
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { formatTons } from '@/utils/formatting';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
@@ -190,7 +191,7 @@ export function VehicleArmorTab({
                 data-testid="vehicle-armor-tonnage-input"
               />
               <span className={cs.text.secondary}>
-                / {maxUsefulTonnage} tons max
+                / {formatTons(maxUsefulTonnage)} max
               </span>
             </div>
           </div>

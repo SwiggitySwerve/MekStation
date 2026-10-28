@@ -10,6 +10,7 @@
 import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 
@@ -62,7 +63,7 @@ export function CrewEditor({
             {' '}
             <AppIcon name="add" size="inline" aria-hidden="true" />
           </button>
-          <span className={cs.text.secondary}>× 5t each</span>
+          <span className={cs.text.secondary}>× {formatTons(5)} each</span>
         </div>
       </div>
 
@@ -96,7 +97,7 @@ export function CrewEditor({
             {' '}
             <AppIcon name="add" size="inline" aria-hidden="true" />
           </button>
-          <span className={cs.text.secondary}>× 3t each</span>
+          <span className={cs.text.secondary}>× {formatTons(3)} each</span>
         </div>
       </div>
 
@@ -130,7 +131,7 @@ export function CrewEditor({
             {' '}
             <AppIcon name="add" size="inline" aria-hidden="true" />
           </button>
-          <span className={cs.text.secondary}>× 3t each</span>
+          <span className={cs.text.secondary}>× {formatTons(3)} each</span>
         </div>
       </div>
     </section>

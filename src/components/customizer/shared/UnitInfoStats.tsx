@@ -27,12 +27,20 @@ const styles = {
     'text-xs leading-[14px] font-medium text-text-theme-secondary uppercase tracking-wide',
   /**
    * One value size for every metric, budget or not. Phones use 18px, and
-   * 16px on 360px-class screens so the weight pair ("107.0t / 100t") still
+   * 16px on 360px-class screens so the weight pair ("107.0 / 100.0 t") still
    * fits beside the status chip.
    */
   value: 'text-base leading-6 font-bold max-md:min-[381px]:text-lg! sm:text-lg',
   status: STAT_STATUS_TEXT_CLASS,
   muted: 'text-[13px] text-text-theme-secondary',
+  /**
+   * Word after a number ("22 dissipation", "3 walk"): full words in 13px
+   * regular secondary text on the value line, the same size as the "t" after
+   * a tonnage, so the tracked-caps label above stands alone and the strip
+   * keeps one height.
+   */
+  qualifier:
+    'ml-1 text-[13px] leading-[14px] font-normal text-text-theme-secondary whitespace-nowrap',
   box: 'flex min-w-0 flex-col items-center gap-0.5 text-center tabular-nums',
 } as const;
 
@@ -84,9 +92,29 @@ interface MovementStatProps {
 
 const slash = <span className={`${styles.muted} font-normal`}>/</span>;
 
+/** A number's qualifier word; wide screens only (`hideBelow`). */
+function Qualifier({
+  word,
+  hideBelow,
+}: {
+  word: string;
+  hideBelow: 'md' | 'xl';
+}): React.ReactElement {
+  return (
+    <span
+      aria-hidden="true"
+      data-stat-qualifier
+      className={`${styles.qualifier} ${hideBelow === 'md' ? 'max-md:hidden' : 'max-xl:hidden'}`}
+    >
+      {word}
+    </span>
+  );
+}
+
 /**
- * Walk, run and jump as one cell ("3 / 5 / 0"), so the strip reads as one
- * row of evenly spaced cells. Each part keeps its own test id.
+ * Walk, run and jump as one cell ("3 / 5 / 0", "3 walk / 5 run / 0 jump"
+ * where there is room), so the strip reads as one row of evenly spaced
+ * cells. Each part keeps its own test id.
  */
 export function MovementStat({
   walk,
@@ -105,35 +133,36 @@ export function MovementStat({
       aria-label={label}
       title={label}
     >
-      <span className="flex items-baseline justify-center gap-1.5">
-        <span className={styles.label}>Movement</span>
-        <span
-          aria-hidden="true"
-          className={`${styles.muted} leading-[14px] whitespace-nowrap max-xl:hidden`}
-        >
-          {runPlus ? 'walk / run (max) / jump' : 'walk / run / jump'}
-        </span>
-      </span>
+      <span className={styles.label}>Movement</span>
       <span className="flex flex-col items-stretch gap-[3px]">
         <span
           aria-hidden="true"
           className={`${styles.value} ${workbenchStyles.budgetValue} ${styles.status.normal} flex items-baseline justify-center gap-1.5`}
         >
-          <span data-testid="unit-info-stat-walk">{walk}</span>
-          {slash}
-          <span data-testid="unit-info-stat-run">
-            {run}
-            {runPlus ? (
-              <span
-                data-testid="unit-info-stat-run-plus"
-                className={`${styles.muted} ml-0.5 font-normal`}
-              >
-                ({runPlus})
-              </span>
-            ) : null}
+          <span>
+            <span data-testid="unit-info-stat-walk">{walk}</span>
+            <Qualifier word="walk" hideBelow="xl" />
           </span>
           {slash}
-          <span data-testid="unit-info-stat-jump">{jump}</span>
+          <span>
+            <span data-testid="unit-info-stat-run">
+              {run}
+              {runPlus ? (
+                <span
+                  data-testid="unit-info-stat-run-plus"
+                  className={`${styles.muted} ml-0.5 font-normal`}
+                >
+                  ({runPlus})
+                </span>
+              ) : null}
+            </span>
+            <Qualifier word="run" hideBelow="xl" />
+          </span>
+          {slash}
+          <span>
+            <span data-testid="unit-info-stat-jump">{jump}</span>
+            <Qualifier word="jump" hideBelow="xl" />
+          </span>
         </span>
         <span aria-hidden="true" className="block h-[3px]" />
       </span>
@@ -153,8 +182,11 @@ interface BudgetStatProps {
   status?: StatStatus;
   /** Hover/focus explanation; also makes the readout focusable. */
   title?: string;
-  /** Short wide-screen hint naming the two numbers, e.g. "gen / diss". */
-  caption?: string;
+  /**
+   * Full word naming the cap ("dissipation"), shown after it where there is
+   * room; the label above names the current value.
+   */
+  maxQualifier?: string;
   /** Phone: show only when all readouts are expanded. */
   phoneDetail?: boolean;
 }
@@ -169,12 +201,12 @@ export function BudgetStat({
   unit = '',
   status = 'normal',
   title,
-  caption,
+  maxQualifier,
   phoneDetail = false,
 }: BudgetStatProps): React.ReactElement {
   const tooltipId = useId();
-  const currentText = `${format(current)}${unit}`;
-  const maxText = `${formatMax(max)}${unit}`;
+  const currentText = format(current);
+  const maxText = `${formatMax(max)}${unit ? ` ${unit}` : ''}`;
   return (
     <div
       className={`${styles.box} ${workbenchStyles.budgetStat} ${title ? workbenchStyles.explainedStat : ''}`}
@@ -189,19 +221,7 @@ export function BudgetStat({
       aria-describedby={title ? tooltipId : undefined}
       tabIndex={title ? 0 : undefined}
     >
-      {caption ? (
-        <span className="flex items-baseline justify-center gap-1.5">
-          <span className={styles.label}>{label}</span>
-          <span
-            aria-hidden="true"
-            className={`${styles.muted} leading-[14px] whitespace-nowrap max-md:hidden`}
-          >
-            {caption}
-          </span>
-        </span>
-      ) : (
-        <span className={styles.label}>{label}</span>
-      )}
+      <span className={styles.label}>{label}</span>
       <span className="flex flex-col items-stretch gap-[3px]">
         <span className="flex items-baseline justify-center gap-0.5">
           <span
@@ -209,8 +229,9 @@ export function BudgetStat({
           >
             {currentText}
           </span>
-          <span className={styles.muted}>/</span>
+          <span className={styles.muted}> / </span>
           <span className={styles.muted}>{maxText}</span>
+          {maxQualifier && <Qualifier word={maxQualifier} hideBelow="xl" />}
         </span>
         <span aria-hidden="true" className={workbenchStyles.budgetTrack}>
           <span

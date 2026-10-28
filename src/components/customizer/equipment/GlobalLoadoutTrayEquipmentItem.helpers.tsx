@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
+import { formatTons } from '@/utils/formatting';
 import { getLocationShorthand } from '@/utils/locationUtils';
 
 import { trayStyles } from './GlobalLoadoutTray.styles';
@@ -19,6 +20,8 @@ interface EquipmentItemView {
   canDrag: boolean;
   displayName: string;
   selectAccessibleName: string;
+  /** "Medium Laser in Left Arm": names the item for its actions toggle. */
+  actionsAccessibleName: string;
   removeAccessibleName: string;
   confirmRemoveAccessibleName: string;
   tooltip: string;
@@ -123,6 +126,7 @@ export function buildEquipmentItemView({
     canDrag,
     displayName,
     selectAccessibleName: `Select ${displayName} in ${accessibleLocation}`,
+    actionsAccessibleName: `${displayName} in ${accessibleLocation}`,
     removeAccessibleName: `Remove ${displayName} from ${accessibleLocation}`,
     confirmRemoveAccessibleName: `Confirm removal of ${displayName} from ${accessibleLocation}`,
     tooltip: getTooltip(isFixedOnOmni, canDrag),
@@ -215,7 +219,7 @@ export function EquipmentItemSummary({
       <span
         className={`text-text-theme-secondary mt-0.5 w-full truncate leading-tight tabular-nums ${trayStyles.text.secondary}`}
       >
-        {item.weight}t · {item.criticalSlots} slot
+        {formatTons(item.weight)} · {item.criticalSlots} slot
         {item.criticalSlots !== 1 ? 's' : ''}
         {item.isAllocated && item.location && (
           <> · {getLocationShorthand(item.location)}</>
@@ -247,14 +251,17 @@ export function EquipmentRemoveControl({
   if (!isRemovable) {
     return (
       <span
-        className="text-text-theme-muted text-[11px]"
+        className="text-text-theme-secondary inline-flex min-h-11 items-center gap-1.5 px-3 text-xs"
         title="Managed by configuration"
       >
         <AppIcon name="lock" size="inline" aria-hidden="true" />
+        Managed by Configuration
       </span>
     );
   }
 
+  // A labelled action in the card's open actions row; the second press
+  // confirms, as before.
   return (
     <button
       type="button"
@@ -262,17 +269,23 @@ export function EquipmentRemoveControl({
       aria-label={
         showConfirmRemove ? confirmRemoveAccessibleName : removeAccessibleName
       }
-      className={`focus-visible:ring-accent flex h-full min-h-11 w-full min-w-11 items-center justify-center rounded-r-md text-sm font-medium transition-all focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ${
+      className={`focus-visible:ring-text-theme-primary border-border-theme flex min-h-11 items-center justify-center gap-1.5 rounded-md border !px-3 !py-0 text-[13px] font-medium transition-all focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ${
         showConfirmRemove
-          ? 'bg-red-950 text-white'
-          : 'text-text-theme-secondary hover:bg-red-950 hover:text-white'
+          ? 'border-red-400/60 bg-red-950 text-white'
+          : 'text-text-theme-primary hover:border-red-400/60 hover:bg-red-950 hover:text-white'
       }`}
       title={showConfirmRemove ? 'Click again to confirm' : 'Remove from unit'}
     >
       {showConfirmRemove ? (
-        <AppIcon name="check" size="inline" aria-hidden="true" />
+        <>
+          <AppIcon name="check" size="inline" aria-hidden="true" />
+          Confirm Remove
+        </>
       ) : (
-        <AppIcon name="trash" size="inline" aria-hidden="true" />
+        <>
+          <AppIcon name="trash" size="inline" aria-hidden="true" />
+          Remove
+        </>
       )}
     </button>
   );

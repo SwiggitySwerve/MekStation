@@ -9,6 +9,8 @@
  *   <div className={cs.panel.main}>...</div>
  */
 
+import { disabledButtonClasses } from '@/components/ui/Button';
+
 // =============================================================================
 // Panel Styles
 // =============================================================================
@@ -117,6 +119,9 @@ const select = {
 // =============================================================================
 
 const button = {
+  /** Shared disabled-button style (solid subtle border, dimmed text, never dashed). */
+  disabledVisible: disabledButtonClasses,
+
   /** Stepper button (increment/decrement) - small */
   stepper:
     'min-h-11 min-w-11 px-2 py-1 bg-surface-raised hover:bg-surface-raised-hover disabled:opacity-50 disabled:cursor-not-allowed rounded border border-border-theme text-text-theme-primary text-sm',

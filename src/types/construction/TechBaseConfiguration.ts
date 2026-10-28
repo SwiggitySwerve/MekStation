@@ -27,13 +27,13 @@ export enum TechBaseComponent {
  * Human-readable labels for each component
  */
 export const TECH_BASE_COMPONENT_LABELS: Record<TechBaseComponent, string> = {
-  [TechBaseComponent.CHASSIS]: 'Internal structure',
+  [TechBaseComponent.CHASSIS]: 'Internal Structure',
   [TechBaseComponent.GYRO]: 'Gyro',
   [TechBaseComponent.ENGINE]: 'Engine',
-  [TechBaseComponent.HEATSINK]: 'Heat sinks',
-  [TechBaseComponent.TARGETING]: 'Targeting computer',
+  [TechBaseComponent.HEATSINK]: 'Heat Sinks',
+  [TechBaseComponent.TARGETING]: 'Targeting Computer',
   [TechBaseComponent.MYOMER]: 'Myomer',
-  [TechBaseComponent.MOVEMENT]: 'Movement enhancement',
+  [TechBaseComponent.MOVEMENT]: 'Movement Enhancement',
   [TechBaseComponent.ARMOR]: 'Armor',
 };
 

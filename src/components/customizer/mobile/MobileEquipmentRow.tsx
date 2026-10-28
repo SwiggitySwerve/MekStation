@@ -185,7 +185,7 @@ function LocationCell({
 }): React.ReactElement {
   return (
     <div
-      className={`border-border-theme-subtle/20 w-[28px] flex-shrink-0 border-l text-center font-mono text-[10px] ${item.isAllocated ? 'text-green-400' : 'text-amber-400/70'}`}
+      className={`border-border-theme-subtle/20 w-[28px] flex-shrink-0 border-l text-center font-mono text-[10px] ${item.isAllocated ? 'text-green-400' : 'text-red-400'}`}
     >
       {item.isAllocated && item.location
         ? getLocationShorthand(item.location)
@@ -222,7 +222,7 @@ function NumberCell({
   value,
   widthClass,
 }: {
-  readonly value: number;
+  readonly value: number | string;
   readonly widthClass: string;
 }): React.ReactElement {
   return (
@@ -408,7 +408,7 @@ export function MobileEquipmentRow({
       <RangeCell ranges={item.ranges} />
       <HeatCell heat={item.heat} />
       <NumberCell value={item.criticalSlots} widthClass="w-[20px]" />
-      <NumberCell value={item.weight} widthClass="w-[28px]" />
+      <NumberCell value={item.weight.toFixed(1)} widthClass="w-[28px]" />
       <AssignmentAction
         canShowActions={canShowActions && (!isFixedOnOmni || !item.isAllocated)}
         item={item}

@@ -285,10 +285,11 @@ function Toast({
         </button>
       )}
 
-      {/* Dismiss button */}
+      {/* Dismiss button: a 44px target; negative margins keep the toast's
+          own size. Important padding beats the global button rule. */}
       <button
         onClick={handleDismiss}
-        className={`flex-shrink-0 rounded p-1 transition-colors hover:bg-white/10 ${styles.text}`}
+        className={`-my-2.5 -mr-2.5 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded !p-0 transition-colors hover:bg-white/10 ${styles.text}`}
         aria-label="Dismiss notification"
       >
         <SvgIcon
@@ -363,9 +364,18 @@ export function ToastProvider({
 }): React.ReactElement {
   const [toasts, setToasts] = useState<ToastConfig[]>([]);
 
+  // One toast per message: a repeat replaces the visible copy in place under
+  // a new id, which remounts it with a fresh timer instead of stacking.
   const showToast = useCallback((config: Omit<ToastConfig, 'id'>) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    setToasts((prev) => [...prev, { ...config, id }]);
+    setToasts((prev) => {
+      const index = prev.findIndex(
+        (toast) =>
+          toast.message === config.message && toast.variant === config.variant,
+      );
+      if (index === -1) return [...prev, { ...config, id }];
+      return prev.map((toast, i) => (i === index ? { ...config, id } : toast));
+    });
   }, []);
 
   const dismissToast = useCallback((id: string) => {

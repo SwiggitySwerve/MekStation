@@ -9,7 +9,9 @@
  * Each row also carries the severity the status panel would give it, so the
  * checklist uses the same words, colors and icons: a readout over its cap is
  * an error, a legal-but-high readout (running hot) is a warning,
- * and rule results keep their own error or warning severity.
+ * and rule results keep their own error or warning severity. A row with one
+ * issue takes that issue's panel title (`describeIssue`, `noteHeading`), so
+ * "Overweight by 7.0 t" has the same name in both places.
  *
  * @spec openspec/specs/unit-info-banner/spec.md
  */
@@ -26,6 +28,7 @@ import {
 import {
   describeSlotFill,
   getCapacityStatus,
+  getHeatNote,
   getHeatStatus,
   getSlotFillStatus,
   getStatusNotes,
@@ -33,13 +36,17 @@ import {
   type StatStatus,
 } from '@/components/customizer/shared/unitStatStatus';
 import {
+  describeIssue,
   flattenErrors,
+  noteHeading,
+  OVERWEIGHT_FIX,
   plural,
 } from '@/components/customizer/shared/ValidationSummaryRows';
 import { calculateArmorPercentage } from '@/services/pilot-mech-card/PilotMechCardDataService';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
+import { formatTons } from '@/utils/formatting';
 
-import { formatTons } from './tonnageBreakdown';
+import { formatValidationMessage } from '../../shared/validationMessageFormatting';
 
 export type ReadinessRowId = 'weight' | 'slots' | 'armor' | 'heat' | 'unplaced';
 
@@ -52,7 +59,10 @@ export interface ReadinessRow {
   readonly status: StatStatus;
   /** Severity shown by the row's icon, matching the status panel groups. */
   readonly severity: ReadinessSeverity;
-  /** Neutral incomplete icon; does not duplicate the unplaced equipment error. */
+  /**
+   * Neutral incomplete icon. No row sets it: the Slots row counts slots only
+   * and the Unplaced Equipment row carries the placement error.
+   */
   readonly pending?: boolean;
   /** One plain sentence describing the current state. */
   readonly sentence: string;
@@ -119,6 +129,8 @@ interface CategoryIssues {
   readonly status: StatStatus;
   readonly severity: ReadinessSeverity;
   readonly messages: readonly string[];
+  /** Each issue's panel heading and explanation, in the same order. */
+  readonly described: readonly ReturnType<typeof describeIssue>[];
 }
 
 function issuesFor(
@@ -145,8 +157,29 @@ function issuesFor(
   return {
     status,
     severity,
-    messages: issues.map((issue) => issue.error.message),
+    messages: issues.map((issue) =>
+      formatValidationMessage(issue.error.message),
+    ),
+    described: issues.map((issue) => describeIssue(issue.error)),
   };
+}
+
+/**
+ * The panel's title for a row's only issue: a readout warning's heading
+ * (`readoutTitle`) or the one rule result's. Null while the row passes or
+ * holds several issues, which keep the row's own label.
+ */
+function issueTitle(
+  issues: CategoryIssues,
+  rowSeverity: ReadinessSeverity,
+  readoutTitle?: string,
+): string | null {
+  if (rowSeverity === 'ok') return null;
+  const titles = [
+    ...(readoutTitle ? [readoutTitle] : []),
+    ...issues.described.map((issue) => issue.heading),
+  ];
+  return titles.length === 1 ? titles[0] : null;
 }
 
 /**
@@ -162,8 +195,14 @@ function withRules(
   const status = worst(base.status, issues.status);
   const severity = worstSeverity(baseSeverity, issues.severity);
   const [first, ...rest] = issues.messages;
-  const detail =
-    base.status === 'normal' && first
+  // A row titled by its one rule result shows only what the title leaves out.
+  const titledByRule =
+    issues.described.length === 1 && base.label === issues.described[0].heading;
+  const detail = titledByRule
+    ? base.status === 'normal'
+      ? issues.described[0].explanation
+      : undefined
+    : base.status === 'normal' && first
       ? rest.length > 0
         ? `${first} (and ${rest.length} more)`
         : first
@@ -178,10 +217,18 @@ function withRules(
   };
 }
 
-function weightSentence(input: ReadinessInput, status: StatStatus): string {
+function weightSentence(
+  input: ReadinessInput,
+  status: StatStatus,
+  titled: boolean,
+): string {
   const max = formatTons(input.tonnage);
   if (status === 'error') {
-    return `${formatTons(-input.weightRemaining)} over the ${max} limit. Remove equipment or armor.`;
+    // "Overweight by 7.0 t" already states the amount.
+    const over = titled
+      ? 'Over the'
+      : `${formatTons(-input.weightRemaining)} over the`;
+    return `${over} ${max} limit. ${OVERWEIGHT_FIX}`;
   }
   if (input.weightRemaining === 0) return `All ${max} used.`;
   return `${formatTons(input.weightRemaining)} free of ${max}.`;
@@ -197,17 +244,16 @@ function slotFillOf(input: ReadinessInput) {
   };
 }
 
+/**
+ * Slots only: placed slots and the free ones. Unplaced items are the
+ * Unplaced Equipment row's to name, so the two rows never repeat each other.
+ */
 function slotsSentence(input: ReadinessInput, status: StatStatus): string {
   const { criticalSlotsUsed: used, criticalSlotsTotal: total } = input;
   if (status === 'error') {
     return `${plural(used - total, 'slot')} over capacity (${used} of ${total}).`;
   }
-  // Name the incomplete placement; the Unplaced row carries its error.
-  if (input.unplacedInstanceIds.length > 0) {
-    const placed = input.criticalSlotsPlaced ?? used;
-    return `${placed} of ${total} slots filled · ${unplacedDescription(input)}.`;
-  }
-  return describeSlotFill(slotFillOf(input), false);
+  return describeSlotFill({ ...slotFillOf(input), pendingSlots: 0 }, false);
 }
 
 function armorSentence(input: ReadinessInput, status: StatStatus): string {
@@ -223,9 +269,11 @@ function armorSentence(input: ReadinessInput, status: StatStatus): string {
  * The Heat readout shows the numbers; this row says what to do about them,
  * so the two never repeat the same sentence.
  */
-function heatSentence(status: StatStatus): string {
-  return status === 'normal'
-    ? 'Dissipation covers a full-fire turn.'
+function heatSentence(status: StatStatus, titled: boolean): string {
+  if (status === 'normal') return 'Dissipation covers a full-fire turn.';
+  // "Runs 11 heat over dissipation" already says it runs hot.
+  return titled
+    ? 'Legal, but add heat sinks to run cool.'
     : 'Runs hot at full fire. Legal, but add heat sinks to run cool.';
 }
 
@@ -243,12 +291,19 @@ function unplacedDescription(input: ReadinessInput): string {
   return `${subject}${slots} not placed`;
 }
 
-function unplacedSentence(input: ReadinessInput): string {
+function unplacedSentence(input: ReadinessInput, titled: boolean): string {
   const count = input.equipmentCount;
   const unplaced = input.unplacedInstanceIds.length;
   if (count === 0) return 'No equipment mounted yet.';
   if (unplaced === 0) {
     return `All ${plural(count, 'item')} placed in critical slots.`;
+  }
+  // "PPC needs a location" already names the item.
+  if (titled) {
+    const pending = input.criticalSlotsPending ?? 0;
+    return pending > 0
+      ? `Takes ${plural(pending, 'slot')}. Not legal until placed.`
+      : 'Not legal until placed.';
   }
   return `${unplacedDescription(input)} — not legal until placed.`;
 }
@@ -277,61 +332,84 @@ export function getReadinessRows(
     ValidationCategory.SLOTS,
     isUnplacedField,
   );
+  const weightIssues = issuesFor(result, ValidationCategory.WEIGHT);
+  const slotIssues = issuesFor(
+    result,
+    ValidationCategory.SLOTS,
+    (field) => !isUnplacedField(field),
+  );
+  const armorIssues = issuesFor(result, ValidationCategory.ARMOR);
+  const heatIssues = issuesFor(result, ValidationCategory.HEAT);
+  const heatNote = getHeatNote(input.heatGenerated, input.heatDissipation);
+
+  const severityOf = (status: StatStatus, issues: CategoryIssues) =>
+    worstSeverity(readoutSeverity(status), issues.severity);
+  const weightTitle = issueTitle(
+    weightIssues,
+    severityOf(weightStatus, weightIssues),
+  );
+  const slotsTitle = issueTitle(slotIssues, severityOf(slotStatus, slotIssues));
+  const armorTitle = issueTitle(
+    armorIssues,
+    severityOf(armorStatus, armorIssues),
+  );
+  const heatTitle = issueTitle(
+    heatIssues,
+    severityOf(heatStatus, heatIssues),
+    heatNote ? noteHeading(heatNote) : undefined,
+  );
+  const unplacedTitle = issueTitle(
+    unplacedIssues,
+    severityOf(unplacedIssues.status, unplacedIssues),
+  );
 
   const rows: ReadinessRow[] = [
     withRules(
       {
         id: 'weight',
-        label: 'Weight',
+        label: weightTitle ?? 'Weight',
         status: weightStatus,
-        sentence: weightSentence(input, weightStatus),
+        sentence: weightSentence(input, weightStatus, weightTitle !== null),
         tabId: 'equipment',
       },
-      issuesFor(result, ValidationCategory.WEIGHT),
+      weightIssues,
     ),
     withRules(
       {
         id: 'slots',
-        label: 'Slots',
-        pending:
-          (input.criticalSlotsPending ?? 0) > 0 ||
-          input.unplacedInstanceIds.length > 0,
+        label: slotsTitle ?? 'Slots',
         status: slotStatus,
         sentence: slotsSentence(input, slotStatus),
         tabId: 'criticals',
       },
-      issuesFor(
-        result,
-        ValidationCategory.SLOTS,
-        (field) => !isUnplacedField(field),
-      ),
+      slotIssues,
     ),
     withRules(
       {
         id: 'armor',
-        label: 'Armor',
+        label: armorTitle ?? 'Armor',
         status: armorStatus,
         sentence: armorSentence(input, armorStatus),
         tabId: 'armor',
       },
-      issuesFor(result, ValidationCategory.ARMOR),
+      armorIssues,
     ),
     withRules(
       {
         id: 'heat',
-        label: 'Heat',
+        label: heatTitle ?? 'Heat',
         status: heatStatus,
-        sentence: heatSentence(heatStatus),
+        sentence: heatSentence(heatStatus, heatTitle !== null),
         tabId: 'structure',
       },
-      issuesFor(result, ValidationCategory.HEAT),
+      heatIssues,
     ),
     withRules(
       {
         id: 'unplaced',
-        label: 'Unplaced equipment',
+        label: unplacedTitle ?? 'Unplaced Equipment',
         status: unplacedIssues.status,
-        sentence: unplacedSentence(input),
+        sentence: unplacedSentence(input, unplacedTitle !== null),
         tabId: 'criticals',
       },
       unplacedIssues,

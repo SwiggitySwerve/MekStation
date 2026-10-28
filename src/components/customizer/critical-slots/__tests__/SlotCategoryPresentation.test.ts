@@ -4,22 +4,38 @@ import {
   HEATSINK_COLORS,
 } from '@/utils/colors/equipmentColors';
 import { getSlotColorClasses } from '@/utils/colors/slotColors';
+import { SLOT_FILLS } from '@/utils/colors/slotFills';
 
 import { getSlotColorStyle, getSlotContentClasses } from '../SlotVisualHelpers';
 
 const hue = (accent: string) =>
   `var(--color-${accent.replace('border-l-', '').split('/')[0]})`;
 
-it('gives every occupied slot its owner hue, and empty slots none', () => {
+it("gives every occupied slot its owner hue and that hue's fill, and empty slots none", () => {
   expect(
     getSlotColorStyle({ index: 0, type: 'equipment', name: 'Heat Sink' }),
-  ).toEqual({ '--critical-slot-color': hue(HEATSINK_COLORS.accentBorder) });
+  ).toEqual({
+    '--critical-slot-color': hue(HEATSINK_COLORS.accentBorder),
+    '--critical-slot-fill': SLOT_FILLS['cyan-400'],
+  });
   expect(
     getSlotColorStyle({ index: 0, type: 'equipment', name: 'Medium Laser' }),
-  ).toEqual({ '--critical-slot-color': 'var(--color-yellow-300)' });
+  ).toEqual({
+    '--critical-slot-color': 'var(--color-yellow-300)',
+    '--critical-slot-fill': SLOT_FILLS['yellow-300'],
+  });
   expect(
     getSlotColorStyle({ index: 0, type: 'system', name: 'Engine' }),
-  ).toEqual({ '--critical-slot-color': 'var(--color-orange-400)' });
+  ).toEqual({
+    '--critical-slot-color': 'var(--color-orange-400)',
+    '--critical-slot-fill': SLOT_FILLS['orange-400'],
+  });
+  expect(
+    getSlotColorStyle({ index: 0, type: 'equipment', name: 'LRM 20 Ammo' }),
+  ).toEqual({
+    '--critical-slot-color': 'var(--color-teal-500)',
+    '--critical-slot-fill': SLOT_FILLS['teal-500'],
+  });
   expect(getSlotColorStyle({ index: 0, type: 'empty' })).toBeUndefined();
 });
 

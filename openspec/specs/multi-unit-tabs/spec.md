@@ -31,7 +31,7 @@ Each tab SHALL display unit name with modification indicator.
 
 - **WHEN** tab renders
 - **THEN** unit name is shown (truncated at 48 chars max)
-- **AND** a background (inactive) tab shows the accent modified dot, named "Changes not saved to library", if unsaved changes exist; the active unit's save state is spelled out beside the Save button instead (for example "Not in library · draft saved" on one line), so the header never repeats the same dot
+- **AND** a background (inactive) tab shows the accent modified dot, named "Changes not saved to library", if unsaved changes exist; the active unit's save state is spelled out beside the Save button instead (for example "Not in Library · Draft Saved" on one line), so the header never repeats the same dot
 - **AND** on phones too the name stays on one line and ends in an ellipsis when it does not fit; the tab's accessible name and tooltip keep the full name
 - **AND** close button appears on hover
 
@@ -285,35 +285,42 @@ The empty state SHALL provide quick access to unit creation and loading.
 #### Scenario: Empty state buttons
 
 - **WHEN** empty state is displayed
-- **THEN** a centered composition shows a large mech icon in a soft tinted circle, a title, and one explanatory sentence
-- **AND** "New Unit" and "Load from Library" actions use shared icons and at least 44px touch targets
+- **THEN** a centered composition shows a large mech icon in a soft tinted circle, a title, and one short line that adds what the buttons do not say ("Each unit you open gets its own tab.")
+- **AND** "New Unit" and "Load from Library" actions use shared icons and at least 44px touch targets; "Load from Library" is outlined (strong border, transparent fill), the same secondary style as "Set Up a New Unit…" in the Add Unit dialog
 - **AND** phone layouts keep 16px side margins
 
 #### Scenario: Empty state quick-start units
 
 - **WHEN** empty state is displayed and the canonical unit index has loaded
-- **THEN** up to four well-known canonical BattleMechs (Locust LCT-1V, Hunchback HBK-4G, Marauder MAD-3R, Atlas AS7-D) appear under the buttons as quick-start chips showing the unit name, tonnage and weight class, each at least 44px tall
+- **THEN** up to four well-known canonical BattleMechs (Locust LCT-1V, Hunchback HBK-4G, Marauder MAD-3R, Atlas AS7-D) appear under the buttons as quick-start chips showing the unit name, whole-ton size without decimals (e.g. "20 t · Light") and weight class, each at least 44px tall
 - **AND** a unit missing from the index is not shown, and no chips appear if the index is empty or fails to load
-- **AND** clicking a chip loads that unit through the same load path as choosing it in the Add unit dialog (as a canonical unit, opening it in a new tab)
+- **AND** clicking a chip loads that unit through the same load path as choosing it in the Add Unit dialog (as a canonical unit, opening it in a new tab)
 - **AND** the chips are disabled while a unit is loading
 
 #### Scenario: Empty state new unit
 
 - **WHEN** user clicks "New Unit" in empty state
-- **THEN** the Add unit dialog opens with blank-unit, starting-settings, and library choices
+- **THEN** the Add Unit dialog opens with blank-unit, starting-settings, and library choices
 
-#### Scenario: Add unit dialog has one primary action
+#### Scenario: Add Unit dialog has one primary action
 
-- **WHEN** the Add unit dialog opens
-- **THEN** "New blank unit" is the only primary (filled) button and sits left-aligned beside a secondary outlined button labelled "Choose tonnage and tech first…" (so it reads as opening a step), both the same height with a 12px gap
-- **AND** the explanation "Starts a 50-ton Inner Sphere BattleMech you can change." sits directly under "New blank unit" only, starting at that button's left edge, and is linked to it with aria-describedby
-- **AND** the secondary button has its own caption, "Pick unit type, tonnage and tech base.", directly under it and linked to it with aria-describedby
-- **AND** on phones the two buttons stack full width, each followed by its own caption
+- **WHEN** the Add Unit dialog opens
+- **THEN** "New Blank Unit" is the only primary (filled) button and sits left-aligned beside a secondary outlined button labelled "Set Up a New Unit…", both the same height with a 12px gap
+- **AND** the explanation "A 50-ton Inner Sphere Mech." sits directly under "New Blank Unit" only, starting at that button's left edge, and is linked to it with aria-describedby
+- **AND** the secondary button has its own caption, "Pick type, tonnage and tech.", directly under it and linked to it with aria-describedby; from 640px each caption stays on one line (it may run past its button), so no word is left alone on a second line
+- **AND** the footer reads Cancel, then "Select a unit to load" directly beside the disabled Load Unit as its reason (directly above it on phones, at 13px), linked to the button with aria-describedby
+- **AND** the two button captions and the "Or start from a catalog unit…" line under them share one 13px size
+- **AND** from 640px the Year column keeps 32px of padding before its right-aligned years, so it reads apart from the right-aligned Weight column beside it
+- **AND** unselected catalog rows take the raised-surface tint on hover, and the selected row keeps its amber tint, left bar and check
+- **AND** on phones the catalog list ends on a whole row above the sticky footer (`useWholeRowsHeight` cuts the list to the last row that fits; any spare height stays empty) and snaps row by row while scrolling, so no row is ever cut in half and no text is faded
+- **AND** disabled Load Unit uses the shared disabled-button style (`disabledButtonClasses` in `src/components/ui/Button.tsx`): a solid 1px outline in the default border color (about 2.3:1 against the panel, so the button's shape stays visible), never dashed (dashed means an empty slot to fill), no fill, and secondary text dimmed to 85% (about 6:1); unavailable Undo and Redo use the app's disabled treatment
+- **AND** on phones the two buttons sit side by side in two equal columns, each followed by its own caption in 13px secondary text, short enough to stay one even line in its column at 390px, so the catalog list keeps more height
+- **AND** from 640px the three catalog filters share the filter row in equal widths
 - **AND** both buttons keep at least 44px touch targets
 
-#### Scenario: Add unit dialog catalog table names its columns truthfully
+#### Scenario: Add Unit dialog catalog table names its columns truthfully
 
-- **WHEN** the Add unit dialog lists catalog units on a screen 640px or wider
+- **WHEN** the Add Unit dialog lists catalog units on a screen 640px or wider
 - **THEN** the table's last column is headed "Era", because it shows each unit's era (for example "Dark Age" or "Clan Invasion"); saved designs show "Custom" in that cell, and the "All Sources" filter still separates catalog units from saved designs
 
 #### Scenario: Empty state icon matches the palette
@@ -329,9 +336,9 @@ The empty state SHALL provide quick access to unit creation and loading.
 
 #### Scenario: Phone library dialog footer
 
-- **WHEN** the Add unit dialog is displayed on a phone
+- **WHEN** the Add Unit dialog is displayed on a phone
 - **THEN** the result count occupies its own line above a full-width Load Unit button
-- **AND** when no unit is selected, "Select a unit to load" is the button helper text
+- **AND** when no unit is selected, "Select a unit to load" is the button helper text, at 13px directly above the button
 - **AND** the scrollable unit list has bottom padding so its last row can be fully revealed above the footer
 
 ### Requirement: Tab Navigation Resilience

@@ -39,7 +39,7 @@ export function OverviewIssueSummary({
         rows={failing}
         status={readiness.status}
         onNavigate={onNavigate}
-        title="Needs attention"
+        title="Needs Attention"
         idPrefix="overview-issues"
         headingLevel="h3"
         compact

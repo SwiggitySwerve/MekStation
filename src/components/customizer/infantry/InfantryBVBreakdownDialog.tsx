@@ -170,7 +170,7 @@ export function InfantryBVBreakdownDialog({
           <div className="border-border-theme-subtle my-3 border-t" />
 
           <BreakdownRow
-            label="Platoon BV (pre-pilot)"
+            label="Platoon BV (Pre-Pilot)"
             value={breakdown.platoonBV.toFixed(1)}
             highlight
           />

@@ -24,6 +24,7 @@ import {
   type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
+import { formatTons } from '@/utils/formatting';
 
 import { StatusItem } from '../tabs/StatusItem';
 
@@ -154,7 +155,7 @@ export function ProtoMechStatusBar({
         className={`bg-surface-base border-border-theme-subtle flex items-center justify-between gap-2 border-b px-3 py-1.5 text-xs ${className}`}
       >
         <span className="text-text-theme-primary font-medium">
-          {tonnage}t {chassisLabel(chassisType)}
+          {formatTons(tonnage)} {chassisLabel(chassisType)}
         </span>
         <span className="text-text-theme-secondary">
           {walkMP}/{flankMP}
@@ -178,7 +179,7 @@ export function ProtoMechStatusBar({
     >
       <StatusItem
         label="Tonnage"
-        value={`${tonnage}t`}
+        value={formatTons(tonnage)}
         subValue={chassisLabel(chassisType)}
       />
 

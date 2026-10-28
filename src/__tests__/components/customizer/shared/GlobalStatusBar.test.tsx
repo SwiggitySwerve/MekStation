@@ -25,8 +25,8 @@ describe('GlobalStatusBar', () => {
     render(<GlobalStatusBar stats={stats} />);
 
     expect(screen.getByText(/Weight:/)).toBeInTheDocument();
-    expect(screen.getByText(/50.0 \/ 100t/)).toBeInTheDocument();
-    expect(screen.getByText(/\+50.0t rem/)).toBeInTheDocument();
+    expect(screen.getByText(/50.0 \/ 100.0 t/)).toBeInTheDocument();
+    expect(screen.getByText(/\+50.0 t rem/)).toBeInTheDocument();
   });
 
   it('should display slot information', () => {
@@ -52,7 +52,7 @@ describe('GlobalStatusBar', () => {
     });
     render(<GlobalStatusBar stats={stats} />);
 
-    const weightText = screen.getByText(/110.0 \/ 100t/);
+    const weightText = screen.getByText(/110.0 \/ 100.0 t/);
     expect(weightText).toHaveClass('text-red-400');
 
     expect(

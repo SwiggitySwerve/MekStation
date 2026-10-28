@@ -50,7 +50,7 @@ export function MultiUnitTabsEmptyState({
       className={`flex h-full min-h-0 flex-col items-center justify-center overflow-auto px-4 py-8 ${className}`}
     >
       <div className="my-auto w-full max-w-md text-center">
-        <div className="bg-surface-base border-accent/40 ring-accent/15 text-accent mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full border ring-4">
+        <div className="bg-surface-base border-border-theme ring-border-theme text-accent mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full border ring-4">
           <AppIcon
             name="mech"
             size="hero"
@@ -63,22 +63,21 @@ export function MultiUnitTabsEmptyState({
           No Units Open
         </h2>
         <p className="text-text-theme-secondary mb-8">
-          Create a new BattleMech from scratch or load an existing unit from the
-          library.
+          Each unit you open gets its own tab.
         </p>
 
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={onOpenLoadDialog}
-            className="bg-accent hover:bg-accent-hover text-on-accent focus-visible:outline-accent flex min-h-11 items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="bg-accent hover:bg-accent-hover text-on-accent focus-visible:outline-text-theme-primary flex min-h-11 items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <AppIcon name="add" size="control" aria-hidden="true" />
-            Add unit
+            Add Unit
           </button>
 
           <button
             onClick={onOpenLoadDialog}
-            className="bg-surface-raised hover:bg-surface-base text-text-theme-primary focus-visible:outline-accent flex min-h-11 items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="border-border-theme-strong hover:bg-surface-base text-text-theme-primary focus-visible:outline-text-theme-primary flex min-h-11 items-center justify-center gap-2 rounded-lg border bg-transparent px-6 py-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <AppIcon name="list" size="control" aria-hidden="true" />
             Load from Library

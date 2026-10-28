@@ -1,7 +1,7 @@
 /**
  * Tab badge tooltip
  *
- * The words behind a section tab's badge count ("1 warning: Runs hot"),
+ * The words behind a section tab's badge count ("1 warning: Runs Hot"),
  * drawn in a portal so the tab strip's scroll container cannot clip it.
  *
  * @spec openspec/specs/customizer-tabs/spec.md

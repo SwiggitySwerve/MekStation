@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { CleanTechDiagram } from '@/components/customizer/armor/variants/CleanTechDiagram';
-import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
 describe('CleanTechDiagram', () => {
@@ -52,18 +51,21 @@ describe('CleanTechDiagram', () => {
     expect(screen.getByText('Armor Allocation')).toBeInTheDocument();
   });
 
-  it('should render all 8 mech locations', () => {
+  it('should render all 8 mech locations, plus the rear torso inset', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
-    // Check for location labels (torsos show the short name, then front and rear values)
-    expect(screen.getByText('HD')).toBeInTheDocument();
-    expect(screen.getByText('CT')).toBeInTheDocument();
-    expect(screen.getByText('LT')).toBeInTheDocument();
-    expect(screen.getByText('RT')).toBeInTheDocument();
-    expect(screen.getByText('LA')).toBeInTheDocument();
-    expect(screen.getByText('RA')).toBeInTheDocument();
-    expect(screen.getByText('LL')).toBeInTheDocument();
-    expect(screen.getByText('RL')).toBeInTheDocument();
+    // Every location is labelled once in the front view and once in the
+    // location list; the torsos appear again in the rear inset.
+    const drawn = (code: string) =>
+      screen.getAllByText(code).filter((node) => node.closest('svg'));
+    for (const code of ['HD', 'LA', 'RA', 'LL', 'RL']) {
+      expect(drawn(code)).toHaveLength(1);
+      expect(screen.getAllByText(code)).toHaveLength(2);
+    }
+    for (const code of ['CT', 'LT', 'RT']) {
+      expect(drawn(code)).toHaveLength(2);
+      expect(screen.getAllByText(code)).toHaveLength(3);
+    }
   });
 
   it('should display armor values', () => {
@@ -76,6 +78,7 @@ describe('CleanTechDiagram', () => {
     );
     expect(head.getByText('9')).toBeInTheDocument(); // Head
     expect(centerTorso.getByText('47')).toBeInTheDocument(); // CT 35 front + 12 rear
+    expect(centerTorso.getByText('F 35')).toBeInTheDocument();
   });
 
   // Note: Auto-allocate button was moved to ArmorTab.tsx
@@ -93,27 +96,26 @@ describe('CleanTechDiagram', () => {
     );
   });
 
-  it('should display legend with status colors', () => {
+  it('should explain fill height in a one-line key instead of a status legend', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
-    const healthyPct = Math.round(ARMOR_STATUS.HEALTHY.min * 100);
-    const moderatePct = Math.round(ARMOR_STATUS.MODERATE.min * 100);
-    const lowPct = Math.round(ARMOR_STATUS.LOW.min * 100);
-
-    expect(screen.getByText(`${healthyPct}%+`)).toBeInTheDocument();
-    expect(screen.getByText(`${moderatePct}%+`)).toBeInTheDocument();
-    expect(screen.getByText(`${lowPct}%+`)).toBeInTheDocument();
-    expect(screen.getByText(`<${lowPct}%`)).toBeInTheDocument();
+    expect(screen.getByText('Fill = Points of Max')).toBeInTheDocument();
+    expect(screen.queryByText(/% of max:/)).not.toBeInTheDocument();
+    expect(screen.queryByText('60%+')).not.toBeInTheDocument();
+    expect(screen.queryByText(/F = front/)).not.toBeInTheDocument();
   });
 
-  it('should display instructions text', () => {
+  it('should label the views and keep the instructions for screen readers', () => {
     render(<CleanTechDiagram {...defaultProps} />);
 
+    expect(screen.getByRole('heading', { name: 'Front' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Rear' })).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Matches the record sheet · left side on the left · click a location to edit',
-      ),
-    ).toBeInTheDocument();
+      screen.queryByText(/click a location to edit/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Tab to a location or move between locations/),
+    ).toHaveClass('sr-only');
   });
 
   it('should apply custom className', () => {

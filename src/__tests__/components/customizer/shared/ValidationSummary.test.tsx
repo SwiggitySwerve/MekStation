@@ -333,11 +333,11 @@ describe('ValidationSummary', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 1 error, show issues',
+      name: 'Atlas: Not Legal · 1 error, show issues',
     });
     fireEvent.click(trigger);
     expect(screen.getByRole('dialog')).toHaveAccessibleName(
-      /Atlas.*Build status.*Not legal · 1 error/,
+      /Atlas.*Build Status.*Not Legal · 1 error/,
     );
     // A short message is its own heading; the suggestion explains the fix.
     expect(
@@ -375,7 +375,7 @@ describe('ValidationSummary', () => {
       screen.getByRole('button', { name: /6 errors, show issues/ }),
     );
     expect(screen.queryByText('Issue 5')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Show all/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Show All/ }));
     expect(screen.getByText('Issue 5')).toBeInTheDocument();
     rerender(
       <ValidationSummary
@@ -385,7 +385,7 @@ describe('ValidationSummary', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Checking');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
-  it('names the cause and offers equipment and armor as fixes for overweight', () => {
+  it('names the cause and offers the readiness fix sentence and link for overweight', () => {
     const onNavigate = jest.fn();
     const onIssueNavigate = jest.fn();
     render(
@@ -412,13 +412,13 @@ describe('ValidationSummary', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 2 errors, show issues',
+      name: 'Atlas: Not Legal · 2 errors, show issues',
     });
     expect(trigger).toHaveAttribute('data-build-status', 'error');
     expect(trigger).toHaveTextContent('2 errors');
     fireEvent.click(trigger);
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveAccessibleName(/Not legal · 2 errors/);
+    expect(dialog).toHaveAccessibleName(/Not Legal · 2 errors/);
     const groups = Array.from(dialog.querySelectorAll('h4')).map(
       (heading) => heading.textContent,
     );
@@ -427,16 +427,53 @@ describe('ValidationSummary', () => {
       name: 'Critical error: Overweight by 3.0 t',
     });
     const item = overweight.closest('[data-validation-issue]') as HTMLElement;
-    expect(item).toHaveTextContent(
-      'Unit exceeds maximum tonnage by 3.0 tons (103.0/100 tons)',
+    // The amount is said once, in the heading; the body is the one fix
+    // sentence the Overview readiness row also ends with.
+    expect(item).not.toHaveTextContent('exceeds maximum tonnage');
+    expect(item.querySelector('p')).toHaveTextContent(
+      /^Remove equipment or armor\.$/,
     );
+    // One link, the same one the readiness row offers.
     const fixes = Array.from(
       item.querySelectorAll<HTMLButtonElement>('[data-validation-fix]'),
     ).map((button) => button.textContent);
-    expect(fixes).toEqual(['Go to Equipment', 'Go to Armor']);
-    fireEvent.click(screen.getByRole('button', { name: /Go to Armor/ }));
-    expect(onNavigate).toHaveBeenCalledWith('armor');
+    expect(fixes).toEqual(['Go to Equipment']);
+    fireEvent.click(screen.getByRole('button', { name: /Go to Equipment/ }));
+    expect(onNavigate).toHaveBeenCalledWith('equipment');
     expect(onIssueNavigate).not.toHaveBeenCalled();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('names the counts in words on the icon-only phone chip, at 44px', () => {
+    render(
+      <ValidationSummary
+        validation={createMockValidationState({
+          isValid: false,
+          errorCount: 2,
+          warningCount: 1,
+          result: createMockResult(
+            [
+              {
+                message: 'PPC needs a location',
+                category: ValidationCategory.SLOTS,
+              },
+              {
+                message: 'AC/20 needs a location',
+                category: ValidationCategory.SLOTS,
+              },
+            ],
+            [{ message: 'Low armor', category: ValidationCategory.ARMOR }],
+          ),
+        })}
+        unitName="Atlas"
+        compact
+      />,
+    );
+    const chip = screen.getByRole('button', {
+      name: 'Atlas: Not Legal · 2 errors · 1 warning, show issues',
+    });
+    // The chip shows icons and counts only; the words live in its name.
+    expect(chip).not.toHaveTextContent(/errors?|warnings?/);
+    expect(chip).toHaveClass('h-11', 'w-full');
   });
 });

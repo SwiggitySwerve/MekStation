@@ -11,6 +11,7 @@ import React from 'react';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { IVersionWithData } from '@/services/units/CustomUnitApiService';
 import { IVersionMetadata } from '@/types/persistence/UnitPersistence';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import {
@@ -58,7 +59,10 @@ function getPreviewSummary(previewData: IVersionWithData) {
     hasEquipment: Boolean(equipmentArr),
     rulesLevel: String(rulesLevel ?? 'N/A'),
     techBase: String(unitData.techBase ?? 'N/A'),
-    tonnage: String(unitData.tonnage ?? 'N/A'),
+    tonnage:
+      typeof unitData.tonnage === 'number'
+        ? formatTons(unitData.tonnage)
+        : 'N/A',
   };
 }
 
@@ -255,7 +259,7 @@ function PreviewDetails({ previewData }: { previewData: IVersionWithData }) {
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        <PreviewSummaryItem label="Tonnage" value={`${summary.tonnage}t`} />
+        <PreviewSummaryItem label="Tonnage" value={summary.tonnage} />
         <PreviewSummaryItem label="Tech Base" value={summary.techBase} />
         <PreviewSummaryItem label="Era" value={summary.era} />
         <PreviewSummaryItem label="Rules Level" value={summary.rulesLevel} />
@@ -305,7 +309,7 @@ function ConfirmVersionButton({
       selectedVersion !== currentVersion &&
       !isRestoring;
   const actionLabel = restoreMode
-    ? `Restore v${selectedVersion || '?'} into draft`
+    ? `Restore v${selectedVersion || '?'} into Draft`
     : `Revert to v${selectedVersion || '?'}`;
 
   return (
@@ -377,7 +381,7 @@ export function VersionHistoryDialog({
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden sm:flex-row">
         <div className="border-border-theme-subtle max-h-48 overflow-auto border-b sm:max-h-none sm:w-1/3 sm:border-r sm:border-b-0">
           <VersionList
-            currentLabel={onRestoreDraft ? 'Last saved' : 'Current'}
+            currentLabel={onRestoreDraft ? 'Last Saved' : 'Current'}
             currentVersion={currentVersion}
             error={error}
             isLoading={isLoading}

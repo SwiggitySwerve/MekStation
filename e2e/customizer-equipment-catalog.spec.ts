@@ -33,7 +33,7 @@ async function draft(page: Page) {
 async function loadAtlas(page: Page) {
   await page.goto('/customizer');
   await page.getByRole('button', { name: 'Load from Library' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await dialog
     .getByPlaceholder('Search by chassis or variant...')
@@ -46,7 +46,7 @@ async function loadAtlas(page: Page) {
 async function hideUnmatchedAmmo(page: Page, hidden: boolean) {
   await page.getByRole('button', { name: /^Visibility filters/ }).click();
   const toggle = page.getByRole('button', {
-    name: 'Ammo without weapon',
+    name: 'Ammo Without Weapon',
     exact: true,
   });
   if ((await toggle.getAttribute('aria-pressed')) !== String(hidden))
@@ -140,34 +140,35 @@ async function expectInitialScrollBoundary(page: Page) {
   const footer = (await page
     .getByTestId('equipment-pagination')
     .boundingBox())!;
+  // After an add, its confirmation line sits between the list and the pager
+  // (equipment-browser spec), so the list ends above that line instead.
+  const confirmationTop = await page
+    .getByTestId('equipment-pagination')
+    .locator('xpath=preceding-sibling::p[@role="status"][1]')
+    .evaluate((line) =>
+      line.classList.contains('sr-only')
+        ? null
+        : line.getBoundingClientRect().top,
+    );
+  const below = confirmationTop ?? footer.y;
   expect(
-    footer.y - list.y - list.height,
+    below - list.y - list.height,
     'visible separation above pagination',
   ).toBeGreaterThanOrEqual(8);
   await expect(scroll).toHaveCSS('overflow-y', 'auto');
   await expect(scroll.locator('..')).toHaveAttribute('data-more-below', 'true');
-  const cue = page
-    .getByTestId('equipment-pagination')
-    .getByTestId('more-below-cue');
-  await expect(cue).toBeVisible();
-  await expect(cue).toContainText('Scroll for more on this page');
-  const footerStyle = await cue.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      position: style.position,
-      background: style.backgroundImage,
-      pointerEvents: style.pointerEvents,
-    };
-  });
-  expect(footerStyle.position).toBe('static');
-  expect(footerStyle.background).toBe('none');
-  expect(footerStyle.pointerEvents).toBe('none');
-  const cueBox = (await cue.boundingBox())!;
+  // A paged list shows its page line alone: no scroll cue beside the pager
+  // and none over the rows.
+  await expect(
+    page.getByTestId('equipment-pagination').getByText(/^Page 1 of \d+$/),
+  ).toBeVisible();
+  await expect(page.getByTestId('more-below-cue')).toHaveCount(0);
+  // Whole rows reach the pager: only the 8px separation (plus rounding) sits
+  // between the list and the pager, not an empty band of list.
   expect(
-    cueBox.y,
-    'cue stays below the scroll viewport',
-  ).toBeGreaterThanOrEqual(list.y + list.height);
-  await expect(scroll.getByTestId('more-below-cue')).toHaveCount(0);
+    below - list.y - list.height,
+    'no dead band above pagination',
+  ).toBeLessThanOrEqual(10);
   const rowInGap = await page.evaluate(
     ({ x, y }) =>
       document
@@ -180,6 +181,22 @@ async function expectInitialScrollBoundary(page: Page) {
   expect(rowInGap, 'rows must be clipped before the pagination gap').toBe(
     false,
   );
+  // On every width the list ends on a whole row: no row is cut by the
+  // bottom of the scroll viewport above the pager. Rows scroll inside the
+  // viewport's padding box, so measure to its inner edge, not its border.
+  const cutRows = await scroll.evaluate((viewport) => {
+    const bottom =
+      viewport.getBoundingClientRect().top +
+      viewport.clientTop +
+      viewport.clientHeight;
+    return Array.from(
+      viewport.querySelectorAll('[data-testid="equipment-catalog-row"]'),
+    ).filter((row) => {
+      const box = row.getBoundingClientRect();
+      return box.top < bottom - 1 && box.bottom > bottom + 1;
+    }).length;
+  });
+  expect(cutRows, 'last visible row is whole').toBe(0);
 }
 
 test('short catalog results have an end marker without pagination @customizer', async ({
@@ -275,7 +292,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
   await options.click();
   await add.click();
   const dialog = page.getByRole('dialog', {
-    name: 'Add and place equipment',
+    name: 'Add and Place Equipment',
     exact: true,
   });
   await expect(dialog.getByRole('option', { name: /^Head / })).toHaveJSProperty(
@@ -283,7 +300,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     true,
   );
   await expect(
-    dialog.getByRole('button', { name: 'Add and place', exact: true }),
+    dialog.getByRole('button', { name: 'Add and Place', exact: true }),
   ).toBeDisabled();
   await dialog
     .getByRole('combobox', { name: 'Equipment location' })
@@ -296,7 +313,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     .getByRole('combobox', { name: 'Equipment location' })
     .selectOption('Left Arm');
   await dialog
-    .getByRole('button', { name: 'Add and place', exact: true })
+    .getByRole('button', { name: 'Add and Place', exact: true })
     .click();
   await expect(dialog).toBeHidden();
   const placed = (await draft(page)).equipment;
@@ -332,7 +349,7 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
     animations: 'disabled',
   });
   await dialog
-    .getByRole('button', { name: 'Add and place', exact: true })
+    .getByRole('button', { name: 'Add and Place', exact: true })
     .click();
   await expect(dialog).toBeHidden();
   expect(
@@ -398,14 +415,26 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   });
   const visible = await rows.count();
   expect(visible).toBe(25);
+  // Rows that fit grow evenly (at most 12px each, equipment-browser spec) so
+  // whole rows reach the pager; density is the row height before that growth.
+  const rowFill = await page
+    .getByTestId('equipment-catalog-scroll')
+    .evaluate(
+      (viewport) =>
+        parseFloat(
+          getComputedStyle(viewport).getPropertyValue('--catalog-row-fill'),
+        ) || 0,
+    );
+  expect(rowFill).toBeLessThanOrEqual(12);
   let longest = { name: '', length: 0, index: 0 };
   for (let index = 0; index < visible; index += 1) {
     const row = rows.nth(index);
     const box = await row.boundingBox();
     expect(box).not.toBeNull();
-    expect(box!.height, `collapsed row ${index} height`).toBeLessThanOrEqual(
-      48,
-    );
+    expect(
+      box!.height - rowFill,
+      `collapsed row ${index} height`,
+    ).toBeLessThanOrEqual(48);
     // Bound names so comparison columns remain grouped together.
     const nameCell = row.locator('[data-catalog-column="name"]');
     expect((await nameCell.boundingBox())!.width).toBeGreaterThanOrEqual(220);
@@ -474,25 +503,65 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     Math.max(...internalGaps),
     'largest gap inside the comparison block',
   ).toBeLessThanOrEqual(12);
-  await expect(
-    firstRow.getByRole('button', { name: /^Add options for / }),
+  // "…" is a bordered button on every width, drawn at Add's 34px height
+  // inside its 44px hit area, without a fill.
+  const drawnOptions = await firstRow
+    .getByRole('button', { name: /^Add options for / })
+    .evaluate((button) => {
+      const drawn = getComputedStyle(button, '::before');
+      return {
+        width: drawn.borderTopWidth,
+        style: drawn.borderTopStyle,
+        transparent: drawn.borderTopColor === 'rgba(0, 0, 0, 0)',
+        top: drawn.top,
+        bottom: drawn.bottom,
+      };
+    });
+  expect(
+    drawnOptions,
     'persistent outline on the more-ways-to-add control',
-  ).toHaveCSS('border-top-width', '1px');
-  await expect(
-    firstRow.getByRole('button', { name: /^Add options for / }),
-  ).toHaveCSS('border-top-style', 'solid');
+  ).toEqual({
+    width: '1px',
+    style: 'solid',
+    transparent: false,
+    top: '5px',
+    bottom: '5px',
+  });
   await expect(
     firstRow.getByRole('button', { name: /^Add options for / }),
   ).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  // The Atlas is exactly at its limit: a legal state, so one neutral line
-  // above the list (no warning callout, no border) and no per-row chip.
+  // The Atlas is exactly at its limit: a legal state, so the free tonnage
+  // stays neutral text, one orange warning note with its icon leads the
+  // count line, and no row carries a per-row chip.
   const capacity = page.getByTestId('equipment-catalog-capacity');
-  await expect(capacity).toContainText(
-    '0.0 t free \u00B7 unit is at its tonnage limit',
-  );
+  await expect(capacity).toContainText('0.0 t free');
   await expect(capacity).toHaveAttribute('data-capacity-state', 'full');
   await expect(capacity).toHaveCSS('border-top-width', '0px');
   await expect(capacity.locator('[data-icon-name]')).toHaveCount(0);
+  const limit = page.getByTestId('equipment-catalog-limit');
+  await expect(limit).toHaveText(
+    'At tonnage limit — adding equipment will exceed 100.0 t',
+  );
+  await expect(limit.locator('[data-severity-icon="warning"]')).toBeVisible();
+  // Plain warning text on the count line's 20px line: no box or border, so
+  // it never looks like the clickable status chip.
+  await expect(limit).toHaveCSS('border-top-width', '0px');
+  expect((await limit.boundingBox())!.height).toBeLessThanOrEqual(20);
+  // The cause reads first: the note starts the line, before the counts.
+  const limitBox = (await limit.boundingBox())!;
+  expect(limitBox.x).toBeLessThan((await capacity.boundingBox())!.x);
+  // Add stays enabled but steps back to an outline, described by the note.
+  const firstAdd = firstRow.getByRole('button', { name: /^Add (?!options)/ });
+  await expect(firstAdd).toBeEnabled();
+  await expect(firstAdd).toHaveAttribute('data-at-limit', 'true');
+  await expect(firstAdd).toHaveAccessibleDescription(
+    'At tonnage limit — adding equipment will exceed 100.0 t',
+  );
+  expect(
+    await firstAdd.evaluate(
+      (element) => getComputedStyle(element, '::before').backgroundColor,
+    ),
+  ).toBe('rgba(0, 0, 0, 0)');
   await expect(rows.filter({ hasText: /\+\d+(\.\d)? t over/ })).toHaveCount(0);
   // Names sort naturally; orphan AC/15 ammunition has no catalog weapon.
   const visibleNames = await Promise.all(
@@ -505,7 +574,11 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   expect(acOrder.every((index) => index >= 0)).toBe(true);
   expect(acOrder).toEqual([...acOrder].sort((a, b) => a - b));
   // Secondary metadata is plain text at 13px or larger, not a miniature pill.
-  const mounted = page.getByText(/^×\d+ mounted$/).first();
+  // Desktop puts the count at the end of the subtitle line.
+  const mounted = page
+    .locator('[data-catalog-column="category"]')
+    .getByText(/^×\d+ mounted$/)
+    .first();
   await expect(mounted).toBeVisible();
   expect(
     Number.parseFloat(
@@ -587,10 +660,24 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
     name: `Add ${name}`,
     exact: true,
   });
+  const readRowFill = () =>
+    scroll.evaluate(
+      (viewport) =>
+        parseFloat(
+          getComputedStyle(viewport).getPropertyValue('--catalog-row-fill'),
+        ) || 0,
+    );
   const collapsedAction = (await rowAdd.boundingBox())!;
+  const collapsedFill = await readRowFill();
   await detailsBtn.focus();
   await page.keyboard.press('Enter');
-  expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
+  // Expanding re-divides the whole-row fill, which pads each row by half the
+  // fill above it; Add moves by exactly that and nothing else.
+  const expandedFill = await readRowFill();
+  expect(await rowAdd.boundingBox()).toEqual({
+    ...collapsedAction,
+    y: collapsedAction.y + (expandedFill - collapsedFill) / 2,
+  });
   expect(await first.getByRole('button').count()).toBe(3);
   for (const label of await first.locator('dt').all()) {
     await expect(label).toHaveCSS('font-size', '13px');
@@ -608,7 +695,7 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await expect(options).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(
-    page.getByRole('menuitem', { name: 'Add to unassigned', exact: true }),
+    page.getByRole('menuitem', { name: 'Add to Unassigned', exact: true }),
   ).toBeFocused();
   await page.keyboard.press('ArrowDown');
   const place = page.getByRole('menuitem', {
@@ -622,7 +709,7 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   await detailsBtn.click();
   expect(await rowAdd.boundingBox()).toEqual(collapsedAction);
   const wide = page.getByRole('button', {
-    name: 'Hide loadout panel',
+    name: 'Hide Loadout Panel',
     exact: true,
   });
   await expect(wide).toBeVisible();
@@ -715,10 +802,16 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   expect(
     await categories.evaluate((element) => getComputedStyle(element).maskImage),
   ).not.toBe('none');
+  // The scroll button counts the cut-off categories ("+5 ›").
   const moreCategories = page.getByRole('button', {
-    name: 'More equipment categories',
+    name: /^\d+ more equipment categories$/,
   });
+  await expect(moreCategories).toHaveText(/^\+\d+$/);
   await expectClickTarget(moreCategories);
+  // Drawn as a full 44px bordered button, like the other phone controls.
+  await expect(moreCategories).toHaveCSS('border-top-width', '1px');
+  await expect(moreCategories).toHaveCSS('border-top-style', 'solid');
+  expect((await moreCategories.boundingBox())!.height).toBe(44);
   await moreCategories.click();
   expect(
     await categories.evaluate((element) => element.scrollLeft),
@@ -753,6 +846,25 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   }
   const mobileFirst = mobileRows.first();
   const mobileName = await rowName(mobileFirst);
+  // Phones draw Add and "…" at their full 44px target, so what is drawn
+  // matches what can be tapped.
+  for (const name of [`Add ${mobileName}`, `Add options for ${mobileName}`]) {
+    const drawn = await mobileFirst
+      .getByRole('button', { name, exact: true })
+      .evaluate((button) => {
+        const box = getComputedStyle(button, '::before');
+        return {
+          top: box.top,
+          bottom: box.bottom,
+          transparent: box.borderTopColor === 'rgba(0, 0, 0, 0)',
+        };
+      });
+    expect(drawn, name).toEqual({
+      top: '0px',
+      bottom: '0px',
+      transparent: false,
+    });
+  }
   await mobileFirst
     .getByRole('button', { name: `Details for ${mobileName}`, exact: true })
     .click();

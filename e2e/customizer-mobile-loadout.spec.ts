@@ -35,11 +35,11 @@ async function loadStock(
   const previousUnitId = new URL(page.url()).pathname.split('/')[2];
   await page
     .getByRole('button', {
-      name: fromCurrentUnit ? 'Add unit (Ctrl+O)' : 'Load from Library',
+      name: fromCurrentUnit ? 'Add Unit (Ctrl+O)' : 'Load from Library',
       exact: true,
     })
     .click();
-  const library = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  const library = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await library.getByRole('combobox').first().selectOption('canonical');
   await library
     .getByPlaceholder('Search by chassis or variant...')
@@ -353,7 +353,7 @@ test('mobile bulk confirmation is centered above its parent and persists only ap
   expect(geometry.position).toBe('fixed');
   const cancel = child.getByRole('button', { name: 'Cancel', exact: true });
   const approve = child.getByRole('button', {
-    name: 'Clear equipment',
+    name: 'Clear Equipment',
     exact: true,
   });
   await pointerHits(cancel);
@@ -395,10 +395,10 @@ test('mobile bulk confirmation is centered above its parent and persists only ap
     path: testInfo.outputPath('mobile-bulk-confirmation.png'),
   });
   await pointerHits(
-    child.getByRole('button', { name: 'Clear equipment', exact: true }),
+    child.getByRole('button', { name: 'Clear Equipment', exact: true }),
   );
   await child
-    .getByRole('button', { name: 'Clear equipment', exact: true })
+    .getByRole('button', { name: 'Clear Equipment', exact: true })
     .click();
   await expect(child).toBeHidden();
   await expect(drawer).toBeVisible();

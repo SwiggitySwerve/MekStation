@@ -2,10 +2,11 @@
  * Fluff Tab Component
  *
  * Non-mechanical unit information (history, description, manufacturer).
- * Wide editors show the narrative in a reading column beside a column holding
- * the Sections index, role and manufacturing cards at their natural height;
- * narrower editors stack narrative, role, manufacturing in one column under a
- * "Jump to section" select.
+ * Wide editors show the history narrative in a reading column beside a column
+ * holding the Sections index, Variants and Notable Units, role and
+ * manufacturing cards at their natural height, so the two columns end near
+ * each other; narrower editors stack them in one column, in that order, under
+ * a "Jump to section" select.
  *
  * @spec openspec/specs/customizer-tabs/spec.md
  */
@@ -14,8 +15,12 @@ import React, { useRef } from 'react';
 
 import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
+import { SIDE_LABEL_ROW } from '@/components/customizer/fluff/FluffFields';
 import { FluffManufacturingCard } from '@/components/customizer/fluff/FluffManufacturingCard';
-import { FluffNarrativeCard } from '@/components/customizer/fluff/FluffNarrativeCard';
+import {
+  FluffNarrativeCard,
+  RELATED_FIELDS,
+} from '@/components/customizer/fluff/FluffNarrativeCard';
 import { FluffSectionIndex } from '@/components/customizer/fluff/FluffSectionIndex';
 import { FluffSideColumn } from '@/components/customizer/fluff/FluffSideColumn';
 import { customizerStyles as cs } from '@/components/customizer/styles';
@@ -93,10 +98,13 @@ export function FluffTab({
       />
 
       <div className={PAGE_GRID} data-testid="fluff-grid">
+        {/* Stretches to the grid row, so when the side column runs longer the
+            two columns still end on one line. */}
         <FluffNarrativeCard
           fluff={fluff}
           disabled={isReadOnly || !onFluffChange}
           onFluffChange={onFluffChange}
+          className="@[64rem]:self-stretch"
         />
 
         <FluffSideColumn
@@ -108,6 +116,16 @@ export function FluffTab({
             />
           }
         >
+          <FluffNarrativeCard
+            fluff={fluff}
+            disabled={isReadOnly || !onFluffChange}
+            onFluffChange={onFluffChange}
+            fields={RELATED_FIELDS}
+            title="Variants and Notable Units"
+            headingId="fluff-related-heading"
+            testId="fluff-related"
+          />
+
           <section
             className={cs.panel.main}
             tabIndex={-1}
@@ -116,19 +134,21 @@ export function FluffTab({
             <h3 id="fluff-role-heading" className={cs.text.cardTitle}>
               Battlefield Role
             </h3>
-            <p className="text-text-theme-secondary mt-1 mb-3 text-sm">
-              A quick classification used in the unit dossier and export.
+            {/* The same 12px subtitle as other cards' helper lines. */}
+            <p className={`${cs.text.secondary} mt-1 mb-3`}>
+              Shown in the unit dossier and export.
             </p>
-            <label className="block" htmlFor="fluff-role">
-              <span className={`${cs.text.label} mb-1.5 block`}>
+            {/* Side label, like the Manufacturing rows below. */}
+            <div className={SIDE_LABEL_ROW}>
+              <label className={cs.text.label} htmlFor="fluff-role">
                 Combat Role
-              </span>
+              </label>
               <select
                 id="fluff-role"
                 value={role}
                 disabled={isReadOnly || !onRoleChange}
                 onChange={(event) => onRoleChange?.(event.target.value)}
-                className={`${cs.select.full} min-h-11`}
+                className={`${cs.select.full} min-h-11 scroll-mt-20`}
               >
                 <option value="">Select a role</option>
                 {!roleIsKnown && <option value={role}>{role}</option>}
@@ -136,7 +156,7 @@ export function FluffTab({
                   <option key={option}>{option}</option>
                 ))}
               </select>
-            </label>
+            </div>
           </section>
 
           <FluffManufacturingCard

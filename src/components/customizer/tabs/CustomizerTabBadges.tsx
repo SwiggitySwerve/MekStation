@@ -106,8 +106,9 @@ interface SectionValidationBadgeProps {
  * the count carry the meaning, never color or outline alone. Errors show the
  * crossed circle on red, warnings the triangle on orange, each before its
  * count. The symbols are decorative; the badge's accessible name keeps the
- * full words ("Equipment: 1 error"). The slot keeps its width when the counts
- * clear.
+ * full words ("Equipment: 1 error"). On content-sized tabs the slot keeps its
+ * width when the counts clear; equal-width desktop tabs hide the empty slot so
+ * their labels stay centred.
  */
 export function SectionValidationBadge({
   tabId,

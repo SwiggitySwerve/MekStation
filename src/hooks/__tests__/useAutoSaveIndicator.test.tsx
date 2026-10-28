@@ -37,27 +37,18 @@ describe('useAutoSaveIndicator', () => {
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
-  it('reports draft success only after the active unit write succeeds', () => {
+  it('confirms a successful draft write in the header, not in a toast', () => {
     renderHook(() => useAutoSaveIndicator(MECH_TARGET));
 
     act(() => {
       clientSafeStorage.setItem(`megamek-unit-${MECH_ID}`, '{"state":{}}');
-    });
-    expect(showToastMock).not.toHaveBeenCalled();
-
-    act(() => {
-      jest.advanceTimersByTime(500);
+      jest.advanceTimersByTime(2000);
     });
 
     expect(localStorage.getItem(`megamek-unit-${MECH_ID}`)).toBe(
       '{"state":{}}',
     );
-    expect(showToastMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: 'Draft saved in this browser',
-        variant: 'success',
-      }),
-    );
+    expect(showToastMock).not.toHaveBeenCalled();
   });
 
   it('reports a failed active-unit write and never reports success', () => {
@@ -76,37 +67,43 @@ describe('useAutoSaveIndicator', () => {
     expect(showToastMock).toHaveBeenCalledTimes(1);
     expect(showToastMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Draft could not be saved in this browser',
+        message: 'Draft save failed in browser',
         variant: 'error',
       }),
     );
   });
 
-  it('ignores a receipt for a different unit family', () => {
+  it('ignores a failed receipt for a different unit family', () => {
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded');
+    });
     renderHook(() => useAutoSaveIndicator(MECH_TARGET));
 
     act(() => {
-      clientSafeStorage.setItem(`megamek-vehicle-${MECH_ID}`, '{}');
-      jest.advanceTimersByTime(500);
+      expect(() =>
+        clientSafeStorage.setItem(`megamek-vehicle-${MECH_ID}`, '{}'),
+      ).toThrow('quota exceeded');
     });
 
     expect(showToastMock).not.toHaveBeenCalled();
   });
 
-  it('cancels a pending receipt when the active unit switches', () => {
+  it('stops reporting the previous unit once the active unit switches', () => {
     const { rerender } = renderHook(
       ({ target }) => useAutoSaveIndicator(target),
       { initialProps: { target: MECH_TARGET } },
     );
-
-    act(() => {
-      clientSafeStorage.setItem(`megamek-unit-${MECH_ID}`, '{}');
-    });
     rerender({
       target: { unitId: VEHICLE_ID, unitType: UnitType.VEHICLE },
     });
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('quota exceeded');
+    });
+
     act(() => {
-      jest.advanceTimersByTime(500);
+      expect(() =>
+        clientSafeStorage.setItem(`megamek-unit-${MECH_ID}`, '{}'),
+      ).toThrow('quota exceeded');
     });
 
     expect(showToastMock).not.toHaveBeenCalled();
