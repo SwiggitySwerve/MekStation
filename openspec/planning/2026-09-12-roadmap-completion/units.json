@@ -9214,6 +9214,14 @@
         "evidenceName": "evidence/l1-smoke-a2-implementation-admission.json (the registered literal l1-smoke-a2-implementation-*.json names; free on main). The red, local and review literals are unchanged.",
         "ownershipExceptionsAdded": "PROGRESS.md, V2.2.0-STEPS.md and the four registered evidence names (implementation admission, red, local, review).",
         "sizeCap": "Measured on oxfmt-clean leaves: cases 398, fixtures 120, runner 17 (counted 535 literal), test 234 (exempt, file-counted). The fixtures leaf is proof-harness test-support under ownerRuling20261020SizeCapOptionA (owner decisions 2026-10-25b item 1), so option A counts 415. With the lifecycle estimated at 58 to 62 lines (the real A2M lifecycle was 51 plus a capException block) and bounded at 80: option A 473 to 477 (at most 495) of 500, so the A2 cap watch does not trip (option A fits while the lifecycle stays at or under 85 lines); the literal validator count is 593 to 597 and the implementation PR records capException {countedLines: <literal>, recordedBy: ownerRuling20261020SizeCapOptionA, optionACountedLines, optionAExemptLeaves: [scripts/release/l1-built-server-spectator-fixtures.ts]} as A2FP and A2F did, then re-measures with those lines added. An option-A count over 500 or a 16th file stops the unit for Root (a split would take Step 3 to 14)."
+      },
+      "closureCarryForward20261028": {
+        "CF-A2-1": {
+          "owner": "U38",
+          "status": "OPEN; known registered gap",
+          "item": "Co-op teammate unit commands are unconstrained on main; MA3 witnessed an accepted non-owner contributor Move on BUILD_ID 1793172695427. U38 must prove an equivalent built-image row is refused. A2 makes no exclusive-owner enforcement claim.",
+          "releaseNotes": "G-A9: RELEASE-PRODUCER-1 carries this known issue with the real mission GM player role, S5-02 and OQ-M1."
+        }
       }
     },
     {

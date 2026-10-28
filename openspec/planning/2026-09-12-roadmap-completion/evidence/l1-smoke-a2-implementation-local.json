@@ -4,7 +4,7 @@
   "stage": "local",
   "status": "INCOMPLETE-HOLD",
   "date": "2026-10-28",
-  "recordedAt": "2026-10-28T07:39:13.403Z",
+  "recordedAt": "2026-10-28T07:45:21.636Z",
   "implementationBase": "4ef0b45166b51c2e857b31b5e54895db1e253e3c",
   "redCommit": "51539564c7230de130b464144d97e9b001d093af",
   "greenCommit": "04d9f2d425048f42b31ab9ec2b6767099af80847",
@@ -451,7 +451,9 @@
       "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
       "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
       "finishedAt": "2026-10-28T07:37:23.024Z",
-      "qualification": "Named textual source-order test kills deletion; built owned callback also fails on reopening sync to stopped listener. No built ctx.check kill is claimed."
+      "qualification": "Named textual source-order test kills deletion; built owned callback also fails on reopening sync to stopped listener. No built ctx.check kill is claimed.",
+      "classification": "KILLED by named node:test source-order assertion (pure level); built ECONNREFUSED is unnamed and is not counted as a built kill",
+      "gatingDischargedBy": "Root MA3/MA2 ruling 2026-10-28"
     },
     {
       "id": "MA3",
@@ -478,19 +480,71 @@
       "result": "SURVIVED",
       "restoredHead": "04d9f2d425048f42b31ab9ec2b6767099af80847",
       "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
-      "finishedAt": "2026-10-28T07:37:52.895Z"
+      "finishedAt": "2026-10-28T07:37:52.895Z",
+      "classification": "SURVIVED: expected on main; co-op per-unit command ownership is not enforced until U38",
+      "gating": false,
+      "countedAsKill": false,
+      "knownGapOwner": "U38"
     },
     {
       "id": "MA4",
-      "result": "UNRUN"
+      "description": "Compare live captured rolls to the wrong replay event (a deliberately absent event id).",
+      "originalHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:43:54.961Z",
+      "mutantSha": "346eae65322c318e012dcdfdcd438a92a23314a7",
+      "exit": 1,
+      "verdict": "FAIL",
+      "errors": [
+        "[coop-first-rolls-captured] replay rolls differ from live rolls: {\"rolls\":[2,3,2,6]}"
+      ],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted"
+      ],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "KILLED_BY_NAMED_CHECK",
+      "restoredHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:44:08.476Z",
+      "namedCheck": "coop-first-rolls-captured: replay rolls differ from live rolls"
     },
     {
       "id": "MA5",
-      "result": "UNRUN"
+      "description": "Drop the journal gap/duplicate assertion after the concurrent round.",
+      "originalHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+      "originalBranch": "work/a2-impl-20261028",
+      "startedAt": "2026-10-28T07:44:08.794Z",
+      "mutantSha": "0a11f7568276599a4d24240be0a9c581f8dd6e12",
+      "exit": 0,
+      "verdict": "PASS",
+      "errors": [],
+      "passed": [
+        "concurrent-first-sockets",
+        "coop-mission-provisioned",
+        "coop-restart-action-accepted",
+        "coop-first-rolls-captured"
+      ],
+      "image": {
+        "buildId": "1793172695427",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "f888a468fbce3d6d086d9e736f3393fad56d2ffa451014a7315db4dbdb52dfbc",
+        "sourceTreeSha256": "fbb14b542aa3bb49bd568fe52e256adfb772474cc871c18395c871c925be30d4"
+      },
+      "result": "SURVIVED",
+      "restoredHead": "0175450f1b07157118d01fbfb14bdbb24638bd79",
+      "restoredSha256": "3edd4b50ca6661a33ecaeb8aa543a72c9a3d65d16bccc13ffcdcdf92053d4e5f",
+      "finishedAt": "2026-10-28T07:44:26.344Z"
     }
   ],
   "ma3Analysis": {
-    "reason": "STOP: gating MA3 survived; no equivalence claimed",
+    "reason": "Known-gap witness reclassified by Root; not an A2 defect and not a kill",
     "ownerPlayerId": "pid_5mtAz6RUNJwo9H5PQE3KFfm9z4x",
     "senderPlayerId": "pid_BgZdaKJ7ppyNLknh6t3PY38Ew5Q",
     "distinctOwnerAndSender": true,
@@ -531,7 +585,7 @@
       "index": 3,
       "raw": "{\"kind\":\"Event\",\"matchId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"ts\":\"2026-10-28T07:37:47.658Z\",\"event\":{\"id\":\"31114f66-eeda-421e-ae96-e0c0e23bd7af\",\"gameId\":\"coop-ce512d9b305faa1237bfb16394eeafc8d656676fca9e759ecda0847d76c28138\",\"timestamp\":\"2026-10-28T07:37:47.656Z\",\"type\":\"movement_declared\",\"turn\":1,\"phase\":\"movement\",\"actorId\":\"a2-u1\",\"payload\":{\"unitId\":\"a2-u1\",\"from\":{\"q\":-2,\"r\":5},\"to\":{\"q\":-1,\"r\":4},\"facing\":0,\"movementType\":\"walk\",\"mode\":\"walk\",\"path\":[{\"q\":-2,\"r\":5},{\"q\":-1,\"r\":4}],\"mpUsed\":2,\"heatGenerated\":1,\"intentId\":\"coop-two-2-1\"}},\"deliverySequence\":5}"
     },
-    "interpretation": "The mutation changes the sender required by admission (actual owner to other contributor). It is not equivalent to that contract even though both players share the player side and the product accepts the Move. No product-policy ruling or fix is inferred.",
+    "interpretation": "The positive A2 journey selects the active unit owner as its actor. It does not claim exclusive-owner enforcement. Root ruled that co-op teammate unit commands are unconstrained on main, a known gap already registered to blocked U38. MA3 is a witness of that gap; no product edit is granted.",
     "sourceContext": {
       "path": "src/lib/multiplayer/server/ServerMatchHostIntent.ts",
       "function": "refuseForeignUnitCommand",
@@ -539,12 +593,9 @@
       "observation": "Guard compares caller side with unit side and returns null for the same side; co-op branch is also exempt. This explains why the wrong contributor can be accepted, but does not settle per-unit authorization policy."
     },
     "remaining": [
-      "MA4",
-      "MA5",
-      "MA2 named built-check qualification",
-      "G-A8 final cap and lifecycle",
-      "final gates",
-      "push/PR"
+      "U38 built-image refusal proof equivalent to MA3",
+      "MA5 Root ruling",
+      "lifecycle and final gates after MA5 discharge"
     ]
   },
   "pristineRebuildControl": {
@@ -647,7 +698,7 @@
         "effort": "Finding-dependent; repeat affected proofs."
       }
     ],
-    "agentRecommendation": "HOLD. First pristine built run passed 26/26, node tests passed 6/6 and pure mutants killed 18/18. MA1 is discharged as killed in combination (witness PA1) under the quoted Root ruling, but MA3 survived (distinct non-owner contributor sent an accepted Move). MA2 has a named textual assertion kill and a built reconnect failure, not a named built ctx.check kill. MA4/MA5 are unrun after the mandatory MA3 stop. Do not mark local-verified, approve merge or infer a waiver from the A2M R6 exception.",
+    "agentRecommendation": "HOLD solely pending the new gating MA5 survivor ruling. The original pristine build passed 26/26, six node tests and 18 pure mutants pass; MA1 is killed in combination (witness PA1), MA2 counts as a named node:test kill at pure level only, MA3 is the Root-classified U38 known-gap witness (not a kill or A2 defect), and MA4 is killed by the named replay-rolls check. MA5 deletes the journal assertion and survives all four owned rows. Do not infer a waiver or mark local-verified. Acceptance after MA5 discharge still requires independent exact-head reviews, CI and OWNER-RULING, with CF-A2-1 and inherited disclosures.",
     "revertCost": "Delete the four A2 harness leaves and own lifecycle/evidence additions. PA1 is scratch-only and already restored; product and predecessors are unchanged.",
     "decision": null,
     "ruling": null
@@ -666,6 +717,14 @@
     {
       "id": "CF-A2FP-2",
       "status": "No readiness rerun used in original pristine GREEN run."
+    },
+    {
+      "id": "CF-A2-1",
+      "status": "OPEN",
+      "owner": "U38",
+      "text": "Co-op teammate unit commands are unconstrained on main. MA3 on BUILD_ID 1793172695427 accepted a Move sent by the other contributor for the active owner unit. When U38 lands, its proof must include an equivalent built-image row that is refused.",
+      "releaseNotesOwner": "RELEASE-PRODUCER-1",
+      "gate": "G-A9"
     }
   ],
   "disclosures": [
@@ -673,7 +732,39 @@
     "previousPid is always null because it is read after stop; actual PID change is evidenced by process records.",
     "next-env.d.ts rewrites from builds restored with git checkout; diffs retained outside Git.",
     "Real mission GM remains player-role viewer; no GM role fix or inference. S5-02 and OQ-M1 remain open; fog acceptance and B timeline rows excluded.",
-    "Exact-main acceptance, independent reviews, OWNER-RULING, required CI and closure remain owed."
+    "Exact-main acceptance, independent reviews, OWNER-RULING, required CI and closure remain owed.",
+    "CF-A2-1: co-op teammate unit commands are unconstrained until U38; MA3 survived as expected on main, not an A2 defect or kill. Release notes via G-A9 / RELEASE-PRODUCER-1."
   ],
-  "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl"
+  "reportDirectory": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/a2-impl",
+  "holdReason": "MA5 gating mutant survived; new Root ruling required. MA3 is a discharged non-gating known-gap witness, not an A2 defect.",
+  "rootRulingMA3": {
+    "kind": "Root ruling, not an owner decision",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md",
+    "section": "2026-10-28 Root ruling: A2 mutant MA3 survived (co-op unit command ownership is a known, registered gap), and MA2 qualification",
+    "verbatim": "## 2026-10-28 Root ruling: A2 mutant MA3 survived (co-op unit command ownership is a known, registered gap), and MA2 qualification\n\nFacts (from _reports/2026-10-28/a2-impl/ma3-analysis.json, head 0175450f1):\n- MA3 sends the post-restart Move for a2-u1, owned by pid_5mtAz6..., on the other contributor's connection (pid_BgZdaK..., same `player` side).\n- The built server accepted it: movement_declared, intentId coop-two-2-1. All 4 owned rows passed.\n\nRoot reading:\n- On main, `refuseForeignUnitCommand` in src/lib/multiplayer/server/ServerMatchHostIntent.ts returns early for every co-op campaign match (`if (meta?.coopCampaign) return null;`, comment at :559-566: \"Until that map reaches the host, co-op unit commands are unconstrained\").\n- The fix is already registered: units.json U38 (node R2.authority-live, state blocked). It deletes that exemption and refuses a teammate commanding another player's unit with AUTH_REJECTED unit-not-owned. It applies the owner's earlier answer \"control only their own units\" (docs/audits/2026-10-17-l1-amendment-draft.md row 17 -> U38).\n- So MA3 asserted behaviour main does not yet have. This is not a new owner policy question and not a new product finding: it is the known gap U38 owns. A2 may not edit product code, and its admission does not claim per-unit command ownership.\n\nRuling:\n1. MA3 is reclassified from gating to a known-gap witness. Record it as \"SURVIVED: expected on main; co-op per-unit command ownership is not enforced until U38\". It is not an A2 defect, and it does not count as a kill.\n2. CF-A2-1, new and open: co-op teammate unit commands are unconstrained on main (witness: the MA3 built run on BUILD_ID 1793172695427). Owner: U38. When U38 lands, its proof must include a built-image row equivalent to MA3 that is refused.\n   - Disclosure: the A2 local receipt, the PR body, and the release-notes known issue via RELEASE-PRODUCER-1 (G-A9 list).\n   - No A2 text may claim that only the unit owner can move.\n3. MA2 counts as killed by the named node:test source-order assertion (pure level). Its built-image failure (ECONNREFUSED) is not a named check: disclose it, and do not count it as a built kill.\n4. MA4 and MA5 continue under the unchanged rule: a survivor stops the unit unless shown equivalent, or unless it is shown to be the same registered gap, which Root rules.\n",
+    "verbatimSha256": "2828613954d090dc1649514a4bf0fa92b275814686e2fa763dbb50ad68341753"
+  },
+  "ma5Analysis": {
+    "result": "SURVIVED",
+    "equivalent": false,
+    "description": "MA5 removes only the journal eventCount === maxSequence + 1 assertion after the concurrent round. Correct main has a contiguous journal, so the original and mutated runs both pass. The omitted assertion can detect a gap if one is introduced; deleting it is not equivalent. No PA5 or extrapolation of MA1 ruling has been attempted.",
+    "witness": "built-mutants/MA5/summary.json",
+    "buildId": "1793172695427",
+    "requiredAction": "Stop and obtain Root ruling under unchanged MA5 rule."
+  },
+  "frozenOwnerClaimAudit": {
+    "verdict": "No frozen leaf claims that only the unit owner may issue commands.",
+    "details": "cases.mjs selects owner.label for the positive Move; fixtures.ts reads ownerPlayerId. These are actor selection and witness facts, not a claim of enforced exclusivity. Tests and runner contain no exclusive-owner statement.",
+    "leavesEdited": false
+  },
+  "releaseNotesKnownIssues": {
+    "gate": "G-A9",
+    "owner": "RELEASE-PRODUCER-1",
+    "items": [
+      "Real mission GM keeps player viewer role",
+      "S5-02 remains open",
+      "OQ-M1 authority sequence gap remains disclosed",
+      "CF-A2-1: co-op teammate unit commands unconstrained; owner U38; MA3 witness BUILD_ID 1793172695427"
+    ]
+  }
 }
