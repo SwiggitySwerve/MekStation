@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2M",
+  "stage": "local",
+  "date": "20261027",
+  "recordedAt": "2026-10-28T03:16:51.759Z",
+  "implementationBase": "962f8ae9c67a6da15916202dd44d803676a35c9d",
+  "redCommit": "9363f5d8bb2417aa6d5be9339b54e6fb01acd680",
+  "greenCommit": "2cefdfe623eb6eb4f643ac90cae296bcb261a67e",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2m-admission.json",
+    "sha256": "82391d33cc098157eba5b3fbc6f0d29730419fba92a58a8cd8954e73e6e6cdda",
+    "bytes": 42290
+  },
+  "leaves": [
+    {
+      "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+      "sha256": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35",
+      "bytes": 6876,
+      "formattedLines": 223,
+      "matchesFrozenHash": true,
+      "measuredFitDraftSha256": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35"
+    },
+    {
+      "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+      "sha256": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8",
+      "bytes": 980,
+      "formattedLines": 29,
+      "matchesFrozenHash": true,
+      "measuredFitDraftSha256": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8"
+    },
+    {
+      "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+      "sha256": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f",
+      "bytes": 7185,
+      "formattedLines": 221,
+      "matchesFrozenHash": true,
+      "measuredFitDraftSha256": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f"
+    }
+  ],
+  "formatting": "npx oxfmt --check on the three leaves exits 0 (All matched files use the correct format, 3 files; explicit file arguments are checked although .oxfmtignore lists scripts). Leaf bytes equal the admission measuredFit draftSha256 values; no deviation from the drafts.",
+  "nodeTests": {
+    "tests": 9,
+    "pass": 9,
+    "fail": 0,
+    "command": "node --test scripts/release/l1-built-server-spectator-privacy.test.mjs",
+    "head": "2cefdfe623eb6eb4f643ac90cae296bcb261a67e",
+    "lane": "a2m-impl",
+    "class": "jest",
+    "log": {
+      "sha256": "c386987638d0b0fb6b5dac50d42c341fb26c8c7e4e58ccebe1662db44c1e15f7",
+      "bytes": 2271
+    },
+    "oxfmtLog": {
+      "sha256": "205d9d9da403d676740020dbe24cbca6380a2f18f39aa7d27c578b00a628d18b",
+      "bytes": 112
+    }
+  },
+  "pureFunctionMutants": {
+    "total": 16,
+    "killed": 16,
+    "survivors": [],
+    "results": [
+      {
+        "name": "M1 drop sentinel scan",
+        "result": "KILLED",
+        "fails": 3
+      },
+      {
+        "name": "M2 drop placeholder check",
+        "result": "KILLED",
+        "fails": 2
+      },
+      {
+        "name": "M14 placeholder check ignores the phase",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M3 cursor always contiguous",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M4 drop player sequence check",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M5 flag sequence for gm too",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M6 GM control branch no-op",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M7 spectator check skipped",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M8 drop gm-unassigned audience",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M9 drop last required case",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M10 nested A1 in matrix",
+        "result": "KILLED",
+        "fails": 1
+      },
+      {
+        "name": "M11 barrier ignores unit",
+        "result": "KILLED",
+        "fails": 2
+      },
+      {
+        "name": "M12 reconnect cut ignored",
+        "result": "KILLED",
+        "fails": 2
+      },
+      {
+        "name": "M15 stale-first not established before the declaration",
+        "result": "KILLED",
+        "fails": 2
+      },
+      {
+        "name": "M16 prepareAudience skipped (R7)",
+        "result": "KILLED",
+        "fails": 2
+      },
+      {
+        "name": "M13 events ignores replay chunks",
+        "result": "KILLED",
+        "fails": 2
+      }
+    ],
+    "tool": "m-mutants.cjs from prep/a2m-admission, run through heavy-run lane a2m-impl on the GREEN leaves; the leaves were byte-identical afterwards"
+  },
+  "builtImage": {
+    "head": "2cefdfe623eb6eb4f643ac90cae296bcb261a67e",
+    "command": "node scripts/release/run-l1-built-server-spectator-privacy.mjs --build --expected-sha=2cefdfe623eb6eb4f643ac90cae296bcb261a67e --output=<abs-new-dir>",
+    "lane": "a2m-impl",
+    "class": "package",
+    "verdict": "PASS",
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant"
+    ],
+    "errors": [],
+    "processes": 42,
+    "manifest": {
+      "node": "v22.22.0",
+      "platform": "win32",
+      "built": true,
+      "source": {
+        "head": "2cefdfe623eb6eb4f643ac90cae296bcb261a67e",
+        "clean": true
+      },
+      "image": {
+        "buildId": "1793146721342",
+        "serverSha256": "d44599ade809d57e8a1a862bcef0d660b0a6b615cfe9be7b7d0da788feaf7dee",
+        "configSha256": "c7963279ea4511754863f8867f35b3ac34803dbe435bd8fc0813962f0355a510",
+        "sourceTreeSha256": "734e3ad550b7dd894664d7efcd4e1cc46ce76cf5ba66ab0a1646d4a2837d7d2b"
+      }
+    },
+    "summary": {
+      "sha256": "45f7fce6c294c4097f6c130066c29c4bacc855efc085ec2a59228efb05641e3d",
+      "bytes": 9850
+    },
+    "evidence": {
+      "sha256": "5e43aded77fc89411ff27304de67123a4f736231bee3f9917726d0114936f456",
+      "bytes": 1357534
+    },
+    "firstContact": "First --build run of the runner after MISSION-MATCH-1: A1 baseline once plus the 12 matrix ids PASS, no stop condition, no rerun (CF-A2FP-2 unused). next build rewrote next-env.d.ts; restored with git checkout and disclosed (diff kept outside Git).",
+    "repeatRun": "A second unmutated --build run at the same GREEN head (from the invalid first P7 attempt) also PASSED 22 of 22; it is kept as bm/P7-invalid-unmutated-run and is not a P7 result."
+  },
+  "builtMutants": {
+    "results": [
+      {
+        "id": "R6",
+        "desc": "runRow skips the live barrier wait",
+        "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "mutantSha": "9220087c8a9e96cbc63b84df3f151cfe65961ad7",
+        "exit": 0,
+        "ms": 185295,
+        "verdictOfRun": "PASS",
+        "passed": [
+          "credential-malformed-refused",
+          "credential-url-refused",
+          "participants-authenticated",
+          "credential-foreign-refused",
+          "participant-action-accepted",
+          "spectator-seat-witnessed",
+          "spectator-replay-public",
+          "spectator-live-public",
+          "spectator-cannot-act",
+          "callbacks-exercised",
+          "matrix-Move-player-stale",
+          "matrix-Move-gm-stale",
+          "matrix-Move-gm-unassigned",
+          "matrix-Move-gm-participant",
+          "matrix-Attack-player-stale",
+          "matrix-Attack-gm-stale",
+          "matrix-Attack-gm-unassigned",
+          "matrix-Attack-gm-participant",
+          "matrix-Physical-player-stale",
+          "matrix-Physical-gm-stale",
+          "matrix-Physical-gm-unassigned",
+          "matrix-Physical-gm-participant"
+        ],
+        "errors": [],
+        "result": "SURVIVED",
+        "classification": "SURVIVED (not equivalent; Root ruling 2026-10-28: disclosed survivor)",
+        "log": {
+          "sha256": "79ab31fa60270fd593c3597a8b79cc2016b916541ce763e6d3eac6821ec63800",
+          "bytes": 742
+        }
+      },
+      {
+        "id": "R7",
+        "desc": "runRow skips prepareAudience (stub prepared)",
+        "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "mutantSha": "9b5d1fce0777c60d227e33777bd7d7a854a99334",
+        "exit": 1,
+        "ms": 14383,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "credential-malformed-refused",
+          "credential-url-refused",
+          "participants-authenticated",
+          "credential-foreign-refused",
+          "participant-action-accepted",
+          "spectator-seat-witnessed",
+          "spectator-replay-public",
+          "spectator-live-public",
+          "spectator-cannot-act",
+          "callbacks-exercised"
+        ],
+        "errors": [
+          "[matrix-Move-player-stale] trusted audience not established: {}"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check",
+        "log": {
+          "sha256": "12cebd6a5525677e2a5725e9e2ddf8265d45d0eee08e54ac64114e6ff6e43e5c",
+          "bytes": 104
+        }
+      },
+      {
+        "id": "R8",
+        "desc": "reveal leg skipped (AdvancePhase request not sent)",
+        "file": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "mutantSha": "cba575125b497e490480b03900ada17a0eecffb3",
+        "exit": 1,
+        "ms": 35435,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "credential-malformed-refused",
+          "credential-url-refused",
+          "participants-authenticated",
+          "credential-foreign-refused",
+          "participant-action-accepted",
+          "spectator-seat-witnessed",
+          "spectator-replay-public",
+          "spectator-live-public",
+          "spectator-cannot-act",
+          "callbacks-exercised"
+        ],
+        "errors": [
+          "matrix-Move-player-stale-watcher4: timeout waiting for authoritative reveal"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check (barrier timeout on the reveal)",
+        "log": {
+          "sha256": "e013c0ef962c952e8fd3e4bdc3ca473c1fd618134a025868aaa61ee1f2802905",
+          "bytes": 116
+        }
+      },
+      {
+        "id": "P1",
+        "desc": "delete the spectator guard (MatchWireSealedChoices.ts)",
+        "file": "src/lib/multiplayer/server/projection/MatchWireSealedChoices.ts",
+        "mutantSha": "ba19f4a861ef59c564803f5f7cc82c4050a5a7cd",
+        "exit": 1,
+        "ms": 163196,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "credential-malformed-refused",
+          "credential-url-refused",
+          "participants-authenticated",
+          "credential-foreign-refused",
+          "participant-action-accepted",
+          "spectator-seat-witnessed",
+          "spectator-replay-public",
+          "spectator-live-public",
+          "spectator-cannot-act",
+          "callbacks-exercised"
+        ],
+        "errors": [
+          "[matrix-Move-player-stale] live: spectator holds withheld material: [\"sealed sentinel\",\"sealed sentinel\",\"sealed sentinel\",\"declaration or placeholder event\"]"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check",
+        "log": {
+          "sha256": "de61f9f23ddb9ab6598b71d72a3ac9e2c67a4064f715c3d3a676509bddc619dd",
+          "bytes": 199
+        }
+      },
+      {
+        "id": "P4",
+        "desc": "replay path unprojected (guardReplayFrames bypass)",
+        "file": "src/lib/multiplayer/server/ServerMatchHostReplay.ts",
+        "mutantSha": "83b570fb13f62839db6c5029ca45e2a2a2d081bb",
+        "exit": 1,
+        "ms": 168170,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "credential-malformed-refused",
+          "credential-url-refused",
+          "participants-authenticated",
+          "credential-foreign-refused",
+          "participant-action-accepted",
+          "spectator-seat-witnessed",
+          "spectator-replay-public",
+          "spectator-live-public",
+          "spectator-cannot-act",
+          "callbacks-exercised"
+        ],
+        "errors": [
+          "[matrix-Move-player-stale] reconnect: spectator holds withheld material: [\"sealed sentinel\",\"sealed sentinel\",\"sealed sentinel\",\"declaration or placeholder event\",\"delivery cursor gap\"]"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check",
+        "log": {
+          "sha256": "89c60a993afc75726c4172e885c03e9985ab275b136c246d1de864b0cc62b6b6",
+          "bytes": 226
+        }
+      },
+      {
+        "id": "P6",
+        "desc": "shouldRemoveAuthorityFieldForRole keeps sequence for every role",
+        "file": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts",
+        "mutantSha": "e88aee8300bada228753cbcb539e923d5267a385",
+        "exit": 1,
+        "ms": 161981,
+        "verdictOfRun": "FAIL",
+        "passed": [
+          "credential-malformed-refused",
+          "credential-url-refused",
+          "participants-authenticated",
+          "credential-foreign-refused",
+          "participant-action-accepted",
+          "spectator-seat-witnessed",
+          "spectator-replay-public",
+          "spectator-live-public",
+          "spectator-cannot-act",
+          "callbacks-exercised"
+        ],
+        "errors": [
+          "[matrix-Move-player-stale] live: spectator holds withheld material: [\"authority sequence\"]"
+        ],
+        "result": "KILLED",
+        "classification": "KILLED by named check",
+        "log": {
+          "sha256": "a5ebd5283d2f120eab680b6caaea446ef40dd9b95f0e5bf9c66e61192a1a34ee",
+          "bytes": 131
+        }
+      }
+    ],
+    "p7": {
+      "id": "P7",
+      "optional": true,
+      "gating": false,
+      "desc": "MISSION-MATCH-1 reverted on the image: the eight MM1 product files and the MM1 test restored to their pre-merge bytes and the MM1-added sideAssignments.ts removed, on a detached throwaway commit",
+      "mutantSha": "c4ecfee968368da400217058ab88697fc8ef8aa2",
+      "exit": 1,
+      "result": "KILLED",
+      "classification": "KILLED by named check",
+      "error": "matrix-Move-player-stale-guest3: timeout waiting for reply to Move",
+      "log": {
+        "sha256": "63328f487c00da52f64fb64a657077432a27a6398e2e08869b5d6a7e3598a0ee",
+        "bytes": 95
+      },
+      "invalidFirstAttempt": "The first P7 attempt reverted nothing: git checkout failed on sideAssignments.ts (added by MM1), the mutant commit was empty and the build ran the unmutated GREEN head, so its PASS is not a P7 result."
+    }
+  },
+  "rootRuling20261028": {
+    "kind": "Root ruling (not an owner decision)",
+    "source": "E:/Projects/Personal/MekStation-wt/_receipts/carry-forward.md, section 2026-10-28 Root ruling: A2M gating mutant R6 survived (worker STOP at G-A4)",
+    "sectionSha256": "a3500d131b26554b9ce6df4800c36c6e290a40767fe4201c94ad51a18a3c7c0a",
+    "text": "## 2026-10-28 Root ruling: A2M gating mutant R6 survived (worker STOP at G-A4)\n- Facts (_reports/2026-10-27/a2m-impl/HANDOFF.md, bm/built-mutants.json): built run G-A3 PASS first attempt (A1 + 12 matrix ids). R7, R8, P1, P4, P6 KILLED. R6 (runRow skips the live barrier wait) SURVIVED; it is not equivalent: accepted() returns on the actor's own reply and the watcher's public-lock frame arrives ~1 ms later, so without the barrier the live-leg scan can run before the frame arrives. Reconnect/restart legs still cover P1/P4/P6; only a live-path-only leak combined with a missing barrier would escape.\n- Ruling (option A, A2F R5 precedent): accept R6 as a DISCLOSED, NON-EQUIVALENT survivor. It is a test-of-the-harness gap, not a privacy-proof gap: the shipped runner keeps the barrier, and every product mutant (P1, P4, P6) is killed. This narrows the #2345 rule \"a survivor stops the unit unless shown equivalent\" for R6 only. The local receipt states the race analysis and this ruling.\n- No leaf edit now (it would break the frozen measuredFit bytes, force a fresh RED/GREEN, and kill R6 only probabilistically).\n- CF-A2M-1: the next unit that amends the A2M harness adds a live-leg assertion that the watcher holds the public-lock frame for the declaration before the scan, and re-runs R6.\n- Run P7 as a disclosure if time allows; it does not gate.\n- 2026-10-28 Root: the UI agent's dev server moved to port 3600 (npm run dev chain 78576/54492/7016/66624, started 7:35 PM); old 11640 is gone. Root started _locks/heavy/a2m-concurrent-ui.ps1 (PID 83360) exempting only that chain for 2 h while 66624 lives with its original creation time; it clears ALLOW_PIDS on exit. Stop via a2m-concurrent-ui.stop after A2M heavy work.",
+    "effect": "Narrows the #2345 rule that a survivor stops the unit unless shown equivalent, for R6 only."
+  },
+  "survivorR6": {
+    "id": "R6",
+    "desc": "runRow skips the live barrier wait",
+    "result": "SURVIVED",
+    "equivalent": false,
+    "raceAnalysis": "accepted() resolves on the actor's own Event reply. The watcher's public-lock frame for the same declaration is delivered separately and lands about 1 ms later (evidence.jsonl of the R6 run: actor movement_declared at :58399, watcher movement_locked at :58400). Without the barrier the live-leg scan can run before that frame arrives and then has nothing to flag. The reconnect and restart legs rescan the full history from the start, so P1, P4 and P6 are still caught there without the live leg. A live-path-only leak combined with a missing barrier would escape; that is a harness gap, not a privacy-proof gap, because the shipped runner keeps the barrier and every product mutant is killed.",
+    "noLeafEdit": true
+  },
+  "carryForward": [
+    {
+      "id": "CF-A2M-1",
+      "status": "Owed",
+      "text": "The next unit that amends the A2M harness adds a live-leg assertion that the watcher holds the public-lock frame for the declaration before the scan, and re-runs R6."
+    },
+    {
+      "id": "CF-A2FP-2",
+      "status": "Not exercised: no readiness timeout in the first built run; no rerun used."
+    }
+  ],
+  "heavyRunWait": {
+    "note": "The P7 ticket P1-1793155018582-a2m-impl waited about 30 minutes on the idle gate. machine-idle reported MACHINE_BUSY for node server.js PID 66624 (port 3600) under npm run dev (PIDs 54492, 78576) and cmd PID 7016, started 7:35 PM MDT and not in ALLOW_PIDS. Reported to Root as a question; Root started _locks/heavy/a2m-concurrent-ui.ps1 (PID 83360), which exempts only that dev-server chain for two hours. No process was killed and ALLOW_PIDS was not edited by the worker. The built run and mutants R6 to P6 were granted without this wait.",
+    "blockedBy": {
+      "pid": 66624,
+      "port": 3600
+    }
+  },
+  "disclosures": [
+    "G-A8: the real mission GM keeps the player viewer role (Root ruling 2026-10-26 option a); the release-notes obligation belongs to RELEASE-PRODUCER-1 admission.",
+    "S5-02 (who may spectate) stays open with no A2M row.",
+    "OQ-M1: GM-branded spectator rows assert sealed content absent, no placeholder and a contiguous delivery cursor; the authority sequence gap is disclosed, not asserted."
+  ],
+  "limitations": [
+    "The node:test file is run explicitly and is not CI-wired.",
+    "Exact-main acceptance is not claimed: independent exact-head review, OWNER-RULING, CI, merge and the exact-main built run remain open.",
+    "The built run and mutants ran at the GREEN head; later commits change only the roadmap ledger and evidence."
+  ],
+  "cap": {
+    "countedLines": 303,
+    "optionACountedLines": 303,
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "measurement": "measure-cap.cjs (the validate-roadmap counting rule: added lines of files outside the evidence directory and UNCOUNTED_FILES) over 962f8ae9c..HEAD of the committed lifecycle tree; leaves 252 (cases 223, runner 29) + units.json 39 + PROGRESS.md 10 + V2.2.0-STEPS.md 2. No fixture leaf, so the literal and option-A counts are equal. No capException.",
+    "countedFiles": 7,
+    "totalFiles": 8,
+    "note": "Test leaf (221 lines) is exempt from lines and counted as a file; the two evidence receipts are line-exempt and file-counted; the page is exempt from the file count (ownerRuling20261024StepsPageFileCap). 15-file cap and 500-line cap met."
+  }
+}
