@@ -1,0 +1,146 @@
+{
+  "unit": "L1-SMOKE-B",
+  "stage": "review",
+  "recordedAt": "2026-10-28T11:38:18.598Z",
+  "evidenceNameNote": "File name keeps the literal frozen in the admission receipt and the unit ownershipExceptions (l1-smoke-b-admission-review-20261018.json).",
+  "head": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+  "reviewedHead": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+  "reviewedHeadNote": "The independent Opus review and the GPT Sol second review read 1c0bfd56f (the first flip). Opus returned ACCEPT with three LOW disclosure items; GPT Sol returned REQUEST-CHANGES on two harness gaps. Root ruled both gaps fixed in the PR: 5f4e15b81 reverts the flip, 05f065eff changes the cases and test leaves (G-B3 deviation), 4959155d1 refreshes the lifecycle (Opus F1-F3) and 45b216b4c re-applies the identical flip last. The OWNER-RULING (comment 6467635332, Root on behalf of the owner) accepted 45b216b4c. The fixtures and runner leaves are byte-identical at 1c0bfd56f, 45b216b4c and the merge; the cases and test leaves are not (merge receipt sourceIdentities). The fix commits were re-checked by Root, not independently reviewed.",
+  "reviewerModel": "claude-opus-5-5",
+  "reviewerModelNote": "Independent read-only review sub-agent (Claude Opus 5.5); the report names Claude Opus 5.5 as reviewer.",
+  "secondReviewer": {
+    "model": "gpt-6.1-sol",
+    "verdict": "REQUEST-CHANGES (F1, F2)",
+    "head": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+    "report": "additionalPayload pr2351-review2.md in evidence/l1-smoke-b-source-review-20261028.bytes.json",
+    "sha256": "5374fc0c15c65bc6ae677ac117348e85596097c912dcdc837d961726c86424ee",
+    "bytes": 7365,
+    "note": "An independent GPT Sol pass. It ran no tests, builds, tickets or mutation jobs."
+  },
+  "implementerModel": "claude-sonnet-5-5",
+  "implementerModelNote": "Contributor block in the local receipt: the worker is Claude Sonnet 5.5; the commit Co-Authored-By trailers follow the Root brief (Claude Opus 5.5) and do not identify the worker. Neither reviewer is an implementer.",
+  "verdict": "APPROVE",
+  "reviewerVerdict": "ACCEPT (Opus, F1-F3 LOW, applied at 4959155d1); REQUEST-CHANGES (GPT Sol, F1-F2, fixed at 05f065eff)",
+  "ownerDisposition": "ACCEPT at 45b216b4c138457bf2f26a1a53827306ce0cb17d (OWNER-RULING comment 6467635332, Root on behalf of the owner)",
+  "classes": [
+    "authority",
+    "privacy"
+  ],
+  "outputPath": "evidence/l1-smoke-b-source-review-20261028.bytes.json",
+  "outputCopyNote": "The base64 envelope is the byte authority; its top-level payload is pr2351-review.md as written by the reviewer. The GPT Sol review, the worker handoff log, the PR body at merge and the four B-relevant Root rulings are additionalPayloads of the same envelope.",
+  "outputSha256": "3c58383382357357d9af61ff9b863ad97fdea05486eb3250d5c92c9c2de566ab",
+  "outputBytes": 16843,
+  "outputEnvelope": {
+    "path": "evidence/l1-smoke-b-source-review-20261028.bytes.json",
+    "payloadSha256": "3c58383382357357d9af61ff9b863ad97fdea05486eb3250d5c92c9c2de566ab",
+    "payloadBytes": 16843
+  },
+  "originalPath": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/pr2351-review.md",
+  "byteExact": true,
+  "independentRuns": "Opus independently reran the node tests at 1c0bfd56f (228 of 228: the B leaf 12 at that head, validate-roadmap.test 86, v220 130) through heavy-run after a real npm ci (Node v22.22.0), re-hashed the admission controls (36 of 37 unchanged; v220-steps.json differs by the admitted flip hunk), reproduced the flip negative control, and ran generate-v220-steps --check and validate-roadmap plain, --git and --github (all pass). GPT Sol ran nothing. Neither ran a built image and neither saw the fix commits; the first built-image run on the merged tree by anyone other than the implementation worker is the exact-main done-test run in the mainProof receipt, which also reran the post-fix node test leaf 13/13.",
+  "effectiveManifest": {
+    "statement": "The effective L1-SMOKE-B manifest is the four registered leaves plus the unit lifecycle (units.json, PROGRESS.md, V2.2.0-STEPS.md, v220-steps.json) and the red and local receipts; PR #2351 carried 10 changed paths (9 counted files plus the exempt page). The admission receipt rode the #2350 closure PR. This closure PR carries the reserved review receipt, the merge and mainProof receipts and the three byte envelopes, plus (second commit) Step 3's step evidence.",
+    "files": [
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+      "scripts/release/l1-built-server-fog-cases.mjs",
+      "scripts/release/l1-built-server-fog-fixtures.ts",
+      "scripts/release/l1-built-server-fog.test.mjs",
+      "scripts/release/run-l1-built-server-fog-refusal.mjs"
+    ]
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "reviewer": "claude-opus-5-5",
+      "scope": "exact head 1c0bfd56f",
+      "reviewedHead": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+      "verdict": "ACCEPT",
+      "sha256": "3c58383382357357d9af61ff9b863ad97fdea05486eb3250d5c92c9c2de566ab",
+      "bytes": 16843,
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "APPLIED at 4959155d1: BB5 is recorded as \"not realizable as specified: unnamed ECONNREFUSED, no kill credited, not a survivor; fault class guarded by the stopped-PID guard (pure mutant killed)\" per the Root BB5 ruling; the driver KILLED_REQUIRES_NAMED_CHECK label is superseded"
+        },
+        {
+          "id": "F2",
+          "disposition": "APPLIED at 4959155d1: the timeline arm is disclosed as proving only that no public event id appears; a populated fog-on timeline is unproven on a default build (same cause as Root Q2)"
+        },
+        {
+          "id": "F3",
+          "disposition": "APPLIED at 4959155d1: 36 of the 37 controls are unchanged at the head; v220-steps.json changes only by the admitted G-B6 hunk"
+        },
+        {
+          "id": "INFO-1..6",
+          "disposition": "noted; sentinel scope is the public event ids; the new raw-body scan (05f065eff) widens the scan to every HTTP body; the remaining INFO items are disclosures carried in the local receipt"
+        }
+      ]
+    },
+    {
+      "round": 1,
+      "reviewer": "gpt-6.1-sol",
+      "scope": "exact head 1c0bfd56f",
+      "reviewedHead": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+      "verdict": "REQUEST-CHANGES",
+      "sha256": "5374fc0c15c65bc6ae677ac117348e85596097c912dcdc837d961726c86424ee",
+      "bytes": 7365,
+      "findings": [
+        {
+          "id": "F1",
+          "disposition": "FIXED at 05f065eff: the cases leaf keeps each HTTP body as raw text, scans it even when JSON parsing fails, fails on malformed JSON where JSON is required, and reads and scans the unauthenticated /head body; falsifiers added (200 non-JSON timeline carrying a sentinel, 401 /head JSON body carrying a sentinel)"
+        },
+        {
+          "id": "F2",
+          "disposition": "FIXED at 05f065eff: checkMemberRefusal rejects every property outside kind, matchId, ts, code and reason; falsifiers for digest, revision and deliverySequence on a valid Close"
+        }
+      ]
+    }
+  ],
+  "deltaReview": {
+    "delta": "1c0bfd56f083166bf29fb0f65d4746ceafc32043..45b216b4c138457bf2f26a1a53827306ce0cb17d",
+    "note": "Root-ruled fix commits; files openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md, openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md, openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json, openspec/planning/2026-09-12-roadmap-completion/units.json, scripts/release/l1-built-server-fog-cases.mjs, scripts/release/l1-built-server-fog.test.mjs. Re-checked by Root (owner-ruling comment: the fix diff, the flip identity, and that only the L1-SMOKE-B unit changed); not a third reviewer round and not an independent review."
+  },
+  "receiptQualifications": [
+    {
+      "id": "REVIEWED-HEAD",
+      "target": "stageReceipts.review.head",
+      "qualification": "head and ownerDisposition name the ruled head 45b216b4c; reviewedHead names the head both reviewers read (1c0bfd56f). The cases and test leaves changed in between (review fix); the fixtures and runner leaves did not."
+    }
+  ],
+  "ownerRuling": {
+    "ruledHead": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+    "reviewedHead": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+    "pr": 2351,
+    "commentId": 6467635332,
+    "author": "SwiggitySwerve",
+    "bodySha256": "d0f0516b600a750132933b56a7093b94de3cfd4c92503541a95e6ef398d920f9",
+    "at": "2026-10-28T11:19:59Z",
+    "source": "https://github.com/SwiggitySwerve/MekStation/pull/2351#issuecomment-6467635332",
+    "bodyBytes": 3874,
+    "envelope": {
+      "path": "evidence/l1-smoke-b-owner-ruling-6467635332.bytes.json",
+      "payloadSha256": "d0f0516b600a750132933b56a7093b94de3cfd4c92503541a95e6ef398d920f9",
+      "payloadBytes": 3874
+    }
+  },
+  "acceptedOnTheRecord": [
+    "Built-image mutants (Root rulings 2026-10-28, not owner decisions): BB1 and BB4 rerun on the registered image and killed at named fog checks; BB2 and BB3 killed on the pre-fix leaf and not rerun (named checks unchanged); BB5 not realizable as specified (ECONNREFUSED, no kill credited, not a survivor)",
+    "Disclosed limits: the post-admission live refusal stays a Jest pin (Q3); a default build keeps no journal, so the /head digest and a positive /head 200 are unproven, and the timeline arm proves only that no public event id appears (Q2)",
+    "The A2M R6 survivor and CF-A2M-1 ride in unchanged; CF-A2-1 (U38), S5-02, the real mission GM player viewer role and OQ-M1 stay open (release notes via RELEASE-PRODUCER-1)"
+  ],
+  "carryForwards": [
+    {
+      "id": "CF-A2-1",
+      "item": "Open; owner U38; its proof must include a built-image row equivalent to MA3 that is refused. Release-notes known issue via RELEASE-PRODUCER-1."
+    },
+    {
+      "id": "CF-A2M-1",
+      "item": "Open; routed to the next unit that amends the A2M harness (live-leg lock-frame assertion and R6 rerun, R6+P1 and R6+P6 combined mutants, tighter nested-A1 check)."
+    }
+  ]
+}

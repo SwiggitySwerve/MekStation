@@ -9296,7 +9296,12 @@
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-red-20261018.json",
         "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-local-20261018.json",
-        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-review-20261018.json"
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-admission-review-20261018.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-merge-20261028.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-mainproof-20261028.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-source-review-20261028.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-b-owner-ruling-6467635332.bytes.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/mainproof-ad8486735-logs.bytes.json"
       ],
       "lifecycleOwnershipLimit": "Only this unit own authentic lifecycle fields and frozen evidence; serialize ledger writes with the L1 product lane. No other unit, packet, holder or historical receipt edits. Every actual lifecycle/evidence file counts.",
       "ciClass": "product",
@@ -9314,17 +9319,36 @@
         "optionACountedLines": 497,
         "optionAExemptLeaves": ["scripts/release/l1-built-server-fog-fixtures.ts"]
       },
-      "state": "local-verified",
+      "state": "main-verified",
       "baseline": "d5fb4d86708bd9535d791372460361bdbe79a225",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+      "mergeSha": "ad84867355c85270086977ad3d9a83b93107c09a",
       "stageReceipts": {
         "admission": { "path": "evidence/l1-smoke-b-admission-20261018.json" },
         "red": { "path": "evidence/l1-smoke-b-red-20261018.json" },
         "local": { "path": "evidence/l1-smoke-b-local-20261018.json" },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
+        "review": {
+          "path": "evidence/l1-smoke-b-admission-review-20261018.json",
+          "head": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+          "reviewedHead": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+          "reviewerModel": "claude-opus-5-5",
+          "implementerModel": "claude-sonnet-5-5",
+          "outputSha256": "3c58383382357357d9af61ff9b863ad97fdea05486eb3250d5c92c9c2de566ab",
+          "verdict": "APPROVE",
+          "ownerDisposition": "ACCEPT at 45b216b4c138457bf2f26a1a53827306ce0cb17d"
+        },
+        "merge": {
+          "path": "evidence/l1-smoke-b-merge-20261028.json",
+          "pr": 2351,
+          "head": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+          "mergeSha": "ad84867355c85270086977ad3d9a83b93107c09a"
+        },
+        "mainProof": {
+          "path": "evidence/l1-smoke-b-mainproof-20261028.json",
+          "mergeCommit": "ad84867355c85270086977ad3d9a83b93107c09a",
+          "verdict": "PASS",
+          "runtime": "B node:test 13 of 13 at the clean exact merge; the frozen done-test (node scripts/release/run-l1-built-server-fog-refusal.mjs --build) passed 34 of 34 ids on the first attempt (A1 10, A2M 12, A2 4, fog 8; 0 failed, 0 skipped, 0 flaky), BUILD_ID 1793186803130, printed headSha ad8486735"
+        },
         "tick": null
       },
       "ownerGate": null,
@@ -9433,6 +9457,40 @@
         "proof": "RED 0586ec919 (weak ERR_MODULE_NOT_FOUND; the vacuous stand-in also fails), GREEN 5c61c779d (the four leaves equal the frozen bytes), then the review-fix commit 05f065eff under the Root ruling on the #2351 reviews (GPT F1, F2): the cases and test leaves deviate from the frozen draftSha256 (G-B3: cases 6033c9d2 -> 654eab6e, test 9fe25255 -> 9e2a6e27); every refusal HTTP body is kept raw and scanned, the unauthenticated /head body is scanned, and checkMemberRefusal rejects any Close property outside kind, matchId, ts, code and reason. node:test 13/13 (inherited 64/64), oxfmt 0, 31/31 pure-function mutants. The post-fix --build run PASSED all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt, BUILD_ID 1793185373032; the earlier run on 1793182573182 is superseded. Built mutants BB1 and BB4 rerun on the new image and killed at named checks; BB2 and BB3 (scratch product faults, never committed) killed at named checks on the pre-fix leaf and not rerun; BB5 is not realizable as specified (no kill credited, not a survivor). The first flip 1c0bfd56f was reverted (5f4e15b81); the identical flip is the last commit of this PR.",
         "rootRulings": "Root rulings 2026-10-28 (carry-forward.md; Root rulings, not owner decisions): B prep Q1-Q7 and the B freeze; the MA5 standing rule (no assertion-removal survivor occurred); BB5 not realizable as specified; the #2351 review findings.",
         "disclosures": "Post-admission live refusal stays a Jest pin (Q3); no journal on a default build so the /head digest and a positive /head 200 are unproven and the timeline arm proves only that no public event id appears (Q2); inherited A2M R6 survivor and CF-A2M-1 (open); CF-A2-1 (U38, open); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open; 36 of 37 controls unchanged at the head (v220-steps.json changes only by the G-B6 hunk); next-env.d.ts restores; release notes via RELEASE-PRODUCER-1 (spectate-policy caveat, RC cost of the done-test, headSha vs rcSha binding)."
+      },
+      "closureCarryForward20261028": {
+        "date": "2026-10-28",
+        "closurePr": "Step 3 PR 12 of 12 (L1-SMOKE-B closure and Step 3 step evidence)",
+        "CF-A2-1": {
+          "owner": "U38",
+          "status": "OPEN; routed to U38 by the A2 closure; carried unchanged by B (the U38 unit is not edited here)",
+          "item": "Co-op teammate unit commands are unconstrained on main. B proves fog refusal and adds no row for it.",
+          "u38Obligation": "When U38 lands, its proof must include a built-image row equivalent to MA3 that is REFUSED with AUTH_REJECTED unit-not-owned (recorded in the L1-SMOKE-A2 closureCarryForward20261028).",
+          "releaseNotes": "G-B10: RELEASE-PRODUCER-1 carries this known issue with the real mission GM player role, S5-02 and OQ-M1."
+        },
+        "CF-A2M-1": {
+          "owner": "the next unit that amends the A2M harness",
+          "status": "OPEN; routed",
+          "item": "Inherited unchanged: live-leg assertion that the watcher holds the public-lock frame (R6 survived), the R6+P1 and R6+P6 combined mutants, and a tighter nested-A1 check. B imports the A2M matrix read-only and does not amend it."
+        },
+        "releaseNotesRoute": {
+          "route": "G-B10 / RELEASE-PRODUCER-1 (Root owns the edit)",
+          "items": [
+            "Spectate policy caveat: S5-02 (who may spectate) is undecided and has no B row",
+            "The done-test's RC cost: it rebuilds the production image, starts about 46 owned processes and takes about 6 minutes (heavy-run class package, 30 minute lease); RELEASE-PRODUCER-1 reruns the frozen argv on the RC tag",
+            "The printed headSha: the done-test prints the checkout HEAD it ran on; RELEASE-PRODUCER-1 compares it to rcSha and binds argv and inputSha256 itself",
+            "The /head digest limit: a default build keeps no journal, so /head answers 404 no head; the digest sentinel and a positive /head 200 are unproven on the built image (Root Q2)",
+            "The Jest-pinned live refusal: the post-admission live refusal stays proved by b14FogContainment.test.ts, not the built image (Root Q3)",
+            "The timeline limit: the timeline arm proves only that no public event id appears; a populated fog-on timeline is unproven on a default build",
+            "CF-A2-1: co-op teammate unit commands are unconstrained until U38",
+            "The real mission GM keeps the player viewer role (mission matches have no meta.coopCampaign)",
+            "OQ-M1: the GM-branded authority sequence gap is recorded, not asserted",
+            "Inherited A2M R6 survivor, with P1 and P6 reconnect and restart coverage inferred rather than run"
+          ]
+        },
+        "residual": {
+          "item": "Disclosed, not fixed: BB5 is not realizable as specified (no kill credited, not a survivor); BB2 and BB3 were not rerun on the final image because their named checks are unchanged. Neither independent reviewer saw the review-fix commits; Root re-checked them."
+        }
       }
     },
     {
@@ -23423,10 +23481,22 @@
           "effort": "Finding-dependent; repeat the affected proofs."
         }
       ],
-      "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. The reviews of 1c0bfd56f (Opus ACCEPT F1-F3, GPT Sol REQUEST-CHANGES F1-F2) were resolved in this PR: the flip was reverted, the cases leaf now keeps and scans every HTTP body and rejects extra Close properties (a Root-authorized G-B3 deviation from the frozen cases and test leaves), and the identical flip is the last commit. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). GREEN passed 13/13 node tests, 64/64 inherited node tests and 31/31 pure-function mutants. The registered built run (BUILD_ID 1793185373032) passed all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt with no readiness rerun; the earlier run on BUILD_ID 1793182573182 is superseded. Built-image mutants: BB1 and BB4 rerun and killed at named fog checks on the new image; BB2 and BB3 (scratch product faults, never committed, restored byte-exact) killed at named checks on the pre-fix leaf and not rerun because their named checks are unchanged; BB5 is not realizable as specified (Root ruling: unnamed ECONNREFUSED, no kill credited, not a survivor, fault class guarded by the stopped-PID guard and pure mutant BM16). Disclosed limits: the post-admission live refusal stays a Jest pin (Root Q3); a default build keeps no journal, so the /head digest and a positive /head 200 are unproven, and the timeline arm proves only that no public event id appears (Root Q2); inherited A2M R6 survivor and CF-A2M-1; CF-A2-1 (co-op teammate unit commands unconstrained until U38); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open. Review the refusal contract literals, the raw-body sentinel scan, the Close property allowlist, the flip fixture guards (stopped PID, active fog-off match, journal fingerprint), that no fog-on frame is delivered and no capability is mocked, and the cap (literal validator count over 500 by design, option A at or under 500, capException recorded). The exact-main done-test run and the Step 3 evidence ride the closure PR. No product or frozen predecessor change.",
+      "agentRecommendation": "Accept only after independent exact-head privacy/authority review of the fixed head, required CI and OWNER-RULING. The reviews of 1c0bfd56f (Opus ACCEPT F1-F3, GPT Sol REQUEST-CHANGES F1-F2) were resolved in this PR: the flip was reverted, the cases leaf now keeps and scans every HTTP body and rejects extra Close properties (a Root-authorized G-B3 deviation from the frozen cases and test leaves), and the identical flip is the last commit. RED failed as declared (ERR_MODULE_NOT_FOUND; the vacuous stand-in also failed). GREEN passed 13/13 node tests, 64/64 inherited node tests and 31/31 pure-function mutants. The registered built run (BUILD_ID 1793185373032) passed all 34 ids (A1 10, A2M 12, A2 4, fog 8) on its first attempt with no readiness rerun; the earlier run on BUILD_ID 1793182573182 is superseded. Built-image mutants: BB1 and BB4 rerun and killed at named fog checks on the new image; BB2 and BB3 (scratch product faults, never committed, restored byte-exact) killed at named checks on the pre-fix leaf and not rerun because their named checks are unchanged; BB5 is not realizable as specified (Root ruling: unnamed ECONNREFUSED, no kill credited, not a survivor, fault class guarded by the stopped-PID guard and pure mutant BM16). Disclosed limits: the post-admission live refusal stays a Jest pin (Root Q3); a default build keeps no journal, so the /head digest and a positive /head 200 are unproven, and the timeline arm proves only that no public event id appears (Root Q2); inherited A2M R6 survivor and CF-A2M-1; CF-A2-1 (co-op teammate unit commands unconstrained until U38); the real mission GM keeps the player viewer role; S5-02 and OQ-M1 stay open. Review the refusal contract literals, the raw-body sentinel scan, the Close property allowlist, the flip fixture guards (stopped PID, active fog-off match, journal fingerprint), that no fog-on frame is delivered and no capability is mocked, and the cap (literal validator count over 500 by design, option A at or under 500, capException recorded). Closure (2026-10-28): the OWNER-RULING (comment 6467635332) accepted 45b216b4c; the exact-main done-test (node scripts/release/run-l1-built-server-fog-refusal.mjs --build) at ad8486735 passed all 34 ids on the first attempt (BUILD_ID 1793186803130, no rerun) and the B node test 13 of 13; the real merge measured 594 counted lines (capException, literal) and 497 under option A, 9 counted files plus the exempt page. CF-A2-1 (U38), CF-A2M-1, S5-02, the real mission GM player role and OQ-M1 stay open. Step 3's step evidence rides the same PR. No product or frozen predecessor change.",
       "revertCost": "Delete the four B harness leaves, the flip hunk and the own lifecycle/evidence additions. BB2 and BB3 were scratch-only and are restored; product and predecessors are unchanged.",
-      "decision": null,
-      "ruling": null
+      "decision": {
+        "option": "accept after verified review and CI",
+        "at": "2026-10-28T11:19:59Z",
+        "by": "SwiggitySwerve (GitHub account; Root acting on behalf of the owner under the standing merge and Full send instructions, per the live comment)",
+        "source": "https://github.com/SwiggitySwerve/MekStation/pull/2351#issuecomment-6467635332"
+      },
+      "ruling": {
+        "ruledHead": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+        "reviewedHead": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+        "pr": 2351,
+        "commentId": 6467635332,
+        "author": "SwiggitySwerve",
+        "bodySha256": "d0f0516b600a750132933b56a7093b94de3cfd4c92503541a95e6ef398d920f9"
+      }
     },
     {
       "id": "PK-mission-match-1-ruling",
