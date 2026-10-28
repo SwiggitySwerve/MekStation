@@ -210,7 +210,11 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     options: NodeCanonicalUnitServiceOptions = {},
   ) {
     // Resolve once so all subsequent reads use a stable absolute path.
-    this.projectRoot = path.resolve(baseDir ?? process.cwd());
+    // Hydration explicitly ships public catalogs and the BV cache; tracing a
+    // dynamic project root would also copy unrelated checkout contents.
+    this.projectRoot = path.resolve(
+      /* turbopackIgnore: true */ baseDir ?? process.cwd(),
+    );
     this.baseDir = path.resolve(
       this.projectRoot,
       'public/data/units/battlemechs',

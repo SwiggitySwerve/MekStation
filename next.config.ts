@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import type { Configuration, WebpackPluginInstance } from 'webpack';
 
+import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
@@ -87,7 +88,20 @@ interface WebpackContext {
   };
 }
 
-const nextConfig: NextConfig = {
+function productionHarnessAliases(
+  production: boolean,
+  absolute: boolean,
+): Record<string, string> {
+  if (!production || process.env.NEXT_PUBLIC_E2E_MODE === 'true') return {};
+  const target = './src/testing/emptyTacticalMapE2EHarness.tsx';
+  return {
+    '@/testing/TacticalMapE2EHarness': absolute
+      ? resolve(process.cwd(), target)
+      : target,
+  };
+}
+
+const nextConfig = (phase: string): NextConfig => ({
   ...(nextDistDir ? { distDir: nextDistDir } : {}),
   // Enable React strict mode for better development experience
   reactStrictMode: true,
@@ -98,6 +112,7 @@ const nextConfig: NextConfig = {
     resolveAlias: {
       fs: { browser: './src/utils/construction/emptyModule.ts' },
       path: { browser: './src/utils/construction/emptyModule.ts' },
+      ...productionHarnessAliases(phase === PHASE_PRODUCTION_BUILD, false),
     },
   },
 
@@ -173,15 +188,7 @@ const nextConfig: NextConfig = {
             path: join(process.cwd(), 'src/utils/construction/emptyModule.ts'),
           }
         : {};
-      const e2eHarnessAliases: Record<string, string> =
-        !dev && process.env.NEXT_PUBLIC_E2E_MODE !== 'true'
-          ? {
-              '@/testing/TacticalMapE2EHarness': join(
-                process.cwd(),
-                'src/testing/emptyTacticalMapE2EHarness.tsx',
-              ),
-            }
-          : {};
+      const e2eHarnessAliases = productionHarnessAliases(!dev, true);
 
       config.resolve.alias = {
         ...(config.resolve.alias as Record<string, string | false | string[]>),
@@ -240,6 +247,6 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_BUILD_VERSION: buildVersion,
     NEXT_PUBLIC_GIT_SHA: gitSha,
   },
-};
+});
 
 export default nextConfig;

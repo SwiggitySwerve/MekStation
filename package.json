@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "npx kill-port 3600 --silent && npm run sync:mm-data-config && node server.js",
     "dev:e2e": "npx kill-port 3600 --silent && npm run sync:mm-data-config && next dev --webpack --port 3600",
-    "build": "npm run sync:mm-data-config && node scripts/next/run-next.mjs build --webpack && node scripts/hydrate-next-standalone-multiplayer-server.mjs",
+    "build": "npm run sync:mm-data-config && node scripts/next/run-next.mjs build --turbopack && node scripts/hydrate-next-standalone-multiplayer-server.mjs",
     "build:analyze": "npm run sync:mm-data-config && ANALYZE=true next build --webpack",
     "start": "node .next/standalone/server.js",
     "lint": "oxlint",

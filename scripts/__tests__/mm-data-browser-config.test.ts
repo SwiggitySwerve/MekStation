@@ -165,7 +165,7 @@ describe('mm-data browser manifest synchronization', () => {
       },
       build: {
         afterSync: [
-          'node scripts/next/run-next.mjs build --webpack',
+          'node scripts/next/run-next.mjs build --turbopack',
           'node scripts/hydrate-next-standalone-multiplayer-server.mjs',
         ],
       },
