@@ -326,9 +326,10 @@ describe('Equipment Colors', () => {
       const ammoClasses = getBattleTechEquipmentClasses('AC/10 Ammo');
       const hsClasses = getBattleTechEquipmentClasses('Double Heat Sink');
 
-      // Energy weapons use yellow, ammo uses amber, heat sinks use cyan
+      // Energy weapons use yellow, ammo the neutral ammunition slate
+      // (critical slots give it its weapon's colour), heat sinks use cyan
       expect(laserClasses).toContain('bg-yellow-600');
-      expect(ammoClasses).toContain('bg-amber-600');
+      expect(ammoClasses).toContain('bg-slate-600');
       expect(hsClasses).toContain('bg-cyan-700');
     });
   });

@@ -36,9 +36,8 @@ The system SHALL provide a Clean Tech design focused on maximum readability.
 #### Scenario: Clean Tech visual elements
 
 - **WHEN** Clean Tech variant is active
-- **THEN** diagram uses realistic mech contour silhouette
-- **AND** biped locations use a 20%-opacity health-color fill with a 2px health-color outline and white armor values; the fill boundary continues to show allocated capacity
-- **AND** other configurations retain their status-based gradient fills
+- **THEN** bipeds use the Blueprint diagram (`BlueprintArmorDiagram`): the record sheet's outline as a FRONT view plus the sheet's REAR-torso inset, each front plate filled from the bottom to points / location max in one neutral steel tone over a much darker empty tone with a cream level line when not full, rear plates as outlines that select their location, a compact Location · Front · Rear · Total list, no status hue, and a "Fill = Points of Max · F Front · R Rear" key (see the armor-diagram spec's "Standard Blueprint Biped Diagram")
+- **AND** other configurations use a realistic mech contour silhouette and retain their status-based gradient fills
 - **AND** armor values are displayed as plain bold numbers
 - **AND** capacity is shown as secondary text (e.g., "/ 32"), with biped location labels and capacity values rendered at a readable size on desktop and phone
 - **AND** torso locations show stacked front/rear sections
@@ -106,7 +105,7 @@ All variants SHALL use consistent color coding for armor status.
 
 #### Scenario: Status colors
 
-- **WHEN** armor is displayed on any variant
+- **WHEN** armor is displayed on any variant other than the Standard biped silhouette, which shows coverage by fill height with no status hue
 - **THEN** 75-100% capacity shows green (#22c55e)
 - **AND** 50-74% capacity shows amber (#f59e0b)
 - **AND** 25-49% capacity shows orange (#f97316)
@@ -181,7 +180,8 @@ All visual variants SHALL render correctly on all mech configurations.
 
 The system SHALL use `VariantLocation` from `VariantLocationRenderer.tsx` for rendering location content in
 Quad, Tripod, LAM, and QuadVee configurations. Biped diagrams SHALL use their
-direct `BipedArmorSurface` route for location content.
+direct `BipedArmorSurface` route for location content, except the Standard
+style, which draws `BlueprintArmorDiagram`.
 
 #### Scenario: Location content rendering
 
@@ -193,7 +193,7 @@ direct `BipedArmorSurface` route for location content.
 
 #### Scenario: Biped location content rendering
 
-- **WHEN** an armor location is rendered in a Biped diagram
+- **WHEN** an armor location is rendered in a Glow, HUD or Chromatic Biped diagram
 - **THEN** the system SHALL use the direct `BipedArmorSurface` route
 - **AND** the selected variant SHALL remain available to that surface for variant-specific styling
 
@@ -213,6 +213,7 @@ The system SHALL use Clean Tech when no supported style has been selected.
 | Component              | Location                                    | Purpose                  |
 | ---------------------- | ------------------------------------------- | ------------------------ |
 | CleanTechDiagram       | `armor/variants/CleanTechDiagram.tsx`       | Clean Tech variant       |
+| BlueprintArmorDiagram  | `armor/variants/BlueprintArmorDiagram.tsx`  | Clean Tech (Standard) biped: record-sheet front view and rear inset, fill-height coverage |
 | NeonOperatorDiagram    | `armor/variants/NeonOperatorDiagram.tsx`    | Neon Operator variant    |
 | TacticalHUDDiagram     | `armor/variants/TacticalHUDDiagram.tsx`     | Tactical HUD variant     |
 | PremiumMaterialDiagram | `armor/variants/PremiumMaterialDiagram.tsx` | Premium Material variant |

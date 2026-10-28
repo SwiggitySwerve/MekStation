@@ -100,42 +100,45 @@ describe('Overview build readiness', () => {
     ]);
   });
 
-  it('keeps compact issue actions with their text and preserves full reasons', () => {
-    const rows = getReadinessRows(
-      { ...balanced, weightUsed: 107, weightRemaining: -7 },
-      null,
-    );
-    const onNavigate = jest.fn();
-    render(
-      <BuildReadinessList
-        rows={rows.filter(({ severity }) => severity !== 'ok')}
-        status={getReadinessStatus(
-          { errorCount: 1, warningCount: 0, infoCount: 0 },
-          20,
-          20,
-        )}
-        compact
-        onNavigate={onNavigate}
-      />,
-    );
-    const row = screen.getByTestId('overview-readiness-weight');
-    expect(row).toHaveClass('flex');
-    expect(
-      screen.getByText(
-        '7.0 t over the 100.0 t limit. Remove equipment or armor.',
-      ),
-    ).toHaveAttribute(
-      'title',
-      '7.0 t over the 100.0 t limit. Remove equipment or armor.',
-    );
-    const action = screen.getByRole('button', {
-      name: 'Weight: go to Equipment',
-    });
-    expect(action).toHaveTextContent('Go to Equipment');
-    expect(action).toHaveClass('min-h-11');
-    action.click();
-    expect(onNavigate).toHaveBeenCalledWith('equipment');
-  });
+  it.each([true, false])(
+    'keeps issue actions and reasons consistent (compact: %s)',
+    (compact) => {
+      const rows = getReadinessRows(
+        { ...balanced, weightUsed: 107, weightRemaining: -7 },
+        null,
+      );
+      const onNavigate = jest.fn();
+      render(
+        <BuildReadinessList
+          rows={rows.filter(({ severity }) => severity !== 'ok')}
+          status={getReadinessStatus(
+            { errorCount: 1, warningCount: 0, infoCount: 0 },
+            20,
+            20,
+          )}
+          compact={compact}
+          onNavigate={onNavigate}
+        />,
+      );
+      const row = screen.getByTestId('overview-readiness-weight');
+      // Both are icon | text grids; the phone card always puts the action on
+      // its own line under the reason, in the text column.
+      expect(row).toHaveClass('grid', 'grid-cols-[auto_minmax(0,1fr)]');
+      if (compact) expect(row).not.toHaveClass('sm:flex');
+      expect(
+        screen.getByText(
+          '7.0 t over the 100.0 t limit. Remove equipment or armor.',
+        ),
+      ).not.toHaveClass('truncate');
+      const action = screen.getByRole('button', {
+        name: 'Weight: go to Equipment',
+      });
+      expect(action).toHaveTextContent('Go to Equipment');
+      expect(action).toHaveClass('min-h-11', 'col-start-2');
+      action.click();
+      expect(onNavigate).toHaveBeenCalledWith('equipment');
+    },
+  );
 
   it('passes every row for a balanced build', () => {
     const rows = byId(getReadinessRows(balanced, null));
@@ -172,16 +175,73 @@ describe('Overview build readiness', () => {
         unplacedResult,
       ),
     );
-    // The Slots row explains placement without repeating the error.
-    expect(rows.slots.sentence).toBe(
-      '66 of 78 slots filled · PPC (3 slots) not placed.',
-    );
+    // The Slots row is about slots only; the PPC is the Unplaced row's.
+    expect(rows.slots.sentence).toBe('66 of 78 slots filled, 12 free.');
+    expect(rows.slots.label).toBe('Slots');
     expect(rows.slots.status).toBe('normal');
     expect(rows.slots.severity).toBe('ok');
-    expect(rows.slots.pending).toBe(true);
+    expect(rows.slots.pending).toBeUndefined();
     expect(rows.unplaced.severity).toBe('error');
+    // Same title as the status panel; the sentence adds what it leaves out.
+    expect(rows.unplaced.label).toBe('PPC needs a location');
     expect(rows.unplaced.sentence).toBe(
-      'PPC (3 slots) not placed — not legal until placed.',
+      'Takes 3 slots. Not legal until placed.',
+    );
+    expect(rows.unplaced.detail).toBeUndefined();
+  });
+
+  it('titles each failing row with the status panel title for its issue', () => {
+    const rows = byId(
+      getReadinessRows(
+        {
+          ...balanced,
+          weightUsed: 107,
+          weightRemaining: -7,
+          heatGenerated: 31,
+        },
+        resultOf([
+          issue(
+            ValidationCategory.WEIGHT,
+            UnitValidationSeverity.ERROR,
+            'Unit weight exceeds maximum tonnage by 7.0 t',
+          ),
+        ]),
+      ),
+    );
+    expect(rows.weight.label).toBe('Overweight by 7.0 t');
+    // The title states the amount, so the sentence does not repeat it.
+    expect(rows.weight.sentence).toBe(
+      'Over the 100.0 t limit. Remove equipment or armor.',
+    );
+    expect(rows.heat.label).toBe('Runs 11 heat over dissipation');
+    expect(rows.heat.sentence).toBe('Legal, but add heat sinks to run cool.');
+    // Passing rows keep their own label.
+    expect(rows.armor.label).toBe('Armor');
+  });
+
+  it('keeps the row label when a row holds several issues', () => {
+    const rows = byId(
+      getReadinessRows(
+        { ...balanced, unplacedInstanceIds: ['a', 'b'] },
+        resultOf([
+          issue(
+            ValidationCategory.SLOTS,
+            UnitValidationSeverity.ERROR,
+            'PPC needs a location.',
+            'criticalSlots.a',
+          ),
+          issue(
+            ValidationCategory.SLOTS,
+            UnitValidationSeverity.ERROR,
+            'AC/20 needs a location.',
+            'criticalSlots.b',
+          ),
+        ]),
+      ),
+    );
+    expect(rows.unplaced.label).toBe('Unplaced Equipment');
+    expect(rows.unplaced.sentence).toBe(
+      '2 items not placed — not legal until placed.',
     );
   });
 
@@ -235,10 +295,10 @@ describe('Overview build readiness', () => {
     const rows = byId(getReadinessRows(balanced, null));
     expect(rows.slots.sentence).toBe('62 of 78 slots filled, 16 free.');
     expect(rows.slots.severity).toBe('ok');
-    expect(rows.slots.pending).toBe(false);
+    expect(rows.slots.pending).toBeUndefined();
   });
 
-  it('uses a neutral pending icon until placement completes without adding warnings', () => {
+  it('checks the slot budget while an item is unplaced, without adding warnings', () => {
     const input = {
       ...balanced,
       criticalSlotsUsed: 69,
@@ -257,12 +317,12 @@ describe('Overview build readiness', () => {
       />,
     );
     const slots = screen.getByTestId('overview-readiness-slots');
-    expect(slots).toHaveTextContent('Pending:');
-    expect(screen.getByRole('img', { name: 'Pending' })).toBeInTheDocument();
-    expect(slots.querySelector('[data-readiness-icon="pending"]')).toHaveClass(
-      'text-text-theme-muted',
-    );
-    expect(slots.querySelector('.text-green-400')).toBeNull();
+    // No hollow circle that reads as an unchecked radio button: the slot
+    // budget passes, and the Unplaced row carries the placement error.
+    expect(slots).toHaveTextContent('OK:');
+    expect(screen.queryByRole('img', { name: 'Pending' })).toBeNull();
+    expect(slots.querySelector('[data-readiness-icon="pending"]')).toBeNull();
+    expect(slots.querySelector('.text-green-400')).not.toBeNull();
     expect(
       view.container.querySelectorAll('li[data-severity="error"]'),
     ).toHaveLength(1);
@@ -345,9 +405,11 @@ describe('Overview build readiness', () => {
       ),
     );
     expect(rows.armor.status).toBe('error');
-    expect(rows.armor.detail).toBe('Head armor exceeds 9 points');
+    // The rule's short message is the row's title, shown once.
+    expect(rows.armor.label).toBe('Head armor exceeds 9 points');
+    expect(rows.armor.detail).toBeUndefined();
     expect(rows.armor.severity).toBe('error');
-    expect(rows.armor.detailSeverity).toBe('error');
+    expect(rows.armor.detailSeverity).toBeUndefined();
     expect(rows.weight.status).toBe('normal');
   });
 
@@ -369,9 +431,8 @@ describe('Overview build readiness', () => {
     expect(rows.slots.detail).toBeUndefined();
     expect(rows.unplaced.status).toBe('error');
     expect(rows.unplaced.severity).toBe('error');
-    expect(rows.unplaced.sentence).toBe(
-      '1 item not placed — not legal until placed.',
-    );
+    expect(rows.unplaced.label).toBe('ER PPC needs a location');
+    expect(rows.unplaced.sentence).toBe('Not legal until placed.');
   });
 });
 

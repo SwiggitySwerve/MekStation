@@ -25,7 +25,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-accent-hover hover:bg-accent text-on-accent border-transparent',
+  primary: 'bg-accent hover:bg-accent-hover text-on-accent border-transparent',
   secondary:
     'bg-surface-raised hover:bg-border-theme border border-border-theme text-text-theme-secondary',
   ghost:
@@ -35,6 +35,17 @@ const variantClasses: Record<ButtonVariant, string> = {
   danger: 'bg-red-600 hover:bg-red-500 text-white border-transparent',
   success: 'bg-emerald-600 hover:bg-emerald-500 text-white border-transparent',
 };
+
+/**
+ * Shared disabled-button style: a solid 1px default border, transparent
+ * background, slightly dimmed secondary text, `not-allowed` cursor and no
+ * hover change. The outline (about 2.3:1 on a panel) and text (about 6:1) stay
+ * legible on navy, while the missing fill keeps it clearly off.
+ * Never dashed: a dashed border means "empty slot to fill" in Critical Slots.
+ * Important modifiers beat variant hovers and the global `button:disabled` fade.
+ */
+export const disabledButtonClasses =
+  'disabled:!border disabled:!border-solid disabled:!border-border-theme disabled:!bg-transparent disabled:!text-text-theme-secondary/85 disabled:!opacity-100 disabled:!shadow-none disabled:!cursor-not-allowed';
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: 'px-3 py-1.5 text-sm min-h-[44px]',
@@ -54,8 +65,7 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps): React.ReactElement {
-  const baseClasses =
-    'rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep';
+  const baseClasses = `rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 ${disabledButtonClasses} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-theme-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface-deep`;
   const widthClass = fullWidth ? 'w-full' : '';
 
   return (

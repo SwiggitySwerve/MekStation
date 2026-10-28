@@ -288,7 +288,7 @@ describe('CustomizerWithRouter route and persisted-tab composition', () => {
     mockCampaignRoutingState.unavailableUnitId = campaignRoute.unitId;
     view.rerender(<CustomizerWithRouter />);
     expect(screen.queryByTestId('unit-type-router')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Return to campaign' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Campaign' }));
     expect(mockCampaignRoutingState.returnToCampaign).toHaveBeenCalledTimes(1);
   });
 });

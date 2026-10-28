@@ -11,8 +11,12 @@
 import React from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { formatTons } from '@/utils/formatting';
 
-import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
+import {
+  BUILD_STATUS_KIND_TEXT_CLASS,
+  SeverityIcon,
+} from '../shared/BuildStatusLabel';
 import {
   getCapacityStatus,
   getHeatStatus,
@@ -92,7 +96,7 @@ function StatDisplay({
         </span>
         {max !== undefined && (
           <>
-            <span className="text-text-theme-secondary text-xs">/</span>
+            <span className="text-text-theme-secondary text-xs"> / </span>
             <span className="text-text-theme-secondary text-xs">{max}</span>
           </>
         )}
@@ -133,7 +137,7 @@ export function MobileLoadoutHeader({
             <StatDisplay
               label="Weight"
               value={stats.weightUsed.toFixed(1)}
-              max={stats.weightMax}
+              max={formatTons(stats.weightMax)}
               status={weightStatus}
             />
 
@@ -170,17 +174,22 @@ export function MobileLoadoutHeader({
 
         {/* Expand indicator with equipment count */}
         <div className="ml-2 flex flex-shrink-0 items-center gap-1.5">
-          {/* Unplaced equipment is a warning in the build status too. */}
+          {/* Unplaced equipment is an error in the build status too, with
+              the same icon, so the state never relies on colour alone. */}
           {stats.unassignedCount > 0 && (
             <span
-              className={`text-xs font-medium ${BUILD_STATUS_KIND_TEXT_CLASS.warning}`}
+              data-testid="mobile-loadout-unassigned"
+              className={`inline-flex items-center gap-1 text-xs font-medium ${BUILD_STATUS_KIND_TEXT_CLASS.error}`}
             >
+              <SeverityIcon kind="error" />
               {stats.unassignedCount} unassigned
             </span>
           )}
           <div className="bg-accent/20 flex items-center gap-1 rounded-full px-2 py-0.5">
-            <span className="text-accent text-xs font-bold">
-              {stats.equipmentCount}
+            {/* "22 items", as on the wide rail, so the number names what
+                it counts. */}
+            <span className="text-accent text-xs font-bold whitespace-nowrap tabular-nums">
+              {`${stats.equipmentCount} ${stats.equipmentCount === 1 ? 'item' : 'items'}`}
             </span>
             <span
               className={`text-accent text-[10px] transition-transform ${isExpanded ? 'rotate-180' : ''}`}

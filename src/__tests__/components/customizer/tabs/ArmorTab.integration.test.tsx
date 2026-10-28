@@ -44,13 +44,24 @@ test('labels tonnage points, allocated capacity, and unallocated excess distinct
   expect(screen.getByTestId('armor-points-explanation')).toHaveTextContent(
     '312 pts from 19.5 t',
   );
-  expect(screen.getByText('307 / 307 max')).toBeInTheDocument();
-  expect(
-    within(screen.getByTestId('armor-diagram')).getByText('5 points'),
-  ).toBeInTheDocument();
+  // The app's "x / y" ratio: the Allocated label already says what it is.
+  expect(screen.getByText('307 / 307')).toBeInTheDocument();
+  expect(screen.queryByText(/\/ 307 max/)).toBeNull();
+  // The Standard diagram adds no third copy of the totals or the unallocated
+  // readout; the summary strip and the inspector row below carry them.
+  const diagram = within(screen.getByTestId('armor-diagram'));
+  expect(diagram.queryByText(/307/)).toBeNull();
+  expect(diagram.queryByText(/points$/)).toBeNull();
   expect(
     screen.getByText('Unallocated Armor Points').parentElement,
   ).toHaveTextContent('5');
+  // Leftover points are a warning: warning orange with its icon, not amber.
+  const unallocated = screen.getByTestId('armor-unallocated-points');
+  expect(unallocated).toHaveClass('text-warning');
+  expect(unallocated).not.toHaveClass('text-amber-400');
+  expect(
+    unallocated.querySelector('[data-severity-icon="warning"]'),
+  ).not.toBeNull();
   expect(
     screen.getByRole('button', { name: 'Auto Allocate (0 pts)' }),
   ).toBeDisabled();
@@ -63,7 +74,7 @@ test('labels tonnage points, allocated capacity, and unallocated excess distinct
   expect(store.getState().armorAllocation).toBe(before);
 });
 
-test('explains a disabled Auto Allocate when every point is already assigned', () => {
+test('states why Auto Allocate is disabled when every point is already assigned', () => {
   const store = createNewUnitStore({
     name: 'Atlas armor assigned',
     tonnage: 100,
@@ -82,12 +93,70 @@ test('explains a disabled Auto Allocate when every point is already assigned', (
   expect(
     screen.getByText('Unallocated Armor Points').parentElement,
   ).toHaveTextContent('0');
-  expect(screen.getByTestId('armor-auto-allocate-reason')).toHaveTextContent(
-    'All armor points are already assigned',
+  // A disabled button always shows its reason beside it, in secondary text.
+  const reason = screen.getByTestId('armor-auto-allocate-reason');
+  expect(reason).toHaveTextContent('All points assigned');
+  expect(reason).toHaveClass('text-text-theme-secondary');
+  expect(button).toHaveAccessibleDescription('All points assigned');
+});
+
+test('labels Maximize Tonnage with what it adds and shows tonnage in tonnes', () => {
+  const store = createNewUnitStore({
+    name: 'Atlas maximize',
+    tonnage: 100,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  store.getState().setArmorTonnage(19);
+  store.getState().autoAllocateArmor();
+  const view = render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
   );
-  expect(button).toHaveAccessibleDescription(
-    'All armor points are already assigned',
+  // 19.5 t buys 312 points, but only 307 fit the chassis: +3 usable points.
+  const maximize = screen.getByRole('button', {
+    name: 'Maximize Tonnage (+0.5 t, +3 pts)',
+  });
+  expect(maximize).toBeEnabled();
+  const tonnage = screen.getByRole('spinbutton', { name: 'Armor Tonnage' });
+  expect(tonnage).toHaveValue(19);
+  expect(tonnage).toHaveDisplayValue('19.0');
+
+  fireEvent.click(maximize);
+  expect(store.getState().armorTonnage).toBe(19.5);
+  expect(
+    screen.getByRole('button', { name: 'Maximize Tonnage' }),
+  ).toBeDisabled();
+  expect(tonnage).toHaveDisplayValue('19.5');
+  view.unmount();
+});
+
+test('joins the Armor Tonnage stepper and keeps typed text while editing', () => {
+  const store = makeStore();
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
   );
+  const tonnage = screen.getByRole('spinbutton', { name: 'Armor Tonnage' });
+  expect(tonnage).toHaveDisplayValue('10.0');
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Increase armor tonnage' }),
+  );
+  expect(store.getState().armorTonnage).toBe(10.5);
+  expect(tonnage).toHaveDisplayValue('10.5');
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Decrease armor tonnage' }),
+  );
+  expect(store.getState().armorTonnage).toBe(10);
+
+  // Typing commits each edit but shows the typed text until the field blurs.
+  fireEvent.focus(tonnage);
+  fireEvent.change(tonnage, { target: { value: '8' } });
+  expect(store.getState().armorTonnage).toBe(8);
+  expect(tonnage).toHaveDisplayValue('8');
+  fireEvent.blur(tonnage);
+  expect(tonnage).toHaveDisplayValue('8.0');
 });
 
 test('shows no Auto Allocate reason while the button is enabled', () => {
@@ -124,7 +193,7 @@ test('real armor actions enforce shared cap and update the selected SVG values',
   expect(store.getState().armorAllocation.centerTorsoRear).toBe(8);
   expect(torso).toHaveAttribute(
     'aria-label',
-    'Center Torso armor: 24 of 32, rear: 8 of 8',
+    'Center Torso armor: 32 of 32 points, front 24, rear 8',
   );
   fireEvent.keyDown(torso, { key: ' ' });
   expect(screen.queryByTestId('location-armor-editor')).not.toBeInTheDocument();
@@ -148,9 +217,9 @@ test('read-only armor remains inspectable without exposing mutations', () => {
   for (const input of within(editor).getAllByRole('slider'))
     expect(input).toBeDisabled();
   expect(
-    screen.getByRole('spinbutton', { name: 'Armor tonnage' }),
+    screen.getByRole('spinbutton', { name: 'Armor Tonnage' }),
   ).toBeDisabled();
-  expect(screen.getByRole('combobox', { name: 'Armor type' })).toBeDisabled();
+  expect(screen.getByRole('combobox', { name: 'Armor Type' })).toBeDisabled();
   const allocate = screen.getByRole('button', { name: /Auto Allocate/ });
   expect(allocate).toBeDisabled();
   expect(allocate).toHaveAccessibleDescription(
@@ -167,11 +236,7 @@ test('draft appearance changes can revert or save without mutating armor', () =>
       <ArmorTab />
     </UnitStoreContext.Provider>,
   );
-  expect(
-    screen.getByText(
-      'Matches the record sheet · left side on the left · click a location to edit',
-    ),
-  ).toBeInTheDocument();
+  expect(screen.getByText('Fill = Points of Max')).toBeInTheDocument();
   act(() =>
     useCustomizerSettingsStore
       .getState()
@@ -179,20 +244,12 @@ test('draft appearance changes can revert or save without mutating armor', () =>
   );
   expect(screen.getByText('HUD')).toBeInTheDocument();
   act(() => useCustomizerSettingsStore.getState().revertCustomizer());
-  expect(
-    screen.getByText(
-      'Matches the record sheet · left side on the left · click a location to edit',
-    ),
-  ).toBeInTheDocument();
+  expect(screen.getByText('Fill = Points of Max')).toBeInTheDocument();
   act(() => {
     useCustomizerSettingsStore.getState().setDraftArmorDiagramMode('schematic');
     useCustomizerSettingsStore.getState().saveCustomizer();
   });
-  expect(
-    screen.queryByText(
-      'Matches the record sheet · left side on the left · click a location to edit',
-    ),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByText('Fill = Points of Max')).not.toBeInTheDocument();
   expect(useCustomizerSettingsStore.getState().armorDiagramMode).toBe(
     'schematic',
   );
@@ -212,11 +269,7 @@ test.each([
     </UnitStoreContext.Provider>,
   );
   expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
-  expect(
-    screen.queryByText(
-      'Matches the record sheet · left side on the left · click a location to edit',
-    ),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByText('Fill = Points of Max')).not.toBeInTheDocument();
 });
 
 test.each([0, 10])(
@@ -236,9 +289,7 @@ test.each([0, 10])(
     ).not.toBeInTheDocument();
     fireEvent.click(allocate);
     expect(allocate).toBeDisabled();
-    expect(allocate).toHaveAccessibleDescription(
-      'All armor points are already assigned',
-    );
+    expect(allocate).toHaveAccessibleDescription('All points assigned');
   },
 );
 
@@ -257,11 +308,11 @@ test('explains the gap between allocated points and the chassis max in plain wor
   );
 
   expect(screen.getByTestId('armor-points-explanation')).toHaveTextContent(
-    '304 pts from 19 t · 3 more need +0.5 t',
+    '304 pts from 19.0 t · 3 more need +0.5 t',
   );
 });
 
-test('shows one short instruction, with the keyboard hint for screen readers only', () => {
+test('keeps the click and keyboard instructions for screen readers only', () => {
   const store = makeStore();
   render(
     <UnitStoreContext.Provider value={store}>
@@ -277,10 +328,12 @@ test('shows one short instruction, with the keyboard hint for screen readers onl
     screen.queryByText('Click a location to edit armor values'),
   ).not.toBeInTheDocument();
   expect(screen.queryByText(/Torsos list front/)).not.toBeInTheDocument();
-  expect(screen.getAllByText(/click a location to edit/i)).toHaveLength(1);
-  expect(screen.getByText(/Tab to a location, then press Enter/)).toHaveClass(
-    'sr-only',
-  );
+  // The FRONT and REAR headers replace the old visible caption.
+  expect(screen.queryByText(/click a location to edit/i)).toBeNull();
+  expect(screen.queryByText(/^(Left|Right)$/)).toBeNull();
+  expect(
+    screen.getByText(/Tab to a location or move between locations/),
+  ).toHaveClass('sr-only');
 });
 
 test('every biped location shows its max and torsos show one total against the location max', () => {
@@ -291,42 +344,43 @@ test('every biped location shows its max and torsos show one total against the l
     </UnitStoreContext.Provider>,
   );
 
-  // Every location uses one stack: the armor value with its "/max" muted on
-  // the same baseline (head, four limbs and three torso totals); torsos add a
-  // front / rear split line under it.
+  // Every front plate uses one stack: the armor value with its " / max"
+  // lighter on the same baseline (head, four limbs and three torso totals);
+  // front torsos add their front share under it.
   const frontValues = Array.from(
     container.querySelectorAll('[data-testid="armor-diagram"] text'),
-  ).filter((node) => /^\d+\/\d+$/.test(node.textContent ?? ''));
+  ).filter((node) => /^\d+ \/ \d+$/.test(node.textContent ?? ''));
   expect(frontValues).toHaveLength(8);
   for (const value of frontValues) {
     expect(value.querySelectorAll('tspan')).toHaveLength(1);
-    expect(value.querySelector('tspan')?.textContent).toMatch(/^\/\d+$/);
+    expect(value.querySelector('tspan')?.textContent).toMatch(/^ \/ \d+$/);
   }
   const headButton = screen.getByRole('button', { name: /^Head armor:/ });
-  expect(headButton).toHaveTextContent(/\d+\/\d+/);
+  expect(headButton).toHaveTextContent(/\d+ \/ \d+/);
   // No torso cell carries a total line any more.
   expect(container.querySelector('[data-armor-total]')).toBeNull();
-  // Torso: 32-point location holding 20 front and 8 rear. The plate shows the
-  // 28 total against the one location max and splits it below; no per-side
-  // maximum is drawn.
+  // Torso: 32-point location holding 20 front and 8 rear. The front plate
+  // shows the 28 total against the one location max with "F 20" under it,
+  // and the rear inset plate shows "R 8"; no per-side maximum is drawn.
   const faces = (location: MechLocation) =>
     Array.from(
       container.querySelectorAll(`[data-armor-face-location="${location}"]`),
     ).map((node) => node.textContent);
-  expect(faces(MechLocation.CENTER_TORSO)).toEqual(['F20', 'R8']);
+  expect(faces(MechLocation.CENTER_TORSO)).toEqual(['F 20', 'R 8']);
   expect(
     container.querySelector('[data-armor-total-location="Center Torso"]')
       ?.textContent,
-  ).toBe('28/32');
+  ).toBe('28 / 32');
   expect(container.querySelectorAll('[data-armor-face]')).toHaveLength(6);
 
-  // The location editor labels each slider with its value and shows one total
-  // against the location max; the sliders keep the face-maximum ranges.
+  // The location editor uses one header pattern for every location: plain
+  // Front / Rear labels (the values sit in the inputs) and one total against
+  // the location max; the sliders keep the face-maximum ranges.
   fireEvent.click(screen.getByRole('button', { name: /^Center Torso armor:/ }));
   const editor = within(screen.getByTestId('location-armor-editor'));
-  expect(editor.getByText('Front 20')).toBeInTheDocument();
-  expect(editor.getByText('Rear 8')).toBeInTheDocument();
-  expect(editor.queryByText(/^max \d+/)).toBeNull();
+  expect(editor.getByText('Front')).toBeInTheDocument();
+  expect(editor.getByText('Rear')).toBeInTheDocument();
+  expect(editor.queryByText(/^max \d+/i)).toBeNull();
   expect(editor.getByText('Total')).toBeInTheDocument();
   expect(editor.getByText(/^28/)).toHaveTextContent('28 / 32');
   const sliders = editor.getAllByRole('slider');
@@ -336,7 +390,65 @@ test('every biped location shows its max and torsos show one total against the l
   ]);
 });
 
-test('the inspector carries the diagram legend on wide layouts for biped silhouettes only', () => {
+test('marks the location the low-armor warning names on its plates and list row', () => {
+  jest.useFakeTimers();
+  try {
+    const store = createNewUnitStore({
+      name: 'Atlas low arm',
+      tonnage: 100,
+      techBase: TechBase.INNER_SPHERE,
+    });
+    store.getState().setArmorTonnage(19);
+    store.getState().autoAllocateArmor();
+    store.getState().setLocationArmor(MechLocation.LEFT_ARM, 12);
+    const { container } = render(
+      <UnitStoreContext.Provider value={store}>
+        <ArmorTab />
+      </UnitStoreContext.Provider>,
+    );
+    // Validation is debounced like the issue banner it agrees with.
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    const plates = screen.getAllByRole('button', {
+      name: /^Left Arm armor: 12 of 34 points, low armor warning$/,
+    });
+    expect(plates).toHaveLength(1);
+    expect(plates[0]).toHaveClass('isWarning');
+    expect(
+      plates[0].querySelector('[data-armor-issue="warning"]'),
+    ).not.toBeNull();
+    const row = screen.getByRole('button', {
+      name: 'Left Arm: front 12, total 12 of 34, low armor warning',
+    });
+    expect(row.querySelector('[data-severity-icon="warning"]')).not.toBeNull();
+    // Only the flagged location carries a status mark.
+    expect(container.querySelectorAll('[data-armor-issue]')).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: /^Right Arm armor:/ }),
+    ).not.toHaveClass('isWarning');
+  } finally {
+    jest.useRealTimers();
+  }
+});
+
+test('the inspector carries the diagram legend on wide layouts for status-colour biped silhouettes only', () => {
+  // Standard (Blueprint) encodes coverage by fill height alone, so neither the
+  // diagram nor the inspector shows the status-colour legend or the F/R line.
+  const standard = render(
+    <UnitStoreContext.Provider value={makeStore()}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+  expect(screen.queryByTestId('armor-inspector-legend')).toBeNull();
+  expect(screen.queryByTestId('armor-allocation-footer')).toBeNull();
+  expect(screen.queryByText(/Armor % of max/)).toBeNull();
+  expect(screen.queryByText(/F = front/)).toBeNull();
+  expect(screen.getAllByText('Fill = Points of Max')).toHaveLength(1);
+  standard.unmount();
+
+  useCustomizerSettingsStore.getState().setArmorDiagramVariant('neon-operator');
   const biped = render(
     <UnitStoreContext.Provider value={makeStore()}>
       <ArmorTab />
@@ -365,6 +477,21 @@ test('the inspector carries the diagram legend on wide layouts for biped silhoue
 
 test('lists every location in a table that selects like the figure', () => {
   const store = makeStore();
+  // Standard (Blueprint) has its own compact list beside the rear inset
+  // instead of this table.
+  const standard = render(
+    <UnitStoreContext.Provider value={store}>
+      <ArmorTab />
+    </UnitStoreContext.Provider>,
+  );
+  expect(screen.queryByTestId('armor-location-table')).toBeNull();
+  const list = within(screen.getByTestId('armor-location-list'));
+  fireEvent.click(list.getByRole('button', { name: /^Center Torso:/ }));
+  expect(screen.getByTestId('location-armor-editor')).toBeInTheDocument();
+  standard.unmount();
+
+  // The other silhouette styles keep it.
+  useCustomizerSettingsStore.getState().setArmorDiagramVariant('neon-operator');
   render(
     <UnitStoreContext.Provider value={store}>
       <ArmorTab />
@@ -423,7 +550,7 @@ test('the location editor opens inside the inspector and yields the controls on 
   expect(controls).not.toHaveClass('xl:hidden');
 
   fireEvent.click(screen.getByRole('button', { name: /^Center Torso armor:/ }));
-  const inspector = screen.getByRole('heading', { name: 'Armor inspector' })
+  const inspector = screen.getByRole('heading', { name: 'Armor Inspector' })
     .parentElement as HTMLElement;
   expect(inspector).toContainElement(
     screen.getByTestId('location-armor-editor'),
@@ -433,7 +560,7 @@ test('the location editor opens inside the inspector and yields the controls on 
   expect(controls).toHaveClass('flex', 'xl:hidden');
   expect(inspector).toContainElement(controls);
   expect(
-    screen.getByRole('spinbutton', { name: 'Armor tonnage' }),
+    screen.getByRole('spinbutton', { name: 'Armor Tonnage' }),
   ).toBeInTheDocument();
   expect(screen.getByText('Unallocated Armor Points')).toBeInTheDocument();
 });

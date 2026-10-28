@@ -20,6 +20,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
 import { validateVehicleConstruction } from '@/utils/construction/vehicle/vehicleValidation';
+import { formatTons } from '@/utils/formatting';
 
 import { StatusItem, type StatusLevel } from '../tabs/StatusItem';
 import { VehicleBVBreakdownDialog } from './VehicleBVBreakdownDialog';
@@ -326,7 +327,7 @@ export function VehicleStatusBar({
         className={`bg-surface-base border-border-theme-subtle flex items-center justify-between gap-2 border-b px-3 py-1.5 text-xs ${className}`}
       >
         <span className="text-text-theme-primary font-medium">
-          {tonnage}t {viewState.motionLabel}
+          {formatTons(tonnage)} {viewState.motionLabel}
         </span>
         <span className="text-text-theme-secondary">
           {cruiseMP}/{flankMP} MP
@@ -335,7 +336,7 @@ export function VehicleStatusBar({
           {armorStats.allocated} armor
         </span>
         <span className={getCompactStatusClass(weightStatus)}>
-          {weightBreakdown.remaining.toFixed(1)}t free
+          {formatTons(weightBreakdown.remaining)} free
         </span>
         {bvBreakdown && (
           <span
@@ -355,13 +356,13 @@ export function VehicleStatusBar({
     >
       <StatusItem
         label="Tonnage"
-        value={`${tonnage}t`}
+        value={formatTons(tonnage)}
         subValue={viewState.motionLabel}
       />
 
       <StatusItem
         label="Weight Free"
-        value={`${weightBreakdown.remaining.toFixed(1)}t`}
+        value={formatTons(weightBreakdown.remaining)}
         subValue={`${((weightBreakdown.remaining / tonnage) * 100).toFixed(0)}%`}
         status={weightStatus}
       />
@@ -386,8 +387,8 @@ export function VehicleStatusBar({
       {turret && (
         <StatusItem
           label="Turret"
-          value={`${turret.currentWeight.toFixed(1)}t`}
-          subValue={`/${turret.maxWeight.toFixed(1)}t`}
+          value={turret.currentWeight.toFixed(1)}
+          subValue={` / ${formatTons(turret.maxWeight)}`}
           status={turret.currentWeight > turret.maxWeight ? 'error' : 'normal'}
         />
       )}

@@ -44,7 +44,7 @@ export function OverviewOmniControls({
       title: 'Reset chassis?',
       message:
         'Reset to base chassis configuration? This will remove all pod-mounted equipment.',
-      confirmLabel: 'Reset chassis',
+      confirmLabel: 'Reset Chassis',
       isCurrent: () => {
         const current = committed.current;
         if (
@@ -66,7 +66,7 @@ export function OverviewOmniControls({
 
   return (
     <div
-      className="border-border-theme-subtle bg-surface-deep/35 flex flex-wrap items-center gap-x-3 gap-y-2 rounded border px-3 py-3"
+      className="border-border-theme-subtle bg-surface-deep/35 flex flex-wrap items-center gap-x-3 gap-y-2 rounded border px-3"
       data-testid="omnimech-section"
     >
       <input
@@ -78,10 +78,20 @@ export function OverviewOmniControls({
         className="border-border-theme-subtle bg-surface-deep text-accent focus:ring-accent h-4 w-4 rounded"
         data-testid="omnimech-checkbox"
       />
-      <label htmlFor="omniMech" className={cs.text.label}>
-        OmniMech
-      </label>
-      <span className={cs.text.secondary}>(Modular equipment pods)</span>
+      {/* The label is the 44px target for the small native checkbox. The
+          hint follows it one space away, like "Clan Name (Optional)". */}
+      <span className="inline-flex items-center gap-1">
+        <label
+          htmlFor="omniMech"
+          className={`${cs.text.label} inline-flex min-h-11 cursor-pointer items-center`}
+        >
+          OmniMech
+        </label>
+        {/* One muted hint style, the same as "(Optional)". */}
+        <span className="text-text-theme-muted text-sm">
+          (Modular equipment pods)
+        </span>
+      </span>
       {isOmni && !readOnly && (
         <button
           type="button"

@@ -4,6 +4,7 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import { CheckIcon, SpinnerIcon } from './dialogPresentation';
@@ -97,15 +98,17 @@ function UnitTable({
         className={`${cs.dialog.tableHeader} z-10 hidden sm:table-header-group`}
       >
         <tr>
-          <th className="px-3 py-2 font-medium">Chassis</th>
-          <th className="px-3 py-2 font-medium">Model</th>
-          <th className="px-3 py-2 text-right font-medium">Weight</th>
-          <th className="hidden px-3 py-2 text-right font-medium sm:table-cell">
+          <th className="px-3 py-2">Chassis</th>
+          <th className="px-3 py-2">Model</th>
+          <th className="px-3 py-2 text-right">Weight</th>
+          {/* 32px before Year so it reads apart from the right-aligned
+              Weight column beside it. */}
+          <th className="hidden py-2 pr-3 pl-8 text-right sm:table-cell">
             Year
           </th>
-          <th className="hidden px-3 py-2 font-medium sm:table-cell">Tech</th>
-          <th className="hidden px-3 py-2 font-medium md:table-cell">Role</th>
-          <th className="hidden px-3 py-2 font-medium sm:table-cell">Era</th>
+          <th className="hidden px-3 py-2 sm:table-cell">Tech</th>
+          <th className="hidden px-3 py-2 md:table-cell">Role</th>
+          <th className="hidden px-3 py-2 sm:table-cell">Era</th>
           <th className="w-8"></th>
         </tr>
       </thead>
@@ -161,7 +164,9 @@ function UnitTableRow({
           setSelectedUnit(unit);
         }
       }}
-      className={`${cs.dialog.tableRow} focus-visible:outline-accent relative block px-4 py-3 pr-10 focus-visible:outline-2 focus-visible:-outline-offset-2 sm:table-row sm:p-0 ${
+      // A raised-surface hover on unselected rows; the selected row keeps its
+      // amber tint, bar and check. Important beats the unlayered row rule.
+      className={`${cs.dialog.tableRow} focus-visible:outline-text-theme-primary aria-[selected=false]:hover:!bg-surface-raised relative block px-4 py-3 pr-10 focus-visible:outline-2 focus-visible:-outline-offset-2 max-sm:snap-start sm:table-row sm:p-0 ${
         isSelected ? `${cs.dialog.tableRowSelected} ${SELECTED_ROW_BAR}` : ''
       }`}
     >
@@ -181,13 +186,13 @@ function UnitTableRow({
         role="cell"
         className="text-text-theme-secondary mt-1 block text-xs tabular-nums sm:table-cell sm:px-3 sm:py-1.5 sm:text-right sm:text-sm"
       >
-        {unit.tonnage} t
+        {formatTons(unit.tonnage, Number.isInteger(unit.tonnage) ? 0 : 1)}
         <span className="sm:hidden">
           {unit.year ? ` · ${unit.year}` : ''} · {getTechLabel(unit.techBase)}
           {unit.role ? ` · ${unit.role}` : ''} · <UnitSourceLabel unit={unit} />
         </span>
       </td>
-      <td className="text-text-theme-secondary hidden px-3 py-1.5 text-right tabular-nums sm:table-cell">
+      <td className="text-text-theme-secondary hidden py-1.5 pr-3 pl-8 text-right tabular-nums sm:table-cell">
         {unit.year ?? '-'}
       </td>
       <td className="text-text-theme-secondary hidden px-3 py-1.5 sm:table-cell">
@@ -267,7 +272,7 @@ export function UnitSearchFilters({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3 [&>select]:min-w-0">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 [&>select]:min-w-0">
         <select
           aria-label="Unit source"
           value={sourceFilter}
@@ -300,13 +305,13 @@ export function UnitSearchFilters({
           onChange={(event) =>
             setWeightClassFilter(event.target.value as WeightClass | 'all')
           }
-          className={`${cs.dialog.selectFilter} col-span-2 sm:w-auto`}
+          className={`${cs.dialog.selectFilter} col-span-2 sm:col-span-1`}
         >
           <option value="all">All Weight Classes</option>
-          <option value={WeightClass.LIGHT}>Light (20-35t)</option>
-          <option value={WeightClass.MEDIUM}>Medium (40-55t)</option>
-          <option value={WeightClass.HEAVY}>Heavy (60-75t)</option>
-          <option value={WeightClass.ASSAULT}>Assault (80-100t)</option>
+          <option value={WeightClass.LIGHT}>Light (20–35 t)</option>
+          <option value={WeightClass.MEDIUM}>Medium (40–55 t)</option>
+          <option value={WeightClass.HEAVY}>Heavy (60–75 t)</option>
+          <option value={WeightClass.ASSAULT}>Assault (80–100 t)</option>
         </select>
       </div>
     </div>

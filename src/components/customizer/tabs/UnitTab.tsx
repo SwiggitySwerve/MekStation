@@ -142,7 +142,7 @@ export function UnitTab({
               .join(' \u00b7 ')}
             onClick={onSelect}
             onDoubleClick={handleDoubleClick}
-            className="focus-visible:outline-accent flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px] max-sm:!px-0 max-sm:!py-0 max-sm:leading-4"
+            className="focus-visible:outline-text-theme-primary flex min-h-11 w-full min-w-0 items-center gap-2 rounded text-left text-xs focus-visible:outline-2 focus-visible:outline-offset-[-2px] max-sm:!px-0 max-sm:!py-0 max-sm:leading-4"
           >
             <span
               data-unit-tab-name
@@ -171,11 +171,12 @@ export function UnitTab({
         />
       )}
 
-      {/* Close button - Chrome style, larger on touch */}
+      {/* Close button - Chrome style, a 44px target with a visible hover and
+          press fill that shows on the raised active tab too. */}
       {canClose && !isEditing && (
         <button
           onClick={handleCloseClick}
-          className="text-text-theme-secondary hover:bg-surface-raised-hover hover:text-text-theme-primary flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 transition-colors"
+          className="text-text-theme-secondary hover:bg-border-theme active:bg-border-theme-strong hover:text-text-theme-primary flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 transition-colors"
           title="Close (Ctrl+W)"
           aria-label={`Close ${tab.name}`}
         >

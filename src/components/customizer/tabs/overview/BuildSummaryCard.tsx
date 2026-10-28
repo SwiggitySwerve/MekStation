@@ -10,12 +10,13 @@ import {
   STAT_STATUS_TEXT_CLASS,
 } from '@/components/customizer/shared/unitStatStatus';
 import { calculateArmorPercentage } from '@/services/pilot-mech-card/PilotMechCardDataService';
+import { formatTons } from '@/utils/formatting';
 
 import type { OverviewBuildSummaryData } from './useOverviewBuildSummary';
 
 import { customizerStyles as cs } from '../../styles';
 import { BuildReadinessList } from './BuildReadinessList';
-import { formatTons, getTonnageBreakdown } from './tonnageBreakdown';
+import { getTonnageBreakdown } from './tonnageBreakdown';
 import { TonnageBreakdownBar } from './TonnageBreakdownBar';
 import { useBuildReadiness } from './useBuildReadiness';
 
@@ -105,7 +106,7 @@ export function BuildSummaryCard({
     >
       <div className="border-border-theme mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-3">
         <h3 id="overview-build-summary-title" className={cs.text.cardTitle}>
-          Build summary
+          Build Summary
         </h3>
         <p className={`${cs.text.label} tabular-nums`}>
           <span
@@ -128,7 +129,7 @@ export function BuildSummaryCard({
             caption={
               stats.heatGeneration
                 ? describeHeatSources(stats.heatGeneration)
-                : 'at full fire'
+                : 'At Full Fire'
             }
           >
             <span className={STAT_STATUS_TEXT_CLASS[heatStatus]}>
@@ -152,7 +153,7 @@ export function BuildSummaryCard({
               %
             </span>
           </StatTile>
-          <StatTile label="BV" testId="overview-stat-bv" caption="Battle value">
+          <StatTile label="BV" testId="overview-stat-bv" caption="Battle Value">
             <span className="text-text-theme-primary">
               {stats.battleValue?.toLocaleString() ?? '-'}
             </span>

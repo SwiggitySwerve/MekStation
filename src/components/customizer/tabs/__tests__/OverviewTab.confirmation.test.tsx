@@ -129,7 +129,7 @@ describe('Overview chassis reset confirmation', () => {
     store.setState({ resetChassis: reset });
     render(viewOf(store));
     const approve = within(open()).getByRole('button', {
-      name: 'Reset chassis',
+      name: 'Reset Chassis',
     });
     act(() => {
       approve.click();
@@ -183,7 +183,7 @@ describe('Overview chassis reset confirmation', () => {
       });
       view.rerender(viewOf(store, change === 'readOnly'));
       fireEvent.click(
-        within(child).getByRole('button', { name: 'Reset chassis' }),
+        within(child).getByRole('button', { name: 'Reset Chassis' }),
       );
       expect(reset).not.toHaveBeenCalled();
     },
@@ -204,7 +204,7 @@ describe('Overview chassis reset confirmation', () => {
       }),
     );
     fireEvent.click(
-      within(child).getByRole('button', { name: 'Reset chassis' }),
+      within(child).getByRole('button', { name: 'Reset Chassis' }),
     );
     expect(current).toHaveBeenCalledTimes(1);
     expect(old).not.toHaveBeenCalled();
@@ -220,7 +220,7 @@ describe('Overview chassis reset confirmation', () => {
     const child = open();
     view.rerender(viewOf(second));
     fireEvent.click(
-      within(child).getByRole('button', { name: 'Reset chassis' }),
+      within(child).getByRole('button', { name: 'Reset Chassis' }),
     );
     expect(firstReset).not.toHaveBeenCalled();
     expect(secondReset).not.toHaveBeenCalled();
@@ -233,7 +233,7 @@ describe('Overview chassis reset confirmation', () => {
     const child = open();
     act(() => store.setState({ id: 'changed-unit' }));
     fireEvent.click(
-      within(child).getByRole('button', { name: 'Reset chassis' }),
+      within(child).getByRole('button', { name: 'Reset Chassis' }),
     );
     expect(reset).not.toHaveBeenCalled();
   });

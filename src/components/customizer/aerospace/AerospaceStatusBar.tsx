@@ -17,6 +17,7 @@ import {
   calculateAerospaceBV,
   type IAerospaceBVEquipment,
 } from '@/utils/construction/aerospace/aerospaceBV';
+import { formatTons } from '@/utils/formatting';
 
 import { StatusItem } from '../tabs/StatusItem';
 
@@ -166,7 +167,7 @@ export function AerospaceStatusBar({
         className={`bg-surface-base border-border-theme-subtle flex items-center justify-between gap-2 border-b px-3 py-1.5 text-xs ${className}`}
       >
         <span className="text-text-theme-primary font-medium">
-          {tonnage}t ASF
+          {formatTons(tonnage)} ASF
         </span>
         <span className="text-text-theme-secondary">
           {safeThrust}/{maxThrust} Thrust
@@ -188,7 +189,7 @@ export function AerospaceStatusBar({
               : 'text-text-theme-secondary'
           }
         >
-          {weightBreakdown.remaining.toFixed(1)}t free
+          {formatTons(weightBreakdown.remaining)} free
         </span>
         <span className="text-text-theme-primary font-medium">
           BV {bv.final}
@@ -202,12 +203,12 @@ export function AerospaceStatusBar({
       className={`bg-surface-base border-border-theme-subtle flex items-center justify-between border-b ${className}`}
     >
       {/* Tonnage */}
-      <StatusItem label="Tonnage" value={`${tonnage}t`} subValue="ASF" />
+      <StatusItem label="Tonnage" value={formatTons(tonnage)} subValue="ASF" />
 
       {/* Weight Available */}
       <StatusItem
         label="Weight Free"
-        value={`${weightBreakdown.remaining.toFixed(1)}t`}
+        value={formatTons(weightBreakdown.remaining)}
         subValue={`${((weightBreakdown.remaining / tonnage) * 100).toFixed(0)}%`}
         status={weightStatus}
       />

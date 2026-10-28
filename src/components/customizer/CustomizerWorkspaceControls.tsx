@@ -19,19 +19,19 @@ export function CustomizerWorkspaceControls({
     setHost(document.getElementById('customizer-workspace-controls'));
   }, []);
   const buttonClass =
-    'group text-text-theme-primary bg-surface-raised border-border-theme-strong hover:bg-surface-base focus-visible:outline-accent relative ml-1 hidden h-11 w-11 shrink-0 items-center justify-center rounded border !p-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:flex';
+    'group text-text-theme-primary bg-surface-raised border-border-theme-strong hover:bg-surface-base focus-visible:outline-text-theme-primary relative ml-1 hidden h-11 w-11 shrink-0 items-center justify-center rounded border !p-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:flex';
   const content = (
     <>
       {wide && (
         <button
           type="button"
-          aria-label="Open loadout drawer"
+          aria-label="Open Loadout Drawer"
           onClick={onOpenLoadout}
           className={buttonClass}
         >
           <AppIcon name="list" size="toolbar" />
           <ToolbarHint>
-            <span className="block font-semibold">Open loadout drawer</span>
+            <span className="block font-semibold">Open Loadout Drawer</span>
             <span className="text-text-theme-secondary block">
               Mounted and unassigned equipment
             </span>
@@ -42,7 +42,7 @@ export function CustomizerWorkspaceControls({
       <button
         type="button"
         aria-pressed={wide}
-        aria-label="Hide loadout panel"
+        aria-label="Hide Loadout Panel"
         onClick={onToggle}
         className={`${buttonClass} aria-pressed:border-accent aria-pressed:bg-accent/15`}
         data-testid="customizer-workspace-toggle"
@@ -53,7 +53,7 @@ export function CustomizerWorkspaceControls({
         />
         <ToolbarHint>
           <span className="block font-semibold">
-            {wide ? 'Show loadout panel' : 'Hide loadout panel'}
+            {wide ? 'Show Loadout Panel' : 'Hide Loadout Panel'}
           </span>
           <span className="text-text-theme-secondary block">
             {wide

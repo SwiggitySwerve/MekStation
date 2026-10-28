@@ -9,6 +9,7 @@
 
 import { useEffect, useRef } from 'react';
 
+import { formatValidationMessage } from '@/components/customizer/shared/validationMessageFormatting';
 import { useToast } from '@/components/shared/Toast';
 import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
@@ -61,7 +62,7 @@ export function useValidationToast(
         const tabLabel = getTabLabel(tabId);
 
         showToast({
-          message: newCriticalError.message,
+          message: formatValidationMessage(newCriticalError.message),
           variant: 'error',
           duration: 6000,
           action: onNavigate
@@ -85,7 +86,7 @@ export function useValidationToast(
         const tabLabel = getTabLabel(tabId);
 
         showToast({
-          message: newError.message,
+          message: formatValidationMessage(newError.message),
           variant: 'warning',
           duration: 4000,
           action: onNavigate

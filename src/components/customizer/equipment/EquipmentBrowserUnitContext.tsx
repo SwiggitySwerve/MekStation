@@ -11,6 +11,8 @@ import {
 interface CatalogUnitContext {
   remainingWeight: number;
   remainingSlots: number;
+  /** The unit's tonnage, for the at-limit reason. */
+  tonnage?: number;
   mountedCounts: ReadonlyMap<string, number>;
 }
 

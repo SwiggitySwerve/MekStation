@@ -23,6 +23,7 @@ import {
 } from '@/types/unit/AerospaceInterfaces';
 import { makeSmallCraftCrew } from '@/utils/construction/aerospace/crewCalculations';
 import { validateAerospaceUnit } from '@/utils/construction/aerospace/validationRules';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import { ChassisSection } from './AerospaceStructureTab.ChassisSection';
@@ -140,7 +141,9 @@ export function AerospaceStructureTab({
             data-testid="aerospace-quarters-summary"
           >
             <span className={cs.text.label}>Quarters Tonnage:</span>
-            <span className={`${cs.text.value} ml-2`}>{quartersTons}t</span>
+            <span className={`${cs.text.value} ml-2`}>
+              {formatTons(quartersTons)}
+            </span>
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions, toSelectOptions } from '../tabs/SelectOptions';
@@ -43,7 +44,7 @@ export function ChassisSection({
     [isSmallCraft],
   );
   const tonnageSelectOptions = useMemo(
-    () => toSelectOptions(tonnageOptions, (t) => `${t} tons`),
+    () => toSelectOptions(tonnageOptions, formatTons),
     [tonnageOptions],
   );
 

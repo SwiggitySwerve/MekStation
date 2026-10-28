@@ -329,7 +329,7 @@ describe('MultiUnitTabs', () => {
       );
       // Desktop names the save state beside Save, in the shared wording.
       expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
-        'Not in library',
+        'Not in Library',
       );
 
       rerender(
@@ -350,10 +350,10 @@ describe('MultiUnitTabs', () => {
         '',
       );
       // The slot hosts history only; desktop save state stays on Save.
-      expect(slot).not.toHaveTextContent('Not in library');
+      expect(slot).not.toHaveTextContent('Not in Library');
       expect(
         screen.getByRole('button', { name: 'Save active unit to library' }),
-      ).toHaveAccessibleDescription(/Not in library/);
+      ).toHaveAccessibleDescription(/Not in Library/);
     });
 
     it('should render children content', () => {
@@ -644,7 +644,7 @@ describe('MultiUnitTabs', () => {
   // Empty State Tests
   // ===========================================================================
   describe('Empty State', () => {
-    it('should show Add unit and Load from Library buttons', () => {
+    it('should show Add Unit and Load from Library buttons', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
 
       renderWithToast(
@@ -653,11 +653,11 @@ describe('MultiUnitTabs', () => {
         </MultiUnitTabs>,
       );
 
-      expect(screen.getByText('Add unit')).toBeInTheDocument();
+      expect(screen.getByText('Add Unit')).toBeInTheDocument();
       expect(screen.getByText('Load from Library')).toBeInTheDocument();
     });
 
-    it('opens the shared Add unit flow from Add unit in the empty state', () => {
+    it('opens the shared Add Unit flow from Add Unit in the empty state', () => {
       mockTabManager = createMockTabManager({ tabs: [], activeTabId: null });
 
       renderWithToast(
@@ -666,7 +666,7 @@ describe('MultiUnitTabs', () => {
         </MultiUnitTabs>,
       );
 
-      const newUnitButton = screen.getByText('Add unit');
+      const newUnitButton = screen.getByText('Add Unit');
       fireEvent.click(newUnitButton);
 
       expect(screen.getByTestId('unit-load-dialog')).toHaveAttribute(

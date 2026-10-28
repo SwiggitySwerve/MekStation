@@ -78,20 +78,22 @@ export function StructureTabChassisSection({
 }: StructureTabChassisSectionProps): React.ReactElement {
   return (
     <div className={`${cs.panel.main} ${STRUCTURE_CARD}`}>
-      <div className="border-border-theme mb-4 border-b pb-3">
+      {/* Same inline title + subtitle header as Mobility and Cooling. */}
+      <div className="border-border-theme mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b pb-3">
         <h3 className={cs.text.cardTitle}>Chassis</h3>
-        <p className={`${cs.text.secondary} mt-0.5`}>
+        <p className={`${cs.text.secondary} m-0`}>
           Core structure and drive system
         </p>
       </div>
 
       <div className="space-y-5">
+        {/* "Frame", not a second "Chassis" under the card title. */}
         <section aria-labelledby="chassis-configuration-heading">
           <h4
             id="chassis-configuration-heading"
             className={`${cs.text.subsection} mb-2`}
           >
-            Chassis
+            Frame
           </h4>
           <div className="space-y-3">
             <TonnageControl

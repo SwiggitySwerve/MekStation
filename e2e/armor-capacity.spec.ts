@@ -12,7 +12,7 @@ async function loadAtlas(page: Page) {
   await page
     .getByRole('button', { name: 'Load from Library', exact: true })
     .click();
-  const library = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  const library = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await library.getByRole('combobox').first().selectOption('canonical');
   await library
     .getByPlaceholder('Search by chassis or variant...')

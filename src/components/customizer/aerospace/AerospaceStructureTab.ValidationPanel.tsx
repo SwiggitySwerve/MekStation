@@ -7,6 +7,8 @@
 
 import React from 'react';
 
+import { formatValidationMessage } from '../shared/validationMessageFormatting';
+
 interface ValidationPanelProps {
   errors: { ruleId: string; message: string }[];
 }
@@ -33,7 +35,7 @@ export function ValidationPanel({
             <span className="shrink-0 font-mono text-red-500">
               [{err.ruleId}]
             </span>
-            <span>{err.message}</span>
+            <span>{formatValidationMessage(err.message)}</span>
           </li>
         ))}
       </ul>

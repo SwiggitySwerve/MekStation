@@ -27,6 +27,7 @@ import { InternalStructureType } from '@/types/construction/InternalStructureTyp
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { formatTons } from '@/utils/formatting';
 
 import type {
   StructureConfigurationOption,
@@ -34,6 +35,10 @@ import type {
 } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
+import {
+  TONNAGE_SEGMENT_COLORS,
+  type TonnageSegmentId,
+} from './overview/tonnageBreakdown';
 import { StructureTabChassisSection } from './StructureTabChassisSection';
 import { StructureTabCoolingSection } from './StructureTabCoolingSection';
 import { StructureTabMovementSection } from './StructureTabMovementSection';
@@ -46,6 +51,25 @@ const CONFIGURATION_OPTIONS: StructureConfigurationOption[] = [
   { value: MechConfiguration.LAM, label: 'LAM' },
   { value: MechConfiguration.QUADVEE, label: 'QuadVee' },
 ];
+
+/** The system's colour from the Overview tonnage bar, so the two read alike. */
+function WeightDot({ id }: { id: TonnageSegmentId }): React.ReactElement {
+  return (
+    <span
+      aria-hidden="true"
+      data-weight-dot={id}
+      className={`${TONNAGE_SEGMENT_COLORS[id]} h-2.5 w-2.5 shrink-0 rounded-sm`}
+    />
+  );
+}
+
+/**
+ * One weight in the summary strip. Phones set the weights in a two-column
+ * grid with each value pushed to its cell's right edge, so the values line up
+ * instead of wrapping into ragged pairs; wider screens keep one inline row.
+ */
+const WEIGHT_ITEM = `${cs.layout.statRow} flex-shrink-0 max-sm:min-w-0`;
+const WEIGHT_VALUE = `${cs.text.value} tabular-nums max-sm:ml-auto`;
 
 // =============================================================================
 // Types
@@ -281,46 +305,57 @@ export function StructureTab({
     <div className={`${cs.layout.tabContent} ${className}`}>
       <div className={cs.panel.summary}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm sm:gap-x-6">
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:flex sm:flex-wrap sm:items-center">
+            <div className={WEIGHT_ITEM}>
+              <WeightDot id="engine" />
               <span className={cs.text.label}>Engine:</span>
-              <span className={cs.text.value}>
-                {calculations.engineWeight}t
+              <span className={WEIGHT_VALUE}>
+                {formatTons(calculations.engineWeight)}
               </span>
             </div>
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+            <div className={WEIGHT_ITEM}>
+              <WeightDot id="gyro" />
               <span className={cs.text.label}>Gyro:</span>
-              <span className={cs.text.value}>{calculations.gyroWeight}t</span>
+              <span className={WEIGHT_VALUE}>
+                {formatTons(calculations.gyroWeight)}
+              </span>
             </div>
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+            <div className={WEIGHT_ITEM}>
+              <WeightDot id="structure" />
               <span className={cs.text.label}>Structure:</span>
-              <span className={cs.text.value}>
-                {calculations.structureWeight}t
+              <span className={WEIGHT_VALUE}>
+                {formatTons(calculations.structureWeight)}
               </span>
             </div>
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+            <div className={WEIGHT_ITEM}>
+              <WeightDot id="cockpit" />
               <span className={cs.text.label}>Cockpit:</span>
-              <span className={cs.text.value}>
-                {calculations.cockpitWeight}t
+              <span className={WEIGHT_VALUE}>
+                {formatTons(calculations.cockpitWeight)}
               </span>
             </div>
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+            <div className={WEIGHT_ITEM}>
+              <WeightDot id="heatSinks" />
               <span className={cs.text.label}>Heat Sinks:</span>
-              <span className={cs.text.value}>
-                {calculations.heatSinkWeight}t
+              <span className={WEIGHT_VALUE}>
+                {formatTons(calculations.heatSinkWeight)}
               </span>
             </div>
             {calculations.jumpJetWeight > 0 && (
-              <div className={`${cs.layout.statRow} flex-shrink-0`}>
+              <div className={WEIGHT_ITEM}>
+                <WeightDot id="jumpJets" />
                 <span className={cs.text.label}>Jump Jets:</span>
-                <span className={cs.text.value}>
-                  {calculations.jumpJetWeight}t
+                <span className={WEIGHT_VALUE}>
+                  {formatTons(calculations.jumpJetWeight)}
                 </span>
               </div>
             )}
-            <div className={`${cs.layout.statRow} flex-shrink-0`}>
+            <div className={WEIGHT_ITEM}>
+              <WeightDot id="armor" />
               <span className={cs.text.label}>Armor:</span>
-              <span className={cs.text.value}>{calculations.armorWeight}t</span>
+              <span className={WEIGHT_VALUE}>
+                {formatTons(calculations.armorWeight)}
+              </span>
             </div>
           </div>
           <div
@@ -329,19 +364,25 @@ export function StructureTab({
             title="Chassis, systems and armor only. Equipment weight is counted in the header total."
           >
             <span className={`text-sm ${cs.text.label}`}>
-              Structure, systems &amp; armor:
+              Structure, Systems &amp; Armor:
             </span>
-            <span className="text-text-theme-primary text-lg font-bold tabular-nums">
-              {calculations.totalStructuralWeight}t
-            </span>
-            <span className={`text-sm ${cs.text.label} tabular-nums`}>
-              of {tonnage}t
+            {/* "66.0 / 100.0 t", the ratio format of the header stat strip. */}
+            <span className="tabular-nums">
+              <span className="text-text-theme-primary text-lg font-bold">
+                {calculations.totalStructuralWeight.toFixed(1)}
+              </span>
+              <span className={`text-sm ${cs.text.label}`}>
+                {' / '}
+                {formatTons(tonnage)}
+              </span>
             </span>
           </div>
         </div>
       </div>
 
-      <div className={`${cs.layout.twoColumnSidebar} items-start`}>
+      {/* Columns stretch to one height and Cooling fills the right column, so
+          Chassis and Cooling end on the same line. */}
+      <div className={cs.layout.twoColumnSidebar}>
         <StructureTabChassisSection
           readOnly={readOnly}
           tonnage={tonnage}

@@ -14,7 +14,8 @@ The toast system SHALL use a React context provider pattern for app-wide availab
 
 - **WHEN** ToastProvider wraps the application
 - **THEN** useToast hook is available in all child components
-- **AND** toast container renders at bottom-right of viewport
+- **AND** toast container renders at the top right of the viewport, below the top bar
+- **AND** in the unit customizer workbench it docks at the bottom right, inside the foot of the 240px Loadout rail (8px insets, at most 224px wide, sized to its message), so toasts never cover the armor diagram, a table or a card in the content column; on phones it sits at the right above the bottom Loadout bar
 
 #### Scenario: Hook usage
 
@@ -120,6 +121,12 @@ Multiple toasts SHALL stack vertically.
 - **THEN** toasts stack vertically with 8px gap
 - **AND** newest toast appears at bottom
 - **AND** each toast can be dismissed independently
+
+#### Scenario: Repeated message
+
+- **WHEN** showToast is called with the same message and variant as a toast still on screen
+- **THEN** that toast is replaced in place and its auto-dismiss timer restarts
+- **AND** the message is never shown twice at once
 
 ### Requirement: Accessibility
 
@@ -467,8 +474,8 @@ This specification does NOT cover:
 
 1. **Toast Persistence** - Toasts are transient UI elements, not persistent notifications
 2. **Notification History** - No log or history of dismissed toasts
-3. **Toast Queuing** - Multiple toasts stack vertically but are not queued
+3. **Toast Queuing** - Different messages stack vertically but are not queued; a repeated message replaces its visible copy
 4. **Custom Toast Components** - Only predefined variants (success, error, warning, info)
-5. **Toast Positioning** - Fixed at bottom-right viewport, not configurable
+5. **Toast Positioning** - Fixed by the provider (top right) and the customizer workbench (bottom left of the content column), not configurable per toast
 6. **P2P Sync Implementation** - Only covers toast notifications for sync events, not sync logic itself
 7. **Conflict Resolution UI** - useSyncNotifications provides callbacks, but conflict resolution UI is out of scope

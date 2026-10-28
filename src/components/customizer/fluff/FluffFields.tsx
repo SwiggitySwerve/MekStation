@@ -39,7 +39,8 @@ export function disabledClasses(disabled: boolean): string {
 const OPTIONAL_TAG = 'text-text-theme-muted text-sm';
 
 /**
- * Field label with a muted "Optional" tag while an optional field is empty.
+ * Field label with a muted "(Optional)" tag while an optional field is empty,
+ * the same marker the Overview form uses.
  * `section` uses the small-caps section-label style the rest of the
  * customizer uses for sub-section headings.
  */
@@ -62,7 +63,7 @@ export function FieldLabel({
       >
         {label}
       </label>
-      {showOptional && <span className={OPTIONAL_TAG}>Optional</span>}
+      {showOptional && <span className={OPTIONAL_TAG}>(Optional)</span>}
     </div>
   );
 }
@@ -134,39 +135,15 @@ export function AutoSizeTextarea({
   );
 }
 
-const INPUT_CLASSES = `${cs.input.full} placeholder:text-text-theme-muted min-h-11 placeholder:italic`;
+/** The app's normal placeholder: muted colour, upright text. */
+const INPUT_CLASSES = `${cs.input.full} placeholder:text-text-theme-muted min-h-11 scroll-mt-20`;
 
-/** Label above a single-line input. */
-export function TextField({
-  id,
-  label,
-  placeholder,
-  value,
-  disabled,
-  onChange,
-}: {
-  id?: string;
-  label: string;
-  placeholder?: string;
-  value: string;
-  disabled: boolean;
-  onChange: (value: string) => void;
-}): React.ReactElement {
-  const inputId = id ?? fieldId(label);
-  return (
-    <div className="min-w-0">
-      <FieldLabel htmlFor={inputId} label={label} showOptional={false} />
-      <input
-        id={inputId}
-        value={value}
-        placeholder={placeholder}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        className={`${INPUT_CLASSES} ${disabledClasses(disabled)}`}
-      />
-    </div>
-  );
-}
+/**
+ * The side-label grid every right-column field uses (Combat Role, the
+ * Manufacturing rows and the new-system rows): label left, control right.
+ */
+export const SIDE_LABEL_ROW =
+  'grid grid-cols-[minmax(5.5rem,7.5rem)_minmax(0,1fr)] items-center gap-x-3';
 
 /**
  * Remove button for a row. On fine hover pointers it stays invisible until
@@ -187,6 +164,7 @@ export function NameValueRow({
   id,
   label,
   optional = false,
+  placeholder,
   value,
   disabled,
   onChange,
@@ -196,8 +174,9 @@ export function NameValueRow({
 }: {
   id: string;
   label: string;
-  /** Show an "Optional" tag while the value is empty. */
+  /** Show an "(Optional)" tag while the value is empty. */
   optional?: boolean;
+  placeholder?: string;
   value: string;
   disabled: boolean;
   onChange: (value: string) => void;
@@ -207,19 +186,20 @@ export function NameValueRow({
 }): React.ReactElement {
   const showOptional = optional && !disabled && value === '';
   return (
-    <div className="group/row grid grid-cols-[minmax(5.5rem,7.5rem)_minmax(0,1fr)] items-center gap-x-3">
+    <div className={`group/row ${SIDE_LABEL_ROW}`}>
       <div className="min-w-0">
         <label htmlFor={id} className={`${cs.text.label} break-words`}>
           {label}
         </label>
         {showOptional && (
-          <span className={`${OPTIONAL_TAG} block`}>Optional</span>
+          <span className={`${OPTIONAL_TAG} block`}>(Optional)</span>
         )}
       </div>
       <div className="relative min-w-0">
         <input
           id={id}
           value={value}
+          placeholder={placeholder}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
           className={`${INPUT_CLASSES} ${onRemove ? 'pr-11' : ''} ${disabledClasses(disabled)}`}

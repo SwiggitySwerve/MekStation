@@ -2,7 +2,7 @@
  * Tab issue notice
  *
  * One compact line above a section's content that says what the tab's badge
- * counts and how to fix it ("1 warning: Runs hot \u2014 add heat sinks in
+ * counts and how to fix it ("1 warning: Runs Hot \u2014 add heat sinks in
  * Cooling"), with a link that opens the build status panel for everything.
  * Wording comes from `getTabIssueNotice`; the editor renders it once for the
  * active tab, so no tab shows its own copy.
@@ -102,7 +102,7 @@ export function TabIssueNotice({
         onClick={onShowAll}
         className="text-text-theme-primary hover:border-border-theme hover:bg-surface-raised focus-visible:ring-accent inline-flex min-h-11 shrink-0 items-center rounded border border-transparent bg-transparent !px-2 text-sm font-medium underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
       >
-        Show all issues
+        Show All Issues
       </button>
     </section>
   );

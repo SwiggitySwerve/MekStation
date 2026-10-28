@@ -12,13 +12,13 @@
 
 ### Purpose
 
-This specification defines the auto-save and state persistence subsystem for MekStation. It provides three React hooks for managing application state persistence: `useAutoSaveIndicator` for toast-based save feedback, `usePersistedState` for localStorage-backed state with JSON serialization, and `useGameStatePersistence` for full game state autosave with conflict detection and beforeunload warnings.
+This specification defines the auto-save and state persistence subsystem for MekStation. It provides three React hooks for managing application state persistence: `useAutoSaveIndicator` for failed-draft toasts (successful drafts are confirmed in the customizer header save state), `usePersistedState` for localStorage-backed state with JSON serialization, and `useGameStatePersistence` for full game state autosave with conflict detection and beforeunload warnings.
 
 ### Scope
 
 **In Scope:**
 
-- Auto-save indicator with receipt-driven toast notifications
+- Auto-save indicator with receipt-driven failure toasts and an in-header success confirmation
 - Generic localStorage-backed state hook with JSON serialization
 - Game state persistence with autosave intervals and debouncing
 - Conflict detection for concurrent save operations
@@ -36,7 +36,7 @@ This specification defines the auto-save and state persistence subsystem for Mek
 
 ### Key Concepts
 
-- **Auto-Save Indicator**: Visual feedback (toast) shown after a completed customizer-draft storage write receipt for the active `AutoSaveIndicatorTarget`
+- **Auto-Save Indicator**: Visual feedback after a completed customizer-draft storage write receipt for the active `AutoSaveIndicatorTarget`: an error toast for a failed write, and a brief emphasis of the header's "Draft Saved" for a successful one
 - **Persisted State**: React state synchronized with localStorage, supporting functional updates and JSON serialization
 - **Game State Persistence**: Full game state autosave with configurable intervals, debouncing, conflict detection, and unsaved change warnings
 - **Conflict Detection**: Timestamp-based detection of concurrent save operations to prevent data loss
@@ -46,7 +46,7 @@ This specification defines the auto-save and state persistence subsystem for Mek
 ## Requirements
 ### Requirement: Auto-Save Indicator
 
-The system SHALL provide a `useAutoSaveIndicator` hook that accepts an `AutoSaveIndicatorTarget` (`unitId` and `unitType`) or null, subscribes to completed storage write receipts for that target's customizer draft key, and displays draft-persistence toasts from those receipts.
+The system SHALL provide a `useAutoSaveIndicator` hook that accepts an `AutoSaveIndicatorTarget` (`unitId` and `unitType`) or null, subscribes to completed storage write receipts for that target's customizer draft key, and displays an error toast for a failed receipt. A successful receipt raises no toast; the customizer header confirms it in place (`useDraftSavePulse`).
 
 **Source**: `src/hooks/useAutoSaveIndicator.ts#useAutoSaveIndicator`
 
@@ -54,26 +54,25 @@ The system SHALL provide a `useAutoSaveIndicator` hook that accepts an `AutoSave
 
 **Priority**: High
 
-#### Scenario: Show success toast after saved write receipt
+#### Scenario: Confirm a saved write receipt in the header, not in a toast
 
 **GIVEN** the hook is mounted with an `AutoSaveIndicatorTarget`
 **WHEN** a completed storage write receipt arrives for the derived draft storage key with status `saved`
-**THEN** a 500ms success timer SHALL start, replacing any previous success timer
-**AND** after 500ms without another matching receipt, a success toast SHALL be displayed with message "Draft saved in this browser", variant "success", and duration 1500ms
+**THEN** no toast SHALL be displayed, so nothing floats over the workbench on every edit
+**AND** the header save state ("Not in Library · Draft Saved") SHALL show "Draft Saved" in the OK green for 1500ms (`DRAFT_SAVE_PULSE_MS`), marked `data-draft-pulse`, then settle back to secondary text
+**AND** the draft wording SHALL be "Draft Saved" as a label in both the header and the status panel (`DRAFT_SHORT_LABEL.saved`), with the panel's sentence under it saying the changes are kept in this browser, and "Draft saved in browser." in any sentence (`DRAFT_LABEL.saved`)
 
 #### Scenario: Show error toast on failed write receipt
 
 **GIVEN** the hook is mounted with an `AutoSaveIndicatorTarget`
 **WHEN** a completed storage write receipt arrives for the derived draft storage key with status `failed`
-**THEN** an error toast SHALL be displayed with message "Draft could not be saved in this browser" and variant "error"
-**AND** any pending success timer SHALL be cleared
+**THEN** an error toast SHALL be displayed with message "Draft save failed in browser" (`DRAFT_LABEL.failed`) and variant "error"
 
 #### Scenario: Cleanup on unmount
 
 **GIVEN** the hook is mounted and subscribed to storage write receipts
 **WHEN** the component unmounts
 **THEN** the receipt subscription SHALL be unsubscribed
-**AND** any active success timer SHALL be cleared
 
 ### Requirement: Persisted State Hook
 
@@ -612,7 +611,7 @@ const DEFAULT_VERSION = '1.0.0';
 
 ### Performance Considerations
 
-- **Receipt-driven indicator**: `useAutoSaveIndicator` toasts from completed storage write receipts for the target draft key; a 500ms success timer collapses rapid saved receipts, and failed receipts emit an error toast immediately
+- **Receipt-driven indicator**: `useAutoSaveIndicator` emits an error toast immediately for a failed storage write receipt for the target draft key; saved receipts raise no toast and instead restart the header's 1500ms "Draft Saved" emphasis, so rapid saves keep it lit rather than stacking notices
 - **Autosave debouncing**: Game state autosave debounces for 1000ms to reduce localStorage writes
 - **Periodic autosave**: Game state autosave runs every 30 seconds (configurable) as a safety net
 - **JSON serialization**: All persisted state uses JSON.stringify/parse, which can be slow for large objects
@@ -663,9 +662,9 @@ function UnitBuilder({ unitId }: { unitId: string }) {
 
 1. Hook derives the customizer draft storage key from `AutoSaveIndicatorTarget`
 2. Hook subscribes to completed storage write receipts for that key
-3. A matching `saved` receipt starts a 500ms success timer, then toasts "Draft saved in this browser" (success, 1500ms duration)
-4. A matching `failed` receipt toasts "Draft could not be saved in this browser" (error) and clears any pending success timer
-5. Unmount unsubscribes from receipts and clears the success timer
+3. A matching `saved` receipt raises no toast; the header's "Draft Saved" brightens for 1500ms instead
+4. A matching `failed` receipt toasts "Draft save failed in browser" (error)
+5. Unmount unsubscribes from receipts
 
 ### Example 2: Persisted State for Sidebar
 

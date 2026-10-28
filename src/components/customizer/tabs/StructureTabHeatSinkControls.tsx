@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { formatTons } from '@/utils/formatting';
+
 import type { StructureTabCalculations } from './StructureTabViewTypes';
 
 import { customizerStyles as cs } from '../styles';
@@ -55,16 +57,25 @@ export function HeatSinkSection({
         handleHeatSinkCountChange={handleHeatSinkCountChange}
       />
 
-      <p
-        className={`${cs.text.secondary} m-0`}
+      {/* Two lines: where the heat sinks sit, then what they weigh. Helper
+          text uses the 13px helper step of the other Structure rows. */}
+      <div
+        className="text-text-theme-secondary space-y-0.5 text-[13px] leading-snug"
         data-testid="structure-heat-sink-weight-help"
       >
-        {heatSinkCount} heat sinks {'\u00b7'} {calculations.integralHeatSinks}{' '}
-        fit inside the engine, {calculations.externalHeatSinks} mounted outside{' '}
-        {'\u00b7'} first {calculations.freeHeatSinks} weigh nothing;{' '}
-        {calculations.heatSinksRequiringWeight} add{' '}
-        {calculations.heatSinkWeight} t
-      </p>
+        <p className="m-0">
+          {heatSinkCount} heat sinks {'\u00b7'} {calculations.integralHeatSinks}{' '}
+          fit inside the engine, {calculations.externalHeatSinks} mounted
+          outside
+        </p>
+        {/* The extras clause only when some heat sinks carry weight, so a
+            blank unit never reads "0 add 0.0 t". */}
+        <p className="m-0">
+          First {calculations.freeHeatSinks} weigh nothing
+          {calculations.heatSinksRequiringWeight > 0 &&
+            `; ${calculations.heatSinksRequiringWeight} add ${formatTons(calculations.heatSinkWeight)}`}
+        </p>
+      </div>
 
       {isOmni && (
         <BaseChassisHeatSinkControl
@@ -100,13 +111,13 @@ function HeatSinkCountControl({
     <div className={STRUCTURE_ROW_STACK}>
       <div className={STRUCTURE_ROW_GRID}>
         <label className={STRUCTURE_ROW_LABEL} htmlFor="heat-sink-type">
-          Heat sink type
+          Heat Sink Type
         </label>
         <select
           id="heat-sink-type"
           className={STRUCTURE_SELECT}
           disabled={readOnly}
-          aria-label="Heat sink type"
+          aria-label="Heat Sink Type"
           value={heatSinkType}
           onChange={handleHeatSinkTypeChange}
           data-testid="structure-heat-sink-type"
@@ -193,7 +204,7 @@ function BaseChassisHeatSinkControl({
           className={STRUCTURE_ROW_LABEL}
           htmlFor="base-chassis-heat-sinks"
         >
-          Base chassis
+          Base Chassis
         </label>
         <div className={`flex items-center gap-2 ${STRUCTURE_CONTROL_WIDTH}`}>
           <button

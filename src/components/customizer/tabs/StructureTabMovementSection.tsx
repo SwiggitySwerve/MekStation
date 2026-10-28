@@ -7,6 +7,7 @@ import {
   JumpJetType,
   JUMP_JET_DEFINITIONS,
 } from '@/utils/construction/movementCalculations';
+import { formatTons } from '@/utils/formatting';
 import {
   calculateRunMP,
   getEffectiveWalkMP,
@@ -23,6 +24,8 @@ import {
   STRUCTURE_HELP,
   STRUCTURE_META,
   STRUCTURE_READONLY_FIELD,
+  STRUCTURE_READONLY_ROW,
+  STRUCTURE_READONLY_SPACER,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
   STRUCTURE_ROW_STACK,
@@ -180,22 +183,31 @@ export function StructureTabMovementSection({
             <FinalValue name="Walk MP">{walkMP}</FinalValue>
           </div>
           <p id="walk-mp-help" className={`${STRUCTURE_HELP} m-0`}>
-            Range {walkMPRange.min}-{walkMPRange.max} for a {tonnage}t mech (max
-            engine {MAX_ENGINE_RATING}).
+            {`Range ${walkMPRange.min}–${walkMPRange.max} for a ${formatTons(tonnage, 0)} 'Mech (max engine ${MAX_ENGINE_RATING}).`}
           </p>
         </div>
 
         <div className={STRUCTURE_ROW_GRID}>
           <span className={STRUCTURE_ROW_LABEL}>Run MP</span>
-          {/* Derived, not editable: a locked, outlined field with no buttons. */}
-          <output
-            aria-label="Run MP"
-            aria-describedby="run-mp-help"
-            className={STRUCTURE_READONLY_FIELD}
-          >
-            <AppIcon name="lock" size="inline" aria-hidden="true" />
-            {runMP}
-          </output>
+          {/* Derived, not editable: a locked, recessed read-only well the
+              size of a stepper's value field, with no - and + buttons. */}
+          <div className={STRUCTURE_READONLY_ROW}>
+            <span aria-hidden="true" className={STRUCTURE_READONLY_SPACER} />
+            <output
+              aria-label="Run MP"
+              aria-describedby="run-mp-help"
+              className={STRUCTURE_READONLY_FIELD}
+            >
+              <AppIcon
+                name="lock"
+                size="inline"
+                aria-hidden="true"
+                className="text-text-theme-secondary"
+              />
+              {runMP}
+            </output>
+            <span aria-hidden="true" className={STRUCTURE_READONLY_SPACER} />
+          </div>
           <div className={STRUCTURE_META}>
             <FinalValue name="Run MP">
               {runMP}
@@ -244,7 +256,7 @@ export function StructureTabMovementSection({
             {jumpJetType === JumpJetType.IMPROVED ? 'run speed' : 'walk speed'}
             ).
             {jumpMP > 0 &&
-              ` Jump jets: ${calculations.jumpJetWeight}t / ${calculations.jumpJetSlots} slots.`}
+              ` Jump jets: ${formatTons(calculations.jumpJetWeight)} / ${calculations.jumpJetSlots} slots.`}
           </p>
         </div>
 
@@ -256,7 +268,7 @@ export function StructureTabMovementSection({
             id="jump-type"
             className={jumpMP === 0 ? JUMP_TYPE_IDLE_SELECT : STRUCTURE_SELECT}
             disabled={readOnly}
-            aria-label="Jump type"
+            aria-label="Jump Type"
             aria-describedby={jumpMP === 0 ? 'jump-type-help' : undefined}
             value={jumpJetType}
             onChange={handleJumpJetTypeChange}
@@ -284,7 +296,7 @@ export function StructureTabMovementSection({
             className={STRUCTURE_SELECT}
             disabled={readOnly}
             id="movement-enhancement"
-            aria-label="Movement enhancement"
+            aria-label="Movement Enhancement"
             value={enhancement ?? ''}
             onChange={handleEnhancementChange}
           >

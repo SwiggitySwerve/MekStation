@@ -112,12 +112,12 @@ export function TabBar({
         <button
           type="button"
           onClick={onLoadUnit}
-          className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent relative flex h-11 min-w-11 items-center justify-center gap-2 rounded !p-0 text-sm font-medium whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 xl:!pr-3 xl:!pl-2"
-          aria-label="Add unit (Ctrl+O)"
+          className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-text-theme-primary relative flex h-11 min-w-11 items-center justify-center gap-2 rounded !p-0 text-sm font-medium whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 xl:!pr-[11px] xl:!pl-[9px]"
+          aria-label="Add Unit (Ctrl+O)"
         >
           <AppIcon name="add" size="toolbar" />
           <span aria-hidden="true" className="hidden xl:inline">
-            Add unit
+            Add Unit
           </span>
           <ToolbarHint>
             Open or create a unit{' '}

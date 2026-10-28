@@ -65,8 +65,8 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotBorder: 'border-yellow-400',
     slotText: 'text-black',
     slotHoverBg: 'hover:bg-yellow-500',
-    indicatorBg: 'bg-yellow-300/70',
-    accentBorder: 'border-l-yellow-300/70',
+    indicatorBg: 'bg-yellow-300',
+    accentBorder: 'border-l-yellow-300',
   },
 
   [EquipmentCategory.BALLISTIC_WEAPON]: {
@@ -115,28 +115,29 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
 
   [EquipmentCategory.PHYSICAL_WEAPON]: {
     label: 'Physical',
-    badgeVariant: 'rose',
-    slotBg: 'bg-rose-700',
-    slotBorder: 'border-rose-400',
+    badgeVariant: 'pink',
+    slotBg: 'bg-pink-700',
+    slotBorder: 'border-pink-400',
     slotText: 'text-white',
-    slotHoverBg: 'hover:bg-rose-600',
-    indicatorBg: 'bg-rose-500',
-    accentBorder: 'border-l-rose-500',
+    slotHoverBg: 'hover:bg-pink-600',
+    indicatorBg: 'bg-pink-400',
+    accentBorder: 'border-l-pink-400',
   },
 
   // -------------------------------------------------------------------------
-  // AMMUNITION - Yellow (different shade than cockpit's yellow-600)
+  // AMMUNITION - Slots and bars take the weapon's colour (plus stripes in
+  // slots); this neutral covers ammunition with no weapon type and the key.
   // -------------------------------------------------------------------------
 
   [EquipmentCategory.AMMUNITION]: {
     label: 'Ammo',
-    badgeVariant: 'amber',
-    slotBg: 'bg-amber-600',
-    slotBorder: 'border-amber-400',
+    badgeVariant: 'slate',
+    slotBg: 'bg-slate-600',
+    slotBorder: 'border-slate-300',
     slotText: 'text-white',
-    slotHoverBg: 'hover:bg-amber-500',
-    indicatorBg: 'bg-amber-600',
-    accentBorder: 'border-l-amber-600',
+    slotHoverBg: 'hover:bg-slate-500',
+    indicatorBg: 'bg-slate-300 ammo-dot',
+    accentBorder: 'border-l-slate-300',
   },
 
   // -------------------------------------------------------------------------
@@ -145,13 +146,13 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
 
   [EquipmentCategory.ELECTRONICS]: {
     label: 'Electronics',
-    badgeVariant: 'cyan',
-    slotBg: 'bg-cyan-700',
-    slotBorder: 'border-cyan-400',
+    badgeVariant: 'lime',
+    slotBg: 'bg-lime-700',
+    slotBorder: 'border-lime-400',
     slotText: 'text-white',
-    slotHoverBg: 'hover:bg-cyan-600',
-    indicatorBg: 'bg-cyan-500',
-    accentBorder: 'border-l-cyan-500',
+    slotHoverBg: 'hover:bg-lime-600',
+    indicatorBg: 'bg-lime-400',
+    accentBorder: 'border-l-lime-400',
   },
 
   [EquipmentCategory.MOVEMENT]: {
@@ -161,19 +162,19 @@ export const EQUIPMENT_CATEGORY_COLORS: Record<
     slotBorder: 'border-emerald-400',
     slotText: 'text-white',
     slotHoverBg: 'hover:bg-emerald-600',
-    indicatorBg: 'bg-emerald-500',
-    accentBorder: 'border-l-emerald-500',
+    indicatorBg: 'bg-emerald-600',
+    accentBorder: 'border-l-emerald-600',
   },
 
   [EquipmentCategory.STRUCTURAL]: {
     label: 'Structural',
-    badgeVariant: 'lime',
-    slotBg: 'bg-lime-700',
-    slotBorder: 'border-lime-400',
+    badgeVariant: 'slate',
+    slotBg: 'bg-slate-700',
+    slotBorder: 'border-slate-400',
     slotText: 'text-white',
-    slotHoverBg: 'hover:bg-lime-600',
-    indicatorBg: 'bg-lime-500',
-    accentBorder: 'border-l-lime-500',
+    slotHoverBg: 'hover:bg-slate-600',
+    indicatorBg: 'bg-slate-500',
+    accentBorder: 'border-l-slate-500',
   },
 
   [EquipmentCategory.MISC_EQUIPMENT]: {

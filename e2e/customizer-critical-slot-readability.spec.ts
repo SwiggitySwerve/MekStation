@@ -6,7 +6,7 @@ test('critical panels use the workspace and keep slot names readable @customizer
   page,
 }, testInfo) => {
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
+  await page.getByRole('button', { name: 'Add Unit', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await page
@@ -49,7 +49,7 @@ test('critical panels use the workspace and keep slot names readable @customizer
   ]) {
     await page.setViewportSize({ width: layout.width, height: layout.height });
     const toggle = page.getByRole('button', {
-      name: 'Hide loadout panel',
+      name: 'Hide Loadout Panel',
       exact: true,
     });
     if (

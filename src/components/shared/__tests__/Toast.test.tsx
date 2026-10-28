@@ -69,6 +69,64 @@ describe('shared ToastProvider', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('shows a repeated message once and restarts its timer', () => {
+    render(
+      <ToastProvider>
+        <ToastTrigger
+          toast={{ message: 'Draft saved in browser', variant: 'success' }}
+        />
+      </ToastProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show toast' }));
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Show toast' }));
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+
+    // The repeat's own 1800ms runs from the second click.
+    act(() => {
+      jest.advanceTimersByTime(1500);
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Draft saved in browser',
+    );
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('stacks different messages', () => {
+    function TwoTriggers(): React.ReactElement {
+      const { showToast } = useToast();
+      return (
+        <>
+          <button
+            onClick={() => showToast({ message: 'One', variant: 'info' })}
+          >
+            First
+          </button>
+          <button
+            onClick={() => showToast({ message: 'Two', variant: 'info' })}
+          >
+            Second
+          </button>
+        </>
+      );
+    }
+    render(
+      <ToastProvider>
+        <TwoTriggers />
+      </ToastProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'First' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Second' }));
+    expect(screen.getAllByRole('alert')).toHaveLength(2);
+  });
+
   it('routes standalone toast calls through the mounted provider', () => {
     render(<ToastProvider>Ready</ToastProvider>);
 

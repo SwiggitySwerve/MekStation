@@ -47,7 +47,9 @@ export function GlobalLoadoutTrayCategoryGroup({
       ? 'm12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 5Z'
       : grouping === 'fixed'
         ? 'M7 11V7a5 5 0 0 1 10 0v4m-9 0h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z'
-        : 'M4 6h16M4 12h16M4 18h16';
+        : // Category headers lead with their colour dot alone: a ≡ glyph
+          // there read as a drag handle on a header that cannot be dragged.
+          null;
 
   const toggleEquipmentGroup = (groupId: string) => {
     setExpandedGroups((current) => {
@@ -70,22 +72,27 @@ export function GlobalLoadoutTrayCategoryGroup({
             className={`${trayStyles.categoryDot} ${getCategoryIndicatorClass(items[0].category)}`}
           />
         )}
-        <SvgIcon
-          size="inline"
-          aria-hidden="true"
-          className="text-text-theme-secondary"
-        >
-          <path d={groupIcon} />
-        </SvgIcon>
+        {groupIcon && (
+          <SvgIcon
+            size="inline"
+            aria-hidden="true"
+            className="text-text-theme-secondary"
+          >
+            <path d={groupIcon} />
+          </SvgIcon>
+        )}
         <span
-          className={`${trayStyles.text.secondary} text-text-theme-secondary min-w-0 flex-1 truncate font-medium tracking-wide uppercase`}
+          className={`${trayStyles.text.secondary} text-text-theme-secondary min-w-0 truncate font-medium tracking-wide uppercase`}
         >
           {title}
         </span>
+        {/* The count joins the label ("ENERGY · 6") rather than the right
+            column, where the Mounted and Unassigned section counts sit. */}
         <span
-          className={`${trayStyles.text.secondary} text-text-theme-secondary tabular-nums`}
+          data-testid="loadout-category-count"
+          className={`${trayStyles.text.secondary} text-text-theme-secondary shrink-0 tabular-nums`}
         >
-          {items.length}
+          · {items.length}
         </span>
       </div>
 

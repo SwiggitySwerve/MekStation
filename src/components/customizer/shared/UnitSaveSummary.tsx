@@ -9,6 +9,7 @@ import {
   DRAFT_LABEL,
   DRAFT_SHORT_LABEL,
   useBrowserDraftState,
+  useDraftSavePulse,
   type DraftState,
 } from './BrowserDraftStatus';
 import { ToolbarHint } from './ToolbarHint';
@@ -25,18 +26,18 @@ export const SAVE_STATE_EXPLANATION =
   'Your changes are kept in this browser. Use Save to add the unit to your library or update its library copy.';
 
 /** Visible name of the save action on every surface that shows words. */
-export const SAVE_ACTION_LABEL = 'Save to library';
+export const SAVE_ACTION_LABEL = 'Save to Library';
 
 /**
  * The visible save-state words, shared by the header, the phone band and the
  * status panel. A written draft that the library does not hold yet reads as
- * two parts ("Draft saved in browser" / "Not in library" or "Changed since
- * v3"); a unit that matches its library copy reads "In library v3" alone.
+ * two parts ("Draft Saved" / "Not in Library" or "Changed Since v3"); a unit
+ * that matches its library copy reads "In Library v3" alone.
  */
 export interface UnitSaveLines {
-  /** First line, e.g. "Draft saved in browser" or "In library v3". */
+  /** First line, e.g. "Draft Saved" or "In Library v3". */
   first: string;
-  /** Library line under a draft line, e.g. "Not in library"; else null. */
+  /** Library line under a draft line, e.g. "Not in Library"; else null. */
   second: string | null;
   /** The first line is settled work (written draft or library match). */
   settled: boolean;
@@ -61,7 +62,7 @@ export function unitSaveLines(
 export interface UnitSaveState {
   draft: DraftState;
   library: LibrarySaveState;
-  /** Library wording shared by every save surface, e.g. "Changed since v3". */
+  /** Library wording shared by every save surface, e.g. "Changed Since v3". */
   label: string;
   /** Visible words for the save state (see `unitSaveLines`). */
   lines: UnitSaveLines;
@@ -85,16 +86,13 @@ export function useUnitSaveState(unitId: string): UnitSaveState {
   };
 }
 
-/** Short words for a written browser draft in the one-line save state. */
-const DRAFT_SAVED_WORD = 'draft saved';
-
 /**
  * The one-line save state: the library words first, because they are what
- * Save changes, then "draft saved" once the browser copy is written
- * ("Not in library · draft saved"). The long wording is in the tooltip.
+ * Save changes, then "Draft Saved" once the browser copy is written
+ * ("Not in Library · Draft Saved"). The long wording is in the tooltip.
  */
 export function unitSaveLine({ first, second }: UnitSaveLines): string {
-  return second ? `${second} · ${DRAFT_SAVED_WORD}` : first;
+  return second ? `${second} · ${DRAFT_SHORT_LABEL.saved}` : first;
 }
 
 function saveStateTitle({ library, draft }: UnitSaveState): string {
@@ -122,16 +120,41 @@ function UnitSaveLinesView({
   state: UnitSaveState;
   layout: 'stacked' | 'inline' | 'panel';
 }): React.ReactElement {
+  const pulse = useDraftSavePulse(unitId);
   if (state.failed)
     return <BrowserDraftStatus unitId={unitId} compact={layout !== 'panel'} />;
   const { first, second, settled } = state.lines;
+  // Each automatic save lands here instead of in a toast: "Draft Saved" and
+  // its check brighten to the OK green for a moment, then settle back. The
+  // check stays at rest so the flash never shifts the line.
   if (layout === 'inline')
     return (
       <span
         data-save-lines
         className="text-text-theme-secondary inline-flex min-w-0 items-center gap-1 whitespace-nowrap"
       >
-        <span className="min-w-0 truncate">{unitSaveLine(state.lines)}</span>
+        <span className="min-w-0 truncate">
+          {second ? (
+            <>
+              {second}
+              {' · '}
+              <span
+                data-draft-pulse={pulse || undefined}
+                className={`transition-colors duration-300 motion-reduce:transition-none ${pulse ? 'text-emerald-300' : ''}`}
+              >
+                <AppIcon
+                  name="check"
+                  size="inline"
+                  aria-hidden="true"
+                  className={`mr-1 transition-colors duration-300 motion-reduce:transition-none ${pulse ? 'text-green-400' : ''}`}
+                />
+                {DRAFT_SHORT_LABEL.saved}
+              </span>
+            </>
+          ) : (
+            first
+          )}
+        </span>
       </span>
     );
   // Beside Save, the library words are what Save changes, so they read in
@@ -160,9 +183,9 @@ function UnitSaveLinesView({
 }
 
 /**
- * One-line save state beside the desktop Save button: "Not in library ·
- * draft saved" / "Changed since v3 · draft saved", or "In library v3"
- * alone, or a red "Browser draft not saved · Retry". The words repeat the
+ * One-line save state beside the desktop Save button: "Not in Library ·
+ * Draft Saved" / "Changed Since v3 · Draft Saved", or "In Library v3"
+ * alone, or a red "Browser Draft Not Saved · Retry". The words repeat the
  * Save button's description, so they are hidden from assistive tech; the
  * failure keeps its own status and Retry. Phones show the words in the
  * status panel (and the 640px+ section band) instead.
@@ -189,7 +212,9 @@ export function UnitSaveLabel({
       data-testid="unit-save-label"
       data-state={state.library.state}
       title={saveStateTitle(state)}
-      className={`max-w-56 min-w-0 text-[13px] leading-5 ${className}`}
+      // 1px down: at 13px the caps otherwise render a pixel above the Save
+      // label's 14px caps, so both now share the button's midline.
+      className={`relative top-px max-w-56 min-w-0 text-[13px] leading-5 ${className}`}
     >
       <UnitSaveLinesView unitId={unitId} state={state} layout="inline" />
     </span>
@@ -223,7 +248,10 @@ export function UnitSaveAction({
   const { needsSave } = useUnitSaveState(unitId ?? '');
   const primary = unitId !== null && needsSave;
   return (
-    <div className="flex min-w-0 shrink-0 items-center gap-2.5">
+    // 24px to Save: the header cluster keeps one 24px gap between the visible
+    // edges of Add Unit, the unit menu, the rule, these words, Save and the
+    // panel toggle.
+    <div className="flex min-w-0 shrink-0 items-center gap-6">
       {unitId && <UnitSaveLabel unitId={unitId} />}
       <Button
         type="button"

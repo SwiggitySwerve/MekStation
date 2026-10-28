@@ -9,9 +9,19 @@ import { GroupingMode } from './GlobalLoadoutTray.helpers';
  * from `data-tip`, in addition to their accessible name.
  */
 const ICON_BUTTON_CLASS =
-  'text-text-theme-primary focus-visible:ring-accent hover:bg-surface-raised relative flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ' +
+  'text-text-theme-primary focus-visible:ring-text-theme-primary hover:bg-surface-raised relative flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ' +
   'after:bg-surface-deep after:border-border-theme after:text-text-theme-primary after:pointer-events-none after:absolute after:top-full after:right-0 after:z-50 after:mt-1 after:hidden after:rounded after:border after:px-2 after:py-1 after:text-xs after:font-medium after:whitespace-nowrap after:shadow-lg after:content-[attr(data-tip)] ' +
   'hover:after:block focus-visible:after:block aria-expanded:after:!hidden';
+
+const GROUPING_LABEL: Record<GroupingMode, string> = {
+  category: 'Category',
+  location: 'Location',
+};
+
+/** "1 item", "22 items". */
+function loadoutItemsLabel(count: number): string {
+  return `${count} ${count === 1 ? 'item' : 'items'}`;
+}
 
 interface LoadoutTrayHeaderProps {
   equipmentCount: number;
@@ -39,19 +49,27 @@ export function GlobalLoadoutTrayHeader({
   return (
     <header className="border-border-theme h-12 shrink-0 border-b">
       <div className="flex h-full items-center justify-between px-2">
-        <div className="flex min-w-0 items-baseline gap-2">
+        <div className="flex min-w-0 items-baseline gap-1.5">
           <div>
             <h3 className="text-text-theme-primary text-xs font-semibold tracking-[0.12em] uppercase">
               Loadout
             </h3>
-            <p className="text-text-theme-secondary text-xs">By {grouping}</p>
+            <p className="text-text-theme-secondary text-xs">
+              By {GROUPING_LABEL[grouping]}
+            </p>
           </div>
-          <span
-            className="border-border-theme bg-surface-raised text-text-theme-secondary rounded-full border px-1.5 py-0.5 text-xs tabular-nums"
-            title={`${equipmentCount} items in loadout`}
-          >
-            {equipmentCount}
-          </span>
+          {/* "22 items" names what the number counts, so it reads as the sum
+              of the Unassigned, Mounted and Fixed Systems counts below. Its
+              4px side padding keeps it clear of the 44px actions button.
+              An empty loadout has no chip: "No equipment" below says it. */}
+          {equipmentCount > 0 && (
+            <span
+              className="border-border-theme bg-surface-raised text-text-theme-secondary rounded-full border px-1 py-0.5 text-xs whitespace-nowrap tabular-nums"
+              title={`${loadoutItemsLabel(equipmentCount)} in loadout`}
+            >
+              {loadoutItemsLabel(equipmentCount)}
+            </span>
+          )}
         </div>
         <div className="relative flex items-center gap-0.5" ref={actionsRef}>
           <button
@@ -93,7 +111,7 @@ export function GlobalLoadoutTrayHeader({
                       type="button"
                       aria-pressed={isActive}
                       onClick={() => onGroupingChange(mode)}
-                      className={`focus-visible:ring-accent flex min-h-11 w-full min-w-0 items-center gap-3 rounded px-3 text-left text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ${
+                      className={`focus-visible:ring-text-theme-primary flex min-h-11 w-full min-w-0 items-center gap-3 rounded px-3 text-left text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset ${
                         isActive
                           ? 'bg-accent/15 text-accent'
                           : 'text-text-theme-secondary hover:bg-surface-raised hover:text-text-theme-primary'
@@ -102,23 +120,25 @@ export function GlobalLoadoutTrayHeader({
                       <AppIcon
                         name={mode === 'category' ? 'category' : 'location'}
                       />
-                      <span className="min-w-0 flex-1 capitalize">{mode}</span>
+                      <span className="min-w-0 flex-1">
+                        {GROUPING_LABEL[mode]}
+                      </span>
                       {isActive && <AppIcon name="check" size="inline" />}
                     </button>
                   );
                 })}
               </div>
               <p className="text-text-theme-secondary px-2 py-1 text-xs font-medium tracking-[0.14em] uppercase">
-                Loadout actions
+                Loadout Actions
               </p>
               <button
                 type="button"
                 disabled={removableCount === 0}
                 onClick={onRemoveAll}
-                className="focus-visible:ring-accent flex min-h-11 w-full items-center gap-3 rounded px-3 text-left text-sm text-red-300 transition-colors hover:bg-red-900/30 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-40"
+                className="focus-visible:ring-text-theme-primary flex min-h-11 w-full items-center gap-3 rounded px-3 text-left text-sm text-red-300 transition-colors hover:bg-red-900/30 focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <AppIcon name="trash" />
-                <span>Remove all removable ({removableCount})</span>
+                <span>Remove All Removable ({removableCount})</span>
               </button>
             </div>
           )}

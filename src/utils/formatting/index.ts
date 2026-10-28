@@ -17,6 +17,7 @@ export {
 export {
   formatBV,
   formatWeight,
+  formatTons,
   formatCost,
   formatCostFull,
   formatArmorPoints,

@@ -14,13 +14,14 @@
  *   - Orange: Engine
  *   - Purple: Gyro
  *   - Blue: Actuator
- *   - Yellow-600: Cockpit/Sensors
+ *   - Slate-400: Cockpit/Life support/Sensors
  *
  * @spec openspec/specs/color-system/spec.md
  */
 
 import { EquipmentCategory } from '@/types/equipment';
 
+import { detectAmmoSubType, getAmmoColors } from './equipmentColors.ammo';
 import { classifyEquipmentByName } from './equipmentColors.classification';
 import {
   EQUIPMENT_CATEGORY_COLORS,
@@ -60,8 +61,8 @@ export const HEATSINK_COLORS: CategoryColorDefinition = {
   slotBorder: 'border-cyan-400',
   slotText: 'text-white',
   slotHoverBg: 'hover:bg-cyan-600',
-  indicatorBg: 'bg-cyan-500',
-  accentBorder: 'border-l-cyan-500',
+  indicatorBg: 'bg-cyan-400',
+  accentBorder: 'border-l-cyan-400',
 };
 
 // =============================================================================
@@ -113,15 +114,22 @@ export function getCategoryAccentClass(category: EquipmentCategory): string {
   return EQUIPMENT_CATEGORY_COLORS[category].accentBorder;
 }
 
+/** Global class (globals.css) that stripes an ammunition bar like its slots. */
+export const AMMO_EDGE_CLASS = 'ammo-accent';
+
 /**
- * Heat-sink aware accent bar class, mirroring getEquipmentSlotClasses
+ * Accent bar class by name: heat sinks take the heat-sink cyan and
+ * ammunition takes its weapon's colour, mirroring getEquipmentSlotClasses
  */
 export function getEquipmentAccentClasses(
   category: EquipmentCategory,
   name: string,
 ): string {
-  return classifyEquipmentByName(name) === 'heatsink'
-    ? HEATSINK_COLORS.accentBorder
+  if (classifyEquipmentByName(name) === 'heatsink') {
+    return HEATSINK_COLORS.accentBorder;
+  }
+  return category === EquipmentCategory.AMMUNITION
+    ? `${getAmmoColors(name).accentBorder} ${AMMO_EDGE_CLASS} ${AMMO_EDGE_CLASS}-${detectAmmoSubType(name)}`
     : getCategoryAccentClass(category);
 }
 

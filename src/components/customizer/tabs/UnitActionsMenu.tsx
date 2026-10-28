@@ -57,21 +57,21 @@ export function UnitActionsMenu({
     action();
   };
   const itemClass =
-    'text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex min-h-11 w-full items-center rounded px-3 text-left text-sm focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-40';
+    'text-text-theme-primary hover:bg-surface-raised focus-visible:outline-text-theme-primary flex min-h-11 w-full items-center rounded px-3 text-left text-sm focus-visible:outline-2 disabled:cursor-not-allowed disabled:opacity-40';
   return (
     <div ref={root} className="relative">
       <button
         ref={button}
         type="button"
-        aria-label="Unit actions"
+        aria-label="Unit Actions"
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((value) => !value)}
-        className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent relative flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 focus-visible:outline-2"
+        className="group text-text-theme-primary hover:bg-surface-raised focus-visible:outline-text-theme-primary relative flex h-11 w-11 shrink-0 items-center justify-center rounded !p-0 focus-visible:outline-2"
       >
         <AppIcon name="more" size="toolbar" />
         <ToolbarHint>
-          <span className="block font-semibold">Unit actions</span>
+          <span className="block font-semibold">Unit Actions</span>
           <span className="text-text-theme-secondary block">
             Import, export, saved history
           </span>
@@ -85,7 +85,7 @@ export function UnitActionsMenu({
         >
           {tabs.length > 1 && (
             <label className="text-text-theme-secondary block px-3 py-2 text-xs">
-              Open units
+              Open Units
               <select
                 aria-label="Switch open unit"
                 value={activeTabId ?? ''}
@@ -108,7 +108,7 @@ export function UnitActionsMenu({
               className={itemClass}
               title="Import from Bundle"
             >
-              Import from bundle
+              Import from Bundle
             </button>
           )}
           {onExport && (
@@ -119,7 +119,7 @@ export function UnitActionsMenu({
               className={itemClass}
               title={canExport ? 'Export Active Unit' : 'No unit to export'}
             >
-              Export active unit
+              Export Active Unit
             </button>
           )}
           {onOpenSavedHistory && (
@@ -137,7 +137,7 @@ export function UnitActionsMenu({
                   savedHistoryDisabledReason ? historyDisabledId : undefined
                 }
               >
-                Saved history
+                Saved History
               </button>
               {savedHistoryDisabledReason && (
                 <span id={historyDisabledId} className="sr-only">

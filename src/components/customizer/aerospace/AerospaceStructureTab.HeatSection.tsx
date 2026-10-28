@@ -107,7 +107,7 @@ export function HeatSection({
       {/* Bomb Capacity */}
       {hasBombBay && (
         <div className="mb-4">
-          <label className={cs.text.label}>Bomb Capacity (tons)</label>
+          <label className={cs.text.label}>Bomb Capacity (t)</label>
           <input
             type="number"
             value={bombCapacity}

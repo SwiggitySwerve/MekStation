@@ -9,6 +9,8 @@ import { STRUCTURE_CONTROL_WIDTH } from './StructureTabRowLayout';
  * Number stepper used by every Structure row: 44px minus button, a value box
  * that takes the remaining width, 44px plus button. By default the group spans
  * the 240px control column. Callers own clamping and enable/disable rules.
+ * A disabled - or + takes the shared disabled look (outline only, dimmed
+ * glyph, no fill), so it never reads as an enabled button.
  */
 export function StructureStepper({
   id,
@@ -55,7 +57,7 @@ export function StructureStepper({
         type="button"
         onClick={onDecrease}
         disabled={disabled || decreaseDisabled}
-        className={cs.button.stepperLeft}
+        className={`${cs.button.stepperLeft} ${cs.button.disabledVisible}`}
         data-testid={decreaseTestId}
         aria-label={decreaseLabel}
       >
@@ -78,7 +80,7 @@ export function StructureStepper({
         type="button"
         onClick={onIncrease}
         disabled={disabled || increaseDisabled}
-        className={cs.button.stepperRight}
+        className={`${cs.button.stepperRight} ${cs.button.disabledVisible}`}
         data-testid={increaseTestId}
         aria-label={increaseLabel}
       >

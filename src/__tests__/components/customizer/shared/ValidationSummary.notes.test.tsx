@@ -67,7 +67,7 @@ describe('ValidationSummary readout warnings', () => {
   it('derives the heat note only when running hot, in plain language', () => {
     expect(getHeatNote(22, 22)).toBeNull();
     expect(heatNote).toMatchObject({
-      label: 'Runs hot',
+      label: 'Runs Hot',
       amount: '+11',
       heading: 'Runs 11 heat over dissipation',
       message: 'Heat 33 at full fire vs 22 dissipation: 11 over.',
@@ -88,9 +88,9 @@ describe('ValidationSummary readout warnings', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: 'Atlas: Legal · Runs hot +11, show issues',
+      name: 'Atlas: Legal · Runs Hot +11, show issues',
     });
-    expect(trigger).toHaveTextContent(/^Runs hot\s*\+11$/);
+    expect(trigger).toHaveTextContent(/^Runs Hot\s*\+11$/);
     expect(trigger).not.toHaveTextContent('Valid');
     expect(trigger).toHaveAttribute('data-build-status', 'warning');
     expect(trigger.querySelector('[data-severity-icon="warning"]')).toHaveClass(
@@ -101,7 +101,7 @@ describe('ValidationSummary readout warnings', () => {
     // A legal build says so in its heading instead of a green line above a
     // warning row.
     const dialog = screen.getByRole('dialog', {
-      name: /Atlas.*Build status.*Legal · Runs hot \+11/,
+      name: /Atlas.*Build Status.*Legal · Runs Hot \+11/,
     });
     expect(dialog).not.toHaveTextContent('All construction rules pass');
     const heading = screen.getByRole('heading', {
@@ -127,14 +127,14 @@ describe('ValidationSummary readout warnings', () => {
     );
     expect(screen.getAllByRole('button')).toHaveLength(1);
     const status = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 1 error · 1 warning (Runs hot +11), show issues',
+      name: 'Atlas: Not Legal · 1 error · 1 warning (Runs Hot +11), show issues',
     });
     // Every group is counted, worst first, in the shared wording.
     expect(status).toHaveTextContent(/^1 error\s*·\s*1 warning$/);
     expect(status).toHaveAttribute('data-build-status', 'error');
     fireEvent.click(status);
     const dialog = screen.getByRole('dialog', {
-      name: /Atlas.*Build status.*Not legal · 1 error · 1 warning/,
+      name: /Atlas.*Build Status.*Not Legal · 1 error · 1 warning/,
     });
     // Each group heading says what the group means.
     expect(
@@ -147,7 +147,7 @@ describe('ValidationSummary readout warnings', () => {
     expect(dialog).toHaveTextContent(heatNote.message);
   });
 
-  it('puts the unit name above the heading and the counts in whole chips', () => {
+  it('puts the unit name above the heading and the counts in the status button format', () => {
     render(
       <ValidationSummary
         validation={withOneError()}
@@ -163,10 +163,11 @@ describe('ValidationSummary readout warnings', () => {
     );
     expect(unit).toHaveAttribute('title', unit.textContent);
     expect(unit).toHaveClass('truncate');
-    expect(within(title).getByText('Build status')).toBeInTheDocument();
-    // The verdict is its own label; each count is one unbreakable chip.
+    expect(within(title).getByText('Build Status')).toBeInTheDocument();
+    // The verdict is its own label; each count is one unbreakable unit in
+    // the status button's format: coloured words, no pill.
     const summary = dialog.querySelector('[id$="-summary"]')!;
-    expect(summary).toHaveTextContent('Not legal');
+    expect(summary).toHaveTextContent('Not Legal');
     const chips = Array.from(
       summary.querySelectorAll('[data-build-status-part]'),
     );
@@ -174,7 +175,12 @@ describe('ValidationSummary readout warnings', () => {
       '1 error',
       '1 warning',
     ]);
-    for (const chip of chips) expect(chip).toHaveClass('whitespace-nowrap');
+    for (const chip of chips) {
+      expect(chip).toHaveClass('whitespace-nowrap');
+      expect(chip).not.toHaveClass('rounded-full');
+    }
+    expect(chips[0]).toHaveClass(BUILD_STATUS_KIND_TEXT_CLASS.error);
+    expect(chips[1]).toHaveClass(BUILD_STATUS_KIND_TEXT_CLASS.warning);
     expect(summary).toHaveClass('flex-wrap');
   });
 
@@ -203,11 +209,11 @@ describe('ValidationSummary readout warnings', () => {
       />,
     );
     const error = screen.getByRole('button', {
-      name: 'Atlas: Not legal · 1 error · 1 warning (Runs hot +11), show issues',
+      name: 'Atlas: Not Legal · 1 error · 1 warning (Runs Hot +11), show issues',
     });
     // The phone chip shows each group as its severity shape and count; the
     // words stay in the accessible name and tooltip.
-    expect(error).toHaveTextContent(/^11Issues$/);
+    expect(error).toHaveTextContent(/^11$/);
     expect(
       error.querySelector('[data-build-status-part="error"]'),
     ).toHaveTextContent(/^1$/);
@@ -221,7 +227,7 @@ describe('ValidationSummary readout warnings', () => {
       BUILD_STATUS_KIND_TEXT_CLASS.error,
     );
     fireEvent.click(error);
-    const dialog = screen.getByRole('dialog', { name: /Atlas.*Not legal/ });
+    const dialog = screen.getByRole('dialog', { name: /Atlas.*Not Legal/ });
     expect(dialog).toHaveTextContent('Overweight');
     expect(dialog).toHaveTextContent(heatNote.message);
   });
@@ -275,7 +281,7 @@ describe('ValidationSummary readout warnings', () => {
       });
     });
 
-    it('opens a drawer over the loadout rail that leaves the tab content undimmed, and Escape returns focus', () => {
+    it('opens a drawer over the loadout rail, pushes the tab content clear of it, and Escape returns focus', () => {
       render(
         <div>
           <div data-testid="customizer-workspace" />
@@ -289,7 +295,7 @@ describe('ValidationSummary readout warnings', () => {
       );
       const trigger = screen.getByRole('button', { name: /show issues$/ });
       fireEvent.click(trigger);
-      const dialog = screen.getByRole('dialog', { name: /Atlas.*Not legal/ });
+      const dialog = screen.getByRole('dialog', { name: /Atlas.*Not Legal/ });
       expect(dialog).toHaveAttribute('data-panel-layout', 'drawer');
       expect(dialog).toHaveStyle({
         left: '1120px',
@@ -300,9 +306,18 @@ describe('ValidationSummary readout warnings', () => {
       expect(
         document.querySelector('[data-validation-scrim]'),
       ).not.toBeInTheDocument();
+      // The drawer is 80px wider than the rail: the tab content makes room
+      // for it rather than being cut mid-word underneath, and a left edge
+      // shadow separates the two.
+      const workspace = screen.getByTestId('customizer-workspace');
+      expect(workspace.style.getPropertyValue('--status-drawer-push')).toBe(
+        '80px',
+      );
+      expect(dialog.className).toMatch(/shadow-\[-12px_0_24px/);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(trigger).toHaveFocus();
+      expect(workspace.style.getPropertyValue('--status-drawer-push')).toBe('');
     });
 
     it('closes from its close button and returns focus to the status button', () => {
@@ -336,11 +351,11 @@ describe('ValidationSummary readout warnings', () => {
       button.querySelector('[data-icon-name="chevron-right"]'),
     ).toBeInTheDocument();
     expect(button).toHaveAccessibleName(
-      /Not legal \u00b7 1 error \u00b7 2 warnings \u00b7 3 notes/,
+      /Not Legal \u00b7 1 error \u00b7 2 warnings \u00b7 3 notes/,
     );
   });
 
-  it('names the issue action visibly beside two phone severity counts', () => {
+  it('shows two phone severity counts alone, with the words in its name', () => {
     render(
       <ValidationSummary
         validation={{ ...withOneError(), warningCount: 1 }}
@@ -348,11 +363,13 @@ describe('ValidationSummary readout warnings', () => {
       />,
     );
     const button = screen.getByRole('button', { name: /show issues$/ });
-    expect(button).toHaveTextContent('Issues');
+    // No "Issues" noun to misread as "1 Issues" after the last count.
+    expect(button).toHaveTextContent(/^11$/);
+    expect(button).toHaveAttribute('title', '1 error · 1 warning');
     expect(
       button.querySelector('[data-icon-name="chevron-right"]'),
     ).toBeInTheDocument();
-    expect(button).toHaveAccessibleName(/Not legal · 1 error · 1 warning/);
+    expect(button).toHaveAccessibleName(/Not Legal · 1 error · 1 warning/);
   });
 
   it('keeps the same running-hot wording on phone and shows details in the panel', () => {
@@ -366,10 +383,14 @@ describe('ValidationSummary readout warnings', () => {
       />,
     );
     const trigger = screen.getByRole('button', {
-      name: /Runs hot \+11, show issues/,
+      name: /Runs Hot \+11, show issues/,
     });
-    expect(trigger).toHaveTextContent(/Runs hot\s*\+11/);
+    expect(trigger).toHaveTextContent(/Runs Hot\s*\+11/);
     expect(trigger).not.toHaveTextContent('warning');
+    // Every phone chip state ends with the same chevron.
+    expect(
+      trigger.querySelector('[data-icon-name="chevron-right"]'),
+    ).toBeInTheDocument();
     fireEvent.click(trigger);
     expect(screen.getByRole('dialog')).toHaveTextContent(
       'Draft saved in this browser',

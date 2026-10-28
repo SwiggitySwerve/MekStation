@@ -114,7 +114,7 @@ describe('CampaignRefitCommandBar', () => {
     renderCommandBar({ changed: true });
 
     expect(screen.getByTestId('campaign-refit-command-bar')).toHaveTextContent(
-      'Campaign refit: Atlas',
+      'Campaign Refit: Atlas',
     );
     // Build-count moved to its own prominent element (declutter wave) —
     // the context line now carries only the campaign metadata.

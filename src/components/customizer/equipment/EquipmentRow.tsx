@@ -141,16 +141,16 @@ export const EquipmentRow = memo(function EquipmentRow({
         <td className="text-text-theme-secondary w-20 px-1 py-0.5 text-center text-[10px] tabular-nums sm:w-24">
           {formatRange(weaponData)}
         </td>
-        <td className="text-text-theme-secondary w-10 px-1 py-0.5 text-center sm:w-12">
+        <td className="text-text-theme-secondary w-10 px-1 py-0.5 text-right sm:w-12">
           {formatDamage(weaponData)}
         </td>
-        <td className="text-text-theme-secondary w-8 px-1 py-0.5 text-center sm:w-10">
+        <td className="text-text-theme-secondary w-8 px-1 py-0.5 text-right sm:w-10">
           {formatHeat(weaponData)}
         </td>
-        <td className="text-text-theme-secondary w-12 px-1 py-0.5 text-center tabular-nums">
-          {equipment.weight}
+        <td className="text-text-theme-secondary w-12 px-1 py-0.5 text-right tabular-nums">
+          {equipment.weight.toFixed(1)}
         </td>
-        <td className="text-text-theme-secondary w-10 px-1 py-0.5 text-center tabular-nums">
+        <td className="text-text-theme-secondary w-10 px-1 py-0.5 text-right tabular-nums">
           {equipment.criticalSlots}
         </td>
         <td className="w-10 px-1 py-0.5">
@@ -183,22 +183,22 @@ export const EquipmentRow = memo(function EquipmentRow({
       </td>
 
       {/* Damage */}
-      <td className="text-text-theme-secondary px-3 py-2 text-center">
+      <td className="text-text-theme-secondary px-3 py-2 text-right">
         {formatDamage(weaponData)}
       </td>
 
       {/* Heat */}
-      <td className="text-text-theme-secondary px-3 py-2 text-center">
+      <td className="text-text-theme-secondary px-3 py-2 text-right">
         {formatHeat(weaponData)}
       </td>
 
       {/* Weight */}
-      <td className="text-text-theme-secondary px-3 py-2 text-center">
-        {equipment.weight}t
+      <td className="text-text-theme-secondary px-3 py-2 text-right">
+        {equipment.weight.toFixed(1)}
       </td>
 
       {/* Critical Slots */}
-      <td className="text-text-theme-secondary px-3 py-2 text-center">
+      <td className="text-text-theme-secondary px-3 py-2 text-right">
         {equipment.criticalSlots}
       </td>
 

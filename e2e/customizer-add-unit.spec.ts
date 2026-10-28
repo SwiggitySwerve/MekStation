@@ -29,9 +29,9 @@ for (const catalogState of ['loading', 'failed'] as const) {
     });
     try {
       await page.goto('/customizer');
-      await page.getByRole('button', { name: 'Add unit', exact: true }).click();
+      await page.getByRole('button', { name: 'Add Unit', exact: true }).click();
       const dialog = page.getByRole('dialog', {
-        name: 'Add unit',
+        name: 'Add Unit',
         exact: true,
       });
       await expect(dialog).toBeVisible();
@@ -46,7 +46,7 @@ for (const catalogState of ['loading', 'failed'] as const) {
         animations: 'disabled',
       });
       await dialog
-        .getByRole('button', { name: 'New blank unit', exact: true })
+        .getByRole('button', { name: 'New Blank Unit', exact: true })
         .click();
       await expect(dialog).toBeHidden();
       await expect(page).toHaveURL(/customizer\/[a-f0-9-]+\//);
@@ -62,21 +62,21 @@ for (const catalogState of ['loading', 'failed'] as const) {
       await expect.poll(async () => (await readDraft(page))?.id).toBe(draft.id);
       expect((await readDraft(page)).tonnage).toBe(50);
       await page
-        .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+        .getByRole('button', { name: 'Add Unit (Ctrl+O)', exact: true })
         .click();
       await expect(dialog).toBeVisible();
       await expect(
-        dialog.getByRole('button', { name: 'New blank unit' }),
+        dialog.getByRole('button', { name: 'New Blank Unit' }),
       ).toBeEnabled();
       await page.keyboard.press('Escape');
       await page
-        .getByRole('button', { name: 'Unit actions', exact: true })
+        .getByRole('button', { name: 'Unit Actions', exact: true })
         .click();
       await expect(
         page.getByRole('button', { name: 'New unit', exact: true }),
       ).toHaveCount(0);
       await expect(
-        page.getByRole('button', { name: 'Import from bundle' }),
+        page.getByRole('button', { name: 'Import from Bundle' }),
       ).toBeVisible();
     } finally {
       release();
@@ -84,16 +84,16 @@ for (const catalogState of ['loading', 'failed'] as const) {
   });
 }
 
-test('Add unit keeps catalog loading and optional starting settings in one flow @customizer', async ({
+test('Add Unit keeps catalog loading and optional starting settings in one flow @customizer', async ({
   page,
 }, testInfo) => {
   await page.goto('/customizer');
   await page
     .getByRole('button', { name: 'Load from Library', exact: true })
     .click();
-  const dialog = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await expect(
-    dialog.getByRole('button', { name: 'New blank unit' }),
+    dialog.getByRole('button', { name: 'New Blank Unit' }),
   ).toBeVisible();
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await dialog
@@ -111,21 +111,17 @@ test('Add unit keeps catalog loading and optional starting settings in one flow 
   ).toHaveAttribute('aria-selected', 'true');
   const atlas = await readDraft(page);
   await page
-    .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+    .getByRole('button', { name: 'Add Unit (Ctrl+O)', exact: true })
     .click();
   // Wide layout: the primary and secondary buttons sit side by side, left
   // aligned, the same height, 12px apart. Each carries its own caption right
   // under it, starting at that button's left edge.
-  const primary = dialog.getByRole('button', { name: 'New blank unit' });
+  const primary = dialog.getByRole('button', { name: 'New Blank Unit' });
   const secondary = dialog.getByRole('button', {
-    name: 'Choose tonnage and tech first…',
+    name: 'Set Up a New Unit…',
   });
-  const helper = dialog.getByText(
-    'Starts a 50-ton Inner Sphere BattleMech you can change.',
-  );
-  const secondaryHelper = dialog.getByText(
-    'Pick unit type, tonnage and tech base.',
-  );
+  const helper = dialog.getByText('A 50-ton Inner Sphere Mech.');
+  const secondaryHelper = dialog.getByText('Pick type, tonnage and tech.');
   const [pBox, sBox, hBox, shBox] = await Promise.all([
     primary.boundingBox(),
     secondary.boundingBox(),
@@ -142,9 +138,7 @@ test('Add unit keeps catalog loading and optional starting settings in one flow 
   // ... and the settings caption sits under the settings button.
   expect(Math.abs(shBox!.x - sBox!.x)).toBeLessThanOrEqual(1);
   expect(shBox!.y).toBeGreaterThanOrEqual(sBox!.y + sBox!.height);
-  await dialog
-    .getByRole('button', { name: 'Choose tonnage and tech first…' })
-    .click();
+  await dialog.getByRole('button', { name: 'Set Up a New Unit…' }).click();
   await expect(dialog).toBeHidden();
   await expect(
     page.getByRole('heading', { name: 'Create New Unit' }),
@@ -152,10 +146,10 @@ test('Add unit keeps catalog loading and optional starting settings in one flow 
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   await page
-    .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+    .getByRole('button', { name: 'Add Unit (Ctrl+O)', exact: true })
     .click();
   const blank = dialog.getByRole('button', {
-    name: 'New blank unit',
+    name: 'New Blank Unit',
     exact: true,
   });
   await expect(blank).toBeInViewport();

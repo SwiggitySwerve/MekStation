@@ -2,10 +2,10 @@
  * Location Armor Editor Component
  *
  * Compact panel for editing armor values on a selected location.
- * Direct controls for front and rear armor with independent sliders. Front
- * and rear share the location's maximum, so torsos label each slider with
- * its current value ("Front 47", "Rear 14") and show the one total against
- * the location max instead of a per-side maximum.
+ * Direct controls for front and rear armor with independent sliders. Every
+ * location uses one header pattern: plain "Front" / "Rear" labels (the value
+ * sits in the input beside each slider) and the location maximum once, on the
+ * Total line. Front and rear share that maximum, so no per-side max is shown.
  *
  * @spec openspec/specs/armor-diagram/spec.md
  */
@@ -122,14 +122,18 @@ export function LocationArmorEditor({
   const inputClass =
     'min-h-11 w-16 px-1.5 py-1 bg-surface-raised border border-border-theme-strong rounded text-text-theme-primary text-sm text-center font-medium [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
   const labelClass = 'text-xs font-semibold uppercase tracking-wide';
+  // Embedded, the editor is a raised panel, so its empty tracks drop to the
+  // page tone to stay visible against it.
+  const emptyTrack = embedded ? 'var(--surface-deep)' : 'var(--surface-raised)';
+  // A 24px hit area around a centred 8px track (the inline gradient's size).
   const sliderTrackClass =
-    'flex-1 h-2 rounded-lg appearance-none cursor-pointer';
+    'flex-1 h-6 bg-transparent bg-[length:100%_8px] bg-center bg-no-repeat appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-current [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-current';
 
   return (
     <div
       className={
         embedded
-          ? 'bg-surface-deep border-border-theme-subtle rounded-lg border p-3'
+          ? 'bg-surface-raised border-border-theme rounded-lg border p-3'
           : 'bg-surface-base border-border-theme rounded-lg border p-4'
       }
       data-testid="location-armor-editor"
@@ -143,7 +147,7 @@ export function LocationArmorEditor({
         </h4>
         <button
           onClick={onClose}
-          className="hover:bg-surface-raised focus-visible:ring-accent flex min-h-11 min-w-11 items-center justify-center rounded p-1 transition-colors focus-visible:ring-2"
+          className={`${embedded ? 'hover:bg-border-theme' : 'hover:bg-surface-raised'} focus-visible:ring-accent flex min-h-11 min-w-11 items-center justify-center rounded p-1 transition-colors focus-visible:ring-2`}
           aria-label="Close editor"
         >
           <AppIcon
@@ -159,13 +163,8 @@ export function LocationArmorEditor({
       <div className="mb-4">
         <div className="mb-1.5 flex items-center justify-between">
           <span className={labelClass} style={{ color: FRONT_ARMOR_COLOR }}>
-            {showRear ? `Front ${front}` : 'Front'}
+            Front
           </span>
-          {!showRear && (
-            <span className="text-text-theme-secondary text-xs">
-              max {maxFront}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -178,7 +177,8 @@ export function LocationArmorEditor({
             disabled={readOnly}
             className={sliderTrackClass}
             style={{
-              background: `linear-gradient(to right, ${FRONT_ARMOR_COLOR} 0%, ${FRONT_ARMOR_COLOR} ${maxFront > 0 ? (front / maxFront) * 100 : 0}%, #475569 ${maxFront > 0 ? (front / maxFront) * 100 : 0}%, #475569 100%)`,
+              color: FRONT_ARMOR_COLOR,
+              backgroundImage: `linear-gradient(to right, ${FRONT_ARMOR_COLOR} 0%, ${FRONT_ARMOR_COLOR} ${maxFront > 0 ? (front / maxFront) * 100 : 0}%, ${emptyTrack} ${maxFront > 0 ? (front / maxFront) * 100 : 0}%, ${emptyTrack} 100%)`,
             }}
           />
           <input
@@ -202,7 +202,7 @@ export function LocationArmorEditor({
         <div className="mb-4">
           <div className="mb-1.5 flex items-center justify-between">
             <span className={labelClass} style={{ color: REAR_ARMOR_COLOR }}>
-              {`Rear ${rear}`}
+              Rear
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -216,7 +216,8 @@ export function LocationArmorEditor({
               disabled={readOnly}
               className={sliderTrackClass}
               style={{
-                background: `linear-gradient(to right, ${REAR_ARMOR_COLOR} 0%, ${REAR_ARMOR_COLOR} ${maxRear > 0 ? (rear / maxRear) * 100 : 0}%, #475569 ${maxRear > 0 ? (rear / maxRear) * 100 : 0}%, #475569 100%)`,
+                color: REAR_ARMOR_COLOR,
+                backgroundImage: `linear-gradient(to right, ${REAR_ARMOR_COLOR} 0%, ${REAR_ARMOR_COLOR} ${maxRear > 0 ? (rear / maxRear) * 100 : 0}%, ${emptyTrack} ${maxRear > 0 ? (rear / maxRear) * 100 : 0}%, ${emptyTrack} 100%)`,
               }}
             />
             <input
@@ -250,7 +251,9 @@ export function LocationArmorEditor({
           </span>
         </div>
         {/* Visual bar showing total allocation */}
-        <div className="bg-surface-raised flex h-2 overflow-hidden rounded-full">
+        <div
+          className={`${embedded ? 'bg-surface-deep' : 'bg-surface-raised'} flex h-2 overflow-hidden rounded-full`}
+        >
           {/* Front portion */}
           <div
             className="h-full transition-all duration-150"

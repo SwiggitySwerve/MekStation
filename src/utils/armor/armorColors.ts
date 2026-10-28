@@ -18,11 +18,12 @@ export const SELECTED_COLOR = '#3b82f6'; // blue-500
 export const SELECTED_STROKE = '#60a5fa'; // blue-400
 export const HOVER_LIGHTEN = 0.15;
 
-// Front/Rear armor colors for consistent UI
-export const FRONT_ARMOR_COLOR = '#f59e0b'; // amber-500
-export const REAR_ARMOR_COLOR = '#0ea5e9'; // sky-500
-export const FRONT_ARMOR_LIGHT = '#fbbf24'; // amber-400
-export const REAR_ARMOR_LIGHT = '#38bdf8'; // sky-400
+// Front/Rear armor colors: palette tones (cream front, secondary blue-grey
+// rear), never a hue that equipment or 'Mech systems own.
+export const FRONT_ARMOR_COLOR = 'var(--text-primary)';
+export const REAR_ARMOR_COLOR = 'var(--text-secondary)';
+export const FRONT_ARMOR_LIGHT = 'var(--text-primary)';
+export const REAR_ARMOR_LIGHT = 'var(--text-secondary)';
 
 /**
  * MegaMek-specific record sheet colors

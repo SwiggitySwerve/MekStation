@@ -318,10 +318,10 @@ function ConflictResolver({
               }
               className="border-border-theme-strong bg-surface-raised text-text-theme-primary w-full rounded border px-3 py-2"
             >
-              <option value="skip">Skip (keep existing)</option>
-              <option value="replace">Replace existing</option>
-              <option value="rename">Import as copy</option>
-              <option value="keep_both">Keep both</option>
+              <option value="skip">Skip (Keep Existing)</option>
+              <option value="replace">Replace Existing</option>
+              <option value="rename">Import as Copy</option>
+              <option value="keep_both">Keep Both</option>
             </select>
           </div>
         ))}

@@ -7,6 +7,7 @@ import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import { previewCatalogEquipmentPlacement } from '@/stores/unit/catalogEquipmentPlacement';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction';
+import { formatTons } from '@/utils/formatting';
 
 interface CatalogPlacementDialogProps {
   readonly equipment: IEquipmentItem;
@@ -47,7 +48,7 @@ export function CatalogPlacementDialog({
     <DialogTemplate
       isOpen
       onClose={onClose}
-      title="Add and place equipment"
+      title="Add and Place Equipment"
       subtitle={equipment.name}
       footer={
         <>
@@ -58,7 +59,7 @@ export function CatalogPlacementDialog({
             onClick={confirm}
             disabled={readOnly || !option?.canFit || Boolean(preview.error)}
           >
-            Add and place
+            Add and Place
           </Button>
         </>
       }
@@ -66,7 +67,7 @@ export function CatalogPlacementDialog({
       <div className="space-y-4">
         {preview.equipment && (
           <p className="text-text-theme-primary text-sm">
-            Weight change: +{Number(preview.weightChange.toFixed(3))} t ·{' '}
+            Weight change: +{formatTons(preview.weightChange)} ·{' '}
             {preview.equipment.criticalSlots} critical slots
           </p>
         )}

@@ -5,6 +5,7 @@ import type {
   ArmorDiagramVariant,
 } from '@/stores/useCustomizerSettingsStore';
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
+import type { ArmorLocationIssues } from '@/utils/armor/armorLocationIssues';
 
 import { SchematicDiagram } from '@/components/armor/schematic';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
@@ -30,6 +31,8 @@ interface ArmorDiagramPanelProps {
   readonly armorData: LocationArmorData[];
   readonly selectedLocation: MechLocation | null;
   readonly unallocatedPoints: number;
+  /** Low or critical armor flagged by validation, marked on the Standard diagram. */
+  readonly locationIssues: ArmorLocationIssues;
   readonly onLocationClick: (location: MechLocation) => void;
 }
 
@@ -40,12 +43,14 @@ export function ArmorDiagramPanel({
   armorData,
   selectedLocation,
   unallocatedPoints,
+  locationIssues,
   onLocationClick,
 }: ArmorDiagramPanelProps): React.ReactElement {
   // On wide layouts the armor inspector carries the legend next to the diagram.
   const footerVisibility = diagramLegendMovesToInspector(
     configuration,
     armorDiagramMode,
+    armorDiagramVariant,
   )
     ? 'below-xl'
     : 'always';
@@ -110,6 +115,7 @@ export function ArmorDiagramPanel({
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
+                locationIssues={locationIssues}
                 footerVisibility={footerVisibility}
                 onLocationClick={onLocationClick}
               />

@@ -13,6 +13,7 @@ import { MechLocation, LOCATION_SLOT_COUNTS } from '@/types/construction';
 
 import styles from '../CustomizerWorkbench.module.css';
 import {
+  countOccupiedEntries,
   type CritEntry,
   type LocationData,
   type SlotContent,
@@ -107,6 +108,7 @@ export function LocationGrid({
     });
     return slotsToCritEntries(slots, isSuperheavy);
   })();
+  const used = countOccupiedEntries(entries);
 
   return (
     <div
@@ -116,12 +118,17 @@ export function LocationGrid({
     >
       {/* Consistent location header keeps the diagram scannable at any width. */}
       {!hideHeader && (
-        <div className="border-border-theme bg-surface-base/95 border-l-accent/70 flex min-h-11 items-center justify-between border-b border-l-2 px-2 py-1.5 lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0.5">
+        <div className="border-border-theme bg-surface-base/95 flex min-h-11 items-center justify-between border-b border-l-2 px-2 py-1.5 lg:pointer-fine:min-h-[30px] lg:pointer-fine:py-0.5">
           <span className="text-text-theme-primary block min-w-0 text-sm font-semibold tracking-wide break-words whitespace-normal uppercase">
             {label}
           </span>
-          <span className="text-text-theme-muted ml-2 flex-shrink-0 text-sm tabular-nums lg:pointer-fine:text-[13px]">
-            {slotCount}
+          {/* Used of total, as the phone location pills show it. */}
+          <span
+            className="text-text-theme-muted ml-2 flex-shrink-0 text-sm tabular-nums lg:pointer-fine:text-[13px]"
+            title={`${used} of ${slotCount} slots used`}
+            data-testid="location-slot-count"
+          >
+            {used} / {slotCount}
           </span>
         </div>
       )}

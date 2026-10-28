@@ -5,10 +5,11 @@ import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
 import { IUnitValidationError } from '@/types/validation/UnitValidationInterfaces';
 import {
-  getFixTabsForCategory,
+  getPrimaryFixTab,
   getTabForCategory,
 } from '@/utils/validation/validationNavigation';
 
+import styles from '../CustomizerWorkbench.module.css';
 import { BUILD_STATE_TINT_CLASS, BuildStatusLabel } from './BuildStatusLabel';
 import {
   getBuildStatusSummary,
@@ -41,14 +42,14 @@ interface ValidationSummaryProps {
   /**
    * Readout warnings (e.g. running hot), listed after the rule warnings.
    * With nothing else to report the button reads as the item itself, e.g.
-   * "Runs hot +11".
+   * "Runs Hot +11".
    */
   notes?: readonly ValidationNote[];
   /** Extra status shown at the foot of the panel (e.g. save state). */
   details?: React.ReactNode;
   /**
    * Phone chip in the stat strip: a severity shape and count for each group
-   * ("⊗ 1 · ⚠ 2"), or the lone readout item ("⚠ Runs hot +11"). The
+   * ("⊗ 1 · ⚠ 2"), or the lone readout item ("⚠ Runs Hot +11"). The
    * accessible name and tooltip keep the full words.
    */
   compact?: boolean;
@@ -62,13 +63,15 @@ interface ValidationSummaryProps {
 const NO_NOTES: readonly ValidationNote[] = [];
 
 const buttonClass =
-  'focus-visible:outline-accent hover:bg-surface-raised flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-md border font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
+  'focus-visible:outline-text-theme-primary hover:bg-surface-raised flex min-h-11 min-w-0 shrink-0 items-center justify-center gap-1.5 rounded-md border font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-[-2px]';
 const sizeClass = 'px-3 text-[13px]';
 /**
  * Phone: a 44px chip filling its stat-strip column, 13px text. Important
  * overrides beat the global unlayered `button` padding and size.
  */
-const compactSizeClass = 'h-11 w-full !gap-1 !px-1.5 !py-0 !text-[13px]';
+// Tight 2px gaps and 5px sides let "Runs Hot +11" fit beside its icon and
+// chevron at 390px.
+const compactSizeClass = 'h-11 w-full !gap-0.5 !px-[5px] !py-0 !text-[13px]';
 
 /**
  * Focus the section a fix button opened once it renders, so keyboard users
@@ -188,9 +191,13 @@ export function ValidationSummary({
       !validation.isValid ||
       (notes.length === 0 && details === undefined))
   ) {
+    // The same chip frame as the status button: green with its check when
+    // Ready, neutral while checking.
+    const ready = !busy && validation.isValid;
     return (
       <span
-        className={`inline-flex min-h-11 shrink-0 items-center gap-1 px-2 text-[13px] font-semibold whitespace-nowrap ${compact ? 'w-full justify-center !px-1 !text-[13px]' : ''} ${busy || !validation.isValid ? 'text-text-theme-secondary' : 'text-text-theme-primary'} ${className}`}
+        data-build-status={ready ? 'ready' : undefined}
+        className={`${styles.buildStatusStatic} inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md border px-3 text-[13px] font-semibold whitespace-nowrap ${ready ? BUILD_STATE_TINT_CLASS.ready : 'border-border-theme bg-surface-base'} ${compact ? 'w-full justify-center !px-1 !text-[13px]' : ''} ${ready ? 'text-text-theme-primary' : 'text-text-theme-secondary'} ${className}`}
         role="status"
       >
         {busy ? (
@@ -206,7 +213,7 @@ export function ValidationSummary({
             Ready
           </>
         ) : (
-          'Validation pending'
+          'Validation Pending'
         )}
       </span>
     );
@@ -221,21 +228,26 @@ export function ValidationSummary({
   }, ${summary.state === 'error' || summary.state === 'warning' ? 'show issues' : 'show checks'}`;
 
   const close = (): void => setOpen(false);
+  // One "Go to" link per issue, the tab that fixes it first: the same link
+  // the Overview readiness row offers for it, so the two lists match.
   const issueDestinations = (issue: ValidationIssue): FixDestination[] => {
     if (!onNavigate && !onIssueNavigate) return [];
     const ownTab = getTabForCategory(issue.error.category);
-    return getFixTabsForCategory(issue.error.category).map((tabId) => ({
-      tabId,
-      onSelect: () => {
-        close();
-        if (onIssueNavigate && (tabId === ownTab || !onNavigate)) {
-          onIssueNavigate(issue.error);
-        } else {
-          onNavigate?.(tabId);
-          focusTabPanel(tabId);
-        }
+    const tabId = getPrimaryFixTab(issue.error.category);
+    return [
+      {
+        tabId,
+        onSelect: () => {
+          close();
+          if (onIssueNavigate && (tabId === ownTab || !onNavigate)) {
+            onIssueNavigate(issue.error);
+          } else {
+            onNavigate?.(tabId);
+            focusTabPanel(tabId);
+          }
+        },
       },
-    }));
+    ];
   };
   const noteDestinations = (note: ValidationNote): FixDestination[] =>
     onNavigate
@@ -278,10 +290,10 @@ export function ValidationSummary({
           setShowAll(false);
           setOpen((value) => !value);
         }}
-        className={`${buttonClass} ${BUILD_STATE_TINT_CLASS[state]} ${compact ? compactSizeClass : sizeClass}`}
+        className={`${buttonClass} ${BUILD_STATE_TINT_CLASS[state]} ${styles.buildStatusChip} ${compact ? compactSizeClass : sizeClass}`}
       >
         <BuildStatusLabel summary={summary} compact={compact} />
-        {/* Phone: the readouts toggle beside it already shows a chevron. */}
+        {/* Phone: the chip ends in its own › (see BuildStatusLabel). */}
         {!compact && (
           <AppIcon
             name="chevron-down"

@@ -22,7 +22,7 @@ describe('BrowserDraftStatus', () => {
     expect(screen.getByRole('status')).toHaveAttribute('data-state', 'pending');
     rerender(<BrowserDraftStatus unitId="restored" />);
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Draft saved in this browser',
+      'Draft saved in browser',
     );
     expect(write).not.toHaveBeenCalled();
   });
@@ -59,7 +59,7 @@ describe('BrowserDraftStatus', () => {
     );
     act(() => clientSafeStorage.setItem('megamek-unit-visible-first', '{}'));
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Draft saved in this browser',
+      'Draft saved in browser',
     );
     rerender(<BrowserDraftStatus unitId="visible-second" />);
     expect(screen.getByRole('status')).toHaveTextContent(
@@ -67,7 +67,7 @@ describe('BrowserDraftStatus', () => {
     );
     rerender(<BrowserDraftStatus unitId="visible-first" />);
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Draft saved in this browser',
+      'Draft saved in browser',
     );
   });
 
@@ -85,12 +85,12 @@ describe('BrowserDraftStatus', () => {
     });
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Draft save failed in this browser',
+      'Draft save failed in browser',
     );
     storage.mockRestore();
     act(() => clientSafeStorage.setItem('megamek-unit-visible-failed', '{}'));
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Draft saved in this browser',
+      'Draft saved in browser',
     );
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'off');
   });

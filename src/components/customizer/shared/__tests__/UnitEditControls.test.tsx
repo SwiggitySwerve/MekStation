@@ -21,6 +21,12 @@ it('names the next operation and routes buttons and shortcuts to the selected un
     two = makeStore();
   const { rerender } = render(<StoreEditControls store={one} />);
   expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
+  for (const name of ['Undo', 'Redo']) {
+    expect(screen.getByRole('button', { name })).toHaveClass(
+      'disabled:!text-text-theme-muted',
+      'disabled:!opacity-50',
+    );
+  }
   act(() => one.getState().setYear(3040));
   fireEvent.click(screen.getByRole('button', { name: 'Undo: Change Year' }));
   expect(one.getState().year).toBe(3145);

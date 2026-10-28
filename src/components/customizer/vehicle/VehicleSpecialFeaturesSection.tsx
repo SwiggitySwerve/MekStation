@@ -86,7 +86,7 @@ export function VehicleSpecialFeaturesSection({
             disabled={readOnly}
             className="border-border-theme bg-surface-raised rounded"
           />
-          <span className={cs.text.label}>Is Trailer (no engine)</span>
+          <span className={cs.text.label}>Is Trailer (No Engine)</span>
         </label>
       </div>
     </section>

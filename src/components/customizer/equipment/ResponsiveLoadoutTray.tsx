@@ -140,7 +140,7 @@ export function ResponsiveLoadoutTray({
           className="!bg-surface-deep/80"
         >
           <h2 id={drawerTitleId} className="sr-only">
-            Unit loadout
+            Unit Loadout
           </h2>
           <div className="flex h-full justify-end">
             <button

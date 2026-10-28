@@ -286,7 +286,7 @@ export function ExportDialog({
       <div className="space-y-4">
         <div>
           <label className="text-text-theme-secondary mb-1 block text-sm">
-            Description (optional)
+            Description (Optional)
           </label>
           <textarea
             value={description}
@@ -299,7 +299,7 @@ export function ExportDialog({
 
         <div>
           <label className="text-text-theme-secondary mb-1 block text-sm">
-            Password (required to sign)
+            Password (Required to Sign)
           </label>
           <input
             type="password"

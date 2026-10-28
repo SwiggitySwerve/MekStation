@@ -20,6 +20,7 @@ import {
   maxArcArmorPointsForLocation,
   maxTotalArmorPoints,
 } from '@/utils/construction/aerospace/armorArcCalculations';
+import { formatTons } from '@/utils/formatting';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
@@ -186,7 +187,7 @@ export function AerospaceArmorTab({
                 className={cs.text.secondary}
                 data-testid="aerospace-armor-max-tonnage"
               >
-                / {maxUsefulTonnage} tons max
+                / {formatTons(maxUsefulTonnage)} max
               </span>
             </div>
           </div>

@@ -19,6 +19,7 @@ import { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import { UnitValidationState } from '@/hooks/useUnitValidation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { ValidationStatus } from '@/utils/colors/statusColors';
+import { formatTons } from '@/utils/formatting';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { TechBaseBadge } from './TechBaseBadge';
@@ -130,8 +131,7 @@ export function UnitInfoBanner({
             current={stats.weightUsed}
             max={stats.tonnage}
             format={(value) => value.toFixed(1)}
-            formatMax={(value) => value.toFixed(0)}
-            unit="t"
+            formatMax={formatTons}
             status={getWeightStatus(stats.weightUsed, stats.tonnage)}
           />
           <BudgetStat
@@ -146,7 +146,7 @@ export function UnitInfoBanner({
             current={stats.heatGenerated}
             max={stats.heatDissipation}
             status={getHeatStatus(stats.heatGenerated, stats.heatDissipation)}
-            caption="gen / diss"
+            maxQualifier="dissipation"
             title={describeHeat(
               stats.heatGenerated,
               stats.heatDissipation,
@@ -164,11 +164,11 @@ export function UnitInfoBanner({
       </div>
       <div
         role="group"
-        aria-label="Movement and engine"
+        aria-label="Movement and Engine"
         className={workbenchStyles.readoutGroup}
       >
         <span className={workbenchStyles.readoutHeading}>
-          Movement and engine
+          Movement and Engine
         </span>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
           <MovementStat
@@ -182,10 +182,10 @@ export function UnitInfoBanner({
       </div>
       <div
         role="group"
-        aria-label="Battle value"
+        aria-label="Battle Value"
         className={`${workbenchStyles.readoutGroup} ${workbenchStyles.readoutGroupAside}`}
       >
-        <span className={workbenchStyles.readoutHeading}>Battle value</span>
+        <span className={workbenchStyles.readoutHeading}>Battle Value</span>
         <div className="grid auto-cols-fr grid-flow-col gap-4">
           <SimpleStat
             label="BV"
@@ -230,11 +230,11 @@ export function UnitInfoBanner({
           onClick={() => setShowReadouts((value) => !value)}
         >
           <span className="tabular-nums">
-            {stats.tonnage}t {'\u00b7'} {stats.walkMP} / {stats.runMP} /{' '}
-            {stats.jumpMP} MP
+            {formatTons(stats.tonnage)} {'\u00b7'} {stats.walkMP} /{' '}
+            {stats.runMP} / {stats.jumpMP} MP
           </span>
           <span>
-            {showReadouts ? 'Hide readouts' : 'Show readouts'}{' '}
+            {showReadouts ? 'Hide Readouts' : 'Show Readouts'}{' '}
             <AppIcon
               name="chevron-down"
               size="inline"
@@ -250,9 +250,12 @@ export function UnitInfoBanner({
           {status && (
             <div className={workbenchStyles.compactStatus}>{status}</div>
           )}
+          {/* Phone: a labelled "More" / "Less" cell beside the stats it
+              opens, styled like a stat label, so it never reads as a second
+              chevron on the status chip at the right edge. */}
           <button
             type="button"
-            className={`text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised focus-visible:outline-accent flex h-11 w-11 items-center justify-center rounded focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:hidden ${workbenchStyles.compactToggle}`}
+            className={`text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised focus-visible:outline-text-theme-primary flex h-11 w-11 flex-col items-center justify-center gap-0.5 rounded !p-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] md:hidden ${workbenchStyles.compactToggle}`}
             aria-expanded={showReadouts}
             aria-controls={readoutsId}
             aria-label={
@@ -267,9 +270,15 @@ export function UnitInfoBanner({
             }
             onClick={() => setShowReadouts((value) => !value)}
           >
+            <span
+              aria-hidden="true"
+              className="text-xs leading-[14px] font-medium tracking-wide uppercase"
+            >
+              {showReadouts ? 'Less' : 'More'}
+            </span>
             <AppIcon
               name="chevron-down"
-              size="control"
+              size="inline"
               aria-hidden="true"
               className={showReadouts ? 'rotate-180' : ''}
             />

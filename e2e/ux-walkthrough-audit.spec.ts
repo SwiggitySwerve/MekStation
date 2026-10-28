@@ -340,32 +340,32 @@ test.describe('ux walkthrough audit — desktop', () => {
         ).toBeVisible({ timeout: 20_000 });
       });
 
-      // Since #1634 the empty state's Add unit button opens the combined 'Add unit' dialog: a blank
+      // Since #1634 the empty state's Add Unit button opens the combined 'Add Unit' dialog: a blank
       // unit, starting settings, or a library unit.
       const addUnit = page.getByRole('dialog', {
-        name: 'Add unit',
+        name: 'Add Unit',
         exact: true,
       });
 
       await walk.step('open the new-unit dialog', async () => {
         await page
-          .getByRole('button', { name: 'Add unit', exact: true })
+          .getByRole('button', { name: 'Add Unit', exact: true })
           .first()
           .click();
         await expect(addUnit).toBeVisible();
         await expect(
-          addUnit.getByRole('button', { name: 'New blank unit', exact: true }),
+          addUnit.getByRole('button', { name: 'New Blank Unit', exact: true }),
         ).toBeVisible();
         await expect(
           addUnit.getByRole('button', {
-            name: 'Choose tonnage and tech first…',
+            name: 'Set Up a New Unit…',
           }),
         ).toBeVisible();
       });
 
       await walk.step('create a default BattleMech', async () => {
         await addUnit
-          .getByRole('button', { name: 'New blank unit', exact: true })
+          .getByRole('button', { name: 'New Blank Unit', exact: true })
           .click();
         await expect(page).toHaveURL(/\/customizer\/[0-9a-f-]+\/structure/, {
           timeout: 20_000,

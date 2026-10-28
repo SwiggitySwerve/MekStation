@@ -116,15 +116,15 @@ describe('TabBar', () => {
     render(
       <TabBar {...defaultProps} onImport={jest.fn()} onExport={jest.fn()} />,
     );
-    await user.click(screen.getByRole('button', { name: 'Unit actions' }));
+    await user.click(screen.getByRole('button', { name: 'Unit Actions' }));
     expect(
       screen.queryByRole('button', { name: 'New unit' }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Import from bundle' }),
+      screen.getByRole('button', { name: 'Import from Bundle' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Export active unit' }),
+      screen.getByRole('button', { name: 'Export Active Unit' }),
     ).toBeInTheDocument();
   });
 
@@ -133,7 +133,7 @@ describe('TabBar', () => {
     render(<TabBar {...defaultProps} />);
 
     const loadButton = screen.getByRole('button', {
-      name: 'Add unit (Ctrl+O)',
+      name: 'Add Unit (Ctrl+O)',
     });
     await user.click(loadButton);
 
@@ -154,7 +154,7 @@ describe('TabBar', () => {
 
     expect(screen.queryByTestId(/tab-/)).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Unit actions' }),
+      screen.getByRole('button', { name: 'Unit Actions' }),
     ).toBeInTheDocument();
   });
 
@@ -167,8 +167,8 @@ describe('TabBar', () => {
         savedHistoryDisabledReason="Save this unit to the library before viewing history."
       />,
     );
-    await user.click(screen.getByRole('button', { name: 'Unit actions' }));
-    const historyButton = screen.getByRole('button', { name: 'Saved history' });
+    await user.click(screen.getByRole('button', { name: 'Unit Actions' }));
+    const historyButton = screen.getByRole('button', { name: 'Saved History' });
     expect(historyButton).toBeDisabled();
     expect(historyButton).toHaveAccessibleDescription(
       /save this unit to the library/i,
@@ -185,8 +185,8 @@ describe('TabBar', () => {
         savedHistoryDisabledReason={null}
       />,
     );
-    await user.click(screen.getByRole('button', { name: 'Unit actions' }));
-    await user.click(screen.getByRole('button', { name: 'Saved history' }));
+    await user.click(screen.getByRole('button', { name: 'Unit Actions' }));
+    await user.click(screen.getByRole('button', { name: 'Saved History' }));
     expect(onOpenSavedHistory).toHaveBeenCalledTimes(1);
   });
 });

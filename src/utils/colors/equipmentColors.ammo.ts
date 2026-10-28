@@ -16,28 +16,28 @@ import {
 
 export type AmmoSubType = 'missile' | 'ballistic' | 'generic';
 
-/** Missile ammo - Mint colored */
+/** Missile ammo - the missile teal; slots add stripes to tell it from launchers */
 export const MISSILE_AMMO_COLORS: CategoryColorDefinition = {
   label: 'Missile Ammo',
-  badgeVariant: 'emerald',
-  slotBg: 'bg-emerald-600',
-  slotBorder: 'border-emerald-700',
+  badgeVariant: 'teal',
+  slotBg: 'bg-teal-700',
+  slotBorder: 'border-teal-400',
   slotText: 'text-white',
-  slotHoverBg: 'hover:bg-emerald-500',
-  indicatorBg: 'bg-emerald-400',
-  accentBorder: 'border-l-emerald-400',
+  slotHoverBg: 'hover:bg-teal-600',
+  indicatorBg: 'bg-teal-500',
+  accentBorder: 'border-l-teal-500',
 };
 
-/** Ballistic ammo - Brown-amber (deeper than the app's amber-400 accent) */
+/** Ballistic ammo - the ballistic red; slots add stripes to tell it from guns */
 export const BALLISTIC_AMMO_COLORS: CategoryColorDefinition = {
   label: 'Ballistic Ammo',
-  badgeVariant: 'amber',
-  slotBg: 'bg-amber-600',
-  slotBorder: 'border-amber-700',
+  badgeVariant: 'red',
+  slotBg: 'bg-red-700',
+  slotBorder: 'border-red-400',
   slotText: 'text-white',
-  slotHoverBg: 'hover:bg-amber-500',
-  indicatorBg: 'bg-amber-600',
-  accentBorder: 'border-l-amber-600',
+  slotHoverBg: 'hover:bg-red-600',
+  indicatorBg: 'bg-red-500',
+  accentBorder: 'border-l-red-500',
 };
 
 /** Patterns to detect missile ammo by name */

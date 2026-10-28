@@ -167,7 +167,7 @@ export function getHeatNote(
   if (excess === 0) return null;
   return {
     id: 'heat-over-dissipation',
-    label: 'Runs hot',
+    label: 'Runs Hot',
     amount: `+${excess}`,
     heading: `Runs ${excess} heat over dissipation`,
     message: `Heat ${generated} at full fire${generation ? ` (${describeHeatSources(generation)})` : ''} vs ${dissipation} dissipation: ${excess} over.`,

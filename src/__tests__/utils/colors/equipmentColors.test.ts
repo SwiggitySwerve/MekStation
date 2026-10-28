@@ -89,7 +89,7 @@ describe('EquipmentColors Utility', () => {
   describe('getCategoryIndicatorClass', () => {
     it('should return indicator class', () => {
       expect(getCategoryIndicatorClass(EquipmentCategory.ENERGY_WEAPON)).toBe(
-        'bg-yellow-300/70',
+        'bg-yellow-300',
       );
     });
   });
@@ -156,10 +156,10 @@ describe('EquipmentColors Utility', () => {
         );
       }
       expect(getCategoryAccentClass(EquipmentCategory.ENERGY_WEAPON)).toBe(
-        'border-l-yellow-300/70',
+        'border-l-yellow-300',
       );
       expect(getCategoryAccentClass(EquipmentCategory.AMMUNITION)).toBe(
-        'border-l-amber-600',
+        'border-l-slate-300',
       );
     });
 

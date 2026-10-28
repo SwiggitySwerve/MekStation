@@ -49,14 +49,14 @@ describe('getTabIssueTitles', () => {
     // The note carries its fix, so the tab's one issue names it.
     expect(titles.structure).toEqual({
       errors: [],
-      warnings: ['Runs hot'],
+      warnings: ['Runs Hot'],
       hint: 'add heat sinks in Cooling',
       // The note also names the card its fix lives in, so the notice can link.
       hintTarget: { text: 'Cooling', id: COOLING_CARD_ID },
     });
     expect(
       describeTabIssues({ errors: 0, warnings: 1, infos: 0 }, titles.structure),
-    ).toEqual(['1 warning: Runs hot']);
+    ).toEqual(['1 warning: Runs Hot']);
   });
 
   it('lists rule results on the tab that counts them', () => {
@@ -109,7 +109,7 @@ describe('getTabIssueTitles', () => {
     const counts = { errors: 0, warnings: 1, infos: 0 };
     expect(getTabIssueNotice(counts, titles.structure)).toEqual({
       severity: 'warning',
-      summary: '1 warning: Runs hot',
+      summary: '1 warning: Runs Hot',
       hint: 'add heat sinks in Cooling',
       hintTarget: { text: 'Cooling', id: COOLING_CARD_ID },
     });

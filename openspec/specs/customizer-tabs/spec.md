@@ -25,6 +25,7 @@ its separate Preview-before-Fluff order.
 - **THEN** the corresponding tab content is displayed
 - **AND** the active tab is visually highlighted
 - **AND** other tab contents are hidden
+- **AND** keyboard focus on a tab, the phone section selector, the stat-strip readouts and the shell's buttons (unit tabs, Add Unit, the unit menu, the status chip, the rail controls and the shared `Button`) SHALL be a 2px cream (`--text-primary`) ring, never the amber accent; on a section tab it is inset 6px (the scrolling strip would clip an outer one), leaving a 2px gap above the active tab's 2px amber underline and 4px from the tab's sides and on the shared `Button` it sits 2px outside, so a focused tab never looks like a second active tab; amber stays reserved for the active tab, selection and primary actions
 
 #### Scenario: Tab state persistence
 
@@ -53,20 +54,20 @@ its separate Preview-before-Fluff order.
 - **AND** the badge group's accessible name SHALL name the tab and the counts (e.g., "Equipment: 1 error"), and the section tab's accessible description SHALL include the counts (e.g., "1 error")
 - **AND** the indicator slot SHALL keep at least one badge's width when counts change or clear
 - **AND** the warning count SHALL include the build-status readout warnings (e.g., running hot) on the tab where they are fixed (Structure for running hot), so the badges agree with the build-status counts
-- **AND** hovering the badge or keyboard-focusing its tab SHALL show a tooltip that names the issues behind the count, one line per severity ("1 warning: Runs hot", "2 errors: <title>; <title>"), listing at most four titles before "+N more"; the titles are the status panel's own headings and readout labels on the same tab (`getTabIssueTitles`), the tooltip replaces the native title, and the tab's accessible description carries the same words
+- **AND** hovering the badge or keyboard-focusing its tab SHALL show a tooltip that names the issues behind the count, one line per severity ("1 warning: Runs Hot", "2 errors: <title>; <title>"), listing at most four titles before "+N more"; the titles are the status panel's own headings and readout labels on the same tab (`getTabIssueTitles`), the tooltip replaces the native title, and the tab's accessible description carries the same words
 
 #### Scenario: Active tab explains its badge
 
 - **WHEN** the active section has an error or warning badge and is not Overview or Preview
-- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion; when the note names a target section, as the heat note does, its section word "Cooling" is a link that scrolls that card into view and focuses its heat sink count control), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the status chip, while remaining visible on desktop and whenever the chip only counts the issues
-- **AND** a "Show all issues" button in the notice opens the build status panel
+- **THEN** one compact notice sits above that section's content (rendered once by `UnitEditorWithRouting`, not by each tab) with the severity icon, the tooltip words ("1 warning: Runs Hot") and, when the tab has exactly one issue, its fix in a few words ("— add heat sinks in Cooling", from the readout note's `action` or the rule's own suggestion; when the note names a target section, as the heat note does, its section word "Cooling" is a link that scrolls that card into view and focuses its heat sink count control), via `getTabIssueNotice` in `tabIssueTitles.ts`; below 640px the notice SHALL be hidden when its only warning is already named by the status chip, while remaining visible on desktop and whenever the chip only counts the issues
+- **AND** a "Show All Issues" button in the notice opens the build status panel
 - **AND** the notice is hidden on Overview (its readiness rows already list the issues), on Preview, and on tabs without issues, and on Critical Slots while its "items to place" banner is showing (the banner already states the issue and its action); it returns once nothing is waiting to be placed
 
 ---
 
 #### Scenario: Form controls share one calm border
 
-- **WHEN** an input, select or textarea renders in the customizer or its dialogs (Structure, Fluff, Overview Identity, Add unit)
+- **WHEN** an input, select or textarea renders in the customizer or its dialogs (Structure, Fluff, Overview Identity, Add Unit)
 - **THEN** its outline uses the shared `--field-border` token, a mix of the theme's default and strong border colors that stays at least 3:1 against the card surface (WCAG 1.4.11; 3.18:1 on the default theme), so a field never reads louder than its card title
 - **AND** the brighter strong border appears only on hover and the accent border and ring only on focus, set once in the shared form-control rules rather than per component
 
@@ -123,29 +124,36 @@ The Overview tab SHALL manage unit identity, basic configuration, tech progressi
 #### Scenario: Overview columns end on the same line
 
 - **WHEN** the Overview tab renders on a wide canvas
-- **THEN** Identity and Component technology stack in the left column and the Build summary fills the right column
-- **AND** the Component technology card stretches to the bottom of the column with its component rows evenly distributed, so both columns end on the same line without an empty card body
-- **AND** Identity leads with Chassis, Model, Year and Tech Level, followed by Clan Name and MUL ID
+- **THEN** Identity and Component Technology stack in the left column and the Build Summary fills the right column
+- **AND** the Component Technology card stretches to the bottom of the column with its component rows evenly distributed at about a 44px pitch (never under 44px), so both columns end on the same line without an empty card body
+- **AND** Component Technology keeps two columns of rows from a 28rem card width, so it has one layout whether or not the status panel is open
+- **AND** Identity leads with Chassis, Model, Year and Tech Level in two rows of two, followed by Clan Name and MUL ID as a third row, at every width
+- **AND** the Identity header note names the tech base only (for example "Inner Sphere"), because the Tech Level field below shows the rules level, in the same 14px secondary meta style as the Build Summary's "100.0 / 100.0 t used"
+- **AND** the "(Optional)" tag after Clan Name and the "(Modular equipment pods)" hint after OmniMech share one muted 14px regular style, each one space after its label
+- **AND** on wide cards each Build Readiness "Go to <tab> ›" chevron ends on the card's 16px inner edge, in line with the header count above the rows
 
-#### Scenario: Component technology says where values are set
+#### Scenario: Component Technology says where values are set
 
-- **WHEN** the Component technology card renders
-- **THEN** a muted helper line under the card title reads "Set in Structure and Armor; change the tech base below." ("Set in Structure and Armor." when the unit is read-only)
-- **AND** each component value (Internal structure, Gyro, Engine, Heat sinks, Myomer, Movement enhancement) is a quiet link, dotted underline at rest and tinted on hover and focus, that opens the Structure tab, and the Armor value opens the Armor tab, through the existing tab navigation callback; any value that is "None" (Targeting computer, and Movement enhancement when none is installed) is plain text, never a link
+- **WHEN** the Component Technology card renders
+- **THEN** a muted helper line under the card title reads "Set in Structure, Armor and Equipment." on one line, with the "Change Tech Base" control as a full-width footer row directly below the rows, under one unbroken divider, drawn as the same disclosure row as Armor's "Advanced Allocation Details" (secondary text that brightens on hover, trailing chevron that turns when open)
+- **AND** the first component row starts directly under the header rule, on the same pitch as the rows below it
+- **AND** the header names no single tech base, because the Identity header already shows it; only a mixed-tech unit adds "Mixed tech: each component sets its own tech base."
+- **AND** each component value (Internal Structure, Gyro, Engine, Heat Sinks, Myomer, Movement Enhancement) is a quiet link in the same treatment as the readiness rows' "Go to <tab> ›" links (value text with a trailing chevron, no underline, the chevron tinted accent on hover and focus) that opens the Structure tab, the Armor value opens the Armor tab, and Targeting computer opens Equipment, through the existing tab navigation callback; values currently set to "None" keep the same links
 - **AND** each link's accessible name carries the component, its value and the destination tab (e.g. "Engine: Standard Fusion 300. Change in Structure"), and the links reach 44px on coarse pointers
+- **AND** readiness fix actions use "Go to <tab> ›" on both wide and phone layouts
 
 #### Scenario: Slots readiness counts placed slots
 
 - **WHEN** mounted equipment has not been placed in critical slots
-- **THEN** the Build readiness Slots row names the incomplete placement ("66 of 78 slots filled · PPC (3 slots) not placed.") with a muted hollow-circle icon labelled "Pending", instead of counting unplaced items as filled slots; it reads "<placed> of <total> slots filled, <free> free." with a green check once every item is placed and no slot issue remains; over-capacity and other rule issues retain their severity icon
-- **AND** the Unplaced equipment row carries the validation error and names the items and their slots ("PPC (3 slots) not placed — not legal until placed.", "PPC and Medium Laser (5 slots) not placed — not legal until placed."); Slots SHALL NOT duplicate that error
-- **AND** an overweight unit with one unplaced PPC and excess heat SHALL read "Not legal · 2 errors · 1 warning": weight and placement are errors, heat stays a warning, and the Critical Slots tab receives the placement error badge
+- **THEN** the Build readiness Slots row counts placed slots only and reads "<placed> of <total> slots filled, <free> free." ("66 of 78 slots filled, 12 free.") with a green check, instead of counting unplaced items as filled slots or naming them; over-capacity and other rule issues retain their severity icon
+- **AND** the Unplaced Equipment row carries the validation error: with one unplaced item it takes the status panel's title for it and adds the slots it takes ("PPC needs a location" / "Takes 3 slots. Not legal until placed."); with several it keeps its label and names the items and their slots ("PPC and Medium Laser (5 slots) not placed — not legal until placed."); Slots SHALL NOT duplicate that error
+- **AND** an overweight unit with one unplaced PPC and excess heat SHALL read "Not Legal · 2 errors · 1 warning": weight and placement are errors, heat stays a warning, and the Critical Slots tab receives the placement error badge
 
 #### Scenario: Overview reading order on phones
 
 - **WHEN** the Overview tab renders on a narrow canvas
-- **THEN** the cards stack as Identity, Build summary, then Component technology, so the unit's identity is visible on first view
-- **AND** below 640px, when the unit has errors or warnings, a compact "Needs attention" card above Identity shows a severity summary and lists failing readiness rows with errors before warnings using the shared ordering owner; each row has a title, one-line reason (full text accessible and in a tooltip) and an inline "Go to <tab> ›" action of at least 44px; the three-issue overweight case fits within about 240px at 390×844; with nothing to fix it is absent and Identity stays first, and from 640px it is hidden because the Build summary card lists the same rows
+- **THEN** the cards stack as Identity, Build Summary, then Component Technology, so the unit's identity is visible on first view
+- **AND** below 640px, when the unit has errors or warnings, a compact "Needs Attention" card above Identity shows a severity summary and, after a clear gap below that heading block, lists failing readiness rows with errors before warnings using the shared ordering owner; each row has a title, a reason that wraps in full at the card width (never cut before its fix) and a "Go to <tab> ›" action of at least 44px on its own line under the reason; the three-issue overweight case fits within about 380px at 390×844; with nothing to fix it is absent and Identity stays first, and from 640px it is hidden because the Build summary card lists the same rows
 - **AND** Identity is compact: Chassis and Model share a row, Year and Tech Level share a row, and Clan Name and MUL ID share the next row
 
 #### Scenario: Tonnage change from Overview
@@ -192,16 +200,17 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 #### Scenario: Cooling is its own panel
 
 - **WHEN** the Structure tab renders
-- **THEN** the Cooling panel (Heat sink type, Installed stepper, and the OmniMech base chassis control when applicable) is a separate card below Mobility in the right column, not part of the Chassis panel
+- **THEN** the Cooling panel (Heat Sink Type, Installed stepper, and the OmniMech base chassis control when applicable) is a separate card below Mobility in the right column, not part of the Chassis panel
 - **AND** total heat dissipation is shown as a right-aligned stat in the Cooling panel header
 - **AND** it is not repeated as a separate row below the Installed stepper
-- **AND** a Cooling helper SHALL distinguish physical mounting from weight allowance: installed count, sinks that fit inside the engine, sinks mounted outside, the weight-free allowance, and remaining sink weight (e.g., "22 heat sinks · 12 fit inside the engine, 10 mounted outside · first 10 weigh nothing; 12 add 12 t"), using the existing heat sink calculation owner
+- **AND** a two-line Cooling helper SHALL distinguish physical mounting from weight allowance: the first line gives the installed count, sinks that fit inside the engine and sinks mounted outside ("22 heat sinks · 12 fit inside the engine, 10 mounted outside"), the second the weight-free allowance and remaining sink weight ("First 10 weigh nothing; 12 add 12.0 t"), dropping the extras clause when no sink carries weight ("First 10 weigh nothing", never "0 add 0.0 t"), using the existing heat sink calculation owner; both lines are 13px helper text, like the engine rating formula
 
 #### Scenario: Weight strip labels its subtotal
 
 - **WHEN** the Structure summary strip renders
 - **THEN** it lists engine, gyro, structure, cockpit, heat sink, jump jet (when present) and armor weight
-- **AND** the subtotal is labelled "Structure, systems & armor" and shown as "<subtotal>t of <tonnage>t"
+- **AND** the subtotal is labelled "Structure, Systems & Armor:" in Title Case like the other strip labels, and shown in the app's ratio format "<subtotal> / <tonnage> t" (for example "66.0 / 100.0 t")
+- **AND** below 640px the weights sit in a two-column grid with each value at its cell's right edge, so the values line up instead of wrapping into ragged pairs
 - **AND** the label makes clear that equipment weight is counted in the header total, not in this subtotal
 
 #### Scenario: Chassis, Mobility and Cooling share one label / control / meta grid
@@ -210,15 +219,18 @@ The Structure tab SHALL manage system components, enhancement selection, and mov
 - **THEN** every row uses one grid: a 140px label column, a control column that is 240px at minimum and at most 360px wide, and an 88px meta column that starts about 12px after the control column (so meta stays directly after its control when the card is wider than the grid)
 - **AND** every control fills the control column, so all controls share one right edge: steppers (Tonnage, Installed heat sinks, Walk MP, Jump MP) keep 44px buttons and stretch their value box, and every select (Motive Type, Engine, Gyro, Structure, Cockpit, Heat sink type, Jump Type, Enhancement) is as wide as the stepper, never over 360px
 - **AND** per-component cost meta (weight and critical slots, e.g. "19t · 6 slots", with tabular numerals, never wrapping) is right-aligned inside the 88px meta column directly after its control, while "→ <final> final" for Walk, Run and Jump MP starts at the left of the same column beside the control
-- **AND** range hints such as the tonnage range ("Range 20–200t.") are 13px muted helper text under their control, linked with aria-describedby
-- **AND** in a narrower card the grid is a single column (label, control, meta, helper text) and helper text uses the full card width
+- **AND** range hints such as the tonnage range ("Range 20–200 t.") are 13px muted helper text under their control, linked with aria-describedby; whole-ton mech sizes omit decimals, component and payload weights keep one decimal, used/max weight readouts keep one decimal, and numeric ranges use en dashes
+- **AND** in a narrower card the grid is a single column: the meta (cost meta, and "→ <final> final" for Walk, Run and Jump MP) shares the label's line, right-aligned, then the control and helper text follow at the full card width, and the meta uses the 14px body size instead of 13px
+- **AND** the two columns stretch to one height, with Cooling filling the rest of the right column, so the Chassis and Cooling cards end on the same line
 
 #### Scenario: Mobility rows
 
 - **WHEN** the Mobility panel renders
-- **THEN** Run MP is a read-only field with the same outline, height, width and value text colour as a stepper (primary, not muted), and a small lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows
+- **THEN** Run MP is a read-only well the size and position of a stepper's value field (recessed deep-surface fill, no visible border, spacers where the - and + buttons would sit), in primary text colour with a small muted lock icon, with no buttons and no tab stop, and "→ <final> final" in the meta column like the Walk MP and Jump MP rows, so it reads as read-only rather than as an outlined disabled control
+- **AND** a disabled stepper button (such as Jump MP's "−" at 0) takes the shared disabled look (`disabledButtonClasses`: default-border outline, no fill, dimmed glyph), so it never looks like the enabled button beside it
+- **AND** the Walk MP range reads "Range <min>–<max> for a <tonnage> t 'Mech (max engine 400)."
 - **AND** the Walk MP range, the Run MP line ("Follows Walk MP; it is not set directly.") and the Max Jump MP note appear as 13px muted helper text directly under their control, linked with aria-describedby, with rows spaced about 72px apart so the Mobility and Cooling cards together end above 900px at a 1440x900 viewport
-- **AND** Enhancement is an ordinary row below Jump Type labelled "Enhancement" (no separate sub-section heading), and the Mobility and Cooling card subtitles sit on the same line as their titles
+- **AND** Enhancement is an ordinary row below Jump Type labelled "Enhancement" (no separate sub-section heading), and the Chassis, Mobility and Cooling card subtitles all sit on the same line as their titles
 - **AND** Jump Type stays enabled but is muted, with the hint "No jump jets installed", while Jump MP is 0
 - **AND** the Mobility panel shows no copy about unsupported mechanical jump boosters
 ### Requirement: Armor Tab
@@ -240,30 +252,32 @@ The Armor tab SHALL manage armor type selection and location-based armor allocat
 
 #### Scenario: Allocated total is explained in words
 
-- **WHEN** the Armor summary strip shows "Allocated <n> / <max> max"
+- **WHEN** the Armor summary strip shows "Allocated: <n> / <max>" (the app's "x / y" ratio; the label already says what it is)
 - **THEN** a plain-words line below it states the points bought by the current armor tonnage ("<points> pts from <tons> t")
 - **AND** when the chassis can still hold more armor than is allocated, the line adds how many more points fit and the extra tonnage they need (e.g. "3 more need +0.5 t")
 - **AND** when points are bought but unplaced, over the chassis max, or beyond the chassis max, the line names that count instead
 - **AND** all numbers come from the existing armor point and tonnage calculations
-- **AND** the "<points> pts from <tons> t" text appears only in the summary strip; the Armor inspector header shows just its title
+- **AND** the "<points> pts from <tons> t" text appears only in the summary strip; the Armor Inspector header shows just its title
+- **AND** the summary strip shows only the armor tonnage and the allocated total with this line; the armor type, points per ton and slots are not repeated there because the inspector's Armor Type field states them
+- **AND** the strip is sized to its content rather than the tab's width, so no empty band sits beside its two facts
 
 #### Scenario: Disabled Auto Allocate explains itself
 
 - **WHEN** the Auto Allocate button is disabled
-- **THEN** a helper line under it states why and is linked to the button with `aria-describedby`: "All armor points are already assigned" when no points are unallocated, "All allocatable points assigned" when unallocated points remain that the chassis cannot take, and "Read-only: armor cannot be changed." for a read-only unit
+- **THEN** a helper line under the button in secondary text states the reason and is linked to the button with `aria-describedby`: "All points assigned" when no points are unallocated, "All allocatable points assigned" when unallocated points remain that the chassis cannot take, and "Read-only: armor cannot be changed." for a read-only unit
 - **AND** no helper line shows while the button is enabled
 
 #### Scenario: Inspector aligns with the diagram
 
 - **WHEN** no armor location is selected on a wide layout
-- **THEN** no hint card is shown above the Armor inspector, so the inspector card starts at the same top edge as the Armor Allocation card
+- **THEN** no hint card is shown above the Armor Inspector, so the inspector card starts at the same top edge as the Armor Allocation card
 - **AND** the one visible instruction lives in the diagram caption ("Matches the record sheet · left side on the left · click a location to edit"), and the keyboard instruction (Tab to a location, then press Enter) remains available to assistive technology
-- **AND** when a location is selected the location editor opens inside the Armor inspector card, directly under its title, as an inset panel with its own close button
+- **AND** when a location is selected the location editor opens inside the Armor Inspector card, directly under its title, as a nested panel in the standard raised-panel tone (`--surface-raised` with the default border) with its own close button
 
 #### Scenario: Diagram and inspector cards end together
 
 - **WHEN** the Armor tab renders at xl or wider with no location selected
-- **THEN** the Armor Allocation card and the Armor inspector card stretch to the same bottom edge; the inspector stacks its controls, the Unallocated Armor Points row (16px below the last control or its "All allocatable points assigned" note, with no spacer pushing it away) and the legend row in order, and any spare height falls under the legend rather than between rows
+- **THEN** the Armor Allocation card and the Armor Inspector card stretch to the same bottom edge; the inspector stacks its controls, the Unallocated Armor Points row (16px below the last control or its Auto Allocate reason note, with no spacer pushing it away) and the legend row in order, and any spare height falls under the legend rather than between rows; with the Standard silhouette the Advanced Allocation Details start open so the inspector has no empty band beside the taller diagram
 - **AND** the diagram column is no longer sticky; when the location editor is open the diagram card stretches to the taller inspector column
 
 #### Scenario: Location editor does not push the inspector off screen
@@ -295,6 +309,8 @@ The Equipment tab SHALL provide a unified equipment browser for selecting, addin
 - **THEN** equipment is added to the mounted equipment list
 - **AND** loadout sidebar updates immediately
 - **AND** status bar reflects updated totals
+- **AND** catalog Add buttons use the outlined, filled secondary treatment, overflow icon buttons are quieter, and both keep 44px minimum targets
+- **AND** ammunition capacity reads "<count> shots/t" on desktop and phones
 
 #### Scenario: Equipment filtering
 
@@ -326,45 +342,48 @@ The Fluff tab SHALL let the user edit the unit's combat role, manufacturers and 
 #### Scenario: Page layout
 
 - **WHEN** the Fluff tab renders in an editor container at least 64rem wide
-- **THEN** a two-column grid spans the workspace content edges: the left column holds the Unit History and Description card, capped near 75 characters of 16px text plus card padding, and the right column holds the Sections index, then the Battlefield Role card, then the Manufacturing card in the remaining width (never under 20rem)
+- **THEN** a two-column grid spans the workspace content edges: the left column holds the Unit History and Description card (Overview, Capabilities, History, Deployment), capped near 75 characters of 16px text plus card padding, and the right column holds the Sections index, then a Variants and Notable Units card, then the Battlefield Role card, then the Manufacturing card in the remaining width (never under 20rem), so neither column ends far above the other; the history card stretches to the grid row, so when the right column is longer both columns end on the same line
 - **AND** the right column has no internal scroll and no fade mask, and every card renders at its natural height so no content is clipped
 - **AND** the whole right column is sticky under the tab bar when it fits the scroll area; when it is taller than the scroll area only the Sections card is sticky and the other cards scroll with the page, unless the Sections card alone would cover more than half the scroll area, in which case nothing is sticky so no card is hidden behind another
 - **AND** where the right column is at least 24rem wide the Sections links flow in two columns of four so the pinned card stays short
-- **AND** in a narrower container the cards form one left-aligned column in the order narrative, role, manufacturing, each capped at the same reading width
+- **AND** every Fluff card title (Unit History and Description, Sections, Variants and Notable Units, Battlefield Role, Manufacturing) uses the one card title style with 12px below it; Battlefield Role's helper line uses the 12px secondary subtitle style of other cards
+- **AND** in a narrower container the cards form one left-aligned column in the order history, Variants and Notable Units, role, manufacturing, each capped at the same reading width
 
 #### Scenario: Narrative text fields
 
 - **WHEN** user navigates to Fluff tab
-- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a full-width textarea of its column at 16px text on a 1.5 line height, at least 3 rows, stacked in that order
+- **THEN** each narrative field (Overview, Capabilities, History, Deployment, Variants, Notable Units) is a full-width textarea of its card at 16px text on a 1.5 line height, at least 3 rows, stacked in that order across the history card and the Variants and Notable Units card
 - **AND** the field labels use the small-caps section-label style used for sub-section headings elsewhere in the customizer
 - **AND** every textarea grows to show its full text, with no fixed-height box, no fade and no collapse control, so what is shown is what is edited
-- **AND** an empty optional field shows a muted "Optional" tag, at least 14px, next to its label
+- **AND** an empty optional field shows a muted "(Optional)" tag, at least 14px, next to its label, the same parenthesised marker as Clan Name on Overview
 - **AND** an editable narrative textarea is drawn as a field, not a quote panel: the same inset fill and shadow as the single-line inputs, the shared calm `--field-border`, the strong border on hover, the accent border and ring on focus, and a text cursor; a disabled one drops the shadow, hover border and text cursor
 
 #### Scenario: Section navigation
 
 - **WHEN** the Fluff tab renders in a container at least 64rem wide
 - **THEN** a compact Sections index is the first card of the right column, listing Overview, Capabilities, History, Deployment, Variants, Notable Units, Battlefield Role and Manufacturing in that order
-- **AND** each row reads as a link: primary-color label that underlines and tints on hover and keyboard focus, with a trailing chevron that takes the accent color then; activating it keeps the jump and focus behavior
-- **AND** each narrative and Manufacturing row shows a word count and the Battlefield Role row shows the chosen role itself (e.g., "Juggernaut"); a section with no text (or no role) shows "Empty" in a dimmer tone than rows that have content
-- **AND** in narrower containers a labelled "Jump to section" select appears at the top of the tab with the same destinations and text status (word count, the role value, or "Empty")
+- **AND** each row reads as a link: a label that underlines and tints on hover and keyboard focus, with no row dividers in either column; every row ends in the same chevron, which takes the accent color on hover and focus; activating it keeps the jump and focus behavior
+- **AND** every row uses one pattern: a status, "Filled" or "Empty", beside the chevron, plus a secondary 12px detail under the label: prose sections their word count ("26 words", "0 words" when empty), the single-field Battlefield Role row the chosen role ("Juggernaut", "Not set" when empty), and the multi-field Manufacturing row how many fields are filled, in sentence case ("7 of 7 filled", "0 of 7 filled"); every row therefore has two lines, so the rows of both columns line up; an Empty row is dimmer, with a muted status and a secondary-color label
+- **AND** in narrower containers a labelled "Jump to Section" select, its label the same size as the other field labels, with the same destinations and statuses (for example "Overview · Filled, 26 words"), is pinned to the top of the scrolling page directly under the tab picker on an opaque page-colour bar, and a jumped-to field scrolls clear of that bar
 - **AND** activating a destination scrolls its field into view and focuses it, or focuses its containing section when the field is disabled
 - **AND** the index does not change stored narrative, role or manufacturing values
 
 #### Scenario: Battlefield role
 
 - **WHEN** the Fluff tab renders an editable unit
-- **THEN** the Battlefield Role card is compact: title, subtitle, then the Combat Role select at the full width of the card
+- **THEN** the Battlefield Role card is compact: title, subtitle, then a "Combat Role | select" row using the same side-label grid as the Manufacturing rows, so every field in the right column has its label on the left
 
 #### Scenario: Manufacturing list
 
 - **WHEN** the Manufacturing card renders
 - **THEN** Manufacturer, Primary Factory and each system manufacturer are single-column "name | value" rows, so no field sits alone in a row
-- **AND** a normal secondary "Add system" action, with its reason text visible, is the last row of an editable list
+- **AND** the New System and New Manufacturer inputs are "name | value" rows on the same grid, never labels above the field
+- **AND** the New System rows are set off from the list by the same solid divider as every other divider in the card, never dashed
+- **AND** a normal secondary "Add System" action, with its reason text visible, is the last row of an editable list; when disabled it uses the shared disabled-button style (solid default border, never dashed, no fill, dimmed secondary text, not-allowed cursor)
 #### Scenario: Placeholders read as examples
 
 - **WHEN** a Fluff field that is empty shows placeholder text
-- **THEN** the placeholder begins with "e.g." and is drawn in muted italic placeholder styling, so it cannot be mistaken for a saved value
+- **THEN** the placeholder begins with "e.g." and is drawn in the app's normal muted, upright placeholder styling, so it cannot be mistaken for a saved value
 
 #### Scenario: Removing a system manufacturer
 
@@ -748,6 +767,50 @@ The customizer settings store SHALL provide a reset function to restore default 
 - **AND** `showArmorDiagramSelector` is set to true (default)
 - **AND** `draftCustomizer` is set to null
 - **AND** `hasUnsavedCustomizer` is set to false
+
+### Requirement: Label Capitalization
+
+Customizer labels SHALL use title case: every word is capitalised except
+articles (a, an, the), coordinating conjunctions (and, but, or, nor) and
+prepositions of four or fewer letters (such as as, at, by, for, from, in, into,
+of, on, over, per, to, via, vs, with) when they are not the first word. A
+particle that belongs to its verb is capitalised ("Set Up"), both parts of a
+hyphenated word are capitalised ("Auto-Arrange"), and abbreviations, codes and
+units keep their own form ("MP", "AS7-D", "19.0 t", "45 shots/t"). Labels are
+text that names a thing, an action or a state: button, tab, link, toggle,
+summary and menu item text; headings and section titles; field, row, column
+and term labels; colour-key and legend items; and chips and status words
+("Runs Hot", "Not Legal", "Over Limit"). Sentences SHALL use sentence case:
+help text, descriptions and card subtitles, hints and scroll cues, empty-state
+and validation messages (including the build status panel's issue titles), and
+explanations. An `aria-label` that repeats a control's visible text SHALL use
+the same casing as that text. Text built from data (equipment, unit and
+manufacturer names) keeps the data's own casing.
+
+**Source**: label text across `src/components/customizer/**`, e.g.
+`tabs/TabBar.tsx` ("Add Unit"), `dialogs/UnitLoadDialog.tsx` ("New Blank
+Unit", "Set Up a New Unit…"), `shared/UnitSaveSummary.tsx::SAVE_ACTION_LABEL`
+("Save to Library") and `shared/unitStatStatus.ts::getHeatNote` ("Runs Hot");
+sentence-case text such as the card subtitles in
+`tabs/StructureTabChassisSection.tsx`.
+
+**Rationale**: The owner asked that labels consistently capitalise the first
+letters of their words. One rule keeps controls, headings and chips consistent
+while help text and messages stay readable as sentences.
+
+#### Scenario: A control label uses title case
+
+- **GIVEN** the customizer header with a unit open
+- **WHEN** the user reads the header actions
+- **THEN** the add action reads "Add Unit" and the save action reads "Save to Library"
+- **AND** the add action's accessible name is "Add Unit (Ctrl+O)", in the same casing as its visible text
+
+#### Scenario: A help sentence keeps sentence case
+
+- **GIVEN** the Structure tab of a BattleMech
+- **WHEN** the user reads the Chassis card
+- **THEN** its subtitle reads "Core structure and drive system" in sentence case
+- **AND** its section headings read "Frame", "Drive System" and "Chassis Systems" in title case, so the card title "Chassis" is not repeated as a section label, and no section heading carries a subtitle of its own
 
 ## Customizer Settings Store
 

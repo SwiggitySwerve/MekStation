@@ -2,7 +2,7 @@
  * Tab badge issue titles
  *
  * Names the issues behind each section tab's badge count, so the badge can
- * say what it counts ("1 warning: Runs hot") without opening the status
+ * say what it counts ("1 warning: Runs Hot") without opening the status
  * panel. Titles come from the same rule results and readout notes the status
  * panel lists, on the same tab (`getPrimaryFixTab` for rule results, the
  * note's own tab for readout notes); nothing is re-derived here.
@@ -101,7 +101,7 @@ function cleanHint(text: string | undefined): string | undefined {
 /** Most titles a tooltip lists before it summarizes the rest. */
 const MAX_LISTED_TITLES = 4;
 
-/** "Runs hot", "A; B; C; D; +2 more": one line of titles for a severity. */
+/** "Runs Hot", "A; B; C; D; +2 more": one line of titles for a severity. */
 function listTitles(titles: readonly string[]): string {
   if (titles.length <= MAX_LISTED_TITLES) return titles.join('; ');
   const listed = titles.slice(0, MAX_LISTED_TITLES).join('; ');
@@ -110,7 +110,7 @@ function listTitles(titles: readonly string[]): string {
 
 /**
  * Tooltip lines for a tab's badge, one per severity present, e.g.
- * "1 warning: Runs hot". The count words come from the badge's own counts so
+ * "1 warning: Runs Hot". The count words come from the badge's own counts so
  * the tooltip never disagrees with the number it explains.
  */
 export function describeTabIssues(
@@ -134,7 +134,7 @@ export function describeTabIssues(
 export interface TabIssueNotice {
   /** Worst severity on the tab, for the icon. */
   readonly severity: 'error' | 'warning';
-  /** "1 warning: Runs hot", one phrase per severity present. */
+  /** "1 warning: Runs Hot", one phrase per severity present. */
   readonly summary: string;
   /** The fix in a few words, when the tab has exactly one issue. */
   readonly hint?: string;

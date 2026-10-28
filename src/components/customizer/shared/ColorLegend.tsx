@@ -43,6 +43,8 @@ interface ColorSwatchProps {
   bgClass: string;
   label: string;
   compact?: boolean;
+  /** Inline key group: equipment categories or fixed systems. */
+  group?: 'equipment' | 'systems';
 }
 
 // Keep the empty-slot pattern legible at legend scale.
@@ -53,18 +55,33 @@ const FIXED_SYSTEM_FAMILIES: { type: SystemComponentType; label: string }[] = [
   { type: 'engine', label: 'Engine' },
   { type: 'gyro', label: 'Gyro' },
   { type: 'actuator', label: 'Actuators' },
-  { type: 'cockpit', label: 'Cockpit / life support / sensors' },
+  { type: 'cockpit', label: 'Cockpit / Life Support / Sensors' },
 ];
 
-/** A chip filled with the slot's own bar: same tile and accent classes. */
+/** A miniature slot: the slot's own fill, bar and pattern classes. */
 function slotBarChip(slotClasses: string): string {
   return `${styles.criticalLegendSlotChip} ${slotClasses}`;
 }
 
-function ColorSwatch({ bgClass, label, compact = false }: ColorSwatchProps) {
+/**
+ * Ammunition takes its weapon's colour, so the key shows the stripes on the
+ * neutral ammunition fill rather than one weapon's colour.
+ */
+const AMMO_KEY = {
+  label: 'Ammo (Striped)',
+  slotClasses: `${getEquipmentSurfaceClasses(EquipmentCategory.AMMUNITION, '')} ${styles.criticalTintedSlot} ${styles.criticalAmmo}`,
+};
+
+function ColorSwatch({
+  bgClass,
+  label,
+  compact = false,
+  group,
+}: ColorSwatchProps) {
   return (
     <div
-      className={`flex min-w-0 items-center gap-1.5 ${compact ? 'whitespace-nowrap' : ''}`}
+      className={`flex min-w-0 items-center gap-1 ${compact ? 'whitespace-nowrap' : ''}`}
+      data-legend-group={group}
     >
       <div
         aria-hidden="true"
@@ -90,20 +107,27 @@ export function ColorLegend({
   const presentCategories = new Map(
     equipmentNames?.map((name) => [classifyEquipmentByName(name), name]),
   );
-  const inlineColors = [...presentCategories].map(([category, name]) => ({
-    label:
-      category === 'heatsink'
-        ? HEATSINK_COLORS.label
-        : EQUIPMENT_CATEGORY_COLORS[category].label,
-    slotClasses: getEquipmentSlotClasses(name),
-  }));
+  const inlineColors = [...presentCategories].map(([category, name]) =>
+    category === EquipmentCategory.AMMUNITION
+      ? AMMO_KEY
+      : {
+          label:
+            category === 'heatsink'
+              ? HEATSINK_COLORS.label
+              : EQUIPMENT_CATEGORY_COLORS[category].label,
+          slotClasses: getEquipmentSlotClasses(name),
+        },
+  );
 
   const equipmentTypes = [
     ...(Object.keys(EQUIPMENT_CATEGORY_COLORS) as EquipmentCategory[]).map(
-      (category) => ({
-        label: EQUIPMENT_CATEGORY_COLORS[category].label,
-        slotClasses: `${getEquipmentSurfaceClasses(category, '')} ${styles.criticalTintedSlot}`,
-      }),
+      (category) =>
+        category === EquipmentCategory.AMMUNITION
+          ? AMMO_KEY
+          : {
+              label: EQUIPMENT_CATEGORY_COLORS[category].label,
+              slotClasses: `${getEquipmentSurfaceClasses(category, '')} ${styles.criticalTintedSlot}`,
+            },
     ),
     {
       label: 'Heat Sinks',
@@ -122,25 +146,38 @@ export function ColorLegend({
         <div
           role="group"
           aria-label="Colour key"
-          className="hidden flex-wrap items-center justify-end gap-x-3 gap-y-1 py-1 sm:flex"
+          className="hidden flex-wrap items-center justify-end gap-x-2.5 gap-y-0.5 py-1 sm:flex"
         >
+          {/* Two balanced rows, one per group: the unit's equipment
+              categories, then (after a full-width line break, which adds a
+              second 2px row gap) the fixed systems and Empty. Swatches stay direct children of the key so
+              each item is one swatch + label. */}
           {inlineColors.map(({ label, slotClasses }) => (
             <ColorSwatch
               key={label}
               compact
+              group="equipment"
               label={label}
               bgClass={slotBarChip(slotClasses)}
             />
           ))}
+          {/* Empty, so there is nothing to announce. */}
+          <div className="h-0 basis-full" data-testid="colour-key-row-break" />
           {FIXED_SYSTEM_FAMILIES.map(({ type, label }) => (
             <ColorSwatch
               key={type}
               compact
+              group="systems"
               label={label}
               bgClass={slotBarChip(getSystemSlotClasses(type))}
             />
           ))}
-          <ColorSwatch compact label="Empty" bgClass={EMPTY_SWATCH_CLASSES} />
+          <ColorSwatch
+            compact
+            group="systems"
+            label="Empty"
+            bgClass={EMPTY_SWATCH_CLASSES}
+          />
         </div>
       )}
       <button
@@ -151,9 +188,11 @@ export function ColorLegend({
           if (event.key === 'Escape') setIsExpanded(false);
         }}
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`text-text-theme-primary hover:text-text-theme-primary focus-visible:outline-accent flex min-h-11 w-full items-center justify-between gap-2 px-2 py-2 text-sm transition-colors focus-visible:outline-2 ${equipmentNames ? 'sm:hidden' : ''}`}
+        // Boxed like the toolbar buttons beside it (secondary border and
+        // fill, cream text), not bare text with a chevron.
+        className={`text-text-theme-primary border-border-theme bg-surface-raised hover:bg-border-theme focus-visible:outline-accent flex min-h-11 w-full items-center justify-between gap-2 rounded-lg border !px-3 !py-0 text-sm transition-colors focus-visible:outline-2 ${equipmentNames ? 'sm:hidden' : ''}`}
       >
-        <span className="font-medium whitespace-nowrap">Colour key</span>
+        <span className="font-medium whitespace-nowrap">Colour Key</span>
         <span
           className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
         >
@@ -168,8 +207,8 @@ export function ColorLegend({
         >
           <p className="text-text-theme-secondary text-xs">
             Each slot is tinted in its equipment category or system colour, with
-            a matching bar. A faint cyan hatch marks heat sinks. Dashed outlines
-            are empty or unhittable.
+            a matching bar. Ammunition takes its weapon&apos;s colour with
+            stripes, and dashed outlines are empty or unhittable.
           </p>
           {/* System Components */}
           <div>
@@ -186,7 +225,7 @@ export function ColorLegend({
               ))}
               <ColorSwatch
                 bgClass={getSlotColorClasses('structure')}
-                label="Endo / Ferro (unhittable)"
+                label="Endo / Ferro (Unhittable)"
               />
               <ColorSwatch bgClass={EMPTY_SWATCH_CLASSES} label="Empty Slot" />
             </div>

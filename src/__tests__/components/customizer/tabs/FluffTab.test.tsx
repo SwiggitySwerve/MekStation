@@ -4,6 +4,7 @@ import React from 'react';
 import { AutoSizeTextarea } from '@/components/customizer/fluff/FluffFields';
 import { FluffSideColumn } from '@/components/customizer/fluff/FluffSideColumn';
 import { FluffTab } from '@/components/customizer/tabs/FluffTab';
+import { disabledButtonClasses } from '@/components/ui/Button';
 
 describe('FluffTab', () => {
   it('lists all sections with current text status without changing field values', () => {
@@ -25,25 +26,25 @@ describe('FluffTab', () => {
         .getAllByRole('link')
         .map((link) => link.textContent),
     ).toEqual([
-      'Overview2 words',
-      'CapabilitiesEmpty',
-      'HistoryEmpty',
-      'DeploymentEmpty',
-      'VariantsEmpty',
-      'Notable UnitsEmpty',
-      'Battlefield RoleFire Support',
-      'Manufacturing4 words',
+      'Overview2 wordsFilled',
+      'Capabilities0 wordsEmpty',
+      'History0 wordsEmpty',
+      'Deployment0 wordsEmpty',
+      'Variants0 wordsEmpty',
+      'Notable Units0 wordsEmpty',
+      'Battlefield RoleFire SupportFilled',
+      'Manufacturing2 of 2 filledFilled',
     ]);
     expect(screen.getByLabelText('Manufacturer')).toHaveValue('Field Refit');
     expect(screen.getByLabelText('Primary Factory')).toHaveValue('Field Refit');
-    expect(screen.getByLabelText('Jump to section')).toHaveValue('');
+    expect(screen.getByLabelText('Jump to Section')).toHaveValue('');
     expect(nav.parentElement).toBe(screen.getByTestId('fluff-sections-slot'));
     expect(nav.nextElementSibling).toBeNull();
     rerender(
       <FluffTab fluff={{ history: 'Written' }} onFluffChange={onFluffChange} />,
     );
     expect(
-      within(nav).getByRole('link', { name: 'History 1 word' }),
+      within(nav).getByRole('link', { name: 'History 1 word Filled' }),
     ).toBeInTheDocument();
     expect(onFluffChange).not.toHaveBeenCalled();
   });
@@ -62,18 +63,63 @@ describe('FluffTab', () => {
       expect(link).toHaveClass('group', 'hover:bg-surface-raised');
       expect(link.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
     }
-    expect(within(nav).getByText('Juggernaut')).toBeInTheDocument();
-    expect(within(nav).getByText('Juggernaut')).not.toHaveClass(
-      'text-text-theme-muted/70',
+    // One pattern on every row: the status ("Filled" or "Empty") plus a
+    // secondary detail under the label (word count or the role value).
+    expect(within(nav).getByText('Juggernaut')).toHaveClass(
+      'text-text-theme-secondary',
+      'text-xs',
     );
-    expect(within(nav).getByText('2 words')).not.toHaveClass(
-      'text-text-theme-muted/70',
+    expect(within(nav).getByText('2 words')).toHaveClass(
+      'text-text-theme-secondary',
+      'text-xs',
     );
+    expect(within(nav).getAllByText('Filled')[0]).toHaveClass(
+      'text-text-theme-secondary',
+    );
+    // Empty is dimmer: a muted status and a secondary (not primary) label.
     expect(within(nav).getAllByText('Empty')[0]).toHaveClass(
-      'text-text-theme-muted/70',
+      'text-text-theme-muted',
+    );
+    const historyLink = within(nav).getByRole('link', {
+      name: 'History 0 words Empty',
+    });
+    expect(historyLink).toHaveClass('text-text-theme-secondary');
+    const overviewLink = within(nav).getByRole('link', {
+      name: 'Overview 2 words Filled',
+    });
+    expect(overviewLink).toHaveClass('text-text-theme-primary');
+    expect(
+      within(nav).getByRole('link', {
+        name: 'Battlefield Role Juggernaut Filled',
+      }),
+    ).toBeInTheDocument();
+    // No row dividers in either column; every row has its two lines (an
+    // empty one too) and ends in the same chevron, since every row does the
+    // same thing (jump to its section).
+    for (const item of within(nav).getAllByRole('listitem'))
+      expect(item.className).not.toMatch(/border/);
+    expect(historyLink.querySelectorAll('span.block')).toHaveLength(2);
+    expect(historyLink.querySelector('svg path')?.getAttribute('d')).toBe(
+      overviewLink.querySelector('svg path')?.getAttribute('d'),
+    );
+  });
+
+  it('counts filled fields for the multi-field Manufacturing section', () => {
+    render(
+      <FluffTab
+        fluff={{
+          manufacturer: 'Defiance Industries',
+          primaryFactory: '',
+          systemManufacturer: { CHASSIS: 'Foundation', ENGINE: '' },
+        }}
+        onFluffChange={jest.fn()}
+      />,
     );
     expect(
-      within(nav).getByRole('link', { name: 'Battlefield Role Juggernaut' }),
+      within(screen.getByRole('navigation', { name: 'Sections' })).getByRole(
+        'link',
+        { name: 'Manufacturing 2 of 4 filled Filled' },
+      ),
     ).toBeInTheDocument();
   });
 
@@ -82,7 +128,13 @@ describe('FluffTab', () => {
     expect(
       within(screen.getByRole('navigation', { name: 'Sections' })).getByRole(
         'link',
-        { name: 'Battlefield Role Empty' },
+        { name: 'Battlefield Role Not set Empty' },
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('navigation', { name: 'Sections' })).getByRole(
+        'link',
+        { name: 'Manufacturing 0 of 2 filled Empty' },
       ),
     ).toBeInTheDocument();
   });
@@ -99,25 +151,49 @@ describe('FluffTab', () => {
     const scrollRole = jest.fn();
     history.scrollIntoView = scrollHistory;
     role.scrollIntoView = scrollRole;
-    fireEvent.click(screen.getByRole('link', { name: 'History Empty' }));
+    fireEvent.click(
+      screen.getByRole('link', { name: 'History 0 words Empty' }),
+    );
     expect(history).toHaveFocus();
     expect(scrollHistory).toHaveBeenCalledWith({
       block: 'nearest',
       inline: 'nearest',
     });
-    fireEvent.change(screen.getByLabelText('Jump to section'), {
+    fireEvent.change(screen.getByLabelText('Jump to Section'), {
       target: { value: 'fluff-role' },
     });
     expect(role).toHaveFocus();
     expect(scrollRole).toHaveBeenCalled();
-    expect(screen.getByLabelText('Jump to section')).toHaveValue('');
+    expect(screen.getByLabelText('Jump to Section')).toHaveValue('');
+  });
+
+  it('sizes the phone jump label like the field labels and lists each status', () => {
+    render(
+      <FluffTab
+        role="Juggernaut"
+        fluff={{ overview: 'Two words' }}
+        onFluffChange={jest.fn()}
+      />,
+    );
+    const label = screen.getByText('Jump to Section');
+    expect(label).toHaveClass('text-sm', 'text-text-theme-secondary');
+    expect(label).not.toHaveClass('text-base');
+    const options = Array.from(
+      (screen.getByLabelText('Jump to Section') as HTMLSelectElement).options,
+      (option) => option.textContent,
+    );
+    expect(options).toContain('Overview · Filled, 2 words');
+    expect(options).toContain('History · Empty');
+    expect(options).toContain('Battlefield Role · Filled, Juggernaut');
   });
 
   it('focuses the containing section when jumping to a disabled field', () => {
     render(<FluffTab readOnly fluff={{ history: 'Imported history' }} />);
     const history = screen.getByLabelText('History');
     history.scrollIntoView = jest.fn();
-    fireEvent.click(screen.getByRole('link', { name: 'History 2 words' }));
+    fireEvent.click(
+      screen.getByRole('link', { name: 'History 2 words Filled' }),
+    );
     expect(screen.getByTestId('fluff-field-history')).toHaveFocus();
     expect(history).toHaveValue('Imported history');
   });
@@ -148,7 +224,7 @@ describe('FluffTab', () => {
     expect(screen.queryByText('Cost (C-Bills)')).not.toBeInTheDocument();
   });
 
-  it('stacks all six narrative fields in one column, in order', () => {
+  it('stacks the history fields in one column, and Variants and Notable Units in the side card, in order', () => {
     render(
       <FluffTab
         fluff={{}}
@@ -167,10 +243,14 @@ describe('FluffTab', () => {
     ];
     const fields = labels.map((label) => screen.getByLabelText(label));
     const container = screen.getByTestId('fluff-narrative');
+    const related = screen.getByTestId('fluff-related');
     expect(container).toHaveClass('flex-col');
+    expect(related).toHaveClass('flex-col');
     fields.forEach((field, index) => {
       // textarea > frame > field wrapper > column
-      expect(field.parentElement?.parentElement?.parentElement).toBe(container);
+      expect(field.parentElement?.parentElement?.parentElement).toBe(
+        index < 4 ? container : related,
+      );
       if (index > 0) {
         expect(
           fields[index - 1].compareDocumentPosition(field) &
@@ -187,7 +267,7 @@ describe('FluffTab', () => {
     expect(overview).toHaveClass('uppercase', 'tracking-wider', 'text-xs');
   });
 
-  it('places the narrative first, then role, then manufacturing, in a container-query grid', () => {
+  it('places the narrative first, then Sections, Variants and Notable Units, role and manufacturing, in a container-query grid', () => {
     render(
       <FluffTab
         fluff={{}}
@@ -210,9 +290,14 @@ describe('FluffTab', () => {
     expect(side.children[0]).toContainElement(
       screen.getByRole('navigation', { name: 'Sections' }),
     );
-    expect(side.children[1]).toBe(role);
-    expect(side.children[2]).toBe(manufacturing);
-    expect(side.children).toHaveLength(3);
+    // Variants and Notable Units sit under Sections, so the side column ends
+    // near the history column instead of 500px above it.
+    expect(side.children[1]).toBe(
+      screen.getByRole('region', { name: 'Variants and Notable Units' }),
+    );
+    expect(side.children[2]).toBe(role);
+    expect(side.children[3]).toBe(manufacturing);
+    expect(side.children).toHaveLength(4);
   });
   it('keeps the history card full width and left-aligned, 16px / 1.5, at least 3 rows', () => {
     render(
@@ -241,7 +326,7 @@ describe('FluffTab', () => {
     expect(screen.getByLabelText('Notable Units')).toHaveClass('min-h-18');
   });
 
-  it('marks every placeholder as an example in placeholder styling', () => {
+  it('marks every placeholder as an example in the normal upright placeholder style', () => {
     render(
       <FluffTab
         fluff={{}}
@@ -258,7 +343,8 @@ describe('FluffTab', () => {
     ]) {
       const field = screen.getByLabelText(label);
       expect(field.getAttribute('placeholder')).toMatch(/^e\.g\. /);
-      expect(field).toHaveClass('placeholder:italic');
+      expect(field).toHaveClass('placeholder:text-text-theme-muted');
+      expect(field).not.toHaveClass('placeholder:italic');
     }
   });
 
@@ -324,7 +410,7 @@ describe('FluffTab', () => {
     expect(rows[2].parentElement).toBe(rows[3].parentElement);
   });
 
-  it('ends the system list with a normal secondary Add system action and its reason', () => {
+  it('ends the system list with a normal secondary Add System action and its reason', () => {
     render(
       <FluffTab
         fluff={{ systemManufacturer: { Engine: 'Vlar' } }}
@@ -332,9 +418,13 @@ describe('FluffTab', () => {
       />,
     );
 
-    const add = screen.getByRole('button', { name: 'Add system' });
+    const add = screen.getByRole('button', { name: 'Add System' });
     expect(add).toBeDisabled();
     expect(add).toHaveClass('bg-surface-raised');
+    // The shared disabled look (solid border, never dashed, no fill, dimmed
+    // secondary text), read from the one shared definition.
+    expect(add).toHaveClass('border', ...disabledButtonClasses.split(' '));
+    expect(add.className).not.toMatch(/dashed/);
     expect(add).toHaveAccessibleDescription('Name a system and who makes it.');
 
     fireEvent.change(screen.getByLabelText('New System'), {
@@ -358,8 +448,9 @@ describe('FluffTab', () => {
     );
 
     const variants = screen.getByTestId('fluff-field-variants');
-    expect(variants).toHaveTextContent('Optional');
-    expect(within(variants).getByText('Optional')).toHaveClass('text-sm');
+    // The same "(Optional)" marker as the Overview form.
+    expect(variants).toHaveTextContent('(Optional)');
+    expect(within(variants).getByText('(Optional)')).toHaveClass('text-sm');
     expect(screen.getByTestId('fluff-field-history')).not.toHaveTextContent(
       'Optional',
     );
@@ -381,18 +472,33 @@ describe('FluffTab', () => {
   it('does not show Optional tags on a view-only unit', () => {
     render(<FluffTab fluff={{}} />);
 
-    expect(screen.queryByText('Optional')).not.toBeInTheDocument();
+    expect(screen.queryByText('(Optional)')).not.toBeInTheDocument();
   });
 
-  it('puts a full-width Combat Role select in the card body under the subtitle', () => {
-    render(<FluffTab role="Scout" onRoleChange={jest.fn()} />);
+  it('puts the Combat Role select under the subtitle with the same side label as Manufacturing', () => {
+    render(
+      <FluffTab
+        role="Scout"
+        onRoleChange={jest.fn()}
+        onFluffChange={jest.fn()}
+      />,
+    );
 
     const card = screen.getByRole('region', { name: 'Battlefield Role' });
     const select = screen.getByLabelText('Combat Role');
     expect(card).toContainElement(select);
     expect(select).toHaveClass('w-full');
-    expect(select.closest('label')).toHaveClass('block');
-    const subtitle = screen.getByText(/quick classification/);
+    // Side label, the one placement used across the right column.
+    const row = screen.getByText('Combat Role').parentElement as HTMLElement;
+    expect(row).toContainElement(select);
+    expect(row).toHaveClass('grid');
+    expect(
+      screen.getByLabelText('Manufacturer').closest('.group\\/row'),
+    ).toHaveClass(...row.className.split(' '));
+    expect(
+      screen.getByLabelText('New System').closest('.group\\/row'),
+    ).toHaveClass(...row.className.split(' '));
+    const subtitle = screen.getByText('Shown in the unit dossier and export.');
     expect(
       subtitle.compareDocumentPosition(select) &
         Node.DOCUMENT_POSITION_FOLLOWING,
@@ -443,7 +549,7 @@ describe('FluffTab', () => {
     fireEvent.change(screen.getByLabelText('New Manufacturer'), {
       target: { value: 'Durallex' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Add system' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add System' }));
 
     expect(onFluffChange).toHaveBeenCalledWith({
       systemManufacturer: { Engine: 'Vlar', Armor: 'Durallex' },

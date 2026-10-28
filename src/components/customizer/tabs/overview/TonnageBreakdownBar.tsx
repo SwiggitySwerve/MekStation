@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { STAT_STATUS_TEXT_CLASS } from '@/components/customizer/shared/unitStatStatus';
+import { formatTons } from '@/utils/formatting';
 
-import { formatTons, type TonnageBreakdown } from './tonnageBreakdown';
+import { type TonnageBreakdown } from './tonnageBreakdown';
 
 interface TonnageBreakdownBarProps {
   readonly breakdown: TonnageBreakdown;
@@ -27,7 +28,7 @@ export function TonnageBreakdownBar({
   const scale = Math.max(used, max);
   const width = (tons: number) =>
     scale > 0 ? `${(tons / scale) * 100}%` : '0%';
-  const remainderLabel = over > 0 ? 'Over limit' : 'Free';
+  const remainderLabel = over > 0 ? 'Over Limit' : 'Free';
   const remainderTons = over > 0 ? over : free;
   const description = [
     ...segments.map(

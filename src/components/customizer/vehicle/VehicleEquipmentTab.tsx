@@ -248,7 +248,7 @@ function MountedEquipmentRow({
             <span className="text-amber-400">Turret</span>
           )}
           {item.isRearMounted && (
-            <span className="text-cyan-400">Rear-facing</span>
+            <span className="text-cyan-400">Rear-Facing</span>
           )}
         </div>
       </div>

@@ -59,7 +59,7 @@ const A4_PAGE_BOX = { width: 595.28, height: 841.89 };
 async function loadAtlas(page: Page) {
   await page.goto('/customizer');
   await page.getByRole('button', { name: 'Load from Library' }).click();
-  const dialog = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await dialog
     .getByPlaceholder('Search by chassis or variant...')
@@ -76,9 +76,9 @@ async function loadAtlas(page: Page) {
 
 async function loadLocustBesideAtlas(page: Page) {
   await page
-    .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+    .getByRole('button', { name: 'Add Unit (Ctrl+O)', exact: true })
     .click();
-  const dialog = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await dialog.getByRole('combobox').first().selectOption('canonical');
   await dialog
     .getByPlaceholder('Search by chassis or variant...')
@@ -243,7 +243,7 @@ test('preview zoom increments survive resize and fit width tracks until manual @
   expect(await zoomPercent(page)).toBe(afterIn);
   await page.getByRole('button', { name: 'Zoom options', exact: true }).click();
   await page
-    .getByRole('menuitemradio', { name: 'Fit width', exact: true })
+    .getByRole('menuitemradio', { name: 'Fit Width', exact: true })
     .click();
   await waitTwoAnimationFrames(page);
   await expectFitWidthCanvas(page, LETTER.width);
@@ -481,11 +481,11 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
 }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/customizer');
-  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
-  const add = page.getByRole('dialog', { name: 'Add unit', exact: true });
+  await page.getByRole('button', { name: 'Add Unit', exact: true }).click();
+  const add = page.getByRole('dialog', { name: 'Add Unit', exact: true });
   await add
     .getByRole('button', {
-      name: 'Choose tonnage and tech first…',
+      name: 'Set Up a New Unit…',
       exact: true,
     })
     .click();
@@ -508,7 +508,7 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   await afterViewportChange(page);
   expect(await zoomPercent(page)).toBe(manual);
   const paper = page.getByRole('combobox', {
-    name: 'Paper Size:',
+    name: 'Paper Size',
     exact: true,
   });
   await paper.selectOption('a4');
@@ -525,7 +525,7 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   expect(a4Box!.width / a4Box!.height).toBeCloseTo(A4_RATIO, 2);
   await page.getByRole('button', { name: 'Zoom options', exact: true }).click();
   await page
-    .getByRole('menuitemradio', { name: 'Fit width', exact: true })
+    .getByRole('menuitemradio', { name: 'Fit Width', exact: true })
     .click();
   await waitTwoAnimationFrames(page);
   const fit = await zoomPercent(page);
@@ -533,7 +533,7 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   await expect.poll(() => zoomPercent(page)).toBeLessThan(fit);
   await page.getByRole('button', { name: 'Zoom options', exact: true }).click();
   await page
-    .getByRole('menuitemradio', { name: 'Fit page', exact: true })
+    .getByRole('menuitemradio', { name: 'Fit Page', exact: true })
     .click();
   await waitTwoAnimationFrames(page);
   await expect(canvas).toBeInViewport({ ratio: 0.95 });

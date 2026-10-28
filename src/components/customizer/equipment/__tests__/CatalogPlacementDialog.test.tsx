@@ -48,7 +48,7 @@ beforeEach(() => localStorage.clear());
 it('requires a location and cancellation never adds a copy', async () => {
   const { unit, onClose, user } = setup();
   const before = unit.getState();
-  expect(screen.getByRole('button', { name: 'Add and place' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Add and Place' })).toBeDisabled();
   await user.selectOptions(
     screen.getByRole('combobox', { name: 'Equipment location' }),
     MechLocation.LEFT_ARM,
@@ -65,7 +65,7 @@ it('adds the equipment in the selected location and reports the result', async (
     screen.getByRole('combobox', { name: 'Equipment location' }),
     MechLocation.RIGHT_ARM,
   );
-  await user.click(screen.getByRole('button', { name: 'Add and place' }));
+  await user.click(screen.getByRole('button', { name: 'Add and Place' }));
   expect(unit.getState().equipment.at(-1)).toMatchObject({
     location: MechLocation.RIGHT_ARM,
     slots: [4],
@@ -90,7 +90,7 @@ it('disables a selected location if another edit fills it before confirmation', 
       ],
     }),
   );
-  expect(screen.getByRole('button', { name: 'Add and place' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Add and Place' })).toBeDisabled();
   expect(screen.getByRole('alert')).toHaveTextContent('No contiguous space');
   expect(unit.getState().equipment).toHaveLength(1);
 });
@@ -98,6 +98,6 @@ it('disables a selected location if another edit fills it before confirmation', 
 it('cannot confirm a read-only unit', () => {
   const { unit } = setup(true);
   expect(screen.getByRole('alert')).toHaveTextContent('read-only');
-  expect(screen.getByRole('button', { name: 'Add and place' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Add and Place' })).toBeDisabled();
   expect(unit.getState().equipment).toEqual([]);
 });

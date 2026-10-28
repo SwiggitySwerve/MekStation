@@ -74,7 +74,7 @@ export function GlobalLoadoutTrayAllocationSection({
         onClick={onToggle}
         aria-expanded={isExpanded}
         title={isDropZone ? dropLabel : undefined}
-        className={`${isQuiet ? trayStyles.sectionRowQuiet : trayStyles.sectionRow} focus-visible:ring-accent focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset`}
+        className={`${isQuiet ? trayStyles.sectionRowQuiet : trayStyles.sectionRow} focus-visible:ring-text-theme-primary focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset`}
       >
         <span
           className={`${trayStyles.text.primary} min-w-0 truncate font-medium ${

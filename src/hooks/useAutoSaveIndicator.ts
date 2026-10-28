@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
+import { DRAFT_LABEL } from '@/components/customizer/shared/BrowserDraftStatus';
 import { useToast } from '@/components/shared/Toast';
 import { subscribeToStorageWriteReceipts } from '@/stores/utils/clientSafeStorage';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -44,55 +45,29 @@ export function getCustomizerDraftStorageKey({
 }
 
 /**
- * Reports browser-draft persistence for the active customizer unit.
+ * Reports failed browser-draft writes for the active customizer unit.
  *
- * Success is driven by the completed localStorage write receipt, rather than a
- * state-change timer. The explicit library-save flow has its own API result and
- * continues to report "Unit ... saved successfully", so the two destinations
- * are unambiguous to the user.
+ * A successful write is confirmed in the header save state ("Draft Saved"
+ * brightens for a moment, see `useDraftSavePulse`) rather than in a toast, so
+ * nothing floats over the page on every edit. A failure is driven by the
+ * localStorage write receipt and still raises an error toast, because the
+ * user's changes are at risk. The explicit library-save flow has its own API
+ * result and toast, so the two destinations stay unambiguous.
  */
 export function useAutoSaveIndicator(
   target: AutoSaveIndicatorTarget | null,
 ): void {
   const { showToast } = useToast();
-  const successTimerRef = useRef<NodeJS.Timeout | null>(null);
   const storageKey = target ? getCustomizerDraftStorageKey(target) : null;
 
   useEffect(() => {
     if (!storageKey) return;
-
-    const unsubscribe = subscribeToStorageWriteReceipts((receipt) => {
-      if (receipt.key !== storageKey) return;
-
-      if (successTimerRef.current) {
-        clearTimeout(successTimerRef.current);
-        successTimerRef.current = null;
-      }
-
-      if (receipt.status === 'failed') {
-        showToast({
-          message: 'Draft could not be saved in this browser',
-          variant: 'error',
-        });
-        return;
-      }
-
-      successTimerRef.current = setTimeout(() => {
-        showToast({
-          message: 'Draft saved in this browser',
-          variant: 'success',
-          duration: 1500,
-        });
-        successTimerRef.current = null;
-      }, 500);
+    return subscribeToStorageWriteReceipts((receipt) => {
+      if (receipt.key !== storageKey || receipt.status !== 'failed') return;
+      showToast({
+        message: DRAFT_LABEL.failed,
+        variant: 'error',
+      });
     });
-
-    return () => {
-      unsubscribe();
-      if (successTimerRef.current) {
-        clearTimeout(successTimerRef.current);
-        successTimerRef.current = null;
-      }
-    };
   }, [showToast, storageKey]);
 }

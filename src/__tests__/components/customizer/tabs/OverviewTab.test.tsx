@@ -57,7 +57,7 @@ describe('OverviewTab', () => {
     mulId: '-1',
     year: 2750,
     rulesLevel: 'STANDARD',
-    techBaseMode: 'INNER_SPHERE',
+    techBaseMode: 'inner_sphere',
     componentTechBases: {},
     engineType: 'Standard Fusion',
     engineRating: 300,
@@ -166,8 +166,8 @@ describe('OverviewTab', () => {
       'Chassis',
       'Model',
       'Year',
-      'Tech level',
-      'Clan name',
+      'Tech Level',
+      'Clan Name',
       'MUL ID',
     ];
     const fields = order.map((name) => screen.getByLabelText(name));
@@ -201,20 +201,47 @@ describe('OverviewTab', () => {
 
     expect(screen.getByDisplayValue('Atlas')).toBeInTheDocument();
     expect(screen.getByDisplayValue('2750')).toBeInTheDocument();
+    // The header names the tech base only; the Tech Level field below
+    // already shows the rules level, so it is not repeated.
+    const identity = screen.getByRole('region', { name: 'Identity' });
+    expect(
+      within(identity).getByRole('heading', { name: 'Identity' })
+        .nextElementSibling,
+    ).toHaveTextContent(/^Inner Sphere$/);
+    // The same 14px secondary meta style as "100.0 / 100.0 t used".
+    expect(
+      within(identity).getByRole('heading', { name: 'Identity' })
+        .nextElementSibling,
+    ).toHaveClass('text-sm', 'text-text-theme-secondary');
+    // One muted hint style for both parentheticals.
+    for (const hint of ['(Optional)', '(Modular equipment pods)'])
+      expect(within(identity).getByText(hint)).toHaveClass(
+        'text-sm',
+        'text-text-theme-muted',
+      );
+  });
+
+  it('keeps component rows at a 44px pitch in two columns from a 28rem card', () => {
+    render(<OverviewTab />);
+    const tech = screen.getByTestId('overview-component-technology');
+    const list = tech.querySelector('dl')!;
+    expect(list).toHaveClass('@md:grid-cols-2', 'auto-rows-fr', 'flex-1');
+    for (const row of Array.from(list.children))
+      expect(row).toHaveClass('min-h-11');
   });
 
   it('shows component technology expanded with the editor one click away', async () => {
     const user = userEvent.setup();
     render(<OverviewTab />);
 
-    expect(screen.getByText('Component technology')).toBeInTheDocument();
+    expect(screen.getByText('Component Technology')).toBeInTheDocument();
     expect(screen.getByText('Standard Fusion 300')).toBeInTheDocument();
     expect(screen.getByText('10 Single Heat Sink')).toBeInTheDocument();
 
-    const disclosure = screen.getByText('Change tech base').closest('details');
+    const disclosure = screen.getByText('Change Tech Base').closest('details');
     expect(disclosure).not.toHaveAttribute('open');
 
-    await user.click(screen.getByText('Change tech base'));
+    await user.click(screen.getByText('Change Tech Base'));
 
     expect(disclosure).toHaveAttribute('open');
     expect(screen.getByTestId('tech-base-config')).toBeInTheDocument();
@@ -224,13 +251,13 @@ describe('OverviewTab', () => {
     render(<OverviewTab />);
 
     const summary = screen.getByTestId('overview-build-summary');
-    expect(within(summary).getByText('Build summary')).toBeInTheDocument();
+    expect(within(summary).getByText('Build Summary')).toBeInTheDocument();
     expect(
       within(summary).getByRole('img', { name: /Tonnage breakdown/ }),
     ).toHaveAccessibleName(
-      'Tonnage breakdown: Structure 10.0 t, Engine 19.0 t, Gyro 3.0 t, Cockpit 3.0 t, Heat sinks 10.0 t, Armor 19.0 t, Equipment 32.0 t, Free 4.0 t',
+      'Tonnage breakdown: Structure 10.0 t, Engine 19.0 t, Gyro 3.0 t, Cockpit 3.0 t, Heat Sinks 10.0 t, Armor 19.0 t, Equipment 32.0 t, Free 4.0 t',
     );
-    expect(within(summary).queryByText('Jump jets')).not.toBeInTheDocument();
+    expect(within(summary).queryByText('Jump Jets')).not.toBeInTheDocument();
     expect(within(summary).getByText('1,768')).toBeInTheDocument();
     expect(within(summary).getByText('99%')).toBeInTheDocument();
     expect(
@@ -250,9 +277,9 @@ describe('OverviewTab', () => {
     expect(
       within(bar).getByTestId('overview-tonnage-over'),
     ).toBeInTheDocument();
-    expect(within(bar).getByText('Over limit')).toBeInTheDocument();
+    expect(within(bar).getByText('Over Limit')).toBeInTheDocument();
     expect(within(bar).getByRole('img')).toHaveAccessibleName(
-      expect.stringContaining('Over limit 3.0 t'),
+      expect.stringContaining('Over Limit 3.0 t'),
     );
   });
 
@@ -298,11 +325,13 @@ describe('OverviewTab', () => {
     );
     await user.click(
       card.getByRole('button', {
-        name: 'Unplaced equipment: go to Critical Slots',
+        name: 'Unplaced Equipment: go to Critical Slots',
       }),
     );
     await user.click(
-      card.getByRole('button', { name: 'Heat: go to Structure' }),
+      card.getByRole('button', {
+        name: 'Runs 11 heat over dissipation: go to Structure',
+      }),
     );
     expect(onNavigate.mock.calls.map(([tab]) => tab)).toEqual([
       'equipment',
@@ -327,7 +356,7 @@ describe('OverviewTab', () => {
     // Phones only: wider canvases keep Identity first and the list in the card.
     expect(issues).toHaveClass('sm:hidden');
     expect(
-      within(issues).getByRole('heading', { name: 'Needs attention' }),
+      within(issues).getByRole('heading', { name: 'Needs Attention' }),
     ).toBeInTheDocument();
     expect(
       within(issues).getByTestId('overview-issues-summary'),
@@ -338,8 +367,12 @@ describe('OverviewTab', () => {
       'warning',
     );
     expect(within(issues).queryByTestId('overview-issues-weight')).toBeNull();
+    // The heading block has room before the first row on the phone card.
+    expect(within(issues).getByRole('list')).toHaveClass('mt-3');
     await user.click(
-      within(issues).getByRole('button', { name: 'Heat: go to Structure' }),
+      within(issues).getByRole('button', {
+        name: 'Runs 11 heat over dissipation: go to Structure',
+      }),
     );
     expect(onNavigate).toHaveBeenCalledWith('structure');
   });

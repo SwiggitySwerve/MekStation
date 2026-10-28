@@ -2,6 +2,7 @@ import React from 'react';
 
 import type { IRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
 
+import { AppIcon } from '@/components/ui/AppIcon';
 import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 import { logger } from '@/utils/logger';
@@ -213,6 +214,36 @@ function StandaloneRecordSheetViewer(
   );
 }
 
+/**
+ * Whether the scrolling viewer has more of the sheet below what is shown.
+ * Re-checked on scroll, on resize and whenever the zoom redraws the sheet.
+ */
+function useMoreBelow(
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  zoom: number,
+): boolean {
+  const [moreBelow, setMoreBelow] = React.useState(false);
+  React.useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const update = (): void =>
+      setMoreBelow(
+        container.scrollTop + container.clientHeight <
+          container.scrollHeight - 1,
+      );
+    update();
+    container.addEventListener('scroll', update, { passive: true });
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(container);
+    return () => {
+      container.removeEventListener('scroll', update);
+      observer?.disconnect();
+    };
+  }, [containerRef, zoom]);
+  return moreBelow;
+}
+
 function RecordSheetViewer({
   canvasRef,
   testId,
@@ -226,6 +257,7 @@ function RecordSheetViewer({
   footer?: React.ReactNode;
 }): React.ReactElement {
   const { containerRef, zoom } = zoomState;
+  const moreBelow = useMoreBelow(containerRef, zoom);
 
   return (
     <div
@@ -239,32 +271,62 @@ function RecordSheetViewer({
       }}
     >
       <div
-        ref={containerRef}
-        style={{
-          flex: 1,
-          minHeight: 0,
-          display: 'flex',
-          overflow: 'auto',
-          backgroundColor: 'var(--surface-deep)',
-        }}
+        style={{ flex: 1, minHeight: 0, display: 'flex', position: 'relative' }}
       >
-        {/* The padding lives on this wrapper (not the scroll container) so a
-            zoomed sheet keeps the same 24px gutter on its right edge when it
-            scrolls. Phones trim the top gutter so the sheet starts higher. */}
-        <div className="shrink-0 p-6 max-sm:pt-3" style={{ margin: '0 auto' }}>
-          <canvas
-            ref={canvasRef}
-            data-testid={testId}
-            style={{
-              display: 'block',
-              flexShrink: 0,
-              width: width * zoom,
-              height: height * zoom,
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
-              backgroundColor: '#fff',
-            }}
-          />
+        <div
+          ref={containerRef}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: 0,
+            display: 'flex',
+            overflow: 'auto',
+            backgroundColor: 'var(--surface-deep)',
+          }}
+        >
+          {/* The padding lives on this wrapper (not the scroll container) so a
+              zoomed sheet keeps the same 24px gutter on its right edge when it
+              scrolls. Phones trim the top gutter so the sheet starts higher. */}
+          <div
+            className="shrink-0 p-6 max-sm:pt-3"
+            style={{ margin: '0 auto' }}
+          >
+            <canvas
+              ref={canvasRef}
+              data-testid={testId}
+              style={{
+                display: 'block',
+                flexShrink: 0,
+                width: width * zoom,
+                height: height * zoom,
+                // A hairline edge and a deep drop shadow lift the white sheet
+                // off the dark viewer.
+                boxShadow:
+                  '0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 28px rgba(0, 0, 0, 0.6)',
+                backgroundColor: '#fff',
+              }}
+            />
+          </div>
         </div>
+        {/* While the sheet continues below, it fades into the viewer and a
+            cue says so, so the cut-off reads as scrolling, not clipped. */}
+        {moreBelow ? (
+          <>
+            <div
+              aria-hidden="true"
+              data-testid="preview-sheet-fade"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-b from-transparent to-[var(--surface-deep)]"
+            />
+            <p
+              aria-hidden="true"
+              data-testid="preview-sheet-scroll-cue"
+              className="border-border-theme bg-surface-raised text-text-theme-primary pointer-events-none absolute bottom-2 left-1/2 m-0 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border px-3 py-1 text-xs whitespace-nowrap shadow-lg"
+            >
+              <AppIcon name="chevron-down" size="inline" aria-hidden="true" />
+              Scroll for the rest of the sheet
+            </p>
+          </>
+        ) : null}
       </div>
       {footer}
     </div>

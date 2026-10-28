@@ -40,6 +40,7 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
     onClearFilters,
     availabilitySummary,
     capacity,
+    limitNoteId,
   }: CompactFilterBarProps) => (
     <div data-testid="compact-filter-bar">
       <input
@@ -53,6 +54,11 @@ jest.mock('@/components/customizer/equipment/CompactFilterBar', () => ({
       {capacity && (
         <span data-testid="equipment-catalog-capacity">
           {capacity.weightText} · {capacity.slotsText}
+        </span>
+      )}
+      {capacity?.limitText && (
+        <span id={limitNoteId} data-testid="equipment-catalog-limit">
+          {capacity.limitText}
         </span>
       )}
     </div>
@@ -119,40 +125,55 @@ describe('EquipmentBrowser', () => {
     (useEquipmentBrowser as jest.Mock).mockReturnValue(defaultMockHook);
   });
 
-  it.each([1, 4])(
-    'puts the overflow cue outside rows with %i pages and hides it at the end',
-    (totalPages) => {
-      (useEquipmentBrowser as jest.Mock).mockReturnValue({
-        ...defaultMockHook,
-        totalPages,
-      });
-      const height = jest
-        .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
-        .mockReturnValue(200);
-      const content = jest
-        .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
-        .mockReturnValue(500);
-      try {
-        render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-        const scroll = screen.getByTestId('equipment-catalog-scroll');
-        const cue = screen.getByTestId('more-below-cue');
-        expect(cue).toHaveTextContent('Scroll for more on this page');
-        expect(scroll).not.toContainElement(cue);
-        expect(scroll.parentElement).not.toContainElement(cue);
-        if (totalPages > 1)
-          expect(screen.getByTestId('equipment-pagination')).toContainElement(
-            cue,
-          );
-        fireEvent.scroll(scroll, { target: { scrollTop: 300 } });
-        expect(screen.queryByTestId('more-below-cue')).not.toBeInTheDocument();
-        fireEvent.scroll(scroll, { target: { scrollTop: 0 } });
-        expect(screen.getByTestId('more-below-cue')).toBeInTheDocument();
-      } finally {
-        height.mockRestore();
-        content.mockRestore();
-      }
-    },
-  );
+  it('puts the overflow cue of a single-page list outside rows and hides it at the end', () => {
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(200);
+    const content = jest
+      .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+      .mockReturnValue(500);
+    try {
+      render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+      const scroll = screen.getByTestId('equipment-catalog-scroll');
+      const cue = screen.getByTestId('more-below-cue');
+      expect(cue).toHaveTextContent(/^More below$/);
+      expect(scroll).not.toContainElement(cue);
+      expect(scroll.parentElement).not.toContainElement(cue);
+      fireEvent.scroll(scroll, { target: { scrollTop: 300 } });
+      expect(screen.queryByTestId('more-below-cue')).not.toBeInTheDocument();
+      fireEvent.scroll(scroll, { target: { scrollTop: 0 } });
+      expect(screen.getByTestId('more-below-cue')).toBeInTheDocument();
+    } finally {
+      height.mockRestore();
+      content.mockRestore();
+    }
+  });
+
+  it('shows only the page line in the pager, never a scroll cue beside it', () => {
+    (useEquipmentBrowser as jest.Mock).mockReturnValue({
+      ...defaultMockHook,
+      totalPages: 4,
+    });
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(200);
+    const content = jest
+      .spyOn(HTMLElement.prototype, 'scrollHeight', 'get')
+      .mockReturnValue(500);
+    try {
+      render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+      const pager = screen.getByTestId('equipment-pagination');
+      expect(within(pager).getByText('Page 1 of 4')).toBeInTheDocument();
+      expect(screen.queryByTestId('more-below-cue')).not.toBeInTheDocument();
+      // The viewport still records the overflow for layout and tests.
+      expect(
+        screen.getByTestId('equipment-catalog-scroll').parentElement,
+      ).toHaveAttribute('data-more-below', 'true');
+    } finally {
+      height.mockRestore();
+      content.mockRestore();
+    }
+  });
 
   it('keeps duplicate equipment IDs in different categories independent through filtering', async () => {
     const user = userEvent.setup();
@@ -214,7 +235,8 @@ describe('EquipmentBrowser', () => {
     expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
       '4.0 t free · 16 slots free',
     );
-    expect(screen.getByText('×3 mounted')).toBeInTheDocument();
+    // Desktop subtitle and phone name line each carry the count.
+    expect(screen.getAllByText('×3 mounted')).toHaveLength(2);
     // Only the 5 t Large Laser exceeds the 4 t free; no per-row chip.
     expect(screen.getAllByText(/exceeds free weight by 1\.0 t/)).toHaveLength(
       2,
@@ -239,10 +261,36 @@ describe('EquipmentBrowser', () => {
       </EquipmentBrowserUnitContext.Provider>,
     );
     expect(screen.getByTestId('equipment-catalog-capacity')).toHaveTextContent(
-      '0.0 t free · unit is at its tonnage limit',
+      '0.0 t free',
+    );
+    expect(screen.getByTestId('equipment-catalog-limit')).toHaveTextContent(
+      'At tonnage limit',
     );
     expect(screen.queryByText(/exceeds free weight/)).not.toBeInTheDocument();
     expect(screen.queryByText(/\+\d+\.\d t over/)).not.toBeInTheDocument();
+    // Add stays enabled at the limit, in the quieter style, and is
+    // described by the limit note.
+    const add = screen.getByRole('button', { name: 'Add Large Laser' });
+    expect(add).toBeEnabled();
+    expect(add).toHaveAttribute('data-at-limit', 'true');
+    expect(add).toHaveAccessibleDescription('At tonnage limit');
+  });
+
+  it('keeps the standard Add style while tonnage is free', () => {
+    render(
+      <EquipmentBrowserUnitContext.Provider
+        value={{
+          remainingWeight: 5,
+          remainingSlots: 12,
+          mountedCounts: new Map(),
+        }}
+      >
+        <EquipmentBrowser onAddEquipment={jest.fn()} />
+      </EquipmentBrowserUnitContext.Provider>,
+    );
+    const add = screen.getByRole('button', { name: 'Add Large Laser' });
+    expect(add).not.toHaveAttribute('data-at-limit');
+    expect(add).not.toHaveAttribute('aria-describedby');
   });
 
   it('should render equipment table', () => {
@@ -250,6 +298,35 @@ describe('EquipmentBrowser', () => {
 
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
     expect(screen.getByText('Large Laser')).toBeInTheDocument();
+  });
+
+  it('ends the list on a whole row at desktop widths too, so the pager never cuts one', () => {
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(100);
+    const offset = jest
+      .spyOn(HTMLElement.prototype, 'offsetHeight', 'get')
+      .mockReturnValue(100);
+    const rect = jest
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: HTMLElement) {
+        // Rows are 60px tall from the top of the list: the second ends at
+        // 120px, past the 100px viewport, so only the first fits whole.
+        const row = this.matches('ul > li')
+          ? Array.from(this.parentElement?.children ?? []).indexOf(this) + 1
+          : 0;
+        return { top: 0, bottom: row * 60 } as DOMRect;
+      });
+    try {
+      render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
+      expect(
+        screen.getByTestId('equipment-catalog-scroll').style.maxHeight,
+      ).toBe('60px');
+    } finally {
+      height.mockRestore();
+      offset.mockRestore();
+      rect.mockRestore();
+    }
   });
 
   it('should call onAddEquipment when equipment is added', async () => {
@@ -290,7 +367,7 @@ describe('EquipmentBrowser', () => {
     const quickPlace = screen.getByRole('menuitem', {
       name: 'Add and place Medium Laser',
     });
-    expect(quickPlace).toHaveTextContent('Add and choose location');
+    expect(quickPlace).toHaveTextContent('Add and Choose Location');
     await user.click(quickPlace);
     expect(onAddAndPlace).toHaveBeenCalledWith(mockEquipment[0]);
     expect(onAddEquipment).not.toHaveBeenCalled();
@@ -367,7 +444,7 @@ describe('EquipmentBrowser', () => {
       '3',
     );
     const stats = within(row).getByTestId('equipment-catalog-stats');
-    for (const pair of ['Damage 5 · Range 3/6/9', 'Heat 3 · 1 t · 1 slot']) {
+    for (const pair of ['Damage 5 · Range 3/6/9', 'Heat 3 · 1.0 t · 1 slot']) {
       expect(stats).toHaveTextContent(pair);
     }
     expect(stats).not.toHaveTextContent('Min');
@@ -433,13 +510,13 @@ describe('EquipmentBrowser', () => {
     ).toHaveTextContent('—');
     const stats = within(row).getByTestId('equipment-catalog-stats');
     if (id === 'ac10-ammo') {
-      expect(stats).toHaveTextContent('Shots 10 · 1 t · 1 slot');
+      expect(stats).toHaveTextContent('10 shots/t · 1.0 t · 1 slot');
       expect(stats).not.toHaveTextContent('Damage');
     } else {
       // Unknown ammunition has no capacity and no combat data to show.
-      expect(stats).not.toHaveTextContent('Shots');
+      expect(stats).not.toHaveTextContent('shots/t');
       expect(stats).not.toHaveTextContent('Damage');
-      expect(stats).toHaveTextContent('1 t · 1 slot');
+      expect(stats).toHaveTextContent('1.0 t · 1 slot');
     }
   });
 
@@ -518,7 +595,11 @@ describe('EquipmentBrowser', () => {
       totalItems: 27,
     });
     const view = render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
-    expect(screen.getByText('Page 1 of 2 · 27 items')).toBeInTheDocument();
+    // The count is said once, in the summary line, not again in the pager.
+    expect(screen.getByText('Page 1 of 2')).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('equipment-pagination')).queryByText(/items/),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText(/End of results/)).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
     expect(defaultMockHook.setPage).toHaveBeenCalledWith(2);
@@ -595,7 +676,7 @@ describe('EquipmentBrowser', () => {
     render(<EquipmentBrowser onAddEquipment={jest.fn()} />);
 
     expect(
-      screen.getByText('Inner Sphere · available in 3050'),
+      screen.getByText('Inner Sphere · Available in 3050'),
     ).toBeInTheDocument();
   });
   it('allows keyboard inspection in read-only mode but cannot add equipment', async () => {

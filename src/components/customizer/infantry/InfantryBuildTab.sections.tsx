@@ -173,7 +173,7 @@ export function InfantryWeaponsSection({
           )}
         </div>
         <div>
-          <label className={cs.text.label}>Secondary Weapon (optional)</label>
+          <label className={cs.text.label}>Secondary Weapon (Optional)</label>
           <select
             value={controls.secondaryWeaponId ?? ''}
             onChange={controls.handleSecondaryWeaponChange}

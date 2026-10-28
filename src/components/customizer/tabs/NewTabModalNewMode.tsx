@@ -3,6 +3,7 @@ import React from 'react';
 import { UNIT_TEMPLATES, UnitTemplate } from '@/stores/useMultiUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { formatTons } from '@/utils/formatting';
 
 import {
   AEROSPACE_TEMPLATES,
@@ -99,7 +100,7 @@ export function NewTabModalNewMode({
                   {template.name}
                 </div>
                 <div className="text-text-theme-secondary text-xs">
-                  {template.tonnage}t • {template.walkMP}/
+                  {formatTons(template.tonnage, 0)} • {template.walkMP}/
                   {Math.ceil(template.walkMP * 1.5)}/{template.jumpMP} MP
                 </div>
               </button>
@@ -128,7 +129,7 @@ export function NewTabModalNewMode({
                   {template.name}
                 </div>
                 <div className="text-text-theme-secondary text-xs">
-                  {template.tonnage}t • {template.cruiseMP}/
+                  {formatTons(template.tonnage)} • {template.cruiseMP}/
                   {Math.floor(template.cruiseMP * 1.5)} MP
                 </div>
               </button>
@@ -157,7 +158,7 @@ export function NewTabModalNewMode({
                   {template.name}
                 </div>
                 <div className="text-text-theme-secondary text-xs">
-                  {template.tonnage}t • Thrust {template.safeThrust}/
+                  {formatTons(template.tonnage)} • Thrust {template.safeThrust}/
                   {Math.floor(template.safeThrust * 1.5)}
                 </div>
               </button>
@@ -244,7 +245,7 @@ export function NewTabModalNewMode({
                   {template.name}
                 </div>
                 <div className="text-text-theme-secondary text-xs">
-                  {template.tonnage}t • Clan Tech
+                  {formatTons(template.tonnage)} • Clan Tech
                 </div>
               </button>
             ))}

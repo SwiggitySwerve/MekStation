@@ -5,6 +5,7 @@ import { getEquipmentLoader } from '@/services/equipment/EquipmentLoaderService'
 import { IEquipmentItem } from '@/types/equipment';
 import { getEquipmentAccentClasses } from '@/utils/colors/equipmentColors';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
+import { formatTons } from '@/utils/formatting';
 
 import workbenchStyles from '../CustomizerWorkbench.module.css';
 import { BUILD_STATUS_KIND_TEXT_CLASS } from '../shared/BuildStatusLabel';
@@ -22,6 +23,8 @@ interface EquipmentCatalogCardProps {
   equipment: IEquipmentItem;
   expanded: boolean;
   readOnly: boolean;
+  /** The at-limit notice's id, set only while the unit is at its limit. */
+  limitNoteId?: string;
   onInspect: () => void;
   onAdd: () => void;
   onAddAndPlace?: () => void;
@@ -33,6 +36,7 @@ export function EquipmentCatalogCard({
   equipment,
   expanded,
   readOnly,
+  limitNoteId,
   onInspect,
   onAdd,
   onAddAndPlace,
@@ -71,20 +75,20 @@ export function EquipmentCatalogCard({
   // above heat; other equipment shows weight and slots alone.
   const sizeFields: StatField[] = [
     {
-      text: variable ? 'Variable weight' : `${equipment.weight} t`,
+      text: variable ? 'Variable Weight' : formatTons(equipment.weight),
       className: weightNote ? WEIGHT_OVER_CLASS : undefined,
       title: weightNote,
       note: weightNote,
     },
     plainField(
       variable
-        ? 'Variable slots'
+        ? 'Variable Slots'
         : `${equipment.criticalSlots} ${equipment.criticalSlots === 1 ? 'slot' : 'slots'}`,
     ),
   ];
   const statLines: StatField[][] =
     shotsPerTon !== undefined
-      ? [[plainField(`Shots ${shotsPerTon}`), ...sizeFields]]
+      ? [[plainField(`${shotsPerTon} shots/t`), ...sizeFields]]
       : weapon
         ? [
             [
@@ -110,7 +114,7 @@ export function EquipmentCatalogCard({
     >
       <span
         aria-hidden="true"
-        className={`bg-surface-raised pointer-events-none absolute inset-0 -z-10 ${expanded ? 'opacity-40' : 'opacity-10 group-hover:opacity-30'}`}
+        className={`bg-surface-raised pointer-events-none absolute inset-y-0 left-0 -z-10 ${expanded ? 'right-3 opacity-40' : 'right-0 opacity-10 group-hover:opacity-30'}`}
         data-testid="equipment-catalog-row-fill"
       />
       <div className={workbenchStyles.catalogColumns}>
@@ -137,8 +141,9 @@ export function EquipmentCatalogCard({
               >
                 {equipment.name}
               </span>
+              {/* Phones show no subtitle, so the count stays by the name. */}
               {mountedCount > 0 && (
-                <span className={workbenchStyles.catalogMounted}>
+                <span className={`lg:hidden ${workbenchStyles.catalogMounted}`}>
                   ×{mountedCount} mounted
                 </span>
               )}
@@ -149,6 +154,12 @@ export function EquipmentCatalogCard({
             >
               {equipment.category}
               {shotsPerTon !== undefined && ` · ${shotsPerTon} shots/t`}
+              {mountedCount > 0 && (
+                <>
+                  {' · '}
+                  <span>×{mountedCount} mounted</span>
+                </>
+              )}
             </span>
           </span>
           <span
@@ -189,7 +200,11 @@ export function EquipmentCatalogCard({
           className={`hidden text-sm tabular-nums lg:block ${weightNote ? WEIGHT_OVER_CLASS : 'text-inherit'}`}
           title={weightNote}
         >
-          {variable ? <VariableValue kind="weight" /> : equipment.weight}
+          {variable ? (
+            <VariableValue kind="weight" />
+          ) : (
+            equipment.weight.toFixed(1)
+          )}
           {weightNote && <span className="sr-only">, {weightNote}</span>}
         </span>
         <span
@@ -201,6 +216,7 @@ export function EquipmentCatalogCard({
         <CatalogAddAction
           name={equipment.name}
           readOnly={readOnly}
+          limitNoteId={limitNoteId}
           onAdd={onAdd}
           onAddAndPlace={onAddAndPlace}
         />
@@ -208,10 +224,10 @@ export function EquipmentCatalogCard({
       {expanded && (
         <div
           id={detailId}
-          className={`border-border-theme-subtle border-t ${workbenchStyles.catalogDetails}`}
+          className={`border-border-theme-subtle mr-3 border-t ${workbenchStyles.catalogDetails}`}
         >
           <dl className={workbenchStyles.catalogDetailGrid}>
-            <Detail label="Tech base" value={equipment.techBase} />
+            <Detail label="Tech Base" value={equipment.techBase} />
             <Detail label="Introduced" value={equipment.introductionYear} />
             <Detail label="Rules" value={equipment.rulesLevel} />
             <Detail
@@ -219,7 +235,7 @@ export function EquipmentCatalogCard({
               value={equipment.costCBills?.toLocaleString()}
               suffix=" C-bills"
             />
-            <Detail label="Battle value" value={equipment.battleValue} />
+            <Detail label="Battle Value" value={equipment.battleValue} />
           </dl>
           {variable && (
             <p className="text-text-theme-secondary col-span-full text-xs">
@@ -244,7 +260,7 @@ function VariableValue({
 }: {
   kind: 'weight' | 'slots';
 }): React.ReactElement {
-  const full = `Variable ${kind}`;
+  const full = kind === 'weight' ? 'Variable Weight' : 'Variable Slots';
   return (
     <span className="text-text-theme-muted" title={full}>
       <span aria-hidden="true">Var.</span>

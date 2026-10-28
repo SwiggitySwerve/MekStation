@@ -13,6 +13,12 @@ jest.mock('@/stores/useUnitStore', () => ({
   useUnitStore: jest.fn(),
 }));
 
+// The diagram's low-armor marks come from the unit's validation result; the
+// partial store mock here has no unit to validate.
+jest.mock('@/hooks/useUnitValidation', () => ({
+  useUnitValidation: jest.fn(() => ({ result: null })),
+}));
+
 jest.mock('@/hooks/useTechBaseSync', () => ({
   useTechBaseSync: jest.fn(() => ({
     filteredOptions: {
@@ -196,23 +202,25 @@ describe('ArmorTab', () => {
     expect(screen.getByTestId('armor-diagram')).toBeInTheDocument();
   });
 
-  it('should display armor type', () => {
+  it('should display armor type and slots once, in the inspector', () => {
     render(<ArmorTab />);
 
-    expect(screen.getByText(/Type:/i)).toBeInTheDocument();
-  });
-
-  it('should display armor tonnage', () => {
-    render(<ArmorTab />);
-
-    expect(screen.getByText(/Pts\/Ton:/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: 'Armor Type' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('0 slots')).toBeInTheDocument();
+    // The summary strip no longer repeats the type, points per ton or slots.
+    expect(screen.queryByText(/^Type:$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Pts\/Ton:$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Slots:$/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Points Per Ton')).not.toBeInTheDocument();
   });
 
   it('should render armor configuration', () => {
     render(<ArmorTab />);
 
-    expect(screen.getByText(/Type:/i)).toBeInTheDocument();
     expect(screen.getByText(/Tonnage:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Allocated:/i)).toBeInTheDocument();
   });
 
   it('should display location editor when location is selected', async () => {

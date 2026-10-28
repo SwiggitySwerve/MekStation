@@ -45,7 +45,7 @@ it('shows one location with counts, one full-name heading and no accordion', () 
   );
   expect(
     screen.getByRole('tab', { name: 'Right Torso, 1 of 12 used' }),
-  ).toHaveTextContent('RT 1/12');
+  ).toHaveTextContent('RT 1 / 12');
 });
 
 it('switches the visible location and keeps keyboard focus in the selector', () => {
@@ -93,14 +93,14 @@ it('lays all eight locations in a two-row grid that arrow keys move through', ()
   render(<PhoneLocationNavigation {...props} locations={grid} />);
   const tabs = screen.getAllByRole('tab');
   expect(tabs.map((tab) => tab.textContent)).toEqual([
-    'RA 1/12',
-    'RT 1/12',
-    'HD 1/6',
-    'CT 1/12',
-    'LT 1/12',
-    'LA 1/12',
-    'RL 1/6',
-    'LL 1/6',
+    'RA 1 / 12',
+    'RT 1 / 12',
+    'HD 1 / 6',
+    'CT 1 / 12',
+    'LT 1 / 12',
+    'LA 1 / 12',
+    'RL 1 / 6',
+    'LL 1 / 6',
   ]);
   expect(tabs[4]).toHaveAccessibleName('Left Torso, 1 of 12 used');
   tabs[1].focus();

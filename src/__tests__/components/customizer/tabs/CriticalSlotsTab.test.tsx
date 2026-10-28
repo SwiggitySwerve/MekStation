@@ -91,16 +91,18 @@ describe('CriticalSlotsTab', () => {
     expect(screen.getAllByTestId('location-grid').length).toBeGreaterThan(0);
   });
 
-  it('puts the phone overflow hint below the scrolling locations', () => {
-    jest
-      .mocked(useCriticalSlotOverflow)
-      .mockReturnValue({ rootRef: { current: null }, hasMoreBelow: true });
+  it('ends the phone slot list with bar-height padding and a pinned bottom fade', () => {
     render(<CriticalSlotsTab />);
-    const cue = screen.getByTestId('more-below-cue');
-    const scroll = screen.getByTestId('critical-slots-grid-mobile');
-    expect(cue).toHaveTextContent('Scroll for more slots');
-    expect(scroll).not.toContainElement(cue);
-    expect(scroll.nextElementSibling).toContainElement(cue);
+    const list = screen.getByTestId('critical-slots-grid-mobile');
+    const fade = screen.getByTestId('critical-slots-end-fade');
+    // The page scrolls on phones, so the list clears the Loadout bar by its
+    // own height and the fade stays pinned to the bottom of the screen.
+    expect(list).toHaveClass('max-sm:pb-[var(--loadout-bar-height,45px)]');
+    expect(list.nextElementSibling).toBe(fade);
+    expect(fade).toHaveClass('sticky', 'bottom-0', 'pointer-events-none');
+    expect(fade).toHaveAttribute('aria-hidden', 'true');
+    // The old phone "Scroll for more slots" footer could never show.
+    expect(screen.queryByTestId('more-below-cue')).not.toBeInTheDocument();
   });
 
   it('should apply custom className', () => {
@@ -139,14 +141,18 @@ describe('CriticalSlotsTab', () => {
     );
     const banner = screen.getByRole('region', { name: 'Equipment to place' });
     expect(banner).toHaveTextContent('1 item to place: ER PPC');
-    // Nothing is highlighted before a selection, so the hint starts there.
+    // Before a selection the text gives only the size to find room for; the
+    // "Select ER PPC" button is the action, so the text never repeats it.
     expect(banner).toHaveTextContent(
-      'select it in the Loadout, then tap a highlighted slot.',
+      '1 item to place: ER PPC — needs 3 slots.',
     );
-    expect(banner).not.toHaveTextContent('or drag');
-    fireEvent.click(
-      within(banner).getByRole('button', { name: 'Select ER PPC' }),
-    );
+    expect(banner).not.toHaveTextContent(/select it|highlighted slot/);
+    const select = within(banner).getByRole('button', {
+      name: 'Select ER PPC',
+    });
+    // The banner's clear action, outlined in its red status tone.
+    expect(select).toHaveClass('!border-red-400/70', '!text-red-300');
+    fireEvent.click(select);
     expect(onSelectEquipment).toHaveBeenCalledWith('er-ppc-1');
     expect(updateEquipmentLocation).not.toHaveBeenCalled();
     view.rerender(
@@ -156,9 +162,15 @@ describe('CriticalSlotsTab', () => {
         onSelectEquipment={onSelectEquipment}
       />,
     );
-    expect(banner).toHaveTextContent(
-      'select, then tap a highlighted slot or drag.',
+    expect(within(banner).getByText('click')).toHaveClass(
+      'hidden',
+      'pointer-fine:inline',
     );
+    expect(within(banner).getByText('tap')).toHaveClass('pointer-fine:hidden');
+    expect(banner).toHaveTextContent(
+      'ER PPC — clicktap a highlighted slot or drag.',
+    );
+    expect(banner).not.toHaveTextContent('needs 3 slots');
     view.rerender(
       <CriticalSlotsTab readOnly onSelectEquipment={onSelectEquipment} />,
     );
@@ -168,9 +180,16 @@ describe('CriticalSlotsTab', () => {
 
   it('groups desktop locations in record-sheet columns with head above center torso', () => {
     render(<CriticalSlotsTab />);
+    // The arrangement note is a small muted label in the toolbar row, not a
+    // separate line floating above the grid.
+    const caption = screen.getByTestId('critical-slots-caption');
+    expect(caption).toHaveTextContent(
+      /^Matches the record sheet · left side on the left$/,
+    );
+    expect(caption).toHaveClass('text-xs', 'text-text-theme-secondary');
     expect(
-      screen.getByText('Matches the record sheet · left side on the left'),
-    ).toBeInTheDocument();
+      screen.getByTestId('critical-slots-grid-desktop'),
+    ).not.toContainElement(caption);
     expect(
       screen.queryByText('Scroll for more locations'),
     ).not.toBeInTheDocument();
@@ -189,7 +208,7 @@ describe('CriticalSlotsTab', () => {
     const tools = screen.getByRole('button', { name: 'Critical slot tools' });
     expect(
       within(tools.parentElement!).getByRole('button', {
-        name: 'Colour key',
+        name: 'Colour Key',
       }),
     ).toBeInTheDocument();
   });

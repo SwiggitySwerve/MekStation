@@ -170,3 +170,8 @@ export function formatMovement(
   }
   return `${walk}/${actualRun}`;
 }
+
+/** Spaced tons: one decimal for weights; zero for whole-ton unit sizes. */
+export function formatTons(tons: number, precision = 1): string {
+  return `${tons.toFixed(precision)} t`;
+}

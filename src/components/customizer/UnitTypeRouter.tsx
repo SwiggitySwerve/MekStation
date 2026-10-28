@@ -36,7 +36,7 @@ export function UnitTypeRouter({
         <div className="text-text-theme-secondary p-8 text-center">
           <p className="mb-2 text-lg">No unit selected</p>
           <p className="text-sm">
-            Click &quot;Add unit&quot; to create a new unit
+            Click &quot;Add Unit&quot; to create a new unit
           </p>
         </div>
       </div>

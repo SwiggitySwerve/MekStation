@@ -137,3 +137,29 @@ describe('PreviewToolbar', () => {
     });
   });
 });
+
+describe('PreviewToolbar emphasis', () => {
+  it('shows Download PDF as a strong secondary, leaving amber to the header save', () => {
+    renderToolbar();
+    const download = screen.getByRole('button', { name: 'Download PDF' });
+    expect(download.className).not.toMatch(/\bbg-accent\b/);
+    expect(download).toHaveClass(
+      'border-border-theme-strong',
+      'bg-surface-raised',
+      'font-semibold',
+    );
+    // Print stays the quieter secondary.
+    expect(screen.getByRole('button', { name: 'Print' })).not.toHaveClass(
+      'font-semibold',
+    );
+  });
+
+  it('labels the paper select "Paper" without a colon and keeps its name', () => {
+    renderToolbar();
+    expect(
+      screen.getByText('Paper', { selector: 'label' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Paper Size' })).toBeVisible();
+    expect(screen.queryByText(/Paper Size:/)).not.toBeInTheDocument();
+  });
+});

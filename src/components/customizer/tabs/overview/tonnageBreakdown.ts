@@ -37,15 +37,23 @@ export interface TonnageBreakdown {
   readonly over: number;
 }
 
-const SEGMENT_COLORS: Record<TonnageSegmentId, string> = {
-  structure: 'bg-slate-400',
-  engine: 'bg-sky-500',
-  gyro: 'bg-sky-300',
-  cockpit: 'bg-indigo-400',
+/**
+ * Systems use their critical-slot family colours (slotColors.ts and
+ * equipmentColors.ts); structure, armor and equipment use neutral greys.
+ * Equipment, the payload, is a warm mid stone, at least 10 OKLab units from
+ * every other segment, so it separates from the cool slate structure, cockpit
+ * and light armor on narrow segments and never reads as free space. The Structure tab's weight
+ * strip reuses these as its dots.
+ */
+export const TONNAGE_SEGMENT_COLORS: Record<TonnageSegmentId, string> = {
+  structure: 'bg-slate-600',
+  engine: 'bg-orange-400',
+  gyro: 'bg-purple-400',
+  cockpit: 'bg-slate-400',
   heatSinks: 'bg-cyan-400',
-  jumpJets: 'bg-teal-300',
-  armor: 'bg-emerald-500',
-  equipment: 'bg-violet-400',
+  jumpJets: 'bg-emerald-600',
+  armor: 'bg-slate-300',
+  equipment: 'bg-stone-500',
 };
 
 export function getTonnageBreakdown(
@@ -71,8 +79,8 @@ export function getTonnageBreakdown(
     ['engine', 'Engine', calculations.engineWeight],
     ['gyro', 'Gyro', calculations.gyroWeight],
     ['cockpit', 'Cockpit', calculations.cockpitWeight],
-    ['heatSinks', 'Heat sinks', calculations.heatSinkWeight],
-    ['jumpJets', 'Jump jets', calculations.jumpJetWeight],
+    ['heatSinks', 'Heat Sinks', calculations.heatSinkWeight],
+    ['jumpJets', 'Jump Jets', calculations.jumpJetWeight],
     ['armor', 'Armor', calculations.armorWeight],
     ['equipment', 'Equipment', equipmentWeight],
   ];
@@ -82,7 +90,7 @@ export function getTonnageBreakdown(
       id,
       label,
       tons,
-      colorClass: SEGMENT_COLORS[id],
+      colorClass: TONNAGE_SEGMENT_COLORS[id],
     }));
   return {
     segments,
@@ -91,9 +99,4 @@ export function getTonnageBreakdown(
     free: Math.max(0, weight.remaining),
     over: Math.max(0, -weight.remaining),
   };
-}
-
-/** Tons with one decimal, matching the banner readout, e.g. "19.0 t". */
-export function formatTons(tons: number): string {
-  return `${tons.toFixed(1)} t`;
 }

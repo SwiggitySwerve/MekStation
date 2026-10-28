@@ -75,7 +75,12 @@ describe('UnitInfoBanner', () => {
       name: 'Movement: walk 4, run 6, jump 3 MP',
     });
     expect(movement).toHaveAttribute('data-testid', 'unit-info-stat-movement');
-    expect(movement).toHaveTextContent('walk / run / jump');
+    // Each number carries its word on the value line, not beside the label.
+    expect(
+      [...movement.querySelectorAll('[data-stat-qualifier]')].map(
+        (word) => word.textContent,
+      ),
+    ).toEqual(['walk', 'run', 'jump']);
     for (const [id, value] of [
       ['walk', '4'],
       ['run', '6'],
@@ -175,7 +180,14 @@ describe('UnitInfoBanner', () => {
   it('names both heat numbers even when heat is in budget', () => {
     render(<UnitInfoBanner stats={createStats()} compact />);
     const heat = screen.getByTestId('unit-info-stat-heat');
-    expect(heat).toHaveTextContent('gen / diss');
+    expect(
+      [...heat.querySelectorAll('[data-stat-qualifier]')].map(
+        (word) => word.textContent,
+      ),
+    ).toEqual(['dissipation']);
+    // Label, then "20 / 30 dissipation" in full words, like the Build Summary
+    // heat card; the tooltip text follows.
+    expect(heat).toHaveTextContent(/^Heat20 \/ 30dissipation/);
     expect(heat).toHaveAccessibleName(
       'Heat: 20 / 30. 20 heat at full fire / 30 dissipation.',
     );
@@ -184,11 +196,12 @@ describe('UnitInfoBanner', () => {
 
   it('keeps caps legible: denominators are 13px secondary text', () => {
     render(<UnitInfoBanner stats={createStats()} compact />);
-    for (const cap of ['100t', '78', '30', '307'])
-      expect(screen.getByText(cap)).toHaveClass(
-        'text-[13px]',
-        'text-text-theme-secondary',
-      );
+    const weightCap = screen.getByText('100.0 t');
+    for (const cap of [
+      weightCap,
+      ...['78', '30', '307'].map((text) => screen.getByText(text)),
+    ])
+      expect(cap).toHaveClass('text-[13px]', 'text-text-theme-secondary');
   });
 
   it('counts placed slots in the Slots readout and explains the pending ones without warning', () => {
@@ -305,11 +318,14 @@ describe('UnitInfoBanner', () => {
       toggle.getAttribute('aria-controls')!,
     );
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    // A visible label, so the toggle never reads as the status chip's chevron.
+    expect(toggle).toHaveTextContent(/^More$/);
     expect(readouts).not.toHaveClass('readoutsDetailsOpen');
     fireEvent.click(toggle);
     expect(
       screen.getByRole('button', { name: 'Fewer stats (Armor, Movement, BV)' }),
     ).toHaveAttribute('aria-expanded', 'true');
+    expect(toggle).toHaveTextContent(/^Less$/);
     expect(readouts).toHaveClass('readoutsDetailsOpen');
     expect(screen.getByRole('button', { name: 'Valid' })).toBeInTheDocument();
   });
@@ -320,7 +336,7 @@ describe('UnitInfoBanner', () => {
 
     expect(screen.queryByText('Tonnage')).not.toBeInTheDocument();
     expect(screen.getByTestId('unit-info-stat-weight')).toHaveTextContent(
-      '50.0t/100t',
+      '50.0 / 100.0 t',
     );
   });
 
@@ -363,7 +379,7 @@ describe('UnitInfoBanner', () => {
     }
     expect(screen.queryByText('Atlas AS7-D')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /Show readouts/ }),
+      screen.queryByRole('button', { name: /Show Readouts/ }),
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId('unit-info-stat-run-plus')).toBeNull();
     rerender(<UnitInfoBanner stats={createStats({ maxRunMP: 8 })} compact />);

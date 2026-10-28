@@ -196,7 +196,7 @@ test('catalog request failure offers a working retry @customizer', async ({
   expect(await drafts(page)).toEqual([]);
   await page.unroute(isIndex);
   await page
-    .getByRole('button', { name: 'Retry loading library', exact: true })
+    .getByRole('button', { name: 'Retry Loading Library', exact: true })
     .click();
   await selectAtlas(page);
   await page.getByRole('button', { name: 'Load Unit', exact: true }).click();

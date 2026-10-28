@@ -95,7 +95,7 @@ describe('EquipmentRow', () => {
       </table>,
     );
 
-    expect(screen.getByText('2t')).toBeInTheDocument();
+    expect(screen.getByText('2.0')).toBeInTheDocument();
   });
 
   it('should render critical slots', () => {

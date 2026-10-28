@@ -66,9 +66,34 @@ describe('GlobalLoadoutTrayEquipmentItem', () => {
     await user.keyboard('{Enter}');
     expect(onSelect).toHaveBeenCalledTimes(1);
 
+    // Like a group card, the item ends in a chevron; it opens the actions.
+    expect(
+      screen.queryByRole('button', {
+        name: 'Remove Medium Laser from Right Torso',
+      }),
+    ).not.toBeInTheDocument();
+    const actions = screen.getByRole('button', {
+      name: 'Show actions for Medium Laser in Right Torso',
+    });
+    expect(actions).toHaveAttribute('aria-expanded', 'false');
+    expect(actions.querySelector('svg')).toHaveAttribute(
+      'data-icon-name',
+      'chevron-down',
+    );
+    expect(actions).toHaveClass('w-11', 'min-h-11');
+    actions.focus();
+    await user.keyboard('{Enter}');
+    expect(
+      screen.getByRole('button', {
+        name: 'Hide actions for Medium Laser in Right Torso',
+      }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(onSelect).toHaveBeenCalledTimes(1);
+
     const removeButton = screen.getByRole('button', {
       name: 'Remove Medium Laser from Right Torso',
     });
+    expect(removeButton).toHaveTextContent('Remove');
     await user.click(removeButton);
 
     expect(onSelect).toHaveBeenCalledTimes(1);
@@ -77,6 +102,7 @@ describe('GlobalLoadoutTrayEquipmentItem', () => {
     const confirmButton = screen.getByRole('button', {
       name: 'Confirm removal of Medium Laser from Right Torso',
     });
+    expect(confirmButton).toHaveTextContent('Confirm Remove');
     confirmButton.focus();
     await user.keyboard('{Enter}');
 
@@ -98,10 +124,17 @@ describe('GlobalLoadoutTrayEquipmentItem', () => {
     const row = selectButton.closest('[draggable]');
 
     expect(row).toHaveAttribute('draggable', 'false');
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Show actions for Medium Laser (Fixed) in unallocated loadout',
+      }),
+    );
     expect(
       screen.queryByRole('button', { name: /remove medium laser/i }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTitle('Managed by configuration')).toBeInTheDocument();
+    expect(screen.getByTitle('Managed by configuration')).toHaveTextContent(
+      'Managed by Configuration',
+    );
 
     selectButton.focus();
     await user.keyboard(' ');

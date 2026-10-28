@@ -1,0 +1,508 @@
+/*
+ * Blueprint armor diagram. Every colour derives from the theme tokens so the
+ * other workbench themes keep working: plates are one neutral steel family
+ * with no status hue (hues mean equipment categories and status elsewhere).
+ * The one exception is a location validation flags for low or critical
+ * armor: its plates and list row take the app's warning or error colour,
+ * always with the matching icon, so the drawing agrees with the issue banner.
+ */
+.views {
+  /* Empty capacity: the page tone, darker than the card, so missing armor
+     reads as a hole in the plate rather than a second shade of steel. */
+  --bp-well: var(--surface-deep);
+  /* Allocated armor. */
+  --bp-fill: var(--border-default);
+  /* Plate outline at rest: brighter than the drafting lines so every plate
+     reads as a control, still well under the cream hover and amber selection. */
+  --bp-edge: color-mix(
+    in srgb,
+    var(--border-strong) 80%,
+    var(--border-default)
+  );
+  /* A thin dark halo keeps plate text clear of the level line. */
+  --bp-halo: color-mix(in srgb, var(--bp-well) 70%, transparent);
+  --bp-level: var(--text-primary);
+  --bp-ink: var(--text-primary);
+  /* Secondary plate text: kept near cream so "/ 42" and "F 32" hold 5.5:1 on the fill. */
+  --bp-ink-2: color-mix(
+    in srgb,
+    var(--text-primary) 85%,
+    var(--text-secondary)
+  );
+  --bp-line-faint: color-mix(in srgb, var(--text-secondary) 34%, transparent);
+  /* Drafting grid at half the concept's 4.5% so it stays a quiet texture. */
+  --bp-grid: color-mix(in srgb, var(--text-secondary) 2.25%, transparent);
+  --bp-warning: var(--warning, #fb923c);
+  --bp-error: var(--color-red-400, #f87171);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-variant-numeric: tabular-nums;
+  background-image:
+    linear-gradient(var(--bp-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-grid) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: center top;
+}
+
+.frontView,
+.sideColumn,
+.rearView {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.frontSvg {
+  display: block;
+  width: 100%;
+  /* Phones: capped so the rear inset and the location list start inside the
+     first screen and a half; 19.25rem keeps the smallest plate text at 12px. */
+  max-width: 19.25rem;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.rearSvg {
+  display: block;
+  width: 12rem;
+  height: auto;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.rearRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Phones: record-sheet order, the front view first, then the rear inset, the
+   list and the key. The rear inset cannot sit beside the front view without
+   taking plate text under 12px. The selection caption moves up to sit
+   directly under the FRONT label, so the tap hint shows on the first screen:
+   the wrappers dissolve into one column and `order` places each part. */
+@container (width < 37.75rem) {
+  .views {
+    row-gap: 0.5rem;
+  }
+
+  .sideColumn,
+  .frontView,
+  .rearView,
+  .rearRow {
+    display: contents;
+  }
+
+  .frontView > .viewHeader {
+    order: 0;
+  }
+
+  .caption {
+    order: 1;
+  }
+
+  /* Under the FRONT label the idle hint starts on the label's left edge;
+     the accent bar and its indent return only while editing. */
+  .caption:not(.isEditing) {
+    border-left-width: 0;
+    padding-left: 0;
+  }
+
+  .frontSvg {
+    order: 2;
+  }
+
+  /* Alone on its row now, the rear inset centres under the front view. */
+  .rearSvg {
+    margin-inline: auto;
+  }
+
+  /* 1rem between the views, the list and the key, as before. */
+  .rearView > .viewHeader,
+  .rearSvg,
+  .sideColumn > :not(.rearView) {
+    order: 3;
+  }
+
+  .rearView > .viewHeader,
+  .sideColumn > :not(.rearView) {
+    margin-top: 0.5rem;
+  }
+}
+
+/* Wide cards: the front view, then a column with the rear inset, the
+   selection caption, the location list and the key. */
+@container (min-width: 37.75rem) {
+  .views {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.25rem;
+  }
+
+  .frontSvg {
+    width: 21.5rem;
+    max-width: none;
+  }
+
+  .sideColumn {
+    width: 15rem;
+  }
+
+  .rearRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .rearSvg {
+    margin-inline: auto;
+  }
+
+  .key {
+    margin-top: auto;
+  }
+}
+
+.viewHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rule {
+  height: 1px;
+  flex: 1;
+  background: color-mix(in srgb, var(--text-secondary) 22%, transparent);
+}
+
+.caption {
+  min-width: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--text-secondary);
+  border-left: 2px solid transparent;
+  padding-left: 0.5rem;
+}
+
+.caption.isEditing {
+  color: var(--text-primary);
+  border-left-color: var(--accent-primary);
+}
+
+/* Location list: Location · Front · Rear · Total, one button per row. */
+.list {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+.listHeader,
+.listRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2.75rem 2.75rem 3.5rem;
+  column-gap: 0.5rem;
+  align-items: center;
+  padding-inline: 0.375rem;
+}
+
+.listHeader {
+  padding-bottom: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--text-secondary) 22%, transparent);
+}
+
+.listHeader > :not(:first-child),
+.listRow > :not(:first-child) {
+  justify-self: end;
+}
+
+.listRow {
+  min-height: 1.75rem;
+  width: 100%;
+  margin: 0;
+  padding-block: 0;
+  border: 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--text-secondary) 10%, transparent);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+.listRow:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 1px;
+}
+
+.listCode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--bp-ink-2);
+}
+
+.listNone {
+  color: var(--text-secondary);
+}
+
+.listTotal {
+  font-weight: 700;
+}
+
+.listMax {
+  font-weight: 400;
+  color: var(--bp-ink-2);
+}
+
+.listRow.isLit {
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  box-shadow: inset 0 0 0 1px var(--text-primary);
+}
+
+.listRow.isSelected {
+  box-shadow: inset 0 0 0 2px var(--accent-primary);
+}
+
+@media (pointer: coarse), (max-width: 639px) {
+  .listRow {
+    min-height: 2.75rem;
+  }
+
+  .listHeader,
+  .listRow {
+    grid-template-columns: minmax(2.75rem, 1fr) 3rem 3rem 5rem;
+  }
+}
+
+.key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--text-secondary);
+}
+
+.keyItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.keyLetter {
+  font-weight: 700;
+  color: var(--bp-ink-2);
+}
+
+.keyGlyph {
+  flex-shrink: 0;
+}
+
+.keyWell {
+  fill: var(--bp-well);
+}
+
+.keyFill {
+  fill: var(--bp-fill);
+}
+
+.keyLevel {
+  stroke: var(--bp-level);
+  stroke-width: 1.5;
+}
+
+.keyEdge {
+  fill: none;
+  stroke: var(--bp-edge);
+  stroke-width: 1.5;
+}
+
+/* Drafting lines */
+.centreLine,
+.groundLine,
+.detail {
+  fill: none;
+  stroke: var(--bp-line-faint);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.centreLine {
+  stroke-dasharray: 7 1.5 1 1.5;
+}
+
+.detail {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Plates */
+.plate {
+  --edge-c: var(--bp-edge);
+  --edge-w: 1.5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.plate:focus {
+  outline: none;
+}
+
+.stopWell {
+  stop-color: var(--bp-well);
+}
+
+.stopFill {
+  stop-color: var(--bp-fill);
+}
+
+.fistArea {
+  fill: transparent;
+}
+
+.level {
+  stroke: var(--bp-level);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.edge {
+  fill: none;
+  stroke: var(--edge-c);
+  stroke-width: var(--edge-w);
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 120ms ease-out;
+}
+
+.plate text {
+  pointer-events: none;
+  text-anchor: middle;
+  white-space: pre;
+  paint-order: stroke;
+  stroke: var(--bp-halo);
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+}
+
+.code {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  fill: var(--bp-ink-2);
+}
+
+.value {
+  font-weight: 700;
+  fill: var(--bp-ink);
+}
+
+.max {
+  font-weight: 400;
+  fill: var(--bp-ink-2);
+}
+
+.sub {
+  fill: var(--bp-ink-2);
+}
+
+/* Low or critical armor flagged by validation: the status edge in both
+   views. Hover and selection still take the edge; the icon stays. */
+.isWarning {
+  --edge-c: var(--bp-warning);
+  --edge-w: 2px;
+}
+
+.isError {
+  --edge-c: var(--bp-error);
+  --edge-w: 2px;
+}
+
+.issueShape {
+  stroke: var(--bp-halo);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.issueWarning .issueShape {
+  fill: var(--bp-warning);
+}
+
+.issueError .issueShape {
+  fill: var(--bp-error);
+}
+
+.issueMark {
+  fill: none;
+  stroke: var(--surface-deep);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.issueDot {
+  fill: var(--surface-deep);
+}
+
+/* Hover (and keyboard focus): a cream edge and a slight lift, in both views. */
+.isLit {
+  --edge-c: var(--text-primary);
+  --edge-w: 2px;
+}
+
+.isLit .stopWell {
+  stop-color: color-mix(in srgb, var(--bp-well) 92%, var(--text-primary));
+}
+
+.isLit .stopFill {
+  stop-color: color-mix(in srgb, var(--bp-fill) 94%, var(--text-primary));
+}
+
+.isLit .code,
+.isLit .max,
+.isLit .sub {
+  fill: var(--text-primary);
+}
+
+/* Selected: the accent edge in both views. */
+.isSelected {
+  --edge-c: var(--accent-primary);
+  --edge-w: 2px;
+}
+
+/* Keyboard focus: a dashed cream ring about 2px outside the plate. */
+.ring {
+  fill: none;
+  stroke: var(--text-primary);
+  stroke-width: 2px;
+  stroke-dasharray: 4 3;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+/* Style-picker thumbnail: the front outline in the steel fill. */
+.thumbnailPlate {
+  fill: var(--border-default);
+  stroke: color-mix(in srgb, var(--border-strong) 65%, var(--border-default));
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}

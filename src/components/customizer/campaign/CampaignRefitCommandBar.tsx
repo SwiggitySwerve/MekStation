@@ -181,14 +181,14 @@ export function CampaignRefitCommandBar({
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-text-theme-primary text-sm font-semibold">
-            Campaign refit: {session.unit.unitName}
+            Campaign Refit: {session.unit.unitName}
           </h2>
           <Badge variant={validation.isValid ? 'success' : 'red'} size="sm">
-            {validation.isValid ? 'Valid target' : 'Blocked target'}
+            {validation.isValid ? 'Valid Target' : 'Blocked Target'}
           </Badge>
           {isModified ? (
             <Badge variant="warning" size="sm">
-              Unsaved editor changes
+              Unsaved Editor Changes
             </Badge>
           ) : null}
         </div>
@@ -275,7 +275,7 @@ export function CampaignRefitCommandBar({
           }
           data-testid="campaign-refit-save"
         >
-          Save refit order
+          Save Refit Order
         </button>
       </div>
     </section>

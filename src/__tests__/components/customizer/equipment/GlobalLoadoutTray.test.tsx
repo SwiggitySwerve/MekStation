@@ -101,7 +101,7 @@ describe('GlobalLoadoutTray', () => {
       screen.getByRole('button', { name: 'More loadout actions' }),
     );
     fireEvent.click(
-      screen.getByRole('button', { name: /Remove all removable/ }),
+      screen.getByRole('button', { name: /Remove All Removable/ }),
     );
     return screen.getByRole('dialog', { name: 'Remove removable equipment?' });
   }
@@ -115,7 +115,18 @@ describe('GlobalLoadoutTray', () => {
   it('should display equipment count', () => {
     render(<GlobalLoadoutTray {...defaultProps} equipmentCount={5} />);
 
-    expect(screen.getByText(/5/i)).toBeInTheDocument();
+    // The badge names what it counts, so it reads as the sum of the
+    // section counts below it.
+    expect(screen.getByText('5 items')).toHaveAttribute(
+      'title',
+      '5 items in loadout',
+    );
+  });
+
+  it('words a single loadout item in the singular', () => {
+    render(<GlobalLoadoutTray {...defaultProps} equipmentCount={1} />);
+
+    expect(screen.getByText('1 item')).toBeInTheDocument();
   });
 
   it('should have clickable section headers', async () => {
@@ -144,7 +155,10 @@ describe('GlobalLoadoutTray', () => {
     const user = userEvent.setup();
     render(<GlobalLoadoutTray {...defaultProps} />);
 
-    // Find the remove button by title
+    // The card's trailing chevron opens its actions, including Remove.
+    await user.click(
+      screen.getByRole('button', { name: /^Show actions for Medium Laser/ }),
+    );
     const removeButton = screen.getByTitle('Remove from unit');
 
     // First click shows confirmation
@@ -170,7 +184,11 @@ describe('GlobalLoadoutTray', () => {
     render(<GlobalLoadoutTray {...defaultProps} equipment={[equipment]} />);
 
     expect(screen.queryByTitle('Remove from unit')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Fixed systems 1' }));
+    await user.click(screen.getByRole('button', { name: 'Fixed Systems 1' }));
+    await user.click(
+      screen.getByRole('button', { name: /^Show actions for Medium Laser/ }),
+    );
+    expect(screen.queryByTitle('Remove from unit')).not.toBeInTheDocument();
     expect(screen.getByTitle('Managed by configuration')).toBeInTheDocument();
   });
 
@@ -304,6 +322,16 @@ describe('GlobalLoadoutTray', () => {
 
     expect(screen.getByText(/Energy/i)).toBeInTheDocument();
     expect(screen.getByText(/Ballistic/i)).toBeInTheDocument();
+    // A category header leads with its colour dot only: no ≡ glyph that
+    // would suggest the header can be dragged.
+    const header = screen.getByText(/Energy/i).parentElement!;
+    expect(header.querySelector('svg')).toBeNull();
+    // It cannot be clicked, so it is a flat label: no row fill or hover.
+    expect(header.className).not.toMatch(/(^|\s)(hover:)?bg-/);
+    // The count reads as part of the label ("ENERGY · 1"), not as a
+    // right-hand column like the Mounted section count.
+    expect(header).toHaveTextContent(/^Energy· 1$/);
+    expect(header.lastElementChild).toHaveTextContent('· 1');
   });
 
   it('should display empty state when no equipment', () => {
@@ -312,6 +340,10 @@ describe('GlobalLoadoutTray', () => {
     );
 
     expect(screen.getByText(/No equipment/i)).toBeInTheDocument();
+    // One line, and no "0 items" chip: the stat strip already says the
+    // loadout is empty.
+    expect(screen.queryByText('0 items')).toBeNull();
+    expect(screen.queryByText(/Add equipment from/i)).toBeNull();
   });
 
   describe('Loadout grouping and actions', () => {
@@ -337,19 +369,19 @@ describe('GlobalLoadoutTray', () => {
         screen.getByRole('button', { name: 'More loadout actions' }),
       );
       expect(
-        screen.getByRole('button', { name: 'category', pressed: true }),
+        screen.getByRole('button', { name: 'Category', pressed: true }),
       ).toBeInTheDocument();
       expect(screen.getByText('Energy')).toBeInTheDocument();
       expect(screen.getByText('Ballistic')).toBeInTheDocument();
 
-      await user.click(screen.getByRole('button', { name: 'location' }));
+      await user.click(screen.getByRole('button', { name: 'Location' }));
 
-      expect(screen.getByText('By location')).toBeInTheDocument();
+      expect(screen.getByText('By Location')).toBeInTheDocument();
       await user.click(
         screen.getByRole('button', { name: 'More loadout actions' }),
       );
       expect(
-        screen.getByRole('button', { name: 'location', pressed: true }),
+        screen.getByRole('button', { name: 'Location', pressed: true }),
       ).toBeInTheDocument();
       expect(screen.getByText('Right Torso')).toBeInTheDocument();
     });
@@ -404,7 +436,7 @@ describe('GlobalLoadoutTray', () => {
       });
       render(<GlobalLoadoutTray {...defaultProps} equipment={[fixedSystem]} />);
 
-      const section = screen.getByRole('button', { name: 'Fixed systems 1' });
+      const section = screen.getByRole('button', { name: 'Fixed Systems 1' });
       expect(section).toHaveAttribute('aria-expanded', 'false');
       expect(
         screen.queryByTitle('Managed by configuration'),
@@ -413,6 +445,9 @@ describe('GlobalLoadoutTray', () => {
       await user.click(section);
 
       expect(section).toHaveAttribute('aria-expanded', 'true');
+      await user.click(
+        screen.getByRole('button', { name: /^Show actions for CASE/ }),
+      );
       expect(screen.getByTitle('Managed by configuration')).toBeInTheDocument();
     });
 
@@ -495,14 +530,14 @@ describe('GlobalLoadoutTray', () => {
         screen.getByRole('button', { name: 'More loadout actions' }),
       );
       await user.click(
-        screen.getByRole('button', { name: 'Remove all removable (1)' }),
+        screen.getByRole('button', { name: 'Remove All Removable (1)' }),
       );
 
       expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
       await user.click(
         within(
           screen.getByRole('dialog', { name: 'Remove removable equipment?' }),
-        ).getByRole('button', { name: 'Remove equipment' }),
+        ).getByRole('button', { name: 'Remove Equipment' }),
       );
       expect(defaultProps.onRemoveAllEquipment).toHaveBeenCalledTimes(1);
       expect(confirmSpy).not.toHaveBeenCalled();
@@ -525,7 +560,7 @@ describe('GlobalLoadoutTray', () => {
         }),
       );
       fireEvent.click(
-        within(child).getByRole('button', { name: 'Remove equipment' }),
+        within(child).getByRole('button', { name: 'Remove Equipment' }),
       );
       expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
     });
@@ -572,7 +607,7 @@ describe('GlobalLoadoutTray', () => {
           }),
         );
         fireEvent.click(
-          within(dialog).getByRole('button', { name: 'Remove equipment' }),
+          within(dialog).getByRole('button', { name: 'Remove Equipment' }),
         );
         expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();
         expect(defaultProps.onSelectEquipment).not.toHaveBeenCalled();
@@ -600,7 +635,7 @@ describe('GlobalLoadoutTray', () => {
         }),
       );
       const approve = within(dialog).getByRole('button', {
-        name: 'Remove equipment',
+        name: 'Remove Equipment',
       });
       act(() => {
         approve.click();
@@ -624,7 +659,7 @@ describe('GlobalLoadoutTray', () => {
         screen.getByRole('button', { name: 'More loadout actions' }),
       );
       expect(
-        screen.getByRole('button', { name: /Remove all removable/ }),
+        screen.getByRole('button', { name: /Remove All Removable/ }),
       ).toBeDisabled();
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(defaultProps.onRemoveAllEquipment).not.toHaveBeenCalled();

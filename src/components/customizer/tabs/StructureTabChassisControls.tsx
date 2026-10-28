@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { BATTLEMECH_TONNAGE } from '@/services/construction/constructionConstants';
+import { formatTons } from '@/utils/formatting';
 
 import type {
   StructureConfigurationOption,
@@ -11,6 +12,7 @@ import type {
 import { customizerStyles as cs } from '../styles';
 import {
   STRUCTURE_HELP,
+  STRUCTURE_LABEL_CELL,
   STRUCTURE_META_END,
   STRUCTURE_ROW_GRID,
   STRUCTURE_ROW_LABEL,
@@ -18,9 +20,9 @@ import {
 } from './StructureTabRowLayout';
 import { StructureStepper } from './StructureTabStepper';
 
-/** "19t · 6 slots": a component's weight and critical-slot cost. */
+/** "19.0 t · 6 slots": a component's weight and critical-slot cost. */
 function formatCostMeta(weight: number, slots: number): string {
-  return `${weight}t · ${slots} ${slots === 1 ? 'slot' : 'slots'}`;
+  return `${formatTons(weight)} · ${slots} ${slots === 1 ? 'slot' : 'slots'}`;
 }
 
 interface StructureOption {
@@ -79,7 +81,8 @@ export function TonnageControl({
         }
       />
       <p id="tonnage-help" className={`${STRUCTURE_HELP} m-0`}>
-        Range {BATTLEMECH_TONNAGE.min}&ndash;{BATTLEMECH_TONNAGE.max}t.
+        Range {BATTLEMECH_TONNAGE.min}&ndash;
+        {formatTons(BATTLEMECH_TONNAGE.max, 0)}.
       </p>
       {isSuperheavy && (
         <div className="col-span-full rounded border border-amber-600/40 bg-amber-900/20 px-3 py-2 text-xs text-amber-300">
@@ -113,7 +116,7 @@ export function MotiveTypeControl({
         id="motive-type"
         className={STRUCTURE_SELECT}
         disabled={readOnly}
-        aria-label="Motive type"
+        aria-label="Motive Type"
         aria-describedby="configuration-change-help"
         value={configuration}
         onChange={onChange}
@@ -156,12 +159,9 @@ export function SystemSelects({
   return (
     <div className="space-y-4">
       <section aria-labelledby="drive-system-heading">
-        <div className="mb-2 flex items-baseline justify-between gap-3">
-          <h4 id="drive-system-heading" className={cs.text.subsection}>
-            Drive system
-          </h4>
-          <span className={cs.text.secondary}>Engine output and balance</span>
-        </div>
+        <h4 id="drive-system-heading" className={`${cs.text.subsection} mb-2`}>
+          Drive System
+        </h4>
         <LabeledSelect
           label="Engine"
           meta={formatCostMeta(
@@ -180,7 +180,7 @@ export function SystemSelects({
           id="chassis-systems-heading"
           className={`${cs.text.subsection} mb-2`}
         >
-          Chassis systems
+          Chassis Systems
         </h4>
         <div className="space-y-2">
           <LabeledSelect
@@ -278,7 +278,9 @@ export function EngineRatingSummary({
     <div
       className={`${STRUCTURE_ROW_GRID} border-border-theme-subtle border-t pt-3`}
     >
-      <span className={`text-sm ${cs.text.label}`}>Engine Rating</span>
+      <span className={`text-sm ${cs.text.label} ${STRUCTURE_LABEL_CELL}`}>
+        Engine Rating
+      </span>
       <span
         className={`text-sm tabular-nums ${isAtMaxEngineRating ? 'text-accent font-bold' : cs.text.value}`}
       >
@@ -288,7 +290,7 @@ export function EngineRatingSummary({
         {isAtMaxEngineRating ? 'Maximum' : 'Derived'}
       </span>
       <p
-        className={`${cs.text.secondary} col-span-full m-0 tabular-nums`}
+        className="text-text-theme-secondary col-span-full m-0 text-[13px] leading-snug tabular-nums"
         data-testid="structure-engine-rating-formula"
       >
         Rating = Walk MP × tonnage ({walkMP} × {tonnage} = {engineRating})

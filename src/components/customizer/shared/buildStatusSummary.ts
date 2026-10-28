@@ -34,7 +34,7 @@ import type { IssueTarget } from './tabIssueTargets';
  */
 export interface ValidationNote {
   id: string;
-  /** Short visible phrase that can stand alone, e.g. "Runs hot". */
+  /** Short visible phrase that can stand alone, e.g. "Runs Hot". */
   label: string;
   /** Amount shown after the label and kept when it truncates, e.g. "+11". */
   amount?: string;
@@ -109,15 +109,15 @@ export interface BuildStatusSummary {
   readonly parts: readonly BuildStatusPart[];
   /**
    * Headline every surface shows: "1 error \u00b7 1 warning \u00b7 1 note",
-   * the readout item itself when it is the only item ("Runs hot +11"), or
+   * the readout item itself when it is the only item ("Runs Hot +11"), or
    * "Ready".
    */
   readonly headline: string;
   /** The single readout item the headline names, when it names one. */
   readonly headlineNote?: ValidationNote;
-  /** "Legal" or "Not legal": the verdict the panel leads with. */
-  readonly verdict: 'Legal' | 'Not legal';
-  /** Panel heading: "Not legal \u00b7 <headline>" or "Legal \u00b7 <headline>". */
+  /** "Legal" or "Not Legal": the verdict the panel leads with. */
+  readonly verdict: 'Legal' | 'Not Legal';
+  /** Panel heading: "Not Legal \u00b7 <headline>" or "Legal \u00b7 <headline>". */
   readonly panelHeading: string;
 }
 
@@ -141,7 +141,7 @@ export function buildStatusCountText(
   return `${countText(count)} ${KIND_WORD[kind]}${count === 1 ? '' : 's'}`;
 }
 
-/** A readout item's short visible text, e.g. "Runs hot +11". */
+/** A readout item's short visible text, e.g. "Runs Hot +11". */
 export function noteText(note: ValidationNote): string {
   return note.amount ? `${note.label} ${note.amount}` : note.label;
 }
@@ -173,7 +173,7 @@ export function getBuildStatusSummary(
       ? parts.map((part) => part.text).join(BUILD_STATUS_SEPARATOR)
       : 'Ready';
   const legal = totals.error === 0;
-  const verdict = legal ? 'Legal' : 'Not legal';
+  const verdict = legal ? 'Legal' : 'Not Legal';
   return {
     state,
     legal,

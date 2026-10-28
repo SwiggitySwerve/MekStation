@@ -15,6 +15,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
+import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions, toSelectOptions } from '../tabs/SelectOptions';
@@ -161,7 +162,7 @@ export function VehicleStructureTab({
     MOTION_TYPE_OPTIONS.map((option) => option.value),
     (value) => {
       const option = MOTION_TYPE_OPTIONS.find((item) => item.value === value);
-      return `${option?.label ?? value} (max ${option?.maxTonnage ?? 200}t)`;
+      return `${option?.label ?? value} (max ${formatTons(option?.maxTonnage ?? 200)})`;
     },
   );
 
@@ -190,11 +191,11 @@ export function VehicleStructureTab({
                 className={`${cs.input.number} w-20`}
                 data-testid="vehicle-tonnage-input"
               />
-              <span className={cs.text.secondary}>tons</span>
+              <span className={cs.text.secondary}>t</span>
             </div>
             {isSuperheavy && (
               <p className="mt-1 text-xs text-amber-400">
-                Superheavy vehicle (&gt;100 tons)
+                Superheavy Vehicle (&gt;100.0 t)
               </p>
             )}
           </div>

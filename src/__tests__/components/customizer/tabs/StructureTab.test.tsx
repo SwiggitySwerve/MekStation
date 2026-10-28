@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { customizerStyles as cs } from '@/components/customizer/styles';
 import { StructureTab } from '@/components/customizer/tabs/StructureTab';
 import { useUnitStore } from '@/stores/useUnitStore';
 
@@ -50,6 +51,9 @@ jest.mock('@/hooks/useUnitCalculations', () => ({
     externalHeatSinks: 10,
     totalHeatDissipation: 22,
     totalWeight: 21,
+    armorWeight: 0,
+    jumpJetWeight: 0,
+    totalStructuralWeight: 33,
   })),
 }));
 
@@ -120,8 +124,24 @@ describe('StructureTab', () => {
     render(<StructureTab />);
 
     const subtotal = screen.getByTestId('structure-subtotal');
-    expect(subtotal).toHaveTextContent(/Structure, systems & armor/);
-    expect(subtotal).toHaveTextContent(/of 50t/);
+    expect(subtotal).toHaveTextContent(/Structure, Systems & Armor:/);
+    // The "x / y t" ratio format of the header stat strip.
+    expect(subtotal).toHaveTextContent(/\d+\.\d \/ 50\.0 t$/);
+    expect(subtotal).not.toHaveTextContent(/ of /);
+  });
+
+  it('marks each strip weight with its Overview tonnage-bar colour', () => {
+    const { container } = render(<StructureTab />);
+
+    for (const [id, color] of [
+      ['engine', 'bg-orange-400'],
+      ['gyro', 'bg-purple-400'],
+      ['cockpit', 'bg-slate-400'],
+      ['heatSinks', 'bg-cyan-400'],
+    ])
+      expect(container.querySelector(`[data-weight-dot="${id}"]`)).toHaveClass(
+        color,
+      );
   });
 
   it('explains the derived engine rating from walk MP and tonnage', () => {
@@ -150,10 +170,37 @@ describe('StructureTab', () => {
     const stats = screen.getByTestId('structure-heat-sink-stats');
     expect(heading.parentElement).toContainElement(stats);
     expect(stats).toHaveTextContent(/22\s*dissipation/);
+    // Two lines: where the heat sinks sit, then what they weigh.
+    const lines = Array.from(
+      screen
+        .getByTestId('structure-heat-sink-weight-help')
+        .querySelectorAll('p'),
+      (line) => line.textContent,
+    );
+    expect(lines).toEqual([
+      '22 heat sinks \u00b7 12 fit inside the engine, 10 mounted outside',
+      'First 10 weigh nothing; 12 add 12.0 t',
+    ]);
+    // A blank unit's sinks all weigh nothing: no "0 add 0.0 t" clause.
+    const { useUnitCalculations } = jest.requireMock(
+      '@/hooks/useUnitCalculations',
+    );
+    useUnitCalculations.mockReturnValueOnce({
+      ...useUnitCalculations(),
+      heatSinkWeight: 0,
+      heatSinksRequiringWeight: 0,
+    });
+    const { unmount } = render(<StructureTab />);
     expect(
-      screen.getByTestId('structure-heat-sink-weight-help'),
-    ).toHaveTextContent(
-      '22 heat sinks \u00b7 12 fit inside the engine, 10 mounted outside \u00b7 first 10 weigh nothing; 12 add 12 t',
+      screen.getAllByTestId('structure-heat-sink-weight-help')[1].lastChild,
+    ).toHaveTextContent(/^First 10 weigh nothing$/);
+    unmount();
+    // Helper lines are at least 13px.
+    expect(screen.getByTestId('structure-heat-sink-weight-help')).toHaveClass(
+      'text-[13px]',
+    );
+    expect(screen.getByTestId('structure-engine-rating-formula')).toHaveClass(
+      'text-[13px]',
     );
   });
 
@@ -163,10 +210,10 @@ describe('StructureTab', () => {
     expect(screen.queryByText('Base')).not.toBeInTheDocument();
     expect(screen.getByTitle('Final Walk MP')).toHaveTextContent('5');
     const walkInput = screen.getByRole('spinbutton', { name: 'Walk MP' });
-    expect(walkInput).toHaveAccessibleDescription(/Range .* for a 50t mech/);
+    expect(walkInput).toHaveAccessibleDescription(/Range .* for a 50 t 'Mech/);
   });
 
-  it('shows Run MP as a locked read-only field as wide as a stepper', () => {
+  it('shows Run MP as a locked read-only box the size of a stepper value', () => {
     render(<StructureTab />);
 
     const run = screen.getByLabelText('Run MP');
@@ -174,8 +221,24 @@ describe('StructureTab', () => {
     const rowOf = (control: HTMLElement) =>
       control.closest('.grid') as HTMLElement;
     expect(run.tagName).toBe('OUTPUT');
+    // A recessed borderless well, not an editable field and not an outlined
+    // disabled control.
+    expect(run).toHaveClass(
+      'border',
+      'rounded',
+      'border-transparent',
+      'bg-surface-deep',
+    );
+    expect(run).not.toHaveClass('border-border-theme-subtle');
     expect(run).toHaveTextContent('8');
-    expect(run).toHaveClass('min-h-11', 'border', 'w-full', 'max-w-[22.5rem]');
+    expect(run).toHaveClass('min-h-11', 'flex-1');
+    // Laid out like the stepper: same row width, and spacers where the - and
+    // + buttons sit, so the box lines up with the Walk MP value field.
+    expect(run.parentElement).toHaveClass('w-full', 'max-w-[22.5rem]');
+    for (const spacer of [run.previousElementSibling, run.nextElementSibling]) {
+      expect(spacer).toHaveAttribute('aria-hidden', 'true');
+      expect(spacer).toHaveClass('w-[50px]');
+    }
     expect(run).not.toHaveAttribute('tabindex');
     expect(run.querySelector('svg')).not.toBeNull();
     expect(within(rowOf(run)).queryAllByRole('button')).toHaveLength(0);
@@ -203,16 +266,24 @@ describe('StructureTab', () => {
     render(<StructureTab />);
 
     const row = screen.getByLabelText('Engine').closest('.grid') as HTMLElement;
-    const meta = within(row).getByText(/^\d+t · .+ slots?$/);
+    const meta = within(row).getByText(/^\d+\.\d t · .+ slots?$/);
     expect(meta).toHaveClass('tabular-nums');
     expect(meta.className).toContain('@[32rem]:text-right');
-    expect(meta.className).toContain('@[32rem]:justify-self-end');
+    // Right-aligned at every width: in the meta column on wide cards, and on
+    // the label's line (the label's own cell) on narrow cards.
+    expect(meta).toHaveClass('justify-self-end', 'row-start-1', 'col-start-1');
     expect(meta.className).toContain('@[32rem]:col-start-3');
-    expect(meta).toHaveClass('whitespace-nowrap');
-    // "-> n final" readouts stay beside their control.
-    expect(screen.getByTitle('Final Walk MP').parentElement).not.toHaveClass(
-      'text-right',
+    expect(within(row).getByText('Engine')).toHaveClass(
+      'row-start-1',
+      'col-start-1',
     );
+    expect(meta).toHaveClass('whitespace-nowrap');
+    // "-> n final" readouts stay beside their control on wide cards and
+    // share the label's line on narrow ones.
+    const final = screen.getByTitle('Final Walk MP').parentElement!;
+    expect(final).not.toHaveClass('text-right');
+    expect(final).toHaveClass('justify-self-end', 'row-start-1');
+    expect(final.className).toContain('@[32rem]:justify-self-auto');
   });
 
   it('makes every stepper span the full control column', () => {
@@ -225,11 +296,39 @@ describe('StructureTab', () => {
     }
   });
 
+  it('draws a disabled stepper button with the shared disabled look', () => {
+    render(<StructureTab />);
+
+    // Jump MP is 0, so its "-" is disabled: outline only, dimmed glyph, no
+    // fill, unlike the enabled "+" beside it.
+    const decrease = screen.getByRole('button', { name: 'Decrease Jump MP' });
+    expect(decrease).toBeDisabled();
+    for (const token of cs.button.disabledVisible.split(' '))
+      expect(decrease).toHaveClass(token);
+    expect(
+      screen.getByRole('button', { name: 'Increase Jump MP' }),
+    ).toBeEnabled();
+  });
+
+  it('names the frame sub-section "Frame", not a second "Chassis"', () => {
+    render(<StructureTab />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Frame', level: 4 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Chassis', level: 4 }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Engine output and balance'),
+    ).not.toBeInTheDocument();
+  });
+
   it('puts the tonnage range under the control as helper text', () => {
     render(<StructureTab />);
 
     const tonnage = screen.getByRole('spinbutton', { name: 'Tonnage' });
-    expect(tonnage).toHaveAccessibleDescription(/20–200t/);
+    expect(tonnage).toHaveAccessibleDescription(/20–200 t/);
   });
 
   it('moves Cooling into its own card below Mobility', () => {
@@ -244,20 +343,24 @@ describe('StructureTab', () => {
     expect(cooling.parentElement).toBe(mobility.parentElement);
     expect(mobility.nextElementSibling).toBe(cooling);
     expect(
-      within(cooling).getByRole('combobox', { name: 'Heat sink type' }),
+      within(cooling).getByRole('combobox', { name: 'Heat Sink Type' }),
     ).toBeInTheDocument();
     expect(
       within(cooling).getByRole('spinbutton', { name: 'Heat sink count' }),
     ).toBeInTheDocument();
     expect(
-      within(chassis).queryByRole('combobox', { name: 'Heat sink type' }),
+      within(chassis).queryByRole('combobox', { name: 'Heat Sink Type' }),
     ).toBeNull();
-    expect(chassis.parentElement).toHaveClass('items-start');
+    // Columns stretch to one height and Cooling fills the right column, so
+    // the Chassis and Cooling cards end on the same line.
+    expect(chassis.parentElement).not.toHaveClass('items-start');
+    expect(cooling).toHaveClass('flex-1');
+    expect(cooling.parentElement).toHaveClass('flex', 'flex-col');
   });
   it('mutes Jump Type, but keeps it usable, while no jump jets are installed', () => {
     render(<StructureTab />);
 
-    const jumpType = screen.getByLabelText('Jump type');
+    const jumpType = screen.getByLabelText('Jump Type');
     expect(jumpType).toBeEnabled();
     expect(jumpType).toHaveClass('text-text-theme-secondary');
     expect(jumpType).toHaveAccessibleDescription(/No jump jets installed/);
@@ -269,7 +372,7 @@ describe('StructureTab', () => {
     const rowGrids = [
       screen.getByRole('spinbutton', { name: 'Tonnage' }),
       screen.getByLabelText('Engine'),
-      screen.getByLabelText('Heat sink type'),
+      screen.getByLabelText('Heat Sink Type'),
       screen.getByRole('spinbutton', { name: 'Heat sink count' }),
     ].map((control) => {
       let row: HTMLElement | null = control;
@@ -282,13 +385,13 @@ describe('StructureTab', () => {
   it('keeps Motive Type with the chassis, with its warning attached', () => {
     render(<StructureTab />);
 
-    const motive = screen.getByRole('combobox', { name: 'Motive type' });
+    const motive = screen.getByRole('combobox', { name: 'Motive Type' });
     expect(motive).toHaveAccessibleDescription(/clears armor in removed/);
     const mobility = screen
       .getByRole('heading', { name: 'Mobility' })
       .closest('div')?.parentElement as HTMLElement;
     expect(
-      within(mobility).queryByRole('combobox', { name: 'Motive type' }),
+      within(mobility).queryByRole('combobox', { name: 'Motive Type' }),
     ).toBeNull();
     // Same row template as Tonnage, directly below it in the Chassis card.
     const rowOf = (control: HTMLElement) => {
@@ -316,7 +419,7 @@ describe('StructureTab', () => {
     render(<StructureTab />);
 
     const select = screen.getByRole('combobox', {
-      name: 'Movement enhancement',
+      name: 'Movement Enhancement',
     });
     expect(
       screen.getByText('Enhancement', { selector: 'label' }),
@@ -327,7 +430,7 @@ describe('StructureTab', () => {
     const rowOf = (control: HTMLElement) =>
       control.closest('.grid') as HTMLElement;
     expect(rowOf(select).previousElementSibling).toBe(
-      rowOf(screen.getByLabelText('Jump type')),
+      rowOf(screen.getByLabelText('Jump Type')),
     );
   });
 
@@ -357,13 +460,13 @@ describe('StructureTab', () => {
       control.closest('.grid') as HTMLElement;
     const controls = [
       screen.getByRole('spinbutton', { name: 'Tonnage' }),
-      screen.getByRole('combobox', { name: 'Motive type' }),
+      screen.getByRole('combobox', { name: 'Motive Type' }),
       screen.getByRole('combobox', { name: 'Engine' }),
-      screen.getByRole('combobox', { name: 'Heat sink type' }),
+      screen.getByRole('combobox', { name: 'Heat Sink Type' }),
       screen.getByRole('spinbutton', { name: 'Walk MP' }),
       screen.getByRole('spinbutton', { name: 'Jump MP' }),
-      screen.getByRole('combobox', { name: 'Jump type' }),
-      screen.getByRole('combobox', { name: 'Movement enhancement' }),
+      screen.getByRole('combobox', { name: 'Jump Type' }),
+      screen.getByRole('combobox', { name: 'Movement Enhancement' }),
     ];
     expect(new Set(controls.map((c) => rowOf(c).className)).size).toBe(1);
     expect(rowOf(controls[0]).className).toContain(
@@ -372,7 +475,7 @@ describe('StructureTab', () => {
     for (const select of controls.filter((c) => c.tagName === 'SELECT')) {
       expect(select).toHaveClass('w-full', 'max-w-[22.5rem]');
     }
-    expect(screen.getByLabelText('Jump type')).toBeEnabled();
+    expect(screen.getByLabelText('Jump Type')).toBeEnabled();
   });
 
   it('should apply custom className', () => {

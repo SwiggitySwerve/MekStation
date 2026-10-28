@@ -9,14 +9,13 @@
  * - Stacked front/rear display
  * - Simple border highlight on interaction
  *
- * Uses the Layout Engine for constraint-based positioning.
+ * Uses the Layout Engine for constraint-based positioning. Bipeds render the
+ * Blueprint record-sheet diagram instead (see BlueprintArmorDiagram).
  */
 
 import React from 'react';
 
 import type { MechConfigType } from '@/types/construction/MechConfigType';
-
-import type { ConfigurableArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
 
 import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';
 import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
@@ -27,10 +26,13 @@ import {
   useArmorVariantLayout,
 } from '../shared/ArmorVariantRenderHelpers';
 import { DiagramHeader } from '../shared/DiagramHeader';
-import { CleanTechBipedDiagram } from './CleanTechBipedDiagram';
+import {
+  BlueprintArmorDiagram,
+  type BlueprintArmorDiagramProps,
+} from './BlueprintArmorDiagram';
 import { CleanTechLocation } from './CleanTechDiagram.location';
 
-export interface CleanTechDiagramProps extends ConfigurableArmorDiagramProps {
+export interface CleanTechDiagramProps extends BlueprintArmorDiagramProps {
   /** Mech configuration type for layout selection */
   mechConfigType?: MechConfigType;
 }
@@ -39,7 +41,7 @@ export function CleanTechDiagram(
   props: CleanTechDiagramProps,
 ): React.ReactElement {
   return (props.mechConfigType ?? 'biped') === 'biped' ? (
-    <CleanTechBipedDiagram {...props} />
+    <BlueprintArmorDiagram {...props} />
   ) : (
     <ConfiguredCleanTechDiagram {...props} />
   );

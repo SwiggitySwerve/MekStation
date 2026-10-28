@@ -74,7 +74,7 @@ test('fixed Omni mounts cannot be unassigned through the inline inspector @custo
   ).toBeDisabled();
   await expect(
     inspector.getByRole('button', {
-      name: 'Unassign selected equipment',
+      name: 'Unassign Selected Equipment',
       exact: true,
     }),
   ).toBeDisabled();
@@ -94,8 +94,8 @@ test('all tabs read the current unit and configuration @customizer', async ({
     /^BV\s*0$/,
   );
   await expect(page.getByTestId('unit-info-stat-heat')).not.toHaveText(
-    // Generated heat follows the label and the optional 'gen / diss' caption.
-    /(?:HEAT|diss)\s*0\s*\/\s*20(?!\d)/,
+    // Generated heat follows the label, then the dissipation cap.
+    /^Heat\s*0\s*\/\s*20(?!\d)/i,
   );
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
   const initial = await readDraft(page);
@@ -124,7 +124,7 @@ test('all tabs read the current unit and configuration @customizer', async ({
     .toBe('Standard Gyro');
   const beforeConfiguration = await readDraft(page);
   await page
-    .getByRole('combobox', { name: 'Motive type', exact: true })
+    .getByRole('combobox', { name: 'Motive Type', exact: true })
     .selectOption('Quad');
   await expect
     .poll(async () => (await readDraft(page)).configuration)
@@ -204,7 +204,7 @@ test('all tabs read the current unit and configuration @customizer', async ({
   });
   await page.reload();
   await expect(
-    page.getByRole('combobox', { name: 'Motive type', exact: true }),
+    page.getByRole('combobox', { name: 'Motive Type', exact: true }),
   ).toHaveValue('Quad');
 });
 
@@ -226,8 +226,15 @@ test('browser draft feedback reports actual write failure and recovery @customiz
     };
   });
   await page.getByLabel('Chassis', { exact: true }).fill('Unsaved draft');
+  // The failure turns the header draft status red and raises an error toast;
+  // both carry the shared failure wording.
+  const failedDraft = page.locator('[role="status"][data-state="failed"]');
+  await expect(failedDraft).toBeVisible();
+  await expect(failedDraft).toContainText('Draft save failed in browser');
   await expect(
-    page.getByText('Draft could not be saved in this browser', { exact: true }),
+    page
+      .getByTestId('toast-container')
+      .getByText('Draft save failed in browser', { exact: true }),
   ).toBeVisible();
   expect((await readDraft(page)).chassis).toBe(original.chassis);
   await page.reload();
@@ -235,9 +242,16 @@ test('browser draft feedback reports actual write failure and recovery @customiz
     original.chassis,
   );
   await page.getByLabel('Chassis', { exact: true }).fill('Saved draft');
+  // A successful automatic save is confirmed in the header save state, which
+  // brightens "Draft Saved" for a moment; no toast covers the page.
   await expect(
-    page.getByText('Draft saved in this browser', { exact: true }),
-  ).toBeVisible();
+    page.getByTestId('unit-save-label').locator('[data-draft-pulse]'),
+  ).toHaveText('Draft Saved');
+  await expect(
+    page
+      .getByTestId('toast-container')
+      .getByText('Draft saved in browser', { exact: true }),
+  ).toHaveCount(0);
   await expect
     .poll(async () => (await readDraft(page)).chassis)
     .toBe('Saved draft');
@@ -253,7 +267,7 @@ test('library save failures preserve the draft and successful saves reload the s
   await loadAtlas(page);
   await page.getByRole('tab', { name: 'Overview', exact: true }).click();
   await page
-    .getByLabel('Clan name', { exact: true })
+    .getByLabel('Clan Name', { exact: true })
     .fill('Integration Clan Name');
   await page.getByLabel('MUL ID', { exact: true }).fill('12-34');
   await page.getByRole('tab', { name: 'Structure', exact: true }).click();
@@ -261,10 +275,10 @@ test('library save failures preserve the draft and successful saves reload the s
     .getByRole('spinbutton', { name: 'Walk MP', exact: true })
     .fill('2');
   await page
-    .getByRole('combobox', { name: 'Jump type', exact: true })
+    .getByRole('combobox', { name: 'Jump Type', exact: true })
     .selectOption('Improved');
   await page
-    .getByRole('combobox', { name: 'Movement enhancement', exact: true })
+    .getByRole('combobox', { name: 'Movement Enhancement', exact: true })
     .selectOption('MASC');
   await page.getByRole('tab', { name: 'Fluff', exact: true }).click();
   const panel = page.getByRole('tabpanel');
@@ -303,7 +317,7 @@ test('library save failures preserve the draft and successful saves reload the s
     '13 items to place: Heat Sink and 12 more',
   );
   // MASC needs five contiguous slots; the Left Arm has six free below its laser.
-  await page.getByRole('button', { name: /^Fixed systems/ }).click();
+  await page.getByRole('button', { name: /^Fixed Systems/ }).click();
   await page
     .getByRole('button', {
       name: 'Select MASC in unallocated loadout',
@@ -399,7 +413,7 @@ test('library save failures preserve the draft and successful saves reload the s
       panel.getByRole('textbox', { name: 'History', exact: true }),
     ).toHaveValue('Customizer integration history');
     await page
-      .getByRole('button', { name: 'Add unit (Ctrl+O)', exact: true })
+      .getByRole('button', { name: 'Add Unit (Ctrl+O)', exact: true })
       .click();
     await page
       .getByPlaceholder('Search by chassis or variant...')

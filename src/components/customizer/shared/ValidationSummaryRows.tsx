@@ -8,10 +8,10 @@ import {
   IUnitValidationError,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
+import { formatTons } from '@/utils/formatting';
 import { getTabLabel } from '@/utils/validation/validationNavigation';
 
 import {
-  BUILD_STATE_TINT_CLASS,
   BUILD_STATUS_KIND_TEXT_CLASS,
   BuildStateIcon,
   SeverityIcon,
@@ -25,6 +25,7 @@ import {
   type ValidationNote,
 } from './buildStatusSummary';
 import { type ValidationIconSeverity } from './ValidationIssueIcon';
+import { formatValidationMessage } from './validationMessageFormatting';
 
 export interface ValidationIssue {
   error: IUnitValidationError;
@@ -78,7 +79,12 @@ export function flattenErrors(
     );
 }
 
-const OVERWEIGHT_MESSAGE = /exceeds maximum tonnage by ([\d.]+) tons?/i;
+const OVERWEIGHT_MESSAGE = /exceeds maximum tonnage by ([\d.]+) t\b/i;
+/**
+ * The one fix sentence for an overweight unit, used by the status panel (in
+ * place of the rule's own suggestion) and the Overview readiness row.
+ */
+export const OVERWEIGHT_FIX = 'Remove equipment or armor.';
 /** Messages this short read well as the heading itself. */
 const HEADING_MESSAGE_LENGTH = 64;
 
@@ -86,24 +92,33 @@ const HEADING_MESSAGE_LENGTH = 64;
  * Plain heading for a rule result plus the explanation shown beneath it.
  * Wording only: the amount comes from the rule's own message, never
  * recomputed here. Short single-sentence messages are their own heading.
+ * Overweight states its amount once, in the heading (no full stop, like the
+ * other headings), so its body is only the fix (`OVERWEIGHT_FIX`, the same
+ * sentence the readiness row ends with) instead of repeating the amount.
  */
 export function describeIssue(error: IUnitValidationError): {
   heading: string;
   explanation?: string;
+  /** Replaces the rule's own suggestion with the shared fix sentence. */
+  fix?: string;
 } {
-  const overweight = OVERWEIGHT_MESSAGE.exec(error.message);
+  const message = formatValidationMessage(error.message.trim());
+  const overweight = OVERWEIGHT_MESSAGE.exec(message);
   if (overweight)
     return {
-      heading: `Overweight by ${overweight[1]} t`,
-      explanation: error.message,
+      heading: `Overweight by ${formatTons(Number(overweight[1]))}`,
+      fix: OVERWEIGHT_FIX,
     };
-  const message = error.message.trim();
   if (
     message.length <= HEADING_MESSAGE_LENGTH &&
     !/[.!?]\s/.test(message) &&
     message.length > 0
   )
-    return { heading: message.replace(/\.$/, '') };
+    return {
+      heading: /\d+\.\d t\b/.test(message)
+        ? message
+        : message.replace(/\.$/, ''),
+    };
   return {
     heading:
       error.ruleName.replace(/\s+(Validation|Check)$/i, '').trim() ||
@@ -113,8 +128,17 @@ export function describeIssue(error: IUnitValidationError): {
 }
 
 /**
+ * Heading of a readout warning ("Runs 11 heat over dissipation"). With
+ * `describeIssue`, the one source of issue titles for the panel and the
+ * Overview readiness rows, so one issue never goes by two names.
+ */
+export function noteHeading(note: ValidationNote): string {
+  return note.heading ?? noteText(note);
+}
+
+/**
  * Panel header on two lines: the unit's name small and muted (one line,
- * ellipsis, full name in the tooltip), then the "Build status" heading. The
+ * ellipsis, full name in the tooltip), then the "Build Status" heading. The
  * narrow docked drawer never wraps a separator onto a line of its own.
  */
 export function ValidationPanelHeader({
@@ -136,7 +160,7 @@ export function ValidationPanelHeader({
           {unitName}
         </span>{' '}
         <span className="text-text-theme-primary block text-sm leading-5 font-semibold">
-          Build status
+          Build Status
         </span>
       </h3>
       <button
@@ -144,7 +168,7 @@ export function ValidationPanelHeader({
         data-validation-close
         aria-label="Close validation issues"
         onClick={onClose}
-        className="focus-visible:outline-accent hover:bg-surface-raised min-h-11 min-w-11 shrink-0 rounded text-lg focus-visible:outline-2"
+        className="focus-visible:outline-text-theme-primary hover:bg-surface-raised min-h-11 min-w-11 shrink-0 rounded text-lg focus-visible:outline-2"
       >
         <AppIcon name="close" size="inline" aria-hidden="true" />
       </button>
@@ -152,7 +176,7 @@ export function ValidationPanelHeader({
   );
 }
 
-/** The chips under the verdict: each count (or the lone readout) is one unit. */
+/** The counts after the verdict: each count (or the lone readout) is one unit. */
 function summaryChips(
   summary: BuildStatusSummary,
 ): { kind: BuildStatusKind | 'ready'; text: string }[] {
@@ -163,10 +187,12 @@ function summaryChips(
 }
 
 /**
- * The panel's verdict line: a "Not legal" / "Legal" label plus one chip per
- * count. Chips never break inside; when the panel is narrow they wrap as
+ * The panel's verdict line: a "Not Legal" / "Legal" label, then the counts in
+ * the status button's own format ("2 errors \u00b7 1 warning", each in its
+ * severity colour), so the button and the panel never show one count two
+ * ways. Counts never break inside; when the panel is narrow they wrap as
  * whole units. The hidden separators keep the accessible text equal to the
- * summary heading ("Not legal \u00b7 1 error \u00b7 2 warnings").
+ * summary heading ("Not Legal \u00b7 1 error \u00b7 2 warnings").
  */
 export function ValidationSummaryLine({
   id,
@@ -181,17 +207,22 @@ export function ValidationSummaryLine({
       className="border-border-theme flex flex-wrap items-center gap-x-2 gap-y-2 border-b px-4 py-3"
     >
       <span className="flex items-center gap-2 text-base leading-6 font-semibold">
-        <BuildStateIcon state={summary.state} />
+        <BuildStateIcon
+          state={summary.verdict === 'Legal' ? 'ready' : 'error'}
+        />
         {summary.verdict}
       </span>
       {summaryChips(summary).map((chip) => (
         <React.Fragment key={chip.kind}>
           <span className="sr-only">{BUILD_STATUS_SEPARATOR}</span>
+          <span aria-hidden="true" className="text-text-theme-secondary">
+            {BUILD_STATUS_SEPARATOR.trim()}
+          </span>
           <span
             data-build-status-part={chip.kind}
-            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs leading-5 font-medium whitespace-nowrap ${BUILD_STATE_TINT_CLASS[chip.kind]} ${
+            className={`text-sm leading-6 font-medium whitespace-nowrap ${
               chip.kind === 'ready'
-                ? 'text-text-theme-primary'
+                ? 'text-green-400'
                 : BUILD_STATUS_KIND_TEXT_CLASS[chip.kind]
             }`}
           >
@@ -252,10 +283,10 @@ function FixButton({
       data-validation-fix={destination.tabId}
       aria-describedby={describedBy}
       onClick={destination.onSelect}
-      className="text-text-theme-secondary hover:border-border-theme-strong hover:bg-surface-raised hover:text-text-theme-primary focus-visible:outline-accent inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md border border-transparent !px-1 !py-0 text-sm font-normal whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2"
+      className="text-text-theme-secondary hover:border-border-theme-strong hover:bg-surface-raised hover:text-text-theme-primary focus-visible:outline-text-theme-primary inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md border border-transparent !px-1 !py-0 text-sm font-normal whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2"
     >
       Go to {getTabLabel(destination.tabId)}
-      <AppIcon name="arrow-right" size="inline" aria-hidden="true" />
+      <AppIcon name="chevron-right" size="inline" aria-hidden="true" />
     </button>
   );
 }
@@ -298,26 +329,23 @@ function BuildStatusItem({
           <span className="sr-only">{severityLabel}: </span>
           {heading}
         </h5>
-        <div className="text-text-theme-secondary text-sm leading-5">
-          {explanation && (
-            <>
-              <p className="inline">{explanation}</p>{' '}
-            </>
-          )}
-          {suggestion && (
-            <>
-              <p className="inline">{suggestion}</p>{' '}
-            </>
-          )}
-          {destinations.map((destination) => (
-            <React.Fragment key={destination.tabId}>
+        {(explanation || suggestion) && (
+          <p className="text-text-theme-secondary text-sm leading-5">
+            {[explanation, suggestion].filter(Boolean).join(' ')}
+          </p>
+        )}
+        {/* Every fix sits in one row under the text, never mid-sentence. */}
+        {destinations.length > 0 && (
+          <div className="-ml-1 flex flex-wrap gap-x-2">
+            {destinations.map((destination) => (
               <FixButton
+                key={destination.tabId}
                 destination={destination}
                 describedBy={headingId}
-              />{' '}
-            </React.Fragment>
-          ))}
-        </div>
+              />
+            ))}
+          </div>
+        )}
       </div>
     </li>
   );
@@ -341,7 +369,7 @@ export function ValidationNoteRow({
       kind="note"
       icon={<SeverityIcon kind="warning" />}
       severityLabel={ITEM_LABEL.warning}
-      heading={note.heading ?? noteText(note)}
+      heading={noteHeading(note)}
       explanation={note.message}
       suggestion={note.suggestion}
       destinations={destinations}
@@ -359,7 +387,7 @@ export function ValidationIssueRow({
   headingId: string;
   destinations: readonly FixDestination[];
 }): React.ReactElement {
-  const { heading, explanation } = describeIssue(issue.error);
+  const { heading, explanation, fix } = describeIssue(issue.error);
   return (
     <BuildStatusItem
       kind="issue"
@@ -371,7 +399,12 @@ export function ValidationIssueRow({
       }
       heading={heading}
       explanation={explanation}
-      suggestion={issue.error.suggestion}
+      suggestion={
+        fix ??
+        (issue.error.suggestion
+          ? formatValidationMessage(issue.error.suggestion)
+          : undefined)
+      }
       destinations={destinations}
       headingId={headingId}
     />

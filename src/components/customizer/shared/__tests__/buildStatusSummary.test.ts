@@ -21,10 +21,10 @@ describe('getBuildStatusSummary', () => {
     const summary = getBuildStatusSummary(counts(1, 1, 1), []);
     expect(summary.state).toBe('error');
     expect(summary.legal).toBe(false);
-    expect(summary.verdict).toBe('Not legal');
+    expect(summary.verdict).toBe('Not Legal');
     expect(summary.headline).toBe('1 error \u00b7 1 warning \u00b7 1 note');
     expect(summary.panelHeading).toBe(
-      'Not legal \u00b7 1 error \u00b7 1 warning \u00b7 1 note',
+      'Not Legal \u00b7 1 error \u00b7 1 warning \u00b7 1 note',
     );
     expect(summary.parts.map((part) => [part.kind, part.count])).toEqual([
       ['error', 1],
@@ -39,7 +39,7 @@ describe('getBuildStatusSummary', () => {
     expect(summary.state).toBe('error');
     expect(summary.headline).toBe('2 errors \u00b7 1 warning');
     expect(summary.panelHeading).toBe(
-      'Not legal \u00b7 2 errors \u00b7 1 warning',
+      'Not Legal \u00b7 2 errors \u00b7 1 warning',
     );
     expect(summary.parts.map((part) => part.kind)).toEqual([
       'error',
@@ -69,9 +69,9 @@ describe('getBuildStatusSummary', () => {
     const summary = getBuildStatusSummary(counts(), [hot]);
     expect(summary.state).toBe('warning');
     expect(summary.legal).toBe(true);
-    expect(summary.headline).toBe('Runs hot +26');
+    expect(summary.headline).toBe('Runs Hot +26');
     expect(summary.headlineNote).toBe(hot);
-    expect(summary.panelHeading).toBe('Legal \u00b7 Runs hot +26');
+    expect(summary.panelHeading).toBe('Legal \u00b7 Runs Hot +26');
   });
 
   it('counts info rule results as notes, apart from readout warnings', () => {

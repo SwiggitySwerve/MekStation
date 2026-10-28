@@ -160,7 +160,7 @@ describe('getEquipmentSlotIssues placement legality', () => {
       severity: UnitValidationSeverity.ERROR,
     });
     expect(getBuildStatusSummary(result, []).panelHeading).toBe(
-      'Not legal · 1 error',
+      'Not Legal · 1 error',
     );
     expect(countValidationIssuesByTab(result).criticals).toEqual({
       errors: 1,

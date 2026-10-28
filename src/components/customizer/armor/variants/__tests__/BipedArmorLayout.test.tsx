@@ -3,14 +3,16 @@ import React from 'react';
 
 import { MechLocation } from '@/types/construction';
 
-import { CleanTechDiagram, PremiumMaterialDiagram } from '..';
+import { NeonOperatorDiagram, PremiumMaterialDiagram } from '..';
 import {
   BIPED_ARMOR_PLATES,
   BIPED_PLATE_STACK,
 } from '../CleanTechBipedDiagram.geometry';
 
 /**
- * The biped diagram is drawn at about 0.83 px per viewBox unit on a 390x844
+ * The shared biped diagram behind the Glow, HUD and Chromatic styles (the
+ * Standard style draws the Blueprint diagram, tested beside this file). It
+ * is drawn at about 0.83 px per viewBox unit on a 390x844
  * phone (420 units wide, its height capped to keep the footer above the
  * Loadout bar), so these unit floors correspond to 12 px text and 44 px touch
  * targets there.
@@ -151,7 +153,7 @@ describe('biped armor diagram layout', () => {
   });
 
   it('never draws SVG text below the phone readability floor', () => {
-    const { container } = render(<CleanTechDiagram {...props} />);
+    const { container } = render(<NeonOperatorDiagram {...props} />);
     const texts = container.querySelectorAll('svg text, svg tspan');
     expect(texts.length).toBeGreaterThan(0);
     for (const node of texts) {
@@ -160,7 +162,7 @@ describe('biped armor diagram layout', () => {
   });
 
   it('labels torsos with the short name, the location total and an F/R split line', () => {
-    const { container } = render(<CleanTechDiagram {...props} />);
+    const { container } = render(<NeonOperatorDiagram {...props} />);
     for (const name of ['CT', 'LT', 'RT']) {
       expect(screen.getByText(name)).toBeInTheDocument();
     }
@@ -189,7 +191,7 @@ describe('biped armor diagram layout', () => {
   });
 
   it('uses one text stack for every location, centred on its plate', () => {
-    const { container } = render(<CleanTechDiagram {...props} />);
+    const { container } = render(<NeonOperatorDiagram {...props} />);
     const buttons = container.querySelectorAll('[role="button"][aria-label]');
     expect(buttons).toHaveLength(Object.keys(BIPED_ARMOR_PLATES).length);
     for (const location of Object.keys(BIPED_ARMOR_PLATES) as MechLocation[]) {
@@ -281,7 +283,7 @@ describe('biped armor diagram layout', () => {
     ])
       expect(BIPED_ARMOR_PLATES[location]!.x).toBeGreaterThan(centre);
 
-    const { container } = render(<CleanTechDiagram {...props} />);
+    const { container } = render(<NeonOperatorDiagram {...props} />);
     const sideLabels = Array.from(container.querySelectorAll('svg text'))
       .filter((text) => /^(Left|Right)$/.test(text.textContent ?? ''))
       .map((text) => [text.textContent, Number(text.getAttribute('x'))]);
@@ -305,7 +307,7 @@ describe('biped armor diagram layout', () => {
     ]);
   });
   it('gives the head denominator room above its bottom outline', () => {
-    const { container } = render(<CleanTechDiagram {...props} />);
+    const { container } = render(<NeonOperatorDiagram {...props} />);
     const head = BIPED_ARMOR_PLATES[MechLocation.HEAD]!;
     const value = container
       .querySelector('[role="button"][aria-label^="Head armor"]')!
@@ -318,7 +320,7 @@ describe('biped armor diagram layout', () => {
   });
 
   it('draws the neck and pelvis as raised silhouette fill, not a dark hole', () => {
-    for (const Diagram of [CleanTechDiagram, PremiumMaterialDiagram]) {
+    for (const Diagram of [NeonOperatorDiagram, PremiumMaterialDiagram]) {
       const { container, unmount } = render(<Diagram {...props} />);
       const frame = container.querySelector('[data-armor-structure]')!;
       expect(frame).toHaveAttribute('fill', 'var(--surface-raised)');
@@ -329,14 +331,14 @@ describe('biped armor diagram layout', () => {
   });
 
   it('hides the footer on wide layouts only when the inspector shows the legend', () => {
-    const { rerender } = render(<CleanTechDiagram {...props} />);
+    const { rerender } = render(<NeonOperatorDiagram {...props} />);
     const footer = () => screen.getByTestId('armor-allocation-footer');
     expect(footer()).not.toHaveClass('xl:hidden');
     expect(footer()).toHaveTextContent('Unallocated:');
     expect(footer()).toHaveTextContent('F = front · R = rear armor');
-    rerender(<CleanTechDiagram {...props} footerVisibility="below-xl" />);
+    rerender(<NeonOperatorDiagram {...props} footerVisibility="below-xl" />);
     expect(footer()).toHaveClass('xl:hidden');
-    rerender(<CleanTechDiagram {...props} unallocatedPoints={-3} />);
+    rerender(<NeonOperatorDiagram {...props} unallocatedPoints={-3} />);
     expect(footer()).toHaveTextContent('Over allocated');
     expect(footer()).toHaveTextContent('3 points');
   });

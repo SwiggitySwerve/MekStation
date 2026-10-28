@@ -41,8 +41,8 @@ it('shows displayed used occupancy in a single tablist, counting paired entries 
   });
   expect(screen.getAllByRole('tablist')).toHaveLength(1);
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-  expect(headTab).toHaveTextContent('HD 1/6');
-  expect(torsoTab).toHaveTextContent('CT 1/12');
+  expect(headTab).toHaveTextContent('HD 1 / 6');
+  expect(torsoTab).toHaveTextContent('CT 1 / 12');
   fireEvent.click(torsoTab);
   expect(torsoTab).toHaveAttribute('aria-selected', 'true');
   expect(screen.getByText('Center Torso grid')).toBeVisible();

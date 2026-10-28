@@ -5,6 +5,8 @@ import {
   getCatalogCapacityNotice,
   getCatalogWeightExcess,
   getCompactAvailabilitySummary,
+  getRowFillPadding,
+  getWholeRowListHeight,
   isCatalogWeightExhausted,
   isVariableSizeEquipment,
 } from '../EquipmentBrowser.model';
@@ -69,18 +71,40 @@ describe('catalog capacity annotations', () => {
     ).toBe('1 slot free');
   });
 
-  it('reads a plain status with tonnage free and a neutral one when exactly full', () => {
-    expect(
-      getCatalogCapacityNotice({ remainingWeight: 4, remainingSlots: 16 }),
-    ).toMatchObject({ state: 'free', weightText: '4.0 t free' });
+  it('reads a plain status with tonnage free and a separate limit note when exactly full', () => {
+    const free = getCatalogCapacityNotice({
+      remainingWeight: 4,
+      remainingSlots: 16,
+    });
+    expect(free).toMatchObject({ state: 'free', weightText: '4.0 t free' });
+    expect(free.limitText).toBeUndefined();
     expect(
       getCatalogCapacityNotice({ remainingWeight: 0, remainingSlots: 12 }),
     ).toMatchObject({
       state: 'full',
-      weightText: '0.0 t free \u00B7 unit is at its tonnage limit',
-      compactWeightText: '0.0 t free \u00B7 at tonnage limit',
+      weightText: '0.0 t free',
+      compactWeightText: '0.0 t free',
       slotsText: '12 slots free',
+      limitText: 'At tonnage limit',
     });
+    expect(
+      getCatalogCapacityNotice({
+        remainingWeight: 0,
+        remainingSlots: 12,
+        tonnage: 100,
+      }).limitReason,
+    ).toBe('adding equipment will exceed 100.0 t');
+    expect(
+      getCatalogCapacityNotice({ remainingWeight: 0, remainingSlots: 12 })
+        .limitReason,
+    ).toBeUndefined();
+    expect(
+      getCatalogCapacityNotice({
+        remainingWeight: 4,
+        remainingSlots: 16,
+        tonnage: 100,
+      }).limitReason,
+    ).toBeUndefined();
   });
 
   it.each([0.004, -0.004, 0.0049])(
@@ -90,7 +114,8 @@ describe('catalog capacity annotations', () => {
         getCatalogCapacityNotice({ remainingWeight, remainingSlots: 2 }),
       ).toMatchObject({
         state: 'full',
-        weightText: '0.0 t free \u00B7 unit is at its tonnage limit',
+        weightText: '0.0 t free',
+        limitText: 'At tonnage limit',
       });
     },
   );
@@ -115,8 +140,9 @@ describe('catalog capacity annotations', () => {
         weightRemaining: -2,
         criticalSlotsTotal: 78,
         criticalSlotsUsed: 62,
+        tonnage: 100,
       }),
-    ).toEqual({ remainingWeight: -2, remainingSlots: 16 });
+    ).toEqual({ remainingWeight: -2, remainingSlots: 16, tonnage: 100 });
   });
 
   it('counts loadout instances by exact equipment identity, including unassigned items', () => {
@@ -152,5 +178,47 @@ describe('compact availability summary', () => {
     [null, null, ''],
   ])('summarises %s / %s as "%s"', (techBase, year, expected) => {
     expect(getCompactAvailabilitySummary(techBase, year)).toBe(expected);
+  });
+});
+
+describe('getWholeRowListHeight', () => {
+  it('ends the list on the last row that fits', () => {
+    expect(getWholeRowListHeight([73, 126, 199, 252], 230)).toBe(199);
+  });
+
+  it('keeps the full height when every row fits or none does', () => {
+    expect(getWholeRowListHeight([73, 126], 230)).toBeNull();
+    expect(getWholeRowListHeight([], 230)).toBeNull();
+    expect(getWholeRowListHeight([300, 360], 230)).toBeNull();
+  });
+
+  it('keeps a row that ends exactly at the edge', () => {
+    expect(getWholeRowListHeight([100, 200, 300], 200)).toBe(200);
+  });
+});
+
+describe('getRowFillPadding', () => {
+  it('spreads the band above the pager over the rows that fit', () => {
+    // Header 28 + 45px rows. At 180px three rows fit with a 17px band, so
+    // each grows by 5.5px; at 205px the 42px band would need 14px a row,
+    // over the cap, so the rows keep their height.
+    expect(getRowFillPadding([73, 118, 163, 208], 180)).toBe(5.5);
+    expect(getRowFillPadding([73, 118, 163, 208], 205)).toBe(0);
+  });
+
+  it('rounds down so the last fitting row never crosses the edge', () => {
+    const extra = getRowFillPadding([73, 118, 163, 208], 170);
+    expect(extra).toBe(2.25);
+    expect(163 + 3 * extra).toBeLessThanOrEqual(170);
+  });
+
+  it('adds nothing when every row fits or none does', () => {
+    expect(getRowFillPadding([73, 118], 230)).toBe(0);
+    expect(getRowFillPadding([300, 360], 230)).toBe(0);
+    expect(getRowFillPadding([], 230)).toBe(0);
+  });
+
+  it('adds nothing when the rows already end at the edge', () => {
+    expect(getRowFillPadding([100, 200, 300], 200)).toBe(0);
   });
 });

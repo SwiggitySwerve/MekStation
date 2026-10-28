@@ -7,7 +7,14 @@
  * @spec openspec/specs/customizer-toolbar/spec.md
  */
 
-import React, { useState, useEffect, useMemo, useCallback, useId } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useId,
+  useRef,
+} from 'react';
 
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
@@ -16,6 +23,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { formatNumberWithSeparators } from '@/utils/formatting';
 import { logger } from '@/utils/logger';
 
 import { customizerStyles as cs } from '../styles';
@@ -27,6 +35,7 @@ import {
   type UnitSource,
   UnitWithSource,
 } from './UnitLoadDialog.parts';
+import { useWholeRowsHeight } from './wholeRows';
 
 // =============================================================================
 // Types
@@ -264,6 +273,15 @@ export function UnitLoadDialog({
     [onLoadUnit],
   );
 
+  // Phones: the list ends on a whole row above the sticky footer.
+  const listFrameRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const listHeight = useWholeRowsHeight(
+    listFrameRef,
+    listRef,
+    `${isOpen}-${isLoading}-${filteredUnits.length}`,
+  );
+
   return (
     <ModalOverlay
       isOpen={isOpen}
@@ -277,7 +295,7 @@ export function UnitLoadDialog({
         className={`${cs.dialog.header} shrink-0 [&>button]:min-h-11 [&>button]:min-w-11`}
       >
         <h3 id={titleId} className={cs.dialog.headerTitle}>
-          {onCreateBlankUnit ? 'Add unit' : 'Load Unit from Library'}
+          {onCreateBlankUnit ? 'Add Unit' : 'Load Unit from Library'}
         </h3>
         <DialogCloseButton onClose={onCancel} />
       </div>
@@ -286,41 +304,44 @@ export function UnitLoadDialog({
         <div className="bg-surface-raised border-border-theme-subtle shrink-0 border-b p-4">
           {/* Each action carries its own caption directly under it, aligned to
               the button's left edge. The two actions sit side by side at the
-              same height; on phones they stack with their captions. The
-              captions wrap at the button's width (w-0 min-w-full) so they
-              never push the second action away from the first. */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-start sm:gap-3">
-            <div className="flex flex-col gap-1.5 max-sm:w-full">
+              same height; on phones they share two equal columns so the
+              catalog keeps more height. On phones the captions wrap at the
+              button's width (w-0 min-w-full) so they never push the second
+              action away from the first; both are short enough to stay one
+              even 13px line in a 390px phone column. From 640px each caption
+              keeps its own single line, which may run past a narrow button. */}
+          <div className="grid grid-cols-2 items-start gap-3 sm:flex sm:flex-row sm:justify-start">
+            <div className="flex min-w-0 flex-col gap-1.5">
               <button
                 type="button"
                 onClick={onCreateBlankUnit}
                 aria-describedby={`${titleId}-blank-help`}
-                className={`${cs.dialog.btnPrimary} h-11 max-sm:w-full max-sm:px-3 sm:min-w-52 sm:px-6`}
+                className={`${cs.dialog.btnPrimary} h-11 max-sm:w-full max-sm:!px-3 sm:min-w-52 sm:px-6`}
               >
-                New blank unit
+                New Blank Unit
               </button>
               <p
                 id={`${titleId}-blank-help`}
-                className="text-text-theme-secondary m-0 w-0 min-w-full text-xs leading-snug"
+                className="text-text-theme-secondary m-0 w-0 min-w-full text-[13px] leading-snug sm:w-auto sm:whitespace-nowrap"
               >
-                Starts a 50-ton Inner Sphere BattleMech you can change.
+                A 50-ton Inner Sphere Mech.
               </p>
             </div>
             {onConfigureNewUnit && (
-              <div className="flex flex-col gap-1.5 max-sm:w-full">
+              <div className="flex min-w-0 flex-col gap-1.5">
                 <button
                   type="button"
                   onClick={onConfigureNewUnit}
                   aria-describedby={`${titleId}-configure-help`}
-                  className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:px-3 max-sm:text-sm`}
+                  className={`${cs.dialog.btnGhost} border-border-theme-strong hover:bg-surface-base h-11 rounded border max-sm:w-full max-sm:!px-3 max-sm:text-sm`}
                 >
-                  Choose tonnage and tech first…
+                  Set Up a New Unit…
                 </button>
                 <p
                   id={`${titleId}-configure-help`}
-                  className="text-text-theme-secondary m-0 w-0 min-w-full text-xs leading-snug"
+                  className="text-text-theme-secondary m-0 w-0 min-w-full text-[13px] leading-snug sm:w-auto sm:whitespace-nowrap"
                 >
-                  Pick unit type, tonnage and tech base.
+                  Pick type, tonnage and tech.
                 </p>
               </div>
             )}
@@ -328,7 +349,7 @@ export function UnitLoadDialog({
         </div>
       )}
       {onCreateBlankUnit && (
-        <p className="text-text-theme-secondary hidden shrink-0 px-4 pt-3 text-sm sm:block">
+        <p className="text-text-theme-secondary hidden shrink-0 px-4 pt-3 text-[13px] leading-[18px] sm:block">
           Or start from a catalog unit. Official units and saved designs open as
           editable copies.
         </p>
@@ -349,26 +370,38 @@ export function UnitLoadDialog({
       </div>
 
       {/* Unit table */}
-      <div className="min-h-0 flex-1 scroll-pb-4 overflow-auto overscroll-contain pb-4">
-        {loadError ? (
-          <div className="space-y-3 p-4" role="alert">
-            <p>{loadError}</p>
-            <button
-              className={cs.dialog.btnPrimary}
-              onClick={() => setRetryCount((count) => count + 1)}
-            >
-              Retry loading library
-            </button>
-          </div>
-        ) : (
-          <UnitTableState
-            filteredUnits={filteredUnits}
-            handleDoubleClick={handleDoubleClick}
-            isLoading={isLoading}
-            selectedUnit={selectedUnit}
-            setSelectedUnit={handleSelection}
-          />
-        )}
+      {/* Phones: the list is cut to whole rows (the frame keeps any spare
+          height) and snaps row by row, so no row is ever cut by the footer. */}
+      <div ref={listFrameRef} className="flex min-h-0 flex-1 flex-col">
+        <div
+          ref={listRef}
+          className="min-h-0 flex-1 scroll-pb-4 overflow-auto overscroll-contain pb-4 max-sm:snap-y max-sm:snap-proximity"
+          style={
+            listHeight === undefined
+              ? undefined
+              : { height: listHeight, flex: 'none' }
+          }
+        >
+          {loadError ? (
+            <div className="space-y-3 p-4" role="alert">
+              <p>{loadError}</p>
+              <button
+                className={cs.dialog.btnPrimary}
+                onClick={() => setRetryCount((count) => count + 1)}
+              >
+                Retry Loading Library
+              </button>
+            </div>
+          ) : (
+            <UnitTableState
+              filteredUnits={filteredUnits}
+              handleDoubleClick={handleDoubleClick}
+              isLoading={isLoading}
+              selectedUnit={selectedUnit}
+              setSelectedUnit={handleSelection}
+            />
+          )}
+        </div>
       </div>
 
       {/* Footer */}
@@ -376,24 +409,27 @@ export function UnitLoadDialog({
         className={`${cs.dialog.footerBetween} bg-surface-base shrink-0 gap-3 max-sm:flex-col max-sm:items-stretch max-sm:pb-[max(1rem,env(safe-area-inset-bottom))]`}
       >
         <span className="text-text-theme-secondary text-sm max-sm:w-full">
-          {filteredUnits.length} unit{filteredUnits.length !== 1 ? 's' : ''}{' '}
-          found
+          {formatNumberWithSeparators(filteredUnits.length)} unit
+          {filteredUnits.length !== 1 ? 's' : ''} found
         </span>
+        {/* Cancel, then the disabled Load Unit with its reason right beside
+            it (directly above it on phones, at 13px), so the hint reads as
+            why the button is off rather than as a separate label. */}
         <div className="flex w-full items-center justify-end gap-2 max-sm:flex-col sm:w-auto sm:flex-none">
+          <button
+            onClick={onCancel}
+            className={`${cs.dialog.btnGhost} hidden sm:mr-2 sm:block`}
+          >
+            Cancel
+          </button>
           {!selectedUnit && (
             <span
               id={`${titleId}-load-hint`}
-              className="text-text-theme-secondary order-last text-center text-xs sm:order-none sm:mr-1 sm:text-sm"
+              className="text-text-theme-secondary text-center text-[13px] leading-[18px] sm:text-sm"
             >
               Select a unit to load
             </span>
           )}
-          <button
-            onClick={onCancel}
-            className={`${cs.dialog.btnGhost} hidden sm:block`}
-          >
-            Cancel
-          </button>
           <button
             onClick={handleLoad}
             disabled={!selectedUnit || isLoadingUnit}
@@ -401,7 +437,7 @@ export function UnitLoadDialog({
             aria-describedby={
               !selectedUnit ? `${titleId}-load-hint` : undefined
             }
-            className={`${cs.dialog.btnPrimary} min-h-11 w-full sm:w-auto`}
+            className={`${cs.dialog.btnPrimary} ${cs.button.disabledVisible} min-h-11 w-full border border-transparent sm:w-auto`}
           >
             {isLoadingUnit ? 'Loading Unit…' : 'Load Unit'}
           </button>

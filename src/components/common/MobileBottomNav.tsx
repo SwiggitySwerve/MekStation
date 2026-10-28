@@ -11,6 +11,7 @@ import { useMobileSidebarSelector } from '@/stores/useNavigationStore';
 import {
   HomeIcon,
   BookIcon,
+  ForceIcon,
   GameplayIcon,
   GearIcon,
 } from './icons/NavigationIcons';
@@ -44,7 +45,8 @@ const navItems: NavItem[] = [
   {
     label: 'Multiplayer',
     href: '/multiplayer',
-    icon: <GameplayIcon />,
+    // A group of pilots, so Multiplayer reads apart from Gameplay's puzzle piece.
+    icon: <ForceIcon />,
     matchPaths: ['/multiplayer'],
   },
   {

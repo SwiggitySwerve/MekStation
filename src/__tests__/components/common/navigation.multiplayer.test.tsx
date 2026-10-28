@@ -51,6 +51,15 @@ describe('Gameplay navigation multiplayer entry', () => {
     );
   });
 
+  it('gives Multiplayer its own bottom-nav icon, not the Gameplay one', () => {
+    render(<MobileBottomNav />);
+
+    const icon = (name: RegExp) =>
+      screen.getByRole('link', { name }).querySelector('svg')?.innerHTML;
+    expect(icon(/multiplayer/i)).toBeTruthy();
+    expect(icon(/multiplayer/i)).not.toBe(icon(/gameplay/i));
+  });
+
   it.each(['/customizer', '/customizer?sort=name', '/gameplay'])(
     'keeps phone navigation available at %s',
     (path) => {

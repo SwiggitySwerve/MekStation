@@ -166,7 +166,7 @@ describe('Mobile bulk removal confirmation', () => {
         viewOf({ ...initialProps, equipment, isOmni: change !== 'omni' }),
       );
       fireEvent.click(
-        within(child).getByRole('button', { name: 'Clear equipment' }),
+        within(child).getByRole('button', { name: 'Clear Equipment' }),
       );
       expect(props.onRemoveAllEquipment).not.toHaveBeenCalled();
       expect(props.onSelectEquipment).not.toHaveBeenCalled();
@@ -187,7 +187,7 @@ describe('Mobile bulk removal confirmation', () => {
       }),
     );
     const approve = within(child).getByRole('button', {
-      name: 'Clear equipment',
+      name: 'Clear Equipment',
     });
     act(() => {
       approve.click();
@@ -211,7 +211,7 @@ describe('Mobile bulk removal confirmation', () => {
       }),
     );
     fireEvent.click(
-      within(child).getByRole('button', { name: 'Clear equipment' }),
+      within(child).getByRole('button', { name: 'Clear Equipment' }),
     );
     expect(props.onRemoveAllEquipment).not.toHaveBeenCalled();
   });
@@ -225,7 +225,7 @@ describe('Mobile bulk removal confirmation', () => {
     const child = open();
     view.rerender(viewOf({ ...props, equipment: [one] }));
     fireEvent.click(
-      within(child).getByRole('button', { name: 'Clear equipment' }),
+      within(child).getByRole('button', { name: 'Clear Equipment' }),
     );
     expect(props.onRemoveAllEquipment).not.toHaveBeenCalled();
   });

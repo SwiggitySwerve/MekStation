@@ -95,6 +95,22 @@ describe('LocationGrid', () => {
     expect(screen.getByText('Medium Laser')).toBeInTheDocument();
   });
 
+  it('shows used of total slots in the header, fixed systems included', () => {
+    const data = {
+      ...defaultProps.data,
+      entries: [
+        { index: 0, primary: { index: 0, type: 'system' as const } },
+        { index: 1, primary: { index: 1, type: 'equipment' as const } },
+        { index: 2, primary: { index: 2, type: 'empty' as const } },
+      ].map((entry) => ({ ...entry, isDoubleSlot: false })),
+    };
+    render(<LocationGrid {...defaultProps} data={data} />);
+
+    expect(screen.getByTestId('location-slot-count')).toHaveTextContent(
+      '2 / 6',
+    );
+  });
+
   it('should call onSlotClick when slot is clicked', async () => {
     const user = userEvent.setup();
     render(<LocationGrid {...defaultProps} />);

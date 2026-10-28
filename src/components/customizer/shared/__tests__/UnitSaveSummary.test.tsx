@@ -6,7 +6,7 @@ import { createNewUnitStore } from '@/stores/useUnitStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { TechBase } from '@/types/enums/TechBase';
 
-import { BrowserDraftStatus } from '../BrowserDraftStatus';
+import { BrowserDraftStatus, DRAFT_SAVE_PULSE_MS } from '../BrowserDraftStatus';
 import {
   SAVE_STATE_EXPLANATION,
   UnitSaveAction,
@@ -35,30 +35,60 @@ describe('UnitSaveSummary', () => {
     mockGetUnitStore.mockReturnValue(undefined);
     render(<UnitSaveSummary unitId="summary-a" showOnDesktop />);
     const line = screen.getByTestId('unit-save-summary');
-    expect(line).toHaveTextContent(/^Not in library$/);
+    expect(line).toHaveTextContent(/^Not in Library$/);
     expect(line.getAttribute('title')).toContain(SAVE_STATE_EXPLANATION);
     expect(SAVE_STATE_EXPLANATION).toMatch(
       /^Your changes are kept in this browser\. Use Save to add the unit to your library/,
     );
     // A browser write adds the draft part; the library wording stays.
     act(() => clientSafeStorage.setItem('megamek-unit-summary-a', '{}'));
-    expect(line).toHaveTextContent(/^Not in library · draft saved$/);
-    expect(line.querySelector('[data-icon-name="check"]')).toBeNull();
+    expect(line).toHaveTextContent(/^Not in Library · Draft Saved$/);
+    // No leading check: the one check belongs to "Draft Saved", so the
+    // green flash always comes with its icon.
+    const checks = line.querySelectorAll('[data-icon-name="check"]');
+    expect(checks).toHaveLength(1);
+    expect(checks[0].parentElement).toHaveTextContent(/^Draft Saved$/);
+  });
+
+  it('briefly emphasises "Draft Saved" when an automatic save lands', () => {
+    jest.useFakeTimers();
+    try {
+      mockGetUnitStore.mockReturnValue(undefined);
+      render(<UnitSaveSummary unitId="summary-pulse" showOnDesktop />);
+      act(() => clientSafeStorage.setItem('megamek-unit-summary-pulse', '{}'));
+      const word = screen.getByText('Draft Saved');
+      expect(word).toHaveAttribute('data-draft-pulse', 'true');
+      expect(word).toHaveClass('text-emerald-300');
+      const check = word.querySelector('[data-icon-name="check"]');
+      expect(check).toHaveClass('text-green-400');
+      // A write for another unit leaves this one alone.
+      act(() => {
+        jest.advanceTimersByTime(DRAFT_SAVE_PULSE_MS);
+        clientSafeStorage.setItem('megamek-unit-summary-other', '{}');
+      });
+      expect(word).not.toHaveAttribute('data-draft-pulse');
+      expect(word).not.toHaveClass('text-emerald-300');
+      // The check stays at rest, in the line's colour, so nothing shifts.
+      expect(word.querySelector('[data-icon-name="check"]')).toBe(check);
+      expect(check).not.toHaveClass('text-green-400');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('reads the save state as one line, library words first', () => {
     expect(unitSaveLine(unitSaveLines('pending', { state: 'none' }))).toBe(
-      'Not in library',
+      'Not in Library',
     );
     expect(unitSaveLine(unitSaveLines('saved', { state: 'none' }))).toBe(
-      'Not in library · draft saved',
+      'Not in Library · Draft Saved',
     );
     expect(
       unitSaveLine(unitSaveLines('saved', { state: 'changed', version: 3 })),
-    ).toBe('Changed since v3 · draft saved');
+    ).toBe('Changed Since v3 · Draft Saved');
     expect(
       unitSaveLine(unitSaveLines('saved', { state: 'matched', version: 3 })),
-    ).toBe('In library v3');
+    ).toBe('In Library v3');
   });
 
   it('labels an existing restored draft beside Save before any session write', () => {
@@ -70,29 +100,29 @@ describe('UnitSaveSummary', () => {
     const write = jest.spyOn(Storage.prototype, 'setItem');
     render(<UnitSaveLabel unitId="restored-summary" />);
     expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
-      /^Not in library · draft saved$/,
+      /^Not in Library · Draft Saved$/,
     );
     expect(write).not.toHaveBeenCalled();
   });
 
   it('words the save state in two parts until the library copy matches', () => {
     expect(unitSaveLines('pending', { state: 'none' })).toEqual({
-      first: 'Not in library',
+      first: 'Not in Library',
       second: null,
       settled: false,
     });
     expect(unitSaveLines('saved', { state: 'none' })).toEqual({
-      first: 'Draft saved in browser',
-      second: 'Not in library',
+      first: 'Draft Saved',
+      second: 'Not in Library',
       settled: true,
     });
     expect(unitSaveLines('saved', { state: 'changed', version: 3 })).toEqual({
-      first: 'Draft saved in browser',
-      second: 'Changed since v3',
+      first: 'Draft Saved',
+      second: 'Changed Since v3',
       settled: true,
     });
     expect(unitSaveLines('saved', { state: 'matched', version: 3 })).toEqual({
-      first: 'In library v3',
+      first: 'In Library v3',
       second: null,
       settled: true,
     });
@@ -114,12 +144,12 @@ describe('UnitSaveSummary', () => {
     mockGetUnitStore.mockReturnValue(store);
     render(<UnitSaveSummary unitId={store.getState().id} showOnDesktop />);
     const line = screen.getByTestId('unit-save-summary');
-    expect(line).toHaveTextContent(/^In library v3$/);
+    expect(line).toHaveTextContent(/^In Library v3$/);
     expect(line.querySelector('[data-icon-name="check"]')).toBeNull();
     act(() => {
       store.setState({ model: 'AS7-D-X' });
     });
-    expect(line).toHaveTextContent(/^Changed since v3 · draft saved$/);
+    expect(line).toHaveTextContent(/^Changed Since v3 · Draft Saved$/);
   });
 
   it('labels the desktop Save button with the save state, or a loud failure with Retry', () => {
@@ -133,7 +163,7 @@ describe('UnitSaveSummary', () => {
     // Desktop shows one label beside Save; the phone line stays empty.
     expect(screen.queryByTestId('unit-save-summary')).toBeNull();
     const label = screen.getByTestId('unit-save-label');
-    expect(label).toHaveTextContent(/^Not in library$/);
+    expect(label).toHaveTextContent(/^Not in Library$/);
     expect(label).toHaveAttribute('aria-hidden', 'true');
     expect(label).toHaveAttribute('data-state', 'none');
     jest.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
@@ -147,8 +177,8 @@ describe('UnitSaveSummary', () => {
     expect(screen.queryByTestId('unit-save-label')).toBeNull();
     const status = screen.getByRole('status');
     expect(status).toHaveClass('text-red-400', 'font-semibold');
-    expect(status).toHaveTextContent(/^Browser draft not saved/);
-    expect(container).not.toHaveTextContent('Not in library');
+    expect(status).toHaveTextContent(/^Browser Draft Not Saved/);
+    expect(container).not.toHaveTextContent('Not in Library');
   });
 
   it('makes Save the primary action only while the unit is not in the library or changed', () => {
@@ -170,13 +200,13 @@ describe('UnitSaveSummary', () => {
     const button = screen.getByRole('button', {
       name: 'Save active unit to library',
     });
-    expect(button).toHaveAccessibleDescription(/^Not in library\s*\.$/);
+    expect(button).toHaveAccessibleDescription(/^Not in Library\s*\.$/);
     expect(button).toHaveAttribute('data-save-emphasis', 'primary');
-    expect(button).toHaveTextContent('Save to library');
+    expect(button).toHaveTextContent('Save to Library');
     // No standalone dot: the words name the state.
     expect(container.querySelector('[data-save-dot]')).toBeNull();
     expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
-      /^Not in library$/,
+      /^Not in Library$/,
     );
     expect(container.querySelector('[data-toolbar-hint]')).toHaveTextContent(
       SAVE_STATE_EXPLANATION,
@@ -190,29 +220,30 @@ describe('UnitSaveSummary', () => {
       });
     });
     expect(button).toHaveAccessibleDescription(
-      /^In library v4\s*\.\s*Draft saved in this browser\s*\.$/,
+      /^In Library v4\s*\.\s*Draft saved in browser\s*\.$/,
     );
     expect(button).toHaveAttribute('data-save-emphasis', 'quiet');
     expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
-      /^In library v4$/,
+      /^In Library v4$/,
     );
     act(() => {
       store.setState({ model: 'AS7-D-X' });
     });
-    expect(button).toHaveAccessibleDescription(/^Changed since v4\s*\./);
+    expect(button).toHaveAccessibleDescription(/^Changed Since v4\s*\./);
     expect(button).toHaveAttribute('data-save-emphasis', 'primary');
     expect(screen.getByTestId('unit-save-label')).toHaveTextContent(
-      /^Changed since v4 · draft saved$/,
+      /^Changed Since v4 · Draft Saved$/,
     );
   });
   it('repeats the header words in the panel and leaves out an unwritten draft', () => {
     mockGetUnitStore.mockReturnValue(undefined);
     render(<UnitSaveDetails unitId="summary-panel" />);
-    expect(screen.getByText('Not in library')).toBeInTheDocument();
-    expect(screen.queryByText(/no changes yet|No browser draft/)).toBeNull();
+    expect(screen.getByText('Not in Library')).toBeInTheDocument();
+    expect(screen.queryByText(/no changes yet|No Browser Draft/)).toBeNull();
     act(() => clientSafeStorage.setItem('megamek-unit-summary-panel', '{}'));
-    expect(screen.getByText('Draft saved in browser')).toBeInTheDocument();
-    expect(screen.getByText('Not in library')).toBeInTheDocument();
+    // The same label as the header; the sentence below says "in this browser".
+    expect(screen.getByText('Draft Saved')).toBeInTheDocument();
+    expect(screen.getByText('Not in Library')).toBeInTheDocument();
     expect(screen.getByTestId('unit-save-details')).toHaveTextContent(
       SAVE_STATE_EXPLANATION,
     );
@@ -233,7 +264,7 @@ describe('UnitSaveSummary', () => {
       ).toThrow('full');
     });
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
-    expect(screen.getByText('Draft save failed in this browser')).toHaveClass(
+    expect(screen.getByText('Draft save failed in browser')).toHaveClass(
       'sr-only',
     );
   });
