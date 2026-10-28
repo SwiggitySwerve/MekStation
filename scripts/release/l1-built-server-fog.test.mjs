@@ -25,6 +25,7 @@ import {
   checkMemberRefusal,
   checkStrangerRefusal,
   expectAnswers,
+  expectUnauthenticated,
   headLive,
   refusedSocket,
   scanReceived,
@@ -67,7 +68,7 @@ function stubServer({ routes = {}, socket = 'good' } = {}) {
   const http = createServer((req, res) => {
     const [status, body] = routes[req.url] ?? [404, {}];
     res.writeHead(status, { 'content-type': 'application/json' });
-    res.end(JSON.stringify(body));
+    res.end(typeof body === 'string' ? body : JSON.stringify(body));
   });
   const wss = new WebSocketServer({
     noServer: true,
@@ -131,6 +132,10 @@ test('the combined enumeration is the A2 rows then the B rows, unique, with no o
 test('checkMemberRefusal accepts only one fixed Close and the matching 1008', () => {
   const ok = { frames: [close()], closed: { code: 1008, reason: FOG_REFUSAL } };
   checkMemberRefusal(ok, MATCH);
+  checkMemberRefusal(
+    { ...ok, frames: [{ ...close(), ts: '2026-10-28T00:00:00.000Z' }] },
+    MATCH,
+  );
   const bad = [
     { ...ok, frames: [close(), { kind: 'ReplayStart' }] },
     { ...ok, frames: [{ kind: 'ReplayStart' }, close()] },
@@ -139,6 +144,10 @@ test('checkMemberRefusal accepts only one fixed Close and the matching 1008', ()
     { ...ok, closed: { code: 1008, reason: 'other' } },
     { ...ok, frames: [{ ...close(), code: 'INTERNAL_ERROR' }] },
     { ...ok, closed: null },
+    ...['digest', 'revision', 'deliverySequence'].map((key) => ({
+      ...ok,
+      frames: [{ ...close(), [key]: 'unobserved-hidden-value' }],
+    })),
   ];
   for (const result of bad)
     assert.throws(
@@ -261,6 +270,40 @@ test('expectAnswers rejects a wrong status, a different body, a hidden key and a
     ]) {
       await assert.rejects(expectAnswers(ctx, [], 'row', [row]), /\[row\]/);
     }
+  });
+});
+
+test('a non-JSON body and an unauthenticated head body are kept and scanned', async () => {
+  const routes = {
+    '/timeline-text': [200, 'plain text evt-1'],
+    '/timeline-null': [200, 'null'],
+    '/head': [401, { error: 'x', digest: 'deadbeef' }],
+    '/open': [200, {}],
+  };
+  await withStub({ routes }, async (ctx) => {
+    const who = [await issueIdentity(ctx, 'a')];
+    const seen = [];
+    for (const route of ['/timeline-text', '/timeline-null'])
+      await assert.rejects(
+        expectAnswers(ctx, seen, 'row', [[route, who, 200]]),
+        /\[row\]/,
+      );
+    assert.deepEqual(seen, ['plain text evt-1', 'null']);
+    assert.throws(
+      () => scanReceived(['evt-1', 'other'], seen),
+      /leaked 1 sentinels/,
+    );
+    const heads = [];
+    await expectUnauthenticated(ctx, heads, 'row', '/head');
+    assert.equal(heads.length, 1);
+    assert.throws(
+      () => scanReceived(['evt-1', 'deadbeef'], heads),
+      /leaked 1 sentinels/,
+    );
+    await assert.rejects(
+      expectUnauthenticated(ctx, [], 'row', '/open'),
+      /\[row\] unauthenticated head answered 200/,
+    );
   });
 });
 

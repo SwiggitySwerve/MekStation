@@ -34,6 +34,38 @@ const replayIds = (frames) =>
     .filter((m) => m.kind === 'ReplayChunk')
     .flatMap((m) => m.events.map((event) => event.id));
 
+const CLOSE_KEYS = ['kind', 'matchId', 'ts', 'code', 'reason'];
+
+/** GET that keeps the raw body: the secret scan needs it even when it is not JSON. */
+async function rawApi(ctx, route, identity) {
+  const headers = identity ? { authorization: `Bearer ${identity.wire}` } : {};
+  const res = await fetch(`${ctx.origin}${route}`, {
+    headers,
+    signal: AbortSignal.timeout(ctx.limits.waitMs),
+  });
+  const text = await res.text();
+  ctx.check(
+    !ctx.redactor.leaks(text).length,
+    'credential-redaction',
+    `${route} echoed a credential`,
+  );
+  const json = (() => {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return null;
+    }
+  })();
+  ctx.evidence.record('http', {
+    method: 'GET',
+    route,
+    as: identity?.label ?? 'anonymous',
+    status: res.status,
+    body: json ?? text.slice(0, 400),
+  });
+  return { status: res.status, json, text };
+}
+
 /** A fog-on member gets one fixed terminal Close and nothing numbered. */
 export function checkMemberRefusal(result, matchId) {
   const [frame, ...rest] = result.frames;
@@ -41,6 +73,7 @@ export function checkMemberRefusal(result, matchId) {
   const fixed = { kind: 'Close', matchId, code: 'AUTH_REJECTED' };
   const ok =
     rest.length === 0 &&
+    Object.keys(frame ?? {}).every((key) => CLOSE_KEYS.includes(key)) &&
     Object.entries({ ...fixed, reason: FOG_REFUSAL }).every(
       ([key, value]) => frame?.[key] === value,
     ) &&
@@ -102,10 +135,13 @@ export async function refusedSocket(ctx, identity, matchId, label) {
 export async function expectAnswers(ctx, seen, id, rows) {
   for (const [route, audience, status, body] of rows) {
     for (const who of audience) {
-      const answer = await api(ctx, 'GET', route, who);
-      const text = JSON.stringify(answer.json);
+      const answer = await rawApi(ctx, route, who);
+      const text = answer.text;
       seen.push(text);
-      const fixed = body === undefined || text === JSON.stringify(body);
+      const fixed =
+        answer.json !== null &&
+        (body === undefined ||
+          JSON.stringify(answer.json) === JSON.stringify(body));
       const named = body?.error === FOG_REFUSAL || !/fog/i.test(text);
       const quiet = status === 200 || (named && !HIDDEN_KEYS.test(text));
       ctx.check(
@@ -116,6 +152,17 @@ export async function expectAnswers(ctx, seen, id, rows) {
       );
     }
   }
+}
+
+/** The unauthenticated caller is refused 401, and whatever body came back is scanned. */
+export async function expectUnauthenticated(ctx, seen, id, route) {
+  const bare = await rawApi(ctx, route);
+  seen.push(bare.text);
+  ctx.check(
+    bare.status === 401,
+    id,
+    `unauthenticated head answered ${bare.status}`,
+  );
 }
 
 /** Fog-off controls after one accepted action; returns the secrets a refusal must never carry. */
@@ -277,14 +324,7 @@ export async function runFogCases(ctx) {
     [head, [host], 403, fixed],
     [head, [guest, watcher, stranger], 403, generic],
   ]);
-  const bare = await fetch(`${ctx.origin}${head}`, {
-    signal: AbortSignal.timeout(ctx.limits.waitMs),
-  });
-  ctx.check(
-    bare.status === 401,
-    'fog-on-head-refused',
-    `unauthenticated head answered ${bare.status}`,
-  );
+  await expectUnauthenticated(ctx, seen, 'fog-on-head-refused', head);
   ctx.pass('fog-on-head-refused', {
     gm: 403,
     others: 403,
