@@ -56,6 +56,62 @@ afterEach(() => {
 });
 
 describe('standalone complete directory copying', () => {
+  it('bounds parallel file copying and drains in-flight work before rejecting', () => {
+    const root = fixture();
+    const result = spawnSync(
+      process.execPath,
+      [
+        '--input-type=module',
+        '-e',
+        `import fs from 'node:fs'; import path from 'node:path';
+         import { copyDirectory } from ${JSON.stringify(moduleUrl)};
+         const root = ${JSON.stringify(root)};
+         const original = fs.promises.copyFile;
+         let active = 0, peak = 0, error = null;
+         fs.promises.copyFile = async (source, target) => {
+           active++; peak = Math.max(peak, active);
+           try {
+             await new Promise(resolve => setTimeout(resolve, 10));
+             if (path.basename(source) === '.hidden') throw new Error('fixture-copy-failure');
+             await original(source, target);
+           } finally { active--; }
+         };
+         try { await copyDirectory(path.join(root, 'input'), path.join(root, 'actual')); }
+         catch (failure) { error = failure.message; }
+         console.log(JSON.stringify({ active, peak, error }));`,
+      ],
+      { cwd: root, encoding: 'utf8' },
+    );
+    expect(result.status).toBe(0);
+    const output = JSON.parse(result.stdout);
+    expect(output.error).toBe('fixture-copy-failure');
+    expect(output.active).toBe(0);
+    expect(output.peak).toBeGreaterThan(1);
+    expect(output.peak).toBeLessThanOrEqual(8);
+  });
+
+  it('refuses a target that has not been cleared by the hydration owner', () => {
+    const root = fixture();
+    fs.mkdirSync(path.join(root, 'actual'));
+    fs.writeFileSync(path.join(root, 'actual/sentinel'), 'preserve');
+    const result = run(root);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('Directory copy target must be absent');
+    expect(fs.readFileSync(path.join(root, 'actual/sentinel'), 'utf8')).toBe(
+      'preserve',
+    );
+    expect(fs.readdirSync(path.join(root, 'actual'))).toEqual(['sentinel']);
+  });
+
+  it('preserves fresh-file permissions under a restrictive umask', () => {
+    const root = fixture();
+    const result = run(root, 'process.umask(0o077);');
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    const output = JSON.parse(result.stdout);
+    expect(output.actual).toEqual(output.expected);
+  });
+
   it('preserves bytes, modes, hidden files and empty directories like fs.cpSync', () => {
     const root = fixture();
     const result = run(root);
