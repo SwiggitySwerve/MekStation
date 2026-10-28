@@ -83,9 +83,15 @@ export function useCampaignCustomizerRouting({
   const ensuredCampaignSessionRef = useRef<string | null>(null);
   const campaignStore = useCampaignStore();
   const campaign = useStore(campaignStore, (state) => state.campaign);
+  const rehydratedCampaignId = useStore(
+    campaignStore,
+    (state) => state.rehydratedCampaignId,
+  );
   const loadCampaign = useCampaignPersistenceStore(
     (state) => state.loadCampaign,
   );
+  const baseVersion = useCampaignPersistenceStore((state) => state.baseVersion);
+  const dirty = useCampaignPersistenceStore((state) => state.dirty);
   const rosterUnits = useCampaignRosterStore((state) => state.units);
 
   const campaignRoute = useMemo(() => {
@@ -126,9 +132,26 @@ export function useCampaignCustomizerRouting({
 
   useEffect(() => {
     if (!campaignRoute) return;
-    if (campaign?.id === campaignRoute.campaignId) return;
+    // Same rule as the campaign page shell (`useCampaignRouteLoader`): a
+    // storage-rehydrated copy this session has not validated against the
+    // server (baseVersion 0) is refetched, or the refit save writes against
+    // version 0 and is refused.
+    const cacheNeedsValidation =
+      !dirty &&
+      baseVersion === 0 &&
+      rehydratedCampaignId === campaignRoute.campaignId;
+    if (campaign?.id === campaignRoute.campaignId && !cacheNeedsValidation) {
+      return;
+    }
     void loadCampaign(campaignRoute.campaignId);
-  }, [campaign?.id, campaignRoute, loadCampaign]);
+  }, [
+    baseVersion,
+    campaign?.id,
+    campaignRoute,
+    dirty,
+    loadCampaign,
+    rehydratedCampaignId,
+  ]);
 
   useEffect(() => {
     if (

@@ -35,7 +35,11 @@ for (const width of [1351, 390]) {
     for (const route of routes) {
       const response = await page.goto(route);
       expect(response?.ok(), route).toBe(true);
-      await expect(page.locator('[data-ui-icon]').first()).toBeAttached();
+      // Wait for paint, not just markup: the dev server keeps <body> at
+      // display:none until its styles load, which can land after `load`.
+      await expect(
+        page.locator('svg[data-ui-icon]').filter({ visible: true }).first(),
+      ).toBeVisible();
       const icons = await page
         .locator('svg[data-ui-icon]')
         .evaluateAll((nodes) =>
@@ -103,7 +107,9 @@ test('shared icon styles preserve visibility and large-icon centering utilities 
   page,
 }) => {
   await page.goto('/');
-  await expect(page.locator('[data-ui-icon]').first()).toBeAttached();
+  await expect(
+    page.locator('svg[data-ui-icon]').filter({ visible: true }).first(),
+  ).toBeVisible();
   const geometry = await page.evaluate(() => {
     const original =
       document.querySelector<SVGSVGElement>('svg[data-ui-icon]')!;

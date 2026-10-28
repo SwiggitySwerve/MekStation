@@ -8,6 +8,10 @@ import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/ca
 import { buildCampaignCustomizerReturnHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { extractMechBuildConfigFromUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
+import {
+  useCampaignPersistenceStore,
+  type CampaignPersistenceSaveResult,
+} from '@/stores/campaign/useCampaignPersistenceStore';
 import { useUnitStore, useUnitStoreApi } from '@/stores/useUnitStore';
 import { validateConstruction } from '@/utils/construction/constructionRules/validation';
 
@@ -63,6 +67,7 @@ export function CampaignRefitCommandBar({
   const jumpMP = useUnitStore((state) => state.jumpMP);
   const tonnage = useUnitStore((state) => state.tonnage);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const targetConfiguration = useMemo(
     () =>
@@ -109,7 +114,7 @@ export function CampaignRefitCommandBar({
         : 0,
     [session, targetConfiguration],
   );
-  const canSaveRefit = validation.isValid && changeCount > 0;
+  const canSaveRefit = validation.isValid && changeCount > 0 && !isSaving;
 
   // Single muted context string: campaign, plain campaign date (never raw ISO),
   // budget, rules level, and the refit constraint label. Shown truncated with a
@@ -132,7 +137,7 @@ export function CampaignRefitCommandBar({
     );
   }, [router, session]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!session) return;
     setSaveError(null);
 
@@ -158,6 +163,19 @@ export function CampaignRefitCommandBar({
     });
     if (!result.applied) {
       setSaveError(result.reason ?? 'Campaign refit order could not be saved.');
+      return;
+    }
+
+    // The return page reports the order as saved, so it must be on the
+    // server before we leave. Navigating on the debounced auto-save alone
+    // left only the unacknowledged page-hide flush to carry it.
+    setIsSaving(true);
+    const durableSave = await useCampaignPersistenceStore
+      .getState()
+      .saveCampaign();
+    if (durableSave.status !== 'saved') {
+      setIsSaving(false);
+      setSaveError(refitSaveFailureMessage(durableSave));
       return;
     }
 
@@ -280,6 +298,16 @@ export function CampaignRefitCommandBar({
       </div>
     </section>
   );
+}
+
+function refitSaveFailureMessage(
+  result: Exclude<CampaignPersistenceSaveResult, { readonly status: 'saved' }>,
+): string {
+  if (result.status === 'error') return result.errorMessage;
+  if (result.status === 'conflict') {
+    return 'Campaign changed on another client. Resolve the save conflict before saving this refit.';
+  }
+  return 'Campaign save was skipped. Retry saving this refit.';
 }
 
 function formatCampaignDate(value: string): string {

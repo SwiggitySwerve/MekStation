@@ -216,6 +216,9 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
       ),
     );
     await expect(page.getByTestId('mech-bay-grid')).toBeVisible();
+    // The return is a full page load, and the stores are exposed after
+    // render; reading earlier sees no stores and reports zero orders.
+    await waitForCampaignStores(page);
 
     const refitOrders = await page.evaluate(() => {
       type StoreApi = {
@@ -244,6 +247,12 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
       unitId: 'unit-atlas-e2e',
       status: 'in-progress',
     });
+    // The browser copy survives in storage even when the server refuses the
+    // write, so check the server's record too.
+    const serverRecord = (await (
+      await page.request.get(`/api/campaigns/${encodeURIComponent(campaignId)}`)
+    ).json()) as { body: { refitOrders?: readonly unknown[] } };
+    expect(serverRecord.body.refitOrders).toHaveLength(1);
   });
 
   test('returns from campaign customizer into mission readiness with deployment validation refresh', async ({
@@ -317,6 +326,7 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
       'Launch with warnings',
     );
     await expect(page.getByTestId('launch-mission-direct')).toBeEnabled();
+    await waitForCampaignStores(page);
 
     const refitOrders = await page.evaluate(() => {
       type StoreApi = {
