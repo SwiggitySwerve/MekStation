@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "unit": "L1-SMOKE-A2",
+  "stage": "red",
+  "date": "2026-10-28",
+  "recordedAt": "2026-10-28T06:52:03.433Z",
+  "baseline": "4ef0b45166b51c2e857b31b5e54895db1e253e3c",
+  "redCommit": "51539564c7230de130b464144d97e9b001d093af",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/l1-smoke-a2-implementation-admission.json",
+    "sha256": "8388c61e6a99873f5a0245e72af97dfa3c708a4ef356a35289c9b9dceb19b2bb"
+  },
+  "tests": [
+    {
+      "path": "scripts/release/l1-built-server-spectator.test.mjs",
+      "sha256": "780c093447ff06ad2ed66e3fe45f2d5fbbf49837a3958402dd0847b3e8c0e9ac",
+      "bytes": 8315,
+      "matchesFrozenHash": true
+    }
+  ],
+  "productUnchanged": "The RED commit adds only the frozen test leaf. Cases, fixtures and runner leaves are absent at RED.",
+  "runtime": {
+    "command": "node --import tsx --test scripts/release/l1-built-server-spectator.test.mjs",
+    "node": "v22.22.0",
+    "lane": "a2-impl",
+    "class": "jest",
+    "exitCode": 1,
+    "declaredInAdvance": "Weak RED: ERR_MODULE_NOT_FOUND for l1-built-server-spectator-cases.mjs (admission.redPlan and brief G-A2)."
+  },
+  "rawLog": {
+    "encoding": "base64",
+    "sha256": "10b4bd40d0ebf09700cb0e450a0f620891621e44e1038cff471419508596f1a5",
+    "bytes": 1990,
+    "data": "VEFQIHZlcnNpb24gMTMKIyBub2RlOmludGVybmFsL21vZHVsZXMvcnVuX21haW46MTIzCiMgICAgIHRyaWdnZXJVbmNhdWdodEV4Y2VwdGlvbigKIyAgICAgXgojIEVycm9yIFtFUlJfTU9EVUxFX05PVF9GT1VORF06IENhbm5vdCBmaW5kIG1vZHVsZSAnQzpcXFVzZXJzXFx3cm9sbFxcLnQzXFx3b3JrdHJlZXNcXE1la1N0YXRpb25cXHQzLTRmZjBmMzMyXFxzY3JpcHRzXFxyZWxlYXNlXFxsMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLWNhc2VzLm1qcycgaW1wb3J0ZWQgZnJvbSBDOlxcVXNlcnNcXHdyb2xsXFwudDNcXHdvcmt0cmVlc1xcTWVrU3RhdGlvblxcdDMtNGZmMGYzMzJcXHNjcmlwdHNcXHJlbGVhc2VcXGwxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3IudGVzdC5tanMKIyAgICAgYXQgZmluYWxpemVSZXNvbHV0aW9uIChub2RlOmludGVybmFsL21vZHVsZXMvZXNtL3Jlc29sdmU6Mjc0OjExKQojICAgICBhdCBtb2R1bGVSZXNvbHZlIChub2RlOmludGVybmFsL21vZHVsZXMvZXNtL3Jlc29sdmU6ODU5OjEwKQojICAgICBhdCBkZWZhdWx0UmVzb2x2ZSAobm9kZTppbnRlcm5hbC9tb2R1bGVzL2VzbS9yZXNvbHZlOjk4MzoxMSkKIyAgICAgYXQgbmV4dFJlc29sdmUgKG5vZGU6aW50ZXJuYWwvbW9kdWxlcy9lc20vaG9va3M6NzQ4OjI4KQojICAgICBhdCByZXNvbHZlQmFzZSAoZmlsZTovLy9DOi9Vc2Vycy93cm9sbC8udDMvd29ya3RyZWVzL01la1N0YXRpb24vdDMtNGZmMGYzMzIvbm9kZV9tb2R1bGVzL3RzeC9kaXN0L3JlZ2lzdGVyLUNxTWZUaVdpLm1qczoyOjgxNDEpCiMgICAgIGF0IGFzeW5jIHJlc29sdmVEaXJlY3RvcnkgKGZpbGU6Ly8vQzovVXNlcnMvd3JvbGwvLnQzL3dvcmt0cmVlcy9NZWtTdGF0aW9uL3QzLTRmZjBmMzMyL25vZGVfbW9kdWxlcy90c3gvZGlzdC9yZWdpc3Rlci1DcU1mVGlXaS5tanM6Mjo5MjIxKQojICAgICBhdCBhc3luYyByZXNvbHZlMiAoZmlsZTovLy9DOi9Vc2Vycy93cm9sbC8udDMvd29ya3RyZWVzL01la1N0YXRpb24vdDMtNGZmMGYzMzIvbm9kZV9tb2R1bGVzL3RzeC9kaXN0L3JlZ2lzdGVyLUNxTWZUaVdpLm1qczoyOjExOTMyKQojICAgICBhdCBhc3luYyBuZXh0UmVzb2x2ZSAobm9kZTppbnRlcm5hbC9tb2R1bGVzL2VzbS9ob29rczo3NDg6MjIpCiMgICAgIGF0IGFzeW5jIEhvb2tzLnJlc29sdmUgKG5vZGU6aW50ZXJuYWwvbW9kdWxlcy9lc20vaG9va3M6MjQwOjI0KQojICAgICBhdCBhc3luYyBoYW5kbGVNZXNzYWdlIChub2RlOmludGVybmFsL21vZHVsZXMvZXNtL3dvcmtlcjoxOTk6MTgpIHsKIyAgIGNvZGU6ICdFUlJfTU9EVUxFX05PVF9GT1VORCcsCiMgICB1cmw6ICdmaWxlOi8vL0M6L1VzZXJzL3dyb2xsLy50My93b3JrdHJlZXMvTWVrU3RhdGlvbi90My00ZmYwZjMzMi9zY3JpcHRzL3JlbGVhc2UvbDEtYnVpbHQtc2VydmVyLXNwZWN0YXRvci1jYXNlcy5tanMnCiMgfQojIE5vZGUuanMgdjIyLjIyLjAKIyBTdWJ0ZXN0OiBzY3JpcHRzXFxyZWxlYXNlXFxsMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLnRlc3QubWpzCm5vdCBvayAxIC0gc2NyaXB0c1xccmVsZWFzZVxcbDEtYnVpbHQtc2VydmVyLXNwZWN0YXRvci50ZXN0Lm1qcwogIC0tLQogIGR1cmF0aW9uX21zOiAyNjkuOTc2NAogIHR5cGU6ICd0ZXN0JwogIGxvY2F0aW9uOiAnQzpcXFVzZXJzXFx3cm9sbFxcLnQzXFx3b3JrdHJlZXNcXE1la1N0YXRpb25cXHQzLTRmZjBmMzMyXFxzY3JpcHRzXFxyZWxlYXNlXFxsMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLnRlc3QubWpzOjE6MScKICBmYWlsdXJlVHlwZTogJ3Rlc3RDb2RlRmFpbHVyZScKICBleGl0Q29kZTogMQogIHNpZ25hbDogfgogIGVycm9yOiAndGVzdCBmYWlsZWQnCiAgY29kZTogJ0VSUl9URVNUX0ZBSUxVUkUnCiAgLi4uCjEuLjEKIyB0ZXN0cyAxCiMgc3VpdGVzIDAKIyBwYXNzIDAKIyBmYWlsIDEKIyBjYW5jZWxsZWQgMAojIHNraXBwZWQgMAojIHRvZG8gMAojIGR1cmF0aW9uX21zIDI3NC43NjE4CgotLXN0ZGVyci0tCg=="
+  },
+  "vacuousStandIn": {
+    "exitCode": 1,
+    "description": "Temporary cases module exports the admitted enumeration but performs no actions (ctx.check is a no-op) and returns payload.rolls without validation. The unchanged test leaf rejects its missing invocation order, missing composite rows, invalid captured rolls and missing restart source order with ERR_ASSERTION. The frozen fixture is copied only so the event-witness test can execute. Both temporary files are removed after the run.",
+    "rawLog": {
+      "encoding": "base64",
+      "sha256": "98ce7b541e07c03f7abbfaacc4c9790b5be64b503039fd17450806047acf3698",
+      "bytes": 5591,
+      "data": "VEFQIHZlcnNpb24gMTMKIyBTdWJ0ZXN0OiB0aGUgY29tcG9zaXRlIGVudW1lcmF0aW9uIGlzIEExIG9uY2UsIHRoZW4gQTJNIG9uY2UsIHRoZW4gdGhlIHJvd3Mgb3duZWQgaGVyZSwgYWxsIHVuaXF1ZQpvayAxIC0gdGhlIGNvbXBvc2l0ZSBlbnVtZXJhdGlvbiBpcyBBMSBvbmNlLCB0aGVuIEEyTSBvbmNlLCB0aGVuIHRoZSByb3dzIG93bmVkIGhlcmUsIGFsbCB1bmlxdWUKICAtLS0KICBkdXJhdGlvbl9tczogMS4xNjYKICB0eXBlOiAndGVzdCcKICAuLi4KIyBTdWJ0ZXN0OiBydW5BMkNhc2VzIHJ1bnMgdGhlIEExIGJhc2VsaW5lLCB0aGUgZnJvemVuIG1hdHJpeCBhbmQgdGhlIG93bmVkIHJvd3Mgb25jZSBlYWNoLCBpbiB0aGF0IG9yZGVyCm5vdCBvayAyIC0gcnVuQTJDYXNlcyBydW5zIHRoZSBBMSBiYXNlbGluZSwgdGhlIGZyb3plbiBtYXRyaXggYW5kIHRoZSBvd25lZCByb3dzIG9uY2UgZWFjaCwgaW4gdGhhdCBvcmRlcgogIC0tLQogIGR1cmF0aW9uX21zOiAxLjIyNjIKICB0eXBlOiAndGVzdCcKICBsb2NhdGlvbjogJ0M6XFxVc2Vyc1xcd3JvbGxcXC50M1xcd29ya3RyZWVzXFxNZWtTdGF0aW9uXFx0My00ZmYwZjMzMlxcc2NyaXB0c1xccmVsZWFzZVxcbDEtYnVpbHQtc2VydmVyLXNwZWN0YXRvci50ZXN0Lm1qczoxMDY6MScKICBmYWlsdXJlVHlwZTogJ3Rlc3RDb2RlRmFpbHVyZScKICBlcnJvcjogfC0KICAgIEV4cGVjdGVkIHZhbHVlcyB0byBiZSBzdHJpY3RseSBkZWVwLWVxdWFsOgogICAgKyBhY3R1YWwgLSBleHBlY3RlZAogICAgCiAgICArIFtdCiAgICAtIFsKICAgIC0gICAnYTEnLAogICAgLSAgICdtYXRyaXgnLAogICAgLSAgICdvd24nCiAgICAtIF0KICAgIAogIGNvZGU6ICdFUlJfQVNTRVJUSU9OJwogIG5hbWU6ICdBc3NlcnRpb25FcnJvcicKICBleHBlY3RlZDoKICAgIDA6ICdhMScKICAgIDE6ICdtYXRyaXgnCiAgICAyOiAnb3duJwogIGFjdHVhbDoKICBvcGVyYXRvcjogJ2RlZXBTdHJpY3RFcXVhbCcKICBzdGFjazogfC0KICAgIFRlc3RDb250ZXh0Ljxhbm9ueW1vdXM+IChmaWxlOi8vL0M6L1VzZXJzL3dyb2xsLy50My93b3JrdHJlZXMvTWVrU3RhdGlvbi90My00ZmYwZjMzMi9zY3JpcHRzL3JlbGVhc2UvbDEtYnVpbHQtc2VydmVyLXNwZWN0YXRvci50ZXN0Lm1qczoxMTM6MTApCiAgICBhc3luYyBUZXN0LnJ1biAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0OjEwNTQ6NykKICAgIGFzeW5jIFRlc3QucHJvY2Vzc1BlbmRpbmdTdWJ0ZXN0cyAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0Ojc0NDo3KQogIC4uLgojIFN1YnRlc3Q6IHRoZSByZWFsIGhhcm5lc3MgcGFzc2VzIHRoZSBjb21wbGV0ZSBjb21wb3NpdGUgYW5kIGZhaWxzIGFuIG9taXR0ZWQsIGRvdWJsZWQgb3IgdW5leHBlY3RlZCByb3cKbm90IG9rIDMgLSB0aGUgcmVhbCBoYXJuZXNzIHBhc3NlcyB0aGUgY29tcGxldGUgY29tcG9zaXRlIGFuZCBmYWlscyBhbiBvbWl0dGVkLCBkb3VibGVkIG9yIHVuZXhwZWN0ZWQgcm93CiAgLS0tCiAgZHVyYXRpb25fbXM6IDgxMy40Njc5CiAgdHlwZTogJ3Rlc3QnCiAgbG9jYXRpb246ICdDOlxcVXNlcnNcXHdyb2xsXFwudDNcXHdvcmt0cmVlc1xcTWVrU3RhdGlvblxcdDMtNGZmMGYzMzJcXHNjcmlwdHNcXHJlbGVhc2VcXGwxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3IudGVzdC5tanM6MTE2OjEnCiAgZmFpbHVyZVR5cGU6ICd0ZXN0Q29kZUZhaWx1cmUnCiAgZXJyb3I6ICdMMSBidWlsdC1zZXJ2ZXIgc21va2UgRkFJTDogY2FzZSBlbnVtZXJhdGlvbiBtaXNtYXRjaDogbWlzc2luZyBbY3JlZGVudGlhbC1tYWxmb3JtZWQtcmVmdXNlZCxjcmVkZW50aWFsLXVybC1yZWZ1c2VkLGNyZWRlbnRpYWwtZm9yZWlnbi1yZWZ1c2VkLHBhcnRpY2lwYW50cy1hdXRoZW50aWNhdGVkLHBhcnRpY2lwYW50LWFjdGlvbi1hY2NlcHRlZCxzcGVjdGF0b3Itc2VhdC13aXRuZXNzZWQsc3BlY3RhdG9yLXJlcGxheS1wdWJsaWMsc3BlY3RhdG9yLWxpdmUtcHVibGljLHNwZWN0YXRvci1jYW5ub3QtYWN0LGNhbGxiYWNrcy1leGVyY2lzZWQsbWF0cml4LU1vdmUtcGxheWVyLXN0YWxlLG1hdHJpeC1Nb3ZlLWdtLXN0YWxlLG1hdHJpeC1Nb3ZlLWdtLXVuYXNzaWduZWQsbWF0cml4LU1vdmUtZ20tcGFydGljaXBhbnQsbWF0cml4LUF0dGFjay1wbGF5ZXItc3RhbGUsbWF0cml4LUF0dGFjay1nbS1zdGFsZSxtYXRyaXgtQXR0YWNrLWdtLXVuYXNzaWduZWQsbWF0cml4LUF0dGFjay1nbS1wYXJ0aWNpcGFudCxtYXRyaXgtUGh5c2ljYWwtcGxheWVyLXN0YWxlLG1hdHJpeC1QaHlzaWNhbC1nbS1zdGFsZSxtYXRyaXgtUGh5c2ljYWwtZ20tdW5hc3NpZ25lZCxtYXRyaXgtUGh5c2ljYWwtZ20tcGFydGljaXBhbnQsY29uY3VycmVudC1maXJzdC1zb2NrZXRzLGNvb3AtbWlzc2lvbi1wcm92aXNpb25lZCxjb29wLXJlc3RhcnQtYWN0aW9uLWFjY2VwdGVkLGNvb3AtZmlyc3Qtcm9sbHMtY2FwdHVyZWRdIHVuZXhwZWN0ZWQgW10nCiAgY29kZTogJ0VSUl9URVNUX0ZBSUxVUkUnCiAgc3RhY2s6IHwtCiAgICBydW5IYXJuZXNzIChmaWxlOi8vL0M6L1VzZXJzL3dyb2xsLy50My93b3JrdHJlZXMvTWVrU3RhdGlvbi90My00ZmYwZjMzMi9zY3JpcHRzL3JlbGVhc2UvcnVuLWwxLWJ1aWx0LXNlcnZlci1zbW9rZS5tanM6MjE2OjQyKQogICAgcHJvY2Vzcy5wcm9jZXNzVGlja3NBbmRSZWplY3Rpb25zIChub2RlOmludGVybmFsL3Byb2Nlc3MvdGFza19xdWV1ZXM6MTA1OjUpCiAgICBhc3luYyBUZXN0Q29udGV4dC48YW5vbnltb3VzPiAoZmlsZTovLy9DOi9Vc2Vycy93cm9sbC8udDMvd29ya3RyZWVzL01la1N0YXRpb24vdDMtNGZmMGYzMzIvc2NyaXB0cy9yZWxlYXNlL2wxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3IudGVzdC5tanM6MTE3OjE5KQogICAgYXN5bmMgVGVzdC5ydW4gKG5vZGU6aW50ZXJuYWwvdGVzdF9ydW5uZXIvdGVzdDoxMDU0OjcpCiAgICBhc3luYyBUZXN0LnByb2Nlc3NQZW5kaW5nU3VidGVzdHMgKG5vZGU6aW50ZXJuYWwvdGVzdF9ydW5uZXIvdGVzdDo3NDQ6NykKICAuLi4KIyBTdWJ0ZXN0OiBjYXB0dXJlZFJvbGxzIGFjY2VwdHMgbm9uZW1wdHkgZDYgcm9sbHMgb25seQpub3Qgb2sgNCAtIGNhcHR1cmVkUm9sbHMgYWNjZXB0cyBub25lbXB0eSBkNiByb2xscyBvbmx5CiAgLS0tCiAgZHVyYXRpb25fbXM6IDAuNTU1NwogIHR5cGU6ICd0ZXN0JwogIGxvY2F0aW9uOiAnQzpcXFVzZXJzXFx3cm9sbFxcLnQzXFx3b3JrdHJlZXNcXE1la1N0YXRpb25cXHQzLTRmZjBmMzMyXFxzY3JpcHRzXFxyZWxlYXNlXFxsMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLnRlc3QubWpzOjE0NDoxJwogIGZhaWx1cmVUeXBlOiAndGVzdENvZGVGYWlsdXJlJwogIGVycm9yOiAnTWlzc2luZyBleHBlY3RlZCBleGNlcHRpb24uJwogIGNvZGU6ICdFUlJfQVNTRVJUSU9OJwogIG5hbWU6ICdBc3NlcnRpb25FcnJvcicKICBleHBlY3RlZDoKICBvcGVyYXRvcjogJ3Rocm93cycKICBzdGFjazogfC0KICAgIFRlc3RDb250ZXh0Ljxhbm9ueW1vdXM+IChmaWxlOi8vL0M6L1VzZXJzL3dyb2xsLy50My93b3JrdHJlZXMvTWVrU3RhdGlvbi90My00ZmYwZjMzMi9zY3JpcHRzL3JlbGVhc2UvbDEtYnVpbHQtc2VydmVyLXNwZWN0YXRvci50ZXN0Lm1qczoxNTY6MTIpCiAgICBUZXN0LnJ1bkluQXN5bmNTY29wZSAobm9kZTphc3luY19ob29rczoyMTQ6MTQpCiAgICBUZXN0LnJ1biAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0OjEwNDc6MjUpCiAgICBUZXN0LnByb2Nlc3NQZW5kaW5nU3VidGVzdHMgKG5vZGU6aW50ZXJuYWwvdGVzdF9ydW5uZXIvdGVzdDo3NDQ6MTgpCiAgICBUZXN0LnBvc3RSdW4gKG5vZGU6aW50ZXJuYWwvdGVzdF9ydW5uZXIvdGVzdDoxMTczOjE5KQogICAgVGVzdC5ydW4gKG5vZGU6aW50ZXJuYWwvdGVzdF9ydW5uZXIvdGVzdDoxMTAxOjEyKQogICAgcHJvY2Vzcy5wcm9jZXNzVGlja3NBbmRSZWplY3Rpb25zIChub2RlOmludGVybmFsL3Byb2Nlc3MvdGFza19xdWV1ZXM6MTA1OjUpCiAgICBhc3luYyBUZXN0LnByb2Nlc3NQZW5kaW5nU3VidGVzdHMgKG5vZGU6aW50ZXJuYWwvdGVzdF9ydW5uZXIvdGVzdDo3NDQ6NykKICAuLi4KIyBTdWJ0ZXN0OiB0aGUgZXZlbnQgd2l0bmVzcyByZXR1cm5zIG9uZSBzdG9yZWQgZXZlbnQgYW5kIHJlZnVzZXMgYSBtaXNzaW5nIG9yIGRvdWJsZWQgaWQgYW5kIGEgbGl2ZSBwaWQKb2sgNSAtIHRoZSBldmVudCB3aXRuZXNzIHJldHVybnMgb25lIHN0b3JlZCBldmVudCBhbmQgcmVmdXNlcyBhIG1pc3Npbmcgb3IgZG91YmxlZCBpZCBhbmQgYSBsaXZlIHBpZAogIC0tLQogIGR1cmF0aW9uX21zOiA5MDEzLjkyOTcKICB0eXBlOiAndGVzdCcKICAuLi4KIyBTdWJ0ZXN0OiB0aGUgY28tb3AgcmVzdGFydCByb3cgcmVvcGVucyB0aGUgR00gY2FtcGFpZ24gY2hhbm5lbCBiZWZvcmUgdGhlIGZpcnN0IHBvc3QtcmVzdGFydCBhY3Rpb24Kbm90IG9rIDYgLSB0aGUgY28tb3AgcmVzdGFydCByb3cgcmVvcGVucyB0aGUgR00gY2FtcGFpZ24gY2hhbm5lbCBiZWZvcmUgdGhlIGZpcnN0IHBvc3QtcmVzdGFydCBhY3Rpb24KICAtLS0KICBkdXJhdGlvbl9tczogMC41NzE5CiAgdHlwZTogJ3Rlc3QnCiAgbG9jYXRpb246ICdDOlxcVXNlcnNcXHdyb2xsXFwudDNcXHdvcmt0cmVlc1xcTWVrU3RhdGlvblxcdDMtNGZmMGYzMzJcXHNjcmlwdHNcXHJlbGVhc2VcXGwxLWJ1aWx0LXNlcnZlci1zcGVjdGF0b3IudGVzdC5tanM6MjIyOjEnCiAgZmFpbHVyZVR5cGU6ICd0ZXN0Q29kZUZhaWx1cmUnCiAgZXJyb3I6ICdmYWxzZSA9PSB0cnVlJwogIGNvZGU6ICdFUlJfQVNTRVJUSU9OJwogIG5hbWU6ICdBc3NlcnRpb25FcnJvcicKICBleHBlY3RlZDogdHJ1ZQogIGFjdHVhbDogZmFsc2UKICBvcGVyYXRvcjogJz09JwogIHN0YWNrOiB8LQogICAgVGVzdENvbnRleHQuPGFub255bW91cz4gKGZpbGU6Ly8vQzovVXNlcnMvd3JvbGwvLnQzL3dvcmt0cmVlcy9NZWtTdGF0aW9uL3QzLTRmZjBmMzMyL3NjcmlwdHMvcmVsZWFzZS9sMS1idWlsdC1zZXJ2ZXItc3BlY3RhdG9yLnRlc3QubWpzOjIzMzoxMCkKICAgIFRlc3QucnVuSW5Bc3luY1Njb3BlIChub2RlOmFzeW5jX2hvb2tzOjIxNDoxNCkKICAgIFRlc3QucnVuIChub2RlOmludGVybmFsL3Rlc3RfcnVubmVyL3Rlc3Q6MTA0NzoyNSkKICAgIFRlc3QucHJvY2Vzc1BlbmRpbmdTdWJ0ZXN0cyAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0Ojc0NDoxOCkKICAgIFRlc3QucG9zdFJ1biAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0OjExNzM6MTkpCiAgICBUZXN0LnJ1biAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0OjExMDE6MTIpCiAgICBwcm9jZXNzLnByb2Nlc3NUaWNrc0FuZFJlamVjdGlvbnMgKG5vZGU6aW50ZXJuYWwvcHJvY2Vzcy90YXNrX3F1ZXVlczoxMDU6NSkKICAgIGFzeW5jIFRlc3QucHJvY2Vzc1BlbmRpbmdTdWJ0ZXN0cyAobm9kZTppbnRlcm5hbC90ZXN0X3J1bm5lci90ZXN0Ojc0NDo3KQogIC4uLgoxLi42CiMgdGVzdHMgNgojIHN1aXRlcyAwCiMgcGFzcyAyCiMgZmFpbCA0CiMgY2FuY2VsbGVkIDAKIyBza2lwcGVkIDAKIyB0b2RvIDAKIyBkdXJhdGlvbl9tcyAxMDE1MS41NQoKLS1zdGRlcnItLQo="
+    }
+  },
+  "pureFunctionMutants": {
+    "owedAtGreen": [
+      {
+        "id": "E1-omit-a1",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration"
+      },
+      {
+        "id": "E2-omit-matrix",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration"
+      },
+      {
+        "id": "E3-omit-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration"
+      },
+      {
+        "id": "E4-doubled-row",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration"
+      },
+      {
+        "id": "E5-unexpected-row",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "composite enumeration"
+      },
+      {
+        "id": "C1-skip-a1",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs"
+      },
+      {
+        "id": "C2-skip-matrix",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs"
+      },
+      {
+        "id": "C3-skip-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs"
+      },
+      {
+        "id": "C4-double-owned",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "runA2Cases runs"
+      },
+      {
+        "id": "R1-missing-rolls",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts"
+      },
+      {
+        "id": "R2-empty-rolls",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts"
+      },
+      {
+        "id": "R3-low-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts"
+      },
+      {
+        "id": "R4-high-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts"
+      },
+      {
+        "id": "R5-fractional-die",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "capturedRolls accepts"
+      },
+      {
+        "id": "W1-missing-event",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns"
+      },
+      {
+        "id": "W2-doubled-event",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns"
+      },
+      {
+        "id": "W3-live-pid",
+        "file": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "namedCheck": "event witness returns"
+      },
+      {
+        "id": "S1-reopen-removed",
+        "file": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "namedCheck": "co-op restart row reopens"
+      }
+    ],
+    "builtImageInventory": [
+      "MA1: concurrent-first-sockets compares only the guest delivery to itself (a one-element id set).",
+      "MA2: the restart is skipped between the pre-restart action and the post-restart Move.",
+      "MA3: the Move is sent on a non-owner connection.",
+      "MA4: captured rolls are compared with the wrong event or accepted when empty.",
+      "MA5: the journal check after the concurrent round is dropped.",
+      "The A2M mutants (R6-R8, P1, P4, P6, P7) are not repeated: A2 runs the frozen matrix unchanged and carries the A2M survivor disclosure."
+    ]
+  },
+  "reachability": "G-A1 SATISFIED at admission; no setup byte changed and no re-probe performed."
+}
