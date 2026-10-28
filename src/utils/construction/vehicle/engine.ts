@@ -36,7 +36,9 @@ const FUSION_REQUIRED_MOTION_TYPES: ReadonlySet<GroundMotionType> = new Set([
 ]);
 
 /**
- * Engine types considered non-fusion (require power amps for energy weapons)
+ * Engine types considered non-fusion for engine classification and motion
+ * restrictions. Power-amplifier requirements are decided separately by
+ * requiresPowerAmplifiers; fission is exempt there.
  */
 export const NON_FUSION_ENGINE_TYPES: ReadonlySet<EngineType> = new Set([
   EngineType.ICE,
