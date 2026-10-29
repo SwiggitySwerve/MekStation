@@ -88,13 +88,32 @@ ENGINE_TYPE_MAP: Dict[str, str] = {
     # Fission
     "Fission Engine": "FISSION",
     "Fission": "FISSION",
-    # Numeric codes (from BLK engine_type tag)
+    # Legacy generic numeric aliases. BLK serialization uses BLK_ENGINE_CODE_MAP.
     "0": "FUSION",
     "1": "XL",
     "2": "LIGHT",
     "3": "COMPACT",
     "4": "CLAN_XL",
     "5": "XXL",
+}
+
+BLK_ENGINE_CODE_MAP: Dict[str, str] = {
+    # MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+    # BLKFile.java:80-93,538-568. Serialized codes, not Engine/domain ordinals.
+    "0": "FUSION",
+    "1": "ICE",
+    "2": "XL",
+    "3": "XXL",
+    "4": "LIGHT",
+    "5": "COMPACT",
+    "6": "FUEL_CELL",
+    "7": "FISSION",
+    "8": "NONE",
+    "9": "MAGLEV",
+    "10": "STEAM",
+    "11": "BATTERY",
+    "12": "SOLAR",
+    "13": "EXTERNAL",
 }
 
 GYRO_TYPE_MAP: Dict[str, str] = {

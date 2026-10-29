@@ -43,19 +43,6 @@ MOTION_TYPE_MAP: Dict[str, str] = {
     "Jump": "VTOL",
 }
 
-ENGINE_CODE_EXT: Dict[str, str] = {
-    "6": "ICE",
-    "7": "FUEL_CELL",
-    "8": "FISSION",
-    "9": "SOLAR",
-    "10": "BATTERY",
-    "11": "FLYWHEEL",
-    "12": "STEAM",
-    "13": "MAGLEV",
-    "14": "NONE",
-    "15": "EXTERNAL",
-}
-
 ARMOR_CODE_MAP: Dict[int, str] = {
     0: "STANDARD",
     1: "FERRO_FIBROUS",

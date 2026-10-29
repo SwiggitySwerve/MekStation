@@ -42,3 +42,21 @@ The entity model SHALL preserve the loaded construction family, subtype, technol
 - **WHEN** the local domain loads it
 - **THEN** its design facts SHALL be retained with validation diagnostics
 - **AND** loading success SHALL NOT be described as construction validity
+
+### Requirement: BLK engine serialization adapter
+
+BLK engine codes SHALL use their source-format meanings: 0 fusion, 1 ICE, 2 XL, 3 XXL, 4 light, 5 compact, 6 fuel cell, 7 fission, 8 none, 9 maglev, 10 steam, 11 battery, 12 solar and 13 external. Vehicle, aerospace and ProtoMek conversion SHALL share one decoder. Generic MTF numeric aliases SHALL retain compatibility semantics. An omitted BLK engine tag MAY retain the legacy fusion default; explicit unknown, malformed or empty codes SHALL fail with a diagnostic. Technology flags remain separate source facts.
+
+#### Scenario: Correct three source families consistently
+
+- **GIVEN** vehicle, aerospace and ProtoMek definitions with engine code 1
+- **WHEN** the Python source adapter converts them
+- **THEN** each SHALL identify an ICE engine
+- **AND** code 6 SHALL identify fuel cell rather than ICE
+
+#### Scenario: Reject an explicit invalid engine code
+
+- **GIVEN** a BLK engine tag containing 99, an empty value or a fractional value
+- **WHEN** conversion runs
+- **THEN** it SHALL fail with the invalid code in its diagnostic
+- **AND** it SHALL NOT substitute fusion

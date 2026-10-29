@@ -37,7 +37,7 @@ from blk_common import (
     generate_id_from_name,
     get_string,
     map_armor_code,
-    map_engine_type,
+    map_blk_engine_code,
     map_rules_level,
     map_tech_base,
     map_year_to_era,
@@ -163,8 +163,8 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         pass  # Already correct
 
     # --- Engine ---
-    engine_code = get_string(tags, "engine_type")
-    engine_type_str = map_engine_type(engine_code or "0")
+    engine_code = tags.get("engine_type")
+    engine_type_str = map_blk_engine_code(engine_code)
 
     # --- Armor (5 locations: Head, Torso, R Arm, L Arm, Legs) ---
     armor_raw = tags.get("armor") or tags.get("Armor")
