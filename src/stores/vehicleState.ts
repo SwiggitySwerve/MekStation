@@ -1,3 +1,4 @@
+import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 /**
  * Vehicle State Interface
  *
@@ -6,8 +7,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
-
-import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -27,6 +26,7 @@ import {
   ITurretConfiguration,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
+import { computeStoredVehicleEngineRating } from '@/utils/construction/vehicle/engine';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
@@ -265,7 +265,7 @@ export interface VehicleState {
   /** Has trailer hitch */
   hasTrailerHitch: boolean;
 
-  /** Is this a trailer (no engine) */
+  /** Trailer identity; independent of the installed engine type. */
   isTrailer: boolean;
 
   // =========================================================================
@@ -429,9 +429,14 @@ export function createDefaultVehicleState(
   const motionType = options.motionType ?? GroundMotionType.TRACKED;
   const unitType = options.unitType ?? UnitType.VEHICLE;
 
-  // Default engine rating: tonnage * 4 (for cruise MP 4)
+  // Derive propulsion from the effective motion type, including VTOL defaults.
   const cruiseMP = 4;
-  const engineRating = options.tonnage * cruiseMP;
+  const engineRating = computeStoredVehicleEngineRating(
+    options.tonnage,
+    cruiseMP,
+    unitType === UnitType.VTOL ? GroundMotionType.VTOL : motionType,
+    unitType === UnitType.SUPPORT_VEHICLE,
+  );
 
   // Parse name into chassis and model
   const nameParts = options.name.split(' ');
@@ -456,7 +461,12 @@ export function createDefaultVehicleState(
     techBase: options.techBase,
 
     // Unit Type & Configuration
-    unitType: isVTOL ? UnitType.VTOL : unitType,
+    unitType:
+      unitType === UnitType.SUPPORT_VEHICLE
+        ? unitType
+        : isVTOL
+          ? UnitType.VTOL
+          : unitType,
     motionType: isVTOL ? GroundMotionType.VTOL : motionType,
     isOmni: false,
 
