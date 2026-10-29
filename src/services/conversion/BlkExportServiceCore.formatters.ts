@@ -19,6 +19,8 @@ import {
   BattleArmorWeightClass,
 } from '@/types/unit/PersonnelInterfaces';
 
+import { encodeBlkEngine } from './blkEngineIdentity';
+
 export function formatMotionType(motionType: GroundMotionType): string {
   const map: Record<GroundMotionType, string> = {
     [GroundMotionType.TRACKED]: 'Tracked',
@@ -77,18 +79,7 @@ export function formatTechType(
 }
 
 export function formatEngineTypeCode(engineType: EngineType): string {
-  const codes: Record<string, string> = {
-    [EngineType.STANDARD]: '0',
-    [EngineType.XL_IS]: '1',
-    [EngineType.XL_CLAN]: '2',
-    [EngineType.LIGHT]: '3',
-    [EngineType.COMPACT]: '4',
-    [EngineType.XXL]: '5',
-    [EngineType.ICE]: '6',
-    [EngineType.FUEL_CELL]: '7',
-    [EngineType.FISSION]: '8',
-  };
-  return codes[engineType] || '0';
+  return encodeBlkEngine(engineType);
 }
 
 export function formatArmorTypeCode(armorType: ArmorTypeEnum): string {

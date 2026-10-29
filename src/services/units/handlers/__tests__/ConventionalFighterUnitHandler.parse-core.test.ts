@@ -253,7 +253,7 @@ describe('Conventional fighter independent engine technology', () => {
 });
 
 describe('Conventional fighter engine tags through the raw BLK boundary', () => {
-  function parseSource(engineTag?: string) {
+  function parseDocument(engineTag?: string) {
     const source = `<UnitType>ConvFighter</UnitType>
 <Name>Engine tag probe</Name>
 <year>3060</year>
@@ -264,7 +264,11 @@ describe('Conventional fighter engine tags through the raw BLK boundary', () => 
 <structural_integrity>6</structural_integrity>
 <armor>16\n12\n12\n8</armor>
 ${engineTag === undefined ? '' : `<engine_type>${engineTag}</engine_type>`}`;
-    const parsed = new BlkParserService().parse(source);
+    return new BlkParserService().parse(source);
+  }
+
+  function parseSource(engineTag?: string) {
+    const parsed = parseDocument(engineTag);
     expect(parsed.success).toBe(true);
     if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
     return new ConventionalFighterUnitHandler().parse(parsed.data.document);
@@ -286,10 +290,16 @@ ${engineTag === undefined ? '' : `<engine_type>${engineTag}</engine_type>`}`;
   it.each(['', '   ', 'not-an-engine', '0x63', '1garbage', '1.5', '1e0'])(
     'rejects an explicitly malformed tag: %j',
     (tag) => {
-      const result = parseSource(tag);
+      const result = parseDocument(tag);
       expect(result.success).toBe(false);
       expect(result.data).toBeUndefined();
       expect(result.error?.errors.join('; ')).toContain('engine_type');
+      const direct = new ConventionalFighterUnitHandler().parse(
+        createMockBlkDocument({ engineType: 0, rawTags: { engine_type: tag } }),
+      );
+      expect(direct.success).toBe(false);
+      expect(direct.data).toBeUndefined();
+      expect(direct.error?.errors.join('; ')).toContain('engine_type');
     },
   );
 });

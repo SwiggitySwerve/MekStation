@@ -70,6 +70,8 @@ export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity 
  * Interface for combat vehicles (tanks, APCs, etc.)
  */
 export interface IVehicle extends IGroundUnit {
+  /** Loaded BLK engine construction flag, independent of chassis tech base. */
+  readonly clanEngine?: boolean;
   readonly unitType: UnitType.VEHICLE;
 
   /** Motion type (Tracked, Wheeled, Hover, etc.) */

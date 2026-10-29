@@ -169,9 +169,11 @@ export interface CombatVehicleEngineContext {
  */
 export function computeVehicleEngineWeight(
   rating: number,
-  engineType: EngineType,
+  engineType: EngineType | null,
   context: CombatVehicleEngineContext,
 ): number {
+  // Explicit absence bypasses installed-engine tables, shielding and minima.
+  if (engineType === null) return 0;
   // The engine table has entries only at multiples of 5 (minimum 10); a
   // rating in between is looked up at the next entry up.
   const baseWeight = getBaseEngineWeight(
@@ -218,18 +220,30 @@ export interface VehicleEngineValidationResult {
 export function validateVehicleEngine(
   tonnage: number,
   cruiseMP: number,
-  engineType: EngineType,
+  engineType: EngineType | null,
   motionType: GroundMotionType,
 ): VehicleEngineValidationResult {
   const errors: Array<{ ruleId: string; message: string }> = [];
   const warnings: string[] = [];
 
-  const engineRating = computeEngineRating(tonnage, cruiseMP, motionType);
+  const engineRating = computeEngineRating(
+    tonnage,
+    cruiseMP,
+    motionType,
+    engineType === null,
+  );
   const engineWeight = computeVehicleEngineWeight(engineRating, engineType, {
     tonnage,
     motionType,
   });
   const flankMP = computeFlankMP(cruiseMP);
+
+  if (engineType === null && cruiseMP > 0) {
+    errors.push({
+      ruleId: 'VAL-VEHICLE-ENGINE',
+      message: 'An absent engine (NONE) cannot provide positive cruise MP',
+    });
+  }
 
   // Rule: engine rating must not exceed 400 for combat vehicles
   if (engineRating > VEHICLE_MAX_ENGINE_RATING) {
@@ -240,7 +254,11 @@ export function validateVehicleEngine(
   }
 
   // Rule: fusion engine required for certain motion types
-  if (requiresFusionEngine(motionType) && !isVehicleFusionEngine(engineType)) {
+  if (
+    engineType !== null &&
+    requiresFusionEngine(motionType) &&
+    !isVehicleFusionEngine(engineType)
+  ) {
     errors.push({
       ruleId: 'VAL-VEHICLE-ENGINE',
       message: `${motionType} vehicles require a Fusion, XL, Light, or Fuel Cell engine — ${engineType} is not permitted`,

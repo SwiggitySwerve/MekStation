@@ -32,8 +32,12 @@ their other existing approximate weight/cost rules are not corrected here.
 Tank import preserves the independent raw engine code and trailer flag.
 `BLKFile.NONE` (8), with zero cruise, selects the no-engine rating exception;
 trailer identity never selects it. The handler translates that fact once for
-parse, weight and cost callers. Shared BLK code normalization across Python
-and TypeScript remains assigned to the serialization follow-up.
+parse, weight and cost callers. The shared BLK facts adapter resolves known NONE to `null` at the installed-engine
+boundary, preserving raw code 8 and independent Clan context on loaded entities.
+Unknown and unsupported codes retain errors; neither becomes absence or fusion.
+The mass owner returns exactly zero for null before table lookup, shielding,
+fission or hover minima, even at a positive rating. Positive-cruise NONE retains
+the loader-derived rating and receives a separate construction legality error.
 The store's `EngineType` currently represents installed engines only, so
 engine-less store designs are not supported; a trailer with any representable
 engine retains minimum rating 10. The tonnage-edit clamp remains unchanged.
