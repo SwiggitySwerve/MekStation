@@ -3,6 +3,30 @@ import type { IParityTerm } from '../ParityValidationNumerical';
 import { compareParityTerms } from '../ParityValidationNumerical';
 
 describe('strict loaded-entity parity terms', () => {
+  it.each([null, undefined])('reports missing runtime term %s', (term) => {
+    expect(compareParityTerms([term])).toMatchObject({
+      passed: false,
+      terms: [{ field: '[0]', reason: 'missing_term', passed: false }],
+    });
+  });
+
+  it.each([
+    0,
+    false,
+    '',
+    [],
+    {},
+    { field: 'bv.total', comparison: 'approx', reference: 1, actual: 1 },
+    { field: '', comparison: 'numeric', reference: 1, actual: 1 },
+    { field: ' ', comparison: 'exact', reference: 1, actual: 1 },
+    { comparison: 'numeric', reference: 1, actual: 1 },
+  ])('rejects malformed runtime term %j', (term) => {
+    expect(compareParityTerms([term])).toMatchObject({
+      passed: false,
+      terms: [{ field: '[0]', reason: 'invalid_term', passed: false }],
+    });
+  });
+
   function compare(reference: unknown, actual: unknown) {
     return compareParityTerms([
       { field: 'bv.total', comparison: 'numeric', reference, actual },

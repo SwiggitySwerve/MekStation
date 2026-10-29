@@ -1,5 +1,19 @@
 ## ADDED Requirements
 
+### Requirement: Runtime parity term validation
+
+The comparator SHALL reject malformed runtime terms with a structured failed
+result. Null and undefined entries SHALL be missing terms; other non-objects,
+absent or blank field identifiers, and unknown comparison kinds SHALL be invalid
+terms. An unknown comparison kind SHALL NOT silently select exact comparison.
+
+#### Scenario: Reject JSON null and unknown comparison kinds
+
+- **GIVEN** a term list containing JSON null or an unknown comparison kind
+- **WHEN** parity is evaluated
+- **THEN** the result SHALL fail and retain the entry's index in its diagnostic
+- **AND** the comparator SHALL NOT throw on null or accept matching unknown-kind values
+
 ### Requirement: Strict all-family numerical parity
 
 Every applicable numerical construction/BV result and available component term SHALL differ strictly less than 1% from its matched loaded-entity reference: `abs(actual - reference) / abs(reference) < 0.01`. Numeric acceptance SHALL compare the exact JSON decimal values so binary rounding cannot change the strict boundary; approximate ratios MAY be reported separately. Zero references SHALL require exact zero. Missing or nonfinite results SHALL fail. Discrete design facts SHALL match exactly. Existing mech BV regression gates SHALL remain enforced, but their broader aggregate thresholds SHALL NOT establish this stricter readiness.

@@ -23,6 +23,7 @@ export interface IParityTermResult extends IParityTerm {
     | 'difference'
     | 'invalid_reference'
     | 'invalid_actual'
+    | 'invalid_term'
     | 'missing_term';
   /** Approximate binary ratio for reporting; acceptance uses exact JSON decimals. */
   readonly relativeError: number | null;
@@ -42,6 +43,19 @@ function isExactValue(value: unknown): value is string | boolean | number {
     typeof value === 'string' ||
     typeof value === 'boolean' ||
     isFiniteNumber(value)
+  );
+}
+
+function isParityTerm(value: unknown): value is IParityTerm {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    'field' in value &&
+    typeof value.field === 'string' &&
+    value.field.trim().length > 0 &&
+    'comparison' in value &&
+    (value.comparison === 'numeric' || value.comparison === 'exact')
   );
 }
 
@@ -114,17 +128,17 @@ function compareTerm(term: IParityTerm): IParityTermResult {
 
 /** Every supplied term must pass; a matching total cannot cancel bad components. */
 export function compareParityTerms(
-  terms: readonly IParityTerm[],
+  terms: readonly unknown[],
 ): IParityComparisonResult {
   const results = Array.from(
     terms,
     (term, index): IParityTermResult =>
-      term === undefined
+      !isParityTerm(term)
         ? {
             field: `[${index}]`,
             comparison: 'exact',
             passed: false,
-            reason: 'missing_term',
+            reason: term == null ? 'missing_term' : 'invalid_term',
             relativeError: null,
           }
         : compareTerm(term),
