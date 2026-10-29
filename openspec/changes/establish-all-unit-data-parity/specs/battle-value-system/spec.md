@@ -2,7 +2,7 @@
 
 ### Requirement: Strict all-family numerical parity
 
-Every applicable numerical construction/BV result and available component term SHALL differ strictly less than 1% from its matched loaded-entity reference: `abs(actual - reference) / abs(reference) < 0.01`. Zero references SHALL require exact zero. Missing or nonfinite results SHALL fail. Discrete design facts SHALL match exactly. Existing mech BV regression gates SHALL remain enforced, but their broader aggregate thresholds SHALL NOT establish this stricter readiness.
+Every applicable numerical construction/BV result and available component term SHALL differ strictly less than 1% from its matched loaded-entity reference: `abs(actual - reference) / abs(reference) < 0.01`. Numeric acceptance SHALL compare the exact JSON decimal values so binary rounding cannot change the strict boundary; approximate ratios MAY be reported separately. Zero references SHALL require exact zero. Missing or nonfinite results SHALL fail. Discrete design facts SHALL match exactly. Existing mech BV regression gates SHALL remain enforced, but their broader aggregate thresholds SHALL NOT establish this stricter readiness.
 
 #### Scenario: Reject the tolerance boundary
 
@@ -11,6 +11,13 @@ Every applicable numerical construction/BV result and available component term S
 - **THEN** the comparison SHALL fail without pre-rounding the relative error
 - **WHEN** local BV is 1009 or 991
 - **THEN** that numerical comparison SHALL pass
+
+#### Scenario: Reject decimal boundary and missing comparison entries
+
+- **GIVEN** reference weight 10 and actual weight 10.1 or 9.9
+- **WHEN** numerical comparison runs
+- **THEN** it SHALL fail at the exact decimal 1% boundary
+- **AND** an array with missing comparison entries SHALL fail rather than skip them
 
 #### Scenario: Reject missing and compensating errors
 
