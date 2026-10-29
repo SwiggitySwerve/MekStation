@@ -554,7 +554,15 @@
       "answer": "GPT-6.1 Sol (Recommended), Claude Opus 5.5",
       "activityPosition": 1181
     },
-    "notGranted": "These answers do not provide an implementation-head owner ruling or waive CI, exact-head review or exact-main proof."
+    "notGranted": "These answers do not provide an implementation-head owner ruling or waive CI, exact-head review or exact-main proof.",
+    "fixtureScopeCorrection": {
+      "at": "2026-10-29T19:28:10.309599+00:00",
+      "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+      "answer": "Approve this one-file manifest correction (Recommended)",
+      "source": "Direct user response in the current conversation, 2026-10-29, approving the prepared #2385 scope correction.",
+      "scope": "Add only src/__tests__/api/vault/vault.test-helpers.ts to the effective frozen source/test manifest and valid Host headers to its five unlock fixtures. Use the existing V2.2.0-STEPS.md file-count exemption: 16 actual / 15 counted files, with the 29-PR budget unchanged. Apply and push the correction.",
+      "notGranted": "No implementation-head OWNER-RULING, CI/review waiver, merge permission beyond the existing guarded lifecycle, successor admission or Step 4 completion."
+    }
   },
   "finalLifecycleChecks": [
     {
@@ -621,11 +629,87 @@
       "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
     }
   ],
-  "sizing": {
+  "fixtureCorrection20261029": {
+    "at": "2026-10-29T19:41:16.955678+00:00",
+    "verdict": "PASS_REVIEW_REQUIRED",
+    "contributor": "gpt-6-astra",
+    "baseHead": "c8c4f224d9835fa7e436d0ce5930f7eb556f9498",
+    "scope": "Only five loopback Host fixture lines in src/__tests__/api/vault/vault.test-helpers.ts; the ten frozen-r3 source/test leaves are unchanged. The top-level head and original executions remain historical; this supplemental section binds the eleventh leaf by SHA-256. Fresh review binds the final implementation head.",
+    "ownerDecision": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/owner-decision.json",
+      "sha256": "5ba92d26335e749f060db4b155df0211cdaf35221453123ebbd84dc00ab79912",
+      "bytes": 1140
+    },
+    "effectiveSourceManifest": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/effective-source-manifest.json",
+      "sha256": "a51451312afc6ccb2e2dba010c0f5773363f4c5dbb1b1a593349975cd75d5413",
+      "bytes": 2840
+    },
+    "ciFailure": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/lint-test-diagnosis.json",
+      "sha256": "e34b1e075bdb020920c18ac66ac605c0b71155b5aeb3c07ad9935fb2ff67bf5e",
+      "bytes": 1002
+    },
+    "fixturePatch": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-proposal/vault-host-fixture.patch",
+      "sha256": "5cce0e26fa7c403ffaaee075cb6b5338c38986fe056fb0819962b7c209cd9f4a",
+      "bytes": 1408
+    },
+    "scratchRedGreen": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-proposal/results.json",
+      "sha256": "83dfb2a6a20682bf263e30ebc98c5941f1885c9421ab826a264f93d9adb683b8",
+      "bytes": 7024
+    },
+    "scratchLimits": "The scratch RED/GREEN runs add an external fixture root and module resolution to the repository unit project. RED repeats 5 failures/80 passes; GREEN passes 85/85. The branch run below uses the unmodified repository Jest configuration.",
+    "branchGreen": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/green-result.json",
+      "sha256": "94317befcd2da881c6387d62e683cd85a7567b0fcb6780be8b2627512e836cbd",
+      "bytes": 3970
+    },
+    "branchGreenRawJest": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/green-jest.json",
+      "sha256": "7255e92eec507735e6700ac6b1af8dbf7895e47cfea9e4527bfb0ef6761e5698",
+      "bytes": 43332
+    },
+    "branchGreenLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/green.log",
+      "sha256": "f0d219de171e675d27aed4bb9d0afe33c318128bbbc94d866cd0fccc4af0aa75",
+      "bytes": 2994
+    },
+    "branchRunner": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/run-green.cjs",
+      "sha256": "4cf708d8406d28230e8564bb81ba84162f29f4fd839239565c45ccc8d5e3e6b6",
+      "bytes": 2447
+    },
+    "branchCounts": {
+      "passed": 110,
+      "failed": 0,
+      "pending": 0,
+      "total": 110
+    },
+    "consumerCensus": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/leaf-census.json",
+      "sha256": "64cf3cb5490277e1cda6d435ba3d58d25534c604c50fc609d838137098d3bf72",
+      "bytes": 13257
+    },
+    "originalEvidence": "Original 722/722, 75/75, 60/60, 55 mutations and 216 validator tests still bind their unchanged original source/test bytes. They are not rerun or relabelled as executions of the added comprehensive vault fixture.",
+    "reviews": "Sol approved c8c4f224d for implementation/local validation; Opus attempt on that head failed with Claude API rate limit reached. Try again later. Neither is an approval of the forthcoming head. Both requested exact-head reviews, required CI, owner ruling, guarded merge and G-ASH6 remain owed.",
+    "deliveryChecks": "Final formatting/lint, roadmap/generator checks, intact pre-commit typecheck and delivery diff/hashes are recorded externally beside this supplement before publication."
+  },
+  "sizingBeforeFixtureCorrection": {
     "files": 15,
     "countedAdded": 398,
     "maxFiles": 15,
     "maxCountedAdded": 500,
     "method": "Manual actual proposed numstat plus both new receipts, using the validator exemptions and no deletion credit. Receipt/test lines are excluded from line count but included in file count. Recount the actual first-parent merge diff after merge."
+  },
+  "sizing": {
+    "actualFiles": 16,
+    "files": 15,
+    "countedAdded": 419,
+    "maxFiles": 15,
+    "maxCountedAdded": 500,
+    "fileExemption": "V2.2.0-STEPS.md only, ownerRuling20261024StepsPageFileCap plus the approved fixtureCorrection20261029",
+    "method": "Manual actual proposed numstat against origin/main, no deletion credit; test/evidence additions line-exempt but file-counted. Generated page additions still count. Final formatted diff and actual first-parent merge diff must be recounted."
   }
 }

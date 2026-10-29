@@ -1,3 +1,11 @@
+## 2026-10-29 API-SAME-HOST-1 CI fixture correction (same Step 4 PR 2/29)
+
+Owner-approved manifest correction adds only `src/__tests__/api/vault/vault.test-helpers.ts`: five valid loopback Host fixtures restore the comprehensive unlock suite's existing password/method assertions. The CI failure is retained; the required-check aggregator failed solely because of that shard. Scratch RED is 5 failed/80 passed, scratch GREEN 85/85; the branch vault and real campaign-credential consumer suites pass 110/110 with no skips. All ten frozen-r3 leaves and all 22 protected release-proof leaves remain unchanged.
+
+The effective source/test manifest now has eleven leaves. Applying the existing ownerRuling20261024StepsPageFileCap gives 16 actual files / 15 counted files, with only V2.2.0-STEPS.md exempt from file count; its additions still count. Caps remain 15 files/500 additions and Step 4 remains 29 PRs. The local receipt supplements historical evidence without replacing it. Fresh exact-head reviews, CI, the real head-bound owner ruling and G-ASH6 remain owed.
+
+---
+
 ## 2026-10-29 API-SAME-HOST-1 local-verified (Step 4 PR 2 of 29, the implementation)
 
 Implements the admitted unit on base 28e17b829 from the successor freeze `frozen-r3` (the F1 freeze and `frozen-r2` are preserved; this supersedes the active candidate pointer in the unit). Ten source and test leaves, byte-equal to the freeze, plus this ledger and the RED and local receipts: 15 files. Opus 5.5 and GPT-6.1 Sol approved the candidate freeze; their carried findings (B1-B8) are in the local receipt's limits.
