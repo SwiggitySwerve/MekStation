@@ -37,6 +37,7 @@ import {
   computeProtoEngineWeight,
   getProtoEngineWeightError,
   computeProtoStructure,
+  getProtoStructureTonnageError,
   getProtoMainGunTopologyError,
 } from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
@@ -137,6 +138,8 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         );
       }
     }
+    const structureError = getProtoStructureTonnageError(document.tonnage);
+    if (structureError) errors.push(structureError);
     const chassisType = this.parseChassis(document, errors);
     if (errors.length > 0) return { errors, warnings };
 

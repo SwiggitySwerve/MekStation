@@ -62,6 +62,9 @@ share the head/arm and leg table; Quad has no arms and a distinct leg table.
 The source table's default rows are retained for positive out-of-range weights;
 calculation is separate from construction validity. Nonfinite/nonpositive
 tonnage or values above signed 32-bit range fail at the owner boundary.
+`getProtoStructureTonnageError` owns that admission rule. The BLK handler uses
+its diagnostic for all spellings before calculation, preserving a structured
+parse failure; direct calculations still throw. Unrelated errors are not caught.
 
 Local fixed records use 0 for absent Quad arms and absent Main Gun. The explicit
 chassis and mount flags carry topology. The Java comparator checks absence
