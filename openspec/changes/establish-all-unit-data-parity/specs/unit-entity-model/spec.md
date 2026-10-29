@@ -51,6 +51,20 @@ ProtoMek conversion SHALL use fusion regardless of the ignored tag. SmallCraft c
 
 This slice does not establish TypeScript BLK export or hydration correctness. The conflicting maps in `BlkExportServiceCore.formatters.ts`, `VehicleUnitHandler.ts` and `ConventionalFighterUnitHandler.ts` remain explicit tasks 2.1/3.2 gaps. LargeSupportTank discovery and other unsupported families remain under the all-family loading requirement.
 
+The source-format number/name definitions SHALL be owned by
+`src/types/formats/blk-engine-codes.json`, a language-neutral table consumed by
+the Python decoder. Moving those definitions SHALL preserve complete converter
+outputs, ignored-tag behavior, malformed-code diagnostics and generic MTF aliases.
+This extraction prepares TypeScript caller consolidation; it does not correct
+the three remaining TypeScript maps identified above.
+
+#### Scenario: Shared definitions preserve existing conversion
+
+- **GIVEN** supported converter inputs covering omitted tags and codes 0 through 13
+- **WHEN** the Python decoder reads the shared table from any working directory
+- **THEN** complete converted documents SHALL equal the pre-extraction outputs
+- **AND** the definitions SHALL resolve relative to the module, not the caller's directory
+
 #### Scenario: Decode families whose loaders read the tag
 
 - **GIVEN** supported Tank, VTOL, SupportTank, SupportVTOL, Aero, AeroSpaceFighter, ConvFighter or FixedWingSupport definitions with engine code 1
