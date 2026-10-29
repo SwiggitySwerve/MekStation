@@ -54,7 +54,7 @@ from blk_common import (
     generate_id_from_name,
     get_string,
     map_armor_code,
-    map_engine_type,
+    map_blk_engine_code,
     map_rules_level,
     map_tech_base,
     map_year_to_era,
@@ -198,8 +198,15 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     hs_type_str = "DOUBLE" if sink_type == 1 else "SINGLE"
 
     # --- Engine ---
-    engine_code = get_string(tags, "engine_type")
-    engine_type_str = map_engine_type(engine_code or "0")
+    engine_code = tags.get("engine_type")
+    if sub_type == "SmallCraft":
+        # MegaMek 48fcb2f6 BLKSmallCraftFile.java:146-147 never reads this tag.
+        # SmallCraft.java:128-130 retains ICE as a runtime placeholder, not a
+        # construction engine choice. Preserve the raw fact in the diagnostic.
+        engine_type_str = "ICE"
+        logger.info(f"{blk_path}: ignored raw engine_type={engine_code!r}; upstream SmallCraft ICE placeholder")
+    else:
+        engine_type_str = map_blk_engine_code(engine_code)
 
     # --- Cockpit ---
     cockpit_code = get_string(tags, "cockpit_type")

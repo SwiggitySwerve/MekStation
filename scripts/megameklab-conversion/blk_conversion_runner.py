@@ -177,9 +177,15 @@ def run_blk_conversion(config: BlkConversionConfig) -> int:
     manifest: List[UnitDict] = []
     filename_builder = config.filename_builder or safe_unit_filename
     unsupported = tuple(config.unsupported_unit_types or ())
+    units_to_write: List[UnitDict] = []
 
     for blk_path in blk_files:
-        unit = config.convert_unit(blk_path, logger)
+        try:
+            unit = config.convert_unit(blk_path, logger)
+        except ValueError as exc:
+            logger.error(f"Failed to convert {blk_path}: {exc}")
+            errors += 1
+            continue
         if unit is None:
             if unsupported:
                 skip_kind = classify_unit_type(blk_path, unsupported)
@@ -191,6 +197,15 @@ def run_blk_conversion(config: BlkConversionConfig) -> int:
                 skipped += 1
             continue
 
+        units_to_write.append(unit)
+
+    # A rejected source must not leave a partly replaced catalog beside an old
+    # manifest. Complete conversion before writing any design or manifest file.
+    if errors:
+        logger.error(f"Conversion failed for {errors} source(s); no output files written")
+        return 1
+
+    for unit in units_to_write:
         out_path = output_dir / f"{filename_builder(unit)}.json"
         try:
             out_path.write_text(json.dumps(unit, indent=2, ensure_ascii=False), encoding="utf-8")

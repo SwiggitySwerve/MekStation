@@ -41,6 +41,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from blk_schema_writers import write_equipment_json, write_unit_json, write_weapon_json
+from enum_mapping_tables import BLK_ENGINE_CODE_MAP
 
 
 # ---------------------------------------------------------------------------
@@ -124,8 +125,23 @@ except ImportError:  # pragma: no cover — defensive fallback only
 
 
 # ---------------------------------------------------------------------------
-# BLK parsing primitives — bit-for-bit identical across all 5 converters
+# BLK parsing primitives and serialized engine decoding
 # ---------------------------------------------------------------------------
+
+def map_blk_engine_code(code: Any) -> str:
+    """Decode BLK serialization, retaining the legacy default only for omission.
+
+    Engine tech flags (including clan_engine) are separate from this code.
+    Unknown or malformed codes must not silently become valid Fusion engines.
+    """
+    if code is None:
+        return "FUSION"
+    code_str = str(code).strip()
+    try:
+        return BLK_ENGINE_CODE_MAP[code_str]
+    except KeyError:
+        raise ValueError(f"Unsupported BLK engine_type code: {code!r}") from None
+
 
 def remove_comments(content: str) -> str:
     """Strip ``#`` comment lines from BLK content."""
@@ -338,6 +354,7 @@ __all__ = [
     "get_string",
     "parse_armor_array",
     "map_armor_code",
+    "map_blk_engine_code",
     # Output helpers
     "MANIFEST_BUDGET_BYTES",
     "setup_logger",

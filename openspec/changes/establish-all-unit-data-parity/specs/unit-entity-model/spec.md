@@ -42,3 +42,39 @@ The entity model SHALL preserve the loaded construction family, subtype, technol
 - **WHEN** the local domain loads it
 - **THEN** its design facts SHALL be retained with validation diagnostics
 - **AND** loading success SHALL NOT be described as construction validity
+
+### Requirement: BLK engine serialization adapter
+
+The Python catalog adapters SHALL decode engine tags only for supported families whose upstream loaders read them. These readers SHALL share one decoder with the source-format meanings: 0 fusion, 1 ICE, 2 XL, 3 XXL, 4 light, 5 compact, 6 fuel cell, 7 fission, 8 none, 9 maglev, 10 steam, 11 battery, 12 solar and 13 external. Generic MTF numeric aliases SHALL retain compatibility semantics. For these readers, an omitted tag MAY retain the legacy fusion default; explicit unknown, malformed or empty codes SHALL fail with a diagnostic. Technology flags remain separate source facts.
+
+ProtoMek conversion SHALL use fusion regardless of the ignored tag. SmallCraft conversion SHALL retain the upstream ICE runtime placeholder regardless of the tag, and SHALL identify that placeholder in a diagnostic rather than treating it as construction-validity evidence. Ignored nondefault ProtoMek tags and SmallCraft tags SHALL remain visible with the source path and raw value in diagnostics. Original-byte retention belongs to source inventory and provenance.
+
+This slice does not establish TypeScript BLK export or hydration correctness. The conflicting maps in `BlkExportServiceCore.formatters.ts`, `VehicleUnitHandler.ts` and `ConventionalFighterUnitHandler.ts` remain explicit tasks 2.1/3.2 gaps. LargeSupportTank discovery and other unsupported families remain under the all-family loading requirement.
+
+#### Scenario: Decode families whose loaders read the tag
+
+- **GIVEN** supported Tank, VTOL, SupportTank, SupportVTOL, Aero, AeroSpaceFighter, ConvFighter or FixedWingSupport definitions with engine code 1
+- **WHEN** the Python source adapter converts them
+- **THEN** each SHALL identify an ICE engine
+- **AND** code 6 SHALL identify fuel cell rather than ICE
+
+#### Scenario: Preserve ignored-tag loader behavior
+
+- **GIVEN** ProtoMek and SmallCraft definitions with engine code 1, 2, 99 or an omitted tag
+- **WHEN** the Python source adapter converts them
+- **THEN** ProtoMek SHALL identify fusion and SmallCraft SHALL identify its upstream ICE placeholder
+- **AND** an ignored code SHALL NOT fail engine decoding or change the loaded engine type
+
+#### Scenario: Reject an explicit invalid engine code
+
+- **GIVEN** a supported engine-tag reader with a BLK tag containing 99, an empty value or a fractional value
+- **WHEN** conversion runs
+- **THEN** it SHALL fail with the invalid code in its diagnostic
+- **AND** it SHALL NOT substitute fusion
+
+#### Scenario: Reject a batch before replacing catalog files
+
+- **GIVEN** a batch with a valid source followed by an invalid engine code
+- **WHEN** source conversion fails
+- **THEN** the diagnostic SHALL name the failing source path and code
+- **AND** no unit or manifest files SHALL have been written by that batch

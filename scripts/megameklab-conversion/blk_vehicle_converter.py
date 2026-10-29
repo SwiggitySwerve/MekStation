@@ -30,7 +30,6 @@ from blk_conversion_runner import (
 from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
-    ENGINE_CODE_EXT,
     MOTION_TYPE_MAP,
     UNSUPPORTED_UNIT_TYPES,
     VEHICLE_ARMOR_LOCATIONS,
@@ -46,7 +45,7 @@ from blk_common import (
     generate_id_from_name,
     get_string,
     map_armor_code,
-    map_engine_type,
+    map_blk_engine_code as map_engine_code,
     map_rules_level,
     map_tech_base,
     map_year_to_era,
@@ -70,25 +69,12 @@ from blk_common import (
 
 # Motion type mapping: BLK motion_type value → IVehicle motionType
 
-# Engine type code numeric → string (supplements enum_mappings for codes 6+)
-
 # Armor type code numeric → string (commonly seen in BLK armor_type tag)
 
 
 # ---------------------------------------------------------------------------
 # Vehicle-specific helpers
 # ---------------------------------------------------------------------------
-
-def map_engine_code(code: Any) -> str:
-    """Map numeric engine_type code to string constant."""
-    if code is None:
-        return "FUSION"
-    code_str = str(code).strip()
-    # Try extended map first (codes 6+)
-    if code_str in ENGINE_CODE_EXT:
-        return ENGINE_CODE_EXT[code_str]
-    return map_engine_type(code_str)
-
 
 def map_motion_type(raw: Optional[str]) -> str:
     """Map BLK motion_type string to IVehicle motionType."""
@@ -190,7 +176,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     flank_mp = math.ceil(cruise_mp * 1.5)
 
     # --- Engine ---
-    engine_code = get_string(tags, "engine_type")
+    engine_code = tags.get("engine_type")
     engine_type_str = map_engine_code(engine_code)
     # Engine rating: not stored in vehicle BLK, compute from tonnage × cruise_mp
     # Standard vehicle engine rating = tonnage × cruise_mp (rounded to 5)
