@@ -124,6 +124,11 @@ __pycache__/
 *.pyc
 data/
 
+# Keep the provenance command guide available to staging and commit hooks.
+!/docs/data/
+/docs/data/*
+!/docs/data/portable-source-provenance.md
+
 # Keep the source unit schema available to normal staging and commit checks.
 !/public/data/
 /public/data/*

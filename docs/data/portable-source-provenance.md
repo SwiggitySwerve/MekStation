@@ -65,14 +65,15 @@ metadata is excluded; any inventoried ZIP container causes an explicit failure
 listing its path because member coverage cannot be represented in 1.0.0.
 
 ```text
-npm run provenance:units -- --repo <local-git-repository> --commit <full-commit> --repository https://github.com/MegaMek/mm-data
+npm run --silent provenance:units -- --repo <local-git-repository> --commit <full-commit> --repository https://github.com/MegaMek/mm-data
 python -B -m unittest discover -s scripts/__tests__ -p test_source_provenance.py
 ```
 
 The CLI requires Python with `jsonschema`; its producer tests also need installed
 Node development dependencies (`tsx` and Zod) for the independent consumer.
 Set `NODE_BINARY` to select a Node executable for that test. The CLI emits UTF-8 JSON to stdout only after
-successful validation, and leaves catalogs untouched. Redirect stdout to an
+successful validation, and leaves catalogs untouched. Use `--silent` to keep
+npm's status banner out of the JSON. Redirect stdout to an
 intentional artifact path. Repository identity is asserted by the caller, never
 inferred from mutable remote configuration or attested as ownership. It retains
 paths, case, format, blob and original-byte SHA-256 from immutable inventory;
