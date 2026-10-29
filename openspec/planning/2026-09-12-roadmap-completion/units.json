@@ -21261,11 +21261,11 @@
       "ciClass": "product",
       "reviewClasses": ["authority", "privacy"],
       "caps": {"maxFiles": 15, "maxNonGeneratedLines": 500},
-      "state": "admitted",
+      "state": "local-verified",
       "baseline": "3dc706ed4d07cc5cd148c92ef7b15db9ce744ddf",
       "prHead": null,
       "mergeSha": null,
-      "stageReceipts": {"admission": {"path": "evidence/api-same-host-1-admission-20261025.json"}, "red": null, "local": null, "review": null, "merge": null, "mainProof": null, "tick": null},
+      "stageReceipts": {"admission": {"path": "evidence/api-same-host-1-admission-20261025.json"}, "red": {"path":"evidence/api-same-host-1-red-20261025.json","at":"2026-10-29T16:50:09.031Z","summary":"RED_CONFIRMED on the unchanged implementation base 28e17b829: 367 behavioural failures of 379, 12 rows not counted (LSC-2O), guard unit suite does not load; no separate RED commit (pre-commit hook typecheck), disclosed."}, "local": {"path":"evidence/api-same-host-1-local-20261025.json","at":"2026-10-29T17:32:17.009Z","summary":"PASS_REVIEW_REQUIRED at 6592181e9: GREEN 722/722, existing 75/75, neighbours 60/60, 55/55 mutants killed. Legacy (unversioned) local receipt by owner choice: the version-2 census was refused by the validator for the executor's T3 identifiers, so the exact-head reviewer must be a different model from claude-sonnet-5-5 and gpt-6-astra. Roadmap plain/--git/--github and 216 validator/v220 tests pass; Root repeated all 55 mutants with per-run source/test hashes. CI, exact-head reviews, owner ruling and G-ASH6 remain owed."}, "review": null, "merge": null, "mainProof": null, "tick": null},
       "ownerGate": null,
       "predecessors": ["L1-SMOKE-B"],
       "successors": ["CAMPAIGN-LIVE-WRITE-1", "DESKTOP-DATA-OWN-1", "DESKTOP-GUARDS-1"],
@@ -21288,6 +21288,7 @@
         "acceptanceAdded": ["server.js exits 1 at boot when the guard cannot load", "maxPayload 1 MiB: exactly 1 MiB accepted, 1 MiB + 1 closed with 1009 on the match and campaign channels"],
         "estimate": {"leaves": 10, "files": 15, "countedLines": 274}
       },
+      "implementation20261029": {"date":"2026-10-29","supersedes":"admission20261028.frozenCandidate (frozen-20261028-f1) as the active candidate; the F1 freeze, frozen-r2 and the admission receipt are preserved unchanged","freeze":"E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\frozen-r3","freezeSha256SumsSha256":"d9a859a863da8137e1825e049841a6d9eebe02be416b8e096ceb4d02bc8a3980","candidateReviews":{"opus":{"model":"claude-opus-5-5","verdict":"APPROVE","reportSha256":"31cf44dff1810dffdabf4aa29677bf097d8a8f68aac2816a43ef32e7cf647c0e"},"sol":{"model":"gpt-6.1-sol","verdict":"APPROVE","reportSha256":"3ce7ddf8e0a82fec23d367810ffadd1ba0ac4ed7e50b72675b08b59197045a4b"},"scope":"candidate freeze only; not an implementation head, lifecycle state or gate"},"implementationBase":"28e17b829ebdb03aca4634ca67fd8b798c7c35ca","workerRuling":"Owner, 2026-10-29: Claude delivers (recorded in the local receipt candidate.ownerRulingN4)","detail":"evidence/api-same-host-1-local-20261025.json"},
       "admission20261028": {
         "date": "2026-10-28",
         "receipt": "evidence/api-same-host-1-admission-20261025.json",
@@ -26772,6 +26773,33 @@
           "item": "Pre-existing: ServerMatchHostJournalAuthority.ts:266-274 rebuilds after journal divergence without a dice roller. Root must register the journal-authority follow-up; U44 capability-DB routing is not permission for an unregistered divergence repair."
         }
       ]
+    },
+    {
+      "id": "PK-api-same-host-1-ruling",
+      "blocks": [
+        "API-SAME-HOST-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Should the owner accept the exact independently reviewed same-host guard, frame cap and packaged-validator change for the game's own API and WebSocket services?",
+      "options": [
+        {
+          "label": "rule the exact source head",
+          "consequence": "Accept the bounded change: every /api request and upgrade must have a loopback Host and, when present, a matching Origin and allowed Sec-Fetch-Site, startup fails if the guard cannot load, the credential routes refuse before parsing or KDF work, and sockets cap frames at 1 MiB. Then run genuine exact-main proof and admit CAMPAIGN-LIVE-WRITE-1.",
+          "effort": "Independent exact-head review, RED/GREEN evidence, 55 mutants killed, required CI on the exact head, owner ruling on that head, then exact-main Electron-as-node packaged validation and the frozen 34-case regression"
+        },
+        {
+          "label": "request changes",
+          "consequence": "Hold closure until concrete findings are fixed under a successor freeze; the admitted unit stays in flight.",
+          "effort": "Bounded by findings"
+        }
+      ],
+      "agentRecommendation": "Rule the exact source head once exact-head review and CI are recorded. Disclosed limits to weigh: HTML and _next reads and the bare dev:e2e path stay unguarded; a request with a valid loopback Host but no Origin or fetch metadata is admitted by design; the fourth routing reading is a conservative over-approximation (built Next 16.2.11 answers those spellings with its 404 page), next dev was not probed; the local receipt is legacy (unversioned) by owner choice because the executor's T3 identifiers do not fit the version-2 st_/UUID census, so no version-2 identity evidence exists and the exact-head reviewer must be a different model from claude-sonnet-5-5 and gpt-6-astra.",
+      "revertCost": "Low before deployment: revert the ten source and test leaves; no schema, wire or data migration. After release the guard refuses non-loopback API clients, so reverting reopens browser-mediated access to the local API.",
+      "decision": null,
+      "ruling": null
     }
   ],
   "deferrals": [
