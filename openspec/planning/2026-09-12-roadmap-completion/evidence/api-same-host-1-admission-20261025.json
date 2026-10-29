@@ -17,7 +17,8 @@
       "(3) Owner decisions 2026-10-25b, _receipts/owner-decisions-20261025b.md sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2: \"yes and yes\" (variant B leaf correction); Q2 item 5: fail closed, server.js exits 1 at boot if the guard cannot load.",
       "(4) Registration #2334 (units.json registration20261025ReleaseBlocking, source sha256 4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38) and the variant-B correction (registration20261025bCorrection, source sha256 32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1): exactly the ten registered leaves.",
       "(5) Root rulings 2026-10-28 on the prep refresh (eight rulings, see rulings20261028) and the corrected Step 4 accounting; Root disposition 2026-10-28 (post-C installed observation: suite 17 of 17 PASS, external recorder FAIL, not an RC or Step 2/8 acceptance).",
-      "(6) Admission only. No implementation ruling exists; the sensitive-class OWNER-RULING on the exact implementation head comes later."
+      "(6) Admission only. No implementation ruling exists; the sensitive-class OWNER-RULING on the exact implementation head comes later.",
+      "(7) Root ruling 2026-10-28 \"#2371 both reviews REQUEST-CHANGES; classifier fix required\" and FIX-F1-BRIEF.md: correct F1 in the registered owner, tests and validator; take Opus F2 and F3 in the same proof refresh; create a separately identified freeze; prove the refusal against an actual built, unflagged Next. Still admission only."
     ]
   },
   "contributor": {
@@ -25,7 +26,7 @@
     "model": "claude-sonnet-5-5",
     "role": "implementation sub-agent for the admission only (census, frame measurement, scratch candidate evaluation, mutation, lifecycle edits); not the reviewer",
     "coordinator": "Root",
-    "note": "Mutation and fault injection run on Claude only. No subagents."
+    "note": "Mutation and fault injection run on Claude only. No subagents. The F1 correction was made by the same Claude Sonnet 5.5 worker after two completed independent reviews (Opus and GPT Sol) returned REQUEST-CHANGES."
   },
   "predecessors": {
     "L1-SMOKE-B": "main-verified. Merge ad84867355c85270086977ad3d9a83b93107c09a (#2351, merge-commit, head 45b216b4c138457bf2f26a1a53827306ce0cb17d) is an ancestor of the baseline; mainProof PASS at the clean exact merge (frozen done-test 34 of 34 ids, BUILD_ID 1793186803130, printed headSha ad8486735); Step 3 evidence complete/PASS (72539c05a, #2352).",
@@ -35,17 +36,17 @@
   "acceptance": [
     "A request to any of the 98 /api route files whose Host is not a literal loopback authority, whose Origin is not http(s)://<Host>, or whose Sec-Fetch-Site is not absent, same-origin or none gets 403 {\"error\":\"Same-host requests only\"} from server.js before Next is invoked (all route classes: public read, private read, form write, JSON write, delete, credential, multiplayer, e2e hook).",
     "The same rule judges every WebSocket upgrade (multiplayer socket, HMR path, any other) before the path or bearer is read: a foreign Origin or rebinding Host gets 403; a same-host client still reaches the existing bearer check.",
-    "Encoded, doubled-slash, dot-segment, backslash, upper-case, absolute-form and undecodable spellings of /api are guarded; page routes are not (ruling 7).",
+    "Encoded, doubled-slash, dot-segment, backslash, upper-case, absolute-form and undecodable spellings of /api are guarded, and an API prefix that Next routes by (for example /api/pilots/%2e%2e%2f%2e%2e, a dynamic-route parameter that decodes to separators or dot segments) can never be erased by normalising later parameter content; page routes are not guarded (ruling 7).",
     "Requests with no Origin and no Fetch Metadata are still served (same-host controls).",
-    "The rule lives once in src/lib/api/sameHostGuard.ts; local-seats, token and unlock call it first, before the method check, body parse, rate limit and KDF; local-seats behaviour and error text are unchanged and its existing suite passes unchanged.",
+    "The rule lives once in src/lib/api/sameHostGuard.ts; local-seats, token and unlock call it first, before the method check, the handlers' Zod parseBody, rate limit and KDF; the custom server guard precedes Next's HTTP parsing, but under bare next dev (dev:e2e, already disclosed as bypassing server.js) Next's own body parser runs first. local-seats behaviour and error text are unchanged and its existing suite passes unchanged.",
     "server.js exits 1 at boot when tsx or the guard cannot load; a failure after boot answers an API request 500 and destroys an upgrade, never admitting either unguarded (ruling 2).",
     "The one WebSocketServer refuses an inbound frame larger than 1 MiB: exactly 1,048,576 bytes accepted and 1,048,577 closed with 1009 on the match and campaign channels.",
-    "scripts/validate-multiplayer-packaged-socket.mjs exports assertSameHostGuard and main() calls it on the built, unflagged server (rebinding-Host read 403, cross-site form 403 with no identity created, same-host read 200, foreign-Origin upgrade 403). Not wired into CI here (DESKTOP-GUARDS-1).",
+    "scripts/validate-multiplayer-packaged-socket.mjs exports assertSameHostGuard and main() calls it on the built, unflagged server (rebinding-Host read 403, cross-site form 403 with no identity created, the encoded dynamic-route target /api/pilots/%2e%2e%2f%2e%2e 403 for a foreign Host and not 403 for the loopback Host, a page route not 403 for a foreign Host, same-host read 200, foreign-Origin upgrade 403). Not wired into CI here (DESKTOP-GUARDS-1).",
     "No session, cookie, rate-limit or error-text change; extraction preserves local-seats behaviour."
   ],
   "manifest": {
-    "frozenDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028",
-    "frozenNote": "Read-only copy outside Git: candidate/ (the ten whole files), patches/, tools/, the frame measurement and fit. SHA256SUMS.txt beside them; the per-file sha256 below must equal it. Patches apply with core.autocrlf=false.",
+    "frozenDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028-f1",
+    "frozenNote": "F1 correction freeze: read-only copy outside Git; candidate/ (the ten whole files), patches/ (the corrected 01, 02, 03 plus the superseded previous-01/-02 for comparison), tools/, the differential, built probe, frame measurement and fit. SHA256SUMS.txt beside them; the per-file sha256 below must equal it. Patches apply with core.autocrlf=false. The earlier freeze E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028 is preserved unchanged and superseded.",
     "baselineBlobs": {
       "scripts/validate-multiplayer-packaged-socket.mjs": "7cfff338f26bdfc6eca5fef8c0328744da49f50f",
       "server.js": "7ce8627c35dbc754fa789f70cc701c536f3549e8",
@@ -66,31 +67,34 @@
         "baselineBlob": "7ce8627c35dbc754fa789f70cc701c536f3549e8",
         "addedLines": 58,
         "deletedLines": 0,
-        "counted": true
+        "counted": true,
+        "previousFreezeSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa"
       },
       {
         "path": "src/lib/api/sameHostGuard.ts",
         "class": "source",
         "state": "new",
-        "candidateSha256": "c386126394e5a6f9a4a8d164d73ad4a42538a25dd37c0bae6060c7faec39fd74",
-        "candidateBytes": 4577,
-        "candidateLines": 131,
+        "candidateSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+        "candidateBytes": 5984,
+        "candidateLines": 175,
         "baselineBlob": null,
-        "addedLines": 131,
+        "addedLines": 175,
         "deletedLines": 0,
-        "counted": true
+        "counted": true,
+        "previousFreezeSha256": "c386126394e5a6f9a4a8d164d73ad4a42538a25dd37c0bae6060c7faec39fd74"
       },
       {
         "path": "src/lib/api/__tests__/sameHostGuard.test.ts",
         "class": "test",
         "state": "new",
-        "candidateSha256": "1f3298227789db602e0d0907905891dadd629c1bba6fccd98220ae2e4dc788c7",
-        "candidateBytes": 7004,
-        "candidateLines": 235,
+        "candidateSha256": "886d31f440a05e79a3933386b00e4da8966ad02c03a4b93ebfeade682d8aa2e6",
+        "candidateBytes": 8452,
+        "candidateLines": 270,
         "baselineBlob": null,
-        "addedLines": 235,
+        "addedLines": 270,
         "deletedLines": 0,
-        "counted": false
+        "counted": false,
+        "previousFreezeSha256": "1f3298227789db602e0d0907905891dadd629c1bba6fccd98220ae2e4dc788c7"
       },
       {
         "path": "src/pages/api/multiplayer/auth/local-seats.ts",
@@ -102,7 +106,8 @@
         "baselineBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
         "addedLines": 2,
         "deletedLines": 27,
-        "counted": true
+        "counted": true,
+        "previousFreezeSha256": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4"
       },
       {
         "path": "src/pages/api/multiplayer/auth/token.ts",
@@ -114,7 +119,8 @@
         "baselineBlob": "e50fceca5ea53c2a1aad8908f1adef8096b520ae",
         "addedLines": 2,
         "deletedLines": 0,
-        "counted": true
+        "counted": true,
+        "previousFreezeSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a"
       },
       {
         "path": "src/pages/api/vault/identity/unlock.ts",
@@ -126,31 +132,34 @@
         "baselineBlob": "3dd359466ec9422031c9617324d0f399363c0468",
         "addedLines": 2,
         "deletedLines": 0,
-        "counted": true
+        "counted": true,
+        "previousFreezeSha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b"
       },
       {
         "path": "src/__tests__/api/sameHostGuard.routes.test.ts",
         "class": "test",
         "state": "new",
-        "candidateSha256": "6647bff0edf429f87a33d62c6f0ffee962f64d03059c70f8e51addf8acb92c61",
-        "candidateBytes": 31532,
-        "candidateLines": 930,
+        "candidateSha256": "b8e1bcadaefe6c014869f1268c332ec6407f2a55179194f21e8c28aeafba03d2",
+        "candidateBytes": 36236,
+        "candidateLines": 1069,
         "baselineBlob": null,
-        "addedLines": 930,
+        "addedLines": 1069,
         "deletedLines": 0,
-        "counted": false
+        "counted": false,
+        "previousFreezeSha256": "6647bff0edf429f87a33d62c6f0ffee962f64d03059c70f8e51addf8acb92c61"
       },
       {
         "path": "scripts/validate-multiplayer-packaged-socket.mjs",
         "class": "source",
         "state": "existing",
-        "candidateSha256": "7994a915b60035f6697e7b12025ba84288ce43410462961fe270d01457fe1c26",
-        "candidateBytes": 29136,
-        "candidateLines": 693,
+        "candidateSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+        "candidateBytes": 29931,
+        "candidateLines": 713,
         "baselineBlob": "7cfff338f26bdfc6eca5fef8c0328744da49f50f",
-        "addedLines": 79,
+        "addedLines": 99,
         "deletedLines": 0,
-        "counted": true
+        "counted": true,
+        "previousFreezeSha256": "7994a915b60035f6697e7b12025ba84288ce43410462961fe270d01457fe1c26"
       },
       {
         "path": "src/__tests__/api/securityBoundary.test.ts",
@@ -162,7 +171,8 @@
         "baselineBlob": "09694daf3d07ccb26fef22c21bf11dd073d10cd2",
         "addedLines": 1,
         "deletedLines": 1,
-        "counted": false
+        "counted": false,
+        "previousFreezeSha256": "88213ddf2553da40c81bf16692c4f7ce959eb83b3ed570531f569d61b9e193df"
       },
       {
         "path": "src/__tests__/api/vault/unlock.test.ts",
@@ -174,23 +184,25 @@
         "baselineBlob": "6f8bf5bfb2de20d2ed27c15f0deaad4806908037",
         "addedLines": 13,
         "deletedLines": 0,
-        "counted": false
+        "counted": false,
+        "previousFreezeSha256": "5d60696d5f8d99629a9a57fa46f02abbde793fad4010ff0e2df686beb83cb1e5"
       }
     ],
     "sourceLeafCount": 10,
     "patches": {
-      "01-failing-tests.patch": "a9db5492195221ed21362540646b7c3887630391977a0bca848f3421eb641907",
-      "01-failing-tests.20261025-original.patch": "cb3f9119b43f66913e058e7cd367791112331b124ba859ab4843861c9dd5237a",
-      "02-implementation.patch": "c19d67136c338c72e8b554adc88abf9d29a62bd2e7eb11dd5a28582e68fdd004",
-      "03-existing-suite-fixes.patch": "1ab23ee886ee8683dafc40a440508c5146e1fcaa62599f03c63d104404208b2f"
+      "01-failing-tests.patch": "1d085c55460b58ded098541e854955eff0ccad19e0c6b1d98c987e36ffee6275",
+      "02-implementation.patch": "5247d273d0bd8df93563da433ddf15e825b1966f88d7ddddd80f92b370cb6e3e",
+      "03-existing-suite-fixes.patch": "1ab23ee886ee8683dafc40a440508c5146e1fcaa62599f03c63d104404208b2f",
+      "previous-01-failing-tests.e975d71ef-freeze.patch": "a9db5492195221ed21362540646b7c3887630391977a0bca848f3421eb641907",
+      "previous-02-implementation.e975d71ef-freeze.patch": "c19d67136c338c72e8b554adc88abf9d29a62bd2e7eb11dd5a28582e68fdd004"
     },
     "tools": {
-      "add-mutants.cjs": "dc6bc794d97a64c0f5fe64fa2cc1afce7e96b47a23c5e4110a6c059bfd799571",
+      "build-runner.cjs": "e31895301488b80ddc6fe6d9e297f44ce0d2085bdb1236704d93e4c5e0f36f95",
       "classify-red.cjs": "540f9beea728a907def3075bd3f4b51513054cc7d259f6e8f0444228988eeaa5",
       "measure-fit.cjs": "69281dfb75b1a1c92b4947b06a377ed73d84a1a0b7921e96dd27af44d99e0d78",
-      "proof.cjs": "181f98e6f5292e74f8eebca357e5d06474396a398ed816b8fe2468fc2eb15a31",
-      "repro-pre-red.cjs": "84b9704a394f5c1d38b771d07beaa063948b9161c8221de597f5f7e2335504dc",
-      "run-mutants.cjs": "bf811d2b0f4997a244a3638e0e709d8da27289b9af9ab5a4146b3a803102b49b"
+      "proof.cjs": "fb4b550b449cdca7140a68598a5fbfca3f623b5a6faa76fbd33c2594ca36722f",
+      "repro-pre-red.cjs": "6ba7f8ed8080e3873dc4fe8fb762f293e9c8afc4aa4325139014edbf32596d24",
+      "run-mutants.cjs": "3e8e3276e94757370aa5f454be79fb35a31ad096919eeae2687ceadb73d04f89"
     },
     "registeredManifest": "units.json API-SAME-HOST-1.registeredSourceLeaves (ten leaves, variant B). No eleventh source or test leaf; an extra leaf needs a separately registered split.",
     "implementationPrFiles": [
@@ -228,7 +240,26 @@
       "CAMPAIGN-LIVE-WRITE-1 admission files"
     ],
     "lifecycleOwnership": "Every lifecycle file of the implementation PR is covered by ownershipExceptions after this admission (units.json, the four registered evidence names, PROGRESS.md and V2.2.0-STEPS.md added here); the ten leaves are covered by ownershipPaths (src/lib/api, src/pages/api/multiplayer/auth, src/__tests__/api, the validator, server.js) and the registered exception for unlock.ts. Audited with the real validate-roadmap.mjs --git on a synthetic implementation merge (README, Ownership audit): 15 files, 330 counted additions, ownership or cap violations 0; negative control (PROGRESS.md and the page removed from ownershipExceptions) flagged 2 files.",
-    "gitForce": "Not needed: none of the leaves is under an ignored path (scripts/** is ignored but the validator is an existing tracked file)."
+    "gitForce": "Not needed: none of the leaves is under an ignored path (scripts/** is ignored but the validator is an existing tracked file).",
+    "supersededFreeze": {
+      "previousHead": "e975d71ef95234d08a88b38199b69a55c6779022",
+      "previousFreezeDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028",
+      "previousFreezeNote": "Preserved unchanged and read-only. SUPERSEDED: its sameHostGuard.ts (c386126394e5a6f9a4a8d164d73ad4a42538a25dd37c0bae6060c7faec39fd74) has the F1 defect, and its 41/41 mutants, 559/559 GREEN and RED counts do not describe the corrected bytes.",
+      "changedLeaves": [
+        "src/lib/api/sameHostGuard.ts",
+        "src/lib/api/__tests__/sameHostGuard.test.ts",
+        "src/__tests__/api/sameHostGuard.routes.test.ts",
+        "scripts/validate-multiplayer-packaged-socket.mjs"
+      ],
+      "unchangedLeaves": [
+        "server.js",
+        "src/pages/api/multiplayer/auth/local-seats.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/pages/api/vault/identity/unlock.ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/__tests__/api/vault/unlock.test.ts"
+      ]
+    }
   },
   "caps": {
     "maxFiles": 15,
@@ -238,22 +269,22 @@
     "rule": "Per merge diff, as validate-roadmap.mjs:707-725 (git diff --numstat --no-renames <mergeSha>^1 <mergeSha>); tests and evidence line-exempt but file-counted. No exemption was invented."
   },
   "measuredFit": {
-    "basis": "tools/measure-fit.cjs on the frozen patches at the baseline; UNCOUNTED_FILES read from validate-roadmap.mjs at run time. Real lifecycles measured from merge diffs: 35fa2fb9c 48, f917a5259 56, b78909c5e 51, d5fb4d867 62, ad8486735 55.",
-    "countedAdditions": 274,
+    "basis": "f1/tools/measure-fit.cjs on the corrected patches at the baseline; UNCOUNTED_FILES read from validate-roadmap.mjs at run time. Real lifecycles measured from merge diffs: 35fa2fb9c 48, f917a5259 56, b78909c5e 51, d5fb4d867 62, ad8486735 55.",
+    "countedAdditions": 338,
     "perFile": {
       "server.js": 58,
-      "src/lib/api/sameHostGuard.ts": 131,
+      "src/lib/api/sameHostGuard.ts": 175,
       "src/pages/api/multiplayer/auth/local-seats.ts": 2,
       "src/pages/api/multiplayer/auth/token.ts": 2,
       "src/pages/api/vault/identity/unlock.ts": 2,
-      "scripts/validate-multiplayer-packaged-socket.mjs": 79
+      "scripts/validate-multiplayer-packaged-socket.mjs": 99
     },
     "deletionsIgnored": {
       "src/pages/api/multiplayer/auth/local-seats.ts": 27
     },
     "testAdditionsExempt": {
-      "src/lib/api/__tests__/sameHostGuard.test.ts": 235,
-      "src/__tests__/api/sameHostGuard.routes.test.ts": 930,
+      "src/lib/api/__tests__/sameHostGuard.test.ts": 270,
+      "src/__tests__/api/sameHostGuard.routes.test.ts": 1069,
       "src/__tests__/api/securityBoundary.test.ts": 1,
       "src/__tests__/api/vault/unlock.test.ts": 13
     },
@@ -263,17 +294,17 @@
       "conservativeBound": 80
     },
     "total": {
-      "low": 322,
-      "high": 340,
-      "atBound": 354,
+      "low": 386,
+      "high": 404,
+      "atBound": 418,
       "cap": 500
     },
-    "verdict": "Fits: 274 counted source additions; with the real lifecycle range 48-66 the implementation PR counts 322-340, 354 at the 80-line bound, of 500. Files: exactly 15 of 15. No capException is expected; a 16th file, any added counted line past the bound, or a changed apply offset stops the unit for Root.",
-    "previousDraftCount": "274 at 79211e5a1 (2026-10-25). Re-measured here, not copied: also 274."
+    "verdict": "Fits: 338 counted source additions (was 274 at the previous freeze: the guard grew 131 -> 175 and the validator 79 -> 99 for the correction); with the real lifecycle range 48-66 the implementation PR counts 386-404, 418 at the 80-line bound, of 500. Files: exactly 15 of 15. No capException is expected; a 16th file, any added counted line past the bound, or a changed apply offset stops the unit for Root.",
+    "previousFreezeCount": "274 counted (the superseded freeze), re-measured at the first admission, not copied."
   },
   "frameMeasurement": {
     "ruling": "Root ruling 4: measure realistic inbound campaign-sync and match frames, including the largest roster or proposal from repo fixtures, before the freeze; stop for Root if any realistic frame exceeds 512 KiB.",
-    "script": "measure-inbound-frames.mjs (frozen beside this receipt); raw output inbound-frames.json. Frames are built the way product code builds them, validated against the real zod schemas (ClientMessageSchema, CampaignApplicationClientMessageSchema), serialised with JSON.stringify and counted as UTF-8 bytes.",
+    "script": "f1/measure-inbound-frames.mjs (re-run for the correction; frozen beside this receipt); raw output f1/inbound-frames.json. The scenario-pack row label states the measured roster size.",
     "direction": "inbound (client -> server); ws maxPayload limits received messages only",
     "datasets": {
       "unitFilesScanned": 4231,
@@ -530,7 +561,7 @@
       },
       {
         "channel": "campaign",
-        "kind": "CampaignHostIntent/ReconcileBattle, 4 units (largest campaign scenario-pack roster is 4-5)",
+        "kind": "CampaignHostIntent/ReconcileBattle, 8 units (largest campaign scenario-pack roster, measured)",
         "class": "realistic",
         "utf8Bytes": 1611,
         "pctOfCap": 0.1536,
@@ -599,21 +630,23 @@
         "note": "boundary probe sized to the cap; not a client-built frame"
       }
     ],
-    "conclusion": "No realistic frame approaches the cap: the largest is CampaignHostIntent/ReconcileBattle, 22 units at 3342 bytes (0.3187% of 1 MiB). Scaling a reconcile frame to 1000 damaged units gives 110494 bytes, and the largest campaign scenario pack serialised as a proposal is 29096 bytes. At 108.74 bytes per unit a reconcile frame needs about 4812 units to reach 512 KiB. Nothing exceeds 512 KiB, so there is no stop for Root. Synthetic boundary probes (1 MiB, 1 MiB + 1, 95 MiB) are kept apart and are not client-built frames."
+    "conclusion": "No realistic frame approaches the cap: the largest is CampaignHostIntent/ReconcileBattle, 22 units at 3342 bytes (0.3187% of 1 MiB). Scaling a reconcile frame to 1000 damaged units gives 110494 bytes, and the largest campaign scenario pack serialised as a proposal is 29096 bytes. At 108.74 bytes per unit a reconcile frame needs about 4812 units to reach 512 KiB. Nothing exceeds 512 KiB, so there is no stop for Root. Synthetic boundary probes (1 MiB, 1 MiB + 1, 95 MiB) are kept apart and are not client-built frames.",
+    "labelCorrection": "The scenario-pack reconcile row is labelled with its measured roster size, CampaignHostIntent/ReconcileBattle, 8 units (largest campaign scenario-pack roster, measured), not the stale \"4 units\"; its bytes (1611) are unchanged. The largest realistic frame is still the 22-unit reconcile at 3342 bytes. The original raw record is preserved."
   },
   "preRedReproductions": {
     "tool": "tools/repro-pre-red.cjs (the prep-refresh script, byte-identical, sha256 in manifest.tools): the real server.js with next, the multiplayer runtime and SQLite stubbed; no jest, no build.",
     "pristine": "logs/A1-pre-red-repro-pristine.log: rebinding Host read 200 NEXT_HANDLED (with and without a matching Origin), cross-site urlencoded POST /api/vault/identity 200, same-host control 200, 1 MiB / 1 MiB + 1 / 95 MiB frames all acknowledged.",
     "candidateApplied": "logs/C0b-pre-red-repro-candidate-applied.log: 403 {\"error\":\"Same-host requests only\"} for both rebinding reads, 403 for the cross-site POST, same-host control 200, 1 MiB acknowledged and 1 MiB + 1 closed 1009.",
-    "note": "These are the registered S7-07 and S5-03 observations through the real entry; the built-image form is owed at exact main (G-ASH6)."
+    "note": "These are the registered S7-07 and S5-03 observations through the real entry; the built-image form is owed at exact main (G-ASH6).",
+    "f1Addition": "The F1 target through the real server.js on pristine main (stubbed Next/runtime): foreign Host and Origin on /api/pilots/%2e%2e%2f%2e%2e 200 NEXT_HANDLED; with the correction 403; the same-host control and a page control with a foreign Host stay 200 (f1/logs/A1-pre-red-repro-pristine.log, f1/logs/C0b-pre-red-repro-candidate-applied.log)."
   },
   "proof": {
     "red": {
-      "tests": 490,
-      "failed": 307,
-      "passed": 183,
-      "behavioural": 299,
-      "notCountedAsRed": 8,
+      "tests": 552,
+      "failed": 343,
+      "passed": 209,
+      "behavioural": 331,
+      "notCountedAsRed": 12,
       "notCountedRows": {
         "KDF rate-limit exhaustion (429) from earlier unrefused attack rows": [
           "credential routes auth/token a valid-looking POST refuses a missing host before the body, the method check or any KDF work",
@@ -625,7 +658,11 @@
           "packaged-socket validator same-host rows fails a server that guards the API but not the upgrade",
           "packaged-socket validator same-host rows fails a server that leaks a rebinding Host read",
           "packaged-socket validator same-host rows fails a server that leaks a cross-site form write",
-          "packaged-socket validator same-host rows fails a server that refuses same-host clients too"
+          "packaged-socket validator same-host rows fails a server that refuses same-host clients too",
+          "packaged-socket validator same-host rows fails a server that refuses the form only after creating an identity",
+          "packaged-socket validator same-host rows fails a server that leaks the encoded dynamic-route target",
+          "packaged-socket validator same-host rows fails a server that refuses the encoded target to a same-host client",
+          "packaged-socket validator same-host rows fails a server that refuses a page route for a foreign Host"
         ]
       },
       "suiteLevelLoadFailures": [
@@ -638,7 +675,7 @@
         ],
         [
           "server.js entry",
-          260
+          292
         ],
         [
           "server.js without",
@@ -649,39 +686,61 @@
           2
         ]
       ],
-      "log": "logs/B1-RED-new-suites.json, logs/B1-RED-classification.json"
+      "log": "f1/logs/B1-RED-new-suites.json, f1/logs/B1-RED-classification.json"
     },
-    "baselineExistingSuites": "75 of 75 (localSeatCredentials, securityBoundary, vault/unlock) on the unchanged product bytes",
+    "newTestsOnPreviousFrozenCandidate": {
+      "tests": 647,
+      "passed": 600,
+      "failed": 47,
+      "groups": {
+        "guardUnit": 16,
+        "serverEntry": 28,
+        "validatorNonVacuity": 3
+      },
+      "note": "The corrected tests against the previous frozen product bytes: only the new F1/F2 rows fail.",
+      "log": "f1/logs/H1-NEW-tests-on-PREVIOUS-frozen-candidate.json"
+    },
+    "baselineExistingSuites": "75 of 75 on the unchanged product bytes",
     "green": {
       "suites": 2,
-      "tests": 559,
-      "passed": 559,
-      "log": "logs/C1-GREEN-new-suites.json"
+      "tests": 647,
+      "passed": 647,
+      "log": "f1/logs/C1-GREEN-new-suites.json"
     },
-    "existingWithoutFixes": "14 failed, 61 passed of 75: securityBoundary.test.ts:104 builds every request with host mekstation.test, and vault/unlock.test.ts builds 10 requests with no Host; both reach handlers that now refuse first",
-    "existingWithFixes": "75 of 75 (the one-line and 13-line fixes of patch 03; localSeatCredentials passes unchanged, rule parity)",
-    "neighbours": "60 of 60 across 7 suites (packagedSocketValidatorCredentialMirror, serverCredentialMirror, socketCredentialProtocol, faultControlsStartup, hydrate-next-standalone-multiplayer-server, vault identity, vault sign); run on the candidate product bytes, which the later test amendment does not touch",
-    "formatLint": "oxfmt --check (.oxfmtrc.json) clean on the ten leaves; oxlint 0 warnings, 0 errors",
-    "lintUnitsWithCandidate": "npm run lint:units with the candidate applied: PASS 17899 of 17899 (scripts 219 files at 50 of 50, src/pages/api 98 files at 16 of 16, src-tests 17783 of 17783); no ceiling is raised or consumed (logs/lint-units-with-candidate.log)",
+    "existingWithoutFixes": "14 failed, 61 passed of 75",
+    "existingWithFixes": "75 of 75",
+    "neighbours": "60 of 60 across 7 suites",
+    "formatLint": "oxfmt --check (.oxfmtrc.json) clean and oxlint 0 warnings, 0 errors on the ten leaves (f1/logs/E1, E2)",
+    "lintUnitsWithCandidate": "npm run lint:units with the candidate applied: PASS 17899 of 17899 (scripts 219 files at 50 of 50, src/pages/api 98 files at 16 of 16); no ceiling raised or consumed (f1/logs/lint-units-with-candidate.log)",
+    "typecheck": "npx next typegen then npm run typecheck (typescript7 root and scripts projects): exit 0 on the corrected bytes (f1/logs/F1-typegen-and-full-typecheck.log)",
     "implementationMergeSimulation": {
-      "method": "tools/simulate-impl-merge.cjs: a synthetic one-parent merge built with git plumbing (unreferenced objects only) = this admission + the ten frozen leaves + synthetic lifecycle files sized like the real ones; the real validate-roadmap.mjs --git runs against a temporary units.json that marks the unit main-verified at that merge, then units.json is restored byte-for-byte",
+      "method": "f1/tools/simulate-impl-merge.cjs: a synthetic one-parent merge built with git plumbing (unreferenced objects only) = this admission + the ten corrected frozen leaves + synthetic lifecycle files; the real validate-roadmap.mjs --git runs against a temporary units.json, restored byte-for-byte",
       "files": 15,
-      "countedAdditions": 330,
+      "countedAdditions": 394,
       "ownershipOrCapViolations": [],
       "negativeControl": "2 files flagged when PROGRESS.md and V2.2.0-STEPS.md are removed from ownershipExceptions",
-      "log": "logs/impl-merge-simulation.json"
+      "log": "f1/logs/impl-merge-simulation.json"
     },
-    "typecheck": "npx next typegen then npm run typecheck (typescript7 root and scripts projects): exit 0 on the amended bytes. The first run on the amended routes test caught a real type error in the new rows (NodeJS.ProcessEnv requires NODE_ENV); fixed before the freeze.",
     "mutants": {
-      "total": 41,
-      "killed": 41,
+      "total": 52,
+      "killed": 52,
       "survived": 0,
       "setupFailures": 0,
-      "historicDraftCount": 39,
+      "previousFreeze": 41,
       "added": [
-        "S12",
-        "S13"
+        "G19",
+        "G20",
+        "G21",
+        "G22",
+        "G23",
+        "S14",
+        "S15",
+        "V5",
+        "V6",
+        "V7",
+        "V8"
       ],
+      "restoredByteIdentical": true,
       "rows": [
         {
           "id": "G1",
@@ -689,7 +748,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateSameHost refuses a non-loopback host as a host failure",
-          "jest": "passed 57, failed 12, total 69, suites failed 1"
+          "jest": "passed 83, failed 12, total 95, suites failed 1",
+          "assertionFailures": 12,
+          "changedBytes": {
+            "offset": 1417,
+            "originalBytesChanged": 22,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "386ce17d6aa2b615a275ba498f98f34eac50053dbcdafb6baf68fcf1fdbaad91",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G1.json"
         },
         {
           "id": "G2",
@@ -697,7 +767,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateSameHost refuses port 0 as a host failure",
-          "jest": "passed 67, failed 2, total 69, suites failed 1"
+          "jest": "passed 93, failed 2, total 95, suites failed 1",
+          "assertionFailures": 2,
+          "changedBytes": {
+            "offset": 1835,
+            "originalBytesChanged": 56,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "b8088754ec1e5d8d16aa53e8271a0c3264db71faf5d858fc563cb900daedc59f",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G2.json"
         },
         {
           "id": "G3",
@@ -705,7 +786,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateSameHost refuses a cross-site origin as an origin failure",
-          "jest": "passed 62, failed 7, total 69, suites failed 1"
+          "jest": "passed 88, failed 7, total 95, suites failed 1",
+          "assertionFailures": 7,
+          "changedBytes": {
+            "offset": 1990,
+            "originalBytesChanged": 20,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "617393596a4793d34bdf66687ab683d738a603a52d83a6df6d693731feed44fe",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G3.json"
         },
         {
           "id": "G4",
@@ -713,7 +805,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateSameHost admits the literal loopback host 127.0.0.1:3001",
-          "jest": "passed 51, failed 18, total 69, suites failed 1"
+          "jest": "passed 77, failed 18, total 95, suites failed 1",
+          "assertionFailures": 18,
+          "changedBytes": {
+            "offset": 2081,
+            "originalBytesChanged": 0,
+            "mutatedBytesChanged": 8
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "bd5e1f1a67cd1531f0f8ca8f058d24341d9706d86b8a47645a624cfefc65fff1",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G4.json"
         },
         {
           "id": "G5",
@@ -721,7 +824,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateSameHost refuses Sec-Fetch-Site \"same-site\" as a fetch-site failure",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 2247,
+            "originalBytesChanged": 0,
+            "mutatedBytesChanged": 24
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "12fafab576433d7a8e2d8b5b4382b4d877aff5b2819dec9a77fc2ea1561926e7",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G5.json"
         },
         {
           "id": "G6",
@@ -729,31 +843,75 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateSameHost refuses Sec-Fetch-Site \"cross-site\" as a fetch-site failure",
-          "jest": "passed 64, failed 5, total 69, suites failed 1"
+          "jest": "passed 90, failed 5, total 95, suites failed 1",
+          "assertionFailures": 5,
+          "changedBytes": {
+            "offset": 2184,
+            "originalBytesChanged": 18,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "09498e7310d3cfb381fdf3051d028a770361da2194aa51abfe32ce4222fa1032",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G6.json"
         },
         {
           "id": "G7",
           "label": "G7 percent-decoding removed",
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
-          "killedBy": "isApiRequestTarget treats /%61pi/x as an API route",
-          "jest": "passed 65, failed 4, total 69, suites failed 1"
+          "killedBy": "isApiRequestTarget treats /api%2Fx as an API route",
+          "jest": "passed 92, failed 3, total 95, suites failed 1",
+          "assertionFailures": 3,
+          "changedBytes": {
+            "offset": 4492,
+            "originalBytesChanged": 24,
+            "mutatedBytesChanged": 4
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "40447687447a2904ea27c9875b4375e89f1d809278ecbde8d7606fc86f969a77",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G7.json"
         },
         {
           "id": "G8",
           "label": "G8 decode single pass",
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
-          "killedBy": "isApiRequestTarget treats /%2561pi/x as an API route",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "killedBy": "isApiRequestTarget treats /api%252Fx as an API route",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 4425,
+            "originalBytesChanged": 1,
+            "mutatedBytesChanged": 1
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "f281a92babaaa13f8d1d5e60709751e9cf796768445b9d1aa8965f6058f8cba1",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G8.json"
         },
         {
           "id": "G9",
           "label": "G9 empty segments kept",
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
-          "killedBy": "isApiRequestTarget treats /api as an API route",
-          "jest": "passed 52, failed 17, total 69, suites failed 1"
+          "killedBy": "isApiRequestTarget treats /./api/x as an API route",
+          "jest": "passed 88, failed 7, total 95, suites failed 1",
+          "assertionFailures": 7,
+          "changedBytes": {
+            "offset": 4731,
+            "originalBytesChanged": 18,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "38f3bcca182f3d716e7f0f20e8c39f493e09d06a221357a17a37b3ba81531e42",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G9.json"
         },
         {
           "id": "G10",
@@ -761,23 +919,56 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "isApiRequestTarget treats /foo/../api/x as an API route",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "jest": "passed 91, failed 4, total 95, suites failed 1",
+          "assertionFailures": 4,
+          "changedBytes": {
+            "offset": 4799,
+            "originalBytesChanged": 3,
+            "mutatedBytesChanged": 11
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "9f59c52c09a53d1f29ea39d7cac3cae3f06df5165fdf5b765835952d50d5e07b",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G10.json"
         },
         {
           "id": "G11",
           "label": "G11 case folding removed",
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
-          "killedBy": "isApiRequestTarget treats /API/x as an API route",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "killedBy": "isApiRequestTarget treats /foo/../API/x as an API route",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 4875,
+            "originalBytesChanged": 14,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "496c1a2ca77b6cb3468215992d8ac16f991be2ef34ca1f40878c90accd53080d",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G11.json"
         },
         {
           "id": "G12",
           "label": "G12 backslash not normalised",
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
-          "killedBy": "isApiRequestTarget treats /\\api/x as an API route",
-          "jest": "passed 67, failed 2, total 69, suites failed 1"
+          "killedBy": "isApiRequestTarget treats /x\\..\\api/y as an API route",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 4676,
+            "originalBytesChanged": 20,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "82f02dd695632dc95df999489d0c23a4214f5d358c96a47d1af65cb02ce44b46",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G12.json"
         },
         {
           "id": "G13",
@@ -785,7 +976,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "isApiRequestTarget treats /api/%E0%A4%A as an API route",
-          "jest": "passed 67, failed 2, total 69, suites failed 1"
+          "jest": "passed 92, failed 3, total 95, suites failed 1",
+          "assertionFailures": 3,
+          "changedBytes": {
+            "offset": 5413,
+            "originalBytesChanged": 11,
+            "mutatedBytesChanged": 11
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "d00ce33ae35e963e8552f4ffd16f3507ea4e1a1bacb16c1deb7c01f6cf345814",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G13.json"
         },
         {
           "id": "G14",
@@ -793,7 +995,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "isApiRequestTarget treats http://evil.example/api/vault/share as an API route",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "jest": "passed 93, failed 2, total 95, suites failed 1",
+          "assertionFailures": 2,
+          "changedBytes": {
+            "offset": 3130,
+            "originalBytesChanged": 50,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "489c818b8bb6853bc67297f9920cfe5709f713b0cc2b1673f834720029f42f8c",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G14.json"
         },
         {
           "id": "G15",
@@ -801,7 +1014,18 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "evaluateEntryRequest judges every upgrade, whatever its path",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 5862,
+            "originalBytesChanged": 20,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "2b30759387da32991180a38eae6794a1f77008af826f9133bd484bef1477a41e",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G15.json"
         },
         {
           "id": "G16",
@@ -809,15 +1033,37 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "isApiRequestTarget leaves /apiary to Next",
-          "jest": "passed 67, failed 2, total 69, suites failed 1"
+          "jest": "passed 93, failed 2, total 95, suites failed 1",
+          "assertionFailures": 2,
+          "changedBytes": {
+            "offset": 5473,
+            "originalBytesChanged": 1,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "73e940d631e72ae72e7268ae6db438bc90e336dc46b00b734e05f9a20e033fa0",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G16.json"
         },
         {
           "id": "G17",
           "label": "G17 /api exact path unguarded",
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
-          "killedBy": "isApiRequestTarget treats /api as an API route",
-          "jest": "passed 67, failed 2, total 69, suites failed 1"
+          "killedBy": "isApiRequestTarget treats /foo/../api as an API route",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 5429,
+            "originalBytesChanged": 15,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "f441ce22e01b5ffb2a41a9369d98f8c5ecd3f2f8fc076d00c39c5598974dba2b",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G17.json"
         },
         {
           "id": "G18",
@@ -825,7 +1071,113 @@
           "file": "src/lib/api/sameHostGuard.ts",
           "verdict": "KILLED",
           "killedBy": "isSameHostRequest and rejectUnlessSameHost writes a 403 with the supplied text and reports that it refused",
-          "jest": "passed 68, failed 1, total 69, suites failed 1"
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 2917,
+            "originalBytesChanged": 1,
+            "mutatedBytesChanged": 1
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "94ec842a84f4ff39644e7f27a1ca591009dae8bb83d9367c0a7020d693e8ac1c",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G18.json"
+        },
+        {
+          "id": "G19",
+          "label": "G19 raw API-prefix reading removed (F1)",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget keeps the API prefix of the dynamic-route target /api/pilots/%2e%2e%2f%2e%2e",
+          "jest": "passed 79, failed 16, total 95, suites failed 1",
+          "assertionFailures": 16,
+          "changedBytes": {
+            "offset": 5476,
+            "originalBytesChanged": 42,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "0c26573c5e71dd69f8ba62c9398558e554693385c2111dc4475aef971a7e63cf",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G19.json"
+        },
+        {
+          "id": "G20",
+          "label": "G20 raw reading: first segment not decoded",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget keeps the API prefix of the dynamic-route target /%61pi/pilots/%2e%2e%2f%2e%2e",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 4145,
+            "originalBytesChanged": 20,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "cd5febfdb051a61fb47efe7812197d5372113f80cd135a7c0b05a35395681cb1",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G20.json"
+        },
+        {
+          "id": "G21",
+          "label": "G21 raw reading: empty segments kept",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget keeps the API prefix of the dynamic-route target /api/pilots/%2e%2e%2f%2e%2e",
+          "jest": "passed 79, failed 16, total 95, suites failed 1",
+          "assertionFailures": 16,
+          "changedBytes": {
+            "offset": 4074,
+            "originalBytesChanged": 26,
+            "mutatedBytesChanged": 9
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "ed7a414929318c395fac25f9c6f811d912d4f20eb88ea04aac0e59dfce6dc292",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G21.json"
+        },
+        {
+          "id": "G22",
+          "label": "G22 raw reading: backslash not normalised",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget keeps the API prefix of the dynamic-route target /\\api/pilots/%2e%2e%2f%2e%2e",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 4027,
+            "originalBytesChanged": 25,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "4786b4e67811071e7755b31c12f9ec3335d8af0b80d3b457129df06a1a83d34d",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G22.json"
+        },
+        {
+          "id": "G23",
+          "label": "G23 raw reading: case folding removed",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget keeps the API prefix of the dynamic-route target /API/pilots/%2E%2E%2F%2E%2E",
+          "jest": "passed 94, failed 1, total 95, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 4197,
+            "originalBytesChanged": 14,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "c2bf0eae7d01268e25657cd9d79fd69c4b4cbb85f3f3217b913d83e1262996d3",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-G23.json"
         },
         {
           "id": "S1",
@@ -833,7 +1185,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
-          "jest": "passed 241, failed 249, total 490, suites failed 1"
+          "jest": "passed 271, failed 281, total 552, suites failed 1",
+          "assertionFailures": 281,
+          "changedBytes": {
+            "offset": 21103,
+            "originalBytesChanged": 27,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "14dbf990ee98aad23f8d114bae078a42538dd1869d831c3c61ee73cfff1e4e5b",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S1.json"
         },
         {
           "id": "S2",
@@ -841,7 +1204,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket upgrade refuses a foreign Origin with 403 before the bearer check",
-          "jest": "passed 481, failed 9, total 490, suites failed 1"
+          "jest": "passed 543, failed 9, total 552, suites failed 1",
+          "assertionFailures": 9,
+          "changedBytes": {
+            "offset": 31888,
+            "originalBytesChanged": 26,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "fa7cd7acfecdc1a2decbcb6155aaa42534986e38222d61fc7b841b4f469ddad6",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S2.json"
         },
         {
           "id": "S3",
@@ -849,7 +1223,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
-          "jest": "passed 486, failed 4, total 490, suites failed 1"
+          "jest": "passed 548, failed 4, total 552, suites failed 1",
+          "assertionFailures": 4,
+          "changedBytes": {
+            "offset": 22658,
+            "originalBytesChanged": 40,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "7db0fabe391f76d61d888e145a43a0d172ab337cd9fbc773df1f33d0d424f60c",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S3.json"
         },
         {
           "id": "S4",
@@ -857,7 +1242,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
-          "jest": "passed 486, failed 4, total 490, suites failed 1"
+          "jest": "passed 548, failed 4, total 552, suites failed 1",
+          "assertionFailures": 4,
+          "changedBytes": {
+            "offset": 14630,
+            "originalBytesChanged": 0,
+            "mutatedBytesChanged": 4
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "eed149c484fe542041a82ee4fd28791d52baf05f8043312bb8d837bca3d5a7f3",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S4.json"
         },
         {
           "id": "S5",
@@ -865,15 +1261,37 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
-          "jest": "passed 486, failed 4, total 490, suites failed 1"
+          "jest": "passed 548, failed 4, total 552, suites failed 1",
+          "assertionFailures": 4,
+          "changedBytes": {
+            "offset": 14619,
+            "originalBytesChanged": 0,
+            "mutatedBytesChanged": 4
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "0318d72572dbd88ce16a151c15ef54743562e755928c00723dafc2bd6cad3d78",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S5.json"
         },
         {
           "id": "S6",
           "label": "S6 pages judged as HTTP API",
           "file": "server.js",
           "verdict": "KILLED",
-          "killedBy": "server.js entry guard (NODE_ENV=development) guards the API and upgrades, not page routes",
-          "jest": "passed 488, failed 2, total 490, suites failed 1"
+          "killedBy": "server.js entry guard (NODE_ENV=development) leaves the page control / to Next with a foreign Host",
+          "jest": "passed 540, failed 12, total 552, suites failed 1",
+          "assertionFailures": 12,
+          "changedBytes": {
+            "offset": 21124,
+            "originalBytesChanged": 4,
+            "mutatedBytesChanged": 3
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "cdd16a43166446c5e3388b55db5b9c81aa85f58ebb0bbe48fd658c83ab6a5c42",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S6.json"
         },
         {
           "id": "S7",
@@ -881,7 +1299,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js without the guard module or tsx refuses to boot instead of serving unguarded when the guard module is missing",
-          "jest": "passed 488, failed 2, total 490, suites failed 1"
+          "jest": "passed 550, failed 2, total 552, suites failed 1",
+          "assertionFailures": 2,
+          "changedBytes": {
+            "offset": 20157,
+            "originalBytesChanged": 23,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "4095660b4188bde595aa4ea9a2af9bebacc274e8a46c942786485f091992184d",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S7.json"
         },
         {
           "id": "S8",
@@ -889,7 +1318,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
-          "jest": "passed 266, failed 224, total 490, suites failed 1"
+          "jest": "passed 328, failed 224, total 552, suites failed 1",
+          "assertionFailures": 224,
+          "changedBytes": {
+            "offset": 21365,
+            "originalBytesChanged": 43,
+            "mutatedBytesChanged": 11
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "d4376f5dc003a08258aa49ee2991dece8a9da39d94e8e6cb4f4de72d69385bcc",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S8.json"
         },
         {
           "id": "S9",
@@ -897,7 +1337,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
-          "jest": "passed 242, failed 248, total 490, suites failed 1"
+          "jest": "passed 272, failed 280, total 552, suites failed 1",
+          "assertionFailures": 280,
+          "changedBytes": {
+            "offset": 21163,
+            "originalBytesChanged": 1,
+            "mutatedBytesChanged": 1
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "a86688eea8e3da7bdb226f16b76a0ffdcf4c3481daf0486cc98774d12095bd79",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S9.json"
         },
         {
           "id": "S10",
@@ -905,7 +1356,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket upgrade refuses a foreign Origin with 403 before the bearer check",
-          "jest": "passed 482, failed 8, total 490, suites failed 1"
+          "jest": "passed 544, failed 8, total 552, suites failed 1",
+          "assertionFailures": 8,
+          "changedBytes": {
+            "offset": 31928,
+            "originalBytesChanged": 37,
+            "mutatedBytesChanged": 15
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "b6ddf3e34cd75b8694688d8182cf47d497b2031bff8d901ad1e07f23ec20a0a4",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S10.json"
         },
         {
           "id": "S11",
@@ -913,7 +1375,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js entry guard (NODE_ENV=development) public read hands a request with no Origin and no fetch metadata to Next",
-          "jest": "passed 316, failed 174, total 490, suites failed 1"
+          "jest": "passed 362, failed 190, total 552, suites failed 1",
+          "assertionFailures": 190,
+          "changedBytes": {
+            "offset": 19050,
+            "originalBytesChanged": 11,
+            "mutatedBytesChanged": 2
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "a2f464cfe4d2142e75f8c3a8fa2655b58289616cff6ab6e87a117065edf09e7a",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S11.json"
         },
         {
           "id": "S12",
@@ -921,7 +1394,18 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js when the guard fails after a good boot answers an API request with 500, never handing it to Next unguarded",
-          "jest": "passed 488, failed 2, total 490, suites failed 1"
+          "jest": "passed 550, failed 2, total 552, suites failed 1",
+          "assertionFailures": 2,
+          "changedBytes": {
+            "offset": 18934,
+            "originalBytesChanged": 149,
+            "mutatedBytesChanged": 186
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "e83a77f6693a430013e28657d2d3f40604b766bccc4355d51477c0ee9add4690",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S12.json"
         },
         {
           "id": "S13",
@@ -929,7 +1413,56 @@
           "file": "server.js",
           "verdict": "KILLED",
           "killedBy": "server.js without the guard module or tsx refuses to boot instead of serving unguarded when tsx cannot be loaded",
-          "jest": "passed 489, failed 1, total 490, suites failed 1"
+          "jest": "passed 551, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 18705,
+            "originalBytesChanged": 19,
+            "mutatedBytesChanged": 62
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "a227df114d3c6b85a9dd267d5c1b543a00a2edf6fda3893b7aae3ed056f6c818",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S13.json"
+        },
+        {
+          "id": "S14",
+          "label": "S14 entry: raw API-prefix reading removed (F1, server-entry rows)",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) the dynamic-route target GET /api/pilots/%2e%2e%2f%2e%2e refuses a rebinding Host with a matching Origin",
+          "jest": "passed 524, failed 28, total 552, suites failed 1",
+          "assertionFailures": 28,
+          "changedBytes": {
+            "offset": 5476,
+            "originalBytesChanged": 42,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "mutatedSha256": "0c26573c5e71dd69f8ba62c9398558e554693385c2111dc4475aef971a7e63cf",
+          "restoredSha256": "481123c17d57448657777a807e6df9e80f89f82446eebc562b47b65a2240883f",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S14.json"
+        },
+        {
+          "id": "S15",
+          "label": "S15 a failing upgrade kills the process (F3)",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js when the guard fails after a good boot drops an upgrade without a handshake",
+          "jest": "passed 551, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 33490,
+            "originalBytesChanged": 0,
+            "mutatedBytesChanged": 25
+          },
+          "originalSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "mutatedSha256": "fb529b8b6d59670968324f3cd2ae6dcd0d551236a0ebb758bf35b2768c8e7aaa",
+          "restoredSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-S15.json"
         },
         {
           "id": "V1",
@@ -937,7 +1470,18 @@
           "file": "scripts/validate-multiplayer-packaged-socket.mjs",
           "verdict": "KILLED",
           "killedBy": "packaged-socket validator same-host rows fails a server that guards the API but not the upgrade",
-          "jest": "passed 5, failed 1, total 490, suites failed 1"
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 16248,
+            "originalBytesChanged": 7,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "4d63224c0b9ce874f9539000231a4b9dbedc804995d0ac9edaea760a787080a6",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V1.json"
         },
         {
           "id": "V2",
@@ -945,15 +1489,37 @@
           "file": "scripts/validate-multiplayer-packaged-socket.mjs",
           "verdict": "KILLED",
           "killedBy": "packaged-socket validator same-host rows fails a server that refuses same-host clients too",
-          "jest": "passed 5, failed 1, total 490, suites failed 1"
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 14754,
+            "originalBytesChanged": 23,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "dd2f06a88c53681b0dde80a588bccd46f4b38f66004891f0bc8a0ead31ca346e",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V2.json"
         },
         {
           "id": "V4",
           "label": "V4 validator skips the rebinding Host row",
           "file": "scripts/validate-multiplayer-packaged-socket.mjs",
           "verdict": "KILLED",
-          "killedBy": "packaged-socket validator same-host rows fails a server that leaks a rebinding Host read",
-          "jest": "passed 5, failed 1, total 490, suites failed 1"
+          "killedBy": "packaged-socket validator same-host rows fails a server with no guard",
+          "jest": "passed 8, failed 2, total 552, suites failed 1",
+          "assertionFailures": 2,
+          "changedBytes": {
+            "offset": 14164,
+            "originalBytesChanged": 22,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "f8888afff4f035ead0e1cef7b3fd59f4b59666042528751779ffd1a1c00f8dd4",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V4.json"
         },
         {
           "id": "V3",
@@ -961,7 +1527,94 @@
           "file": "scripts/validate-multiplayer-packaged-socket.mjs",
           "verdict": "KILLED",
           "killedBy": "packaged-socket validator same-host rows fails a server that leaks a cross-site form write",
-          "jest": "passed 5, failed 1, total 490, suites failed 1"
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 14539,
+            "originalBytesChanged": 18,
+            "mutatedBytesChanged": 4
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "ab15fd1a763cef39eda0d94260b155cbeb41e91ab30e59ff54a1b66892c10b13",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V3.json"
+        },
+        {
+          "id": "V5",
+          "label": "V5 validator skips the no-identity-created check (F2)",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that refuses the form only after creating an identity",
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 14864,
+            "originalBytesChanged": 42,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "ad8319de93030a3c84b9c7ac7397cd349fe9e46bcf86b5d57e8c6c9a0d246d5f",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V5.json"
+        },
+        {
+          "id": "V6",
+          "label": "V6 validator skips the encoded-target refusal row (F1)",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that leaks the encoded dynamic-route target",
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 15299,
+            "originalBytesChanged": 22,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "415508b33415dc6e2c7ea44ecca31b009258dc540c4be2724c683b662f93b4fa",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V6.json"
+        },
+        {
+          "id": "V7",
+          "label": "V7 validator skips the page-control row",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that refuses a page route for a foreign Host",
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 15691,
+            "originalBytesChanged": 19,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "acc601b1ae199b32e4c8de501834fb1fc2513d7a50e184bd16bb17a302927f60",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V7.json"
+        },
+        {
+          "id": "V8",
+          "label": "V8 validator skips the same-host encoded-target control",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that refuses the encoded target to a same-host client",
+          "jest": "passed 9, failed 1, total 552, suites failed 1",
+          "assertionFailures": 1,
+          "changedBytes": {
+            "offset": 15511,
+            "originalBytesChanged": 30,
+            "mutatedBytesChanged": 5
+          },
+          "originalSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "mutatedSha256": "027e514fe04e28148d6ea6a7ff166c66b16402c3f00ddca482858d657b127ba9",
+          "restoredSha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-V8.json"
         },
         {
           "id": "R1",
@@ -969,7 +1622,18 @@
           "file": "src/pages/api/multiplayer/auth/token.ts",
           "verdict": "KILLED",
           "killedBy": "credential routes auth/token a valid-looking POST refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
-          "jest": "passed 36, failed 19, total 490, suites failed 1"
+          "jest": "passed 36, failed 19, total 552, suites failed 1",
+          "assertionFailures": 19,
+          "changedBytes": {
+            "offset": 3506,
+            "originalBytesChanged": 46,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "mutatedSha256": "58028dedccceaaaa59bcb60da5f3f195f3f9e7efca2bf7e9749dbe7b8c78d4ce",
+          "restoredSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-R1.json"
         },
         {
           "id": "R2",
@@ -977,7 +1641,18 @@
           "file": "src/pages/api/vault/identity/unlock.ts",
           "verdict": "KILLED",
           "killedBy": "credential routes identity/unlock a valid-looking POST refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
-          "jest": "passed 37, failed 18, total 490, suites failed 1"
+          "jest": "passed 37, failed 18, total 552, suites failed 1",
+          "assertionFailures": 18,
+          "changedBytes": {
+            "offset": 792,
+            "originalBytesChanged": 46,
+            "mutatedBytesChanged": 0
+          },
+          "originalSha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+          "mutatedSha256": "65c3b69f7ce23bcc19833ea4c834b112f7fedfad387f63edbf48ad434765a7e8",
+          "restoredSha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-R2.json"
         },
         {
           "id": "R3",
@@ -985,7 +1660,18 @@
           "file": "src/pages/api/multiplayer/auth/local-seats.ts",
           "verdict": "KILLED",
           "killedBy": "/api/multiplayer/auth/local-seats refuses a non-loopback host before any KDF or credential interpretation",
-          "jest": "passed 497, failed 25, total 522, suites failed 2"
+          "jest": "passed 559, failed 25, total 584, suites failed 2",
+          "assertionFailures": 25,
+          "changedBytes": {
+            "offset": 668,
+            "originalBytesChanged": 30,
+            "mutatedBytesChanged": 9
+          },
+          "originalSha256": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4",
+          "mutatedSha256": "f62dbff0ababb472bae027d13e8e1dba076ab9f092d9595d22bd79ff9e4a793f",
+          "restoredSha256": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-R3.json"
         },
         {
           "id": "R4",
@@ -993,7 +1679,18 @@
           "file": "src/pages/api/multiplayer/auth/token.ts",
           "verdict": "KILLED",
           "killedBy": "credential routes auth/token a wrong method refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
-          "jest": "passed 49, failed 6, total 490, suites failed 1"
+          "jest": "passed 49, failed 6, total 552, suites failed 1",
+          "assertionFailures": 6,
+          "changedBytes": {
+            "offset": 3506,
+            "originalBytesChanged": 79,
+            "mutatedBytesChanged": 79
+          },
+          "originalSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "mutatedSha256": "bb45fa916d3931b6d2d1ae105a0ebdc352354b76fe30f15a7e4c4c46d660e7dc",
+          "restoredSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-R4.json"
         },
         {
           "id": "R5",
@@ -1001,7 +1698,18 @@
           "file": "src/pages/api/vault/identity/unlock.ts",
           "verdict": "KILLED",
           "killedBy": "credential routes identity/unlock a wrong method refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
-          "jest": "passed 49, failed 6, total 490, suites failed 1"
+          "jest": "passed 49, failed 6, total 552, suites failed 1",
+          "assertionFailures": 6,
+          "changedBytes": {
+            "offset": 792,
+            "originalBytesChanged": 176,
+            "mutatedBytesChanged": 176
+          },
+          "originalSha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+          "mutatedSha256": "3667808724d9614f2b36cc635b122a35dd8badea086d10e0661317c7ce32572c",
+          "restoredSha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-R5.json"
         },
         {
           "id": "R6",
@@ -1009,12 +1717,97 @@
           "file": "src/pages/api/multiplayer/auth/token.ts",
           "verdict": "KILLED",
           "killedBy": "credential routes auth/token a malformed POST body refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
-          "jest": "passed 43, failed 12, total 490, suites failed 1"
+          "jest": "passed 43, failed 12, total 552, suites failed 1",
+          "assertionFailures": 12,
+          "changedBytes": {
+            "offset": 3506,
+            "originalBytesChanged": 205,
+            "mutatedBytesChanged": 205
+          },
+          "originalSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "mutatedSha256": "db78b6c6b0d4010e7dc6ff7b93e9e810ebfc36c4f494b4f77061e17211e5cdf1",
+          "restoredSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "restoredEqualsOriginal": true,
+          "fullFailureMessages": "f1/logs/mutants/failures-R6.json"
         }
       ]
     },
-    "notMutated": "The assertSameHostGuard call in main() (only a packaged run exercises it), the isStandaloneRuntime branch and real Next. Disclosed as survivors-by-construction.",
-    "machine": "Node v22.22.0; every jest, typecheck and mutant run went through heavy-run.mjs --lane api-same-host-admission at the checkout root with default leases; no ALLOW_PIDS edit, no junction. One 8-second narrow tsc --noEmit ran outside the queue while diagnosing the type error above."
+    "differential": {
+      "tool": "f1/f1-next-differential.mjs (read-only; the installed next 16.2.11 getRouteRegex/getRouteMatcher against the still-encoded pathname)",
+      "apiRoutes": 98,
+      "dynamicApiRoutes": 47,
+      "hostileTargetsNextRoutesToAnApiHandler": 3024,
+      "previousGuardMisses": 1196,
+      "previousGuardMissRoutes": 47,
+      "correctedGuardMisses": 0,
+      "pageControlTargets": 2945,
+      "overGuardedPageTargetsPreviousVsCorrected": "185 vs 185 (unchanged: targets such as /compendium/equipment/..%2F..%2F..%2F..%2F..%2Fapi are guarded by the pre-existing conservative decoded reading)",
+      "caveat": "An upper bound, not an oracle: the real built Next did not route `/api/replay-library/%2e%2e/%2e%2e` to an API handler (it answered the home page), so a matcher hit is a reason to guard, not proof of an API route."
+    },
+    "builtNextProbe": {
+      "purpose": "Authorized and required: the correction against an actual built, unflagged Next image with the raw target on the wire. Scratch candidate evidence; not a merged-source mainProof, an RC acceptance or a replacement for the later implementation proof.",
+      "method": "f1/built-probe.mjs: starts `node .next/standalone/server.js` (NODE_ENV=production, MEKSTATION_FAULT_CONTROLS unset, durable store in a private temp database) and writes each request over a plain TCP socket, so no client normalises %2e or %2f. Owned process only.",
+      "previousFrozenGuardBuild": {
+        "buildId": "1793243911023",
+        "tally": {
+          "boundary-control:403": 1,
+          "foreign-host-and-origin:404": 6,
+          "foreign-host-only:404": 6,
+          "cross-site-fetch-on-loopback-host:404": 6,
+          "same-host-control:404": 6,
+          "foreign-host-and-origin:200": 1,
+          "foreign-host-only:200": 1,
+          "cross-site-fetch-on-loopback-host:200": 1,
+          "same-host-control:200": 2,
+          "page-control-foreign-host:200": 2,
+          "page-control-same-host:200": 1
+        },
+        "note": "Pre-fix: a foreign Host/Origin request to each encoded target reached the API handler instead of the boundary 403 (404 bodies \"Pilot ../.. not found\", \"Share link not found\", \"Version 1 not found\"; the cross-site POST to revert/[version] reached the revert handler). This is classifier disagreement, not exfiltration or a successful write."
+      },
+      "correctedBuild": {
+        "buildId": "1793243976793",
+        "tally": {
+          "boundary-control:403": 1,
+          "foreign-host-and-origin:403": 7,
+          "foreign-host-only:403": 7,
+          "cross-site-fetch-on-loopback-host:403": 7,
+          "same-host-control:404": 6,
+          "same-host-control:200": 2,
+          "page-control-foreign-host:200": 2,
+          "page-control-same-host:200": 1
+        },
+        "firstCorrectedBuildId": "1793243818054",
+        "firstCorrectedTally": {
+          "boundary-control:403": 1,
+          "foreign-host-and-origin:403": 7,
+          "foreign-host-only:403": 7,
+          "cross-site-fetch-on-loopback-host:403": 7,
+          "same-host-control:404": 6,
+          "same-host-control:200": 2,
+          "page-control-foreign-host:200": 2,
+          "page-control-same-host:200": 1
+        },
+        "note": "Every foreign-Host, foreign-Host-and-Origin and cross-site-fetch variant of the 7 encoded targets is 403 {\"error\":\"Same-host requests only\"}; the same-host controls still reach the handlers (404 \"Pilot ../.. not found\", \"Version 1 not found\") or the page; page controls with a foreign Host are 200."
+      },
+      "packagedValidator": {
+        "command": "node scripts/validate-multiplayer-packaged-socket.mjs --standalone-dir=<checkout>/.next/standalone (Node as node; Electron-as-node is the later mainProof)",
+        "buildId": "1793243976793",
+        "exit0": true,
+        "log": "f1/built/packaged-validator-corrected.log",
+        "note": "assertSameHostGuard ran with the new encoded-target, same-host and page-control rows before the match and reconnect proof."
+      },
+      "files": [
+        "f1/built/probe-previous-frozen-guard.json",
+        "f1/built/probe-corrected-final-image.json",
+        "f1/built/probe-corrected-first-build-1793243818054.json",
+        "f1/built/build-corrected-final.log",
+        "f1/built/build-previous-guard.log",
+        "f1/built/packaged-validator-corrected.log"
+      ],
+      "stillOwed": "The exact-main run after the implementation merge, with Electron as node, keeps this refusal row and the unchanged frozen 34-id regression. The exact-merge Jest frame, boot and error rows still stub Next, the multiplayer runtime and SQLite and are not built-image frame-cap or real-HMR proof; no broad new frame probe was run."
+    },
+    "notMutated": "The assertSameHostGuard call in the validator's main() (only a packaged run exercises it; it ran in the node-standalone validator run above), the isStandaloneRuntime branch and real Next.",
+    "machine": "Node v22.22.0; every jest, typecheck, build, server and mutant run went through heavy-run.mjs --lane api-same-host-admission at the checkout root with default leases; no ALLOW_PIDS edit, no junction. A few light read-only node probes (witness sanity script, mutant anchor dry run, git apply --numstat) ran outside the queue; no jest, tsc, build or server ran outside it. Corrections to my own runs, kept as evidence: f1/logs/superseded-run (an old-candidate apply over leftover files, rerun clean) and f1/logs/superseded-invalid-green-run (a GREEN run with the new test files missing after a restore, redone in order)."
   },
   "candidateAmendment": {
     "why": "Root ruling 2 and the brief's required implementation proof name a fatal missing tsx and a fail-closed later load failure. The 2026-10-25 draft tested only a missing guard module and had no row for a guard failing after boot.",
@@ -1024,6 +1817,13 @@
       "red": "304 failed / 183 passed (487), 296 behavioural + 8 not counted",
       "green": "556 of 556",
       "mutants": "39 of 39 killed (logs/pass1-original-draft-test-bytes)"
+    },
+    "A2": {
+      "name": "F1 correction",
+      "summary": "isApiRequestTarget in the single owner is now true if EITHER reading says API: the existing fully decoded and collapsed reading, or a second reading of the raw target that Next routes by (leadsWithApiSegment): backslashes normalised, split on literal slashes only (an encoded %2F or %5C stays inside its segment), no dot-segment resolution (Next does not resolve %2e), first non-empty segment decoded up to three times and compared case-insensitively with `api`. Parameter content can no longer undo a recognised prefix. No new dependency, no eleventh leaf, no rule weakened, pages not guarded to hide the bug.",
+      "testsAndValidator": "Amendments to the registered guard, guard test, routes test and validator leaves only; no eleventh leaf.",
+      "f2": "Opus F2: the non-vacuity harness gained a mode where a fake server answers 403 to the cross-site POST after creating an identity (hasIdentity:true afterwards); the checker must fail with \"the refused cross-site POST created an identity\", and V5 (removing that assertion) is killed by it. Each failure mode now also asserts its own reason string, so it cannot pass on an earlier row.",
+      "f3": "Opus F3: after the throwing-guard upgrade the test performs a same-host upgrade and expects the existing 400, so a dead server cannot satisfy the refusal; S15 (a failing upgrade exits the process) is killed by it."
     }
   },
   "redPlan": {
@@ -1383,15 +2183,15 @@
     },
     {
       "id": "G-ASH1",
-      "requires": "RED first: the two new test files alone on the unchanged product bytes; expected 307 failed / 183 passed of 490 (299 behavioural; 8 not counted by the LSC-2O rule: 6 validator rows on a missing export, 2 on KDF rate-limit 429). sameHostGuard.test.ts does not load (module absent) and is GREEN-only characterization. The three pre-RED observations are re-run on the implementation base (rebinding Host read 200, cross-site urlencoded POST 200, 95 MiB frame acknowledged)."
+      "requires": "RED first: the two new test files alone on the unchanged product bytes; expected 343 failed / 209 passed of 552 (331 behavioural; 12 not counted by the LSC-2O rule: 10 validator rows on a missing export, 2 on KDF rate-limit 429). sameHostGuard.test.ts does not load (module absent) and is GREEN-only characterization. The pre-RED observations are re-run on the implementation base (rebinding Host read 200, cross-site urlencoded POST 200, the encoded target /api/pilots/%2e%2e%2f%2e%2e 200, 95 MiB frame acknowledged)."
     },
     {
       "id": "G-ASH2",
-      "requires": "GREEN with the same test bytes: 559 of 559 (2 suites); existing suites 75 of 75 with the two existing-suite fixes (14 fail without them); neighbours 60 of 60 (7 suites); the pre-RED repros flip (403, 403, close 1009)."
+      "requires": "GREEN with the same test bytes: 647 of 647 (2 suites); existing suites 75 of 75 with the two existing-suite fixes (14 fail without them); neighbours 60 of 60 (7 suites); the pre-RED repros flip (403, 403, 403 for the encoded target, close 1009); the corrected tests fail 47 named rows on the previous frozen product bytes."
     },
     {
       "id": "G-ASH3",
-      "requires": "Mutants: 41 of 41 killed by a named assertion failure (tools/run-mutants.cjs), none SURVIVED, none SETUP-FAILURE. A survivor stops the unit unless shown equivalent."
+      "requires": "Mutants: 52 of 52 killed by a named assertion failure (tools/run-mutants.cjs, with per-run original/mutated/restored SHA-256 and the full failure messages retained), none SURVIVED, none SETUP-FAILURE; G19 (raw API-prefix reading removed) is killed by the dynamic-route rows. A survivor stops the unit unless shown equivalent."
     },
     {
       "id": "G-ASH4",
@@ -1403,7 +2203,7 @@
     },
     {
       "id": "G-ASH6",
-      "requires": "Exact-main proof after the merge (ruling 5): a post-merge build, then the packaged validator with Electron as node and --standalone-dir, with the new rows (rebinding-Host read 403, cross-site form 403 and no identity created, same-host read 200, foreign-Origin upgrade 403) on the built, unflagged server. Plus the registered jest rows at the exact merge: exactly 1 MiB accepted and 1 MiB + 1 closed 1009 on both channels, fatal missing guard and tsx, the 500 and dropped-upgrade rows, credential checks before body and KDF. Run the unchanged frozen 34-id built-server done-test on that image as a regression check, preserving all 22 release-proof leaves byte-exact. Installer rehearsal is Step 8."
+      "requires": "Exact-main proof after the merge (ruling 5): a post-merge build, then the packaged validator with Electron as node and --standalone-dir, with the new rows (rebinding-Host read 403, cross-site form 403 and no identity created, the encoded target /api/pilots/%2e%2e%2f%2e%2e 403 for a foreign Host and not 403 from the loopback Host, a page route not 403 for a foreign Host, same-host read 200, foreign-Origin upgrade 403) on the built, unflagged server. Plus the registered jest rows at the exact merge (these stub Next, the multiplayer runtime and SQLite: they are not built-image frame-cap or real-HMR proof, and no built-image 1 MiB probe is credited unless Root commissions one): exactly 1 MiB accepted and 1 MiB + 1 closed 1009 on both channels, fatal missing guard and tsx, the 500 and dropped-upgrade rows, credential checks before body and KDF. Run the unchanged frozen 34-id built-server done-test on that image as a regression check, preserving all 22 release-proof leaves byte-exact. Installer rehearsal is Step 8."
     }
   ],
   "rulings20261028": {
@@ -1416,7 +2216,8 @@
     "R6": "Admission after PR C, rebased on fetched main 3dc706ed4. No old baseline or prep count is represented as current: every number in this receipt was measured at the baseline.",
     "R7": "/api HTTP routes and every upgrade are guarded as registered. Page and _next asset rebinding reads are a disclosed limitation. No scope expansion.",
     "R8": "The packaged validator stays a manual gate until DESKTOP-GUARDS-1. It is not added to STEP2-RC-RERUN-1.",
-    "accounting": "This standalone admission is Step 4 PR 1; the implementation is PR 2; the closure, carrying the CAMPAIGN-LIVE-WRITE-1 admission, is PR 3. Three of 29. L1-SMOKE-B's closure already merged (#2352) and cannot carry this admission."
+    "accounting": "This standalone admission is Step 4 PR 1; the implementation is PR 2; the closure, carrying the CAMPAIGN-LIVE-WRITE-1 admission, is PR 3. Three of 29. L1-SMOKE-B's closure already merged (#2352) and cannot carry this admission.",
+    "F1": "Root ruling 2026-10-28 (#2371 REQUEST-CHANGES): F1 blocking and corrected here; F2 and F3 taken in the same refresh; body-parsing wording made precise; frame label corrected; fresh independent review of the fixed head required. See correctionF1."
   },
   "limitations": [
     "Fatal boot (ruling 2): if tsx or the guard cannot load, server.js logs \"[mp-boot] same-host guard unavailable\" and exits 1 before it prints the ready marker. In the packaged app the embedded-server wrapper rejects with \"The embedded server exited before it was ready (code 1, signal null)\" (desktop/electron/main.server.ts:39) and the window shows the Startup Error dialog \"MekStation could not start its local server.\" with Retry and Quit (desktop/electron/main.window.ts:281-298). Retry restarts the server; with a permanently missing tsx or guard the dialog returns on every attempt, and Quit closes the app. Until now only the guard-free multiplayer runtime load was non-fatal (server.js:540 logs \"[mp-boot] runtime load failed\" and keeps serving Next without multiplayer); the guard is the first thing that makes tsx fatal for the whole app.",
@@ -1425,11 +2226,14 @@
     "dev:e2e (next dev --webpack) bypasses server.js: that lane has the guard only on the three credential routes (local-seats, multiplayer/auth/token, vault/identity/unlock). No workflow or script uses it (package.json, a comment in scripts/qc/run-flow-audit.mjs, a test fixture).",
     "Requests with no Origin and no Fetch Metadata (Electron main, curl, Node, Playwright request) stay admitted (owner decision 2026-10-25 item 8): a local process can still call the API; the guard stops browser-mediated attacks only.",
     "The packaged validator is a manual gate until DESKTOP-GUARDS-1 (ruling 8). Its main() call of assertSameHostGuard is exercised only by a packaged run (survivor-by-construction, not a mutant); the non-vacuity rows prove the checker itself against fake servers.",
-    "Server-entry rows run the real server.js, real ws and real tsx with next, the multiplayer runtime modules and SQLite stubbed by a Module._load preload (technique of validate-multiplayer-packaged-socket.test.ts). Real Next dev (HMR, compile of a refused route), Playwright, the hydrated image and the packaged Electron run are NOT proven here; the e2e-smoke CI job is the only proof of real Next dev.",
+    "Server-entry rows run the real server.js, real ws and real tsx with next, the multiplayer runtime modules and SQLite stubbed by a Module._load preload (technique of validate-multiplayer-packaged-socket.test.ts). Real Next dev (HMR, compile of a refused route), Playwright, the hydrated image and the packaged Electron run are NOT proven here; the e2e-smoke CI job is the only proof of real Next dev. The corrected F1 refusal is additionally proven on an actual built, unflagged image (builtNextProbe), as scratch candidate evidence; the exact-merge Jest rows themselves remain stubbed.",
     "The 1 MiB cap is a product decision, not a measured margin: CampaignProposal.proposal is z.unknown on the wire schema and nothing on the server bounds it below the cap. maxPayload limits received messages only; outbound snapshots and replay chunks are not affected.",
     "Node's own fetch and WebSocket send no Origin and no Sec-Fetch-Site (probed on Node 24.15 in the prep refresh, not re-run on 22.22 here); the frozen L1 harness requests are plain loopback.",
     "S7-09 (unthrottled vault sign route), S5-06 and B15-AUTH-LIMIT stay outside this unit. No session, cookie, rate-limit or error-text redesign. B15-AUTH-ORIGIN is absorbed by annotation; B15-1 keeps its operator session scope.",
-    "On Windows a raw HTTP upgrade client with the default keep-alive agent loses every second refusal to ECONNRESET; the candidate tests use agent:false. Test hazard, not a product bug."
+    "On Windows a raw HTTP upgrade client with the default keep-alive agent loses every second refusal to ECONNRESET; the candidate tests use agent:false. Test hazard, not a product bug.",
+    "Body parsing (precise): the custom server guard precedes Next's HTTP body parsing and the three direct credential guards precede the handlers' Zod parseBody, rate limit and KDF; under bare next dev / dev:e2e Next's own body parser runs before any handler, so pre-HTTP-parser refusal is not claimed there.",
+    "Over-guarding is conservative and unchanged in kind: a page target whose parameter decodes to an /api path (for example /compendium/equipment/..%2F..%2F..%2F..%2F..%2Fapi) and a literal /api/../x are judged API and refused for a foreign Host (185 such page-control targets, the same count under the previous guard in the differential; the literal /api/../x form is new in kind but unroutable by browsers).",
+    "The F1 diagnostics prove classifier disagreement and that API handlers were reachable; they do not prove data extraction or a successful write, and none is claimed. Next's matcher is an upper bound: real Next served the home page for /api/replay-library/%2e%2e/%2e%2e."
   ],
   "exclusions": [
     "No product implementation, no local-verified or main-verified state, no merge, no watch of this PR.",
@@ -1443,5 +2247,544 @@
     "readme": "_reports/2026-10-28/api-same-host-admission/README.md",
     "handoff": "_reports/2026-10-28/api-same-host-admission/HANDOFF.md",
     "earlierPrep": "_reports/2026-10-25/prep/api-same-host/ and _reports/2026-10-28/prep/api-same-host-refresh/ (historical; not current proof)"
+  },
+  "correctedAt": "2026-10-29T03:24:46.314Z",
+  "supersededFreeze": {
+    "freezeDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028",
+    "head": "e975d71ef95234d08a88b38199b69a55c6779022",
+    "note": "The proof below describes the superseded candidate (guard c386126394e5a6f9a4a8d164d73ad4a42538a25dd37c0bae6060c7faec39fd74) and is kept for provenance only.",
+    "proof": {
+      "red": {
+        "tests": 490,
+        "failed": 307,
+        "passed": 183,
+        "behavioural": 299,
+        "notCountedAsRed": 8,
+        "notCountedRows": {
+          "KDF rate-limit exhaustion (429) from earlier unrefused attack rows": [
+            "credential routes auth/token a valid-looking POST refuses a missing host before the body, the method check or any KDF work",
+            "credential routes still lets a same-host request reach the identity lookup"
+          ],
+          "missing-export (validator assertSameHostGuard not exported; empty output)": [
+            "packaged-socket validator same-host rows passes a server that refuses cross-site API and upgrade traffic",
+            "packaged-socket validator same-host rows fails a server with no guard",
+            "packaged-socket validator same-host rows fails a server that guards the API but not the upgrade",
+            "packaged-socket validator same-host rows fails a server that leaks a rebinding Host read",
+            "packaged-socket validator same-host rows fails a server that leaks a cross-site form write",
+            "packaged-socket validator same-host rows fails a server that refuses same-host clients too"
+          ]
+        },
+        "suiteLevelLoadFailures": [
+          "sameHostGuard.test.ts:   ● Test suite failed to run |     Configuration error: |     Could not locate module @/lib/api/sameHostGuard mapped as: |     C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t3-75657f99\\src\\$1."
+        ],
+        "behaviouralByGroup": [
+          [
+            "credential routes",
+            35
+          ],
+          [
+            "server.js entry",
+            260
+          ],
+          [
+            "server.js without",
+            2
+          ],
+          [
+            "server.js when",
+            2
+          ]
+        ],
+        "log": "logs/B1-RED-new-suites.json, logs/B1-RED-classification.json"
+      },
+      "baselineExistingSuites": "75 of 75 (localSeatCredentials, securityBoundary, vault/unlock) on the unchanged product bytes",
+      "green": {
+        "suites": 2,
+        "tests": 559,
+        "passed": 559,
+        "log": "logs/C1-GREEN-new-suites.json"
+      },
+      "existingWithoutFixes": "14 failed, 61 passed of 75: securityBoundary.test.ts:104 builds every request with host mekstation.test, and vault/unlock.test.ts builds 10 requests with no Host; both reach handlers that now refuse first",
+      "existingWithFixes": "75 of 75 (the one-line and 13-line fixes of patch 03; localSeatCredentials passes unchanged, rule parity)",
+      "neighbours": "60 of 60 across 7 suites (packagedSocketValidatorCredentialMirror, serverCredentialMirror, socketCredentialProtocol, faultControlsStartup, hydrate-next-standalone-multiplayer-server, vault identity, vault sign); run on the candidate product bytes, which the later test amendment does not touch",
+      "formatLint": "oxfmt --check (.oxfmtrc.json) clean on the ten leaves; oxlint 0 warnings, 0 errors",
+      "lintUnitsWithCandidate": "npm run lint:units with the candidate applied: PASS 17899 of 17899 (scripts 219 files at 50 of 50, src/pages/api 98 files at 16 of 16, src-tests 17783 of 17783); no ceiling is raised or consumed (logs/lint-units-with-candidate.log)",
+      "implementationMergeSimulation": {
+        "method": "tools/simulate-impl-merge.cjs: a synthetic one-parent merge built with git plumbing (unreferenced objects only) = this admission + the ten frozen leaves + synthetic lifecycle files sized like the real ones; the real validate-roadmap.mjs --git runs against a temporary units.json that marks the unit main-verified at that merge, then units.json is restored byte-for-byte",
+        "files": 15,
+        "countedAdditions": 330,
+        "ownershipOrCapViolations": [],
+        "negativeControl": "2 files flagged when PROGRESS.md and V2.2.0-STEPS.md are removed from ownershipExceptions",
+        "log": "logs/impl-merge-simulation.json"
+      },
+      "typecheck": "npx next typegen then npm run typecheck (typescript7 root and scripts projects): exit 0 on the amended bytes. The first run on the amended routes test caught a real type error in the new rows (NodeJS.ProcessEnv requires NODE_ENV); fixed before the freeze.",
+      "mutants": {
+        "total": 41,
+        "killed": 41,
+        "survived": 0,
+        "setupFailures": 0,
+        "historicDraftCount": 39,
+        "added": [
+          "S12",
+          "S13"
+        ],
+        "rows": [
+          {
+            "id": "G1",
+            "label": "G1 host regex accepts any host name",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateSameHost refuses a non-loopback host as a host failure",
+            "jest": "passed 57, failed 12, total 69, suites failed 1"
+          },
+          {
+            "id": "G2",
+            "label": "G2 port range unchecked",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateSameHost refuses port 0 as a host failure",
+            "jest": "passed 67, failed 2, total 69, suites failed 1"
+          },
+          {
+            "id": "G3",
+            "label": "G3 Origin unchecked",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateSameHost refuses a cross-site origin as an origin failure",
+            "jest": "passed 62, failed 7, total 69, suites failed 1"
+          },
+          {
+            "id": "G4",
+            "label": "G4 https origin refused",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateSameHost admits the literal loopback host 127.0.0.1:3001",
+            "jest": "passed 51, failed 18, total 69, suites failed 1"
+          },
+          {
+            "id": "G5",
+            "label": "G5 same-site fetch admitted",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateSameHost refuses Sec-Fetch-Site \"same-site\" as a fetch-site failure",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "G6",
+            "label": "G6 Sec-Fetch-Site unchecked",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateSameHost refuses Sec-Fetch-Site \"cross-site\" as a fetch-site failure",
+            "jest": "passed 64, failed 5, total 69, suites failed 1"
+          },
+          {
+            "id": "G7",
+            "label": "G7 percent-decoding removed",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /%61pi/x as an API route",
+            "jest": "passed 65, failed 4, total 69, suites failed 1"
+          },
+          {
+            "id": "G8",
+            "label": "G8 decode single pass",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /%2561pi/x as an API route",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "G9",
+            "label": "G9 empty segments kept",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /api as an API route",
+            "jest": "passed 52, failed 17, total 69, suites failed 1"
+          },
+          {
+            "id": "G10",
+            "label": "G10 dot-dot not resolved",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /foo/../api/x as an API route",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "G11",
+            "label": "G11 case folding removed",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /API/x as an API route",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "G12",
+            "label": "G12 backslash not normalised",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /\\api/x as an API route",
+            "jest": "passed 67, failed 2, total 69, suites failed 1"
+          },
+          {
+            "id": "G13",
+            "label": "G13 undecodable target unguarded",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /api/%E0%A4%A as an API route",
+            "jest": "passed 67, failed 2, total 69, suites failed 1"
+          },
+          {
+            "id": "G14",
+            "label": "G14 absolute-form target not stripped",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats http://evil.example/api/vault/share as an API route",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "G15",
+            "label": "G15 upgrades judged only on API paths",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "evaluateEntryRequest judges every upgrade, whatever its path",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "G16",
+            "label": "G16 /api prefix without slash",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget leaves /apiary to Next",
+            "jest": "passed 67, failed 2, total 69, suites failed 1"
+          },
+          {
+            "id": "G17",
+            "label": "G17 /api exact path unguarded",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isApiRequestTarget treats /api as an API route",
+            "jest": "passed 67, failed 2, total 69, suites failed 1"
+          },
+          {
+            "id": "G18",
+            "label": "G18 refusal status 400",
+            "file": "src/lib/api/sameHostGuard.ts",
+            "verdict": "KILLED",
+            "killedBy": "isSameHostRequest and rejectUnlessSameHost writes a 403 with the supplied text and reports that it refused",
+            "jest": "passed 68, failed 1, total 69, suites failed 1"
+          },
+          {
+            "id": "S1",
+            "label": "S1 HTTP entry guard removed",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
+            "jest": "passed 241, failed 249, total 490, suites failed 1"
+          },
+          {
+            "id": "S2",
+            "label": "S2 upgrade entry guard removed",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket upgrade refuses a foreign Origin with 403 before the bearer check",
+            "jest": "passed 481, failed 9, total 490, suites failed 1"
+          },
+          {
+            "id": "S3",
+            "label": "S3 maxPayload removed",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
+            "jest": "passed 486, failed 4, total 490, suites failed 1"
+          },
+          {
+            "id": "S4",
+            "label": "S4 maxPayload one byte short",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
+            "jest": "passed 486, failed 4, total 490, suites failed 1"
+          },
+          {
+            "id": "S5",
+            "label": "S5 maxPayload 2 MiB",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
+            "jest": "passed 486, failed 4, total 490, suites failed 1"
+          },
+          {
+            "id": "S6",
+            "label": "S6 pages judged as HTTP API",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) guards the API and upgrades, not page routes",
+            "jest": "passed 488, failed 2, total 490, suites failed 1"
+          },
+          {
+            "id": "S7",
+            "label": "S7 boot continues without the guard",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js without the guard module or tsx refuses to boot instead of serving unguarded when the guard module is missing",
+            "jest": "passed 488, failed 2, total 490, suites failed 1"
+          },
+          {
+            "id": "S8",
+            "label": "S8 refusal body text changed",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
+            "jest": "passed 266, failed 224, total 490, suites failed 1"
+          },
+          {
+            "id": "S9",
+            "label": "S9 HTTP refusal status 400",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
+            "jest": "passed 242, failed 248, total 490, suites failed 1"
+          },
+          {
+            "id": "S10",
+            "label": "S10 upgrade refusal drops the socket",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket upgrade refuses a foreign Origin with 403 before the bearer check",
+            "jest": "passed 482, failed 8, total 490, suites failed 1"
+          },
+          {
+            "id": "S11",
+            "label": "S11 request headers not passed",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js entry guard (NODE_ENV=development) public read hands a request with no Origin and no fetch metadata to Next",
+            "jest": "passed 316, failed 174, total 490, suites failed 1"
+          },
+          {
+            "id": "S12",
+            "label": "S12 later guard failure admitted (fail open)",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js when the guard fails after a good boot answers an API request with 500, never handing it to Next unguarded",
+            "jest": "passed 488, failed 2, total 490, suites failed 1"
+          },
+          {
+            "id": "S13",
+            "label": "S13 missing tsx tolerated at boot",
+            "file": "server.js",
+            "verdict": "KILLED",
+            "killedBy": "server.js without the guard module or tsx refuses to boot instead of serving unguarded when tsx cannot be loaded",
+            "jest": "passed 489, failed 1, total 490, suites failed 1"
+          },
+          {
+            "id": "V1",
+            "label": "V1 validator accepts any upgrade status",
+            "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+            "verdict": "KILLED",
+            "killedBy": "packaged-socket validator same-host rows fails a server that guards the API but not the upgrade",
+            "jest": "passed 5, failed 1, total 490, suites failed 1"
+          },
+          {
+            "id": "V2",
+            "label": "V2 validator skips the same-host control",
+            "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+            "verdict": "KILLED",
+            "killedBy": "packaged-socket validator same-host rows fails a server that refuses same-host clients too",
+            "jest": "passed 5, failed 1, total 490, suites failed 1"
+          },
+          {
+            "id": "V4",
+            "label": "V4 validator skips the rebinding Host row",
+            "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+            "verdict": "KILLED",
+            "killedBy": "packaged-socket validator same-host rows fails a server that leaks a rebinding Host read",
+            "jest": "passed 5, failed 1, total 490, suites failed 1"
+          },
+          {
+            "id": "V3",
+            "label": "V3 validator skips the cross-site form row",
+            "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+            "verdict": "KILLED",
+            "killedBy": "packaged-socket validator same-host rows fails a server that leaks a cross-site form write",
+            "jest": "passed 5, failed 1, total 490, suites failed 1"
+          },
+          {
+            "id": "R1",
+            "label": "R1 token.ts guard removed",
+            "file": "src/pages/api/multiplayer/auth/token.ts",
+            "verdict": "KILLED",
+            "killedBy": "credential routes auth/token a valid-looking POST refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+            "jest": "passed 36, failed 19, total 490, suites failed 1"
+          },
+          {
+            "id": "R2",
+            "label": "R2 unlock.ts guard removed",
+            "file": "src/pages/api/vault/identity/unlock.ts",
+            "verdict": "KILLED",
+            "killedBy": "credential routes identity/unlock a valid-looking POST refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+            "jest": "passed 37, failed 18, total 490, suites failed 1"
+          },
+          {
+            "id": "R3",
+            "label": "R3 local-seats refusal text changed",
+            "file": "src/pages/api/multiplayer/auth/local-seats.ts",
+            "verdict": "KILLED",
+            "killedBy": "/api/multiplayer/auth/local-seats refuses a non-loopback host before any KDF or credential interpretation",
+            "jest": "passed 497, failed 25, total 522, suites failed 2"
+          },
+          {
+            "id": "R4",
+            "label": "R4 token.ts guard after the method check",
+            "file": "src/pages/api/multiplayer/auth/token.ts",
+            "verdict": "KILLED",
+            "killedBy": "credential routes auth/token a wrong method refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+            "jest": "passed 49, failed 6, total 490, suites failed 1"
+          },
+          {
+            "id": "R5",
+            "label": "R5 unlock.ts guard after the method check",
+            "file": "src/pages/api/vault/identity/unlock.ts",
+            "verdict": "KILLED",
+            "killedBy": "credential routes identity/unlock a wrong method refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+            "jest": "passed 49, failed 6, total 490, suites failed 1"
+          },
+          {
+            "id": "R6",
+            "label": "R6 token.ts guard after body parsing",
+            "file": "src/pages/api/multiplayer/auth/token.ts",
+            "verdict": "KILLED",
+            "killedBy": "credential routes auth/token a malformed POST body refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+            "jest": "passed 43, failed 12, total 490, suites failed 1"
+          }
+        ]
+      },
+      "notMutated": "The assertSameHostGuard call in main() (only a packaged run exercises it), the isStandaloneRuntime branch and real Next. Disclosed as survivors-by-construction.",
+      "machine": "Node v22.22.0; every jest, typecheck and mutant run went through heavy-run.mjs --lane api-same-host-admission at the checkout root with default leases; no ALLOW_PIDS edit, no junction. One 8-second narrow tsc --noEmit ran outside the queue while diagnosing the type error above."
+    }
+  },
+  "correctionF1": {
+    "recordedAt": "2026-10-29T03:24:46.314Z",
+    "trigger": "Both independent reviews of e975d71ef95234d08a88b38199b69a55c6779022 (review-sol-e975d71ef.md, review-opus-e975d71ef.md) returned REQUEST-CHANGES for the same defect; Root ruled F1 blocking and authorized this correction (carry-forward.md \"Root ruling: #2371 both reviews REQUEST-CHANGES\").",
+    "defect": "The frozen guard decoded the target up to three times and only then resolved dot segments, so `/api/pilots/%2e%2e%2f%2e%2e` collapsed to `/` and was judged a page while Next matched it as `/api/pilots/[id]` and decoded the id to `../..` afterwards. A foreign Host and Origin were admitted past the boundary for 47 dynamic API routes.",
+    "claimsNotMade": "The diagnostics prove classifier disagreement and that the API handler code path is reached; no data exfiltration and no successful write is claimed. Neither review executed a write. The pre-fix built probe reached the handlers, which answered \"Pilot ../.. not found\", \"Share link not found\" and \"Version 1 not found\".",
+    "fix": "isApiRequestTarget in the single owner is now true if EITHER reading says API: the existing fully decoded and collapsed reading, or a second reading of the raw target that Next routes by (leadsWithApiSegment): backslashes normalised, split on literal slashes only (an encoded %2F or %5C stays inside its segment), no dot-segment resolution (Next does not resolve %2e), first non-empty segment decoded up to three times and compared case-insensitively with `api`. Parameter content can no longer undo a recognised prefix. No new dependency, no eleventh leaf, no rule weakened, pages not guarded to hide the bug.",
+    "designNote": "A first version of the second reading resolved real and %2e dot segments (the reviewers' WHATWG suggestion). The Next-matcher differential showed 4 remaining misses (`/api/replay-library/%2e%2e/%2e%2e`: Next matches the raw segments as parameters, it does not resolve %2e) and the arm was simplified to the pure raw-prefix reading before any test or freeze. Neither reviewer algorithm was copied.",
+    "differential": {
+      "tool": "f1/f1-next-differential.mjs (read-only; the installed next 16.2.11 getRouteRegex/getRouteMatcher against the still-encoded pathname)",
+      "apiRoutes": 98,
+      "dynamicApiRoutes": 47,
+      "hostileTargetsNextRoutesToAnApiHandler": 3024,
+      "previousGuardMisses": 1196,
+      "previousGuardMissRoutes": 47,
+      "correctedGuardMisses": 0,
+      "pageControlTargets": 2945,
+      "overGuardedPageTargetsPreviousVsCorrected": "185 vs 185 (unchanged: targets such as /compendium/equipment/..%2F..%2F..%2F..%2F..%2Fapi are guarded by the pre-existing conservative decoded reading)",
+      "caveat": "An upper bound, not an oracle: the real built Next did not route `/api/replay-library/%2e%2e/%2e%2e` to an API handler (it answered the home page), so a matcher hit is a reason to guard, not proof of an API route."
+    },
+    "tests": {
+      "guardUnit": "sameHostGuard.test.ts: 16 dynamic-route rows (the exact witness /api/pilots/%2e%2e%2f%2e%2e, Opus witnesses on vault/share/[id], campaigns/[id], units/custom/[id]/versions/[version] and revert/[version], encoded-backslash %5C variants, mixed case, double encoding, query/fragment, absolute-form, doubled slash, /%61pi, /\\\\api, upper-case) + 5 decoded-reading rows (/foo/../api, /foo/../API/x, /x\\\\..\\\\api/y, /api%252Fx, /gameplay/%E0%A4%A) + 4 page controls",
+      "serverEntry": "sameHostGuard.routes.test.ts, both NODE_ENV modes: 8 dynamic-route targets x {foreign Host with matching Origin, cross-site form on a loopback Host, same-host control} plus 5 page controls with a foreign Host",
+      "validatorRows": "packaged validator: the exact encoded target with a foreign Host and Origin must be 403, the same target from the loopback Host must not be 403, a page route with a foreign Host must not be 403",
+      "newNamedAssertionsFailOnPreviousFreeze": "47 named rows fail on the previous frozen product bytes (16 guard, 28 server-entry, 3 validator non-vacuity) and none of the other 600 rows; all pass on the correction",
+      "log": "f1/logs/H1-NEW-tests-on-PREVIOUS-frozen-candidate.json"
+    },
+    "f2": "Opus F2: the non-vacuity harness gained a mode where a fake server answers 403 to the cross-site POST after creating an identity (hasIdentity:true afterwards); the checker must fail with \"the refused cross-site POST created an identity\", and V5 (removing that assertion) is killed by it. Each failure mode now also asserts its own reason string, so it cannot pass on an earlier row.",
+    "f3": "Opus F3: after the throwing-guard upgrade the test performs a same-host upgrade and expects the existing 400, so a dead server cannot satisfy the refusal; S15 (a failing upgrade exits the process) is killed by it.",
+    "mutants": {
+      "total": 52,
+      "killed": 52,
+      "survived": 0,
+      "setupFailures": 0,
+      "restoredByteIdentical": true,
+      "previousFreeze": "41 of 41 (not reused as proof of the changed bytes)",
+      "newMutants": "G19 (raw API-prefix reading removed), G20 (first segment not decoded), G21 (empty segments kept), G22 (backslash not normalised), G23 (case folding removed), S14 (G19 mutation killed by the server-entry rows), S15 (failing upgrade exits the process), V5 (no-identity assertion removed), V6 (encoded-target refusal row removed), V7 (page control removed), V8 (same-host encoded control removed)",
+      "adjustedAnchors": "G8, G13, G14 moved with the refactor; G11, G12, G13, G17 and G8 needed new decoded-reading rows because the raw reading now independently classifies most of their targets, so they are pinned by targets only the decoded reading can satisfy",
+      "fullMessages": "f1/logs/mutants/failures-<ID>.json holds every failing assertion with its complete ANSI-stripped expected/received message; per-run original, mutated and restored SHA-256 and the changed-byte window are in proof.mutants.rows"
+    },
+    "builtNextProbe": {
+      "purpose": "Authorized and required: the correction against an actual built, unflagged Next image with the raw target on the wire. Scratch candidate evidence; not a merged-source mainProof, an RC acceptance or a replacement for the later implementation proof.",
+      "method": "f1/built-probe.mjs: starts `node .next/standalone/server.js` (NODE_ENV=production, MEKSTATION_FAULT_CONTROLS unset, durable store in a private temp database) and writes each request over a plain TCP socket, so no client normalises %2e or %2f. Owned process only.",
+      "previousFrozenGuardBuild": {
+        "buildId": "1793243911023",
+        "tally": {
+          "boundary-control:403": 1,
+          "foreign-host-and-origin:404": 6,
+          "foreign-host-only:404": 6,
+          "cross-site-fetch-on-loopback-host:404": 6,
+          "same-host-control:404": 6,
+          "foreign-host-and-origin:200": 1,
+          "foreign-host-only:200": 1,
+          "cross-site-fetch-on-loopback-host:200": 1,
+          "same-host-control:200": 2,
+          "page-control-foreign-host:200": 2,
+          "page-control-same-host:200": 1
+        },
+        "note": "Pre-fix: a foreign Host/Origin request to each encoded target reached the API handler instead of the boundary 403 (404 bodies \"Pilot ../.. not found\", \"Share link not found\", \"Version 1 not found\"; the cross-site POST to revert/[version] reached the revert handler). This is classifier disagreement, not exfiltration or a successful write."
+      },
+      "correctedBuild": {
+        "buildId": "1793243976793",
+        "tally": {
+          "boundary-control:403": 1,
+          "foreign-host-and-origin:403": 7,
+          "foreign-host-only:403": 7,
+          "cross-site-fetch-on-loopback-host:403": 7,
+          "same-host-control:404": 6,
+          "same-host-control:200": 2,
+          "page-control-foreign-host:200": 2,
+          "page-control-same-host:200": 1
+        },
+        "firstCorrectedBuildId": "1793243818054",
+        "firstCorrectedTally": {
+          "boundary-control:403": 1,
+          "foreign-host-and-origin:403": 7,
+          "foreign-host-only:403": 7,
+          "cross-site-fetch-on-loopback-host:403": 7,
+          "same-host-control:404": 6,
+          "same-host-control:200": 2,
+          "page-control-foreign-host:200": 2,
+          "page-control-same-host:200": 1
+        },
+        "note": "Every foreign-Host, foreign-Host-and-Origin and cross-site-fetch variant of the 7 encoded targets is 403 {\"error\":\"Same-host requests only\"}; the same-host controls still reach the handlers (404 \"Pilot ../.. not found\", \"Version 1 not found\") or the page; page controls with a foreign Host are 200."
+      },
+      "packagedValidator": {
+        "command": "node scripts/validate-multiplayer-packaged-socket.mjs --standalone-dir=<checkout>/.next/standalone (Node as node; Electron-as-node is the later mainProof)",
+        "buildId": "1793243976793",
+        "exit0": true,
+        "log": "f1/built/packaged-validator-corrected.log",
+        "note": "assertSameHostGuard ran with the new encoded-target, same-host and page-control rows before the match and reconnect proof."
+      },
+      "files": [
+        "f1/built/probe-previous-frozen-guard.json",
+        "f1/built/probe-corrected-final-image.json",
+        "f1/built/probe-corrected-first-build-1793243818054.json",
+        "f1/built/build-corrected-final.log",
+        "f1/built/build-previous-guard.log",
+        "f1/built/packaged-validator-corrected.log"
+      ],
+      "stillOwed": "The exact-main run after the implementation merge, with Electron as node, keeps this refusal row and the unchanged frozen 34-id regression. The exact-merge Jest frame, boot and error rows still stub Next, the multiplayer runtime and SQLite and are not built-image frame-cap or real-HMR proof; no broad new frame probe was run."
+    },
+    "bodyParserWording": "Corrected, precisely: the custom server guard precedes Next HTTP body parsing; the three direct credential guards precede the handlers' Zod parseBody, rate limit and KDF. Under bare `next dev` / dev:e2e (already disclosed as bypassing server.js) Next's own body parser runs before any handler, so pre-HTTP-parser refusal is NOT claimed there. No new parser or disabled bodyParser is added.",
+    "frameLabelCorrection": "The scenario-pack reconcile row is labelled with its measured roster size, CampaignHostIntent/ReconcileBattle, 8 units (largest campaign scenario-pack roster, measured), not the stale \"4 units\"; its bytes (1611) are unchanged. The largest realistic frame is still the 22-unit reconcile at 3342 bytes. The original raw record is preserved.",
+    "supersession": {
+      "previousHead": "e975d71ef95234d08a88b38199b69a55c6779022",
+      "previousFreezeDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028",
+      "previousFreezeNote": "Preserved unchanged and read-only. SUPERSEDED: its sameHostGuard.ts (c386126394e5a6f9a4a8d164d73ad4a42538a25dd37c0bae6060c7faec39fd74) has the F1 defect, and its 41/41 mutants, 559/559 GREEN and RED counts do not describe the corrected bytes.",
+      "changedLeaves": [
+        "src/lib/api/sameHostGuard.ts",
+        "src/lib/api/__tests__/sameHostGuard.test.ts",
+        "src/__tests__/api/sameHostGuard.routes.test.ts",
+        "scripts/validate-multiplayer-packaged-socket.mjs"
+      ],
+      "unchangedLeaves": [
+        "server.js",
+        "src/pages/api/multiplayer/auth/local-seats.ts",
+        "src/pages/api/multiplayer/auth/token.ts",
+        "src/pages/api/vault/identity/unlock.ts",
+        "src/__tests__/api/securityBoundary.test.ts",
+        "src/__tests__/api/vault/unlock.test.ts"
+      ]
+    },
+    "dispositionOfReviews": "The two completed reviews stay preserved as findings against the old freeze (review-sol-e975d71ef.md, review-opus-e975d71ef.md). They are not approvals of the corrected candidate; Root arranges fresh independent reviews of the fixed head."
   }
 }

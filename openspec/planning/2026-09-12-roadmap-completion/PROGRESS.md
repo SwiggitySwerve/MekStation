@@ -1,3 +1,16 @@
+## 2026-10-28 API-SAME-HOST-1 admission corrected after review: F1 classifier fix, separate freeze (Step 4 PR 1, #2371 head update; ledger and evidence only)
+
+Both independent reviews of e975d71ef returned REQUEST-CHANGES for one defect: the frozen guard decoded and collapsed a dynamic-route parameter (`/api/pilots/%2e%2e%2f%2e%2e`) into `/`, so a foreign Host and Origin were admitted past the boundary to 47 dynamic API routes that Next still matched by their raw `/api` prefix. Root ruled F1 blocking. This entry corrects the admission; the admission-only scope is unchanged and no candidate source ships.
+
+- Fix (single owner): a target is API if the decoded reading or the raw reading Next routes by says so. A first version that resolved `%2e` dot segments still missed 4 Next-matcher targets and was simplified before any freeze. Differential against the installed Next matcher: previous guard 1196 misses of 3024 API-routing targets across all 47 dynamic API routes, corrected 0; page-control over-guarding unchanged (185).
+- Proof on the corrected bytes (previous 41/41, 559/559 and RED counts are NOT reused): RED 343/209 of 552 (331 behavioural); the new tests fail 47 named rows on the previous frozen product and no other; GREEN 647/647; existing 75/75; neighbours 60/60; typecheck, format, lint, lint:units clean; 52/52 mutants killed with full failure messages and per-run byte identities kept (G19 removes the raw reading and is killed by the new rows).
+- F2 (403 after an identity was created: a non-vacuity mode and mutant V5) and F3 (a same-host upgrade after the throwing-guard upgrade, mutant S15) taken in the same refresh. Validator gains the encoded-target, same-host and page-control rows.
+- Real Next: on an actual built, unflagged image the previous guard let foreign-Host/Origin requests to the encoded targets reach the API handlers (404 handler bodies; classifier disagreement, no exfiltration or write claimed); the corrected image answers 403 for all 21 foreign and cross-site variants, keeps the same-host and page controls, and the packaged validator passes (Node as node). The exact-main Electron-as-node run, the unchanged frozen 34-id regression and the F1 refusal row remain owed.
+- Precise wording: the custom server guard precedes Next's HTTP body parsing and the direct credential guards precede handler parseBody, rate limit and KDF; bare next dev still parses first. The scenario-pack reconcile row is 8 units, not 4. Exact-merge Jest frame, boot and error rows still stub Next.
+- Fit: 338 counted additions (guard 175, validator 99); implementation PR 386-404 of 500 (418 at the 80-line bound); files 15 of 15, zero slack. Separate freeze `frozen-20261028-f1`; the earlier freeze is preserved and superseded.
+
+---
+
 ## 2026-10-28 API-SAME-HOST-1 admitted (Step 4 PR 1 of 29, a standalone admission PR; ledger and evidence only)
 
 Admits API-SAME-HOST-1 on baseline 3dc706ed4 (build PR C, #2370), after L1-SMOKE-B's genuine exact-main PASS and closure (ancestor ad8486735, Step 3 evidence complete). The implementation is Step 4 PR 2; the closure, which carries the CAMPAIGN-LIVE-WRITE-1 admission, is PR 3: 3 of 29. No product source is committed here. The receipt is [api-same-host-1-admission-20261025.json](evidence/api-same-host-1-admission-20261025.json).
