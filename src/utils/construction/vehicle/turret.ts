@@ -39,12 +39,9 @@ export function computeTurretWeight(
       return 0;
 
     case TurretType.SINGLE:
-      // 10% of equipment weight, rounded up to half-ton
-      return ceilToHalfTon(equipmentWeightInTurret * 0.1);
-
     case TurretType.DUAL:
-      // Each of the two turrets: 10% of its own equipment weight
-      // This function handles one turret at a time; caller sums both
+      // Each turret: 10% of its own equipment, rounded independently.
+      // This function handles one turret at a time; the caller sums both.
       return ceilToHalfTon(equipmentWeightInTurret * 0.1);
 
     case TurretType.CHIN:
