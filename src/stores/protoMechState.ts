@@ -27,6 +27,7 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoEngineRating,
+  computeLegacyDefaultStructure,
   getProtoWeightClass,
   getProtoMPCaps,
   effectiveWalkMP,
@@ -375,24 +376,6 @@ export interface CreateProtoMechOptions {
 }
 
 /**
- * Get default internal structure for ProtoMech tonnage
- */
-function getDefaultProtoMechStructure(
-  tonnage: number,
-): IProtoMechArmorAllocation {
-  // Simplified structure based on tonnage
-  const base = Math.ceil(tonnage / 2);
-  return {
-    [ProtoMechLocation.HEAD]: Math.max(1, Math.floor(base * 0.5)),
-    [ProtoMechLocation.TORSO]: base + 2,
-    [ProtoMechLocation.LEFT_ARM]: Math.max(1, Math.floor(base * 0.75)),
-    [ProtoMechLocation.RIGHT_ARM]: Math.max(1, Math.floor(base * 0.75)),
-    [ProtoMechLocation.LEGS]: base + 1,
-    [ProtoMechLocation.MAIN_GUN]: 1,
-  };
-}
-
-/**
  * Create a default ProtoMech state
  */
 export function createDefaultProtoMechState(
@@ -440,7 +423,7 @@ export function createDefaultProtoMechState(
     jumpMP: 0,
 
     // Structure & Armor
-    structureByLocation: getDefaultProtoMechStructure(tonnage),
+    structureByLocation: computeLegacyDefaultStructure(tonnage),
     armorByLocation: createEmptyProtoMechArmorAllocation(),
     armorType: 0, // Standard ProtoMech armor
 

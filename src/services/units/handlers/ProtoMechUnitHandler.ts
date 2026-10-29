@@ -32,7 +32,10 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
-import { computeProtoEngineRating } from '@/utils/construction/protomech';
+import {
+  computeProtoEngineRating,
+  computeLegacyHandlerStructure,
+} from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
 import {
@@ -158,7 +161,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     const armorPerTrooper = armor.reduce((sum, val) => sum + val, 0);
 
     // Internal structure (simplified - ProtoMechs have fixed structure by tonnage)
-    const structureByLocation = this.calculateStructure(weightPerUnit);
+    const structureByLocation = computeLegacyHandlerStructure(weightPerUnit);
 
     // Equipment
     const equipment = this.parseEquipment(document);
@@ -246,29 +249,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     });
 
     return result;
-  }
-
-  /**
-   * Calculate internal structure by tonnage
-   */
-  private calculateStructure(
-    tonnage: number,
-  ): Record<ProtoMechLocation, number> {
-    // ProtoMech structure is based on tonnage
-    // Simplified calculation
-    const headStructure = 1;
-    const torsoStructure = Math.ceil(tonnage / 2);
-    const armStructure = Math.ceil(tonnage / 4);
-    const legsStructure = Math.ceil(tonnage / 3);
-
-    return {
-      [ProtoMechLocation.HEAD]: headStructure,
-      [ProtoMechLocation.TORSO]: torsoStructure,
-      [ProtoMechLocation.LEFT_ARM]: armStructure,
-      [ProtoMechLocation.RIGHT_ARM]: armStructure,
-      [ProtoMechLocation.LEGS]: legsStructure,
-      [ProtoMechLocation.MAIN_GUN]: 1,
-    };
   }
 
   /**

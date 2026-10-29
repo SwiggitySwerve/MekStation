@@ -78,3 +78,10 @@ export {
   getProtoChassisMultiplier,
 } from './protoMechBV';
 export type { IProtoMechBVBreakdown, IProtoMechBVOptions } from './protoMechBV';
+
+// Structure policies (kept distinct until their numerical correction).
+export {
+  computeLegacyHandlerStructure,
+  computeLegacyDefaultStructure,
+  computeLegacyPrintStructure,
+} from './structure';
