@@ -74,7 +74,7 @@ export function parseHeader(lines: string[]): ParsedMTFHeader {
   const clanname = parseField(lines, 'clanname');
   const config = parseField(lines, 'Config') || 'Biped';
 
-  const isOmni = config.toLowerCase().includes('omnimech');
+  const isOmni = /\bomni(?:mek|mech)\b/i.test(config);
   const baseHSField = parseField(lines, 'Base Chassis Heat Sinks');
   const baseChassisHeatSinks = baseHSField
     ? parseInt(baseHSField, 10)

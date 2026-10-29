@@ -59,6 +59,12 @@
       "status": "in-progress",
       "reason": "Owner-authorized all-source data parity and modern portable unit contract, grounded in the 2026-10-28 upstream cross-check: complete source accounting, faithful typed loading, strict per-unit numerical differences below 1%, semantic round trips, then subtype forms/layouts/sheets. Catalog regeneration still requires owner approval. No runtime parity or UI completion claimed by this entry.",
       "lastReviewed": "2026-10-28"
+    },
+    {
+      "name": "repair-mtf-adapter-vocabulary",
+      "status": "in-progress",
+      "reason": "Owner-authorized source fidelity work under establish-all-unit-data-parity. Parser vocabulary and compatibility for its changed export identities are pending PR #2383. The broader export validation package is local and unpublished. Contextual chassis identity, editor persistence, complete semantic round trips and numerical parity remain open. This entry accounts for the active change without claiming completion or release readiness.",
+      "lastReviewed": "2026-10-29"
     }
   ]
 }
