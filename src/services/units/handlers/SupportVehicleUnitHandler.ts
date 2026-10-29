@@ -22,6 +22,7 @@ import {
   IVehicleMountedEquipment,
   SupportVehicleSizeClass,
 } from '@/types/unit/VehicleInterfaces';
+import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -107,7 +108,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
     // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = cruiseMP > 0 ? Math.ceil(cruiseMP * 1.5) : 0;
+    const flankMP = cruiseMP > 0 ? computeFlankMP(cruiseMP) : 0;
     const jumpMP = document.jumpingMP || 0;
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 

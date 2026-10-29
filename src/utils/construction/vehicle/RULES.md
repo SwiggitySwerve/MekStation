@@ -75,7 +75,7 @@ legacy behavior, not zero actual support controls/lift mass or support parity.
 Tamerlane at rating155 independently has engine8.5, controls1, lift2,
 structure2, armor3, weapons3 and turret0.5 = 20 tons. Its additional heat-sink
 mass is zero in the pinned runtime reference; general vehicle heat-sink rules
-remain unresolved. No stored catalog ratings are migrated. Flank, turret rules,
+remain unresolved. No stored catalog ratings are migrated. Turret rules,
 full BV parity and broader construction validity remain separate work.
 
 Focused enforcement: `useVehicleStore.suspension.test.ts` exercises the real
@@ -83,3 +83,28 @@ Zustand actions, pinned thresholds, validation, direct import and actual Python
 converter output. `test_vehicle_suspension.py` covers converter rounding and
 support exclusion. Construction, store, status bar, handler and BV regressions
 must accompany changes. No complete corpus numeric-parity gate is claimed.
+
+## Base flank movement
+
+`engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
+rounded upward. [Entity.java:4004-4016](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L4004)
+provides the base rule; [Tank.java:1570-1575](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L1570)
+adds a separate armed-MASC override. The store helper is a compatibility export
+of the owner. Defaults, actions, validation, BV state adaptation, status and
+template displays consume it. Vehicle, VTOL and support imports retain their
+previous ceil results; the support import's nonpositive guard remains intact.
+
+The store factory derives flank from initial cruise after defaults and saved
+fields merge, so reopening, duplication and direct initialization cannot retain
+default or stale flank values. The persisted document keeps cruise as the source
+of truth. `useVehicleStore.flank.test.ts` exercises real registry save/reopen,
+duplication, rating edits and record-sheet movement transport. Component tests
+cover full/compact status and odd-cruise new-unit templates.
+
+The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
+movement enhancements and aerospace thrust are distinct policies. Python BLK
+conversion already rounds upward; it retains its language-boundary expression.
+No copy of the old floor-based vehicle calculation remains in TypeScript.
+Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
+remain separate work. This correction establishes only base movement and its
+propagation. It does not regenerate or migrate unit catalogs.
