@@ -15,6 +15,9 @@ import handler from '@/pages/api/vault/identity/unlock';
 
 import { parseApiResponse, parseErrorResponse } from '../../helpers';
 
+// The unlock route refuses a request that is not same-host (API-SAME-HOST-1).
+const LOOPBACK = { host: '127.0.0.1:3001' };
+
 // =============================================================================
 // Mocks
 // =============================================================================
@@ -70,6 +73,7 @@ describe('/api/vault/identity/unlock', () => {
   describe('Method Validation', () => {
     it('should reject GET requests', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'GET',
       });
 
@@ -82,6 +86,7 @@ describe('/api/vault/identity/unlock', () => {
 
     it('should reject PUT requests', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'PUT',
       });
 
@@ -92,6 +97,7 @@ describe('/api/vault/identity/unlock', () => {
 
     it('should set Allow header for 405 responses', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'DELETE',
       });
 
@@ -108,6 +114,7 @@ describe('/api/vault/identity/unlock', () => {
       mockUnlockIdentity.mockResolvedValue(mockUnlockedIdentity);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {
           password: 'correctPassword',
@@ -142,6 +149,7 @@ describe('/api/vault/identity/unlock', () => {
       mockUnlockIdentity.mockResolvedValue(mockUnlockedIdentity);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {
           password: 'correctPassword',
@@ -158,6 +166,7 @@ describe('/api/vault/identity/unlock', () => {
 
     it('should reject missing password', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {},
       });
@@ -171,6 +180,7 @@ describe('/api/vault/identity/unlock', () => {
 
     it('should reject non-string password', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {
           password: 12345,
@@ -188,6 +198,7 @@ describe('/api/vault/identity/unlock', () => {
       mockGetActive.mockResolvedValue(null);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {
           password: 'somePassword',
@@ -206,6 +217,7 @@ describe('/api/vault/identity/unlock', () => {
       mockUnlockIdentity.mockRejectedValue(new Error('Decryption failed'));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {
           password: 'wrongPassword',
@@ -223,6 +235,7 @@ describe('/api/vault/identity/unlock', () => {
       mockGetActive.mockRejectedValue(new Error('Database connection failed'));
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: LOOPBACK,
         method: 'POST',
         body: {
           password: 'somePassword',

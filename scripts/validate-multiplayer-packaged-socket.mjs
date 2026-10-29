@@ -3,6 +3,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash, webcrypto } from 'node:crypto';
 import fs from 'node:fs';
+import http from 'node:http';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -437,6 +438,99 @@ async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
   return kinds;
 }
 
+/**
+ * API-SAME-HOST-1: the built, unflagged server refuses browser-mediated
+ * cross-site traffic on the API and on the socket upgrade, and still serves
+ * a same-host client. Throws on the first deviation.
+ */
+export async function assertSameHostGuard({
+  hostname,
+  port,
+  getOutput = () => '',
+}) {
+  const loopback = `${hostname}:${port}`;
+  const fail = (message) =>
+    new Error(`same-host guard: ${message}\n${getOutput()}`);
+  const call = (method, requestPath, headers, body) =>
+    new Promise((resolve, reject) => {
+      const req = http.request(
+        { host: hostname, port, method, path: requestPath, headers },
+        (res) => {
+          let text = '';
+          res.setEncoding('utf8');
+          res.on('data', (chunk) => (text += chunk));
+          res.on('end', () => resolve({ status: res.statusCode, text }));
+        },
+      );
+      req.on('error', reject);
+      req.end(body);
+    });
+
+  const rebound = await call('GET', '/api/health', { Host: 'evil.example' });
+  if (rebound.status !== 403) {
+    throw fail(`a rebinding Host on /api/health returned ${rebound.status}`);
+  }
+  const form = await call(
+    'POST',
+    '/api/vault/identity',
+    {
+      Host: loopback,
+      Origin: 'http://evil.example',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    'displayName=attacker&password=attacker-chosen-pass',
+  );
+  if (form.status !== 403) {
+    throw fail(
+      `a cross-site form POST to /api/vault/identity returned ${form.status}`,
+    );
+  }
+  const identity = await call('GET', '/api/vault/identity', { Host: loopback });
+  if (identity.status !== 200) {
+    throw fail(`a same-host identity read returned ${identity.status}`);
+  }
+  if (JSON.parse(identity.text).hasIdentity !== false) {
+    throw fail('the refused cross-site POST created an identity');
+  }
+  // Next matches this target as /api/pilots/[id] and decodes the id to ../..
+  // afterwards; the raw bytes are sent unnormalised.
+  const encodedTarget = '/api/pilots/%2e%2e%2f%2e%2e';
+  const encoded = await call('GET', encodedTarget, {
+    Host: 'evil.example',
+    Origin: 'http://evil.example',
+  });
+  if (encoded.status !== 403) {
+    throw fail(
+      `a rebinding Host on ${encodedTarget} returned ${encoded.status}`,
+    );
+  }
+  const encodedSameHost = await call('GET', encodedTarget, { Host: loopback });
+  if (encodedSameHost.status === 403) {
+    throw fail(`a same-host request to ${encodedTarget} was refused`);
+  }
+  const page = await call('GET', '/', { Host: 'evil.example' });
+  if (page.status === 403) {
+    throw fail('a page route was refused for a foreign Host');
+  }
+  await new Promise((resolve, reject) => {
+    const ws = new WebSocket(
+      `ws://${loopback}/api/multiplayer/socket?matchId=same-host-guard`,
+      [WS_PROTOCOL_VERSION],
+      { origin: 'http://evil.example', perMessageDeflate: false },
+    );
+    ws.once('open', () => {
+      ws.terminate();
+      reject(fail('an upgrade from a foreign Origin opened'));
+    });
+    ws.once('unexpected-response', (_req, res) => {
+      res.resume();
+      if (res.statusCode === 403) resolve();
+      else reject(fail(`a foreign-Origin upgrade returned ${res.statusCode}`));
+    });
+    ws.once('error', reject);
+  });
+}
+
 function resolveServerStart(npmExecutable) {
   if (!standaloneDirArg) {
     return {
@@ -543,6 +637,11 @@ async function main() {
     child = firstServer.child;
     const { wireToken, playerId } = await issueWireToken();
     const match = await createMatch(wireToken, playerId, firstServer.getOutput);
+    await assertSameHostGuard({
+      hostname: host,
+      port,
+      getOutput: firstServer.getOutput,
+    });
     const kinds = await openAndJoin(
       match.wsUrl,
       wireToken,

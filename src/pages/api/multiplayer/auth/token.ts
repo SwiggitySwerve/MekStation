@@ -23,6 +23,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IVaultIdentity } from '@/types/vault';
 
+import { rejectUnlessSameHost } from '@/lib/api/sameHostGuard';
 import {
   API_KDF_RATE_LIMIT,
   applySecurityHeaders,
@@ -99,6 +100,7 @@ export default async function handler(
   res: NextApiResponse<IIssueResponse | IErrorResponse>,
 ): Promise<void> {
   applySecurityHeaders(res);
+  if (rejectUnlessSameHost(req, res)) return;
   if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   const body = parseBody(
