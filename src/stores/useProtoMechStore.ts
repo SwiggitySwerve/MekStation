@@ -20,6 +20,7 @@ import { IEquipmentItem } from '@/types/equipment';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoEngineRating,
+  computeProtoStructure,
   computeProtoWalkMPForRating,
   effectiveWalkMP,
   getProtoMPCaps,
@@ -115,6 +116,11 @@ export function createProtoMechStore(
               const newCruiseMP = Math.max(1, 10 - clampedTonnage);
               return {
                 tonnage: clampedTonnage,
+                structureByLocation: computeProtoStructure(
+                  clampedTonnage,
+                  state.chassisType,
+                  state.hasMainGun,
+                ),
                 cruiseMP: newCruiseMP,
                 walkMP: newCruiseMP,
                 flankMP: Math.floor(newCruiseMP * 1.5),
@@ -152,6 +158,11 @@ export function createProtoMechStore(
                   : false;
               return {
                 chassisType,
+                structureByLocation: computeProtoStructure(
+                  state.tonnage,
+                  chassisType,
+                  state.hasMainGun,
+                ),
                 walkMP,
                 cruiseMP: walkMP,
                 flankMP: effWalk + 1,
@@ -306,13 +317,18 @@ export function createProtoMechStore(
           // =================================================================
 
           setMainGun: (hasMainGun) =>
-            set({
+            set((state) => ({
               hasMainGun,
+              structureByLocation: computeProtoStructure(
+                state.tonnage,
+                state.chassisType,
+                hasMainGun,
+              ),
               // Clear the weapon ID when disabling the main gun mount
               mainGunWeaponId: hasMainGun ? undefined : undefined,
               isModified: true,
               lastModifiedAt: Date.now(),
-            }),
+            })),
 
           setMainGunWeaponId: (weaponId) =>
             set({

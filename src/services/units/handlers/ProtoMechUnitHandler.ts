@@ -34,7 +34,7 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   computeProtoEngineRating,
-  computeLegacyHandlerStructure,
+  computeProtoStructure,
 } from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
@@ -160,14 +160,16 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     const armorByLocation = this.parseArmorByLocation(armor);
     const armorPerTrooper = armor.reduce((sum, val) => sum + val, 0);
 
-    // Internal structure (simplified - ProtoMechs have fixed structure by tonnage)
-    const structureByLocation = computeLegacyHandlerStructure(weightPerUnit);
-
     // Equipment
     const equipment = this.parseEquipment(document);
 
     // BLKProtoMekFile derives topology from armor count, even for an empty mount.
     const hasMainGun = armor.length === 6;
+    const structureByLocation = computeProtoStructure(
+      weightPerUnit,
+      chassisType,
+      hasMainGun,
+    );
 
     // Special features from raw tags
     const rawTags = document.rawTags || {};

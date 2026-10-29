@@ -24,7 +24,8 @@
 import type { IProtoMechRecordSheetData } from '@/types/printing';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { computeLegacyPrintStructure } from '@/utils/construction/protomech';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { computeProtoStructure } from '@/utils/construction/protomech';
 
 import type { PipFill, TextBindings } from '../templateRecordSheetRenderer';
 
@@ -78,13 +79,13 @@ export function computeProtoMechPipCounts(
   const isQuad = data.isQuad ?? false;
   const armor = proto?.armorByLocation;
 
-  const structure = computeLegacyPrintStructure(
+  const hasMainGun = data.hasMainGun ?? Boolean(data.mainGun);
+  const structure = computeProtoStructure(
     tonnage,
-    isQuad,
-    Boolean(data.mainGun),
+    isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED,
+    hasMainGun,
   );
   const headIS = structure[ProtoMechLocation.HEAD];
-  // Torso IS equals tonnage; arm IS equals head IS for bipeds.
   const counts: ProtoMechPipCounts = {
     HD: { armor: armor?.Head?.current ?? 0, structure: headIS },
     T: {
@@ -103,16 +104,15 @@ export function computeProtoMechPipCounts(
   if (!isQuad) {
     mutable.LA = {
       armor: armor?.['Left Arm']?.current ?? 0,
-      structure: headIS,
+      structure: structure[ProtoMechLocation.LEFT_ARM],
     };
     mutable.RA = {
       armor: armor?.['Right Arm']?.current ?? 0,
-      structure: headIS,
+      structure: structure[ProtoMechLocation.RIGHT_ARM],
     };
   }
 
-  if (data.mainGun) {
-    // Main gun IS: 1 for <=9t, 2 for >9t (MegaMek autoSetInternal).
+  if (hasMainGun) {
     mutable.MG = {
       armor: armor?.['Main Gun']?.current ?? 0,
       structure: structure[ProtoMechLocation.MAIN_GUN],

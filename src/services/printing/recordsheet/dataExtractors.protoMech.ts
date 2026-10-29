@@ -41,6 +41,9 @@ export interface IProtoMechUnitConfig extends IBaseRecordSheetUnitConfig {
   }>;
   /** Main gun designation (weapon name). */
   mainGun?: string;
+  /** Explicit topology; an empty mount still has internal structure. */
+  hasMainGun?: boolean;
+  isQuad?: boolean;
   /** Remaining main gun ammo shots. */
   mainGunAmmo?: number;
   hasUMU?: boolean;
@@ -107,6 +110,8 @@ export function extractProtoMechData(
     pointSize,
     protos,
     mainGun: unit.mainGun,
+    hasMainGun: unit.hasMainGun,
+    isQuad: unit.isQuad ?? false,
     mainGunAmmo: unit.mainGunAmmo,
     hasUMU: unit.hasUMU ?? false,
     isGlider: unit.isGlider ?? false,

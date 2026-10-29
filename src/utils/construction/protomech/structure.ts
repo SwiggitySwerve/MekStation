@@ -1,93 +1,42 @@
-/** Existing structure policies, isolated before the source-backed correction. */
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md */
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
-/**
- * Calculate internal structure by tonnage
- */
-export function computeLegacyHandlerStructure(
+// Head, Biped/Glider legs, Quad legs for weight pairs 2-3 through 12-13.
+// MegaMek 48fcb2f6, ProtoMek.java:785-826 (autoSetInternal and its tables).
+const STRUCTURE_BY_WEIGHT_PAIR: readonly (readonly [number, number, number])[] =
+  [
+    [1, 2, 4],
+    [1, 3, 5],
+    [2, 4, 8],
+    [2, 5, 9],
+    [3, 6, 12],
+    [3, 7, 13],
+  ];
+
+/** Original construction points; topology flags distinguish absent locations from zero. */
+export function computeProtoStructure(
   tonnage: number,
-): Record<ProtoMechLocation, number> {
-  // ProtoMech structure is based on tonnage
-  // Simplified calculation
-  const headStructure = 1;
-  const torsoStructure = Math.ceil(tonnage / 2);
-  const armStructure = Math.ceil(tonnage / 4);
-  const legsStructure = Math.ceil(tonnage / 3);
-
-  return {
-    [ProtoMechLocation.HEAD]: headStructure,
-    [ProtoMechLocation.TORSO]: torsoStructure,
-    [ProtoMechLocation.LEFT_ARM]: armStructure,
-    [ProtoMechLocation.RIGHT_ARM]: armStructure,
-    [ProtoMechLocation.LEGS]: legsStructure,
-    [ProtoMechLocation.MAIN_GUN]: 1,
-  };
-}
-
-/**
- * Get default internal structure for ProtoMech tonnage
- */
-export function computeLegacyDefaultStructure(
-  tonnage: number,
-): Record<ProtoMechLocation, number> {
-  // Simplified structure based on tonnage
-  const base = Math.ceil(tonnage / 2);
-  return {
-    [ProtoMechLocation.HEAD]: Math.max(1, Math.floor(base * 0.5)),
-    [ProtoMechLocation.TORSO]: base + 2,
-    [ProtoMechLocation.LEFT_ARM]: Math.max(1, Math.floor(base * 0.75)),
-    [ProtoMechLocation.RIGHT_ARM]: Math.max(1, Math.floor(base * 0.75)),
-    [ProtoMechLocation.LEGS]: base + 1,
-    [ProtoMechLocation.MAIN_GUN]: 1,
-  };
-}
-
-/**
- * Canonical ProtoMech head internal structure by tonnage.
- * Mirrors MegaMek `ProtoMek.headStructure`.
- */
-function headStructure(tonnage: number): number {
-  if (tonnage <= 5) return 1;
-  if (tonnage <= 9) return 2;
-  if (tonnage <= 13) return 3;
-  return 4;
-}
-
-/**
- * Canonical ProtoMech leg internal structure by tonnage.
- * Mirrors MegaMek `ProtoMek.legStructure` (quad legs are sturdier).
- */
-function legStructure(tonnage: number, isQuad: boolean): number {
-  if (isQuad) {
-    if (tonnage <= 3) return 4;
-    if (tonnage <= 5) return 5;
-    if (tonnage <= 7) return 8;
-    if (tonnage <= 9) return 9;
-    if (tonnage <= 11) return 12;
-    if (tonnage <= 13) return 13;
-    return 14;
-  }
-  if (tonnage <= 3) return 2;
-  if (tonnage <= 5) return 3;
-  if (tonnage <= 7) return 4;
-  if (tonnage <= 9) return 5;
-  if (tonnage <= 11) return 6;
-  if (tonnage <= 13) return 7;
-  return 8;
-}
-
-export function computeLegacyPrintStructure(
-  tonnage: number,
-  isQuad: boolean,
+  chassis: ProtoChassis,
   hasMainGun: boolean,
 ): Record<ProtoMechLocation, number> {
-  const head = headStructure(tonnage);
+  if (!Number.isFinite(tonnage) || tonnage <= 0 || tonnage > 2147483647) {
+    throw new Error(
+      'ProtoMech structure requires positive finite tonnage within signed 32-bit range',
+    );
+  }
+  const weight = Math.trunc(tonnage);
+  const [head, bipedLegs, quadLegs] = STRUCTURE_BY_WEIGHT_PAIR[
+    Math.floor(weight / 2) - 1
+  ] ?? [4, 8, 14];
+  const isQuad = chassis === ProtoChassis.QUAD;
   return {
     [ProtoMechLocation.HEAD]: head,
-    [ProtoMechLocation.TORSO]: tonnage,
+    [ProtoMechLocation.TORSO]: weight,
+    // MegaMek uses ARMOR_NA (-1). Local fixed records use 0 with explicit topology.
     [ProtoMechLocation.LEFT_ARM]: isQuad ? 0 : head,
     [ProtoMechLocation.RIGHT_ARM]: isQuad ? 0 : head,
-    [ProtoMechLocation.LEGS]: legStructure(tonnage, isQuad),
+    [ProtoMechLocation.LEGS]: isQuad ? quadLegs : bipedLegs,
     [ProtoMechLocation.MAIN_GUN]: hasMainGun ? (tonnage > 9 ? 2 : 1) : 0,
   };
 }

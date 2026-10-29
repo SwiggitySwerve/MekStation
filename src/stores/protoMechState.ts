@@ -27,7 +27,7 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoEngineRating,
-  computeLegacyDefaultStructure,
+  computeProtoStructure,
   getProtoWeightClass,
   getProtoMPCaps,
   effectiveWalkMP,
@@ -423,7 +423,7 @@ export function createDefaultProtoMechState(
     jumpMP: 0,
 
     // Structure & Armor
-    structureByLocation: computeLegacyDefaultStructure(tonnage),
+    structureByLocation: computeProtoStructure(tonnage, chassisType, false),
     armorByLocation: createEmptyProtoMechArmorAllocation(),
     armorType: 0, // Standard ProtoMech armor
 
