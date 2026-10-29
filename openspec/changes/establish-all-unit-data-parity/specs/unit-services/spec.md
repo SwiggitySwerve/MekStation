@@ -114,7 +114,7 @@ editor or persistence parity.
 
 #### Scenario: Native configurations and engine rating
 
-- **GIVEN** a native source with Biped, Quad or WiGE motion, compared case-insensitively
+- **GIVEN** a native source with Biped, Quad or WiGE motion (including its Glider alias), compared case-insensitively
 - **WHEN** the registered handler loads it
 - **THEN** Quad and WiGE SHALL resolve to Quad and Glider regardless of tonnage
 - **AND** Biped SHALL retain the existing Ultraheavy representation at 10 tons or more
@@ -139,3 +139,14 @@ editor or persistence parity.
 - **WHEN** it is loaded
 - **THEN** existing glider/quad flag precedence and omitted-speed default SHALL remain available
 - **AND** an explicitly provided unsupported motion SHALL still fail
+- **AND** every spelling SHALL reject missing, mixed or unknown technology with a diagnostic instead of defaulting to Inner Sphere or Clan
+
+#### Scenario: Equipment or armor without a main-gun mount
+
+- **GIVEN** five armor entries and Main Gun equipment in any supported ProtoMech spelling
+- **WHEN** the handler loads the document
+- **THEN** it SHALL retain the equipment with an explicit warning that the absent mount causes upstream to ignore it
+- **GIVEN** store data with Main Gun equipment or nonzero Main Gun armor but no mount
+- **WHEN** export is requested
+- **THEN** it SHALL fail with a Main Gun diagnostic and no content rather than silently lose those fields
+- **AND** source diagnostics and export rejection SHALL call the same construction-owner rule

@@ -38,6 +38,8 @@ export const BLK_PROTOMECH_CHASSIS = {
   Biped: ProtoChassis.BIPED,
   Quad: ProtoChassis.QUAD,
   WiGE: ProtoChassis.GLIDER,
+  // EntityMovementMode.parseFromString accepts Glider as a WiGE alias.
+  Glider: ProtoChassis.GLIDER,
 } as const;
 
 /**

@@ -35,6 +35,7 @@ export {
 // Main gun approved list and arm-placement helpers
 export {
   getProtoWeaponSizeClass,
+  getProtoMainGunTopologyError,
   isArmLocation,
   isArmPlacementIllegal,
   isMainGunWeaponApproved,

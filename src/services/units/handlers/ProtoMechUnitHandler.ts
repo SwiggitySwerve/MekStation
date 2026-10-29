@@ -35,6 +35,7 @@ import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   computeProtoEngineRating,
   computeProtoStructure,
+  getProtoMainGunTopologyError,
 } from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
@@ -104,6 +105,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   ): Partial<IProtoMech> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
     const native = document.unitType.toLowerCase() === 'protomek';
+    if (!/^(Clan|IS) Level [1-4]$/i.test(document.type)) {
+      errors.push(`Unsupported ProtoMek type: ${document.type}`);
+    }
     if (native) {
       pushSourceLoadNumberErrors(errors, document, 'cruiseMP');
       if (
@@ -111,9 +115,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         document.rawTags.jumpingMP !== undefined
       ) {
         pushSourceLoadNumberErrors(errors, document, 'jumpingMP');
-      }
-      if (!/^(Clan|IS) Level [1-4]$/i.test(document.type)) {
-        errors.push(`Unsupported ProtoMek type: ${document.type}`);
       }
       const armor = document.armor;
       const rawArmor = document.rawTags.armor ?? document.rawTags.Armor;
@@ -170,6 +171,13 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       chassisType,
       hasMainGun,
     );
+    const topologyError = getProtoMainGunTopologyError(
+      hasMainGun,
+      equipment.map((item) => item.location),
+      armorByLocation[ProtoMechLocation.MAIN_GUN],
+    );
+    if (topologyError)
+      warnings.push(`${topologyError}; upstream ignores these entries`);
 
     // Special features from raw tags
     const rawTags = document.rawTags || {};

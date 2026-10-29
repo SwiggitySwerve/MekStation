@@ -56,3 +56,12 @@ there is no save migration. Printing data now carries Quad and optional
 main-gun presence, including empty mounts; omitted legacy mount presence uses
 the weapon-name fallback. This is a data/binding contract, not proof of the
 production editor-to-print flow, sheet assets or all source equipment.
+
+## Absent main-gun contents
+
+`getProtoMainGunTopologyError` owns the requirement that Main Gun equipment or
+nonzero armor needs a mount. BLK source loading retains inconsistent equipment
+with a warning; export fails with no content. This prevents the pinned
+`BLKProtoMekFile` location loop from silently dropping source contents when
+five armor entries make `ProtoMek.locations()` exclude Main Gun. It does not
+remove equipment from the editor or certify general equipment/legality parity.
