@@ -7,6 +7,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
@@ -134,8 +135,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const rotorType = this.getStringFromRaw(rawTags, 'rotortype') || 'Standard';
 
     // VTOL weight limit
-    if (document.tonnage > 30) {
-      errors.push('VTOLs cannot exceed 30 tons');
+    if (document.tonnage > VTOL_TONNAGE.max) {
+      errors.push(`VTOLs cannot exceed ${VTOL_TONNAGE.max} tons`);
     }
 
     return {
@@ -319,9 +320,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'VTOL',
-      min: 1,
-      max: 30,
-      minText: '1',
+      min: VTOL_TONNAGE.min,
+      max: VTOL_TONNAGE.max,
     });
 
     // Movement validation

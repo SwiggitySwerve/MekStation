@@ -8,6 +8,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { SMALL_CRAFT_TONNAGE } from '@/services/construction/constructionConstants';
 import { SmallCraftLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
@@ -137,8 +138,8 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     // Tonnage validation (100-200 tons for small craft)
     pushTonnageRangeErrors(errors, document.tonnage, {
       label: 'Small craft',
-      min: 100,
-      max: 200,
+      min: SMALL_CRAFT_TONNAGE.min,
+      max: SMALL_CRAFT_TONNAGE.max,
     });
 
     return {
@@ -267,8 +268,8 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'Small craft',
-      min: 100,
-      max: 200,
+      min: SMALL_CRAFT_TONNAGE.min,
+      max: SMALL_CRAFT_TONNAGE.max,
     });
 
     pushSafeThrustAndStructureErrors(
