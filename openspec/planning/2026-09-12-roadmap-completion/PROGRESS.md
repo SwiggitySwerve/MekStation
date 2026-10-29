@@ -1,3 +1,18 @@
+## 2026-10-28 API-SAME-HOST-1 admitted (Step 4 PR 1 of 29, a standalone admission PR; ledger and evidence only)
+
+Admits API-SAME-HOST-1 on baseline 3dc706ed4 (build PR C, #2370), after L1-SMOKE-B's genuine exact-main PASS and closure (ancestor ad8486735, Step 3 evidence complete). The implementation is Step 4 PR 2; the closure, which carries the CAMPAIGN-LIVE-WRITE-1 admission, is PR 3: 3 of 29. No product source is committed here. The receipt is [api-same-host-1-admission-20261025.json](evidence/api-same-host-1-admission-20261025.json).
+
+- Authority: owner decisions 2026-10-24 d, 2026-10-25 and 2026-10-25b (variant B leaves; fail closed at boot), registration #2334, and the eight Root rulings of 2026-10-28 (option A tsx/cjs; missing tsx or guard fatal; per-merge-diff caps; frame measurement; Electron-as-node mainProof; admission after PR C; /api plus upgrades only; the packaged validator stays a manual gate).
+- Census (fresh): one open PR (#2113, no overlap); 53 registered worktrees with no exact-leaf overlap (one alias-only uncommitted test edit in baseline-f-20261018); no unit admitted-unfinished.
+- Frames (measured before the freeze): largest realistic inbound frame 3342 bytes (CampaignHostIntent/ReconcileBattle, 22 units), 110494 bytes for a scaled 1000-unit sensitivity row; far below 512 KiB, no stop. The 1 MiB cap is a product decision (the proposal field is unbounded z.unknown).
+- Frozen outside Git: the ten candidate leaves, the patches and the tools, with SHA-256 (receipt manifest). Scratch proof on the baseline, candidate restored afterwards: RED 307 failed / 183 passed of 490; GREEN 559 of 559; existing suites 75 of 75 with the two fixes; neighbours 60 of 60; full typecheck exit 0; 41 of 41 mutants killed.
+- Candidate amendment: rows for a missing tsx and a guard failing after boot were added to the routes test (Root ruling 2); product bytes are unchanged from the 2026-10-25 draft.
+- Fit: 274 counted additions; implementation PR 322-340 of 500 (354 at the 80-line bound); files 15 of 15 with the generated page counted, zero slack.
+- Disclosures: a missing tsx or guard exits 1 before the ready marker, so the packaged app shows the Startup Error dialog (Retry/Quit); a failure after boot answers 500 or drops the upgrade; page and _next rebinding reads stay open; dev:e2e bypasses server.js; the packaged validator is a manual gate until DESKTOP-GUARDS-1.
+- ownershipExceptions gain PROGRESS.md and V2.2.0-STEPS.md. Implementation starts only after this PR merges.
+
+---
+
 ## 2026-10-28 L1-SMOKE-B closed; main-verified (exact-main done-test proof); Step 3 PR 12 of 12 (Step 3 step evidence is the next commit of this PR)
 
 Closes L1-SMOKE-B (PR #2351, ruled and merged head 45b216b4c, merge ad8486735) as main-verified. The OWNER-RULING (comment 6467635332, Root on behalf of the owner under the standing merge and Full send instructions; Root commentary, not a verbatim owner quote) accepted that exact head; the merge tree equals the ruled head tree, so all four leaves are byte-identical to the accepted bytes.

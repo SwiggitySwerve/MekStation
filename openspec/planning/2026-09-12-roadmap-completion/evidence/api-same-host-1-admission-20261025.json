@@ -1,0 +1,1447 @@
+{
+  "schemaVersion": 1,
+  "unit": "API-SAME-HOST-1",
+  "stage": "admission",
+  "date": "2026-10-28",
+  "proofClass": "full",
+  "proofClassNote": "Admission receipt. The proof recorded here is scratch preparation on the fixed baseline: the candidate was applied in the orchestrator checkout, measured, then restored, and no candidate source ships in the admission PR. The implementation proof (RED commit, GREEN commit, local receipt, review, exact-main packaged run) is still owed.",
+  "evidenceNameNote": "The four registered evidence literals keep their 20261025 suffix (api-same-host-1-admission/-red/-local/-review-20261025.json); none exists on main at the baseline.",
+  "recordedAt": "2026-10-29T02:30:22.933Z",
+  "baseline": "3dc706ed4d07cc5cd148c92ef7b15db9ce744ddf",
+  "baselineNote": "Fetched origin/main after build PR C (#2370 merged, 2026-10-29T00:19:00Z). Clean orchestrator checkout, Node v22.22.0, real npm ci (1039 packages), no junctions.",
+  "authority": {
+    "summary": "Owner decisions 2026-10-24 d, 2026-10-25 and 2026-10-25b, the registration (#2334), and the eight Root rulings of 2026-10-28 (rulings20261028).",
+    "clauses": [
+      "(1) Owner decision 2026-10-24 (d), _receipts/owner-decisions-20261024d.md sha256 e1633c49a158f2e76e1ba137c63f79a281a5ad7e6b47da770bde0fc825663eef: an origin-check unit for all API routes, release-blocking, sequenced right after Step 3.",
+      "(2) Owner decisions 2026-10-25, _receipts/owner-decisions-20261025.md sha256 c3189f30c2bda017857384129eef501c5233aad6dc01dc43a5ba9358a9d2eab4: item 1 adopts the blocking set whose first member is API-SAME-HOST-1 (+1 MiB WebSocket frame limit); item 8 takes the README defaults (the guard covers the upgrade; requests with no Origin and no Fetch Metadata stay admitted; B15-AUTH-ORIGIN absorbed by annotation).",
+      "(3) Owner decisions 2026-10-25b, _receipts/owner-decisions-20261025b.md sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2: \"yes and yes\" (variant B leaf correction); Q2 item 5: fail closed, server.js exits 1 at boot if the guard cannot load.",
+      "(4) Registration #2334 (units.json registration20261025ReleaseBlocking, source sha256 4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38) and the variant-B correction (registration20261025bCorrection, source sha256 32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1): exactly the ten registered leaves.",
+      "(5) Root rulings 2026-10-28 on the prep refresh (eight rulings, see rulings20261028) and the corrected Step 4 accounting; Root disposition 2026-10-28 (post-C installed observation: suite 17 of 17 PASS, external recorder FAIL, not an RC or Step 2/8 acceptance).",
+      "(6) Admission only. No implementation ruling exists; the sensitive-class OWNER-RULING on the exact implementation head comes later."
+    ]
+  },
+  "contributor": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-5-5",
+    "role": "implementation sub-agent for the admission only (census, frame measurement, scratch candidate evaluation, mutation, lifecycle edits); not the reviewer",
+    "coordinator": "Root",
+    "note": "Mutation and fault injection run on Claude only. No subagents."
+  },
+  "predecessors": {
+    "L1-SMOKE-B": "main-verified. Merge ad84867355c85270086977ad3d9a83b93107c09a (#2351, merge-commit, head 45b216b4c138457bf2f26a1a53827306ce0cb17d) is an ancestor of the baseline; mainProof PASS at the clean exact merge (frozen done-test 34 of 34 ids, BUILD_ID 1793186803130, printed headSha ad8486735); Step 3 evidence complete/PASS (72539c05a, #2352).",
+    "successors": "CAMPAIGN-LIVE-WRITE-1, DESKTOP-DATA-OWN-1, DESKTOP-GUARDS-1 stay blocked behind this unit.",
+    "postC": "Build A/B/C are merged (#2362, #2367, #2370 at 3dc706ed4). The post-C installed observation at 3dc706ed4 passed the packaged suite 17 of 17 with a recorder failure; it is an observation, not an RC or Step 2/8 acceptance."
+  },
+  "acceptance": [
+    "A request to any of the 98 /api route files whose Host is not a literal loopback authority, whose Origin is not http(s)://<Host>, or whose Sec-Fetch-Site is not absent, same-origin or none gets 403 {\"error\":\"Same-host requests only\"} from server.js before Next is invoked (all route classes: public read, private read, form write, JSON write, delete, credential, multiplayer, e2e hook).",
+    "The same rule judges every WebSocket upgrade (multiplayer socket, HMR path, any other) before the path or bearer is read: a foreign Origin or rebinding Host gets 403; a same-host client still reaches the existing bearer check.",
+    "Encoded, doubled-slash, dot-segment, backslash, upper-case, absolute-form and undecodable spellings of /api are guarded; page routes are not (ruling 7).",
+    "Requests with no Origin and no Fetch Metadata are still served (same-host controls).",
+    "The rule lives once in src/lib/api/sameHostGuard.ts; local-seats, token and unlock call it first, before the method check, body parse, rate limit and KDF; local-seats behaviour and error text are unchanged and its existing suite passes unchanged.",
+    "server.js exits 1 at boot when tsx or the guard cannot load; a failure after boot answers an API request 500 and destroys an upgrade, never admitting either unguarded (ruling 2).",
+    "The one WebSocketServer refuses an inbound frame larger than 1 MiB: exactly 1,048,576 bytes accepted and 1,048,577 closed with 1009 on the match and campaign channels.",
+    "scripts/validate-multiplayer-packaged-socket.mjs exports assertSameHostGuard and main() calls it on the built, unflagged server (rebinding-Host read 403, cross-site form 403 with no identity created, same-host read 200, foreign-Origin upgrade 403). Not wired into CI here (DESKTOP-GUARDS-1).",
+    "No session, cookie, rate-limit or error-text change; extraction preserves local-seats behaviour."
+  ],
+  "manifest": {
+    "frozenDir": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-admission/frozen-20261028",
+    "frozenNote": "Read-only copy outside Git: candidate/ (the ten whole files), patches/, tools/, the frame measurement and fit. SHA256SUMS.txt beside them; the per-file sha256 below must equal it. Patches apply with core.autocrlf=false.",
+    "baselineBlobs": {
+      "scripts/validate-multiplayer-packaged-socket.mjs": "7cfff338f26bdfc6eca5fef8c0328744da49f50f",
+      "server.js": "7ce8627c35dbc754fa789f70cc701c536f3549e8",
+      "src/__tests__/api/securityBoundary.test.ts": "09694daf3d07ccb26fef22c21bf11dd073d10cd2",
+      "src/__tests__/api/vault/unlock.test.ts": "6f8bf5bfb2de20d2ed27c15f0deaad4806908037",
+      "src/pages/api/multiplayer/auth/local-seats.ts": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
+      "src/pages/api/multiplayer/auth/token.ts": "e50fceca5ea53c2a1aad8908f1adef8096b520ae",
+      "src/pages/api/vault/identity/unlock.ts": "3dd359466ec9422031c9617324d0f399363c0468"
+    },
+    "sourceLeaves": [
+      {
+        "path": "server.js",
+        "class": "source",
+        "state": "existing",
+        "candidateSha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+        "candidateBytes": 34597,
+        "candidateLines": 962,
+        "baselineBlob": "7ce8627c35dbc754fa789f70cc701c536f3549e8",
+        "addedLines": 58,
+        "deletedLines": 0,
+        "counted": true
+      },
+      {
+        "path": "src/lib/api/sameHostGuard.ts",
+        "class": "source",
+        "state": "new",
+        "candidateSha256": "c386126394e5a6f9a4a8d164d73ad4a42538a25dd37c0bae6060c7faec39fd74",
+        "candidateBytes": 4577,
+        "candidateLines": 131,
+        "baselineBlob": null,
+        "addedLines": 131,
+        "deletedLines": 0,
+        "counted": true
+      },
+      {
+        "path": "src/lib/api/__tests__/sameHostGuard.test.ts",
+        "class": "test",
+        "state": "new",
+        "candidateSha256": "1f3298227789db602e0d0907905891dadd629c1bba6fccd98220ae2e4dc788c7",
+        "candidateBytes": 7004,
+        "candidateLines": 235,
+        "baselineBlob": null,
+        "addedLines": 235,
+        "deletedLines": 0,
+        "counted": false
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+        "class": "source",
+        "state": "existing",
+        "candidateSha256": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4",
+        "candidateBytes": 2775,
+        "candidateLines": 84,
+        "baselineBlob": "9493ed71d3e10241f2a3a8307747e3d488fed65b",
+        "addedLines": 2,
+        "deletedLines": 27,
+        "counted": true
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/token.ts",
+        "class": "source",
+        "state": "existing",
+        "candidateSha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+        "candidateBytes": 6088,
+        "candidateLines": 185,
+        "baselineBlob": "e50fceca5ea53c2a1aad8908f1adef8096b520ae",
+        "addedLines": 2,
+        "deletedLines": 0,
+        "counted": true
+      },
+      {
+        "path": "src/pages/api/vault/identity/unlock.ts",
+        "class": "source",
+        "state": "existing",
+        "candidateSha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+        "candidateBytes": 2611,
+        "candidateLines": 92,
+        "baselineBlob": "3dd359466ec9422031c9617324d0f399363c0468",
+        "addedLines": 2,
+        "deletedLines": 0,
+        "counted": true
+      },
+      {
+        "path": "src/__tests__/api/sameHostGuard.routes.test.ts",
+        "class": "test",
+        "state": "new",
+        "candidateSha256": "6647bff0edf429f87a33d62c6f0ffee962f64d03059c70f8e51addf8acb92c61",
+        "candidateBytes": 31532,
+        "candidateLines": 930,
+        "baselineBlob": null,
+        "addedLines": 930,
+        "deletedLines": 0,
+        "counted": false
+      },
+      {
+        "path": "scripts/validate-multiplayer-packaged-socket.mjs",
+        "class": "source",
+        "state": "existing",
+        "candidateSha256": "7994a915b60035f6697e7b12025ba84288ce43410462961fe270d01457fe1c26",
+        "candidateBytes": 29136,
+        "candidateLines": 693,
+        "baselineBlob": "7cfff338f26bdfc6eca5fef8c0328744da49f50f",
+        "addedLines": 79,
+        "deletedLines": 0,
+        "counted": true
+      },
+      {
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "class": "test",
+        "state": "existing",
+        "candidateSha256": "88213ddf2553da40c81bf16692c4f7ce959eb83b3ed570531f569d61b9e193df",
+        "candidateBytes": 21298,
+        "candidateLines": 647,
+        "baselineBlob": "09694daf3d07ccb26fef22c21bf11dd073d10cd2",
+        "addedLines": 1,
+        "deletedLines": 1,
+        "counted": false
+      },
+      {
+        "path": "src/__tests__/api/vault/unlock.test.ts",
+        "class": "test",
+        "state": "existing",
+        "candidateSha256": "5d60696d5f8d99629a9a57fa46f02abbde793fad4010ff0e2df686beb83cb1e5",
+        "candidateBytes": 7470,
+        "candidateLines": 252,
+        "baselineBlob": "6f8bf5bfb2de20d2ed27c15f0deaad4806908037",
+        "addedLines": 13,
+        "deletedLines": 0,
+        "counted": false
+      }
+    ],
+    "sourceLeafCount": 10,
+    "patches": {
+      "01-failing-tests.patch": "a9db5492195221ed21362540646b7c3887630391977a0bca848f3421eb641907",
+      "01-failing-tests.20261025-original.patch": "cb3f9119b43f66913e058e7cd367791112331b124ba859ab4843861c9dd5237a",
+      "02-implementation.patch": "c19d67136c338c72e8b554adc88abf9d29a62bd2e7eb11dd5a28582e68fdd004",
+      "03-existing-suite-fixes.patch": "1ab23ee886ee8683dafc40a440508c5146e1fcaa62599f03c63d104404208b2f"
+    },
+    "tools": {
+      "add-mutants.cjs": "dc6bc794d97a64c0f5fe64fa2cc1afce7e96b47a23c5e4110a6c059bfd799571",
+      "classify-red.cjs": "540f9beea728a907def3075bd3f4b51513054cc7d259f6e8f0444228988eeaa5",
+      "measure-fit.cjs": "69281dfb75b1a1c92b4947b06a377ed73d84a1a0b7921e96dd27af44d99e0d78",
+      "proof.cjs": "181f98e6f5292e74f8eebca357e5d06474396a398ed816b8fe2468fc2eb15a31",
+      "repro-pre-red.cjs": "84b9704a394f5c1d38b771d07beaa063948b9161c8221de597f5f7e2335504dc",
+      "run-mutants.cjs": "bf811d2b0f4997a244a3638e0e709d8da27289b9af9ab5a4146b3a803102b49b"
+    },
+    "registeredManifest": "units.json API-SAME-HOST-1.registeredSourceLeaves (ten leaves, variant B). No eleventh source or test leaf; an extra leaf needs a separately registered split.",
+    "implementationPrFiles": [
+      "server.js",
+      "src/lib/api/sameHostGuard.ts",
+      "src/lib/api/__tests__/sameHostGuard.test.ts",
+      "src/pages/api/multiplayer/auth/local-seats.ts",
+      "src/pages/api/multiplayer/auth/token.ts",
+      "src/pages/api/vault/identity/unlock.ts",
+      "src/__tests__/api/sameHostGuard.routes.test.ts",
+      "scripts/validate-multiplayer-packaged-socket.mjs",
+      "src/__tests__/api/securityBoundary.test.ts",
+      "src/__tests__/api/vault/unlock.test.ts",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-red-20261025.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-local-20261025.json"
+    ],
+    "implementationPrFileCount": 15,
+    "implementationPrFileNote": "Ten leaves + units.json + PROGRESS.md + the generated V2.2.0-STEPS.md page + the red and local receipts = 15 of 15, zero slack. The page appears in every real implementation merge diff (A2M b78909c5e, B ad8486735), so it is counted here rather than exempted. The admission receipt rides this standalone admission PR; the review, merge and mainProof records ride the closure PR (A2M and B pattern). v220-steps.json is not touched (Step 4 has no done-test flip).",
+    "admissionPrFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-admission-20261025.json"
+    ],
+    "closurePrExpected": [
+      "units.json",
+      "PROGRESS.md",
+      "V2.2.0-STEPS.md",
+      "evidence/api-same-host-1-review-20261025.json",
+      "evidence/api-same-host-1-merge-<date>.json",
+      "evidence/api-same-host-1-mainproof-<date>.json",
+      "CAMPAIGN-LIVE-WRITE-1 admission files"
+    ],
+    "lifecycleOwnership": "Every lifecycle file of the implementation PR is covered by ownershipExceptions after this admission (units.json, the four registered evidence names, PROGRESS.md and V2.2.0-STEPS.md added here); the ten leaves are covered by ownershipPaths (src/lib/api, src/pages/api/multiplayer/auth, src/__tests__/api, the validator, server.js) and the registered exception for unlock.ts. Audited with the real validate-roadmap.mjs --git on a synthetic implementation merge (README, Ownership audit): 15 files, 330 counted additions, ownership or cap violations 0; negative control (PROGRESS.md and the page removed from ownershipExceptions) flagged 2 files.",
+    "gitForce": "Not needed: none of the leaves is under an ignored path (scripts/** is ignored but the validator is an existing tracked file)."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxCountedAddedLines": 500,
+    "noDeletionCredit": true,
+    "countAfterNormalOxfmt": true,
+    "rule": "Per merge diff, as validate-roadmap.mjs:707-725 (git diff --numstat --no-renames <mergeSha>^1 <mergeSha>); tests and evidence line-exempt but file-counted. No exemption was invented."
+  },
+  "measuredFit": {
+    "basis": "tools/measure-fit.cjs on the frozen patches at the baseline; UNCOUNTED_FILES read from validate-roadmap.mjs at run time. Real lifecycles measured from merge diffs: 35fa2fb9c 48, f917a5259 56, b78909c5e 51, d5fb4d867 62, ad8486735 55.",
+    "countedAdditions": 274,
+    "perFile": {
+      "server.js": 58,
+      "src/lib/api/sameHostGuard.ts": 131,
+      "src/pages/api/multiplayer/auth/local-seats.ts": 2,
+      "src/pages/api/multiplayer/auth/token.ts": 2,
+      "src/pages/api/vault/identity/unlock.ts": 2,
+      "scripts/validate-multiplayer-packaged-socket.mjs": 79
+    },
+    "deletionsIgnored": {
+      "src/pages/api/multiplayer/auth/local-seats.ts": 27
+    },
+    "testAdditionsExempt": {
+      "src/lib/api/__tests__/sameHostGuard.test.ts": 235,
+      "src/__tests__/api/sameHostGuard.routes.test.ts": 930,
+      "src/__tests__/api/securityBoundary.test.ts": 1,
+      "src/__tests__/api/vault/unlock.test.ts": 13
+    },
+    "lifecycleEstimate": {
+      "low": 48,
+      "high": 66,
+      "conservativeBound": 80
+    },
+    "total": {
+      "low": 322,
+      "high": 340,
+      "atBound": 354,
+      "cap": 500
+    },
+    "verdict": "Fits: 274 counted source additions; with the real lifecycle range 48-66 the implementation PR counts 322-340, 354 at the 80-line bound, of 500. Files: exactly 15 of 15. No capException is expected; a 16th file, any added counted line past the bound, or a changed apply offset stops the unit for Root.",
+    "previousDraftCount": "274 at 79211e5a1 (2026-10-25). Re-measured here, not copied: also 274."
+  },
+  "frameMeasurement": {
+    "ruling": "Root ruling 4: measure realistic inbound campaign-sync and match frames, including the largest roster or proposal from repo fixtures, before the freeze; stop for Root if any realistic frame exceeds 512 KiB.",
+    "script": "measure-inbound-frames.mjs (frozen beside this receipt); raw output inbound-frames.json. Frames are built the way product code builds them, validated against the real zod schemas (ClientMessageSchema, CampaignApplicationClientMessageSchema), serialised with JSON.stringify and counted as UTF-8 bytes.",
+    "direction": "inbound (client -> server); ws maxPayload limits received messages only",
+    "datasets": {
+      "unitFilesScanned": 4231,
+      "heaviestUnit": "public/data/units/battlemechs/4-clan-invasion/advanced/Longbow LGB-0H.json",
+      "heaviestEquipmentEntries": 28,
+      "campaignPacks": [
+        {
+          "file": "e2e/scenario-packs/campaign/coop-guest-proposal.campaign.json",
+          "bytes": 12665
+        },
+        {
+          "file": "e2e/scenario-packs/campaign/coop-host-review.campaign.json",
+          "bytes": 12652
+        },
+        {
+          "file": "e2e/scenario-packs/campaign/economy-midcampaign.campaign.json",
+          "bytes": 13675
+        },
+        {
+          "file": "e2e/scenario-packs/campaign/experience-pilot.campaign.json",
+          "bytes": 11937
+        },
+        {
+          "file": "e2e/scenario-packs/campaign/maintenance-repairbay.campaign.json",
+          "bytes": 43816
+        },
+        {
+          "file": "e2e/scenario-packs/campaign/navigation-briefing.campaign.json",
+          "bytes": 16458
+        },
+        {
+          "file": "e2e/scenario-packs/campaign/personnel-roster.campaign.json",
+          "bytes": 12366
+        }
+      ],
+      "longestUnitName": "Rock Hound AM-PRM-RH7 'Rock Possum' ProspectorMech"
+    },
+    "largestRealistic": {
+      "kind": "CampaignHostIntent/ReconcileBattle, 22 units",
+      "utf8Bytes": 3342,
+      "pctOfCap": 0.3187,
+      "marginBelow1MiB": 1045234
+    },
+    "largestAnyRow": {
+      "kind": "CampaignHostIntent/ReconcileBattle, 1000 units",
+      "class": "sensitivity",
+      "utf8Bytes": 110494
+    },
+    "anyRealisticOver512KiB": false,
+    "allSchemaParsed": true,
+    "bytesPerReconcileUnit": 108.74,
+    "unitsToReach512KiB": 4812,
+    "marginBelow1MiBAtLargestRealistic": 1045234,
+    "rows": [
+      {
+        "channel": "match",
+        "kind": "SessionJoin",
+        "class": "realistic",
+        "utf8Bytes": 677,
+        "pctOfCap": 0.0646,
+        "marginBelow1MiB": 1047899,
+        "construction": "real signed Ed25519 match-scoped token via encodeTokenForWire; lastSeq+deliveryCursor set",
+        "fixture": "generated key; uuid matchId"
+      },
+      {
+        "channel": "match",
+        "kind": "DeliveryAck",
+        "class": "realistic",
+        "utf8Bytes": 133,
+        "pctOfCap": 0.0127,
+        "marginBelow1MiB": 1048443,
+        "construction": "envelope with a large delivery sequence",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "match",
+        "kind": "Heartbeat",
+        "class": "realistic",
+        "utf8Bytes": 101,
+        "pctOfCap": 0.0096,
+        "marginBelow1MiB": 1048475,
+        "construction": "envelope",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "match",
+        "kind": "Intent/Attack (all weapons of the unit with the most equipment entries)",
+        "class": "realistic",
+        "utf8Bytes": 1389,
+        "pctOfCap": 0.1325,
+        "marginBelow1MiB": 1047187,
+        "construction": "AttackIntentSchema; weaponIds = one id per equipment entry of the heaviest unit in public/data/units, id pattern <unitId>-<equipmentId>-<index> (an upper-bound pattern; product ids are shorter)",
+        "fixture": "public/data/units/battlemechs/4-clan-invasion/advanced/Longbow LGB-0H.json (28 equipment entries; 4231 unit files scanned)"
+      },
+      {
+        "channel": "match",
+        "kind": "Intent/Move",
+        "class": "realistic",
+        "utf8Bytes": 322,
+        "pctOfCap": 0.0307,
+        "marginBelow1MiB": 1048254,
+        "construction": "MoveIntentSchema",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "match",
+        "kind": "Intent/RewindRequest (reason free text, 1 KiB)",
+        "class": "sensitivity",
+        "utf8Bytes": 1287,
+        "pctOfCap": 0.1227,
+        "marginBelow1MiB": 1047289,
+        "construction": "RewindRequestIntentSchema.reason is unbounded z.string; realistic reasons are one sentence, a 1 KiB note is used",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "match",
+        "kind": "Intent/SetAiSlot (lobby intents carry only slot ids)",
+        "class": "realistic",
+        "utf8Bytes": 297,
+        "pctOfCap": 0.0283,
+        "marginBelow1MiB": 1048279,
+        "construction": "SetAiSlotIntentSchema; the other lobby intents are smaller",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignJoin",
+        "class": "realistic",
+        "utf8Bytes": 692,
+        "pctOfCap": 0.066,
+        "marginBelow1MiB": 1047884,
+        "construction": "CampaignJoinSchema with real token and a room code",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignGrantJoin",
+        "class": "realistic",
+        "utf8Bytes": 757,
+        "pctOfCap": 0.0722,
+        "marginBelow1MiB": 1047819,
+        "construction": "CampaignGrantJoinSchema; token is unknown at parse time, a wire token is used",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignGrantAck",
+        "class": "realistic",
+        "utf8Bytes": 339,
+        "pctOfCap": 0.0323,
+        "marginBelow1MiB": 1048237,
+        "construction": "CampaignGrantAckSchema (strict)",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignAck (application ack with receipt ids)",
+        "class": "realistic",
+        "utf8Bytes": 375,
+        "pctOfCap": 0.0358,
+        "marginBelow1MiB": 1048201,
+        "construction": "CampaignApplicationAckSchema",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignDecision",
+        "class": "realistic",
+        "utf8Bytes": 227,
+        "pctOfCap": 0.0216,
+        "marginBelow1MiB": 1048349,
+        "construction": "CampaignDecisionSchema",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignParticipation",
+        "class": "realistic",
+        "utf8Bytes": 295,
+        "pctOfCap": 0.0281,
+        "marginBelow1MiB": 1048281,
+        "construction": "CampaignParticipationSchema (strict payload)",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/HirePilot",
+        "class": "realistic",
+        "utf8Bytes": 595,
+        "pctOfCap": 0.0567,
+        "marginBelow1MiB": 1047981,
+        "construction": "GuestProposalSchema wrapping HirePilot; longest pilot name in the campaign scenario packs",
+        "fixture": "scenario-packs rosterProjection.pilots (33 pilots, longest name 9 chars)"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/AcceptContract",
+        "class": "realistic",
+        "utf8Bytes": 676,
+        "pctOfCap": 0.0645,
+        "marginBelow1MiB": 1047900,
+        "construction": "GuestProposalSchema wrapping AcceptContract; longest contract name in the packs",
+        "fixture": "scenario-packs contractMarket.offers (12 offers, longest name 35 chars)"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/SpendFunds",
+        "class": "realistic",
+        "utf8Bytes": 569,
+        "pctOfCap": 0.0543,
+        "marginBelow1MiB": 1048007,
+        "construction": "GuestProposalSchema wrapping SpendFunds, sentence-length reason",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/AllocateSalvage (recovered unit, longest unit name in public/data/units)",
+        "class": "realistic",
+        "utf8Bytes": 678,
+        "pctOfCap": 0.0647,
+        "marginBelow1MiB": 1047898,
+        "construction": "GuestProposalSchema wrapping AllocateSalvage with a rosterUnit",
+        "fixture": "public/data/units (4231 units; longest chassis+model 50 chars)"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/AdvanceDay",
+        "class": "realistic",
+        "utf8Bytes": 513,
+        "pctOfCap": 0.0489,
+        "marginBelow1MiB": 1048063,
+        "construction": "GuestProposalSchema wrapping AdvanceDay",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/RemoveParticipant",
+        "class": "realistic",
+        "utf8Bytes": 593,
+        "pctOfCap": 0.0566,
+        "marginBelow1MiB": 1047983,
+        "construction": "GuestProposalSchema wrapping RemoveParticipant",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignHostIntent/ReconcileBattle, 22 units",
+        "class": "realistic",
+        "utf8Bytes": 3342,
+        "pctOfCap": 0.3187,
+        "marginBelow1MiB": 1045234,
+        "construction": "CampaignReconcileBattleIntentSchema; every one of the 22 player units damaged/destroyed (an intact unit produces no change), designations = the 22 longest unit names in public/data/units, uuid unit ids",
+        "fixture": "src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts:291 (largest player roster in a battle fixture) + public/data/units names"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignHostIntent/ReconcileBattle, 4 units (largest campaign scenario-pack roster is 4-5)",
+        "class": "realistic",
+        "utf8Bytes": 1611,
+        "pctOfCap": 0.1536,
+        "marginBelow1MiB": 1046965,
+        "construction": "same construction, N = max rosterProjection.units length across the 7 campaign scenario packs",
+        "fixture": "scenario-packs rosterProjection.units (max 8)"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignHostIntent/ReconcileBattle, 100 units",
+        "class": "sensitivity",
+        "utf8Bytes": 12624,
+        "pctOfCap": 1.2039,
+        "marginBelow1MiB": 1035952,
+        "construction": "same construction scaled to 100 units (no repo fixture is this large) to show the per-unit slope",
+        "fixture": "n/a (scaled)"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignHostIntent/ReconcileBattle, 1000 units",
+        "class": "sensitivity",
+        "utf8Bytes": 110494,
+        "pctOfCap": 10.5375,
+        "marginBelow1MiB": 938082,
+        "construction": "same construction scaled to 1000 units",
+        "fixture": "n/a (scaled)"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignHostIntent/ApplyGmIntervention",
+        "class": "realistic",
+        "utf8Bytes": 596,
+        "pctOfCap": 0.0568,
+        "marginBelow1MiB": 1047980,
+        "construction": "CampaignApplyGmInterventionIntentSchema, 200-char summary",
+        "fixture": "n/a"
+      },
+      {
+        "channel": "campaign",
+        "kind": "CampaignProposal/whole-campaign-save as proposal",
+        "class": "sensitivity",
+        "utf8Bytes": 29096,
+        "pctOfCap": 2.7748,
+        "marginBelow1MiB": 1019480,
+        "construction": "wire-schema-legal but never built by product code: the largest campaign scenario pack serialised as the proposal value (the host would refuse it at GuestProposalSchema)",
+        "fixture": "e2e/scenario-packs/campaign/maintenance-repairbay.campaign.json (43816 bytes on disk)"
+      }
+    ],
+    "syntheticBoundaryProbes": [
+      {
+        "name": "exactly 1 MiB accepted",
+        "bytes": 1048576,
+        "class": "synthetic",
+        "note": "boundary probe sized to the cap; not a client-built frame"
+      },
+      {
+        "name": "1 MiB + 1 closed with 1009",
+        "bytes": 1048577,
+        "class": "synthetic",
+        "note": "boundary probe sized to the cap; not a client-built frame"
+      },
+      {
+        "name": "95 MiB frame (S5-03 pre-RED)",
+        "bytes": 99614720,
+        "class": "synthetic",
+        "note": "boundary probe sized to the cap; not a client-built frame"
+      }
+    ],
+    "conclusion": "No realistic frame approaches the cap: the largest is CampaignHostIntent/ReconcileBattle, 22 units at 3342 bytes (0.3187% of 1 MiB). Scaling a reconcile frame to 1000 damaged units gives 110494 bytes, and the largest campaign scenario pack serialised as a proposal is 29096 bytes. At 108.74 bytes per unit a reconcile frame needs about 4812 units to reach 512 KiB. Nothing exceeds 512 KiB, so there is no stop for Root. Synthetic boundary probes (1 MiB, 1 MiB + 1, 95 MiB) are kept apart and are not client-built frames."
+  },
+  "preRedReproductions": {
+    "tool": "tools/repro-pre-red.cjs (the prep-refresh script, byte-identical, sha256 in manifest.tools): the real server.js with next, the multiplayer runtime and SQLite stubbed; no jest, no build.",
+    "pristine": "logs/A1-pre-red-repro-pristine.log: rebinding Host read 200 NEXT_HANDLED (with and without a matching Origin), cross-site urlencoded POST /api/vault/identity 200, same-host control 200, 1 MiB / 1 MiB + 1 / 95 MiB frames all acknowledged.",
+    "candidateApplied": "logs/C0b-pre-red-repro-candidate-applied.log: 403 {\"error\":\"Same-host requests only\"} for both rebinding reads, 403 for the cross-site POST, same-host control 200, 1 MiB acknowledged and 1 MiB + 1 closed 1009.",
+    "note": "These are the registered S7-07 and S5-03 observations through the real entry; the built-image form is owed at exact main (G-ASH6)."
+  },
+  "proof": {
+    "red": {
+      "tests": 490,
+      "failed": 307,
+      "passed": 183,
+      "behavioural": 299,
+      "notCountedAsRed": 8,
+      "notCountedRows": {
+        "KDF rate-limit exhaustion (429) from earlier unrefused attack rows": [
+          "credential routes auth/token a valid-looking POST refuses a missing host before the body, the method check or any KDF work",
+          "credential routes still lets a same-host request reach the identity lookup"
+        ],
+        "missing-export (validator assertSameHostGuard not exported; empty output)": [
+          "packaged-socket validator same-host rows passes a server that refuses cross-site API and upgrade traffic",
+          "packaged-socket validator same-host rows fails a server with no guard",
+          "packaged-socket validator same-host rows fails a server that guards the API but not the upgrade",
+          "packaged-socket validator same-host rows fails a server that leaks a rebinding Host read",
+          "packaged-socket validator same-host rows fails a server that leaks a cross-site form write",
+          "packaged-socket validator same-host rows fails a server that refuses same-host clients too"
+        ]
+      },
+      "suiteLevelLoadFailures": [
+        "sameHostGuard.test.ts:   ● Test suite failed to run |     Configuration error: |     Could not locate module @/lib/api/sameHostGuard mapped as: |     C:\\Users\\wroll\\.t3\\worktrees\\MekStation\\t3-75657f99\\src\\$1."
+      ],
+      "behaviouralByGroup": [
+        [
+          "credential routes",
+          35
+        ],
+        [
+          "server.js entry",
+          260
+        ],
+        [
+          "server.js without",
+          2
+        ],
+        [
+          "server.js when",
+          2
+        ]
+      ],
+      "log": "logs/B1-RED-new-suites.json, logs/B1-RED-classification.json"
+    },
+    "baselineExistingSuites": "75 of 75 (localSeatCredentials, securityBoundary, vault/unlock) on the unchanged product bytes",
+    "green": {
+      "suites": 2,
+      "tests": 559,
+      "passed": 559,
+      "log": "logs/C1-GREEN-new-suites.json"
+    },
+    "existingWithoutFixes": "14 failed, 61 passed of 75: securityBoundary.test.ts:104 builds every request with host mekstation.test, and vault/unlock.test.ts builds 10 requests with no Host; both reach handlers that now refuse first",
+    "existingWithFixes": "75 of 75 (the one-line and 13-line fixes of patch 03; localSeatCredentials passes unchanged, rule parity)",
+    "neighbours": "60 of 60 across 7 suites (packagedSocketValidatorCredentialMirror, serverCredentialMirror, socketCredentialProtocol, faultControlsStartup, hydrate-next-standalone-multiplayer-server, vault identity, vault sign); run on the candidate product bytes, which the later test amendment does not touch",
+    "formatLint": "oxfmt --check (.oxfmtrc.json) clean on the ten leaves; oxlint 0 warnings, 0 errors",
+    "lintUnitsWithCandidate": "npm run lint:units with the candidate applied: PASS 17899 of 17899 (scripts 219 files at 50 of 50, src/pages/api 98 files at 16 of 16, src-tests 17783 of 17783); no ceiling is raised or consumed (logs/lint-units-with-candidate.log)",
+    "implementationMergeSimulation": {
+      "method": "tools/simulate-impl-merge.cjs: a synthetic one-parent merge built with git plumbing (unreferenced objects only) = this admission + the ten frozen leaves + synthetic lifecycle files sized like the real ones; the real validate-roadmap.mjs --git runs against a temporary units.json that marks the unit main-verified at that merge, then units.json is restored byte-for-byte",
+      "files": 15,
+      "countedAdditions": 330,
+      "ownershipOrCapViolations": [],
+      "negativeControl": "2 files flagged when PROGRESS.md and V2.2.0-STEPS.md are removed from ownershipExceptions",
+      "log": "logs/impl-merge-simulation.json"
+    },
+    "typecheck": "npx next typegen then npm run typecheck (typescript7 root and scripts projects): exit 0 on the amended bytes. The first run on the amended routes test caught a real type error in the new rows (NodeJS.ProcessEnv requires NODE_ENV); fixed before the freeze.",
+    "mutants": {
+      "total": 41,
+      "killed": 41,
+      "survived": 0,
+      "setupFailures": 0,
+      "historicDraftCount": 39,
+      "added": [
+        "S12",
+        "S13"
+      ],
+      "rows": [
+        {
+          "id": "G1",
+          "label": "G1 host regex accepts any host name",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateSameHost refuses a non-loopback host as a host failure",
+          "jest": "passed 57, failed 12, total 69, suites failed 1"
+        },
+        {
+          "id": "G2",
+          "label": "G2 port range unchecked",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateSameHost refuses port 0 as a host failure",
+          "jest": "passed 67, failed 2, total 69, suites failed 1"
+        },
+        {
+          "id": "G3",
+          "label": "G3 Origin unchecked",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateSameHost refuses a cross-site origin as an origin failure",
+          "jest": "passed 62, failed 7, total 69, suites failed 1"
+        },
+        {
+          "id": "G4",
+          "label": "G4 https origin refused",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateSameHost admits the literal loopback host 127.0.0.1:3001",
+          "jest": "passed 51, failed 18, total 69, suites failed 1"
+        },
+        {
+          "id": "G5",
+          "label": "G5 same-site fetch admitted",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateSameHost refuses Sec-Fetch-Site \"same-site\" as a fetch-site failure",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "G6",
+          "label": "G6 Sec-Fetch-Site unchecked",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateSameHost refuses Sec-Fetch-Site \"cross-site\" as a fetch-site failure",
+          "jest": "passed 64, failed 5, total 69, suites failed 1"
+        },
+        {
+          "id": "G7",
+          "label": "G7 percent-decoding removed",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /%61pi/x as an API route",
+          "jest": "passed 65, failed 4, total 69, suites failed 1"
+        },
+        {
+          "id": "G8",
+          "label": "G8 decode single pass",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /%2561pi/x as an API route",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "G9",
+          "label": "G9 empty segments kept",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /api as an API route",
+          "jest": "passed 52, failed 17, total 69, suites failed 1"
+        },
+        {
+          "id": "G10",
+          "label": "G10 dot-dot not resolved",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /foo/../api/x as an API route",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "G11",
+          "label": "G11 case folding removed",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /API/x as an API route",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "G12",
+          "label": "G12 backslash not normalised",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /\\api/x as an API route",
+          "jest": "passed 67, failed 2, total 69, suites failed 1"
+        },
+        {
+          "id": "G13",
+          "label": "G13 undecodable target unguarded",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /api/%E0%A4%A as an API route",
+          "jest": "passed 67, failed 2, total 69, suites failed 1"
+        },
+        {
+          "id": "G14",
+          "label": "G14 absolute-form target not stripped",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats http://evil.example/api/vault/share as an API route",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "G15",
+          "label": "G15 upgrades judged only on API paths",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "evaluateEntryRequest judges every upgrade, whatever its path",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "G16",
+          "label": "G16 /api prefix without slash",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget leaves /apiary to Next",
+          "jest": "passed 67, failed 2, total 69, suites failed 1"
+        },
+        {
+          "id": "G17",
+          "label": "G17 /api exact path unguarded",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isApiRequestTarget treats /api as an API route",
+          "jest": "passed 67, failed 2, total 69, suites failed 1"
+        },
+        {
+          "id": "G18",
+          "label": "G18 refusal status 400",
+          "file": "src/lib/api/sameHostGuard.ts",
+          "verdict": "KILLED",
+          "killedBy": "isSameHostRequest and rejectUnlessSameHost writes a 403 with the supplied text and reports that it refused",
+          "jest": "passed 68, failed 1, total 69, suites failed 1"
+        },
+        {
+          "id": "S1",
+          "label": "S1 HTTP entry guard removed",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
+          "jest": "passed 241, failed 249, total 490, suites failed 1"
+        },
+        {
+          "id": "S2",
+          "label": "S2 upgrade entry guard removed",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket upgrade refuses a foreign Origin with 403 before the bearer check",
+          "jest": "passed 481, failed 9, total 490, suites failed 1"
+        },
+        {
+          "id": "S3",
+          "label": "S3 maxPayload removed",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
+          "jest": "passed 486, failed 4, total 490, suites failed 1"
+        },
+        {
+          "id": "S4",
+          "label": "S4 maxPayload one byte short",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
+          "jest": "passed 486, failed 4, total 490, suites failed 1"
+        },
+        {
+          "id": "S5",
+          "label": "S5 maxPayload 2 MiB",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket frame size (S5-03) accepts a frame of exactly 1 MiB and refuses one byte more on the combat channel",
+          "jest": "passed 486, failed 4, total 490, suites failed 1"
+        },
+        {
+          "id": "S6",
+          "label": "S6 pages judged as HTTP API",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) guards the API and upgrades, not page routes",
+          "jest": "passed 488, failed 2, total 490, suites failed 1"
+        },
+        {
+          "id": "S7",
+          "label": "S7 boot continues without the guard",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js without the guard module or tsx refuses to boot instead of serving unguarded when the guard module is missing",
+          "jest": "passed 488, failed 2, total 490, suites failed 1"
+        },
+        {
+          "id": "S8",
+          "label": "S8 refusal body text changed",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
+          "jest": "passed 266, failed 224, total 490, suites failed 1"
+        },
+        {
+          "id": "S9",
+          "label": "S9 HTTP refusal status 400",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) public read refuses a rebinding host with a matching origin before Next sees it",
+          "jest": "passed 242, failed 248, total 490, suites failed 1"
+        },
+        {
+          "id": "S10",
+          "label": "S10 upgrade refusal drops the socket",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) WebSocket upgrade refuses a foreign Origin with 403 before the bearer check",
+          "jest": "passed 482, failed 8, total 490, suites failed 1"
+        },
+        {
+          "id": "S11",
+          "label": "S11 request headers not passed",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js entry guard (NODE_ENV=development) public read hands a request with no Origin and no fetch metadata to Next",
+          "jest": "passed 316, failed 174, total 490, suites failed 1"
+        },
+        {
+          "id": "S12",
+          "label": "S12 later guard failure admitted (fail open)",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js when the guard fails after a good boot answers an API request with 500, never handing it to Next unguarded",
+          "jest": "passed 488, failed 2, total 490, suites failed 1"
+        },
+        {
+          "id": "S13",
+          "label": "S13 missing tsx tolerated at boot",
+          "file": "server.js",
+          "verdict": "KILLED",
+          "killedBy": "server.js without the guard module or tsx refuses to boot instead of serving unguarded when tsx cannot be loaded",
+          "jest": "passed 489, failed 1, total 490, suites failed 1"
+        },
+        {
+          "id": "V1",
+          "label": "V1 validator accepts any upgrade status",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that guards the API but not the upgrade",
+          "jest": "passed 5, failed 1, total 490, suites failed 1"
+        },
+        {
+          "id": "V2",
+          "label": "V2 validator skips the same-host control",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that refuses same-host clients too",
+          "jest": "passed 5, failed 1, total 490, suites failed 1"
+        },
+        {
+          "id": "V4",
+          "label": "V4 validator skips the rebinding Host row",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that leaks a rebinding Host read",
+          "jest": "passed 5, failed 1, total 490, suites failed 1"
+        },
+        {
+          "id": "V3",
+          "label": "V3 validator skips the cross-site form row",
+          "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "verdict": "KILLED",
+          "killedBy": "packaged-socket validator same-host rows fails a server that leaks a cross-site form write",
+          "jest": "passed 5, failed 1, total 490, suites failed 1"
+        },
+        {
+          "id": "R1",
+          "label": "R1 token.ts guard removed",
+          "file": "src/pages/api/multiplayer/auth/token.ts",
+          "verdict": "KILLED",
+          "killedBy": "credential routes auth/token a valid-looking POST refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+          "jest": "passed 36, failed 19, total 490, suites failed 1"
+        },
+        {
+          "id": "R2",
+          "label": "R2 unlock.ts guard removed",
+          "file": "src/pages/api/vault/identity/unlock.ts",
+          "verdict": "KILLED",
+          "killedBy": "credential routes identity/unlock a valid-looking POST refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+          "jest": "passed 37, failed 18, total 490, suites failed 1"
+        },
+        {
+          "id": "R3",
+          "label": "R3 local-seats refusal text changed",
+          "file": "src/pages/api/multiplayer/auth/local-seats.ts",
+          "verdict": "KILLED",
+          "killedBy": "/api/multiplayer/auth/local-seats refuses a non-loopback host before any KDF or credential interpretation",
+          "jest": "passed 497, failed 25, total 522, suites failed 2"
+        },
+        {
+          "id": "R4",
+          "label": "R4 token.ts guard after the method check",
+          "file": "src/pages/api/multiplayer/auth/token.ts",
+          "verdict": "KILLED",
+          "killedBy": "credential routes auth/token a wrong method refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+          "jest": "passed 49, failed 6, total 490, suites failed 1"
+        },
+        {
+          "id": "R5",
+          "label": "R5 unlock.ts guard after the method check",
+          "file": "src/pages/api/vault/identity/unlock.ts",
+          "verdict": "KILLED",
+          "killedBy": "credential routes identity/unlock a wrong method refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+          "jest": "passed 49, failed 6, total 490, suites failed 1"
+        },
+        {
+          "id": "R6",
+          "label": "R6 token.ts guard after body parsing",
+          "file": "src/pages/api/multiplayer/auth/token.ts",
+          "verdict": "KILLED",
+          "killedBy": "credential routes auth/token a malformed POST body refuses a rebinding host with a matching origin before the body, the method check or any KDF work",
+          "jest": "passed 43, failed 12, total 490, suites failed 1"
+        }
+      ]
+    },
+    "notMutated": "The assertSameHostGuard call in main() (only a packaged run exercises it), the isStandaloneRuntime branch and real Next. Disclosed as survivors-by-construction.",
+    "machine": "Node v22.22.0; every jest, typecheck and mutant run went through heavy-run.mjs --lane api-same-host-admission at the checkout root with default leases; no ALLOW_PIDS edit, no junction. One 8-second narrow tsc --noEmit ran outside the queue while diagnosing the type error above."
+  },
+  "candidateAmendment": {
+    "why": "Root ruling 2 and the brief's required implementation proof name a fatal missing tsx and a fail-closed later load failure. The 2026-10-25 draft tested only a missing guard module and had no row for a guard failing after boot.",
+    "change": "sameHostGuard.routes.test.ts only (a registered leaf, exempt lines, no new file): the existing boot row became it.each over {guard module missing, tsx cannot be loaded}; a new describe starts server.js in production mode with a guard wrapper that throws for requests carrying x-guard-fail and asserts HTTP 500 (a control request still gets 200 NEXT_HANDLED) and a destroyed upgrade; startServer takes an optional extraEnv. 2026-10-25 draft bytes are kept as patches/01-failing-tests.20261025-original.patch.",
+    "effect": "Routes test 882 -> 930 lines (exempt); 3 behavioural rows added (tsx boot, API 500, upgrade dropped); two mutants added (S12 later guard failure admitted, S13 missing tsx tolerated). Product bytes (patch 02) unchanged. Everything below was re-measured on the amended bytes; the first-pass counts are kept under logs/pass1-original-draft-test-bytes.",
+    "firstPass": {
+      "red": "304 failed / 183 passed (487), 296 behavioural + 8 not counted",
+      "green": "556 of 556",
+      "mutants": "39 of 39 killed (logs/pass1-original-draft-test-bytes)"
+    }
+  },
+  "redPlan": {
+    "order": [
+      "implementation worktree at fetched main with this admission",
+      "G-ASH0 byte controls against the frozen directory",
+      "RED commit: the two new test files only (patch 01)",
+      "RED run and classification (G-ASH1)",
+      "GREEN commit: patches 02 and 03 (G-ASH2, G-ASH3, G-ASH4)",
+      "lifecycle commits: red and local receipts, units.json, PROGRESS.md, generated page"
+    ],
+    "noImplementationBeforeMerge": "This admission PR ships no candidate source: server.js, the guard, the three routes, the validator and all test files are untouched."
+  },
+  "census": {
+    "baseline": "3dc706ed4d07cc5cd148c92ef7b15db9ce744ddf",
+    "observedAt": "2026-10-29T02:30:22.934Z",
+    "openPrs": {
+      "count": 1,
+      "prs": [
+        {
+          "number": 2113,
+          "title": "docs(audits): preserve complete thread-transfer history",
+          "head": "codex/thread-transfer-history-20261002"
+        }
+      ],
+      "overlap": "none: #2113 (100 files) changes no file under server.js, src/lib/api, src/pages/api, src/__tests__/api, the validator, next.config, package.json, .github/workflows, scripts/next, the hydrator or scripts/release (gh pr view 2113 --json files)"
+    },
+    "worktrees": {
+      "count": 53,
+      "method": "census/worktree-census.cjs: for every registered worktree, files changed against the merge-base with the baseline (committed) plus git status --porcelain (uncommitted, untracked included), classified as exact leaf, ownership path or ancestor alias.",
+      "exactLeafHits": [],
+      "aliasHits": [
+        {
+          "worktree": "E:/Projects/Personal/MekStation-wt/baseline-f-20261018",
+          "branch": "refs/heads/fix/baseline-f-salvage-roster-20261018",
+          "kind": "uncommitted",
+          "file": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+          "class": "OWNERSHIP-PATH"
+        }
+      ],
+      "disposition": "No exact-leaf overlap in any of the registered worktrees. One alias-only hit: baseline-f-20261018 (fix/baseline-f-salvage-roster-20261018) has an UNCOMMITTED edit to src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts, which sits under the src/__tests__/api ownership path but is not a leaf; ownership aliases are navigation only and grant no leaf. Left untouched."
+    },
+    "ledger": {
+      "units": 285,
+      "states": {
+        "complete": 96,
+        "blocked": 96,
+        "main-verified": 58,
+        "planned": 35
+      },
+      "admittedUnfinished": "none (no unit is in admitted, implementing, local-verified, pr-open, review-required, ci-running or merged state)",
+      "overlappingByOwnership": 32,
+      "exactLeafClaimants": [
+        {
+          "id": "P2CG1G2A",
+          "state": "main-verified",
+          "leaves": [
+            "src/__tests__/api/securityBoundary.test.ts"
+          ]
+        },
+        {
+          "id": "B14-0A",
+          "state": "main-verified",
+          "leaves": [
+            "src/__tests__/api/securityBoundary.test.ts"
+          ]
+        },
+        {
+          "id": "LSC-2O",
+          "state": "main-verified",
+          "leaves": [
+            "src/pages/api/multiplayer/auth/local-seats.ts"
+          ]
+        },
+        {
+          "id": "P2CG1H",
+          "state": "blocked",
+          "leaves": [
+            "server.js"
+          ]
+        },
+        {
+          "id": "U101d",
+          "state": "planned",
+          "leaves": [
+            "server.js",
+            "scripts/validate-multiplayer-packaged-socket.mjs"
+          ]
+        },
+        {
+          "id": "B15-1",
+          "state": "blocked",
+          "leaves": [
+            "server.js"
+          ]
+        },
+        {
+          "id": "B15-PRIV",
+          "state": "blocked",
+          "leaves": [
+            "src/__tests__/api/securityBoundary.test.ts"
+          ]
+        },
+        {
+          "id": "B15-AUTH-LIMIT",
+          "state": "blocked",
+          "leaves": [
+            "src/__tests__/api/securityBoundary.test.ts",
+            "src/__tests__/api/vault/unlock.test.ts"
+          ]
+        },
+        {
+          "id": "B15-AUTH-ORIGIN",
+          "state": "blocked",
+          "leaves": [
+            "src/pages/api/multiplayer/auth/token.ts",
+            "src/pages/api/vault/identity/unlock.ts",
+            "src/__tests__/api/securityBoundary.test.ts",
+            "src/__tests__/api/vault/unlock.test.ts"
+          ]
+        },
+        {
+          "id": "B15-INV",
+          "state": "blocked",
+          "leaves": [
+            "src/__tests__/api/securityBoundary.test.ts"
+          ]
+        },
+        {
+          "id": "LSC-CONSOLIDATE-1",
+          "state": "blocked",
+          "leaves": [
+            "src/pages/api/multiplayer/auth/token.ts"
+          ]
+        },
+        {
+          "id": "DESKTOP-DATA-OWN-1",
+          "state": "blocked",
+          "leaves": [
+            "server.js"
+          ]
+        }
+      ],
+      "aliasOnlyClaimants": [
+        {
+          "id": "U88",
+          "state": "complete",
+          "aliases": [
+            "src/lib/api"
+          ]
+        },
+        {
+          "id": "U93",
+          "state": "complete",
+          "aliases": [
+            "src/lib/api"
+          ]
+        },
+        {
+          "id": "P1A",
+          "state": "complete",
+          "aliases": [
+            "src/lib/api"
+          ]
+        },
+        {
+          "id": "P1",
+          "state": "blocked",
+          "aliases": [
+            "src/lib/api"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A1",
+          "state": "main-verified",
+          "aliases": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2FP",
+          "state": "main-verified",
+          "aliases": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2F",
+          "state": "main-verified",
+          "aliases": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2M",
+          "state": "main-verified",
+          "aliases": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-A2",
+          "state": "main-verified",
+          "aliases": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "L1-SMOKE-B",
+          "state": "main-verified",
+          "aliases": [
+            "scripts"
+          ]
+        },
+        {
+          "id": "LSC-1",
+          "state": "main-verified",
+          "aliases": [
+            "src/pages/api/multiplayer/auth",
+            "src/__tests__/api"
+          ]
+        },
+        {
+          "id": "U45",
+          "state": "planned",
+          "aliases": [
+            "src/lib"
+          ]
+        },
+        {
+          "id": "U4",
+          "state": "complete",
+          "aliases": [
+            "src/lib"
+          ]
+        },
+        {
+          "id": "U5d",
+          "state": "complete",
+          "aliases": [
+            "src/lib"
+          ]
+        },
+        {
+          "id": "U5e",
+          "state": "complete",
+          "aliases": [
+            "src/lib"
+          ]
+        },
+        {
+          "id": "U5h",
+          "state": "complete",
+          "aliases": [
+            "src/lib"
+          ]
+        },
+        {
+          "id": "U101",
+          "state": "planned",
+          "aliases": [
+            "src/pages/api/multiplayer/auth"
+          ]
+        },
+        {
+          "id": "U101a",
+          "state": "planned",
+          "aliases": [
+            "src/pages/api/multiplayer/auth"
+          ]
+        },
+        {
+          "id": "FOG-H",
+          "state": "blocked",
+          "aliases": [
+            "src/pages/api/multiplayer"
+          ]
+        },
+        {
+          "id": "STEP2-RC-RERUN-1",
+          "state": "blocked",
+          "aliases": [
+            "scripts"
+          ]
+        }
+      ],
+      "textMentions": "census/units-text-mentions.txt lists 35 further units that name a leaf in their text only (none admitted).",
+      "disposition": "Every exact-leaf claimant is blocked, planned or main-verified; none is admitted-unfinished, so this unit is the only admitted one when the admission merges. Shared leaves keep the registered rule: never in flight together; re-census at each admission."
+    },
+    "evidence": "census/open-prs.json, census/worktrees.json, census/units.json, census/units-text-mentions.txt"
+  },
+  "controls": {
+    "note": "Files the candidate depends on but does not change; hashed at the baseline.",
+    "files": [
+      {
+        "path": "src/lib/api/security.ts",
+        "sha256": "cfa53d5008522554e12814785bd85da3e663971b3f7d537ac2f61e8845b21199",
+        "bytes": 3392
+      },
+      {
+        "path": "src/__tests__/api/localSeatCredentials.test.ts",
+        "sha256": "003337f05022e2b46e5972e23e525bbe37526ecd0854dca648da7e70cb8fde1e",
+        "bytes": 14103
+      },
+      {
+        "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+        "sha256": "7a5e3a8a70f5428cdbc251572fb90fcd18b5d7b63bad879f8ba483fc0f16f3a1",
+        "bytes": 13612
+      },
+      {
+        "path": "scripts/next/runtime-packages.mjs",
+        "sha256": "cbadf979763af21c9f5da9e4c8600730f47698fdeb541ce9763cbfb1028e0aad",
+        "bytes": 8068
+      },
+      {
+        "path": "src/lib/multiplayer/socketCredentialProtocol.ts",
+        "sha256": "e9adc5c0de166223a207c480072535a3fe4c673b175614b5c580a16514dfab4e",
+        "bytes": 3080
+      },
+      {
+        "path": "src/lib/testing/__tests__/faultControlsStartup.test.ts",
+        "sha256": "cf8e1011cd263fe08de62c19deffbb5eb419f14055d5b23bd07edb4eac12941e",
+        "bytes": 2339
+      },
+      {
+        "path": "playwright.config.ts",
+        "sha256": "99149bfbf7f8d2c3a9b35b7a93b569aacd4416bf3da7e4989a08a1294c3d6572",
+        "bytes": 14379
+      },
+      {
+        "path": "package.json",
+        "sha256": "e1ad340c034b427636e2dc16efec7a2d4adecd8d10408fee0edab44bd1aa6109",
+        "bytes": 35440
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "3714835a407377a3f5aec2331c92a10e50947b3e6c3372233632d57170b7af70",
+        "bytes": 637252
+      },
+      {
+        "path": "next.config.ts",
+        "sha256": "2576354ffdc22fcba76ddf68bcd8003d3856cb8d0a5f8dd2b7b3f0f030722309",
+        "bytes": 7795
+      },
+      {
+        "path": "src/types/multiplayer/Protocol.ts",
+        "sha256": "85bf78cd1373287dc202a4bdab80ef52d090b70fd0fb9f190d3f855f329e0fbc",
+        "bytes": 43313
+      }
+    ],
+    "frozen22": "The 22 scripts/release/l1-built-server-* and run-l1-built-server-* leaves are untouched by this unit; the candidate adds lines to server.js only, and the four server.js strings those files pin (server.on('upgrade', /api/multiplayer/socket, bindMultiplayerSocketConnection, the ready marker) all remain."
+  },
+  "gates": [
+    {
+      "id": "G-ASH0",
+      "requires": "Before any implementation commit, the ten frozen candidate files are byte-compared (sha256) with the frozen directory and with this receipt; the base is fetched main containing this admission. A different baseline or a changed blob under any existing leaf forces a re-measure of apply offsets, counted lines and the proof set (stop for Root if a hunk moves)."
+    },
+    {
+      "id": "G-ASH1",
+      "requires": "RED first: the two new test files alone on the unchanged product bytes; expected 307 failed / 183 passed of 490 (299 behavioural; 8 not counted by the LSC-2O rule: 6 validator rows on a missing export, 2 on KDF rate-limit 429). sameHostGuard.test.ts does not load (module absent) and is GREEN-only characterization. The three pre-RED observations are re-run on the implementation base (rebinding Host read 200, cross-site urlencoded POST 200, 95 MiB frame acknowledged)."
+    },
+    {
+      "id": "G-ASH2",
+      "requires": "GREEN with the same test bytes: 559 of 559 (2 suites); existing suites 75 of 75 with the two existing-suite fixes (14 fail without them); neighbours 60 of 60 (7 suites); the pre-RED repros flip (403, 403, close 1009)."
+    },
+    {
+      "id": "G-ASH3",
+      "requires": "Mutants: 41 of 41 killed by a named assertion failure (tools/run-mutants.cjs), none SURVIVED, none SETUP-FAILURE. A survivor stops the unit unless shown equivalent."
+    },
+    {
+      "id": "G-ASH4",
+      "requires": "oxfmt --check and oxlint on the ten leaves; npx next typegen then the full npm run typecheck; npm run lint:units; validate-roadmap plain, --git and --github; generate-v220-steps --check; validator and v220 tests. Heavy work foreground through the heavy-run queue at the checkout root."
+    },
+    {
+      "id": "G-ASH5",
+      "requires": "A genuine sensitive packet (authority, privacy review classes) before local-verified; independent exact-head review; required CI; an exact-head OWNER-RULING before merge."
+    },
+    {
+      "id": "G-ASH6",
+      "requires": "Exact-main proof after the merge (ruling 5): a post-merge build, then the packaged validator with Electron as node and --standalone-dir, with the new rows (rebinding-Host read 403, cross-site form 403 and no identity created, same-host read 200, foreign-Origin upgrade 403) on the built, unflagged server. Plus the registered jest rows at the exact merge: exactly 1 MiB accepted and 1 MiB + 1 closed 1009 on both channels, fatal missing guard and tsx, the 500 and dropped-upgrade rows, credential checks before body and KDF. Installer rehearsal is Step 8."
+    }
+  ],
+  "rulings20261028": {
+    "authority": "carry-forward.md, \"2026-10-28 Root rulings on the API-SAME-HOST-1 prep refresh\" (Root rulings, not owner decisions) plus \"2026-10-28 Root disposition: post-C installed observation complete\" and the Root brief _reports/2026-10-28/api-same-host-admission/BRIEF.md.",
+    "R1": "Option A as registered: server.js loads the pure guard through tsx/cjs after app.prepare(). No optional packaged-validator source assertion and no new CommonJS owner were added (fail-closed boot already proves the guard source exists in the image).",
+    "R2": "A missing tsx or guard is fatal at boot (exit 1 before the ready marker); a later load failure fails closed with 500. Disclosed below, including the Electron Startup Error Retry/Quit behaviour. Rows for both were ADDED to the candidate routes test at this admission (candidateAmendment).",
+    "R3": "Caps are per merge diff (A2M and B precedent): 15 files / 500 counted additions, tests and evidence line-exempt but file-counted, no deletion credit, no new exemption. Measured with the validator's own UNCOUNTED_FILES patterns. The validator has no merge-diff file cap for ordinary units, so there is no conflict; the file count is exactly 15 with the generated page counted (zero slack).",
+    "R4": "Realistic inbound frames were measured before the freeze (frameMeasurement). The largest realistic frame is far below 512 KiB, so no stop for Root.",
+    "R5": "Accepted for later: an Electron-as-node packaged validator run with --standalone-dir on a post-merge build is this unit's mainProof. Installer rehearsal is Step 8.",
+    "R6": "Admission after PR C, rebased on fetched main 3dc706ed4. No old baseline or prep count is represented as current: every number in this receipt was measured at the baseline.",
+    "R7": "/api HTTP routes and every upgrade are guarded as registered. Page and _next asset rebinding reads are a disclosed limitation. No scope expansion.",
+    "R8": "The packaged validator stays a manual gate until DESKTOP-GUARDS-1. It is not added to STEP2-RC-RERUN-1.",
+    "accounting": "This standalone admission is Step 4 PR 1; the implementation is PR 2; the closure, carrying the CAMPAIGN-LIVE-WRITE-1 admission, is PR 3. Three of 29. L1-SMOKE-B's closure already merged (#2352) and cannot carry this admission."
+  },
+  "limitations": [
+    "Fatal boot (ruling 2): if tsx or the guard cannot load, server.js logs \"[mp-boot] same-host guard unavailable\" and exits 1 before it prints the ready marker. In the packaged app the embedded-server wrapper rejects with \"The embedded server exited before it was ready (code 1, signal null)\" (desktop/electron/main.server.ts:39) and the window shows the Startup Error dialog \"MekStation could not start its local server.\" with Retry and Quit (desktop/electron/main.window.ts:281-298). Retry restarts the server; with a permanently missing tsx or guard the dialog returns on every attempt, and Quit closes the app. Until now only the guard-free multiplayer runtime load was non-fatal (server.js:540 logs \"[mp-boot] runtime load failed\" and keeps serving Next without multiplayer); the guard is the first thing that makes tsx fatal for the whole app.",
+    "Later load failure (ruling 2): loadSameHostGuard() caches a successful load, so only a failure inside the guard call can happen after boot. An HTTP request then reaches the existing catch and is answered 500 \"Internal Server Error\", never handed to Next; an upgrade reaches the existing catch and the socket is destroyed without a handshake (no 500 status line, no 101). Both are rows of the candidate test.",
+    "Page routes and _next assets (ruling 7): a DNS-rebinding page can still read HTML pages and _next assets (rebinding reads of pages are not judged). Only /api and upgrades are. Every upgrade is judged, including the dev HMR path.",
+    "dev:e2e (next dev --webpack) bypasses server.js: that lane has the guard only on the three credential routes (local-seats, multiplayer/auth/token, vault/identity/unlock). No workflow or script uses it (package.json, a comment in scripts/qc/run-flow-audit.mjs, a test fixture).",
+    "Requests with no Origin and no Fetch Metadata (Electron main, curl, Node, Playwright request) stay admitted (owner decision 2026-10-25 item 8): a local process can still call the API; the guard stops browser-mediated attacks only.",
+    "The packaged validator is a manual gate until DESKTOP-GUARDS-1 (ruling 8). Its main() call of assertSameHostGuard is exercised only by a packaged run (survivor-by-construction, not a mutant); the non-vacuity rows prove the checker itself against fake servers.",
+    "Server-entry rows run the real server.js, real ws and real tsx with next, the multiplayer runtime modules and SQLite stubbed by a Module._load preload (technique of validate-multiplayer-packaged-socket.test.ts). Real Next dev (HMR, compile of a refused route), Playwright, the hydrated image and the packaged Electron run are NOT proven here; the e2e-smoke CI job is the only proof of real Next dev.",
+    "The 1 MiB cap is a product decision, not a measured margin: CampaignProposal.proposal is z.unknown on the wire schema and nothing on the server bounds it below the cap. maxPayload limits received messages only; outbound snapshots and replay chunks are not affected.",
+    "Node's own fetch and WebSocket send no Origin and no Sec-Fetch-Site (probed on Node 24.15 in the prep refresh, not re-run on 22.22 here); the frozen L1 harness requests are plain loopback.",
+    "S7-09 (unthrottled vault sign route), S5-06 and B15-AUTH-LIMIT stay outside this unit. No session, cookie, rate-limit or error-text redesign. B15-AUTH-ORIGIN is absorbed by annotation; B15-1 keeps its operator session scope.",
+    "On Windows a raw HTTP upgrade client with the default keep-alive agent loses every second refusal to ECONNRESET; the candidate tests use agent:false. Test hazard, not a product bug."
+  ],
+  "exclusions": [
+    "No product implementation, no local-verified or main-verified state, no merge, no watch of this PR.",
+    "No rcSha, Step 2 flip or Step 8 acceptance change; the post-C installed observation is not an acceptance.",
+    "No change to the 22 frozen release-proof leaves, to the earlier prep directories, or to the primary checkout.",
+    "S7-09, S5-06 and B15-AUTH-LIMIT; page-route and _next judging; the CI wiring of the packaged validator (DESKTOP-GUARDS-1)."
+  ],
+  "openQuestions": [],
+  "preparedAt": "2026-10-29T02:30:22.936Z",
+  "preparedFrom": {
+    "readme": "_reports/2026-10-28/api-same-host-admission/README.md",
+    "handoff": "_reports/2026-10-28/api-same-host-admission/HANDOFF.md",
+    "earlierPrep": "_reports/2026-10-25/prep/api-same-host/ and _reports/2026-10-28/prep/api-same-host-refresh/ (historical; not current proof)"
+  }
+}
