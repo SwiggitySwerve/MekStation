@@ -205,6 +205,9 @@ export interface IConventionalFighter extends IAerospaceUnit {
   /** Engine type (non-fusion) */
   readonly conventionalEngineType: ConventionalFighterEngineType;
 
+  /** Loaded engine technology, independent of chassis technology. */
+  readonly clanEngine?: boolean;
+
   /** Cockpit type */
   readonly cockpitType: AerospaceCockpitType;
 

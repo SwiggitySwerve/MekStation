@@ -94,7 +94,7 @@ describe('ConventionalFighterUnitHandler', () => {
 
     describe('serializeTypeSpecificFields', () => {
       it('should include configuration with engine type', () => {
-        const doc = createMockBlkDocument({ engineType: 0 });
+        const doc = createMockBlkDocument({ engineType: 1 });
         const parseResult = handler.parse(doc);
         expect(parseResult.success).toBe(true);
 

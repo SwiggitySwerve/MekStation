@@ -45,7 +45,7 @@ export function createMockBlkDocument(
     structuralIntegrity: 6,
     heatsinks: 0,
     sinkType: 0,
-    engineType: 0, // ICE
+    engineType: 0, // Fusion (serialized BLK code)
     armorType: 0,
     cockpitType: 0, // Standard
     armor: [16, 12, 12, 8],
