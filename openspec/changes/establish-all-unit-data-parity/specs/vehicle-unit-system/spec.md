@@ -173,3 +173,33 @@ presence (even a zero payload); Tank.java:268 defaults it to false.
   weapons 3 and turret 0.5 tons, totaling 20 with zero free
 - **AND** the fixture's additional heat sinks are zero, without claiming a
   general vehicle heat-sink implementation or BV parity
+
+### Requirement: Base vehicle flank movement consistency
+
+The vehicle construction owner SHALL derive unmodified flank MP as cruise MP
+times 1.5 rounded upward. Store edits, initialization, saved-draft reopening,
+duplication, validation, BV state inputs, template summaries and status bars
+SHALL consume the same rule. Direct vehicle, VTOL and support imports SHALL
+retain their existing upward rounding and input guards. Saved flank values
+SHALL NOT override derivation from cruise MP when a vehicle store is created.
+This requirement covers base movement, without MASC, damage or game modifiers;
+it does not establish full BV or support-construction parity.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`Entity.java:4004-4016` and `Tank.java:1570-1575`.
+
+#### Scenario: Odd, even and stationary movement
+
+- **GIVEN** vehicles with cruise MP 0, 3, 4, 5 and 17
+- **WHEN** base flank movement is derived or displayed
+- **THEN** flank MP SHALL be 0, 5, 6, 8 and 26 respectively
+- **AND** the BV state adapter SHALL receive those same flank values
+- **AND** editing engine rating to derive cruise 3 SHALL yield flank 5
+
+#### Scenario: Reopen and duplicate preserve derived movement
+
+- **GIVEN** a saved vehicle at cruise MP 5, with missing or stale flank MP
+- **WHEN** reopened through the vehicle registry or duplicated
+- **THEN** its store SHALL contain cruise 5 and flank 8
+- **AND** a later cruise edit to 3 SHALL update flank to 5
+- **AND** no generated catalog regeneration SHALL be required
