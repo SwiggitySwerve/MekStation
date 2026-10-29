@@ -348,6 +348,7 @@ describe('VAL-VEHICLE-ENGINE', () => {
       (e) => e.ruleId === 'VAL-VEHICLE-ENGINE',
     );
     expect(engineErrors).toHaveLength(0);
+    expect(result.computedWeights.engine).toBe(13);
   });
 
   it('error: engine rating exceeds 400', () => {
