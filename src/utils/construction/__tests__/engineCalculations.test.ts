@@ -75,7 +75,7 @@ describe('calculateEngineWeight (with type multiplier)', () => {
   });
 
   // MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
-  // Engine.java:424-426 divides the standard table weight by three before
+  // Engine.java:422-423 divides the standard table weight by three before
   // rounding. Using 0.33 loses half-ton increments at high table ratings.
   it.each([
     [420, 24.5], // Kuma 3: 420 Large XXL (Clan), pinned mm-data definition.
