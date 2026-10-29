@@ -74,9 +74,47 @@ jobs:
           echo "Release tag: ${{ steps.resolve_tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
           echo "Previous tag: ${{ steps.resolve_tag.outputs.prev_tag }}" >> "$GITHUB_STEP_SUMMARY"
 
+  validate-source:
+    name: Validate Release Source
+    needs: release-context
+    runs-on: ubuntu-latest
+    if: startsWith(needs.release-context.outputs.tag, 'v')
+    timeout-minutes: 10
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-context.outputs.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Generate Next.js route types
+        run: npx next typegen
+
+      - name: Run type check
+        run: npm run typecheck
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run desktop type check
+        working-directory: desktop
+        run: npm run type-check
+
   prepare-build:
     name: Prepare Build Artifacts
-    needs: release-context
+    needs: [release-context, validate-source]
     runs-on: ubuntu-latest
     if: startsWith(needs.release-context.outputs.tag, 'v')
     timeout-minutes: 15
@@ -358,7 +396,7 @@ jobs:
 
   docker-build:
     name: Build Docker image
-    needs: release-context
+    needs: [release-context, validate-source]
     runs-on: ubuntu-latest
     if: startsWith(needs.release-context.outputs.tag, 'v')
     permissions:
