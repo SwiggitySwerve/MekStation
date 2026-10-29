@@ -19,6 +19,8 @@ import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
+  computeProtoEngineRating,
+  computeProtoWalkMPForRating,
   effectiveWalkMP,
   getProtoMPCaps,
   getProtoWeightClass,
@@ -108,14 +110,19 @@ export function createProtoMechStore(
           // =================================================================
 
           setTonnage: (tonnage) =>
-            set((_state) => {
+            set((state) => {
               const clampedTonnage = Math.max(2, Math.min(9, tonnage));
               const newCruiseMP = Math.max(1, 10 - clampedTonnage);
               return {
                 tonnage: clampedTonnage,
                 cruiseMP: newCruiseMP,
+                walkMP: newCruiseMP,
                 flankMP: Math.floor(newCruiseMP * 1.5),
-                engineRating: clampedTonnage * newCruiseMP,
+                engineRating: computeProtoEngineRating(
+                  clampedTonnage,
+                  newCruiseMP,
+                  state.chassisType,
+                ),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };
@@ -148,7 +155,11 @@ export function createProtoMechStore(
                 walkMP,
                 cruiseMP: walkMP,
                 flankMP: effWalk + 1,
-                engineRating: state.tonnage * walkMP,
+                engineRating: computeProtoEngineRating(
+                  state.tonnage,
+                  walkMP,
+                  chassisType,
+                ),
                 jumpMP,
                 glidingWings,
                 isModified: true,
@@ -161,22 +172,39 @@ export function createProtoMechStore(
           // =================================================================
 
           setEngineRating: (engineRating) =>
-            set((state) => ({
-              engineRating,
-              cruiseMP: Math.floor(engineRating / state.tonnage),
-              flankMP: Math.floor((engineRating / state.tonnage) * 1.5),
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
+            set((state) => {
+              const walkMP = computeProtoWalkMPForRating(
+                state.tonnage,
+                engineRating,
+                state.chassisType,
+                state.walkMP,
+              );
+              return {
+                engineRating,
+                walkMP,
+                cruiseMP: walkMP,
+                flankMP: Math.floor(walkMP * 1.5),
+                isModified: true,
+                lastModifiedAt: Date.now(),
+              };
+            }),
 
           setCruiseMP: (cruiseMP) =>
-            set((state) => ({
-              cruiseMP: Math.max(1, cruiseMP),
-              flankMP: Math.floor(cruiseMP * 1.5),
-              engineRating: state.tonnage * cruiseMP,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
+            set((state) => {
+              const walkMP = Math.max(1, cruiseMP);
+              return {
+                walkMP,
+                cruiseMP: walkMP,
+                flankMP: Math.floor(walkMP * 1.5),
+                engineRating: computeProtoEngineRating(
+                  state.tonnage,
+                  walkMP,
+                  state.chassisType,
+                ),
+                isModified: true,
+                lastModifiedAt: Date.now(),
+              };
+            }),
 
           setWalkMP: (mp) =>
             set((state) => {
@@ -189,7 +217,11 @@ export function createProtoMechStore(
                 walkMP,
                 cruiseMP: walkMP,
                 flankMP: effWalk + 1,
-                engineRating: state.tonnage * walkMP,
+                engineRating: computeProtoEngineRating(
+                  state.tonnage,
+                  walkMP,
+                  state.chassisType,
+                ),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };

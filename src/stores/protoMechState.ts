@@ -26,6 +26,7 @@ import {
   type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
 import {
+  computeProtoEngineRating,
   getProtoWeightClass,
   getProtoMPCaps,
   effectiveWalkMP,
@@ -432,7 +433,7 @@ export function createDefaultProtoMechState(
     pointSize: 5,
 
     // Movement
-    engineRating: tonnage * walkMP,
+    engineRating: computeProtoEngineRating(tonnage, walkMP, chassisType),
     walkMP,
     cruiseMP,
     flankMP,

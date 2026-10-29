@@ -89,14 +89,74 @@ export function effectiveJumpMP(
 export const PROTO_ENGINE_WEIGHT_FACTOR = 0.025;
 
 /**
- * Engine rating = tonnage × walkMP (base, before booster).
- * The booster adds MP but does not change the engine rating.
+ * Pinned TestProtoMek.java:548-562 (MegaMek 48fcb2f6).
+ * Uses base walk MP before any booster; construction legality is separate.
  */
 export function computeProtoEngineRating(
   tonnage: number,
   walkMP: number,
+  chassisType: ProtoChassis = ProtoChassis.BIPED,
 ): number {
-  return tonnage * walkMP;
+  let moveFactor = Math.ceil(walkMP * 1.5);
+  if (
+    chassisType === ProtoChassis.QUAD ||
+    chassisType === ProtoChassis.GLIDER
+  ) {
+    moveFactor -= 2;
+  }
+  const rating = Math.trunc(moveFactor * tonnage);
+  return rating > 40 ? Math.ceil(rating / 5) * 5 : rating;
+}
+
+/**
+ * Exact inverse for the editor's direct-rating action. Preserve a matching
+ * current speed; otherwise choose the greatest matching nonnegative integer.
+ * Query the forward rule so its rounding has only one owner.
+ */
+export function computeProtoWalkMPForRating(
+  tonnage: number,
+  rating: number,
+  chassisType: ProtoChassis,
+  currentWalkMP: number,
+): number {
+  if (
+    !Number.isFinite(tonnage) ||
+    tonnage <= 0 ||
+    !Number.isSafeInteger(rating)
+  ) {
+    throw new Error(
+      'ProtoMech engine rating requires positive tonnage and a safe integer rating',
+    );
+  }
+  const ratingAt = (walkMP: number) =>
+    computeProtoEngineRating(tonnage, walkMP, chassisType);
+  if (
+    Number.isSafeInteger(currentWalkMP) &&
+    currentWalkMP >= 0 &&
+    ratingAt(currentWalkMP) === rating
+  ) {
+    return currentWalkMP;
+  }
+
+  let lower = 0;
+  let upper = 1;
+  while (ratingAt(upper) <= rating && upper < Number.MAX_SAFE_INTEGER) {
+    upper = Math.min(upper * 2, Number.MAX_SAFE_INTEGER);
+  }
+  while (lower < upper) {
+    const midpoint = lower + Math.ceil((upper - lower) / 2);
+    if (ratingAt(midpoint) <= rating) {
+      lower = midpoint;
+    } else {
+      upper = midpoint - 1;
+    }
+  }
+  if (ratingAt(lower) !== rating) {
+    throw new Error(
+      `ProtoMech engine rating ${rating} has no integer walk MP for this tonnage and chassis`,
+    );
+  }
+  return lower;
 }
 
 /**
