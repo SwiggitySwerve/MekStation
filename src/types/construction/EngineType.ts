@@ -103,7 +103,8 @@ export const ENGINE_DEFINITIONS: readonly EngineDefinition[] = [
     name: 'XXL Engine',
     techBase: TechBase.INNER_SPHERE, // Also available to Clan
     rulesLevel: RulesLevel.EXPERIMENTAL,
-    weightMultiplier: 0.33,
+    // MegaMek 48fcb2f6 Engine.java divides by three before weight rounding.
+    weightMultiplier: 1 / 3,
     ctSlots: 6,
     sideTorsoSlots: 3,
     isFusion: true,
