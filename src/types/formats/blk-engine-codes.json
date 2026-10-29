@@ -1,0 +1,16 @@
+{
+  "0": "FUSION",
+  "1": "ICE",
+  "2": "XL",
+  "3": "XXL",
+  "4": "LIGHT",
+  "5": "COMPACT",
+  "6": "FUEL_CELL",
+  "7": "FISSION",
+  "8": "NONE",
+  "9": "MAGLEV",
+  "10": "STEAM",
+  "11": "BATTERY",
+  "12": "SOLAR",
+  "13": "EXTERNAL"
+}
