@@ -43,6 +43,36 @@ describe('SmallCraftUnitHandler', () => {
       expect(result.data?.unit?.motionType).toBe(AerospaceMotionType.AERODYNE);
     });
 
+    // Pinned SmallCraft.java:129-130 uses Engine ordinal 0 (ICE) as a
+    // runtime placeholder; BLK's serialized ICE identity is code 1.
+    it.each([undefined, 0, 1, 2, 8, 99])(
+      'uses the ICE placeholder regardless of engine code %s',
+      (engineType) => {
+        const result = handler.parse(createMockBlkDocument({ engineType }));
+
+        expect(result.success).toBe(true);
+        expect(result.data?.unit.engineType).toBe(1);
+        expect(result.data?.warnings).toContain(
+          `SmallCraft ICE runtime placeholder; ignored engine_type ${JSON.stringify(engineType)}`,
+        );
+      },
+    );
+
+    it('retains a malformed ignored engine tag in its diagnostic', () => {
+      const result = handler.parse(
+        createMockBlkDocument({
+          engineType: undefined,
+          rawTags: { engine_type: 'not-an-engine' },
+        }),
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.data?.unit.engineType).toBe(1);
+      expect(result.data?.warnings).toContain(
+        'SmallCraft ICE runtime placeholder; ignored engine_type "not-an-engine"',
+      );
+    });
+
     it('should parse spheroid Small Craft', () => {
       const doc = createSpheroidSmallCraft();
       const result = handler.parse(doc);

@@ -49,14 +49,33 @@ The Python catalog adapters SHALL decode engine tags only for supported families
 
 ProtoMek conversion SHALL use fusion regardless of the ignored tag. SmallCraft conversion SHALL retain the upstream ICE runtime placeholder regardless of the tag, and SHALL identify that placeholder in a diagnostic rather than treating it as construction-validity evidence. Ignored nondefault ProtoMek tags and SmallCraft tags SHALL remain visible with the source path and raw value in diagnostics. Original-byte retention belongs to source inventory and provenance.
 
-This slice does not establish TypeScript BLK export or hydration correctness. The conflicting maps in `BlkExportServiceCore.formatters.ts`, `VehicleUnitHandler.ts` and `ConventionalFighterUnitHandler.ts` remain explicit tasks 2.1/3.2 gaps. LargeSupportTank discovery and other unsupported families remain under the all-family loading requirement.
+The TypeScript conventional-fighter handler SHALL decode the same serialized identities through the shared fact table, preserve the raw code and independent `clan_engine` context, and reject identities absent from its typed model with a diagnostic. Its omitted tag SHALL default to fusion. The TypeScript SmallCraft handler SHALL use serialized ICE identity 1 for the upstream runtime placeholder regardless of the ignored tag and identify the raw ignored value in a warning. This placeholder SHALL NOT imply construction validity.
+
+These handler corrections do not establish complete TypeScript BLK export or hydration correctness. The conflicting maps in `BlkExportServiceCore.formatters.ts` and `VehicleUnitHandler.ts` remain explicit tasks 2.1/3.2 gaps. LargeSupportTank discovery and other unsupported families remain under the all-family loading requirement.
+
+Pinned authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `BLKFile.java:80-93`, `BLKConvFighterFile.java:102-122`, `SmallCraft.java:129-130` and `Engine.java:92-93`. Runtime engine ordinal 0 is ICE; serialized BLK ICE is code 1.
 
 The source-format number/name definitions SHALL be owned by
 `src/types/formats/blk-engine-codes.json`, a language-neutral table consumed by
 the Python decoder. Moving those definitions SHALL preserve complete converter
 outputs, ignored-tag behavior, malformed-code diagnostics and generic MTF aliases.
-This extraction prepares TypeScript caller consolidation; it does not correct
-the three remaining TypeScript maps identified above.
+`blkEngineIdentity.ts` adapts the same facts to the existing TypeScript models.
+The export and vehicle maps identified above remain outside this handler slice.
+
+#### Scenario: Conventional fighter engine identity and technology
+
+- **GIVEN** a conventional fighter with a represented BLK engine code or an omitted tag
+- **WHEN** the TypeScript handler loads it
+- **THEN** the typed engine SHALL match the shared serialized identity, with fusion as the omitted-tag default
+- **AND** an explicit Clan-engine flag SHALL override chassis technology independently
+- **AND** an unrepresentable or unknown code SHALL fail with a code diagnostic rather than substitute ICE
+
+#### Scenario: SmallCraft ignored engine tag
+
+- **GIVEN** a SmallCraft document with an omitted, known, unknown or malformed engine tag
+- **WHEN** the TypeScript handler loads it
+- **THEN** its engine identity SHALL be the ICE runtime placeholder
+- **AND** a warning SHALL preserve the ignored raw value without asserting construction validity
 
 #### Scenario: Shared definitions preserve existing conversion
 

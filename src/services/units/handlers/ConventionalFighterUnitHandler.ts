@@ -7,6 +7,10 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import {
+  decodeBlkConventionalEngine,
+  isClanBlkEngine,
+} from '@/services/conversion/blkEngineIdentity';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
@@ -40,23 +44,6 @@ import {
   pushTonnageRangeErrors,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * Map engine type codes to ConventionalFighterEngineType
- */
-const ENGINE_TYPE_MAP: Record<number, ConventionalFighterEngineType> = {
-  0: ConventionalFighterEngineType.ICE,
-  1: ConventionalFighterEngineType.FUEL_CELL,
-  2: ConventionalFighterEngineType.ELECTRIC,
-  3: ConventionalFighterEngineType.FISSION,
-  4: ConventionalFighterEngineType.FUSION,
-  5: ConventionalFighterEngineType.SOLAR,
-  6: ConventionalFighterEngineType.MAGLEV,
-};
 
 // ============================================================================
 // Conventional Fighter Unit Handler
@@ -94,10 +81,14 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
       warnings.push('Very low fuel capacity');
     }
 
-    // Engine type (conventional uses non-fusion)
-    const engineTypeCode = document.engineType || 0;
-    const conventionalEngineType =
-      ENGINE_TYPE_MAP[engineTypeCode] || ConventionalFighterEngineType.ICE;
+    // Serialized identity is independent of the conventional model enum.
+    const engineTypeCode = document.engineType ?? 0;
+    let conventionalEngineType: ConventionalFighterEngineType | undefined;
+    try {
+      conventionalEngineType = decodeBlkConventionalEngine(engineTypeCode);
+    } catch (error) {
+      errors.push(String(error));
+    }
     const engineType = engineTypeCode;
 
     // Cockpit type
@@ -119,6 +110,7 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
       unitType: UnitType.CONVENTIONAL_FIGHTER,
       motionType: AerospaceMotionType.AERODYNE,
       conventionalEngineType,
+      clanEngine: isClanBlkEngine(document.type, document.rawTags?.clan_engine),
       ...basics,
       engineType,
       cockpitType,
