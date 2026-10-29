@@ -176,13 +176,15 @@ describe('MTFExportService', () => {
       expect(result.content).toContain('armor:Hardened');
     });
 
-    it('should default unknown armor types to Standard', () => {
+    it('should reject unknown armor identities', () => {
       const unit = createMinimalUnit({
         armor: { ...createMinimalUnit().armor, type: 'UNKNOWN' },
       });
       const result = service.export(unit);
 
-      expect(result.content).toContain('armor:Standard(Inner Sphere)');
+      expect(result.success).toBe(false);
+      expect(result.content).toBeUndefined();
+      expect(result.errors.join('; ')).toContain('UNKNOWN');
     });
   });
 });

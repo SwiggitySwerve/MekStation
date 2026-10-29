@@ -32,6 +32,21 @@ export class MTFExportService {
     const errors: string[] = [];
 
     try {
+      // Validate each identity before emitting content so independent failures
+      // (for example mixed chassis context and unsupported armor) stay visible.
+      const [techBase, engineType, armorType] = [
+        () => formatTechBase(unit.techBase),
+        () => formatEngineType(unit.engine.type),
+        () => formatArmorType(unit.armor.type),
+      ].map((format) => {
+        try {
+          return format();
+        } catch (error) {
+          errors.push(`Export error: ${error}`);
+          return '';
+        }
+      });
+      if (errors.length > 0) return { success: false, errors };
       const lines: string[] = [];
 
       writeLicenseHeader(lines);
@@ -54,7 +69,7 @@ export class MTFExportService {
       }
 
       lines.push(`Config:${formatConfig(unit.configuration, unit.isOmni)}`);
-      lines.push(`techbase:${formatTechBase(unit.techBase)}`);
+      lines.push(`techbase:${techBase}`);
       lines.push(`era:${unit.year}`);
 
       if (extendedUnit.source) {
@@ -79,9 +94,7 @@ export class MTFExportService {
       }
 
       lines.push(`mass:${unit.tonnage}`);
-      lines.push(
-        `engine:${unit.engine.rating} ${formatEngineType(unit.engine.type)}`,
-      );
+      lines.push(`engine:${unit.engine.rating} ${engineType}`);
       lines.push(`structure:${formatStructureType(unit.structure.type)}`);
       lines.push('myomer:Standard');
       lines.push('');
@@ -96,7 +109,7 @@ export class MTFExportService {
       lines.push(`jump mp:${unit.movement.jump}`);
       lines.push('');
 
-      lines.push(`armor:${formatArmorType(unit.armor.type)}`);
+      lines.push(`armor:${armorType}`);
       writeArmorValues(lines, unit.armor.allocation, unit.configuration);
       lines.push('');
 

@@ -36,8 +36,8 @@ reactive/reflective identities introduced by the construction identity adapter.
 
 Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `MtfFile.java:387-466,867-905`. This requirement covers the five changed wire
-identities, not full unit, mixed-chassis, editor or numerical parity. The broader
-export validation package remains local and unpublished.
+identities, not full unit, mixed-chassis, editor or numerical parity. The bounded
+component-export continuation below preserves this compatibility requirement.
 
 #### Scenario: Existing vocabulary extraction preserves behavior
 
@@ -51,3 +51,39 @@ export validation package remains local and unpublished.
 - **WHEN** parsed units are exported and parsed again
 - **THEN** the engine identity and rating and armor identity SHALL be preserved
 - **AND** those identities SHALL NOT fall back to standard construction
+
+### Requirement: Faithful MTF component export
+
+The MTF adapter SHALL use its existing shared vocabulary owner for engine and
+armor names. It SHALL preserve supported component identities, engine rating and
+armor allocation through local parse/export/reparse. It SHALL reject unsupported
+component identities and unresolved current MIXED chassis context with diagnostics
+and no content, rather than emit a standard construction fallback.
+
+#### Scenario: Supported component output and legacy aliases
+
+- **GIVEN** supported engine/armor wire identities or deliberate legacy aliases
+- **WHEN** MTFExportService exports a unit
+- **THEN** exact supported names SHALL be emitted and local reparse SHALL preserve the canonical component identities, rating and armor allocation
+- **AND** battery, industrial/commercial, primitive, impact-resistant and ferro-lamellor identities SHALL NOT become standard construction
+
+#### Scenario: Unsupported component output
+
+- **GIVEN** unknown, prototype, patchwork or other-family engine/armor identities
+- **WHEN** MTFExportService exports a unit
+- **THEN** export SHALL fail with diagnostics identifying each unsupported component and no content
+- **AND** an independent missing chassis-context error SHALL also remain visible
+
+#### Scenario: Missing current mixed chassis context
+
+- **GIVEN** MIXED tech base without typed current IS or Clan chassis context
+- **WHEN** MTFExportService exports a unit, even with retained original MTF text
+- **THEN** export SHALL fail with a missing chassis-tech-context diagnostic and no content
+- **AND** the chassis base SHALL NOT be inferred from components or source text
+
+#### Scenario: Limits of component preservation
+
+- **GIVEN** a successful local component roundtrip
+- **WHEN** its guarantee is reported
+- **THEN** contextual parser/editor identity and upstream semantic and numerical readiness SHALL remain separate follow-ups
+- **AND** pure Clan unmarked XL parsing and pure IS chassis Clan suffix behavior SHALL remain named limitations

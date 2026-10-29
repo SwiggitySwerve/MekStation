@@ -105,7 +105,11 @@ export function formatConfig(config: string, isOmni?: boolean): string {
 
 export function formatTechBase(techBase: string): string {
   if (techBase === 'CLAN') return 'Clan';
-  if (techBase === 'MIXED') return 'Mixed';
+  if (techBase === 'MIXED') {
+    throw new Error(
+      'Cannot export MIXED: missing chassis-tech-context (typed current IS or Clan chassis base)',
+    );
+  }
   return 'Inner Sphere';
 }
 

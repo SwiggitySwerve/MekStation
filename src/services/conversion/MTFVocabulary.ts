@@ -43,9 +43,7 @@ const ARMOR_PARSE_NAMES: Record<string, string> = Object.fromEntries(
 ARMOR_PARSE_NAMES[''] = ARMOR_PARSE_NAMES.standard;
 
 const ENGINE_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
-  ENGINE_NAMES.filter(([, type]) => type !== 'BATTERY').map(
-    ([, type, name]) => [type, name],
-  ),
+  ENGINE_NAMES.map(([, type, name]) => [type, name]),
 );
 const ENGINE_EXPORT_ALIASES: Record<string, string> = {
   STANDARD: 'FUSION',
@@ -54,18 +52,7 @@ const ENGINE_EXPORT_ALIASES: Record<string, string> = {
 };
 const CLAN_ARMOR_TYPES = ['FERRO_FIBROUS', 'REACTIVE', 'REFLECTIVE'];
 const ARMOR_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
-  ARMOR_NAMES.filter(([, type]) =>
-    [
-      'STANDARD',
-      'FERRO_FIBROUS',
-      'LIGHT_FERRO_FIBROUS',
-      'HEAVY_FERRO_FIBROUS',
-      'STEALTH',
-      'REACTIVE',
-      'REFLECTIVE',
-      'HARDENED',
-    ].includes(type),
-  ).map(([, type, name]) => [type, name]),
+  ARMOR_NAMES.map(([, type, name]) => [type, name]),
 );
 for (const type of CLAN_ARMOR_TYPES) {
   ARMOR_EXPORT_NAMES[`${type}_CLAN`] = `${ARMOR_EXPORT_NAMES[type]}(Clan)`;
@@ -75,25 +62,33 @@ const ARMOR_EXPORT_ALIASES: Record<string, string> = {
   LIGHT_FERRO: 'LIGHT_FERRO_FIBROUS',
   HEAVY_FERRO: 'HEAVY_FERRO_FIBROUS',
 };
-for (const [alias, type] of Object.entries(ARMOR_EXPORT_ALIASES)) {
-  const entry = ARMOR_NAMES.find(([, identity]) => identity === type);
-  if (entry) ARMOR_EXPORT_NAMES[alias] = entry[2];
-}
-
+// Export accepts wire identities and deliberate legacy aliases, never parser
+// normalization or unknown fallbacks. Own-property checks also reject inherited
+// Object names supplied as external component identities.
 export function formatEngineType(type: string): string {
-  const alias = Object.prototype.hasOwnProperty.call(
+  const canonical = Object.prototype.hasOwnProperty.call(
     ENGINE_EXPORT_ALIASES,
     type,
   )
     ? ENGINE_EXPORT_ALIASES[type]
     : type;
-  return (
-    ENGINE_EXPORT_NAMES[alias] || ENGINE_EXPORT_NAMES[type] || 'Fusion Engine'
-  );
+  if (!Object.prototype.hasOwnProperty.call(ENGINE_EXPORT_NAMES, canonical)) {
+    throw new Error(`Unsupported MTF engine identity: ${type}`);
+  }
+  return ENGINE_EXPORT_NAMES[canonical];
 }
 
 export function formatArmorType(type: string): string {
-  return ARMOR_EXPORT_NAMES[type] || 'Standard(Inner Sphere)';
+  const canonical = Object.prototype.hasOwnProperty.call(
+    ARMOR_EXPORT_ALIASES,
+    type,
+  )
+    ? ARMOR_EXPORT_ALIASES[type]
+    : type;
+  if (!Object.prototype.hasOwnProperty.call(ARMOR_EXPORT_NAMES, canonical)) {
+    throw new Error(`Unsupported MTF armor identity: ${type}`);
+  }
+  return ARMOR_EXPORT_NAMES[canonical];
 }
 
 export function mapEngineType(engineType: string): string {
