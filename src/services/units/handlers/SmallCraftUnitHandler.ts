@@ -37,6 +37,8 @@ import {
   parseRulesLevelThroughAdvancedFromType,
   pushSafeThrustAndStructureErrors,
   pushTonnageRangeErrors,
+  pushSourceLoadNumberErrors,
+  withConstructionDiagnostics,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';
 
@@ -85,6 +87,8 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     document: IBlkDocument,
   ): Partial<ISmallCraft> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
+    pushSourceLoadNumberErrors(errors, document, 'safeThrust');
+    if (errors.length > 0) return { errors, warnings };
 
     // Motion type (aerodyne or spheroid)
     const motionTypeStr = document.motionType?.toLowerCase() || 'aerodyne';
@@ -97,10 +101,6 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     const safeThrust = document.safeThrust || 0;
     const maxThrust = Math.floor(safeThrust * 1.5);
     const movement: IAerospaceMovement = { safeThrust, maxThrust };
-
-    if (safeThrust < 1) {
-      errors.push('Small craft must have at least 1 safe thrust');
-    }
 
     // Fuel
     const fuel = document.fuel || 0;
@@ -134,13 +134,6 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     // Escape pods and life boats
     const escapePods = document.escapePod || 0;
     const lifeBoats = document.lifeBoat || 0;
-
-    // Tonnage validation (100-200 tons for small craft)
-    pushTonnageRangeErrors(errors, document.tonnage, {
-      label: 'Small craft',
-      min: SMALL_CRAFT_TONNAGE.min,
-      max: SMALL_CRAFT_TONNAGE.max,
-    });
 
     return {
       unitType: UnitType.SMALL_CRAFT,
@@ -228,13 +221,14 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<ISmallCraft>,
   ): ISmallCraft {
-    return combineAssaultUnitFields<ISmallCraft>({
+    const unit = combineAssaultUnitFields<ISmallCraft>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'small-craft',
       unitType: UnitType.SMALL_CRAFT,
       rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
+    return withConstructionDiagnostics(unit, this.validate(unit));
   }
 
   /**

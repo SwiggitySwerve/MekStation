@@ -219,14 +219,16 @@ describe('VTOLUnitHandler', () => {
       expect(result.data?.unit?.movement.jumpMP).toBe(0);
     });
 
-    it('should fail parsing when cruise MP is 0', () => {
+    it('should load zero cruise MP with construction errors', () => {
       const doc = createNoMovementVTOLDocument();
       const result = handler.parse(doc);
 
-      expect(result.success).toBe(false);
-      expect(
-        result.error!.errors.some((e) => e.includes('at least 1 cruise MP')),
-      ).toBe(true);
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.data.unit.movement.cruiseMP).toBe(0);
+      expect(handler.validate(result.data.unit).errors).toContain(
+        'VTOLs must have at least 1 cruise MP',
+      );
     });
 
     it('should parse fast scout VTOL movement', () => {
