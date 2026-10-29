@@ -45,6 +45,41 @@ Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 
 ## ADDED Requirements
 
+### Requirement: Vehicle turret armor lifecycle
+
+Selecting no turret SHALL remove both turret configurations and zero both
+turret armor allocations while retaining hull, body and rotor allocations.
+Installing a previously absent primary or secondary turret SHALL begin with
+zero armor; editing an already installed turret SHALL retain its armor.
+The actual store persistence and registry reopening SHALL preserve removal.
+Armor totals and BV armor inputs SHALL exclude the removed allocations.
+
+Source: MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`,
+`CVStructureTab.java:272-292,769-793`. Upstream removes both turret locations
+for None and initializes reinstalled armor to zero. Clearing stored values
+implements that lifecycle for MekStation's fixed-key allocation map.
+
+#### Scenario: Removing a dual turret and reopening
+
+- **GIVEN** installed primary and secondary turrets with unequal armor
+- **WHEN** no turret is selected, saved and reopened through the registry
+- **THEN** both configurations SHALL be null and both armor values SHALL be zero
+- **AND** unrelated allocations SHALL remain unchanged
+- **AND** armor totals and BV armor inputs SHALL contain only remaining armor
+
+#### Scenario: Installation does not revive stale armor
+
+- **GIVEN** an absent turret with stale armor in a legacy allocation
+- **WHEN** that primary or secondary turret is installed
+- **THEN** its armor SHALL be zero
+- **AND** editing an already installed turret SHALL preserve its armor
+
+This bounded correction does not implement equipment unallocation. Upstream
+keeps removed mounts at `Entity.LOC_NONE`; the canonical Turret System scenario
+currently says Body. That obsolete relocation scenario must be replaced when
+the mount model can preserve unallocated identity. This slice changes neither
+equipment identities nor locations and establishes no equipment/BV parity claim.
+
 ### Requirement: Installed combat-vehicle engine weight
 
 The combat-vehicle construction owner SHALL calculate installed engine weight
