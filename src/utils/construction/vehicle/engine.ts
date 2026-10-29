@@ -94,7 +94,7 @@ export interface CombatVehicleEngineContext {
  * Round the modified engine weight before shielding, then round again.
  * Support vehicles use a different engine formula and rounding standard.
  * @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md
- * Source: MegaMek 48fcb2f64a1b Engine.getWeightEngine (Engine.java:396-460).
+ * Source: MegaMek 48fcb2f64a1b Engine.getWeightEngine (Engine.java:396-450).
  */
 export function computeVehicleEngineWeight(
   rating: number,
