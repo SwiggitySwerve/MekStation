@@ -50,3 +50,35 @@ Browser and Node unit services SHALL load every upstream-loadable source family 
 - **WHEN** loading is attempted
 - **THEN** the service SHALL identify the source and unsupported facts
 - **AND** it SHALL NOT substitute a different family or default equipment
+
+### Requirement: VTOL and SmallCraft source loading diagnostics
+
+The BLK parser and registered VTOL/SmallCraft handlers SHALL distinguish source
+loading from construction validation. Representable source tonnage and zero
+movement SHALL survive loading even when existing construction checks reject
+them. The handlers SHALL expose those checks through `validate`, and the loaded
+unit's `isValid` and `validationErrors` SHALL agree with that result. Loading
+success SHALL NOT certify upstream construction validity or numerical parity.
+Existing armor, equipment, locations and derived formulas SHALL remain unchanged
+by this boundary correction.
+
+#### Scenario: Retain an upstream-loaded construction outlier
+
+- **GIVEN** a pinned upstream-loaded VTOL above 30 tons or SmallCraft below 100 tons
+- **WHEN** the BLK document is loaded through its registered handler
+- **THEN** loading SHALL succeed with its original tonnage, armor and equipment
+- **AND** existing construction tonnage errors SHALL remain visible
+
+#### Scenario: Retain zero movement without certifying construction validity
+
+- **GIVEN** a VTOL with zero cruise MP or SmallCraft with zero safe thrust
+- **WHEN** its source is loaded
+- **THEN** movement SHALL remain zero without a fabricated minimum
+- **AND** construction validation SHALL retain its existing movement error
+
+#### Scenario: Reject unusable numeric source fields
+
+- **GIVEN** missing, malformed, nonfinite or negative movement, or malformed or nonfinite tonnage
+- **WHEN** a VTOL or SmallCraft handler attempts to load the source
+- **THEN** it SHALL fail with a field diagnostic rather than substitute zero
+- **AND** missing required identity, unknown types and unsupported dispatch cases SHALL retain explicit outcomes
