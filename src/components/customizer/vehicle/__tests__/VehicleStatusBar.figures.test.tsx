@@ -17,10 +17,9 @@
  *   5.5, x1.5 vehicle shielding) + lift 2 (10%) + controls 1 (5%) + turret 0.5
  *   + armor 3 (48 / 16) + flamer and 2 medium lasers 3 = 20.
  *
- * Installed engine shielding is covered here; the converted 240 rating is
- * still wrong and the bar still omits lift and controls (3 t). At the true
- * 155 rating it therefore shows 3 t free. The whole-unit reference remains
- * an it.failing test until those separate construction gaps are corrected.
+ * The true rating-155 construction now includes controls and lift. The stored
+ * catalog rating 240 is not migrated. Additional heat-sink mass is zero for
+ * this fixture; general vehicle heat-sink rules and BV parity remain unresolved.
  */
 
 import { render, screen } from '@testing-library/react';
@@ -41,6 +40,7 @@ import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
 import { VehicleStatusBar } from '../VehicleStatusBar';
+import { computeVehicleWeightBreakdown } from '../VehicleStatusBar.utils';
 
 jest.mock('@/stores/useVehicleStore');
 const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
@@ -157,59 +157,86 @@ describe('VehicleStatusBar — reference unit', () => {
   };
 
   it('exposes the unresolved converted rating with installed shielding', () => {
-    expect(weightFree({ ...TAMERLANE, engineRating: 240 })).toBe(-6);
+    expect(weightFree({ ...TAMERLANE, engineRating: 240 })).toBe(-9);
   });
 
-  it('still omits 3 t of controls and lift at the true Magna 155 rating', () => {
-    expect(weightFree({ ...TAMERLANE, engineRating: 155 })).toBe(3);
+  it('explicit no-controls removes only the one-ton control term', () => {
+    expect(
+      weightFree({
+        ...TAMERLANE,
+        engineRating: 155,
+        hasNoControlSystems: true,
+      }),
+    ).toBe(1);
   });
 
-  // Known gap (follow-up): controls and lift are not modelled.
-  it.failing(
-    'the Tamerlane Strike Sled (Flamer) has no weight free at its published Magna 155 rating',
-    () => {
-      expect(weightFree({ ...TAMERLANE, engineRating: 155 })).toBe(0);
-    },
-  );
+  // Independent component assertions precede the whole-unit equality.
+  it('the Tamerlane Strike Sled (Flamer) has no weight free at its published Magna 155 rating', () => {
+    const state = {
+      ...createDefaultVehicleState({
+        name: 'Tamerlane',
+        tonnage: 20,
+        techBase: TechBase.INNER_SPHERE,
+      }),
+      ...TAMERLANE,
+      engineRating: 155,
+    };
+    const lookup = getEquipmentLookupService();
+    expect(
+      computeVehicleWeightBreakdown(state, (id) => lookup.getById(id)),
+    ).toMatchObject({
+      engine: 8.5,
+      controls: 1,
+      lift: 2,
+      structure: 2,
+      armor: 3,
+      equipment: 3,
+      turret: 0.5,
+      secondaryTurret: 0,
+      powerAmplifiers: 0,
+      remaining: 0,
+    });
+    expect(weightFree({ ...TAMERLANE, engineRating: 155 })).toBe(0);
+  });
 });
 
 describe('VehicleStatusBar — engine weight', () => {
   it('includes vehicle shielding on the table-derived standard engine weight', () => {
-    // 50 t - 13 installed engine - 5 structure
-    expect(weightFree({ engineRating: 200 })).toBe(32);
+    // 50 t - 13 installed engine - 5 structure - 2.5 controls
+    expect(weightFree({ engineRating: 200 })).toBe(29.5);
   });
 
   it('applies the engine type multiplier from computeVehicleEngineWeight', () => {
-    // XL 200: 8.5 * 0.5 -> 4.5; shielding 4.5 * 1.5 -> 7. 50 - 7 - 5.
+    // XL 200: 8.5 * 0.5 -> 4.5; shielding 4.5 * 1.5 -> 7. 50 - 7 - 5 - 2.5 controls.
     expect(
       weightFree({ engineRating: 200, engineType: EngineType.XL_IS }),
-    ).toBe(38);
+    ).toBe(35.5);
   });
 });
 
 describe('VehicleStatusBar — engine rating', () => {
   it('looks up a rating that is not a multiple of 5 at the next multiple of 5', () => {
-    // 52 t at cruise 3 = 156, treated as 160 (9 t installed). 52 - 9 - 5.5.
+    // 52 t at cruise 3 = 156, treated as 160 (9 t installed). 52 - 9 - 5.5 - 3 controls.
     expect(weightFree({ tonnage: 52, engineRating: 156, cruiseMP: 3 })).toBe(
-      37.5,
+      34.5,
     );
   });
 });
 
 describe('VehicleStatusBar — structure weight', () => {
   it('rounds structure up to the half ton', () => {
-    // 52 t: 5.2 -> 5.5 t. 52 - 1 engine - 5.5
-    expect(weightFree({ tonnage: 52, ...SMALL_ENGINE })).toBe(45.5);
+    // 52 t: 5.2 -> 5.5 t. 52 - 1 engine - 5.5 - 3 controls
+    expect(weightFree({ tonnage: 52, ...SMALL_ENGINE })).toBe(42.5);
   });
 
   it('honours the structure type', () => {
-    // Endo-Steel 50 t: 5 * 0.5 = 2.5 t. 50 - 1 engine - 2.5
+    // Endo-Steel 50 t: 5 * 0.5 = 2.5 t. 50 - 1 engine - 2.5 - 2.5 controls
     expect(
       weightFree({
         structureType: VehicleStructureType.ENDO_STEEL,
         ...SMALL_ENGINE,
       }),
-    ).toBe(46.5);
+    ).toBe(44);
   });
 });
 
@@ -218,14 +245,14 @@ describe('VehicleStatusBar — turret weight', () => {
   const AC10_IN_TURRET = [inTurret('ac-10', 'eq-1')];
 
   it('charges the primary turret 10% of its equipment, to the half ton', () => {
-    // 50 - 1 engine - 5 structure - 12 AC/10 - 1.5 turret
+    // 50 - 1 engine - 5 structure - 12 AC/10 - 1.5 turret - 2.5 controls
     expect(
       weightFree({
         turret: turretConfig(),
         equipment: AC10_IN_TURRET,
         ...SMALL_ENGINE,
       }),
-    ).toBe(30.5);
+    ).toBe(28);
   });
 
   it('charges the secondary turret for its own equipment', () => {
@@ -236,24 +263,24 @@ describe('VehicleStatusBar — turret weight', () => {
         equipment: [mounted('ac-10', 'eq-1', VehicleLocation.TURRET_2, true)],
         ...SMALL_ENGINE,
       }),
-    ).toBe(30.5);
+    ).toBe(28);
   });
 
   it('does not charge turret weight for body-mounted equipment', () => {
-    // 50 - 1 - 5 - 12
+    // 50 - 1 - 5 - 12 - 2.5 controls
     expect(
       weightFree({
         turret: turretConfig(),
         equipment: [mounted('ac-10', 'eq-1')],
         ...SMALL_ENGINE,
       }),
-    ).toBe(32);
+    ).toBe(29.5);
   });
 
   it('leaves ammunition out of the turret structure, but keeps it in the total', () => {
     // AC/5 is 8 t, so 1 t of turret structure. Three 1 t ammo bins in the
     // turret must not push it to 1.5 t.
-    // 50 - 1 engine - 5 structure - 8 AC/5 - 3 ammo - 1 turret
+    // 50 - 1 engine - 5 structure - 8 AC/5 - 3 ammo - 1 turret - 2.5 controls
     expect(
       weightFree({
         turret: turretConfig(),
@@ -265,7 +292,7 @@ describe('VehicleStatusBar — turret weight', () => {
         ],
         ...SMALL_ENGINE,
       }),
-    ).toBe(32);
+    ).toBe(29.5);
   });
 
   it('leaves ammunition out of the secondary turret structure too', () => {
@@ -281,7 +308,7 @@ describe('VehicleStatusBar — turret weight', () => {
         ],
         ...SMALL_ENGINE,
       }),
-    ).toBe(32);
+    ).toBe(29.5);
   });
 
   it('shows the turret equipment mass against its capacity, not the structure weight', () => {
@@ -322,17 +349,17 @@ describe('VehicleStatusBar — power amplifiers', () => {
   const ICE = { engineType: EngineType.ICE, ...SMALL_ENGINE };
 
   it('counts the declared power amplifier weight', () => {
-    // 50 - 1 engine - 5 structure - 2 lasers - 1 amps
+    // 50 - 1 engine - 5 structure - 2 lasers - 1 amps - 2.5 controls
     expect(
       weightFree({ ...ICE, equipment: TWO_MEDIUM_LASERS, powerAmpWeight: 1 }),
-    ).toBe(41);
+    ).toBe(38.5);
   });
 
   it('reserves the required amplifiers when none are declared', () => {
     // 2 t of lasers need ceil(0.2 / 0.5) * 0.5 = 0.5 t of amps
     expect(
       weightFree({ ...ICE, equipment: TWO_MEDIUM_LASERS, powerAmpWeight: 0 }),
-    ).toBe(41.5);
+    ).toBe(39);
   });
 
   it.each([
@@ -340,19 +367,19 @@ describe('VehicleStatusBar — power amplifiers', () => {
       'a fission engine with a medium laser',
       EngineType.FISSION,
       'medium-laser',
-      36.5,
+      34,
     ],
     [
       'an ICE engine with a vehicle flamer',
       EngineType.ICE,
       'vehicle-flamer',
-      43.5,
+      41,
     ],
     [
       'an ICE engine with a Clan medium chemical laser',
       EngineType.ICE,
       'clan-medium-chemical-laser',
-      43,
+      40.5,
     ],
   ])(
     'needs no amplifiers on %s',
@@ -369,9 +396,9 @@ describe('VehicleStatusBar — power amplifiers', () => {
   );
 
   it('needs no amplifiers on a fusion engine', () => {
-    // 50 - 1 - 5 - 2
+    // 50 - 1 - 5 - 2 - 2.5 controls
     expect(weightFree({ ...SMALL_ENGINE, equipment: TWO_MEDIUM_LASERS })).toBe(
-      42,
+      39.5,
     );
   });
 });

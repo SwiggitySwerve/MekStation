@@ -43,6 +43,8 @@ type VehicleValidation = ReturnType<typeof validateVehicleConstruction>;
 
 type VehicleStatusStoreState = Pick<
   VehicleStore,
+  | 'unitType'
+  | 'hasNoControlSystems'
   | 'tonnage'
   | 'motionType'
   | 'cruiseMP'
@@ -97,6 +99,8 @@ function getCompactStatusClass(status: StatusLevel): string {
 function calculateWeightBreakdown(
   state: Pick<
     VehicleStatusStoreState,
+    | 'unitType'
+    | 'hasNoControlSystems'
     | 'tonnage'
     | 'motionType'
     | 'engineRating'
@@ -199,6 +203,8 @@ function computeBvBreakdown(
 function validateStatusBarState(
   state: Pick<
     VehicleStatusStoreState,
+    | 'unitType'
+    | 'hasNoControlSystems'
     | 'tonnage'
     | 'motionType'
     | 'engineType'
@@ -212,6 +218,8 @@ function validateStatusBarState(
   weights: VehicleWeightBreakdown,
 ): VehicleValidation {
   return validateVehicleConstruction({
+    unitType: state.unitType,
+    hasNoControlSystems: state.hasNoControlSystems,
     tonnage: state.tonnage,
     motionType: state.motionType,
     engineType: state.engineType,
@@ -236,6 +244,8 @@ function validateStatusBarState(
 
 function useVehicleStatusStoreState(): VehicleStatusStoreState {
   return {
+    unitType: useVehicleStore((s) => s.unitType),
+    hasNoControlSystems: useVehicleStore((s) => s.hasNoControlSystems),
     tonnage: useVehicleStore((s) => s.tonnage),
     motionType: useVehicleStore((s) => s.motionType),
     cruiseMP: useVehicleStore((s) => s.cruiseMP),
@@ -256,6 +266,8 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
 
 function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
   const {
+    unitType,
+    hasNoControlSystems,
     tonnage,
     motionType,
     cruiseMP,
@@ -280,6 +292,8 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     () =>
       calculateWeightBreakdown(
         {
+          unitType,
+          hasNoControlSystems,
           tonnage,
           motionType,
           engineRating,
@@ -294,6 +308,8 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
         catalogReady,
       ),
     [
+      unitType,
+      hasNoControlSystems,
       tonnage,
       motionType,
       engineRating,
@@ -353,6 +369,8 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     () =>
       validateStatusBarState(
         {
+          unitType,
+          hasNoControlSystems,
           tonnage,
           motionType,
           engineType,
@@ -366,6 +384,8 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
         weightBreakdown,
       ),
     [
+      unitType,
+      hasNoControlSystems,
       tonnage,
       motionType,
       engineType,

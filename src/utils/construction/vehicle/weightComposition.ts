@@ -6,7 +6,6 @@
  */
 
 import type { EngineType } from '@/types/construction/EngineType';
-import type { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import type {
   IVehicleMountedEquipment,
   ITurretConfiguration,
@@ -27,13 +26,16 @@ import { computeTurretWeight } from '@/utils/construction/vehicle/turret';
 
 import type { VehicleStructureType } from './structure';
 
+import {
+  computeVehicleControlsLiftWeights,
+  type VehicleControlsLiftContext,
+} from './controlsLift';
+
 export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
 
-export interface VehicleWeightState {
-  tonnage: number;
-  motionType: GroundMotionType;
+export interface VehicleWeightState extends VehicleControlsLiftContext {
   engineRating: number;
   engineType: EngineType;
   structureType: VehicleStructureType;
@@ -46,6 +48,8 @@ export interface VehicleWeightState {
 
 export interface VehicleWeightBreakdown {
   engine: number;
+  controls: number;
+  lift: number;
   structure: number;
   armor: number;
   equipment: number;
@@ -130,8 +134,12 @@ export function computeVehicleWeightBreakdown(
     : 0;
   const powerAmplifiers = Math.max(state.powerAmpWeight, requiredAmps);
 
+  const { controls, lift } = computeVehicleControlsLiftWeights(state);
+
   const totalUsed =
     engine +
+    controls +
+    lift +
     structure +
     armor +
     equipment +
@@ -141,6 +149,8 @@ export function computeVehicleWeightBreakdown(
 
   return {
     engine,
+    controls,
+    lift,
     structure,
     armor,
     equipment,

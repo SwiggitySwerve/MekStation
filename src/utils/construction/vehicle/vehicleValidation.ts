@@ -17,6 +17,10 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { validateVehicleArmorLocations } from './armor';
+import {
+  computeVehicleControlsLiftWeights,
+  type VehicleControlsLiftContext,
+} from './controlsLift';
 import { validateVehicleCrew } from './crew';
 import { validateVehicleEngine } from './engine';
 import { validatePowerAmplifiers } from './powerAmplifier';
@@ -69,11 +73,7 @@ export function getMotionTypeMaxTonnage(motionType: GroundMotionType): number {
 // Validation Input
 // =============================================================================
 
-export interface VehicleValidationInput {
-  /** Vehicle tonnage */
-  tonnage: number;
-  /** Motion type */
-  motionType: GroundMotionType;
+export interface VehicleValidationInput extends VehicleControlsLiftContext {
   /** Engine type */
   engineType: EngineType;
   /** Cruise MP */
@@ -119,6 +119,8 @@ export interface VehicleValidationResult {
   computedWeights: {
     structure: number;
     engine: number;
+    controls: number;
+    lift: number;
   };
 }
 
@@ -230,6 +232,7 @@ export function validateVehicleConstruction(
 
   // Computed weights for status bar display
   const computedWeights = {
+    ...computeVehicleControlsLiftWeights(input),
     structure: computeVehicleStructureWeight(
       input.tonnage,
       input.structureType,

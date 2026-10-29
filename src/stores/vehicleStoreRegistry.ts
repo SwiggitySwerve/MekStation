@@ -95,6 +95,7 @@ export function duplicateVehicle(
     techBase: sourceState.techBase,
     motionType: sourceState.motionType,
     unitType: sourceState.unitType,
+    hasNoControlSystems: sourceState.hasNoControlSystems,
   });
 
   const mergedState: VehicleState = {
