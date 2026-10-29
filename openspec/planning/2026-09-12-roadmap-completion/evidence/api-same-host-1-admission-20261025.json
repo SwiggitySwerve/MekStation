@@ -1403,7 +1403,7 @@
     },
     {
       "id": "G-ASH6",
-      "requires": "Exact-main proof after the merge (ruling 5): a post-merge build, then the packaged validator with Electron as node and --standalone-dir, with the new rows (rebinding-Host read 403, cross-site form 403 and no identity created, same-host read 200, foreign-Origin upgrade 403) on the built, unflagged server. Plus the registered jest rows at the exact merge: exactly 1 MiB accepted and 1 MiB + 1 closed 1009 on both channels, fatal missing guard and tsx, the 500 and dropped-upgrade rows, credential checks before body and KDF. Installer rehearsal is Step 8."
+      "requires": "Exact-main proof after the merge (ruling 5): a post-merge build, then the packaged validator with Electron as node and --standalone-dir, with the new rows (rebinding-Host read 403, cross-site form 403 and no identity created, same-host read 200, foreign-Origin upgrade 403) on the built, unflagged server. Plus the registered jest rows at the exact merge: exactly 1 MiB accepted and 1 MiB + 1 closed 1009 on both channels, fatal missing guard and tsx, the 500 and dropped-upgrade rows, credential checks before body and KDF. Run the unchanged frozen 34-id built-server done-test on that image as a regression check, preserving all 22 release-proof leaves byte-exact. Installer rehearsal is Step 8."
     }
   ],
   "rulings20261028": {
