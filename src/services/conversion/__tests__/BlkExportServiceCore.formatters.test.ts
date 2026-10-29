@@ -290,26 +290,30 @@ describe('BlkExportServiceCore.formatters', () => {
   });
 
   // ============================================================================
-  // formatProtoMechArmor() — newline-joined Head/Torso/LA/RA/Legs/MainGun
+  // formatProtoMechArmor() — native Head/Torso/RA/LA/Legs/optional MainGun
   // ============================================================================
   describe('formatProtoMechArmor()', () => {
-    it('emits Head/Torso/LA/RA/Legs/MainGun in that order', () => {
+    it('emits Head/Torso/RA/LA/Legs/MainGun in that order', () => {
       const unit = {
+        hasMainGun: true,
         armorByLocation: {
           [ProtoMechLocation.HEAD]: 2,
           [ProtoMechLocation.TORSO]: 8,
           [ProtoMechLocation.LEFT_ARM]: 4,
-          [ProtoMechLocation.RIGHT_ARM]: 4,
+          [ProtoMechLocation.RIGHT_ARM]: 2,
           [ProtoMechLocation.LEGS]: 6,
           [ProtoMechLocation.MAIN_GUN]: 3,
         },
       } as unknown as ProtoMechState;
-      expect(formatProtoMechArmor(unit)).toBe('2\n8\n4\n4\n6\n3');
+      expect(formatProtoMechArmor(unit)).toBe('2\n8\n2\n4\n6\n3');
     });
 
     it('emits zeros for missing locations', () => {
-      const unit = { armorByLocation: {} } as unknown as ProtoMechState;
-      expect(formatProtoMechArmor(unit)).toBe('0\n0\n0\n0\n0\n0');
+      const unit = {
+        armorByLocation: {},
+        hasMainGun: false,
+      } as unknown as ProtoMechState;
+      expect(formatProtoMechArmor(unit)).toBe('0\n0\n0\n0\n0');
     });
   });
 

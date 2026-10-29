@@ -114,7 +114,7 @@ describe('BlkExportService', () => {
       const result = service.export(proto);
 
       expect(result.content).toContain('<UnitType>');
-      expect(result.content).toContain('ProtoMech');
+      expect(result.content).toContain('<UnitType>\nProtoMek\n</UnitType>');
     });
 
     it('should include tonnage', () => {

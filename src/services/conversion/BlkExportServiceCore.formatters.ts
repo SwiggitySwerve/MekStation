@@ -9,7 +9,10 @@ import {
 } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
-import { BLK_PROTOMECH_ARMOR_LOCATIONS } from '@/types/formats/BlkFormat';
+import {
+  BLK_PROTOMECH_ARMOR_LOCATIONS,
+  BLK_PROTOMECH_CHASSIS,
+} from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   SquadMotionType,
@@ -18,6 +21,7 @@ import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
 } from '@/types/unit/PersonnelInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
 export function formatMotionType(motionType: GroundMotionType): string {
   const map: Record<GroundMotionType, string> = {
@@ -143,10 +147,21 @@ export function formatAerospaceArmor(
 
 export function formatProtoMechArmor(unit: ProtoMechState): string {
   const armor = unit.armorByLocation;
-  const values = BLK_PROTOMECH_ARMOR_LOCATIONS.map(
-    (location) => armor[location] || 0,
-  );
+  const locations = unit.hasMainGun
+    ? BLK_PROTOMECH_ARMOR_LOCATIONS
+    : BLK_PROTOMECH_ARMOR_LOCATIONS.slice(0, -1);
+  const values = locations.map((location) => armor[location] || 0);
   return values.join('\n');
+}
+
+export function formatProtoMechMotion(chassis: ProtoChassis): string {
+  const effective =
+    chassis === ProtoChassis.ULTRAHEAVY ? ProtoChassis.BIPED : chassis;
+  const entry = Object.entries(BLK_PROTOMECH_CHASSIS).find(
+    ([, value]) => value === effective,
+  );
+  if (!entry) throw new Error(`Unsupported ProtoMek chassis: ${chassis}`);
+  return entry[0];
 }
 
 export function aerospaceLocationToBlockName(

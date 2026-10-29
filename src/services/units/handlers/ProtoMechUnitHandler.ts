@@ -10,6 +10,7 @@ import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
 import {
   BLK_PROTOMECH_ARMOR_LOCATIONS,
+  BLK_PROTOMECH_CHASSIS,
   IBlkDocument,
 } from '@/types/formats/BlkFormat';
 import {
@@ -46,6 +47,10 @@ import {
   createValidationMessages,
   getRawTagBoolean,
   mapLocationEquipment,
+  parseInnerSphereOrClan,
+  parseRulesLevelFromType,
+  pushSourceLoadNumberErrors,
+  withConstructionDiagnostics,
 } from './unitHandlerShared';
 
 // ============================================================================
@@ -95,6 +100,39 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     document: IBlkDocument,
   ): Partial<IProtoMech> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
+    const native = document.unitType.toLowerCase() === 'protomek';
+    if (native) {
+      pushSourceLoadNumberErrors(errors, document, 'cruiseMP');
+      if (
+        document.jumpingMP !== undefined ||
+        document.rawTags.jumpingMP !== undefined
+      ) {
+        pushSourceLoadNumberErrors(errors, document, 'jumpingMP');
+      }
+      if (!/^(Clan|IS) Level [1-4]$/i.test(document.type)) {
+        errors.push(`Unsupported ProtoMek type: ${document.type}`);
+      }
+      const armor = document.armor;
+      const rawArmor = document.rawTags.armor ?? document.rawTags.Armor;
+      const lines =
+        typeof rawArmor === 'string' ? rawArmor.split(/\r?\n/) : rawArmor;
+      if (
+        ![5, 6].includes(armor.length) ||
+        !armor.every(Number.isSafeInteger) ||
+        (lines !== undefined &&
+          (lines.length !== armor.length ||
+            lines.some(
+              (line, index) =>
+                line.trim() === '' || Number(line) !== armor[index],
+            )))
+      ) {
+        errors.push(
+          'Invalid ProtoMek armor: expected five or six integer location values',
+        );
+      }
+    }
+    const chassisType = this.parseChassis(document, errors);
+    if (errors.length > 0) return { errors, warnings };
 
     // Point/squad size (typically 5)
     const pointSize = document.trooperCount || 5;
@@ -125,27 +163,11 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     // Equipment
     const equipment = this.parseEquipment(document);
 
-    // Main gun detection
-    const hasMainGun = equipment.some(
-      (e) => e.location === ProtoMechLocation.MAIN_GUN,
-    );
+    // BLKProtoMekFile derives topology from armor count, even for an empty mount.
+    const hasMainGun = armor.length === 6;
 
     // Special features from raw tags
     const rawTags = document.rawTags || {};
-    // Resolve chassis configuration to the canonical `ProtoChassis` enum.
-    // Glider takes priority over Quad because Glider is a Light-class chassis
-    // that excludes arms (matching the previous `isGlider ? GLIDER : isQuad
-    // ? QUAD : BIPED` precedence). Ultraheavy is selected on tonnage when no
-    // explicit tag is present.
-    const isGliderTag = getRawTagBoolean(rawTags, 'glider');
-    const isQuadTag = getRawTagBoolean(rawTags, 'quad');
-    const chassisType: ProtoChassis = isGliderTag
-      ? ProtoChassis.GLIDER
-      : isQuadTag
-        ? ProtoChassis.QUAD
-        : weightPerUnit >= 10
-          ? ProtoChassis.ULTRAHEAVY
-          : ProtoChassis.BIPED;
     const engineRating = computeProtoEngineRating(
       weightPerUnit,
       cruiseMP,
@@ -182,9 +204,29 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     };
   }
 
-  /**
-   * Parse armor values into location-keyed record
-   */
+  private parseChassis(document: IBlkDocument, errors: string[]): ProtoChassis {
+    const motion = document.motionType?.trim().toLowerCase();
+    let chassis: ProtoChassis = ProtoChassis.BIPED;
+    if (motion !== undefined || document.rawTags.motion_type !== undefined) {
+      const entry = Object.entries(BLK_PROTOMECH_CHASSIS).find(
+        ([name]) => name.toLowerCase() === motion,
+      );
+      if (!entry)
+        errors.push(`Unsupported ProtoMek motion_type: ${document.motionType}`);
+      else chassis = entry[1];
+    } else if (document.unitType.toLowerCase() === 'protomek') {
+      errors.push('Missing required ProtoMek motion_type');
+    } else if (getRawTagBoolean(document.rawTags, 'glider')) {
+      chassis = ProtoChassis.GLIDER;
+    } else if (getRawTagBoolean(document.rawTags, 'quad')) {
+      chassis = ProtoChassis.QUAD;
+    }
+    return chassis === ProtoChassis.BIPED && document.tonnage >= 10
+      ? ProtoChassis.ULTRAHEAVY
+      : chassis;
+  }
+
+  /** Parse armor values into location-keyed record. */
   private parseArmorByLocation(
     armor: readonly number[],
   ): Record<ProtoMechLocation, number> {
@@ -263,16 +305,18 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IProtoMech>,
   ): IProtoMech {
-    // ProtoMechs are always Clan tech
-    const techBase = TechBase.CLAN;
-    const rulesLevel = RulesLevel.ADVANCED;
+    const techBase = parseInnerSphereOrClan(commonFields.techBase);
+    const rulesLevel = parseRulesLevelFromType(
+      commonFields.techBase,
+      RulesLevel.ADVANCED,
+    );
 
     // Weight class based on individual ProtoMech tonnage
     const weightClass = this.getWeightClass(
       typeSpecificFields.weightPerUnit || 5,
     );
 
-    return {
+    const unit = {
       ...buildCommonUnitFields({
         commonFields,
         idPrefix: 'protomech',
@@ -283,6 +327,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       }),
       ...typeSpecificFields,
     } as IProtoMech;
+    return withConstructionDiagnostics(unit, this.validate(unit));
   }
 
   /**

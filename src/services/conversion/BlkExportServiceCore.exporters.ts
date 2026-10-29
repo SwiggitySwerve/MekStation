@@ -22,6 +22,7 @@ import {
   formatVehicleArmor,
   formatAerospaceArmor,
   formatProtoMechArmor,
+  formatProtoMechMotion,
 } from './BlkExportServiceCore.formatters';
 import {
   tag,
@@ -271,7 +272,7 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
 
     lines.push(tag('BlockVersion', '1'));
     lines.push(tag('Version', 'MAM0'));
-    lines.push(tag('UnitType', 'ProtoMech'));
+    lines.push(tag('UnitType', 'ProtoMek'));
     lines.push(tag('Name', unit.chassis));
     lines.push(tag('Model', unit.model));
     if (unit.mulId !== '-1') {
@@ -290,6 +291,7 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
     }
     lines.push('');
 
+    lines.push(tag('motion_type', formatProtoMechMotion(unit.chassisType)));
     lines.push(tag('armor', formatProtoMechArmor(unit)));
     lines.push('');
 
