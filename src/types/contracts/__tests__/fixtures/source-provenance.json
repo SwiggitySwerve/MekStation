@@ -1539,6 +1539,94 @@
           }
         ]
       }
+    },
+    {
+      "name": "Git 40-digit source rejects member field",
+      "accepted": false,
+      "document": {
+        "format": "battletech-source-provenance",
+        "version": "1.0.0",
+        "sources": [
+          {
+            "source": {
+              "kind": "git",
+              "repository": "https://example.org/tabletop/units.git",
+              "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "path": "data/units/Synthetic Fixture.MTF",
+              "blob": "9a3709d516ce2e464257b0d5a2d7d501b6a72adc",
+              "member": "b.mtf"
+            },
+            "originalFormat": "mtf",
+            "sha256": "cf8562946b0981bb05c6137ac01b350cfce2108d3452adb967146d0d9e10a52b"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Git 40-digit source rejects unknown field",
+      "accepted": false,
+      "document": {
+        "format": "battletech-source-provenance",
+        "version": "1.0.0",
+        "sources": [
+          {
+            "source": {
+              "kind": "git",
+              "repository": "https://example.org/tabletop/units.git",
+              "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "path": "data/units/Synthetic Fixture.MTF",
+              "blob": "9a3709d516ce2e464257b0d5a2d7d501b6a72adc",
+              "unknown": "x"
+            },
+            "originalFormat": "mtf",
+            "sha256": "cf8562946b0981bb05c6137ac01b350cfce2108d3452adb967146d0d9e10a52b"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Git 64-digit source rejects member field",
+      "accepted": false,
+      "document": {
+        "format": "battletech-source-provenance",
+        "version": "1.0.0",
+        "sources": [
+          {
+            "source": {
+              "kind": "git",
+              "repository": "https://example.org/tabletop/units.git",
+              "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "path": "data/units/Synthetic Fixture.MTF",
+              "blob": "10beafc7a6b91bb6408ecc062f41b8c3ab56e4bad4dc86d9f60a938ed7e79781",
+              "member": "b.mtf"
+            },
+            "originalFormat": "bfs",
+            "sha256": "cf8562946b0981bb05c6137ac01b350cfce2108d3452adb967146d0d9e10a52b"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Git 64-digit source rejects unknown field",
+      "accepted": false,
+      "document": {
+        "format": "battletech-source-provenance",
+        "version": "1.0.0",
+        "sources": [
+          {
+            "source": {
+              "kind": "git",
+              "repository": "https://example.org/tabletop/units.git",
+              "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "path": "data/units/Synthetic Fixture.MTF",
+              "blob": "10beafc7a6b91bb6408ecc062f41b8c3ab56e4bad4dc86d9f60a938ed7e79781",
+              "unknown": "x"
+            },
+            "originalFormat": "bfs",
+            "sha256": "cf8562946b0981bb05c6137ac01b350cfce2108d3452adb967146d0d9e10a52b"
+          }
+        ]
+      }
     }
   ]
 }

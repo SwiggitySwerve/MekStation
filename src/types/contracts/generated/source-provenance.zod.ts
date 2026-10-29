@@ -32,6 +32,7 @@ export const SourceProvenanceContract = z
                     ),
                   commit: z
                     .string()
+                    .regex(new RegExp('^[0-9a-f]{40}(?![\\s\\S])'))
                     .describe(
                       'Resolved full lowercase Git commit object ID, never a ref or abbreviation.',
                     ),
@@ -47,31 +48,49 @@ export const SourceProvenanceContract = z
                     ),
                   blob: z
                     .string()
+                    .regex(new RegExp('^[0-9a-f]{40}(?![\\s\\S])'))
                     .describe(
                       'Full lowercase Git blob object ID of the original bytes; uses the same Git object format as commit. Distinct from SHA-256 of file bytes.',
                     ),
                 })
-                .strict()
-                .and(
-                  z.union([
-                    z.object({
-                      commit: z
-                        .string()
-                        .regex(new RegExp('^[0-9a-f]{40}(?![\\s\\S])')),
-                      blob: z
-                        .string()
-                        .regex(new RegExp('^[0-9a-f]{40}(?![\\s\\S])')),
-                    }),
-                    z.object({
-                      commit: z
-                        .string()
-                        .regex(new RegExp('^[0-9a-f]{64}(?![\\s\\S])')),
-                      blob: z
-                        .string()
-                        .regex(new RegExp('^[0-9a-f]{64}(?![\\s\\S])')),
-                    }),
-                  ]),
-                ),
+                .strict(),
+              z
+                .object({
+                  kind: z.literal('git'),
+                  repository: z
+                    .string()
+                    .regex(
+                      new RegExp(
+                        '^https://[a-z0-9]+(?:[.-][a-z0-9]+)*(?:/[A-Za-z0-9_-][A-Za-z0-9._~-]*)+(?![\\s\\S])',
+                      ),
+                    )
+                    .describe(
+                      'Stable credential-free HTTPS repository identity, including repository path; no query, fragment or trailing slash. Identity is asserted, not fetched by validation.',
+                    ),
+                  commit: z
+                    .string()
+                    .regex(new RegExp('^[0-9a-f]{64}(?![\\s\\S])'))
+                    .describe(
+                      'Resolved full lowercase Git commit object ID, never a ref or abbreviation.',
+                    ),
+                  path: z
+                    .string()
+                    .regex(
+                      new RegExp(
+                        '^(?![\\s\\S]*[\\\\:\u0000-\u001f])(?!/)(?![\\s\\S]*(?:^|/)\\.{1,2}(?:/|(?![\\s\\S])))[^/]+(?:/[^/]+)*(?![\\s\\S])',
+                      ),
+                    )
+                    .describe(
+                      'Exact case-sensitive repository-relative POSIX path. No absolute paths, empty/dot/traversal segments, backslashes, colons or control characters. Never URL-decode or normalize before comparison.',
+                    ),
+                  blob: z
+                    .string()
+                    .regex(new RegExp('^[0-9a-f]{64}(?![\\s\\S])'))
+                    .describe(
+                      'Full lowercase Git blob object ID of the original bytes; uses the same Git object format as commit. Distinct from SHA-256 of file bytes.',
+                    ),
+                })
+                .strict(),
               z
                 .object({
                   kind: z.literal('local'),
