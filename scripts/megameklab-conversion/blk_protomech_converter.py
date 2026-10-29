@@ -37,7 +37,6 @@ from blk_common import (
     generate_id_from_name,
     get_string,
     map_armor_code,
-    map_blk_engine_code,
     map_rules_level,
     map_tech_base,
     map_year_to_era,
@@ -164,7 +163,10 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 
     # --- Engine ---
     engine_code = tags.get("engine_type")
-    engine_type_str = map_blk_engine_code(engine_code)
+    # MegaMek 48fcb2f6 BLKProtoMekFile.java:93-95 ignores the tag.
+    engine_type_str = "FUSION"
+    if engine_code is not None and str(engine_code).strip() != "0":
+        logger.warning(f"{blk_path}: ignored raw engine_type={engine_code!r}; ProtoMek loader uses fusion")
 
     # --- Armor (5 locations: Head, Torso, R Arm, L Arm, Legs) ---
     armor_raw = tags.get("armor") or tags.get("Armor")

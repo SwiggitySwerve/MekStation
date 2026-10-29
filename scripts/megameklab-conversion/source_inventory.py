@@ -37,13 +37,17 @@ def _git(repo: Path, *args: str, data: bytes | None = None) -> bytes:
         raise InventoryError(f"Git source read failed: {detail or error}") from error
 
 
-def build_inventory(repo: Path, commit: str) -> dict:
+def build_inventory(repo: Path, commit: str, *, repository: str) -> dict:
     """Return byte-stable source records, independent of the Git worktree.
 
     Read batches of immutable blobs rather than running one Git process per file.
     Preserve all entries, including metadata and archive containers, so later
     coverage reports cannot silently shrink their source denominator.
+    Repository identity is supplied by the caller, not inferred from content or
+    copied from a mutable remote configuration. This does not attest ownership.
     """
+    if not repository or repository != repository.strip():
+        raise InventoryError("Supply a nonempty repository identity without surrounding whitespace")
     if not re.fullmatch(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}", commit):
         raise InventoryError("Supply a full commit hash, not a branch or abbreviation")
     resolved = _git(repo, "rev-parse", "--verify", f"{commit}^{{commit}}").decode().strip()
@@ -92,7 +96,7 @@ def build_inventory(repo: Path, commit: str) -> dict:
     by_format = Counter(entry["format"] for entry in entries if entry["kind"] == "source")
     return {
         "schemaVersion": 1,
-        "repository": "https://github.com/MegaMek/mm-data",
+        "repository": repository,
         "commit": resolved,
         "sourceRoot": SOURCE_ROOT,
         "entityLoading": "not-run",
@@ -111,10 +115,12 @@ def build_inventory(repo: Path, commit: str) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", required=True, type=Path, help="Local mm-data Git repository")
+    parser.add_argument("--repository", required=True,
+                        help="Asserted repository identity URI; preserved exactly, not fetched or verified")
     parser.add_argument("--commit", required=True, help="Full immutable mm-data commit hash")
     args = parser.parse_args()
     try:
-        report = build_inventory(args.repo, args.commit)
+        report = build_inventory(args.repo, args.commit, repository=args.repository)
     except InventoryError as error:
         print(f"Source inventory failed: {error}", file=sys.stderr)
         return 1
