@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { rejectUnlessSameHost } from '@/lib/api/sameHostGuard';
 import { applySecurityHeaders } from '@/lib/api/security';
 import { LocalSeatBodySchema } from '@/lib/api/securitySchemas';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
@@ -8,39 +9,13 @@ import {
   LocalSeatCredentialError,
 } from '@/services/vault/LocalSeatCredentialService';
 
-/** Literal loopback authority only. No DNS or forwarded headers participate. */
-function isLocalRequest(req: NextApiRequest): boolean {
-  const host = req.headers.host;
-  if (typeof host !== 'string') return false;
-  const authority = /^(localhost|127\.0\.0\.1|\[::1\])(?::([0-9]{1,5}))?$/.exec(
-    host,
-  );
-  if (
-    !authority ||
-    (authority[2] && (Number(authority[2]) < 1 || Number(authority[2]) > 65535))
-  )
-    return false;
-  const origin = req.headers.origin;
-  if (
-    origin !== undefined &&
-    origin !== `http://${host}` &&
-    origin !== `https://${host}`
-  )
-    return false;
-  const site = req.headers['sec-fetch-site'];
-  return site === undefined || site === 'same-origin' || site === 'none';
-}
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
   applySecurityHeaders(res);
   res.setHeader('Cache-Control', 'no-store');
-  if (!isLocalRequest(req)) {
-    res.status(403).json({ error: 'Local seats are same-host only' });
-    return;
-  }
+  if (rejectUnlessSameHost(req, res, 'Local seats are same-host only')) return;
   if (rejectUnexpectedMethod(req, res, ['GET', 'POST'])) return;
   try {
     const service = getLocalSeatCredentialService();

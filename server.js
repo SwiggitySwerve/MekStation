@@ -407,6 +407,10 @@ const handle = app.getRequestHandler();
 // =============================================================================
 
 const WS_UPGRADE_PATH = '/api/multiplayer/socket';
+// Inbound frame cap for the match and campaign channels (one WebSocketServer).
+// The ws default is 100 MiB, and a 95 MiB frame held the event loop for 5.2 s
+// (S5-03).
+const WS_MAX_PAYLOAD_BYTES = 1024 * 1024;
 const E2E_READY_PATH = '/__playwright_e2e_ready__';
 
 function isE2EReadyRequest(parsedUrl) {
@@ -483,6 +487,36 @@ function loadMultiplayerRuntime() {
   return multiplayerRuntime;
 }
 
+let sameHostGuard = null;
+
+/**
+ * The Host/Origin/Sec-Fetch-Site rule has one owner,
+ * src/lib/api/sameHostGuard.ts; this file only asks it. A server that cannot
+ * load the rule cannot enforce its boundary, so a load failure stops the
+ * boot and a later failure surfaces as a 500, never as an unguarded request.
+ */
+function loadSameHostGuard() {
+  if (sameHostGuard) return sameHostGuard;
+  require('tsx/cjs');
+  sameHostGuard = require('./src/lib/api/sameHostGuard.ts');
+  return sameHostGuard;
+}
+
+/** Judge one request at the entry. Returns the refusal reason, or null. */
+function sameHostRefusal(req, isUpgrade) {
+  const guard = loadSameHostGuard();
+  const verdict = guard.evaluateEntryRequest({
+    target: req.url,
+    headers: req.headers,
+    isUpgrade,
+  });
+  if (verdict.ok) return null;
+  console.warn(
+    `[same-host] refused ${isUpgrade ? 'upgrade' : req.method} reason=${verdict.reason}`,
+  );
+  return verdict.reason;
+}
+
 function firstQueryValue(value) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -522,6 +556,13 @@ app
   .prepare()
   .then(async () => {
     try {
+      loadSameHostGuard();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[mp-boot] same-host guard unavailable', err);
+      process.exit(1);
+    }
+    try {
       const runtime = loadMultiplayerRuntime();
       // Clear any fault sentinel left behind by an ABORTED earlier run
       // before anything can trip over it (finding #72). Sentinels are
@@ -543,6 +584,17 @@ app
     const server = createServer(async (req, res) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
+        if (sameHostRefusal(req, false)) {
+          res.statusCode = 403;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          res.end(
+            JSON.stringify({
+              error: loadSameHostGuard().SAME_HOST_REFUSAL_ERROR,
+            }),
+          );
+          return;
+        }
         if (parsedUrl.pathname === E2E_READY_PATH) {
           if (isE2EReadyRequest(parsedUrl)) {
             res.statusCode = 204;
@@ -586,6 +638,7 @@ app
     const wss = new WebSocketServer({
       noServer: true,
       perMessageDeflate: false,
+      maxPayload: WS_MAX_PAYLOAD_BYTES,
       // Echo ONLY the version marker. Selecting the credential
       // subprotocol would put the token straight back into a response
       // header, undoing the reason it left the URL. `ws` only calls
@@ -838,6 +891,11 @@ app
 
     server.on('upgrade', async (req, socket, head) => {
       try {
+        // Every upgrade, multiplayer or HMR, before the path or bearer is read.
+        if (sameHostRefusal(req, true)) {
+          rejectUpgrade(socket, '403 Forbidden');
+          return;
+        }
         const parsedUrl = parse(req.url ?? '/', true);
         if (parsedUrl.pathname !== WS_UPGRADE_PATH) {
           delegateOrDestroyNonMpUpgrade(req, socket, head, parsedUrl);
