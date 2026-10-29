@@ -535,7 +535,7 @@ function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
     runMP,
     jumpMP: state.jumpMP,
     engineRating: state.engineRating,
-    engineWeight: computeProtoEngineWeight(state.engineRating, 'unrounded'),
+    engineWeight: computeProtoEngineWeight(state.engineRating),
     myomerBooster: state.hasMyomerBooster,
     glidingWings: state.glidingWings,
     armorType: 'Standard',

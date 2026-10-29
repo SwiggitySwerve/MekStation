@@ -40,7 +40,7 @@ export function buildProto(overrides: ProtoBuildOverrides): IProtoMechUnit {
   const movementDefaults = {
     runMP: walkMP + 1,
     engineRating: tonnage * walkMP,
-    engineWeight: computeProtoEngineWeight(tonnage * walkMP, 'unrounded'),
+    engineWeight: computeProtoEngineWeight(tonnage * walkMP),
   };
 
   const defaults: IProtoMechUnit = {

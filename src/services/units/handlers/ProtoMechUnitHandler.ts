@@ -35,6 +35,7 @@ import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   computeProtoEngineRating,
   computeProtoEngineWeight,
+  getProtoEngineWeightError,
   computeProtoStructure,
   getProtoMainGunTopologyError,
 } from '@/utils/construction/protomech';
@@ -200,6 +201,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       pointSize,
       squadSize,
       engineRating,
+      engineWeight: computeProtoEngineWeight(engineRating),
       cruiseMP,
       jumpMP,
       motionType,
@@ -366,6 +368,8 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     unit: IProtoMech,
   ): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
+    const engineMassError = getProtoEngineWeightError(unit.engineRating);
+    if (engineMassError) errors.push(engineMassError);
 
     // Weight validation (2-9 tons per ProtoMech)
     if (unit.weightPerUnit < 2) {
@@ -518,7 +522,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       runMP,
       jumpMP: unit.jumpMP,
       engineRating: unit.engineRating,
-      engineWeight: computeProtoEngineWeight(unit.engineRating, 'unrounded'),
+      engineWeight: computeProtoEngineWeight(unit.engineRating),
       myomerBooster: unit.hasMyomerBooster,
       // Glider Wings is a passive special equipment of the Glider chassis;
       // derive from the discriminant so the projection always matches.

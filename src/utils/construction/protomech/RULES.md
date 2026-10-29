@@ -33,13 +33,26 @@ native handler preserves chassis, motion, armor order and main-gun presence;
 its source projection does not establish a production editor import path.
 This correction does not establish full source, persistence or numerical parity.
 
-## Internal structure
+## Normal-engine mass
 
-The engine-mass correction first consolidates the former half-ton helper and
-unrounded BV projections as explicit temporary profiles of
-`computeProtoEngineWeight`. This refactor preserves both policies; it does not
-establish mass parity. The following change will replace them with the pinned
-normal-engine rule and explicit unavailable mass for unsupported ratings.
+`computeProtoEngineWeight` owns the loaded-unit and canonical-projection mass.
+Pinned `Engine.java:396-450` uses rating times0.025 below40; ratings40-500 use
+the existing standard-fusion table at the next multiple of5. `RoundWeight`
+rounds to the nearest gram before rounding upward to a kilogram. Rating0 is
+exactly0. Negative, fractional, nonfinite or greater-than500 ratings return
+null; `getProtoEngineWeightError` supplies the construction diagnostic. This
+preserves invalid-but-loadable source ratings without inventing a numeric mass.
+It deliberately does not emulate Java's invalid-engine reset or table overrun.
+
+The separate refactor preserved the former raw and half-ton policies before
+this correction removed them. No duplicate engine table remains. Canonical
+projections calculate from current rating, ignoring any stale stored mass;
+no migration or new persisted store field is introduced. BV does not consume
+engine mass and its numerical results remain unchanged. This does not prove
+total-unit mass, cost, other engine types, production editor or persistence.
+The BV fixture's historical rating default is test data, not the rating rule.
+
+## Internal structure
 
 `computeProtoStructure` owns original internal points for loaded units, new
 stores, structural edits and record-sheet bindings. Source: pinned MegaMek

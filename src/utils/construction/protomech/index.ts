@@ -28,6 +28,7 @@ export {
   effectiveJumpMP,
   effectiveWalkMP,
   getProtoMPCaps,
+  getProtoEngineWeightError,
   isMyomerBoosterLegal,
   PROTO_ENGINE_WEIGHT_FACTOR,
 } from './movementCaps';
