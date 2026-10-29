@@ -1,3 +1,5 @@
+export { mapEngineType, mapArmorType } from './MTFVocabulary';
+
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 
 export function mapEraFromYear(year: number): string {
@@ -31,22 +33,6 @@ export function mapRulesLevel(level: string): string {
   return levelMap[level] || 'STANDARD';
 }
 
-export function mapEngineType(engineType: string): string {
-  const lower = engineType.toLowerCase();
-  const normalized = lower.replace(/\./g, '');
-  if (normalized.includes('xxl')) return 'XXL';
-  if (normalized.includes('xl') && normalized.includes('clan'))
-    return 'XL_CLAN';
-  if (normalized.includes('xl')) return 'XL';
-  if (normalized.includes('light')) return 'LIGHT';
-  if (normalized.includes('compact')) return 'COMPACT';
-  if (normalized.includes('ice')) return 'ICE';
-  if (lower.includes('fuel cell') || lower.includes('fuel-cell'))
-    return 'FUEL_CELL';
-  if (normalized.includes('fission')) return 'FISSION';
-  return 'FUSION';
-}
-
 export function mapStructureType(structure: string): string {
   const lower = structure.toLowerCase();
   if (lower.includes('endo') && lower.includes('composite'))
@@ -60,18 +46,13 @@ export function mapStructureType(structure: string): string {
   return 'STANDARD';
 }
 
-export function mapArmorType(armorType: string): string {
-  const lower = armorType.toLowerCase();
-  if (lower.includes('stealth')) return 'STEALTH';
-  if (lower.includes('reactive')) return 'REACTIVE';
-  if (lower.includes('reflective')) return 'REFLECTIVE';
-  if (lower.includes('hardened')) return 'HARDENED';
-  if (lower.includes('heavy') && lower.includes('ferro')) return 'HEAVY_FERRO';
-  if (lower.includes('light') && lower.includes('ferro')) return 'LIGHT_FERRO';
-  if (lower.includes('ferro') && lower.includes('clan'))
-    return 'FERRO_FIBROUS_CLAN';
-  if (lower.includes('ferro')) return 'FERRO_FIBROUS';
-  return 'STANDARD';
+export function mapConfiguration(configuration: string): string {
+  // Only the recognized Omni suffix is removable. FrankenMek carries location
+  // structure/source-mass rules absent from the current serialized model.
+  return configuration.replace(
+    /^(Biped|Quad|Tripod|LAM|QuadVee)\s+omni(?:mek|mech)$/i,
+    '$1',
+  );
 }
 
 function slugEquipmentId(name: string): string {

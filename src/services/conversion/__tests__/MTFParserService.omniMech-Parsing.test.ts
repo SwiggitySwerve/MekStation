@@ -315,7 +315,7 @@ LRM 20 (omnipod), Right Torso
       expect(result.unit?.configuration).toBe('Biped');
       expect(result.unit?.baseChassisHeatSinks).toBe(15);
       expect(result.unit?.techBase).toBe('CLAN');
-      expect(result.unit?.engine.type).toBe('XL_CLAN');
+      expect(result.unit?.engine.type).toBe('CLAN_XL');
       expect(result.unit?.structure.type).toBe('ENDO_STEEL_CLAN');
       expect(result.unit?.armor.type).toBe('FERRO_FIBROUS_CLAN');
 

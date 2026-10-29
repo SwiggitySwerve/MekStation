@@ -63,7 +63,7 @@
     {
       "name": "repair-mtf-adapter-vocabulary",
       "status": "in-progress",
-      "reason": "Owner-authorized source fidelity work under establish-all-unit-data-parity. Parser vocabulary is implemented in the local integration and pending PR #2383; export vocabulary is implemented separately and under review. Contextual chassis identity, editor persistence, complete semantic round trips and numerical parity remain open. This entry accounts for the active change without claiming completion or release readiness.",
+      "reason": "Owner-authorized source fidelity work under establish-all-unit-data-parity. Parser vocabulary and compatibility for its changed export identities are pending PR #2383. The broader export validation package is local and unpublished. Contextual chassis identity, editor persistence, complete semantic round trips and numerical parity remain open. This entry accounts for the active change without claiming completion or release readiness.",
       "lastReviewed": "2026-10-29"
     }
   ]

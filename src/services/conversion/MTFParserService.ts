@@ -4,6 +4,7 @@ import {
 } from '@/services/core/createSingleton';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
+import { mapConfiguration } from './MTFParser.mapping';
 import {
   generateUnitId,
   mapArmorType,
@@ -24,9 +25,18 @@ import {
   parseWeapons,
 } from './MTFParserHelpers';
 
+export interface IMTFParsedUnit extends ISerializedUnit {
+  readonly mtfSource: {
+    readonly text: string;
+    readonly configuration: string;
+    readonly engine?: string;
+    readonly armor?: string;
+  };
+}
+
 export interface IMTFParseResult {
   readonly success: boolean;
-  readonly unit?: ISerializedUnit;
+  readonly unit?: IMTFParsedUnit;
   readonly errors: string[];
   readonly warnings: string[];
 }
@@ -62,8 +72,18 @@ export class MTFParserService {
       const era = mapEraFromYear(header.year);
       const techBase = mapTechBase(header.techBase);
       const rulesLevel = mapRulesLevel(header.rulesLevel);
-      const baseConfig =
-        header.config.replace(/\s*omnimech\s*/i, '').trim() || 'Biped';
+      const baseConfig = mapConfiguration(header.config);
+      const engineType = mapEngineType(engine.type);
+      const armorType = mapArmorType(armor.type);
+      if (header.config.includes('FrankenMek')) {
+        warnings.push(`Unsupported MTF configuration: ${header.config}`);
+      }
+      if (engineType.startsWith('UNSUPPORTED_ENGINE:')) {
+        warnings.push(`Unsupported MTF engine: ${engine.type}`);
+      }
+      if (armorType.startsWith('UNSUPPORTED_ARMOR:')) {
+        warnings.push(`Unsupported MTF armor: ${armor.type}`);
+      }
 
       const unit: ISerializedUnit = {
         id,
@@ -77,7 +97,7 @@ export class MTFParserService {
         year: header.year,
         tonnage: parseInt(mass || '0', 10),
         engine: {
-          type: mapEngineType(engine.type),
+          type: engineType,
           rating: engine.rating,
         },
         gyro: {
@@ -88,7 +108,7 @@ export class MTFParserService {
           type: mapStructureType(structure),
         },
         armor: {
-          type: mapArmorType(armor.type),
+          type: armorType,
           allocation: armor.allocation,
         },
         heatSinks: {
@@ -112,6 +132,12 @@ export class MTFParserService {
 
       const extendedUnit = {
         ...unit,
+        mtfSource: {
+          text: mtfContent,
+          configuration: header.config,
+          engine: parseField(lines, 'engine'),
+          armor: parseField(lines, 'armor'),
+        },
         mulId: header.mulId,
         role: header.role,
         source: header.source,
@@ -119,7 +145,7 @@ export class MTFParserService {
 
       return {
         success: true,
-        unit: extendedUnit as ISerializedUnit,
+        unit: extendedUnit,
         errors,
         warnings,
       };

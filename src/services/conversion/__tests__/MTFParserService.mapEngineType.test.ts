@@ -83,7 +83,7 @@ describe('MTFParserService', () => {
     const testCases = [
       { input: 'Fusion Engine', expected: 'FUSION' },
       { input: 'XL Engine', expected: 'XL' },
-      { input: 'XL Engine(Clan)', expected: 'XL_CLAN' },
+      { input: 'XL Engine(Clan)', expected: 'CLAN_XL' },
       { input: 'XXL Engine', expected: 'XXL' },
       { input: 'Light Engine', expected: 'LIGHT' },
       { input: 'Compact Engine', expected: 'COMPACT' },
@@ -92,7 +92,10 @@ describe('MTFParserService', () => {
       { input: 'Fuel Cell Engine', expected: 'FUEL_CELL' },
       { input: 'Fuel-Cell Engine', expected: 'FUEL_CELL' },
       { input: 'Fission Engine', expected: 'FISSION' },
-      { input: 'Unknown Engine', expected: 'FUSION' },
+      {
+        input: 'Unknown Engine',
+        expected: 'UNSUPPORTED_ENGINE:Unknown Engine',
+      },
     ];
 
     testCases.forEach(({ input, expected }) => {

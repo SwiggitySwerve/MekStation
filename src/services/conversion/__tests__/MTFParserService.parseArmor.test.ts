@@ -185,7 +185,7 @@ armor:Heavy Ferro-Fibrous(Inner Sphere)
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.armor.type).toBe('HEAVY_FERRO');
+      expect(result.unit?.armor.type).toBe('HEAVY_FERRO_FIBROUS');
     });
 
     it('should parse Light Ferro-Fibrous armor', () => {
@@ -198,7 +198,7 @@ armor:Light Ferro-Fibrous(Inner Sphere)
 
       const result = service.parse(mtf);
 
-      expect(result.unit?.armor.type).toBe('LIGHT_FERRO');
+      expect(result.unit?.armor.type).toBe('LIGHT_FERRO_FIBROUS');
     });
 
     it('should parse all armor locations', () => {
