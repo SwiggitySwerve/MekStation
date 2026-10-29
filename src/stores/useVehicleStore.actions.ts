@@ -10,6 +10,10 @@ import {
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
 import {
+  computeStoredVehicleEngineRating,
+  computeCruiseMPFromRating,
+} from '@/utils/construction/vehicle/engine';
+import {
   computePowerAmplifierWeight,
   isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
@@ -29,10 +33,16 @@ export function setEngineRatingLogic(
   state: VehicleStore,
   rating: number,
 ): Partial<VehicleStore> {
+  const cruiseMP = computeCruiseMPFromRating(
+    state.tonnage,
+    rating,
+    state.motionType,
+    state.unitType === UnitType.SUPPORT_VEHICLE,
+  );
   return {
     engineRating: rating,
-    cruiseMP: Math.floor(rating / state.tonnage),
-    flankMP: calculateFlankMP(Math.floor(rating / state.tonnage)),
+    cruiseMP,
+    flankMP: calculateFlankMP(cruiseMP),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
@@ -45,7 +55,12 @@ export function setCruiseMPLogic(
   return {
     cruiseMP,
     flankMP: calculateFlankMP(cruiseMP),
-    engineRating: state.tonnage * cruiseMP,
+    engineRating: computeStoredVehicleEngineRating(
+      state.tonnage,
+      cruiseMP,
+      state.motionType,
+      state.unitType === UnitType.SUPPORT_VEHICLE,
+    ),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
@@ -55,7 +70,12 @@ export function setTonnageLogic(
   state: VehicleStore,
   tonnage: number,
 ): Partial<VehicleStore> {
-  const newEngineRating = tonnage * state.cruiseMP;
+  const newEngineRating = computeStoredVehicleEngineRating(
+    tonnage,
+    state.cruiseMP,
+    state.motionType,
+    state.unitType === UnitType.SUPPORT_VEHICLE,
+  );
   const clampedRating = Math.max(10, Math.min(400, newEngineRating));
 
   return {
@@ -89,7 +109,14 @@ export function setMotionTypeLogic(
 
   return {
     motionType,
-    unitType,
+    engineRating: computeStoredVehicleEngineRating(
+      state.tonnage,
+      state.cruiseMP,
+      motionType,
+      state.unitType === UnitType.SUPPORT_VEHICLE,
+    ),
+    unitType:
+      state.unitType === UnitType.SUPPORT_VEHICLE ? state.unitType : unitType,
     armorAllocation,
     isModified: true,
     lastModifiedAt: Date.now(),

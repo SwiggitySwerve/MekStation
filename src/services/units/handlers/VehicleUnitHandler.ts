@@ -1,3 +1,4 @@
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 /**
  * Vehicle Unit Handler
  *
@@ -6,8 +7,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
  */
-
-import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -22,6 +21,7 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { computeEngineRating } from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -142,7 +142,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = cruiseMP * document.tonnage;
+    const engineRating = this.getEngineRating(
+      document.tonnage,
+      cruiseMP,
+      motionType ?? GroundMotionType.TRACKED,
+      engineType,
+    );
 
     // Armor
     const armorType = document.armorType || 0;
@@ -408,9 +413,14 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     let weight = 0;
 
     // Engine weight (simplified calculation)
-    // Engine Rating = Cruise MP × Tonnage
+    // Use the same source-aware rating derivation as import.
     // Engine Weight depends on engine type
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = this.getEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+      unit.motionType,
+      unit.engineType,
+    );
     const engineMultiplier = this.getEngineWeightMultiplier(unit.engineType);
     weight += Math.ceil((engineRating / 10) * engineMultiplier * 10) / 10;
 
@@ -436,6 +446,16 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private getEngineWeightMultiplier(engineType: number): number {
     return ENGINE_WEIGHT_MULTIPLIER[engineType] ?? 1.0;
+  }
+
+  private getEngineRating(
+    tonnage: number,
+    cruiseMP: number,
+    motionType: GroundMotionType,
+    engineType: number,
+  ): number {
+    // BLKTankFile.java:155-162 checks BLKFile.NONE (8); trailer is independent.
+    return computeEngineRating(tonnage, cruiseMP, motionType, engineType === 8);
   }
 
   /**
@@ -469,7 +489,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     cost += unit.tonnage * 10000;
 
     // Engine cost (varies by type)
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = this.getEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+      unit.motionType,
+      unit.engineType,
+    );
     cost += engineRating * 5000;
 
     // Armor cost
