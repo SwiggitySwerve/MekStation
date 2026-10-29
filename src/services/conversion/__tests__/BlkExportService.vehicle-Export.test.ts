@@ -18,7 +18,6 @@ import {
   getBlkExportService,
 } from '@/services/conversion/BlkExportService';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -236,28 +235,6 @@ describe('BlkExportService', () => {
 
       expect(result.content).toContain('<cruiseMP>');
       expect(result.content).toContain('5');
-    });
-
-    it('should format engine type codes correctly', () => {
-      const testCases: [EngineType, string][] = [
-        [EngineType.STANDARD, '0'],
-        [EngineType.XL_IS, '1'],
-        [EngineType.XL_CLAN, '2'],
-        [EngineType.LIGHT, '3'],
-        [EngineType.COMPACT, '4'],
-        [EngineType.XXL, '5'],
-        [EngineType.ICE, '6'],
-        [EngineType.FUEL_CELL, '7'],
-        [EngineType.FISSION, '8'],
-      ];
-
-      for (const [engineType, expectedCode] of testCases) {
-        const vehicle = createMockVehicleState({ engineType });
-        const result = service.export(vehicle);
-
-        expect(result.content).toContain('<engine_type>');
-        expect(result.content).toContain(`\n${expectedCode}\n`);
-      }
     });
 
     it('should format armor type codes correctly', () => {

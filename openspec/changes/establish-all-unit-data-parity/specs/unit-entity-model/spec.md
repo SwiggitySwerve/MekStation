@@ -51,16 +51,18 @@ ProtoMek conversion SHALL use fusion regardless of the ignored tag. SmallCraft c
 
 The TypeScript conventional-fighter handler SHALL decode the same serialized identities through the shared fact table, preserve the raw code and independent `clan_engine` context, and reject identities absent from its typed model with a diagnostic. Its omitted tag SHALL default to fusion. The TypeScript SmallCraft handler SHALL use serialized ICE identity 1 for the upstream runtime placeholder regardless of the ignored tag and identify the raw ignored value in a warning. This placeholder SHALL NOT imply construction validity.
 
-These handler corrections do not establish complete TypeScript BLK export or hydration correctness. The conflicting maps in `BlkExportServiceCore.formatters.ts` and `VehicleUnitHandler.ts` remain explicit tasks 2.1/3.2 gaps. LargeSupportTank discovery and other unsupported families remain under the all-family loading requirement.
+Python and TypeScript SHALL consume one serialized-code fact table. TypeScript vehicle and aerospace export SHALL write ICE as 1, both XL variants as 2, fuel cell as 6, and reject unknown domain engine identities. XL export SHALL explicitly write `clan_engine` so an opposite-tech chassis reloads the same construction context. Combat vehicle weight SHALL decode serialized identity before calling the existing engine construction owner; it SHALL NOT treat source codes as weight-table ordinals.
 
-Pinned authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `BLKFile.java:80-93`, `BLKConvFighterFile.java:102-122`, `SmallCraft.java:129-130` and `Engine.java:92-93`. Runtime engine ordinal 0 is ICE; serialized BLK ICE is code 1.
+Pinned authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `BLKFile.java:80-93,538-568`, `BLKTankFile.java:139-162`, `BLKConvFighterFile.java:102-122`, `BLKProtoMekFile.java:93-95`, `BLKSmallCraftFile.java:147-152`, `SmallCraft.java:129-130` and `Engine.java:92-93,396-450`. Runtime engine ordinal 0 is ICE; serialized BLK ICE is code 1.
+
+TypeScript engine-tag readers SHALL reject explicit malformed or unknown codes at the parser/handler boundary. ProtoMek SHALL ignore its tag; SmallCraft hydration SHALL identify the ignored tag and use the ICE runtime placeholder, without claiming construction validity. Generic MTF aliases SHALL remain unchanged. LargeSupportTank discovery, complete family hydration, non-XL mixed-engine export flags and full serialization through generic handler persistence APIs remain under tasks 2.1/3.2/3.3. TypeScript ignored-tag tests cover existing `ProtoMech`/`Protomech` aliases; native `ProtoMek`, FixedWingSupport and LargeSupportTank discovery remain unsupported before engine decoding.
 
 The source-format number/name definitions SHALL be owned by
 `src/types/formats/blk-engine-codes.json`, a language-neutral table consumed by
 the Python decoder. Moving those definitions SHALL preserve complete converter
 outputs, ignored-tag behavior, malformed-code diagnostics and generic MTF aliases.
 `blkEngineIdentity.ts` adapts the same facts to the existing TypeScript models.
-The export and vehicle maps identified above remain outside this handler slice.
+Raw document codes SHALL remain distinct from normalized construction engine types.
 
 #### Scenario: Conventional fighter engine identity and technology
 
@@ -74,7 +76,7 @@ The export and vehicle maps identified above remain outside this handler slice.
 
 - **GIVEN** raw conventional-fighter BLK with an empty, nonnumeric, fractional or numeric-prefix engine tag
 - **WHEN** the public parser and TypeScript handler load it
-- **THEN** the handler SHALL reject it with an engine-tag diagnostic
+- **THEN** the parser/handler boundary SHALL reject it with an engine-tag diagnostic
 - **AND** only an omitted tag SHALL use the fusion default; typed documents without raw tags SHALL retain their numeric-code validation
 
 #### Scenario: SmallCraft ignored engine tag
@@ -118,3 +120,52 @@ The export and vehicle maps identified above remain outside this handler slice.
 - **WHEN** source conversion fails
 - **THEN** the diagnostic SHALL name the failing source path and code
 - **AND** no unit or manifest files SHALL have been written by that batch
+
+#### Scenario: Validate engine tags for recognized BLK Mek spellings
+
+- **GIVEN** a native Mek document or an existing BattleMech or IndustrialMech parser alias
+- **WHEN** its explicit engine tag is empty, fractional, malformed or unknown
+- **THEN** the TypeScript parser SHALL reject it with an engine-tag diagnostic
+- **AND** known codes SHALL remain intact and an omitted tag SHALL remain distinguishable for family default handling
+
+Authority: pinned `MekFileParser.java:242` and `BLKMekFile.java:128-132`.
+BattleMech and IndustrialMech are local aliases; this scenario does not claim
+upstream discovery of those spellings or complete Mek hydration from BLK.
+
+#### Scenario: TypeScript export and reload preserve engine identity
+
+- **GIVEN** ICE, fuel cell or XL on an opposite-tech chassis
+- **WHEN** the actual BLK exporter, parser and family handler reload the result
+- **THEN** ICE SHALL use code 1, fuel cell code 6 and XL code 2
+- **AND** XL construction context SHALL follow the explicit clan-engine flag
+
+#### Scenario: Conventional model cannot represent a loaded engine
+
+- **GIVEN** a conventional fighter source with XL, XXL, light, compact, none, steam or external engine
+- **WHEN** its typed handler hydrates the document
+- **THEN** it SHALL fail with the source engine code in a diagnostic
+- **AND** the generic BLK document SHALL retain the known source code
+
+### Requirement: Explicit absent combat-vehicle engine boundary
+
+The BLK vehicle adapter SHALL preserve known NONE as explicit engine absence,
+independent of trailer identity, while rejecting unknown or unsupported codes.
+The installed-engine mass owner SHALL return zero for absence before installed
+engine weight rules. The editor store remains limited to installed engines. Loaded Tank and
+conventional-fighter entities SHALL retain independent engine Clan context,
+including explicit overrides opposite to chassis technology.
+
+#### Scenario: Zero cruise engine and trailer cross-product
+
+- **GIVEN** a Tank with zero cruise and either trailer flag
+- **WHEN** engine_type is fusion 0 or ICE 1
+- **THEN** rating is 10
+- **WHEN** engine_type is NONE 8
+- **THEN** rating and installed engine mass are zero and raw code 8 is retained
+
+#### Scenario: Positive cruise with explicit absence
+
+- **GIVEN** a Tank with NONE and positive cruise
+- **WHEN** loaded through the BLK handler
+- **THEN** the loader-derived rating is retained, installed engine mass is zero,
+  and construction validation separately reports the absent propulsion engine
