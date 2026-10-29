@@ -1,3 +1,5 @@
+export { formatEngineType, formatArmorType } from './MTFVocabulary';
+
 import { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 const BIPED_LOCATION_ORDER = [
@@ -117,23 +119,6 @@ export function formatRulesLevel(rulesLevel: string): string {
   return levelMap[rulesLevel] || '2';
 }
 
-export function formatEngineType(engineType: string): string {
-  const typeMap: Record<string, string> = {
-    FUSION: 'Fusion Engine',
-    STANDARD: 'Fusion Engine',
-    XL: 'XL Fusion Engine',
-    XL_IS: 'XL Fusion Engine',
-    XL_CLAN: 'XL Fusion Engine (Clan)',
-    LIGHT: 'Light Fusion Engine',
-    COMPACT: 'Compact Fusion Engine',
-    XXL: 'XXL Fusion Engine',
-    ICE: 'ICE Engine',
-    FUEL_CELL: 'Fuel Cell Engine',
-    FISSION: 'Fission Engine',
-  };
-  return typeMap[engineType] || 'Fusion Engine';
-}
-
 export function formatStructureType(structureType: string): string {
   const typeMap: Record<string, string> = {
     STANDARD: 'IS Standard',
@@ -152,22 +137,6 @@ export function formatHeatSinkType(hsType: string): string {
   if (hsType === 'DOUBLE' || hsType === 'DOUBLE_IS') return 'Double';
   if (hsType === 'DOUBLE_CLAN') return 'Double';
   return 'Single';
-}
-
-export function formatArmorType(armorType: string): string {
-  const typeMap: Record<string, string> = {
-    STANDARD: 'Standard(Inner Sphere)',
-    FERRO_FIBROUS: 'Ferro-Fibrous',
-    FERRO_FIBROUS_IS: 'Ferro-Fibrous',
-    FERRO_FIBROUS_CLAN: 'Ferro-Fibrous(Clan)',
-    LIGHT_FERRO: 'Light Ferro-Fibrous',
-    HEAVY_FERRO: 'Heavy Ferro-Fibrous',
-    STEALTH: 'Stealth',
-    REACTIVE: 'Reactive',
-    REFLECTIVE: 'Reflective',
-    HARDENED: 'Hardened',
-  };
-  return typeMap[armorType] || 'Standard(Inner Sphere)';
 }
 
 export function getLocationOrder(configuration: string): string[] {
