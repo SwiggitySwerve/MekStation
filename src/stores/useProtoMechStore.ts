@@ -19,6 +19,7 @@ import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
+  computeProtoEngineRating,
   effectiveWalkMP,
   getProtoMPCaps,
   getProtoWeightClass,
@@ -115,7 +116,10 @@ export function createProtoMechStore(
                 tonnage: clampedTonnage,
                 cruiseMP: newCruiseMP,
                 flankMP: Math.floor(newCruiseMP * 1.5),
-                engineRating: clampedTonnage * newCruiseMP,
+                engineRating: computeProtoEngineRating(
+                  clampedTonnage,
+                  newCruiseMP,
+                ),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };
@@ -148,7 +152,7 @@ export function createProtoMechStore(
                 walkMP,
                 cruiseMP: walkMP,
                 flankMP: effWalk + 1,
-                engineRating: state.tonnage * walkMP,
+                engineRating: computeProtoEngineRating(state.tonnage, walkMP),
                 jumpMP,
                 glidingWings,
                 isModified: true,
@@ -173,7 +177,7 @@ export function createProtoMechStore(
             set((state) => ({
               cruiseMP: Math.max(1, cruiseMP),
               flankMP: Math.floor(cruiseMP * 1.5),
-              engineRating: state.tonnage * cruiseMP,
+              engineRating: computeProtoEngineRating(state.tonnage, cruiseMP),
               isModified: true,
               lastModifiedAt: Date.now(),
             })),
@@ -189,7 +193,7 @@ export function createProtoMechStore(
                 walkMP,
                 cruiseMP: walkMP,
                 flankMP: effWalk + 1,
-                engineRating: state.tonnage * walkMP,
+                engineRating: computeProtoEngineRating(state.tonnage, walkMP),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };
