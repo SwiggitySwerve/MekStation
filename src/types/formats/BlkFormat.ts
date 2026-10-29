@@ -19,7 +19,28 @@
 
 import type { ResultType } from '@/types/common/result';
 
+import { ProtoMechLocation } from '../construction/UnitLocation';
 import { UnitType } from '../unit/BattleMechInterfaces';
+import { ProtoChassis } from '../unit/ProtoMechInterfaces';
+
+/** Shared source-array order for ProtoMech BLK import and export. */
+export const BLK_PROTOMECH_ARMOR_LOCATIONS = [
+  ProtoMechLocation.HEAD,
+  ProtoMechLocation.TORSO,
+  ProtoMechLocation.RIGHT_ARM,
+  ProtoMechLocation.LEFT_ARM,
+  ProtoMechLocation.LEGS,
+  ProtoMechLocation.MAIN_GUN,
+] as const;
+
+/** Native BLK movement vocabulary; Ultraheavy is a weight category, not motion. */
+export const BLK_PROTOMECH_CHASSIS = {
+  Biped: ProtoChassis.BIPED,
+  Quad: ProtoChassis.QUAD,
+  WiGE: ProtoChassis.GLIDER,
+  // EntityMovementMode.parseFromString accepts Glider as a WiGE alias.
+  Glider: ProtoChassis.GLIDER,
+} as const;
 
 /**
  * Raw parsed BLK document before type-specific conversion
@@ -426,6 +447,7 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
   // ProtoMech
   ProtoMech: UnitType.PROTOMECH,
   Protomech: UnitType.PROTOMECH,
+  ProtoMek: UnitType.PROTOMECH,
   // Mechs (rarely in BLK but possible)
   BattleMech: UnitType.BATTLEMECH,
   Mek: UnitType.BATTLEMECH,

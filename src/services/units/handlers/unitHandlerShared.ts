@@ -29,11 +29,11 @@ export function createValidationMessages(): UnitValidationMessages {
   return { errors: [], warnings: [], infos: [] };
 }
 
-/** Structural numeric checks for VTOL/SmallCraft source loading, not construction. */
+/** Structural numeric checks for source loading, not construction. */
 export function pushSourceLoadNumberErrors(
   errors: string[],
   document: IBlkDocument,
-  movementField: 'cruiseMP' | 'safeThrust',
+  movementField: 'cruiseMP' | 'safeThrust' | 'jumpingMP',
 ): void {
   const tags = document.rawTags ?? {};
   const movementTag =

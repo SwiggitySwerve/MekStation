@@ -27,6 +27,21 @@ export function isMainGunWeaponApproved(equipmentId: string): boolean {
   return PROTO_MAIN_GUN_APPROVED_WEAPON_IDS.has(equipmentId);
 }
 
+/** Detect source/export contents that an absent mount cannot retain upstream. */
+export function getProtoMainGunTopologyError(
+  hasMainGun: boolean,
+  equipmentLocations: readonly string[],
+  armor: number,
+): string | undefined {
+  if (
+    !hasMainGun &&
+    (armor !== 0 || equipmentLocations.includes(ProtoLocation.MAIN_GUN))
+  ) {
+    return 'Main Gun equipment or armor requires a main-gun mount';
+  }
+  return undefined;
+}
+
 // =============================================================================
 // Weapon size classification
 // =============================================================================

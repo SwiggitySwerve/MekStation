@@ -32,3 +32,12 @@ unverified against the pinned runtime. Existing saves are not migrated. The
 legacy handler still resolves chassis from its old Quad/Glider tags; native
 `ProtoMek` discovery and `motion_type` decoding need separate loading work.
 This correction does not establish full source, persistence or numerical parity.
+
+## Absent main-gun contents
+
+`getProtoMainGunTopologyError` owns the requirement that Main Gun equipment or
+nonzero armor needs a mount. BLK source loading retains inconsistent equipment
+with a warning; export fails with no content. This prevents the pinned
+`BLKProtoMekFile` location loop from silently dropping source contents when
+five armor entries make `ProtoMek.locations()` exclude Main Gun. It does not
+remove equipment from the editor or certify general equipment/legality parity.

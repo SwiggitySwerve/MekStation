@@ -103,3 +103,50 @@ by this boundary correction.
 - **WHEN** a VTOL or SmallCraft handler attempts to load the source
 - **THEN** it SHALL fail with a field diagnostic rather than substitute zero
 - **AND** missing required identity, unknown types and unsupported dispatch cases SHALL retain explicit outcomes
+
+### Requirement: Native ProtoMek source projection
+
+The existing BLK parser and ProtoMech handler SHALL admit native `ProtoMek`
+sources. The source adapter SHALL preserve declared rules level, native chassis,
+base movement, armor locations and main-gun topology. Successful loading SHALL
+retain existing construction diagnostics without certifying numerical, equipment,
+editor or persistence parity.
+
+#### Scenario: Native configurations and engine rating
+
+- **GIVEN** a native source with Biped, Quad or WiGE motion (including its Glider alias), compared case-insensitively
+- **WHEN** the registered handler loads it
+- **THEN** Quad and WiGE SHALL resolve to Quad and Glider regardless of tonnage
+- **AND** Biped SHALL retain the existing Ultraheavy representation at 10 tons or more
+- **AND** base movement and rules level SHALL survive, with engine rating from the existing chassis-aware owner
+- **AND** an ignored engine tag SHALL NOT override that rating
+
+#### Scenario: Armor locations and main-gun topology
+
+- **GIVEN** five or six armor entries in Head, Torso, Right Arm, Left Arm, Legs, optional Main Gun order
+- **WHEN** loading a source with asymmetric arms or no main-gun equipment
+- **THEN** each armor value SHALL retain its location and a sixth entry SHALL indicate a main-gun mount even when zero
+- **AND** export SHALL emit the same order and omit the sixth entry when no mount exists
+- **AND** export SHALL include native motion and `ProtoMek` identity so reloading preserves these fields
+
+#### Scenario: Invalid source and legacy compatibility
+
+- **GIVEN** native missing or unsupported motion, unusable tonnage/cruise/jump, mixed or unknown technology, malformed armor or an armor count other than five or six
+- **WHEN** loading is attempted
+- **THEN** it SHALL fail with a field diagnostic without substituting a chassis or dropping an armor value
+- **AND** zero cruise and construction-invalid tonnage SHALL retain their values when structurally representable
+- **GIVEN** a legacy ProtoMech/Protomech document without native motion
+- **WHEN** it is loaded
+- **THEN** existing glider/quad flag precedence and omitted-speed default SHALL remain available
+- **AND** an explicitly provided unsupported motion SHALL still fail
+- **AND** every spelling SHALL reject missing, mixed or unknown technology with a diagnostic instead of defaulting to Inner Sphere or Clan
+
+#### Scenario: Equipment or armor without a main-gun mount
+
+- **GIVEN** five armor entries and Main Gun equipment in any supported ProtoMech spelling
+- **WHEN** the handler loads the document
+- **THEN** it SHALL retain the equipment with an explicit warning that the absent mount causes upstream to ignore it
+- **GIVEN** store data with Main Gun equipment or nonzero Main Gun armor but no mount
+- **WHEN** export is requested
+- **THEN** it SHALL fail with a Main Gun diagnostic and no content rather than silently lose those fields
+- **AND** source diagnostics and export rejection SHALL call the same construction-owner rule

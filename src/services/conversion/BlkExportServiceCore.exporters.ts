@@ -5,8 +5,10 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 import type { VehicleState } from '@/stores/vehicleState';
 
 import { EngineType } from '@/types/construction/EngineType';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
+import { getProtoMainGunTopologyError } from '@/utils/construction/protomech';
 
 import type { IBlkExportResult } from './BlkExportServiceCore.types';
 
@@ -23,6 +25,7 @@ import {
   formatVehicleArmor,
   formatAerospaceArmor,
   formatProtoMechArmor,
+  formatProtoMechMotion,
 } from './BlkExportServiceCore.formatters';
 import {
   tag,
@@ -275,11 +278,17 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
   const lines: string[] = [];
 
   try {
+    const topologyError = getProtoMainGunTopologyError(
+      unit.hasMainGun,
+      unit.equipment.map((item) => item.location),
+      unit.armorByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
+    );
+    if (topologyError) return { success: false, errors: [topologyError] };
     writeLicenseHeader(lines);
 
     lines.push(tag('BlockVersion', '1'));
     lines.push(tag('Version', 'MAM0'));
-    lines.push(tag('UnitType', 'ProtoMech'));
+    lines.push(tag('UnitType', 'ProtoMek'));
     lines.push(tag('Name', unit.chassis));
     lines.push(tag('Model', unit.model));
     if (unit.mulId !== '-1') {
@@ -298,6 +307,7 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
     }
     lines.push('');
 
+    lines.push(tag('motion_type', formatProtoMechMotion(unit.chassisType)));
     lines.push(tag('armor', formatProtoMechArmor(unit)));
     lines.push('');
 
