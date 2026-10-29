@@ -1,8 +1,12 @@
 import logging
 from pathlib import Path
+import sys
 import tempfile
 import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 from blk_vehicle_converter import convert_vehicle_blk
+from combat_vehicle_engine import combat_engine_rating
 
 class SuspensionConversionTest(unittest.TestCase):
     def convert(self, unit_type='Tank', tons=20, cruise=12, motion='Hover', engine_code=None):
@@ -19,7 +23,6 @@ class SuspensionConversionTest(unittest.TestCase):
         self.assertEqual(self.convert(tons=52, cruise=3, motion='Tracked')['engine']['rating'], 160)
 
     def test_zero_cruise_and_explicit_engine_less(self):
-        from combat_vehicle_engine import combat_engine_rating
         self.assertEqual(self.convert(cruise=0)['engine']['rating'], 10)
         self.assertEqual(self.convert(cruise=0, engine_code=8)['engine']['rating'], 0)
         self.assertEqual(combat_engine_rating(20, 0, 'Hover'), 10)

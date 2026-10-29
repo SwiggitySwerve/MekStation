@@ -129,7 +129,7 @@ it('agrees with actual Python converter output and direct BLK import', () => {
     [
       '-B',
       '-c',
-      "import sys,json; sys.path.insert(0,'scripts/megameklab-conversion'); from test_vehicle_suspension import SuspensionConversionTest; print(json.dumps([SuspensionConversionTest().convert(tons=t,cruise=m,motion=k) for t,m,k in [(20,12,'Hover'),(52,3,'Tracked'),(20,8,'VTOL'),(301,1,'Naval')]]))",
+      "import sys,json; sys.path.insert(0,'scripts/__tests__'); from test_vehicle_suspension import SuspensionConversionTest; print(json.dumps([SuspensionConversionTest().convert(tons=t,cruise=m,motion=k) for t,m,k in [(20,12,'Hover'),(52,3,'Tracked'),(20,8,'VTOL'),(301,1,'Naval')]]))",
     ],
     { encoding: 'utf8' },
   );
