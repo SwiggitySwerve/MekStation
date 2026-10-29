@@ -19,7 +19,18 @@
 
 import type { ResultType } from '@/types/common/result';
 
+import { ProtoMechLocation } from '../construction/UnitLocation';
 import { UnitType } from '../unit/BattleMechInterfaces';
+
+/** Shared source-array order for ProtoMech BLK import and export. */
+export const BLK_PROTOMECH_ARMOR_LOCATIONS = [
+  ProtoMechLocation.HEAD,
+  ProtoMechLocation.TORSO,
+  ProtoMechLocation.LEFT_ARM,
+  ProtoMechLocation.RIGHT_ARM,
+  ProtoMechLocation.LEGS,
+  ProtoMechLocation.MAIN_GUN,
+] as const;
 
 /**
  * Raw parsed BLK document before type-specific conversion

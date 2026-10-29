@@ -6,10 +6,10 @@ import {
   VehicleLocation,
   VTOLLocation,
   AerospaceLocation,
-  ProtoMechLocation,
 } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import { BLK_PROTOMECH_ARMOR_LOCATIONS } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   SquadMotionType,
@@ -143,14 +143,9 @@ export function formatAerospaceArmor(
 
 export function formatProtoMechArmor(unit: ProtoMechState): string {
   const armor = unit.armorByLocation;
-  const values: number[] = [
-    armor[ProtoMechLocation.HEAD] || 0,
-    armor[ProtoMechLocation.TORSO] || 0,
-    armor[ProtoMechLocation.LEFT_ARM] || 0,
-    armor[ProtoMechLocation.RIGHT_ARM] || 0,
-    armor[ProtoMechLocation.LEGS] || 0,
-    armor[ProtoMechLocation.MAIN_GUN] || 0,
-  ];
+  const values = BLK_PROTOMECH_ARMOR_LOCATIONS.map(
+    (location) => armor[location] || 0,
+  );
   return values.join('\n');
 }
 

@@ -8,7 +8,10 @@
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
-import { IBlkDocument } from '@/types/formats/BlkFormat';
+import {
+  BLK_PROTOMECH_ARMOR_LOCATIONS,
+  IBlkDocument,
+} from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
   ISquadMovement,
@@ -48,18 +51,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * ProtoMech location order for armor array
- */
-const PROTOMECH_ARMOR_LOCATIONS = [
-  ProtoMechLocation.HEAD,
-  ProtoMechLocation.TORSO,
-  ProtoMechLocation.LEFT_ARM,
-  ProtoMechLocation.RIGHT_ARM,
-  ProtoMechLocation.LEGS,
-  ProtoMechLocation.MAIN_GUN,
-] as const;
 
 /**
  * Location string to enum mapping
@@ -206,7 +197,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       [ProtoMechLocation.MAIN_GUN]: 0,
     };
 
-    PROTOMECH_ARMOR_LOCATIONS.forEach((loc, index) => {
+    BLK_PROTOMECH_ARMOR_LOCATIONS.forEach((loc, index) => {
       if (index < armor.length) {
         result[loc] = armor[index];
       }
