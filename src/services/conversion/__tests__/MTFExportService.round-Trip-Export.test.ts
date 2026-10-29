@@ -256,7 +256,7 @@ describe('MTFExportService', () => {
       expect(result.content).toContain('heat sinks:20 Double');
     });
 
-    it('should export a mixed tech unit correctly', () => {
+    it('should reject mixed tech without chassis context', () => {
       const mixedUnit = createMinimalUnit({
         techBase: 'MIXED',
         engine: { type: 'XL_IS', rating: 250 },
@@ -265,10 +265,9 @@ describe('MTFExportService', () => {
 
       const result = service.export(mixedUnit);
 
-      expect(result.success).toBe(true);
-      expect(result.content).toContain('techbase:Mixed');
-      expect(result.content).toContain('engine:250 XL Fusion Engine');
-      expect(result.content).toContain('heat sinks:15 Double');
+      expect(result.success).toBe(false);
+      expect(result.content).toBeUndefined();
+      expect(result.errors.join('; ')).toContain('chassis-tech-context');
     });
 
     it('should export a quad mech correctly', () => {

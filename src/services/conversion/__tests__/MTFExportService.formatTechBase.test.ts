@@ -102,11 +102,13 @@ describe('MTFExportService', () => {
       expect(result.content).toContain('techbase:Clan');
     });
 
-    it('should format MIXED tech base', () => {
+    it('should reject MIXED without chassis tech context', () => {
       const unit = createMinimalUnit({ techBase: 'MIXED' });
       const result = service.export(unit);
 
-      expect(result.content).toContain('techbase:Mixed');
+      expect(result.success).toBe(false);
+      expect(result.content).toBeUndefined();
+      expect(result.errors.join('; ')).toContain('chassis-tech-context');
     });
 
     it('should default unknown tech bases to Inner Sphere', () => {

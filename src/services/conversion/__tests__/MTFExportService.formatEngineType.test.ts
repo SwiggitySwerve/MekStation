@@ -181,13 +181,15 @@ describe('MTFExportService', () => {
       expect(result.content).toContain('engine:200 Fission Engine');
     });
 
-    it('should default unknown engine types to Fusion', () => {
+    it('should reject unknown engine identities', () => {
       const unit = createMinimalUnit({
         engine: { type: 'UNKNOWN', rating: 200 },
       });
       const result = service.export(unit);
 
-      expect(result.content).toContain('engine:200 Fusion Engine');
+      expect(result.success).toBe(false);
+      expect(result.content).toBeUndefined();
+      expect(result.errors.join('; ')).toContain('UNKNOWN');
     });
   });
 });
