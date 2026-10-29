@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Dict
 
 TECH_BASE_MAP: Dict[str, str] = {
@@ -97,24 +99,11 @@ ENGINE_TYPE_MAP: Dict[str, str] = {
     "5": "XXL",
 }
 
-BLK_ENGINE_CODE_MAP: Dict[str, str] = {
-    # MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
-    # BLKFile.java:80-93,538-568. Serialized codes, not Engine/domain ordinals.
-    "0": "FUSION",
-    "1": "ICE",
-    "2": "XL",
-    "3": "XXL",
-    "4": "LIGHT",
-    "5": "COMPACT",
-    "6": "FUEL_CELL",
-    "7": "FISSION",
-    "8": "NONE",
-    "9": "MAGLEV",
-    "10": "STEAM",
-    "11": "BATTERY",
-    "12": "SOLAR",
-    "13": "EXTERNAL",
-}
+# Shared source-format facts; generic MTF aliases above deliberately remain separate.
+BLK_ENGINE_CODE_MAP: Dict[str, str] = json.loads(
+    (Path(__file__).resolve().parents[2] / 'src/types/formats/blk-engine-codes.json')
+    .read_text(encoding='utf-8-sig')
+)
 
 GYRO_TYPE_MAP: Dict[str, str] = {
     "Standard Gyro": "STANDARD",
