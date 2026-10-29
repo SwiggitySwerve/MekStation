@@ -7,7 +7,8 @@ The system SHALL manage engine configuration and derive movement points.
 #### Scenario: Engine rating calculation
 
 - **WHEN** configuring a vehicle's engine
-- **THEN** engine rating SHALL equal `tonnage × cruiseMP`
+- **THEN** engine rating SHALL equal `tonnage × cruiseMP` less the movement-mode suspension
+  factor, as the Combat-vehicle suspension engine rating requirement defines
 - **AND** engine rating SHALL be clamped between 10 and 400
 - **AND** changing tonnage SHALL recalculate engine rating to maintain cruise MP
 - **AND** changing cruise MP SHALL recalculate engine rating
