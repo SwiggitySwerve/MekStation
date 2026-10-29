@@ -43,7 +43,7 @@ const ARMOR_PARSE_NAMES: Record<string, string> = Object.fromEntries(
 ARMOR_PARSE_NAMES[''] = ARMOR_PARSE_NAMES.standard;
 
 const ENGINE_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
-  ENGINE_NAMES.filter(([, type]) => !['CLAN_XL', 'BATTERY'].includes(type)).map(
+  ENGINE_NAMES.filter(([, type]) => type !== 'BATTERY').map(
     ([, type, name]) => [type, name],
   ),
 );
@@ -52,14 +52,14 @@ const ENGINE_EXPORT_ALIASES: Record<string, string> = {
   XL_IS: 'XL',
   XL_CLAN: 'CLAN_XL',
 };
-// The old exporter accepted XL_CLAN but not the parser's CLAN_XL.
-ENGINE_EXPORT_NAMES.XL_CLAN =
-  ENGINE_NAMES.find(([, type]) => type === 'CLAN_XL')?.[2] || '';
+const CLAN_ARMOR_TYPES = ['FERRO_FIBROUS', 'REACTIVE', 'REFLECTIVE'];
 const ARMOR_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
   ARMOR_NAMES.filter(([, type]) =>
     [
       'STANDARD',
       'FERRO_FIBROUS',
+      'LIGHT_FERRO_FIBROUS',
+      'HEAVY_FERRO_FIBROUS',
       'STEALTH',
       'REACTIVE',
       'REFLECTIVE',
@@ -67,7 +67,9 @@ const ARMOR_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
     ].includes(type),
   ).map(([, type, name]) => [type, name]),
 );
-ARMOR_EXPORT_NAMES.FERRO_FIBROUS_CLAN = `${ARMOR_EXPORT_NAMES.FERRO_FIBROUS}(Clan)`;
+for (const type of CLAN_ARMOR_TYPES) {
+  ARMOR_EXPORT_NAMES[`${type}_CLAN`] = `${ARMOR_EXPORT_NAMES[type]}(Clan)`;
+}
 const ARMOR_EXPORT_ALIASES: Record<string, string> = {
   FERRO_FIBROUS_IS: 'FERRO_FIBROUS',
   LIGHT_FERRO: 'LIGHT_FERRO_FIBROUS',
@@ -126,10 +128,7 @@ export function mapArmorType(armorType: string): string {
     ? types[name]
     : undefined;
   if (!type) return `UNSUPPORTED_ARMOR:${armorType}`;
-  if (
-    lower.includes('clan') &&
-    ['FERRO_FIBROUS', 'REACTIVE', 'REFLECTIVE'].includes(type)
-  ) {
+  if (lower.includes('clan') && CLAN_ARMOR_TYPES.includes(type)) {
     return `${type}_CLAN`;
   }
   return type;

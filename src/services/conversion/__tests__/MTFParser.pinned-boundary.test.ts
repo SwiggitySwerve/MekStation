@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { loadUnitDefinition } from '@/services/units/unitLoaderService/loadUnitDefinition';
 import { UnitContract } from '@/types/contracts';
 
+import { MTFExportService } from '../MTFExportService';
 import { MTFParserService } from '../MTFParserService';
 import fixtures from './MTFParser.pinned-sources.json';
 
@@ -27,6 +28,39 @@ const armorNames: Record<string, string> = {
 };
 
 describe('pinned original-byte MTF construction boundary', () => {
+  it.each([
+    ['Champion C.mtf', 'CLAN_XL', 'FERRO_FIBROUS_CLAN'],
+    ['Annihilator ANH-3A.mtf', 'COMPACT', 'LIGHT_FERRO_FIBROUS'],
+    ['Clint CLNT-6S.mtf', 'LIGHT', 'HEAVY_FERRO_FIBROUS'],
+    ['Gyrfalcon.mtf', 'CLAN_XL', 'REFLECTIVE_CLAN'],
+    ['Warwolf (Prime).mtf', 'CLAN_XL', 'REACTIVE_CLAN'],
+  ])(
+    'preserves source construction through export: %s',
+    (name, engine, armor) => {
+      const source = fixtures.rows.find((row) => row.path.endsWith(`/${name}`));
+      if (!source) throw new Error(`Missing pinned fixture: ${name}`);
+      const bytes = Buffer.from(source.base64, 'base64');
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+        source.sha256,
+      );
+      const parser = new MTFParserService();
+      const parsed = parser.parse(bytes.toString('utf8'));
+      expect(parsed.success).toBe(true);
+      if (!parsed.unit) throw new Error(parsed.errors.join('; '));
+      expect(UnitContract.safeParse(parsed.unit).success).toBe(true);
+      expect(parsed.unit.engine.type).toBe(engine);
+      expect(parsed.unit.armor.type).toBe(armor);
+
+      const exported = new MTFExportService().export(parsed.unit);
+      expect(exported.success).toBe(true);
+      if (!exported.content) throw new Error(exported.errors.join('; '));
+      const roundtrip = parser.parse(exported.content);
+      expect(roundtrip.success).toBe(true);
+      expect(roundtrip.unit?.engine).toEqual(parsed.unit.engine);
+      expect(roundtrip.unit?.armor.type).toBe(armor);
+    },
+  );
+
   it.each(fixtures.rows)('$path', async (source) => {
     const bytes = Buffer.from(source.base64, 'base64');
     expect(bytes.length).toBe(source.bytes);
