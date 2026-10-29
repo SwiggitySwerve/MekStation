@@ -28,6 +28,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { expandSourceProvenanceVariants } from './expand-source-provenance-variants.mjs';
 import { expandUnitTypeRequirements } from './expand-unit-type-requirements.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,6 +42,11 @@ const OUTPUT_DIR = join(REPO_ROOT, 'src', 'types', 'contracts', 'generated');
 // shapes still get generated so PR-A2 can wire them with a single edit
 // to the contracts barrel.
 const SHAPES = [
+  {
+    file: 'source-provenance-schema.json',
+    stem: 'source-provenance',
+    exportName: 'SourceProvenanceContract',
+  },
   { file: 'weapon-schema.json', stem: 'weapon', exportName: 'WeaponContract' },
   { file: 'unit-schema.json', stem: 'unit', exportName: 'UnitContract' },
   {
@@ -87,7 +93,11 @@ function generateOne(shape) {
   const json = JSON.parse(readFileSync(sourcePath, 'utf-8'));
   // Use ESM module output and emit a named export plus an inferred type.
   const schema =
-    shape.stem === 'unit' ? expandUnitTypeRequirements(json) : json;
+    shape.stem === 'unit'
+      ? expandUnitTypeRequirements(json)
+      : shape.stem === 'source-provenance'
+        ? expandSourceProvenanceVariants(json)
+        : json;
   const body = jsonSchemaToZod(schema, {
     module: 'esm',
     name: shape.exportName,

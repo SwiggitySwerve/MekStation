@@ -5,6 +5,7 @@
  * Conventional fighters are atmospheric-only aircraft that cannot operate in space.
  */
 
+import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -191,85 +192,104 @@ describe('ConventionalFighterUnitHandler', () => {
     });
 
     describe('engine type mapping', () => {
-      it('should map engine type 0 to ICE', () => {
-        const doc = createMockBlkDocument({ engineType: 0 });
-        const result = handler.parse(doc);
-
-        expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.ICE,
+      it('defaults an omitted source tag to fusion', () => {
+        const result = handler.parse(
+          createMockBlkDocument({ engineType: undefined }),
         );
-      });
-
-      it('should map engine type 1 to FUEL_CELL', () => {
-        const doc = createMockBlkDocument({ engineType: 1 });
-        const result = handler.parse(doc);
-
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.FUEL_CELL,
-        );
-      });
-
-      it('should map engine type 2 to ELECTRIC', () => {
-        const doc = createMockBlkDocument({ engineType: 2 });
-        const result = handler.parse(doc);
-
-        expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.ELECTRIC,
-        );
-      });
-
-      it('should map engine type 3 to FISSION', () => {
-        const doc = createMockBlkDocument({ engineType: 3 });
-        const result = handler.parse(doc);
-
-        expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.FISSION,
-        );
-      });
-
-      it('should map engine type 4 to FUSION', () => {
-        const doc = createMockBlkDocument({ engineType: 4 });
-        const result = handler.parse(doc);
-
-        expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
+        expect(result.data?.unit.conventionalEngineType).toBe(
           ConventionalFighterEngineType.FUSION,
         );
+        expect(result.data?.unit.engineType).toBe(0);
       });
 
-      it('should map engine type 5 to SOLAR', () => {
-        const doc = createMockBlkDocument({ engineType: 5 });
-        const result = handler.parse(doc);
-
+      it.each([
+        [0, ConventionalFighterEngineType.FUSION],
+        [1, ConventionalFighterEngineType.ICE],
+        [6, ConventionalFighterEngineType.FUEL_CELL],
+        [7, ConventionalFighterEngineType.FISSION],
+        [9, ConventionalFighterEngineType.MAGLEV],
+        [11, ConventionalFighterEngineType.ELECTRIC],
+        [12, ConventionalFighterEngineType.SOLAR],
+      ])('decodes BLK code %s', (engineType, expected) => {
+        const result = handler.parse(createMockBlkDocument({ engineType }));
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.SOLAR,
-        );
+        expect(result.data?.unit.conventionalEngineType).toBe(expected);
+        expect(result.data?.unit.engineType).toBe(engineType);
       });
-
-      it('should map engine type 6 to MAGLEV', () => {
-        const doc = createMockBlkDocument({ engineType: 6 });
-        const result = handler.parse(doc);
-
-        expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.MAGLEV,
-        );
-      });
-
-      it('should default unknown engine type to ICE', () => {
-        const doc = createMockBlkDocument({ engineType: 99 });
-        const result = handler.parse(doc);
-
-        expect(result.success).toBe(true);
-        expect(result.data?.unit?.conventionalEngineType).toBe(
-          ConventionalFighterEngineType.ICE,
-        );
-      });
+      it.each([2, 3, 4, 5, 8, 10, 13, 99])(
+        'rejects unrepresentable code %s',
+        (engineType) => {
+          const result = handler.parse(createMockBlkDocument({ engineType }));
+          expect(result.success).toBe(false);
+          expect(result.error?.errors.join(' ')).toMatch(/BLK engine/);
+        },
+      );
     });
   });
+});
+
+describe('Conventional fighter independent engine technology', () => {
+  it.each([0, 1, 6, 7, 9, 11, 12])(
+    'preserves the Clan override for source %s',
+    (engineType) => {
+      for (const [type, flag] of [
+        ['IS Level 2', 'true'],
+        ['Clan Level 2', 'false'],
+      ]) {
+        const result = new ConventionalFighterUnitHandler().parse(
+          createMockBlkDocument({
+            type,
+            engineType,
+            rawTags: { clan_engine: flag },
+          }),
+        );
+        expect(result.success).toBe(true);
+        expect(result.data?.unit.clanEngine).toBe(flag === 'true');
+        expect(result.data?.unit.engineType).toBe(engineType);
+      }
+    },
+  );
+});
+
+describe('Conventional fighter engine tags through the raw BLK boundary', () => {
+  function parseSource(engineTag?: string) {
+    const source = `<UnitType>ConvFighter</UnitType>
+<Name>Engine tag probe</Name>
+<year>3060</year>
+<type>IS Level 2</type>
+<tonnage>50</tonnage>
+<SafeThrust>6</SafeThrust>
+<fuel>160</fuel>
+<structural_integrity>6</structural_integrity>
+<armor>16\n12\n12\n8</armor>
+${engineTag === undefined ? '' : `<engine_type>${engineTag}</engine_type>`}`;
+    const parsed = new BlkParserService().parse(source);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+    return new ConventionalFighterUnitHandler().parse(parsed.data.document);
+  }
+
+  it.each([
+    { tag: undefined, code: 0, identity: ConventionalFighterEngineType.FUSION },
+    { tag: '0', code: 0, identity: ConventionalFighterEngineType.FUSION },
+    { tag: '1', code: 1, identity: ConventionalFighterEngineType.ICE },
+    { tag: ' 7 ', code: 7, identity: ConventionalFighterEngineType.FISSION },
+    { tag: '+6', code: 6, identity: ConventionalFighterEngineType.FUEL_CELL },
+  ])('preserves a valid or omitted tag: $tag', ({ tag, code, identity }) => {
+    const result = parseSource(tag);
+    expect(result.success).toBe(true);
+    expect(result.data?.unit.engineType).toBe(code);
+    expect(result.data?.unit.conventionalEngineType).toBe(identity);
+  });
+
+  it.each(['', '   ', 'not-an-engine', '0x63', '1garbage', '1.5', '1e0'])(
+    'rejects an explicitly malformed tag: %j',
+    (tag) => {
+      const result = parseSource(tag);
+      expect(result.success).toBe(false);
+      expect(result.data).toBeUndefined();
+      expect(result.error?.errors.join('; ')).toContain('engine_type');
+    },
+  );
 });

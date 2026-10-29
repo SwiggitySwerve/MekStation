@@ -107,15 +107,15 @@ describe('MTFExportHelpers', () => {
   });
 
   // ============================================================================
-  // formatTechBase() — must emit "Inner Sphere" / "Clan" / "Mixed" exactly
+  // formatTechBase() — emit pure tech bases; require context for MIXED
   // ============================================================================
   describe('formatTechBase()', () => {
     it('formats CLAN to "Clan"', () => {
       expect(formatTechBase('CLAN')).toBe('Clan');
     });
 
-    it('formats MIXED to "Mixed"', () => {
-      expect(formatTechBase('MIXED')).toBe('Mixed');
+    it('rejects MIXED without chassis tech context', () => {
+      expect(() => formatTechBase('MIXED')).toThrow('chassis-tech-context');
     });
 
     it('formats INNER_SPHERE to "Inner Sphere"', () => {
@@ -165,8 +165,8 @@ describe('MTFExportHelpers', () => {
       expect(formatEngineType(input)).toBe(expected);
     });
 
-    it('falls back to "Fusion Engine" for unknown types', () => {
-      expect(formatEngineType('UNKNOWN')).toBe('Fusion Engine');
+    it('rejects unknown engine identities', () => {
+      expect(() => formatEngineType('UNKNOWN')).toThrow('UNKNOWN');
     });
   });
 
@@ -233,8 +233,8 @@ describe('MTFExportHelpers', () => {
       expect(formatArmorType(input)).toBe(expected);
     });
 
-    it('falls back to "Standard(Inner Sphere)" for unknown types', () => {
-      expect(formatArmorType('UNKNOWN')).toBe('Standard(Inner Sphere)');
+    it('rejects unknown armor identities', () => {
+      expect(() => formatArmorType('UNKNOWN')).toThrow('UNKNOWN');
     });
   });
 

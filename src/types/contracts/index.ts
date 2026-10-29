@@ -29,6 +29,7 @@ import { ElectronicsContract as ElectronicsContractSchema } from './generated/el
 import { MiscEquipmentContract as MiscEquipmentContractSchema } from './generated/misc-equipment.zod';
 import { NameMappingsContract as NameMappingsContractSchema } from './generated/name-mappings.zod';
 import { PhysicalWeaponContract as PhysicalWeaponContractSchema } from './generated/physical-weapon.zod';
+import { SourceProvenanceContract as SourceProvenanceContractSchema } from './generated/source-provenance.zod';
 import { UnitContract as UnitContractSchema } from './generated/unit.zod';
 import { WeaponContract as WeaponContractSchema } from './generated/weapon.zod';
 
@@ -40,6 +41,7 @@ export const ElectronicsContract = ElectronicsContractSchema;
 export const MiscEquipmentContract = MiscEquipmentContractSchema;
 export const PhysicalWeaponContract = PhysicalWeaponContractSchema;
 export const NameMappingsContract = NameMappingsContractSchema;
+export const SourceProvenanceContract = SourceProvenanceContractSchema;
 
 // Inferred boundary types. The generator emits a `type <Name>Contract`
 // alongside each schema; we re-export them under the conventional `I`
@@ -55,3 +57,6 @@ export type IPhysicalWeaponContract = z.infer<
   typeof PhysicalWeaponContractSchema
 >;
 export type INameMappingsContract = z.infer<typeof NameMappingsContractSchema>;
+export type ISourceProvenanceContract = z.infer<
+  typeof SourceProvenanceContractSchema
+>;

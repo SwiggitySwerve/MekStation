@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://megamek-web.app/schemas/source-provenance/1.0.0.json",
+  "title": "BattleTech source provenance 1.0.0",
+  "description": "Original source identities only; independent of design identity/revision, calculations and campaign state. This schema does not establish source availability, truth or construction-family support.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "version", "sources"],
+  "properties": {
+    "format": {
+      "const": "battletech-source-provenance"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Ordered source rows, retained without deduplication; multiple origins may describe one design. Order does not define design identity.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source", "originalFormat", "sha256"],
+        "properties": {
+          "source": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "repository", "commit", "path", "blob"],
+                "properties": {
+                  "kind": {
+                    "const": "git"
+                  },
+                  "repository": {
+                    "type": "string",
+                    "pattern": "^https://[a-z0-9]+(?:[.-][a-z0-9]+)*(?:/[A-Za-z0-9_-][A-Za-z0-9._~-]*)+(?![\\s\\S])",
+                    "description": "Stable credential-free HTTPS repository identity, including repository path; no query, fragment or trailing slash. Identity is asserted, not fetched by validation."
+                  },
+                  "commit": {
+                    "type": "string",
+                    "description": "Resolved full lowercase Git commit object ID, never a ref or abbreviation."
+                  },
+                  "path": {
+                    "type": "string",
+                    "pattern": "^(?![\\s\\S]*[\\\\:\u0000-\u001f\u007f])(?!/)(?![\\s\\S]*(?:^|/)\\.{1,2}(?:/|(?![\\s\\S])))[^/]+(?:/[^/]+)*(?![\\s\\S])",
+                    "description": "Exact case-sensitive repository-relative POSIX path. No absolute paths, empty/dot/traversal segments, backslashes, colons or control characters. Never URL-decode or normalize before comparison."
+                  },
+                  "blob": {
+                    "type": "string",
+                    "description": "Full lowercase Git blob object ID of the original bytes; uses the same Git object format as commit. Distinct from SHA-256 of file bytes."
+                  }
+                },
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "required": ["commit", "blob"],
+                    "properties": {
+                      "commit": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{40}(?![\\s\\S])"
+                      },
+                      "blob": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{40}(?![\\s\\S])"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": ["commit", "blob"],
+                    "properties": {
+                      "commit": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                      },
+                      "blob": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "originalName"],
+                "properties": {
+                  "kind": {
+                    "const": "local"
+                  },
+                  "originalName": {
+                    "type": "string",
+                    "pattern": "^(?!\\.{1,2}(?![\\s\\S]))[^/\\\\:\u0000-\u001f\u007f]+(?![\\s\\S])",
+                    "description": "Original upload basename, preserved exactly; no filesystem path or invented Git identity."
+                  }
+                }
+              }
+            ]
+          },
+          "originalFormat": {
+            "type": "string",
+            "enum": ["mtf", "blk", "bfs"],
+            "description": "Source syntax, independent of filename case or extension. Declaring a syntax does not establish parser or family support."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+            "description": "SHA-256 of exact original file bytes, before decoding, newline normalization or parsing; not a normalized design digest or Git object ID."
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "array",
+      "description": "Optional opaque annotations. Preserve order and values. They impose no requirements and cannot override source identity, version or any core semantics. Required semantic extensions are unsupported.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "value"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+:[A-Za-z][A-Za-z0-9._-]*(?![\\s\\S])",
+            "description": "Reverse-DNS namespace plus colon and annotation key, for example org.example:note."
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

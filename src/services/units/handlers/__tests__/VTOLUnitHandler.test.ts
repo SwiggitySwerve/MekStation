@@ -246,12 +246,12 @@ describe('VTOLUnitHandler', () => {
   // ==========================================================================
 
   describe('parse - engine', () => {
-    it('should calculate engine rating as cruise * tonnage', () => {
+    it('subtracts VTOL suspension before rating rounding', () => {
       const doc = createMockBlkDocument({ cruiseMP: 10, tonnage: 21 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.engineRating).toBe(210); // 10 * 21
+      expect(result.data?.unit?.engineRating).toBe(70); // 21 * 10 - 140 suspension
     });
 
     it('should parse engine type', () => {

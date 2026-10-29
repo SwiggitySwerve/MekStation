@@ -24,6 +24,7 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { computeEngineRating } from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -113,7 +114,11 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = cruiseMP * document.tonnage;
+    const engineRating = computeEngineRating(
+      document.tonnage,
+      cruiseMP,
+      GroundMotionType.VTOL,
+    );
 
     // Armor
     const armorType = document.armorType || 0;
@@ -348,7 +353,11 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     let weight = 0;
 
     // Engine weight (VTOLs use lighter engines per thrust)
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = computeEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+      GroundMotionType.VTOL,
+    );
     weight += engineRating * 0.04; // Simplified
 
     // Rotor weight (10% of tonnage)
@@ -389,7 +398,11 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     cost += unit.tonnage * 15000;
 
     // Engine cost
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = computeEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+      GroundMotionType.VTOL,
+    );
     cost += engineRating * 6000;
 
     // Rotor cost

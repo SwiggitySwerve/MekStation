@@ -9,6 +9,7 @@
  */
 
 import { SMALL_CRAFT_TONNAGE } from '@/services/construction/constructionConstants';
+import { blkEngineCode } from '@/services/conversion/blkEngineIdentity';
 import { SmallCraftLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
@@ -113,7 +114,11 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     const heatSinkType = document.sinkType || 0;
 
     // Engine and armor types
-    const engineType = document.engineType || 0;
+    // SmallCraft.java:129-130 uses an ICE runtime placeholder, not construction.
+    const engineType = blkEngineCode('ICE');
+    warnings.push(
+      `SmallCraft ICE runtime placeholder; ignored engine_type ${JSON.stringify(document.rawTags?.engine_type ?? document.engineType)}`,
+    );
     const armorType = document.armorType || 0;
 
     // Parse armor by arc
