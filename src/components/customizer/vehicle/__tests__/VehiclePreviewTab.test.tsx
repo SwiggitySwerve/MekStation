@@ -22,7 +22,7 @@ jest.mock('jspdf', () => ({
   })),
 }));
 
-import { render } from '@testing-library/react';
+import { act, render, renderHook } from '@testing-library/react';
 import React from 'react';
 
 import { PreviewTabForType } from '@/components/customizer/tabs/PreviewTabForType';
@@ -35,10 +35,12 @@ import {
   createNewVehicleStore,
   VehicleStoreContext,
 } from '@/stores/useVehicleStore';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { buildVehicleUnitObject } from '../buildVehicleUnitObject';
+import { useVehicleRecordSheetUnit } from '../useVehicleRecordSheetUnit';
 import { VehiclePreviewTab } from '../VehiclePreviewTab';
 
 function makeVehicleStore() {
@@ -48,6 +50,43 @@ function makeVehicleStore() {
     techBase: TechBase.INNER_SPHERE,
   });
 }
+
+describe('useVehicleRecordSheetUnit', () => {
+  it('updates the projection for changed store fields and preserves it for unrelated state', () => {
+    const store = makeVehicleStore();
+    const { result, rerender } = renderHook(() => useVehicleRecordSheetUnit(), {
+      wrapper: ({ children }: { children: React.ReactNode }) => (
+        <VehicleStoreContext.Provider value={store}>
+          {children}
+        </VehicleStoreContext.Provider>
+      ),
+    });
+    const initialUnit = result.current;
+
+    act(() => store.setState({ isModified: !store.getState().isModified }));
+    rerender();
+    expect(result.current).toBe(initialUnit);
+
+    act(() =>
+      store.setState({
+        name: 'Updated Tank',
+        cruiseMP: 7,
+        armorAllocation: {
+          ...store.getState().armorAllocation,
+          [VehicleLocation.FRONT]: 42,
+        },
+      }),
+    );
+
+    expect(result.current).not.toBe(initialUnit);
+    expect(result.current).toMatchObject({
+      name: 'Updated Tank',
+      cruiseMP: 7,
+      armorAllocation: { Front: { current: 42, maximum: 42 } },
+    });
+    expect(getRecordSheetDispatchKind(result.current)).toBe('vehicle');
+  });
+});
 
 describe('VehiclePreviewTab — non-mech crash regression gate', () => {
   it('mounts inside the vehicle store context without throwing', () => {
