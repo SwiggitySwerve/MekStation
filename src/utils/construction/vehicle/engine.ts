@@ -98,7 +98,8 @@ export function computeSuspensionFactor(
 /**
  * Combat engine rating; BLKTankFile.java:155-162 at the same pinned revision.
  * Fractional tonnage is truncated for propulsion, but not suspension lookup.
- * A caller representing an engine-less trailer must pass engineLess explicitly.
+ * Tank callers with an explicit absent engine pass engineLess independently
+ * of trailer identity. The current store EngineType cannot represent absence.
  */
 export function computeEngineRating(
   tonnage: number,

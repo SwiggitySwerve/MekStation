@@ -142,11 +142,11 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = computeEngineRating(
+    const engineRating = this.getEngineRating(
       document.tonnage,
       cruiseMP,
       motionType ?? GroundMotionType.TRACKED,
-      getBooleanFromRawTags(document.rawTags || {}, 'trailer'),
+      engineType,
     );
 
     // Armor
@@ -413,13 +413,13 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     let weight = 0;
 
     // Engine weight (simplified calculation)
-    // Engine Rating = Cruise MP × Tonnage
+    // Use the same source-aware rating derivation as import.
     // Engine Weight depends on engine type
-    const engineRating = computeEngineRating(
+    const engineRating = this.getEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
       unit.motionType,
-      unit.isTrailer,
+      unit.engineType,
     );
     const engineMultiplier = this.getEngineWeightMultiplier(unit.engineType);
     weight += Math.ceil((engineRating / 10) * engineMultiplier * 10) / 10;
@@ -446,6 +446,16 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private getEngineWeightMultiplier(engineType: number): number {
     return ENGINE_WEIGHT_MULTIPLIER[engineType] ?? 1.0;
+  }
+
+  private getEngineRating(
+    tonnage: number,
+    cruiseMP: number,
+    motionType: GroundMotionType,
+    engineType: number,
+  ): number {
+    // BLKTankFile.java:155-162 checks BLKFile.NONE (8); trailer is independent.
+    return computeEngineRating(tonnage, cruiseMP, motionType, engineType === 8);
   }
 
   /**
@@ -479,11 +489,11 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     cost += unit.tonnage * 10000;
 
     // Engine cost (varies by type)
-    const engineRating = computeEngineRating(
+    const engineRating = this.getEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
       unit.motionType,
-      unit.isTrailer,
+      unit.engineType,
     );
     cost += engineRating * 5000;
 

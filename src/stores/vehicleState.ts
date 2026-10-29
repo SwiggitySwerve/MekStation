@@ -265,7 +265,7 @@ export interface VehicleState {
   /** Has trailer hitch */
   hasTrailerHitch: boolean;
 
-  /** Is this a trailer (no engine) */
+  /** Trailer identity; independent of the installed engine type. */
   isTrailer: boolean;
 
   // =========================================================================

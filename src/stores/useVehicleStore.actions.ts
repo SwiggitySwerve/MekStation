@@ -60,7 +60,6 @@ export function setCruiseMPLogic(
       cruiseMP,
       state.motionType,
       state.unitType === UnitType.SUPPORT_VEHICLE,
-      state.isTrailer,
     ),
     isModified: true,
     lastModifiedAt: Date.now(),
@@ -76,7 +75,6 @@ export function setTonnageLogic(
     state.cruiseMP,
     state.motionType,
     state.unitType === UnitType.SUPPORT_VEHICLE,
-    state.isTrailer,
   );
   const clampedRating = Math.max(10, Math.min(400, newEngineRating));
 
@@ -116,7 +114,6 @@ export function setMotionTypeLogic(
       state.cruiseMP,
       motionType,
       state.unitType === UnitType.SUPPORT_VEHICLE,
-      state.isTrailer,
     ),
     unitType:
       state.unitType === UnitType.SUPPORT_VEHICLE ? state.unitType : unitType,

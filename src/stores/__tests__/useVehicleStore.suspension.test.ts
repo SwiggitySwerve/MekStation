@@ -12,6 +12,79 @@ import {
 } from '@/utils/construction/vehicle/engine';
 
 describe('combat vehicle suspension callers', () => {
+  // BLKTankFile.java:155-162 uses BLKFile.NONE (8), independently of trailer.
+  it.each([
+    [0, false, 10],
+    [0, true, 10],
+    [1, false, 10],
+    [1, true, 10],
+    [8, false, 0],
+    [8, true, 0],
+  ])(
+    'imports engine code %s, trailer %s with rating %s',
+    (engineType, isTrailer, rating) => {
+      const handler = new VehicleUnitHandler();
+      const document: IBlkDocument = {
+        blockVersion: 1,
+        version: 'MAM0',
+        unitType: 'Tank',
+        mappedUnitType: UnitType.VEHICLE,
+        name: 'Engine and trailer independence',
+        model: '',
+        year: 3075,
+        type: 'IS Level 1',
+        tonnage: 20,
+        cruiseMP: 0,
+        motionType: 'Tracked',
+        engineType,
+        armor: [],
+        equipmentByLocation: {},
+        rawTags: { trailer: [String(isTrailer)] },
+      };
+      const loaded = handler.parse(document);
+      expect(loaded.success).toBe(true);
+      if (!loaded.success) throw new Error(loaded.error.errors.join('; '));
+      const unit = loaded.data.unit;
+      expect(unit.engineType).toBe(engineType);
+      expect(unit.isTrailer).toBe(isTrailer);
+      expect(unit.engineRating).toBe(rating);
+      // Existing handler approximations must consume the same source distinction;
+      // these assertions do not establish weight or cost parity with MegaMek.
+      expect(handler.calculateWeight(unit)).toBe(
+        handler.calculateWeight({ ...unit, isTrailer: !isTrailer }),
+      );
+      expect(handler.calculateCost(unit)).toBe(200000 + rating * 5000);
+    },
+  );
+
+  it.each([
+    [EngineType.STANDARD, false],
+    [EngineType.STANDARD, true],
+    [EngineType.ICE, false],
+    [EngineType.ICE, true],
+  ])(
+    'keeps an explicit %s engine independent of trailer %s on edits',
+    (engineType, isTrailer) => {
+      const store = createVehicleStore({
+        ...createDefaultVehicleState({
+          name: 'Powered trailer',
+          tonnage: 20,
+          techBase: TechBase.INNER_SPHERE,
+        }),
+        engineType,
+        isTrailer,
+      });
+      store.getState().setCruiseMP(0);
+      expect(store.getState().engineRating).toBe(10);
+      store.getState().setMotionType(M.WHEELED);
+      expect(store.getState().engineRating).toBe(10);
+      store.getState().setTonnage(25);
+      expect(store.getState().engineRating).toBe(10);
+      expect(store.getState().isTrailer).toBe(isTrailer);
+      expect(store.getState().engineType).toBe(engineType);
+    },
+  );
+
   it.each([
     [20, 12, M.HOVER, 155],
     [52, 3, M.TRACKED, 160],

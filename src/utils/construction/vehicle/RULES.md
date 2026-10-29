@@ -29,6 +29,17 @@ The status bar consumes stored rating; validation independently uses the owner.
 Combat vehicle and VTOL import/weight/cost callers use the same rating owner;
 their other existing approximate weight/cost rules are not corrected here.
 
+Tank import preserves the independent raw engine code and trailer flag.
+`BLKFile.NONE` (8), with zero cruise, selects the no-engine rating exception;
+trailer identity never selects it. The handler translates that fact once for
+parse, weight and cost callers. Shared BLK code normalization across Python
+and TypeScript remains assigned to the serialization follow-up.
+The store's `EngineType` currently represents installed engines only, so
+engine-less store designs are not supported; a trailer with any representable
+engine retains minimum rating 10. The tonnage-edit clamp remains unchanged.
+BLKVTOLFile lacks Tank's NONE exception: the generic converter's engine-less
+zero-cruise VTOL case remains a disclosed loader-family gap, not proven parity.
+
 Support store and converter outputs retain legacy rating behavior, including distinct converter
 rounding. This is compatibility, not support-construction parity. Support
 identity survives motion edits so later actions cannot accidentally apply combat
