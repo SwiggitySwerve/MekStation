@@ -548,6 +548,10 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true'
         run: npm run schema:gen-check
 
+      - name: Test source inventory and Python conversion boundaries
+        if: needs.detect-changes.outputs.code == 'true'
+        run: npm run test:conversion:python
+
       - name: Validate full corpus (all 6 shapes, strict)
         if: needs.detect-changes.outputs.code == 'true'
         # PR-A2 flips the gate to --shape all --strict. Drift in any of

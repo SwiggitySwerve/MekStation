@@ -49,6 +49,8 @@
     "build:debug": "npm run sync:mm-data-config && next build --webpack --debug",
     "perf:test": "node scripts/performance/measure-bundle-size.js",
     "convert:mtf": "python scripts/megameklab-conversion/mtf_converter.py",
+    "inventory:units": "python -B scripts/megameklab-conversion/source_inventory.py",
+    "test:conversion:python": "python -B -m unittest discover -s scripts/__tests__ -p test_*.py",
     "convert:blk": "python scripts/megameklab-conversion/blk_vehicle_converter.py && python scripts/megameklab-conversion/blk_aerospace_converter.py && python scripts/megameklab-conversion/blk_battlearmor_converter.py && python scripts/megameklab-conversion/blk_infantry_converter.py && python scripts/megameklab-conversion/blk_protomech_converter.py",
     "convert:blk:vehicle": "python scripts/megameklab-conversion/blk_vehicle_converter.py",
     "convert:blk:aerospace": "python scripts/megameklab-conversion/blk_aerospace_converter.py",
