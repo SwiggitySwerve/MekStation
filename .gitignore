@@ -43,6 +43,7 @@ scripts/**
 !scripts/
 !scripts/AGENTS.md
 !scripts/expand-unit-type-requirements.mjs
+!scripts/expand-source-provenance-variants.mjs
 !scripts/print-combat-validation-gaps.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
