@@ -17,11 +17,10 @@
  *   5.5, x1.5 vehicle shielding) + lift 2 (10%) + controls 1 (5%) + turret 0.5
  *   + armor 3 (48 / 16) + flamer and 2 medium lasers 3 = 20.
  *
- * The bar reaches 0 t free on the converted file only because two known
- * defects cancel: the file's 240 rating costs 11.5 t instead of 8.5 t (no
- * suspension factor, no vehicle shielding), and the bar has no lift or
- * controls term yet (3 t). The true reference is kept as an it.failing test;
- * the follow-up flips it.
+ * Installed engine shielding is covered here; the converted 240 rating is
+ * still wrong and the bar still omits lift and controls (3 t). At the true
+ * 155 rating it therefore shows 3 t free. The whole-unit reference remains
+ * an it.failing test until those separate construction gaps are corrected.
  */
 
 import { render, screen } from '@testing-library/react';
@@ -90,9 +89,7 @@ function turretConfig(type: TurretType = TurretType.SINGLE) {
   return { type, maxWeight: 5, currentWeight: 0, rotationArc: 360 };
 }
 
-// Rating 25 is 0.5 t both in the engine table and in the old
-// ceil(rating / 25) * 0.5 approximation, so tests that are not about the
-// engine are not moved by it.
+// Rating 25 standard fusion installs at 1 t after vehicle shielding.
 const SMALL_ENGINE = { engineRating: 25, cruiseMP: 1 };
 
 function renderBar(overrides: Record<string, unknown> = {}) {
@@ -159,12 +156,15 @@ describe('VehicleStatusBar — reference unit', () => {
     ],
   };
 
-  it('the Tamerlane Strike Sled (Flamer) nets to 0 t free on its converted file (two defects cancel; see header)', () => {
-    expect(weightFree({ ...TAMERLANE, engineRating: 240 })).toBe(0);
+  it('exposes the unresolved converted rating with installed shielding', () => {
+    expect(weightFree({ ...TAMERLANE, engineRating: 240 })).toBe(-6);
   });
 
-  // Known gap (follow-up): at its true Magna 155 rating the bar shows 6 t
-  // free, because engine shielding, lift and controls are not modelled.
+  it('still omits 3 t of controls and lift at the true Magna 155 rating', () => {
+    expect(weightFree({ ...TAMERLANE, engineRating: 155 })).toBe(3);
+  });
+
+  // Known gap (follow-up): controls and lift are not modelled.
   it.failing(
     'the Tamerlane Strike Sled (Flamer) has no weight free at its published Magna 155 rating',
     () => {
@@ -173,46 +173,43 @@ describe('VehicleStatusBar — reference unit', () => {
   );
 });
 
-// Known gap (follow-up): combat-vehicle fusion engines carry x1.5 shielding,
-// so the installed weight of a standard 200 is 13 t and of an XL 200 is 7 t.
-// These tests pin the helper's base-table weight (8.5 t / 4.5 t), not that rule.
 describe('VehicleStatusBar — engine weight', () => {
-  it('uses the engine weight table, not ceil(rating / 25) * 0.5', () => {
-    // 50 t - 8.5 engine - 5 structure
-    expect(weightFree({ engineRating: 200 })).toBe(36.5);
+  it('includes vehicle shielding on the table-derived standard engine weight', () => {
+    // 50 t - 13 installed engine - 5 structure
+    expect(weightFree({ engineRating: 200 })).toBe(32);
   });
 
   it('applies the engine type multiplier from computeVehicleEngineWeight', () => {
-    // XL 200: 8.5 * 0.5 = 4.25 -> 4.5 t. 50 - 4.5 - 5
+    // XL 200: 8.5 * 0.5 -> 4.5; shielding 4.5 * 1.5 -> 7. 50 - 7 - 5.
     expect(
       weightFree({ engineRating: 200, engineType: EngineType.XL_IS }),
-    ).toBe(40.5);
+    ).toBe(38);
   });
 });
 
 describe('VehicleStatusBar — engine rating', () => {
   it('looks up a rating that is not a multiple of 5 at the next multiple of 5', () => {
-    // 52 t at cruise 3 = 156, treated as 160 (6 t). 52 - 6 - 5.5 structure
+    // 52 t at cruise 3 = 156, treated as 160 (9 t installed). 52 - 9 - 5.5.
     expect(weightFree({ tonnage: 52, engineRating: 156, cruiseMP: 3 })).toBe(
-      40.5,
+      37.5,
     );
   });
 });
 
 describe('VehicleStatusBar — structure weight', () => {
   it('rounds structure up to the half ton', () => {
-    // 52 t: 5.2 -> 5.5 t. 52 - 0.5 engine - 5.5
-    expect(weightFree({ tonnage: 52, ...SMALL_ENGINE })).toBe(46);
+    // 52 t: 5.2 -> 5.5 t. 52 - 1 engine - 5.5
+    expect(weightFree({ tonnage: 52, ...SMALL_ENGINE })).toBe(45.5);
   });
 
   it('honours the structure type', () => {
-    // Endo-Steel 50 t: 5 * 0.5 = 2.5 t. 50 - 0.5 engine - 2.5
+    // Endo-Steel 50 t: 5 * 0.5 = 2.5 t. 50 - 1 engine - 2.5
     expect(
       weightFree({
         structureType: VehicleStructureType.ENDO_STEEL,
         ...SMALL_ENGINE,
       }),
-    ).toBe(47);
+    ).toBe(46.5);
   });
 });
 
@@ -221,14 +218,14 @@ describe('VehicleStatusBar — turret weight', () => {
   const AC10_IN_TURRET = [inTurret('ac-10', 'eq-1')];
 
   it('charges the primary turret 10% of its equipment, to the half ton', () => {
-    // 50 - 0.5 engine - 5 structure - 12 AC/10 - 1.5 turret
+    // 50 - 1 engine - 5 structure - 12 AC/10 - 1.5 turret
     expect(
       weightFree({
         turret: turretConfig(),
         equipment: AC10_IN_TURRET,
         ...SMALL_ENGINE,
       }),
-    ).toBe(31);
+    ).toBe(30.5);
   });
 
   it('charges the secondary turret for its own equipment', () => {
@@ -239,24 +236,24 @@ describe('VehicleStatusBar — turret weight', () => {
         equipment: [mounted('ac-10', 'eq-1', VehicleLocation.TURRET_2, true)],
         ...SMALL_ENGINE,
       }),
-    ).toBe(31);
+    ).toBe(30.5);
   });
 
   it('does not charge turret weight for body-mounted equipment', () => {
-    // 50 - 0.5 - 5 - 12
+    // 50 - 1 - 5 - 12
     expect(
       weightFree({
         turret: turretConfig(),
         equipment: [mounted('ac-10', 'eq-1')],
         ...SMALL_ENGINE,
       }),
-    ).toBe(32.5);
+    ).toBe(32);
   });
 
   it('leaves ammunition out of the turret structure, but keeps it in the total', () => {
     // AC/5 is 8 t, so 1 t of turret structure. Three 1 t ammo bins in the
     // turret must not push it to 1.5 t.
-    // 50 - 0.5 engine - 5 structure - 8 AC/5 - 3 ammo - 1 turret
+    // 50 - 1 engine - 5 structure - 8 AC/5 - 3 ammo - 1 turret
     expect(
       weightFree({
         turret: turretConfig(),
@@ -268,7 +265,7 @@ describe('VehicleStatusBar — turret weight', () => {
         ],
         ...SMALL_ENGINE,
       }),
-    ).toBe(32.5);
+    ).toBe(32);
   });
 
   it('leaves ammunition out of the secondary turret structure too', () => {
@@ -284,7 +281,7 @@ describe('VehicleStatusBar — turret weight', () => {
         ],
         ...SMALL_ENGINE,
       }),
-    ).toBe(32.5);
+    ).toBe(32);
   });
 
   it('shows the turret equipment mass against its capacity, not the structure weight', () => {
@@ -343,7 +340,7 @@ describe('VehicleStatusBar — power amplifiers', () => {
       'a fission engine with a medium laser',
       EngineType.FISSION,
       'medium-laser',
-      43,
+      36.5,
     ],
     [
       'an ICE engine with a vehicle flamer',
@@ -372,9 +369,9 @@ describe('VehicleStatusBar — power amplifiers', () => {
   );
 
   it('needs no amplifiers on a fusion engine', () => {
-    // 50 - 0.5 - 5 - 2
+    // 50 - 1 - 5 - 2
     expect(weightFree({ ...SMALL_ENGINE, equipment: TWO_MEDIUM_LASERS })).toBe(
-      42.5,
+      42,
     );
   });
 });

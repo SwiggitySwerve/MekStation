@@ -9,7 +9,9 @@
  * - Max engine rating for vehicles: 400
  * - Hover/VTOL/WiGE cannot use ICE engines
  * - ICE engine weight multiplier: 2.0 × fusion base weight
- * - XL weight multiplier: 0.5 × fusion base weight (rounded to half-ton)
+ * - Fusion/fission installed shielding: 1.5 × rounded engine weight
+ * - Fission minimum before shielding: 5 tons
+ * - Hover minimum installed engine weight: 20% of vehicle tonnage
  * - Fuel Cell multiplier: 1.2 × fusion base weight
  */
 
@@ -79,14 +81,25 @@ export function computeFlankMP(cruiseMP: number): number {
 }
 
 /**
- * Compute engine weight for a vehicle
+ * Context for installed combat-vehicle engine weight (not support vehicles).
+ */
+export interface CombatVehicleEngineContext {
+  readonly tonnage: number;
+  readonly motionType: GroundMotionType;
+}
+
+/**
+ * Compute installed engine weight for a combat vehicle.
  *
- * Uses the standard fusion base-weight table then applies the engine-type
- * multiplier. Result is rounded up to the nearest half-ton.
+ * Round the modified engine weight before shielding, then round again.
+ * Support vehicles use a different engine formula and rounding standard.
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md
+ * Source: MegaMek 48fcb2f64a1b Engine.getWeightEngine (Engine.java:396-450).
  */
 export function computeVehicleEngineWeight(
   rating: number,
   engineType: EngineType,
+  context: CombatVehicleEngineContext,
 ): number {
   // The engine table has entries only at multiples of 5 (minimum 10); a
   // rating in between is looked up at the next entry up.
@@ -95,7 +108,20 @@ export function computeVehicleEngineWeight(
   );
   const def = getEngineDefinition(engineType);
   if (!def) return baseWeight;
-  return ceilToHalfTon(baseWeight * def.weightMultiplier);
+  const modifiedWeight = baseWeight * def.weightMultiplier;
+  const unshieldedWeight = ceilToHalfTon(
+    engineType === EngineType.FISSION
+      ? Math.max(5, modifiedWeight)
+      : modifiedWeight,
+  );
+  const installedWeight = ceilToHalfTon(
+    def.isFusion || engineType === EngineType.FISSION
+      ? unshieldedWeight * 1.5
+      : unshieldedWeight,
+  );
+  return context.motionType === GroundMotionType.HOVER
+    ? Math.max(installedWeight, ceilToHalfTon(context.tonnage / 5))
+    : installedWeight;
 }
 
 // =============================================================================
@@ -128,7 +154,10 @@ export function validateVehicleEngine(
   const warnings: string[] = [];
 
   const engineRating = computeEngineRating(tonnage, cruiseMP);
-  const engineWeight = computeVehicleEngineWeight(engineRating, engineType);
+  const engineWeight = computeVehicleEngineWeight(engineRating, engineType, {
+    tonnage,
+    motionType,
+  });
   const flankMP = computeFlankMP(cruiseMP);
 
   // Rule: engine rating must not exceed 400 for combat vehicles

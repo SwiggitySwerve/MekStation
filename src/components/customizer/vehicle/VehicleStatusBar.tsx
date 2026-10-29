@@ -98,6 +98,7 @@ function calculateWeightBreakdown(
   state: Pick<
     VehicleStatusStoreState,
     | 'tonnage'
+    | 'motionType'
     | 'engineRating'
     | 'engineType'
     | 'structureType'
@@ -280,6 +281,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       calculateWeightBreakdown(
         {
           tonnage,
+          motionType,
           engineRating,
           engineType,
           structureType,
@@ -293,6 +295,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       ),
     [
       tonnage,
+      motionType,
       engineRating,
       engineType,
       structureType,

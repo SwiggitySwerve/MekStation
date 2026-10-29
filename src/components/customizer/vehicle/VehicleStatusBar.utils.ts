@@ -27,6 +27,7 @@ export type EquipmentResolver = (
 export type VehicleWeightState = Pick<
   VehicleStore,
   | 'tonnage'
+  | 'motionType'
   | 'engineRating'
   | 'engineType'
   | 'structureType'
@@ -103,6 +104,7 @@ export function computeVehicleWeightBreakdown(
   const engine = computeVehicleEngineWeight(
     state.engineRating,
     state.engineType,
+    { tonnage: state.tonnage, motionType: state.motionType },
   );
   const structure = computeVehicleStructureWeight(
     state.tonnage,
