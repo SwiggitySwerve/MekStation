@@ -27,6 +27,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
+import { parseBlkEngineTag } from './blkEngineIdentity';
 import {
   extractBlkTags,
   getBlkString,
@@ -130,7 +131,7 @@ export class BlkParserService {
         sinkType: parseBlkNumber(rawTags['sink_type']),
         fuel: parseBlkNumber(rawTags['fuel']),
         structuralIntegrity: parseBlkNumber(rawTags['structural_integrity']),
-        engineType: parseBlkNumber(rawTags['engine_type']),
+        engineType: parseBlkEngineTag(unitTypeStr, rawTags['engine_type']),
         armorType: parseBlkNumber(rawTags['armor_type']),
         armorTech: parseBlkNumber(rawTags['armor_tech']),
         internalType: parseBlkNumber(rawTags['internal_type']),

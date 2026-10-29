@@ -4,6 +4,7 @@ import type { InfantryState } from '@/stores/infantryState';
 import type { ProtoMechState } from '@/stores/protoMechState';
 import type { VehicleState } from '@/stores/vehicleState';
 
+import { EngineType } from '@/types/construction/EngineType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 
@@ -38,6 +39,13 @@ function getVehicleUnitTypeString(unit: VehicleState): string {
   return 'Tank';
 }
 
+function writeEngineTags(lines: string[], engineType: EngineType): void {
+  lines.push(tag('engine_type', formatEngineTypeCode(engineType)));
+  if (engineType === EngineType.XL_IS || engineType === EngineType.XL_CLAN) {
+    lines.push(tag('clan_engine', String(engineType === EngineType.XL_CLAN)));
+  }
+}
+
 export function exportVehicle(unit: VehicleState): IBlkExportResult {
   const errors: string[] = [];
   const lines: string[] = [];
@@ -67,7 +75,7 @@ export function exportVehicle(unit: VehicleState): IBlkExportResult {
     lines.push(tag('cruiseMP', unit.cruiseMP.toString()));
     lines.push('');
 
-    lines.push(tag('engine_type', formatEngineTypeCode(unit.engineType)));
+    writeEngineTags(lines, unit.engineType);
     lines.push('');
 
     lines.push(tag('armor_type', formatArmorTypeCode(unit.armorType)));
@@ -124,7 +132,7 @@ export function exportAerospace(unit: AerospaceState): IBlkExportResult {
     lines.push(tag('SafeThrust', unit.safeThrust.toString()));
     lines.push('');
 
-    lines.push(tag('engine_type', formatEngineTypeCode(unit.engineType)));
+    writeEngineTags(lines, unit.engineType);
     lines.push('');
 
     lines.push(tag('heatsinks', unit.heatSinks.toString()));

@@ -27,16 +27,25 @@ identities its model cannot represent. SmallCraft hydration uses the ICE runtime
 placeholder and warns with the ignored raw tag; this does not prove construction
 validity. The handlers' public parse tests cover these boundaries.
 
-The fighter handler validates an explicit raw engine tag before applying its
-omitted-tag default. Empty, malformed and multi-value tags are rejected with a
-diagnostic; typed documents without raw tags retain numeric-code validation.
-Multi-value engine blocks accepted by upstream remain unsupported here.
+The parser validates explicit engine tags for families whose loaders read them;
+the fighter handler also validates typed documents containing raw tags. Only
+omitted tags use the family default. This is deliberately stricter than upstream:
+empty, malformed, comma-containing and multi-value tags are rejected, whereas
+MegaMek logs errors and uses fusion for unparseable single values, strips commas,
+and reads the first value of multi-value blocks. Typed documents without raw
+tags retain numeric-code validation. These syntax differences remain source
+fidelity gaps; passing corpus tests does not prove syntax parity.
 
-TypeScript export and vehicle hydration still contain conflicting definitions in
-`BlkExportServiceCore.formatters.ts` and `VehicleUnitHandler.ts`. Their replacement
-is the dependent adapter change under tasks 2.1/3.2 of
-`establish-all-unit-data-parity`. No consumer should add another source-code table
-while that work proceeds. Engine mass and legality remain construction concerns.
+TypeScript export and combat-vehicle hydration use the shared adapter. Export
+writes ICE as 1, fuel cell as 6 and either XL variant as 2, with an explicit
+`clan_engine` flag for XL. Vehicle entities retain the raw code and independent
+Clan context; installed mass goes through the existing construction owner.
+Known NONE alone becomes explicit absence (`null`) and has exactly zero engine
+mass. Unknown or unrepresentable identities fail instead of becoming fusion or
+absence. Engine-less editor stores, non-XL mixed-engine export flags, other
+family hydration and complete persistence remain open work under tasks
+2.1/3.2/3.3 of `establish-all-unit-data-parity`. Engine mass and legality remain
+construction concerns.
 
 Existing Python regression coverage is in
 `scripts/__tests__/test_blk_engine_codes.py`: all known codes, omitted and invalid

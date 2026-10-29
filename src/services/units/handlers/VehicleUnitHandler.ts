@@ -1,4 +1,3 @@
-import { VehicleLocation } from '@/types/construction/UnitLocation';
 /**
  * Vehicle Unit Handler
  *
@@ -7,6 +6,12 @@ import { VehicleLocation } from '@/types/construction/UnitLocation';
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
  */
+import {
+  blkEngineName,
+  decodeBlkConstructionEngine,
+  isClanBlkEngine,
+} from '@/services/conversion/blkEngineIdentity';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -21,7 +26,11 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
-import { computeEngineRating } from '@/utils/construction/vehicle/engine';
+import {
+  computeEngineRating,
+  computeVehicleEngineWeight,
+  validateVehicleEngine,
+} from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -85,17 +94,6 @@ const VEHICLE_LOCATION_MAP: Record<string, VehicleLocation> = {
   body: VehicleLocation.BODY,
 };
 
-const ENGINE_WEIGHT_MULTIPLIER: Record<number, number> = {
-  0: 1.0,
-  1: 0.5,
-  2: 0.33,
-  3: 1.5,
-  4: 0.75,
-  5: 2.0,
-  6: 1.2,
-  7: 1.75,
-};
-
 // ============================================================================
 // Vehicle Unit Handler
 // ============================================================================
@@ -141,13 +139,25 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 
     // Engine
-    const engineType = document.engineType || 0;
-    const engineRating = this.getEngineRating(
-      document.tonnage,
-      cruiseMP,
-      motionType ?? GroundMotionType.TRACKED,
-      engineType,
+    const engineType = document.engineType ?? 0;
+    const clanEngine = isClanBlkEngine(
+      document.type,
+      document.rawTags?.clan_engine,
     );
+    try {
+      decodeBlkConstructionEngine(engineType, clanEngine);
+    } catch (error) {
+      errors.push(String(error));
+    }
+    const engineRating =
+      errors.length > 0
+        ? 0
+        : this.getEngineRating(
+            document.tonnage,
+            cruiseMP,
+            motionType ?? GroundMotionType.TRACKED,
+            engineType,
+          );
 
     // Armor
     const armorType = document.armorType || 0;
@@ -191,6 +201,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       motionType: motionType || GroundMotionType.TRACKED,
       movement,
       engineType,
+      clanEngine,
       engineRating,
       armorType,
       armor,
@@ -386,6 +397,17 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       errors.push('Non-trailer vehicles must have at least 1 cruise MP');
     }
 
+    if (blkEngineName(unit.engineType) === 'NONE') {
+      errors.push(
+        ...validateVehicleEngine(
+          unit.tonnage,
+          unit.movement.cruiseMP,
+          null,
+          unit.motionType,
+        ).errors.map(({ message }) => message),
+      );
+    }
+
     // Armor validation
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
@@ -412,17 +434,20 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   protected calculateTypeSpecificWeight(unit: IVehicle): number {
     let weight = 0;
 
-    // Engine weight (simplified calculation)
-    // Use the same source-aware rating derivation as import.
-    // Engine Weight depends on engine type
+    const engineType = decodeBlkConstructionEngine(
+      unit.engineType,
+      unit.clanEngine ?? isClanBlkEngine(String(unit.techBase)),
+    );
     const engineRating = this.getEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
       unit.motionType,
       unit.engineType,
     );
-    const engineMultiplier = this.getEngineWeightMultiplier(unit.engineType);
-    weight += Math.ceil((engineRating / 10) * engineMultiplier * 10) / 10;
+    weight += computeVehicleEngineWeight(engineRating, engineType, {
+      tonnage: unit.tonnage,
+      motionType: unit.motionType,
+    });
 
     // Structural weight (10% of tonnage for most vehicles)
     weight += unit.tonnage * 0.1;
@@ -441,21 +466,19 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     return weight;
   }
 
-  /**
-   * Get engine weight multiplier based on type
-   */
-  private getEngineWeightMultiplier(engineType: number): number {
-    return ENGINE_WEIGHT_MULTIPLIER[engineType] ?? 1.0;
-  }
-
   private getEngineRating(
     tonnage: number,
     cruiseMP: number,
     motionType: GroundMotionType,
     engineType: number,
   ): number {
-    // BLKTankFile.java:155-162 checks BLKFile.NONE (8); trailer is independent.
-    return computeEngineRating(tonnage, cruiseMP, motionType, engineType === 8);
+    // BLKTankFile.java:155-162 checks the shared BLKFile.NONE identity; trailer is independent.
+    return computeEngineRating(
+      tonnage,
+      cruiseMP,
+      motionType,
+      blkEngineName(engineType) === 'NONE',
+    );
   }
 
   /**

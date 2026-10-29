@@ -1,3 +1,6 @@
+import type { ProtoMechState } from '@/stores/protoMechState';
+
+import { ConventionalFighterUnitHandler } from '@/services/units/handlers/ConventionalFighterUnitHandler';
 /**
  * BlkExportServiceCore.formatters Tests
  *
@@ -10,9 +13,9 @@
  * Tests assert the exact code per enum member, fallback values, and the
  * armor-line layout (newline-joined order) per chassis type.
  */
-
-import type { ProtoMechState } from '@/stores/protoMechState';
-
+import { ProtoMechUnitHandler } from '@/services/units/handlers/ProtoMechUnitHandler';
+import { SmallCraftUnitHandler } from '@/services/units/handlers/SmallCraftUnitHandler';
+import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import {
@@ -23,15 +26,25 @@ import {
 } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import { ConventionalFighterEngineType } from '@/types/unit/AerospaceInterfaces';
 import {
   GroundMotionType,
   SquadMotionType,
 } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
 } from '@/types/unit/PersonnelInterfaces';
 
+import {
+  decodeBlkConstructionEngine,
+  isClanBlkEngine,
+} from '../blkEngineIdentity';
+import {
+  exportVehicle,
+  exportAerospace,
+} from '../BlkExportServiceCore.exporters';
 import {
   aerospaceLocationToBlockName,
   formatAerospaceArmor,
@@ -47,6 +60,11 @@ import {
   formatTechType,
   formatVehicleArmor,
 } from '../BlkExportServiceCore.formatters';
+import { BlkParserService } from '../BlkParserService';
+import {
+  createMockVehicleState,
+  createMockAerospaceState,
+} from './BlkExportService.test-helpers';
 
 describe('BlkExportServiceCore.formatters', () => {
   // ============================================================================
@@ -184,20 +202,22 @@ describe('BlkExportServiceCore.formatters', () => {
   describe('formatEngineTypeCode()', () => {
     it.each([
       [EngineType.STANDARD, '0'],
-      [EngineType.XL_IS, '1'],
+      [EngineType.XL_IS, '2'],
       [EngineType.XL_CLAN, '2'],
-      [EngineType.LIGHT, '3'],
-      [EngineType.COMPACT, '4'],
-      [EngineType.XXL, '5'],
-      [EngineType.ICE, '6'],
-      [EngineType.FUEL_CELL, '7'],
-      [EngineType.FISSION, '8'],
+      [EngineType.LIGHT, '4'],
+      [EngineType.COMPACT, '5'],
+      [EngineType.XXL, '3'],
+      [EngineType.ICE, '1'],
+      [EngineType.FUEL_CELL, '6'],
+      [EngineType.FISSION, '7'],
     ])('formats %s to "%s"', (input, expected) => {
       expect(formatEngineTypeCode(input)).toBe(expected);
     });
 
-    it('falls back to "0" (Standard) for unknown', () => {
-      expect(formatEngineTypeCode('UNKNOWN' as EngineType)).toBe('0');
+    it('rejects an unsupported engine identity', () => {
+      expect(() => formatEngineTypeCode('UNKNOWN' as EngineType)).toThrow(
+        /BLK engine/,
+      );
     });
   });
 
@@ -333,4 +353,204 @@ describe('BlkExportServiceCore.formatters', () => {
       );
     });
   });
+});
+
+const parser = new BlkParserService();
+const source = (
+  family: string,
+  code?: string,
+) => `<UnitType>${family}</UnitType>
+<Name>Engine fixture</Name><year>3060</year><Tonnage>${family === 'SmallCraft' ? 100 : 30}</Tonnage>
+<type>IS Level 2</type><cruiseMP>5</cruiseMP><SafeThrust>5</SafeThrust>
+<structural_integrity>5</structural_integrity>
+${code === undefined ? '' : `<engine_type>${code}</engine_type>`}`;
+
+// BLKMekFile.java:128-132 at MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587.
+// Mek is the native source spelling; the other two are existing local aliases.
+describe.each(['Mek', 'BattleMech', 'IndustrialMech'])(
+  'BLK %s engine-tag reader',
+  (family) => {
+    it.each(['', '99', '-1', '1.5', '1garbage', 'Fusion'])(
+      'rejects explicit malformed or unknown code %j',
+      (code) => {
+        const result = parser.parse(source(family, code));
+        expect(result.success).toBe(false);
+        expect(result.error?.errors.join(' ')).toMatch(/BLK engine/);
+      },
+    );
+
+    it.each(Array.from({ length: 14 }, (_, code) => code))(
+      'preserves known serialized code %s without claiming legality',
+      (code) => {
+        const result = parser.parse(source(family, String(code)));
+        expect(result.success).toBe(true);
+        expect(result.data?.document.engineType).toBe(code);
+      },
+    );
+
+    it('preserves an omitted tag for family-specific default handling', () => {
+      const result = parser.parse(source(family));
+      expect(result.success).toBe(true);
+      expect(result.data?.document.engineType).toBeUndefined();
+    });
+  },
+);
+
+describe('BLK engine export, parse and reload', () => {
+  it.each(Array.from({ length: 14 }, (_, code) => code))(
+    'retains known raw code %s in a document',
+    (code) => {
+      const result = parser.parse(source('Tank', String(code)));
+      expect(result.success).toBe(true);
+      expect(result.data?.document.engineType).toBe(code);
+    },
+  );
+  it.each([
+    [EngineType.STANDARD, 0, 22.375],
+    [EngineType.ICE, 1, 26.375],
+    [EngineType.XL_IS, 2, 16.375],
+    [EngineType.XL_CLAN, 2, 16.375],
+    [EngineType.XXL, 3, 13.875],
+    [EngineType.LIGHT, 4, 19.375],
+    [EngineType.COMPACT, 5, 28.875],
+    [EngineType.FUEL_CELL, 6, 19.875],
+    [EngineType.FISSION, 7, 31.875],
+  ])(
+    'exports %s and reloads serialized identity %s',
+    (engineType, code, weight) => {
+      const exported = exportVehicle(createMockVehicleState({ engineType }));
+      expect(exported.success).toBe(true);
+      const parsed = parser.parse(exported.content!);
+      expect(parsed.success).toBe(true);
+      expect(parsed.data?.document.engineType).toBe(code);
+      const loaded = new VehicleUnitHandler().parse(parsed.data!.document);
+      expect(loaded.success).toBe(true);
+      expect(loaded.data?.unit.engineType).toBe(code);
+      expect(new VehicleUnitHandler().calculateWeight(loaded.data!.unit)).toBe(
+        weight,
+      );
+    },
+  );
+  it.each([
+    [EngineType.XL_IS, TechBase.CLAN, 'false', 16.375],
+    [EngineType.XL_CLAN, TechBase.INNER_SPHERE, 'true', 16.375],
+  ])(
+    'preserves %s context across opposite chassis tech',
+    (engineType, techBase, flag, weight) => {
+      const exported = exportVehicle(
+        createMockVehicleState({ engineType, techBase }),
+      );
+      expect(exported.content).toContain(
+        `<clan_engine>\n${flag}\n</clan_engine>`,
+      );
+      const document = parser.parse(exported.content!).data!.document;
+      const handler = new VehicleUnitHandler();
+      const loaded = handler.parse(document);
+      expect(loaded.success).toBe(true);
+      expect(loaded.data?.unit.clanEngine).toBe(flag === 'true');
+      expect(handler.calculateWeight(loaded.data!.unit)).toBe(weight);
+    },
+  );
+  it.each([
+    [EngineType.STANDARD, ConventionalFighterEngineType.FUSION],
+    [EngineType.ICE, ConventionalFighterEngineType.ICE],
+    [EngineType.FUEL_CELL, ConventionalFighterEngineType.FUEL_CELL],
+  ])(
+    'reloads conventional %s through actual exporter',
+    (engineType, expected) => {
+      const exported = exportAerospace(
+        createMockAerospaceState({
+          unitType: UnitType.CONVENTIONAL_FIGHTER,
+          engineType,
+        }),
+      );
+      const document = parser.parse(exported.content!).data!.document;
+      const loaded = new ConventionalFighterUnitHandler().parse(document);
+      expect(loaded.success).toBe(true);
+      expect(loaded.data?.unit.conventionalEngineType).toBe(expected);
+    },
+  );
+  it.each(['', '99', '-1', '1.5', '1garbage', 'Fusion'])(
+    'rejects explicit malformed/unknown tag %j',
+    (code) => {
+      const result = parser.parse(source('Tank', code));
+      expect(result.success).toBe(false);
+      expect(result.error?.errors.join(' ')).toMatch(/BLK engine/);
+    },
+  );
+  it('defaults omitted engine tag to fusion for engine-tag readers', () => {
+    const document = parser.parse(source('ConvFighter')).data!.document;
+    const result = new ConventionalFighterUnitHandler().parse(document);
+    expect(result.data?.unit.conventionalEngineType).toBe(
+      ConventionalFighterEngineType.FUSION,
+    );
+  });
+  it.each([undefined, '', '99', 'Fusion', '2'])(
+    'retains ignored SmallCraft tag %j but uses runtime placeholder',
+    (code) => {
+      const result = parser.parse(source('SmallCraft', code));
+      expect(result.success).toBe(true);
+      expect(result.data?.document.rawTags.engine_type).toBe(code);
+      const loaded = new SmallCraftUnitHandler().parse(result.data!.document);
+      expect(loaded.success).toBe(true);
+      expect(loaded.data?.unit.engineType).toBe(1);
+      expect(loaded.data?.warnings.join(' ')).toMatch(/placeholder/);
+    },
+  );
+  it.each([undefined, '', '1', '2', '99', 'Fusion'])(
+    'does not reject ignored ProtoMech tag %j',
+    (code) => {
+      const parsed = parser.parse(source('ProtoMech', code));
+      expect(parsed.success).toBe(true);
+      const loaded = new ProtoMechUnitHandler().parse({
+        ...parsed.data!.document,
+        tonnage: 5,
+      });
+      expect(loaded.success).toBe(true);
+      const baseline = new ProtoMechUnitHandler().parse({
+        ...parser.parse(source('ProtoMech')).data!.document,
+        tonnage: 5,
+      });
+      expect(baseline.success).toBe(true);
+      expect(loaded.data?.unit.engineRating).toBe(
+        baseline.data!.unit.engineRating,
+      );
+    },
+  );
+  it.each([9, 10, 11, 12, 13])(
+    'vehicle rejects code %s without substituting fusion construction',
+    (code) => {
+      const parsed = parser.parse(source('Tank', String(code)));
+      expect(parsed.success).toBe(true);
+      const result = new VehicleUnitHandler().parse(parsed.data!.document);
+      expect(result.success).toBe(false);
+      expect(result.error?.errors.join(' ')).toMatch(/BLK engine/);
+    },
+  );
+});
+
+describe('BLK XL construction context', () => {
+  it.each([
+    ['IS Level 2', undefined, false],
+    ['Clan Level 2', undefined, true],
+    ['Mixed (Clan Chassis)', undefined, true],
+    ['Mixed (IS Chassis)', undefined, false],
+    ['Clan Level 2', 'false', false],
+    ['IS Level 2', 'true', true],
+  ])('resolves %s with override %s', (type, flag, clan) => {
+    expect(isClanBlkEngine(type, flag)).toBe(clan);
+    expect(decodeBlkConstructionEngine(2, clan)).toBe(
+      clan ? EngineType.XL_CLAN : EngineType.XL_IS,
+    );
+  });
+});
+
+it('rejects unknown raw codes supplied directly to the vehicle handler', () => {
+  const document = parser.parse(source('Tank', '0')).data!.document;
+  const result = new VehicleUnitHandler().parse({
+    ...document,
+    engineType: 99,
+  });
+  expect(result.success).toBe(false);
+  expect(result.error?.errors.join(' ')).toMatch(/BLK engine_type: 99/);
 });
