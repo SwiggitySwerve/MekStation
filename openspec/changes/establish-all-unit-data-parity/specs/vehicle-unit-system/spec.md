@@ -1,3 +1,47 @@
+## MODIFIED Requirements
+
+### Requirement: Engine and Movement
+
+The system SHALL manage engine configuration and derive movement points.
+
+#### Scenario: Engine rating calculation
+
+- **WHEN** configuring a vehicle's engine
+- **THEN** engine rating SHALL equal `tonnage × cruiseMP`
+- **AND** engine rating SHALL be clamped between 10 and 400
+- **AND** changing tonnage SHALL recalculate engine rating to maintain cruise MP
+- **AND** changing cruise MP SHALL recalculate engine rating
+
+#### Scenario: Flank MP derivation
+
+- **WHEN** cruise MP is set to any value
+- **THEN** flank MP SHALL be `floor(cruiseMP × 1.5)`
+- **AND** flank MP SHALL be read-only (derived)
+
+#### Scenario: Engine type selection
+
+- **WHEN** selecting an engine type
+- **THEN** the available types SHALL include: Standard Fusion, XL (IS), XL (Clan), Light, XXL, Compact, ICE, Fuel Cell, Fission
+- **AND** trailers SHALL have engine type disabled (no engine)
+
+#### Scenario: Engine weight multipliers for combat vehicles
+
+- **WHEN** calculating engine weight
+- **THEN** the system SHALL apply these multipliers to base weight:
+  - Standard Fusion: 1.0×
+  - XL: 0.5×
+  - XXL: exactly one third
+  - Compact: 1.5×
+  - Light: 0.75×
+  - ICE: 2.0×
+  - Fuel Cell: 1.2×
+  - Fission: 1.75×
+- **AND** installed engine weight SHALL apply the rounding, shielding and hover minimum
+  from the Installed combat-vehicle engine weight requirement
+
+Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+[`Engine.java:409-438`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/Engine.java#L409).
+
 ## ADDED Requirements
 
 ### Requirement: Installed combat-vehicle engine weight
@@ -13,7 +57,7 @@ engines SHALL NOT receive fusion shielding. Support-vehicle engine construction
 uses separate rules and is outside this requirement.
 
 Source: MegaMek `Engine.getWeightEngine`, revision
-`48fcb2f64a1b3f2d575707ce5653dad64927b587`, `Engine.java:396-460`.
+`48fcb2f64a1b3f2d575707ce5653dad64927b587`, `Engine.java:396-450`.
 The generic engine calculator retains its existing contract.
 
 #### Scenario: Fusion shielding follows intermediate rounding
