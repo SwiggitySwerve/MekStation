@@ -11,6 +11,14 @@ The conversion boundary SHALL enumerate the pinned source tree independently of 
 - **THEN** the ordered source records and content hashes SHALL match exactly
 - **AND** equal filenames in different directories SHALL remain separate entries
 
+#### Scenario: Retain an explicitly supplied repository identity
+
+- **GIVEN** an immutable source commit from an upstream repository or a fork
+- **WHEN** inventory runs with the caller's required repository identity
+- **THEN** that identity SHALL be retained exactly without a hardcoded upstream default
+- **AND** absent, empty or surrounding-whitespace identities SHALL fail
+- **AND** the report SHALL NOT attest repository ownership or remote availability
+
 #### Scenario: Discover all formats and preserve unknown entries
 
 - **GIVEN** MTF, BLK, BFS, archive and other entries under the source root
