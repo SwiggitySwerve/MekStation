@@ -5,8 +5,10 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 import type { VehicleState } from '@/stores/vehicleState';
 
 import { EngineType } from '@/types/construction/EngineType';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
+import { getProtoMainGunTopologyError } from '@/utils/construction/protomech';
 
 import type { IBlkExportResult } from './BlkExportServiceCore.types';
 
@@ -276,6 +278,12 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
   const lines: string[] = [];
 
   try {
+    const topologyError = getProtoMainGunTopologyError(
+      unit.hasMainGun,
+      unit.equipment.map((item) => item.location),
+      unit.armorByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
+    );
+    if (topologyError) return { success: false, errors: [topologyError] };
     writeLicenseHeader(lines);
 
     lines.push(tag('BlockVersion', '1'));

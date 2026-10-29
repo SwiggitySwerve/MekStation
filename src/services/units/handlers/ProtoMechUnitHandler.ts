@@ -32,7 +32,10 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
-import { computeProtoEngineRating } from '@/utils/construction/protomech';
+import {
+  computeProtoEngineRating,
+  getProtoMainGunTopologyError,
+} from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
 import {
@@ -101,6 +104,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   ): Partial<IProtoMech> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
     const native = document.unitType.toLowerCase() === 'protomek';
+    if (!/^(Clan|IS) Level [1-4]$/i.test(document.type)) {
+      errors.push(`Unsupported ProtoMek type: ${document.type}`);
+    }
     if (native) {
       pushSourceLoadNumberErrors(errors, document, 'cruiseMP');
       if (
@@ -108,9 +114,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         document.rawTags.jumpingMP !== undefined
       ) {
         pushSourceLoadNumberErrors(errors, document, 'jumpingMP');
-      }
-      if (!/^(Clan|IS) Level [1-4]$/i.test(document.type)) {
-        errors.push(`Unsupported ProtoMek type: ${document.type}`);
       }
       const armor = document.armor;
       const rawArmor = document.rawTags.armor ?? document.rawTags.Armor;
@@ -165,6 +168,13 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
 
     // BLKProtoMekFile derives topology from armor count, even for an empty mount.
     const hasMainGun = armor.length === 6;
+    const topologyError = getProtoMainGunTopologyError(
+      hasMainGun,
+      equipment.map((item) => item.location),
+      armorByLocation[ProtoMechLocation.MAIN_GUN],
+    );
+    if (topologyError)
+      warnings.push(`${topologyError}; upstream ignores these entries`);
 
     // Special features from raw tags
     const rawTags = document.rawTags || {};

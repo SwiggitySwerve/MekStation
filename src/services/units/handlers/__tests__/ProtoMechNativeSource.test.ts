@@ -5,6 +5,8 @@ import { createMockProtoMechState } from '@/services/conversion/__tests__/BlkExp
 import { exportProtoMech } from '@/services/conversion/BlkExportServiceCore.exporters';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { UnitTypeRegistry } from '@/services/units/UnitTypeRegistry';
+import { createProtoMechStore } from '@/stores/useProtoMechStore';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel, TechBase } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -55,6 +57,72 @@ function load(content: string) {
 }
 
 describe('native ProtoMek BLK source loading', () => {
+  describe.each(['ProtoMek', 'ProtoMech', 'Protomech'])(
+    '%s review regressions',
+    (UnitType) => {
+      it.each([undefined, 'Mixed (Clan Chassis)', 'Unknown'])(
+        'rejects unrepresentable technology %s',
+        (type) => {
+          const result = handler.parse(document(raw({ UnitType, type })));
+          expect(result.success).toBe(false);
+          if (!result.success)
+            expect(result.error.errors.join(' ')).toContain('type');
+        },
+      );
+
+      it('accepts the upstream Glider alias', () => {
+        expect(load(raw({ UnitType, motion_type: 'Glider' })).chassisType).toBe(
+          ProtoChassis.GLIDER,
+        );
+      });
+
+      it('retains equipment on an absent mount with an explicit loss diagnostic', () => {
+        const result = handler.parse(
+          document(
+            raw({
+              UnitType,
+              armor: '3\n7\n2\n4\n5',
+              'Main Gun Equipment': 'CLERSmallLaser',
+            }),
+          ),
+        );
+        expect(result.success).toBe(true);
+        if (!result.success) throw new Error(result.error.errors.join('; '));
+        expect(result.data.unit.equipment).toHaveLength(1);
+        expect(result.data.warnings.join(' ')).toMatch(
+          /Main Gun.*mount.*upstream/i,
+        );
+      });
+    },
+  );
+
+  it.each(['equipment', 'armor'])(
+    'fails export after removing a populated mount with retained %s',
+    (kind) => {
+      const initial = createMockProtoMechState();
+      initial.armorByLocation[ProtoMechLocation.MAIN_GUN] =
+        kind === 'armor' ? 2 : 0;
+      initial.equipment =
+        kind === 'equipment'
+          ? [
+              {
+                id: 'laser',
+                equipmentId: 'CLERSmallLaser',
+                name: 'CLERSmallLaser',
+                location: ProtoMechLocation.MAIN_GUN,
+              },
+            ]
+          : [];
+      const store = createProtoMechStore(initial);
+      store.getState().setMainGun(false);
+      const result = exportProtoMech(store.getState());
+      expect(result.success).toBe(false);
+      expect(result.content).toBeUndefined();
+      expect(result.errors.join(' ')).toMatch(/Main Gun.*mount/i);
+      expect(store.getState().equipment).toEqual(initial.equipment);
+      expect(store.getState().armorByLocation).toEqual(initial.armorByLocation);
+    },
+  );
   it.each(fixtures)(
     'loads immutable $path with upstream observations',
     (fixture) => {
