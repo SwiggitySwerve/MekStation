@@ -1,3 +1,5 @@
+export { mapEngineType, mapArmorType } from './MTFVocabulary';
+
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 
 export function mapEraFromYear(year: number): string {
@@ -31,33 +33,6 @@ export function mapRulesLevel(level: string): string {
   return levelMap[level] || 'STANDARD';
 }
 
-export function mapEngineType(engineType: string): string {
-  const lower = engineType.toLowerCase();
-  const normalized = lower
-    .replace(/\./g, '')
-    .replace(/^\d+\s+/, '')
-    .replace(/\((?:clan|is|inner sphere)\)/g, '')
-    .replace(/\b(?:clan|is|inner sphere|large|fusion|engine)\b/g, '')
-    .trim()
-    .replace(/\s+/g, ' ');
-  if (normalized === 'xl') return lower.includes('clan') ? 'CLAN_XL' : 'XL';
-  const types: Record<string, string> = {
-    xxl: 'XXL',
-    light: 'LIGHT',
-    compact: 'COMPACT',
-    ice: 'ICE',
-    'fuel cell': 'FUEL_CELL',
-    'fuel-cell': 'FUEL_CELL',
-    fission: 'FISSION',
-    standard: 'FUSION',
-    battery: 'BATTERY',
-  };
-  if (Object.prototype.hasOwnProperty.call(types, normalized))
-    return types[normalized];
-  if (!normalized && /\bfusion\b/.test(lower)) return 'FUSION';
-  return `UNSUPPORTED_ENGINE:${engineType}`;
-}
-
 export function mapStructureType(structure: string): string {
   const lower = structure.toLowerCase();
   if (lower.includes('endo') && lower.includes('composite'))
@@ -69,44 +44,6 @@ export function mapStructureType(structure: string): string {
   if (lower.includes('composite')) return 'COMPOSITE';
   if (lower.includes('industrial')) return 'INDUSTRIAL';
   return 'STANDARD';
-}
-
-export function mapArmorType(armorType: string): string {
-  const lower = armorType.toLowerCase();
-  const name = lower
-    .replace(/\((?:clan|inner sphere)\)\s*$/, '')
-    .replace(/^(?:clan|is)\s+/, '')
-    .trim();
-  // MtfFile resolves the complete armor name, not a substring. Prototype,
-  // patchwork and unrepresented armor must not masquerade as ordinary ferro.
-  const types: Record<string, string> = {
-    '': 'STANDARD',
-    standard: 'STANDARD',
-    'ferro-fibrous': 'FERRO_FIBROUS',
-    'light ferro-fibrous': 'LIGHT_FERRO_FIBROUS',
-    'heavy ferro-fibrous': 'HEAVY_FERRO_FIBROUS',
-    stealth: 'STEALTH',
-    reactive: 'REACTIVE',
-    reflective: 'REFLECTIVE',
-    hardened: 'HARDENED',
-    primitive: 'PRIMITIVE',
-    industrial: 'INDUSTRIAL',
-    'heavy industrial': 'HEAVY_INDUSTRIAL',
-    commercial: 'COMMERCIAL',
-    'impact-resistant': 'IMPACT_RESISTANT',
-    'ferro-lamellor': 'FERRO_LAMELLOR',
-  };
-  const type = Object.prototype.hasOwnProperty.call(types, name)
-    ? types[name]
-    : undefined;
-  if (!type) return `UNSUPPORTED_ARMOR:${armorType}`;
-  if (
-    lower.includes('clan') &&
-    ['FERRO_FIBROUS', 'REACTIVE', 'REFLECTIVE'].includes(type)
-  ) {
-    return `${type}_CLAN`;
-  }
-  return type;
 }
 
 export function mapConfiguration(configuration: string): string {
