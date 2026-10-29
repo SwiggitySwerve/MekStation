@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
+import { copyDirectory } from './next/copy-directory.mjs';
 import {
   collectRuntimePackages,
   collectTurbopackExternals,
@@ -98,12 +99,12 @@ function assertDistinctRealpaths(source, target, label) {
   }
 }
 
-function copyDir(source, target, label = 'directory') {
+async function copyDir(source, target, label = 'directory') {
   assertExists(source, 'source directory');
   assertSafeDestinationPath(standaloneDir, target, label);
   assertDistinctRealpaths(source, target, label);
   fs.rmSync(target, { recursive: true, force: true });
-  fs.cpSync(source, target, { recursive: true, force: true });
+  await copyDirectory(source, target);
 }
 
 function extractNextConfig(generatedServer) {
@@ -119,17 +120,17 @@ function extractNextConfig(generatedServer) {
   return JSON.stringify(parsed, null, 2);
 }
 
-function copyRuntimeLoaders(runtimePackages) {
+async function copyRuntimeLoaders(runtimePackages) {
   for (const source of runtimePackages) {
     const relative = path.relative(root, source);
-    copyDir(
+    await copyDir(
       source,
       path.join(standaloneDir, relative),
       `runtime package ${relative}`,
     );
   }
   for (const dirName of runtimeScopedDirs) {
-    copyDir(
+    await copyDir(
       path.join(root, 'node_modules', dirName),
       path.join(standaloneDir, 'node_modules', dirName),
       `runtime loader ${dirName}`,
@@ -137,8 +138,8 @@ function copyRuntimeLoaders(runtimePackages) {
   }
 }
 
-function copyPublicAssets() {
-  copyDir(
+async function copyPublicAssets() {
+  await copyDir(
     path.join(root, 'public'),
     path.join(standaloneDir, 'public'),
     'public assets',
@@ -165,8 +166,8 @@ function copyMegaMekBVCache() {
   assertExists(target, 'standalone MegaMek BV cache');
 }
 
-function copyNextStaticAssets() {
-  copyDir(
+async function copyNextStaticAssets() {
+  await copyDir(
     path.join(nextDir, 'static'),
     path.join(standaloneDir, '.next', 'static'),
     'Next static assets',
@@ -334,12 +335,12 @@ async function main() {
     path.join(root, 'tsconfig.json'),
     path.join(standaloneDir, 'tsconfig.json'),
   );
-  copyDir(
+  await copyDir(
     path.join(root, 'src'),
     path.join(standaloneDir, 'src'),
     'standalone source tree',
   );
-  copyRuntimeLoaders(runtimePackages.directories);
+  await copyRuntimeLoaders(runtimePackages.directories);
   for (const {
     source,
     target,
@@ -370,12 +371,12 @@ async function main() {
         `module.exports = require(${JSON.stringify(request)});\n`,
       );
     } else {
-      copyDir(source, target, 'Turbopack external package');
+      await copyDir(source, target, 'Turbopack external package');
     }
   }
-  copyPublicAssets();
+  await copyPublicAssets();
   copyMegaMekBVCache();
-  copyNextStaticAssets();
+  await copyNextStaticAssets();
 
   const requireStandalone = createRequire(generatedServerPath);
   for (const request of runtimePackages.requests) {

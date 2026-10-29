@@ -4,8 +4,8 @@ import type { Configuration, WebpackPluginInstance } from 'webpack';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join, resolve, sep } from 'node:path';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 import { buildSecurityHeaders } from './desktop/electron/securityPolicy';
 
@@ -123,10 +123,10 @@ const nextConfig = (phase: string): NextConfig => ({
   // This creates a self-contained build with all dependencies
   output: 'standalone',
 
-  // PR CI sets MEKSTATION_SKIP_NEXT_TYPECHECK: its Type Check job already
-  // gates types, so each PR `next build` skips a duplicate ~75s TypeScript pass.
+  // Artifact creation is separate from validation. PR's required Lint and Test
+  // aggregator and release validation gate typecheck, lint and desktop types.
   typescript: {
-    ignoreBuildErrors: process.env.MEKSTATION_SKIP_NEXT_TYPECHECK === 'true',
+    ignoreBuildErrors: true,
   },
 
   // Pin the file-tracing root to this app directory. Without this, Next walks
@@ -135,9 +135,8 @@ const nextConfig = (phase: string): NextConfig => ({
   // .next/standalone/.claude/worktrees/<name>/ and breaks the hydrate step.
   outputFileTracingRoot: process.cwd(),
 
-  // Optimize for production builds
+  // Retain Next's ESM externals policy for the remaining --webpack commands.
   experimental: {
-    // Enable modern output for better tree-shaking
     esmExternals: true,
   },
 
@@ -146,11 +145,12 @@ const nextConfig = (phase: string): NextConfig => ({
     config: Configuration,
     { dev, isServer, webpack }: WebpackContext,
   ): Configuration => {
-    // Enable tree-shaking for equipment data files
+    // Preserve the existing --webpack side-effect policy. This disables
+    // package sideEffects optimization; Turbopack does not use this callback.
     if (!dev && config.optimization && config.module?.rules) {
       config.optimization.sideEffects = false;
 
-      // Add specific tree-shaking rules for equipment files
+      // Retain the legacy equipment rule for webpack builds on POSIX paths.
       config.module.rules.push({
         test: /src\/data\/equipment.*\.ts$/,
         sideEffects: false,
@@ -159,6 +159,9 @@ const nextConfig = (phase: string): NextConfig => ({
 
     // Analyze development bundles only when explicitly requested.
     if (dev && !isServer && process.env.ANALYZE === 'true' && config.plugins) {
+      const { BundleAnalyzerPlugin } = createRequire(
+        join(process.cwd(), 'next.config.ts'),
+      )('webpack-bundle-analyzer') as typeof import('webpack-bundle-analyzer');
       config.plugins.push(
         new BundleAnalyzerPlugin({
           analyzerMode: 'server',
@@ -168,7 +171,7 @@ const nextConfig = (phase: string): NextConfig => ({
       );
     }
 
-    // Add progress plugin for build feedback
+    // Keep progress feedback for webpack analysis/profile/debug and CAMP-00.
     if (!dev && config.plugins) {
       config.plugins.push(
         new webpack.ProgressPlugin({

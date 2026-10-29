@@ -20,6 +20,15 @@ output. Escaping entries and directory cycles fail; repeated validated targets
 are visited once per hydration pass. Both runtime closure and external package
 sources use this preflight, including the copied runtime loader scope.
 
+All source, identity and destination preflights still finish before image writes.
+The hydration owner removes each validated destination before calling
+`copy-directory.mjs`. Physical trees copy every file with at most eight I/O
+workers into the fresh target, preserving file permissions. Directories use
+default creation permissions (0777 masked by the caller's umask), matching
+Node 22's no-filter `fs.cpSync` path rather than preserving source directory
+modes. The copier waits for all in-flight work before returning a failure.
+Trees containing links or special entries use the original `fs.cpSync` behavior.
+
 The hydration owner preflights every destination and source/target identity
 before writing anything, using its existing symlink/junction protections. Resolve
 the server's CommonJS entry requests after copying and reject ancestor checkout
