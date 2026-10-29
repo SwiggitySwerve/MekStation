@@ -27,6 +27,11 @@ identities its model cannot represent. SmallCraft hydration uses the ICE runtime
 placeholder and warns with the ignored raw tag; this does not prove construction
 validity. The handlers' public parse tests cover these boundaries.
 
+The fighter handler validates an explicit raw engine tag before applying its
+omitted-tag default. Empty, malformed and multi-value tags are rejected with a
+diagnostic; typed documents without raw tags retain numeric-code validation.
+Multi-value engine blocks accepted by upstream remain unsupported here.
+
 TypeScript export and vehicle hydration still contain conflicting definitions in
 `BlkExportServiceCore.formatters.ts` and `VehicleUnitHandler.ts`. Their replacement
 is the dependent adapter change under tasks 2.1/3.2 of

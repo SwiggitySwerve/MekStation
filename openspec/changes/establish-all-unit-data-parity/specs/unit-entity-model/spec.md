@@ -70,6 +70,13 @@ The export and vehicle maps identified above remain outside this handler slice.
 - **AND** an explicit Clan-engine flag SHALL override chassis technology independently
 - **AND** an unrepresentable or unknown code SHALL fail with a code diagnostic rather than substitute ICE
 
+#### Scenario: Explicit malformed conventional fighter engine tag
+
+- **GIVEN** raw conventional-fighter BLK with an empty, nonnumeric, fractional or numeric-prefix engine tag
+- **WHEN** the public parser and TypeScript handler load it
+- **THEN** the handler SHALL reject it with an engine-tag diagnostic
+- **AND** only an omitted tag SHALL use the fusion default; typed documents without raw tags SHALL retain their numeric-code validation
+
 #### Scenario: SmallCraft ignored engine tag
 
 - **GIVEN** a SmallCraft document with an omitted, known, unknown or malformed engine tag

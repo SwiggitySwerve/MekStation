@@ -5,6 +5,7 @@
  * Conventional fighters are atmospheric-only aircraft that cannot operate in space.
  */
 
+import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -247,6 +248,48 @@ describe('Conventional fighter independent engine technology', () => {
         expect(result.data?.unit.clanEngine).toBe(flag === 'true');
         expect(result.data?.unit.engineType).toBe(engineType);
       }
+    },
+  );
+});
+
+describe('Conventional fighter engine tags through the raw BLK boundary', () => {
+  function parseSource(engineTag?: string) {
+    const source = `<UnitType>ConvFighter</UnitType>
+<Name>Engine tag probe</Name>
+<year>3060</year>
+<type>IS Level 2</type>
+<tonnage>50</tonnage>
+<SafeThrust>6</SafeThrust>
+<fuel>160</fuel>
+<structural_integrity>6</structural_integrity>
+<armor>16\n12\n12\n8</armor>
+${engineTag === undefined ? '' : `<engine_type>${engineTag}</engine_type>`}`;
+    const parsed = new BlkParserService().parse(source);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+    return new ConventionalFighterUnitHandler().parse(parsed.data.document);
+  }
+
+  it.each([
+    { tag: undefined, code: 0, identity: ConventionalFighterEngineType.FUSION },
+    { tag: '0', code: 0, identity: ConventionalFighterEngineType.FUSION },
+    { tag: '1', code: 1, identity: ConventionalFighterEngineType.ICE },
+    { tag: ' 7 ', code: 7, identity: ConventionalFighterEngineType.FISSION },
+    { tag: '+6', code: 6, identity: ConventionalFighterEngineType.FUEL_CELL },
+  ])('preserves a valid or omitted tag: $tag', ({ tag, code, identity }) => {
+    const result = parseSource(tag);
+    expect(result.success).toBe(true);
+    expect(result.data?.unit.engineType).toBe(code);
+    expect(result.data?.unit.conventionalEngineType).toBe(identity);
+  });
+
+  it.each(['', '   ', 'not-an-engine', '0x63', '1garbage', '1.5', '1e0'])(
+    'rejects an explicitly malformed tag: %j',
+    (tag) => {
+      const result = parseSource(tag);
+      expect(result.success).toBe(false);
+      expect(result.data).toBeUndefined();
+      expect(result.error?.errors.join('; ')).toContain('engine_type');
     },
   );
 });

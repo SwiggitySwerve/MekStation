@@ -10,6 +10,7 @@
 import {
   decodeBlkConventionalEngine,
   isClanBlkEngine,
+  parseBlkEngineTag,
 } from '@/services/conversion/blkEngineIdentity';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
@@ -82,12 +83,15 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
     }
 
     // Serialized identity is independent of the conventional model enum.
-    const engineTypeCode = document.engineType ?? 0;
+    let engineTypeCode = document.engineType ?? 0;
     let conventionalEngineType: ConventionalFighterEngineType | undefined;
     try {
+      engineTypeCode =
+        parseBlkEngineTag('convfighter', document.rawTags?.engine_type) ??
+        engineTypeCode;
       conventionalEngineType = decodeBlkConventionalEngine(engineTypeCode);
     } catch (error) {
-      errors.push(String(error));
+      errors.push(error instanceof Error ? error.message : String(error));
     }
     const engineType = engineTypeCode;
 
