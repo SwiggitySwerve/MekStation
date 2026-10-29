@@ -162,8 +162,12 @@ export function computeProtoWalkMPForRating(
 /**
  * Engine weight in tons = engineRating × 0.025, rounded up to nearest 0.5t.
  */
-export function computeProtoEngineWeight(engineRating: number): number {
+export function computeProtoEngineWeight(
+  engineRating: number,
+  legacyRounding: 'half-ton' | 'unrounded' = 'half-ton',
+): number {
   const raw = engineRating * PROTO_ENGINE_WEIGHT_FACTOR;
+  if (legacyRounding === 'unrounded') return raw;
   // Round up to nearest half-ton
   return Math.ceil(raw * 2) / 2;
 }

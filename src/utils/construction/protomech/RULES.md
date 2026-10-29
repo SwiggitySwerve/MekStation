@@ -35,6 +35,12 @@ This correction does not establish full source, persistence or numerical parity.
 
 ## Internal structure
 
+The engine-mass correction first consolidates the former half-ton helper and
+unrounded BV projections as explicit temporary profiles of
+`computeProtoEngineWeight`. This refactor preserves both policies; it does not
+establish mass parity. The following change will replace them with the pinned
+normal-engine rule and explicit unavailable mass for unsupported ratings.
+
 `computeProtoStructure` owns original internal points for loaded units, new
 stores, structural edits and record-sheet bindings. Source: pinned MegaMek
 `ProtoMek.java:785-826`. Lookup and torso use truncated tonnage; main-gun points

@@ -34,6 +34,7 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   computeProtoEngineRating,
+  computeProtoEngineWeight,
   computeProtoStructure,
   getProtoMainGunTopologyError,
 } from '@/utils/construction/protomech';
@@ -517,7 +518,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       runMP,
       jumpMP: unit.jumpMP,
       engineRating: unit.engineRating,
-      engineWeight: unit.engineRating * 0.025,
+      engineWeight: computeProtoEngineWeight(unit.engineRating, 'unrounded'),
       myomerBooster: unit.hasMyomerBooster,
       // Glider Wings is a passive special equipment of the Glider chassis;
       // derive from the discriminant so the projection always matches.

@@ -8,6 +8,7 @@ import {
   type IProtoMechMountedEquipment,
   type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
+import { computeProtoEngineWeight } from '@/utils/construction/protomech';
 
 export type ProtoBuildOverrides = Partial<IProtoMechUnit> & {
   tonnage: number;
@@ -39,7 +40,7 @@ export function buildProto(overrides: ProtoBuildOverrides): IProtoMechUnit {
   const movementDefaults = {
     runMP: walkMP + 1,
     engineRating: tonnage * walkMP,
-    engineWeight: tonnage * walkMP * 0.025,
+    engineWeight: computeProtoEngineWeight(tonnage * walkMP, 'unrounded'),
   };
 
   const defaults: IProtoMechUnit = {
