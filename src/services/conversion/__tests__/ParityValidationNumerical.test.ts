@@ -1,3 +1,5 @@
+import type { IParityTerm } from '../ParityValidationNumerical';
+
 import { compareParityTerms } from '../ParityValidationNumerical';
 
 describe('strict loaded-entity parity terms', () => {
@@ -22,6 +24,57 @@ describe('strict loaded-entity parity terms', () => {
     'accepts BV %s strictly below one percent without rounding',
     (actual) => expect(compare(1000, actual).passed).toBe(true),
   );
+
+  it.each([
+    [10, 10.1],
+    [10, 9.9],
+    [5, 5.05],
+    [5, 4.95],
+    [-10, -10.1],
+    [-10, -9.9],
+    [0.07, 0.0707],
+    [1e100, 1.01e100],
+    [1e-100, 0.99e-100],
+  ])('rejects the exact JSON decimal boundary %s / %s', (reference, actual) => {
+    expect(compare(reference, actual).passed).toBe(false);
+  });
+
+  it.each([
+    [10, 10.099999999999998],
+    [10, 9.900000000000002],
+    [-10, -10.099999999999998],
+    [-10, -9.900000000000002],
+    [0.07, 0.07069999999999999],
+    [Number.MIN_VALUE, Number.MIN_VALUE],
+    [Number.MAX_VALUE, Number.MAX_VALUE],
+  ])(
+    'accepts representable values inside the boundary %s / %s',
+    (reference, actual) => {
+      expect(compare(reference, actual).passed).toBe(true);
+    },
+  );
+
+  it('fails missing entries in entirely sparse and mixed arrays', () => {
+    const sparse = new Array<IParityTerm>(1);
+    expect(compareParityTerms(sparse)).toMatchObject({
+      passed: false,
+      terms: [{ field: '[0]', passed: false, reason: 'missing_term' }],
+    });
+    const mixed = new Array<IParityTerm>(2);
+    mixed[0] = {
+      field: 'bv.total',
+      comparison: 'numeric',
+      reference: 1,
+      actual: 1,
+    };
+    expect(compareParityTerms(mixed)).toMatchObject({
+      passed: false,
+      terms: [
+        { passed: true },
+        { field: '[1]', passed: false, reason: 'missing_term' },
+      ],
+    });
+  });
 
   it.each([
     [-1000, -1010, false],
