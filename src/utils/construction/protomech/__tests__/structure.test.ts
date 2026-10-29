@@ -30,6 +30,26 @@ const cases = [
   [16, 4, 8, 14],
 ] as const;
 
+describe.each(['ProtoMek', 'ProtoMech', 'Protomech'])(
+  '%s malformed tonnage',
+  (spelling) => {
+    it.each([0, -1, -0.25, 2147483648])(
+      'returns a structured failure for %s',
+      (tonnage) => {
+        const content = `<UnitType>\n${spelling}\n</UnitType>\n<Name>\nInvalid mass\n</Name>\n<year>\n3060\n</year>\n<type>\nClan Level 2\n</type>\n<Tonnage>\n${tonnage}\n</Tonnage>\n<motion_type>\nBiped\n</motion_type>\n<cruiseMP>\n4\n</cruiseMP>\n<armor>\n0\n0\n0\n0\n0\n</armor>`;
+        const parsed = new BlkParserService().parse(content);
+        if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+        const result = new ProtoMechUnitHandler().parse(parsed.data.document);
+        expect(result.success).toBe(false);
+        if (result.success) throw new Error('Malformed source loaded');
+        expect(result.error.errors).toEqual(
+          expect.arrayContaining([expect.stringMatching(/tonnage/i)]),
+        );
+      },
+    );
+  },
+);
+
 function source(tonnage: number, chassis: C, gun: boolean) {
   const tags = {
     UnitType: 'ProtoMek',

@@ -81,4 +81,7 @@ export {
 export type { IProtoMechBVBreakdown, IProtoMechBVOptions } from './protoMechBV';
 
 // Original internal structure and absent-location representation.
-export { computeProtoStructure } from './structure';
+export {
+  computeProtoStructure,
+  getProtoStructureTonnageError,
+} from './structure';

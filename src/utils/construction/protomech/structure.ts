@@ -14,17 +14,24 @@ const STRUCTURE_BY_WEIGHT_PAIR: readonly (readonly [number, number, number])[] =
     [3, 7, 13],
   ];
 
+/** Shared admission diagnostic for calculations and structured source loading. */
+export function getProtoStructureTonnageError(
+  tonnage: number,
+): string | undefined {
+  if (!Number.isFinite(tonnage) || tonnage <= 0 || tonnage > 2147483647) {
+    return 'ProtoMech structure requires positive finite tonnage within signed 32-bit range';
+  }
+  return undefined;
+}
+
 /** Original construction points; topology flags distinguish absent locations from zero. */
 export function computeProtoStructure(
   tonnage: number,
   chassis: ProtoChassis,
   hasMainGun: boolean,
 ): Record<ProtoMechLocation, number> {
-  if (!Number.isFinite(tonnage) || tonnage <= 0 || tonnage > 2147483647) {
-    throw new Error(
-      'ProtoMech structure requires positive finite tonnage within signed 32-bit range',
-    );
-  }
+  const error = getProtoStructureTonnageError(tonnage);
+  if (error) throw new Error(error);
   const weight = Math.trunc(tonnage);
   const [head, bipedLegs, quadLegs] = STRUCTURE_BY_WEIGHT_PAIR[
     Math.floor(weight / 2) - 1

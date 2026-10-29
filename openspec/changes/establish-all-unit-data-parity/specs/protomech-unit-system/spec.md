@@ -163,6 +163,7 @@ summed as points. Construction legality SHALL remain a separate diagnostic.
 
 - **WHEN** tonnage is nonfinite, nonpositive or greater than the maximum signed 32-bit integer
 - **THEN** the owner SHALL reject it with a tonnage diagnostic before returning structure
+- **AND** every supported BLK spelling SHALL return that admission failure through the handler's structured parse result rather than throw
 
 #### Scenario: Reactive structure and BV
 
