@@ -1,3 +1,4 @@
+import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 /**
  * Vehicle State Interface
  *
@@ -6,8 +7,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
-
-import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -27,6 +26,7 @@ import {
   ITurretConfiguration,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
+import { computeEngineRating } from '@/utils/construction/vehicle/engine';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
@@ -431,7 +431,7 @@ export function createDefaultVehicleState(
 
   // Default engine rating: tonnage * 4 (for cruise MP 4)
   const cruiseMP = 4;
-  const engineRating = options.tonnage * cruiseMP;
+  const engineRating = computeEngineRating(options.tonnage, cruiseMP);
 
   // Parse name into chassis and model
   const nameParts = options.name.split(' ');

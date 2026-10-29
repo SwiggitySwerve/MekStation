@@ -1,3 +1,4 @@
+import { VTOLLocation } from '@/types/construction/UnitLocation';
 /**
  * VTOL Unit Handler
  *
@@ -6,8 +7,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
-
-import { VTOLLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
@@ -23,6 +22,7 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { computeEngineRating } from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -112,7 +112,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = cruiseMP * document.tonnage;
+    const engineRating = computeEngineRating(document.tonnage, cruiseMP);
 
     // Armor
     const armorType = document.armorType || 0;
@@ -352,7 +352,10 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     let weight = 0;
 
     // Engine weight (VTOLs use lighter engines per thrust)
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = computeEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+    );
     weight += engineRating * 0.04; // Simplified
 
     // Rotor weight (10% of tonnage)
@@ -393,7 +396,10 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     cost += unit.tonnage * 15000;
 
     // Engine cost
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = computeEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+    );
     cost += engineRating * 6000;
 
     // Rotor cost

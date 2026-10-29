@@ -1,3 +1,4 @@
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 /**
  * Vehicle Unit Handler
  *
@@ -6,8 +7,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
  */
-
-import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -22,6 +21,7 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { computeEngineRating } from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -142,7 +142,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = cruiseMP * document.tonnage;
+    const engineRating = computeEngineRating(document.tonnage, cruiseMP);
 
     // Armor
     const armorType = document.armorType || 0;
@@ -410,7 +410,10 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // Engine weight (simplified calculation)
     // Engine Rating = Cruise MP × Tonnage
     // Engine Weight depends on engine type
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = computeEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+    );
     const engineMultiplier = this.getEngineWeightMultiplier(unit.engineType);
     weight += Math.ceil((engineRating / 10) * engineMultiplier * 10) / 10;
 
@@ -469,7 +472,10 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     cost += unit.tonnage * 10000;
 
     // Engine cost (varies by type)
-    const engineRating = unit.movement.cruiseMP * unit.tonnage;
+    const engineRating = computeEngineRating(
+      unit.tonnage,
+      unit.movement.cruiseMP,
+    );
     cost += engineRating * 5000;
 
     // Armor cost

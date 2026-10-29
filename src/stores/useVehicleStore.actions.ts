@@ -9,6 +9,7 @@ import {
   TurretType,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
+import { computeEngineRating } from '@/utils/construction/vehicle/engine';
 import {
   computePowerAmplifierWeight,
   isPowerAmplifierEnergyWeapon,
@@ -45,7 +46,7 @@ export function setCruiseMPLogic(
   return {
     cruiseMP,
     flankMP: calculateFlankMP(cruiseMP),
-    engineRating: state.tonnage * cruiseMP,
+    engineRating: computeEngineRating(state.tonnage, cruiseMP),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
@@ -55,7 +56,7 @@ export function setTonnageLogic(
   state: VehicleStore,
   tonnage: number,
 ): Partial<VehicleStore> {
-  const newEngineRating = tonnage * state.cruiseMP;
+  const newEngineRating = computeEngineRating(tonnage, state.cruiseMP);
   const clampedRating = Math.max(10, Math.min(400, newEngineRating));
 
   return {
