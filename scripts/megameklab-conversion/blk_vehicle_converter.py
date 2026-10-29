@@ -16,6 +16,8 @@ Usage:
 Skips WarShip / DropShip / JumpShip unit types with a warning log.
 """
 
+from combat_vehicle_engine import combat_engine_rating
+
 import logging
 import math
 from pathlib import Path
@@ -178,9 +180,11 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Engine ---
     engine_code = tags.get("engine_type")
     engine_type_str = map_engine_code(engine_code)
-    # Engine rating: not stored in vehicle BLK, compute from tonnage × cruise_mp
-    # Standard vehicle engine rating = tonnage × cruise_mp (rounded to 5)
-    engine_rating = round(tonnage * cruise_mp / 5) * 5 if tonnage and cruise_mp else 0
+    # Support propulsion remains a separate, unverified construction family.
+    if unit_type_raw in ("SupportTank", "SupportVTOL"):
+        engine_rating = round(tonnage * cruise_mp / 5) * 5 if tonnage and cruise_mp else 0
+    else:
+        engine_rating = combat_engine_rating(tonnage, cruise_mp, motion_type, engine_less=engine_type_str == "NONE")
 
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")

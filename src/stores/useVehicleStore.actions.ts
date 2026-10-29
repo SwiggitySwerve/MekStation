@@ -9,7 +9,10 @@ import {
   TurretType,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
-import { computeEngineRating } from '@/utils/construction/vehicle/engine';
+import {
+  computeStoredVehicleEngineRating,
+  computeCruiseMPFromRating,
+} from '@/utils/construction/vehicle/engine';
 import {
   computePowerAmplifierWeight,
   isPowerAmplifierEnergyWeapon,
@@ -30,10 +33,16 @@ export function setEngineRatingLogic(
   state: VehicleStore,
   rating: number,
 ): Partial<VehicleStore> {
+  const cruiseMP = computeCruiseMPFromRating(
+    state.tonnage,
+    rating,
+    state.motionType,
+    state.unitType === UnitType.SUPPORT_VEHICLE,
+  );
   return {
     engineRating: rating,
-    cruiseMP: Math.floor(rating / state.tonnage),
-    flankMP: calculateFlankMP(Math.floor(rating / state.tonnage)),
+    cruiseMP,
+    flankMP: calculateFlankMP(cruiseMP),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
@@ -46,7 +55,13 @@ export function setCruiseMPLogic(
   return {
     cruiseMP,
     flankMP: calculateFlankMP(cruiseMP),
-    engineRating: computeEngineRating(state.tonnage, cruiseMP),
+    engineRating: computeStoredVehicleEngineRating(
+      state.tonnage,
+      cruiseMP,
+      state.motionType,
+      state.unitType === UnitType.SUPPORT_VEHICLE,
+      state.isTrailer,
+    ),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
@@ -56,7 +71,13 @@ export function setTonnageLogic(
   state: VehicleStore,
   tonnage: number,
 ): Partial<VehicleStore> {
-  const newEngineRating = computeEngineRating(tonnage, state.cruiseMP);
+  const newEngineRating = computeStoredVehicleEngineRating(
+    tonnage,
+    state.cruiseMP,
+    state.motionType,
+    state.unitType === UnitType.SUPPORT_VEHICLE,
+    state.isTrailer,
+  );
   const clampedRating = Math.max(10, Math.min(400, newEngineRating));
 
   return {
@@ -90,7 +111,15 @@ export function setMotionTypeLogic(
 
   return {
     motionType,
-    unitType,
+    engineRating: computeStoredVehicleEngineRating(
+      state.tonnage,
+      state.cruiseMP,
+      motionType,
+      state.unitType === UnitType.SUPPORT_VEHICLE,
+      state.isTrailer,
+    ),
+    unitType:
+      state.unitType === UnitType.SUPPORT_VEHICLE ? state.unitType : unitType,
     armorAllocation,
     isModified: true,
     lastModifiedAt: Date.now(),

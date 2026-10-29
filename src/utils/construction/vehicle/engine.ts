@@ -5,7 +5,7 @@
  * engine exclusions per BattleTech TechManual rules for combat vehicles.
  *
  * Key rules:
- * - Engine rating = tonnage × cruiseMP
+ * - Engine rating subtracts suspension, then rounds upward to five
  * - Max engine rating for vehicles: 400
  * - Hover/VTOL/WiGE cannot use ICE engines
  * - ICE engine weight multiplier: 2.0 × fusion base weight
@@ -23,6 +23,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { getBaseEngineWeight } from '../engineCalculations';
+import suspensionTable from './suspension.json';
 
 // Maximum engine rating for combat vehicles (TechManual rule)
 export const VEHICLE_MAX_ENGINE_RATING = 400;
@@ -62,13 +63,82 @@ export function isVehicleFusionEngine(engineType: EngineType): boolean {
   return !NON_FUSION_ENGINE_TYPES.has(engineType);
 }
 
+/** A single table is consumed by this owner and the Python BLK adapter. */
+interface SuspensionRule {
+  tiers: number[][];
+  stepTons?: number;
+  stepFactor?: number;
+  navalExtension?: boolean;
+}
+const suspensionRules: Readonly<
+  Partial<Record<GroundMotionType, SuspensionRule>>
+> = suspensionTable;
+
+/** MegaMek 48fcb2f64a1b Tank.java:1678-1773; combat vehicles only. */
+export function computeSuspensionFactor(
+  tonnage: number,
+  motionType: GroundMotionType,
+): number {
+  const rule = suspensionRules[motionType];
+  if (!rule) return 0;
+  for (const [maximum, factor] of rule.tiers) {
+    if (tonnage <= maximum) return factor;
+  }
+  const [maximum, factor] = rule.tiers[rule.tiers.length - 1];
+  // Preserve the upstream naval extension literally, including its remainder.
+  if (rule.navalExtension) {
+    const navalFactor = Math.ceil(tonnage / 10);
+    return navalFactor + (navalFactor % 5);
+  }
+  return rule.stepTons !== undefined && rule.stepFactor !== undefined
+    ? factor + rule.stepFactor * Math.ceil((tonnage - maximum) / rule.stepTons)
+    : factor;
+}
+
 /**
- * Compute engine rating from tonnage and cruise MP
- *
- * rating = tonnage × cruiseMP (no rounding needed — both are integers)
+ * Combat engine rating; BLKTankFile.java:155-162 at the same pinned revision.
+ * Fractional tonnage is truncated for propulsion, but not suspension lookup.
+ * A caller representing an engine-less trailer must pass engineLess explicitly.
  */
-export function computeEngineRating(tonnage: number, cruiseMP: number): number {
-  return tonnage * cruiseMP;
+export function computeEngineRating(
+  tonnage: number,
+  cruiseMP: number,
+  motionType: GroundMotionType = GroundMotionType.TRACKED,
+  engineLess = false,
+): number {
+  if (cruiseMP === 0 && engineLess) return 0;
+  const required =
+    Math.trunc(tonnage) * cruiseMP -
+    computeSuspensionFactor(tonnage, motionType);
+  return Math.ceil(Math.max(10, required) / 5) * 5;
+}
+
+/** Legacy support derivation is retained, not a support construction claim. */
+export function computeStoredVehicleEngineRating(
+  tonnage: number,
+  cruiseMP: number,
+  motionType: GroundMotionType,
+  supportVehicle: boolean,
+  engineLess = false,
+): number {
+  return supportVehicle
+    ? tonnage * cruiseMP
+    : computeEngineRating(tonnage, cruiseMP, motionType, engineLess);
+}
+
+/** Inverse movement derivation for the rating editor; rounding can admit surplus. */
+export function computeCruiseMPFromRating(
+  tonnage: number,
+  rating: number,
+  motionType: GroundMotionType,
+  supportVehicle: boolean,
+): number {
+  if (rating === 0) return 0;
+  return Math.floor(
+    (rating +
+      (supportVehicle ? 0 : computeSuspensionFactor(tonnage, motionType))) /
+      (supportVehicle ? tonnage : Math.trunc(tonnage)),
+  );
 }
 
 /**
@@ -153,7 +223,7 @@ export function validateVehicleEngine(
   const errors: Array<{ ruleId: string; message: string }> = [];
   const warnings: string[] = [];
 
-  const engineRating = computeEngineRating(tonnage, cruiseMP);
+  const engineRating = computeEngineRating(tonnage, cruiseMP, motionType);
   const engineWeight = computeVehicleEngineWeight(engineRating, engineType, {
     tonnage,
     motionType,

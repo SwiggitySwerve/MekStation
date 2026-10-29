@@ -112,7 +112,11 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = computeEngineRating(document.tonnage, cruiseMP);
+    const engineRating = computeEngineRating(
+      document.tonnage,
+      cruiseMP,
+      GroundMotionType.VTOL,
+    );
 
     // Armor
     const armorType = document.armorType || 0;
@@ -355,6 +359,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const engineRating = computeEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
+      GroundMotionType.VTOL,
     );
     weight += engineRating * 0.04; // Simplified
 
@@ -399,6 +404,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const engineRating = computeEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
+      GroundMotionType.VTOL,
     );
     cost += engineRating * 6000;
 

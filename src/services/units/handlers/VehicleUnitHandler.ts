@@ -142,7 +142,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = computeEngineRating(document.tonnage, cruiseMP);
+    const engineRating = computeEngineRating(
+      document.tonnage,
+      cruiseMP,
+      motionType ?? GroundMotionType.TRACKED,
+      getBooleanFromRawTags(document.rawTags || {}, 'trailer'),
+    );
 
     // Armor
     const armorType = document.armorType || 0;
@@ -413,6 +418,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     const engineRating = computeEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
+      unit.motionType,
+      unit.isTrailer,
     );
     const engineMultiplier = this.getEngineWeightMultiplier(unit.engineType);
     weight += Math.ceil((engineRating / 10) * engineMultiplier * 10) / 10;
@@ -475,6 +482,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     const engineRating = computeEngineRating(
       unit.tonnage,
       unit.movement.cruiseMP,
+      unit.motionType,
+      unit.isTrailer,
     );
     cost += engineRating * 5000;
 

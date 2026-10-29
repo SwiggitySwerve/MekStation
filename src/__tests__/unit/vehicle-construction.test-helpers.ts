@@ -139,12 +139,12 @@ describe('computeEngineRating', () => {
     expect(computeEngineRating(50, 4)).toBe(200);
   });
 
-  it('Savannah Master 5t × cruiseMP 8 = 40', () => {
-    expect(computeEngineRating(5, 8)).toBe(40);
+  it('5t hover at cruise 8 uses minimum rating 10', () => {
+    expect(computeEngineRating(5, 8, GroundMotionType.HOVER)).toBe(10);
   });
 
-  it('VTOL Warrior 4t × cruiseMP 6 = 24', () => {
-    expect(computeEngineRating(4, 6)).toBe(24);
+  it('4t VTOL at cruise 6 uses minimum rating 10', () => {
+    expect(computeEngineRating(4, 6, GroundMotionType.VTOL)).toBe(10);
   });
 });
 
