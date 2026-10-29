@@ -9,7 +9,7 @@ contract boundary. It can be validated independently of MekStation or MegaMek.
 
 This is a provenance slice. It does not define a complete portable unit design,
 establish any construction-family support, or prove numerical parity. Current
-loaders, converters, persistence and legacy unit serialization do not consume it.
+live loaders, persistence and legacy unit serialization do not consume it.
 
 ## Wire rules
 
@@ -53,16 +53,36 @@ and digest alone do not guarantee source recovery: retain original bytes in an
 external content-addressed artifact. This contract does not yet specify bundles
 or artifact transport.
 
-## Existing inventory is a separate adapter input
+## Immutable inventory producer
 
-`scripts/megameklab-conversion/source_inventory.py` owns a repository inventory
-report with counts, modes and non-source entries. That report is not this wire
-format. A future explicit adapter must retain every inventory source row, move
-repository/commit plus path/blob into `source`, and preserve format and original
-SHA-256 without rewriting the inventory or inventing design identities. No such
-adapter ships here. Local upload capture needs its own tested byte-preserving
-adapter. Neither integration can treat a valid provenance document as a valid
-portable unit design.
+`scripts/megameklab-conversion/source_provenance.py` calls
+`source_inventory.build_inventory` directly; it accepts no external inventory JSON.
+The inventory still owns immutable object reads, counts, source discovery and
+original-byte hashing. The producer projects every source row in inventory order,
+without deduplication, and validates through `schema_gate` against the canonical
+JSON Schema. No identity or path is repaired to pass validation. Non-source
+metadata is excluded; any inventoried ZIP container causes an explicit failure
+listing its path because member coverage cannot be represented in 1.0.0.
+
+```text
+npm run --silent provenance:units -- --repo <local-git-repository> --commit <full-commit> --repository https://github.com/MegaMek/mm-data
+python -B -m unittest discover -s scripts/__tests__ -p test_source_provenance.py
+```
+
+The CLI requires Python with `jsonschema`; its producer tests also need installed
+Node development dependencies (`tsx` and Zod) for the independent consumer.
+Set `NODE_BINARY` to select a Node executable for that test. The CLI emits UTF-8 JSON to stdout only after
+successful validation, and leaves catalogs untouched. Use `--silent` to keep
+npm's status banner out of the JSON. Redirect stdout to an
+intentional artifact path. Repository identity is asserted by the caller, never
+inferred from mutable remote configuration or attested as ownership. It retains
+paths, case, format, blob and original-byte SHA-256 from immutable inventory;
+modified, missing and untracked working files cannot change its result.
+
+This is a collection of source origins. It supplies neither original bytes nor a
+complete portable design, live loader, recovery bundle or parity result. Local
+upload capture, migrations and editor/persistence integration need separate
+adapters. The inventory report remains a distinct format with counts and modes.
 
 ## Executable examples and conformance
 

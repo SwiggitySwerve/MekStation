@@ -1,4 +1,9 @@
-import type { IAerospaceMovement } from '@/types/unit/BaseUnitInterfaces';
+import type { IBlkDocument } from '@/types/formats/BlkFormat';
+import type {
+  IBaseUnit,
+  IAerospaceMovement,
+} from '@/types/unit/BaseUnitInterfaces';
+import type { IUnitValidateResult } from '@/types/unit/UnitTypeHandler';
 
 import {
   getThresholdWeightClass,
@@ -22,6 +27,55 @@ export function createParseMessages(): UnitFieldParseMessages {
 
 export function createValidationMessages(): UnitValidationMessages {
   return { errors: [], warnings: [], infos: [] };
+}
+
+/** Structural numeric checks for VTOL/SmallCraft source loading, not construction. */
+export function pushSourceLoadNumberErrors(
+  errors: string[],
+  document: IBlkDocument,
+  movementField: 'cruiseMP' | 'safeThrust',
+): void {
+  const tags = document.rawTags ?? {};
+  const movementTag =
+    movementField === 'safeThrust' ? 'SafeThrust' : movementField;
+  const fields = [
+    ['tonnage', document.tonnage, tags['Tonnage'] ?? tags['tonnage']],
+    [movementField, document[movementField], tags[movementTag]],
+  ] as const;
+  for (const [field, value, raw] of fields) {
+    const scalar = Array.isArray(raw)
+      ? raw.length === 1
+        ? raw[0]
+        : undefined
+      : raw;
+    const validRaw =
+      raw === undefined ||
+      (typeof scalar === 'string' &&
+        scalar.trim() !== '' &&
+        Number(scalar) === value);
+    const validMovement =
+      field === 'tonnage' ||
+      (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0);
+    if (!Number.isFinite(value) || !validMovement || !validRaw) {
+      errors.push(
+        `Invalid source field ${field}: expected finite ${
+          field === 'tonnage' ? 'tonnage' : 'non-negative integer movement'
+        }`,
+      );
+    }
+  }
+}
+
+/** Keep source-loaded units consistent with their existing construction validator. */
+export function withConstructionDiagnostics<T extends IBaseUnit>(
+  unit: T,
+  validation: IUnitValidateResult,
+): T {
+  return {
+    ...unit,
+    isValid: validation.isValid,
+    validationErrors: validation.errors,
+  };
 }
 
 interface CommonFieldSource {

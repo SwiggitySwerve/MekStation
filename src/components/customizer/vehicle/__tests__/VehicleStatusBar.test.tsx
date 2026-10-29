@@ -146,8 +146,8 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
     const view = renderBar({ engineRating: 25 });
     const before = weightFree();
     rerenderBar(view, { engineRating: 25, motionType: GroundMotionType.HOVER });
-    // Same 50 t and rating: tracked engine 1 t -> hover minimum 10 t.
-    expect(weightFree()).toBe(before - 9);
+    // Same 50 t and rating: engine 1 -> 10 t, plus 5 t hover lift.
+    expect(weightFree()).toBe(before - 14);
   });
 
   it('recomputes the hover engine minimum when tonnage changes', () => {
@@ -161,8 +161,8 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
       engineRating: 25,
       motionType: GroundMotionType.HOVER,
     });
-    // +2 vehicle tons, -0.5 engine minimum, -0.5 rounded structure.
-    expect(weightFree()).toBe(before + 1);
+    // +2 tons, -0.5 each for engine, structure, controls and lift.
+    expect(weightFree()).toBe(before);
   });
 
   it('weight free drops when armor tonnage rises', () => {

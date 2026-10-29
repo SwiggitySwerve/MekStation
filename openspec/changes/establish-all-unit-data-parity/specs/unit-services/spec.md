@@ -33,6 +33,27 @@ The conversion boundary SHALL enumerate the pinned source tree independently of 
 - **THEN** it SHALL return a failure and useful diagnostic
 - **AND** it SHALL NOT report empty coverage as success
 
+### Requirement: Immutable inventory provenance producer
+
+The Python producer SHALL build the existing immutable inventory from a local repository, full commit and required asserted repository identity, and emit a schema-validated source-provenance 1.0.0 document without catalog writes. The canonical JSON Schema SHALL decide representability; the adapter SHALL NOT normalize rejected identities or accept arbitrary inventory JSON.
+
+#### Scenario: Preserve every inventoried source origin
+
+- **GIVEN** a pinned tree with MTF, BLK and BFS sources, equal basenames, repeated bytes, CRLF bytes and non-source metadata
+- **WHEN** the producer runs despite dirty working files
+- **THEN** each inventory source row SHALL appear once in the original order with exact path/case, format, blob and original-byte SHA-256
+- **AND** metadata files SHALL NOT become source rows
+- **AND** an independent Node/Zod consumer SHALL accept the actual producer output without row loss
+
+#### Scenario: Reject unsupported coverage and identities
+
+- **GIVEN** an archive entry or an identity or path the canonical schema cannot represent
+- **WHEN** the producer runs
+- **THEN** it SHALL fail with a useful diagnostic and no partial JSON output
+- **AND** archive diagnostics SHALL identify the unsupported container paths
+- **AND** absent repository identity and non-full commits SHALL fail
+- **AND** success SHALL NOT imply source recovery, entity loading or numerical parity
+
 ### Requirement: Family-aware loading and persistence
 
 Browser and Node unit services SHALL load every upstream-loadable source family through a shared validated domain contract, preserve provenance, and save/reload custom designs with unchanged subtype and mount semantics. Canonical protection SHALL apply to every family. Unsupported local data SHALL produce diagnostics.
@@ -50,3 +71,35 @@ Browser and Node unit services SHALL load every upstream-loadable source family 
 - **WHEN** loading is attempted
 - **THEN** the service SHALL identify the source and unsupported facts
 - **AND** it SHALL NOT substitute a different family or default equipment
+
+### Requirement: VTOL and SmallCraft source loading diagnostics
+
+The BLK parser and registered VTOL/SmallCraft handlers SHALL distinguish source
+loading from construction validation. Representable source tonnage and zero
+movement SHALL survive loading even when existing construction checks reject
+them. The handlers SHALL expose those checks through `validate`, and the loaded
+unit's `isValid` and `validationErrors` SHALL agree with that result. Loading
+success SHALL NOT certify upstream construction validity or numerical parity.
+Existing armor, equipment, locations and derived formulas SHALL remain unchanged
+by this boundary correction.
+
+#### Scenario: Retain an upstream-loaded construction outlier
+
+- **GIVEN** a pinned upstream-loaded VTOL above 30 tons or SmallCraft below 100 tons
+- **WHEN** the BLK document is loaded through its registered handler
+- **THEN** loading SHALL succeed with its original tonnage, armor and equipment
+- **AND** existing construction tonnage errors SHALL remain visible
+
+#### Scenario: Retain zero movement without certifying construction validity
+
+- **GIVEN** a VTOL with zero cruise MP or SmallCraft with zero safe thrust
+- **WHEN** its source is loaded
+- **THEN** movement SHALL remain zero without a fabricated minimum
+- **AND** construction validation SHALL retain its existing movement error
+
+#### Scenario: Reject unusable numeric source fields
+
+- **GIVEN** missing, malformed, nonfinite or negative movement, or malformed or nonfinite tonnage
+- **WHEN** a VTOL or SmallCraft handler attempts to load the source
+- **THEN** it SHALL fail with a field diagnostic rather than substitute zero
+- **AND** missing required identity, unknown types and unsupported dispatch cases SHALL retain explicit outcomes

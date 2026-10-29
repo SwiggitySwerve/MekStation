@@ -1,4 +1,3 @@
-import { VTOLLocation } from '@/types/construction/UnitLocation';
 /**
  * VTOL Unit Handler
  *
@@ -7,6 +6,9 @@ import { VTOLLocation } from '@/types/construction/UnitLocation';
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
+
+import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
+import { VTOLLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
@@ -37,6 +39,8 @@ import {
   getRawTagString,
   mapLocationEquipment,
   pushTonnageRangeErrors,
+  pushSourceLoadNumberErrors,
+  withConstructionDiagnostics,
 } from './unitHandlerShared';
 
 // ============================================================================
@@ -93,6 +97,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     document: IBlkDocument,
   ): Partial<IVTOL> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
+    pushSourceLoadNumberErrors(errors, document, 'cruiseMP');
+    if (errors.length > 0) return { errors, warnings };
 
     // VTOLs always have VTOL motion type
     const motionType = GroundMotionType.VTOL;
@@ -105,10 +111,6 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const flankMP = Math.ceil(cruiseMP * 1.5);
     const jumpMP = 0; // VTOLs don't jump - they fly
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
-
-    if (cruiseMP < 1) {
-      errors.push('VTOLs must have at least 1 cruise MP');
-    }
 
     // Engine
     const engineType = document.engineType || 0;
@@ -136,11 +138,6 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     // Rotor type
     const rawTags = document.rawTags || {};
     const rotorType = this.getStringFromRaw(rawTags, 'rotortype') || 'Standard';
-
-    // VTOL weight limit
-    if (document.tonnage > 30) {
-      errors.push('VTOLs cannot exceed 30 tons');
-    }
 
     return {
       unitType: UnitType.VTOL,
@@ -281,13 +278,14 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   ): IVTOL {
     const weightClass = this.getWeightClass(commonFields.tonnage);
 
-    return combineCommonUnitFields<IVTOL>({
+    const unit = combineCommonUnitFields<IVTOL>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'vtol',
       unitType: UnitType.VTOL,
       weightClass,
     });
+    return withConstructionDiagnostics(unit, this.validate(unit));
   }
 
   /**
@@ -323,9 +321,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'VTOL',
-      min: 1,
-      max: 30,
-      minText: '1',
+      min: VTOL_TONNAGE.min,
+      max: VTOL_TONNAGE.max,
     });
 
     // Movement validation

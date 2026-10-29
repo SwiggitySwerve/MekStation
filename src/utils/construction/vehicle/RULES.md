@@ -1,4 +1,4 @@
-# Combat-vehicle engine rules
+# Combat-vehicle construction rules
 
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
@@ -52,9 +52,31 @@ approximations and are not covered by this parity slice. Existing imported/saved
 The converter's support-VTOL discriminator and broader BLK engine ordinal
 semantics remain separate work; this slice adds no engine-code table.
 
-Controls, lift/dive, heat sinks, flank rounding, turret rules and full BV parity
-remain separate. The true Tamerlane full-weight test intentionally remains an
-expected failure (3 tons of controls/lift remain absent).
+`controlsLift.ts` owns controls and lift/dive mass (standard combat construction
+ceilings): controls = upward-half-ton-rounded tonnage / 20, unless explicit
+`hasNoControlSystems` is true; lift = upward-half-ton-rounded tonnage / 10 for
+HOVER, VTOL, HYDROFOIL, SUBMARINE and WIGE only. NAVAL has no lift term.
+`weightComposition.ts` composes these with the existing component owners;
+the former status-bar utility is a compatible re-export. Validation calls the
+same controls/lift owner with the same family, motion and no-controls context.
+
+Pinned [TestTank.java:229-250](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/verifier/TestTank.java#L229)
+uses `ceilMaxHalf` for both terms.
+[BLKTankFile.java:268-270](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/loaders/BLKTankFile.java#L268)
+sets no-controls from the tag's **presence**, including a zero payload;
+[Tank.java:268](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L268)
+defaults it to false. Store creation accepts the explicit fact and persists it;
+legacy saves without it retain standard controls. This slice does not connect
+BLK raw tags to store creation: that import boundary still needs to preserve
+presence semantics, rather than parse the payload as a boolean.
+
+Support identity explicitly excludes these new combat terms; zero here means
+legacy behavior, not zero actual support controls/lift mass or support parity.
+Tamerlane at rating155 independently has engine8.5, controls1, lift2,
+structure2, armor3, weapons3 and turret0.5 = 20 tons. Its additional heat-sink
+mass is zero in the pinned runtime reference; general vehicle heat-sink rules
+remain unresolved. No stored catalog ratings are migrated. Flank, turret rules,
+full BV parity and broader construction validity remain separate work.
 
 Focused enforcement: `useVehicleStore.suspension.test.ts` exercises the real
 Zustand actions, pinned thresholds, validation, direct import and actual Python

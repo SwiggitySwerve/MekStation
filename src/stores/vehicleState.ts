@@ -207,6 +207,9 @@ export interface VehicleState {
   /** Is this an OmniVehicle */
   isOmni: boolean;
 
+  /** Source-declared absence of controls; omitted legacy saves mean standard controls. */
+  hasNoControlSystems?: boolean;
+
   // =========================================================================
   // Engine & Movement
   // =========================================================================
@@ -327,6 +330,7 @@ export interface VehicleActions
   setTonnage: (tonnage: number) => void;
   setMotionType: (motionType: GroundMotionType) => void;
   setIsOmni: (isOmni: boolean) => void;
+  setHasNoControlSystems: (hasNoControlSystems: boolean) => void;
 
   // Engine & Movement
   setEngineType: (type: EngineType) => void;
@@ -392,6 +396,7 @@ export type VehicleStore = VehicleState & VehicleActions;
  * Options for creating a new vehicle
  */
 export interface CreateVehicleOptions {
+  hasNoControlSystems?: boolean;
   id?: string;
   name: string;
   tonnage: number;
@@ -469,6 +474,7 @@ export function createDefaultVehicleState(
           : unitType,
     motionType: isVTOL ? GroundMotionType.VTOL : motionType,
     isOmni: false,
+    hasNoControlSystems: options.hasNoControlSystems ?? false,
 
     // Engine & Movement
     engineType: EngineType.STANDARD,

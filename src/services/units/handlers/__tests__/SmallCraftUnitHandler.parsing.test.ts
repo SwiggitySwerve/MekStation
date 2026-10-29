@@ -166,28 +166,43 @@ describe('SmallCraftUnitHandler', () => {
       expect(noseWeapon).toBeDefined();
     });
 
-    it('should fail parse for under-tonnage craft', () => {
+    it('should load under-tonnage craft with construction errors', () => {
       const doc = createMockBlkDocument({ tonnage: 50 });
       const result = handler.parse(doc);
 
-      expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('100'))).toBe(true);
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.data.unit.tonnage).toBe(doc.tonnage);
+      expect(result.data.unit.movement.safeThrust).toBe(doc.safeThrust);
+      expect(handler.validate(result.data.unit).errors).toContain(
+        'Small craft tonnage must be at least 100 tons',
+      );
     });
 
-    it('should fail parse for over-tonnage craft', () => {
+    it('should load over-tonnage craft with construction errors', () => {
       const doc = createMockBlkDocument({ tonnage: 250 });
       const result = handler.parse(doc);
 
-      expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('200'))).toBe(true);
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.data.unit.tonnage).toBe(doc.tonnage);
+      expect(result.data.unit.movement.safeThrust).toBe(doc.safeThrust);
+      expect(handler.validate(result.data.unit).errors).toContain(
+        'Small craft tonnage cannot exceed 200 tons',
+      );
     });
 
-    it('should fail parse for zero thrust', () => {
+    it('should load zero thrust with construction errors', () => {
       const doc = createMockBlkDocument({ safeThrust: 0 });
       const result = handler.parse(doc);
 
-      expect(result.success).toBe(false);
-      expect(result.error!.errors.some((e) => e.includes('thrust'))).toBe(true);
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.data.unit.tonnage).toBe(doc.tonnage);
+      expect(result.data.unit.movement.safeThrust).toBe(doc.safeThrust);
+      expect(handler.validate(result.data.unit).errors).toContain(
+        'Small craft must have at least 1 safe thrust',
+      );
     });
 
     it('should parse tech base', () => {

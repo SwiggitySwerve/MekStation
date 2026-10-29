@@ -28,6 +28,7 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { computeProtoEngineRating } from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
 import {
@@ -115,9 +116,8 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     }
 
     // Engine and movement
-    const cruiseMP = document.cruiseMP || 4;
+    const cruiseMP = document.cruiseMP ?? 4;
     const jumpMP = document.jumpingMP || 0;
-    const engineRating = cruiseMP * weightPerUnit;
 
     // Motion type
     const motionType = jumpMP > 0 ? SquadMotionType.JUMP : SquadMotionType.FOOT;
@@ -155,6 +155,11 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         : weightPerUnit >= 10
           ? ProtoChassis.ULTRAHEAVY
           : ProtoChassis.BIPED;
+    const engineRating = computeProtoEngineRating(
+      weightPerUnit,
+      cruiseMP,
+      chassisType,
+    );
     const hasMyomerBooster = getRawTagBoolean(rawTags, 'myomerbooster');
     const hasMagneticClamps = getRawTagBoolean(rawTags, 'magneticclamps');
     const hasExtendedTorsoTwist = getRawTagBoolean(

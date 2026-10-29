@@ -134,3 +134,42 @@ legacy rating behavior and SHALL NOT acquire a combat-vehicle parity claim.
 Source: MegaMek `BLKTankFile.java:155-162,272-274` at revision
 `48fcb2f64a1b3f2d575707ce5653dad64927b587`. The NONE exception is Tank-specific;
 this scenario does not claim engine-less VTOL or support construction parity.
+
+### Requirement: Combat-vehicle controls and lift composition
+
+The construction/vehicle owner SHALL compose weight outside rendering. Combat
+vehicle controls SHALL weigh tonnage / 20 rounded upward to a half ton, or zero
+when explicit hasNoControlSystems context is true. HOVER, VTOL, HYDROFOIL,
+SUBMARINE and WIGE SHALL carry tonnage / 10 rounded upward to a half ton for
+lift/dive. NAVAL and other modes SHALL carry no lift term. Support vehicles
+SHALL retain existing calculations without a combat-construction parity claim.
+The status bar and validation SHALL use the same controls/lift quantities and
+react to tonnage, motion, family and no-controls context changes.
+
+Source: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
+TestTank.java:229-250. BLKTankFile.java:268-270 sets no-controls from tag
+presence (even a zero payload); Tank.java:268 defaults it to false.
+
+#### Scenario: Controls rounding and explicit absence
+
+- **GIVEN** combat vehicles of 20 and 20.1 tons
+- **WHEN** controls mass is computed
+- **THEN** controls SHALL weigh 1 and 1.5 tons respectively
+- **AND** explicit no-controls SHALL yield zero for either tonnage
+
+#### Scenario: Lift modes and exclusions
+
+- **GIVEN** a 20.1-ton combat vehicle
+- **WHEN** configured as hover, VTOL, hydrofoil, submarine or WiGE
+- **THEN** lift SHALL weigh 2.5 tons
+- **AND** tracked, wheeled, naval, rail and maglev SHALL have zero lift
+- **AND** support vehicles SHALL NOT acquire these combat terms
+
+#### Scenario: Independently accounted Tamerlane
+
+- **GIVEN** the pinned Tamerlane Strike Sled (Flamer) at Magna rating 155
+- **WHEN** composed using real catalog equipment and standard controls
+- **THEN** engine SHALL weigh 8.5, controls 1, lift 2, structure 2, armor 3,
+  weapons 3 and turret 0.5 tons, totaling 20 with zero free
+- **AND** the fixture's additional heat sinks are zero, without claiming a
+  general vehicle heat-sink implementation or BV parity

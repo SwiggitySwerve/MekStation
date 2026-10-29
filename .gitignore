@@ -75,6 +75,7 @@ scripts/**
 !scripts/megameklab-conversion/mtf_parser_builders.py
 !scripts/megameklab-conversion/mtf_text_regeneration.py
 !scripts/megameklab-conversion/source_inventory.py
+!scripts/megameklab-conversion/source_provenance.py
 !scripts/__tests__/
 !scripts/__tests__/**
 
@@ -122,6 +123,11 @@ __pycache__/
 .Python
 *.pyc
 data/
+
+# Keep the provenance command guide available to staging and commit hooks.
+!/docs/data/
+/docs/data/*
+!/docs/data/portable-source-provenance.md
 
 # Keep the source unit schema available to normal staging and commit checks.
 !/public/data/

@@ -23,6 +23,7 @@ export {
 export {
   computeProtoEngineRating,
   computeProtoEngineWeight,
+  computeProtoWalkMPForRating,
   computeRunMP,
   effectiveJumpMP,
   effectiveWalkMP,

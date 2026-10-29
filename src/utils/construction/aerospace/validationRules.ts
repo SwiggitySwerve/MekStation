@@ -20,6 +20,8 @@
 
 // AerospaceValidationError lives in `./validationRules.types` to break the
 // 3-way cycle with bombBays.ts and wingHeavyWeapons.ts. Re-exported below.
+import { SMALL_CRAFT_TONNAGE } from '@/services/construction/constructionConstants';
+
 import type { AerospaceValidationError } from './validationRules.types';
 
 import {
@@ -51,7 +53,7 @@ export type { AerospaceValidationError };
 const TONNAGE_RANGE: Record<AerospaceSubType, { min: number; max: number }> = {
   [AerospaceSubType.AEROSPACE_FIGHTER]: { min: 5, max: 100 },
   [AerospaceSubType.CONVENTIONAL_FIGHTER]: { min: 5, max: 50 },
-  [AerospaceSubType.SMALL_CRAFT]: { min: 100, max: 200 },
+  [AerospaceSubType.SMALL_CRAFT]: SMALL_CRAFT_TONNAGE,
 };
 
 // ============================================================================

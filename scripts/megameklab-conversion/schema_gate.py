@@ -24,10 +24,10 @@ this validator unless ``MEKSTATION_VALIDATE_WRITES`` is explicitly set
 to ``0`` / ``false`` / ``no`` / ``off``. Default flipped after PR #429
 verified corpus conformance and the strict CI gate turned green.
 
-The 6 public ``validate_<shape>`` functions reuse a single compiled
+The public ``validate_<shape>`` functions reuse a single compiled
 ``Draft7Validator`` per shape (compile-once-reuse). Compilation is lazy
 so importers that only need one shape don't pay the upfront cost of
-loading all 6 schema files.
+loading every schema file.
 """
 
 from __future__ import annotations
@@ -50,6 +50,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _SCHEMA_DIR = _REPO_ROOT / "public" / "data" / "equipment" / "_schema"
 
 _SCHEMA_FILES = {
+    "source_provenance": "source-provenance-schema.json",
     "weapon": "weapon-schema.json",
     "unit": "unit-schema.json",
     "ammunition": "ammunition-schema.json",
@@ -123,6 +124,12 @@ def _validate(shape: str, data: Any) -> List[str]:
 # Public per-shape entry points
 # ---------------------------------------------------------------------------
 
+
+def validate_source_provenance(data: Any) -> List[str]:
+    """Validate source origins using the canonical standalone contract."""
+    return _validate("source_provenance", data)
+
+
 def validate_weapon(data: Any) -> List[str]:
     """Validate a single weapon dict against ``weapon-schema.json``."""
     return _validate("weapon", data)
@@ -156,6 +163,7 @@ def validate_physical_weapon(data: Any) -> List[str]:
 # Lookup map used by ``run_schema_validation_only.py`` and any future
 # harness that wants to iterate every shape generically.
 SHAPE_VALIDATORS = {
+    "source_provenance": validate_source_provenance,
     "weapon": validate_weapon,
     "unit": validate_unit,
     "ammunition": validate_ammunition,
@@ -166,6 +174,7 @@ SHAPE_VALIDATORS = {
 
 
 __all__ = [
+    "validate_source_provenance",
     "validate_weapon",
     "validate_unit",
     "validate_ammunition",

@@ -87,6 +87,8 @@ export function createVehicleStore(
         setMotionType: (motionType) =>
           set((state) => setMotionTypeLogic(state, motionType)),
 
+        setHasNoControlSystems: (hasNoControlSystems) =>
+          set({ hasNoControlSystems, ...modificationPatch() }),
         setIsOmni: (isOmni) =>
           set({
             isOmni,
@@ -298,6 +300,7 @@ export function createVehicleStore(
           unitType: state.unitType,
           motionType: state.motionType,
           isOmni: state.isOmni,
+          hasNoControlSystems: state.hasNoControlSystems,
           engineType: state.engineType,
           engineRating: state.engineRating,
           cruiseMP: state.cruiseMP,
