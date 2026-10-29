@@ -41,6 +41,11 @@ const OUTPUT_DIR = join(REPO_ROOT, 'src', 'types', 'contracts', 'generated');
 // shapes still get generated so PR-A2 can wire them with a single edit
 // to the contracts barrel.
 const SHAPES = [
+  {
+    file: 'source-provenance-schema.json',
+    stem: 'source-provenance',
+    exportName: 'SourceProvenanceContract',
+  },
   { file: 'weapon-schema.json', stem: 'weapon', exportName: 'WeaponContract' },
   { file: 'unit-schema.json', stem: 'unit', exportName: 'UnitContract' },
   {
