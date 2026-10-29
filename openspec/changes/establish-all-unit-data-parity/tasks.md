@@ -18,6 +18,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 - [ ] 2.3 Implement controls, lift/dive and engine-specific heat sinks; make the true Tamerlane reference pass with independently correct terms. (`battle-value-system`: Strict all-family numerical parity)
 - [ ] 2.4 Correct shared flank rounding, turret removal/armor, dual-turret sheet mapping, placeholder mechanism weights and genuine Omni allowances. Resolve the obsolete generic turret-capacity spec with a focused delta. (`unit-entity-model`: Faithful source-unit semantics)
 
+- [ ] 2.5 Correct ProtoMech rating through the existing owner after separately verified consolidation; prove stages against pinned Java and cover chassis/reactive edits, exact inverse and movement aliases without claiming native loading or whole-unit parity. (`protomech-unit-system`: Engine Rating)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.0 Extend/consolidate existing schema ownership into a documented portable versioned design contract, explicit units/identities/extensions, migrations, examples and independent-consumer conformance tests; keep legacy syntax in adapters. (`unit-entity-model`: Portable versioned unit documents)

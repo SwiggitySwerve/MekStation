@@ -217,10 +217,10 @@ describe('useProtoMechStore actions', () => {
     expect(store.getState().walkMP).toBe(1);
   });
 
-  it('setWalkMP updates engineRating = tonnage * walkMP', () => {
+  it('setWalkMP updates engineRating through the pinned ProtoMek rule', () => {
     const store = makeStore(5);
     store.getState().setWalkMP(4);
-    expect(store.getState().engineRating).toBe(5 * 4);
+    expect(store.getState().engineRating).toBe(30);
   });
 
   // ---- setMyomerBooster ----

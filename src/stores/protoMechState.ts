@@ -433,7 +433,7 @@ export function createDefaultProtoMechState(
     pointSize: 5,
 
     // Movement
-    engineRating: computeProtoEngineRating(tonnage, walkMP),
+    engineRating: computeProtoEngineRating(tonnage, walkMP, chassisType),
     walkMP,
     cruiseMP,
     flankMP,

@@ -190,7 +190,7 @@ export interface IProtoMechUnit {
   readonly runMP: number;
   /** Jump MP (0 for Ultraheavy) */
   readonly jumpMP: number;
-  /** Engine rating = tonnage × walkMP */
+  /** Construction rating from base walk MP, tonnage and chassis; see protomech/RULES.md. */
   readonly engineRating: number;
   /** Engine weight in tons = engineRating × 0.025 */
   readonly engineWeight: number;

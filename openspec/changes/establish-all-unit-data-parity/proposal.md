@@ -34,6 +34,7 @@ layouts, skeletons and forms. Data readiness precedes UI expansion.
 - `mtf-parity-validation`: reference provenance, all-format coverage and round trips.
 - `battle-value-system`: strict all-family numerical parity without weakening existing regression checks.
 - `customizer-tabs`: subtype forms, diagrams and lifecycle integration after data readiness.
+- `protomech-unit-system`: source-backed engine rating and consistent reactive movement fields.
 
 ## Impact and delivery
 
