@@ -124,8 +124,8 @@ describe('MTFParser.mapping', () => {
       expect(mapEngineType('XXL Engine (Clan)')).toBe('XXL');
     });
 
-    it('detects XL Clan as XL_CLAN, not generic XL', () => {
-      expect(mapEngineType('300 XL (Clan) Fusion Engine')).toBe('XL_CLAN');
+    it('detects XL Clan as CLAN_XL, not generic XL', () => {
+      expect(mapEngineType('300 XL (Clan) Fusion Engine')).toBe('CLAN_XL');
     });
 
     it('detects XL (IS) as XL', () => {
@@ -214,12 +214,12 @@ describe('MTFParser.mapping', () => {
       expect(mapArmorType('Hardened')).toBe('HARDENED');
     });
 
-    it('maps Heavy Ferro-Fibrous to HEAVY_FERRO (beats plain ferro)', () => {
-      expect(mapArmorType('Heavy Ferro-Fibrous')).toBe('HEAVY_FERRO');
+    it('maps Heavy Ferro-Fibrous to HEAVY_FERRO_FIBROUS (beats plain ferro)', () => {
+      expect(mapArmorType('Heavy Ferro-Fibrous')).toBe('HEAVY_FERRO_FIBROUS');
     });
 
-    it('maps Light Ferro-Fibrous to LIGHT_FERRO', () => {
-      expect(mapArmorType('Light Ferro-Fibrous')).toBe('LIGHT_FERRO');
+    it('maps Light Ferro-Fibrous to LIGHT_FERRO_FIBROUS', () => {
+      expect(mapArmorType('Light Ferro-Fibrous')).toBe('LIGHT_FERRO_FIBROUS');
     });
 
     it('maps Clan Ferro-Fibrous to FERRO_FIBROUS_CLAN (beats plain ferro)', () => {

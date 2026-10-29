@@ -33,18 +33,29 @@ export function mapRulesLevel(level: string): string {
 
 export function mapEngineType(engineType: string): string {
   const lower = engineType.toLowerCase();
-  const normalized = lower.replace(/\./g, '');
-  if (normalized.includes('xxl')) return 'XXL';
-  if (normalized.includes('xl') && normalized.includes('clan'))
-    return 'XL_CLAN';
-  if (normalized.includes('xl')) return 'XL';
-  if (normalized.includes('light')) return 'LIGHT';
-  if (normalized.includes('compact')) return 'COMPACT';
-  if (normalized.includes('ice')) return 'ICE';
-  if (lower.includes('fuel cell') || lower.includes('fuel-cell'))
-    return 'FUEL_CELL';
-  if (normalized.includes('fission')) return 'FISSION';
-  return 'FUSION';
+  const normalized = lower
+    .replace(/\./g, '')
+    .replace(/^\d+\s+/, '')
+    .replace(/\((?:clan|is|inner sphere)\)/g, '')
+    .replace(/\b(?:clan|is|inner sphere|large|fusion|engine)\b/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+  if (normalized === 'xl') return lower.includes('clan') ? 'CLAN_XL' : 'XL';
+  const types: Record<string, string> = {
+    xxl: 'XXL',
+    light: 'LIGHT',
+    compact: 'COMPACT',
+    ice: 'ICE',
+    'fuel cell': 'FUEL_CELL',
+    'fuel-cell': 'FUEL_CELL',
+    fission: 'FISSION',
+    standard: 'FUSION',
+    battery: 'BATTERY',
+  };
+  if (Object.prototype.hasOwnProperty.call(types, normalized))
+    return types[normalized];
+  if (!normalized && /\bfusion\b/.test(lower)) return 'FUSION';
+  return `UNSUPPORTED_ENGINE:${engineType}`;
 }
 
 export function mapStructureType(structure: string): string {
@@ -62,16 +73,49 @@ export function mapStructureType(structure: string): string {
 
 export function mapArmorType(armorType: string): string {
   const lower = armorType.toLowerCase();
-  if (lower.includes('stealth')) return 'STEALTH';
-  if (lower.includes('reactive')) return 'REACTIVE';
-  if (lower.includes('reflective')) return 'REFLECTIVE';
-  if (lower.includes('hardened')) return 'HARDENED';
-  if (lower.includes('heavy') && lower.includes('ferro')) return 'HEAVY_FERRO';
-  if (lower.includes('light') && lower.includes('ferro')) return 'LIGHT_FERRO';
-  if (lower.includes('ferro') && lower.includes('clan'))
-    return 'FERRO_FIBROUS_CLAN';
-  if (lower.includes('ferro')) return 'FERRO_FIBROUS';
-  return 'STANDARD';
+  const name = lower
+    .replace(/\((?:clan|inner sphere)\)\s*$/, '')
+    .replace(/^(?:clan|is)\s+/, '')
+    .trim();
+  // MtfFile resolves the complete armor name, not a substring. Prototype,
+  // patchwork and unrepresented armor must not masquerade as ordinary ferro.
+  const types: Record<string, string> = {
+    '': 'STANDARD',
+    standard: 'STANDARD',
+    'ferro-fibrous': 'FERRO_FIBROUS',
+    'light ferro-fibrous': 'LIGHT_FERRO_FIBROUS',
+    'heavy ferro-fibrous': 'HEAVY_FERRO_FIBROUS',
+    stealth: 'STEALTH',
+    reactive: 'REACTIVE',
+    reflective: 'REFLECTIVE',
+    hardened: 'HARDENED',
+    primitive: 'PRIMITIVE',
+    industrial: 'INDUSTRIAL',
+    'heavy industrial': 'HEAVY_INDUSTRIAL',
+    commercial: 'COMMERCIAL',
+    'impact-resistant': 'IMPACT_RESISTANT',
+    'ferro-lamellor': 'FERRO_LAMELLOR',
+  };
+  const type = Object.prototype.hasOwnProperty.call(types, name)
+    ? types[name]
+    : undefined;
+  if (!type) return `UNSUPPORTED_ARMOR:${armorType}`;
+  if (
+    lower.includes('clan') &&
+    ['FERRO_FIBROUS', 'REACTIVE', 'REFLECTIVE'].includes(type)
+  ) {
+    return `${type}_CLAN`;
+  }
+  return type;
+}
+
+export function mapConfiguration(configuration: string): string {
+  // Only the recognized Omni suffix is removable. FrankenMek carries location
+  // structure/source-mass rules absent from the current serialized model.
+  return configuration.replace(
+    /^(Biped|Quad|Tripod|LAM|QuadVee)\s+omni(?:mek|mech)$/i,
+    '$1',
+  );
 }
 
 function slugEquipmentId(name: string): string {

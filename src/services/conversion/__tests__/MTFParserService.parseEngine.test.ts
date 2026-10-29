@@ -119,7 +119,7 @@ engine:300 XL Engine(Clan)
       const result = service.parse(mtf);
 
       expect(result.unit?.engine.rating).toBe(300);
-      expect(result.unit?.engine.type).toBe('XL_CLAN');
+      expect(result.unit?.engine.type).toBe('CLAN_XL');
     });
 
     it('should parse XXL engine', () => {
