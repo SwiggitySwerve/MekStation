@@ -16,6 +16,8 @@
  */
 import type { IWeapon } from '@/simulation/ai/types';
 
+import { createDemoWeapons } from '@/__fixtures__/gameplay/demoSession';
+import { weaponStatusToPlanningWeapon } from '@/components/gameplay/pages/gameSession/GameSessionPage.weaponPlanning';
 import { extractWeapons } from '@/engine/adapters/CompendiumAdapter.weapons';
 import { resolveSpecialProjectileHit } from '@/simulation/runner/phases/weaponAttackFiringModeProjectiles';
 import {
@@ -66,8 +68,11 @@ function hydrateProtoLrm(rack: number): IWeapon {
 /**
  * The runner adds MRM's -1 cluster column modifier to every roll
  * (`missileClusterModifier`), a situational-modifier concern the previews do
- * not model. MRM rows therefore use the unmodified pinned table here, and the
- * gap against the runner is pinned in its own test below.
+ * not model. MRM rows therefore use the pinned table without the modifier here,
+ * and the gap against the runner is pinned in its own test below. For racks
+ * above 20 (MRM 30/40) `lookupClusterHits` snaps to the 20 column, while the
+ * pinned `Compute.clusterHitsTable` has its own 30 and 40 rows; that gap, like
+ * ATM's built-in +2 cluster modifier (`ATMHandler.java:236-250`), is open.
  */
 function isMrm(weapon: IWeapon): boolean {
   return /mrm/i.test(weapon.id);
@@ -239,5 +244,32 @@ describe('expectedDamage / damageVariance on hydrated missile launchers', () => 
       Math.sqrt(0.72 * 0.28) * 12,
       10,
     );
+  });
+});
+
+describe('demo route planning weapons (IWeaponStatus -> IWeapon -> preview)', () => {
+  // The demo fixture shows '1/missile' / '2/missile' text; the adapter must hand
+  // the preview the launcher total, as hydration does.
+  function demoPlanningWeapon(name: string): IWeapon {
+    const status = createDemoWeapons()['unit-player-1'].find(
+      (weapon) => weapon.name === name,
+    );
+    if (!status) throw new Error(`${name} missing from the demo weapons`);
+    return weaponStatusToPlanningWeapon(status);
+  }
+
+  it.each([
+    ['LRM 20', 20, 6.3472, 6.7929],
+    ['SRM 6', 12, 4.0, 4.2557],
+  ])('%s previews the launcher total at p = 0.5', (name, total, mean, sd) => {
+    const weapon = demoPlanningWeapon(name);
+    expect(expectedDamage(weapon, 0.5)).toBeCloseTo(mean, 4);
+    expect(damageVariance(weapon, 0.5)).toBeCloseTo(sd, 4);
+    expect(weapon.damage).toBe(total);
+  });
+
+  it('leaves flat-damage demo weapons unchanged', () => {
+    expect(demoPlanningWeapon('AC/20').damage).toBe(20);
+    expect(demoPlanningWeapon('Medium Laser').damage).toBe(5);
   });
 });

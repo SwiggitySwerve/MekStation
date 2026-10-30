@@ -24,10 +24,7 @@ import {
   getNearestClusterSize,
   type ClusterSize,
 } from '../clusterWeapons/hitTable';
-import {
-  isMissileClusterWeapon,
-  missileRackSize,
-} from '../clusterWeapons/missileRack';
+import { missileRackSize } from '../clusterWeapons/missileRack';
 import { damageForProjectiles } from '../clusterWeapons/projectileDamage';
 import { isStreakWeapon } from '../clusterWeapons/streak';
 import { getClusterSizeForWeapon } from '../clusterWeapons/weaponSizes';
@@ -128,18 +125,14 @@ export const clusterHitsVariance: Readonly<Record<number, number>> =
   CLUSTER_HITS_VARIANCE_INTERNAL;
 
 /**
- * Rack size of a missile launcher, identified the way the firing side does
- * (`missileRackSize` / `isMissileClusterWeapon`, Streak by name or id) so a
- * hydrated `lrm-16-0` previews the rack the runner will actually roll.
+ * Rack size of a missile launcher, identified by the shared `missileRackSize`
+ * owner (it only matches LRM/SRM/MRM/ATM/MML ids and names, Streak included) so
+ * a hydrated `lrm-16-0` previews the rack the runner will actually roll.
  * `IWeapon.damage` on these weapons is the launcher total, never per missile.
  * Returns `undefined` for non-missiles (UAC/RAC/LB-X keep the legacy path).
  */
 function resolveMissileRack(weapon: IWeapon): number | undefined {
-  const rackSize = missileRackSize(weapon.id, weapon.name);
-  if (rackSize === undefined) return undefined;
-  return isStreak(weapon) || isMissileClusterWeapon(weapon.id, weapon.name)
-    ? rackSize
-    : undefined;
+  return missileRackSize(weapon.id, weapon.name);
 }
 
 /**

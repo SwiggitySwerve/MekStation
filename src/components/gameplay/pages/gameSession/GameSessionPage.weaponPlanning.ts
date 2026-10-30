@@ -1,10 +1,19 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponStatus } from '@/types/gameplay';
 
-function parseWeaponDamage(damage: IWeaponStatus['damage']): number {
+import { missileRackSize } from '@/utils/gameplay/clusterWeapons';
+
+/**
+ * Planning weapons carry the launcher total (as hydration does), so an
+ * `"N/missile"` display string is multiplied by the rack the shared owner reads.
+ */
+function parseWeaponDamage(status: IWeaponStatus): number {
+  const { damage } = status;
   if (typeof damage === 'number') return damage;
   const parsed = Number.parseFloat(damage);
-  return Number.isFinite(parsed) ? parsed : 0;
+  if (!Number.isFinite(parsed)) return 0;
+  if (!/\/missile/i.test(damage)) return parsed;
+  return parsed * (missileRackSize(status.id, status.name) ?? 1);
 }
 
 function inferAmmoPerTon(status: IWeaponStatus): number {
@@ -22,7 +31,7 @@ export function weaponStatusToPlanningWeapon(status: IWeaponStatus): IWeapon {
     shortRange: status.ranges.short,
     mediumRange: status.ranges.medium,
     longRange: status.ranges.long,
-    damage: parseWeaponDamage(status.damage),
+    damage: parseWeaponDamage(status),
     heat: status.heat,
     minRange: status.ranges.minimum ?? 0,
     location: status.location,
