@@ -39,6 +39,7 @@ import {
   computeProtoStructure,
   getProtoStructureTonnageError,
   getProtoMainGunTopologyError,
+  getProtoArmorErrors,
 } from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
@@ -371,6 +372,15 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     unit: IProtoMech,
   ): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
+    errors.push(
+      ...getProtoArmorErrors(
+        unit.weightPerUnit,
+        unit.chassisType,
+        unit.hasMainGun,
+        unit.structureByLocation,
+        unit.armorByLocation,
+      ),
+    );
     const engineMassError = getProtoEngineWeightError(unit.engineRating);
     if (engineMassError) errors.push(engineMassError);
 

@@ -283,6 +283,8 @@ export function createProtoMechStore(
                 armorByLocation: allocateProtoArmor(
                   state.tonnage,
                   state.hasMainGun,
+                  state.chassisType,
+                  state.structureByLocation,
                 ),
                 isModified: true,
                 lastModifiedAt: Date.now(),

@@ -266,6 +266,7 @@ policies SHALL be consolidated with unchanged observations before correction.
 - **AND** Quad arms and absent Main Gun SHALL receive zero points
 - **AND** the existing synchronous BV update SHALL consume the resulting allocation
 - **AND** the action's armor-budget policy SHALL be documented separately from upstream construction limits
+- **AND** its budget SHALL be the lesser of total capacity and summed location capacities, allocated proportionally with leftover points in location enum order
 - **WHEN** changing a location through the armor input consumer
 - **THEN** the consumer SHALL use the shared location cap for current topology and original structure
 - **AND** no inline copy of a construction table or formula SHALL remain in rendering code

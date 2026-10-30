@@ -2,7 +2,6 @@
  * ProtoMech Weight Class Tables
  *
  * Bucketing logic: Light 2–4t, Medium 5–7t, Heavy 8–9t, Ultraheavy 10–15t.
- * Per-location armor maximums from BattleTech Total Warfare construction rules.
  *
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  * @spec openspec/changes/add-protomech-construction/tasks.md §2
@@ -43,10 +42,6 @@ export function getProtoWeightClass(tonnage: number): ProtoWeightClass {
   if (tonnage >= 5) return ProtoWeightClass.MEDIUM;
   return ProtoWeightClass.LIGHT;
 }
-
-// =============================================================================
-// Per-location armor maximums
-// =============================================================================
 
 // =============================================================================
 // Chassis × tonnage legality

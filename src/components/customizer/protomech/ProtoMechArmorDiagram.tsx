@@ -9,12 +9,8 @@
  * displayed side-by-side on a standard desktop viewport without horizontal
  * scroll (each diagram targets ≤ 200px wide).
  *
- * Per-location armor caps follow the canonical ProtoMech weight table
- * (TechManual / TechManual Companion p.196 — Standard ProtoMech Armor Table).
- * The classic table is bracketed by tonnage; values below mirror the printed
- * record-sheet maxima for tonnages 2..15. add-protomech-construction will
- * formalise the table in a shared util — until then this diagram inlines it
- * and keeps the values in one place.
+ * Per-location limits come from the construction owner using current topology
+ * and original structure. Layout and silhouette fidelity remain separate.
  *
  * Accessibility:
  *   - Per-location numeric inputs use the shared <ArmorAllocationInput> with
@@ -25,18 +21,14 @@
  *        Requirement: ProtoMech 5-Location Compact Diagram
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { useProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { getProtoArmorDiagramMax as getLocationMax } from '@/utils/construction/protomech';
+import { computeProtoArmorLimits } from '@/utils/construction/protomech';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
-
-// =============================================================================
-// Helpers — Standard ProtoMech Armor Table (TM Companion p.196)
-// =============================================================================
 
 // =============================================================================
 // Types
@@ -70,17 +62,23 @@ export function ProtoMechArmorDiagram({
 }: ProtoMechArmorDiagramProps): React.ReactElement {
   const tonnage = useProtoMechStore((s) => s.tonnage);
   const hasMainGun = useProtoMechStore((s) => s.hasMainGun);
+  const chassisType = useProtoMechStore((s) => s.chassisType);
+  const structure = useProtoMechStore((s) => s.structureByLocation);
   const armorByLocation = useProtoMechStore((s) => s.armorByLocation);
+  const { byLocation: limits } = useMemo(
+    () => computeProtoArmorLimits(tonnage, chassisType, hasMainGun, structure),
+    [tonnage, chassisType, hasMainGun, structure],
+  );
 
   // ProtoMech store exposes setLocationArmor.
   const setLocationArmor = useProtoMechStore((s) => s.setLocationArmor);
 
   const handleChange = useCallback(
     (loc: ProtoMechLocation, raw: number) => {
-      const max = getLocationMax(tonnage, loc);
+      const max = limits[loc];
       setLocationArmor(loc, Math.max(0, Math.min(max, raw)));
     },
-    [setLocationArmor, tonnage],
+    [setLocationArmor, limits],
   );
 
   const locations = hasMainGun
@@ -166,7 +164,7 @@ export function ProtoMechArmorDiagram({
       <div className="flex flex-col gap-2">
         {locations.map(({ loc, label }) => {
           const current = (armorByLocation as Record<string, number>)[loc] ?? 0;
-          const max = getLocationMax(tonnage, loc);
+          const max = limits[loc];
 
           return (
             <div key={loc} className="flex flex-col gap-0.5">

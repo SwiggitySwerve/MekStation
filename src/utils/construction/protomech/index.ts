@@ -86,9 +86,10 @@ export {
   getProtoStructureTonnageError,
 } from './structure';
 
-// Armor policies consolidated before numerical correction.
+// Shared total and location armor limits, allocation and diagnostics.
 export {
   allocateProtoArmor,
-  getProtoArmorDiagramMax,
+  computeProtoArmorLimits,
+  getProtoArmorErrors,
   getProtoArmorMaxByTonnage,
 } from './armor';
