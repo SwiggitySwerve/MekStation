@@ -13,6 +13,7 @@ import {
   getArmorBVMultiplier,
   getPilotSkillModifier,
 } from '../../../types/validation/BattleValue';
+import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
 import {
   calculateAerospaceAmmoBV,
@@ -75,8 +76,7 @@ export function calculateAerospaceSpeedFactor(
   maxThrust: number,
 ): { avgThrust: number; speedFactor: number } {
   const avgThrust = (safeThrust + maxThrust) / 2;
-  const raw = Math.pow(1 + (avgThrust - 5) / 10, 1.2);
-  const speedFactor = Math.round(raw * 100) / 100;
+  const speedFactor = calculateOffensiveSpeedFactorForMP(avgThrust);
   return { avgThrust, speedFactor };
 }
 

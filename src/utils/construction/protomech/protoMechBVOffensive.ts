@@ -1,5 +1,6 @@
 import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
+import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import {
   normalizeEquipmentId,
   resolveEquipmentBV,
@@ -17,7 +18,7 @@ export function calculateProtoSpeedFactor(
   jumpMP: number,
 ): number {
   const mp = walkMP + Math.round(jumpMP / 2);
-  return Math.round(Math.pow(1 + (mp - 5) / 10, 1.2) * 100) / 100;
+  return calculateOffensiveSpeedFactorForMP(mp);
 }
 
 interface OffensivePieces {
