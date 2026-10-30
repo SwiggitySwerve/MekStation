@@ -1,10 +1,7 @@
 import type { IGameState, IToHitModifier } from '@/types/gameplay';
 
-import {
-  findAvailableAmmoBin,
-  hasAmmoForWeapon,
-  isEnergyWeapon,
-} from '@/utils/gameplay/ammoTracking';
+import { findAvailableAmmoBin } from '@/utils/gameplay/ammoTracking';
+import { hasAmmoForAttack } from '@/utils/gameplay/ammoTracking/weapons';
 import { lookupClusterHits } from '@/utils/gameplay/clusterWeapons';
 import { isSemiGuidedLRM } from '@/utils/gameplay/specialWeaponMechanics';
 
@@ -70,9 +67,13 @@ export function expandSelectedModeIntoShots(
 
 export function selectedAmmoWeaponType(
   weapon: IWeapon,
-  mode: IWeaponFiringMode | undefined,
+  mode?: IWeaponFiringMode,
 ): string {
-  return mode?.ammoWeaponType ?? weaponTypeFromMountId(weapon.id);
+  return (
+    mode?.ammoWeaponType ??
+    weapon.ammoWeaponType ??
+    weaponTypeFromMountId(weapon.id)
+  );
 }
 
 export function hasAmmoForValidShot(
@@ -80,14 +81,11 @@ export function hasAmmoForValidShot(
   weapon: IWeapon,
   mode?: IWeaponFiringMode,
 ): boolean {
-  if (isEnergyWeapon(weapon.name)) return true;
-
-  const ammoState = unit.ammoState;
-  if (!ammoState || Object.keys(ammoState).length === 0) {
-    return true;
-  }
-
-  return hasAmmoForWeapon(ammoState, selectedAmmoWeaponType(weapon, mode));
+  return hasAmmoForAttack(
+    unit.ammoState,
+    weapon,
+    selectedAmmoWeaponType(weapon, mode),
+  );
 }
 
 export function isSemiGuidedAmmoSelectedForWeapon(
