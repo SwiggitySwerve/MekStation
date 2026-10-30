@@ -49,8 +49,10 @@ mount-stripped id, the full id, then the name, and the LRM/SRM/MRM/ATM/MML
 family check. The runner's missile-cluster and Streak resolution and the
 selected-AMS session cluster used separate copies with identical behavior and
 now share it; a test freezes both copies as oracles over the whole weapon
-catalog. The family list mirrors `isMissileWeapon` and stays local because
-`specialWeaponMechanics` imports this module's facade. UAC, RAC and LB-X are not
+catalog. The family list mirrors `isMissileWeapon`. That mirror is temporary:
+`missileRack.ts` cannot import `specialWeaponMechanics` (which imports this
+module's facade), but `missileMechanics` can import `missileRack.ts` directly,
+so a follow-up should make this file the one family owner. UAC, RAC and LB-X are not
 missiles here; their rack and rate-of-fire contracts are separate.
 
 ## Damage previews
@@ -64,7 +66,7 @@ launcher previews `p x total` and `sqrt(p(1-p)) x total`. Pinned MegaMek
 `MissileWeaponHandler.calcDamagePerHit` (1 per LRM/MRM missile, :308),
 `SRMHandler.calcDamagePerHit` (2, :66), `ATMHandler.calcDamagePerHit` (2, 3 high
 explosive, 1 extended range, :78), `StreakHandler.calcHits` (whole rack on a
-lock, :97) and MegaMek's own `DamageProfile.expectedClusterHits` (:454).
+lock, :97) and MegaMek's own `DamageProfile.expectedClusterHits` (:457).
 
 Not corrected, measured and left open: UAC/RAC/LB-X previews (legacy name/id
 rack lookup, no firing-mode input), MRM's column modifier (the runner applies

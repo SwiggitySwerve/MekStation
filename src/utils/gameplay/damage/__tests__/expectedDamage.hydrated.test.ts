@@ -247,6 +247,23 @@ describe('expectedDamage / damageVariance on hydrated missile launchers', () => 
   });
 });
 
+// UAC, RAC and LB-X are not missiles and keep the legacy preview (a known
+// open item: no firing-mode input). These figures pin that path unchanged.
+describe('non-missile cluster rows keep the legacy preview', () => {
+  it.each([
+    ['uac-5', 7.9167, 8.4881],
+    ['rac-5', 7.9167, 8.4881],
+    ['uac-20', 126.9444, 135.8578],
+    ['lb-10-x-ac', 5.0, 5.0],
+  ])('%s at p = 0.5', (id, mean, sd) => {
+    const stats = lookup(id);
+    if (!stats) throw new Error(`${id} missing from the catalog`);
+    const weapon = toAIWeapon(stats, 0);
+    expect(expectedDamage(weapon, 0.5)).toBeCloseTo(mean, 4);
+    expect(damageVariance(weapon, 0.5)).toBeCloseTo(sd, 4);
+  });
+});
+
 describe('demo route planning weapons (IWeaponStatus -> IWeapon -> preview)', () => {
   // The demo fixture shows '1/missile' / '2/missile' text; the adapter must hand
   // the preview the launcher total, as hydration does.
@@ -272,4 +289,22 @@ describe('demo route planning weapons (IWeaponStatus -> IWeapon -> preview)', ()
     expect(demoPlanningWeapon('AC/20').damage).toBe(20);
     expect(demoPlanningWeapon('Medium Laser').damage).toBe(5);
   });
+
+  it.each([
+    ['MML 9', '1-2/missile', 18],
+    ['LRM 20', '1 / missile', 20],
+    ['LRM 20', '20 clusters', 20],
+  ])(
+    '%s with %s matches hydration (resolveCatalogDamage)',
+    (name, damage, total) => {
+      const template = createDemoWeapons()['unit-player-1'][0];
+      const weapon = weaponStatusToPlanningWeapon({
+        ...template,
+        id: 'weapon-9',
+        name,
+        damage,
+      });
+      expect(weapon.damage).toBe(total);
+    },
+  );
 });
