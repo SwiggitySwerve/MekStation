@@ -67,6 +67,8 @@ function firstPatternCatalogMatch(
   for (const [pattern, replacement] of NORMALIZATION_PATTERNS) {
     if (!value.match(pattern)) continue;
     const result = value.replace(pattern, replacement);
+    const clanId = clanPrefixCatalogMatch(catalog, value, [result]);
+    if (clanId) return clanId;
     if (catalog.has(result)) return result;
   }
   return undefined;
