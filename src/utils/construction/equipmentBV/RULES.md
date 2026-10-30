@@ -131,6 +131,49 @@ matches use the existing shared owner; they do not prove native quantities,
 bin identities or complete ammo BV. The ProtoMek exact-key cap, unresolved
 source ammunition and complete source BV remain open.
 
+## Native ProtoMek LRM identities
+
+The missile-LRM catalog owns four distinct `clan-lrm-1/2/3/4` records and
+the existing `lrm6/7/8/9/11/12/13/14/16/17/18/19` records. Eight mappings
+redirect native CLLRM1-4 and LRM 1-4 display names from battle-armor entries.
+The twelve other IDs remain stable. Existing battle-armor, one-shot, Streak
+and ordinary LRM 5/10/15/20 definitions are unchanged, including known gaps.
+
+Repeated pinned MegaMek 48fcb2f6 registry observations and the
+[Clan LRM sources](https://github.com/MegaMek/megamek/tree/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/clan)
+establish zero heat/Mech criticals, cost rack times 10,000, mass rack times
+0.2 tons, introduction 3050 and Standard static rules level. Catalog mass
+uses decimal tons, without retaining Java binary multiplication artifacts.
+Type BVs remain native values. These fields do not prove historical options
+or location capacity. Unit-type filtering permits only ProtoMechs.
+
+Native no-minimum and cluster-damage sentinels use minimum zero and
+`1/missile`; ranges are 7/14/21/28. Combat and AI receive native CLLRM names
+with nominal rack-sized damage and ranges 7/14/21, changing their previous
+zero fields. Actual cluster resolution is not certified here. The official
+loader retains extreme range 28; the existing combat adapter discards it.
+Extreme-range option, airborne and damage policy must be established before
+propagating that field. Ammunition-per-ton is not guessed: native ammoType is
+LRM, but these records still lack connected quantities and consumption.
+
+The bounded capture contains 224,344 inputs, extending the inherited
+224,300 source-derived inputs with current registry names and local IDs.
+332 lookups change; 64 native-accepted cases match BV/MTF identity, type BV
+and heat, while 268 rejected compatibility/local strings earn no parity
+credit. Combat data changes for 288 inputs. Eight captured display-name
+cases (LRM 1-4 and lower case) still select battle armor in combat, while
+BV/MTF now select ProtoMeks; this consumer disagreement remains open.
+The existing combat result for those eight inputs is unchanged.
+
+All 86 loaded source records, provenance, handler serialization, costs,
+existing local BLK export/reload outputs and BVs remain unchanged. Equal BV
+alone had concealed the incorrect rack 1-4 identities. Shared ammo-cap,
+Mech and vehicle comparisons over 340 names and 289 bins (98,260 combinations)
+retain all results: eight positive combinations per consumer before and
+after, all ordinary LRM controls. Preserved unresolved zeros earn no native
+ammo credit. These are local regression checks; no new Java entity/export
+replay, complete equipment/BV or production-flow parity is claimed.
+
 ## Ammunition matching boundary
 
 `../battleValueAmmo.ts` owns ammunition compatibility aliases, matching and

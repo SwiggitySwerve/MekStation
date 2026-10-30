@@ -103,3 +103,29 @@ SHALL NOT reinterpret explicit battle-armor or Inner Sphere identities as Clan.
 - **AND** source strings, mount provenance, existing serialization and source costs SHALL remain unchanged
 - **AND** captured ammunition results SHALL retain every previously positive contribution
 - **AND** legacy local IDs, contextual legality, full ammunition, combat alias/range propagation, combat mechanics and complete source BV SHALL remain separately accounted for
+
+### Requirement: Native ProtoMek LRM catalog identities
+
+The existing catalog and mapping owners SHALL distinguish ProtoMek LRM racks
+1-4 from battle-armor entries using clan-lrm-1/2/3/4, and SHALL correct the
+existing lrm6/7/8/9/11/12/13/14/16/17/18/19 records without renaming their IDs.
+Only pinned-native-accepted names SHALL be remapped. Existing battle-armor,
+one-shot, Streak and ordinary LRM 5/10/15/20 records SHALL remain unchanged.
+
+#### Scenario: Identity and represented native fields
+
+- **GIVEN** a native internal or unambiguous display name for one of these sixteen types
+- **WHEN** BV resolution or MTF normalization receives it or an ASCII case variant
+- **THEN** the existing catalog/mapping boundary SHALL select the native ProtoMek identity and type BV with zero heat
+- **AND** represented mass, cost, slots, ranges, introduction and static rules level SHALL match pinned runtime observations
+- **AND** the native cluster-damage and no-minimum sentinels SHALL use the existing 1/missile and minimum-zero conventions
+- **AND** official equipment filtering SHALL make these entries available only to ProtoMechs
+
+#### Scenario: Consumer effects and compatibility boundaries
+
+- **WHEN** combat and simulation receive native CLLRM names
+- **THEN** their existing data adapters SHALL supply rack-sized nominal damage and short/medium/long ranges 7/14/21
+- **AND** the official loader SHALL retain extreme range 28 without claiming combat option enforcement
+- **AND** source strings, provenance, existing serialization, costs and local BLK reload results SHALL remain unchanged
+- **AND** captured ammo-BV contributions SHALL retain previously positive values
+- **AND** legacy explicit IDs, unresolved alias differences, ammo quantities, mount legality, full combat/BV and production workflows SHALL remain separately accounted for
