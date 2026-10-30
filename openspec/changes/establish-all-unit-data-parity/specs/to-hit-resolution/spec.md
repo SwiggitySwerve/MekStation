@@ -39,3 +39,41 @@ owner's bin projection; only its absence SHALL retain the legacy ammo map.
 - **WHEN** the active Physical Attack section receives supplied or depleted live bins
 - **THEN** its locked weapon list SHALL display the current Ammo: N or No ammo badge
 - **AND** that display SHALL NOT commit a weapon attack or change the physical attack intent
+
+### Requirement: Missile damage previews use per-projectile damage
+
+The shared expected-damage and damage-variance owner SHALL treat a hydrated
+missile launcher's `IWeapon.damage` as the launcher total, as the firing side
+does. For a missile cluster weapon, identified with the cluster module's
+missile rack owner, per-projectile damage SHALL be the total divided by the
+rack. Expected damage SHALL be `p x E[hits(rack)] x per-projectile damage` and
+standard deviation `sqrt(d^2 x (p x Var(hits) + p x (1 - p) x E[hits]^2))`.
+For a Streak launcher expected damage SHALL be `p x total` and standard
+deviation `sqrt(p x (1 - p)) x total`. Per-missile damage is 1 for LRM and MRM
+and 2 for SRM (pinned MegaMek `MissileWeaponHandler.calcDamagePerHit`,
+`SRMHandler.calcDamagePerHit`); hit counts are
+`Compute.calculateClusterHitTableAmount`; a Streak lock lands the whole rack
+(`StreakHandler.calcHits`).
+
+#### Scenario: LRM 16 preview equals the firing side
+
+- **GIVEN** a hydrated LRM 16 mount (`damage` 16) and hit probability 0.5
+- **WHEN** the preview computes expected damage and standard deviation
+- **THEN** expected damage SHALL be 5.2083 and standard deviation 5.5526
+- **AND** both SHALL equal the 2d6-weighted damage the runner resolves for the same weapon
+- **AND** neither SHALL multiply the 16-point total by the landed missiles
+
+#### Scenario: Streak SRM 6 previews the all-hit total
+
+- **GIVEN** a hydrated Streak SRM 6 mount (`damage` 12) and hit probability 0.5
+- **WHEN** the preview computes expected damage and standard deviation
+- **THEN** expected damage SHALL be 6 and standard deviation 6
+- **AND** the rack SHALL NOT multiply the total again
+
+#### Scenario: Identification follows the firing side
+
+- **GIVEN** a mount id carrying the hydration `-<mountIndex>` suffix
+- **WHEN** the preview identifies the rack
+- **THEN** it SHALL use the same rack and missile classification as the runner and selected-AMS paths
+- **AND** UAC, RAC and LB-X rows SHALL keep their existing preview until their rate-of-fire and cluster/slug contracts are corrected
+- **AND** situational cluster modifiers, including MRM's column modifier, SHALL remain outside the preview

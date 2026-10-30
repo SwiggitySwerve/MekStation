@@ -24,6 +24,11 @@ import {
   getNearestClusterSize,
   type ClusterSize,
 } from '../clusterWeapons/hitTable';
+import {
+  isMissileClusterWeapon,
+  missileRackSize,
+} from '../clusterWeapons/missileRack';
+import { damageForProjectiles } from '../clusterWeapons/projectileDamage';
 import { isStreakWeapon } from '../clusterWeapons/streak';
 import { getClusterSizeForWeapon } from '../clusterWeapons/weaponSizes';
 
@@ -123,6 +128,21 @@ export const clusterHitsVariance: Readonly<Record<number, number>> =
   CLUSTER_HITS_VARIANCE_INTERNAL;
 
 /**
+ * Rack size of a missile launcher, identified the way the firing side does
+ * (`missileRackSize` / `isMissileClusterWeapon`, Streak by name or id) so a
+ * hydrated `lrm-16-0` previews the rack the runner will actually roll.
+ * `IWeapon.damage` on these weapons is the launcher total, never per missile.
+ * Returns `undefined` for non-missiles (UAC/RAC/LB-X keep the legacy path).
+ */
+function resolveMissileRack(weapon: IWeapon): number | undefined {
+  const rackSize = missileRackSize(weapon.id, weapon.name);
+  if (rackSize === undefined) return undefined;
+  return isStreak(weapon) || isMissileClusterWeapon(weapon.id, weapon.name)
+    ? rackSize
+    : undefined;
+}
+
+/**
  * Resolve the cluster rack size for an arbitrary weapon. Falls back
  * to the catalog's `getClusterSizeForWeapon` (matches the canonical
  * id list), then to common name patterns, then to `null` for plain
@@ -155,9 +175,39 @@ function resolveClusterSize(weapon: IWeapon): number | null {
 }
 
 /**
+ * Rack, damage per projectile and all-hit (Streak) total for a cluster weapon.
+ * Missile launchers use the firing side's rack and the total ÷ rack share;
+ * every other cluster row (UAC/RAC/LB-X) keeps the legacy name/id lookup and
+ * its damage unchanged.
+ */
+function clusterProfile(weapon: IWeapon): {
+  rackSize: number;
+  perProjectile: number;
+  allHitDamage: number;
+} | null {
+  const missileRack = resolveMissileRack(weapon);
+  if (missileRack !== undefined) {
+    return {
+      rackSize: missileRack,
+      perProjectile: damageForProjectiles(weapon.damage, missileRack, 1),
+      allHitDamage: weapon.damage,
+    };
+  }
+  const rackSize = resolveClusterSize(weapon);
+  return rackSize === null
+    ? null
+    : {
+        rackSize,
+        perProjectile: weapon.damage,
+        allHitDamage: rackSize * weapon.damage,
+      };
+}
+
+/**
  * Detect a Streak missile launcher. Streak SRM/LRM either all-hit on
  * a successful lock-on or no missiles fire — modeled here as
- * `expectedDamage = P(hit) × rackSize × damagePerMissile`.
+ * `expectedDamage = P(hit) × totalDamage` (the hydrated total already
+ * is rackSize × damagePerMissile).
  */
 function isStreak(weapon: IWeapon): boolean {
   return isStreakWeapon(weapon.id) || /streak/i.test(weapon.name);
@@ -238,16 +288,17 @@ export function expectedDamage(
   }
 
   const damage = weapon.damage;
-  const rackSize = resolveClusterSize(weapon);
+  const cluster = clusterProfile(weapon);
 
-  if (rackSize !== null) {
+  if (cluster !== null) {
     if (isStreak(weapon)) {
       // Streak: all missiles hit on a successful lock-on.
-      return p * rackSize * damage;
+      return p * cluster.allHitDamage;
     }
-    // Cluster: integrate the 2d6 cluster-table expectation.
-    const meanHits = expectedClusterHitsForSize(rackSize);
-    return p * meanHits * damage;
+    // Cluster: integrate the 2d6 cluster-table expectation over the damage
+    // of one projectile (a hydrated missile total is the whole rack).
+    const meanHits = expectedClusterHitsForSize(cluster.rackSize);
+    return p * meanHits * cluster.perProjectile;
   }
 
   // Default single-shot.
@@ -258,8 +309,9 @@ export function expectedDamage(
  * Standard deviation of damage for a single firing.
  *
  * Reasoning for the cluster formula: total damage D = Hit × ClusterHits
- * × damage, where Hit is Bernoulli(p) and ClusterHits is the cluster
- * distribution. Using the law of total variance:
+ * × damage, where Hit is Bernoulli(p), ClusterHits is the cluster
+ * distribution and `damage` is the damage of one projectile (the launcher
+ * total ÷ rack for hydrated missiles). Using the law of total variance:
  *
  *   Var(D) = damage² × ( p × Var(C) + p × (1-p) × E[C]² )
  *
@@ -284,21 +336,21 @@ export function damageVariance(
   }
 
   const damage = weapon.damage;
-  const rackSize = resolveClusterSize(weapon);
+  const cluster = clusterProfile(weapon);
 
-  if (rackSize !== null && !isStreak(weapon)) {
-    const meanHits = expectedClusterHitsForSize(rackSize);
-    const varianceHits = clusterHitsVarianceForSize(rackSize);
-    // Var(D) = damage² × (p × Var(C) + p × (1−p) × E[C]²)
+  if (cluster !== null && !isStreak(weapon)) {
+    const meanHits = expectedClusterHitsForSize(cluster.rackSize);
+    const varianceHits = clusterHitsVarianceForSize(cluster.rackSize);
+    const d = cluster.perProjectile;
+    // Var(D) = d² × (p × Var(C) + p × (1−p) × E[C]²), d = damage per projectile
     const variance =
-      damage * damage * (p * varianceHits + p * (1 - p) * meanHits * meanHits);
+      d * d * (p * varianceHits + p * (1 - p) * meanHits * meanHits);
     return Math.sqrt(Math.max(0, variance));
   }
 
-  if (rackSize !== null && isStreak(weapon)) {
-    // Streak: all-or-nothing → Bernoulli(p) × (rackSize × damage).
-    const total = rackSize * damage;
-    return Math.sqrt(p * (1 - p)) * total;
+  if (cluster !== null && isStreak(weapon)) {
+    // Streak: all-or-nothing → Bernoulli(p) × all-hit damage.
+    return Math.sqrt(p * (1 - p)) * cluster.allHitDamage;
   }
 
   // Single-shot Bernoulli: stddev = sqrt(p(1-p)) × damage.
@@ -319,7 +371,7 @@ export interface IClusterHitStats {
 }
 
 export function clusterHitStats(weapon: IWeapon): IClusterHitStats {
-  const rackSize = resolveClusterSize(weapon);
+  const rackSize = clusterProfile(weapon)?.rackSize ?? null;
   if (rackSize === null || isStreak(weapon)) {
     if (isStreak(weapon) && rackSize !== null) {
       // Streak: all missiles hit on a lock — mean = rackSize, stddev = 0.
