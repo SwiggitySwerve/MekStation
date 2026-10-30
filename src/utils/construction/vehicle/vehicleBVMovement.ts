@@ -2,24 +2,14 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import type { VehicleBVInput } from './vehicleBVTypes';
 
-import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
+import {
+  calculateOffensiveSpeedFactor,
+  calculateTMM,
+} from '../battleValueMovement';
 
 // =============================================================================
 // Movement Helpers
 // =============================================================================
-
-/**
- * Vehicle TMM table — same as mech table, indexed by run MP.
- */
-function vehicleRunMPtoTMM(mp: number): number {
-  if (mp <= 2) return 0;
-  if (mp <= 4) return 1;
-  if (mp <= 6) return 2;
-  if (mp <= 9) return 3;
-  if (mp <= 17) return 4;
-  if (mp <= 24) return 5;
-  return 6;
-}
 
 /**
  * Effective MP used for TMM and speed factor.
@@ -46,21 +36,11 @@ export function getVehicleEffectiveMP(input: VehicleBVInput): number {
  *     bonus is applied in combat, not in BV per MegaMek rules).
  */
 export function calculateVehicleTMM(input: VehicleBVInput): number {
-  const runMP = getVehicleEffectiveMP(input);
-  let tmm = vehicleRunMPtoTMM(runMP);
-
-  if (input.motionType === GroundMotionType.VTOL) {
-    tmm += 1;
-  }
-
-  // Include jump bonus (rare on vehicles, but WiGE/VTOL jet-equipped can have it).
-  const jumpMP = input.jumpMP ?? 0;
-  if (jumpMP > 0) {
-    const jumpTMM = vehicleRunMPtoTMM(jumpMP) + 1;
-    if (jumpTMM > tmm) tmm = jumpTMM;
-  }
-
-  return tmm;
+  return calculateTMM(
+    getVehicleEffectiveMP(input),
+    input.jumpMP ?? 0,
+    input.motionType === GroundMotionType.VTOL ? 1 : 0,
+  );
 }
 
 /**

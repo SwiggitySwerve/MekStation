@@ -1,3 +1,5 @@
+import { getTMMByUpperBound } from '@/constants/movement';
+
 export const SPEED_FACTORS: Record<number, number> = {
   0: 1.0,
   1: 1.1,
@@ -12,19 +14,13 @@ export const SPEED_FACTORS: Record<number, number> = {
   10: 2.0,
 };
 
-function mpToTMM(mp: number): number {
-  if (mp <= 2) return 0;
-  if (mp <= 4) return 1;
-  if (mp <= 6) return 2;
-  if (mp <= 9) return 3;
-  if (mp <= 17) return 4;
-  if (mp <= 24) return 5;
-  return 6;
-}
-
-export function calculateTMM(runMP: number, jumpMP: number = 0): number {
-  const runTMM = mpToTMM(runMP);
-  const jumpTMM = jumpMP > 0 ? mpToTMM(jumpMP) + 1 : 0;
+export function calculateTMM(
+  runMP: number,
+  jumpMP: number = 0,
+  runningBonus: number = 0,
+): number {
+  const runTMM = getTMMByUpperBound(runMP) + runningBonus;
+  const jumpTMM = jumpMP > 0 ? getTMMByUpperBound(jumpMP) + 1 : 0;
   return Math.max(runTMM, jumpTMM);
 }
 

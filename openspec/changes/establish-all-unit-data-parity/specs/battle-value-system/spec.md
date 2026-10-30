@@ -86,3 +86,68 @@ speed-factor owner and the pinned MegaMek calculator's UMU-zero context.
 - **THEN** the 86 loaded sources and bounded synthetic components/entities SHALL compare matching Run and Jump under undamaged BV settings
 - **AND** source fields, export bytes and unrelated BV components SHALL be checked separately from changed speed, offensive subtotal and total values
 - **AND** equipment pools, defensive factors, chassis multipliers, damage/options, complete BV and production editor/save flows SHALL remain unverified until independently proven
+
+
+### Requirement: ProtoMech Defensive BV
+
+The proto defensive BV SHALL combine armor, structure, defensive equipment,
+explosive penalty and the pinned MegaMek default-construction defensive movement
+factor. A Glider SHALL add one to running TMM before comparison with jumping
+TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
+
+#### Scenario: Armor BV baseline
+
+- **GIVEN** a Medium proto with 20 armor points
+- **WHEN** armorBV is computed
+- **THEN** armorBV SHALL equal `20 × 2.5 × 1.0 = 50`
+
+#### Scenario: Structure BV baseline
+
+- **GIVEN** a Medium proto with 12 structure points
+- **WHEN** structureBV is computed
+- **THEN** structureBV SHALL equal `12 × 1.5 × 1.0 = 18`
+
+#### Scenario: Native defensive movement factors
+
+- **GIVEN** nonnegative integer Run and Jump, UMU zero and standard movement modifiers
+- **WHEN** the defensive factor is computed
+- **THEN** it SHALL equal `(1 + max(running TMM, jumping TMM) / 10) + 0.1` in that operation order
+- **AND** Glider running TMM SHALL include its one-point bonus before the maximum is taken
+- **AND** Biped, Quad and the local Ultraheavy enum SHALL receive no Glider bonus
+- **AND** jumping TMM SHALL be zero at Jump zero and otherwise include the standard one-point jump bonus
+- **AND** the existing defensive pool SHALL be multiplied by that factor without changing source movement or inferring Run from Walk or equipment
+
+#### Scenario: Reactive and saved defensive BV
+
+- **WHEN** new state or a BV-affecting edit computes a breakdown
+- **THEN** the defensive factor SHALL use current chassis and explicit stored movement
+- **GIVEN** a saved cached breakdown and movement from an earlier version
+- **WHEN** hydration or unrelated identity edits occur
+- **THEN** saved movement and cached BV SHALL remain unchanged
+- **WHEN** explicit recomputation or a BV-affecting edit occurs
+- **THEN** the factor SHALL be refreshed and persisted through the existing store contract
+
+#### Scenario: Independent component verification
+
+- **WHEN** defensive movement is checked against pinned Java
+- **THEN** component TMMs, the factor and its application SHALL be checked across boundaries, loaded synthetic entities and all 86 sources
+- **AND** unrelated family outputs, source fields, serialization and export bytes SHALL be preserved
+- **AND** fractional/nonfinite/negative movement, MaxTech options, full equipment pools, chassis multipliers, complete BV and production browser flows SHALL remain outside this component proof
+
+
+#### Scenario: Shared thresholds preserve legacy validation
+
+- **WHEN** standard TMM thresholds are consolidated
+- **THEN** the validation BV helper SHALL use the shared upper-bound lookup on the greater of raw Run and Jump, without adding the construction jump bonus
+- **AND** Run zero with Jump three SHALL remain TMM one and defensive speed factor 1.1
+- **AND** either input being NaN SHALL retain TMM six and defensive speed factor 1.6
+- **AND** negative, fractional, infinite and signed-zero inputs SHALL retain their prior results
+- **AND** construction and gameplay SHALL preserve their distinct guards and interval conventions
+
+
+#### Scenario: Shared thresholds preserve the BV validation adapter
+- **GIVEN** the active `validate:bv` adapter selecting defensive calculator inputs
+- **WHEN** standard TMM thresholds and their inverse bracket minima are consolidated
+- **THEN** it SHALL consume the movement owner for both lookups
+- **AND** it SHALL preserve the greater of Jump and UMU with a bonus only when that maximum is positive, then compare against running TMM
+- **AND** its returned TMM and representative Run SHALL remain unchanged for boundaries, fractional, negative, signed-zero and nonfinite inputs, including TMM seven mapping to the final standard bracket minimum

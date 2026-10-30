@@ -1,6 +1,10 @@
 import type { CockpitType } from '../src/utils/construction/battleValueCalculations';
 import type { UnitData } from './validate-bv-types';
 
+import {
+  getMinimumMPForTMM,
+  getTMMByUpperBound,
+} from '../src/constants/movement';
 import { EngineType } from '../src/types/construction/EngineType';
 import {
   calcTotalArmor,
@@ -63,15 +67,14 @@ export function deriveDefensiveMovementInputs(
   jumpMP: number,
   umuMP: number,
 ): { correctMaxTMM: number; defRunMP: number } {
-  const tmmToMinMP = [0, 3, 5, 7, 10, 18, 25];
-  const runTMM = tmmFromMP(runMP);
+  const runTMM = getTMMByUpperBound(runMP);
   const effectiveJump = Math.max(jumpMP, umuMP);
-  const jumpTMM = effectiveJump > 0 ? tmmFromMP(effectiveJump) + 1 : 0;
+  const jumpTMM = effectiveJump > 0 ? getTMMByUpperBound(effectiveJump) + 1 : 0;
   const correctMaxTMM = Math.max(runTMM, jumpTMM);
 
   return {
     correctMaxTMM,
-    defRunMP: correctMaxTMM <= 6 ? tmmToMinMP[correctMaxTMM] : 25,
+    defRunMP: getMinimumMPForTMM(correctMaxTMM),
   };
 }
 
@@ -170,14 +173,4 @@ function deriveEffectiveConfiguration(
     : isTripodCockpit && unit.configuration?.toLowerCase() !== 'tripod'
       ? 'Tripod'
       : unit.configuration;
-}
-
-function tmmFromMP(mp: number): number {
-  if (mp <= 2) return 0;
-  if (mp <= 4) return 1;
-  if (mp <= 6) return 2;
-  if (mp <= 9) return 3;
-  if (mp <= 17) return 4;
-  if (mp <= 24) return 5;
-  return 6;
 }

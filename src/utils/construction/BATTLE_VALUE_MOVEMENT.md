@@ -23,3 +23,35 @@ Representative before/after observations cover the three public callers,
 explicit nonfinite/signed-zero results, and all 86 pinned ProtoMek source BV
 breakdowns. Full BV, equipment resolution and invalid-input admission remain
 separate contracts; no whole-unit numerical parity follows from this refactor.
+
+## Standard TMM thresholds
+
+`src/constants/movement.ts` owns the standard bracket table and the pure
+`getTMMByUpperBound` selector. Construction and the legacy validation BV helper
+call that selector, retaining negative/fractional/nonfinite behavior. The
+validation helper in `src/types/validation/BattleValue.ts` first takes the
+greater raw Run/Jump MP, without a jump bonus. Either input being NaN retains
+TMM six; its `getDefensiveSpeedFactor` consumer is unchanged.
+
+The active `validate:bv` calculator adapter in
+`scripts/validate-bv-calculator-setup.ts` uses the same selector and the owner's
+`getMinimumMPForTMM` inverse lookup. It is a calculator input adapter, not an
+independent reference oracle. It retains the positive maximum of Jump/UMU plus
+one, compared with running TMM. Its returned TMM can be seven, while its
+representative Run remains capped at the final standard bracket minimum (25).
+The inverse helper returns the exact matching bracket minimum or the final
+minimum for an unmatched value. This adapter only produces integer TMM 0–7.
+
+Shared construction `calculateTMM` compares running TMM plus a caller-supplied
+bonus against positive-jump TMM plus one. Vehicle callers retain effective MP,
+submarine nullish overrides and the VTOL running bonus. Gameplay to-hit reads
+the same table through its constants facade, with explicit lower and upper
+bounds and stationary/zero guards. These different input contracts remain
+separate. The legacy gameplay `movement/modifiers.ts` ceil(distance/5)
+approximation is a different rule and is not corrected here.
+
+The preserving extraction changes no numeric outputs. Optional MaxTech
+movement brackets and invalid-input admission remain outside this default
+construction contract. Threshold ownership is checked by source inspection;
+behavior tests and before/after captures cover the retained caller policies,
+but no automated gate detects arbitrary future threshold copies.

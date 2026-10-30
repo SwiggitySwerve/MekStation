@@ -8,12 +8,109 @@
  * BV parity for every mech we calculate.
  */
 
+import { MovementType } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import {
+  calculateTMM as calculateValidationTMM,
+  getDefensiveSpeedFactor,
+} from '@/types/validation/BattleValue';
+import { calculateTMM as calculateGameplayTMM } from '@/utils/gameplay/toHit/movementModifiers';
+
+import { deriveDefensiveMovementInputs } from '../../../../scripts/validate-bv-calculator-setup';
 import {
   calculateOffensiveSpeedFactor,
   calculateSpeedFactor,
   calculateTMM,
   SPEED_FACTORS,
 } from '../battleValueMovement';
+import { baseInput } from '../vehicle/__tests__/vehicleBV.test.helpers';
+import { calculateVehicleTMM } from '../vehicle/vehicleBVMovement';
+
+describe('distinct TMM entry-point contracts', () => {
+  it.each([
+    [Number.NaN, 6, 0],
+    [Number.POSITIVE_INFINITY, 6, 6],
+    [Number.NEGATIVE_INFINITY, 0, 0],
+    [-1, 0, 0],
+    [-0, 0, 0],
+    [2.5, 1, 0],
+    [4.5, 2, 0],
+    [6.5, 3, 0],
+    [9.5, 4, 0],
+    [17.5, 5, 0],
+    [24.5, 6, 0],
+  ])(
+    'preserves construction/gameplay input %s',
+    (mp, construction, gameplay) => {
+      expect(calculateTMM(mp)).toBe(construction);
+      expect(calculateVehicleTMM(baseInput({ flankMP: mp }))).toBe(
+        construction,
+      );
+      expect(calculateGameplayTMM(MovementType.Run, mp).value).toBe(gameplay);
+      expect(calculateGameplayTMM(MovementType.Stationary, mp).value).toBe(0);
+    },
+  );
+
+  it('applies the VTOL bonus to running before comparing jumping', () => {
+    expect(
+      calculateVehicleTMM(
+        baseInput({ motionType: GroundMotionType.VTOL, flankMP: 0 }),
+      ),
+    ).toBe(1);
+    expect(
+      calculateVehicleTMM(
+        baseInput({ motionType: GroundMotionType.VTOL, flankMP: 6, jumpMP: 4 }),
+      ),
+    ).toBe(3);
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.VTOL,
+          flankMP: 6,
+          jumpMP: 10,
+        }),
+      ),
+    ).toBe(5);
+  });
+
+  it('keeps submarine overrides, including zero and NaN', () => {
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.SUBMARINE,
+          flankMP: 25,
+          submarineMP: 0,
+        }),
+      ),
+    ).toBe(0);
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.SUBMARINE,
+          flankMP: 25,
+          submarineMP: 7,
+        }),
+      ),
+    ).toBe(3);
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.SUBMARINE,
+          flankMP: 0,
+          submarineMP: Number.NaN,
+        }),
+      ),
+    ).toBe(6);
+  });
+
+  it.each([-1, 0, Number.NaN])(
+    'keeps the nonpositive/unusable jump guard for %s',
+    (jumpMP) => {
+      expect(calculateTMM(4, jumpMP)).toBe(1);
+      expect(calculateVehicleTMM(baseInput({ flankMP: 4, jumpMP }))).toBe(1);
+    },
+  );
+});
 
 describe('calculateTMM (run/jump bucket table)', () => {
   it('returns 0 for very slow units (run MP ≤ 2)', () => {
@@ -126,5 +223,158 @@ describe('calculateOffensiveSpeedFactor (BV-2.0 formula)', () => {
     const sf = calculateOffensiveSpeedFactor(3, 0, 0);
     expect(sf).toBeLessThan(1.0);
     expect(sf).toBeGreaterThan(0);
+  });
+});
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
+describe('legacy validation TMM compatibility', () => {
+  it.each([
+    [-Infinity, 0, 1.0],
+    [-1, 0, 1.0],
+    [-0, 0, 1.0],
+    [0, 0, 1.0],
+    [2, 0, 1.0],
+    [2.000000001, 1, 1.1],
+    [2.5, 1, 1.1],
+    [3, 1, 1.1],
+    [4, 1, 1.1],
+    [4.000000001, 2, 1.2],
+    [4.5, 2, 1.2],
+    [5, 2, 1.2],
+    [6, 2, 1.2],
+    [6.000000001, 3, 1.3],
+    [6.5, 3, 1.3],
+    [7, 3, 1.3],
+    [9, 3, 1.3],
+    [9.000000001, 4, 1.4],
+    [9.5, 4, 1.4],
+    [10, 4, 1.4],
+    [17, 4, 1.4],
+    [17.000000001, 5, 1.5],
+    [17.5, 5, 1.5],
+    [18, 5, 1.5],
+    [24, 5, 1.5],
+    [24.000000001, 6, 1.6],
+    [24.5, 6, 1.6],
+    [25, 6, 1.6],
+    [Infinity, 6, 1.6],
+    [NaN, 6, 1.6],
+  ])('preserves movement %s and its speed factor', (mp, tmm, factor) => {
+    expect(calculateValidationTMM(mp)).toBe(tmm);
+    expect(calculateValidationTMM(mp, -Infinity)).toBe(tmm);
+    expect(calculateValidationTMM(-Infinity, mp)).toBe(tmm);
+    expect(getDefensiveSpeedFactor(mp, -Infinity)).toBe(factor);
+    expect(getDefensiveSpeedFactor(-Infinity, mp)).toBe(factor);
+  });
+
+  it('selects the greater raw MP without a jump bonus', () => {
+    expect(calculateValidationTMM(0, 3)).toBe(1);
+    expect(calculateValidationTMM(3, 0)).toBe(1);
+    expect(getDefensiveSpeedFactor(0, 3)).toBe(1.1);
+    expect(calculateTMM(0, 3)).toBe(2);
+    expect(calculateValidationTMM(17, 24)).toBe(5);
+    expect(calculateValidationTMM(24, 17)).toBe(5);
+  });
+
+  it.each([0, -Infinity, Infinity, NaN])(
+    'retains NaN propagation through the raw maximum with %s',
+    (other) => {
+      expect(calculateValidationTMM(other, NaN)).toBe(6);
+      expect(calculateValidationTMM(NaN, other)).toBe(6);
+      expect(getDefensiveSpeedFactor(other, NaN)).toBe(1.6);
+      expect(getDefensiveSpeedFactor(NaN, other)).toBe(1.6);
+    },
+  );
+});
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
+describe('validate:bv defensive movement adapter compatibility', () => {
+  it.each([
+    [-Infinity, 0, 0],
+    [-1, 0, 0],
+    [-0, 0, 0],
+    [0, 0, 0],
+    [2, 0, 0],
+    [2.000000001, 1, 3],
+    [2.5, 1, 3],
+    [3, 1, 3],
+    [4, 1, 3],
+    [4.000000001, 2, 5],
+    [4.5, 2, 5],
+    [5, 2, 5],
+    [6, 2, 5],
+    [6.000000001, 3, 7],
+    [6.5, 3, 7],
+    [7, 3, 7],
+    [9, 3, 7],
+    [9.000000001, 4, 10],
+    [9.5, 4, 10],
+    [10, 4, 10],
+    [17, 4, 10],
+    [17.000000001, 5, 18],
+    [17.5, 5, 18],
+    [18, 5, 18],
+    [24, 5, 18],
+    [24.000000001, 6, 25],
+    [24.5, 6, 25],
+    [25, 6, 25],
+    [Infinity, 6, 25],
+    [NaN, 6, 25],
+  ])(
+    'preserves running MP %s and its inverse mapping',
+    (run, correctMaxTMM, defRunMP) => {
+      expect(deriveDefensiveMovementInputs(run, 0, 0)).toEqual({
+        correctMaxTMM,
+        defRunMP,
+      });
+    },
+  );
+
+  it.each([
+    [0, -Infinity, 0, 0],
+    [-0, -1, 0, 0],
+    [-1, -Infinity, 0, 0],
+    [Number.MIN_VALUE, 0, 1, 3],
+    [2, 0, 1, 3],
+    [2.5, 0, 2, 5],
+    [4.5, 0, 3, 7],
+    [6.5, 0, 4, 10],
+    [9.5, 0, 5, 18],
+    [17.5, 0, 6, 25],
+    [24.5, 0, 7, 25],
+    [25, 30, 7, 25],
+    [Infinity, 0, 7, 25],
+    [NaN, 30, 0, 0],
+    [Infinity, NaN, 0, 0],
+  ])(
+    'preserves Jump/UMU %s/%s and capped inverse mapping',
+    (jump, umu, correctMaxTMM, defRunMP) => {
+      const expected = { correctMaxTMM, defRunMP };
+      expect(deriveDefensiveMovementInputs(0, jump, umu)).toEqual(expected);
+      expect(deriveDefensiveMovementInputs(0, umu, jump)).toEqual(expected);
+    },
+  );
+
+  it('compares running against boosted Jump/UMU and retains a NaN running fallback', () => {
+    expect(deriveDefensiveMovementInputs(24, 4, 6)).toEqual({
+      correctMaxTMM: 5,
+      defRunMP: 18,
+    });
+    expect(deriveDefensiveMovementInputs(4, 6, 10)).toEqual({
+      correctMaxTMM: 5,
+      defRunMP: 18,
+    });
+    expect(deriveDefensiveMovementInputs(NaN, 0, 0)).toEqual({
+      correctMaxTMM: 6,
+      defRunMP: 25,
+    });
+    expect(deriveDefensiveMovementInputs(NaN, 25, 0)).toEqual({
+      correctMaxTMM: 7,
+      defRunMP: 25,
+    });
+    expect(deriveDefensiveMovementInputs(3, NaN, Infinity)).toEqual({
+      correctMaxTMM: 1,
+      defRunMP: 3,
+    });
   });
 });

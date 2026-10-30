@@ -6,6 +6,8 @@
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
+import { getTMMByUpperBound } from '@/constants/movement';
+
 import { EngineType } from '../construction/EngineType';
 
 /**
@@ -39,16 +41,8 @@ export const BV2_SPEED_FACTORS_BY_TMM: Record<number, number> = {
  * Per TechManual movement rules
  */
 export function calculateTMM(runMP: number, jumpMP: number = 0): number {
-  // Use the better of run or jump MP for TMM calculation
-  const effectiveMP = Math.max(runMP, jumpMP);
-
-  if (effectiveMP <= 2) return 0;
-  if (effectiveMP <= 4) return 1;
-  if (effectiveMP <= 6) return 2;
-  if (effectiveMP <= 9) return 3;
-  if (effectiveMP <= 17) return 4;
-  if (effectiveMP <= 24) return 5;
-  return 6;
+  // Preserve the legacy raw-MP maximum, without the construction jump bonus.
+  return getTMMByUpperBound(Math.max(runMP, jumpMP));
 }
 
 /**
