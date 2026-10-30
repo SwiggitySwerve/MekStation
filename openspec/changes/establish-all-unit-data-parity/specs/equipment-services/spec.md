@@ -1,5 +1,37 @@
 ## ADDED Requirements
 
+### Requirement: Ammunition context in BV catalog resolution
+
+The existing BV catalog owner SHALL resolve ammunition only from ammunition
+catalog records. A shared ID SHALL select the ammunition record for ammo BV
+while generic equipment and MTF lookup retain their existing precedence.
+The existing normalizer SHALL remain the single compatibility lookup algorithm.
+
+#### Scenario: Distinguish ammunition from a colliding weapon
+
+- **GIVEN** distinct ammunition and weapon records with the same local ID
+- **WHEN** ammunition BV is requested
+- **THEN** the ammunition record's BV SHALL be returned
+- **AND** generic equipment BV, normalized IDs and MTF output SHALL remain unchanged
+- **AND** a weapon-only ID SHALL remain unresolved as ammunition, including in the battle-armor consumer
+- **AND** explicit battle-armor BV overrides SHALL retain their existing behavior
+
+#### Scenario: Custom catalogs and reset retain context boundaries
+
+- **GIVEN** a custom catalog initialized with explicitly separate ammunition entries
+- **WHEN** a record or alias is resolved
+- **THEN** ammunition lookup SHALL use only the supplied ammunition entries and generic entries SHALL retain precedence on shared IDs
+- **AND** replacing the custom catalog SHALL replace its ammunition and supplied alias caches without leaking bundled entries
+- **WHEN** the catalog cache is reset
+- **THEN** both contexts SHALL reload their bundled records
+
+#### Scenario: Bound the identity correction
+
+- **WHEN** the context correction is verified
+- **THEN** source-derived lookup captures SHALL account for every changed ammunition result and preserve generic/MTF output
+- **AND** the critical-slot validator's pattern-first policy SHALL remain unchanged while its resolver fallback observes ammunition context
+- **AND** native aliases, quantities, grouping, mount semantics and complete source BV SHALL remain separate proof obligations
+
 ### Requirement: Distinct native ProtoMek SRM catalog identities
 
 The existing equipment catalog and name mappings SHALL distinguish native

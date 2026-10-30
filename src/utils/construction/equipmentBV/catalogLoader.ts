@@ -16,6 +16,7 @@ import {
 } from './catalogData';
 
 let catalogCache: Map<string, EquipmentCatalogEntry> | null = null;
+let ammunitionCache: Map<string, EquipmentCatalogEntry> | null = null;
 let nameMappingsCache: Record<string, string> | null = null;
 let lowerMappingsCache: Map<string, string> | null = null;
 const loggedUnresolvable = new Set<string>();
@@ -114,6 +115,7 @@ export function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
 
 export function resetCatalogCache(): void {
   catalogCache = null;
+  ammunitionCache = null;
   nameMappingsCache = null;
   lowerMappingsCache = null;
   loggedUnresolvable.clear();
@@ -122,14 +124,31 @@ export function resetCatalogCache(): void {
 export function initializeCatalog(
   entries: EquipmentCatalogEntry[],
   nameMappings?: Record<string, string>,
+  ammunitionEntries: EquipmentCatalogEntry[] = [],
 ): void {
   catalogCache = new Map();
-  for (const entry of entries) {
+  // Explicit generic entries keep precedence over ammunition with the same ID.
+  for (const entry of [...ammunitionEntries, ...entries]) {
     catalogCache.set(entry.id, entry);
   }
+  ammunitionCache = new Map(
+    ammunitionEntries.map((entry) => [entry.id, entry]),
+  );
   if (nameMappings) {
     nameMappingsCache = nameMappings;
+    lowerMappingsCache = null;
   }
+}
+
+export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
+  if (ammunitionCache) return ammunitionCache;
+
+  const catalog = new Map<string, EquipmentCatalogEntry>();
+  for (const file of AMMUNITION_CATALOG_FILES) {
+    appendCatalogFile(catalog, file, false);
+  }
+  ammunitionCache = catalog;
+  return catalog;
 }
 
 export function getLoggedUnresolvable(): Set<string> {

@@ -270,10 +270,7 @@ function resolveWeaponBV(mount: BAWeaponBVMount): number {
  */
 function resolveAmmoMountBV(mount: BAAmmoBVMount): number {
   if (mount.bvOverride !== undefined) return mount.bvOverride;
-  const r = resolveAmmoBV(mount.id);
-  if (r.resolved) return r.battleValue;
-  // Fallback to generic equipment resolver (some ammo entries live under non-ammo ids).
-  return resolveEquipmentBV(mount.id).battleValue;
+  return resolveAmmoBV(mount.id).battleValue;
 }
 
 /**
