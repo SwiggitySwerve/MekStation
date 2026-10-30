@@ -10,6 +10,11 @@
  * same stale envelope at the server's version, which is an overwrite of
  * whoever committed in between, not a resolution.
  *
+ * A write the server REFUSES for want of the host's co-op sign-in (a window
+ * without the session token, or an expired one) is not a conflict and not
+ * an offline failure: the server's reason is shown and the unsaved changes
+ * are kept, so it never reads "playing offline; changes are kept locally".
+ *
  * It also surfaces a LAUNCH conflict (umbrella 10.3): a launch the
  * authority refused because the campaign moved under this client. It
  * shares this card because it is the same question - "your view is
@@ -69,6 +74,7 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   const errorMessage = useCampaignPersistenceStore((s) => s.errorMessage);
   const saveCampaign = useCampaignPersistenceStore((s) => s.saveCampaign);
   const saveConflict = useCampaignPersistenceStore((s) => s.saveConflict);
+  const saveRefusal = useCampaignPersistenceStore((s) => s.saveRefusal);
   const resolveConflictTakeServer = useCampaignPersistenceStore(
     (s) => s.resolveConflictTakeServer,
   );
@@ -99,9 +105,9 @@ export function CampaignSaveStatusCard(): React.ReactElement {
 
   return (
     <Card className="mb-6" data-testid="campaign-save-status-card">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
             <h2 className="text-text-theme-primary text-lg font-semibold">
               Campaign Save
             </h2>
@@ -120,9 +126,18 @@ export function CampaignSaveStatusCard(): React.ReactElement {
           >
             Last saved: {formatLastSaved(metadata.lastSavedAt)}
           </p>
-          {saveState === 'error' && errorMessage && (
+          {saveState === 'error' && errorMessage && !saveRefusal && (
             <p className="mt-1 text-sm text-yellow-400">
               {errorMessage} — playing offline; changes are kept locally.
+            </p>
+          )}
+          {saveState === 'error' && saveRefusal && (
+            <p
+              className="mt-1 text-sm text-red-400"
+              data-testid="campaign-save-refused"
+            >
+              Save refused ({saveRefusal.code}): {saveRefusal.message}. Your
+              unsaved changes are kept in this window.
             </p>
           )}
           {saveState === 'conflict' && (
@@ -151,7 +166,7 @@ export function CampaignSaveStatusCard(): React.ReactElement {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           {launchConflict && (
             <Button
               variant="primary"

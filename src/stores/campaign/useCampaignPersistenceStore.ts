@@ -24,6 +24,8 @@ import type {
 
 import { toast } from '@/components/shared/Toast';
 import { evaluateCampaignAdoptionOffer } from '@/lib/campaign/authority/campaignLegacyAdoption';
+import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import {
   buildSerializedCampaign,
   CURRENT_CAMPAIGN_SCHEMA_VERSION,
@@ -119,6 +121,18 @@ export interface ICampaignSaveConflict {
 }
 
 /**
+ * The server's typed refusal of a write to a campaign a live co-op host
+ * holds (`401`/`403`, `kind: 'refused'`): the code, the verifier's reason
+ * and the server's own sentence. It is NOT a conflict: nothing was newer on
+ * the server, so there is no record to adopt and the unsaved changes stay.
+ */
+export interface ICampaignSaveRefusal {
+  readonly code: string;
+  readonly reason: string;
+  readonly message: string;
+}
+
+/**
  * The committed body `/api/campaigns/[id]/commands` answers a source
  * command with (`kind: 'committed'`).
  *
@@ -179,6 +193,8 @@ interface CampaignPersistenceState {
   conflictServerRecord: SerializedCampaign | null;
   /** The server's typed reason and safe recovery for the last 409. */
   saveConflict: ICampaignSaveConflict | null;
+  /** The server's typed refusal of the last write, or `null`; see `ICampaignSaveRefusal`. */
+  saveRefusal: ICampaignSaveRefusal | null;
   /** Set when a launch was refused for a stale head or ownership. */
   launchConflict: ICampaignLaunchConflict | null;
   lastPersistedCampaign: ICampaign | null;
@@ -293,6 +309,7 @@ const INITIAL_STATE: CampaignPersistenceState = {
   errorMessage: null,
   conflictServerRecord: null,
   saveConflict: null,
+  saveRefusal: null,
   launchConflict: null,
   lastPersistedCampaign: null,
   legacyUnadopted: false,
@@ -634,6 +651,7 @@ function deserializeCampaignRecord(record: SerializedCampaign): ICampaign {
 
 type SaveAttemptResult =
   | { readonly status: 'saved'; readonly record: SerializedCampaign }
+  | { readonly status: 'refused'; readonly refusal: ICampaignSaveRefusal }
   | {
       readonly status: 'conflict';
       readonly conflictServerRecord: SerializedCampaign;
@@ -681,6 +699,41 @@ function readConflictBody(body: unknown): {
   return { record: body as SerializedCampaign, conflict: null };
 }
 
+/** The refusal in a `401`/`403` body, or `null` for any other body. */
+export function readSaveRefusal(body: unknown): ICampaignSaveRefusal | null {
+  const typed = body as Partial<{
+    kind: string;
+    code: string;
+    reason: string;
+    error: string;
+  }> | null;
+  if (
+    typed?.kind !== 'refused' ||
+    typeof typed.code !== 'string' ||
+    typeof typed.error !== 'string'
+  ) {
+    return null;
+  }
+  return {
+    code: typed.code,
+    reason: typeof typed.reason === 'string' ? typed.reason : typed.code,
+    message: typed.error,
+  };
+}
+
+/**
+ * The stored co-op bearer for the campaign's session as request headers, or
+ * none. Read at request time, so a renewed sign-in is used by the next
+ * write. The server, not this header, decides who may write: a missing or
+ * wrong bearer is refused there.
+ */
+export function coopRecordAuthHeaders(
+  campaign: Pick<ICampaign, 'coopSession'>,
+): Record<string, string> {
+  const stored = readCoopCampaignToken(getCoopMatchId(campaign.coopSession));
+  return stored ? { Authorization: `Bearer ${stored.wireToken}` } : {};
+}
+
 async function putLiveCampaign(
   campaignId: string,
   baseVersion: number,
@@ -703,13 +756,22 @@ async function putLiveCampaign(
     `/api/campaigns/${encodeURIComponent(campaignId)}`,
     {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...coopRecordAuthHeaders(campaign),
+      },
       body: JSON.stringify({ envelope, baseVersion }),
     },
   );
   if (response.status === 409) {
     const { record, conflict } = readConflictBody(await response.json());
     return { status: 'conflict', conflictServerRecord: record, conflict };
+  }
+  if (response.status === 401 || response.status === 403) {
+    const refusal = readSaveRefusal(await response.json().catch(() => null));
+    if (refusal) {
+      return { status: 'refused', refusal };
+    }
   }
   if (!response.ok) {
     throw new Error(`server responded ${response.status}`);
@@ -851,7 +913,7 @@ async function runSave(
     return { status: 'skipped' };
   }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
-  set({ saveState: 'saving', errorMessage: null });
+  set({ saveState: 'saving', errorMessage: null, saveRefusal: null });
 
   try {
     const attempt = await putLiveCampaign(
@@ -859,6 +921,17 @@ async function runSave(
       baseVersion,
       get().sourceReplayFence,
     );
+    if (attempt.status === 'refused') {
+      // Not rolled back and not cleared: the server holds nothing newer, so
+      // the local change is still the player's and stays pending (dirty) for
+      // a window that can save it. The card shows the reason.
+      set({
+        saveState: 'error',
+        errorMessage: attempt.refusal.message,
+        saveRefusal: attempt.refusal,
+      });
+      return { status: 'error', errorMessage: attempt.refusal.message };
+    }
     if (attempt.status === 'saved') {
       // A read that adopted a NEWER row while this write was in flight (a
       // load waits for no save) already holds a record the row moved to
@@ -1057,7 +1130,9 @@ async function runLoad(
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'load failed';
-      if (current()) set({ saveState: 'error', errorMessage: message });
+      if (current()) {
+        set({ saveState: 'error', errorMessage: message, saveRefusal: null });
+      }
       return false;
     }
   }
@@ -1111,7 +1186,7 @@ async function runAdoptLegacyCampaign(
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'adoption failed';
-    set({ saveState: 'error', errorMessage: message });
+    set({ saveState: 'error', errorMessage: message, saveRefusal: null });
     return false;
   }
 }
@@ -1555,7 +1630,7 @@ function createPersistenceActions(
     clearError: () => {
       set((state) =>
         state.saveState === 'error'
-          ? { saveState: 'idle', errorMessage: null }
+          ? { saveState: 'idle', errorMessage: null, saveRefusal: null }
           : {},
       );
     },

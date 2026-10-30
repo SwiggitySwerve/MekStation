@@ -27,7 +27,11 @@ import { syncLaunchedMission } from '@/pages-modules/gameplay/campaigns/missionL
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
 import { generateId } from '@/stores/campaign/campaignRosterStore.helpers';
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import {
+  coopRecordAuthHeaders,
+  readSaveRefusal,
+  useCampaignPersistenceStore,
+} from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { createMission as createCampaignMission } from '@/types/campaign/Mission';
@@ -276,18 +280,21 @@ export default function CampaignDashboardPage(): React.ReactElement {
   );
 
   const handleDeleteCampaign = useCallback(async () => {
-    if (!campaign) {
-      return;
-    }
+    if (!campaign) return;
 
     setDeleteError(null);
     try {
       const response = await fetch(
         `/api/campaigns/${encodeURIComponent(campaign.id)}`,
-        { method: 'DELETE' },
+        { method: 'DELETE', headers: coopRecordAuthHeaders(campaign) },
       );
       if (!response.ok) {
-        throw new Error(`server responded ${response.status}`);
+        const refusal = readSaveRefusal(
+          await response.json().catch(() => null),
+        );
+        throw new Error(
+          refusal?.message ?? `server responded ${response.status}`,
+        );
       }
 
       store.setState({

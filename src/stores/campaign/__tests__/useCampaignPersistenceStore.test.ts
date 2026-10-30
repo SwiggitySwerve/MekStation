@@ -19,10 +19,14 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { toast } from '@/components/shared/Toast';
+import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
-import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import {
+  createGuestCoopSession,
+  createHostCoopSession,
+} from '@/types/campaign/CoopSession';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 import { registerCampaignStoreAccessor } from '../campaignStoreAccessor';
@@ -762,5 +766,225 @@ describe('useCampaignPersistenceStore', () => {
     expect(
       savedPutBody.envelope.body.rosterProjection?.missions[0].deployedUnitIds,
     ).toEqual(['unit-atlas-as7d']);
+  });
+
+  // ---------------------------------------------------------------------------
+  // CAMPAIGN-LIVE-WRITE-1: the stored co-op bearer rides the record save, and
+  // a refusal for want of it is shown, not rolled back or called "offline"
+  // ---------------------------------------------------------------------------
+
+  describe('co-op record writes and the session bearer (CAMPAIGN-LIVE-WRITE-1)', () => {
+    const MATCH = 'match-coop';
+
+    afterEach(() => {
+      window.sessionStorage.clear();
+    });
+
+    function storeBearer(matchId: string, wireToken: string): void {
+      storeCoopCampaignToken({
+        matchId,
+        playerId: 'pid_session',
+        wireToken,
+        displayName: 'Session',
+      });
+    }
+
+    function refusalResponse(code = 'HOST_SESSION_REQUIRED'): Response {
+      return jsonResponse(401, {
+        error:
+          'a live co-op session holds this campaign; only the host session that started it can change it',
+        kind: 'refused',
+        code,
+        reason: code === 'HOST_SESSION_EXPIRED' ? 'expired' : 'malformed',
+        matchId: MATCH,
+      });
+    }
+
+    function lastPutHeaders(
+      fetchMock: jest.SpyInstance,
+    ): Record<string, string> {
+      const init = fetchMock.mock.calls.at(-1)?.[1] as RequestInit;
+      return init.headers as Record<string, string>;
+    }
+
+    it('(SP01) sends the stored bearer with a host campaign save', async () => {
+      mockStore.getState().switchCampaign({
+        ...campaign,
+        coopSession: createHostCoopSession('ROOM12', MATCH),
+      });
+      storeBearer(MATCH, 'wire-host');
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(
+          jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
+        );
+
+      await useCampaignPersistenceStore.getState().saveCampaign();
+
+      expect(lastPutHeaders(fetchMock)).toMatchObject({
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer wire-host',
+      });
+    });
+
+    it('(SP02) a guest mirror sends the bearer stored for its host match', async () => {
+      mockStore.getState().switchCampaign({
+        ...campaign,
+        coopSession: createGuestCoopSession(MATCH, 'ROOM12'),
+      });
+      storeBearer(MATCH, 'wire-guest');
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(
+          jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
+        );
+
+      await useCampaignPersistenceStore.getState().saveCampaign();
+
+      expect(lastPutHeaders(fetchMock).Authorization).toBe('Bearer wire-guest');
+    });
+
+    it('(SP03) a solo campaign, and a co-op campaign with no stored bearer, send none', async () => {
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(
+          jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
+        );
+      storeBearer(MATCH, 'wire-unrelated');
+
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(lastPutHeaders(fetchMock)).toEqual({
+        'Content-Type': 'application/json',
+      });
+
+      window.sessionStorage.clear();
+      mockStore.getState().switchCampaign({
+        ...campaign,
+        coopSession: createHostCoopSession('ROOM12', MATCH),
+      });
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(lastPutHeaders(fetchMock)).toEqual({
+        'Content-Type': 'application/json',
+      });
+    });
+
+    it('(SP04) a typed refusal is shown and the unsaved change is kept: no rollback, dirty stays, no "rolled back" toast', async () => {
+      const persisted = {
+        ...campaign,
+        coopSession: createHostCoopSession('ROOM12', MATCH),
+        currentDate: new Date('3025-01-01T00:00:00.000Z'),
+      };
+      mockStore.getState().switchCampaign(persisted);
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(
+          jsonResponse(
+            200,
+            buildSerializedCampaign(persisted, 'device-host', 1),
+          ),
+        );
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      mockStore.getState().switchCampaign({
+        ...persisted,
+        currentDate: new Date('3025-01-02T00:00:00.000Z'),
+      });
+      useCampaignPersistenceStore.getState().markDirty();
+      fetchMock.mockResolvedValue(refusalResponse());
+
+      const result = await useCampaignPersistenceStore
+        .getState()
+        .saveCampaign();
+
+      const state = useCampaignPersistenceStore.getState();
+      expect(result).toMatchObject({ status: 'error' });
+      expect(state.saveState).toBe('error');
+      expect(state.saveRefusal).toMatchObject({
+        code: 'HOST_SESSION_REQUIRED',
+        reason: 'malformed',
+      });
+      expect(state.errorMessage).toBe(state.saveRefusal?.message);
+      expect(state.dirty).toBe(true);
+      expect(state.baseVersion).toBe(1);
+      expect(mockStore.getState().campaign?.currentDate.toISOString()).toBe(
+        '3025-01-02T00:00:00.000Z',
+      );
+      expect(toast).not.toHaveBeenCalled();
+    });
+
+    it('(SP05) after a refusal, a renewed sign-in saves: the next write carries the new bearer and clears the refusal and dirty', async () => {
+      mockStore.getState().switchCampaign({
+        ...campaign,
+        coopSession: createHostCoopSession('ROOM12', MATCH),
+      });
+      storeBearer(MATCH, 'wire-expired');
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(refusalResponse('HOST_SESSION_EXPIRED'));
+      useCampaignPersistenceStore.getState().markDirty();
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(useCampaignPersistenceStore.getState().saveRefusal?.code).toBe(
+        'HOST_SESSION_EXPIRED',
+      );
+
+      storeBearer(MATCH, 'wire-renewed');
+      fetchMock.mockResolvedValue(
+        jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
+      );
+      await useCampaignPersistenceStore.getState().saveCampaign();
+
+      const state = useCampaignPersistenceStore.getState();
+      expect(lastPutHeaders(fetchMock).Authorization).toBe(
+        'Bearer wire-renewed',
+      );
+      expect(state.saveRefusal).toBeNull();
+      expect(state.saveState).toBe('saved');
+      expect(state.dirty).toBe(false);
+    });
+
+    it('(SP06) a 403 that is not the typed live-write refusal keeps the generic failure path: no saveRefusal', async () => {
+      jest.spyOn(global, 'fetch').mockResolvedValue(
+        jsonResponse(403, {
+          error: 'replica instance cannot accept local mutation',
+          kind: 'refused',
+          reason: 'replica-not-source',
+        }),
+      );
+
+      const result = await useCampaignPersistenceStore
+        .getState()
+        .saveCampaign();
+
+      const state = useCampaignPersistenceStore.getState();
+      expect(result).toEqual({
+        status: 'error',
+        errorMessage: 'server responded 403',
+      });
+      expect(state.saveRefusal ?? null).toBeNull();
+    });
+
+    it('(SP07) a later failure after a refusal (a save, then a load) does not keep showing the refusal', async () => {
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(refusalResponse());
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(useCampaignPersistenceStore.getState().saveRefusal?.code).toBe(
+        'HOST_SESSION_REQUIRED',
+      );
+
+      fetchMock.mockRejectedValue(new Error('network down'));
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(
+        useCampaignPersistenceStore.getState().saveRefusal ?? null,
+      ).toBeNull();
+
+      fetchMock.mockResolvedValueOnce(refusalResponse());
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(useCampaignPersistenceStore.getState().saveRefusal).not.toBeNull();
+      await useCampaignPersistenceStore.getState().loadCampaign(campaign.id);
+
+      const state = useCampaignPersistenceStore.getState();
+      expect(state.saveRefusal ?? null).toBeNull();
+      expect(state.errorMessage).toBe('network down');
+    });
   });
 });
