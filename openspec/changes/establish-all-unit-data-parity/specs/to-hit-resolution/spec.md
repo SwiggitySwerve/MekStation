@@ -51,8 +51,9 @@ standard deviation `sqrt(d^2 x (p x Var(hits) + p x (1 - p) x E[hits]^2))`.
 For a Streak launcher expected damage SHALL be `p x total` and standard
 deviation `sqrt(p x (1 - p)) x total`. Per-missile damage is 1 for LRM and MRM
 and 2 for SRM (pinned MegaMek `MissileWeaponHandler.calcDamagePerHit`,
-`SRMHandler.calcDamagePerHit`); hit counts are
-`Compute.calculateClusterHitTableAmount`; a Streak lock lands the whole rack
+`SRMHandler.calcDamagePerHit`); hit counts are the
+`Compute.calculateClusterHitTableAmount` cluster table for racks 1-20 (MRM 30/40
+columns and ATM's built-in +2 cluster modifier remain open); a Streak lock lands the whole rack
 (`StreakHandler.calcHits`).
 
 #### Scenario: LRM 16 preview equals the firing side
