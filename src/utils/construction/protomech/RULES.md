@@ -73,6 +73,22 @@ unrelated components are preserved; their complete equipment-based BV remains
 unproven. This does not cover drones, force bonuses, implants, damage/options,
 full equipment resolution or production editor/save/browser workflows.
 
+## Explosive-equipment BV
+
+Pinned MegaMek `BVCalculator.processExplosiveEquipment` is empty and
+`ProtoMekBVCalculator` does not override it. The local compatibility breakdown
+field `explosivePenalty` is therefore exactly zero, independent of equipment
+names, count, chassis or movement. Generic Mech critical-slot penalties do not
+apply here. The former ProtoMech-only hint list had no other consumers and is
+removed; no catalog or other-family rule changes.
+
+New calculations and existing recomputation actions use the native stage.
+Saved cached breakdowns remain intact during hydration and identity edits.
+Actual Java stages on all 86 sources verify this penalty and the resulting
+defensive subtotal; source fields, equipment, exports, other BV components and
+cost remain unchanged. Full equipment identity, ammunition amounts, weapon
+pools, whole-unit BV and production editor/save/browser workflows remain open.
+
 ## Engine rating
 
 Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,

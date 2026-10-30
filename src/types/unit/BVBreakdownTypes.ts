@@ -43,6 +43,7 @@ export interface IProtoMechBVBreakdown {
   readonly armorBV: number;
   readonly structureBV: number;
   readonly defensiveEquipmentBV: number;
+  /** Always zero: native ProtoMech BV has no explosive-equipment penalty. */
   readonly explosivePenalty: number;
   readonly defensiveFactor: number;
 
