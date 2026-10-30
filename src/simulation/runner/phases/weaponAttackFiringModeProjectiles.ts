@@ -1,4 +1,7 @@
-import { lookupClusterHits } from '@/utils/gameplay/clusterWeapons';
+import {
+  damageForProjectiles,
+  lookupClusterHits,
+} from '@/utils/gameplay/clusterWeapons';
 import { isMissileWeapon } from '@/utils/gameplay/specialWeaponMechanics';
 
 import type { IWeapon, IWeaponFiringMode } from '../../ai/types';
@@ -122,12 +125,15 @@ function resolveMissileClusterHit(options: {
     optionalRules: clusterContext?.optionalRules,
   });
   const projectileCount = amsInterception?.projectilesRemaining ?? clusterHits;
-  const damagePerProjectile = shotWeapon.damage / rackSize;
 
   return {
     weapon: {
       ...shotWeapon,
-      damage: projectileCount * damagePerProjectile,
+      damage: damageForProjectiles(
+        shotWeapon.damage,
+        rackSize,
+        projectileCount,
+      ),
     },
     projectileCount,
     ...(amsInterception !== undefined ? { amsInterception } : {}),
@@ -166,7 +172,11 @@ function resolveStreakModeHit(options: {
   return {
     weapon: {
       ...shotWeapon,
-      damage: (shotWeapon.damage / projectileCount) * remainingProjectiles,
+      damage: damageForProjectiles(
+        shotWeapon.damage,
+        projectileCount,
+        remainingProjectiles,
+      ),
     },
     projectileCount: remainingProjectiles,
     ...(amsInterception !== undefined ? { amsInterception } : {}),
