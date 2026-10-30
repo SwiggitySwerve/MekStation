@@ -86,10 +86,11 @@ export function WeaponSelector({
         target,
         weapon: w,
         range: rangeToTarget,
+        remainingShots: ammo[w.id],
       });
     }
     return out;
-  }, [previewEnabled, attacker, target, weapons, rangeToTarget]);
+  }, [previewEnabled, attacker, target, weapons, rangeToTarget, ammo]);
 
   // Per `add-attack-phase-ui` task 3.1: the Weapons list is collapsible
   // so the action panel stays compact when the player has already

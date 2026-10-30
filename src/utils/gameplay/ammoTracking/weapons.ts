@@ -5,7 +5,11 @@
 
 import { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
-import { hasAmmoForWeapon, normalizeAmmoWeaponType } from './state';
+import {
+  getTotalAmmo,
+  hasAmmoForWeapon,
+  normalizeAmmoWeaponType,
+} from './state';
 
 /**
  * Get all weapons that can currently fire (have ammo or are energy weapons).
@@ -40,4 +44,21 @@ export function isEnergyWeapon(weaponName: string): boolean {
     name.includes('flamer') ||
     name.includes('plasma')
   );
+}
+
+export function ammoFromWeapons(
+  weapons: readonly {
+    readonly id: string;
+    readonly name: string;
+    readonly ammoPerTon: number;
+  }[],
+  ammoState: Record<string, IAmmoSlotState>,
+): Record<string, number> {
+  const ammo: Record<string, number> = {};
+  for (const weapon of weapons) {
+    if (weapon.ammoPerTon > 0) {
+      ammo[weapon.id] = getTotalAmmo(ammoState, weapon.name);
+    }
+  }
+  return ammo;
 }
