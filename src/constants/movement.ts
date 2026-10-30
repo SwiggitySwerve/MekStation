@@ -15,6 +15,14 @@ export const TMM_BRACKETS: readonly {
   { min: 25, max: Infinity, tmm: 6 },
 ];
 
+/** Minimum MP for a standard TMM; unmatched values use the final bracket. */
+export function getMinimumMPForTMM(tmm: number): number {
+  return (
+    TMM_BRACKETS.find((bracket) => bracket.tmm === tmm)?.min ??
+    TMM_BRACKETS[TMM_BRACKETS.length - 1].min
+  );
+}
+
 /** Upper-bound BV lookup; NaN retains the historical final-bracket fallback. */
 export function getTMMByUpperBound(mp: number): number {
   return (

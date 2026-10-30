@@ -143,3 +143,11 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **AND** either input being NaN SHALL retain TMM six and defensive speed factor 1.6
 - **AND** negative, fractional, infinite and signed-zero inputs SHALL retain their prior results
 - **AND** construction and gameplay SHALL preserve their distinct guards and interval conventions
+
+
+#### Scenario: Shared thresholds preserve the BV validation adapter
+- **GIVEN** the active `validate:bv` adapter selecting defensive calculator inputs
+- **WHEN** standard TMM thresholds and their inverse bracket minima are consolidated
+- **THEN** it SHALL consume the movement owner for both lookups
+- **AND** it SHALL preserve the greater of Jump and UMU with a bonus only when that maximum is positive, then compare against running TMM
+- **AND** its returned TMM and representative Run SHALL remain unchanged for boundaries, fractional, negative, signed-zero and nonfinite inputs, including TMM seven mapping to the final standard bracket minimum

@@ -10,7 +10,8 @@
  * Proto-specific rules (TechManual + ProtoMech errata):
  *   - armorBV      = armorPoints × 2.5 (Standard armor only; mult 1.0)
  *   - structureBV  = structurePoints × 1.5
- *   - defFactor    = 1 + (maxTMM / 10); TMM from run/jump using shared tables
+ *   - defFactor    = 1 + (maxTMM / 10) + 0.1; shared run/jump TMM tables,
+ *                    with Glider +1 to running TMM before the maximum
  *   - speed factor = round(pow(1 + (mp − 5) / 10, 1.2) × 100) / 100,
  *                    mp = runMP + round(max(jumpMP, 0) / 2)
  *   - Main gun weapons count at full BV, identical to a mech-mounted instance.
