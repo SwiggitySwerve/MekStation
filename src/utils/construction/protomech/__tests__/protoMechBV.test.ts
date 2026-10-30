@@ -2,7 +2,7 @@
  * ProtoMech BV 2.0 unit tests.
  *
  * Covers:
- *   - Speed factor formula (proto-specific `mp = walkMP + round(jumpMP / 2)`)
+ *   - Speed factor formula (`mp = runMP + round(max(jumpMP, 0) / 2)`)
  *   - Chassis multipliers (Glider 0.9, Ultraheavy 1.15, Biped/Quad 1.0)
  *   - Armor / structure coefficient application (2.5× / 1.5×)
  *   - Main gun weapons counted at full BV
@@ -32,22 +32,22 @@ import { armor, buildProto } from './protoMechBV.test.helpers';
 // =============================================================================
 
 describe('calculateProtoSpeedFactor', () => {
-  it('baseline: walk 5, jump 0 → 1.00', () => {
+  it('baseline: run 5, jump 0 → 1.00', () => {
     expect(calculateProtoSpeedFactor(5, 0)).toBe(1);
   });
 
-  it('walk 6, jump 4 → mp = 6 + round(4/2) = 8 → sf ≈ 1.37', () => {
+  it('run 6, jump 4 → mp = 6 + round(4/2) = 8 → sf ≈ 1.37', () => {
     // pow(1 + 3/10, 1.2) = 1.3738... → round(1.3738 × 100) / 100 = 1.37
     const sf = calculateProtoSpeedFactor(6, 4);
     expect(sf).toBeCloseTo(1.37, 2);
   });
 
-  it('walk 8, jump 8 → mp = 8 + 4 = 12 → sf ≈ 1.89', () => {
+  it('run 8, jump 8 → mp = 8 + 4 = 12 → sf ≈ 1.89', () => {
     const sf = calculateProtoSpeedFactor(8, 8);
     expect(sf).toBeCloseTo(1.89, 2);
   });
 
-  it('walk 3, jump 0 (ultraheavy) → mp = 3 → sf ≈ 0.77', () => {
+  it('run 3, jump 0 (ultraheavy) → mp = 3 → sf ≈ 0.77', () => {
     // pow(1 + (3-5)/10, 1.2) = pow(0.8, 1.2) ≈ 0.7664 → 0.77
     const sf = calculateProtoSpeedFactor(3, 0);
     expect(sf).toBeCloseTo(0.77, 2);
@@ -167,7 +167,7 @@ describe('calculateProtoMechBV — offensive BV', () => {
   });
 
   it('speed factor applied to offensive total', () => {
-    // walk 6 jump 4 → sf ≈ 1.37; physical bonus 5 (tonnage) → offensive ≈ 6.85
+    // Explicit run 7, jump 4: pinned Java speed factor 1.50; local physical pool 5.
     const proto = buildProto({
       tonnage: 5,
       walkMP: 6,
@@ -175,8 +175,8 @@ describe('calculateProtoMechBV — offensive BV', () => {
       jumpMP: 4,
     });
     const bv = calculateProtoMechBV(proto);
-    expect(bv.speedFactor).toBeCloseTo(1.37, 2);
-    expect(bv.offensiveBV).toBeCloseTo(5 * 1.37, 2);
+    expect(bv.speedFactor).toBe(1.5);
+    expect(bv.offensiveBV).toBe(7.5);
   });
 });
 

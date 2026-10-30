@@ -50,5 +50,10 @@ export function calculateOffensiveSpeedFactor(
   umuMP: number = 0,
 ): number {
   const mp = runMP + Math.round(Math.max(jumpMP, umuMP) / 2.0);
+  return calculateOffensiveSpeedFactorForMP(mp);
+}
+
+/** Apply the shared exponent and rounding after the caller selects effective MP. */
+export function calculateOffensiveSpeedFactorForMP(mp: number): number {
   return Math.round(Math.pow(1 + (mp - 5) / 10.0, 1.2) * 100.0) / 100.0;
 }
