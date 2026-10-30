@@ -150,3 +150,33 @@ editor or persistence parity.
 - **WHEN** export is requested
 - **THEN** it SHALL fail with a Main Gun diagnostic and no content rather than silently lose those fields
 - **AND** source diagnostics and export rejection SHALL call the same construction-owner rule
+
+### Requirement: ProtoMek source booster equipment
+
+The BLK adapter SHALL derive undamaged ProtoMek booster state from the exact
+equipment identities recognized by pinned MegaMek at 48fcb2f6. Existing raw
+equipment records SHALL remain intact. Equipment legality and full mount
+semantics SHALL remain distinct from the movement effect.
+
+#### Scenario: Native identity and source location
+
+- **WHEN** any of the six pinned misc equipment types carrying F_MASC is loaded in a source location that upstream visits
+- **THEN** the handler SHALL set the booster flag and the running owner SHALL consume it without changing base Walk or engine rating
+- **AND** exact internal, registered and display aliases SHALL be compared case-insensitively without fuzzy punctuation matching
+- **AND** a Main Gun block SHALL contribute no booster when no mount exists
+- **AND** the separate myomerbooster tag SHALL NOT override equipment for any locally accepted ProtoMech spelling
+
+#### Scenario: Equipment syntax and preserved records
+
+- **WHEN** native rear-mount, size or shot-count syntax precedes lookup
+- **THEN** the source adapter SHALL decode it before determining the equipment effect
+- **AND** unusable numeric suffixes SHALL return a structured equipment diagnostic rather than throw or silently activate equipment
+- **AND** every processed entry SHALL be checked even if an earlier entry enables the booster
+- **AND** original equipment names, strings and locations SHALL remain available without catalog regeneration
+
+#### Scenario: Corpus and round-trip evidence
+
+- **WHEN** all 86 pinned ProtoMek sources are loaded and exported through the existing service adapter
+- **THEN** booster state and running movement SHALL match actual pinned Java observations, including the five previously missed boosters
+- **AND** unchanged source fields, exports and reloaded equipment SHALL be checked separately from changed local BV terms
+- **AND** direct editor flags without corresponding equipment, production source-to-store flows, equipment legality, damage and complete BV SHALL remain explicitly unverified

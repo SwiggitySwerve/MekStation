@@ -51,9 +51,10 @@ the corrected Run for defensive TMM, but complete BV is not verified here.
 
 This contract covers undamaged nonnegative integer movement with explicit
 booster context. Damage/options, jump/cap rules, weight classes and equipment
-resolution are separate. Five pinned sources retain CLMyomerBooster equipment
-but the handler does not recognize it as an enabled booster: their source Run
-still differs. Direct-owner comparisons with Java flags do not close that gap.
+legality are separate. The BLK source adapter derives the undamaged booster
+flag from exact equipment identities; its contract is documented in
+`src/services/conversion/BLK_PROTOMEK_EQUIPMENT.md`. Source-loaded effects do
+not establish equipment mass, cost, damage or legality.
 Production import/editor/persistence workflows remain unverified.
 
 ## Armor limits and allocation
