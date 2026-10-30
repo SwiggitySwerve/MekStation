@@ -109,7 +109,9 @@ SHALL NOT reinterpret explicit battle-armor or Inner Sphere identities as Clan.
 The existing catalog and mapping owners SHALL distinguish ProtoMek LRM racks
 1-4 from battle-armor entries using clan-lrm-1/2/3/4, and SHALL correct the
 existing lrm6/7/8/9/11/12/13/14/16/17/18/19 records without renaming their IDs.
-Only pinned-native-accepted names SHALL be remapped. Existing battle-armor,
+Native name corrections SHALL use pinned-native-accepted names. The four local
+catalog names LRM 1-4 (Clan) SHALL also resolve to their own ProtoMek records as
+local compatibility, without native-name parity credit. Existing battle-armor,
 one-shot, Streak and ordinary LRM 5/10/15/20 records SHALL remain unchanged.
 
 #### Scenario: Identity and represented native fields
@@ -121,6 +123,15 @@ one-shot, Streak and ordinary LRM 5/10/15/20 records SHALL remain unchanged.
 - **AND** the native cluster-damage and no-minimum sentinels SHALL use the existing 1/missile and minimum-zero conventions
 - **AND** official equipment filtering SHALL make these entries available only to ProtoMechs
 
+#### Scenario: Local catalog names and store writers
+
+- **GIVEN** official catalog records for balrm1-4 and clan-lrm-1/2/3/4
+- **WHEN** the equipment lookup service supplies the battle-armor and ProtoMech stores
+- **THEN** battle-armor mounts SHALL retain their explicit balrm IDs and plain LRM N names
+- **AND** ProtoMech mounts SHALL retain their clan-lrm IDs and LRM N (Clan) names
+- **AND** BV, MTF and combat lookup of each ProtoMech catalog name and its ASCII case variants SHALL agree on that ProtoMech identity
+- **AND** native rejection of these decorated names SHALL remain explicit, with no native-name or BLK-export parity credit
+
 #### Scenario: Consumer effects and compatibility boundaries
 
 - **WHEN** combat and simulation receive native CLLRM names
@@ -128,4 +139,5 @@ one-shot, Streak and ordinary LRM 5/10/15/20 records SHALL remain unchanged.
 - **AND** the official loader SHALL retain extreme range 28 without claiming combat option enforcement
 - **AND** source strings, provenance, existing serialization, costs and local BLK reload results SHALL remain unchanged
 - **AND** captured ammo-BV contributions SHALL retain previously positive values
+- **AND** the twenty remaining resolved-name disagreements and 56 compatibility spellings with combat data but unresolved BV SHALL receive no parity credit
 - **AND** legacy explicit IDs, unresolved alias differences, ammo quantities, mount legality, full combat/BV and production workflows SHALL remain separately accounted for

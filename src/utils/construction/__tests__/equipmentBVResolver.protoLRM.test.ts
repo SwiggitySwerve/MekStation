@@ -103,3 +103,28 @@ it.each([
 it.each([1, 2, 3, 4])('preserves one-shot mapping CLLRM%i(OS)', (rack) => {
   expect(normalizeEquipmentId(`CLLRM${rack}(OS)`)).toBe(`balrm${rack}os`);
 });
+
+describe.each(nativeProtoLRMs.filter(({ rack }) => rack <= 4))(
+  'local own-name compatibility for $native',
+  ({ rack, expected }) => {
+    const name = `LRM ${rack} (Clan)`;
+    it.each([name, name.toLowerCase(), name.toUpperCase()])(
+      'resolves %s consistently without claiming native-name parity',
+      (input) => {
+        expect(normalizeEquipmentId(input)).toBe(expected.id);
+        expect(normalizeMTFEquipment(input)).toBe(expected.id);
+        expect(getEquipmentEntry(input)?.id).toBe(expected.id);
+        expect(resolveEquipmentBV(input)).toEqual({
+          resolved: true,
+          battleValue: expected.battleValue,
+          heat: 0,
+        });
+        expect(getWeaponData(input)).toMatchObject({
+          id: expected.id,
+          damage: rack,
+        });
+        expect(lookup(input)).toMatchObject({ id: expected.id });
+      },
+    );
+  },
+);

@@ -44,7 +44,7 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.17 Resolve nine native Clan laser/light-weapon identities through existing catalogs and mappings, verify represented fields against pinned Java, and measure source BV, combat-data and ammunition effects without claiming complete equipment parity. (`equipment-services`: Native Clan laser and light weapon catalog identities)
 
-- [ ] 2.18 Separate native ProtoMek LRM 1-4 identities and correct twelve other LRM records using pinned runtime fields; verify official-loader eligibility, BV/MTF/combat consumers and preserved source/ammo boundaries. (`equipment-services`: Native ProtoMek LRM catalog identities)
+- [ ] 2.18 Separate native ProtoMek LRM 1-4 identities and correct twelve other LRM records using pinned runtime fields; verify official-loader eligibility, BV/MTF/combat consumers, local own-name compatibility through real BA/ProtoMech store writers and preserved source/ammo boundaries. (`equipment-services`: Native ProtoMek LRM catalog identities)
 
 ## 3. Complete typed data flows
 

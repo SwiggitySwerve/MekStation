@@ -136,6 +136,11 @@ source ammunition and complete source BV remain open.
 The missile-LRM catalog owns four distinct `clan-lrm-1/2/3/4` records and
 the existing `lrm6/7/8/9/11/12/13/14/16/17/18/19` records. Eight mappings
 redirect native CLLRM1-4 and LRM 1-4 display names from battle-armor entries.
+Four additional mappings make the local catalog names LRM 1-4 (Clan) resolve
+to their own ProtoMek IDs. Java rejects these decorated names; this correction
+earns local compatibility credit only. Equipment-service/store tests confirm
+battle armor emits plain LRM N with explicit balrm IDs, while ProtoMechs emit
+LRM N (Clan) with clan-lrm IDs. Historic external saves remain unverified.
 The twelve other IDs remain stable. Existing battle-armor, one-shot, Streak
 and ordinary LRM 5/10/15/20 definitions are unchanged, including known gaps.
 
@@ -160,10 +165,17 @@ The bounded capture contains 224,344 inputs, extending the inherited
 224,300 source-derived inputs with current registry names and local IDs.
 332 lookups change; 64 native-accepted cases match BV/MTF identity, type BV
 and heat, while 268 rejected compatibility/local strings earn no parity
-credit. Combat data changes for 288 inputs. Eight captured display-name
-cases (LRM 1-4 and lower case) still select battle armor in combat, while
-BV/MTF now select ProtoMeks; this consumer disagreement remains open.
-The existing combat result for those eight inputs is unchanged.
+credit. Combat data changes for 288 inputs. The own-name repair changes
+12 captured resolutions without changing BV, heat or combat results.
+Twenty resolved-name disagreements remain: eight bare LRM 1-4 cases select
+battle armor in combat and ProtoMeks for BV/MTF; twelve Clan LRM 1-4 case
+variants select ProtoMeks in combat and battle armor for BV/MTF. Another
+56 compatibility spellings have combat data but remain unresolved for BV.
+These gaps earn no parity credit. The eight bare-name combat results are
+unchanged. Editor-created LRM N (Clan) mounts still fail BLK export because
+the native parser reads the suffix as a shot count; ordinary Clan LRM 5/10
+already share that limitation. Source-file export preservation below does
+not cover those editor-created mounts.
 
 All 86 loaded source records, provenance, handler serialization, costs,
 existing local BLK export/reload outputs and BVs remain unchanged. Equal BV
