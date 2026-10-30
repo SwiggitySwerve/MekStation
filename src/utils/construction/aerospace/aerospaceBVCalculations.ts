@@ -3,6 +3,7 @@ import type {
   IAerospaceBVEquipment,
 } from './aerospaceBVTypes';
 
+import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
 
 export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
@@ -49,7 +50,7 @@ export function calculateAerospaceAmmoBV(
 
     const key = item.id.toLowerCase();
 
-    weaponBVByType[key] = (weaponBVByType[key] ?? 0) + resolved.battleValue;
+    addBVToAmmoCapGroup(weaponBVByType, key, resolved.battleValue);
   }
 
   // Bucket ammo BV by weapon type.
@@ -59,22 +60,16 @@ export function calculateAerospaceAmmoBV(
   for (const entry of ammo) {
     const key = entry.weaponType.toLowerCase();
 
-    ammoBVByType[key] = (ammoBVByType[key] ?? 0) + entry.bv;
+    addBVToAmmoCapGroup(ammoBVByType, key, entry.bv);
   }
 
   // Cap each bucket at the matching weapon BV total.
 
-  let total = 0;
-
-  for (const key of Object.keys(ammoBVByType)) {
+  return sumCappedAmmoBV(ammoBVByType, (key) => {
     const weaponBV = weaponBVByType[key] ?? 0;
 
-    if (weaponBV === 0) continue;
-
-    total += Math.min(ammoBVByType[key], weaponBV);
-  }
-
-  return total;
+    return weaponBV === 0 ? undefined : weaponBV;
+  });
 }
 
 // ============================================================================
