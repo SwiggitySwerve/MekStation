@@ -475,8 +475,8 @@ test.describe('Vehicle Unit Creation @customizer @vehicle', () => {
 
     const state = await getVehicleState(page, unitId);
     expect(state).not.toBeNull();
-    // Flank MP should be 1.5x cruise MP (floor)
-    expect(state?.flankMP).toBe(Math.floor(state!.cruiseMP * 1.5));
+    // Flank MP is 1.5x cruise MP, rounded up
+    expect(state?.flankMP).toBe(Math.ceil(state!.cruiseMP * 1.5));
 
     await closeTab(page, unitId);
   });

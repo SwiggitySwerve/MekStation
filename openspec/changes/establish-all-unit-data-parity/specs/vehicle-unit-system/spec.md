@@ -16,7 +16,8 @@ The system SHALL manage engine configuration and derive movement points.
 #### Scenario: Flank MP derivation
 
 - **WHEN** cruise MP is set to any value
-- **THEN** flank MP SHALL be `floor(cruiseMP × 1.5)`
+- **THEN** flank MP SHALL be cruise MP × 1.5 rounded upward, as the Base vehicle flank
+  movement consistency requirement defines
 - **AND** flank MP SHALL be read-only (derived)
 
 #### Scenario: Engine type selection
@@ -42,6 +43,37 @@ The system SHALL manage engine configuration and derive movement points.
 
 Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Engine.java:409-438`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/Engine.java#L409).
+
+### Requirement: Vehicle Store Actions
+
+The system SHALL expose actions for modifying vehicle state.
+
+#### Scenario: Tonnage change side effects
+
+- **WHEN** changing vehicle tonnage
+- **THEN** the system SHALL:
+  - Recalculate `weightClass`
+  - Recalculate `engineRating` to maintain current `cruiseMP`
+  - Clamp engine rating between 10 and 400
+  - Update `isSuperheavy` flag
+  - Mark state as modified
+
+#### Scenario: Cruise MP change side effects
+
+- **WHEN** changing cruise MP
+- **THEN** the system SHALL:
+  - Update `flankMP` to cruise MP × 1.5 rounded upward
+  - Recalculate `engineRating` from tonnage and cruise MP, as the Engine and Movement
+    requirement defines
+  - Mark state as modified
+
+#### Scenario: Engine rating change side effects
+
+- **WHEN** changing engine rating directly
+- **THEN** the system SHALL:
+  - Update `cruiseMP` to `floor(rating / tonnage)`
+  - Update `flankMP` accordingly
+  - Mark state as modified
 
 ## ADDED Requirements
 

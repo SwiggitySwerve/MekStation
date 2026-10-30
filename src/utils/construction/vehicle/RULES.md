@@ -102,15 +102,24 @@ duplication, rating edits and record-sheet movement transport. Component tests
 cover full/compact status and odd-cruise new-unit templates.
 
 The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
-movement enhancements and aerospace thrust are distinct policies. Python BLK
-conversion already rounds upward; it retains its language-boundary expression.
-No copy of the old floor-based construction calculation remains. Two floors
-remain outside construction and are separate follow-ups: in-play flank after
-motive damage (`utils/gameplay/motiveDamage.ts:computeEffectiveMP`; the same
-base rule, since Tank.java:456 says flank follows reduced cruise through the
-upward-rounding `getRunMP`) and aerospace max thrust
-(`aerospace/thrustCalculations.ts`, a construction rule needing its own source
-check). ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
+movement enhancements are a distinct policy (`ProtoMek.java:612-616` booster
+override). Python BLK conversion already rounds upward; it retains its
+language-boundary expression. No copy of the old floor-based vehicle
+construction calculation remains. The same upstream rule still floors outside
+this owner, as separate follow-ups:
+
+- In-play flank after motive damage (`utils/gameplay/motiveDamage.ts`
+  `computeEffectiveMP`). MegaMek subtracts motive damage from cruise in
+  `Tank.getWalkMP` (`Tank.java:397`), and `Entity.getRunMP` then rounds up
+  (`Entity.java:4016`).
+- Aerospace max thrust (`aerospace/thrustCalculations.ts` and the aerospace
+  store, handlers and spec). Airborne `Aero.getRunMP` delegates to
+  `Entity.getRunMP` (`Aero.java:1656-1658`), and MegaMekLab derives Flank MP and
+  Max Thrust from one `Math.ceil(walk * 1.5)` (`MovementView.java:295`).
+- BattleMech run MP in `services/construction/CalculationService.ts`
+  `calculateMovement`, which feeds customizer BattleMech BV.
+
+ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
 Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
