@@ -8,13 +8,13 @@ It SHALL use the same Clan-prefix owner as compact-ID resolution. Canonical
 IDs and explicit alias/name mappings SHALL retain their existing precedence;
 other fallback behavior SHALL remain unchanged.
 
-#### Scenario: Native Clan LB-X, Streak, Gauss and Ultra weapons
+#### Scenario: Native Clan LB-X, Streak, Gauss, Ultra and Rotary weapons
 
-- **GIVEN** native CLLBXAC2/5/10/20, CLStreakSRM2/4/6, CLGaussRifle or CLUltraAC2/5/10/20 names
+- **GIVEN** native CLLBXAC2/5/10/20, CLStreakSRM2/4/6, CLGaussRifle CLUltraAC2/5/10/20 or CLRotaryAC2/5 names
 - **WHEN** their exact, lower-case or upper-case spellings are resolved
 - **THEN** the canonical entry SHALL retain Clan technology and native weapon identity
 - **AND** its type BV SHALL match the pinned MegaMek registry
-- **AND** CLLBXAC2 SHALL give 47 and CLStreakSRM2 SHALL give 40
+- **AND** CLLBXAC2 SHALL give 47 and CLStreakSRM2 SHALL give 40, and CLRotaryAC2/5 SHALL give 161/345
 
 #### Scenario: Preserve explicit identities and unresolved diagnostics
 
@@ -27,7 +27,8 @@ other fallback behavior SHALL remain unchanged.
 #### Scenario: Bounded cross-family verification
 
 - **WHEN** this shared resolver correction is verified
-- **THEN** every changed captured name SHALL be listed and native-accepted changes SHALL be compared with actual pinned registry observations
+- **THEN** the capture SHALL include source-derived MTF/BLK and all-family unit JSON strings, explicitly state its extraction/input-set limits, list every changed captured name and compare native-accepted changes with actual pinned registry observations
+- **AND** shared MTF, unit-loader and simulation normalization consumers SHALL be acknowledged as receiving the changed identities
 - **AND** native-rejected compatibility spellings SHALL receive no native-parity credit
 - **AND** all 86 ProtoMek source records, serialization and costs SHALL be preserved while BV changes are recorded separately
 - **AND** full equipment/mount identity, ammunition, catalog defects, full numerical parity and production browser workflows SHALL remain open

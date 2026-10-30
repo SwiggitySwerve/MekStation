@@ -11,6 +11,12 @@ afterEach(resetCatalogCache);
 
 // Actual registry identity/BV observations from pinned MegaMek 48fcb2f6.
 const nativeCases = [
+  ['CLRotaryAC2', 'clan-rac-2', 161.0],
+  ['clrotaryac2', 'clan-rac-2', 161.0],
+  ['CLROTARYAC2', 'clan-rac-2', 161.0],
+  ['CLRotaryAC5', 'clan-rac-5', 345.0],
+  ['clrotaryac5', 'clan-rac-5', 345.0],
+  ['CLROTARYAC5', 'clan-rac-5', 345.0],
   ['CLLBXAC2', 'clan-lb-2-x-ac', 47.0],
   ['cllbxac2', 'clan-lb-2-x-ac', 47.0],
   ['CLLBXAC5', 'clan-lb-5-x-ac', 93.0],
