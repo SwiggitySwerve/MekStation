@@ -25,7 +25,6 @@ export {
   computeProtoWalkMPForRating,
   computeRunMP,
   effectiveJumpMP,
-  effectiveWalkMP,
   getProtoMPCaps,
   getProtoEngineWeightError,
   isMyomerBoosterLegal,

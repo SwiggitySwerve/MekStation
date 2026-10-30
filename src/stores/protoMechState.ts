@@ -27,11 +27,11 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoEngineRating,
+  computeRunMP,
   computeProtoEngineWeight,
   computeProtoStructure,
   getProtoWeightClass,
   getProtoMPCaps,
-  effectiveWalkMP,
 } from '@/utils/construction/protomech';
 import {
   calculateProtoMechBV,
@@ -172,7 +172,7 @@ export interface ProtoMechState {
   engineRating: number;
 
   /**
-   * Base walk MP (before Myomer Booster). This is the canonical field used by
+   * Base walk MP (unchanged by Myomer Booster). This is the canonical field used by
    * VAL-PROTO-MP. Cruise MP is an alias for walk MP on ground ProtoMechs.
    */
   walkMP: number;
@@ -180,7 +180,7 @@ export interface ProtoMechState {
   /** Cruise MP — kept for backward compat; equals walkMP */
   cruiseMP: number;
 
-  /** Flank MP (walk + 1 after booster, then +1 run) */
+  /** Derived running MP; see the ProtoMech construction owner. */
   flankMP: number;
 
   /** Jump MP */
@@ -299,8 +299,7 @@ export interface ProtoMechStoreActions
   setCruiseMP: (mp: number) => void;
   /**
    * Set base walk MP. Validates against the weight-class cap and re-derives
-   * engine rating. Does NOT apply the Myomer Booster — use effectiveWalkMP()
-   * for display purposes.
+   * engine rating. The Myomer Booster changes derived Run, not base Walk.
    */
   setWalkMP: (mp: number) => void;
   setJumpMP: (mp: number) => void;
@@ -394,9 +393,7 @@ export function createDefaultProtoMechState(
   const walkMP = Math.max(1, Math.min(getProtoMPCaps(weightClass).walkMax, 4));
   // Cruise MP mirrors walk MP for ProtoMechs
   const cruiseMP = walkMP;
-  // Effective walk (with booster = false by default) drives flank MP
-  const effWalk = effectiveWalkMP(walkMP, false);
-  const flankMP = effWalk + 1;
+  const flankMP = computeRunMP(walkMP);
 
   return {
     // Identity
@@ -516,7 +513,7 @@ function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
     }));
 
   const walkMP = state.walkMP ?? state.cruiseMP ?? 1;
-  const runMP = state.flankMP ?? walkMP + 1;
+  const runMP = state.flankMP ?? computeRunMP(walkMP, state.hasMyomerBooster);
 
   return {
     id: state.id,

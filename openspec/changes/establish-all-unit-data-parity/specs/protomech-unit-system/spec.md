@@ -1,8 +1,8 @@
 ## MODIFIED Requirements
 
 Scope: this delta corrects engine rating, normal-engine mass, movement-field
-consistency and internal structure. Existing
-weight-class labels, tonnage/MP caps, default-speed choices and flank policies
+consistency, derived running, internal structure and armor limits. Existing
+weight-class labels, tonnage/MP caps and default-speed choices
 are retained below to keep modified requirements complete; their fidelity is
 not independently established by this slice. Native source projection is specified
 in the unit-services delta. Other component mass, equipment, production serialization and
@@ -32,7 +32,7 @@ The system SHALL support three ProtoMech weight classes based on individual unit
 - **WHEN** setting ProtoMech tonnage via the store
 - **THEN** the system SHALL clamp the value to the range 2-9 tons
 - **AND** recalculate cruise MP as `max(1, 10 - tonnage)` and synchronize walk MP
-- **AND** recalculate flank MP as `floor(cruiseMP * 1.5)`
+- **AND** recalculate flank MP through the Derived Running Movement requirement
 - **AND** recalculate engine rating through the Engine Rating requirement using the current chassis
 
 #### Scenario: Invalid weight validation
@@ -50,13 +50,13 @@ The system SHALL track cruise, flank, and jump movement points.
 
 - **WHEN** setting cruise MP
 - **THEN** the value SHALL be clamped to minimum 1 and walk MP SHALL match that admitted value
-- **AND** flank MP SHALL be recalculated as `floor(cruiseMP * 1.5)`
+- **AND** flank MP SHALL follow the Derived Running Movement requirement
 - **AND** engine rating SHALL follow the Engine Rating requirement using the admitted base speed and current chassis
 
 #### Scenario: Flank MP (derived)
 
 - **WHEN** displaying flank MP
-- **THEN** flank MP SHALL be `floor(cruiseMP * 1.5)`
+- **THEN** flank MP SHALL follow the Derived Running Movement requirement
 - **AND** flank MP SHALL be read-only in the UI
 
 #### Scenario: Jump MP
@@ -117,7 +117,7 @@ calculation SHALL NOT assert construction legality or complete engine mass.
 - **WHEN** setting a representable safe integer engine rating
 - **THEN** the store SHALL retain its current nonnegative integer walk speed if that speed has exactly the requested rating
 - **OTHERWISE** it SHALL select the greatest nonnegative integer speed with exactly that rating
-- **AND** walk/cruise aliases SHALL both match that speed and the existing direct-set flank policy SHALL use that speed
+- **AND** walk/cruise aliases SHALL both match that speed and flank MP SHALL use that speed and the explicit booster state through the Derived Running Movement requirement
 - **AND** inversion SHALL query the authoritative forward function rather than duplicate its arithmetic
 
 #### Scenario: Unrepresentable direct rating is rejected atomically
@@ -200,7 +200,7 @@ summed as points. Construction legality SHALL remain a separate diagnostic.
 ### Requirement: ProtoMech Engine Mass
 
 The construction owner SHALL calculate normal ProtoMech engine mass using pinned
-MegaMek `Engine.java:396-450` and `RoundWeight.java` at48fcb2f6. Source loading and
+MegaMek `Engine.java:396-450` and `RoundWeight.java` at 48fcb2f6. Source loading and
 canonical handler/store projections SHALL use that owner. This requirement covers
 normal fusion engines only, independently of construction legality and complete BV.
 
@@ -237,7 +237,7 @@ normal fusion engines only, independently of construction legality and complete 
 ### Requirement: ProtoMech Armor Limits
 
 The construction owner SHALL calculate total and per-location armor limits from
-pinned MegaMek `TestProtoMek.java:675-740` at48fcb2f6. The exported utility,
+pinned MegaMek `TestProtoMek.java:675-740` at 48fcb2f6. The exported utility,
 allocation action and armor-input consumers SHALL use that owner. Existing
 policies SHALL be consolidated with unchanged observations before correction.
 
@@ -284,3 +284,38 @@ policies SHALL be consolidated with unchanged observations before correction.
 - **THEN** actual pinned Java observations and all86 original sources SHALL be compared explicitly
 - **AND** source field preservation and invalid-design diagnostics SHALL be recorded separately
 - **AND** incomplete editor/import/save/reload, equipment, full BV, partial-budget allocation and subtype presentation proof SHALL remain open
+
+### Requirement: ProtoMech Derived Running Movement
+
+The construction owner SHALL calculate undamaged running MP from original walk
+and explicit booster state using pinned MegaMek Entity.java and ProtoMek.java
+at 48fcb2f6. Existing distinct running policies SHALL first be consolidated with
+unchanged outputs in a separately verified refactor.
+
+#### Scenario: Ordinary and boosted running
+
+- **WHEN** original walk MP is 0, 1, 3, 4 or 5 without a booster
+- **THEN** running MP SHALL be 0, 2, 5, 6 or 8 respectively
+- **WHEN** an enabled myomer booster is explicitly modeled
+- **THEN** running MP SHALL be twice original walk while effective walk SHALL remain original walk
+- **AND** the booster SHALL NOT change the base engine rating
+
+#### Scenario: Derived movement consumers
+
+- **WHEN** creating a default ProtoMech or changing tonnage, chassis, engine rating, cruise, walk or booster state
+- **THEN** the resulting flank MP SHALL come from the running owner using the resulting base walk and booster state
+- **AND** existing movement clamps and default choices SHALL remain separate policies
+- **WHEN** projecting handler data, or a store snapshot without flank MP
+- **THEN** running MP SHALL come from the same owner using the supplied base walk and explicit booster flag
+- **WHEN** rendering movement controls
+- **THEN** they SHALL display stored walk and flank MP without inline running arithmetic
+- **AND** their Run display SHALL agree with the status bar and BV input, including preserved saved flank values
+
+#### Scenario: Preservation and comparison scope
+
+- **WHEN** loading saved state with an existing flank MP or making an unrelated edit
+- **THEN** the stored movement values SHALL NOT be silently migrated
+- **AND** a later movement-affecting edit SHALL recalculate flank MP
+- **WHEN** comparing sources with unresolved booster equipment identity
+- **THEN** those differences SHALL remain explicitly unmatched rather than counted as source movement parity
+- **AND** jump rules, damaged-unit options, construction caps, equipment identity, complete BV and production persistence/editor proof SHALL remain separate

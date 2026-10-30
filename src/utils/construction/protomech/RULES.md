@@ -26,12 +26,36 @@ ratings before changing state. This ambiguity policy belongs to MekStation;
 MegaMekLab's pinned `PMStructureTab.java` exposes forward edits, not this setter.
 Walk and cruise aliases agree after rating, chassis, tonnage or movement edits.
 
-The separate MP/tonnage caps, default speed choices, flank policies, engine
-weight factor and rounding, weight classes, equipment and BV rules remain
+The separate MP/tonnage caps, default speed choices, weight classes, equipment
+and complete BV rules remain
 unverified against the pinned runtime. Existing saves are not migrated. The
 native handler preserves chassis, motion, armor order and main-gun presence;
 its source projection does not establish a production editor import path.
 This correction does not establish full source, persistence or numerical parity.
+
+## Undamaged running movement
+
+`computeRunMP` owns derived running from base Walk and explicit enabled booster
+state. Pinned MegaMek Entity.java:4004-4016 uses ceiling(Walk times 1.5);
+ProtoMek.java:612-627 uses twice Walk when its operable booster is enabled.
+Walk itself stays unchanged. Default state, all six movement-affecting setters,
+handler/store projections use this owner. Movement controls display stored
+flank, matching the status bar and BV, including preserved legacy saves. Base
+engine rating remains independent. Existing clamps and default choices are retained.
+
+The separately verified consolidation preserved both former +1 and cruise-floor
+policies before this correction removed them. The historical BV fixture's +1
+run value remains explicit test data. Generic vehicle rules have another owner.
+Saved flank is preserved until a movement-affecting edit; a missing legacy
+flank value is derived. No save migration is introduced. Existing BV consumes
+the corrected Run for defensive TMM, but complete BV is not verified here.
+
+This contract covers undamaged nonnegative integer movement with explicit
+booster context. Damage/options, jump/cap rules, weight classes and equipment
+resolution are separate. Five pinned sources retain CLMyomerBooster equipment
+but the handler does not recognize it as an enabled booster: their source Run
+still differs. Direct-owner comparisons with Java flags do not close that gap.
+Production import/editor/persistence workflows remain unverified.
 
 ## Armor limits and allocation
 

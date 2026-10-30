@@ -21,9 +21,9 @@ import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   allocateProtoArmor,
   computeProtoEngineRating,
+  computeRunMP,
   computeProtoStructure,
   computeProtoWalkMPForRating,
-  effectiveWalkMP,
   getProtoMPCaps,
   getProtoWeightClass,
 } from '@/utils/construction/protomech';
@@ -124,7 +124,7 @@ export function createProtoMechStore(
                 ),
                 cruiseMP: newCruiseMP,
                 walkMP: newCruiseMP,
-                flankMP: Math.floor(newCruiseMP * 1.5),
+                flankMP: computeRunMP(newCruiseMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
                   clampedTonnage,
                   newCruiseMP,
@@ -148,7 +148,6 @@ export function createProtoMechStore(
               const caps = getProtoMPCaps(weightClass);
               // Clamp walk MP to new caps
               const walkMP = Math.min(state.walkMP, caps.walkMax);
-              const effWalk = effectiveWalkMP(walkMP, state.hasMyomerBooster);
               // Ultraheavy cannot jump; Glider gains +2 via effectiveJumpMP at display time
               const jumpMP =
                 chassisType === ProtoChassis.ULTRAHEAVY ? 0 : state.jumpMP;
@@ -166,7 +165,7 @@ export function createProtoMechStore(
                 ),
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: effWalk + 1,
+                flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
                   state.tonnage,
                   walkMP,
@@ -195,7 +194,7 @@ export function createProtoMechStore(
                 engineRating,
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: Math.floor(walkMP * 1.5),
+                flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };
@@ -207,7 +206,7 @@ export function createProtoMechStore(
               return {
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: Math.floor(walkMP * 1.5),
+                flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
                   state.tonnage,
                   walkMP,
@@ -224,11 +223,10 @@ export function createProtoMechStore(
               const caps = getProtoMPCaps(weightClass);
               // Clamp to [1, cap]
               const walkMP = Math.max(1, Math.min(mp, caps.walkMax));
-              const effWalk = effectiveWalkMP(walkMP, state.hasMyomerBooster);
               return {
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: effWalk + 1,
+                flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
                   state.tonnage,
                   walkMP,
@@ -330,11 +328,9 @@ export function createProtoMechStore(
 
           setMyomerBooster: (hasMyomerBooster) =>
             set((state) => {
-              // Recompute flank MP because the booster changes effective walk
-              const effWalk = effectiveWalkMP(state.walkMP, hasMyomerBooster);
               return {
                 hasMyomerBooster,
-                flankMP: effWalk + 1,
+                flankMP: computeRunMP(state.walkMP, hasMyomerBooster),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };

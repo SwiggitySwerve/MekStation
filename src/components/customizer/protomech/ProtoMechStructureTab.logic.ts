@@ -10,7 +10,6 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   effectiveJumpMP,
-  effectiveWalkMP,
   getProtoMPCaps,
   getProtoWeightClass,
 } from '@/utils/construction/protomech';
@@ -218,6 +217,7 @@ export function useProtoMechMovementControls(
   const tonnage = useProtoMechStore((s) => s.tonnage);
   const chassisType = useProtoMechStore((s) => s.chassisType);
   const walkMP = useProtoMechStore((s) => s.walkMP);
+  const flankMP = useProtoMechStore((s) => s.flankMP);
   const jumpMP = useProtoMechStore((s) => s.jumpMP);
   const hasMyomerBooster = useProtoMechStore((s) => s.hasMyomerBooster);
   const glidingWings = useProtoMechStore((s) => s.glidingWings);
@@ -228,7 +228,7 @@ export function useProtoMechMovementControls(
 
   const weightClass = getProtoWeightClass(tonnage);
   const mpCaps = getProtoMPCaps(weightClass);
-  const effectiveWalk = effectiveWalkMP(walkMP, hasMyomerBooster);
+  const effectiveWalk = walkMP;
   const effectiveJump = effectiveJumpMP(jumpMP, chassisType);
   const isUltraheavy = chassisType === ProtoChassis.ULTRAHEAVY;
   const isGliderChassis = chassisType === ProtoChassis.GLIDER;
@@ -272,7 +272,7 @@ export function useProtoMechMovementControls(
   return {
     walkMP,
     jumpMP,
-    runMP: effectiveWalk + 1,
+    runMP: flankMP,
     mpCaps,
     effectiveWalk,
     effectiveJump,
