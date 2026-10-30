@@ -511,10 +511,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         isMainGun: mount.location === ProtoMechLocation.MAIN_GUN,
       }));
 
-    // Legacy IProtoMech uses `cruiseMP` for walk; flank/run comes from
-    // cruise + 1 (standard ProtoMech run formula).
+    // Legacy IProtoMech uses cruiseMP for base Walk; the owner derives Run.
     const walkMP = unit.cruiseMP;
-    const runMP = computeRunMP(unit.cruiseMP);
+    const runMP = computeRunMP(unit.cruiseMP, unit.hasMyomerBooster);
 
     return {
       id: unit.id,

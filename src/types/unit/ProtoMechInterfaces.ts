@@ -184,9 +184,9 @@ export interface IProtoMechUnit {
   readonly pointSize: number;
 
   // ---- Movement ----
-  /** Walk MP (before myomer booster) */
+  /** Base Walk MP; unchanged by a myomer booster. */
   readonly walkMP: number;
-  /** Run MP = walkMP + 1 (or +1 from booster, applied separately) */
+  /** Derived running MP from the ProtoMech construction owner. */
   readonly runMP: number;
   /** Jump MP (0 for Ultraheavy) */
   readonly jumpMP: number;
@@ -196,7 +196,7 @@ export interface IProtoMechUnit {
   readonly engineWeight: number | null;
 
   // ---- Special equipment ----
-  /** Myomer Booster: Light/Medium only; +1 walk MP, costs 1 ton */
+  /** Explicit enabled booster state; affects Run rather than Walk. */
   readonly myomerBooster: boolean;
   /** Glider Wings: Glider chassis only; folded into jump MP computation */
   readonly glidingWings: boolean;

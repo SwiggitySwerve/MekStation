@@ -160,9 +160,7 @@ export function ProtoMechMovementSection({
           />
         </div>
         <div>
-          <label className={cs.text.label}>
-            Run MP <span className={cs.text.secondary}>(walk + 1)</span>
-          </label>
+          <label className={cs.text.label}>Run MP</label>
           <div className="bg-surface-raised border-border-theme text-text-theme-primary rounded border px-3 py-2 text-sm">
             {controls.runMP}
           </div>
@@ -196,9 +194,6 @@ export function ProtoMechMovementSection({
           <span className="text-text-theme-primary">
             {controls.effectiveWalk}
           </span>
-          {controls.hasMyomerBooster && (
-            <span className="ml-1 text-green-400">(+1 booster)</span>
-          )}
         </span>
         {controls.isGliderChassis && (
           <span className={cs.text.secondary}>
@@ -222,9 +217,7 @@ export function ProtoMechMovementSection({
           />
           <span className="text-text-theme-primary text-sm">
             Myomer Booster{' '}
-            <span className={cs.text.secondary}>
-              (Light / Medium only; +1 walk)
-            </span>
+            <span className={cs.text.secondary}>(Light / Medium only)</span>
           </span>
         </label>
 

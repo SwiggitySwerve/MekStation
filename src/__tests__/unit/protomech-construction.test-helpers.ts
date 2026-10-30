@@ -23,7 +23,6 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 import {
-  effectiveWalkMP,
   getProtoMPCaps,
   getProtoWeightClass,
   isArmPlacementIllegal,
@@ -225,13 +224,13 @@ describe('useProtoMechStore actions', () => {
 
   // ---- setMyomerBooster ----
 
-  it('setMyomerBooster(true) adds +1 to flank MP derivation', () => {
+  it('setMyomerBooster(true) derives boosted Run without changing Walk', () => {
     const store = makeStore(3); // Light
     store.getState().setWalkMP(6);
-    const baseFlank = store.getState().flankMP; // effWalk(6,false)+1 = 7
+    expect(store.getState().flankMP).toBe(9);
     store.getState().setMyomerBooster(true);
-    // effWalk(6, true) = 7; flank = 7 + 1 = 8
-    expect(store.getState().flankMP).toBe(baseFlank + 1);
+    expect(store.getState().flankMP).toBe(12);
+    expect(store.getState().walkMP).toBe(6);
   });
 
   // ---- setMainGunWeaponId ----
@@ -259,20 +258,6 @@ describe('useProtoMechStore actions', () => {
     });
     store.getState().setGlidingWings(true);
     expect(store.getState().glidingWings).toBe(true);
-  });
-});
-
-// =============================================================================
-// effectiveWalkMP
-// =============================================================================
-
-describe('effectiveWalkMP', () => {
-  it('without booster returns base walk MP', () => {
-    expect(effectiveWalkMP(4, false)).toBe(4);
-  });
-
-  it('with booster adds 1', () => {
-    expect(effectiveWalkMP(4, true)).toBe(5);
   });
 });
 

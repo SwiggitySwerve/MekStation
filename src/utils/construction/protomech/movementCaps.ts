@@ -2,8 +2,8 @@
  * ProtoMech Movement Caps and Engine Formulas
  *
  * Per-weight-class MP caps and the fusion engine weight formula.
- * Run MP is always walkMP + 1 (before booster). Myomer Booster adds +1 to
- * the base walk MP (effective MP = walkMP + 1) and costs 1 ton.
+ * Derived running uses the pinned source rule; independent construction caps
+ * and jump policies below remain separate.
  *
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  * @spec openspec/changes/add-protomech-construction/tasks.md §4, §7, §8
@@ -48,29 +48,15 @@ export function getProtoMPCaps(weightClass: ProtoWeightClass): IProtoMPCaps {
 // =============================================================================
 
 /**
- * Return the effective walk MP after applying optional Myomer Booster (+1).
- *
- * The booster is only legal on Light and Medium ProtoMechs (task §8.1).
- * This function applies the bonus unconditionally; legality is enforced by
- * VAL-PROTO-CHASSIS in validation.ts.
+ * Undamaged running MP from base Walk and an explicitly enabled booster.
+ * MegaMek48fcb2f6: Entity.java:4004-4016, ProtoMek.java:612-627.
+ * Booster equipment resolution, damage/options and legality are separate.
  */
-export function effectiveWalkMP(
+export function computeRunMP(
   baseWalkMP: number,
-  myomerBooster: boolean,
+  myomerBooster = false,
 ): number {
-  return myomerBooster ? baseWalkMP + 1 : baseWalkMP;
-}
-
-/**
- * Run MP = walk MP + 1 (after booster bonus is applied to walk).
- */
-export function computeRunMP(effectiveWalk: number): number {
-  return effectiveWalk + 1;
-}
-
-/** Temporary existing cruise-action policy; retained until the correction. */
-export function computeLegacyProtoCruiseRunMP(walkMP: number): number {
-  return Math.floor(walkMP * 1.5);
+  return myomerBooster ? baseWalkMP * 2 : Math.ceil(baseWalkMP * 1.5);
 }
 
 /**

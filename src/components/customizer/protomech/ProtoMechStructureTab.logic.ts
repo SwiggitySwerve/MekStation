@@ -11,7 +11,6 @@ import {
 import {
   computeRunMP,
   effectiveJumpMP,
-  effectiveWalkMP,
   getProtoMPCaps,
   getProtoWeightClass,
 } from '@/utils/construction/protomech';
@@ -229,7 +228,7 @@ export function useProtoMechMovementControls(
 
   const weightClass = getProtoWeightClass(tonnage);
   const mpCaps = getProtoMPCaps(weightClass);
-  const effectiveWalk = effectiveWalkMP(walkMP, hasMyomerBooster);
+  const effectiveWalk = walkMP;
   const effectiveJump = effectiveJumpMP(jumpMP, chassisType);
   const isUltraheavy = chassisType === ProtoChassis.ULTRAHEAVY;
   const isGliderChassis = chassisType === ProtoChassis.GLIDER;
@@ -273,7 +272,7 @@ export function useProtoMechMovementControls(
   return {
     walkMP,
     jumpMP,
-    runMP: computeRunMP(effectiveWalk),
+    runMP: computeRunMP(walkMP, hasMyomerBooster),
     mpCaps,
     effectiveWalk,
     effectiveJump,
