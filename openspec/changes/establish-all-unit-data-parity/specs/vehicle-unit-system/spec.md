@@ -173,3 +173,26 @@ presence (even a zero payload); Tank.java:268 defaults it to false.
   weapons 3 and turret 0.5 tons, totaling 20 with zero free
 - **AND** the fixture's additional heat sinks are zero, without claiming a
   general vehicle heat-sink implementation or BV parity
+
+### Requirement: Base vehicle flank movement ownership
+
+The vehicle construction owner (`computeFlankMP`) SHALL derive unmodified flank
+MP from cruise MP for store edits, initialization, validation, BV state inputs,
+template summaries and status bars, which SHALL consume it and SHALL NOT repeat
+the formula. Direct vehicle, VTOL and support import handlers and motive-damage
+effective MP keep their own derivations here; the imports SHALL retain their
+existing results and input guards. This requirement covers
+where base movement is derived, without MASC, damage or game modifiers; it does
+not change the rounding rule or establish full BV or support-construction
+parity.
+
+#### Scenario: Every consumer agrees with the owner
+
+- **GIVEN** vehicles with cruise MP 0, 3, 4, 5 and 17
+- **WHEN** base flank movement is derived or displayed
+- **THEN** the store actions, validation, BV state adapter and status bar
+  SHALL show the owner's result for each cruise MP
+- **AND** each new-unit template summary SHALL show the owner's result for its
+  own cruise MP
+- **AND** editing engine rating to derive cruise 3 SHALL yield the owner's
+  flank for cruise 3

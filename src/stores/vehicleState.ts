@@ -26,7 +26,10 @@ import {
   ITurretConfiguration,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
-import { computeStoredVehicleEngineRating } from '@/utils/construction/vehicle/engine';
+import {
+  computeFlankMP,
+  computeStoredVehicleEngineRating,
+} from '@/utils/construction/vehicle/engine';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
@@ -480,7 +483,7 @@ export function createDefaultVehicleState(
     engineType: EngineType.STANDARD,
     engineRating,
     cruiseMP,
-    flankMP: Math.floor(cruiseMP * 1.5),
+    flankMP: computeFlankMP(cruiseMP),
 
     // Turret
     turret: null,

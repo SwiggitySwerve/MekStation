@@ -13,6 +13,8 @@ export {
   lookupClusterHits,
 } from './clusterWeapons/hitTable';
 
+export { damageForProjectiles } from './clusterWeapons/projectileDamage';
+
 export {
   CLUSTER_WEAPON_SIZES,
   getClusterSizeForWeapon,

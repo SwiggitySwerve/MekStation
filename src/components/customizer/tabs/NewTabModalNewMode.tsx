@@ -3,6 +3,7 @@ import React from 'react';
 import { UNIT_TEMPLATES, UnitTemplate } from '@/stores/useMultiUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 import { formatTons } from '@/utils/formatting';
 
 import {
@@ -130,7 +131,7 @@ export function NewTabModalNewMode({
                 </div>
                 <div className="text-text-theme-secondary text-xs">
                   {formatTons(template.tonnage)} • {template.cruiseMP}/
-                  {Math.floor(template.cruiseMP * 1.5)} MP
+                  {computeFlankMP(template.cruiseMP)} MP
                 </div>
               </button>
             ))}
