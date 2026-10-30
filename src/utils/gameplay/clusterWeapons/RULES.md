@@ -76,7 +76,9 @@ ECM or stealth prevents it; neither the runner nor the previews apply it, so ATM
 12 previews 8.14 at p = 0.5 where MegaMek gives 9.64), MegaMek's own MRM 30/40
 cluster rows (`Compute.clusterHitsTable`; here racks above 20 snap to the 20
 column, so MRM 30/40 preview 6.35 at p = 0.5 where MegaMek gives 9.5 and 12.69),
-MML's LRM/SRM mode (hydrated as SRM damage), the 151 catalog launchers that
+ATM extended-range and high-explosive munition damage (every ATM hydrates as
+standard 2 per missile; HE ATM 12 at p = 0.5 would be 12.21), MML's LRM/SRM
+mode (hydrated as SRM damage), the 151 catalog launchers that
 hydrate to `damage: 0`, and `critProbability`'s one location roll per landed
 missile (MegaMek groups LRM/MRM/ATM damage in 5-point clusters; the runner
 rolls one location per salvo).
