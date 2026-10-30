@@ -1,18 +1,27 @@
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 
+import { trimBlkWhitespace } from './BlkParserService.helpers';
+
 /**
  * Native BLK aliases of every MiscType with F_MASC at MegaMek 48fcb2f6.
  * These source identities intentionally do not use the fuzzy catalog resolver.
  * See BLK_PROTOMEK_EQUIPMENT.md for the loader contract and its limits.
  */
+const BOOSTER_DISPLAY_NAMES = [
+  'MASC',
+  'Supercharger',
+  'VTOL Jet Booster',
+  'Protomek Myomer Booster',
+  'BA Myomer Booster',
+];
+
 const BOOSTER_NAMES = new Set(
   [
+    ...BOOSTER_DISPLAY_NAMES,
     'ISMASC',
     'IS MASC',
     'CLMASC',
     'Clan MASC',
-    'MASC',
-    'Supercharger',
     'IS Super Charger',
     'ISSuperCharger',
     'CLSuperCharger',
@@ -20,13 +29,10 @@ const BOOSTER_NAMES = new Set(
     'CL Super Charger',
     'ISVTOLJetBooster',
     'CLVTOLJetBooster',
-    'VTOL Jet Booster',
     'CLMyomerBooster',
-    'Protomek Myomer Booster',
     'CLBAMyomerBooster',
     'CLBAMB',
     'BAMyomerBooster',
-    'BA Myomer Booster',
   ].map((name) => name.toLowerCase()),
 );
 
@@ -50,10 +56,11 @@ function normalizeShotDigits(shots: string): string {
 }
 
 function equipmentName(raw: string, errors: string[]): string | undefined {
-  let name = raw.trim();
+  let name = trimBlkWhitespace(raw);
+  if (name.startsWith('#')) return undefined;
   const sizeIndex = name.toUpperCase().indexOf(':SIZE:');
   if (sizeIndex > 0) {
-    const size = name.slice(sizeIndex + 6).trim();
+    const size = trimBlkWhitespace(name.slice(sizeIndex + 6));
     const decimal = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?[df]?$/i;
     if (
       !decimal.test(size) ||
@@ -81,6 +88,17 @@ function equipmentName(raw: string, errors: string[]): string | undefined {
     name = name.slice(0, shotsIndex);
   }
   return name;
+}
+
+function isBoosterName(name: string): boolean {
+  if (BOOSTER_NAMES.has(name)) return true;
+  // Native display names are ASCII. Length guards reject JS full-case expansions;
+  // upper/lower folding retains Java's long-S and Kelvin-sign display matches.
+  const folded = name.toUpperCase().toLowerCase();
+  return (
+    folded.length === name.length &&
+    BOOSTER_DISPLAY_NAMES.some((display) => display.toLowerCase() === folded)
+  );
 }
 
 /** Derive the undamaged source effect without mutating or resolving raw mounts. */
@@ -113,9 +131,9 @@ export function readBlkProtoBooster(
       if (
         name !== undefined &&
         ((!/^(clan|is) /.test(name) &&
-          BOOSTER_NAMES.has(technologyPrefix + name)) ||
-          BOOSTER_NAMES.has(name) ||
-          BOOSTER_NAMES.has(fallbackPrefix + name))
+          isBoosterName(technologyPrefix + name)) ||
+          isBoosterName(name) ||
+          isBoosterName(fallbackPrefix + name))
       ) {
         hasMyomerBooster = true;
       }

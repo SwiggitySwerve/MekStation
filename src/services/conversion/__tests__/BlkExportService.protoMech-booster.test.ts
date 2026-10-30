@@ -200,3 +200,47 @@ describe('ProtoMek booster export integrity', () => {
     assertRejected({ ...unit, hasMyomerBooster: true }, /booster.*equipment/i);
   });
 });
+
+describe('Java whitespace and display-name export agreement', () => {
+  it.each([
+    ['\u0000CLMyomerBooster', true],
+    ['CLMyomerBooster\u001f', true],
+    ['CLMyomerBooster\u00a0', false],
+    ['\u3000CLMyomerBooster', false],
+    ['\ufeffCLMyomerBooster', false],
+    ['\u017fupercharger', true],
+    ['MA\u017fC', true],
+    ['Protome\u212a Myomer Boo\u017fter', true],
+    ['CLMyomerBoo\u017fter', false],
+    ['CLMA\u017fC', false],
+    ['I\u017f MASC', false],
+    ['CLMyomerBooster:SIZE:\u00002', true],
+  ])(
+    'retains native effect and exact bytes for %s',
+    (name, hasMyomerBooster) => {
+      const unit = state({ equipment: [mount(name)], hasMyomerBooster });
+      expect(assertReloads(unit)).toContain(name);
+      assertRejected(
+        { ...unit, hasMyomerBooster: !hasMyomerBooster },
+        /booster.*equipment/i,
+      );
+    },
+  );
+
+  it.each(['\u00a0', '\u3000', '\ufeff', '\u2028'])(
+    'refuses native-invalid size whitespace %s for either flag',
+    (space) => {
+      for (const size of [`${space}2`, `2${space}`]) {
+        for (const hasMyomerBooster of [false, true]) {
+          assertRejected(
+            state({
+              equipment: [mount(`CLMyomerBooster:SIZE:${size}`)],
+              hasMyomerBooster,
+            }),
+            /equipment size/i,
+          );
+        }
+      }
+    },
+  );
+});

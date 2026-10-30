@@ -1,3 +1,25 @@
+## 2026-10-30 CAMPAIGN-LIVE-WRITE-1 admitted (combined Step 4 PR 3 of 29)
+
+Admits the ten-file campaign candidate on fetched main f6223a0f4, after genuine API and L1-SMOKE-B closure. Both independent F2 qualification reviews approve; source implementation remains Step 4 PR 4, and its closure rides PR 5 with the next admission. No campaign product bytes land in this PR.
+
+The owner approved the precise eight-file admission/fifteen-file implementation allocation and campaign-only unversioned T3 review transport, then requested full send and recommended fixes. Seventeen distinct campaign paths across admission and implementation are disclosed; there is no file exemption or extra PR budget. Fresh independent exact-head Sol/Opus source reviews, CI, recorded owner authority, a guarded merge and exact-main proof remain mandatory.
+
+Qualification: 74 focused tests, 122 neighbours, 26 mutation kills, a reconstructible ten-leaf freeze and two approved reviews. The unchanged real two-browser journey observed two authenticated live saves; three production two-process cases passed. Additional unchanged cleanup callers passed 17/17 with 28 PUT 200s and eight DELETE 204s. These are preparation results, not future implementation-head proof.
+
+Limits: baseline reproduces the GM fixture sign-in failure, but the initial-create 404 and earlier browser intermittency remain unexplained. Dashboard lint warning 403/400 is retained. Add the recommended unrelated-save-error regression within the existing suite during implementation. The modeled 281 additions fit the 500 cap; actual source-head and merge measurements remain required.
+
+---
+
+## 2026-10-30 API-SAME-HOST-1 main-verified (combined Step 4 PR 3 of 29)
+
+Records implementation #2385 at reviewed head 29a288b577 and squash merge 2f974c07af. Both independent exact-head reviews approved; all 33 checks passed. The owner approved that head and authorized the pre-merge ruling transcription and label (comment 6511189546). The guarded squash merge preserved the expected native integration tree. The review receipt contains both complete reports and their actual provenance; the API-specific accepted legacy receipt contract is unchanged.
+
+Exact-main proof at the clean merge passed 907 Jest tests, the unchanged frozen 34-case regression, the genuine Electron-as-node packaged validator, and 56 raw-target rows with 125 explicit assertions. All 22 protected release-proof leaves and retained application-image identities match; Node and Electron SQLite bindings differ as expected. Owned listener ports were released. The clean proof checkout, private fixture stores and build images remain deliberately retained for evidence review; no unperformed deletion is claimed.
+
+Limits remain recorded: the server-entry frame/boot/error unit rows stub Next and SQLite; encoded static spellings are conservatively guarded and same-host built controls returned Next 404 HTML; page traffic and bare next dev retain their disclosed limits. This is no installer, RC, Step 8 or Step 4 acceptance. API closure publishes with the reviewed campaign admission as Step 4 PR 3; campaign source delivery starts after this combined PR merges.
+
+---
+
 ## 2026-10-29 API-SAME-HOST-1 CI fixture correction (same Step 4 PR 2/29)
 
 Owner-approved manifest correction adds only `src/__tests__/api/vault/vault.test-helpers.ts`: five valid loopback Host fixtures restore the comprehensive unlock suite's existing password/method assertions. The CI failure is retained; the required-check aggregator failed solely because of that shard. Scratch RED is 5 failed/80 passed, scratch GREEN 85/85; the branch vault and real campaign-credential consumer suites pass 110/110 with no skips. All ten frozen-r3 leaves and all 22 protected release-proof leaves remain unchanged.

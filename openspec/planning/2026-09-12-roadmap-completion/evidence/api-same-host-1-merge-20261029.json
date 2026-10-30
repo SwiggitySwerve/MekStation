@@ -1,0 +1,219 @@
+{
+  "at": "2026-10-29T23:54:05.638Z",
+  "pr": 2385,
+  "head": "29a288b577145e6bbd86462533990e9d024ed06b",
+  "mergeSha": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+  "mergedAt": "2026-10-29T23:54:00Z",
+  "mergedBy": "SwiggitySwerve",
+  "parents": [
+    "41997f5d2c4b4ad7a260af5e6656e7f488b87a53"
+  ],
+  "sourceTree": "ce62937027536829fdae57fac94806b305bfde5e",
+  "actualTree": "37d941f64daf474b1dba5d4a39efb78239c3cb5d",
+  "nativeTree": "37d941f64daf474b1dba5d4a39efb78239c3cb5d",
+  "expectedTree": "37d941f64daf474b1dba5d4a39efb78239c3cb5d",
+  "treeIntegration": {
+    "parent1": "41997f5d2c4b4ad7a260af5e6656e7f488b87a53",
+    "reviewedHead": "29a288b577145e6bbd86462533990e9d024ed06b",
+    "nativeTree": "37d941f64daf474b1dba5d4a39efb78239c3cb5d",
+    "mergeTree": "37d941f64daf474b1dba5d4a39efb78239c3cb5d",
+    "pass": true
+  },
+  "ruling": {
+    "commentId": 6511189546,
+    "author": "SwiggitySwerve",
+    "head": "29a288b577145e6bbd86462533990e9d024ed06b",
+    "bodySha256": "c5454c9ded9aa66149de4d5a503a9e42a70fa654f4fc91044d108f1ed62fe673",
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/2385#issuecomment-6511189546",
+    "body": "OWNER-RULING 29a288b577145e6bbd86462533990e9d024ed06b\n\nAuthorized transcription of the owner's chat decision at 2026-10-29T23:36:08.278Z:\n\n> Approve this head, ruling transcription, label and guarded merge (Recommended)\n\nThe decision approves API-SAME-HOST-1 in #2385 at this exact head, authorizes this transcription and the owner-ruled label, and permits guarded squash merge after final checks. It includes the already approved five-line vault fixture correction: 16 actual files, 15 counted files and 419 counted additions under the existing generated-page exemption.\n\nThe local-service scope and recorded limits remain accepted: this does not replace client authentication; page traffic and bare next dev retain their disclosed limits; encoded static-path probes returned Next 404 HTML; deferred throttling and the nonblocking guard-comment issue remain outside this change.\n\nG-ASH6 and the unchanged frozen 34-case regression must pass on the exact merged commit before this unit closes or a successor is admitted. This ruling does not mark Step 4 complete.\n"
+  },
+  "numstat": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "added": 20,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "added": 2,
+      "deleted": 2
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-local-20261025.json",
+      "added": 715,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-red-20261025.json",
+      "added": 122,
+      "deleted": 0
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "added": 43,
+      "deleted": 3
+    },
+    {
+      "path": "scripts/validate-multiplayer-packaged-socket.mjs",
+      "added": 99,
+      "deleted": 0
+    },
+    {
+      "path": "server.js",
+      "added": 58,
+      "deleted": 0
+    },
+    {
+      "path": "src/__tests__/api/sameHostGuard.routes.test.ts",
+      "added": 1084,
+      "deleted": 0
+    },
+    {
+      "path": "src/__tests__/api/securityBoundary.test.ts",
+      "added": 1,
+      "deleted": 1
+    },
+    {
+      "path": "src/__tests__/api/vault/unlock.test.ts",
+      "added": 13,
+      "deleted": 0
+    },
+    {
+      "path": "src/__tests__/api/vault/vault.test-helpers.ts",
+      "added": 5,
+      "deleted": 0
+    },
+    {
+      "path": "src/lib/api/__tests__/sameHostGuard.test.ts",
+      "added": 310,
+      "deleted": 0
+    },
+    {
+      "path": "src/lib/api/sameHostGuard.ts",
+      "added": 191,
+      "deleted": 0
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+      "added": 2,
+      "deleted": 27
+    },
+    {
+      "path": "src/pages/api/multiplayer/auth/token.ts",
+      "added": 2,
+      "deleted": 0
+    },
+    {
+      "path": "src/pages/api/vault/identity/unlock.ts",
+      "added": 2,
+      "deleted": 0
+    }
+  ],
+  "countedFiles": 15,
+  "countedLines": 419,
+  "verdict": "MERGED; EXACT-MAIN PROOF OWED",
+  "unit": "API-SAME-HOST-1",
+  "stage": "merge",
+  "recordedAt": "2026-10-29T23:56:20.544Z",
+  "url": "https://github.com/SwiggitySwerve/MekStation/pull/2385",
+  "baseline": "28e17b829ebdb03aca4634ca67fd8b798c7c35ca",
+  "baselineNote": "Implementation review base differs from the actual main-side parent, which includes unrelated unit-conversion changes. Actual first-parent diff supplies scope/caps.",
+  "treeEqualsPrHeadTree": false,
+  "mergeCommand": [
+    "gh",
+    "pr",
+    "merge",
+    "2385",
+    "--repo",
+    "SwiggitySwerve/MekStation",
+    "--squash",
+    "--match-head-commit",
+    "29a288b577145e6bbd86462533990e9d024ed06b",
+    "--subject",
+    "feat(api): enforce same-host requests and socket frame limits (#2385)",
+    "--body-file",
+    "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\merge-29a288b57\\squash-body.md"
+  ],
+  "ci": {
+    "head": "29a288b577145e6bbd86462533990e9d024ed06b",
+    "total": 33,
+    "passed": 33,
+    "required": [
+      {
+        "bucket": "pass",
+        "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/40943556470/job/123695665161",
+        "name": "Lint and Test",
+        "state": "SUCCESS"
+      }
+    ],
+    "githubReviews": 0,
+    "localReviewReports": [
+      {
+        "seat": "sol",
+        "model": "gpt-6.1-sol",
+        "reviewedHead": "29a288b577145e6bbd86462533990e9d024ed06b",
+        "outputSha256": "1a44553d21bb7b53716e7f846e2cdffb843d607b5f6a36287f7f0c6f99a09c7f",
+        "verdict": "APPROVE"
+      },
+      {
+        "seat": "opus",
+        "model": "claude-opus-5-5",
+        "reviewedHead": "29a288b577145e6bbd86462533990e9d024ed06b",
+        "outputSha256": "7cc168a5f070704e236f860696d67ecc1458a88dbd9f9068f4b1cc8f1223d8cc",
+        "verdict": "APPROVE"
+      }
+    ]
+  },
+  "ownerApproval": {
+    "recordedAt": "2026-10-29T23:42:49.860Z",
+    "sourceThreadLink": "<t3-thread://v2/53b9ed4c-02e5-45d2-9a9c-810662a80774/f9f49416-ce64-461b-8843-15e8f096ee0c>",
+    "sourceItemId": "turn-item:message:async-answer%3Aruntime-request%3Aprovider%3Acodex%3Aprovider-turn%3Aprovider-turn%253Aprovider%253Acodex%253Anative-turn%253A01a1893c-10d0-7ec0-bcf5-f4042037a917%3Anative-request%3Aasync%253Acall_611aae7c12ff4daa80334f126f24e3de%3A0c3c0d3b-7a3d-4aa3-9788-08888684f128",
+    "sourceTimestamp": "2026-10-29T23:36:08.278Z",
+    "verbatim": "Approve #2385 at exact head 29a288b577145e6bbd86462533990e9d024ed06b and authorize me to transcribe your OWNER-RULING, apply owner-ruled, and perform the guarded merge after final checks? Both reviews approve and all 33 checks pass. DELIVERY.md requires this head-specific ruling; your earlier approval covered only the fixture scope correction. Exact-main testing and Step 4 work continue afterward. The prepared decision packet is E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/owner-ruling-29a288b57/DECISION.md.\nApprove this head, ruling transcription, label and guarded merge (Recommended)",
+    "head": "29a288b577145e6bbd86462533990e9d024ed06b",
+    "authority": "Explicit owner answer authorizing this exact head, transcription, owner-ruled label and guarded merge after final checks.",
+    "scope": "API-SAME-HOST-1; exact-main proof and remaining Step 4 work remain required."
+  },
+  "evidence": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/final-premerge.json",
+      "sha256": "cfe878f7c3e2c1cc12ab3ddfbc60b8df21be171101d8d79f04f5ae2598908615",
+      "bytes": 18712
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/merge-result.json",
+      "sha256": "a1bf784901133479330e7e5ae3a755c985b679568be3e99d18c289d5e88c68ee",
+      "bytes": 4238
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/merge-commands.json",
+      "sha256": "b2ba613ae8ede45cd24bf08642536c52f367e92e72ccf2d8d6b5c6287e4a255b",
+      "bytes": 43945
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/preflight.json",
+      "sha256": "670091824a37b44281f2405cf07306cb4022e72253388d9bf7942349853df0bc",
+      "bytes": 23412
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/census-status-readback.json",
+      "sha256": "b78d4f2536615e82f32fa63f118ca33cb158d33f2ceffa682b2386ea4e54f87e",
+      "bytes": 24262
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/roadmap-github-result-r3.json",
+      "sha256": "2158777a5f9c98770324a4852863309f54ae1dc435a5fee0e548ce6808e36581",
+      "bytes": 603
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/roadmap-github-r3.log",
+      "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0",
+      "bytes": 76
+    }
+  ],
+  "limits": [
+    "Merge is not API closure or Step 4 completion. G-ASH6 and frozen34 exact-main proof remain separately required.",
+    "The incomplete t3-a405e528 worktree was preserved and is not described as pristine.",
+    "The first GitHub validator attempt used the wrong script path; the next failed only the historical U98/#2036 query; the recorded r3 retry passed. All attempts remain retained."
+  ]
+}
