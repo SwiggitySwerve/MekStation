@@ -1,3 +1,5 @@
+import type { IBlkProtoEquipmentSyntax } from '@/types/formats/BlkProtoEquipmentSource';
+
 import { trimBlkWhitespace } from './BlkParserService.helpers';
 
 // Decimal zeroes from the pinned Java 21 Character.digit(char, 10) table.
@@ -19,26 +21,28 @@ function normalizeShotDigits(shots: string): string {
   });
 }
 
-export function readBlkProtoEquipmentName(
+export function readBlkProtoEquipmentEntry(
   raw: string,
-  errors: string[],
-): string | undefined {
+): IBlkProtoEquipmentSyntax {
+  let syntax: IBlkProtoEquipmentSyntax = { rawEntry: raw, errors: [] };
   let name = trimBlkWhitespace(raw);
-  if (name.startsWith('#')) return undefined;
+  if (name.startsWith('#')) return syntax;
   const sizeIndex = name.toUpperCase().indexOf(':SIZE:');
   if (sizeIndex > 0) {
     const size = trimBlkWhitespace(name.slice(sizeIndex + 6));
     const decimal = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?[df]?$/i;
-    if (
-      !decimal.test(size) ||
-      !Number.isFinite(Number(size.replace(/[df]$/i, '')))
-    ) {
-      errors.push(`Invalid ProtoMek equipment size: ${raw}`);
-      return undefined;
+    const value = Number(size.replace(/[df]$/i, ''));
+    if (!decimal.test(size) || !Number.isFinite(value)) {
+      return {
+        ...syntax,
+        errors: [`Invalid ProtoMek equipment size: ${raw}`],
+      };
     }
+    syntax = { ...syntax, size: value };
     name = name.slice(0, sizeIndex);
   }
-  if (name.startsWith('(R) ')) name = name.slice(4);
+  syntax = { ...syntax, rearPrefix: name.startsWith('(R) ') };
+  if (syntax.rearPrefix) name = name.slice(4);
   const shotsIndex = name.lastIndexOf(' (');
   if (shotsIndex > 0) {
     const shots = normalizeShotDigits(name.slice(shotsIndex + 2, -1));
@@ -49,10 +53,23 @@ export function readBlkProtoEquipmentName(
       count < 0 ||
       count > 2147483647
     ) {
-      errors.push(`Invalid ProtoMek equipment shot count: ${raw}`);
-      return undefined;
+      return {
+        ...syntax,
+        errors: [`Invalid ProtoMek equipment shot count: ${raw}`],
+      };
     }
+    syntax = { ...syntax, shots: count === 0 ? 0 : count };
     name = name.slice(0, shotsIndex);
   }
-  return name;
+  return { ...syntax, lookupName: name };
+}
+
+/** Compatibility view used by native booster interpretation and export checks. */
+export function readBlkProtoEquipmentName(
+  raw: string,
+  errors: string[],
+): string | undefined {
+  const syntax = readBlkProtoEquipmentEntry(raw);
+  errors.push(...syntax.errors);
+  return syntax.lookupName;
 }

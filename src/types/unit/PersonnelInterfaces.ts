@@ -6,6 +6,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
+import type { IBlkProtoEquipmentSource } from '@/types/formats/BlkProtoEquipmentSource';
+
 import type {
   IInfantryBVBreakdown,
   IProtoMechBVBreakdown,
@@ -318,6 +320,8 @@ export interface IInfantry extends ISquadUnit {
  * ProtoMech-mounted equipment item
  */
 export interface IProtoMechMountedEquipment extends IUnitMountedEquipmentIdentity {
+  /** Original source declarations; retained when current mount fields change. */
+  readonly blkSource?: IBlkProtoEquipmentSource;
   /** Location */
   readonly location: ProtoMechLocation;
   /** Linked ammunition ID */

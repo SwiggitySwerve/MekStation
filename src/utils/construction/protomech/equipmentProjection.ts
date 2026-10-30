@@ -18,5 +18,6 @@ export function projectProtoMechEquipment(
     location: resolveLocation(mount.location),
     linkedAmmoId: mount.linkedAmmoId,
     isMainGun: mount.location === ProtoMechLocation.MAIN_GUN,
+    ...(mount.blkSource === undefined ? {} : { blkSource: mount.blkSource }),
   }));
 }

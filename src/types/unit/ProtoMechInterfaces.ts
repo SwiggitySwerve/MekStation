@@ -7,6 +7,8 @@
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  */
 
+import type { IBlkProtoEquipmentSource } from '@/types/formats/BlkProtoEquipmentSource';
+
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -243,6 +245,8 @@ export interface IProtoMechUnit {
  * A single equipment item mounted on a ProtoMech.
  */
 export interface IProtoMechMountedEquipment {
+  /** Original source declarations; distinct from effective ammunition state. */
+  readonly blkSource?: IBlkProtoEquipmentSource;
   /** Unique mount instance ID */
   readonly id: string;
   /** Equipment catalog ID */

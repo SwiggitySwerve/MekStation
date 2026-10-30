@@ -1,6 +1,30 @@
 # ProtoMek source equipment effects
 
 `BlkProtoEquipmentEntry.ts` owns the entry syntax decoder and its diagnostics.
+Its structured result records the parsed raw entry, stripped lookup text,
+explicit shots and size, this entry's uppercase rear prefix and diagnostics.
+The name-only API delegates to that decoder. The format schema lives in
+`src/types/formats/BlkProtoEquipmentSource.ts`; both mounted-equipment contracts
+use its optional `blkSource` extension, including the parsed block key.
+
+These fields preserve original declarations, not effective equipment state.
+The block key and entry are what the existing parser retained, not a lossless
+copy of file bytes or discarded duplicate tags. An explicit zero differs from
+an omitted qualifier. Java integer signed zero is stored as positive zero.
+The raw entry retains its spelling. Native ammunition may override declared
+size, and the loader's rear-prefix state can persist across entries and affect
+VGL facing without making an ordinary weapon rear-mounted.
+
+The handler retains metadata for every parsed mount, including diagnostics in
+unvisited blocks, without promoting those diagnostics into new load failures.
+Existing visited-entry admission and errors remain unchanged. Shared handler
+and store projections retain metadata; the existing store serializer retains
+it inside equipment and hydration restores it. Legacy/editor mounts may omit
+it. Export still uses the current name and location, so edits do not rewrite
+original provenance. General handler serialization omits equipment and its
+deserialize path remains unimplemented; source-to-store production import,
+registry equipment duplication and native mount topology are still open.
+
 `BlkProtoEquipment.ts` owns interpretation of native source entries for the
 undamaged myomer-booster effect. The handler preserves each raw mount record
 and delegates this interpretation to the adapter. It does not use catalog

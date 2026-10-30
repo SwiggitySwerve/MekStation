@@ -168,3 +168,8 @@ adapters remain separate to preserve existing malformed-input behavior: the
 handler uses an enum switch, while the store retains its legacy object lookup.
 Native Body locations and exact equipment identities are not established by
 this preserving extraction. New source fields must extend the shared projection.
+The optional `blkSource` extension now carries the original parsed block and
+entry syntax through both projections. Its single schema is owned by the BLK
+format types and populated by the shared conversion decoder. It does not
+replace current equipment IDs, locations or effective ammunition state; BV
+and costs continue using their existing inputs until those rules are verified.

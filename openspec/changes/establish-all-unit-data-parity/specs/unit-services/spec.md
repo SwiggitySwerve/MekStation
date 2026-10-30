@@ -223,3 +223,39 @@ writer's shared projection. It SHALL NOT silently synthesize or remove mounts.
 - **AND** native derived Run SHALL be compared separately from arbitrary legacy saved flank values
 - **AND** all 86 pinned source exports and representative successful equipment projections SHALL be reloaded by pinned Java
 - **AND** full equipment topology, legality, numerical parity and production editor/save workflows SHALL remain open work
+
+### Requirement: ProtoMek equipment source syntax
+
+ProtoMek mounts SHALL retain optional original BLK syntax from the shared source
+decoder, separate from current equipment identity and normalized location.
+Metadata SHALL describe the parsed entry rather than claim resolved native
+equipment, effective ammunition state, native placement or full file bytes.
+
+#### Scenario: Preserve parsed source qualifiers
+
+- **WHEN** a retained equipment entry is loaded through any accepted ProtoMek spelling
+- **THEN** its source metadata SHALL retain the exact parsed block key and entry string, stripped lookup name, explicit shot count, explicit size and presence of this entry's uppercase rear prefix
+- **AND** absent qualifiers SHALL remain distinguishable from explicit zero
+- **AND** source order, duplicate entries and existing equipment names/IDs SHALL remain unchanged
+- **AND** the existing decoder's Java whitespace, Unicode decimal digits, suffix order and diagnostic policy SHALL remain unchanged
+
+#### Scenario: Preserve unvisited diagnostics
+
+- **WHEN** a retained block is ignored by native booster interpretation
+- **THEN** syntax diagnostics for its entries SHALL remain available in source metadata without changing existing unit admission
+- **AND** visited malformed entries SHALL still fail with the existing diagnostic exactly once
+
+#### Scenario: Typed projection and persistence
+
+- **WHEN** a loaded mount is projected into the handler or store BV shape, saved and rehydrated
+- **THEN** its original source metadata SHALL survive without changing numerical results
+- **AND** legacy/editor-created mounts without metadata SHALL remain supported
+- **WHEN** a current mount name or location is edited
+- **THEN** export SHALL use that current value while retaining original metadata as provenance
+- **AND** representable BLK export/reload SHALL retain the emitted source syntax
+
+#### Scenario: Native observations and remaining boundaries
+
+- **WHEN** explicit shot and variable-size values are verified
+- **THEN** tests SHALL compare them to actual pinned Java loaded mounts
+- **AND** unknown identities, Body remapping, effective rear/facing state, implicit ammunition, general handler serialization, production import/edit/save flows and complete equipment/BV parity SHALL remain separate required work

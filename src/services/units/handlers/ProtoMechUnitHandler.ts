@@ -7,6 +7,7 @@
  */
 
 import { readBlkProtoBooster } from '@/services/conversion/BlkProtoEquipment';
+import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
 import {
@@ -286,10 +287,14 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     return mapLocationEquipment(
       document.equipmentByLocation,
       (locationKey) => this.normalizeLocation(locationKey),
-      ({ mountId, item, location }) => ({
+      ({ mountId, item, location, locationKey }) => ({
         id: `mount-${mountId}`,
         equipmentId: item,
         name: item,
+        blkSource: {
+          ...readBlkProtoEquipmentEntry(item),
+          blockKey: locationKey,
+        },
         location,
         isMainGun: location === ProtoMechLocation.MAIN_GUN,
       }),
