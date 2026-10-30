@@ -39,3 +39,10 @@ and BV consumers observe the corrected flag; full numerical parity is open.
 Existing source export/reload retains its equipment and therefore its effect.
 An editor flag without corresponding equipment is still a separate export
 integrity gap; production import/store/edit/save and full topology need proof.
+
+The same adapter owns the existing export equipment projection. It preserves
+the writer's Head, Torso, Main Gun, Left Arm, Right Arm, Legs order, exact raw
+names and duplicate entries. A missing or empty location still defaults to
+Torso; other locations remain omitted. This extraction alone changes no output
+or admission policy. The vehicle turret and aerospace arc projections have
+different rules and remain separate. Full mount preservation is still open.

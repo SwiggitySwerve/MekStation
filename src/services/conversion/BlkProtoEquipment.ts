@@ -92,3 +92,30 @@ export function readBlkProtoBooster(
   }
   return { hasMyomerBooster, errors };
 }
+
+/** Project the exact equipment blocks emitted by the existing ProtoMech writer. */
+export function getBlkProtoEquipmentByLocation(
+  equipment: readonly { readonly name: string; readonly location?: string }[],
+): Record<string, string[]> {
+  const locationMap: Record<string, string[]> = {};
+  for (const entry of equipment) {
+    const location = entry.location || ProtoMechLocation.TORSO;
+    if (!locationMap[location]) locationMap[location] = [];
+    locationMap[location].push(entry.name);
+  }
+
+  const emitted: Record<string, string[]> = {};
+  const order = [
+    ProtoMechLocation.HEAD,
+    ProtoMechLocation.TORSO,
+    ProtoMechLocation.MAIN_GUN,
+    ProtoMechLocation.LEFT_ARM,
+    ProtoMechLocation.RIGHT_ARM,
+    ProtoMechLocation.LEGS,
+  ];
+  for (const location of order) {
+    const items = locationMap[location];
+    if (items && items.length > 0) emitted[location] = items;
+  }
+  return emitted;
+}

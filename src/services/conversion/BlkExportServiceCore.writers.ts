@@ -4,6 +4,7 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 import type { VehicleState } from '@/stores/vehicleState';
 
 import { aerospaceLocationToBlockName } from './BlkExportServiceCore.formatters';
+import { getBlkProtoEquipmentByLocation } from './BlkProtoEquipment';
 
 export function tag(name: string, value: string): string {
   return `<${name}>\n${value}\n</${name}>`;
@@ -84,29 +85,10 @@ export function writeProtoMechEquipment(
   lines: string[],
   unit: ProtoMechState,
 ): void {
-  const locationMap: Record<string, string[]> = {};
-
-  for (const eq of unit.equipment) {
-    const loc = eq.location || 'Torso';
-    if (!locationMap[loc]) {
-      locationMap[loc] = [];
-    }
-    locationMap[loc].push(eq.name);
-  }
-
-  const locationOrder = [
-    'Head',
-    'Torso',
-    'Main Gun',
-    'Left Arm',
-    'Right Arm',
-    'Legs',
-  ];
-  for (const loc of locationOrder) {
-    const items = locationMap[loc];
-    if (items && items.length > 0) {
-      lines.push(tag(`${loc} Equipment`, items.join('\n')));
-      lines.push('');
-    }
+  for (const [location, items] of Object.entries(
+    getBlkProtoEquipmentByLocation(unit.equipment),
+  )) {
+    lines.push(tag(`${location} Equipment`, items.join('\n')));
+    lines.push('');
   }
 }
