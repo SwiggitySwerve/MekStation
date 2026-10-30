@@ -105,15 +105,15 @@ The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
 movement enhancements are a distinct policy (`ProtoMek.java:612-616` booster
 override). Python BLK conversion already rounds upward; it retains its
 language-boundary expression. No copy of the old floor-based vehicle
-construction calculation remains. The same upstream rule still floors outside
-this owner, as separate follow-ups:
+construction calculation remains. In-play flank after motive damage
+(`utils/gameplay/motiveDamage.ts` `computeEffectiveMP`) calls the owner on the
+reduced cruise: MegaMek subtracts motive damage from cruise in `Tank.getWalkMP`
+(`Tank.java:397`), and `Entity.getRunMP` then rounds up (`Entity.java:4016`).
+The same upstream rule still floors outside this owner, as separate follow-ups:
 
-- In-play flank after motive damage (`utils/gameplay/motiveDamage.ts`
-  `computeEffectiveMP`). MegaMek subtracts motive damage from cruise in
-  `Tank.getWalkMP` (`Tank.java:397`), and `Entity.getRunMP` then rounds up
-  (`Entity.java:4016`).
-- Aerospace max thrust (`aerospace/thrustCalculations.ts` and the aerospace
-  store, handlers and spec). Airborne `Aero.getRunMP` delegates to
+- Aerospace max thrust (`aerospace/thrustCalculations.ts`, the aerospace
+  store, handlers and spec, and the new-unit template display in
+  `NewTabModalNewMode.tsx:163`). Airborne `Aero.getRunMP` delegates to
   `Entity.getRunMP` (`Aero.java:1656-1658`), and MegaMekLab derives Flank MP and
   Max Thrust from one `Math.ceil(walk * 1.5)` (`MovementView.java:295`).
 - BattleMech run MP in `services/construction/CalculationService.ts`

@@ -290,4 +290,39 @@ describe('resolveAttack vehicle target dispatch', () => {
         : undefined,
     ).toBe('turret_destroyed');
   });
+
+  it('rounds the post-motive-damage flank MP up in the motive penalty event', () => {
+    const session = createGameSession(config(), [
+      mechUnit('attacker'),
+      vehicleUnit({
+        originalCruiseMP: 5,
+        armor: vehicleArmor({ [VehicleLocation.FRONT]: 3 }),
+        structure: vehicleArmor({ [VehicleLocation.FRONT]: 10 }),
+      }),
+    ]);
+    const diceRoller = diceRollerFor([
+      [6, 6],
+      [3, 3],
+    ]);
+    // Motive roll 4 + 4 = 8 is a moderate hit (-2 cruise MP); 1 + 1 then
+    // rolls the structure-exposure critical check to no effect.
+    const d6Roller = d6RollerFor([4, 4, 1, 1]);
+
+    const resolved = resolveAttack(
+      session,
+      attackEvent(session.id),
+      diceRoller,
+      d6Roller,
+    );
+
+    const penalty = resolved.events.find(
+      (event) => event.type === GameEventType.MotivePenaltyApplied,
+    )!;
+    // Cruise 5 - 2 = 3; flank ceil(3 x 1.5) = 5 (MegaMek Entity.getRunMP).
+    expect(penalty.payload).toMatchObject({
+      previousCruiseMP: 5,
+      newCruiseMP: 3,
+      newFlankMP: 5,
+    });
+  });
 });
