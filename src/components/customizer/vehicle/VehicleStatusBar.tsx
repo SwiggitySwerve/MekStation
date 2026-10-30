@@ -17,6 +17,7 @@ import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
 import { validateVehicleConstruction } from '@/utils/construction/vehicle/vehicleValidation';
 import { formatTons } from '@/utils/formatting';
@@ -404,7 +405,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     armorStats,
     armorStatus: getArmorStatus(armorStats.unallocated),
     bvBreakdown,
-    flankMP: Math.floor(storeState.cruiseMP * 1.5),
+    flankMP: computeFlankMP(storeState.cruiseMP),
     motionLabel: MOTION_LABELS[storeState.motionType],
     validationResult,
     weightBreakdown,
