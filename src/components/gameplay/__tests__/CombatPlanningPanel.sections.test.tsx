@@ -17,6 +17,11 @@ import {
   WeaponAttackPlanningSection,
 } from '../CombatPlanningPanel.sections';
 import { mediumLaser } from './addCombatPhaseUIFlows.smoke.test-helpers';
+import {
+  baseAttacker,
+  baseTarget,
+  lrm10,
+} from './addWhatIfToHitPreview.smoke.test-helpers';
 
 const selected: ISelectedUnitProjection = {
   id: 'attacker',
@@ -50,6 +55,84 @@ const selected: ISelectedUnitProjection = {
 };
 
 describe('WeaponAttackPlanningSection combat projection range display', () => {
+  it('projects live bins into both previews when the legacy ammo map is empty', () => {
+    const props = {
+      className: '',
+      attackPlan: {
+        targetUnitId: 'target',
+        selectedWeapons: [lrm10.id],
+        weaponModeError: null,
+      },
+      weapons: [lrm10],
+      selectedWeaponModes: {},
+      rangeToTarget: 7,
+      attackerState: baseAttacker,
+      targetState: baseTarget,
+      forecastWeapons: [
+        {
+          weaponId: lrm10.id,
+          weaponName: lrm10.name,
+          minRange: lrm10.minRange,
+          shortRange: lrm10.shortRange,
+          mediumRange: lrm10.mediumRange,
+          longRange: lrm10.longRange,
+        },
+      ],
+      forecastOpen: true,
+      events: [],
+      previewEnabled: true,
+      onTogglePreview: jest.fn(),
+      onToggleWeapon: jest.fn(),
+      onModeChange: jest.fn(),
+      onOpenForecast: jest.fn(),
+      onConfirmFire: jest.fn(),
+      onCloseForecast: jest.fn(),
+    };
+    const withRounds = (remainingRounds: number): ISelectedUnitProjection => ({
+      ...selected,
+      state: {
+        ...selected.state,
+        ammoState: {
+          bin: {
+            binId: 'bin',
+            weaponType: 'lrm-10',
+            location: 'right_torso',
+            remainingRounds,
+            maxRounds: 12,
+            isExplosive: true,
+          },
+        },
+      },
+    });
+    const ready = withRounds(2);
+    const depleted = withRounds(0);
+    const before = JSON.stringify({ ready, depleted });
+    const { rerender } = render(
+      <WeaponAttackPlanningSection {...props} selected={ready} />,
+    );
+    for (const prefix of ['weapon', 'forecast']) {
+      expect(
+        Number(
+          screen.getByTestId(`${prefix}-preview-expdmg-${lrm10.id}`)
+            .textContent,
+        ),
+      ).toBeGreaterThan(0);
+    }
+    rerender(<WeaponAttackPlanningSection {...props} selected={depleted} />);
+    for (const prefix of ['weapon', 'forecast']) {
+      expect(
+        Number(
+          screen.getByTestId(`${prefix}-preview-expdmg-${lrm10.id}`)
+            .textContent,
+        ),
+      ).toBe(0);
+    }
+    expect(screen.getByTestId('preview-forecast-button')).toBeDisabled();
+    expect(JSON.stringify({ ready, depleted })).toBe(before);
+    expect(props.onConfirmFire).not.toHaveBeenCalled();
+    expect(props.onToggleWeapon).not.toHaveBeenCalled();
+  });
+
   it('threads projection range and bracket into the weapon selector surface', () => {
     render(
       <WeaponAttackPlanningSection

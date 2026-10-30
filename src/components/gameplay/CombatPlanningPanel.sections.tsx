@@ -21,6 +21,7 @@ import type {
 } from '@/utils/gameplay/toHit/forecast';
 
 import { GameEventType, LockState, MovementType } from '@/types/gameplay';
+import { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 
 import {
   AttackerLockedBanner,
@@ -269,6 +270,7 @@ export function WeaponAttackPlanningSection({
           forecastOptions={forecastOptions}
           previewEnabled={previewEnabled}
           attackerWeapons={weapons}
+          ammo={ammoMap}
           onConfirm={onConfirmFire}
           onClose={onCloseForecast}
         />
@@ -335,11 +337,9 @@ function buildAmmoMap(
   weapons: readonly IWeapon[],
   selected: ISelectedUnitProjection,
 ): Record<string, number> {
-  const ammoMap: Record<string, number> = {};
-  for (const weapon of weapons) {
-    ammoMap[weapon.id] = selected.state.ammo[weapon.id] ?? -1;
-  }
-  return ammoMap;
+  return selected.state.ammoState === undefined
+    ? selected.state.ammo
+    : ammoFromWeapons(weapons, selected.state.ammoState);
 }
 
 function isWaitingForOpponent(
