@@ -84,7 +84,7 @@ const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
   clmediumchemlaser: ['medium-chemical-laser', 'medium-chem-laser'],
 };
 
-function findMatchingWeaponBV(
+export function findMatchingWeaponBV(
   ammoType: string,
   weaponBVByType: Record<string, number>,
 ): number {
