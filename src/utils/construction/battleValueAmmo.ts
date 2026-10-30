@@ -84,7 +84,7 @@ const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
   clmediumchemlaser: ['medium-chemical-laser', 'medium-chem-laser'],
 };
 
-function findMatchingWeaponBV(
+export function findMatchingWeaponBV(
   ammoType: string,
   weaponBVByType: Record<string, number>,
 ): number {
@@ -101,14 +101,19 @@ function findMatchingWeaponBV(
   // tech-preserving ('clan-lrm-15'), so without this fallback every Clan
   // bin spelled that way capped to zero (Blood Kite / Bowman -5%+ BV).
   const stripTechBase = (key: string): string => key.replace(/^clan-/, '');
-  const techStrippedTarget = stripTechBase(ammoType);
-  let techStrippedSum = 0;
-  for (const [weaponKey, weaponBV] of Object.entries(weaponBVByType)) {
-    if (stripTechBase(weaponKey) === techStrippedTarget) {
-      techStrippedSum += weaponBV;
+  // Keep the original-family fallback first, then apply the same matching
+  // to existing aliases (e.g. lb-2-x -> clan-lb-2-x-ac). Return one candidate's
+  // sum so overlapping aliases cannot count a weapon more than once.
+  for (const candidate of [ammoType, ...(aliases ?? [])]) {
+    const techStrippedTarget = stripTechBase(candidate);
+    let techStrippedSum = 0;
+    for (const [weaponKey, weaponBV] of Object.entries(weaponBVByType)) {
+      if (stripTechBase(weaponKey) === techStrippedTarget) {
+        techStrippedSum += weaponBV;
+      }
     }
+    if (techStrippedSum > 0) return techStrippedSum;
   }
-  if (techStrippedSum > 0) return techStrippedSum;
 
   const stripped = ammoType.replace(/-\d+$/, '');
   if (stripped !== ammoType) {

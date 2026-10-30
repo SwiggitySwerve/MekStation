@@ -38,6 +38,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.14 Remove the unsupported ProtoMech explosive-equipment BV penalty; verify actual native stages for all 86 sources, preserve unrelated terms and saved caches, and retain full-equipment/BV gaps. (`battle-value-system`: ProtoMech Defensive BV)
 
+- [ ] 2.15 Preserve Clan technology in pattern-derived equipment IDs through the existing prefix owner; compare all changed captured names against native registry identities, preserve ordinary Clan LB-X vehicle ammunition through the shared matching owner (also used by its audit), and retain explicit complete-equipment/BV gaps. (`equipment-services`: Clan identity in equipment pattern resolution)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.01 Consolidate the ProtoMek BLK equipment projection without changing output, then reject flag/emitted-booster disagreement and unrepresentable equipment text without content or input mutation. Verify existing source export bytes and actual Java reload; production mount editing, arbitrary saved-flank export, complete equipment and BV remain open. (`unit-services`: ProtoMek booster export integrity)

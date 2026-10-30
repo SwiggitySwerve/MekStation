@@ -344,8 +344,9 @@ describe('normalizeEquipmentId', () => {
     });
 
     it('should handle Clan Streak SRM variants via regex normalization', () => {
+      // Pinned MegaMek 48fcb2f6 resolves this name to CLStreakSRM6 (Clan).
       const result = normalizeEquipmentId('clstreaksrm6');
-      expect(result).toBe('streak-srm-6');
+      expect(result).toBe('clan-streak-srm-6');
     });
   });
 });
