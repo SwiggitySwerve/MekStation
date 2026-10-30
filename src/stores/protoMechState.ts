@@ -22,7 +22,6 @@ import {
   ProtoLocation,
   ProtoWeightClass,
   type IProtoArmorByLocation,
-  type IProtoMechMountedEquipment as IProtoMechMountedEquipmentV2,
   type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
 import {
@@ -33,6 +32,7 @@ import {
   getProtoWeightClass,
   getProtoMPCaps,
 } from '@/utils/construction/protomech';
+import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
 import {
   calculateProtoMechBV,
   type IProtoMechBVBreakdown,
@@ -500,17 +500,10 @@ function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
       state.structureByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
   };
 
-  const equipment: ReadonlyArray<IProtoMechMountedEquipmentV2> =
-    state.equipment.map((mount) => ({
-      id: mount.id,
-      equipmentId: mount.equipmentId,
-      name: mount.name,
-      location: STATE_LOC_TO_BV_LOC[mount.location] ?? ProtoLocation.TORSO,
-      linkedAmmoId: mount.linkedAmmoId,
-      // A mount is treated as a main gun by the calculator when it sits in
-      // the Main Gun location; the store does not carry an isMainGun flag.
-      isMainGun: mount.location === ProtoMechLocation.MAIN_GUN,
-    }));
+  const equipment = projectProtoMechEquipment(
+    state.equipment,
+    (location) => STATE_LOC_TO_BV_LOC[location] ?? ProtoLocation.TORSO,
+  );
 
   const walkMP = state.walkMP ?? state.cruiseMP ?? 1;
   const runMP = state.flankMP ?? computeRunMP(walkMP, state.hasMyomerBooster);

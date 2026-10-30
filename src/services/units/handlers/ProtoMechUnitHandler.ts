@@ -7,6 +7,7 @@
  */
 
 import { readBlkProtoBooster } from '@/services/conversion/BlkProtoEquipment';
+import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
 import {
@@ -28,7 +29,6 @@ import {
   ProtoLocation,
   ProtoWeightClass,
   type IProtoArmorByLocation,
-  type IProtoMechMountedEquipment as IProtoMechMountedEquipmentV2,
   type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
@@ -43,6 +43,7 @@ import {
   getProtoMainGunTopologyError,
   getProtoArmorErrors,
 } from '@/utils/construction/protomech';
+import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 
 import {
@@ -286,10 +287,14 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     return mapLocationEquipment(
       document.equipmentByLocation,
       (locationKey) => this.normalizeLocation(locationKey),
-      ({ mountId, item, location }) => ({
+      ({ mountId, item, location, locationKey }) => ({
         id: `mount-${mountId}`,
         equipmentId: item,
         name: item,
+        blkSource: {
+          ...readBlkProtoEquipmentEntry(item),
+          blockKey: locationKey,
+        },
         location,
         isMainGun: location === ProtoMechLocation.MAIN_GUN,
       }),
@@ -507,17 +512,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         unit.structureByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
     };
 
-    const equipment: ReadonlyArray<IProtoMechMountedEquipmentV2> =
-      unit.equipment.map((mount) => ({
-        id: mount.id,
-        equipmentId: mount.equipmentId,
-        name: mount.name,
-        location: this.toBVLocation(mount.location),
-        linkedAmmoId: mount.linkedAmmoId,
-        // A mount in the MainGun slot is treated as a main gun. IProtoMech
-        // doesn't carry an explicit isMainGun flag, so we derive from loc.
-        isMainGun: mount.location === ProtoMechLocation.MAIN_GUN,
-      }));
+    const equipment = projectProtoMechEquipment(unit.equipment, (location) =>
+      this.toBVLocation(location),
+    );
 
     // Legacy IProtoMech uses cruiseMP for base Walk; the owner derives Run.
     const walkMP = unit.cruiseMP;
