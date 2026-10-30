@@ -40,9 +40,12 @@ zero; those zeroes must not be counted as native numerical agreement.
 
 The existing missile-SRM catalog owns distinct `clan-srm-1`, `clan-srm-3`
 and `clan-srm-5` entries. The name-mapping owner directs native CLSRM1/3/5,
-Clan SRM 1/3/5, Clan SRM-1/3/5 and SRM 1/3/5 to these entries. The resolver,
-MTF mapper and other shared consumers receive these identities through their
-existing contracts; no additional lookup algorithm is introduced.
+Clan SRM 1/3/5, Clan SRM-1/3/5 and SRM 1/3/5 to these entries. The BV resolver
+and MTF mapper receive these identities through their existing contracts.
+Combat receives damage 2/6/10 for native CLSRM1/3/5 names, now asserted directly.
+Bare SRM 3/SRM3 still select the old battle-armor record in combat, even though
+BV selects the ProtoMek record. No pinned source uses those bare spellings;
+that consumer disagreement remains open. No lookup algorithm changed.
 
 Pinned MegaMek [CLSRM1.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/CLSRM1.java),
 [CLSRM3.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/CLSRM3.java)
@@ -81,6 +84,52 @@ total counts ranged entries; physical weapons remain separately counted by the
 combat catalog contract. The generator preserves file paths and provenance.
 This recount also corrects the pre-existing miscellaneous total from 321 to
 322; its records are unchanged.
+The generator is a manual check; CI and package scripts do not invoke it.
+
+## Native Clan lasers and light weapons
+
+The existing mapping owner selects the Clan ER Micro Laser, three chemical
+lasers, three improved heavy lasers, Light Machine Gun and Light TAG from
+their pinned internal, registered lookup and unambiguous display names.
+Only actual registry-accepted mappings change; a guessed alias is not proof
+of identity. In particular, the large improved heavy laser's internal name
+is `CLImprovedHeavyLargeLaser`, while the small and medium internal names
+put their size before `Heavy`.
+
+Actual repeated MegaMek 48fcb2f6 registry observations verify represented
+type BV, heat, damage, mass, cost, slots, ranges, introduction and static
+rules level. The existing laser records gain their native extreme ranges.
+ER Micro introduction becomes 3054; the chemical and improved heavy laser
+static levels become Standard. Light TAG remains in the electronics owner
+with introduction 3046 and Standard level. Its contract does not represent
+weapon ranges or damage. These dates/levels do not prove full historical
+availability or contextual mount legality.
+
+The machine-gun catalog gains `clan-light-machine-gun`: BV 5, heat 0,
+damage 1, mass 0.25, cost 5,000, one Mech critical slot and ranges 2/4/6/8.
+Pinned `AmmoType.createCLLightMGAmmo` supplies 200 shots in a one-ton bin;
+the weapon record uses that existing ammo-per-ton convention. Native bare
+`Light Machine Gun` still denotes the Inner Sphere identity. Existing
+Inner Sphere and battle-armor records are preserved, including their known
+field gaps. The legacy `light-tag` local ID remains a separate old record;
+native Light TAG names now select `clan-light-tag`.
+
+BV and MTF lookup share the mappings. Combat native internal-name lookups
+are checked for the eight weapon records; TAG follows the electronics
+contract. Data changes affect combat damage, heat and ammunition requirements
+even though no runtime arithmetic changed. The existing combat catalog adapter
+discards extreme ranges; only the official equipment loader preserves the new
+extreme-range fields. The capture retains 15 unresolved combat alias cases
+(five spellings in three cases), all unresolved before this change.
+Combat alias/range propagation, complete mechanics and production workflows remain separate
+proof obligations. The source-derived capture and all 86 ProtoMek records
+track numeric effects and preserve source strings, mount provenance,
+serialization, costs and existing BLK export/reload results.
+
+No ammunition catalog or matching rule changes here. Captured newly positive
+matches use the existing shared owner; they do not prove native quantities,
+bin identities or complete ammo BV. The ProtoMek exact-key cap, unresolved
+source ammunition and complete source BV remain open.
 
 ## Ammunition matching boundary
 
