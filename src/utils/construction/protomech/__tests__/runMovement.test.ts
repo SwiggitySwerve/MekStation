@@ -168,7 +168,7 @@ describe('Pinned undamaged ProtoMech running movement', () => {
         motion_type: 'Biped',
         cruiseMP: '5',
         armor: '0\n0\n0\n0\n0',
-        myomerbooster: String(booster),
+        'Torso Equipment': booster ? 'CLMyomerBooster' : '',
       };
       const parsed = new BlkParserService().parse(
         Object.entries(tags)

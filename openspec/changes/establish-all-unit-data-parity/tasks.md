@@ -28,7 +28,11 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.9 Consolidate every derived ProtoMech running policy without changing outputs, then correct ordinary/explicit-booster running and walk display through the owner and all existing consumers. Compare actual Java observations and record source equipment gaps and changed local BV separately. Jump/caps, equipment identity, persistence and complete BV remain open. (`protomech-unit-system`: ProtoMech Derived Running Movement)
 
+- [ ] 2.10 Derive native ProtoMek booster state from exact pinned equipment identities and visited source locations, preserving raw entries and structured syntax failures. Compare all 86 sources and actual Java alias/mount cases; retain explicit direct-editor export, equipment legality, cost and complete BV gaps. (`unit-services`: ProtoMek source booster equipment)
+
 ## 3. Complete typed data flows
+
+- [ ] 3.01 Consolidate the ProtoMek BLK equipment projection without changing output, then reject flag/emitted-booster disagreement and unrepresentable equipment text without content or input mutation. Verify existing source export bytes and actual Java reload; production mount editing, arbitrary saved-flank export, complete equipment and BV remain open. (`unit-services`: ProtoMek booster export integrity)
 
 - [ ] 3.0 Extend/consolidate existing schema ownership into a documented portable versioned design contract, explicit units/identities/extensions, migrations, examples and independent-consumer conformance tests; keep legacy syntax in adapters. (`unit-entity-model`: Portable versioned unit documents)
 - [ ] 3.1 Extend existing schemas, family handlers and validators for every inventoried construction family; include invalid-but-loadable designs with explicit diagnostics and preserve unsupported records during rollout. (`unit-entity-model`: Faithful source-unit semantics)

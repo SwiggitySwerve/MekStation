@@ -150,3 +150,76 @@ editor or persistence parity.
 - **WHEN** export is requested
 - **THEN** it SHALL fail with a Main Gun diagnostic and no content rather than silently lose those fields
 - **AND** source diagnostics and export rejection SHALL call the same construction-owner rule
+
+### Requirement: ProtoMek source booster equipment
+
+The BLK adapter SHALL derive undamaged ProtoMek booster state from the exact
+equipment identities recognized by pinned MegaMek at 48fcb2f6. Existing raw
+equipment records SHALL remain intact. Equipment legality and full mount
+semantics SHALL remain distinct from the movement effect.
+
+#### Scenario: Native identity and source location
+
+- **WHEN** any of the six pinned misc equipment types carrying F_MASC is loaded in a source location that upstream visits
+- **THEN** the handler SHALL set the booster flag and the running owner SHALL consume it without changing base Walk or engine rating
+- **AND** exact internal, registered and display aliases SHALL be compared case-insensitively without fuzzy punctuation matching
+- **AND** lookup SHALL use the source technology prefix and the pinned fallback (`Clan ` only for Clan Level 2, otherwise `IS `), including unqualified `Super Charger`
+- **AND** case-variant equipment blocks SHALL use the first retained block, without claiming recovery of identical duplicate tags already overwritten by the shared parser
+- **AND** a Main Gun block SHALL contribute no booster when no mount exists
+- **AND** the separate myomerbooster tag SHALL NOT override equipment for any locally accepted ProtoMech spelling
+
+#### Scenario: Equipment syntax and preserved records
+
+- **WHEN** native rear-mount, size or shot-count syntax precedes lookup
+- **THEN** the source adapter SHALL decode it before determining the equipment effect
+- **AND** shot counts SHALL admit Java BMP decimal digits and ASCII signs within the nonnegative signed-32-bit range, retaining Java's rejection of supplementary digits
+- **AND** unusable numeric suffixes SHALL return a structured equipment diagnostic rather than throw or silently activate equipment
+- **AND** every processed entry SHALL be checked even if an earlier entry enables the booster
+- **AND** original equipment names, strings and locations SHALL remain available without catalog regeneration
+
+#### Scenario: Native whitespace and display case
+
+- **WHEN** ProtoMek equipment contains boundary controls, Unicode whitespace or Unicode display-name case variants
+- **THEN** parsing SHALL retain meaningful characters and interpretation SHALL use Java trimming and display-name matching
+- **AND** comment preprocessing SHALL recognize CR, LF and CRLF and apply native trimming before discarding ProtoMek lines, including when UnitType follows equipment
+- **AND** Unicode-padded hash entries SHALL remain equipment and malformed suffixes SHALL fail even before or after a valid booster
+- **AND** registered aliases SHALL retain their distinct lookup semantics, so `MAſC` matches but `CLMAſC` does not
+- **AND** a successful export SHALL preserve the same native booster effect; native-invalid size whitespace SHALL fail without content
+- **AND** other unit families SHALL retain their existing parser behavior
+
+#### Scenario: Corpus and round-trip evidence
+
+- **WHEN** all 86 pinned ProtoMek sources are loaded and exported through the existing service adapter
+- **THEN** booster state and running movement SHALL match actual pinned Java observations, including the five previously missed boosters
+- **AND** unchanged source fields, exports and reloaded equipment SHALL be checked separately from changed local BV terms
+- **AND** direct editor flags without corresponding equipment, production source-to-store flows, equipment legality, damage and complete BV SHALL remain explicitly unverified
+
+### Requirement: ProtoMek booster export integrity
+
+The BLK exporter SHALL refuse a declared booster state that its emitted
+equipment cannot retain on reload, using the source equipment owner and the
+writer's shared projection. It SHALL NOT silently synthesize or remove mounts.
+
+#### Scenario: Flag and emitted equipment disagree
+
+- **WHEN** the booster flag differs from the effect of the emitted equipment blocks
+- **THEN** export SHALL fail with a booster/equipment diagnostic and no content
+- **AND** input equipment, movement, stored BV and persistence SHALL remain untouched
+- **AND** omitted locations SHALL NOT count toward the emitted effect
+- **AND** the decoder SHALL use the exact technology declaration emitted by the exporter
+- **AND** equipment normalized from an ignored source location SHALL NOT silently gain a booster effect through export and reload
+- **AND** the existing absent Main Gun rejection SHALL remain enforced
+
+#### Scenario: Unrepresentable equipment text
+
+- **WHEN** an emitted equipment name contains a line break or angle bracket, or its native numeric suffix is malformed
+- **THEN** export SHALL fail with a structured equipment diagnostic and no content
+- **AND** suffix interpretation SHALL use the same source decoder as loading
+
+#### Scenario: Consistent export retains its effect
+
+- **WHEN** the declared booster and representable emitted equipment agree
+- **THEN** existing export bytes SHALL remain unchanged and reload SHALL preserve the booster effect and base Walk
+- **AND** native derived Run SHALL be compared separately from arbitrary legacy saved flank values
+- **AND** all 86 pinned source exports and representative successful equipment projections SHALL be reloaded by pinned Java
+- **AND** full equipment topology, legality, numerical parity and production editor/save workflows SHALL remain open work

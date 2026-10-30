@@ -6,6 +6,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.6
  */
 
+import { readBlkProtoBooster } from '@/services/conversion/BlkProtoEquipment';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
 import {
@@ -173,6 +174,13 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
 
     // BLKProtoMekFile derives topology from armor count, even for an empty mount.
     const hasMainGun = armor.length === 6;
+    const booster = readBlkProtoBooster(
+      document.equipmentByLocation,
+      hasMainGun,
+      document.type,
+    );
+    errors.push(...booster.errors);
+    if (errors.length > 0) return { errors, warnings };
     const structureByLocation = computeProtoStructure(
       weightPerUnit,
       chassisType,
@@ -193,7 +201,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       cruiseMP,
       chassisType,
     );
-    const hasMyomerBooster = getRawTagBoolean(rawTags, 'myomerbooster');
+    const hasMyomerBooster = booster.hasMyomerBooster;
     const hasMagneticClamps = getRawTagBoolean(rawTags, 'magneticclamps');
     const hasExtendedTorsoTwist = getRawTagBoolean(
       rawTags,

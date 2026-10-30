@@ -37,7 +37,6 @@ import {
   parseBlkLineList,
   parseBlkNumber,
   parseBlkWeaponQuirks,
-  removeBlkComments,
 } from './BlkParserService.helpers';
 
 /**
@@ -52,11 +51,8 @@ export class BlkParserService {
     const warnings: string[] = [];
 
     try {
-      // Remove comments and normalize line endings
-      const cleanContent = removeBlkComments(blkContent);
-
-      // Extract all tags
-      const rawTags = extractBlkTags(cleanContent);
+      // Extract tags through the shared source-text boundary.
+      const rawTags = extractBlkTags(blkContent);
 
       // Get required fields
       const blockVersion = parseBlkNumber(rawTags['BlockVersion']) ?? 1;
