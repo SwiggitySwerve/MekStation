@@ -22,11 +22,20 @@ capacity, ammunition quantity or compatible bins.
 - **WHEN** the unit is adapted or projected for AI planning
 - **THEN** live quantities SHALL come from the ammo owner, not from a guessed per-ton capacity
 - **AND** its default firing-mode cost SHALL be one round
-- **WHEN** an accepted shot consumes the last round
+- **WHEN** an accepted runner shot consumes the last round
 - **THEN** the existing consumption event SHALL record the depletion and a later shot SHALL be refused
 - **AND** adapters SHALL retain the resolved ammo identity independently of display names and mount-instance prefixes
-- **AND** live runner, engine and interactive-session projections SHALL use the same ammo identity as firing and consumption
+- **AND** live runner, engine and interactive-session AI projections SHALL use the runner's ammo identity selection contract
+- **AND** runner firing and consumption SHALL use that same identity
 - **AND** an explicit firing mode's ammo-family selection SHALL retain precedence
+
+#### Scenario: Session firing identity remains an explicit gap
+
+- **GIVEN** adapter ProtoMek SRM 1/3/5 weapons and supplied canonical clan-srm bins
+- **WHEN** engine or interactive-session AI projects those bins
+- **THEN** it SHALL recognize the live counts and permit weapon selection
+- **AND** tests SHALL record that current session resolution still consumes by display name and refuses these attacks as OutOfAmmo without spending rounds or rolling dice
+- **AND** successful engine and interactive-session firing SHALL remain unproven until that separate identity boundary is repaired
 
 #### Scenario: Real preview consumers observe missile ammunition updates
 

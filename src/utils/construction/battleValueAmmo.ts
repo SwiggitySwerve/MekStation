@@ -130,6 +130,29 @@ export function findMatchingWeaponBV(
   return 0;
 }
 
+/** Accumulate a caller-normalized weapon or ammunition key in encounter order. */
+export function addBVToAmmoCapGroup(
+  groups: Record<string, number>,
+  key: string,
+  bv: number,
+): void {
+  groups[key] = (groups[key] ?? 0) + bv;
+}
+
+/** An undefined cap omits a group; an explicit zero remains a real cap. */
+export function sumCappedAmmoBV(
+  ammoBVByType: Readonly<Record<string, number>>,
+  capForType: (type: string) => number | undefined,
+): number {
+  let total = 0;
+  for (const type of Object.keys(ammoBVByType)) {
+    const cap = capForType(type);
+    if (cap === undefined) continue;
+    total += Math.min(ammoBVByType[type], cap);
+  }
+  return total;
+}
+
 export function calculateAmmoBVWithExcessiveCap(
   weapons: Array<{ id: string; bv: number }>,
   ammo: Array<{ id: string; bv: number; weaponType: string }>,
@@ -139,22 +162,17 @@ export function calculateAmmoBVWithExcessiveCap(
   const weaponBVByType: Record<string, number> = {};
   for (const weapon of weapons) {
     const weaponType = normalizeEquipmentId(weapon.id);
-    weaponBVByType[weaponType] = (weaponBVByType[weaponType] ?? 0) + weapon.bv;
+    addBVToAmmoCapGroup(weaponBVByType, weaponType, weapon.bv);
   }
 
   const ammoBVByType: Record<string, number> = {};
   for (const ammoEntry of ammo) {
     const normalizedType = normalizeEquipmentId(ammoEntry.weaponType);
-    ammoBVByType[normalizedType] =
-      (ammoBVByType[normalizedType] ?? 0) + ammoEntry.bv;
+    addBVToAmmoCapGroup(ammoBVByType, normalizedType, ammoEntry.bv);
   }
 
-  let totalAmmoBV = 0;
-  for (const ammoType of Object.keys(ammoBVByType)) {
+  return sumCappedAmmoBV(ammoBVByType, (ammoType) => {
     const matchingWeaponBV = findMatchingWeaponBV(ammoType, weaponBVByType);
-    if (matchingWeaponBV === 0) continue;
-    totalAmmoBV += Math.min(ammoBVByType[ammoType], matchingWeaponBV);
-  }
-
-  return totalAmmoBV;
+    return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
+  });
 }

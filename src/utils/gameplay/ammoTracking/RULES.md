@@ -16,8 +16,12 @@ fallback and the engine retains its legacy ammo map for ordinary weapons.
 The adapter carries the resolved catalog ammo identity independently of the
 display name and prefixed mount ID. Runner selection uses the mode's explicit
 family, then that resolved identity, then its existing unprefixed mount convention.
-Live runner and engine AI projections use that same selection contract. Older adapter inputs without
-an explicit identity retain name-based projection.
+Live runner and engine AI projections use that same selection contract. Older
+adapter inputs without an explicit identity retain name-based projection.
+GameEngine and InteractiveSession firing still consume by display name through
+`resolveAttack`. Thus supplied `clan-srm-1/3/5` bins permit AI selection but
+`SRM N (ProtoMech)` attacks are refused as OutOfAmmo. Tests pin that inherited
+refusal and an ordinary LRM control; successful session firing remains open.
 
 Existing contracts remain distinct: ordinary AI allows an absent count for a
 positive-capacity weapon, while damage preview also recognizes explicit zero
@@ -26,7 +30,7 @@ Consolidation is separately committed and compared before the correction.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` identifies these LRM
 types as LRM ammunition users. This slice establishes local readiness and
-consumption behavior; native per-shot masses, quantities, mount locations,
+runner consumption behavior; native per-shot masses, quantities, mount locations,
 implicit one-shot bins, cap grouping and full BV remain separate. Session
 resolution already refuses ammo-fed attacks when no matching bin exists.
 
@@ -47,6 +51,12 @@ source loading. Three chemical lasers and the vehicle flamer still bypass the
 runner's depletion guard through its existing energy-name classifier; their live
 counts are covered but their firing parity remains open. Damage preview magnitude
 also remains unverified: rack-total damage can be multiplied by cluster hits.
+The live-bin AI projection affects ordinary catalog weapons too: unmatched bins
+now suppress their selection even when the legacy count map had no entry. The
+review's 4,231-unit capture found 2,688 such ordinary mounts, all also refused by
+the session and runner gates. It also found two Vehicle Flamer mounts on Ymir
+BWP-X1 excluded by both bots despite the firing paths' existing energy bypass.
+These are bounded catalog observations, not complete native compatibility proof.
 
 ## Preview consumers
 

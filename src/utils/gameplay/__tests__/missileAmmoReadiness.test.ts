@@ -37,14 +37,18 @@ import {
   Facing,
   MovementType,
   GameEventType,
+  GameSide,
   LockState,
   WeaponCategory,
 } from '@/types/gameplay';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
 import { expectedDamage, damageVariance } from '../damage/expectedDamage';
+import { createAttackDeclaredEvent } from '../gameEvents';
+import { createGameSession } from '../gameSession';
+import { resolveAttack } from '../gameSessionAttackResolution';
 import { isMissileWeapon } from '../specialWeaponMechanics/missileMechanics';
-import { buildWeaponAttack } from '../weaponAttackBuilder';
+import { buildWeaponAttack, buildWeaponAttacks } from '../weaponAttackBuilder';
 
 // Projected nominal LRM data from the native catalog correction (#2408).
 // This prerequisite verifies resource readiness, not cluster counts or catalog admission.
@@ -457,6 +461,122 @@ it('keeps ordinary mode-specific ammunition usable in the live AI snapshot', () 
 });
 
 describe('engine and interactive-session live ammunition', () => {
+  // Open gap: session resolution still consumes by display name. Selection
+  // through the resolved identity does not establish successful session firing.
+  it.each(['clan-srm-1', 'clan-srm-3', 'clan-srm-5', 'lrm-10'])(
+    'records the real session firing boundary for supplied %s',
+    (id) => {
+      const weapons = extractWeapons([{ equipmentId: id }], 'attacker', {});
+      expect(weapons).toHaveLength(1);
+      const weapon = weapons[0];
+      const created = createGameSession(
+        {
+          mapRadius: 5,
+          turnLimit: 5,
+          victoryConditions: ['elimination'],
+          optionalRules: [],
+        },
+        ['attacker', 'target'].map((unitId, index) => ({
+          id: unitId,
+          name: unitId,
+          side: index === 0 ? GameSide.Player : GameSide.Opponent,
+          unitRef: unitId,
+          pilotRef: unitId,
+          gunnery: 4,
+          piloting: 5,
+          ammoConstruction:
+            index === 0
+              ? [
+                  {
+                    binId: 'bin',
+                    weaponType: id,
+                    location: 'right_torso',
+                    maxRounds: 10,
+                    damagePerRound: 2,
+                    isExplosive: true,
+                  },
+                ]
+              : [],
+        })),
+      );
+      const session = {
+        ...created,
+        currentState: {
+          ...created.currentState,
+          units: {
+            ...created.currentState.units,
+            attacker: {
+              ...created.currentState.units.attacker,
+              position: { q: 0, r: 0 },
+            },
+            target: {
+              ...created.currentState.units.target,
+              position: { q: 0, r: -2 },
+            },
+          },
+        },
+      };
+      const before = JSON.stringify(session);
+      const ai = toEngineAIUnitState(
+        session.currentState.units.attacker,
+        weapons,
+        4,
+      );
+      const targetAI = toEngineAIUnitState(
+        session.currentState.units.target,
+        [],
+        4,
+      );
+      expect(ai.ammo[weapon.id]).toBe(10);
+      expect(new AttackAI().selectWeapons(ai, targetAI)).toEqual(weapons);
+      const event = createAttackDeclaredEvent({
+        gameId: session.id,
+        sequence: session.events.length,
+        turn: 1,
+        attackerId: 'attacker',
+        targetId: 'target',
+        weapons: [weapon.id],
+        toHitNumber: 13,
+        modifiers: [],
+        weaponAttacks: buildWeaponAttacks([weapon.id], weapons, 'attacker'),
+      });
+      const roller = jest.fn(() => ({
+        dice: [1, 1] as const,
+        total: 2,
+        isSnakeEyes: true,
+        isBoxcars: false,
+      }));
+      const resolved = resolveAttack(session, event, roller);
+      const added = resolved.events.slice(session.events.length);
+      if (id === 'lrm-10') {
+        expect(
+          added.some((entry) => entry.type === GameEventType.AttackInvalid),
+        ).toBe(false);
+        expect(
+          added.some((entry) => entry.type === GameEventType.AmmoConsumed),
+        ).toBe(true);
+        expect(
+          added.some((entry) => entry.type === GameEventType.AttackResolved),
+        ).toBe(true);
+        expect(
+          resolved.currentState.units.attacker.ammoState?.bin.remainingRounds,
+        ).toBe(9);
+        expect(roller).toHaveBeenCalledTimes(1);
+      } else {
+        expect(added).toHaveLength(1);
+        expect(added[0]).toMatchObject({
+          type: GameEventType.AttackInvalid,
+          payload: { reason: 'OutOfAmmo', weaponId: weapon.id },
+        });
+        expect(
+          resolved.currentState.units.attacker.ammoState?.bin.remainingRounds,
+        ).toBe(10);
+        expect(roller).not.toHaveBeenCalled();
+      }
+      expect(JSON.stringify(session)).toBe(before);
+    },
+  );
+
   it.each(['clan-srm-3', 'clan-srm-5'])(
     'selects supplied %s, observes ammo-only depletion and preserves input',
     (id) => {

@@ -12,7 +12,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { findMatchingWeaponBV } from '../src/utils/construction/battleValueAmmo';
+import {
+  addBVToAmmoCapGroup,
+  findMatchingWeaponBV,
+} from '../src/utils/construction/battleValueAmmo';
 import {
   resolveAmmoBV,
   normalizeEquipmentId,
@@ -1018,7 +1021,7 @@ function main() {
     // Build weaponBVByType for matching (use dummy BV=1 since we only care about matching, not cap)
     const weaponBVByType: Record<string, number> = {};
     for (const key of weaponKeys) {
-      weaponBVByType[key] = (weaponBVByType[key] ?? 0) + 1;
+      addBVToAmmoCapGroup(weaponBVByType, key, 1);
     }
 
     // Check each ammo entry for weapon matching
