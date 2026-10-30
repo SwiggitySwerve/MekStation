@@ -1,5 +1,39 @@
 ## ADDED Requirements
 
+### Requirement: Distinct native ProtoMek SRM catalog identities
+
+The existing equipment catalog and name mappings SHALL distinguish native
+ProtoMek SRM 1, 3 and 5 launchers from battle-armor entries. Native names SHALL
+select clan-srm-1, clan-srm-3 and clan-srm-5; explicit existing battle-armor IDs
+SHALL retain their stored definitions. Consumers SHALL use the same catalog
+and mappings without another normalization algorithm.
+
+#### Scenario: Native launcher identities and fields
+
+- **GIVEN** CLSRM1/3/5, Clan SRM 1/3/5, Clan SRM-1/3/5 or SRM 1/3/5
+- **WHEN** the existing resolver or MTF mapping receives any case variant
+- **THEN** it SHALL select the corresponding distinct ProtoMek catalog entry
+- **AND** type BV SHALL equal 15/30/47 and heat SHALL equal zero
+- **AND** the catalog SHALL retain pinned native weight, cost, ranges and critical-slot values
+- **AND** Java's no-minimum and cluster-damage sentinels SHALL be represented by the existing catalog's zero-minimum and 2/missile conventions
+
+#### Scenario: Supported unit types and legacy definitions
+
+- **WHEN** the official equipment loader reads these entries
+- **THEN** they SHALL pass the existing weapon schema and be available for ProtoMechs only through unit-type filtering
+- **AND** BattleMech, vehicle, aerospace and battle-armor filters SHALL exclude them
+- **AND** explicit basrm1, basrm3 and basrm5 IDs SHALL retain their previous definitions and values
+- **AND** one-shot, ammunition and other catalog records SHALL remain unchanged
+- **AND** the equipment index counts SHALL be regenerated from its listed catalog files and pass check mode
+
+#### Scenario: Source effects and evidence limits
+
+- **WHEN** this catalog correction is validated
+- **THEN** native-accepted changed lookups SHALL be checked against actual pinned Java identities and type BV
+- **AND** changed source weapon subtotals and final BVs SHALL be recorded separately from unchanged source fields, serialization and costs
+- **AND** compatibility spellings rejected by Java SHALL receive no native-parity credit
+- **AND** contextual native lookup, battle-armor catalog defects, ammunition, complete BV, mount legality and production workflows SHALL remain open
+
 ### Requirement: Clan identity in equipment pattern resolution
 
 The existing equipment BV resolver SHALL prefer an available Clan catalog
