@@ -182,3 +182,23 @@ describe('Vehicle final BV', () => {
     expect(bv.turretModifier).toBe(1.05);
   });
 });
+
+describe('Clan LB-X catalog ammunition', () => {
+  it.each([
+    ['CLLBXAC2', 'lb-2-x-ammo', 47, 6, 59.36],
+    ['CLLBXAC5', 'lb-5-x-ammo', 93, 12, 117.6],
+  ])(
+    'retains ordinary bins for %s without overrides',
+    (id, ammoId, weaponBV, ammoBV, total) => {
+      const result = calculateVehicleOffensiveBV(
+        baseInput({
+          weapons: [{ id, location: 'front' }],
+          ammo: [{ id: ammoId, location: 'body' }],
+        }),
+      );
+      expect(result.weaponBV).toBe(weaponBV);
+      expect(result.ammoBV).toBe(ammoBV);
+      expect(result.total).toBeCloseTo(total, 8);
+    },
+  );
+});

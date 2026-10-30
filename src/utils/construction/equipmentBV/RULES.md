@@ -26,3 +26,24 @@ by this correction. Existing explicit name-map collisions, missing catalog
 types, effective ammunition, mount locations and full source parity remain
 open. Unresolved lookup returns resolved=false even though its numeric fields
 are zero; those zeroes must not be counted as native numerical agreement.
+
+## Ammunition matching boundary
+
+`../battleValueAmmo.ts` owns ammunition compatibility aliases, matching and
+excessive-ammunition caps. The resolver only selects catalog identities.
+The ammunition audit imports that owner's matcher; it no longer retains its
+older alias table and matching algorithm. Audit matches intentionally now
+include the owner's existing aliases and Clan-prefix fallback.
+
+Matching retains exact keys (including zero), then the first exact alias,
+then the original family's positive technology-stripped sum. If none matches,
+the same fallback tries each existing alias in order and returns its positive
+sum once. Numbered torpedo fallback, bin/weapon aggregation and the cap remain
+unchanged. Thus ordinary LB 2-X/5-X vehicle bins retain 6/12 BV with corrected
+Clan weapons worth 47/93. Different rack sizes remain distinct.
+
+Pinned MegaMek `BVCalculator.java` at 48fcb2f6 keys excessive ammunition by
+ammo type and rack size for both ammunition and weapons. This bounded local
+compatibility repair does not establish full native ammunition parity: the
+existing exact-match precedence on mixed-tech weapons is retained, and native
+ammo quantity, all equipment identities and full BV remain open.

@@ -31,3 +31,13 @@ other fallback behavior SHALL remain unchanged.
 - **AND** native-rejected compatibility spellings SHALL receive no native-parity credit
 - **AND** all 86 ProtoMek source records, serialization and costs SHALL be preserved while BV changes are recorded separately
 - **AND** full equipment/mount identity, ammunition, catalog defects, full numerical parity and production browser workflows SHALL remain open
+
+#### Scenario: Clan LB-X ammunition compatibility survives identity correction
+
+- **GIVEN** CLLBXAC2 or CLLBXAC5 and ordinary lb-2-x-ammo or lb-5-x-ammo catalog bins
+- **WHEN** a vehicle calculates offensive BV through the shared ammunition owner
+- **THEN** weapon BV SHALL be 47 or 93 and one bin SHALL retain 6 or 12 BV respectively
+- **AND** the existing ammunition aliases SHALL also participate in the Clan-prefix fallback
+- **AND** exact weapon keys, exact aliases, original-family fallback precedence, rack separation and excessive-ammunition caps SHALL be preserved
+- **AND** the ammunition audit SHALL call the same matching owner, without a copied alias table or matcher
+- **AND** this compatibility repair SHALL NOT claim complete native ammunition or mixed-technology cap parity

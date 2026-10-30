@@ -12,6 +12,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { findMatchingWeaponBV } from '../src/utils/construction/battleValueAmmo';
 import {
   resolveAmmoBV,
   normalizeEquipmentId,
@@ -787,85 +788,6 @@ function resolveAmmoByPattern(
   const ce = lu.get(canonKey);
   if (ce) return ce;
   return null;
-}
-
-// ---------------------------------------------------------------------------
-// AMMO_WEAPON_TYPE_ALIASES and findMatchingWeaponBV
-// (from battleValueCalculations.ts lines 494-557)
-// ---------------------------------------------------------------------------
-const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
-  'arrow-iv-launcher': [
-    'isarrowivsystem',
-    'isarrowiv',
-    'clarrowiv',
-    'arrow-iv',
-  ],
-  'arrow-iv': [
-    'isarrowivsystem',
-    'isarrowiv',
-    'clarrowiv',
-    'arrow-iv-launcher',
-  ],
-  'long-tom': ['long-tom-cannon'],
-  'long-tom-cannon': ['long-tom'],
-  sniper: ['sniper-cannon', 'issniperartcannon'],
-  'sniper-cannon': ['sniper'],
-  thumper: ['thumper-cannon'],
-  'thumper-cannon': ['thumper'],
-  'medium-chemical-laser': ['medium-chem-laser', 'clmediumchemlaser'],
-  'medium-chem-laser': ['medium-chemical-laser', 'clmediumchemlaser'],
-  'lb-5-x': ['lb-5-x-ac'],
-  'lb-2-x': ['lb-2-x-ac'],
-  lrtorpedo: ['lrm-15', 'lrm-10', 'lrm-5', 'lrm-20'],
-  srtorpedo: ['srm-6', 'srm-4', 'srm-2'],
-  'ac-10-primitive': ['ac-10'],
-  'ac-5-primitive': ['ac-5'],
-  'ac-20-primitive': ['ac-20'],
-  impammosrm6: ['improved-srm-6'],
-  clanimprovedlrm15: ['improved-lrm-15'],
-  clanimprovedlrm20: ['improved-lrm-20'],
-  clanimprovedlrm10: ['improved-lrm-10'],
-  clanimprovedlrm5: ['improved-lrm-5'],
-  isarrowivsystem: ['arrow-iv-launcher', 'arrow-iv'],
-  'improved-gauss-rifle': ['climpgauss'],
-  climpgauss: ['improved-gauss-rifle'],
-  magshot: ['magshotgr'],
-  magshotgr: ['magshot'],
-  'mech-taser': ['battlemech-taser', 'taser'],
-  'battlemech-taser': ['mech-taser', 'taser'],
-  taser: ['mech-taser', 'battlemech-taser'],
-  'improved-narc': ['improvednarc', 'inarc', 'isimprovednarc'],
-  improvednarc: ['improved-narc', 'inarc'],
-  'narc-beacon': ['narcbeacon', 'narc', 'isnarcbeacon'],
-  narcbeacon: ['narc-beacon', 'narc'],
-  narc: ['narc-beacon', 'narcbeacon'],
-  clmediumchemlaser: ['medium-chemical-laser', 'medium-chem-laser'],
-};
-
-function findMatchingWeaponBV(
-  ammoType: string,
-  weaponBVByType: Record<string, number>,
-): number {
-  if (weaponBVByType[ammoType] !== undefined) return weaponBVByType[ammoType];
-  const aliases = AMMO_WEAPON_TYPE_ALIASES[ammoType];
-  if (aliases) {
-    for (const alias of aliases) {
-      if (weaponBVByType[alias] !== undefined) return weaponBVByType[alias];
-    }
-  }
-  const stripped = ammoType.replace(/-\d+$/, '');
-  if (stripped !== ammoType) {
-    const size = ammoType.slice(stripped.length + 1);
-    const torpedoAliases: Record<string, string> = {
-      lrtorpedo: 'lrm-',
-      srtorpedo: 'srm-',
-    };
-    const base = torpedoAliases[stripped];
-    if (base && weaponBVByType[base + size] !== undefined) {
-      return weaponBVByType[base + size];
-    }
-  }
-  return 0;
 }
 
 // ---------------------------------------------------------------------------

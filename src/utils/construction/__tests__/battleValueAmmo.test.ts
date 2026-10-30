@@ -61,3 +61,59 @@ describe('shared ammunition matching precedence', () => {
     ).toBe(50);
   });
 });
+
+describe('Clan weapon ammunition aliases', () => {
+  it.each([
+    ['CLLBXAC2', 'lb-2-x', 47, 6],
+    ['CLLBXAC5', 'lb-5-x', 93, 12],
+  ])(
+    'retains %s ammunition through the shared cap',
+    (id, weaponType, bv, ammoBV) => {
+      expect(
+        calculateAmmoBVWithExcessiveCap(
+          [{ id, bv }],
+          [{ id: `${weaponType}-ammo`, weaponType, bv: ammoBV }],
+        ),
+      ).toBe(ammoBV);
+      expect(
+        calculateAmmoBVWithExcessiveCap(
+          [
+            { id, bv },
+            { id, bv },
+          ],
+          [{ id: `${weaponType}-ammo`, weaponType, bv: 1000 }],
+        ),
+      ).toBe(bv * 2);
+    },
+  );
+
+  it('retains exact Inner Sphere alias precedence on a mixed-tech unit', () => {
+    expect(
+      findMatchingWeaponBV('lb-2-x', { 'lb-2-x-ac': 42, 'clan-lb-2-x-ac': 47 }),
+    ).toBe(42);
+  });
+
+  it('retains the first technology-stripped alias instead of combining alias families', () => {
+    expect(
+      findMatchingWeaponBV('mortar', {
+        'clan-mech-mortar-1': 10,
+        'clan-mech-mortar-2': 20,
+      }),
+    ).toBe(10);
+  });
+
+  it('retains rack separation and gives orphaned ammunition no BV', () => {
+    expect(
+      calculateAmmoBVWithExcessiveCap(
+        [{ id: 'CLLBXAC5', bv: 93 }],
+        [{ id: 'lb-2-x-ammo', weaponType: 'lb-2-x', bv: 6 }],
+      ),
+    ).toBe(0);
+    expect(
+      calculateAmmoBVWithExcessiveCap(
+        [],
+        [{ id: 'lb-5-x-ammo', weaponType: 'lb-5-x', bv: 12 }],
+      ),
+    ).toBe(0);
+  });
+});
