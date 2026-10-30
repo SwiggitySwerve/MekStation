@@ -251,6 +251,29 @@
       "battleValue": 0,
       "introductionYear": 3069,
       "special": []
+    },
+    {
+      "id": "clan-light-machine-gun",
+      "name": "Light Machine Gun (Clan)",
+      "category": "Ballistic",
+      "subType": "Machine Gun",
+      "techBase": "CLAN",
+      "battleValue": 5.0,
+      "weight": 0.25,
+      "costCBills": 5000.0,
+      "criticalSlots": 1,
+      "introductionYear": 3050,
+      "rulesLevel": "STANDARD",
+      "heat": 0,
+      "damage": 1,
+      "ranges": {
+        "minimum": 0,
+        "short": 2,
+        "medium": 4,
+        "long": 6,
+        "extreme": 8
+      },
+      "ammoPerTon": 200
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

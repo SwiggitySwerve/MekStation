@@ -76,3 +76,30 @@ other fallback behavior SHALL remain unchanged.
 - **AND** exact weapon keys, exact aliases, original-family fallback precedence, rack separation and excessive-ammunition caps SHALL be preserved
 - **AND** the ammunition audit SHALL call the same matching owner, without a copied alias table or matcher
 - **AND** this compatibility repair SHALL NOT claim complete native ammunition or mixed-technology cap parity
+
+### Requirement: Native Clan laser and light weapon catalog identities
+
+The existing catalog and name-mapping owners SHALL resolve pinned native names
+for the Clan ER Micro Laser, three chemical lasers, three improved heavy lasers,
+Light Machine Gun and Light TAG to distinct correct Clan records. They SHALL
+use actual pinned registry identities, including display-name collisions, and
+SHALL NOT reinterpret explicit battle-armor or Inner Sphere identities as Clan.
+
+#### Scenario: Native identities and catalog fields
+
+- **GIVEN** a registered internal, lookup or display name for one of these nine types
+- **WHEN** BV resolution or MTF normalization receives that name or its case variant
+- **THEN** the existing catalog/mapping contract SHALL select its native identity
+- **AND** catalog BV, heat, damage, weight, cost, slots, represented ranges, introduction and static rules level SHALL match pinned Java observations
+- **AND** Java's no-minimum sentinel SHALL use the existing minimum-zero convention
+- **AND** Light TAG SHALL keep the electronics contract, without inventing weapon-only fields
+
+#### Scenario: Shared consumers and preserved source data
+
+- **GIVEN** the corrected catalog and native internal names
+- **WHEN** the official loader, ProtoMech BV or combat weapon-data adapter consumes them
+- **THEN** the official loader SHALL preserve the represented catalog fields and ProtoMech BV SHALL receive native type BV
+- **AND** the combat adapter SHALL receive native identity, damage and heat for the eight weapon-catalog internal names; Light TAG SHALL retain its electronics contract
+- **AND** source strings, mount provenance, existing serialization and source costs SHALL remain unchanged
+- **AND** captured ammunition results SHALL retain every previously positive contribution
+- **AND** legacy local IDs, contextual legality, full ammunition, combat alias/range propagation, combat mechanics and complete source BV SHALL remain separately accounted for

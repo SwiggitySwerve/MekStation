@@ -84,12 +84,12 @@
       "name": "Light TAG (Clan)",
       "category": "TAG",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 40000,
       "battleValue": 0,
-      "introductionYear": 3054,
+      "introductionYear": 3046,
       "special": ["Designates targets", "Shorter range than standard TAG"]
     },
     {
