@@ -52,13 +52,13 @@ const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
 /** cruise MP -> base flank MP. Odd and even cruise values both appear. */
 const FLANK_BY_CRUISE: ReadonlyArray<readonly [number, number]> = [
   [0, 0],
-  [1, 1],
+  [1, 2],
   [2, 3],
-  [3, 4],
+  [3, 5],
   [4, 6],
-  [5, 7],
+  [5, 8],
   [6, 9],
-  [17, 25],
+  [17, 26],
 ];
 
 const OPTIONS = {
@@ -113,7 +113,7 @@ describe('vehicle base flank consumers', () => {
     // Rating 60 on 20 t tracked gives cruise 3 (rating 60 = cruise 3 * 20 t).
     const edit = setEngineRatingLogic(baseState() as VehicleStore, 60);
     expect(edit.cruiseMP).toBe(3);
-    expect(edit.flankMP).toBe(4);
+    expect(edit.flankMP).toBe(5);
   });
 
   it('default state flank follows its fixed cruise of 4', () => {
