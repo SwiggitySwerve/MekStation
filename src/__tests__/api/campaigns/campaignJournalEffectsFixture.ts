@@ -40,7 +40,10 @@ import {
   type ICampaignJournalEnvelope,
 } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
-import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
+import {
+  issuePlayerToken,
+  type IIssueTokenOptions,
+} from '@/lib/multiplayer/client/issuePlayerToken';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { selectCampaignEventStore } from '@/lib/multiplayer/server/getCampaignEventStore';
 import idHandler from '@/pages/api/campaigns/[id]';
@@ -88,21 +91,36 @@ export function useTempCampaignDatabase(prefix: string): void {
   });
 }
 
-/** Invokes the live item route and returns its status and JSON body. */
+/**
+ * Invokes the live item route and returns its status and JSON body, as the
+ * bearer `wire` when one is given (a live co-op campaign takes writes from
+ * its host's bearer only).
+ */
 export async function callId(
   method: RequestMethod,
   id: string,
   body?: Body,
+  wire?: string,
+  raw?: { readonly authorization?: string; readonly queryToken?: string },
 ): Promise<IRouteAnswer> {
   const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
     method,
-    query: { id },
+    query: { id, ...(raw?.queryToken ? { token: raw.queryToken } : {}) },
     body,
+    headers: raw
+      ? { authorization: raw.authorization }
+      : wire
+        ? { authorization: `Bearer ${wire}` }
+        : {},
   });
   await idHandler(req, res);
   return {
     status: res._getStatusCode(),
-    json: res._getJSONData() as Record<string, unknown>,
+    // A 204 (DELETE) has no body to parse.
+    json: (res._getData() === '' ? {} : res._getJSONData()) as Record<
+      string,
+      unknown
+    >,
   };
 }
 
@@ -125,30 +143,46 @@ export async function postCommand(
   };
 }
 
-/**
- * Mints one self-issued bearer token, binds it as a player seat of
- * `campaignId` (the command route admits seated callers only) and returns
- * its wire form.
- */
-export async function seatedCaller(campaignId: string): Promise<string> {
+/** A fresh self-issued identity named `label`. */
+export async function mintIdentity(label: string): Promise<IVaultIdentity> {
   const keys = await generateKeyPair();
-  const identity: IVaultIdentity = {
-    id: `identity-${campaignId}`,
+  return {
+    id: `identity-${label}`,
     displayName: 'U35e Row',
     publicKey: Buffer.from(keys.publicKey).toString('base64'),
     privateKey: Buffer.from(keys.privateKey).toString('base64'),
     friendCode: 'AAAA-BBBB-CCCC-DDDD',
     createdAt: '2026-09-23T00:00:00.000Z',
   };
-  const token = await issuePlayerToken(identity);
+}
+
+/**
+ * One bearer of `identity` and the principal it names. Each call is a new
+ * token of the same identity - what a second window of one profile holds.
+ */
+export async function bearerOf(
+  identity: IVaultIdentity,
+  options?: IIssueTokenOptions,
+): Promise<{ readonly playerId: string; readonly wire: string }> {
+  const token = await issuePlayerToken(identity, options);
+  return { playerId: token.playerId, wire: encodeTokenForWire(token) };
+}
+
+/**
+ * Mints one self-issued bearer token, binds it as a player seat of
+ * `campaignId` (the command route admits seated callers only) and returns
+ * its wire form.
+ */
+export async function seatedCaller(campaignId: string): Promise<string> {
+  const { playerId, wire } = await bearerOf(await mintIdentity(campaignId));
   bindCampaignSessionParticipant({
     campaignId,
     sessionId: `session-${campaignId}`,
-    participantId: token.playerId,
+    participantId: playerId,
     seat: 'player',
     boundAt: '2026-09-23T00:00:00.000Z',
   });
-  return encodeTokenForWire(token);
+  return wire;
 }
 
 /**

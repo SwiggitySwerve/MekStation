@@ -85,3 +85,50 @@ describe('CampaignSaveStatusCard conflict block', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('CampaignSaveStatusCard refusal block (CAMPAIGN-LIVE-WRITE-1)', () => {
+  afterEach(() => {
+    useCampaignPersistenceStore.getState().reset();
+  });
+
+  it('shows the server\'s refusal reason, keeps the unsaved-changes flag and never says "playing offline"', () => {
+    useCampaignPersistenceStore.setState({
+      saveState: 'error',
+      dirty: true,
+      errorMessage: 'only the host session that started it can change it',
+      saveRefusal: {
+        code: 'HOST_SESSION_REQUIRED',
+        reason: 'malformed',
+        message: 'only the host session that started it can change it',
+      },
+    });
+
+    render(<CampaignSaveStatusCard />);
+
+    const refused = screen.getByTestId('campaign-save-refused');
+    expect(refused).toHaveTextContent('HOST_SESSION_REQUIRED');
+    expect(refused).toHaveTextContent(
+      'only the host session that started it can change it',
+    );
+    expect(refused).toHaveTextContent('unsaved changes are kept');
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+    expect(screen.queryByText(/playing offline/i)).not.toBeInTheDocument();
+  });
+
+  it('still says "playing offline" for a plain failure (pinned)', () => {
+    useCampaignPersistenceStore.setState({
+      saveState: 'error',
+      errorMessage: 'network down',
+      saveRefusal: null,
+    });
+
+    render(<CampaignSaveStatusCard />);
+
+    expect(screen.getByText(/network down/)).toHaveTextContent(
+      'playing offline; changes are kept locally',
+    );
+    expect(
+      screen.queryByTestId('campaign-save-refused'),
+    ).not.toBeInTheDocument();
+  });
+});
