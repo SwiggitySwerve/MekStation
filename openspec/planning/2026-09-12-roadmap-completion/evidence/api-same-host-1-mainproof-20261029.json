@@ -1,0 +1,968 @@
+{
+  "unit": "API-SAME-HOST-1",
+  "stage": "mainProof",
+  "recordedAt": "2026-10-30T00:06:16.074Z",
+  "mergeCommit": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+  "verdict": "PASS",
+  "checkout": "E:/Projects/Personal/MekStation-wt/api-same-host-1-impl-20261029",
+  "proofClass": "full",
+  "runtime": {
+    "playwright": "Frozen built-server regression at exact merged main: 34 passed (0 failed, 0 skipped)",
+    "jest": "Exact merged main, standard unit project: 907 passed, 0 failed, 0 pending across 7 suites; 90 named gate assertions independently recounted.",
+    "node": "v22.22.0",
+    "build": "Fresh npm run build through the unchanged frozen34 harness: exit 0.",
+    "electron": {
+      "version": "43.2.0",
+      "executable": "E:\\Projects\\Personal\\MekStation-wt\\api-same-host-1-impl-20261029\\desktop\\node_modules\\electron\\dist\\electron.exe",
+      "sha256": "8593db40c0c6e5e3c4b6b0a225b1dc9a549ecdf10f6cf2010cf5b6ce869ce07f",
+      "startMode": "electron-node-standalone",
+      "packagedValidator": "PASS: same-host/refusal controls plus socket upgrade, replay and same-match reconnect after process restart.",
+      "rawTargetProbe": {
+        "node": "v24.18.0",
+        "rows": 56,
+        "checks": 125,
+        "failures": 0,
+        "refused": 36
+      }
+    },
+    "schemaNote": "runtime.playwright is the validator field for the registered runtime result line; this evidence uses Node/Electron local game-service runners."
+  },
+  "gates": {
+    "G-ASH6": "PASS"
+  },
+  "identity": {
+    "source": {
+      "head": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+      "tree": "37d941f64daf474b1dba5d4a39efb78239c3cb5d",
+      "status": "clean",
+      "files": [
+        {
+          "path": "server.js",
+          "expected": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+          "actual": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa"
+        },
+        {
+          "path": "src/lib/api/sameHostGuard.ts",
+          "expected": "9762ced0dfe0270888bdc9816761e8e760858220d99b442fb31fd2206eedeb55",
+          "actual": "9762ced0dfe0270888bdc9816761e8e760858220d99b442fb31fd2206eedeb55"
+        },
+        {
+          "path": "src/lib/api/__tests__/sameHostGuard.test.ts",
+          "expected": "46655d620009112c2b382c388809b8b2271b661caab3194ce8a24e52248f2bf8",
+          "actual": "46655d620009112c2b382c388809b8b2271b661caab3194ce8a24e52248f2bf8"
+        },
+        {
+          "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+          "expected": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4",
+          "actual": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4"
+        },
+        {
+          "path": "src/pages/api/multiplayer/auth/token.ts",
+          "expected": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+          "actual": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a"
+        },
+        {
+          "path": "src/pages/api/vault/identity/unlock.ts",
+          "expected": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+          "actual": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b"
+        },
+        {
+          "path": "src/__tests__/api/sameHostGuard.routes.test.ts",
+          "expected": "3300c125fcfeb4006277e565d7ef33dfb2bce02a38c91ce3192d704df96e0ef7",
+          "actual": "3300c125fcfeb4006277e565d7ef33dfb2bce02a38c91ce3192d704df96e0ef7"
+        },
+        {
+          "path": "scripts/validate-multiplayer-packaged-socket.mjs",
+          "expected": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+          "actual": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8"
+        },
+        {
+          "path": "src/__tests__/api/securityBoundary.test.ts",
+          "expected": "88213ddf2553da40c81bf16692c4f7ce959eb83b3ed570531f569d61b9e193df",
+          "actual": "88213ddf2553da40c81bf16692c4f7ce959eb83b3ed570531f569d61b9e193df"
+        },
+        {
+          "path": "src/__tests__/api/vault/unlock.test.ts",
+          "expected": "5d60696d5f8d99629a9a57fa46f02abbde793fad4010ff0e2df686beb83cb1e5",
+          "actual": "5d60696d5f8d99629a9a57fa46f02abbde793fad4010ff0e2df686beb83cb1e5"
+        },
+        {
+          "path": "src/__tests__/api/vault/vault.test-helpers.ts",
+          "expected": "caa040ee95f2ac82abeec7aee90e9fb6aeb829f8ee2ac1b4a7d8aba3af79279d",
+          "actual": "caa040ee95f2ac82abeec7aee90e9fb6aeb829f8ee2ac1b4a7d8aba3af79279d"
+        },
+        {
+          "path": "scripts/release/l1-built-server-fixtures.ts",
+          "expected": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+          "actual": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+        },
+        {
+          "path": "scripts/release/l1-built-server-fog-cases.mjs",
+          "expected": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292",
+          "actual": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292"
+        },
+        {
+          "path": "scripts/release/l1-built-server-fog-fixtures.ts",
+          "expected": "86b76c32691b9643d634b7e05116adc0c877669aadc9be93e853522cd80573e0",
+          "actual": "86b76c32691b9643d634b7e05116adc0c877669aadc9be93e853522cd80573e0"
+        },
+        {
+          "path": "scripts/release/l1-built-server-fog.test.mjs",
+          "expected": "9e2a6e27e6d55fb549718d8c48d51cebf453ee80ca07b4d10644fe990b91374a",
+          "actual": "9e2a6e27e6d55fb549718d8c48d51cebf453ee80ca07b4d10644fe990b91374a"
+        },
+        {
+          "path": "scripts/release/l1-built-server-smoke.test.mjs",
+          "expected": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+          "actual": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+        },
+        {
+          "path": "scripts/release/l1-built-server-socket-cases.mjs",
+          "expected": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+          "actual": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-cases.mjs",
+          "expected": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+          "actual": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-context.mjs",
+          "expected": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb",
+          "actual": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+          "expected": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85",
+          "actual": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-fixtures.ts",
+          "expected": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b",
+          "actual": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+          "expected": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35",
+          "actual": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+          "expected": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f",
+          "actual": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+          "expected": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894",
+          "actual": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+          "expected": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd",
+          "actual": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+          "expected": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+          "actual": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce"
+        },
+        {
+          "path": "scripts/release/l1-built-server-spectator.test.mjs",
+          "expected": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb",
+          "actual": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb"
+        },
+        {
+          "path": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+          "expected": "95a5b6de82f58a4df4aa8afb376a25b7902630d5877a7148aebc9e454bea62ec",
+          "actual": "95a5b6de82f58a4df4aa8afb376a25b7902630d5877a7148aebc9e454bea62ec"
+        },
+        {
+          "path": "scripts/release/run-l1-built-server-smoke.mjs",
+          "expected": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+          "actual": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+        },
+        {
+          "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+          "expected": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d",
+          "actual": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+        },
+        {
+          "path": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+          "expected": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d",
+          "actual": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d"
+        },
+        {
+          "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+          "expected": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8",
+          "actual": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8"
+        },
+        {
+          "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+          "expected": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078",
+          "actual": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078"
+        }
+      ]
+    },
+    "nodeApplication": {
+      "buildId": "1793318163001",
+      "serverSha256": "27fb9f0f3024d29afd31dbfa7bfe652706f902bc2494cb768c5365a206ef9062",
+      "configSha256": "b840434a4225b904f8765435d431f85392e86b5978dfb942c3458d71dcbf5b5d",
+      "sourceTreeSha256": "aeb64f38942d0aac484ea7cff6f641d197933d51354635d9505bbdbef6cab2a8"
+    },
+    "electronApplication": {
+      "buildId": "1793318163001",
+      "serverSha256": "27fb9f0f3024d29afd31dbfa7bfe652706f902bc2494cb768c5365a206ef9062",
+      "configSha256": "b840434a4225b904f8765435d431f85392e86b5978dfb942c3458d71dcbf5b5d",
+      "sourceTreeSha256": "aeb64f38942d0aac484ea7cff6f641d197933d51354635d9505bbdbef6cab2a8"
+    },
+    "nodeNative": "c4b95a94a963258a9ef41b12fd3bb86f0b08a2ac5c5b499fe94de57a5443682d",
+    "electronNative": "bc82ac32c5e2f5ca1a830b00acf8a75f5598acc0a62508c923783a3ea8e0d49b",
+    "nativeDifferenceExpected": true,
+    "applicationIdentityEqual": true,
+    "nodeImageStable": true,
+    "electronImageStable": true
+  },
+  "frozenRegression": {
+    "required": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "credential-foreign-refused",
+      "participants-authenticated",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured",
+      "fog-off-controls",
+      "fog-on-socket-refused",
+      "fog-on-metadata-refused",
+      "fog-on-history-refused",
+      "fog-on-head-refused",
+      "fog-refusals-secret-free",
+      "fog-on-state-intact",
+      "fog-off-controls-after"
+    ],
+    "passed": [
+      "credential-malformed-refused",
+      "credential-url-refused",
+      "participants-authenticated",
+      "credential-foreign-refused",
+      "participant-action-accepted",
+      "spectator-seat-witnessed",
+      "spectator-replay-public",
+      "spectator-live-public",
+      "spectator-cannot-act",
+      "callbacks-exercised",
+      "matrix-Move-player-stale",
+      "matrix-Move-gm-stale",
+      "matrix-Move-gm-unassigned",
+      "matrix-Move-gm-participant",
+      "matrix-Attack-player-stale",
+      "matrix-Attack-gm-stale",
+      "matrix-Attack-gm-unassigned",
+      "matrix-Attack-gm-participant",
+      "matrix-Physical-player-stale",
+      "matrix-Physical-gm-stale",
+      "matrix-Physical-gm-unassigned",
+      "matrix-Physical-gm-participant",
+      "concurrent-first-sockets",
+      "coop-mission-provisioned",
+      "coop-restart-action-accepted",
+      "coop-first-rolls-captured",
+      "fog-off-controls",
+      "fog-on-socket-refused",
+      "fog-on-metadata-refused",
+      "fog-on-history-refused",
+      "fog-on-head-refused",
+      "fog-refusals-secret-free",
+      "fog-off-controls-after",
+      "fog-on-state-intact"
+    ],
+    "errors": [],
+    "protectedLeaves": [
+      {
+        "path": "scripts/release/l1-built-server-fixtures.ts",
+        "expected": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb",
+        "actual": "5fb94d4058c6c2da2174c63c28e029755238a304d57598ffe4b0388e6d2ddfbb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fog-cases.mjs",
+        "expected": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292",
+        "actual": "654eab6ee57eaef3b650416d0044712863ce312cbd470f89f7b69566ed3eb292"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fog-fixtures.ts",
+        "expected": "86b76c32691b9643d634b7e05116adc0c877669aadc9be93e853522cd80573e0",
+        "actual": "86b76c32691b9643d634b7e05116adc0c877669aadc9be93e853522cd80573e0"
+      },
+      {
+        "path": "scripts/release/l1-built-server-fog.test.mjs",
+        "expected": "9e2a6e27e6d55fb549718d8c48d51cebf453ee80ca07b4d10644fe990b91374a",
+        "actual": "9e2a6e27e6d55fb549718d8c48d51cebf453ee80ca07b4d10644fe990b91374a"
+      },
+      {
+        "path": "scripts/release/l1-built-server-smoke.test.mjs",
+        "expected": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2",
+        "actual": "24c856a0b996b96335feba928a8c729cb31d9f622263dde279320bfba51138e2"
+      },
+      {
+        "path": "scripts/release/l1-built-server-socket-cases.mjs",
+        "expected": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc",
+        "actual": "ab4df6ad917d5103d9f14baa8f0197b42dbbc19b13d100aa49448dc0348622dc"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-cases.mjs",
+        "expected": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935",
+        "actual": "b8037309d5b77871d68e5c41768f1bb73d470554fd21ba818e11a3f63e257935"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-context.mjs",
+        "expected": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb",
+        "actual": "82772f459202a6b24218de9f5420c9fec5d09353a0d63dae21d87f05a22ae1eb"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixture.test.mjs",
+        "expected": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85",
+        "actual": "26fa65dbcb73be25a1cead44e93d5f0fdca246c4a0a7ec4cc22480e38ca06f85"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-fixtures.ts",
+        "expected": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b",
+        "actual": "0d6c43c0ae0ff8fe5cc01dd04183505264a80f86b904ff37d6f006150174ae2b"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy-cases.mjs",
+        "expected": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35",
+        "actual": "72bf49d67871e65356c3419bad6c1620e23510f771f721608320af162cd6de35"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-privacy.test.mjs",
+        "expected": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f",
+        "actual": "d86f7450a75b89fc1d79821e419a55f2ced4d571f9ae0ea1a2ec4fc48140989f"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.test.mjs",
+        "expected": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894",
+        "actual": "d9befbce9d46e06b821a0f67ccc5b9895e28fc2881c1a6527a444c518ef29894"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-reachability.ts",
+        "expected": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd",
+        "actual": "e057cc266254d2fa76483d4d514a37f1d6371240e523f0199951fe8c0ffe38bd"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator-trusted-fixtures.ts",
+        "expected": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce",
+        "actual": "0eeb888e641bddcc903a13b23e8e81d32f33f83315b32bcace51623390791cce"
+      },
+      {
+        "path": "scripts/release/l1-built-server-spectator.test.mjs",
+        "expected": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb",
+        "actual": "f83009689dda835e8e2cbcfd31b4f979193220fd3ce64548523d772d83be39bb"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-fog-refusal.mjs",
+        "expected": "95a5b6de82f58a4df4aa8afb376a25b7902630d5877a7148aebc9e454bea62ec",
+        "actual": "95a5b6de82f58a4df4aa8afb376a25b7902630d5877a7148aebc9e454bea62ec"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-smoke.mjs",
+        "expected": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e",
+        "actual": "29a7ea553b939acaaef29ea21f39dbe0e527678b6b6778d129f457862ac7c27e"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-fixture-proof.mjs",
+        "expected": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d",
+        "actual": "e2a7f91f1ac9eebd22173b0358ecce3828017a98871a3701d9adc7b969cbd03d"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-matrix.mjs",
+        "expected": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d",
+        "actual": "4efe32228b0dcc5c991bd118febf11c4fb2c7541140995a5abbb9764293b278d"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-privacy.mjs",
+        "expected": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8",
+        "actual": "cbb9693f8a7feb76c60dc08a8ab0726f738e1051744c74a8038923903894f2d8"
+      },
+      {
+        "path": "scripts/release/run-l1-built-server-spectator-trusted-proof.mjs",
+        "expected": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078",
+        "actual": "6e80be002268fea15e1330295a6f9dd52020655ea2eb5f25f0f5798ca447b078"
+      }
+    ],
+    "all22Unchanged": true
+  },
+  "sourceCleanliness": {
+    "before": "clean",
+    "after": "clean",
+    "generatedNextEnvChanged": true,
+    "restoration": "Only build-generated next-env.d.ts restored to its verified pre-build bytes; generated bytes retained externally."
+  },
+  "cleanup": {
+    "recordedAt": "2026-10-30T00:06:16.074Z",
+    "head": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+    "status": "clean",
+    "ports": [
+      {
+        "port": 58723,
+        "reusable": true
+      },
+      {
+        "port": 59780,
+        "reusable": true
+      },
+      {
+        "port": 65283,
+        "reusable": true
+      }
+    ],
+    "rawProbeTeardown": {
+      "code": null,
+      "signal": "SIGTERM"
+    },
+    "frozenProcessExits": [
+      {
+        "n": 1,
+        "pid": 42652,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 2,
+        "pid": 72072,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 3,
+        "pid": 73768,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 4,
+        "pid": 5200,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 5,
+        "pid": 26824,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 6,
+        "pid": 14176,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 7,
+        "pid": 23836,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 8,
+        "pid": 58716,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 9,
+        "pid": 39176,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 10,
+        "pid": 3804,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 11,
+        "pid": 9588,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 12,
+        "pid": 28188,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 13,
+        "pid": 8176,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 14,
+        "pid": 52380,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 15,
+        "pid": 48464,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 16,
+        "pid": 9524,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 17,
+        "pid": 89832,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 18,
+        "pid": 2692,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 19,
+        "pid": 59584,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 20,
+        "pid": 52212,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 21,
+        "pid": 85620,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 22,
+        "pid": 62448,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 23,
+        "pid": 41016,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 24,
+        "pid": 62580,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 25,
+        "pid": 15816,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 26,
+        "pid": 81004,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 27,
+        "pid": 78344,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 28,
+        "pid": 18636,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 29,
+        "pid": 64728,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 30,
+        "pid": 12756,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 31,
+        "pid": 30064,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 32,
+        "pid": 5716,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 33,
+        "pid": 54912,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 34,
+        "pid": 71664,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 35,
+        "pid": 69684,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 36,
+        "pid": 20404,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 37,
+        "pid": 80964,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 38,
+        "pid": 42472,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 39,
+        "pid": 4748,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 40,
+        "pid": 62452,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 41,
+        "pid": 87048,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 42,
+        "pid": 86416,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 43,
+        "pid": 49264,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 44,
+        "pid": 79600,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 45,
+        "pid": 46368,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      },
+      {
+        "n": 46,
+        "pid": 9676,
+        "port": 58723,
+        "exit": {
+          "code": 1,
+          "signal": null
+        }
+      }
+    ],
+    "remainingTemporaryFiles": "Private frozen34/probe fixture databases, build images and node_modules remain deliberately retained for review and owned cleanup. No data is claimed deleted unless the validator did so."
+  },
+  "evidence": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/build-and-regression-result.json",
+      "sha256": "94d792dc827c85ef783f229331580fad281244f83cbef1862eee521fdb05aadc",
+      "bytes": 33531
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/electron-result.json",
+      "sha256": "d7a76ed11a67b07b61c13dad92bc34a68983c14a0060773250e61d967545afcc",
+      "bytes": 27154
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/exact-merge-jest.json",
+      "sha256": "a3880bebe8a9b9cea0e6313d652a2ea809dfcf8d26d8ba08454061f8e1d4a3e0",
+      "bytes": 376121
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/exact-merge-jest.log",
+      "sha256": "13fb6253b27c3880d90c876633ed6331324df568b0c867c3ca5fbc261eca6f4b",
+      "bytes": 6024
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/build-frozen34.log",
+      "sha256": "3d418c0ff2dfcf1e21315e6b30411c0a0d7dc985d7405472028468cf7ae5df96",
+      "bytes": 1164
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/frozen34/summary.json",
+      "sha256": "aca4950d619145193fa56f65f4a832584ad82846a5772f2da3d62a956450f12a",
+      "bytes": 11654
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/frozen34/manifest.json",
+      "sha256": "ab6bd9d41239e54e837d30ee82d394c2aaf9c295f80f0da04838c27c4522b5f6",
+      "bytes": 1924
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/frozen34/evidence.jsonl",
+      "sha256": "707f4a1f3740cd5dc42a9a7f83b5da887d6d0baddb2d40597295b2f9d56699cd",
+      "bytes": 1571576
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/stage-one-readback.json",
+      "sha256": "db2409148e5c132d81cf9a109319e4ce2e2b3214f4011eda4517645de8bfd0f5",
+      "bytes": 32666
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/electron-rebuild.log",
+      "sha256": "8697beee7d9947e64aeb94757ff6cbc0672939fc5ed13cbb2acd2ac651271ae5",
+      "bytes": 3371
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/electron-packaged-validator.log",
+      "sha256": "279a1149de53782b475c8ed5129c9d598588f209a09bd734f15630b157a8e8f8",
+      "bytes": 1035
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/electron-raw-target-probe.log",
+      "sha256": "77cb553c6f3f22b47eeb975bd048e3e543b11df6b8a72dfe5fc6ab0cb7bba471",
+      "bytes": 4479
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/assert-raw-target-probe.log",
+      "sha256": "1d91ccec231956da9839fce981ae5d5f102864a9a5709369ed97165915405480",
+      "bytes": 8627
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/probe.json",
+      "sha256": "9d10cdef4caacc83789d921aaadfebd1597bd1e2378ec1c085ba7d85f41f15ad",
+      "bytes": 17567
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/probe-assertions.json",
+      "sha256": "fc1fd15efe18ec9ab51cf62215529807a5223adfc089e6acf34e55d9064969c9",
+      "bytes": 22175
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/probe-server.log",
+      "sha256": "acd19534d22dc6ebc07d57bb7edb08caf50a137b73e274523f076b58356da4c7",
+      "bytes": 2154
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/main-proof-2f974c07a/cleanup-readback.json",
+      "sha256": "3f51a2acb4b55ca3892723ae31c40761c9c4423a631cbcb3716e5f07b251cbf2",
+      "bytes": 6822
+    }
+  ],
+  "driver": {
+    "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/exact-main.cjs",
+    "sha256": "8edabf9b18df8d6beca16a0fa53ee8e04c3d9e90987a11c2f71c08be3cf065a1",
+    "bytes": 10580
+  },
+  "machineGate": "Both phases ran through the unmodified heavy-run queue; no ALLOW_PIDS change, unrelated-process stop, idle bypass or parent timeout.",
+  "limits": [
+    "Exact-merge server-entry Jest rows stub Next, multiplayer runtime and SQLite. They prove both-channel 1 MiB boundaries, fatal boot and later error behavior at that test boundary, not built-image frame-size or real-HMR behavior.",
+    "The frozen34 regression uses the fresh Node image. The Electron-native copy has identical complete application source/server/config/BUILD_ID identity and a separately rebuilt SQLite ABI.",
+    "The raw-target check ran with the installed Electron executable in ELECTRON_RUN_AS_NODE mode against the Electron-native copy; all 56 actual rows were explicitly asserted. Encoded static spellings remain conservatively guarded and same-host controls return the observed Next 404 page.",
+    "No installer/RC/Step 8 acceptance, Step 4 completion or successor admission follows from this proof alone. Closure records still need publication and owned cleanup."
+  ],
+  "publicationCorrection": {
+    "at": "2026-10-30T01:00:40.125Z",
+    "kind": "Runtime summary formatting for the unchanged validator grammar",
+    "originalReceipt": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/merge-29a288b57/closure-records/api-same-host-1-mainproof-20261029.json",
+      "sha256": "54459b7e25c01930890f441658f71faec3f2d35869b527a0b1c26c60af6d201f"
+    },
+    "originalRuntimeLine": "Frozen built-server regression at exact merged main: 34 passed (0 failed, 0 skipped); registered Node harness, not a Playwright run.",
+    "note": "Only the trailing explanatory sentence moved out of the validator summary field; runtime.schemaNote and the Node/Electron evidence remain explicit. Counts and executed proof are unchanged. The original external receipt remains preserved."
+  }
+}
