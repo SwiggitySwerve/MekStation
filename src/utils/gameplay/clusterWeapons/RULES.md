@@ -39,3 +39,15 @@ hit (`resolution.ts`, `streak.ts`, battle-armor `damagePerMissile`,
 `missileMechanics.ts`) does not use it. The expected-damage and variance
 previews still multiply the total by expected hits; correcting them is the next
 slice.
+
+## Missile rack identification
+
+`missileRack.ts` owns `missileRackSize(weaponId, weaponName)` and
+`isMissileClusterWeapon(weaponId, weaponName)`: the rack read from the
+mount-stripped id, the full id, then the name, and the LRM/SRM/MRM/ATM/MML
+family check. The runner's missile-cluster and Streak resolution and the
+selected-AMS session cluster used separate copies with identical behavior and
+now share it; a test freezes both copies as oracles over the whole weapon
+catalog. The family list mirrors `isMissileWeapon` and stays local because
+`specialWeaponMechanics` imports this module's facade. UAC, RAC and LB-X are not
+missiles here; their rack and rate-of-fire contracts are separate.
