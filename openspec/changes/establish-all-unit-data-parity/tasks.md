@@ -46,6 +46,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.19 Consolidate cluster lookup/table copies with unchanged captures, then correct integer racks 1-20 against pinned Java and exercise shared combat and preview consumers. Ammo eligibility, complete ProtoMech combat and larger racks remain open. (`combat-resolution`: Native cluster hits for represented integer racks)
 
+- [ ] 2.21 Preserve known missile category independently of capacity metadata at the weapon attack boundary; verify its Gunnery Specialist to-hit effect through real hydration and isolate category-dependent targets in mixed volleys through declaration and serialized resolution, preserving shared context and legacy fallbacks. Complete native categories, multi-SPA precedence, ID/name-dependent volley effects and category propagation through tactical previews and committed human interactive attacks remain open. (`spa-combat-integration`: Gunnery SPA — Gunnery Specialist)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.03 Share the existing ammunition-bin projection without changing its output, then forward live counts through the selector/forecast consumers and verify ammo-only updates; retain unknown-capacity readiness, active-composer and native ammunition gaps. (`to-hit-resolution`: Ammunition counts in preview consumers)

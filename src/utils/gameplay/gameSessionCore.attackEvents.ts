@@ -21,12 +21,16 @@ import {
 } from './gameEvents';
 import { appendEvent } from './gameSessionEvents';
 
-function weaponAttackData(context: IDeclareAttackContext): IWeaponAttackData[] {
-  return context.weapons.map((weapon) => ({
+function weaponAttackData(
+  context: IDeclareAttackContext,
+  toHit: IDeclaredAttackToHit,
+): IWeaponAttackData[] {
+  return context.weapons.map((weapon, index) => ({
     weaponId: weapon.weaponId,
     weaponName: weapon.weaponName,
     damage: weapon.damage,
     heat: weapon.heat,
+    ...toHit.weaponToHits?.[index],
   }));
 }
 
@@ -59,7 +63,7 @@ export function createDeclaredAttackEvent(
     weaponIds,
     toHit.finalToHit,
     toHit.modifiers,
-    weaponAttackData(context),
+    weaponAttackData(context, toHit),
   );
 
   if (
