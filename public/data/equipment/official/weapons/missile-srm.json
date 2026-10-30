@@ -1179,6 +1179,75 @@
       "battleValue": 3,
       "introductionYear": 3060,
       "special": []
+    },
+    {
+      "id": "clan-srm-1",
+      "name": "SRM 1 (ProtoMech)",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9,
+        "extreme": 12
+      },
+      "weight": 0.25,
+      "criticalSlots": 0,
+      "costCBills": 10000.0,
+      "battleValue": 15.0,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["ProtoMech"]
+    },
+    {
+      "id": "clan-srm-3",
+      "name": "SRM 3 (ProtoMech)",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9,
+        "extreme": 12
+      },
+      "weight": 0.75,
+      "criticalSlots": 0,
+      "costCBills": 30000.0,
+      "battleValue": 30.0,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["ProtoMech"]
+    },
+    {
+      "id": "clan-srm-5",
+      "name": "SRM 5 (ProtoMech)",
+      "category": "Missile",
+      "subType": "SRM",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "damage": "2/missile",
+      "heat": 0,
+      "ranges": {
+        "minimum": 0,
+        "short": 3,
+        "medium": 6,
+        "long": 9,
+        "extreme": 12
+      },
+      "weight": 1.25,
+      "criticalSlots": 0,
+      "costCBills": 50000.0,
+      "battleValue": 47.0,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["ProtoMech"]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

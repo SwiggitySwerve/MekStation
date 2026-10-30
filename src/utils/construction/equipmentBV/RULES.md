@@ -36,6 +36,52 @@ effective ammunition, mount locations and full source parity remain open.
 Unresolved lookup returns resolved=false even though its numeric fields are
 zero; those zeroes must not be counted as native numerical agreement.
 
+## Native ProtoMek SRM identities
+
+The existing missile-SRM catalog owns distinct `clan-srm-1`, `clan-srm-3`
+and `clan-srm-5` entries. The name-mapping owner directs native CLSRM1/3/5,
+Clan SRM 1/3/5, Clan SRM-1/3/5 and SRM 1/3/5 to these entries. The resolver,
+MTF mapper and other shared consumers receive these identities through their
+existing contracts; no additional lookup algorithm is introduced.
+
+Pinned MegaMek [CLSRM1.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/CLSRM1.java),
+[CLSRM3.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/CLSRM3.java)
+and [CLSRM5.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/CLSRM5.java)
+define type BV 15/30/47, heat zero, weight 0.25/0.75/1.25 tons, cost
+10,000/30,000/50,000 C-bills and zero Mech critical slots. Actual pinned Java
+registry observations verify those values, ranges, introduction and tech rules.
+The inherited no-minimum sentinel becomes catalog minimum zero; cluster damage
+becomes the existing `2/missile` representation. Zero critical slots does not
+establish ProtoMek location-slot legality. The official loader's unit filter
+admits these entries only for ProtoMechs. A resolver lookup is not a legality check.
+
+The existing `basrm1/3/5` records, one-shot entries and ammunition are unchanged.
+In particular, preserving legacy `basrm3` BV 21 does not prove battle-armor parity.
+Native ProtoMek SRM 3 now contributes 30 instead of that unrelated value.
+
+The current-main capture extends the earlier source-derived input set to
+224,336 strings. Exactly 60 lookups change: 30 accepted by the pinned native
+registry match identity, type BV and heat; 30 rejected strings receive no native
+parity credit, including compatibility aliases and local canonical IDs.
+These are bounded capture counts, not an exhaustive native-name census.
+All 86 loaded source records, serialization and costs stay unchanged. Three
+source BVs change: Delphyne 2 (256 to 288), Orc 3 (154 to 167) and Orc 4 (124 to
+137). Only weapon, offensive and final/base BV terms change; ammo remains as
+before. Shared-cap, Mech and vehicle probes over 63 names and 289 catalog bins
+show no ammo-BV change: all these combinations still produce zero. The missing
+odd-rack ammunition connection remains open. Preserving these zero results
+earns no native ammo parity credit.
+
+Contextual loader lookup, exact mount semantics, full equipment/ammunition,
+complete source BV and production import/save/browser workflows remain open.
+
+After adding catalog records, run `node scripts/sync-equipment-index.mjs --write`
+and `--check` to regenerate and verify category counts. The existing weapon
+total counts ranged entries; physical weapons remain separately counted by the
+combat catalog contract. The generator preserves file paths and provenance.
+This recount also corrects the pre-existing miscellaneous total from 321 to
+322; its records are unchanged.
+
 ## Ammunition matching boundary
 
 `../battleValueAmmo.ts` owns ammunition compatibility aliases, matching and

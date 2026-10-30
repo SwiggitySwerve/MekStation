@@ -40,6 +40,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.15 Preserve Clan technology in pattern-derived equipment IDs through the existing prefix owner; compare all changed captured names against native registry identities, preserve ordinary Clan LB-X vehicle ammunition through the shared matching owner (also used by its audit), and retain explicit complete-equipment/BV gaps. (`equipment-services`: Clan identity in equipment pattern resolution)
 
+- [ ] 2.16 Separate native ProtoMek SRM 1/3/5 identities from battle-armor catalog entries; verify pinned runtime fields and aliases, official loader eligibility, source weapon BV changes and preserved legacy records. (`equipment-services`: Distinct native ProtoMek SRM catalog identities)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.02 Extract ProtoMek equipment syntax without changing outputs, then retain parsed block/entry identity, explicit shots/size/rear-prefix and diagnostics through handler/store projections, saved-state loading and bounded BLK reload. Verify actual native shot/size observations; retain resolved identity, Body topology, general serialization and full equipment/BV gaps. (`unit-services`: ProtoMek equipment source syntax)
