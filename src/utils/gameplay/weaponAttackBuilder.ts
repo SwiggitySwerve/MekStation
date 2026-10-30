@@ -126,17 +126,12 @@ export function buildWeaponAttacks(
 }
 
 /**
- * Best-effort category inference. The simulation-level `IWeapon` shape does
- * NOT expose a category field. Known missile identity takes precedence,
- * then the legacy capacity/name fallback applies:
- * - `ammoPerTon === -1` (no ammo, energy weapon) → ENERGY
- * - `ammoPerTon > 0` and name starts with a common ballistic prefix → BALLISTIC
- * - `ammoPerTon > 0` otherwise → MISSILE
+ * Known missile identity takes precedence over missing capacity metadata.
+ * The remaining legacy fallback treats -1 as ENERGY, ballistic names as
+ * BALLISTIC and other names as MISSILE. This is not a complete catalog type.
  *
- * This is a best-effort view; no combat logic currently reads the category
- * field, so inaccuracy here is documentary, not behavioral. When the full
- * weapon-catalog integration lands (a follow-up change), this inference can
- * be replaced with direct catalog lookup.
+ * Attack hydration passes this category to Gunnery Specialist, so it affects
+ * to-hit modifiers. See weaponAttackBuilder.RULES.md for consumers and limits.
  */
 function inferWeaponCategory(weapon: IWeapon): WeaponCategory {
   if (isMissileWeapon(weapon.name)) return WeaponCategory.MISSILE;

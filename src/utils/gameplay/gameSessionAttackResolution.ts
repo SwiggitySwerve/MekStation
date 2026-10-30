@@ -25,10 +25,6 @@ import { invalidateSameHexAttack } from './gameSessionAttackResolutionValidation
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
 
-type WeaponAttackDataWithToHit = {
-  readonly toHitNumber?: number;
-};
-
 export function resolveAttack(
   session: IGameSession,
   attackEvent: IGameEvent,
@@ -103,8 +99,7 @@ export function resolveAttack(
       ammoBinIdForResolved = ammoResult.event.binId;
     }
 
-    const weaponToHitNumber =
-      (weaponData as WeaponAttackDataWithToHit).toHitNumber ?? toHitNumber;
+    const weaponToHitNumber = weaponData.toHitNumber ?? toHitNumber;
     const attackRoll = diceRoller();
     let hit = attackRoll.total >= weaponToHitNumber;
 

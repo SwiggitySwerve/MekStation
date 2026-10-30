@@ -8,9 +8,19 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 
+import { getWeaponData } from '@/engine/adapters/CompendiumAdapter.weaponData';
+import { createMinimalUnitState } from '@/simulation/runner/SimulationRunnerSupport';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { GameSide, RangeBracket } from '@/types/gameplay';
 import { FiringArc } from '@/types/gameplay';
+import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
+import { isMissileWeapon } from '@/utils/gameplay/specialWeaponMechanics/missileMechanics';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+  calculateToHit,
+} from '@/utils/gameplay/toHit';
 import {
   buildWeaponAttack,
   buildWeaponAttacks,
@@ -256,5 +266,108 @@ describe('buildWeaponAttacks', () => {
     expect(results.map((r) => r.heat)).toEqual([10, 3, 3]);
     const totalHeat = results.reduce((sum, r) => sum + r.heat, 0);
     expect(totalHeat).toBe(16); // was 3*3=9 under the old weapons.length*3 bug
+  });
+});
+
+// These are catalog inputs, not a copied category rule. The fixed native-name
+// cases below also challenge the boundary independently of catalog filtering.
+const unknownCapacityMissiles = [
+  ...new Set(
+    WEAPON_CATALOG_FILES.flatMap((file) =>
+      (file.items ?? []).flatMap((item) =>
+        typeof item.id === 'string' ? [item.id] : [],
+      ),
+    ),
+  ),
+].flatMap((id) => {
+  const data = getWeaponData(id);
+  return data?.ammoPerTon === -1 && isMissileWeapon(data.name)
+    ? [{ id, data }]
+    : [];
+});
+
+describe('missile classification reaches the existing specialist to-hit rule', () => {
+  it('covers the captured unknown-capacity catalog set', () => {
+    expect(unknownCapacityMissiles).toHaveLength(154);
+    expect(unknownCapacityMissiles.map(({ id }) => id)).toEqual(
+      expect.arrayContaining([
+        'clan-srm-1',
+        'clan-srm-3',
+        'clan-srm-5',
+        'lrm16',
+      ]),
+    );
+  });
+
+  it.each(unknownCapacityMissiles)(
+    'passes $id as missile through attack hydration and final to-hit',
+    ({ id, data }) => {
+      const weapon: IWeapon = { ...data, id: id + '-1' };
+      const before = JSON.stringify(weapon);
+      const attack = buildWeaponAttack(weapon.id, [weapon]);
+      if (!attack) throw new Error('Catalog weapon missing from attack');
+      expect(attack.category).toBe(WeaponCategory.MISSILE);
+      const targetUnit = createMinimalUnitState('target', GameSide.Opponent, {
+        q: 1,
+        r: 0,
+      });
+      const target = buildWeaponAttackTargetToHitState(targetUnit, false);
+      for (const [designation, modifier] of [
+        ['missile', -1],
+        ['energy', 1],
+        ['ballistic', 1],
+      ] as const) {
+        const unit = {
+          ...createMinimalUnitState('attacker', GameSide.Player, {
+            q: 0,
+            r: 0,
+          }),
+          abilities: ['specialist'],
+          designatedWeaponCategory: designation,
+        };
+        const unitBefore = JSON.stringify(unit);
+        const attacker = buildWeaponAttackAttackerToHitState(unit, 4, {
+          id: attack.weaponId,
+          name: attack.weaponName,
+          category: attack.category,
+        });
+        const result = calculateToHit({
+          attacker,
+          target,
+          rangeBracket: RangeBracket.Short,
+          range: 1,
+        });
+        expect(
+          result.modifiers.find((value) => value.name === 'Gunnery Specialist')
+            ?.value,
+        ).toBe(modifier);
+        expect(result.finalToHit).toBe(4 + modifier);
+        const ordinary = calculateToHit({
+          attacker: { ...attacker, abilities: [] },
+          target,
+          rangeBracket: RangeBracket.Short,
+          range: 1,
+        });
+        expect(ordinary.finalToHit).toBe(4);
+        expect(JSON.stringify(unit)).toBe(unitBefore);
+      }
+      expect(JSON.stringify(weapon)).toBe(before);
+    },
+  );
+
+  it.each([
+    'LRM 16',
+    'SRM 3 (ProtoMech)',
+    'MML 3',
+    'MRM 10',
+    'ATM 9',
+    'Streak SRM 6',
+  ])('keeps %s a missile independently of capacity metadata', (name) => {
+    for (const ammoPerTon of [-1, 0, NaN, -Infinity, 12]) {
+      const weapon = { ...lrm10, name, ammoPerTon };
+      expect(buildWeaponAttack(weapon.id, [weapon])?.category).toBe(
+        WeaponCategory.MISSILE,
+      );
+    }
   });
 });
