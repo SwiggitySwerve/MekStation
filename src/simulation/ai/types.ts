@@ -166,6 +166,9 @@ export interface IWeapon {
   /** Ammo per ton (-1 = energy weapon, no ammo needed) */
   readonly ammoPerTon: number;
 
+  /** Resolved ammunition family, independent of display name and mount instance. */
+  readonly ammoWeaponType?: string;
+
   /**
    * Mounted unit location, when hydrated from catalog/unit construction data.
    * Values are source labels such as `LEFT_ARM`, `RIGHT_TORSO`, or

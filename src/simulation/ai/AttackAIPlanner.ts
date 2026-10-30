@@ -108,7 +108,7 @@ export class AttackAI {
    *
    *   1. Weapon is not destroyed
    *   2. Target distance <= weapon extreme/long range (in weapon range)
-   *   3. Ammo present (if `ammoPerTon > 0`)
+   *   3. Ammo readiness under the shared owner's capacity/count policy
    *   4. Target hex is in the weapon's mounting arc given attacker
    *      facing (+ optional torso twist)
    *   5. Target is not inside the weapon's minRange when another

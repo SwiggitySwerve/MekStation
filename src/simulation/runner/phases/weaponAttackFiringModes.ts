@@ -69,7 +69,11 @@ export function selectedAmmoWeaponType(
   weapon: IWeapon,
   mode: IWeaponFiringMode | undefined,
 ): string {
-  return mode?.ammoWeaponType ?? weaponTypeFromMountId(weapon.id);
+  return (
+    mode?.ammoWeaponType ??
+    weapon.ammoWeaponType ??
+    weaponTypeFromMountId(weapon.id)
+  );
 }
 
 export function hasAmmoForValidShot(

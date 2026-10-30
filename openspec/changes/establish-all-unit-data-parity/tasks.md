@@ -44,6 +44,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.17 Resolve nine native Clan laser/light-weapon identities through existing catalogs and mappings, verify represented fields against pinned Java, and measure source BV, combat-data and ammunition effects without claiming complete equipment parity. (`equipment-services`: Native Clan laser and light weapon catalog identities)
 
+- [ ] 2.20 Consolidate repeated ammo classification/count checks and projection without behavior changes, then require explicit usable ammo state for known missiles with unspecified capacity; prove AI, preview, firing/depletion and ordinary controls. Source identity/quantity/topology, implicit ammo and full BV remain open. (`ammo-tracking`: Unknown missile capacity requires explicit ammunition state)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.02 Extract ProtoMek equipment syntax without changing outputs, then retain parsed block/entry identity, explicit shots/size/rear-prefix and diagnostics through handler/store projections, saved-state loading and bounded BLK reload. Verify actual native shot/size observations; retain resolved identity, Body topology, general serialization and full equipment/BV gaps. (`unit-services`: ProtoMek equipment source syntax)

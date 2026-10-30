@@ -24,6 +24,8 @@ import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
 import { logger } from '@/utils/logger';
 
+import { isMissileWeapon } from './specialWeaponMechanics/missileMechanics';
+
 export function resolveWeaponFireMode(
   weaponId: string,
   requestedMode?: WeaponFireMode,
@@ -125,7 +127,8 @@ export function buildWeaponAttacks(
 
 /**
  * Best-effort category inference. The simulation-level `IWeapon` shape does
- * NOT expose a category field, so we derive it from `ammoPerTon`:
+ * NOT expose a category field. Known missile identity takes precedence,
+ * then the legacy capacity/name fallback applies:
  * - `ammoPerTon === -1` (no ammo, energy weapon) → ENERGY
  * - `ammoPerTon > 0` and name starts with a common ballistic prefix → BALLISTIC
  * - `ammoPerTon > 0` otherwise → MISSILE
@@ -136,6 +139,7 @@ export function buildWeaponAttacks(
  * be replaced with direct catalog lookup.
  */
 function inferWeaponCategory(weapon: IWeapon): WeaponCategory {
+  if (isMissileWeapon(weapon.name)) return WeaponCategory.MISSILE;
   if (weapon.ammoPerTon === -1) return WeaponCategory.ENERGY;
   const name = weapon.name.toLowerCase();
   if (

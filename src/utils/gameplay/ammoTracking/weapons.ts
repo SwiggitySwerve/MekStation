@@ -5,7 +5,9 @@
 
 import { IAmmoSlotState } from '@/types/gameplay/GameSessionInterfaces';
 
+import { isMissileWeapon } from '../specialWeaponMechanics/missileMechanics';
 import {
+  findAvailableAmmoBin,
   getTotalAmmo,
   hasAmmoForWeapon,
   normalizeAmmoWeaponType,
@@ -49,11 +51,24 @@ export function isEnergyWeapon(weaponName: string): boolean {
 interface IWeaponAmmoData {
   readonly name: string;
   readonly ammoPerTon: number;
+  readonly ammoWeaponType?: string;
+  readonly firingModes?: {
+    readonly modes: readonly { readonly ammoWeaponType?: string }[];
+  };
+}
+
+/** Missing capacity on a known missile cannot imply an unlimited energy supply. */
+export function requiresExplicitAmmo(weapon: IWeaponAmmoData): boolean {
+  return !(weapon.ammoPerTon > 0) && isMissileWeapon(weapon.name);
+}
+
+function isUsableRoundCount(count: number | undefined): boolean {
+  return count !== undefined && Number.isInteger(count) && count > 0;
 }
 
 /** Whether AI and adapters account for ammunition on this weapon. */
 export function isAmmoDependent(weapon: IWeaponAmmoData): boolean {
-  return weapon.ammoPerTon > 0;
+  return weapon.ammoPerTon > 0 || requiresExplicitAmmo(weapon);
 }
 
 /** Preserve the AI's legacy unknown-count allowance. */
@@ -61,6 +76,7 @@ export function hasAmmoForAI(
   weapon: IWeaponAmmoData,
   remaining: number | undefined,
 ): boolean {
+  if (requiresExplicitAmmo(weapon)) return isUsableRoundCount(remaining);
   return !(
     isAmmoDependent(weapon) &&
     remaining !== undefined &&
@@ -73,6 +89,7 @@ export function hasAmmoForDamagePreview(
   weapon: IWeaponAmmoData,
   remaining: number | undefined,
 ): boolean {
+  if (requiresExplicitAmmo(weapon)) return isUsableRoundCount(remaining);
   return !(
     weapon.ammoPerTon !== -1 &&
     remaining !== undefined &&
@@ -88,18 +105,38 @@ export function ammoFromWeapons(
   const ammo: Record<string, number> = {};
   for (const weapon of weapons) {
     if (isAmmoDependent(weapon)) {
-      ammo[weapon.id] = getTotalAmmo(ammoState, weapon.name);
+      const families = new Set(
+        [
+          weapon.ammoWeaponType ?? weapon.name,
+          ...(weapon.firingModes?.modes.flatMap((mode) =>
+            mode.ammoWeaponType === undefined ? [] : [mode.ammoWeaponType],
+          ) ?? []),
+        ].map(normalizeAmmoWeaponType),
+      );
+      ammo[weapon.id] = [...families].reduce(
+        (total, family) =>
+          total +
+          (requiresExplicitAmmo(weapon) &&
+          !hasAmmoForAttack(ammoState, weapon, family)
+            ? 0
+            : getTotalAmmo(ammoState, family)),
+        0,
+      );
     }
   }
   return ammo;
 }
 
-/** Runner compatibility policy before ammunition readiness correction. */
+/** Require a usable selected bin for unknown-capacity missiles; retain legacy fallback. */
 export function hasAmmoForAttack(
   ammoState: Record<string, IAmmoSlotState> | undefined,
   weapon: IWeaponAmmoData,
   ammoWeaponType: string,
 ): boolean {
+  if (requiresExplicitAmmo(weapon)) {
+    const bin = ammoState && findAvailableAmmoBin(ammoState, ammoWeaponType);
+    return isUsableRoundCount(bin?.remainingRounds);
+  }
   if (isEnergyWeapon(weapon.name)) return true;
   if (!ammoState || Object.keys(ammoState).length === 0) return true;
   return hasAmmoForWeapon(ammoState, ammoWeaponType);

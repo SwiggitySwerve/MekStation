@@ -1,4 +1,7 @@
-import { isAmmoDependent } from '@/utils/gameplay/ammoTracking/weapons';
+import {
+  hasAmmoForAI,
+  isAmmoDependent,
+} from '@/utils/gameplay/ammoTracking/weapons';
 /**
  * AI Ammo Runway — turns-of-fire projection.
  *
@@ -65,7 +68,7 @@ export interface IAmmoRunway {
  * Compute the runway for a single weapon given the remaining ammo count and
  * the expected number of shots the weapon consumes per turn.
  *
- * Energy weapons (`ammoPerTon <= 0`) short-circuit to an infinite runway and
+ * Ammo-independent weapons short-circuit to an infinite runway and
  * a neutral weight. For ammo-dependent weapons, `turnsRemaining` is the
  * remaining ammo divided by the per-turn fire rate (floored — a partial
  * turn of fire is not a full turn). The conservation weight ramps linearly
@@ -95,6 +98,8 @@ export function computeAmmoRunway(
       conservationWeight: 1,
     };
   }
+
+  if (!hasAmmoForAI(weapon, ammoRemaining)) ammoRemaining = 0;
 
   // Unknown ammo count — treat as abundant so we never ration a weapon the
   // caller has not supplied data for. This keeps legacy `IAIUnitState`
