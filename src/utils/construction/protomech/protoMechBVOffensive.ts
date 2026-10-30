@@ -1,5 +1,6 @@
 import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
+import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import {
   normalizeEquipmentId,
@@ -81,25 +82,19 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
   // them and adds their BV. We do NOT apply the 1.25× per-weapon boost at
   // the proto scale (TechManual does not grant this to protos).
 
-  // Ammo cap: each ammo type's contribution is capped at the matching
-  // weapon's BV. We mirror the mech calculation but keep it conservative
-  // since protos rarely ship with more than 1 mount per weapon type.
+  // Preserve the ProtoMech exact-key policy while sharing cap arithmetic.
   let ammoBV = 0;
   if (ammoForCap.length > 0 && weaponsForAmmo.length > 0) {
     const weaponBVByType: Record<string, number> = {};
     for (const w of weaponsForAmmo) {
       const type = normalizeEquipmentId(w.id);
-      weaponBVByType[type] = (weaponBVByType[type] ?? 0) + w.bv;
+      addBVToAmmoCapGroup(weaponBVByType, type, w.bv);
     }
     const ammoBVByType: Record<string, number> = {};
     for (const a of ammoForCap) {
-      ammoBVByType[a.weaponType] = (ammoBVByType[a.weaponType] ?? 0) + a.bv;
+      addBVToAmmoCapGroup(ammoBVByType, a.weaponType, a.bv);
     }
-    for (const t of Object.keys(ammoBVByType)) {
-      const cap = weaponBVByType[t];
-      if (cap === undefined) continue;
-      ammoBV += Math.min(ammoBVByType[t], cap);
-    }
+    ammoBV = sumCappedAmmoBV(ammoBVByType, (type) => weaponBVByType[type]);
   }
 
   // Pinned ProtoMekBVCalculator inherits the empty processWeight method.

@@ -36,6 +36,43 @@ effective ammunition, mount locations and full source parity remain open.
 Unresolved lookup returns resolved=false even though its numeric fields are
 zero; those zeroes must not be counted as native numerical agreement.
 
+## Ammunition catalog context
+
+`resolveAmmoBV` uses the existing normalizer, then selects only records loaded
+from `AMMUNITION_CATALOG_FILES` by this package's catalog owner. The source
+collection identifies ammunition; category strings such as SRM and Autocannon
+do not distinguish bins from weapons. Conversion and insertion reuse the
+owner's existing validation and precedence helper. Generic equipment and MTF
+lookup retain weapon-first precedence and the existing normalization algorithm.
+
+Twelve local IDs occur in both ammunition and weapon catalogs: Clan LB-X
+2/5/10/20, MRM 10/20/30/40, AMS and Clan Streak SRM 2/4/6. Ammo lookup uses
+their ammunition BV; generic lookup still uses their weapon BV. Weapon-only
+and other non-ammunition entries return resolved=false as ammo. Battle armor
+uses this result without a generic fallback; explicit bvOverride is retained.
+The returned weaponType keeps its legacy ID-derived form, not a native type/rack
+key. Existing aliases can still select the wrong technology or fail to resolve.
+
+`initializeCatalog` accepts explicit ammunition entries as its optional third
+argument. They populate the custom ammo context and participate in generic
+normalization, with ordinary custom entries winning shared IDs. Omitting that
+argument supplies no ammunition, rather than inferring it from categories or
+leaking bundled records. Supplying name mappings invalidates their lowercase
+cache. Reset clears both catalog contexts and the mapping caches.
+
+The critical-slot validator and full ammo audit retain their separate
+pattern-first policies, raw compatibleWeaponIds, overrides and filesystem data
+contract. Only their calls to this resolver's fallback observe the new context.
+`scripts/debug-bv.ts` has a distinct legacy name-based resolver reading a single
+ammunition.json file; it does not call this API and is not parity evidence.
+The equipment service and combat hydrator retain their different full-record
+and compatibility contracts. No duplicate normalizer or matching table is added.
+
+This is a local identity correction. It does not change source parsing, native
+aliases, quantities, Body/None mounts, implicit one-shot bins, grouping, or the
+ProtoMech offensive path's generic lookup. Those remain separate obligations;
+unchanged source totals receive no new full-BV or ammunition parity credit.
+
 ## Native ProtoMek SRM identities
 
 The existing missile-SRM catalog owns distinct `clan-srm-1`, `clan-srm-3`

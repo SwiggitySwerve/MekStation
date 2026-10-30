@@ -97,7 +97,7 @@
         }
       ],
       "scope": "Readiness mechanism only; no shared-mission client work. Six release-blocking units run first, in this order (owner decisions 2026-10-24 d and 2026-10-25): the all-routes same-host guard with the WebSocket frame limit, the live co-op campaign write authority, desktop data ownership 1 and 2, the desktop guards, and the Step 2 RC rerun (after LSC-2P closes). They change no co-op readiness behaviour. Campaign-socket admission (S5-01) is part of P2CG2.",
-      "prBudget": 29,
+      "prBudget": 31,
       "userVisible": false
     },
     {

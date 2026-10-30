@@ -1,3 +1,4 @@
+import { hasAmmoForAI } from '@/utils/gameplay/ammoTracking/weapons';
 /**
  * Focus-fire coordination for AI lance tactics.
  *
@@ -23,7 +24,6 @@
  * @spec openspec/changes/add-ai-coordination-tactics/specs/simulation-system/spec.md
  *   Requirement: Focus-Fire Coordination
  */
-
 import { hexDistance } from '@/utils/gameplay/hexMath';
 
 import type { IThreatEntry } from './AIThreatMap';
@@ -69,10 +69,7 @@ export function expectedDamage(
   for (const weapon of attacker.weapons) {
     if (weapon.destroyed) continue;
     if (distance > (weapon.extremeRange ?? weapon.longRange)) continue;
-    if (weapon.ammoPerTon > 0) {
-      const ammoCount = attacker.ammo[weapon.id];
-      if (ammoCount !== undefined && ammoCount <= 0) continue;
-    }
+    if (!hasAmmoForAI(weapon, attacker.ammo[weapon.id])) continue;
     rawDamage += weapon.damage;
   }
 

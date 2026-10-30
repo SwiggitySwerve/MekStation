@@ -88,6 +88,7 @@ function buildBaseToHit(
   context: IDeclareAttackContext,
   participants: IAttackParticipants,
   indirectFireResolution: IIndirectFireResolution | undefined,
+  weaponCategory: IWeaponAttack['category'],
 ) {
   const primaryWeapon = context.weapons[0];
   const attackerToHitState = buildWeaponAttackAttackerToHitState(
@@ -97,7 +98,7 @@ function buildBaseToHit(
       ? {
           id: primaryWeapon.weaponId,
           name: primaryWeapon.weaponName,
-          category: primaryWeapon.category,
+          category: weaponCategory,
         }
       : undefined,
     context.targetId,
@@ -214,9 +215,10 @@ function addIndirectFireModifier(
   return indirectFireResolution.toHitPenalty;
 }
 
-export function buildDeclaredAttackToHit(
+function buildWeaponCategoryToHit(
   context: IDeclareAttackContext,
   participants: IAttackParticipants,
+  weaponCategory: IWeaponAttack['category'],
 ): IDeclaredAttackToHit {
   const indirectFireResolution = normalizeIndirectFireResolution(
     context.indirectFireResolutionInput,
@@ -225,6 +227,7 @@ export function buildDeclaredAttackToHit(
     context,
     participants,
     indirectFireResolution,
+    weaponCategory,
   );
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
     name: modifier.name,
@@ -238,4 +241,32 @@ export function buildDeclaredAttackToHit(
     addIndirectFireModifier(modifiers, indirectFireResolution);
 
   return { finalToHit, indirectFireResolution, modifiers };
+}
+
+export function buildDeclaredAttackToHit(
+  context: IDeclareAttackContext,
+  participants: IAttackParticipants,
+): IDeclaredAttackToHit {
+  const primaryCategory = context.weapons[0]?.category;
+  const primary = buildWeaponCategoryToHit(
+    context,
+    participants,
+    primaryCategory,
+  );
+  if (context.weapons.every((weapon) => weapon.category === primaryCategory)) {
+    return primary;
+  }
+
+  // Only category varies. Keep the existing volley-wide range, C3, ID/name,
+  // called-shot, semi-guided and terrain policies in the calculation owner.
+  const byCategory = new Map([[primaryCategory, primary]]);
+  const weaponToHits = context.weapons.map((weapon) => {
+    let result = byCategory.get(weapon.category);
+    if (!result) {
+      result = buildWeaponCategoryToHit(context, participants, weapon.category);
+      byCategory.set(weapon.category, result);
+    }
+    return { toHitNumber: result.finalToHit, modifiers: result.modifiers };
+  });
+  return { ...primary, weaponToHits };
 }

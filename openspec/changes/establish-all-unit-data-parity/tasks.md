@@ -46,7 +46,19 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.18 Separate native ProtoMek LRM 1-4 identities and correct twelve other LRM records using pinned runtime fields; verify official-loader eligibility, BV/MTF/combat consumers, local own-name compatibility through real BA/ProtoMech store writers and preserved source/ammo boundaries. (`equipment-services`: Native ProtoMek LRM catalog identities)
 
+- [ ] 2.19 Consolidate cluster lookup/table copies with unchanged captures, then correct integer racks 1-20 against pinned Java and exercise shared combat and preview consumers. Ammo eligibility, complete ProtoMech combat and larger racks remain open. (`combat-resolution`: Native cluster hits for represented integer racks)
+
+- [ ] 2.20 Consolidate repeated ammo classification/count checks and projection without behavior changes, then require explicit usable ammo state for known missiles with unspecified capacity; prove AI, preview, runner firing/depletion and ordinary controls. Pin the inherited engine/interactive-session display-name refusal separately from successful AI selection. Session firing identity, source identity/quantity/topology, implicit ammo and full BV remain open. (`ammo-tracking`: Unknown missile capacity requires explicit ammunition state)
+
+- [ ] 2.21 Preserve known missile category independently of capacity metadata at the weapon attack boundary; verify its Gunnery Specialist to-hit effect through real hydration and isolate category-dependent targets in mixed volleys through declaration and serialized resolution, preserving shared context and legacy fallbacks. Complete native categories, multi-SPA precedence, ID/name-dependent volley effects and category propagation through tactical previews and committed human interactive attacks remain open. (`spa-combat-integration`: Gunnery SPA — Gunnery Specialist)
+
+- [ ] 2.22 Consolidate offensive ammo grouping/cap arithmetic across shared, ProtoMech and aerospace owners while preserving their distinct policies and all source outputs; then connect native ammunition identity, effective quantities and grouping with independent numerical proof. Defensive caps and incomplete native ammunition receive no parity credit. (`battle-value-system`: Offensive ammunition cap ownership)
+
+- [ ] 2.23 Resolve ammunition within the existing BV catalog owner using its source collection, preserve generic/MTF lookup and reject weapon-only ammo identities through real consumers. Verify collisions, explicit custom context/reset, all captured lookup effects and all-family regression outputs. Native aliases, quantities, grouping, mount topology and full BV remain open. (`equipment-services`: Ammunition context in BV catalog resolution)
+
 ## 3. Complete typed data flows
+
+- [ ] 3.03 Share the existing ammunition-bin projection without changing its output, then forward live counts through the selector/forecast consumers and verify ammo-only updates; retain unknown-capacity readiness, active-composer and native ammunition gaps. (`to-hit-resolution`: Ammunition counts in preview consumers)
 
 - [ ] 3.02 Extract ProtoMek equipment syntax without changing outputs, then retain parsed block/entry identity, explicit shots/size/rear-prefix and diagnostics through handler/store projections, saved-state loading and bounded BLK reload. Verify actual native shot/size observations; retain resolved identity, Body topology, general serialization and full equipment/BV gaps. (`unit-services`: ProtoMek equipment source syntax)
 

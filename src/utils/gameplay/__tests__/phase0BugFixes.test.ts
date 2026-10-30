@@ -289,8 +289,10 @@ describe('Fix 0.9: Cluster table has all canonical columns', () => {
     expect(CLUSTER_SIZES).toContain(12);
   });
 
-  it('has all 12 canonical columns', () => {
-    expect(CLUSTER_SIZES).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20]);
+  it('has every native integer rack column from 1 through 20', () => {
+    expect(CLUSTER_SIZES).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    ]);
   });
 
   it('all rows have entries for all sizes', () => {
