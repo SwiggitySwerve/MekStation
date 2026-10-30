@@ -5,14 +5,21 @@ import { ProtoMechLocation } from '@/types/construction/UnitLocation';
  * These source identities intentionally do not use the fuzzy catalog resolver.
  * See BLK_PROTOMEK_EQUIPMENT.md for the loader contract and its limits.
  */
+const BOOSTER_DISPLAY_NAMES = [
+  'MASC',
+  'Supercharger',
+  'VTOL Jet Booster',
+  'Protomek Myomer Booster',
+  'BA Myomer Booster',
+];
+
 const BOOSTER_NAMES = new Set(
   [
+    ...BOOSTER_DISPLAY_NAMES,
     'ISMASC',
     'IS MASC',
     'CLMASC',
     'Clan MASC',
-    'MASC',
-    'Supercharger',
     'IS Super Charger',
     'ISSuperCharger',
     'CLSuperCharger',
@@ -20,13 +27,10 @@ const BOOSTER_NAMES = new Set(
     'CL Super Charger',
     'ISVTOLJetBooster',
     'CLVTOLJetBooster',
-    'VTOL Jet Booster',
     'CLMyomerBooster',
-    'Protomek Myomer Booster',
     'CLBAMyomerBooster',
     'CLBAMB',
     'BAMyomerBooster',
-    'BA Myomer Booster',
   ].map((name) => name.toLowerCase()),
 );
 
