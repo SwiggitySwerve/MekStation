@@ -34,6 +34,8 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   computeProtoEngineRating,
+  computeProtoStructure,
+  getProtoStructureTonnageError,
   getProtoMainGunTopologyError,
 } from '@/utils/construction/protomech';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
@@ -134,6 +136,8 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         );
       }
     }
+    const structureError = getProtoStructureTonnageError(document.tonnage);
+    if (structureError) errors.push(structureError);
     const chassisType = this.parseChassis(document, errors);
     if (errors.length > 0) return { errors, warnings };
 
@@ -160,14 +164,16 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     const armorByLocation = this.parseArmorByLocation(armor);
     const armorPerTrooper = armor.reduce((sum, val) => sum + val, 0);
 
-    // Internal structure (simplified - ProtoMechs have fixed structure by tonnage)
-    const structureByLocation = this.calculateStructure(weightPerUnit);
-
     // Equipment
     const equipment = this.parseEquipment(document);
 
     // BLKProtoMekFile derives topology from armor count, even for an empty mount.
     const hasMainGun = armor.length === 6;
+    const structureByLocation = computeProtoStructure(
+      weightPerUnit,
+      chassisType,
+      hasMainGun,
+    );
     const topologyError = getProtoMainGunTopologyError(
       hasMainGun,
       equipment.map((item) => item.location),
@@ -256,29 +262,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     });
 
     return result;
-  }
-
-  /**
-   * Calculate internal structure by tonnage
-   */
-  private calculateStructure(
-    tonnage: number,
-  ): Record<ProtoMechLocation, number> {
-    // ProtoMech structure is based on tonnage
-    // Simplified calculation
-    const headStructure = 1;
-    const torsoStructure = Math.ceil(tonnage / 2);
-    const armStructure = Math.ceil(tonnage / 4);
-    const legsStructure = Math.ceil(tonnage / 3);
-
-    return {
-      [ProtoMechLocation.HEAD]: headStructure,
-      [ProtoMechLocation.TORSO]: torsoStructure,
-      [ProtoMechLocation.LEFT_ARM]: armStructure,
-      [ProtoMechLocation.RIGHT_ARM]: armStructure,
-      [ProtoMechLocation.LEGS]: legsStructure,
-      [ProtoMechLocation.MAIN_GUN]: 1,
-    };
   }
 
   /**

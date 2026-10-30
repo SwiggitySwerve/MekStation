@@ -242,6 +242,8 @@ export interface IProtoMechRecordSheetData {
   readonly protos: readonly IProtoMechUnit[];
   /** Main gun designation (name), if equipped. */
   readonly mainGun?: string;
+  /** Mount presence, including an empty mount. Omitted legacy data uses the name. */
+  readonly hasMainGun?: boolean;
   readonly mainGunAmmo?: number;
   readonly hasUMU: boolean;
   readonly isGlider: boolean;

@@ -23,6 +23,10 @@
 
 import type { IProtoMechRecordSheetData } from '@/types/printing';
 
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { computeProtoStructure } from '@/utils/construction/protomech';
+
 import type { PipFill, TextBindings } from '../templateRecordSheetRenderer';
 
 import { PROTOMECH_TEMPLATE_IDS } from '../templateElementIds';
@@ -59,40 +63,6 @@ export interface ProtoMechBindings {
 }
 
 /**
- * Canonical ProtoMech head internal structure by tonnage.
- * Mirrors MegaMek `ProtoMek.headStructure`.
- */
-function headStructure(tonnage: number): number {
-  if (tonnage <= 5) return 1;
-  if (tonnage <= 9) return 2;
-  if (tonnage <= 13) return 3;
-  return 4;
-}
-
-/**
- * Canonical ProtoMech leg internal structure by tonnage.
- * Mirrors MegaMek `ProtoMek.legStructure` (quad legs are sturdier).
- */
-function legStructure(tonnage: number, isQuad: boolean): number {
-  if (isQuad) {
-    if (tonnage <= 3) return 4;
-    if (tonnage <= 5) return 5;
-    if (tonnage <= 7) return 8;
-    if (tonnage <= 9) return 9;
-    if (tonnage <= 11) return 12;
-    if (tonnage <= 13) return 13;
-    return 14;
-  }
-  if (tonnage <= 3) return 2;
-  if (tonnage <= 5) return 3;
-  if (tonnage <= 7) return 4;
-  if (tonnage <= 9) return 5;
-  if (tonnage <= 11) return 6;
-  if (tonnage <= 13) return 7;
-  return 8;
-}
-
-/**
  * Compute the per-location armor + structure pip counts for a
  * ProtoMech. Armor comes from the first proto's `armorByLocation`;
  * structure is derived from the canonical TW table by tonnage. Arm
@@ -109,14 +79,22 @@ export function computeProtoMechPipCounts(
   const isQuad = data.isQuad ?? false;
   const armor = proto?.armorByLocation;
 
-  const headIS = headStructure(tonnage);
-  // Torso IS equals tonnage; arm IS equals head IS for bipeds.
+  const hasMainGun = data.hasMainGun ?? Boolean(data.mainGun);
+  const structure = computeProtoStructure(
+    tonnage,
+    isQuad ? ProtoChassis.QUAD : ProtoChassis.BIPED,
+    hasMainGun,
+  );
+  const headIS = structure[ProtoMechLocation.HEAD];
   const counts: ProtoMechPipCounts = {
     HD: { armor: armor?.Head?.current ?? 0, structure: headIS },
-    T: { armor: armor?.Torso?.current ?? 0, structure: tonnage },
+    T: {
+      armor: armor?.Torso?.current ?? 0,
+      structure: structure[ProtoMechLocation.TORSO],
+    },
     L: {
       armor: armor?.Legs?.current ?? 0,
-      structure: legStructure(tonnage, isQuad),
+      structure: structure[ProtoMechLocation.LEGS],
     },
   };
   const mutable = counts as {
@@ -126,19 +104,18 @@ export function computeProtoMechPipCounts(
   if (!isQuad) {
     mutable.LA = {
       armor: armor?.['Left Arm']?.current ?? 0,
-      structure: headIS,
+      structure: structure[ProtoMechLocation.LEFT_ARM],
     };
     mutable.RA = {
       armor: armor?.['Right Arm']?.current ?? 0,
-      structure: headIS,
+      structure: structure[ProtoMechLocation.RIGHT_ARM],
     };
   }
 
-  if (data.mainGun) {
-    // Main gun IS: 1 for <=9t, 2 for >9t (MegaMek autoSetInternal).
+  if (hasMainGun) {
     mutable.MG = {
       armor: armor?.['Main Gun']?.current ?? 0,
-      structure: tonnage > 9 ? 2 : 1,
+      structure: structure[ProtoMechLocation.MAIN_GUN],
     };
   }
 

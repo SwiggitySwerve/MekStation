@@ -79,3 +79,9 @@ export {
   getProtoChassisMultiplier,
 } from './protoMechBV';
 export type { IProtoMechBVBreakdown, IProtoMechBVOptions } from './protoMechBV';
+
+// Original internal structure and absent-location representation.
+export {
+  computeProtoStructure,
+  getProtoStructureTonnageError,
+} from './structure';

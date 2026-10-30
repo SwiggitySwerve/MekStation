@@ -105,6 +105,7 @@ export function duplicateProtoMech(
     engineRating: sourceState.engineRating,
     cruiseMP: sourceState.cruiseMP,
     jumpMP: sourceState.jumpMP,
+    structureByLocation: { ...sourceState.structureByLocation },
     armorByLocation: { ...sourceState.armorByLocation },
     hasMainGun: sourceState.hasMainGun,
     hasMyomerBooster: sourceState.hasMyomerBooster,

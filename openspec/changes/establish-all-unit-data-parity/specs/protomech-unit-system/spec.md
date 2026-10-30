@@ -1,10 +1,12 @@
 ## MODIFIED Requirements
 
-Scope: this delta corrects engine rating and movement-field consistency. Existing
+Scope: this delta corrects engine rating, movement-field consistency and internal
+structure. Existing
 weight-class labels, tonnage/MP caps, default-speed choices and flank policies
 are retained below to keep modified requirements complete; their fidelity is
-not independently established by this slice. Native source discovery, engine
-mass, equipment, serialization and complete numerical/BV parity remain open.
+not independently established by this slice. Native source projection is specified
+in the unit-services delta. Engine mass, equipment, production serialization and
+complete numerical/BV parity remain open.
 
 ### Requirement: Weight Classes
 
@@ -122,3 +124,73 @@ calculation SHALL NOT assert construction legality or complete engine mass.
 
 - **WHEN** a direct rating is nonfinite, outside safe integer representation, fractional or has no nonnegative safe integer speed for this tonnage and chassis
 - **THEN** the setter SHALL throw a rating diagnostic before any state or derived BV change
+
+### Requirement: Internal Structure
+
+The construction owner SHALL calculate original ProtoMech internal points from
+tonnage, chassis and main-gun presence using MegaMek
+`48fcb2f64a1b3f2d575707ce5653dad64927b587`, `ProtoMek.java:785-826`.
+It SHALL truncate tonnage toward zero for torso and table lookup. Head points
+SHALL be 1 at integer weights 2-5, 2 at 6-9, 3 at 10-13, and 4 otherwise.
+Biped/Glider leg points SHALL be 2,3,4,5,6,7 for weight pairs 2-3 through
+12-13, and 8 otherwise. Quad leg points SHALL be 4,5,8,9,12,13 for those
+pairs, and 14 otherwise. Non-Quad arms SHALL equal head points. A present
+main-gun mount SHALL have 1 point through 9 tons and 2 above 9 tons, using
+untruncated tonnage. The existing Ultraheavy enum SHALL use Biped structure.
+
+The local fixed six-key record SHALL store zero for Quad arms and an absent
+main-gun mount; chassis and mount flags SHALL preserve absence separately from
+a real zero-valued location. Upstream's absent-location sentinel SHALL NOT be
+summed as points. Construction legality SHALL remain a separate diagnostic.
+
+#### Scenario: Shared defaults and source loading
+
+- **WHEN** loading a 9-ton Biped with a main-gun mount
+- **THEN** Head/Torso/Left Arm/Right Arm/Legs/Main Gun SHALL be 2/9/2/2/5/1
+- **WHEN** creating a 9-ton Quad without a main-gun mount
+- **THEN** those points SHALL be 2/9/0/0/9/0
+- **AND** both consumers SHALL call the construction owner
+
+#### Scenario: Fractional and construction-invalid tonnage
+
+- **WHEN** deriving structure at 9.5 tons with a main-gun mount
+- **THEN** table lookup and torso SHALL use 9 while main-gun points SHALL be 2
+- **WHEN** deriving structure at 1.5 tons
+- **THEN** head SHALL be 4, torso 1, and legs 8 or 14 by chassis
+- **AND** these values SHALL NOT assert that the design is legal
+
+#### Scenario: Invalid numeric boundary
+
+- **WHEN** tonnage is nonfinite, nonpositive or greater than the maximum signed 32-bit integer
+- **THEN** the owner SHALL reject it with a tonnage diagnostic before returning structure
+- **AND** every supported BLK spelling SHALL return that admission failure through the handler's structured parse result rather than throw
+
+#### Scenario: Reactive structure and BV
+
+- **WHEN** editing tonnage, chassis or main-gun presence
+- **THEN** the store SHALL recalculate all structure points using admitted values and current topology
+- **AND** its existing synchronous BV calculation SHALL receive those points
+- **AND** existing tonnage caps and movement policies SHALL remain unchanged
+
+#### Scenario: Stored and manually edited structure
+
+- **WHEN** opening existing state or setting an individual location's structure
+- **THEN** existing stored values and the nonnegative manual setter SHALL remain available
+- **AND** identity or movement edits SHALL NOT silently replace those structure values
+- **AND** the next tonnage, chassis or mount edit SHALL restore the owner's calculated structure
+- **AND** this slice SHALL NOT claim a migration or production source-to-store flow
+
+#### Scenario: Printing topology and pips
+
+- **WHEN** printing data declares a Quad or an empty main-gun mount
+- **THEN** extraction SHALL preserve those flags and bindings SHALL use the shared structure owner
+- **AND** Quad arm pips SHALL be absent and a declared empty main-gun mount SHALL retain its pips
+- **WHEN** legacy printing data omits explicit main-gun presence
+- **THEN** its existing weapon-name presence fallback SHALL remain supported
+
+#### Scenario: Duplicated structure
+
+- **WHEN** duplicating a ProtoMech through the store registry
+- **THEN** the duplicate SHALL preserve the source's chassis, main-gun presence and independent copy of every stored structure value, including manual values
+- **AND** the duplicate's structure contribution to BV SHALL use those copied points
+- **AND** editing the duplicate's structure SHALL NOT alter the source's structure
