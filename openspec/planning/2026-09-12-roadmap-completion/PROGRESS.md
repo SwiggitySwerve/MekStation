@@ -1,3 +1,23 @@
+## 2026-10-29 API-SAME-HOST-1 CI fixture correction (same Step 4 PR 2/29)
+
+Owner-approved manifest correction adds only `src/__tests__/api/vault/vault.test-helpers.ts`: five valid loopback Host fixtures restore the comprehensive unlock suite's existing password/method assertions. The CI failure is retained; the required-check aggregator failed solely because of that shard. Scratch RED is 5 failed/80 passed, scratch GREEN 85/85; the branch vault and real campaign-credential consumer suites pass 110/110 with no skips. All ten frozen-r3 leaves and all 22 protected release-proof leaves remain unchanged.
+
+The effective source/test manifest now has eleven leaves. Applying the existing ownerRuling20261024StepsPageFileCap gives 16 actual files / 15 counted files, with only V2.2.0-STEPS.md exempt from file count; its additions still count. Caps remain 15 files/500 additions and Step 4 remains 29 PRs. The local receipt supplements historical evidence without replacing it. Fresh exact-head reviews, CI, the real head-bound owner ruling and G-ASH6 remain owed.
+
+---
+
+## 2026-10-29 API-SAME-HOST-1 local-verified (Step 4 PR 2 of 29, the implementation)
+
+Implements the admitted unit on base 28e17b829 from the successor freeze `frozen-r3` (the F1 freeze and `frozen-r2` are preserved; this supersedes the active candidate pointer in the unit). Ten source and test leaves, byte-equal to the freeze, plus this ledger and the RED and local receipts: 15 files. Opus 5.5 and GPT-6.1 Sol approved the candidate freeze; their carried findings (B1-B8) are in the local receipt's limits.
+
+- Guard: one owner of the Host/Origin/Sec-Fetch-Site rule; four readings of a request target (fully decoded, decoded URL-parsed pathname, raw prefix, URL-parsed prefix). The fourth reading answers Opus N1 as a conservative over-approximation: built Next 16.2.11 answers those encoded static spellings with its 404 page, so no routing bypass is claimed, and `next dev` was not probed.
+- Proof on this branch: RED on the unchanged base 367 behavioural failures of 379 (12 rows not counted; the guard suite does not load); GREEN 722/722, existing 75/75 (61/14 without the two fixture fixes), neighbours 60/60; `next typegen`, full typecheck, `lint:units`, oxfmt and oxlint clean; 55/55 mutants killed on the delivered head. Pre-RED observations (rebinding-Host read 200, cross-site form 200, encoded target 200, 95 MiB frame acknowledged) reproduce on this base.
+- Disclosed: no separate RED commit (the pre-commit typecheck cannot pass while the tests import the absent guard; hooks were not skipped; the owner accepted this); the local receipt is legacy (unversioned) by owner choice because the validator refused the executor's T3 identifiers for a version-2 census, so the exact-head reviewer must be a different model from claude-sonnet-5-5 and gpt-6-astra; initial implementation mutation proof executed by Claude Sonnet 5.5 under the owner's 2026-10-29 worker-role ruling; the resumed GPT Root repeated all 55 unchanged recipes with explicit per-run source/test hashes to close review B6.
+- Roadmap plain/`--git`/`--github` validation passes; the interrupted command finished with 216/216 validator and v220 tests passing. All 22 protected release-proof files remain unchanged.
+- Owed: CI and exact-head independent review, the owner's head-bound ruling on the new packet, merge, then the G-ASH6 exact-main proof (Electron-as-node packaged validator, the frozen 34-case regression). No Step 4 completion is implied.
+
+---
+
 ## 2026-10-28 API-SAME-HOST-1 admission corrected after review: F1 classifier fix, separate freeze (Step 4 PR 1, #2371 head update; ledger and evidence only)
 
 Both independent reviews of e975d71ef returned REQUEST-CHANGES for one defect: the frozen guard decoded and collapsed a dynamic-route parameter (`/api/pilots/%2e%2e%2f%2e%2e`) into `/`, so a foreign Host and Origin were admitted past the boundary to 47 dynamic API routes that Next still matched by their raw `/api` prefix. Root ruled F1 blocking. This entry corrects the admission; the admission-only scope is unchanged and no candidate source ships.

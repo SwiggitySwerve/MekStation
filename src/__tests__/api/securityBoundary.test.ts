@@ -101,7 +101,7 @@ function apiRequest(
   return createMocks<NextApiRequest, NextApiResponse>({
     method: 'POST',
     headers: {
-      host: 'mekstation.test',
+      host: '127.0.0.1:3001',
       ...headers,
     },
     body: body as never,
