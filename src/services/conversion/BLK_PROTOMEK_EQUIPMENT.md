@@ -1,5 +1,6 @@
 # ProtoMek source equipment effects
 
+`BlkProtoEquipmentEntry.ts` owns the entry syntax decoder and its diagnostics.
 `BlkProtoEquipment.ts` owns interpretation of native source entries for the
 undamaged myomer-booster effect. The handler preserves each raw mount record
 and delegates this interpretation to the adapter. It does not use catalog
