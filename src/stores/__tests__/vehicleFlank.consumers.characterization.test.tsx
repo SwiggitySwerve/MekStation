@@ -6,7 +6,9 @@
  * (cruise and engine-rating edits), the default state, the BV state adapter,
  * the status bar (full and compact) and the new-unit template summary.
  * Changing the rounding rule is one edit to FLANK_BY_CRUISE; a site that
- * disagrees with the table fails on its own line.
+ * disagrees with the table fails on its own line. The default state has a
+ * fixed cruise of 4, where floor and ceil agree, so that site is pinned at
+ * cruise 4 only.
  *
  * @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md
  */
