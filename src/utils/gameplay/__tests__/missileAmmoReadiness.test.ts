@@ -5,6 +5,7 @@ import {
   ammoFromWeapons,
   extractWeapons,
 } from '@/engine/adapters/CompendiumAdapter.weapons';
+import { toAIUnitState as toEngineAIUnitState } from '@/engine/GameEngine.helpers';
 import { computeAmmoRunway } from '@/simulation/ai/AIAmmoRunway';
 import { expectedDamage as coordinatedDamage } from '@/simulation/ai/AIFireCoordinator';
 import { selectWeaponMode } from '@/simulation/ai/AIWeaponModeSelector';
@@ -241,7 +242,7 @@ const catalogAmmoWeapons = [
 describe.each(catalogAmmoWeapons)(
   'connected catalog ammunition: $id',
   ({ id, data }) => {
-    it('keeps the runner and adapter connected to the resolved identity', () => {
+    it('keeps the runner, engine and adapter connected to the resolved identity', () => {
       const weapon: IWeapon = { ...data, id: `${id}-1` };
       const bin = createAmmoBin({ weaponType: id, remainingRounds: 2 });
       const state = withAttackerAmmo(
@@ -251,6 +252,7 @@ describe.each(catalogAmmoWeapons)(
       const unit = state.units['player-1'];
       expect(hasAmmoForValidShot(unit, weapon)).toBe(true);
       expect(toAIUnitState(unit, [weapon]).ammo[weapon.id]).toBe(2);
+      expect(toEngineAIUnitState(unit, [weapon], 4).ammo[weapon.id]).toBe(2);
 
       const adapted = extractWeapons([{ equipmentId: id }], 'unit-42', {});
       expect(adapted).toHaveLength(1);
@@ -258,6 +260,7 @@ describe.each(catalogAmmoWeapons)(
         ammoFromWeapons(adapted, { [bin.binId]: bin })[adapted[0].id],
       ).toBe(2);
       expect(hasAmmoForValidShot(unit, adapted[0])).toBe(true);
+      expect(toEngineAIUnitState(unit, adapted, 4).ammo[adapted[0].id]).toBe(2);
       const empty = {
         ...unit,
         ammoState: { [bin.binId]: { ...bin, remainingRounds: 0 } },
@@ -274,6 +277,9 @@ describe.each(catalogAmmoWeapons)(
         expect(hasAmmoForValidShot(empty, adapted[0])).toBe(false);
       }
       expect(toAIUnitState(empty, adapted).ammo[adapted[0].id]).toBe(0);
+      expect(toEngineAIUnitState(empty, adapted, 4).ammo[adapted[0].id]).toBe(
+        0,
+      );
     });
   },
 );
@@ -419,6 +425,9 @@ it('keeps ordinary mode-specific ammunition usable in the live AI snapshot', () 
   );
   const live = toAIUnitState(state.units['player-1'], [weapon]);
   expect(live.ammo[weapon.id]).toBe(2);
+  expect(
+    toEngineAIUnitState(state.units['player-1'], [weapon], 4).ammo[weapon.id],
+  ).toBe(2);
   expect(new AttackAI().selectWeapons(live, target)).toEqual([weapon]);
   const unknownCapacity = { ...weapon, ammoPerTon: -1 };
   expect(
@@ -434,4 +443,67 @@ it('keeps ordinary mode-specific ammunition usable in the live AI snapshot', () 
       target,
     ),
   ).toEqual([]);
+});
+
+describe('engine and interactive-session live ammunition', () => {
+  it.each(['clan-srm-3', 'clan-srm-5'])(
+    'selects supplied %s, observes ammo-only depletion and preserves input',
+    (id) => {
+      const weapons = extractWeapons([{ equipmentId: id }], 'proto-42', {});
+      expect(weapons).toHaveLength(1);
+      const bin = createAmmoBin({ weaponType: id, remainingRounds: 10 });
+      const state = withAttackerAmmo(
+        createWeaponAttackState({ q: 5, r: 0 }),
+        bin,
+      );
+      const unit = state.units['player-1'];
+      const before = JSON.stringify(unit);
+      const supplied = toEngineAIUnitState(unit, weapons, 4);
+      expect(supplied.ammo).toEqual({ [weapons[0].id]: 10 });
+      expect(new AttackAI().selectWeapons(supplied, target)).toEqual(weapons);
+      const depleted = {
+        ...unit,
+        ammoState: { [bin.binId]: { ...bin, remainingRounds: 0 } },
+      };
+      expect(
+        new AttackAI().selectWeapons(
+          toEngineAIUnitState(depleted, weapons, 4),
+          target,
+        ),
+      ).toEqual([]);
+      expect(
+        new AttackAI().selectWeapons(
+          toEngineAIUnitState(unit, weapons, 4),
+          target,
+        ),
+      ).toEqual(weapons);
+      expect(JSON.stringify(unit)).toBe(before);
+    },
+  );
+
+  it.each([undefined, {}])(
+    'keeps legacy counts when live bins are %s',
+    (ammoState) => {
+      const weapon = missile(20, 6);
+      const unit = {
+        ...createWeaponAttackState({ q: 5, r: 0 }).units['player-1'],
+        ammoState,
+        ammo: { [weapon.id]: 7 },
+      };
+      expect(toEngineAIUnitState(unit, [weapon], 4).ammo).toBe(unit.ammo);
+      expect(
+        new AttackAI().selectWeapons(
+          toEngineAIUnitState(unit, [weapon], 4),
+          target,
+        ),
+      ).toEqual([weapon]);
+      const unknown = { ...unit, ammo: {} };
+      expect(
+        new AttackAI().selectWeapons(
+          toEngineAIUnitState(unknown, [weapon], 4),
+          target,
+        ),
+      ).toEqual([weapon]);
+    },
+  );
 });

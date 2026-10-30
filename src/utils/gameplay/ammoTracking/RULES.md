@@ -10,12 +10,13 @@ ammunition. No capacity or bin is guessed. This repairs damaging consumers
 activated by ProtoMek weapon catalog corrections; it is not full ammo parity.
 
 AI selection, coordinated fire, runway, mode cost, adaptation, damage previews
-and runner firing use that distinction. Runner AI uses live bins when present;
-legacy sessions without bins retain their count fallback for ordinary weapons.
+and runner firing use that distinction. Runner, engine and interactive-session
+AI use live nonempty bin state. Without it, the runner retains its empty-map
+fallback and the engine retains its legacy ammo map for ordinary weapons.
 The adapter carries the resolved catalog ammo identity independently of the
 display name and prefixed mount ID. Runner selection uses the mode's explicit
 family, then that resolved identity, then its existing unprefixed mount convention.
-Live AI projection uses that same selection contract. Older adapter inputs without
+Live runner and engine AI projections use that same selection contract. Older adapter inputs without
 an explicit identity retain name-based projection.
 
 Existing contracts remain distinct: ordinary AI allows an absent count for a

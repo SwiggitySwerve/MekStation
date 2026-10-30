@@ -25,7 +25,7 @@ capacity, ammunition quantity or compatible bins.
 - **WHEN** an accepted shot consumes the last round
 - **THEN** the existing consumption event SHALL record the depletion and a later shot SHALL be refused
 - **AND** adapters SHALL retain the resolved ammo identity independently of display names and mount-instance prefixes
-- **AND** live runner projection SHALL use the same ammo identity as firing and consumption
+- **AND** live runner, engine and interactive-session projections SHALL use the same ammo identity as firing and consumption
 - **AND** an explicit firing mode's ammo-family selection SHALL retain precedence
 
 #### Scenario: Preserve distinct existing contracts before correction
@@ -34,5 +34,6 @@ capacity, ammunition quantity or compatible bins.
 - **THEN** a separately verified refactor SHALL preserve their original results
 - **AND** legacy AI unknown-count behavior for positive-capacity weapons and the preview's separate zero-capacity policy SHALL remain explicit
 - **AND** normal energy behavior and one-shot depletion guards SHALL remain intact
-- **AND** when live bin state is present, the simulation AI SHALL use its current quantities instead of an empty ammo map
+- **AND** when nonempty live bin state is present, runner, engine and interactive-session AI SHALL use its current quantities instead of an empty or stale ammo map
+- **AND** without nonempty live bins, the engine SHALL retain its legacy ammo map and the runner SHALL retain its existing empty-map fallback
 - **AND** source quantity loading, implicit one-shot ammo, full ammunition/BV parity and production workflows SHALL remain separately accounted for

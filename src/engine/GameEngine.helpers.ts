@@ -6,6 +6,7 @@ import type {
   IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 
+import { selectedAmmoWeaponType } from '@/simulation/runner/phases/weaponAttackFiringModes';
 import { TerrainPreset } from '@/types/encounter';
 import {
   TerrainType as GameplayTerrainType,
@@ -13,6 +14,7 @@ import {
   type IHexTerrain,
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
+import { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 import {
   terrainFeaturesFromString,
   terrainStringFromFeatures,
@@ -197,7 +199,10 @@ export function toAIUnitState(
     facing: unit.facing,
     heat: unit.heat,
     weapons,
-    ammo: unit.ammo,
+    ammo:
+      unit.ammoState && Object.keys(unit.ammoState).length > 0
+        ? ammoFromWeapons(weapons, unit.ammoState, selectedAmmoWeaponType)
+        : unit.ammo,
     destroyed: unit.destroyed,
     gunnery,
     movementType: unit.movementThisTurn,
