@@ -27,3 +27,15 @@ so its unsupported inputs can select a newly added column. Neither policy is
 native parity for unsupported inputs. Fractional/nonfinite rolls, racks above
 20, complete ProtoMech combat, ammo eligibility/consumption and full source BV
 remain unverified; this prerequisite does not make PR #2408 merge-ready.
+
+## Total-to-projectile damage
+
+`projectileDamage.ts` owns `damageForProjectiles(totalDamage, rackSize,
+landedProjectiles)`, the conversion from the launcher total hydrated into
+`IWeapon.damage` (LRM 16 = 16) to the damage of the projectiles that landed.
+The runner's missile-cluster and Streak resolution and the selected-AMS session
+cluster share it, with outputs unchanged. Code whose input is already damage per
+hit (`resolution.ts`, `streak.ts`, battle-armor `damagePerMissile`,
+`missileMechanics.ts`) does not use it. The expected-damage and variance
+previews still multiply the total by expected hits; correcting them is the next
+slice.
