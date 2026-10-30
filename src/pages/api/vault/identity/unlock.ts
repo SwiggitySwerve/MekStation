@@ -8,6 +8,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { rejectUnlessSameHost } from '@/lib/api/sameHostGuard';
 import {
   API_KDF_RATE_LIMIT,
   applySecurityHeaders,
@@ -25,6 +26,7 @@ export default async function handler(
   res: NextApiResponse,
 ): Promise<void> {
   applySecurityHeaders(res);
+  if (rejectUnlessSameHost(req, res)) return;
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method not allowed' });

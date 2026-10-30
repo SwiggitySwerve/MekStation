@@ -1,0 +1,122 @@
+{
+  "unit": "API-SAME-HOST-1",
+  "stage": "red",
+  "verdict": "RED_CONFIRMED",
+  "at": "2026-10-29T16:50:09.031Z",
+  "baseline": "28e17b829ebdb03aca4634ca67fd8b798c7c35ca",
+  "baselineNote": "Implementation base (fetched main when the delivery worktree was created). The admission baseline recorded on the unit (3dc706ed4) is unchanged and is not rebound.",
+  "testSha256": {
+    "src/lib/api/__tests__/sameHostGuard.test.ts": "46655d620009112c2b382c388809b8b2271b661caab3194ce8a24e52248f2bf8",
+    "src/__tests__/api/sameHostGuard.routes.test.ts": "3300c125fcfeb4006277e565d7ef33dfb2bce02a38c91ce3192d704df96e0ef7"
+  },
+  "preRedObservations": {
+    "log": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\B0-pre-red-repro-impl-base.log",
+      "bytes": 578,
+      "sha256": "fe8f31d7cb7fc7f74b6f940d8d01076290b22923b18db281ec56187a8cae3737",
+      "mtime": "2026-10-29T16:46:19.107Z"
+    },
+    "observed": {
+      "repo": "E:\\Projects\\Personal\\MekStation-wt\\api-same-host-1-impl-20261029",
+      "node": "v22.22.0",
+      "boot": "ready",
+      "rebindingHostRead": "200 NEXT_HANDLED",
+      "rebindingHostReadNoOrigin": "200 NEXT_HANDLED",
+      "crossSiteUrlencodedPost": "200 NEXT_HANDLED",
+      "sameHostControl": "200 NEXT_HANDLED",
+      "f1EncodedTargetRebinding": "200 NEXT_HANDLED",
+      "f1EncodedTargetSameHost": "200 NEXT_HANDLED",
+      "f1PageControlForeignHost": "200 NEXT_HANDLED",
+      "frames": [
+        "1048576B -> ack:1048576 (13 ms)",
+        "1048577B -> ack:1048577 (3 ms)",
+        "99614720B -> ack:99614720 (360 ms)"
+      ]
+    }
+  },
+  "runs": [
+    {
+      "name": "new-suites-on-unchanged-product",
+      "command": [
+        "npx",
+        "jest",
+        "--ci",
+        "--coverage=false",
+        "--watchAll=false",
+        "--json",
+        "--outputFile",
+        "B1-RED-new-suites.json",
+        "src/lib/api/__tests__/sameHostGuard.test.ts",
+        "src/__tests__/api/sameHostGuard.routes.test.ts"
+      ],
+      "queue": "heavy-run lane api-impl-red, class jest, Node 22.22.0",
+      "exit": 1,
+      "json": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\B1-RED-new-suites.json",
+        "bytes": 934902,
+        "sha256": "e7b29b0d0df6e44ba54b40a397d37340964fe9dc8b19cc24328fb10b0e5efe54",
+        "mtime": "2026-10-29T16:50:09.031Z"
+      },
+      "log": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\B1-RED-new-suites.log",
+        "bytes": 343718,
+        "sha256": "f011c401bfdd7b487c30ce585e44447baa5fed9615f8d9fa17d54849b55ebfc7",
+        "mtime": "2026-10-29T16:50:09.032Z"
+      },
+      "state": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\B1-red-state.log",
+        "bytes": 497,
+        "sha256": "9cf6482c44591a06f2d723bc6160cdc951a3f75d14009dc00a9bd23308d5a23c",
+        "mtime": "2026-10-29T16:48:28.750Z"
+      }
+    }
+  ],
+  "counts": {
+    "suites": 2,
+    "suitesFailed": 2,
+    "runtimeErrorSuites": 1,
+    "tests": 610,
+    "passed": 231,
+    "failed": 379,
+    "behaviouralRed": 367,
+    "notCountedAsRed": 12,
+    "notCountedRows": {
+      "KDF rate-limit exhaustion (429) from earlier unrefused attack rows": 2,
+      "missing-export (validator assertSameHostGuard not exported; empty output)": 10
+    },
+    "suiteLevelLoadFailures": 1
+  },
+  "classification": {
+    "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\B1-RED-classification.json",
+    "bytes": 2178,
+    "sha256": "7fe8d7772cab3b568b33f027ed929cfe0306325f0c863af61a7a1d1a2cc6a166",
+    "mtime": "2026-10-29T16:50:19.263Z"
+  },
+  "failures": {
+    "behaviouralByGroup": [
+      [
+        "credential routes",
+        35
+      ],
+      [
+        "server.js entry",
+        328
+      ],
+      [
+        "server.js without",
+        2
+      ],
+      [
+        "server.js when",
+        2
+      ]
+    ],
+    "guardUnitSuite": "does not load: Could not locate module @/lib/api/sameHostGuard (the guard is absent on the unchanged product). Its tests are GREEN-only characterization and are not counted as RED."
+  },
+  "mechanism": "The product has no src/lib/api/sameHostGuard.ts. server.js neither guards /api requests and upgrades nor caps frames, and the three credential routes do not refuse before parsing a body or running a KDF.",
+  "scope": "Registered G-ASH1 RED on the unchanged implementation base at the final test-file hashes. The historical expectation (343 failed / 209 passed of 552) described an earlier test revision and is superseded by these counts; it is not relabelled as this result.",
+  "disclosures": [
+    "No separate RED commit exists. The repository pre-commit hook runs a project-wide typecheck (lint-staged: npm run typecheck), which cannot pass while the tests import the absent guard module. Hooks were not skipped. RED was run with the two test files staged but uncommitted on the unchanged product bytes, then tests and implementation were committed together. The owner accepted this deviation from the registered redPlan order on 2026-10-29.",
+    "The first GREEN attempt ran nothing because its script omitted the heavy-run --class flag (exit 64). It is preserved under impl/attempt1 and green-status-attempt1-missing-class.log; the rerun is run-green2.sh."
+  ]
+}

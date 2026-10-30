@@ -1,0 +1,715 @@
+{
+  "unit": "API-SAME-HOST-1",
+  "stage": "local",
+  "verdict": "PASS_REVIEW_REQUIRED",
+  "at": "2026-10-29T17:32:17.009Z",
+  "baseline": "28e17b829ebdb03aca4634ca67fd8b798c7c35ca",
+  "head": "6592181e901bd3fb317689846fbb1c46c3271110",
+  "implementation": "One guard (src/lib/api/sameHostGuard.ts) owns the Host/Origin/Sec-Fetch-Site rule. server.js applies it in front of Next to every /api request and every upgrade and fails startup if the guard or tsx cannot load; the token, unlock and local-seats routes call it before parsing a body or running a KDF; both WebSocket channels accept at most 1 MiB per frame; the packaged-socket validator gains same-host rows. The guard errs toward guarding: encoded, dot-segment, backslash and upper-case spellings of /api and undecodable targets count as API routes; it has four readings (fully decoded, decoded URL-parsed pathname, raw prefix, URL-parsed prefix).",
+  "candidate": {
+    "freeze": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\frozen-r3",
+    "freezeSha256SumsSha256": "d9a859a863da8137e1825e049841a6d9eebe02be416b8e096ceb4d02bc8a3980",
+    "supersedes": "frozen-20261028-f1 (registered in the admission) and frozen-r2 (qualification r2). Both are preserved.",
+    "leaves": [
+      {
+        "path": "server.js",
+        "sha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa",
+        "bytes": 34597,
+        "changedFromR2": false
+      },
+      {
+        "path": "scripts/validate-multiplayer-packaged-socket.mjs",
+        "sha256": "1db6583da791833c0610ab9d4e9ebeeb2668f5afbd39d1c1bfcd6db6e4e75fd8",
+        "bytes": 29931,
+        "changedFromR2": false
+      },
+      {
+        "path": "src/lib/api/sameHostGuard.ts",
+        "sha256": "9762ced0dfe0270888bdc9816761e8e760858220d99b442fb31fd2206eedeb55",
+        "bytes": 6609,
+        "changedFromR2": true
+      },
+      {
+        "path": "src/lib/api/__tests__/sameHostGuard.test.ts",
+        "sha256": "46655d620009112c2b382c388809b8b2271b661caab3194ce8a24e52248f2bf8",
+        "bytes": 9781,
+        "changedFromR2": true
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/local-seats.ts",
+        "sha256": "fbf445d917e98b1f415200ebbcf9f2ea124dbfd9ba6e0cd0c121cbe9da9ba0d4",
+        "bytes": 2775,
+        "changedFromR2": false
+      },
+      {
+        "path": "src/pages/api/multiplayer/auth/token.ts",
+        "sha256": "c4ad7a093e75d7749d31f539bccfd502ed78b12aaf2abf3ec276d554382ba11a",
+        "bytes": 6088,
+        "changedFromR2": false
+      },
+      {
+        "path": "src/pages/api/vault/identity/unlock.ts",
+        "sha256": "42ec4b3a06a1b94942727a2579f56757d25b78993a78dfd010def0af7d735a0b",
+        "bytes": 2611,
+        "changedFromR2": false
+      },
+      {
+        "path": "src/__tests__/api/sameHostGuard.routes.test.ts",
+        "sha256": "3300c125fcfeb4006277e565d7ef33dfb2bce02a38c91ce3192d704df96e0ef7",
+        "bytes": 37048,
+        "changedFromR2": true
+      },
+      {
+        "path": "src/__tests__/api/securityBoundary.test.ts",
+        "sha256": "88213ddf2553da40c81bf16692c4f7ce959eb83b3ed570531f569d61b9e193df",
+        "bytes": 21298,
+        "changedFromR2": false
+      },
+      {
+        "path": "src/__tests__/api/vault/unlock.test.ts",
+        "sha256": "5d60696d5f8d99629a9a57fa46f02abbde793fad4010ff0e2df686beb83cb1e5",
+        "bytes": 7470,
+        "changedFromR2": false
+      }
+    ],
+    "erratum": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\frozen-r3-post-freeze\\ERRATUM.md",
+      "bytes": 4675,
+      "sha256": "dc6e9c2bebf8f472ba01512f576abba8b0046fc3f73f522756db00040d27927b",
+      "mtime": "2026-10-29T16:01:23.408Z"
+    },
+    "ownerRulingN4": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\frozen-r3-post-freeze\\OWNER-RULING-N4.md",
+      "bytes": 1289,
+      "sha256": "cd05da75640c80001e9281eb5ca01bd809f9a81be7c98c4d03127940ca9b6235",
+      "mtime": "2026-10-29T16:42:39.566Z"
+    }
+  },
+  "runs": {
+    "node": "v22.22.0",
+    "head": "6592181e901bd3fb317689846fbb1c46c3271110",
+    "queue": "every Jest, build-class and mutation command ran through E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs at the delivery worktree root",
+    "rows": [
+      {
+        "name": "green-new-suites",
+        "command": [
+          "npx",
+          "jest",
+          "--ci",
+          "--coverage=false",
+          "--watchAll=false",
+          "--json",
+          "src/lib/api/__tests__/sameHostGuard.test.ts",
+          "src/__tests__/api/sameHostGuard.routes.test.ts"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\C1-GREEN-new-suites.log",
+          "bytes": 478,
+          "sha256": "87a34c218e3b9f80f3e89289cbee8048591700c14670a599dd07a90ef599fd73",
+          "mtime": "2026-10-29T16:51:01.798Z"
+        },
+        "json": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\C1-GREEN-new-suites.json",
+          "bytes": 302409,
+          "sha256": "6efe698144c85c06fc13dcaee67f9c0f9430f785b9d68467b07b21b483fcc99d",
+          "mtime": "2026-10-29T16:51:01.798Z"
+        }
+      },
+      {
+        "name": "existing-suites-without-fixes",
+        "command": [
+          "npx",
+          "jest",
+          "--ci",
+          "--coverage=false",
+          "--watchAll=false",
+          "--json",
+          "--runTestsByPath",
+          "src/__tests__/api/localSeatCredentials.test.ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/__tests__/api/vault/unlock.test.ts"
+        ],
+        "exit": 1,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\C2-existing-WITHOUT-fixes.log",
+          "bytes": 12195,
+          "sha256": "34dcd60d0a16d1753337aebcc1d76aca7f8adaac5f21dc6aaf0439323c891fb6",
+          "mtime": "2026-10-29T16:53:04.111Z"
+        },
+        "json": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\C2-existing-WITHOUT-fixes.json",
+          "bytes": 53881,
+          "sha256": "f7e84558099450cd3698d4b633de8ca94915997d4f7daaafab3c29db799407de",
+          "mtime": "2026-10-29T16:53:04.110Z"
+        },
+        "note": "patch 03 reversed for this run only and reapplied; expected incompatible Host fixtures"
+      },
+      {
+        "name": "existing-suites-with-fixes",
+        "command": [
+          "npx",
+          "jest",
+          "--ci",
+          "--coverage=false",
+          "--watchAll=false",
+          "--json",
+          "--runTestsByPath",
+          "src/__tests__/api/localSeatCredentials.test.ts",
+          "src/__tests__/api/securityBoundary.test.ts",
+          "src/__tests__/api/vault/unlock.test.ts"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\C4-existing-WITH-fixes.log",
+          "bytes": 3580,
+          "sha256": "24ee600477f81bfa4920c87d951c68a689fb0902a88922528656541a9738d192",
+          "mtime": "2026-10-29T16:51:12.093Z"
+        },
+        "json": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\C4-existing-WITH-fixes.json",
+          "bytes": 31496,
+          "sha256": "4ee4b5cb9a09f9f6107084daeb5d1628158a90d709ea31446e3efb04a586bf86",
+          "mtime": "2026-10-29T16:51:12.093Z"
+        }
+      },
+      {
+        "name": "neighbours",
+        "command": [
+          "npx",
+          "jest",
+          "--ci",
+          "--coverage=false",
+          "--watchAll=false",
+          "--json",
+          "--runTestsByPath",
+          "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts",
+          "src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts",
+          "src/lib/multiplayer/__tests__/socketCredentialProtocol.test.ts",
+          "src/lib/testing/__tests__/faultControlsStartup.test.ts",
+          "scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts",
+          "src/__tests__/api/vault/identity.test.ts",
+          "src/__tests__/api/vault/sign.test.ts"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\D1-neighbours.log",
+          "bytes": 7094,
+          "sha256": "2d91c8e3311006f251ad4afa2f064b8413124cadefddcfd458773bf6b03e9f74",
+          "mtime": "2026-10-29T16:51:31.055Z"
+        },
+        "json": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\D1-neighbours.json",
+          "bytes": 24273,
+          "sha256": "e2c054362d4d5bd669241d414c367dbc55dcbc662bffbd2c26eee0dd655e8d61",
+          "mtime": "2026-10-29T16:51:31.054Z"
+        }
+      },
+      {
+        "name": "format-and-lint",
+        "command": [
+          "node",
+          "node_modules/oxfmt/bin/oxfmt",
+          "--check",
+          "--config",
+          ".oxfmtrc.json",
+          "<ten leaves>",
+          ";",
+          "node",
+          "node_modules/oxlint/bin/oxlint",
+          "<ten leaves>"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\E1-fmt-lint-impl.log",
+          "bytes": 1325,
+          "sha256": "1a2b89c6be714667e27905153b2fa3984edbbfba5dcba94826f89004d291eb17",
+          "mtime": "2026-10-29T16:53:16.118Z"
+        }
+      },
+      {
+        "name": "next-typegen",
+        "command": [
+          "npx",
+          "next",
+          "typegen"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\E2-next-typegen.log",
+          "bytes": 59,
+          "sha256": "adba4af9194e10e47dda75ff0fd0f8c2b756474896d0eba5612799c527ff372a",
+          "mtime": "2026-10-29T16:53:23.364Z"
+        }
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\E3-typecheck.log",
+          "bytes": 174,
+          "sha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c",
+          "mtime": "2026-10-29T16:53:24.996Z"
+        }
+      },
+      {
+        "name": "lint-units",
+        "command": [
+          "npm",
+          "run",
+          "lint:units"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\E4-lint-units.log",
+          "bytes": 355,
+          "sha256": "3ceda228eea1861eed6aca0139a0ef55bec205e159ef7a5730d09ce2b3200863",
+          "mtime": "2026-10-29T16:54:54.555Z"
+        }
+      },
+      {
+        "name": "npm-ci",
+        "command": [
+          "npm",
+          "ci"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\A2-npm-ci.log",
+          "bytes": 1201,
+          "sha256": "78d850623b2db428805437f32d6f17fc497043d721b35987edf15ee9778ca25a",
+          "mtime": "2026-10-29T16:45:54.473Z"
+        }
+      },
+      {
+        "name": "roadmap-plain",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\F1-validate-plain.log",
+          "bytes": 76,
+          "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
+        },
+        "scope": "Inherited completed lifecycle-draft validation; source/test bytes match the implementation commit. Final lifecycle checks repeat before publication."
+      },
+      {
+        "name": "roadmap-git",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--git"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\F2-validate-git.log",
+          "bytes": 2354,
+          "sha256": "f59673ded1d44592452fcc673053ce97defdaae41b54058e4c4ce1e467a8b726"
+        },
+        "scope": "Inherited completed lifecycle-draft validation; source/test bytes match the implementation commit. Final lifecycle checks repeat before publication."
+      },
+      {
+        "name": "roadmap-github",
+        "command": [
+          "node",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+          "--github"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\F3-validate-github.log",
+          "bytes": 76,
+          "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
+        },
+        "scope": "Inherited completed lifecycle-draft validation; source/test bytes match the implementation commit. Final lifecycle checks repeat before publication."
+      },
+      {
+        "name": "validator-and-v220-tests",
+        "command": [
+          "node",
+          "--test",
+          "scripts/__tests__/v220-format.test.mjs",
+          "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+          "scripts/__tests__/v220-steps.test.mjs",
+          "scripts/__tests__/v220-evidence.test.mjs"
+        ],
+        "exit": 0,
+        "log": {
+          "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\F4-validator-and-v220-tests.log",
+          "bytes": 36200,
+          "sha256": "aa3ec8a3df899279793d68d205cc1db70959ab46e400040f1dc088601b1bf66e"
+        },
+        "scope": "Inherited completed lifecycle-draft validation; source/test bytes match the implementation commit. Final lifecycle checks repeat before publication."
+      }
+    ]
+  },
+  "counts": {
+    "newSuites": {
+      "suites": 2,
+      "suitesFailed": 0,
+      "runtimeErrorSuites": 0,
+      "tests": 722,
+      "passed": 722,
+      "failed": 0
+    },
+    "existingSuites": {
+      "suites": 3,
+      "suitesFailed": 0,
+      "runtimeErrorSuites": 0,
+      "tests": 75,
+      "passed": 75,
+      "failed": 0
+    },
+    "existingSuitesWithoutFixes": {
+      "suites": 3,
+      "suitesFailed": 2,
+      "runtimeErrorSuites": 0,
+      "tests": 75,
+      "passed": 61,
+      "failed": 14
+    },
+    "neighbours": {
+      "suites": 7,
+      "suitesFailed": 0,
+      "runtimeErrorSuites": 0,
+      "tests": 60,
+      "passed": 60,
+      "failed": 0
+    }
+  },
+  "mutants": {
+    "runner": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\frozen-r3\\evidence\\qualification-r4\\tools\\run-mutants-r5.cjs",
+      "bytes": 18989,
+      "sha256": "dd88c856b7026f7cd37c7f06d10365b8219f889ad05cb9e6205bbdf1726d93d4",
+      "mtime": "2026-10-29T15:48:48.632Z"
+    },
+    "matchers": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\frozen-r3\\evidence\\qualification-r4\\tools\\intended-matchers.json",
+      "bytes": 10879,
+      "sha256": "22e9ed1e8daa96436267d27b6c1f8acf7df6e787f73fbf61d03ade886341acdb",
+      "mtime": "2026-10-29T15:48:48.630Z"
+    },
+    "identities": 55,
+    "distinctEdits": 53,
+    "note": "G25/S16 and G19/S14 are one edit each, observed through two suites.",
+    "verdicts": {
+      "KILLED": 55
+    },
+    "ranOnHead": "6592181e901bd3fb317689846fbb1c46c3271110",
+    "results": [
+      {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\mutants\\G\\results.json",
+        "bytes": 87452,
+        "sha256": "59cf59f432f859be3f18f949d70653ba56479eb5f7bc59fb744792d722912aae",
+        "mtime": "2026-10-29T16:57:26.849Z"
+      },
+      {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\mutants\\S\\results.json",
+        "bytes": 66884,
+        "sha256": "10f23d0dc046d7c51bdad30c32bd672feee1fc567a9504396cea5bf0631cf1c8",
+        "mtime": "2026-10-29T17:00:56.536Z"
+      },
+      {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\mutants\\VR\\results.json",
+        "bytes": 51854,
+        "sha256": "6e706b0132d9d3dbbc91fd5fab161b275361fa1ccae60c0ddebb4e21919315f9",
+        "mtime": "2026-10-29T17:01:53.658Z"
+      }
+    ],
+    "treeCleanBeforeAndAfter": true,
+    "executor": "Claude Sonnet 5.5, under the owner ruling recorded in ownerRulingN4",
+    "perRunByteBinding": {
+      "summary": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\bound-mutations-root\\SUMMARY.json",
+        "bytes": 1505,
+        "sha256": "7cbed643170dc6ef9f027ee1397f5a8e63708005e6ecf57d088b2a7bcfc9e570"
+      },
+      "results": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\bound-mutations-root\\results.json",
+        "bytes": 410577,
+        "sha256": "fc5f9970e1cc34c7596f60276c440a327139356d838426ac52c0a6d3a33b7104"
+      },
+      "driver": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\resume-bound-mutations.cjs",
+        "bytes": 4702,
+        "sha256": "1bbb56c0228e540b10f4191f745e8c8fcd4211ab4dc2c7981cb117d897c5ba70"
+      },
+      "executor": "gpt-6-astra",
+      "authorization": "Current owner-authorized Root continuation after provider handoff; historical Claude runs remain unchanged. This supplemental execution closes review B6, not a claim that Claude performed these new runs.",
+      "method": "55 serial bounded children; one unchanged frozen recipe per child. All ten manifest leaves rehashed before and after each run. Every child has an intended matcher failure, original/mutated/restored hashes, command, times and source head. No source/test byte changed between runs.",
+      "result": "55/55 killed; ten leaf hashes equal frozen-r3 before and after each child.",
+      "interruption": {
+        "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\bound-mutations-root\\tool-host-interruption\\INCIDENT.json",
+        "bytes": 960,
+        "sha256": "b399c9842e1ebfc24353ac4ee4ce6c4ba01f2dafa05b9579f84f5b1976cecf70"
+      },
+      "interruptionDisclosure": "The tool host closed during S7 after 31 completed cases. No runner remained. The exact stranded S7 server bytes and original driver were preserved; Root matched them to the existing S7 recipe and restored all ten manifest leaves. S7 was not counted from that interrupted attempt. It and the remaining 23 cases ran afterward with fresh per-run bindings.",
+      "lifecycleState": "The five pending lifecycle files were present during this supplemental run. The original implementation-run clean-tree claim belongs to the preserved Claude run. This rerun binds the ten product/test leaves to source commit 6592181e9, not a clean full worktree."
+    }
+  },
+  "manifest": {
+    "files": [
+      "server.js",
+      "scripts/validate-multiplayer-packaged-socket.mjs",
+      "src/lib/api/sameHostGuard.ts",
+      "src/lib/api/__tests__/sameHostGuard.test.ts",
+      "src/pages/api/multiplayer/auth/local-seats.ts",
+      "src/pages/api/multiplayer/auth/token.ts",
+      "src/pages/api/vault/identity/unlock.ts",
+      "src/__tests__/api/sameHostGuard.routes.test.ts",
+      "src/__tests__/api/securityBoundary.test.ts",
+      "src/__tests__/api/vault/unlock.test.ts"
+    ]
+  },
+  "contributors": {
+    "form": "LEGACY (unversioned) local receipt. No version-2 implementationActors census and no reviewContractVersion are claimed.",
+    "why": "The version-2 census requires task_id matching st_ plus 8 hex digits and a UUID child_session_id. This executor runs under T3 Code and has no st_ task id; the roadmap validator refused the T3 identifiers it does observe (\"invalid identity fields: role, task_id, child_session_id, model\"). On 2026-10-29 the owner chose a legacy local receipt over a version-2 census with invented or mismatched ids. The refused attempt's validator output is preserved as impl/F1a-validate-plain-v2-census-refused.log.",
+    "legacyReviewRule": "The exact-head reviewer must be a different model from the implementer and from every finisher. Reviewers named by the owner: GPT-6.1 Sol (cross-model) and Claude Opus 5.5.",
+    "contributorModels": [
+      "claude-sonnet-5-5",
+      "gpt-6-astra"
+    ],
+    "delivering": {
+      "model": "anthropic/claude-sonnet-5-5",
+      "role": "implementer and finisher of the delivered commit; r4 candidate changes; all 55 mutation runs on this head",
+      "observedT3Thread": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+      "observedClaudeCodeSession": "b7130267-bde5-44be-aef3-5a5ac53ba2c9",
+      "note": "Observed from this executor's environment, not minted; recorded for provenance, not as a version-2 identity."
+    },
+    "prior": [
+      {
+        "model": "anthropic/claude-sonnet-5-5",
+        "role": "authored the F1 candidate (the registered source leaves) and its 52-mutant campaign, as a separate implementation sub-agent",
+        "identifiers": "not observable to this executor (see the admission receipt contributor block)"
+      },
+      {
+        "model": "gpt-6-astra",
+        "role": "Root: added six rows to the guard unit test (draft-r3), corrected G4 and executed G4/R5/R6 in the r2 qualification",
+        "identifiers": "not observable to this executor"
+      }
+    ],
+    "reviewersOfTheCandidateFreeze": "Opus 5.5 and GPT-6.1 Sol read frozen-r2 and frozen-r3 read-only and wrote reports; they edited no candidate or checkout and are not contributors.",
+    "continuation": {
+      "model": "gpt-6-astra",
+      "role": "Root continuation: audits inherited evidence; reruns unchanged mutations with explicit per-run source/test hashes; completes the five lifecycle files and PR delivery without changing product/test bytes",
+      "observedT3Thread": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+      "authorization": "Owner: Continue where you left off, after provider handoff. Earlier owner decisions authorizing the push/PR, legacy receipt and RED deviation remain in force.",
+      "identityLimit": "Actual T3 provenance only; not a version-2 engine observation."
+    }
+  },
+  "controls": {
+    "g_ash0": "The seven existing leaves are byte-identical to the 4149386c0 blobs and the three frozen patches apply to the frozen hashes on this base (verified before any commit).",
+    "preRed": "impl/B0-pre-red-repro-impl-base.log: rebinding Host read 200, cross-site urlencoded POST 200, encoded target 200, 95 MiB frame acknowledged, recorded in the red receipt.",
+    "committedBytes": "git show HEAD:<leaf> equals the frozen-r3 manifest hash for all ten leaves.",
+    "hooks": "The implementation commit ran the pre-commit hook (oxlint, oxfmt, full typecheck) and passed; no hook was skipped.",
+    "generatedFile": "next typegen modified next-env.d.ts; only that file was restored to HEAD.",
+    "resumedEvidenceAudit": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\resume-audit.json",
+      "bytes": 66598,
+      "sha256": "f1536fbd8adbdfd5b7de2e40f94f74f1f974f49114e926982f6276384cd9aa42"
+    },
+    "protectedReleaseProof": "All 22 frozen release-proof leaves rehashed unchanged on the implementation worktree during the Root continuation.",
+    "validatorTestExit": "The interrupted provider command completed with exit 0; its retained TAP reports 216/216 pass, 0 fail, cancelled or skipped.",
+    "validatorTestReuse": "The completed 216-test command is retained as proof of unchanged validator/test code. A queued duplicate was cancelled before its child started; final generated-page/plain/git/github checks were executed on the updated lifecycle records. No duplicate test run is claimed."
+  },
+  "limits": [
+    "Candidate-stage built-image proof (frozen-r3: two unflagged production builds, 56 raw-socket rows and 125 checks each, packaged validator ok) was taken on the scratch checkout at the qualification base, not on this branch. It is not exact-main proof; G-ASH6 is owed after merge.",
+    "On the built Next 16.2.11 image, encoded static spellings such as GET /api%2fhealth return Next's 404 page, not an API handler. The fourth reading is a conservative over-approximation, not a reproduced bypass. The probe stored about 160 characters per body, so \"404 page\" is inferred from the status and a Next-rendered HTML page. next dev was not probed.",
+    "Known comment error carried from the Opus review (B1): the comment above the new URL(...) line in sameHostGuard.ts says collapsing leading slashes keeps //x from being read as an authority; collapsing changes no result. It was not edited, to keep the reviewed bytes.",
+    "The differential's 204 \"misses\" for the r2 guard are an over-approximate model; the built server answers those targets with 404. The 262 over-guarded page rows hold for the test corpus only.",
+    "The five N1 server-entry rows run under the existing title \"the dynamic-route target\" although they cover static routes.",
+    "The 12 RED rows not counted (10 validator rows on a missing export, 2 on KDF 429) follow the registered LSC-2O rule.",
+    "The HTML and _next reads, bare dev:e2e bypass and no-Origin/no-Fetch-Metadata admission remain the disclosed limits of the registered unit.",
+    "Still owed: required CI, independent exact-head implementation reviews, head-bound sensitive-packet owner ruling, guarded merge and every G-ASH6 exact-main proof. Candidate reviews do not satisfy implementation-head review.",
+    "The preserved candidate erratum says Opus withdrew N1 after testing end to end. More precisely, Opus inspected the executor-recorded built probes and installed Next source; the reviewer did not launch those servers. The executed runtime proof belongs to the qualification executor.",
+    "Mutation recipes and intended-test labels are inherited from the reviewed freeze, including the disclosed historical G4 recipe and G9 label corrections. This receipt does not claim every label was defined before any earlier observation."
+  ],
+  "finalizedAt": "2026-10-29T18:36:44.678823+00:00",
+  "implementerModel": "claude-sonnet-5-5",
+  "finisherModel": "gpt-6-astra",
+  "ownerDecisions20261029": {
+    "thread": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+    "legacyLocalReceipt": {
+      "answer": "Legacy local receipt (Recommended)",
+      "activityPosition": 1181,
+      "effect": "Unversioned local receipt with disclosed contributors; independent exact-head review must use a different model from every implementer/finisher. No version-2 identity proof claimed."
+    },
+    "redOrder": {
+      "answer": "Accept, disclose in red receipt (Recommended)",
+      "activityPosition": 1107
+    },
+    "pushAndPR": {
+      "answer": "Yes, push and open PR",
+      "activityPosition": 1107
+    },
+    "reviewers": {
+      "answer": "GPT-6.1 Sol (Recommended), Claude Opus 5.5",
+      "activityPosition": 1181
+    },
+    "notGranted": "These answers do not provide an implementation-head owner ruling or waive CI, exact-head review or exact-main proof.",
+    "fixtureScopeCorrection": {
+      "at": "2026-10-29T19:28:10.309599+00:00",
+      "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+      "answer": "Approve this one-file manifest correction (Recommended)",
+      "source": "Direct user response in the current conversation, 2026-10-29, approving the prepared #2385 scope correction.",
+      "scope": "Add only src/__tests__/api/vault/vault.test-helpers.ts to the effective frozen source/test manifest and valid Host headers to its five unlock fixtures. Use the existing V2.2.0-STEPS.md file-count exemption: 16 actual / 15 counted files, with the 29-PR budget unchanged. Apply and push the correction.",
+      "notGranted": "No implementation-head OWNER-RULING, CI/review waiver, merge permission beyond the existing guarded lifecycle, successor admission or Step 4 completion."
+    }
+  },
+  "finalLifecycleChecks": [
+    {
+      "name": "final-steps-check",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "scripts/qc/generate-v220-steps.mjs",
+        "--check"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/api-same-host-1-impl-20261029",
+      "startedAt": "2026-10-29T18:44:27.219Z",
+      "endedAt": "2026-10-29T18:44:27.318Z",
+      "exit": 0,
+      "error": null,
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\final-steps-check.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "final-roadmap-plain",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/api-same-host-1-impl-20261029",
+      "startedAt": "2026-10-29T18:44:27.320Z",
+      "endedAt": "2026-10-29T18:44:36.199Z",
+      "exit": 0,
+      "error": null,
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\final-roadmap-plain.log",
+      "bytes": 76,
+      "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
+    },
+    {
+      "name": "final-roadmap-git",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--git"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/api-same-host-1-impl-20261029",
+      "startedAt": "2026-10-29T18:44:36.199Z",
+      "endedAt": "2026-10-29T18:44:53.821Z",
+      "exit": 0,
+      "error": null,
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\final-roadmap-git.log",
+      "bytes": 2354,
+      "sha256": "f59673ded1d44592452fcc673053ce97defdaae41b54058e4c4ce1e467a8b726"
+    },
+    {
+      "name": "final-roadmap-github",
+      "command": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "--github"
+      ],
+      "cwd": "E:/Projects/Personal/MekStation-wt/api-same-host-1-impl-20261029",
+      "startedAt": "2026-10-29T18:44:53.821Z",
+      "endedAt": "2026-10-29T18:46:58.939Z",
+      "exit": 0,
+      "error": null,
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\api-same-host-recovery\\impl\\final-roadmap-github.log",
+      "bytes": 76,
+      "sha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
+    }
+  ],
+  "fixtureCorrection20261029": {
+    "at": "2026-10-29T19:41:16.955678+00:00",
+    "verdict": "PASS_REVIEW_REQUIRED",
+    "contributor": "gpt-6-astra",
+    "baseHead": "c8c4f224d9835fa7e436d0ce5930f7eb556f9498",
+    "scope": "Only five loopback Host fixture lines in src/__tests__/api/vault/vault.test-helpers.ts; the ten frozen-r3 source/test leaves are unchanged. The top-level head and original executions remain historical; this supplemental section binds the eleventh leaf by SHA-256. Fresh review binds the final implementation head.",
+    "ownerDecision": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/owner-decision.json",
+      "sha256": "5ba92d26335e749f060db4b155df0211cdaf35221453123ebbd84dc00ab79912",
+      "bytes": 1140
+    },
+    "effectiveSourceManifest": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/effective-source-manifest.json",
+      "sha256": "a51451312afc6ccb2e2dba010c0f5773363f4c5dbb1b1a593349975cd75d5413",
+      "bytes": 2840
+    },
+    "ciFailure": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/lint-test-diagnosis.json",
+      "sha256": "e34b1e075bdb020920c18ac66ac605c0b71155b5aeb3c07ad9935fb2ff67bf5e",
+      "bytes": 1002
+    },
+    "fixturePatch": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-proposal/vault-host-fixture.patch",
+      "sha256": "5cce0e26fa7c403ffaaee075cb6b5338c38986fe056fb0819962b7c209cd9f4a",
+      "bytes": 1408
+    },
+    "scratchRedGreen": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-proposal/results.json",
+      "sha256": "83dfb2a6a20682bf263e30ebc98c5941f1885c9421ab826a264f93d9adb683b8",
+      "bytes": 7024
+    },
+    "scratchLimits": "The scratch RED/GREEN runs add an external fixture root and module resolution to the repository unit project. RED repeats 5 failures/80 passes; GREEN passes 85/85. The branch run below uses the unmodified repository Jest configuration.",
+    "branchGreen": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/green-result.json",
+      "sha256": "94317befcd2da881c6387d62e683cd85a7567b0fcb6780be8b2627512e836cbd",
+      "bytes": 3970
+    },
+    "branchGreenRawJest": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/green-jest.json",
+      "sha256": "7255e92eec507735e6700ac6b1af8dbf7895e47cfea9e4527bfb0ef6761e5698",
+      "bytes": 43332
+    },
+    "branchGreenLog": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/green.log",
+      "sha256": "f0d219de171e675d27aed4bb9d0afe33c318128bbbc94d866cd0fccc4af0aa75",
+      "bytes": 2994
+    },
+    "branchRunner": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/run-green.cjs",
+      "sha256": "4cf708d8406d28230e8564bb81ba84162f29f4fd839239565c45ccc8d5e3e6b6",
+      "bytes": 2447
+    },
+    "branchCounts": {
+      "passed": 110,
+      "failed": 0,
+      "pending": 0,
+      "total": 110
+    },
+    "consumerCensus": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/api-same-host-recovery/impl/ci-2385/fixture-delivery/leaf-census.json",
+      "sha256": "64cf3cb5490277e1cda6d435ba3d58d25534c604c50fc609d838137098d3bf72",
+      "bytes": 13257
+    },
+    "originalEvidence": "Original 722/722, 75/75, 60/60, 55 mutations and 216 validator tests still bind their unchanged original source/test bytes. They are not rerun or relabelled as executions of the added comprehensive vault fixture.",
+    "reviews": "Sol approved c8c4f224d for implementation/local validation; Opus attempt on that head failed with Claude API rate limit reached. Try again later. Neither is an approval of the forthcoming head. Both requested exact-head reviews, required CI, owner ruling, guarded merge and G-ASH6 remain owed.",
+    "deliveryChecks": "Final formatting/lint, roadmap/generator checks, intact pre-commit typecheck and delivery diff/hashes are recorded externally beside this supplement before publication."
+  },
+  "sizingBeforeFixtureCorrection": {
+    "files": 15,
+    "countedAdded": 398,
+    "maxFiles": 15,
+    "maxCountedAdded": 500,
+    "method": "Manual actual proposed numstat plus both new receipts, using the validator exemptions and no deletion credit. Receipt/test lines are excluded from line count but included in file count. Recount the actual first-parent merge diff after merge."
+  },
+  "sizing": {
+    "actualFiles": 16,
+    "files": 15,
+    "countedAdded": 419,
+    "maxFiles": 15,
+    "maxCountedAdded": 500,
+    "fileExemption": "V2.2.0-STEPS.md only, ownerRuling20261024StepsPageFileCap plus the approved fixtureCorrection20261029",
+    "method": "Manual actual proposed numstat against origin/main, no deletion credit; test/evidence additions line-exempt but file-counted. Generated page additions still count. Final formatted diff and actual first-parent merge diff must be recounted."
+  }
+}
