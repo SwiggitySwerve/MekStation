@@ -104,7 +104,13 @@ cover full/compact status and odd-cruise new-unit templates.
 The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
 movement enhancements and aerospace thrust are distinct policies. Python BLK
 conversion already rounds upward; it retains its language-boundary expression.
-No copy of the old floor-based vehicle calculation remains in TypeScript.
+No copy of the old floor-based construction calculation remains. Two floors
+remain outside construction and are separate follow-ups: in-play flank after
+motive damage (`utils/gameplay/motiveDamage.ts:computeEffectiveMP`; the same
+base rule, since Tank.java:456 says flank follows reduced cruise through the
+upward-rounding `getRunMP`) and aerospace max thrust
+(`aerospace/thrustCalculations.ts`, a construction rule needing its own source
+check). ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
 Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
