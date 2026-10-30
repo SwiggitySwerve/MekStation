@@ -43,6 +43,65 @@ The system SHALL manage engine configuration and derive movement points.
 Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Engine.java:409-438`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/Engine.java#L409).
 
+### Requirement: BLK Format Parsing — Combat Vehicles
+
+The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
+
+#### Scenario: Basic combat vehicle parsing
+
+- **GIVEN** a BLK document with `mappedUnitType: UnitType.VEHICLE`
+- **WHEN** parsing the document
+- **THEN** the handler SHALL extract:
+  - Motion type from `document.motionType` (case-insensitive, default: Tracked)
+  - Cruise/Flank MP from `document.cruiseMP`
+  - Engine rating as `cruiseMP × tonnage`
+  - Armor array mapped to locations in the MegaMek BLK order: Front, Right, Left, Rear, Turret
+
+#### Scenario: Turret detection in BLK
+
+- **WHEN** parsing equipment locations
+- **THEN** the handler SHALL detect turrets from:
+  - Equipment in `Turret Equipment` or `Turret` location keys
+  - `turrettype` raw tag (values: `dual`, `chin`)
+- **AND** default turret type SHALL be Single if turret equipment exists
+
+#### Scenario: Vehicle special flags from raw tags
+
+- **WHEN** parsing raw BLK tags
+- **THEN** the handler SHALL extract boolean flags:
+  - `environmentalsealing` → `hasEnvironmentalSealing`
+  - `flotationhull` → `hasFlotationHull`
+  - `amphibious` → `isAmphibious`
+  - `trailerhitch` → `hasTrailerHitch`
+  - `trailer` → `isTrailer`
+- **AND** boolean parsing SHALL accept `true` or `1` (case-insensitive)
+
+#### Scenario: Equipment location normalization
+
+- **WHEN** parsing equipment from BLK location keys
+- **THEN** the handler SHALL normalize locations:
+  - `Front Equipment` / `Front` → VehicleLocation.FRONT
+  - `Left Equipment` / `Left Side` → VehicleLocation.LEFT
+  - `Right Equipment` / `Right Side` → VehicleLocation.RIGHT
+  - `Rear Equipment` / `Rear` → VehicleLocation.REAR
+  - `Turret Equipment` / `Turret` → VehicleLocation.TURRET (turret-mounted)
+  - `Body Equipment` / `Body` / default → VehicleLocation.BODY
+
+#### Scenario: Armor array order follows MegaMek
+
+- **GIVEN** the pinned `<armor>` blocks `20 46 10 12` (Maxim Flanker) and `16 10 10 8 2 16`
+  (Red Kite Attack VTOL, a VTOL)
+- **WHEN** the combat-vehicle and VTOL handlers parse them and `formatVehicleArmor` exports the results
+- **THEN** Maxim Flanker SHALL load Front 20, Right 46, Left 10, Rear 12
+- **AND** Red Kite SHALL load Rotor 2 and Turret 16 (VTOL order is Front, Right, Left, Rear, Rotor, Turret)
+- **AND** the export SHALL write the same order back, so a MegaMek load of an exported file keeps each side
+
+Order source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+[`Tank.java:123-130`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L123),
+[`BLKTankFile.java:195-200`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/loaders/BLKTankFile.java#L195),
+[`VTOL.java:79-80`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/VTOL.java#L79)
+and [`BLKVTOLFile.java:134-139`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/loaders/BLKVTOLFile.java#L134).
+
 ## ADDED Requirements
 
 ### Requirement: Installed combat-vehicle engine weight

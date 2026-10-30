@@ -10,7 +10,10 @@
 import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
-import { IBlkDocument } from '@/types/formats/BlkFormat';
+import {
+  BLK_VTOL_ARMOR_LOCATIONS,
+  IBlkDocument,
+} from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   IGroundMovement,
@@ -46,18 +49,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * VTOL armor location order for array parsing
- * VTOLs have: Front, Left, Right, Rear, Rotor
- */
-const VTOL_ARMOR_LOCATIONS = [
-  VTOLLocation.FRONT,
-  VTOLLocation.LEFT,
-  VTOLLocation.RIGHT,
-  VTOLLocation.REAR,
-  VTOLLocation.ROTOR,
-] as const;
 
 const VTOL_LOCATION_MAP: Record<string, VTOLLocation> = {
   front: VTOLLocation.FRONT,
@@ -175,7 +166,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       [VTOLLocation.BODY]: 0,
     };
 
-    VTOL_ARMOR_LOCATIONS.forEach((loc, index) => {
+    BLK_VTOL_ARMOR_LOCATIONS.forEach((loc, index) => {
       if (index < armor.length) {
         result[loc] = armor[index];
       }
