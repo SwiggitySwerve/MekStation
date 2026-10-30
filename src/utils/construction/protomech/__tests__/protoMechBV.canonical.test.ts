@@ -155,9 +155,9 @@ describe('calculateProtoMechBV - canonical proto fixtures', () => {
   it.each([
     ['Minotaur', minotaur, ProtoChassis.BIPED, 1.0],
     ['Satyr', satyr, ProtoChassis.BIPED, 1.0],
-    ['Sprite', sprite, ProtoChassis.GLIDER, 0.9],
-    ['Ares', ares, ProtoChassis.ULTRAHEAVY, 1.15],
-    ['Siren', siren, ProtoChassis.GLIDER, 0.9],
+    ['Sprite', sprite, ProtoChassis.GLIDER, 1.0],
+    ['Ares', ares, ProtoChassis.ULTRAHEAVY, 1.0],
+    ['Siren', siren, ProtoChassis.GLIDER, 1.0],
   ])(
     '%s computes a positive, finite final BV with expected chassis multiplier',
     (_name, unit, chassis, multiplier) => {
@@ -174,13 +174,14 @@ describe('calculateProtoMechBV - canonical proto fixtures', () => {
     expect(bv.weaponBV).toBeGreaterThan(0);
   });
 
-  it('Sprite (Glider) final BV reflects 0.9 multiplier vs an equivalent biped', () => {
+  it('Sprite keeps its native defensive adjustment without a final discount', () => {
     const bipedSprite = buildProto({
       ...sprite,
       chassisType: ProtoChassis.BIPED,
     });
     const bipedBV = calculateProtoMechBV(bipedSprite);
     const gliderBV = calculateProtoMechBV(sprite);
-    expect(gliderBV.final).toBeLessThanOrEqual(bipedBV.final);
+    expect(gliderBV.final).toBeGreaterThanOrEqual(bipedBV.final);
+    expect(gliderBV.final).toBe(gliderBV.baseBV);
   });
 });

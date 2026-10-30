@@ -3,7 +3,7 @@
  *
  * Covers:
  *   - Speed factor formula (`mp = runMP + round(max(jumpMP, 0) / 2)`)
- *   - Chassis multipliers (Glider 0.9, Ultraheavy 1.15, Biped/Quad 1.0)
+ *   - Neutral chassis summary for every ProtoMech chassis
  *   - Armor / structure coefficient application (2.5× / 1.5×)
  *   - Main gun weapons counted at full BV
  *   - Explosive penalty (15 BV per explosive mount)
@@ -25,7 +25,7 @@ import {
   getProtoChassisMultiplier,
 } from '@/utils/construction/protomech/protoMechBV';
 
-import { armor, buildProto } from './protoMechBV.test.helpers';
+import { armor, buildProto, mount } from './protoMechBV.test.helpers';
 
 // =============================================================================
 // calculateProtoSpeedFactor
@@ -59,49 +59,12 @@ describe('calculateProtoSpeedFactor', () => {
 // =============================================================================
 
 describe('getProtoChassisMultiplier', () => {
-  it('Glider → 0.9', () => {
-    expect(getProtoChassisMultiplier(ProtoChassis.GLIDER)).toBe(0.9);
-  });
-
-  it('Ultraheavy → 1.15', () => {
-    expect(getProtoChassisMultiplier(ProtoChassis.ULTRAHEAVY)).toBe(1.15);
-  });
-
-  it('Biped → 1.0', () => {
-    expect(getProtoChassisMultiplier(ProtoChassis.BIPED)).toBe(1.0);
-  });
-
-  it('Quad → 1.0', () => {
-    expect(getProtoChassisMultiplier(ProtoChassis.QUAD)).toBe(1.0);
-  });
-
-  /*
-   * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
-   *       — Scenario: Glider multiplier
-   *
-   * Pre-multiplier BV 280 × 0.9 = 252 exactly. This test asserts the spec's
-   * literal numeric result using the multiplier and the same rounding the
-   * calculator applies at its final step.
-   */
-  it('Glider: pre-multiplier BV 280 → final 252 (exact)', () => {
-    const multiplier = getProtoChassisMultiplier(ProtoChassis.GLIDER);
-    expect(multiplier).toBe(0.9);
-    // The calculator's final step is Math.round(baseBV × chassis × pilot).
-    // With baseline pilot (1.0) this reduces to Math.round(280 × 0.9).
-    expect(Math.round(280 * multiplier * 1.0)).toBe(252);
-  });
-
-  /*
-   * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
-   *       — Scenario: Ultraheavy multiplier
-   *
-   * Pre-multiplier BV 600 × 1.15 = 690 exactly.
-   */
-  it('Ultraheavy: pre-multiplier BV 600 → final 690 (exact)', () => {
-    const multiplier = getProtoChassisMultiplier(ProtoChassis.ULTRAHEAVY);
-    expect(multiplier).toBe(1.15);
-    expect(Math.round(600 * multiplier * 1.0)).toBe(690);
-  });
+  it.each(Object.values(ProtoChassis))(
+    '%s has no generic chassis multiplier',
+    (chassis) => {
+      expect(getProtoChassisMultiplier(chassis)).toBe(1);
+    },
+  );
 });
 
 // =============================================================================
@@ -159,24 +122,27 @@ describe('calculateProtoMechBV — defensive BV', () => {
 // =============================================================================
 
 describe('calculateProtoMechBV — offensive BV', () => {
-  it('no equipment → weaponBV 0, physicalBV = tonnage', () => {
+  it('no equipment has zero weapon, physical and offensive BV', () => {
     const proto = buildProto({ tonnage: 5 });
     const bv = calculateProtoMechBV(proto);
     expect(bv.weaponBV).toBe(0);
-    expect(bv.physicalWeaponBV).toBe(5);
+    expect(bv.physicalWeaponBV).toBe(0);
+    expect(bv.offensiveBV).toBe(0);
   });
 
   it('speed factor applied to offensive total', () => {
-    // Explicit run 7, jump 4: pinned Java speed factor 1.50; local physical pool 5.
+    // Explicit Run 7, Jump 4: pinned Java speed factor 1.50.
     const proto = buildProto({
       tonnage: 5,
       walkMP: 6,
       runMP: 7,
       jumpMP: 4,
+      equipment: [mount('clan-er-ppc', ProtoLocation.MAIN_GUN, true)],
     });
     const bv = calculateProtoMechBV(proto);
     expect(bv.speedFactor).toBe(1.5);
-    expect(bv.offensiveBV).toBe(7.5);
+    expect(bv.weaponBV).toBeGreaterThan(0);
+    expect(bv.offensiveBV).toBe(bv.weaponBV * 1.5);
   });
 });
 
@@ -185,7 +151,7 @@ describe('calculateProtoMechBV — offensive BV', () => {
 // =============================================================================
 
 describe('calculateProtoMechBV — chassis multipliers', () => {
-  it('Glider applies 0.9× to base BV', () => {
+  it('Glider retains its defensive bonus without a summary discount', () => {
     const biped = buildProto({
       tonnage: 5,
       chassisType: ProtoChassis.BIPED,
@@ -203,17 +169,15 @@ describe('calculateProtoMechBV — chassis multipliers', () => {
     const gliderBV = calculateProtoMechBV(glider);
 
     expect(bipedBV.chassisMultiplier).toBe(1.0);
-    expect(gliderBV.chassisMultiplier).toBe(0.9);
-    // Compatibility only: the pre-existing final chassis multiplier is not
-    // supported by pinned MegaMek and remains outside this movement repair.
-    // Apply the multiplier to each chassis's own defensive/offensive base.
+    expect(gliderBV.chassisMultiplier).toBe(1);
+    // Chassis differences are already represented in the defensive factor.
     expect(gliderBV.defensiveFactor).toBe(1.5);
     expect(bipedBV.defensiveFactor).toBe(1.4000000000000001);
     expect(gliderBV.offensiveBV).toBe(bipedBV.offensiveBV);
-    expect(gliderBV.final).toBe(Math.round(gliderBV.baseBV * 0.9));
+    expect(gliderBV.final).toBe(gliderBV.baseBV);
   });
 
-  it('Ultraheavy applies 1.15× to base BV', () => {
+  it('Ultraheavy has no generic summary bonus', () => {
     const biped = buildProto({
       tonnage: 12,
       chassisType: ProtoChassis.BIPED,
@@ -231,8 +195,8 @@ describe('calculateProtoMechBV — chassis multipliers', () => {
     const uhBV = calculateProtoMechBV(uh);
 
     expect(bipedBV.chassisMultiplier).toBe(1.0);
-    expect(uhBV.chassisMultiplier).toBe(1.15);
-    expect(uhBV.final).toBeGreaterThanOrEqual(bipedBV.final);
+    expect(uhBV.chassisMultiplier).toBe(1);
+    expect(uhBV.final).toBe(bipedBV.final);
   });
 });
 

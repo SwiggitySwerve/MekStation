@@ -102,11 +102,9 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
     }
   }
 
-  // Physical attack bonus: small flat bonus equal to tonnage.
-  // Rationale (TechManual proto errata): protos inherit a weight-based
-  // physical attack contribution, matching the mech BV "weight bonus" term
-  // but scaled to proto combat (no TSM, no AES, no industrial bump).
-  const physicalWeaponBV = unit.tonnage;
+  // Pinned ProtoMekBVCalculator inherits the empty processWeight method.
+  // Keep the public breakdown field without inventing weight-only offense.
+  const physicalWeaponBV = 0;
 
   const speedFactor = calculateProtoSpeedFactor(unit.runMP, unit.jumpMP);
 
