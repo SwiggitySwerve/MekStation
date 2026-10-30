@@ -1,6 +1,6 @@
 import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
-import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
+import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import {
   normalizeEquipmentId,
   resolveEquipmentBV,
@@ -10,15 +10,14 @@ import { classifyEquipment } from './protoMechBVEquipment';
 /**
  * Compute the proto offensive speed factor.
  *
- * `mp = walkMP + round(jumpMP / 2)`
+ * `mp = runMP + round(max(jumpMP, 0) / 2)` (no UMU input for this contract).
  * `sf = round(pow(1 + (mp − 5) / 10, 1.2) × 100) / 100`
  */
 export function calculateProtoSpeedFactor(
-  walkMP: number,
+  runMP: number,
   jumpMP: number,
 ): number {
-  const mp = walkMP + Math.round(jumpMP / 2);
-  return calculateOffensiveSpeedFactorForMP(mp);
+  return calculateOffensiveSpeedFactor(runMP, jumpMP);
 }
 
 interface OffensivePieces {
@@ -109,7 +108,7 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
   // but scaled to proto combat (no TSM, no AES, no industrial bump).
   const physicalWeaponBV = unit.tonnage;
 
-  const speedFactor = calculateProtoSpeedFactor(unit.walkMP, unit.jumpMP);
+  const speedFactor = calculateProtoSpeedFactor(unit.runMP, unit.jumpMP);
 
   const weaponBV = rawWeaponBV;
   const offensiveBV =

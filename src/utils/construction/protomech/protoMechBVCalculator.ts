@@ -12,7 +12,7 @@
  *   - structureBV  = structurePoints × 1.5
  *   - defFactor    = 1 + (maxTMM / 10); TMM from run/jump using shared tables
  *   - speed factor = round(pow(1 + (mp − 5) / 10, 1.2) × 100) / 100,
- *                    mp = walkMP + round(jumpMP / 2)
+ *                    mp = runMP + round(max(jumpMP, 0) / 2)
  *   - Main gun weapons count at full BV, identical to a mech-mounted instance.
  *   - Physical attack bonus: small flat bonus per the ProtoMech errata
  *     (equal to tonnage − reflects low-damage proto punch).

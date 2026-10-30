@@ -4,6 +4,28 @@ This package owns ProtoMech construction calculations. Consumers use its public
 barrel. The engine-rating rule below is verified independently; other existing
 rules in this package do not acquire that verification by sharing an owner.
 
+## Offensive BV movement
+
+At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`battleValue/ProtoMekBVCalculator.java` inherits `BVCalculator`'s offensive
+speed factor and movement assembly. Its effective MP is Run plus rounded half
+the greater of Jump and UMU; the nearby upstream comment saying Walk is stale.
+The local ProtoMek contract has no UMU field, so its existing helper now takes
+explicit Run and Jump, using the shared movement owner with UMU zero. Negative
+Jump contributes zero, consistent with that owner and Java's component rule.
+
+The BV consumer uses `unit.runMP`, never reconstructs it from Walk or a booster
+flag, and never changes movement. Source handlers and store projections retain
+their existing movement ownership. New stores and BV-affecting edits compute
+the corrected factor. Existing saved movement and cached BV are not migrated;
+an explicit recompute or a BV-affecting mutation refreshes the saved breakdown.
+
+This verifies only the offensive movement factor on matching movement inputs.
+Equipment pools, physical bonuses, defensive movement, chassis multipliers,
+damage/options, UMU/mechanical jump equipment, complete BV and production
+editor/save workflows remain open. Nonfinite/fractional/out-of-range movement
+is not admitted as Java integer component parity by these comparisons.
+
 ## Engine rating
 
 Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
