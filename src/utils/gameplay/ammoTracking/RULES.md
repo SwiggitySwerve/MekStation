@@ -47,3 +47,27 @@ source loading. Three chemical lasers and the vehicle flamer still bypass the
 runner's depletion guard through its existing energy-name classifier; their live
 counts are covered but their firing parity remains open. Damage preview magnitude
 also remains unverified: rack-total damage can be multiplied by cluster hits.
+
+## Preview consumers
+
+The planning section uses that projection when `ammoState` is present; an
+absent bin-state field retains the legacy `ammo` map. An explicit empty bin
+state yields zero for counted weapons. The selector and forecast modal pass
+the projected count to `previewAttackOutcome` without adding damage rules.
+Missing counts stay undefined. Ammo-only updates invalidate selector previews.
+Both planning sections memoize projection by weapons, legacy ammo and live bin
+state. Unrelated renders reuse the map and the selector's preview results.
+
+The shared projection now includes unknown-capacity missiles as well as
+positive-capacity weapons. The selector and forecast modal show positive
+damage with supplied compatible whole rounds, zero with unavailable counts,
+and refresh after depletion or replenishment. Tests use real adapter SRM 1/3/5
+records and nominal LRM fixtures for the held catalog correction. Energy
+previews remain unchanged, and rendering invokes no attack callback.
+
+The current `CombatPlanningPanel` weapon-phase route returns null in favor of
+the attack intent composer. The Physical Attack route is live: its locked weapon
+list now shows current Ammo: N / No ammo badges. Component tests cover that
+display and stable projection; they do not prove a browser journey or the active
+weapon composer. A legacy -1 count on an ammo weapon reaches the preview owner
+unchanged and gives zero damage; no production writer of that sentinel is known.

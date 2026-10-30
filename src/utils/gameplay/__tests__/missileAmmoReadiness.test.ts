@@ -1,5 +1,16 @@
+import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
+
 import type { IWeapon, IAIUnitState } from '@/simulation/ai/types';
 
+import {
+  baseAttacker,
+  baseTarget,
+  mediumLaser,
+} from '@/components/gameplay/__tests__/addWhatIfToHitPreview.smoke.test-helpers';
+import { ToHitForecastModal } from '@/components/gameplay/ToHitForecastModal';
+import { WeaponSelector } from '@/components/gameplay/WeaponSelector';
 import { getWeaponData } from '@/engine/adapters/CompendiumAdapter.weaponData';
 import {
   ammoFromWeapons,
@@ -507,3 +518,106 @@ describe('engine and interactive-session live ammunition', () => {
     },
   );
 });
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/ammo-tracking/spec.md */
+describe.each(['selector', 'forecast'] as const)(
+  'strict missile ammunition in the real %s preview',
+  (surface) => {
+    const cases = [
+      ...['clan-srm-1', 'clan-srm-3', 'clan-srm-5'].map((id) => ({
+        label: id,
+        makeWeapon: () =>
+          extractWeapons([{ equipmentId: id }], 'preview-proto', {})[0],
+      })),
+      ...nativeRacks.map((rack) => ({
+        label: `pending native LRM ${rack}`,
+        makeWeapon: () => missile(rack),
+      })),
+    ];
+
+    it.each(cases)(
+      'updates $label from compatible bins without a combat action',
+      ({ makeWeapon }) => {
+        const weapon = makeWeapon();
+        expect(weapon).toBeDefined();
+        expect(weapon.ammoPerTon).toBe(-1);
+        const weapons = [weapon, mediumLaser];
+        const onToggle = jest.fn();
+        const onConfirm = jest.fn();
+        const onClose = jest.fn();
+        const project = (
+          remainingRounds: number,
+          weaponType = weapon.ammoWeaponType ?? weapon.name,
+        ) =>
+          ammoFromWeapons(weapons, {
+            bin: createAmmoBin({ binId: 'bin', weaponType, remainingRounds }),
+          });
+        const preview = (ammo: Record<string, number>) =>
+          surface === 'selector'
+            ? React.createElement(WeaponSelector, {
+                weapons,
+                rangeToTarget: 1,
+                selectedWeaponIds: [weapon.id],
+                ammo,
+                attacker: baseAttacker,
+                target: baseTarget,
+                previewEnabled: true,
+                onToggle,
+              })
+            : React.createElement(ToHitForecastModal, {
+                open: true,
+                attacker: baseAttacker,
+                target: baseTarget,
+                range: 1,
+                weapons: weapons.map((entry) => ({
+                  weaponId: entry.id,
+                  weaponName: entry.name,
+                  minRange: entry.minRange,
+                  shortRange: entry.shortRange,
+                  mediumRange: entry.mediumRange,
+                  longRange: entry.longRange,
+                })),
+                attackerWeapons: weapons,
+                previewEnabled: true,
+                ...{ ammo },
+                onConfirm,
+                onClose,
+              });
+        const prefix = surface === 'selector' ? 'weapon' : 'forecast';
+        const damage = (id: string) =>
+          Number(
+            screen.getByTestId(`${prefix}-preview-expdmg-${id}`).textContent,
+          );
+        const supplied = project(10);
+        expect(supplied[weapon.id]).toBe(10);
+        const { rerender } = render(preview(supplied));
+        expect(damage(weapon.id)).toBeGreaterThan(0);
+        const energyDamage = damage(mediumLaser.id);
+        expect(energyDamage).toBeGreaterThan(0);
+
+        for (const unavailable of [
+          project(0),
+          ammoFromWeapons(weapons, {}),
+          project(10, 'unrelated-ammo-family'),
+          project(0.5),
+          project(Infinity),
+          {},
+        ]) {
+          rerender(preview(unavailable));
+          expect(damage(weapon.id)).toBe(0);
+          expect(
+            screen.getByTestId(`${prefix}-preview-stddev-${weapon.id}`),
+          ).toHaveTextContent('0.0');
+          expect(damage(mediumLaser.id)).toBe(energyDamage);
+        }
+
+        rerender(preview(project(1)));
+        expect(damage(weapon.id)).toBeGreaterThan(0);
+        expect(damage(mediumLaser.id)).toBe(energyDamage);
+        expect(onToggle).not.toHaveBeenCalled();
+        expect(onConfirm).not.toHaveBeenCalled();
+        expect(onClose).not.toHaveBeenCalled();
+      },
+    );
+  },
+);

@@ -5,6 +5,7 @@ import {
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+export { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 import { logger } from '@/utils/logger';
 
@@ -78,8 +79,6 @@ const NON_WEAPON_MOUNT_PATTERN = /(^|[-_\s])ammo($|[-_\s])|heat[-_\s]?sink/i;
 function isNonWeaponMount(equipmentId: string): boolean {
   return NON_WEAPON_MOUNT_PATTERN.test(equipmentId);
 }
-
-export { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 
 function equipmentWeaponId(item: AdaptableEquipmentItem): string | undefined {
   const candidates = [

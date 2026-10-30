@@ -28,6 +28,16 @@ capacity, ammunition quantity or compatible bins.
 - **AND** live runner, engine and interactive-session projections SHALL use the same ammo identity as firing and consumption
 - **AND** an explicit firing mode's ammo-family selection SHALL retain precedence
 
+#### Scenario: Real preview consumers observe missile ammunition updates
+
+- **GIVEN** an unknown-capacity missile and live counts projected from compatible bins
+- **WHEN** the weapon selector or forecast modal renders a supplied weapon
+- **THEN** its expected damage SHALL be positive
+- **WHEN** only ammunition changes to depleted, empty, incompatible, fractional or nonfinite state
+- **THEN** both consumers SHALL show zero mean damage and variance
+- **AND** replenishing compatible whole rounds SHALL restore the supplied preview
+- **AND** absent counts SHALL remain unavailable, energy previews SHALL remain unchanged and rendering SHALL NOT commit an attack
+
 #### Scenario: Preserve distinct existing contracts before correction
 
 - **WHEN** repeated ammo-dependency and count checks and adapter projection are consolidated
