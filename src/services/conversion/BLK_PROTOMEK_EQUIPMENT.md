@@ -32,12 +32,17 @@ types still retain the actual source movement effect; legality is separate.
 
 ProtoMek equipment parsing preserves Unicode whitespace until native trimming:
 only boundary characters through U+0020 are removed, including for size values.
+CR, LF and CRLF separate physical lines before native comment filtering;
+Unicode-padded hashes remain equipment, including malformed suffixes.
+Family classification precedes legacy filtering even with late UnitType.
 Nonbreaking/ideographic spaces remain significant. Other families retain their
 existing parser behavior. Display-name folding admits long S and Kelvin sign;
 it does not fold those characters across registered aliases or expand ligatures.
 The same interpretation protects raw-state exports, preserving their bytes.
 Inline equipment tags and differently cased closing tags still differ from
-Java's line-based block reader; no general malformed-tag fidelity is claimed.
+Java's line-based block reader, as do Unicode tag names, Unicode padding
+before tags and spaces inside tags. Whitespace-only equipment lines may
+remain unresolved records locally; mount fidelity is unclaimed.
 
 Shot counts accept Java's BMP decimal digits, optional ASCII sign and values
 from zero to 2147483647, including signed zero. The digit ranges come from

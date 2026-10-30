@@ -11,10 +11,13 @@ export function trimBlkWhitespace(value: string): string {
   return value.replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
 }
 
-export function removeBlkComments(content: string): string {
+function removeBlkComments(content: string, native = false): string {
   return content
-    .split(/\r?\n/)
-    .filter((line) => !line.trim().startsWith('#'))
+    .split(native ? /\r\n|\r|\n/ : /\r?\n/)
+    .filter(
+      (line) =>
+        !(native ? trimBlkWhitespace(line) : line.trim()).startsWith('#'),
+    )
     .join('\n');
 }
 
@@ -25,7 +28,12 @@ export function isBlkEquipmentBlock(tagName: string): boolean {
 }
 
 export function extractBlkTags(content: string): BlkRawTags {
-  return readBlkTags(removeBlkComments(content));
+  // Classify before legacy preprocessing can discard native CR/Unicode lines.
+  const nativeTags = readBlkTags(removeBlkComments(content, true));
+  return mapBlkUnitType(getBlkString(nativeTags.UnitType) ?? '') ===
+    UnitType.PROTOMECH
+    ? nativeTags
+    : readBlkTags(removeBlkComments(content));
 }
 
 function readBlkTags(content: string): BlkRawTags {
@@ -54,9 +62,9 @@ function readBlkTags(content: string): BlkRawTags {
   ) {
     for (const [tag, text] of Object.entries(equipmentText)) {
       tags[tag] = text
-        .split(/\r\n|\r|\n/)
+        .split('\n')
         .map(trimBlkWhitespace)
-        .filter((line) => line.length > 0 && !line.startsWith('#'));
+        .filter((line) => line.length > 0);
     }
   }
   return tags;

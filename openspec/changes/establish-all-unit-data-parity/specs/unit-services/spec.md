@@ -181,6 +181,8 @@ semantics SHALL remain distinct from the movement effect.
 
 - **WHEN** ProtoMek equipment contains boundary controls, Unicode whitespace or Unicode display-name case variants
 - **THEN** parsing SHALL retain meaningful characters and interpretation SHALL use Java trimming and display-name matching
+- **AND** comment preprocessing SHALL recognize CR, LF and CRLF and apply native trimming before discarding ProtoMek lines, including when UnitType follows equipment
+- **AND** Unicode-padded hash entries SHALL remain equipment and malformed suffixes SHALL fail even before or after a valid booster
 - **AND** registered aliases SHALL retain their distinct lookup semantics, so `MAſC` matches but `CLMAſC` does not
 - **AND** a successful export SHALL preserve the same native booster effect; native-invalid size whitespace SHALL fail without content
 - **AND** other unit families SHALL retain their existing parser behavior
