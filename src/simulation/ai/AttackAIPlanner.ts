@@ -1,3 +1,7 @@
+import {
+  hasAmmoForAI,
+  isAmmoDependent,
+} from '@/utils/gameplay/ammoTracking/weapons';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 
@@ -128,12 +132,7 @@ export class AttackAI {
       if (weapon.destroyed) return false;
       if (distance > maximumWeaponRange(weapon)) return false;
 
-      if (weapon.ammoPerTon > 0) {
-        const ammoCount = attacker.ammo[weapon.id];
-        if (ammoCount !== undefined && ammoCount <= 0) {
-          return false;
-        }
-      }
+      if (!hasAmmoForAI(weapon, attacker.ammo[weapon.id])) return false;
 
       if (!weaponCanCoverArc(weapon, targetArc)) return false;
 
@@ -288,7 +287,7 @@ function defaultShotsPerTurn(weapon: IWeapon): number {
       modes.modes.find((m) => m.id === modes.defaultModeId) ?? modes.modes[0];
     return Math.max(1, def.shotsPerTurn);
   }
-  return weapon.ammoPerTon > 0 ? 1 : 0;
+  return isAmmoDependent(weapon) ? 1 : 0;
 }
 
 /**

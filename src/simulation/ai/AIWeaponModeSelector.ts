@@ -1,3 +1,4 @@
+import { isAmmoDependent } from '@/utils/gameplay/ammoTracking/weapons';
 /**
  * AI Weapon-Mode Selector — multi-mode weapon mode choice.
  *
@@ -97,7 +98,7 @@ function singleModeSelection(weapon: IWeapon): IWeaponModeSelection {
     effectiveDamage: weapon.damage,
     effectiveHeat: weapon.heat,
     // Energy weapons consume no ammo; ammo-dependent weapons fire one round.
-    effectiveShots: weapon.ammoPerTon > 0 ? 1 : 0,
+    effectiveShots: isAmmoDependent(weapon) ? 1 : 0,
   };
 }
 

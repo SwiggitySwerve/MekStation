@@ -1,3 +1,4 @@
+import { isAmmoDependent } from '@/utils/gameplay/ammoTracking/weapons';
 /**
  * AI Ammo Runway — turns-of-fire projection.
  *
@@ -58,15 +59,6 @@ export interface IAmmoRunway {
    * eligible.
    */
   readonly conservationWeight: number;
-}
-
-/**
- * True when a weapon draws on ammo. Mirrors the `AttackAI.selectWeapons`
- * eligibility check: `ammoPerTon > 0` marks an ammo-dependent weapon;
- * `ammoPerTon === -1` (or `0`) marks an energy weapon.
- */
-function isAmmoDependent(weapon: IWeapon): boolean {
-  return weapon.ammoPerTon > 0;
 }
 
 /**
