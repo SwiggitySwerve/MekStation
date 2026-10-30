@@ -10,6 +10,10 @@
 
 import { MovementType } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import {
+  calculateTMM as calculateValidationTMM,
+  getDefensiveSpeedFactor,
+} from '@/types/validation/BattleValue';
 import { calculateTMM as calculateGameplayTMM } from '@/utils/gameplay/toHit/movementModifiers';
 
 import {
@@ -219,4 +223,65 @@ describe('calculateOffensiveSpeedFactor (BV-2.0 formula)', () => {
     expect(sf).toBeLessThan(1.0);
     expect(sf).toBeGreaterThan(0);
   });
+});
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
+describe('legacy validation TMM compatibility', () => {
+  it.each([
+    [-Infinity, 0, 1.0],
+    [-1, 0, 1.0],
+    [-0, 0, 1.0],
+    [0, 0, 1.0],
+    [2, 0, 1.0],
+    [2.000000001, 1, 1.1],
+    [2.5, 1, 1.1],
+    [3, 1, 1.1],
+    [4, 1, 1.1],
+    [4.000000001, 2, 1.2],
+    [4.5, 2, 1.2],
+    [5, 2, 1.2],
+    [6, 2, 1.2],
+    [6.000000001, 3, 1.3],
+    [6.5, 3, 1.3],
+    [7, 3, 1.3],
+    [9, 3, 1.3],
+    [9.000000001, 4, 1.4],
+    [9.5, 4, 1.4],
+    [10, 4, 1.4],
+    [17, 4, 1.4],
+    [17.000000001, 5, 1.5],
+    [17.5, 5, 1.5],
+    [18, 5, 1.5],
+    [24, 5, 1.5],
+    [24.000000001, 6, 1.6],
+    [24.5, 6, 1.6],
+    [25, 6, 1.6],
+    [Infinity, 6, 1.6],
+    [NaN, 6, 1.6],
+  ])('preserves movement %s and its speed factor', (mp, tmm, factor) => {
+    expect(calculateValidationTMM(mp)).toBe(tmm);
+    expect(calculateValidationTMM(mp, -Infinity)).toBe(tmm);
+    expect(calculateValidationTMM(-Infinity, mp)).toBe(tmm);
+    expect(getDefensiveSpeedFactor(mp, -Infinity)).toBe(factor);
+    expect(getDefensiveSpeedFactor(-Infinity, mp)).toBe(factor);
+  });
+
+  it('selects the greater raw MP without a jump bonus', () => {
+    expect(calculateValidationTMM(0, 3)).toBe(1);
+    expect(calculateValidationTMM(3, 0)).toBe(1);
+    expect(getDefensiveSpeedFactor(0, 3)).toBe(1.1);
+    expect(calculateTMM(0, 3)).toBe(2);
+    expect(calculateValidationTMM(17, 24)).toBe(5);
+    expect(calculateValidationTMM(24, 17)).toBe(5);
+  });
+
+  it.each([0, -Infinity, Infinity, NaN])(
+    'retains NaN propagation through the raw maximum with %s',
+    (other) => {
+      expect(calculateValidationTMM(other, NaN)).toBe(6);
+      expect(calculateValidationTMM(NaN, other)).toBe(6);
+      expect(getDefensiveSpeedFactor(other, NaN)).toBe(1.6);
+      expect(getDefensiveSpeedFactor(NaN, other)).toBe(1.6);
+    },
+  );
 });

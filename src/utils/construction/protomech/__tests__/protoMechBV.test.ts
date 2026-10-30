@@ -204,6 +204,8 @@ describe('calculateProtoMechBV — chassis multipliers', () => {
 
     expect(bipedBV.chassisMultiplier).toBe(1.0);
     expect(gliderBV.chassisMultiplier).toBe(0.9);
+    // Compatibility only: the pre-existing final chassis multiplier is not
+    // supported by pinned MegaMek and remains outside this movement repair.
     // Apply the multiplier to each chassis's own defensive/offensive base.
     expect(gliderBV.defensiveFactor).toBe(1.5);
     expect(bipedBV.defensiveFactor).toBe(1.4000000000000001);

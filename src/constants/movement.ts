@@ -14,3 +14,11 @@ export const TMM_BRACKETS: readonly {
   { min: 18, max: 24, tmm: 5 },
   { min: 25, max: Infinity, tmm: 6 },
 ];
+
+/** Upper-bound BV lookup; NaN retains the historical final-bracket fallback. */
+export function getTMMByUpperBound(mp: number): number {
+  return (
+    TMM_BRACKETS.find((bracket) => mp <= bracket.max)?.tmm ??
+    TMM_BRACKETS[TMM_BRACKETS.length - 1].tmm
+  );
+}

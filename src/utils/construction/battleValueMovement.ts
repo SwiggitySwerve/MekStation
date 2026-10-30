@@ -1,4 +1,4 @@
-import { TMM_BRACKETS } from '@/constants/movement';
+import { getTMMByUpperBound } from '@/constants/movement';
 
 export const SPEED_FACTORS: Record<number, number> = {
   0: 1.0,
@@ -14,21 +14,13 @@ export const SPEED_FACTORS: Record<number, number> = {
   10: 2.0,
 };
 
-function mpToTMM(mp: number): number {
-  // Construction historically uses upper bounds only, including its NaN fallback.
-  return (
-    TMM_BRACKETS.find((bracket) => mp <= bracket.max)?.tmm ??
-    TMM_BRACKETS[TMM_BRACKETS.length - 1].tmm
-  );
-}
-
 export function calculateTMM(
   runMP: number,
   jumpMP: number = 0,
   runningBonus: number = 0,
 ): number {
-  const runTMM = mpToTMM(runMP) + runningBonus;
-  const jumpTMM = jumpMP > 0 ? mpToTMM(jumpMP) + 1 : 0;
+  const runTMM = getTMMByUpperBound(runMP) + runningBonus;
+  const jumpTMM = jumpMP > 0 ? getTMMByUpperBound(jumpMP) + 1 : 0;
   return Math.max(runTMM, jumpTMM);
 }
 

@@ -26,16 +26,23 @@ separate contracts; no whole-unit numerical parity follows from this refactor.
 
 ## Standard TMM thresholds
 
-`src/constants/movement.ts` owns the standard bracket table; the gameplay
-to-hit constants facade re-exports it. Construction applies upper bounds only,
-retaining negative/fractional/nonfinite behavior. Gameplay to-hit uses explicit
-lower and upper bounds with stationary/zero guards. Those input contracts are
-different and remain separate. The legacy gameplay `movement/modifiers.ts`
-ceil(distance/5) approximation is a different rule and is not corrected here.
+`src/constants/movement.ts` owns the standard bracket table and the pure
+`getTMMByUpperBound` selector. Construction and the legacy validation BV helper
+call that selector, retaining negative/fractional/nonfinite behavior. The
+validation helper in `src/types/validation/BattleValue.ts` first takes the
+greater raw Run/Jump MP, without a jump bonus. Either input being NaN retains
+TMM six; its `getDefensiveSpeedFactor` consumer is unchanged.
 
 Shared construction `calculateTMM` compares running TMM plus a caller-supplied
 bonus against positive-jump TMM plus one. Vehicle callers retain effective MP,
-submarine nullish overrides and the VTOL running bonus. Every former threshold
-copy now uses the shared table. The preserving extraction changes no numeric
-outputs; optional MaxTech movement brackets and invalid-input admission remain
-outside this default construction contract.
+submarine nullish overrides and the VTOL running bonus. Gameplay to-hit reads
+the same table through its constants facade, with explicit lower and upper
+bounds and stationary/zero guards. These different input contracts remain
+separate. The legacy gameplay `movement/modifiers.ts` ceil(distance/5)
+approximation is a different rule and is not corrected here.
+
+The preserving extraction changes no numeric outputs. Optional MaxTech
+movement brackets and invalid-input admission remain outside this default
+construction contract. Threshold ownership is checked by source inspection;
+behavior tests and before/after captures cover the retained caller policies,
+but no automated gate detects arbitrary future threshold copies.

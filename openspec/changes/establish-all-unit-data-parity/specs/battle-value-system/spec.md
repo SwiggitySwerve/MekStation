@@ -133,3 +133,13 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **THEN** component TMMs, the factor and its application SHALL be checked across boundaries, loaded synthetic entities and all 86 sources
 - **AND** unrelated family outputs, source fields, serialization and export bytes SHALL be preserved
 - **AND** fractional/nonfinite/negative movement, MaxTech options, full equipment pools, chassis multipliers, complete BV and production browser flows SHALL remain outside this component proof
+
+
+#### Scenario: Shared thresholds preserve legacy validation
+
+- **WHEN** standard TMM thresholds are consolidated
+- **THEN** the validation BV helper SHALL use the shared upper-bound lookup on the greater of raw Run and Jump, without adding the construction jump bonus
+- **AND** Run zero with Jump three SHALL remain TMM one and defensive speed factor 1.1
+- **AND** either input being NaN SHALL retain TMM six and defensive speed factor 1.6
+- **AND** negative, fractional, infinite and signed-zero inputs SHALL retain their prior results
+- **AND** construction and gameplay SHALL preserve their distinct guards and interval conventions
