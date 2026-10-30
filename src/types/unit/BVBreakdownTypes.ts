@@ -35,6 +35,7 @@ export interface IProtoMechBVBreakdown {
   readonly defensiveBV: number;
   readonly offensiveBV: number;
   readonly baseBV: number;
+  /** Neutral compatibility field: ProtoMechs have no generic chassis modifier. */
   readonly chassisMultiplier: number;
   readonly pilotMultiplier: number;
   readonly final: number;
@@ -47,6 +48,7 @@ export interface IProtoMechBVBreakdown {
 
   readonly weaponBV: number;
   readonly ammoBV: number;
+  /** Always zero: ProtoMech offense has no weight-only contribution. */
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;
   readonly speedFactor: number;

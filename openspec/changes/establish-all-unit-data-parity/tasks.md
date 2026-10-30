@@ -34,6 +34,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.12 Consolidate standard TMM thresholds, including the legacy validation raw-MP maximum without a jump bonus and the active BV script adapter with its inverse bracket minima, while preserving each caller contract, then correct ProtoMek/Glider defensive movement factors and verify native components, sources and store consumers. Preserve unrelated figures and saved movement; retain full-BV and production-flow gaps. (`battle-value-system`: ProtoMech Defensive BV)
 
+- [ ] 2.13 Remove unsupported ProtoMech weight/chassis BV adjustments and fix Piloting at 5 through the shared skill owner; verify seeded native components, simple loaded entities and saved-cache consumers, preserving source/export fields and retaining full-source equipment/BV gaps. (`battle-value-system`: ProtoMech Offensive BV and Main Gun; ProtoMech Chassis Multiplier; ProtoMech Gunnery Adjustment)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.01 Consolidate the ProtoMek BLK equipment projection without changing output, then reject flag/emitted-booster disagreement and unrepresentable equipment text without content or input mutation. Verify existing source export bytes and actual Java reload; production mount editing, arbitrary saved-flank export, complete equipment and BV remain open. (`unit-services`: ProtoMek booster export integrity)

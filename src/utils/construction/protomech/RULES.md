@@ -21,8 +21,7 @@ the corrected factor. Existing saved movement and cached BV are not migrated;
 an explicit recompute or a BV-affecting mutation refreshes the saved breakdown.
 
 This verifies only the offensive movement factor on matching movement inputs.
-Equipment pools, physical bonuses, defensive movement, chassis multipliers,
-damage/options, UMU/mechanical jump equipment, complete BV and production
+Equipment pools, damage/options, UMU/mechanical jump equipment, complete BV and production
 editor/save workflows remain open. Nonfinite/fractional/out-of-range movement
 is not admitted as Java integer component parity by these comparisons.
 
@@ -47,8 +46,32 @@ vehicle and gameplay behavior, including their different fractional/nonfinite
 contracts. Component parity covers nonnegative integer movement, undamaged
 default construction and the standard TMM table. The 86 native sources and
 synthetic loaded entities use matched native movement inputs. MaxTech options,
-negative/fractional/nonfinite movement, full equipment pools, chassis final
-multipliers, complete BV and production browser flows remain unverified.
+negative/fractional/nonfinite movement, full equipment pools, complete BV and
+production browser flows remain unverified.
+
+## BV weight, chassis and skill adjustments
+
+Pinned `ProtoMekBVCalculator` inherits the empty `BVCalculator.processWeight`,
+`processTypeModifier` and `processOffensiveTypeModifier` methods. There is no
+tonnage-only offensive term or generic Glider/Ultraheavy final multiplier.
+`physicalWeaponBV` remains exactly 0; `getProtoChassisMultiplier` and the
+breakdown's `chassisMultiplier` remain 1 for API compatibility. Chassis effects
+in structure, armor and defensive movement retain their own owners.
+
+`BVCalculator.bvMultiplier` fixes ProtoMek Piloting at 5. The existing shared
+skill table owns its values; this calculator supplies Gunnery (default 4) and
+fixed Piloting 5. The optional Piloting argument stays accepted but has no
+effect. The sum of defense and offense is rounded before applying the skill
+factor, then the final value is rounded. Point BV sums those final values.
+
+Saved cached breakdowns and movement remain untouched during hydration and
+identity edits. Existing recomputation and BV-affecting actions use these
+rules; this is not a save migration. The scoped evidence calls actual Java
+weight/type/summary/skill methods and compares simple unarmed loaded entities,
+including the zero-BV native booster. All 86 source fields, exports and
+unrelated components are preserved; their complete equipment-based BV remains
+unproven. This does not cover drones, force bonuses, implants, damage/options,
+full equipment resolution or production editor/save/browser workflows.
 
 ## Engine rating
 

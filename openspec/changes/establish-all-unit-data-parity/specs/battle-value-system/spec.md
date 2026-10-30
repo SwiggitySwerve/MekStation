@@ -47,6 +47,37 @@ Every applicable numerical construction/BV result and available component term S
 - **THEN** it SHALL include the upstream-supported reason
 - **AND** local unimplemented calculations SHALL remain failures rather than inapplicable results
 
+### Requirement: ProtoMech Gunnery Adjustment
+
+ProtoMech BV SHALL use the existing shared skill table with the requested
+Gunnery and fixed Piloting 5, matching pinned MegaMek's ProtoMech rule.
+The optional piloting input SHALL remain accepted for API compatibility but
+SHALL NOT affect ProtoMech BV. Omitted Gunnery SHALL mean 4.
+
+#### Scenario: Gunnery-only skill and rounding
+
+- **GIVEN** a ProtoMech with any Piloting from 0 through 8
+- **WHEN** Gunnery is 0, 2, 4 or 8
+- **THEN** its pilot factor SHALL be 1.75, 1.4, 1 or 0.75 respectively
+- **AND** final BV SHALL round the sum of defense and offense before applying the skill factor, then round the adjusted value
+- **AND** a zero base SHALL remain exactly zero
+- **AND** point aggregation SHALL apply this same rule to every member
+
+#### Scenario: Preserve saved caches until recomputation
+
+- **GIVEN** saved movement and a cached BV using previous weight, chassis or skill adjustments
+- **WHEN** hydration or identity edits occur
+- **THEN** cached values and movement SHALL remain unchanged
+- **WHEN** a BV-affecting edit or explicit recomputation occurs
+- **THEN** the new breakdown SHALL use zero weight contribution and neutral chassis adjustment through the existing persistence contract
+
+#### Scenario: Bounded adjustment evidence
+
+- **WHEN** this slice is compared with pinned Java
+- **THEN** actual weight/type/skill/summary methods SHALL provide the component reference and unarmed loaded synthetic units SHALL provide final-BV checks
+- **AND** all 86 sources SHALL retain source fields, serialization, export bytes and unrelated component terms
+- **AND** unresolved full-source BV, equipment, damage/options, implants, drones, force bonuses and production browser workflows SHALL remain explicit failures or unverified coverage
+
 ## MODIFIED Requirements
 
 ### Requirement: ProtoMech Offensive BV and Main Gun
@@ -55,6 +86,14 @@ Proto offensive BV SHALL include arm weapons and a MainGun location weapon
 with the same BV as a mech-mounted instance. Its offensive movement factor
 SHALL use explicit Run plus rounded half of nonnegative Jump, using the shared
 speed-factor owner and the pinned MegaMek calculator's UMU-zero context.
+The offensive pool SHALL NOT add tonnage or a generic physical-attack bonus.
+
+#### Scenario: No weight-only offense
+
+- **GIVEN** a ProtoMech without offensive equipment
+- **WHEN** its BV is calculated for any supported chassis or tonnage
+- **THEN** physicalWeaponBV and offensiveBV SHALL both be exactly zero
+- **AND** changing tonnage alone SHALL NOT change its offensive pool
 
 #### Scenario: Main gun BV at full value
 
@@ -85,7 +124,7 @@ speed-factor owner and the pinned MegaMek calculator's UMU-zero context.
 - **WHEN** the movement factor is compared to pinned Java
 - **THEN** the 86 loaded sources and bounded synthetic components/entities SHALL compare matching Run and Jump under undamaged BV settings
 - **AND** source fields, export bytes and unrelated BV components SHALL be checked separately from changed speed, offensive subtotal and total values
-- **AND** equipment pools, defensive factors, chassis multipliers, damage/options, complete BV and production editor/save flows SHALL remain unverified until independently proven
+- **AND** equipment pools, damage/options, complete BV and production editor/save flows SHALL remain unverified until independently proven
 
 
 ### Requirement: ProtoMech Defensive BV
@@ -132,7 +171,7 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **WHEN** defensive movement is checked against pinned Java
 - **THEN** component TMMs, the factor and its application SHALL be checked across boundaries, loaded synthetic entities and all 86 sources
 - **AND** unrelated family outputs, source fields, serialization and export bytes SHALL be preserved
-- **AND** fractional/nonfinite/negative movement, MaxTech options, full equipment pools, chassis multipliers, complete BV and production browser flows SHALL remain outside this component proof
+- **AND** fractional/nonfinite/negative movement, MaxTech options, full equipment pools, complete BV and production browser flows SHALL remain outside this component proof
 
 
 #### Scenario: Shared thresholds preserve legacy validation
@@ -151,3 +190,17 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **THEN** it SHALL consume the movement owner for both lookups
 - **AND** it SHALL preserve the greater of Jump and UMU with a bonus only when that maximum is positive, then compare against running TMM
 - **AND** its returned TMM and representative Run SHALL remain unchanged for boundaries, fractional, negative, signed-zero and nonfinite inputs, including TMM seven mapping to the final standard bracket minimum
+
+### Requirement: ProtoMech Chassis Multiplier
+
+ProtoMech final BV SHALL NOT receive a generic chassis multiplier. The public
+chassis multiplier and breakdown field SHALL remain neutral compatibility
+outputs of 1. Chassis-specific structure, armor and defensive movement SHALL
+continue through their owning calculations.
+
+#### Scenario: Glider and Ultraheavy summary
+
+- **GIVEN** a Glider with rounded base BV 280 or a local Ultraheavy with rounded base BV 600
+- **WHEN** baseline-skill final BV is calculated
+- **THEN** final BV SHALL remain 280 or 600 respectively
+- **AND** Biped and Quad SHALL also use the neutral summary multiplier

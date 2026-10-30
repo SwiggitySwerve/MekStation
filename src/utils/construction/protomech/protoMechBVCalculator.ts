@@ -1,34 +1,13 @@
 /**
- * ProtoMech Battle Value (BV 2.0) calculation.
+ * ProtoMech BV composition and skill adjustment.
  *
- * Implements the proto BV path per TechManual BV 2.0, adapted to proto scale:
- *   defensiveBV  = (armorBV + structureBV + defEquipBV − explosive) × defFactor
- *   offensiveBV  = (weaponBV + ammoBV + physicalBonus + offEquipBV) × speedFactor
- *   chassisAdjustedBV = round(defensiveBV + offensiveBV) × chassisMultiplier
- *   finalBV     = round(chassisAdjustedBV × pilotMultiplier)
+ * Pinned MegaMek 48fcb2f6 ProtoMekBVCalculator inherits the base calculator's
+ * empty weight/type modifiers. Round defense plus offense, apply the shared
+ * skill table with Gunnery and fixed Piloting 5, then round the final value.
+ * No generic chassis modifier applies; chassis rules enter through their
+ * component owners. Equipment pools and optional bonuses remain separate.
  *
- * Proto-specific rules (TechManual + ProtoMech errata):
- *   - armorBV      = armorPoints × 2.5 (Standard armor only; mult 1.0)
- *   - structureBV  = structurePoints × 1.5
- *   - defFactor    = 1 + (maxTMM / 10) + 0.1; shared run/jump TMM tables,
- *                    with Glider +1 to running TMM before the maximum
- *   - speed factor = round(pow(1 + (mp − 5) / 10, 1.2) × 100) / 100,
- *                    mp = runMP + round(max(jumpMP, 0) / 2)
- *   - Main gun weapons count at full BV, identical to a mech-mounted instance.
- *   - Physical attack bonus: small flat bonus per the ProtoMech errata
- *     (equal to tonnage − reflects low-damage proto punch).
- *   - Chassis multipliers:
- *        Glider        0.90× (fragile, lower durability)
- *        Ultraheavy    1.15× (heavier armor/firepower)
- *        Biped / Quad  1.00×
- *   - Pilot multiplier reuses the shared gunnery/piloting table via
- *     `getPilotSkillModifier` from `BattleValue`.
- *
- * Exposes {@link calculateProtoMechBV} and {@link calculateProtoPointBV}.
- *
- * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
- * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
- * @spec openspec/changes/add-protomech-battle-value/tasks.md
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md
  */
 import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
@@ -44,7 +23,7 @@ import { calculateProtoOffensive } from './protoMechBVOffensive';
 export interface IProtoMechBVOptions {
   /** Gunnery skill (default 4 — baseline pilot). */
   readonly gunnery?: number;
-  /** Piloting skill (default 5 — baseline pilot). */
+  /** Accepted for compatibility; ProtoMech BV always uses Piloting 5. */
   readonly piloting?: number;
 }
 
@@ -52,33 +31,14 @@ export interface IProtoMechBVOptions {
 // Constants
 // =============================================================================
 
-/** Chassis multipliers applied to the rounded base BV. */
-const CHASSIS_MULTIPLIER_GLIDER = 0.9;
-
-const CHASSIS_MULTIPLIER_ULTRAHEAVY = 1.15;
-
-const CHASSIS_MULTIPLIER_STANDARD = 1.0;
-
-/**
- * Default gunnery / piloting when the caller omits them — matches the mech
- * BV convention (baseline 4/5 = 1.0 multiplier).
- */
 const DEFAULT_GUNNERY = 4;
 
-const DEFAULT_PILOTING = 5;
+/** ProtoMech BV ignores crew Piloting, including an explicit caller value. */
+const PROTO_BV_PILOTING = 5;
 
-/** Resolve the chassis multiplier for a proto. */
-export function getProtoChassisMultiplier(chassis: ProtoChassis): number {
-  switch (chassis) {
-    case ProtoChassis.GLIDER:
-      return CHASSIS_MULTIPLIER_GLIDER;
-    case ProtoChassis.ULTRAHEAVY:
-      return CHASSIS_MULTIPLIER_ULTRAHEAVY;
-    case ProtoChassis.BIPED:
-    case ProtoChassis.QUAD:
-    default:
-      return CHASSIS_MULTIPLIER_STANDARD;
-  }
+/** Neutral compatibility output; chassis effects belong to component rules. */
+export function getProtoChassisMultiplier(_chassis: ProtoChassis): number {
+  return 1;
 }
 
 // =============================================================================
@@ -103,8 +63,7 @@ export function calculateProtoMechBV(
   const chassisMultiplier = getProtoChassisMultiplier(unit.chassisType);
 
   const gunnery = options.gunnery ?? DEFAULT_GUNNERY;
-  const piloting = options.piloting ?? DEFAULT_PILOTING;
-  const pilotMultiplier = getPilotSkillModifier(gunnery, piloting);
+  const pilotMultiplier = getPilotSkillModifier(gunnery, PROTO_BV_PILOTING);
 
   const final = Math.round(baseBV * chassisMultiplier * pilotMultiplier);
 
