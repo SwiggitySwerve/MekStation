@@ -78,6 +78,29 @@ SHALL NOT affect ProtoMech BV. Omitted Gunnery SHALL mean 4.
 - **AND** all 86 sources SHALL retain source fields, serialization, export bytes and unrelated component terms
 - **AND** unresolved full-source BV, equipment, damage/options, implants, drones, force bonuses and production browser workflows SHALL remain explicit failures or unverified coverage
 
+### Requirement: Offensive ammunition cap ownership
+
+The shared, ProtoMech and aerospace offensive ammunition calculations SHALL use
+one owning module for grouped accumulation and cap arithmetic. Consolidation
+SHALL preserve each adapter's existing key policy, guards, operation order and
+numeric output before native identity, quantity or grouping corrections.
+
+#### Scenario: Preserving existing cap policies
+
+- **WHEN** offensive ammunition cap mechanics are consolidated
+- **THEN** shared calculations SHALL retain normalized exact/alias/Clan matching and omit zero matches
+- **AND** ProtoMech SHALL retain its exact-key policy, undefined-cap guard and outer nonempty guards
+- **AND** aerospace SHALL retain lowercase-only matching and omission of missing or zero caps
+- **AND** duplicates, empty inputs, signed zero, negative values and nonfinite values SHALL retain their prior results
+- **AND** defensive AMS and screen caps SHALL remain separate rules
+
+#### Scenario: Preservation evidence before native changes
+
+- **WHEN** the extracted owner replaces the three offensive implementations
+- **THEN** representative output captures and all 86 pinned ProtoMech source calculations SHALL remain unchanged
+- **AND** source fields, serialization and equipment identities SHALL remain unchanged
+- **AND** preservation SHALL NOT establish native ammunition quantity, mount topology or full BV parity
+
 ## MODIFIED Requirements
 
 ### Requirement: ProtoMech Offensive BV and Main Gun
