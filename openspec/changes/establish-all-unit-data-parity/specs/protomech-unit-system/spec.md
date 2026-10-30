@@ -308,7 +308,8 @@ unchanged outputs in a separately verified refactor.
 - **WHEN** projecting handler data, or a store snapshot without flank MP
 - **THEN** running MP SHALL come from the same owner using the supplied base walk and explicit booster flag
 - **WHEN** rendering movement controls
-- **THEN** they SHALL display domain-calculated walk and running MP without inline running arithmetic
+- **THEN** they SHALL display stored walk and flank MP without inline running arithmetic
+- **AND** their Run display SHALL agree with the status bar and BV input, including preserved saved flank values
 
 #### Scenario: Preservation and comparison scope
 

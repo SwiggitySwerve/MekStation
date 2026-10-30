@@ -9,7 +9,6 @@ import {
   PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
 } from '@/types/unit/ProtoMechInterfaces';
 import {
-  computeRunMP,
   effectiveJumpMP,
   getProtoMPCaps,
   getProtoWeightClass,
@@ -218,6 +217,7 @@ export function useProtoMechMovementControls(
   const tonnage = useProtoMechStore((s) => s.tonnage);
   const chassisType = useProtoMechStore((s) => s.chassisType);
   const walkMP = useProtoMechStore((s) => s.walkMP);
+  const flankMP = useProtoMechStore((s) => s.flankMP);
   const jumpMP = useProtoMechStore((s) => s.jumpMP);
   const hasMyomerBooster = useProtoMechStore((s) => s.hasMyomerBooster);
   const glidingWings = useProtoMechStore((s) => s.glidingWings);
@@ -272,7 +272,7 @@ export function useProtoMechMovementControls(
   return {
     walkMP,
     jumpMP,
-    runMP: computeRunMP(walkMP, hasMyomerBooster),
+    runMP: flankMP,
     mpCaps,
     effectiveWalk,
     effectiveJump,
