@@ -126,8 +126,8 @@ describe('CLUSTER_SIZES', () => {
 // =============================================================================
 
 describe('getNearestClusterSize', () => {
-  it('should return 2 for sizes <= 2', () => {
-    expect(getNearestClusterSize(1)).toBe(2);
+  it('should return exact sizes for racks 1 and 2', () => {
+    expect(getNearestClusterSize(1)).toBe(1);
     expect(getNearestClusterSize(2)).toBe(2);
   });
 
@@ -146,8 +146,8 @@ describe('getNearestClusterSize', () => {
     expect(getNearestClusterSize(8)).toBe(8);
     expect(getNearestClusterSize(9)).toBe(9);
     expect(getNearestClusterSize(12)).toBe(12);
-    expect(getNearestClusterSize(14)).toBe(15);
-    expect(getNearestClusterSize(18)).toBe(20);
+    expect(getNearestClusterSize(14)).toBe(14);
+    expect(getNearestClusterSize(18)).toBe(18);
   });
 
   it('should return 20 for sizes > 20', () => {
