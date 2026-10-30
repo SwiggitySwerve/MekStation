@@ -1,3 +1,15 @@
+## 2026-10-30 Campaign session-close repair registered (Step 4 PR 5 of 31)
+
+The owner approved seven exact source/test leaves and raised the Step 4 ceiling from 29 to 31, retaining the 15-file/500-counted-addition caps. Registration/source/closure publications are 6/12/7 files at positions 5/6/7; the sixth registration file updates the existing test expectation from 29 to the approved 31 after a 126/127 RED. This necessary one-line supplement uses the standing recommended-fixes/full-send authority; the existing twelve successor units keep their order. Source starts only after this registration merges.
+
+Campaign implementation #2399 merged at ca5786ca3c after both source reviews and 33 successful checks. Its registered exact-main pipeline passed, but the supplemental production close probe failed: host match DELETE returned 200 and campaign DELETE still returned 401. Sol independently confirmed REPAIR-REQUIRED. The session never ended; overall campaign acceptance remains open. All earlier freezes, source, reviews, successful checks and failures are preserved in the registration record.
+
+The unit returns to admitted for this repair, with new stage pointers; the prior ladder is preserved as history. Close must complete durable metadata even without a tactical host, notify and clean up campaign sockets across module graphs, and prevent reconstruction after completion or during a close race. Ordinary GM disconnect and a separate tactical mission must retain their existing lifecycle. No repair source or future proof is claimed.
+
+Main advanced through unrelated ProtoMek work to 946022a7e; none of the seven repair leaves changed. Fresh independent Sol and Opus reviews, required CI, a head-specific ruling under full-send authority, guarded merge, exact-main repair proof and campaign closure remain mandatory before desktop admission.
+
+---
+
 ## 2026-10-30 CAMPAIGN-LIVE-WRITE-1 local-verified (Step 4 PR 4 of 29)
 
 Live campaign record saves now require the verified host bearer; every live DELETE is refused. Host saves attach the stored token, and save/delete refusals retain edits and show the server reason. A changed live entry aborts before the retired host can fold replacement events. LW23 also proves unrelated persistence errors remain errors and release the writer lock. The save card keeps its action usable at desktop and 375px widths.

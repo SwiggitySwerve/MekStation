@@ -1,0 +1,2063 @@
+{
+  "schemaVersion": 1,
+  "unit": "CAMPAIGN-LIVE-WRITE-1",
+  "stage": "admission",
+  "at": "2026-10-30T05:59:58.188Z",
+  "proofClass": "full",
+  "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+  "baseline": "946022a7e21659f75d5cf754bc7e8daf68c55b11",
+  "ownerDecision": {
+    "decision": "approve-repair-scope-and-31-pr-ceiling",
+    "at": "2026-10-30T05:57:27.565Z",
+    "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+    "sourceItem": "turn-item:message:async-answer%3Aruntime-request%3Aprovider%3Acodex%3Aprovider-turn%3Aprovider-turn%253Aprovider%253Acodex%253Anative-turn%253A01a18af7-fbc8-7202-b869-4231fb930e14%3Anative-request%3Aasync%253Acall_16b25961533242aa8f372f71078e0dcd%3A988ab21d-09a1-4f17-8b39-a6c6b91f8df8",
+    "quote": "Approve repair scope and 31-PR ceiling (Recommended)",
+    "packet": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-session-close-repair/decision-r1/DECISION.md",
+      "bytes": 6772,
+      "sha256": "9328d8cdf4516e4085da67e46eec86b147cd4a0ada761f8768be034db0df2e9e"
+    },
+    "accepted": {
+      "sourceLeaves": 7,
+      "publicationFiles": [
+        5,
+        12,
+        7
+      ],
+      "step4PrBudget": 31,
+      "maxFiles": 15,
+      "maxCountedAdditions": 500
+    },
+    "limits": "Scope/budget approval only. Full-send delivery remains authorized subject to current reviews, CI, a head-bound ruling and exact-main proof. No future PASS or merge is asserted."
+  },
+  "behavior": "Finish host-initiated match close durably and across shared campaign entries/socket graphs, including absent tactical host, completed-session recovery refusal and asynchronous reconstruction races. Preserve authorization, repeat close, recoverable GM disconnect and independent tactical mission lifecycle.",
+  "activation": "This registration admits only the bounded campaign repair, effective after its merge. No desktop admission and no campaign mainProof/tick claim.",
+  "sourceManifest": [
+    {
+      "path": "src/pages/api/multiplayer/matches/[id].ts",
+      "bytes": 4915,
+      "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36",
+      "baselineLines": 157
+    },
+    {
+      "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "bytes": 12751,
+      "sha256": "9a3e25c847cf02c730cd429ada24c9514275419fb6391a5b401d4e268db978fd",
+      "baselineLines": 360
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "bytes": 18639,
+      "sha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9",
+      "baselineLines": 529
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "bytes": 57655,
+      "sha256": "bc7405199b37c489ce0748699bbddf70b21ac43b509ed6cdeaaf552ec0ea31f0",
+      "baselineLines": 1831
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "bytes": 6374,
+      "sha256": "548d2b589f4d9c466c53d6bc3c3c970b210174de5a66654f587469f20a615fc6",
+      "baselineLines": 202
+    },
+    {
+      "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "bytes": 24651,
+      "sha256": "d1fb1f8de2a764cce045708478056c0c766a7961f8465ac274ece8c5126a63ef",
+      "baselineLines": 667
+    },
+    {
+      "path": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+      "bytes": 36339,
+      "sha256": "437f838b6d214f0986eeeb65738c892d21c3cc4ee83b8cc4a06d767fd0081c43",
+      "baselineLines": 1067
+    }
+  ],
+  "publicationLayout": [
+    {
+      "position": 5,
+      "purpose": "Register the bounded repair and record failed campaign closure; no desktop admission",
+      "files": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-session-close-repair-registration-20261030.json",
+        "scripts/__tests__/v220-steps.test.mjs"
+      ],
+      "fileCount": 6
+    },
+    {
+      "position": 6,
+      "purpose": "Deliver the terminal-close repair with genuine RED/local evidence",
+      "files": [
+        "src/pages/api/multiplayer/matches/[id].ts",
+        "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+        "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-session-close-repair-red-20261030.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-session-close-repair-local-20261030.json"
+      ],
+      "fileCount": 12
+    },
+    {
+      "position": 7,
+      "purpose": "After exact repair-main PASS, publish campaign closure and separately qualify desktop admission",
+      "files": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-session-close-repair-review-20261030.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-session-close-repair-merge-20261030.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-session-close-repair-mainproof-20261030.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/desktop-data-own-1-admission-20261025.json"
+      ],
+      "fileCount": 7
+    }
+  ],
+  "budget": {
+    "current": 29,
+    "actualMerged": 4,
+    "existingCampaignClosurePublication": 5,
+    "replacementCampaignClosurePublication": 7,
+    "increase": 2,
+    "projection": [
+      {
+        "unit": "DESKTOP-DATA-OWN-1",
+        "admissionPublication": 7,
+        "sourcePublication": 8,
+        "closurePublication": 9
+      },
+      {
+        "unit": "DESKTOP-DATA-OWN-2",
+        "admissionPublication": 9,
+        "sourcePublication": 10,
+        "closurePublication": 11
+      },
+      {
+        "unit": "DESKTOP-GUARDS-1",
+        "admissionPublication": 11,
+        "sourcePublication": 12,
+        "closurePublication": 13
+      },
+      {
+        "unit": "STEP2-RC-RERUN-1",
+        "admissionPublication": 13,
+        "sourcePublication": 14,
+        "closurePublication": 15
+      },
+      {
+        "unit": "P2CG1H",
+        "admissionPublication": 15,
+        "sourcePublication": 16,
+        "closurePublication": 17
+      },
+      {
+        "unit": "P2CG1I1",
+        "admissionPublication": 17,
+        "sourcePublication": 18,
+        "closurePublication": 19
+      },
+      {
+        "unit": "P2CG1I2",
+        "admissionPublication": 19,
+        "sourcePublication": 20,
+        "closurePublication": 21
+      },
+      {
+        "unit": "P2CG1I3",
+        "admissionPublication": 21,
+        "sourcePublication": 22,
+        "closurePublication": 23
+      },
+      {
+        "unit": "P2CG1I4",
+        "admissionPublication": 23,
+        "sourcePublication": 24,
+        "closurePublication": 25
+      },
+      {
+        "unit": "P2CG2",
+        "admissionPublication": 25,
+        "sourcePublication": 26,
+        "closurePublication": 27
+      },
+      {
+        "unit": "P2CH",
+        "admissionPublication": 27,
+        "sourcePublication": 28,
+        "closurePublication": 29
+      },
+      {
+        "unit": "P2C",
+        "admissionPublication": 29,
+        "sourcePublication": 30,
+        "closurePublication": 31
+      }
+    ],
+    "noVerifiedOffset": true,
+    "approved": 31
+  },
+  "caps": {
+    "maxFilesPerPublication": 15,
+    "maxCountedAdditions": 500,
+    "sourceAdditions": null,
+    "explanation": "Source additions are not measured because source has not been edited. Admission freezes the bound; exact formatted implementation and final main-merge counts remain required. No test/evidence file is excluded from file counting."
+  },
+  "authority": {
+    "existing": "Owner full-send and recommended-fixes delegation retained; refreshed full send in the current turn.",
+    "reviewTransport": {
+      "status": "OWNER APPROVED 2026-10-30; campaign-only unversioned receipts",
+      "decision": {
+        "option": "approve-campaign-correction",
+        "at": "2026-10-30T02:04:59.097Z",
+        "sourceItem": "turn-item:message:5a64e441-86d4-477d-bd86-45a35bcb0f7b",
+        "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+        "quote": "Approved, just full send",
+        "receipt": "evidence/campaign-live-write-1-admission-20261025.json#ownerDecision"
+      },
+      "scope": "CAMPAIGN-LIVE-WRITE-1 only",
+      "form": "Unversioned local/review receipts with complete truthful contributor disclosure and actual T3 task/thread/run/provider/model metadata; no v2/v3 claim.",
+      "author": "cliproxy/claude-sonnet-5-5",
+      "currentFinisher": "cliproxy/gpt-6-astra",
+      "requiredReviewers": [
+        "gpt-6.1-sol",
+        "claude-opus-5-5"
+      ],
+      "independence": "Fresh exact-head independent-context reviews; each reviewer differs from the author and every actual source contributor. Re-census after every edit and bind report bytes to the final head.",
+      "unchangedGates": "Sensitive packet, required CI, head-specific OWNER-RULING, guarded merge, whole-tree integration and exact-main proof remain mandatory."
+    },
+    "newSourceAuthor": {
+      "model": "gpt-6-astra",
+      "provider": "cliproxy",
+      "harness": "Codex through T3 Code",
+      "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+      "runId": "run:thread:f9f49416-ce64-461b-8843-15e8f096ee0c:ordinal:34",
+      "observation": "T3 thread metadata and runtime declaration. No v2/v3 engine attestation or subscription identity claimed."
+    }
+  },
+  "priorDelivery": {
+    "originalUnit": {
+      "id": "CAMPAIGN-LIVE-WRITE-1",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "LSC-2P finding F1, security half (owner decisions 2026-10-25 items 1, 2 and 6): the server decides who may save or delete a live co-op campaign record from the verified bearer, never from the request body. Today PUT /api/campaigns/[id] treats an envelope whose body.coopSession is {mode:\"host\", matchId} as the live host's own save (isLiveHostSave, [id].ts:141), so a guest profile that adopted the host-shaped record can overwrite it, the live host adopts the write and broadcasts it to the legitimate guest, and an anonymous DELETE answers 204 and removes the row. After this unit, while CampaignHostRegistry.liveEntryFor(id) holds a live host entry, PUT is accepted only when the request carries a bearer that verifies and whose principal is that entry's host, and DELETE is refused for everyone, the host's own included, until the session ends (owner ruling applied under the standing instruction; it changes the prep draft LW09); a member or guest bearer, an expired, malformed or absent bearer and a body-only coopSession are refused with a typed code and reason (HOST_SESSION_REQUIRED when there is no usable bearer, HOST_SESSION_EXPIRED when it expired; a verified non-host PUT keeps today's 409 live-coop-session conflict, owner decisions 2026-10-25b Q2 item 6), and the record, its version and the live host are untouched and nothing is broadcast. The host's browser store attaches its stored co-op bearer to record PUT; CampaignDashboardPage.tsx shows the server's refusal when Delete Campaign is refused while a session runs. The save-status card shows the server's refusal reason, keeps the unsaved changes and the dirty flag, and no longer labels a refusal \"playing offline; changes are kept locally\" (S4-03, refusal display only). Acceptance rows, each a failing test first: host same-tab reload (the bearer is still in sessionStorage) saves 200; host in a new window without the token is refused with the typed reason, the save card shows it and the unsaved changes are kept (disclosed: a new window cannot save a running co-op campaign, the host keeps its original window); app restart before any member reconnects (no live entry) takes the offline path and is accepted, pinned; app restart after a guest reconnected (entry live again) is refused as in the new-window row; expired host token takes the refresh path then 200, or a typed re-unlock refusal, never \"kept locally\"; offline host (no live entry): PUT and DELETE from another profile are accepted, pinned as disclosed behaviour so a later change is deliberate; a guest mirror save of its own record is unchanged; any DELETE while a host is live is refused, the host's own included, and works again after the session ends. Out of scope: the display half (a fresh profile rendering the HOST badge and host review surface), which owner decision 2 rewords out of Step 2 and discloses; record-scoped authority when the host is offline, the viewer-relative GET projection and the host re-authentication path, which stay with B15-3R and B15-3 after v2.2.0. The rule is keyed on the verified principal, not on a window or tab, so it does not preclude multi-window state for one identity (owner decision 6; MULTI-WINDOW-SESSION-1). It absorbs the host-save bearer attach and the live-host write rule of B15-2 and B15-3 by annotation only; neither is a predecessor.",
+      "ownershipPaths": [
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign",
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-admission-20261025.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-red-20261025.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-local-20261025.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-review-20261025.json",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-qualification-review-20261030.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-merge-20261030.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-mainproof-20261030.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "local-verified",
+      "baseline": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/campaign-live-write-1-admission-20261025.json"
+        },
+        "red": {
+          "path": "evidence/campaign-live-write-1-red-20261025.json"
+        },
+        "local": {
+          "path": "evidence/campaign-live-write-1-local-20261025.json",
+          "head": "d9bfedfdfa4e352d8e2ab48db61444f694b8272b",
+          "implementerModel": "claude-sonnet-5-5",
+          "finisherModel": "gpt-6-astra"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "predecessors": [
+        "L1-SMOKE-B",
+        "API-SAME-HOST-1"
+      ],
+      "successors": [
+        "MULTI-WINDOW-SESSION-1"
+      ],
+      "admissionRequires": "Admitted in the combined Step 4 PR 3 on the recorded baseline after verified API closure. Source implementation starts only after that PR merges. Root selected it under stepPlanDecision20261024 (first eligible unit of the first unfinished step, one admitted-unfinished unit through closure on main) with every predecessor at genuine exact-main mainProof PASS, fetched-main ancestry and closure. Before admission Root re-censuses every open PR, registered worktree and planned/blocked/admitted unit by exact path and ancestor alias, rebases onto fetched main and freezes every source/test/helper/lifecycle/evidence leaf. Caps: every actual publication has at most 15 changed files; the implementation has at most 500 counted additions (U41), no deletion credit. Tests and evidence are line-exempt but file-counted. The owner-approved publicationLayout20261030 names every lifecycle file at its own stage. Admission/qualification records land in the combined API closure plus campaign admission PR; implementation contains exactly the ten registered source/test leaves plus units.json, PROGRESS.md, generated V2.2.0-STEPS.md, RED and local receipts. Source review, merge and exact-main records land in the later combined closure/next-admission PR. Across admission and implementation there are 17 distinct campaign paths; no file is hidden or exempted from file counting. Overflow or any extra leaf needs a separately registered split; ownership aliases are navigation only and grant no leaf. Serialize shared units.json writes. Independent exact-head review, required CI, a genuine sensitive packet before local-verified, an exact-head OWNER-RULING before merge, then exact-main PASS and closure remain mandatory; null ownerGate and NEXT waive nothing. Second of the release-blocking Step 4 units. Exactly ten source/test leaves (listed in registeredSourceLeaves; 15 files in implementation with the five stage-specific lifecycle files, zero slack): the two test-support files campaignJournalEffectsFixture.ts and campaignHostIntentServerTime.test-helpers.ts (the helper PUTs as the literal host id with no bearer, so two suites outside the manifest would get 401) and CampaignDashboardPage.tsx (handleDeleteCampaign) were added by the 2026-10-25b correction. Pre-named split if the freeze measures an overflow, client first: a store and card half (store, card and their two tests: the bearer is sent and refusals are shown, harmless while the server ignores it), then the route half (route and its two tests); about +3 PRs. The predecessors are L1-SMOKE-B and API-SAME-HOST-1 only. B15-2, B15-3 and B15-3R are not predecessors and stay blocked with their edges unchanged; they gain an annotation (registration20261025ReleaseBlocking) recording the interim scope this unit carries. Shared leaves: [id].ts, campaignPutLiveHost.test.ts and useCampaignPersistenceStore.ts are also named by B15-2, B15-3 and B15-3R (blocked, L2); the card by no other unit; never in flight together, and each admission re-censuses. The bearer comes from the existing co-op token store (coopCampaignAuthTokenStore.ts, sessionStorage); the unit adds no new storage. Unverified at registration: whether the save path calls token refresh today, and the typed codes are HOST_SESSION_REQUIRED and HOST_SESSION_EXPIRED (2026-10-25b correction); the code for the host's own refused DELETE is settled at the freeze. Admission census: e2e/fixtures/campaign.ts:394 and e2e/gm-campaign-ledger-control-plane.spec.ts:126 send an anonymous DELETE for cleanup and are refused while a live host exists; they are not leaves, so the census must show each ends its session first or tolerates the refusal, otherwise a separately registered unit carries the edit. The residual stays disclosed in RC evidence and the release notes: while a co-op session is not running, another profile on the same computer can overwrite or delete the saved record; while it runs, only the host's original window can save it; keep one browser profile per player.",
+      "registeredSourceLeaves": [
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx"
+      ],
+      "registration20261025ReleaseBlocking": {
+        "source": "evidence/release-blocking-registration-20261025.json",
+        "sourceSha256": "4aad7594c9c2c7a739147cae2a8a68362b51c5e640969dc5a47803c2c561cf38",
+        "sourceAdmitted": false,
+        "carryForwards": [
+          "F1 security half",
+          "S4-03 refusal display",
+          "FN-u96-put-host-identity-is-a-body-claim (interim)"
+        ],
+        "interimScopeOf": [
+          "B15-2",
+          "B15-3"
+        ],
+        "remainsWith": "B15-3R keeps the server role projection (F1 display half) and the full record-scoped rule after v2.2.0"
+      },
+      "registration20261025bCorrection": {
+        "source": "evidence/release-blocking-registration-correction-20261025.json",
+        "sourceSha256": "32f3d59a1caefa0589992927e69202fae34ae9dad2ed3fc71ff9103cfebe23c1",
+        "sourceAdmitted": false,
+        "authority": "Root ruling 2026-10-25 on reg-correction STOPPED.md under the standing instruction; owner-decisions-20261025b.md (sha256 3177a4fa6df54d3dd033d2bead3767dd2ed30c5a5649af0253838846ad3ce9b2) answer \"yes and yes\"",
+        "change": "Leaves 7 -> 10 (15 files): campaignJournalEffectsFixture.ts, campaignHostIntentServerTime.test-helpers.ts, CampaignDashboardPage.tsx. The host's own DELETE while a live session runs is refused until the session ends.",
+        "acceptanceAdded": [
+          "verified non-host PUT keeps 409 live-coop-session",
+          "host own DELETE refused while live, accepted after the session ends",
+          "codes HOST_SESSION_REQUIRED and HOST_SESSION_EXPIRED",
+          "dashboard shows the delete refusal"
+        ],
+        "admissionCensus": [
+          "e2e/fixtures/campaign.ts:394",
+          "e2e/gm-campaign-ledger-control-plane.spec.ts:126"
+        ],
+        "estimate": {
+          "leaves": 10,
+          "files": 15,
+          "countedLines": 212
+        }
+      },
+      "publicationLayout20261030": {
+        "status": "OWNER APPROVED 2026-10-30; effective for this unit",
+        "decision": {
+          "option": "approve-campaign-correction",
+          "at": "2026-10-30T02:04:59.097Z",
+          "sourceItem": "turn-item:message:5a64e441-86d4-477d-bd86-45a35bcb0f7b",
+          "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+          "quote": "Approved, just full send",
+          "receipt": "evidence/campaign-live-write-1-admission-20261025.json#ownerDecision"
+        },
+        "implementationFiles": [
+          "src/pages/api/campaigns/[id].ts",
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+          "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+          "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+          "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+          "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-red-20261025.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-local-20261025.json"
+        ],
+        "admissionFiles": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-review-20261025.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-merge-20261029.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-mainproof-20261029.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-admission-20261025.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-qualification-review-20261030.json"
+        ],
+        "closureReceiptFiles": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-review-20261025.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-merge-20261030.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-mainproof-20261030.json"
+        ],
+        "step4Prs": [
+          3,
+          4,
+          5
+        ],
+        "budget": 29,
+        "distinctCampaignPathsThroughImplementation": 17,
+        "noExemptions": true,
+        "limits": "Publication 5 still needs a finite next-unit manifest and actual per-PR fit. Exact final implementation additions remain a mandatory pre-commit and main-merge check."
+      },
+      "reviewTransportProposal20261030": {
+        "status": "OWNER APPROVED 2026-10-30; campaign-only unversioned receipts",
+        "decision": {
+          "option": "approve-campaign-correction",
+          "at": "2026-10-30T02:04:59.097Z",
+          "sourceItem": "turn-item:message:5a64e441-86d4-477d-bd86-45a35bcb0f7b",
+          "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+          "quote": "Approved, just full send",
+          "receipt": "evidence/campaign-live-write-1-admission-20261025.json#ownerDecision"
+        },
+        "scope": "CAMPAIGN-LIVE-WRITE-1 only",
+        "form": "Unversioned local/review receipts with complete truthful contributor disclosure and actual T3 task/thread/run/provider/model metadata; no v2/v3 claim.",
+        "author": "cliproxy/claude-sonnet-5-5",
+        "currentFinisher": "cliproxy/gpt-6-astra",
+        "requiredReviewers": [
+          "gpt-6.1-sol",
+          "claude-opus-5-5"
+        ],
+        "independence": "Fresh exact-head independent-context reviews; each reviewer differs from the author and every actual source contributor. Re-census after every edit and bind report bytes to the final head.",
+        "unchangedGates": "Sensitive packet, required CI, head-specific OWNER-RULING, guarded merge, whole-tree integration and exact-main proof remain mandatory."
+      },
+      "admission20261030": {
+        "proofClass": "full",
+        "qualification": "evidence/campaign-live-write-1-qualification-review-20261030.json",
+        "manifestSha256": "9d80c2ccc9b72a4f585cf6474154dc2f2fc48bfa112df7300d9a4261730d63d2",
+        "baseline": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
+        "publicationPr": 3,
+        "sourcePr": 4,
+        "closurePr": 5,
+        "budget": 29,
+        "reviewFindings": "F1 blockers fixed and F2 approved by both reviewers. During implementation add the recommended unrelated-save-error assertion in the existing acceptance suite; pin and review any changed test bytes. Preserve F2 as historical qualification.",
+        "limits": "Initial-create 404 and earlier browser intermittency remain unexplained. GM proposal E2E-30 sign-in failure reproduced on actual baseline; no passing GM pack is claimed. Dashboard max-lines 403/400 disclosed, no lint-rule waiver.",
+        "deliveryAuthority": "Owner requested full send and recommended fixes on 2026-10-30. Preserve required checks, exact-head reviewer binding, recorded owner authority, guarded merge and exact-main proof."
+      }
+    },
+    "pr": 2399,
+    "sourceHead": "4f40acfd86e1e8cf43c4d4b3f1e7d4b3b64516f7",
+    "merge": "ca5786ca3c858bab22522bbe6e5631276fe42916",
+    "delivery": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/delivery-4f40acfd8/merge-attestation.json",
+      "bytes": 606,
+      "sha256": "76fa05813b73fc3dc9c2a3e4ae3a67628637143e852ff895f90ed67c9a2f0624"
+    },
+    "ruling": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/delivery-4f40acfd8/ruling.json",
+      "bytes": 3284,
+      "sha256": "7fdc04b1036c480f0c151cfa298a3a7fb372821802b6dcd43dbe7629c2ff144b"
+    },
+    "sourceReviews": [
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/reviews/review-sol-4f40acfd8.md",
+        "bytes": 13142,
+        "sha256": "c2fdb1b79731cc2c9ff180fa773c25e238542122447b48905396fbd04b0aaf34"
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/reviews/review-opus-4f40acfd8.md",
+        "bytes": 9544,
+        "sha256": "49905fcabd91408e0a253ce4f003baae7efc674a43052b8552458b8d17ad6d89"
+      }
+    ],
+    "registeredPipeline": {
+      "result": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/exact-main-r1/result.json",
+        "bytes": 9444,
+        "sha256": "45d584c0ef814476a3b9219fffc9dec5cd050841f2b8db1b4840d4a52da783af"
+      },
+      "pass": true,
+      "meaning": "Registered pipeline passed on the named merge; the supplemental close failure prevents overall acceptance."
+    },
+    "failure": {
+      "result": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/exact-main-r1/production-live-r2/result.json",
+        "bytes": 13771,
+        "sha256": "b883ce68f9b6e26ecd434779642fa594153155f5d0f6641fb844cd578a0ef3f4"
+      },
+      "finding": {
+        "at": "2026-10-30T03:53:07.459Z",
+        "issue": "Production match-close acknowledgement does not end campaign host entry",
+        "status": "OPEN; needs independent scope/correctness review before campaign closure",
+        "base": "34d9abf320725475e890f999bca508a275a748d7",
+        "head": "ca5786ca3c858bab22522bbe6e5631276fe42916",
+        "productionProbe": "production-live-r2/result.json",
+        "failure": "Host PUT 200 and refusal assertions pass; DELETE match returns 200, then anonymous campaign DELETE returns 401 HOST_SESSION_REQUIRED rather than expected 204.",
+        "sourceObservations": [
+          "Match DELETE calls only getMatchHostRegistry().closeMatch(id).",
+          "MatchHostRegistry.closeMatch returns immediately without a tactical host.",
+          "CampaignHostRegistry.dispose closes campaign host entries; no production caller found in the searched tree."
+        ],
+        "rows": [
+          {
+            "path": "src/pages/api/multiplayer/matches/[id].ts",
+            "unchangedAcrossCampaignImplementation": true,
+            "baseSha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36",
+            "mainSha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36"
+          },
+          {
+            "path": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+            "unchangedAcrossCampaignImplementation": true,
+            "baseSha256": "9a3e25c847cf02c730cd429ada24c9514275419fb6391a5b401d4e268db978fd",
+            "mainSha256": "9a3e25c847cf02c730cd429ada24c9514275419fb6391a5b401d4e268db978fd"
+          },
+          {
+            "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "unchangedAcrossCampaignImplementation": true,
+            "baseSha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9",
+            "mainSha256": "6ddf15a957df883d52c520d681d10a89e18c7af2e407ca1b194a7fb92f897ae9"
+          }
+        ],
+        "limits": "Unchanged close-path bytes establish code provenance, not a baseline runtime reproduction. The new live-write refusal exposes the stale live entry; no closure pass is claimed. No product changes made."
+      },
+      "review": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/exact-main-r1/review-sol-close-ca5786ca3.md",
+        "bytes": 15193,
+        "sha256": "ff548a0f5d43fc8946d6c1a825322f7aa90d3a65e821ba5e5ed364751fea9053",
+        "verdict": "REPAIR-REQUIRED",
+        "body": "VERDICT: REPAIR-REQUIRED\nreviewedHead: ca5786ca3c858bab22522bbe6e5631276fe42916\nreviewedSourceHead: 4f40acfd86e1e8cf43c4d4b3f1e7d4b3b64516f7\nreviewerModel: gpt-6.1-sol\nharness: Codex harness through T3 Code\nreasoningEffort: high (runtime-declared)\nreviewContract: unversioned, campaign-only; no v2/v3 attestation\n\nWe are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.\n\nP1 — Host match-close acknowledges success without ending its campaign session; this blocks CAMPAIGN-LIVE-WRITE-1 closure.\n\nThe failure is a valid public-route lifecycle regression seam. The probe's expectation is supported by the shipped contract, not an invented interpretation of DELETE. openspec/specs/multiplayer-server/spec.md:282-287 explicitly says the host's DELETE marks the match completed and sends connected clients a Close envelope. src/pages/api/multiplayer/matches/[id].ts:8 calls this a host-only close. The registered CAMPAIGN-LIVE-WRITE-1 behavior and its registration20261025bCorrection require live DELETE refusal followed by successful deletion after the session ends. The campaign API itself tells users to end the session before deleting. A successful explicit close that cannot release the live guard fails that outcome.\n\nEvidence and causal trace\n\n1. I inspected the clean detached checkout at the requested merged head, tree 489b7acfcf8ccb939d9d09429350e453f856e796, with ordered parents 34d9abf320725475e890f999bca508a275a748d7 and 4f40acfd86e1e8cf43c4d4b3f1e7d4b3b64516f7. Read-only git diff confirms the three close/registry files named in production-close-finding.json are unchanged across #2399. This establishes provenance, not a baseline runtime result or an exemption.\n2. Read production-close-finding.json, production-live-r2/result.json, its playwright.log and writes.jsonl, production-live-write.spec.ts, production-live.playwright.config.cjs, production-live.cjs, build/result.json, and relevant base Playwright configuration. The log fails specifically at production-live-write.spec.ts:39, after match DELETE succeeded at :37-38. The exact response names match 51848804-30d4-4207-9320-24430815bec7 and returns 401 HOST_SESSION_REQUIRED, reason malformed, with the message to end the live session first. The recorder independently shows campaign create 200, match create 201, authenticated host save 200, anonymous save 401, anonymous live delete 401, host live delete 403, host match close 200, then campaign delete 401 twice (the second is finally cleanup). The preceding GET equality assertion passed because execution reached the close.\n3. The production run used NODE_ENV=production and the existing standalone image. Its before-image hashes equal build/result.json's image for BUILD_ID 1793331822200. I independently rehashed the thirteen recorded source/config paths and five recorded standalone image paths: zero mismatches against the run's after hashes. The result records exit 1, one unexpected test, zero skipped/flaky, unchanged source/image, and portReusable true for port 56787. These are existing proof observations, not a new test run by this reviewer. The configuration still supplies ordinary Playwright run/storage/E2E environment values; “unflagged” describes the built image, not an absence of every test-harness environment variable. The inspected close/create/registry code contains no E2E branch that explains away this outcome.\n4. Match POST registers the campaign entry before returning 201 (src/pages/api/multiplayer/matches/index.ts:343-364), while the new match starts as lobby (:234). The HTTP-only probe never creates a tactical socket host. Match DELETE authenticates and verifies the actual host, then calls only getMatchHostRegistry().closeMatch(id) and returns 200 ([id].ts:120-151). MatchHostRegistry.ts:255-261 returns immediately when there is no tactical host. It neither completes the stored match nor disposes the campaign entry in this case. A tactical host's own close does complete storage (ServerMatchHost.ts:1163-1189), but likewise has no campaign teardown here.\n5. CampaignHostRegistry.liveEntryFor considers every matching nonclosed host live, including a paused GM-absent session (:409-419). Its entry.close unregisters the active host, closes arbiter/host and clears participation state (:254-260); dispose removes the entry (:478-483). My source searches found disposal callers only in tests. Campaign DELETE consults liveEntryFor and refuses before persistence (src/pages/api/campaigns/[id].ts:458-489). Thus the observed refusal is exactly the product code's predicted consequence. The probe did not GET match metadata after close; “still lobby” is a source inference, not an additional observed HTTP result.\n\nWhat genuinely ends a session\n\nA terminal host close must stop its authority; removing a tab or losing the GM connection is not terminal. bindCampaignSyncConnection.ts:1231-1235 invokes noteGmDisconnected, which deliberately pauses and preserves the session (CampaignSyncSession.ts:297-331). The terminal hostDisconnected method closes the host (:880-889), but my searches found only test callers. CampaignMatchHost.close (:263-276) is terminal, but the acceptance tests call it directly rather than reaching it through the public close route.\n\nLW09 in campaignCoopRecordAuthz.test.ts:426-454 proves refusal then calls entry.host.close() at :449. LW11 does the same at :476-483. Those are valid guard-unit tests and insufficient lifecycle integration proof. The existing two-browser journey's cleanup closes the match and accepts 200/404 (e2e/coop-campaign-two-browser-journey.spec.ts:486-499); it does not assert campaign deletion or the resulting terminal campaign state. Its prior PASS cannot establish this contract.\n\nRestart-before-reconnect remains an explicitly disclosed offline acceptance boundary (LW10 resets the registry at :460). It is not an acceptable replacement for host-close behavior. A member can reconstitute the campaign entry from durable co-op metadata (CampaignHostRegistry.ts:422-475); GM absence is intentionally recoverable. Requiring a process restart and a race against reconnect would conceal the explicit-close gap. This review does not reopen the separately accepted offline record-authority residual or demand B15-3R early.\n\nSmallest justified repair and proof\n\nKeep the existing live campaign DELETE guard and its refusal assertions. Repair server lifecycle ownership, not its callers' expectations. A one-line dispose in the route is insufficient: it leaves durable match state open and permits getOrCreate to recreate the entry, since createEntry currently checks coopCampaign but not completed status (:453-475). It also does not fulfill the Close-envelope requirement for campaign sockets.\n\nA concrete narrow candidate is four existing production leaves:\n\n- src/pages/api/multiplayer/matches/[id].ts: after the existing authentication/host check, await the complete terminal close and campaign teardown before returning success. Compose public lifecycle contracts; do not reach into private maps or weaken authorization.\n- src/lib/multiplayer/server/MatchHostRegistry.ts: complete the stored match even when no tactical host was created; retain existing tactical socket cleanup. Refuse recreation of a completed match and preserve close-during-bootstrap ordering. Existing IMatchStore.closeMatch already provides durable/idempotent completion, so no schema/store rewrite is justified.\n- src/lib/multiplayer/server/CampaignHostRegistry.ts: own terminal campaign disposal and close notification/cleanup registration, drain or invalidate in-flight reconstruction, and prevent completed matches from rebuilding. Keep a normal GM disconnect recoverable. A closed entry must not return as usable authority.\n- src/lib/multiplayer/server/bindCampaignSyncConnection.ts: connect each bound socket's existing cleanup/Close path to the shared entry's terminal lifecycle. Its socketsByMatch Map and campaignSocketLifecycles WeakMap are module-local (:223-231). Merely exporting a function that reads the API graph's copy of those maps will miss sockets in server.js's separate module graph. Use the existing shared entry to carry the actual teardown callbacks; do not add a parallel global registry or broad transport redesign.\n\nThis is a bounded candidate footprint, not an implemented patch or a frozen line estimate. A smaller implementation is acceptable only if it proves all these postconditions. No new UI, protocol/schema, database migration, dependency, generated file, shared E2E helper, or campaign record-auth change is justified by this finding. Do not end a still-running campaign merely because a separate coopMission tactical match completed; target the exact campaign-session match ID. Existing tactical close callers must retain their semantics.\n\nUse existing tests rather than a new framework. The likely minimum durable test footprint is MatchHostRegistry.closeRoute.test.ts, CampaignHostRegistry.test.ts, and campaignCoopRecordAuthz.test.ts (seven source/test leaves total with the four above). Extend the cross-module close-route coverage to real campaign binding and teardown; extend registry coverage for completed metadata and a deferred reconstruction racing close. In the campaign authorization suite retain guard-unit tests and add a real match-create -> live campaign refusal -> host match DELETE -> campaign DELETE integration case. Never call host.close/dispose/reset to achieve the post-close assertion.\n\nThe essential regression must reproduce the HTTP-only, no-tactical-host case; verify anonymous/non-host close preserves both registries and record, host close returns 200 only after durable completed status and no live campaign entry, and campaign DELETE then returns 204 and GET 404 under the accepted offline rule. Add a connected campaign host/guest variant: both receive Close and cleanup runs, no later command commits, and a new connection cannot resurrect the ended session, including after a fresh-process reopen of the same databases. Repeat close should preserve the established idempotent behavior. Cover the bounded close/recovery race because both registries reconstruct asynchronously; a delayed creation must not restore live authority after close acknowledges completion.\n\nAffected consumers include the campaign DELETE/live save guard, match GET/list/invite/reconnect paths through metadata, the campaign binder, and existing match-close cleanup in the two-browser journey and GM pack specs. The registered cleanup census also names e2e/fixtures/campaign.ts:392-399 and e2e/gm-campaign-ledger-control-plane.spec.ts:120-131; both throw on unsuccessful anonymous deletion. Recheck applicable scenarios after repair. Their edits are not automatically required or granted. Avoid a shared-helper edit unless a real failing caller requires it; DELIVERY.md would then require all importing ladder groups to rerun.\n\nRoot should preserve this failed production proof, get red-first regression evidence on the actual public route, then run focused lifecycle/auth suites and applicable static checks, CI, fresh independent exact-head reviews and sensitive head-bound owner ruling. Build and repeat the production route probe plus the connected cross-module case on the exact repair merge; preserve initial source/image identity, real credentials, isolated stores, owned listener and cleanup. This reviewer ran no tests, server or build. Historical 75/75, 122/122 and browser counts are not repair-head proof.\n\nScope and budget consequence\n\nThe current unit's caps are 15 files/500 counted additions. Its approved publicationLayout20261030 enumerates exactly ten source/test leaves plus five implementation lifecycle leaves, with zero slack; actual #2399 changed exactly fifteen files. These lifecycle production leaves are outside registeredSourceLeaves and the frozen implementation manifest. The merged PR cannot be enlarged retrospectively, and the pending publication 5 was planned for campaign closure plus next-unit admission, not unregistered lifecycle source. Root must record this unresolved acceptance obligation and register/admit a measured repair scope before product edits. Neither historical file headroom nor the broader directory navigation grants extra leaves.\n\nStep 4's actual approved budget is 29 PRs, with campaign admission/source/closure allocated positions 3/4/5. The admission ownerDecision.accepted.publication explicitly says no extra PR budget. At least one additional product PR is now necessary; there is no evidence of a spare slot. If registration/admission uses the pending publication 5, followed by repair source and then campaign closure/desktop admission, that plan consumes 5/6/7 instead of the former closure at 5: +2 publications and a projected 31 rather than 29 absent measured savings elsewhere. A separately authorized, concretely fitting combined publication could reduce that delta; this review grants neither that combination nor a budget increase. Freeze/count the actual manifests and identify the real offset or obtain the required budget/scope correction. Full-send authorizes Root's delivery work; it does not make these ungranted paths or extra slots already approved. Do not close CAMPAIGN-LIVE-WRITE-1 or begin successor implementation to hide this debt.\n\nVerification limits and observed review state\n\nReview only; the assigned report is my only write. No subagents, product/evidence edits, tests, servers, builds, Git writes or GitHub writes. Final source status remained clean at the requested head. I did not independently rerun the baseline or production failure, prove whole-tree merge equality anew, audit every #2399 behavior, or verify absence of every surviving process. The recorded reusable port supports listener release, not universal process cleanup. No provider refusal occurred in this review. Model/harness/effort above are runtime-declared; backend routing, subscription identity and independent engine attestation are not established by this report. Root must bind actual T3 observations for the approved unversioned provenance transport.\n\nRead-only gh pr view independently observed MERGED at 2026-10-30T03:42:14Z, merge ca5786ca3c858bab22522bbe6e5631276fe42916, source head 4f40acfd86e1e8cf43c4d4b3f1e7d4b3b64516f7, all 33 returned checks completed SUCCESS, reviewDecision empty, and reviews []. The brief reports two independent local exact-source approvals; those are not GitHub reviews and do not approve this new runtime finding. PR watch state was supplied as unwatched and was not changed or independently queried.\n\nPR https://github.com/SwiggitySwerve/MekStation/pull/2399, head ca5786ca3c858bab22522bbe6e5631276fe42916 (merged; source 4f40acfd86e1e8cf43c4d4b3f1e7d4b3b64516f7), checks and reviews 33/33 SUCCESS; GitHub reviews []; independent local approvals reported in brief; this close review REPAIR-REQUIRED.\r\n"
+      }
+    }
+  },
+  "prerequisites": [
+    {
+      "id": "L1-SMOKE-B",
+      "state": "main-verified",
+      "mergeSha": "ad84867355c85270086977ad3d9a83b93107c09a",
+      "mainProof": {
+        "path": "evidence/l1-smoke-b-mainproof-20261028.json",
+        "mergeCommit": "ad84867355c85270086977ad3d9a83b93107c09a",
+        "verdict": "PASS",
+        "runtime": "B node:test 13 of 13 at the clean exact merge; the frozen done-test (node scripts/release/run-l1-built-server-fog-refusal.mjs --build) passed 34 of 34 ids on the first attempt (A1 10, A2M 12, A2 4, fog 8; 0 failed, 0 skipped, 0 flaky), BUILD_ID 1793186803130, printed headSha ad8486735"
+      }
+    },
+    {
+      "id": "API-SAME-HOST-1",
+      "state": "main-verified",
+      "mergeSha": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+      "mainProof": {
+        "path": "evidence/api-same-host-1-mainproof-20261029.json",
+        "mergeCommit": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+        "verdict": "PASS",
+        "runtime": "Clean exact merge: 907 Jest tests, unchanged frozen 34-case regression, genuine Electron-as-node packaged validator, 56 raw-target rows / 125 assertions; application/native image identities retained and owned ports released. No installer, RC, Step 8 or Step 4 completion."
+      }
+    }
+  ],
+  "ownership": {
+    "observedAt": "2026-10-30T06:01:37.364Z",
+    "baseline": "946022a7e21659f75d5cf754bc7e8daf68c55b11",
+    "worktreeCount": 143,
+    "census": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-session-close-repair/registration-r1/census-r2/census-summary.json",
+      "sha256": "fb30815b4551c536eaec404ee5c3eb11afb6a3565b83146bb7ffa7db4ced5aab",
+      "bytes": 19623
+    },
+    "disposition": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-session-close-repair/registration-r1/ownership-disposition.json",
+      "sha256": "3d70696d4a4822fcf3914d02494256c8978f718786fb4bef04bd3aee03beb992",
+      "bytes": 12033
+    },
+    "activeClaims": [
+      {
+        "id": "CAMPAIGN-LIVE-WRITE-1",
+        "state": "local-verified",
+        "claims": [
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
+        ]
+      }
+    ],
+    "openPrHits": [],
+    "historicalOverlaps": [
+      {
+        "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-a405e528",
+        "head": "12fabec392d9002907c47eff7e62980ac375964b",
+        "hits": [
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/pages/api/multiplayer/matches/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "src/pages/api/multiplayer/matches/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "exactBytes": [
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "7262b8ad63c98cf83f0eb5f8a96c85a61a735f9d3b18ee41868b7caf772e7407"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "6144d52e4f42f12ee694e0a78365ee9f56a04a7a665a0379c0b45a9ae661e020"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/v220-steps.json",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": false,
+            "sha256": null
+          },
+          {
+            "status": "D ",
+            "file": "src/pages/api/multiplayer/matches/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "7262b8ad63c98cf83f0eb5f8a96c85a61a735f9d3b18ee41868b7caf772e7407"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "6144d52e4f42f12ee694e0a78365ee9f56a04a7a665a0379c0b45a9ae661e020"
+          },
+          {
+            "status": "??",
+            "file": "src/pages/api/multiplayer/matches/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "8075e431921f432ca2d75eab1b9364fa63da1e3f2ea701c03b94f74d45614d36"
+          }
+        ],
+        "disposition": "Preserve external historical worktree. No writer is launched there. Exact dirty/committed overlaps and hashes are retained for final admission review."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/campaign-live-write-1-qual-20261030",
+        "head": "54462d5f0d18f95dd5f85ec3597663b370ba4e82",
+        "hits": [
+          {
+            "status": "??",
+            "file": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "exactBytes": [
+          {
+            "status": "??",
+            "file": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "2f6965faf4af4980a0e9b065adf22e61114bf420e8f35079e11d539ac160e19c"
+          }
+        ],
+        "disposition": "Preserve external historical worktree. No writer is launched there. Exact dirty/committed overlaps and hashes are retained for final admission review."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/campaign-live-write-1-qual-r2-20261030",
+        "head": "88b5b2595f2b87b1c17453f9027dd7328cf6ca86",
+        "hits": [
+          {
+            "status": "??",
+            "file": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "exactBytes": [
+          {
+            "status": "??",
+            "file": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+            "kind": "uncommitted",
+            "class": "exact",
+            "exists": true,
+            "sha256": "0de818954307ccbbd26902b02d85cba384a21fed1c197c7f047dafdadf026393"
+          }
+        ],
+        "disposition": "Preserve external historical worktree. No writer is launched there. Exact dirty/committed overlaps and hashes are retained for final admission review."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/ndc1-source-01a0febd",
+        "head": "823fc4424fc8d55198e48b09075abeaaa3f45759",
+        "hits": [
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "committed",
+            "class": "exact"
+          }
+        ],
+        "exactBytes": [],
+        "disposition": "Preserve external historical worktree. No writer is launched there. Exact dirty/committed overlaps and hashes are retained for final admission review."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/ndc1-source-r2-01a0febd",
+        "head": "2c0979363363a5d4af76266f02835304ee98492d",
+        "hits": [
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "committed",
+            "class": "exact"
+          }
+        ],
+        "exactBytes": [],
+        "disposition": "Preserve external historical worktree. No writer is launched there. Exact dirty/committed overlaps and hashes are retained for final admission review."
+      }
+    ],
+    "baselineChangedSinceDecision": [
+      "openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md",
+      "openspec/changes/establish-all-unit-data-parity/specs/equipment-services/spec.md",
+      "openspec/changes/establish-all-unit-data-parity/specs/unit-services/spec.md",
+      "openspec/changes/establish-all-unit-data-parity/tasks.md",
+      "public/data/equipment/name-mappings.json",
+      "public/data/equipment/official/index.json",
+      "public/data/equipment/official/weapons/missile-srm.json",
+      "scripts/audit-ammo-matching.ts",
+      "scripts/sync-equipment-index.mjs",
+      "scripts/validate-bv-calculator-setup.ts",
+      "src/__tests__/unit/utils/construction/equipmentIdNormalization.test.ts",
+      "src/constants/movement.ts",
+      "src/services/conversion/BLK_PROTOMEK_EQUIPMENT.md",
+      "src/services/conversion/BlkProtoEquipment.ts",
+      "src/services/conversion/BlkProtoEquipmentEntry.ts",
+      "src/services/conversion/__tests__/BlkProtoEquipmentEntry.test.ts",
+      "src/services/equipment/__tests__/ProtoSRMCatalog.test.ts",
+      "src/services/units/handlers/ProtoMechUnitHandler.ts",
+      "src/services/units/handlers/__tests__/ProtoMechEquipmentSource.test.ts",
+      "src/simulation/runner/__tests__/battlemechCombatCatalog.test-helpers.ts",
+      "src/stores/protoMechState.ts",
+      "src/types/formats/BlkProtoEquipmentSource.ts",
+      "src/types/unit/BVBreakdownTypes.ts",
+      "src/types/unit/PersonnelInterfaces.ts",
+      "src/types/unit/ProtoMechInterfaces.ts",
+      "src/types/validation/BattleValue.ts",
+      "src/utils/construction/BATTLE_VALUE_MOVEMENT.md",
+      "src/utils/construction/__tests__/battleValueAmmo.test.ts",
+      "src/utils/construction/__tests__/battleValueMovement.test.ts",
+      "src/utils/construction/__tests__/equipmentBVResolver.clanPatterns.test.ts",
+      "src/utils/construction/__tests__/equipmentBVResolver.protoSRM.test.ts",
+      "src/utils/construction/battleValueAmmo.ts",
+      "src/utils/construction/battleValueMovement.ts",
+      "src/utils/construction/equipmentBV/RULES.md",
+      "src/utils/construction/equipmentBV/normalization.ts",
+      "src/utils/construction/protomech/RULES.md",
+      "src/utils/construction/protomech/__tests__/adjustments.test.ts",
+      "src/utils/construction/protomech/__tests__/defensiveMovement.test.ts",
+      "src/utils/construction/protomech/__tests__/explosives.test.ts",
+      "src/utils/construction/protomech/__tests__/fixtures/explosive-sources.json",
+      "src/utils/construction/protomech/__tests__/protoMechBV.canonical.test.ts",
+      "src/utils/construction/protomech/__tests__/protoMechBV.test.ts",
+      "src/utils/construction/protomech/equipmentProjection.ts",
+      "src/utils/construction/protomech/protoMechBVCalculator.ts",
+      "src/utils/construction/protomech/protoMechBVDefensive.ts",
+      "src/utils/construction/protomech/protoMechBVEquipment.ts",
+      "src/utils/construction/protomech/protoMechBVOffensive.ts",
+      "src/utils/construction/vehicle/__tests__/vehicleBV.offensive.test.ts",
+      "src/utils/construction/vehicle/vehicleBVMovement.ts",
+      "src/utils/gameplay/toHit/constants.ts"
+    ],
+    "repairLeafOverlap": []
+  },
+  "requirements": [
+    "Host DELETE durably completes an HTTP-only session and awaits campaign teardown before reporting success.",
+    "Cross-module campaign host and guest sockets receive Close and clean up; commands after close cannot commit.",
+    "Completed matches cannot recreate tactical or campaign authority, including after reopening durable stores in a fresh process.",
+    "Close racing asynchronous reconstruction cannot restore authority after close returns.",
+    "Ordinary GM disconnect remains paused and recoverable; ending a separate tactical coopMission does not close its campaign-session match.",
+    "Preserve authorization, repeat-close behavior, and live campaign-record DELETE refusal; public close then permits the existing offline DELETE path."
+  ],
+  "proof": [
+    "Red-first tests in the three named existing suites at the public close seam; retain original production failure unchanged.",
+    "Focused lifecycle/authorization suites, affected callers, typecheck, lint, formatting, roadmap and generator checks through the heavy-run queue as applicable.",
+    "Fresh production build and real HTTP, connected cross-module, durable-reopen and delayed-reconstruction scenarios with isolated stores and owned listeners.",
+    "Fresh independent Sol and Opus exact-head reviews under the existing campaign-only transport; complete truthful contributor census.",
+    "Required CI, head-specific owner ruling under delegated delivery authority, guarded merge and whole-tree attestation.",
+    "Repeat required runtime proof on the exact repair merge; only then close campaign and admit the next unit."
+  ],
+  "commands": {
+    "tests": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--runTestsByPath",
+      "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts"
+    ],
+    "static": [
+      "npm run typecheck",
+      "npm run lint",
+      "npm run format:check",
+      "npm run lint:units"
+    ],
+    "production": [
+      "npm run build",
+      "Repeat retained production-live-write.spec.ts on the built image with no test-only bypass",
+      "Connected host/guest Close, command refusal, completed-session reconstruction refusal after durable process reopen"
+    ],
+    "ledger": [
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github",
+      "node scripts/qc/generate-v220-steps.mjs --check"
+    ],
+    "queue": "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs"
+  },
+  "limits": [
+    "No repair code or new repair RED/GREEN/build exists at registration.",
+    "The completed #2399 pipeline is historical evidence, not repair-head evidence.",
+    "Retain campaign offline cross-profile behavior, original browser failures and prior review limitations.",
+    "Final formatted implementation and exact-main counts remain mandatory; this is a scope bound, not a measured implementation."
+  ],
+  "registrationSupplement": {
+    "at": "2026-10-30T06:03:57.118Z",
+    "authority": "Owner approved Step 4 budget 31 and repeated full send; standing recommended fixes/change instruction. Root records this necessary one-line test expectation change, not a new human answer or expansion of the seven game source/test leaves.",
+    "path": "scripts/__tests__/v220-steps.test.mjs",
+    "reason": "The existing adopted-budgets test still expected 29; initial registration check returned 126/127 with only actual 31 versus expected 29 failing.",
+    "red": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-session-close-repair\\registration-r1\\roadmap-tests.log",
+      "sha256": "b2943f4c7aebcf9ead969dcb17528ab4913fe5ce508f7367ce27e717884c5758"
+    },
+    "fileCount": 6,
+    "sourceFileCount": 12,
+    "closureFileCount": 7,
+    "remainingCaps": {
+      "maxFiles": 15,
+      "maxCountedAdditions": 500,
+      "prBudget": 31
+    },
+    "census": {
+      "main": "946022a7e21659f75d5cf754bc7e8daf68c55b11",
+      "rows": [
+        {
+          "path": "E:/Projects/Personal/MekStation",
+          "head": "3dfd129cc8fea9e35fcea257cb640eda5b232e65",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-03d62314",
+          "head": "12d443bb6af9b1ffb22bd84d842fcf671731995a",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-05b957ad",
+          "head": "1aff930af97b0e3acf3c16ba2b54942d35de61b8",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-09409f60",
+          "head": "61d76f2927c945da0d8df6cbb643e3115a8417ac",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-0c145aee",
+          "head": "4149386c0dc78df9f0e4e7a4dca59eab4ab70529",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-0cf198f0",
+          "head": "e0d2c907ceab14540bfba61a2f03a5ac13c58506",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-0d9fa667",
+          "head": "82ef50ca3354d2cbc88d8b0c7d4d81515f80e800",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-1479c6e3",
+          "head": "72539c05a0917acf28a39440aeb19541780a2b57",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-1958ddc8",
+          "head": "097102d4ff506cc98b5b95417776918f38d9fecc",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-1b6c2373",
+          "head": "4149386c0dc78df9f0e4e7a4dca59eab4ab70529",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-1c7e9945",
+          "head": "15e1de37010c3be5ee585140d8a7cf18b4588a89",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-1ec3b1a7",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-22366943",
+          "head": "824cdc6c3c390ac3b10f2c9071b01d36be148557",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-27f0a129",
+          "head": "c1fba34ef4aea1392787074c358cd1f51567d726",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-2893c041",
+          "head": "62e9043c81c1b90f9276a212b0f2f15b21f016cd",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-298a9ce9",
+          "head": "795f7768119cade8a4ba693a788e49abed72adfb",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-29eda0c3",
+          "head": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-2e9aaa54",
+          "head": "75b088d925e6084d613bf0c78e40b5e2da870ab4",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-300447e4",
+          "head": "a8e2eab494a37abb8bd27aace15a298247cd212b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-31432020",
+          "head": "8c3617f44f9609aacd1e85975801b2bed02b6b41",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-455a0f17",
+          "head": "a1f69b0b1d1f63e30d7c59e6b276c0a8852d5e6c",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-4bfcdb2c",
+          "head": "8de0ef6cd485e7a2e7bd8d24aac1b7ba494c37a4",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-4ff0f332",
+          "head": "3265e015dbfe1be3e6b7c271329c616c85d7e263",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-518d7102",
+          "head": "72539c05a0917acf28a39440aeb19541780a2b57",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-5bf8425d",
+          "head": "2a20ce072a39a8f3f7dbd0cc3993e90b6d0d07c5",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-5c08f3ef",
+          "head": "f497ec1c0f3c0e5ed8f4ca1b3844de1370b9b363",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-62750922",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-63239483",
+          "head": "8f0854e3504e3975904470c54b73a27b3f1fb4ee",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-6a3da11e",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-72cadc05",
+          "head": "0e3493e814d5d173164dc2ecae10196b5c0bcc68",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-743299dd",
+          "head": "1c0bfd56f083166bf29fb0f65d4746ceafc32043",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-749c8457",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-75657f99",
+          "head": "5b4c676df561f7d0d076078f92f176dcf9e3653c",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-7586ca99",
+          "head": "a4777c77b7fbe60957b055fa38a233a3497deb3c",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-7827fd23",
+          "head": "05c7aaefcc191d9ebe27a8fd039592ecd0767e22",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-7911e82d",
+          "head": "650241d7685244b35b72efbf7e8177e322f0b755",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-7b27a267",
+          "head": "b4823fc955e4d96fd6412f082ca61117c06342c9",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-80c2bccf",
+          "head": "45b216b4c138457bf2f26a1a53827306ce0cb17d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-825e284a",
+          "head": "82ef50ca3354d2cbc88d8b0c7d4d81515f80e800",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-8889d601",
+          "head": "1296ea7285a6e6b038b32edf6aa91978f55dc768",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-8ae68c28",
+          "head": "8c3617f44f9609aacd1e85975801b2bed02b6b41",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-9170edcc",
+          "head": "01bcf27278061c3f1d2ef7ffc940765f762610c1",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-92413a89",
+          "head": "9602ee2de9c6f4dfc7a9bdcf247e2a7ee5d70ace",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-944ce90b",
+          "head": "097102d4ff506cc98b5b95417776918f38d9fecc",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-94abe948",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-9874d47d",
+          "head": "83ae3480748a1c16ffdfe871341b3de386edcb80",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-9a7c0164",
+          "head": "b378fe461340d5244b203171d99811787bf1fa51",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-a405e528",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "D  scripts/__tests__/v220-steps.test.mjs\n?? scripts/__tests__/v220-steps.test.mjs",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-a5e0af13",
+          "head": "ce0691fc1a15ec143af59681822f766e4b389829",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-a89566f3",
+          "head": "2a717bf7d0210d1bb7c7d7f5ac5c47e3dc49868f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-a95d63fa",
+          "head": "48969e4e3f92a51e3e45d75bad52d1e3f66d0641",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-ba8dc43a",
+          "head": "4149386c0dc78df9f0e4e7a4dca59eab4ab70529",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-c54469f9",
+          "head": "3dc706ed4d07cc5cd148c92ef7b15db9ce744ddf",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-c76f5369",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-c784a916",
+          "head": "5dd8d6aa9f33b4c931e8efd435601facb67728bb",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-c81d5a63",
+          "head": "4149386c0dc78df9f0e4e7a4dca59eab4ab70529",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-cbc3694b",
+          "head": "242454d935ad52ad6bd15e1300decb3eff79c1f5",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-d1da6b67",
+          "head": "44c1d69ce7fe8becb4351cd68cdf46e24140a7d3",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-d63195bb",
+          "head": "b0e4d2fd52218ae1396e6e31c0ce044d7c1c09bc",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-d70f3b82",
+          "head": "3dc706ed4d07cc5cd148c92ef7b15db9ce744ddf",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-df83d9a1",
+          "head": "2a717bf7d0210d1bb7c7d7f5ac5c47e3dc49868f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-e0a48e51",
+          "head": "8ba1c7b875bb5dc597664de3758e9b96bde8f662",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-e2427a25",
+          "head": "c4e8b469e417341ed7cde705429a0d0b77d59cc1",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-e3c23f32",
+          "head": "1296ea7285a6e6b038b32edf6aa91978f55dc768",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-e6a8b1f9",
+          "head": "12fabec392d9002907c47eff7e62980ac375964b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-ebf1c09c",
+          "head": "e0abeaca19bb2e60f80aa18bfd37feaaf1ecef7f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-ec4c420a",
+          "head": "6e50df8d15f9524b12bee75befd845a3e13a3b78",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-ecf95958",
+          "head": "996c914a98f207778b96b3be271f7d1fb0a6d2a2",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-ee6865d4",
+          "head": "8c3617f44f9609aacd1e85975801b2bed02b6b41",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-ef1fc07d",
+          "head": "3bccf2a37efc8f334dbbbf878810db974bdf4ab1",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-f99b53b5",
+          "head": "01d7532ba07b5d21413007d61821b974d7b05cba",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-fd495c4f",
+          "head": "9107b178e8ace571c29e18c2fe335a5a58d207d0",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-fdbeff75",
+          "head": "a35dd185911d2c3ca7118bab70ef6718c18f8873",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/a2f-closure-20261026",
+          "head": "7759281415ba0bea370a9fa1dd9e7fea67ec3d81",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/a2f-impl-20261026",
+          "head": "2815c144fddf519bfd0fc4da7386065d2e54c2a4",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/a2fp-closure-20261026",
+          "head": "74490560b83823ccfd087f1a13e9a4fd77e62a07",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/api-same-host-1-impl-20261029",
+          "head": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/baseline-f-20261018",
+          "head": "0da8feed0a2b8dcab071f9f31d92bfd66c41a5ad",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/campaign-live-write-1-qual-20261030",
+          "head": "54462d5f0d18f95dd5f85ec3597663b370ba4e82",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/campaign-live-write-1-qual-r2-20261030",
+          "head": "88b5b2595f2b87b1c17453f9027dd7328cf6ca86",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/mekstation-roadmap-loop-continuation-wave-b",
+          "head": "cfd219a8daee5c4797d3bea5eae1b047ed3ba40f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/ndc1-source-01a0febd",
+          "head": "823fc4424fc8d55198e48b09075abeaaa3f45759",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/ndc1-source-r2-01a0febd",
+          "head": "2c0979363363a5d4af76266f02835304ee98492d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2-client-cutover-20260929",
+          "head": "1cb45c562b3a81cbdfb1a036b5ec024d42dc5a9d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2-client-preservation-draft-20261002-gpt61",
+          "head": "716d09b829bcf079dcb7e06de3465dfdedaf1522",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/p2-shared-mission-client-716d09b8-gpt61",
+          "head": "716d09b829bcf079dcb7e06de3465dfdedaf1522",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/review-2368-opus",
+          "head": "61d76f2927c945da0d8df6cbb643e3115a8417ac",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-blk-aerospace-tag-repair-20261029",
+          "head": "b649b2d78f93eac72619e2d7671a36581aca3067",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-blk-vehicle-engine-publication-20261029",
+          "head": "7bba38e9433d3cd1b6669c7dc8bac1df963f58e3",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-clan-ammo-repair-20261030",
+          "head": "3b0e1f8f1d97dee6ac4bc8616a5303b5d2c818c2",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-clan-equipment-resolution-main-20261030",
+          "head": "14d2fa11af7ef5c79516cd8cb160e541efb8ead2",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-controls-main-sync-20261029",
+          "head": "90cfb8d8cc99931af06fd0fc7b867cf51347a18a",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-installed-engine-sync-20261029",
+          "head": "8c8ae08b393fa53c4f605cd319621a3e81c17f92",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-native-protomek-loading-20261029",
+          "head": "8bab76ec722a4f827eb559fccbe35a22d114c9fb",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-native-protomek-review-repair-20261029",
+          "head": "1eab5ae8e6e7c90157404f88dbe08a9007035ac6",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-armor-20261029",
+          "head": "cec55757ed6e85ebe208d6927a6f5fbbe522bf1f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-armor-integration-20261030",
+          "head": "62e8affaef4e71d61c9ede52c1ddae35cd4de3a6",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-armor-main-20261030",
+          "head": "ccdc60db2cf1eda6041cf73fff549fd8a4eb2461",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-20261030",
+          "head": "2fd9cbe6aa4b8b3545cd0a3b37081f6aac8abaae",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-comments-20261030",
+          "head": "f86525b1d0f1bed61e69975b16ddd336c20bbf3d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-export-20261030",
+          "head": "a4d7043d34bda32325be0287df3eee013663eb20",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-integration-20261030",
+          "head": "72d703e0f93c5f4a08d8c178dd3335788f982846",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-main-20261030",
+          "head": "9491b5b928d35643cda96b835eaeaef61219d66f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-repair-20261030",
+          "head": "d1969874154e4c9f049379a8e62562dba502d187",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-booster-unicode-20261030",
+          "head": "e944b888d3d6842b69b575f4c86d047267d76ee6",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-adjustments-20261030",
+          "head": "df4903daca983e13c72ab8d1d5a0ecac8aa1056d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-adjustments-main-20261030",
+          "head": "fac6dc8affc5029624bbc5b755a927436bc5042a",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-defense-20261030",
+          "head": "c4e25ded39717dae9eb1438f1d0798fb036c417c",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-defense-hook-check-20261030",
+          "head": "8b69d062a1b3b6a1aab7dcb01f0edfd64417b5b2",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-defense-main-20261030",
+          "head": "d03fb63adad946519047f70817daeb171e269f59",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-defense-script-repair-20261030",
+          "head": "8b69d062a1b3b6a1aab7dcb01f0edfd64417b5b2",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-defense-threshold-main-20261030",
+          "head": "f86bda352b7217e5848b8ba3930f805c1813945b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-defense-threshold-repair-20261030",
+          "head": "6606e60d1e27306198197579db4d48d234e99080",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-explosives-20261030",
+          "head": "c3299770bddc39569a0c2340fc7204db3375279f",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-explosives-main-20261030",
+          "head": "0c03a259cd85687245ebd88b9a5642c55fec4b92",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-speed-20261030",
+          "head": "e0bd86f8ce0a3a772dc9a5d0792bf9d560c17317",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-speed-integration-20261030",
+          "head": "3d15651cb2c61c189ee7d2c3622ef1c7ae7103b4",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-bv-speed-main-20261030",
+          "head": "71fb52a73c528c0eb03874da629dab27f30fef18",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-clan-resolution-20261030",
+          "head": "3dafe37f4803acfef17abe13a0c4f3ef3373067d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-engine-mass-20261029",
+          "head": "80e7baa977c185318b5e8339ca24be3e53d2b3e8",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-engine-mass-integration-20261029",
+          "head": "6a87cb906ee4e667ff1aa94f59560f8b0731a50d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-engine-mass-main-20261030",
+          "head": "7df96d171a5d1a26955f4e50636bdbfeb72dea9a",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-equipment-metadata-20261030",
+          "head": "6eca860097b1bdcdd992f742b6fdbfc19f641777",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-equipment-syntax-20261030",
+          "head": "729fa25d7f750dde07384e996b0ff3d48f761e98",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-metadata-integration-20261030",
+          "head": "aa1f1f9d819a443a6f56f186bb454c2c8be2630d",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-metadata-publication-20261030",
+          "head": "526ebc681c86808d3f043c3541cf9b0ae24462d7",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-movement-20261030",
+          "head": "a8fd3f5b56244ef73e5bfd009aad93524e60d36a",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-movement-main-20261030",
+          "head": "75c76f8a5b87f4e72255ee32cd93651ef2975874",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-movement-saved-run-20261030",
+          "head": "a76997ab838060df796097a4ab3d957794bc597c",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-native-weapon-names-20261030",
+          "head": "946022a7e21659f75d5cf754bc7e8daf68c55b11",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-rating-20261029",
+          "head": "475b585808515a31f74c6631e0cdf2dafcb02ee9",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-srm-identity-20261030",
+          "head": "5fdf7af7cf73b494c9c3d0727fa76feecdb3418b",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-structure-20261029",
+          "head": "f49b2b5b6e7e0816a531ce1d014f36cdcaf5f8e9",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-structure-duplication-repair-20261029",
+          "head": "dd9219346bd4df594703761f3655d8a9e2b591ad",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-structure-integration-20261029",
+          "head": "d4062b2315a6a6a0cc67184ed644acf06d141126",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-protomek-structure-review-repair-20261029",
+          "head": "a7fcaeed20f0a155ffd608ed5c8e5d98bff7c884",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-provenance-main-sync-20261029",
+          "head": "cdddeb43a12530b720ebf88ace04708f45ee048c",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-source-load-main-sync-20261029",
+          "head": "65bf8cb3200959109fd1a4a8609266609d686bbe",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/root-source-pr-sync-20261029",
+          "head": "2270db7514e10c255fe289d9dab76d7114fd34c0",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/step4-api-closure-campaign-admission-20261030",
+          "head": "946022a7e21659f75d5cf754bc7e8daf68c55b11",
+          "dirty": "M scripts/__tests__/v220-steps.test.mjs",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/thread-transfer-history-20261002-gpt61",
+          "head": "baa20ce6c3031094fc46bd9a8185e44a3a8740ab",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/verify-2300-20261018",
+          "head": "1fff48df38a4d51dc235724f9bc6f7960b578e03",
+          "dirty": "",
+          "committed": ""
+        },
+        {
+          "path": "E:/Projects/Personal/MekStation-wt/verify-2311-20261020",
+          "head": "6675d3f72ee34b44cce582e27ce062b7b6e75f67",
+          "dirty": "",
+          "committed": ""
+        }
+      ],
+      "claims": [
+        {
+          "id": "U62",
+          "state": "complete"
+        },
+        {
+          "id": "U35h",
+          "state": "complete"
+        },
+        {
+          "id": "U17c",
+          "state": "complete"
+        },
+        {
+          "id": "L1-SMOKE-A1",
+          "state": "main-verified"
+        },
+        {
+          "id": "L1-SMOKE-A2FP",
+          "state": "main-verified"
+        },
+        {
+          "id": "L1-SMOKE-A2F",
+          "state": "main-verified"
+        },
+        {
+          "id": "L1-SMOKE-A2M",
+          "state": "main-verified"
+        },
+        {
+          "id": "L1-SMOKE-A2",
+          "state": "main-verified"
+        },
+        {
+          "id": "L1-SMOKE-B",
+          "state": "main-verified"
+        },
+        {
+          "id": "U39",
+          "state": "complete"
+        },
+        {
+          "id": "U40",
+          "state": "complete"
+        },
+        {
+          "id": "U29",
+          "state": "complete"
+        },
+        {
+          "id": "U57",
+          "state": "planned"
+        },
+        {
+          "id": "U15b",
+          "state": "complete"
+        },
+        {
+          "id": "U9",
+          "state": "complete"
+        },
+        {
+          "id": "U11",
+          "state": "complete"
+        },
+        {
+          "id": "U12",
+          "state": "blocked"
+        },
+        {
+          "id": "U12b",
+          "state": "complete"
+        },
+        {
+          "id": "U13",
+          "state": "complete"
+        },
+        {
+          "id": "U17",
+          "state": "complete"
+        },
+        {
+          "id": "U17b",
+          "state": "complete"
+        },
+        {
+          "id": "U14",
+          "state": "complete"
+        },
+        {
+          "id": "U9b",
+          "state": "complete"
+        },
+        {
+          "id": "U63",
+          "state": "planned"
+        },
+        {
+          "id": "U64",
+          "state": "blocked"
+        },
+        {
+          "id": "U65",
+          "state": "blocked"
+        },
+        {
+          "id": "U66",
+          "state": "blocked"
+        },
+        {
+          "id": "U67",
+          "state": "blocked"
+        },
+        {
+          "id": "U68",
+          "state": "blocked"
+        },
+        {
+          "id": "U69",
+          "state": "blocked"
+        },
+        {
+          "id": "U70",
+          "state": "blocked"
+        },
+        {
+          "id": "U71",
+          "state": "blocked"
+        },
+        {
+          "id": "U72",
+          "state": "blocked"
+        },
+        {
+          "id": "U74",
+          "state": "blocked"
+        },
+        {
+          "id": "U75",
+          "state": "blocked"
+        },
+        {
+          "id": "U76",
+          "state": "blocked"
+        },
+        {
+          "id": "U77",
+          "state": "blocked"
+        },
+        {
+          "id": "U78",
+          "state": "blocked"
+        },
+        {
+          "id": "U79",
+          "state": "planned"
+        },
+        {
+          "id": "U80",
+          "state": "blocked"
+        },
+        {
+          "id": "U81",
+          "state": "blocked"
+        },
+        {
+          "id": "U82",
+          "state": "blocked"
+        },
+        {
+          "id": "U103",
+          "state": "planned"
+        },
+        {
+          "id": "DF-MECH-RULES",
+          "state": "blocked"
+        },
+        {
+          "id": "DF-MECH-CONFIG",
+          "state": "blocked"
+        },
+        {
+          "id": "DF-MECH-META",
+          "state": "blocked"
+        },
+        {
+          "id": "EQ-ID",
+          "state": "blocked"
+        },
+        {
+          "id": "DF-BLK-ENGINE",
+          "state": "blocked"
+        },
+        {
+          "id": "DF-CATALOG-PIN",
+          "state": "blocked"
+        },
+        {
+          "id": "COOP-PACK-GEN",
+          "state": "blocked"
+        },
+        {
+          "id": "CF-SMOKEA1-4",
+          "state": "blocked"
+        },
+        {
+          "id": "CF-SMOKEA1-6",
+          "state": "blocked"
+        },
+        {
+          "id": "CAMPAIGN-LIVE-WRITE-1",
+          "state": "admitted"
+        },
+        {
+          "id": "STEP2-RC-RERUN-1",
+          "state": "blocked"
+        },
+        {
+          "id": "RELEASE-PRODUCER-1",
+          "state": "blocked"
+        }
+      ]
+    }
+  }
+}
