@@ -177,6 +177,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     const booster = readBlkProtoBooster(
       document.equipmentByLocation,
       hasMainGun,
+      document.type,
     );
     errors.push(...booster.errors);
     if (errors.length > 0) return { errors, warnings };

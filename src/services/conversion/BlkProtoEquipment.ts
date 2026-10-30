@@ -30,6 +30,25 @@ const BOOSTER_NAMES = new Set(
   ].map((name) => name.toLowerCase()),
 );
 
+// Decimal zeroes from the pinned Java 21 Character.digit(char, 10) table.
+// Integer.parseInt reads UTF-16 chars, so supplementary digits are not admitted.
+const JAVA_DECIMAL_ZEROES = [
+  0x30, 0x660, 0x6f0, 0x7c0, 0x966, 0x9e6, 0xa66, 0xae6, 0xb66, 0xbe6, 0xc66,
+  0xce6, 0xd66, 0xde6, 0xe50, 0xed0, 0xf20, 0x1040, 0x1090, 0x17e0, 0x1810,
+  0x1946, 0x19d0, 0x1a80, 0x1a90, 0x1b50, 0x1bb0, 0x1c40, 0x1c50, 0xa620,
+  0xa8d0, 0xa900, 0xa9d0, 0xa9f0, 0xaa50, 0xabf0, 0xff10,
+];
+
+function normalizeShotDigits(shots: string): string {
+  return shots.replace(/[\u0080-\uffff]/g, (character) => {
+    const code = character.charCodeAt(0);
+    const zero = JAVA_DECIMAL_ZEROES.find(
+      (start) => code >= start && code < start + 10,
+    );
+    return zero === undefined ? character : String(code - zero);
+  });
+}
+
 function equipmentName(raw: string, errors: string[]): string | undefined {
   let name = raw.trim();
   const sizeIndex = name.toUpperCase().indexOf(':SIZE:');
@@ -48,7 +67,7 @@ function equipmentName(raw: string, errors: string[]): string | undefined {
   if (name.startsWith('(R) ')) name = name.slice(4);
   const shotsIndex = name.lastIndexOf(' (');
   if (shotsIndex > 0) {
-    const shots = name.slice(shotsIndex + 2, -1);
+    const shots = normalizeShotDigits(name.slice(shotsIndex + 2, -1));
     const count = Number(shots);
     if (
       !/^[+-]?\d+$/.test(shots) ||
@@ -68,6 +87,7 @@ function equipmentName(raw: string, errors: string[]): string | undefined {
 export function readBlkProtoBooster(
   equipmentByLocation: Readonly<Record<string, readonly string[]>>,
   hasMainGun: boolean,
+  sourceType: string,
 ): { readonly hasMyomerBooster: boolean; readonly errors: readonly string[] } {
   const locations = new Set([
     'body',
@@ -78,14 +98,25 @@ export function readBlkProtoBooster(
       .map((location) => location.toLowerCase()),
   ]);
   const errors: string[] = [];
+  const visited = new Set<string>();
+  const technologyPrefix = /^Clan /i.test(sourceType) ? 'clan ' : 'is ';
+  // BLKProtoMekFile uses T_CLAN_TW specifically, not all Clan rules levels.
+  const fallbackPrefix = /^Clan Level 2$/i.test(sourceType) ? 'clan ' : 'is ';
   let hasMyomerBooster = false;
   for (const [location, entries] of Object.entries(equipmentByLocation)) {
     // The parser retains the suffix for differently-cased Equipment block keys.
-    if (!locations.has(location.replace(/ equipment$/i, '').toLowerCase()))
-      continue;
+    const normalized = location.replace(/ equipment$/i, '').toLowerCase();
+    if (!locations.has(normalized) || visited.has(normalized)) continue;
+    visited.add(normalized);
     for (const entry of entries) {
-      const name = equipmentName(entry, errors);
-      if (name !== undefined && BOOSTER_NAMES.has(name.toLowerCase())) {
+      const name = equipmentName(entry, errors)?.toLowerCase();
+      if (
+        name !== undefined &&
+        ((!/^(clan|is) /.test(name) &&
+          BOOSTER_NAMES.has(technologyPrefix + name)) ||
+          BOOSTER_NAMES.has(name) ||
+          BOOSTER_NAMES.has(fallbackPrefix + name))
+      ) {
         hasMyomerBooster = true;
       }
     }
@@ -130,6 +161,7 @@ export function getBlkProtoEquipmentExportErrors(
   equipment: readonly IBlkProtoEquipmentEntry[],
   hasMainGun: boolean,
   hasMyomerBooster: boolean,
+  sourceType: string,
 ): readonly string[] {
   const emitted = getBlkProtoEquipmentByLocation(equipment);
   const errors: string[] = [];
@@ -145,7 +177,7 @@ export function getBlkProtoEquipmentExportErrors(
   }
   if (errors.length > 0) return errors;
 
-  const booster = readBlkProtoBooster(emitted, hasMainGun);
+  const booster = readBlkProtoBooster(emitted, hasMainGun, sourceType);
   errors.push(...booster.errors);
   if (booster.hasMyomerBooster !== hasMyomerBooster) {
     errors.push(

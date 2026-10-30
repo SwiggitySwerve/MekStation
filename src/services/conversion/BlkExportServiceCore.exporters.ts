@@ -279,6 +279,7 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
   const lines: string[] = [];
 
   try {
+    const sourceType = formatTechType(unit.techBase, unit.rulesLevel);
     const topologyError = getProtoMainGunTopologyError(
       unit.hasMainGun,
       unit.equipment.map((item) => item.location),
@@ -290,6 +291,7 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
         unit.equipment,
         unit.hasMainGun,
         unit.hasMyomerBooster,
+        sourceType,
       ),
     );
     if (errors.length > 0) return { success: false, errors };
@@ -306,7 +308,7 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
     lines.push('');
 
     lines.push(tag('year', unit.year.toString()));
-    lines.push(tag('type', formatTechType(unit.techBase, unit.rulesLevel)));
+    lines.push(tag('type', sourceType));
     lines.push('');
 
     lines.push(tag('Tonnage', unit.tonnage.toString()));

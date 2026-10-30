@@ -163,6 +163,8 @@ semantics SHALL remain distinct from the movement effect.
 - **WHEN** any of the six pinned misc equipment types carrying F_MASC is loaded in a source location that upstream visits
 - **THEN** the handler SHALL set the booster flag and the running owner SHALL consume it without changing base Walk or engine rating
 - **AND** exact internal, registered and display aliases SHALL be compared case-insensitively without fuzzy punctuation matching
+- **AND** lookup SHALL use the source technology prefix and the pinned fallback (`Clan ` only for Clan Level 2, otherwise `IS `), including unqualified `Super Charger`
+- **AND** case-variant equipment blocks SHALL use the first retained block, without claiming recovery of identical duplicate tags already overwritten by the shared parser
 - **AND** a Main Gun block SHALL contribute no booster when no mount exists
 - **AND** the separate myomerbooster tag SHALL NOT override equipment for any locally accepted ProtoMech spelling
 
@@ -170,6 +172,7 @@ semantics SHALL remain distinct from the movement effect.
 
 - **WHEN** native rear-mount, size or shot-count syntax precedes lookup
 - **THEN** the source adapter SHALL decode it before determining the equipment effect
+- **AND** shot counts SHALL admit Java BMP decimal digits and ASCII signs within the nonnegative signed-32-bit range, retaining Java's rejection of supplementary digits
 - **AND** unusable numeric suffixes SHALL return a structured equipment diagnostic rather than throw or silently activate equipment
 - **AND** every processed entry SHALL be checked even if an earlier entry enables the booster
 - **AND** original equipment names, strings and locations SHALL remain available without catalog regeneration
@@ -193,6 +196,8 @@ writer's shared projection. It SHALL NOT silently synthesize or remove mounts.
 - **THEN** export SHALL fail with a booster/equipment diagnostic and no content
 - **AND** input equipment, movement, stored BV and persistence SHALL remain untouched
 - **AND** omitted locations SHALL NOT count toward the emitted effect
+- **AND** the decoder SHALL use the exact technology declaration emitted by the exporter
+- **AND** equipment normalized from an ignored source location SHALL NOT silently gain a booster effect through export and reload
 - **AND** the existing absent Main Gun rejection SHALL remain enforced
 
 #### Scenario: Unrepresentable equipment text

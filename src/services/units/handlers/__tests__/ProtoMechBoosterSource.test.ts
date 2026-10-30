@@ -3,11 +3,16 @@ import { exportProtoMech } from '@/services/conversion/BlkExportServiceCore.expo
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { createDefaultProtoMechState } from '@/stores/protoMechState';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { computeRunMP } from '@/utils/construction/protomech';
 
 import { ProtoMechUnitHandler } from '../ProtoMechUnitHandler';
 
 const parser = new BlkParserService();
 const handler = new ProtoMechUnitHandler();
+
+const technologies = ['IS', 'Clan'].flatMap((base) =>
+  [1, 2, 3, 4].map((level) => `${base} Level ${level}`),
+);
 
 function parse(overrides: Record<string, string> = {}) {
   const tags = {
@@ -40,6 +45,124 @@ function load(overrides: Record<string, string> = {}) {
 describe.each(['ProtoMek', 'ProtoMech', 'Protomech'])(
   '%s source booster identity',
   (UnitType) => {
+    describe.each(technologies)('%s native lookup context', (type) => {
+      it.each([
+        'Super Charger',
+        'super charger',
+        'SUPER CHARGER',
+        '(R) Super Charger',
+        'Super Charger (+5):SIZE:2',
+        '(R) Super Charger (\u0665):SIZE:2',
+      ])('resolves %s using the source technology', (name) => {
+        const expected = type !== 'Clan Level 2';
+        const unit = load({ UnitType, type, 'Torso Equipment': name });
+        expect(unit.hasMyomerBooster).toBe(expected);
+        expect(computeRunMP(unit.cruiseMP, unit.hasMyomerBooster)).toBe(
+          expected ? 8 : 6,
+        );
+        expect(unit.equipment[0].name).toBe(name);
+
+        const state = {
+          ...createDefaultProtoMechState({ tonnage: 5 }),
+          techBase: unit.techBase,
+          rulesLevel: unit.rulesLevel,
+          hasMainGun: false,
+          armorByLocation: unit.armorByLocation,
+          equipment: [...unit.equipment],
+          hasMyomerBooster: expected,
+        };
+        const exported = exportProtoMech(state);
+        expect(exported.success).toBe(true);
+        expect(exported.content).toContain(name);
+        const inconsistent = exportProtoMech({
+          ...state,
+          hasMyomerBooster: !expected,
+        });
+        expect(inconsistent.success).toBe(false);
+        expect(inconsistent.content).toBeUndefined();
+      });
+    });
+
+    it.each([
+      '\u0665',
+      '\uff15',
+      '+\u096b',
+      '-\u0660',
+      '2\u0661\uff14\u096d483647',
+    ])('accepts Java decimal shot digits %s', (shots) => {
+      expect(
+        load({ UnitType, 'Torso Equipment': `CLMyomerBooster (${shots})` })
+          .hasMyomerBooster,
+      ).toBe(true);
+    });
+    it.each([
+      '\u0662\u0661\u0664\u0667\u0664\u0668\u0663\u0666\u0664\u0668',
+      '-\u0661',
+      '\ud835\udfd3',
+      '\u00b2',
+      '\u0665.0',
+      '+',
+      ' \u0665',
+    ])('rejects invalid or out-of-range Java shot digits %s', (shots) => {
+      const result = parse({
+        UnitType,
+        'Torso Equipment': `CLMyomerBooster (${shots})`,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success)
+        expect(result.error.errors.join(' ')).toContain('shot count');
+    });
+
+    it.each(['Torso Equipment', 'torso equipment', 'TORSO EQUIPMENT'])(
+      'uses the first case-variant equipment block %s',
+      (first) => {
+        const second =
+          first === 'TORSO EQUIPMENT' ? 'Torso Equipment' : 'TORSO EQUIPMENT';
+        expect(
+          load({
+            UnitType,
+            [first]: 'CLERMediumLaser',
+            [second]: 'CLMyomerBooster',
+          }).hasMyomerBooster,
+        ).toBe(false);
+        expect(
+          load({
+            UnitType,
+            [first]: 'CLMyomerBooster',
+            [second]: 'Unknown (oops)',
+          }).hasMyomerBooster,
+        ).toBe(true);
+        expect(
+          load({ UnitType, [first]: '', [second]: 'CLMyomerBooster' })
+            .hasMyomerBooster,
+        ).toBe(false);
+      },
+    );
+
+    it.each(['Front', 'Turret'])(
+      'refuses export that would activate ignored %s equipment',
+      (location) => {
+        const unit = load({
+          UnitType,
+          [`${location} Equipment`]: 'CLMyomerBooster',
+        });
+        expect(unit.hasMyomerBooster).toBe(false);
+        const state = {
+          ...createDefaultProtoMechState({ tonnage: 5 }),
+          hasMainGun: unit.hasMainGun,
+          hasMyomerBooster: unit.hasMyomerBooster,
+          armorByLocation: unit.armorByLocation,
+          equipment: [...unit.equipment],
+        };
+        const before = JSON.stringify(state);
+        const result = exportProtoMech(state);
+        expect(result.success).toBe(false);
+        expect(result.content).toBeUndefined();
+        expect(result.errors.join(' ')).toMatch(/booster.*equipment/i);
+        expect(JSON.stringify(state)).toBe(before);
+      },
+    );
+
     it.each([
       'CLMyomerBooster',
       'clmyomerbooster',
