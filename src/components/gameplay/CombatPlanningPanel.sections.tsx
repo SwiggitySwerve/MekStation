@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
@@ -21,6 +21,7 @@ import type {
 } from '@/utils/gameplay/toHit/forecast';
 
 import { GameEventType, LockState, MovementType } from '@/types/gameplay';
+import { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 
 import {
   AttackerLockedBanner,
@@ -193,7 +194,7 @@ export function WeaponAttackPlanningSection({
   onCloseForecast,
   weaponModeError,
 }: WeaponAttackPlanningSectionProps): React.ReactElement {
-  const ammoMap = buildAmmoMap(weapons, selected);
+  const ammoMap = useAmmoMap(weapons, selected);
   const hasZeroAmmoSelected = attackPlan.selectedWeapons.some(
     (weaponId) => ammoMap[weaponId] === 0,
   );
@@ -269,6 +270,7 @@ export function WeaponAttackPlanningSection({
           forecastOptions={forecastOptions}
           previewEnabled={previewEnabled}
           attackerWeapons={weapons}
+          ammo={ammoMap}
           onConfirm={onConfirmFire}
           onClose={onCloseForecast}
         />
@@ -296,7 +298,7 @@ export function PhysicalAttackPlanningSection({
   selectedWeaponModes,
   weapons,
 }: PhysicalAttackPlanningSectionProps): React.ReactElement {
-  const ammoMap = buildAmmoMap(weapons, selected);
+  const ammoMap = useAmmoMap(weapons, selected);
 
   return (
     <section
@@ -331,15 +333,16 @@ export function PhysicalAttackPlanningSection({
   );
 }
 
-function buildAmmoMap(
+function useAmmoMap(
   weapons: readonly IWeapon[],
   selected: ISelectedUnitProjection,
 ): Record<string, number> {
-  const ammoMap: Record<string, number> = {};
-  for (const weapon of weapons) {
-    ammoMap[weapon.id] = selected.state.ammo[weapon.id] ?? -1;
-  }
-  return ammoMap;
+  const { ammo, ammoState } = selected.state;
+  return useMemo(
+    () =>
+      ammoState === undefined ? ammo : ammoFromWeapons(weapons, ammoState),
+    [weapons, ammo, ammoState],
+  );
 }
 
 function isWaitingForOpponent(

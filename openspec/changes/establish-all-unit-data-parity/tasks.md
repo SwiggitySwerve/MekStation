@@ -50,6 +50,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 ## 3. Complete typed data flows
 
+- [ ] 3.03 Share the existing ammunition-bin projection without changing its output, then forward live counts through the selector/forecast consumers and verify ammo-only updates; retain unknown-capacity readiness, active-composer and native ammunition gaps. (`to-hit-resolution`: Ammunition counts in preview consumers)
+
 - [ ] 3.02 Extract ProtoMek equipment syntax without changing outputs, then retain parsed block/entry identity, explicit shots/size/rear-prefix and diagnostics through handler/store projections, saved-state loading and bounded BLK reload. Verify actual native shot/size observations; retain resolved identity, Body topology, general serialization and full equipment/BV gaps. (`unit-services`: ProtoMek equipment source syntax)
 
 - [ ] 3.01 Consolidate the ProtoMek BLK equipment projection without changing output, then reject flag/emitted-booster disagreement and unrepresentable equipment text without content or input mutation. Verify existing source export bytes and actual Java reload; production mount editing, arbitrary saved-flank export, complete equipment and BV remain open. (`unit-services`: ProtoMek booster export integrity)

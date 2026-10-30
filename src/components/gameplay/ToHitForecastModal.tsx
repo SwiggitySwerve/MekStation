@@ -62,6 +62,8 @@ export interface ToHitForecastModalProps {
    * don't care about the preview can still render the modal.
    */
   attackerWeapons?: readonly IWeapon[];
+  /** Projected remaining rounds by mounted weapon ID. */
+  ammo?: Readonly<Record<string, number>>;
   /** Optional per-row forecast parity inputs sourced from shared engine builders. */
   forecastOptions?: IToHitForecastOptions;
   /** Callback when Confirm Fire is pressed (parent should call commitAttack) */
@@ -261,6 +263,7 @@ export function ToHitForecastModal({
   weapons,
   previewEnabled = false,
   attackerWeapons = [],
+  ammo,
   forecastOptions,
   onConfirm,
   onClose,
@@ -302,6 +305,7 @@ export function ToHitForecastModal({
         target,
         weapon,
         range,
+        remainingShots: ammo?.[weapon.id],
       });
     }
   }
