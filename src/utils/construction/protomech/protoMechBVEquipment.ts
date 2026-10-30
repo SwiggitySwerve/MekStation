@@ -32,25 +32,6 @@ const OFFENSIVE_EQUIPMENT_HINTS: readonly string[] = [
   'tag',
 ];
 
-/**
- * Explosive weapon hints — any ammo-bearing / explosive weapon on a proto
- * incurs the standard 15 BV per crit penalty (proto slot = 1 crit for these
- * purposes; most relevant categories are AC and Gauss rifles).
- *
- * Protos are Clan-only and typically lack CASE; we treat all main-gun
- * ACs / Gauss as explosive. Ammo crits themselves add penalty equal to
- * number of ammo shots stored but TechManual clamps proto ammo contribution
- * small enough that 15 per ammo mount is a conservative match.
- */
-const EXPLOSIVE_SUBTYPE_HINTS: readonly string[] = [
-  'auto cannon',
-  'ac/',
-  'gauss',
-  'lbx',
-  'lb-x',
-  'ultra ac',
-];
-
 // =============================================================================
 // Helpers
 // =============================================================================
@@ -94,22 +75,8 @@ function classifyEquipment(
   return 'other';
 }
 
-function isExplosiveWeapon(mount: IProtoMechMountedEquipment): boolean {
-  const id = mount.equipmentId.toLowerCase();
-  for (const hint of EXPLOSIVE_SUBTYPE_HINTS) {
-    if (id.includes(hint)) return true;
-  }
-  return false;
-}
-
 function isMainGunMount(mount: IProtoMechMountedEquipment): boolean {
   return mount.isMainGun || mount.location === ProtoLocation.MAIN_GUN;
 }
 
-export {
-  armorTotal,
-  structureTotal,
-  classifyEquipment,
-  isExplosiveWeapon,
-  isMainGunMount,
-};
+export { armorTotal, structureTotal, classifyEquipment, isMainGunMount };

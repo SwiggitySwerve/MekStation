@@ -36,6 +36,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.13 Remove unsupported ProtoMech weight/chassis BV adjustments and fix Piloting at 5 through the shared skill owner; verify seeded native components, simple loaded entities and saved-cache consumers, preserving source/export fields and retaining full-source equipment/BV gaps. (`battle-value-system`: ProtoMech Offensive BV and Main Gun; ProtoMech Chassis Multiplier; ProtoMech Gunnery Adjustment)
 
+- [ ] 2.14 Remove the unsupported ProtoMech explosive-equipment BV penalty; verify actual native stages for all 86 sources, preserve unrelated terms and saved caches, and retain full-equipment/BV gaps. (`battle-value-system`: ProtoMech Defensive BV)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.01 Consolidate the ProtoMek BLK equipment projection without changing output, then reject flag/emitted-booster disagreement and unrepresentable equipment text without content or input mutation. Verify existing source export bytes and actual Java reload; production mount editing, arbitrary saved-flank export, complete equipment and BV remain open. (`unit-services`: ProtoMek booster export integrity)

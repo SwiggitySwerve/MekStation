@@ -6,7 +6,7 @@
  *   - Neutral chassis summary for every ProtoMech chassis
  *   - Armor / structure coefficient application (2.5× / 1.5×)
  *   - Main gun weapons counted at full BV
- *   - Explosive penalty (15 BV per explosive mount)
+ *   - Zero native ProtoMech explosive-equipment penalty
  *   - Point BV aggregation (sum of 5 proto BVs)
  *   - Five canonical proto fixtures (Minotaur, Satyr, Sprite, Ares, Siren)
  *

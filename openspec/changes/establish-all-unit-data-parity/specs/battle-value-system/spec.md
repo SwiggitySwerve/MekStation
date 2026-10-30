@@ -131,7 +131,9 @@ The offensive pool SHALL NOT add tonnage or a generic physical-attack bonus.
 
 The proto defensive BV SHALL combine armor, structure, defensive equipment,
 explosive penalty and the pinned MegaMek default-construction defensive movement
-factor. A Glider SHALL add one to running TMM before comparison with jumping
+factor. Explosive equipment SHALL NOT subtract a ProtoMech-specific penalty;
+the compatibility explosivePenalty field SHALL remain exactly zero. A Glider
+SHALL add one to running TMM before comparison with jumping
 TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 
 #### Scenario: Armor BV baseline
@@ -173,6 +175,15 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **AND** unrelated family outputs, source fields, serialization and export bytes SHALL be preserved
 - **AND** fractional/nonfinite/negative movement, MaxTech options, full equipment pools, complete BV and production browser flows SHALL remain outside this component proof
 
+#### Scenario: Native ProtoMech explosive stage
+
+- **GIVEN** a ProtoMech carrying Gauss or other explosive equipment
+- **WHEN** defensive BV is calculated
+- **THEN** explosivePenalty SHALL be exactly zero, matching the inherited empty native stage
+- **AND** equipment identities, other BV terms and source/export data SHALL be preserved
+- **AND** a zero defensive pool SHALL remain exactly zero
+- **AND** saved cached BV SHALL remain unchanged until an existing BV-affecting action or explicit recomputation
+- **AND** native explosive-stage agreement SHALL NOT establish ammunition, equipment-pool or complete BV parity
 
 #### Scenario: Shared thresholds preserve legacy validation
 
