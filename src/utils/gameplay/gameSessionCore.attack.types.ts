@@ -7,6 +7,7 @@ import type {
   IToHitModifierDetail,
   IUnitGameState,
   IWeaponAttack,
+  IWeaponAttackData,
   RangeBracket,
 } from '@/types/gameplay';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
@@ -45,6 +46,10 @@ export interface IDeclaredAttackToHit {
   readonly finalToHit: number;
   readonly indirectFireResolution?: IIndirectFireResolution;
   readonly modifiers: readonly IToHitModifier[];
+  readonly weaponToHits?: readonly Pick<
+    IWeaponAttackData,
+    'toHitNumber' | 'modifiers'
+  >[];
 }
 
 export type DeclareAttack = (
