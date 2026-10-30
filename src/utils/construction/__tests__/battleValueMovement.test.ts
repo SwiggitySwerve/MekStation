@@ -8,12 +8,104 @@
  * BV parity for every mech we calculate.
  */
 
+import { MovementType } from '@/types/gameplay';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { calculateTMM as calculateGameplayTMM } from '@/utils/gameplay/toHit/movementModifiers';
+
 import {
   calculateOffensiveSpeedFactor,
   calculateSpeedFactor,
   calculateTMM,
   SPEED_FACTORS,
 } from '../battleValueMovement';
+import { baseInput } from '../vehicle/__tests__/vehicleBV.test.helpers';
+import { calculateVehicleTMM } from '../vehicle/vehicleBVMovement';
+
+describe('distinct TMM entry-point contracts', () => {
+  it.each([
+    [Number.NaN, 6, 0],
+    [Number.POSITIVE_INFINITY, 6, 6],
+    [Number.NEGATIVE_INFINITY, 0, 0],
+    [-1, 0, 0],
+    [-0, 0, 0],
+    [2.5, 1, 0],
+    [4.5, 2, 0],
+    [6.5, 3, 0],
+    [9.5, 4, 0],
+    [17.5, 5, 0],
+    [24.5, 6, 0],
+  ])(
+    'preserves construction/gameplay input %s',
+    (mp, construction, gameplay) => {
+      expect(calculateTMM(mp)).toBe(construction);
+      expect(calculateVehicleTMM(baseInput({ flankMP: mp }))).toBe(
+        construction,
+      );
+      expect(calculateGameplayTMM(MovementType.Run, mp).value).toBe(gameplay);
+      expect(calculateGameplayTMM(MovementType.Stationary, mp).value).toBe(0);
+    },
+  );
+
+  it('applies the VTOL bonus to running before comparing jumping', () => {
+    expect(
+      calculateVehicleTMM(
+        baseInput({ motionType: GroundMotionType.VTOL, flankMP: 0 }),
+      ),
+    ).toBe(1);
+    expect(
+      calculateVehicleTMM(
+        baseInput({ motionType: GroundMotionType.VTOL, flankMP: 6, jumpMP: 4 }),
+      ),
+    ).toBe(3);
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.VTOL,
+          flankMP: 6,
+          jumpMP: 10,
+        }),
+      ),
+    ).toBe(5);
+  });
+
+  it('keeps submarine overrides, including zero and NaN', () => {
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.SUBMARINE,
+          flankMP: 25,
+          submarineMP: 0,
+        }),
+      ),
+    ).toBe(0);
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.SUBMARINE,
+          flankMP: 25,
+          submarineMP: 7,
+        }),
+      ),
+    ).toBe(3);
+    expect(
+      calculateVehicleTMM(
+        baseInput({
+          motionType: GroundMotionType.SUBMARINE,
+          flankMP: 0,
+          submarineMP: Number.NaN,
+        }),
+      ),
+    ).toBe(6);
+  });
+
+  it.each([-1, 0, Number.NaN])(
+    'keeps the nonpositive/unusable jump guard for %s',
+    (jumpMP) => {
+      expect(calculateTMM(4, jumpMP)).toBe(1);
+      expect(calculateVehicleTMM(baseInput({ flankMP: 4, jumpMP }))).toBe(1);
+    },
+  );
+});
 
 describe('calculateTMM (run/jump bucket table)', () => {
   it('returns 0 for very slow units (run MP ≤ 2)', () => {

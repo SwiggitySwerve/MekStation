@@ -23,3 +23,19 @@ Representative before/after observations cover the three public callers,
 explicit nonfinite/signed-zero results, and all 86 pinned ProtoMek source BV
 breakdowns. Full BV, equipment resolution and invalid-input admission remain
 separate contracts; no whole-unit numerical parity follows from this refactor.
+
+## Standard TMM thresholds
+
+`src/constants/movement.ts` owns the standard bracket table; the gameplay
+to-hit constants facade re-exports it. Construction applies upper bounds only,
+retaining negative/fractional/nonfinite behavior. Gameplay to-hit uses explicit
+lower and upper bounds with stationary/zero guards. Those input contracts are
+different and remain separate. The legacy gameplay `movement/modifiers.ts`
+ceil(distance/5) approximation is a different rule and is not corrected here.
+
+Shared construction `calculateTMM` compares running TMM plus a caller-supplied
+bonus against positive-jump TMM plus one. Vehicle callers retain effective MP,
+submarine nullish overrides and the VTOL running bonus. Every former threshold
+copy now uses the shared table. The preserving extraction changes no numeric
+outputs; optional MaxTech movement brackets and invalid-input admission remain
+outside this default construction contract.

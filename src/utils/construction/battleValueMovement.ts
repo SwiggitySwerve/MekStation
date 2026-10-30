@@ -1,3 +1,5 @@
+import { TMM_BRACKETS } from '@/constants/movement';
+
 export const SPEED_FACTORS: Record<number, number> = {
   0: 1.0,
   1: 1.1,
@@ -13,17 +15,19 @@ export const SPEED_FACTORS: Record<number, number> = {
 };
 
 function mpToTMM(mp: number): number {
-  if (mp <= 2) return 0;
-  if (mp <= 4) return 1;
-  if (mp <= 6) return 2;
-  if (mp <= 9) return 3;
-  if (mp <= 17) return 4;
-  if (mp <= 24) return 5;
-  return 6;
+  // Construction historically uses upper bounds only, including its NaN fallback.
+  return (
+    TMM_BRACKETS.find((bracket) => mp <= bracket.max)?.tmm ??
+    TMM_BRACKETS[TMM_BRACKETS.length - 1].tmm
+  );
 }
 
-export function calculateTMM(runMP: number, jumpMP: number = 0): number {
-  const runTMM = mpToTMM(runMP);
+export function calculateTMM(
+  runMP: number,
+  jumpMP: number = 0,
+  runningBonus: number = 0,
+): number {
+  const runTMM = mpToTMM(runMP) + runningBonus;
   const jumpTMM = jumpMP > 0 ? mpToTMM(jumpMP) + 1 : 0;
   return Math.max(runTMM, jumpTMM);
 }
