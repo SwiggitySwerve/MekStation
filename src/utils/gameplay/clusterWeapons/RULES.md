@@ -36,7 +36,10 @@ landedProjectiles)`, the conversion from the launcher total hydrated into
 The runner's missile-cluster and Streak resolution and the selected-AMS session
 cluster share it, with outputs unchanged. Code whose input is already damage per
 hit (`resolution.ts`, `streak.ts`, battle-armor `damagePerMissile`,
-`missileMechanics.ts`) does not use it.
+`missileMechanics.ts`) does not use it. The single-missile AMS path
+(`weaponAttackAMS.ts`, `projectileCount === 0 ? 0 : damage`) is the same
+conversion for a rack of one, written as a conditional; it stays separate
+because the owner would return `NaN` for non-finite damage where it returns 0.
 
 ## Missile rack identification
 
