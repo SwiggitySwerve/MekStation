@@ -1,3 +1,4 @@
+import type { IWeapon } from '@/simulation/ai/types';
 /**
  * Expected Damage + Damage Variance helpers.
  *
@@ -15,7 +16,7 @@
  * @spec openspec/changes/add-what-if-to-hit-preview/specs/damage-system/spec.md
  */
 
-import type { IWeapon } from '@/simulation/ai/types';
+import { hasAmmoForDamagePreview } from '@/utils/gameplay/ammoTracking/weapons';
 
 import {
   CLUSTER_HIT_TABLE,
@@ -201,7 +202,8 @@ function clusterHitsVarianceForSize(rackSize: number): number {
 export interface IExpectedDamageOptions {
   /**
    * Shots the weapon can still fire. `undefined` means "treat as
-   * unlimited" (energy weapons or unknown ammo state). `0` forces
+   * unlimited" for ordinary weapons; unknown-capacity missiles require
+   * explicit rounds. `0` forces
    * the preview to zero so the UI can render "—".
    */
   readonly remainingShots?: number;
@@ -230,12 +232,8 @@ export function expectedDamage(
 
   // Catalog ammo bin empty → zero expected damage even if the
   // weapon isn't tagged one-shot. Energy weapons report `ammoPerTon =
-  // -1`; we never zero those out.
-  if (
-    weapon.ammoPerTon !== -1 &&
-    options.remainingShots !== undefined &&
-    options.remainingShots <= 0
-  ) {
+  // -1`; known missiles with missing capacity still require explicit rounds.
+  if (!hasAmmoForDamagePreview(weapon, options.remainingShots)) {
     return 0;
   }
 
@@ -281,11 +279,7 @@ export function damageVariance(
   if (p === 0 || p === 1) return 0;
 
   if (isOneShot(weapon) && options.remainingShots === 0) return 0;
-  if (
-    weapon.ammoPerTon !== -1 &&
-    options.remainingShots !== undefined &&
-    options.remainingShots <= 0
-  ) {
+  if (!hasAmmoForDamagePreview(weapon, options.remainingShots)) {
     return 0;
   }
 

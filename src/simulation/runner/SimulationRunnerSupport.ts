@@ -10,10 +10,12 @@ import {
   MovementType,
   RangeBracket,
 } from '@/types/gameplay';
+import { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 import { getTorsoTwistFromSecondaryFacing } from '@/utils/gameplay/firingArc';
 
 import type { IAIUnitState, IWeapon } from '../ai/types';
 
+import { selectedAmmoWeaponType } from './phases/weaponAttackFiringModes';
 import {
   MEDIUM_LASER_DAMAGE,
   MEDIUM_LASER_HEAT,
@@ -261,7 +263,10 @@ export function toAIUnitState(
       unit,
       applyDestroyedWeaponCriticalsToWeapons(unit, weapons),
     ),
-    ammo: {},
+    ammo:
+      unit.ammoState && Object.keys(unit.ammoState).length > 0
+        ? ammoFromWeapons(weapons, unit.ammoState, selectedAmmoWeaponType)
+        : {},
     destroyed:
       unit.destroyed || unit.hasRetreated === true || unit.hasEjected === true,
     // Phase 1 of `add-encounter-swarm-harness`: read real pilot skills from

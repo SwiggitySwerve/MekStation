@@ -65,6 +65,7 @@ export function extractWeapons(
     weapons.push({
       ...data,
       id: `${unitId}-${canonicalId}-${count}`,
+      ammoWeaponType: data.id,
       location: stringField(item, 'location', 'mountLocation', 'locationKey'),
       ...weaponMountArcsFromEquipment(item, unitData),
     });
