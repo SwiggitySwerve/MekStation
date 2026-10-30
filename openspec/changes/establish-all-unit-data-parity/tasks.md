@@ -46,6 +46,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.19 Consolidate cluster lookup/table copies with unchanged captures, then correct integer racks 1-20 against pinned Java and exercise shared combat and preview consumers. Ammo eligibility, complete ProtoMech combat and larger racks remain open. (`combat-resolution`: Native cluster hits for represented integer racks)
 
+- [ ] 2.21 Preserve known missile category independently of capacity metadata at the weapon attack boundary; verify its Gunnery Specialist to-hit effect through real hydration and preserve other attack fields and controls. Complete native categories, multi-SPA precedence and tactical-preview category propagation remain open. (`spa-combat-integration`: Gunnery SPA — Gunnery Specialist)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.02 Extract ProtoMek equipment syntax without changing outputs, then retain parsed block/entry identity, explicit shots/size/rear-prefix and diagnostics through handler/store projections, saved-state loading and bounded BLK reload. Verify actual native shot/size observations; retain resolved identity, Body topology, general serialization and full equipment/BV gaps. (`unit-services`: ProtoMek equipment source syntax)
