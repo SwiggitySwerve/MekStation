@@ -67,6 +67,8 @@ function firstPatternCatalogMatch(
   for (const [pattern, replacement] of NORMALIZATION_PATTERNS) {
     if (!value.match(pattern)) continue;
     const result = value.replace(pattern, replacement);
+    const clanId = clanPrefixCatalogMatch(catalog, value, [result]);
+    if (clanId) return clanId;
     if (catalog.has(result)) return result;
   }
   return undefined;
@@ -75,14 +77,13 @@ function firstPatternCatalogMatch(
 function clanPrefixCatalogMatch(
   catalog: EquipmentCatalogLookup,
   noSpaces: string,
-  withoutPrefix: string,
-  withoutPrefixHyphenated: string,
+  candidates: readonly string[],
 ): string | undefined {
   if (!noSpaces.startsWith('cl')) return undefined;
-  return firstCatalogMatch(catalog, [
-    'clan-' + withoutPrefix,
-    'clan-' + withoutPrefixHyphenated,
-  ]);
+  return firstCatalogMatch(
+    catalog,
+    candidates.map((candidate) => 'clan-' + candidate),
+  );
 }
 
 export function normalizeEquipmentId(equipmentId: string): string {
@@ -127,12 +128,10 @@ export function normalizeEquipmentId(equipmentId: string): string {
     /([a-z])(\d)/g,
     '$1-$2',
   );
-  const clanId = clanPrefixCatalogMatch(
-    catalog,
-    noSpaces,
+  const clanId = clanPrefixCatalogMatch(catalog, noSpaces, [
     withoutPrefix,
     withoutPrefixHyphenated,
-  );
+  ]);
   if (clanId) return clanId;
 
   const compactPatternId = firstPatternCatalogMatch(catalog, noSpaces);
