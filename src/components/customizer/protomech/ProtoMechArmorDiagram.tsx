@@ -29,6 +29,7 @@ import React, { useCallback } from 'react';
 
 import { useProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { getProtoArmorDiagramMax as getLocationMax } from '@/utils/construction/protomech';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
@@ -36,111 +37,6 @@ import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 // =============================================================================
 // Helpers — Standard ProtoMech Armor Table (TM Companion p.196)
 // =============================================================================
-
-/**
- * Canonical max-armor-by-tonnage for the Torso location.
- * Source: ProtoMech Armor Table (Standard ProtoMechs, 2-9 tons).
- */
-const TORSO_MAX_BY_TON: Record<number, number> = {
-  2: 6,
-  3: 9,
-  4: 11,
-  5: 14,
-  6: 17,
-  7: 20,
-  8: 23,
-  9: 26,
-};
-
-/**
- * Canonical max-armor-by-tonnage for Arm locations.
- */
-const ARM_MAX_BY_TON: Record<number, number> = {
-  2: 3,
-  3: 4,
-  4: 5,
-  5: 6,
-  6: 7,
-  7: 8,
-  8: 9,
-  9: 10,
-};
-
-/**
- * Canonical max-armor-by-tonnage for the combined Legs location.
- */
-const LEGS_MAX_BY_TON: Record<number, number> = {
-  2: 4,
-  3: 6,
-  4: 8,
-  5: 10,
-  6: 12,
-  7: 14,
-  8: 16,
-  9: 18,
-};
-
-/**
- * Canonical max-armor-by-tonnage for the Main Gun location.
- */
-const MAIN_GUN_MAX_BY_TON: Record<number, number> = {
-  2: 3,
-  3: 4,
-  4: 5,
-  5: 6,
-  6: 7,
-  7: 8,
-  8: 9,
-  9: 10,
-};
-
-/**
- * Heavy ProtoMech tonnage threshold (10-15t variants get the doubled head cap).
- */
-const HEAVY_PROTO_THRESHOLD = 10;
-
-/**
- * Look up a value from a tonnage table, gracefully clamping outside the
- * standard 2-9 ton range. Returns 0 for sub-2 ton ProtoMechs (illegal).
- */
-function lookupByTon(table: Record<number, number>, tonnage: number): number {
-  if (tonnage <= 0) return 0;
-  // Clamp to table-known range; outside that we extrapolate linearly off
-  // the highest known value to avoid surprising drops at high tonnages.
-  if (table[tonnage] !== undefined) return table[tonnage];
-  const known = Object.keys(table)
-    .map(Number)
-    .sort((a, b) => a - b);
-  if (tonnage < known[0]) return table[known[0]];
-  const top = known[known.length - 1];
-  // Heavy ProtoMechs (10-15t) extrapolate at +3/ton beyond 9t — matches the
-  // published Heavy ProtoMech armor table progression.
-  return table[top] + (tonnage - top) * 3;
-}
-
-/**
- * Per-location armor cap derived from the official ProtoMech weight table.
- *
- * Heavy ProtoMechs (10t+) double the head cap to 4 (TM Companion p.197).
- */
-function getLocationMax(tonnage: number, loc: ProtoMechLocation): number {
-  const isHeavy = tonnage >= HEAVY_PROTO_THRESHOLD;
-  switch (loc) {
-    case ProtoMechLocation.HEAD:
-      return isHeavy ? 4 : 2;
-    case ProtoMechLocation.TORSO:
-      return lookupByTon(TORSO_MAX_BY_TON, tonnage);
-    case ProtoMechLocation.LEFT_ARM:
-    case ProtoMechLocation.RIGHT_ARM:
-      return lookupByTon(ARM_MAX_BY_TON, tonnage);
-    case ProtoMechLocation.LEGS:
-      return lookupByTon(LEGS_MAX_BY_TON, tonnage);
-    case ProtoMechLocation.MAIN_GUN:
-      return lookupByTon(MAIN_GUN_MAX_BY_TON, tonnage);
-    default:
-      return 0;
-  }
-}
 
 // =============================================================================
 // Types

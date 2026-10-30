@@ -33,6 +33,15 @@ native handler preserves chassis, motion, armor order and main-gun presence;
 its source projection does not establish a production editor import path.
 This correction does not establish full source, persistence or numerical parity.
 
+## Armor policy consolidation
+
+`armor.ts` now owns the utility table, diagram limits and automatic allocation.
+Its three temporary policies deliberately preserve their different existing
+results so consolidation can be verified before the numerical correction.
+They are not yet certified armor rules. The pending Armor Limits requirement
+will replace them with the pinned total and location limits; imported and
+stored armor must remain unchanged unless the user requests allocation.
+
 ## Normal-engine mass
 
 `computeProtoEngineWeight` owns the loaded-unit and canonical-projection mass.

@@ -19,6 +19,7 @@ import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
+  allocateProtoArmor,
   computeProtoEngineRating,
   computeProtoStructure,
   computeProtoWalkMPForRating,
@@ -278,28 +279,11 @@ export function createProtoMechStore(
 
           autoAllocateArmor: () =>
             set((state) => {
-              // ProtoMechs get armor based on tonnage
-              const maxArmor = state.tonnage * 6; // Simplified calculation
-              const torsoPercent = 0.35;
-              const legsPercent = 0.25;
-              const armPercent = 0.1;
-              const headPercent = 0.1;
-
               return {
-                armorByLocation: {
-                  [ProtoMechLocation.HEAD]: Math.floor(maxArmor * headPercent),
-                  [ProtoMechLocation.TORSO]: Math.floor(
-                    maxArmor * torsoPercent,
-                  ),
-                  [ProtoMechLocation.LEFT_ARM]: Math.floor(
-                    maxArmor * armPercent,
-                  ),
-                  [ProtoMechLocation.RIGHT_ARM]: Math.floor(
-                    maxArmor * armPercent,
-                  ),
-                  [ProtoMechLocation.LEGS]: Math.floor(maxArmor * legsPercent),
-                  [ProtoMechLocation.MAIN_GUN]: state.hasMainGun ? 2 : 0,
-                },
+                armorByLocation: allocateProtoArmor(
+                  state.tonnage,
+                  state.hasMainGun,
+                ),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };

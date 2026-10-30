@@ -24,6 +24,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.7 Consolidate ProtoMech engine mass without changing either former rounding policy, then correct normal-engine mass against pinned Java, propagate it to loaded units and canonical projections, and retain invalid source ratings with unavailable mass and diagnostics. Complete mass/BV and editor persistence remain open. (`protomech-unit-system`: ProtoMech Engine Mass)
 
+- [ ] 2.8 Consolidate the three ProtoMech armor policies without behavior changes, then correct shared total/location limits, explicit allocation and live source diagnostics against pinned Java. Preserve loaded/manual armor and verify BV consumes the unchanged or explicitly allocated values; no full editor/persistence or partial-budget allocation claim. (`protomech-unit-system`: ProtoMech Armor Limits)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.0 Extend/consolidate existing schema ownership into a documented portable versioned design contract, explicit units/identities/extensions, migrations, examples and independent-consumer conformance tests; keep legacy syntax in adapters. (`unit-entity-model`: Portable versioned unit documents)
