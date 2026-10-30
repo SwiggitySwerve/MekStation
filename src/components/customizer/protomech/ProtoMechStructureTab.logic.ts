@@ -9,6 +9,7 @@ import {
   PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
 } from '@/types/unit/ProtoMechInterfaces';
 import {
+  computeRunMP,
   effectiveJumpMP,
   effectiveWalkMP,
   getProtoMPCaps,
@@ -272,7 +273,7 @@ export function useProtoMechMovementControls(
   return {
     walkMP,
     jumpMP,
-    runMP: effectiveWalk + 1,
+    runMP: computeRunMP(effectiveWalk),
     mpCaps,
     effectiveWalk,
     effectiveJump,

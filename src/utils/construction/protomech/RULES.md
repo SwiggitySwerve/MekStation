@@ -33,6 +33,16 @@ native handler preserves chassis, motion, armor order and main-gun presence;
 its source projection does not establish a production editor import path.
 This correction does not establish full source, persistence or numerical parity.
 
+## Running movement consolidation
+
+The running owner temporarily retains both existing policies: walk plus one
+for ordinary/default/display/projection callers, and floor(walk times1.5)
+for the cruise/rating/tonnage actions. Booster composition remains at the
+same callers. This refactor deliberately preserves these conflicting results;
+it is not a running-rule correction. The following separately tested change
+will apply pinned Entity.java:4004-4016 and ProtoMek.java:612-627. Jump, caps,
+source equipment identity, saved-state migration and full BV stay separate.
+
 ## Armor limits and allocation
 
 `armor.ts` owns total and location limits from pinned `TestProtoMek.java:675-740`.

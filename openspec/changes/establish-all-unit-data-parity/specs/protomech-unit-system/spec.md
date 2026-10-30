@@ -284,3 +284,37 @@ policies SHALL be consolidated with unchanged observations before correction.
 - **THEN** actual pinned Java observations and all86 original sources SHALL be compared explicitly
 - **AND** source field preservation and invalid-design diagnostics SHALL be recorded separately
 - **AND** incomplete editor/import/save/reload, equipment, full BV, partial-budget allocation and subtype presentation proof SHALL remain open
+
+### Requirement: ProtoMech Derived Running Movement
+
+The construction owner SHALL calculate undamaged running MP from original walk
+and explicit booster state using pinned MegaMek Entity.java and ProtoMek.java
+at48fcb2f6. Existing distinct running policies SHALL first be consolidated with
+unchanged outputs in a separately verified refactor.
+
+#### Scenario: Ordinary and boosted running
+
+- **WHEN** original walk MP is0,1,3,4 or5 without a booster
+- **THEN** running MP SHALL be0,2,5,6 or8 respectively
+- **WHEN** an enabled myomer booster is explicitly modeled
+- **THEN** running MP SHALL be twice original walk while effective walk SHALL remain original walk
+- **AND** the booster SHALL NOT change the base engine rating
+
+#### Scenario: Derived movement consumers
+
+- **WHEN** creating a default ProtoMech or changing tonnage, chassis, engine rating, cruise, walk or booster state
+- **THEN** the resulting flank MP SHALL come from the running owner using the resulting base walk and booster state
+- **AND** existing movement clamps and default choices SHALL remain separate policies
+- **WHEN** projecting handler data, or a store snapshot without flank MP
+- **THEN** running MP SHALL come from the same owner using the supplied base walk and explicit booster flag
+- **WHEN** rendering movement controls
+- **THEN** they SHALL display domain-calculated walk and running MP without inline running arithmetic
+
+#### Scenario: Preservation and comparison scope
+
+- **WHEN** loading saved state with an existing flank MP or making an unrelated edit
+- **THEN** the stored movement values SHALL NOT be silently migrated
+- **AND** a later movement-affecting edit SHALL recalculate flank MP
+- **WHEN** comparing sources with unresolved booster equipment identity
+- **THEN** those differences SHALL remain explicitly unmatched rather than counted as source movement parity
+- **AND** jump rules, damaged-unit options, construction caps, equipment identity, complete BV and production persistence/editor proof SHALL remain separate

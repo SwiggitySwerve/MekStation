@@ -68,6 +68,11 @@ export function computeRunMP(effectiveWalk: number): number {
   return effectiveWalk + 1;
 }
 
+/** Temporary existing cruise-action policy; retained until the correction. */
+export function computeLegacyProtoCruiseRunMP(walkMP: number): number {
+  return Math.floor(walkMP * 1.5);
+}
+
 /**
  * Jump MP for a Glider chassis: base jump MP + 2 from Glider Wings.
  * For all other chassis types the jump MP passes through unchanged.

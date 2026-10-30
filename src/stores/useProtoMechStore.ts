@@ -21,6 +21,8 @@ import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   allocateProtoArmor,
   computeProtoEngineRating,
+  computeRunMP,
+  computeLegacyProtoCruiseRunMP,
   computeProtoStructure,
   computeProtoWalkMPForRating,
   effectiveWalkMP,
@@ -124,7 +126,7 @@ export function createProtoMechStore(
                 ),
                 cruiseMP: newCruiseMP,
                 walkMP: newCruiseMP,
-                flankMP: Math.floor(newCruiseMP * 1.5),
+                flankMP: computeLegacyProtoCruiseRunMP(newCruiseMP),
                 engineRating: computeProtoEngineRating(
                   clampedTonnage,
                   newCruiseMP,
@@ -166,7 +168,7 @@ export function createProtoMechStore(
                 ),
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: effWalk + 1,
+                flankMP: computeRunMP(effWalk),
                 engineRating: computeProtoEngineRating(
                   state.tonnage,
                   walkMP,
@@ -195,7 +197,7 @@ export function createProtoMechStore(
                 engineRating,
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: Math.floor(walkMP * 1.5),
+                flankMP: computeLegacyProtoCruiseRunMP(walkMP),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };
@@ -207,7 +209,7 @@ export function createProtoMechStore(
               return {
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: Math.floor(walkMP * 1.5),
+                flankMP: computeLegacyProtoCruiseRunMP(walkMP),
                 engineRating: computeProtoEngineRating(
                   state.tonnage,
                   walkMP,
@@ -228,7 +230,7 @@ export function createProtoMechStore(
               return {
                 walkMP,
                 cruiseMP: walkMP,
-                flankMP: effWalk + 1,
+                flankMP: computeRunMP(effWalk),
                 engineRating: computeProtoEngineRating(
                   state.tonnage,
                   walkMP,
@@ -334,7 +336,7 @@ export function createProtoMechStore(
               const effWalk = effectiveWalkMP(state.walkMP, hasMyomerBooster);
               return {
                 hasMyomerBooster,
-                flankMP: effWalk + 1,
+                flankMP: computeRunMP(effWalk),
                 isModified: true,
                 lastModifiedAt: Date.now(),
               };

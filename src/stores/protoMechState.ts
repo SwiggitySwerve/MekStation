@@ -27,6 +27,7 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoEngineRating,
+  computeRunMP,
   computeProtoEngineWeight,
   computeProtoStructure,
   getProtoWeightClass,
@@ -396,7 +397,7 @@ export function createDefaultProtoMechState(
   const cruiseMP = walkMP;
   // Effective walk (with booster = false by default) drives flank MP
   const effWalk = effectiveWalkMP(walkMP, false);
-  const flankMP = effWalk + 1;
+  const flankMP = computeRunMP(effWalk);
 
   return {
     // Identity
@@ -516,7 +517,7 @@ function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
     }));
 
   const walkMP = state.walkMP ?? state.cruiseMP ?? 1;
-  const runMP = state.flankMP ?? walkMP + 1;
+  const runMP = state.flankMP ?? computeRunMP(walkMP);
 
   return {
     id: state.id,

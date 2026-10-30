@@ -34,6 +34,7 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   computeProtoEngineRating,
+  computeRunMP,
   computeProtoEngineWeight,
   getProtoEngineWeightError,
   computeProtoStructure,
@@ -513,7 +514,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     // Legacy IProtoMech uses `cruiseMP` for walk; flank/run comes from
     // cruise + 1 (standard ProtoMech run formula).
     const walkMP = unit.cruiseMP;
-    const runMP = unit.cruiseMP + 1;
+    const runMP = computeRunMP(unit.cruiseMP);
 
     return {
       id: unit.id,

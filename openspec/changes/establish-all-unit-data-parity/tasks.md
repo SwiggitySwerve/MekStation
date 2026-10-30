@@ -26,6 +26,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [x] 2.8 Consolidate the three ProtoMech armor policies without behavior changes, then correct shared total/location limits, explicit allocation and live source diagnostics against pinned Java. All 582 cap observations match (496 synthetic, 86 originals); source fields and BV are unchanged and all 10 invalid designs remain invalid. Explicit allocations respect both caps and refresh BV; production editor/persistence, complete BV and partial-budget allocation remain open. (`protomech-unit-system`: ProtoMech Armor Limits)
 
+- [ ] 2.9 Consolidate every derived ProtoMech running policy without changing outputs, then correct ordinary/explicit-booster running and walk display through the owner and all existing consumers. Compare actual Java observations and record source equipment gaps and changed local BV separately. Jump/caps, equipment identity, persistence and complete BV remain open. (`protomech-unit-system`: ProtoMech Derived Running Movement)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.0 Extend/consolidate existing schema ownership into a documented portable versioned design contract, explicit units/identities/extensions, migrations, examples and independent-consumer conformance tests; keep legacy syntax in adapters. (`unit-entity-model`: Portable versioned unit documents)

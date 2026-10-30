@@ -24,6 +24,7 @@ export {
   computeProtoEngineWeight,
   computeProtoWalkMPForRating,
   computeRunMP,
+  computeLegacyProtoCruiseRunMP,
   effectiveJumpMP,
   effectiveWalkMP,
   getProtoMPCaps,
