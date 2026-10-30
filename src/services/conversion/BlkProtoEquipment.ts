@@ -93,9 +93,14 @@ export function readBlkProtoBooster(
   return { hasMyomerBooster, errors };
 }
 
+interface IBlkProtoEquipmentEntry {
+  readonly name: string;
+  readonly location?: string;
+}
+
 /** Project the exact equipment blocks emitted by the existing ProtoMech writer. */
 export function getBlkProtoEquipmentByLocation(
-  equipment: readonly { readonly name: string; readonly location?: string }[],
+  equipment: readonly IBlkProtoEquipmentEntry[],
 ): Record<string, string[]> {
   const locationMap: Record<string, string[]> = {};
   for (const entry of equipment) {
@@ -118,4 +123,34 @@ export function getBlkProtoEquipmentByLocation(
     if (items && items.length > 0) emitted[location] = items;
   }
   return emitted;
+}
+
+/** Refuse exports whose emitted mounts cannot retain the declared booster effect. */
+export function getBlkProtoEquipmentExportErrors(
+  equipment: readonly IBlkProtoEquipmentEntry[],
+  hasMainGun: boolean,
+  hasMyomerBooster: boolean,
+): readonly string[] {
+  const emitted = getBlkProtoEquipmentByLocation(equipment);
+  const errors: string[] = [];
+  for (const names of Object.values(emitted)) {
+    for (const name of names) {
+      // Line breaks and tags change the block structure rather than name a mount.
+      if (/[\r\n<>]/.test(name)) {
+        errors.push(
+          `ProtoMek equipment must be a single BLK line without tags: ${JSON.stringify(name)}`,
+        );
+      }
+    }
+  }
+  if (errors.length > 0) return errors;
+
+  const booster = readBlkProtoBooster(emitted, hasMainGun);
+  errors.push(...booster.errors);
+  if (booster.hasMyomerBooster !== hasMyomerBooster) {
+    errors.push(
+      'ProtoMek myomer booster flag disagrees with emitted equipment; reconcile the flag and mounts before export',
+    );
+  }
+  return errors;
 }

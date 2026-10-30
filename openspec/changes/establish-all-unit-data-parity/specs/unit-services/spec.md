@@ -180,3 +180,31 @@ semantics SHALL remain distinct from the movement effect.
 - **THEN** booster state and running movement SHALL match actual pinned Java observations, including the five previously missed boosters
 - **AND** unchanged source fields, exports and reloaded equipment SHALL be checked separately from changed local BV terms
 - **AND** direct editor flags without corresponding equipment, production source-to-store flows, equipment legality, damage and complete BV SHALL remain explicitly unverified
+
+### Requirement: ProtoMek booster export integrity
+
+The BLK exporter SHALL refuse a declared booster state that its emitted
+equipment cannot retain on reload, using the source equipment owner and the
+writer's shared projection. It SHALL NOT silently synthesize or remove mounts.
+
+#### Scenario: Flag and emitted equipment disagree
+
+- **WHEN** the booster flag differs from the effect of the emitted equipment blocks
+- **THEN** export SHALL fail with a booster/equipment diagnostic and no content
+- **AND** input equipment, movement, stored BV and persistence SHALL remain untouched
+- **AND** omitted locations SHALL NOT count toward the emitted effect
+- **AND** the existing absent Main Gun rejection SHALL remain enforced
+
+#### Scenario: Unrepresentable equipment text
+
+- **WHEN** an emitted equipment name contains a line break or angle bracket, or its native numeric suffix is malformed
+- **THEN** export SHALL fail with a structured equipment diagnostic and no content
+- **AND** suffix interpretation SHALL use the same source decoder as loading
+
+#### Scenario: Consistent export retains its effect
+
+- **WHEN** the declared booster and representable emitted equipment agree
+- **THEN** existing export bytes SHALL remain unchanged and reload SHALL preserve the booster effect and base Walk
+- **AND** native derived Run SHALL be compared separately from arbitrary legacy saved flank values
+- **AND** all 86 pinned source exports and representative successful equipment projections SHALL be reloaded by pinned Java
+- **AND** full equipment topology, legality, numerical parity and production editor/save workflows SHALL remain open work

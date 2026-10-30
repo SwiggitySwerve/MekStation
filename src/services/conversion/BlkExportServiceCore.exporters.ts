@@ -35,6 +35,7 @@ import {
   writeBattleArmorEquipment,
   writeProtoMechEquipment,
 } from './BlkExportServiceCore.writers';
+import { getBlkProtoEquipmentExportErrors } from './BlkProtoEquipment';
 
 function getVehicleUnitTypeString(unit: VehicleState): string {
   if (unit.unitType === UnitType.VTOL) return 'VTOL';
@@ -284,6 +285,14 @@ export function exportProtoMech(unit: ProtoMechState): IBlkExportResult {
       unit.armorByLocation[ProtoMechLocation.MAIN_GUN] ?? 0,
     );
     if (topologyError) return { success: false, errors: [topologyError] };
+    errors.push(
+      ...getBlkProtoEquipmentExportErrors(
+        unit.equipment,
+        unit.hasMainGun,
+        unit.hasMyomerBooster,
+      ),
+    );
+    if (errors.length > 0) return { success: false, errors };
     writeLicenseHeader(lines);
 
     lines.push(tag('BlockVersion', '1'));

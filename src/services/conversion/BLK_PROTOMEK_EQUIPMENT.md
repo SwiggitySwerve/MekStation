@@ -37,12 +37,25 @@ remap Body into a faithful persisted mount, calculate equipment mass or cost,
 validate legality or model damaged/disabled mounts. The existing handler's cost
 and BV consumers observe the corrected flag; full numerical parity is open.
 Existing source export/reload retains its equipment and therefore its effect.
-An editor flag without corresponding equipment is still a separate export
-integrity gap; production import/store/edit/save and full topology need proof.
+The export boundary rejects a booster flag that disagrees with the emitted
+equipment. This preserves the input and returns diagnostics with no content;
+it does not add or remove equipment or modify a saved design. Both enabling a
+flag without equipment and disabling it while retaining equipment are refused.
+The existing Main Gun topology check still rejects contents without a mount.
 
 The same adapter owns the existing export equipment projection. It preserves
 the writer's Head, Torso, Main Gun, Left Arm, Right Arm, Legs order, exact raw
 names and duplicate entries. A missing or empty location still defaults to
-Torso; other locations remain omitted. This extraction alone changes no output
-or admission policy. The vehicle turret and aerospace arc projections have
-different rules and remain separate. Full mount preservation is still open.
+Torso; other locations remain omitted. Export validation uses that exact
+projection and the same source decoder, including its malformed suffix errors.
+Emitted names containing CR, LF or angle brackets are refused: BLK has no
+escaping for embedded lines or tags, which could change the effect on reload.
+Unknown omitted locations cannot enable the exported booster. The vehicle
+turret and aerospace arc projections have different rules and remain separate.
+
+Successful exports keep their existing bytes. This guard does not resolve
+equipment IDs, prove full mount preservation, or complete production import,
+editing or persistence. Later mount editing must produce consistent equipment
+and flags; rejection alone is not a complete user workflow. Native BLK derives
+Run from Walk and equipment, so it cannot preserve arbitrary legacy stored
+flank values. That save-migration/export policy remains separate and unproven.
