@@ -4,6 +4,11 @@ import { extractProtoMechData } from '@/services/printing/recordsheet/dataExtrac
 import { computeProtoMechPipCounts } from '@/services/printing/svgRecordSheetRenderer/protomech/bindings';
 import { ProtoMechUnitHandler } from '@/services/units/handlers/ProtoMechUnitHandler';
 import { createDefaultProtoMechState } from '@/stores/protoMechState';
+import {
+  clearAllProtoMechStores,
+  createAndRegisterProtoMech,
+  duplicateProtoMech,
+} from '@/stores/protoMechStoreRegistry';
 import { createProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation as L } from '@/types/construction/UnitLocation';
 import { ProtoChassis as C } from '@/types/unit/ProtoMechInterfaces';
@@ -176,6 +181,63 @@ it('preserves explicit legacy stored structure on creation without an implicit m
   expect(restored.getState().structureByLocation[L.TORSO]).toBe(99);
   restored.getState().setMainGun(false);
   expect(restored.getState().structureByLocation[L.TORSO]).toBe(5);
+});
+
+describe('registry duplication preserves structure', () => {
+  afterEach(() => clearAllProtoMechStores(true));
+
+  describe.each(Object.values(C))('%s', (chassisType) => {
+    it.each([2, 5, 9, 9.5])(
+      'copies topology and structure BV at %s tons',
+      (tonnage) => {
+        for (const hasMainGun of [false, true]) {
+          const original = createAndRegisterProtoMech({ tonnage, chassisType });
+          original.getState().setMainGun(hasMainGun);
+          const before = original.getState();
+          const copy = duplicateProtoMech(before.id);
+          expect(copy).not.toBeNull();
+          expect(copy!.getState().hasMainGun).toBe(hasMainGun);
+          expect(copy!.getState().chassisType).toBe(chassisType);
+          expect(copy!.getState().structureByLocation).toEqual(
+            before.structureByLocation,
+          );
+          expect(copy!.getState().structureByLocation).not.toBe(
+            before.structureByLocation,
+          );
+          expect(copy!.getState().bvBreakdown?.structureBV).toBe(
+            before.bvBreakdown?.structureBV,
+          );
+        }
+      },
+    );
+  });
+
+  it.each([false, true])(
+    'keeps manual points without aliasing when mount is %s',
+    (hasMainGun) => {
+      const original = createAndRegisterProtoMech({
+        tonnage: 5,
+        chassisType: C.QUAD,
+      });
+      original.getState().setMainGun(hasMainGun);
+      original.getState().setLocationStructure(L.TORSO, 99);
+      original.getState().setLocationStructure(L.MAIN_GUN, 3);
+      const before = original.getState();
+      const copy = duplicateProtoMech(before.id);
+      expect(copy).not.toBeNull();
+      expect(copy!.getState().structureByLocation).toEqual(
+        before.structureByLocation,
+      );
+      expect(copy!.getState().bvBreakdown?.structureBV).toBe(
+        before.bvBreakdown?.structureBV,
+      );
+      copy!.getState().setLocationStructure(L.TORSO, 7);
+      expect(original.getState().structureByLocation).toEqual(
+        before.structureByLocation,
+      );
+      expect(original.getState().structureByLocation[L.TORSO]).toBe(99);
+    },
+  );
 });
 
 it.each([NaN, Infinity, -Infinity, 0, -1, 2147483648])(

@@ -55,7 +55,9 @@ points through its ordinary consumers. This does not certify complete BV.
 
 Tonnage, chassis and mount edits restore calculated points. Manual location
 edits and existing saved structure remain intact until a structural edit;
-there is no save migration. Printing data now carries Quad and optional
+there is no save migration. Registry duplication copies the stored structure
+record independently, including manual values, before calculating its BV.
+Printing data now carries Quad and optional
 main-gun presence, including empty mounts; omitted legacy mount presence uses
 the weapon-name fallback. This is a data/binding contract, not proof of the
 production editor-to-print flow, sheet assets or all source equipment.

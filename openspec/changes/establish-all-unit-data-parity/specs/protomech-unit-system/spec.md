@@ -187,3 +187,10 @@ summed as points. Construction legality SHALL remain a separate diagnostic.
 - **AND** Quad arm pips SHALL be absent and a declared empty main-gun mount SHALL retain its pips
 - **WHEN** legacy printing data omits explicit main-gun presence
 - **THEN** its existing weapon-name presence fallback SHALL remain supported
+
+#### Scenario: Duplicated structure
+
+- **WHEN** duplicating a ProtoMech through the store registry
+- **THEN** the duplicate SHALL preserve the source's chassis, main-gun presence and independent copy of every stored structure value, including manual values
+- **AND** the duplicate's structure contribution to BV SHALL use those copied points
+- **AND** editing the duplicate's structure SHALL NOT alter the source's structure
