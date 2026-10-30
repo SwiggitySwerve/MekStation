@@ -1,3 +1,15 @@
+## 2026-10-30 CAMPAIGN-LIVE-WRITE-1 local-verified (Step 4 PR 4 of 29)
+
+Live campaign record saves now require the verified host bearer; every live DELETE is refused. Host saves attach the stored token, and save/delete refusals retain edits and show the server reason. A changed live entry aborts before the retired host can fold replacement events. LW23 also proves unrelated persistence errors remain errors and release the writer lock. The save card keeps its action usable at desktop and 375px widths.
+
+Source d9bfedfdfa follows admission merge 5290e4ab7 and preserves all candidate bytes after rebase onto current main: baseline RED 36 failed/39 passed (33 behavioral; three verification-entry witnesses excluded), focused 75, neighbours 122, route consumers 662, all 28 mutants killed and restored. Format/lint/typecheck/lint:units and unflagged build pass. Browser groups: cleanup 29/29, additional callers 17/17, production two-process 3/3, live journey 1/1 with two authenticated saves, refusal/layout 1/1 after intended layout RED. Sets overlap; no combined coverage count is claimed.
+
+The ten source/test leaves plus five lifecycle files use the approved fifteen-file layout; exact additions are measured before publication. F2 and all failures remain intact. The original Sonnet source and Astra corrections are disclosed under the campaign-only unversioned receipt decision. Historical initial-create 404, browser intermittency, baseline GM sign-in fixture failure, offline record permissions and dashboard/store line warnings remain disclosed.
+
+Fresh Sol/Opus exact-head source reviews, current CI, the head-specific ruling under standing full-send authority, guarded merge, exact-main proof and closure remain owed. Closure stays in PR 5; this does not admit desktop work or complete Step 4.
+
+---
+
 ## 2026-10-30 CAMPAIGN-LIVE-WRITE-1 admitted (combined Step 4 PR 3 of 29)
 
 Admits the ten-file campaign candidate on fetched main f6223a0f4, after genuine API and L1-SMOKE-B closure. Both independent F2 qualification reviews approve; source implementation remains Step 4 PR 4, and its closure rides PR 5 with the next admission. No campaign product bytes land in this PR.

@@ -1,0 +1,681 @@
+{
+  "unit": "CAMPAIGN-LIVE-WRITE-1",
+  "at": "2026-10-30T03:16:47.708935+00:00",
+  "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+  "baseline": "5290e4ab75fd14f8bf1969b2d8efa5b09069bb31",
+  "admissionBaseline": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
+  "head": "d9bfedfdfa4e352d8e2ab48db61444f694b8272b",
+  "stage": "local",
+  "verdict": "PASS_REVIEW_REQUIRED",
+  "implementation": "Verify the live host principal using the shared bearer verifier; refuse every live DELETE; recheck the captured entry at the synchronous write boundary, throwing a request-specific error to prevent retired-host adoption. Browser saves read the existing session token, keep unsaved edits on typed refusal, and display save/delete reasons. Save-card controls remain usable at narrow and desktop widths.",
+  "candidate": {
+    "base": "5290e4ab75fd14f8bf1969b2d8efa5b09069bb31",
+    "frozenF2Unchanged": true,
+    "sourceChangeFromF2": "LW23 in acceptance suite; responsive save-card layout in existing card leaf",
+    "leaves": [
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "sha256": "4d443807abcc0b803047b68262f17074314f1b9a05e6339ec0ed080181774eb6",
+        "bytes": 18926
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "sha256": "adfabc1ca610ecc9d778bf397eb78e2982a89e0bed7f4d4dd0cdb57963bbbdeb",
+        "bytes": 61874
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "sha256": "4965ff36f6f99d44999fa626148c9a7864afe0a062abb1bafa5351fb78afdf1b",
+        "bytes": 7997
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "sha256": "728c72d9bc024587d5384b2cc83705d05689168dca29e810077137591088d3e2",
+        "bytes": 12730
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "sha256": "437f838b6d214f0986eeeb65738c892d21c3cc4ee83b8cc4a06d767fd0081c43",
+        "bytes": 36339
+      },
+      {
+        "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "sha256": "ca053776ac1e458eaaab7ac89b483a2e6bcdf5c8232b0be834be541d6bfcfcfc",
+        "bytes": 35841
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "sha256": "036d18a4b373d3a6757535824ec2e3a25ce53aa7fe6538cce564c2a3c59d2b46",
+        "bytes": 4447
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "sha256": "1b50b160ab4761827b614f24baab42d1efc63c09dbc572a6fe0101d13cf9613f",
+        "bytes": 12487
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "sha256": "f2db9ba1ce572d548cdfb079b63757f59729f66490d03db1e503e1c5b1dde709",
+        "bytes": 15604
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "sha256": "24825964bdecf7993580fdeba5954d03da8aec310d9aacce13e18f09c8e198b1",
+        "bytes": 15234
+      }
+    ],
+    "createdAt": "2026-10-30T02:54:07.124138+00:00",
+    "changesFromR1": [
+      "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx"
+    ],
+    "redEvidence": "../r1/red-baseline-result.json (all test/support bytes unchanged); refusal-ui-red/playwright.json (36px button text against 21px threshold)"
+  },
+  "tests": {
+    "green-candidate": {
+      "passed": 75,
+      "failed": 0,
+      "total": 75,
+      "skipped": 0
+    },
+    "neighbours-candidate": {
+      "passed": 122,
+      "failed": 0,
+      "total": 122,
+      "skipped": 0
+    },
+    "consumers": {
+      "passed": 662,
+      "failed": 0,
+      "total": 662,
+      "skipped": 0
+    }
+  },
+  "mutations": {
+    "total": 28,
+    "killed": 28,
+    "restored": true,
+    "survivors": []
+  },
+  "static": [
+    {
+      "name": "format",
+      "args": [
+        "node_modules/oxfmt/bin/oxfmt",
+        "--check",
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx"
+      ],
+      "start": "2026-10-30T03:05:45.346Z",
+      "end": "2026-10-30T03:05:45.787Z",
+      "exit": 0,
+      "signal": null,
+      "logSha256": "d7dfb94b7d40bf4043fd36418a5033a6ba72eb7920011acd6652167b28fc8993"
+    },
+    {
+      "name": "lint",
+      "args": [
+        "node_modules/oxlint/bin/oxlint",
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx"
+      ],
+      "start": "2026-10-30T03:05:45.801Z",
+      "end": "2026-10-30T03:05:45.857Z",
+      "exit": 0,
+      "signal": null,
+      "logSha256": "77848f8e99f6a102460279f6d16f5963df72c2fe22a3a27e42ee75d97fa575d5"
+    },
+    {
+      "name": "typecheck",
+      "args": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "start": "2026-10-30T03:05:45.863Z",
+      "end": "2026-10-30T03:05:47.831Z",
+      "exit": 0,
+      "signal": null,
+      "logSha256": "ee29abd3809772d6a70e1e4db10615e6c04e36b469fc8075f6dd66f56956838c"
+    },
+    {
+      "name": "lint-units",
+      "args": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint:units"
+      ],
+      "start": "2026-10-30T03:05:47.845Z",
+      "end": "2026-10-30T03:05:48.843Z",
+      "exit": 0,
+      "signal": null,
+      "logSha256": "5cd528f711126f17e164731b7df2f4cb6441487c4d58411149b91c33238b5847"
+    }
+  ],
+  "build": {
+    "buildId": "1793329551234",
+    "image": [
+      {
+        "path": "server.js",
+        "sha256": "8544ccc50b6b0878877ef59f57ff13132243572f0273a8f415c5148b0132a7fa"
+      },
+      {
+        "path": "server.next-config.json",
+        "sha256": "1e240d1c4359559e33c7c39513b0ecb67c34225df1b9f4f641464d6b9694f99e"
+      },
+      {
+        "path": ".next/server/pages-manifest.json",
+        "sha256": "e433d2eb00fb2695208e86bf05073d9b15b8827b576880889d35df4e72c4e969"
+      },
+      {
+        "path": ".next/server/pages/api/campaigns/[id].js",
+        "sha256": "d34e136fb89c41012ce2c11aed39194cebeb9c7504aa1cf0e86b828bbfa2d672"
+      },
+      {
+        "path": ".next/server/pages/gameplay/campaigns/[id].html",
+        "sha256": "2cb293114f35e89433fbfdac77c9222f5ffbe76adcf15ffb07dce880b34ec0e1"
+      }
+    ],
+    "evidence": {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/build-rebased/result.json",
+      "bytes": 12348,
+      "sha256": "731e46d13e233e41e0bf313391c517150e4d3e8a7c08f6340dd145082e93b69d"
+    }
+  },
+  "browser": {
+    "browser": {
+      "evidence": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/browser/result.json",
+        "bytes": 22413,
+        "sha256": "f1041e56a619ab050261ef5161cd4e37f8dc4d61d1ad1dcacf99cca487a7c54c"
+      },
+      "stats": {
+        "startTime": "2026-10-30T03:08:31.898Z",
+        "duration": 90425.53199999999,
+        "expected": 29,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "mode": "development",
+      "liveHostSaves": 0,
+      "portReusable": true
+    },
+    "consumers-additional-cleanup": {
+      "evidence": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/consumers-additional-cleanup/result.json",
+        "bytes": 97935,
+        "sha256": "45d5f84264e0508a5f7c7d87857b21241d83d49050583b2181474265bbe71b5d"
+      },
+      "stats": {
+        "startTime": "2026-10-30T03:10:04.378Z",
+        "duration": 69488.571,
+        "expected": 17,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "mode": "development",
+      "liveHostSaves": 0,
+      "portReusable": [
+        {
+          "port": 59143,
+          "reusable": true
+        },
+        {
+          "port": 59144,
+          "reusable": true
+        }
+      ]
+    },
+    "consumers-two-process": {
+      "evidence": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/consumers-two-process/result.json",
+        "bytes": 75674,
+        "sha256": "96b2532d32a3414b55f0c7e50df8025651027adafdb03cad086e07c7b20f318b"
+      },
+      "stats": {
+        "startTime": "2026-10-30T03:13:59.252Z",
+        "duration": 54845.303,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "mode": "production",
+      "liveHostSaves": 0,
+      "portReusable": [
+        {
+          "port": 56876,
+          "reusable": true
+        },
+        {
+          "port": 56877,
+          "reusable": true
+        }
+      ]
+    },
+    "live-browser": {
+      "evidence": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/live-browser/result.json",
+        "bytes": 10396,
+        "sha256": "066d4814d08c0ab41a2dbafbf63b0209ce88b79af6fa6e72c097a7fdfd756c4a"
+      },
+      "stats": {
+        "startTime": "2026-10-30T03:16:26.690Z",
+        "duration": 12413.176,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "mode": "development",
+      "liveHostSaves": 2,
+      "portReusable": true
+    },
+    "refusal-ui-green": {
+      "evidence": {
+        "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/refusal-ui-green/result.json",
+        "bytes": 10778,
+        "sha256": "60121b1afe04721c5d4338ec8780435ec509ca166f93b17f7e6545c0d2d43aa0"
+      },
+      "stats": {
+        "startTime": "2026-10-30T02:54:28.483Z",
+        "duration": 12977.137999999999,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "mode": "development",
+      "liveHostSaves": 2,
+      "portReusable": true
+    }
+  },
+  "evidence": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/candidate-manifest.json",
+      "bytes": 2590,
+      "sha256": "2555a6b00b1b72613acae58687dc906e9e732221710b32dd47c116e5a324eee0"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/core-commands.json",
+      "bytes": 2207,
+      "sha256": "bd46156c71d33d840de93dd082149b7fcb548fe7791b2f0eb8573034118008ff"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/rebased-commands.json",
+      "bytes": 4359,
+      "sha256": "d02b45ca7d5bc872e2acd8f4af5bdaa9c158b23223ab50288bb6a868781515e3"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/green-candidate-result.json",
+      "bytes": 4471,
+      "sha256": "1d9f4ebb650b3f1fe2faf49f19eb09cc61c49a216e1caf83d53e16bf241b3858"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/neighbours-candidate-result.json",
+      "bytes": 5065,
+      "sha256": "a2676e461f9a131823f5a3d9d2343d628a526d8cf58d4cd3435a44b83c18d539"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/consumers-result.json",
+      "bytes": 4592,
+      "sha256": "af64213e6981acf3f907adbc281d94a62275cb69e4e3f6d00fa943b6fec7a28a"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/mutations/summary.json",
+      "bytes": 73,
+      "sha256": "af643145e82acb532db6e73d42eb6a01655029a6b891a5ea843ed757a5a8030e"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/mutations/results.json",
+      "bytes": 359499,
+      "sha256": "b27d9c375de18881060bcc3f41c3fa8f5abad7cd1fe09f313e59af71be30b69a"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/static-rebased/result.json",
+      "bytes": 6599,
+      "sha256": "e42d407ca010bf40babc1a9d623573f95611279648d4f5a75f2dc62797d4b214"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/build-rebased/result.json",
+      "bytes": 12348,
+      "sha256": "731e46d13e233e41e0bf313391c517150e4d3e8a7c08f6340dd145082e93b69d"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/census-prepublish/disposition.json",
+      "bytes": 4143,
+      "sha256": "fef28b7f6b7379bb3dd8ebcd0f2cc0ca797d2e6662145625df1c4cac54cba1d1"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/consumer-inventory.json",
+      "bytes": 24466,
+      "sha256": "73076afe126dcff9a976c03d1b10a38a18c9bc0695a153f0e29fd7d28a5ffe85"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/parent-thread-provenance.json",
+      "bytes": 2536,
+      "sha256": "b5c96558662b521d56b5d3896a525a70971bf4168892ddd12054e884f0d46f79"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/source-commit.json",
+      "bytes": 723,
+      "sha256": "978955b2d7ded6151116fb8fa9894234112fe9839120ddaaa8d13edabca85f04"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/rebase-source.json",
+      "bytes": 1288,
+      "sha256": "52f6b5b059150a83bd1b35aa50703df7df1629891e32249090d12ab1523404ed"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/frozen-readback.json",
+      "bytes": 3418,
+      "sha256": "dddfd3c7e2a827d75997e3892b78b376d4f97142618df3b2e7480508858ee7e0"
+    }
+  ],
+  "implementerModel": "claude-sonnet-5-5",
+  "finisherModel": "gpt-6-astra",
+  "rebase": {
+    "startedAt": "2026-10-30T03:04:07.721197+00:00",
+    "endedAt": "2026-10-30T03:04:09.036223+00:00",
+    "before": "0bd691f3922288b9d1d8457d3ac671455d7cd0ca",
+    "beforeBase": "5290e4ab75fd14f8bf1969b2d8efa5b09069bb31",
+    "main": "bbda6c2ffa7f386a3d6a62f97d717aeb2bba9912",
+    "after": "d9bfedfdfa4e352d8e2ab48db61444f694b8272b",
+    "exit": 0,
+    "changedMainPaths": [
+      "openspec/changes/establish-all-unit-data-parity/specs/unit-services/spec.md",
+      "openspec/changes/establish-all-unit-data-parity/tasks.md",
+      "src/services/conversion/BLK_PROTOMEK_EQUIPMENT.md",
+      "src/services/conversion/BlkExportServiceCore.exporters.ts",
+      "src/services/conversion/BlkExportServiceCore.writers.ts",
+      "src/services/conversion/BlkParserService.helpers.ts",
+      "src/services/conversion/BlkParserService.ts",
+      "src/services/conversion/BlkProtoEquipment.ts",
+      "src/services/conversion/__tests__/BlkExportService.protoMech-booster.test.ts",
+      "src/services/units/handlers/ProtoMechUnitHandler.ts",
+      "src/services/units/handlers/__tests__/ProtoMechBoosterSource.test.ts",
+      "src/utils/construction/protomech/RULES.md",
+      "src/utils/construction/protomech/__tests__/runMovement.test.ts"
+    ],
+    "overlap": [],
+    "sourceUnchanged": true,
+    "status": "",
+    "validationBinding": "Jest and mutation results ran on the pinned ten source leaves before rebase. Rebase changed no owned leaf; fresh static checks, unflagged production build and registered browser groups ran after rebase on this source commit. The layout RED/GREEN pair remains bound to the same card bytes."
+  },
+  "contributors": {
+    "form": "Owner-approved campaign-only unversioned receipt; no v2/v3 identity claim.",
+    "author": {
+      "model": "claude-sonnet-5-5",
+      "providerInstance": "cliproxy (historical registration)",
+      "role": "Original historical source and tests",
+      "source": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-25/prep/campaign-live-write/",
+      "identifiers": "Historical original task/session identifiers are not re-observed here; none are invented."
+    },
+    "finisher": {
+      "model": "gpt-6-astra",
+      "providerInstance": "cliproxy",
+      "harness": "Codex through T3 Code",
+      "effort": "xhigh",
+      "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+      "runId": "run:thread:f9f49416-ce64-461b-8843-15e8f096ee0c:ordinal:29",
+      "role": "Root: current F1/F2 corrections, LW23/MR16/MR17, responsive save-card fix, validation and delivery",
+      "provenance": "T3 thread metadata and current harness runtime; provider route unobserved. Not a native v2/v3 attestation."
+    },
+    "qualificationReviewers": "Sol and Opus reviewed read-only, wrote only their reports, and are not source contributors.",
+    "requiredReviewers": [
+      "gpt-6.1-sol",
+      "claude-opus-5-5"
+    ]
+  },
+  "limits": [
+    "Historical initial-create 404 and earlier browser intermittency remain unexplained; new passing runs do not erase them.",
+    "GM proposal E2E-30 sign-in failure reproduced on genuine baseline; other GM replay consumers remain unrun. No GM-pack pass is claimed.",
+    "Unscoped tokens remain accepted by the shared verifier. Wrong-session refusal is coverage for scoped tokens.",
+    "With no live host, cross-profile PUT/DELETE remain accepted. A fresh window without the bearer cannot save the live campaign; the original host window can.",
+    "A typed refusal preserves edits in the current window; it does not claim a durable offline copy. Co-op keepalive flush remains intentionally excluded.",
+    "Dashboard/store max-lines warnings remain; lint exits zero. lint:units reports findings against its ceiling, not individual passing tests.",
+    "Only the named production two-process group uses the production image. Other browser groups use development servers. Test sets overlap and are not summed.",
+    "Absolute evidence paths are machine-local. Independent implementation-head review, CI, head-bound ruling, guarded merge and exact-main proof remain required. No Step 4 completion is claimed."
+  ],
+  "controls": {
+    "protectedReleaseLeaves": 22,
+    "protectedHashesUnchanged": true,
+    "finalSourceIdentity": "All ten committed source leaves match candidate-manifest.json; eight equal F2, LW23 and responsive save-card classes are the only F2 deltas.",
+    "publicationFiles": 15,
+    "maxFiles": 15,
+    "maxCountedAdditions": 500,
+    "budget": 29,
+    "cleanup": "All owned listener ports were reusable. Evidence, isolated test stores and built image retained for review. No foreign process stopped or ALLOW_PIDS changed."
+  },
+  "sizing": {
+    "base": "bbda6c2ffa7f386a3d6a62f97d717aeb2bba9912",
+    "actualFiles": 15,
+    "countedFiles": 15,
+    "countedAdditions": 323,
+    "maxFiles": 15,
+    "maxCountedAdditions": 500,
+    "rows": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "additions": 12,
+        "deletions": 0,
+        "countedAdditions": 12,
+        "reason": "counted; generated steps page has no file or line exemption"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+        "additions": 2,
+        "deletions": 2,
+        "countedAdditions": 2,
+        "reason": "counted; generated steps page has no file or line exemption"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-local-20261025.json",
+        "additions": 467,
+        "deletions": 0,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-red-20261025.json",
+        "additions": 157,
+        "deletions": 0,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "additions": 51,
+        "deletions": 2,
+        "countedAdditions": 51,
+        "reason": "counted; generated steps page has no file or line exemption"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "additions": 1067,
+        "deletions": 0,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "additions": 49,
+        "deletions": 15,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "additions": 58,
+        "deletions": 33,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "additions": 13,
+        "deletions": 6,
+        "countedAdditions": 13,
+        "reason": "counted; generated steps page has no file or line exemption"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "additions": 20,
+        "deletions": 5,
+        "countedAdditions": 20,
+        "reason": "counted; generated steps page has no file or line exemption"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "additions": 47,
+        "deletions": 0,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "additions": 41,
+        "deletions": 10,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "additions": 145,
+        "deletions": 26,
+        "countedAdditions": 145,
+        "reason": "counted; generated steps page has no file or line exemption"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "additions": 225,
+        "deletions": 1,
+        "countedAdditions": 0,
+        "reason": "tests/test-support or ledger evidence"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "additions": 80,
+        "deletions": 5,
+        "countedAdditions": 80,
+        "reason": "counted; generated steps page has no file or line exemption"
+      }
+    ],
+    "rule": "U41 additions only; tests, registered test-support and ledger evidence line-exempt but every file counts; no deletion credit."
+  },
+  "lifecycleChecks": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/checks-precommit/result.json",
+      "sha256": "c8ccf0675d0220cd86fc140f067bcb3730c20b36141bde8a2d3e92ecae97875b",
+      "commands": [
+        {
+          "name": "roadmap-plain",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+          ],
+          "startedAt": "2026-10-30T03:17:25.462Z",
+          "endedAt": "2026-10-30T03:17:30.678Z",
+          "exit": 0,
+          "signal": null,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r2\\checks-precommit\\roadmap-plain.log",
+          "logSha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
+        },
+        {
+          "name": "roadmap-git",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--git"
+          ],
+          "startedAt": "2026-10-30T03:17:30.683Z",
+          "endedAt": "2026-10-30T03:17:59.886Z",
+          "exit": 0,
+          "signal": null,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r2\\checks-precommit\\roadmap-git.log",
+          "logSha256": "f59673ded1d44592452fcc673053ce97defdaae41b54058e4c4ce1e467a8b726"
+        },
+        {
+          "name": "roadmap-github",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--github"
+          ],
+          "startedAt": "2026-10-30T03:17:59.892Z",
+          "endedAt": "2026-10-30T03:19:55.024Z",
+          "exit": 0,
+          "signal": null,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r2\\checks-precommit\\roadmap-github.log",
+          "logSha256": "8be8df91eb1c35474c7e8cebe002e957e75f5572ef2e622f66f5c0f6013875d0"
+        },
+        {
+          "name": "roadmap-next",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+            "--next"
+          ],
+          "startedAt": "2026-10-30T03:19:55.024Z",
+          "endedAt": "2026-10-30T03:19:59.909Z",
+          "exit": 0,
+          "signal": null,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r2\\checks-precommit\\roadmap-next.log",
+          "logSha256": "e99e17bac5f767eec0124459c86411ad5efa05b7d82b738f57a7d201b2c30650"
+        },
+        {
+          "name": "step-generator",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "scripts/qc/generate-v220-steps.mjs",
+            "--check"
+          ],
+          "startedAt": "2026-10-30T03:19:59.914Z",
+          "endedAt": "2026-10-30T03:20:00.032Z",
+          "exit": 0,
+          "signal": null,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r2\\checks-precommit\\step-generator.log",
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/checks-tests/result.json",
+      "sha256": "171bc3e39adce6aece16518bbfa1ac923f4535f6eeee2153b772faea62fb138c",
+      "commands": [
+        {
+          "name": "roadmap-and-step-tests",
+          "command": [
+            "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+            "--test",
+            "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+            "scripts/__tests__/v220-steps.test.mjs"
+          ],
+          "startedAt": "2026-10-30T03:17:25.462Z",
+          "endedAt": "2026-10-30T03:17:43.604Z",
+          "exit": 0,
+          "signal": null,
+          "log": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r2\\checks-tests\\roadmap-and-step-tests.log",
+          "logSha256": "b35c33e618379fc6116474049671d33341ea3eebd6b8bf08aff3d24a07b5191a"
+        }
+      ]
+    }
+  ]
+}

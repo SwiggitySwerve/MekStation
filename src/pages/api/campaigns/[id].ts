@@ -10,14 +10,24 @@
  *          snapshot in one transaction (`campaignRecordJournalSave`).
  *          While a live co-op host holds the campaign (an entry of the
  *          shared `CampaignHostRegistry` whose host is not closed), only
- *          the host's own save is taken - its envelope's co-op session is
- *          the live match in the host role: it saves as above under that
- *          host's single-writer lock, and the host folds and publishes the
- *          checkpoint it appended. Any other PUT is refused `409` with
- *          reason `live-coop-session` and the live `matchId`, in the
- *          conflict shape with the stored record (the blocked shape when no
- *          record is readable), and writes nothing.
- * DELETE — removes the server record; `204`. Idempotent.
+ *          the host's own save is taken. "Own" is decided from the verified
+ *          bearer - its principal is the entry's `hostPlayerId` - and never
+ *          from the envelope's co-op session, which any client can write.
+ *          The host's save runs as above under that host's single-writer
+ *          lock, and the host folds and publishes the checkpoint it
+ *          appended. A request with no usable bearer (absent, malformed,
+ *          expired, wrong scope) is refused `401` with code
+ *          `HOST_SESSION_REQUIRED` (`HOST_SESSION_EXPIRED` when the
+ *          bearer only expired). A verified principal that is not the host
+ *          is refused `409` with reason `live-coop-session` and the live
+ *          `matchId`, in the conflict shape with the stored record (the
+ *          blocked shape when no record is readable). Every refusal writes
+ *          nothing and tells the live host nothing.
+ * DELETE — removes the server record; `204`. Idempotent. While a live
+ *          co-op host holds the campaign, everyone is refused: no usable
+ *          bearer is `401`, another principal `403`, and the host `403`
+ *          with `LIVE_SESSION_ACTIVE`. With no live host it is unprotected -
+ *          the disclosed v2.2.0 residual (record-scoped authority is B15-3).
  *
  * Spec scenarios this satisfies:
  *  - "Save a campaign", "Load a saved campaign", "Load a missing campaign"
@@ -43,7 +53,14 @@ import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/res
 import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
-import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
+import {
+  authenticateRequest,
+  expectedScopeForSocket,
+} from '@/lib/multiplayer/server/auth';
+import {
+  getCampaignHostRegistry,
+  type ICampaignHostRegistryEntry,
+} from '@/lib/multiplayer/server/CampaignHostRegistry';
 import {
   initializeApiDatabase as initCampaignDb,
   rejectMissingQueryString as readCampaignId,
@@ -129,23 +146,89 @@ function isValidPutBody(value: unknown): value is PutBody {
   );
 }
 
+/** Why a write to a live co-op campaign is refused for want of the host. */
+const HOST_SESSION_REQUIRED = 'HOST_SESSION_REQUIRED';
+const HOST_SESSION_EXPIRED = 'HOST_SESSION_EXPIRED';
+
+/** The typed body of a `401`/`403` live-write refusal. */
+type LiveWriteRefusal = {
+  error: string;
+  kind: 'refused';
+  code:
+    | typeof HOST_SESSION_REQUIRED
+    | typeof HOST_SESSION_EXPIRED
+    | 'LIVE_SESSION_ACTIVE';
+  /** Why the bearer failed (the verifier's reason), or `not-live-host`. */
+  reason: string;
+  matchId: string;
+};
+
 /**
- * True when `envelope`'s co-op session is the host role of the live
- * session `matchId`: what the host browser saves once its co-op match
- * exists (a guest mirror carries mode guest and hostMatchId instead).
+ * Who a write to a campaign held by the live co-op host `live` comes from,
+ * decided only from the verified bearer. The caller never names its own
+ * role: `body.coopSession` is a client-written field and is not read here.
+ * The scope is the live session's, taken from the registry entry, so a
+ * token minted for another session is refused.
  */
-function isLiveHostSave(
-  envelope: SerializedCampaign,
-  matchId: string,
-): boolean {
-  const coop = envelope.body.coopSession;
-  return coop?.mode === 'host' && coop.matchId === matchId;
+async function judgeLiveWrite(
+  req: NextApiRequest,
+  live: ICampaignHostRegistryEntry,
+): Promise<
+  | { readonly kind: 'host' }
+  | { readonly kind: 'member'; readonly reason: 'not-live-host' }
+  | { readonly kind: 'unverified'; readonly reason: string }
+> {
+  const auth = await authenticateRequest(
+    // Record writes require a bearer header; the shared verifier also serves
+    // clients that use query tokens, so omit that transport fallback here.
+    Object.create(req, { query: { value: {} } }) as NextApiRequest,
+    undefined,
+    expectedScopeForSocket('campaign', live.matchId),
+  );
+  if (!auth.ok) return { kind: 'unverified', reason: auth.reason };
+  return auth.playerId === live.hostPlayerId
+    ? { kind: 'host' }
+    : { kind: 'member', reason: 'not-live-host' };
 }
 
 /**
- * Answers 409 for a PUT the live co-op session `matchId` does not own:
- * the conflict shape with the stored record as `current`, or the blocked
- * shape when the stored record is not readable. Writes nothing.
+ * Answers a live-write refusal: `401` when no usable bearer was presented,
+ * `403` for a verified non-host, a changed session or any live DELETE.
+ */
+function refuseLiveWrite(
+  res: NextApiResponse<LiveWriteRefusal | ConflictResponse | ErrorResponse>,
+  matchId: string,
+  status: 401 | 403,
+  reason: string,
+  method: 'PUT' | 'DELETE' = 'PUT',
+): void {
+  const expired = reason === 'expired';
+  const liveDelete = reason === LIVE_COOP_SESSION_REASON;
+  res.status(status).json({
+    error:
+      method === 'DELETE'
+        ? 'end the live co-op session before deleting this campaign'
+        : reason === 'live-session-changed'
+          ? 'the co-op session changed while saving; sign in to the current host session and retry'
+          : expired
+            ? 'your co-op sign-in expired; renew it to change this campaign'
+            : 'a live co-op session holds this campaign; only the host session that started it can change it',
+    kind: 'refused',
+    code: liveDelete
+      ? 'LIVE_SESSION_ACTIVE'
+      : expired
+        ? HOST_SESSION_EXPIRED
+        : HOST_SESSION_REQUIRED,
+    reason,
+    matchId,
+  });
+}
+
+/**
+ * Answers 409 for a PUT from a verified principal that is not the host of
+ * the live co-op session `matchId`: the conflict shape with the stored
+ * record as `current`, or the blocked shape when the stored record is not
+ * readable. Writes nothing.
  */
 function refuseForLiveSession(
   res: NextApiResponse<ConflictResponse | ErrorResponse>,
@@ -176,7 +259,9 @@ function refuseForLiveSession(
 /** GET reads, PUT saves and DELETE removes one campaign record (see the header). */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SerializedCampaign | ConflictResponse | ErrorResponse>,
+  res: NextApiResponse<
+    SerializedCampaign | ConflictResponse | ErrorResponse | LiveWriteRefusal
+  >,
 ): Promise<void> {
   if (!initCampaignDb(res)) return;
 
@@ -254,11 +339,19 @@ export default async function handler(
         return;
       }
       const live = getCampaignHostRegistry().liveEntryFor(id);
-      if (live !== null && !isLiveHostSave(body.envelope, live.matchId)) {
-        refuseForLiveSession(res, id, live.matchId);
-        return;
+      if (live !== null) {
+        const verdict = await judgeLiveWrite(req, live);
+        if (verdict.kind === 'unverified') {
+          refuseLiveWrite(res, live.matchId, 401, verdict.reason);
+          return;
+        }
+        if (verdict.kind === 'member') {
+          refuseForLiveSession(res, id, live.matchId);
+          return;
+        }
       }
 
+      const sessionChanged = new Error('live-session-changed');
       try {
         // Journal-native: checkpoint; a create under journal authority:
         // genesis; both with the row in the writer's one transaction.
@@ -268,8 +361,17 @@ export default async function handler(
             : body.baseVersion === 0 && isCampaignJournalAuthorityEnabled()
               ? 'genesis'
               : null;
-        const save = async () =>
-          purpose === null
+        const save = async () => {
+          // Verification and the writer queue can yield. Recheck at the write
+          // boundary; both persistence paths start their SQLite work synchronously.
+          if (
+            live !== null &&
+            getCampaignHostRegistry().liveEntryFor(id) !== live
+          ) {
+            // A returned refusal would still let the adopter fold the journal tail.
+            throw sessionChanged;
+          }
+          return purpose === null
             ? saveCampaign(body.envelope, body.baseVersion)
             : saveCampaignRecordThroughJournal(
                 new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
@@ -283,6 +385,7 @@ export default async function handler(
                   occurredAt: new Date().toISOString(),
                 },
               );
+        };
         // The live host's own save runs under its lock and is adopted.
         const result =
           live === null
@@ -343,12 +446,28 @@ export default async function handler(
         }
         res.status(200).json(result.record);
       } catch (error) {
+        if (error === sessionChanged && live !== null) {
+          refuseLiveWrite(res, live.matchId, 403, 'live-session-changed');
+          return;
+        }
         sendCampaignError(res, error, 'failed to persist campaign');
       }
       return;
     }
 
     case 'DELETE': {
+      const live = getCampaignHostRegistry().liveEntryFor(id);
+      if (live !== null) {
+        const verdict = await judgeLiveWrite(req, live);
+        refuseLiveWrite(
+          res,
+          live.matchId,
+          verdict.kind === 'unverified' ? 401 : 403,
+          verdict.kind === 'host' ? LIVE_COOP_SESSION_REASON : verdict.reason,
+          'DELETE',
+        );
+        return;
+      }
       try {
         const result = deleteCampaign(id);
         if (result.kind === 'refused') {

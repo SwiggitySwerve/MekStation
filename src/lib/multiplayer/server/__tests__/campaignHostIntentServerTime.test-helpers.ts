@@ -6,6 +6,7 @@
  * wrappers are installed with jest spies and instance reassignment only.
  */
 
+import { generateKeyPairSync } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import { performance } from 'node:perf_hooks';
 
@@ -14,20 +15,44 @@ import type { ICampaignHostRegistryEntry } from '@/lib/multiplayer/server/Campai
 import type { UnsequencedCampaignEvent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
+import type { IVaultIdentity } from '@/types/vault';
 
 import { callId } from '@/__tests__/api/campaigns/campaignJournalEffectsFixture';
 import { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
 import { createHostCampaignEventJournal } from '@/lib/campaign/sync/hostCampaignEventJournal';
+import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
 import { bindCampaignSyncConnection } from '@/lib/multiplayer/server/bindCampaignSyncConnection';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { createCampaignSessionMembershipPort } from '@/lib/multiplayer/server/campaignSessionMembershipPort';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
+import { derivePlayerId } from '@/lib/multiplayer/server/playerIdFromPublicKey';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
+import { encodeTokenForWire } from '@/types/multiplayer/Player';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
+/**
+ * The host's real identity. A live co-op campaign takes its host's saves
+ * from the verified bearer alone, so `HOST` is the id derived from this key
+ * and `hostPut` signs in as it.
+ */
+const hostKeys = generateKeyPairSync('ed25519');
+const hostPublicKey = new Uint8Array(
+  hostKeys.publicKey.export({ type: 'spki', format: 'der' }).subarray(-32),
+);
+const HOST_IDENTITY: IVaultIdentity = {
+  id: 'identity-u89-host',
+  displayName: 'U89 host',
+  publicKey: Buffer.from(hostPublicKey).toString('base64'),
+  privateKey: hostKeys.privateKey
+    .export({ type: 'pkcs8', format: 'der' })
+    .toString('base64'),
+  friendCode: 'AAAA-BBBB-CCCC-DDDD',
+  createdAt: '2026-08-23T00:00:00.000Z',
+};
+
 export const MATCH_ID = 'match-u89';
-export const HOST = 'pid_host';
+export const HOST = derivePlayerId(hostPublicKey);
 export const GUEST = 'pid_guest';
 export const ROOM = 'ABC234';
 /** Discarded first, so JIT warm-up does not land on the short log. */
@@ -388,17 +413,23 @@ export async function hostPut(campaignId: string): Promise<Steps> {
   const record = read.record;
   current = { steps: {}, intentStarted: false, lastEnd: 0 };
   const t0 = performance.now();
-  const put = await callId('PUT', campaignId, {
-    envelope: {
-      ...record,
-      version: record.version + 1,
-      body: {
-        ...record.body,
-        coopSession: { mode: 'host', roomCode: ROOM, matchId: MATCH_ID },
+  const wire = encodeTokenForWire(await issuePlayerToken(HOST_IDENTITY));
+  const put = await callId(
+    'PUT',
+    campaignId,
+    {
+      envelope: {
+        ...record,
+        version: record.version + 1,
+        body: {
+          ...record.body,
+          coopSession: { mode: 'host', roomCode: ROOM, matchId: MATCH_ID },
+        },
       },
+      baseVersion: record.version,
     },
-    baseVersion: record.version,
-  });
+    wire,
+  );
   const steps: Steps = {
     ...current.steps,
     putRoute: performance.now() - t0,

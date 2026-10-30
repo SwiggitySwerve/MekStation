@@ -21366,11 +21366,28 @@
       "ciClass": "product",
       "reviewClasses": ["authority","idempotency"],
       "caps": {"maxFiles":15,"maxNonGeneratedLines":500},
-      "state": "admitted",
+      "state": "local-verified",
       "baseline": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
       "prHead": null,
       "mergeSha": null,
-      "stageReceipts": {"admission":{"path":"evidence/campaign-live-write-1-admission-20261025.json"},"red":null,"local":null,"review":null,"merge":null,"mainProof":null,"tick":null},
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/campaign-live-write-1-admission-20261025.json"
+        },
+        "red": {
+          "path": "evidence/campaign-live-write-1-red-20261025.json"
+        },
+        "local": {
+          "path": "evidence/campaign-live-write-1-local-20261025.json",
+          "head": "d9bfedfdfa4e352d8e2ab48db61444f694b8272b",
+          "implementerModel": "claude-sonnet-5-5",
+          "finisherModel": "gpt-6-astra"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
       "ownerGate": null,
       "predecessors": ["L1-SMOKE-B","API-SAME-HOST-1"],
       "successors": ["MULTI-WINDOW-SESSION-1"],
@@ -21652,6 +21669,38 @@
     }
   ],
   "packets": [
+    {
+      "id": "PK-campaign-live-write-1-ruling",
+      "blocks": [
+        "CAMPAIGN-LIVE-WRITE-1"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "Accept the exact independently reviewed live-campaign save/delete implementation after its current-head checks pass?",
+      "options": [
+        {
+          "label": "accept under standing full-send authority",
+          "consequence": "Record a head-specific ruling before guarded merge, then run exact-main proof and publish closure with the next admission.",
+          "effort": "Fresh Sol and Opus exact-head reviews, required CI, integration-tree attestation and main proof"
+        },
+        {
+          "label": "request bounded changes",
+          "consequence": "Hold merge, fix concrete findings within the registered fifteen files, revalidate and obtain fresh exact-head reviews.",
+          "effort": "Finding-dependent"
+        }
+      ],
+      "agentRecommendation": "Accept after all gates pass. The host bearer, refusal non-effects, retired-host adoption race and unrelated-error identity are covered; the same real browser refusal/layout case is RED then GREEN. Preserve disclosed offline record permissions, missing-bearer new-window restriction, unscoped-token compatibility and historical browser/GM fixture limits.",
+      "revertCost": "Revert the ten source/test leaves and associated lifecycle record; no schema or data migration. Reverting restores the body-claimed live-save behavior and live DELETE access.",
+      "decision": {
+        "option": "accept under standing full-send authority, conditional on actual ready checks",
+        "authority": "Owner messages Approved, just full send and Make recommended fixes and changes as they come up to make the best experience and product",
+        "source": "evidence/campaign-live-write-1-admission-20261025.json#ownerDecision",
+        "status": "Standing delivery delegation only; no future head is represented as already reviewed or ruled."
+      },
+      "ruling": null
+    },
     {
       "id": "PK-mp-campaign-host-dedupe-1-ruling",
       "blocks": [

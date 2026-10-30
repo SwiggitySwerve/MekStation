@@ -7,13 +7,16 @@
  * the match create route registers it, with a guest attached through the
  * session's live delivery.
  *
- * - (R1) the host's own save (its co-op session names the live match in the
- *   host role) is checkpointed AND adopted by the live host, so SpendFunds
- *   1000 builds on it: the journal, the record and the guest's frames read
- *   381500, and the guest received the checkpoint as a CampaignSnapshot.
- * - (R3) a PUT from any other instance (a guest mirror's envelope) while the
- *   host is live is refused 409 in the conflict shape, reason
+ * - (R1) the host's own save (a bearer that verifies as the live entry's
+ *   host; CAMPAIGN-LIVE-WRITE-1, never the envelope's co-op session) is
+ *   checkpointed AND adopted by the live host, so SpendFunds 1000 builds on
+ *   it: the journal, the record and the guest's frames read 381500, and the
+ *   guest received the checkpoint as a CampaignSnapshot.
+ * - (R3) a PUT from any other verified principal (a guest mirror's save)
+ *   while the host is live is refused 409 in the conflict shape, reason
  *   live-coop-session, naming the session's matchId; nothing is written.
+ *   Refusals for want of any usable bearer are pinned in
+ *   campaignCoopRecordAuthz.test.ts.
  * - (day) AdvanceDay committed first, then the host's save of that day:
  *   the adoption keeps the host, the journal and the record one day on.
  * - (pin none / pin closed) with no live host (none registered, or a closed
@@ -29,6 +32,7 @@ import type {
 } from '@/types/campaign/CampaignSync';
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
+import type { IVaultIdentity } from '@/types/vault';
 
 import { authoritativeStateFromSerializedCampaign } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { _resetActiveCoopHosts } from '@/lib/campaign/coop/coopHostRegistry';
@@ -41,18 +45,24 @@ import {
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
 import {
+  bearerOf,
   callId,
   createJournalNative,
   eventTypes,
   flushMeasurements,
   intentOf,
   ledgerOf,
+  mintIdentity,
   replayed,
   storedRow,
   useTempCampaignDatabase,
 } from './campaignJournalEffectsFixture';
 
 const measurements: Record<string, unknown> = {};
+
+/** The live host's bearer, and a bearer of another principal (a guest's). */
+let hostBearer: Awaited<ReturnType<typeof bearerOf>>;
+let memberBearer: Awaited<ReturnType<typeof bearerOf>>;
 
 /** Registers a co-op host for `campaignId` in the shared registry. */
 function registerHost(
@@ -62,7 +72,7 @@ function registerHost(
 ): Promise<ICampaignHostRegistryEntry> {
   return getCampaignHostRegistry().register(matchId, {
     campaignId,
-    hostPlayerId: 'host',
+    hostPlayerId: hostBearer.playerId,
     roomCode: 'ABC234',
     state,
   });
@@ -101,28 +111,40 @@ function attachGuest(entry: ICampaignHostRegistryEntry): {
   return frames;
 }
 
-/** `record` with balance `balance` and co-op session `coopSession`, PUT at its own version. */
+/** `record` with balance `balance` and co-op session `coopSession`, PUT at its own version as the bearer `wire`. */
 function putBalance(
   record: SerializedCampaign,
   balance: number,
   coopSession?: ICoopSession,
+  wire?: string,
 ): ReturnType<typeof callId> {
-  return callId('PUT', record.campaignId, {
-    envelope: {
-      ...record,
-      version: record.version + 1,
-      body: {
-        ...record.body,
-        finances: { ...record.body.finances, balance },
-        ...(coopSession === undefined ? {} : { coopSession }),
+  return callId(
+    'PUT',
+    record.campaignId,
+    {
+      envelope: {
+        ...record,
+        version: record.version + 1,
+        body: {
+          ...record.body,
+          finances: { ...record.body.finances, balance },
+          ...(coopSession === undefined ? {} : { coopSession }),
+        },
       },
+      baseVersion: record.version,
     },
-    baseVersion: record.version,
-  });
+    wire,
+  );
 }
 
 describe('U96 whole-campaign PUT while a live co-op host holds the campaign', () => {
   useTempCampaignDatabase('u96-put-live-');
+
+  beforeAll(async () => {
+    const host: IVaultIdentity = await mintIdentity('u96-host');
+    hostBearer = await bearerOf(host);
+    memberBearer = await bearerOf(await mintIdentity('u96-member'));
+  });
 
   afterEach(() => {
     _resetCampaignHostRegistry();
@@ -144,11 +166,12 @@ describe('U96 whole-campaign PUT while a live co-op host holds the campaign', ()
     const guestFrames = attachGuest(entry);
     const typesBefore = eventTypes(id);
 
-    const put = await putBalance(record, 382_500, {
-      mode: 'host',
-      roomCode: 'ABC234',
-      matchId: 'match-u96-live',
-    });
+    const put = await putBalance(
+      record,
+      382_500,
+      { mode: 'host', roomCode: 'ABC234', matchId: 'match-u96-live' },
+      hostBearer.wire,
+    );
     const afterPut = {
       putStatus: put.status,
       typesAfterPut: eventTypes(id),
@@ -213,11 +236,12 @@ describe('U96 whole-campaign PUT while a live co-op host holds the campaign', ()
     const typesBefore = eventTypes(id);
     const hostBefore = entry.host.getState();
 
-    const put = await putBalance(record, 382_500, {
-      mode: 'guest',
-      roomCode: 'ABC234',
-      hostMatchId: 'match-u96-foreign',
-    });
+    const put = await putBalance(
+      record,
+      382_500,
+      { mode: 'guest', roomCode: 'ABC234', hostMatchId: 'match-u96-foreign' },
+      memberBearer.wire,
+    );
     const current = put.json.current as SerializedCampaign | undefined;
     measurements.R3 = {
       putStatus: put.status,
@@ -261,11 +285,12 @@ describe('U96 whole-campaign PUT while a live co-op host holds the campaign', ()
     );
     const rewritten = (await callId('GET', id))
       .json as unknown as SerializedCampaign;
-    const put = await putBalance(rewritten, 378_500, {
-      mode: 'host',
-      roomCode: 'ABC234',
-      matchId: 'match-u96-day',
-    });
+    const put = await putBalance(
+      rewritten,
+      378_500,
+      { mode: 'host', roomCode: 'ABC234', matchId: 'match-u96-day' },
+      hostBearer.wire,
+    );
     measurements.day = {
       dayBefore,
       advanceOk: advance.ok,
