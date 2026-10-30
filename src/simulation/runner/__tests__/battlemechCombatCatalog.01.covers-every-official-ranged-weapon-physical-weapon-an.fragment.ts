@@ -184,6 +184,24 @@ it('covers every official ranged weapon, physical weapon, and ammo entry', () =>
   expect(ammoIds.size).toBe(ammoItems.length);
 });
 
+/**
+ * Numeric catalog damage hydrates unchanged, except the zero placeholder on
+ * LRM/SRM/MRM/ATM launcher ids, which hydrates to pinned MegaMek damage per
+ * missile (LRM/MRM 1, SRM/ATM 2) times the rack in the id.
+ */
+function expectedNumericCatalogDamage(
+  item: Record<string, unknown>,
+): number | undefined {
+  if (typeof item.damage !== 'number') return undefined;
+  if (item.damage !== 0 || typeof item.id !== 'string') return item.damage;
+  const launcher = item.id.match(/(lrm|srm|mrm|atm)[\s-]?(\d+)/i);
+  if (!launcher) return item.damage;
+  const perMissile = { lrm: 1, mrm: 1, srm: 2, atm: 2 }[
+    launcher[1].toLowerCase() as 'lrm' | 'mrm' | 'srm' | 'atm'
+  ];
+  return perMissile * parseInt(launcher[2], 10);
+}
+
 it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
   const failures: string[] = [];
 
@@ -201,9 +219,13 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
     if (!Number.isFinite(aiWeapon.damage)) {
       failures.push(`${item.id}: non-finite damage ${aiWeapon.damage}`);
     }
-    if (typeof item.damage === 'number' && aiWeapon.damage !== item.damage) {
+    const expectedNumericDamage = expectedNumericCatalogDamage(item);
+    if (
+      typeof item.damage === 'number' &&
+      aiWeapon.damage !== expectedNumericDamage
+    ) {
       failures.push(
-        `${item.id}: numeric damage drift ${item.damage} -> ${aiWeapon.damage}`,
+        `${item.id}: numeric damage drift ${expectedNumericDamage} -> ${aiWeapon.damage}`,
       );
     }
     if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {

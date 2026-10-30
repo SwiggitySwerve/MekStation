@@ -33,3 +33,23 @@ it does not establish complete ProtoMech combat support.
 - **WHEN** the duplicate resolution lookup is replaced with the existing owner's export
 - **THEN** a separately verified refactor SHALL preserve outputs before table values change
 - **AND** all existing public lookup exports SHALL remain available
+
+### Requirement: Catalog missile launcher total damage
+
+Hydrating a catalog LRM, SRM, MRM or ATM launcher (including Streak, Improved, Enhanced, Extended, Advanced, Primitive, battle-armor, one-shot and Improved ATM variants) SHALL give a launcher total equal to the family's damage per missile times the rack in the catalog id, whether the catalog states the damage as an `N/missile` descriptor or as the numeric placeholder `0`.
+
+#### Scenario: Placeholder damage derives from family and rack
+
+- **GIVEN** a catalog LRM, SRM, MRM or ATM launcher whose `damage` is the number 0
+- **WHEN** the runner or the adapter hydrates it
+- **THEN** the total SHALL be rack x pinned MegaMek damage per missile: LRM 1, MRM 1, SRM 2, Streak SRM 2, Streak LRM 1, ATM and iATM with standard ammunition 2
+- **AND** Enhanced, Improved and Extended LRM SHALL NOT differ from standard LRM damage
+- **AND** a numeric zero on an id outside those families (AMS, NARC, cruise missiles, LRT/SRT torpedoes) SHALL remain zero
+- **AND** explicit `N/missile` descriptors and non-zero numbers SHALL hydrate as before
+
+#### Scenario: Unresolved variants stay explicit
+
+- **GIVEN** MML descriptors `1-2/missile`, iATM alternative ammunition (IMP 1, ER 1, HE 3) and launchers with zero catalog range or no catalog ammunition
+- **WHEN** the correction runs
+- **THEN** MML SHALL keep its SRM figure per missile and mode selection SHALL remain unclaimed
+- **AND** launchers lacking range or ammunition data SHALL NOT be claimed as firing

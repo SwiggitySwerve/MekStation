@@ -22,12 +22,37 @@ import {
 } from './UnitHydrationEquipment';
 import { normalizeEquipmentLocation } from './UnitHydrationText';
 
+/**
+ * Damage per missile by launcher family (pinned MegaMek: LRM and MRM 1, SRM 2,
+ * ATM and iATM with standard ammunition 2; Streak, Improved, Enhanced,
+ * Extended, Advanced, Primitive, battle-armor and one-shot variants share their
+ * family's figure).
+ */
+const DAMAGE_PER_MISSILE: Readonly<Record<string, number>> = {
+  lrm: 1,
+  mrm: 1,
+  srm: 2,
+  atm: 2,
+};
+const LAUNCHER_FAMILY_RACK = /(lrm|srm|mrm|atm)[\s-]?(\d+)/i;
+
+/**
+ * Most catalog launchers carry a numeric `damage: 0` placeholder rather than a
+ * "N/missile" descriptor; their total is the family's damage per missile times
+ * the rack in the id.
+ */
+function launcherTotalDamage(weaponId: string): number {
+  const match = weaponId.match(LAUNCHER_FAMILY_RACK);
+  if (!match) return 0;
+  return DAMAGE_PER_MISSILE[match[1].toLowerCase()] * parseInt(match[2], 10);
+}
+
 export function resolveCatalogDamage(
   damage: number | string,
   weaponId: string,
 ): number {
   if (typeof damage === 'number') {
-    return damage;
+    return damage === 0 ? launcherTotalDamage(weaponId) : damage;
   }
 
   const match = damage.match(/^(?:\d+\s*-\s*)?(\d+)\s*\/\s*missile$/i);
