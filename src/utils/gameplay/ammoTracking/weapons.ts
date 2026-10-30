@@ -98,16 +98,20 @@ export function hasAmmoForDamagePreview(
 }
 
 /** Project current compatible-bin totals without inventing quantities. */
-export function ammoFromWeapons(
-  weapons: readonly (IWeaponAmmoData & { readonly id: string })[],
+export function ammoFromWeapons<
+  TWeapon extends IWeaponAmmoData & { readonly id: string },
+>(
+  weapons: readonly TWeapon[],
   ammoState: Record<string, IAmmoSlotState>,
+  baseAmmoFamily: (weapon: TWeapon) => string = (weapon) =>
+    weapon.ammoWeaponType ?? weapon.name,
 ): Record<string, number> {
   const ammo: Record<string, number> = {};
   for (const weapon of weapons) {
     if (isAmmoDependent(weapon)) {
       const families = new Set(
         [
-          weapon.ammoWeaponType ?? weapon.name,
+          baseAmmoFamily(weapon),
           ...(weapon.firingModes?.modes.flatMap((mode) =>
             mode.ammoWeaponType === undefined ? [] : [mode.ammoWeaponType],
           ) ?? []),

@@ -67,7 +67,7 @@ export function expandSelectedModeIntoShots(
 
 export function selectedAmmoWeaponType(
   weapon: IWeapon,
-  mode: IWeaponFiringMode | undefined,
+  mode?: IWeaponFiringMode,
 ): string {
   return (
     mode?.ammoWeaponType ??

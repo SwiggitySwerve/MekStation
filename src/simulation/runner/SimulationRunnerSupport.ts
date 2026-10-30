@@ -265,13 +265,7 @@ export function toAIUnitState(
     ),
     ammo:
       unit.ammoState && Object.keys(unit.ammoState).length > 0
-        ? ammoFromWeapons(
-            weapons.map((weapon) => ({
-              ...weapon,
-              ammoWeaponType: selectedAmmoWeaponType(weapon, undefined),
-            })),
-            unit.ammoState,
-          )
+        ? ammoFromWeapons(weapons, unit.ammoState, selectedAmmoWeaponType)
         : {},
     destroyed:
       unit.destroyed || unit.hasRetreated === true || unit.hasEjected === true,
