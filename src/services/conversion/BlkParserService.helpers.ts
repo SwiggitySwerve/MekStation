@@ -6,6 +6,11 @@ import { UnitType } from '../../types/unit/BattleMechInterfaces';
 
 export type BlkRawTags = Record<string, string | string[]>;
 
+/** Java String.trim / Double.parseDouble remove only characters through U+0020. */
+export function trimBlkWhitespace(value: string): string {
+  return value.replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+}
+
 export function removeBlkComments(content: string): string {
   return content
     .split(/\r?\n/)
@@ -21,13 +26,15 @@ export function isBlkEquipmentBlock(tagName: string): boolean {
 
 export function extractBlkTags(content: string): BlkRawTags {
   const tags: BlkRawTags = {};
-  const tagPattern = /<([^>]+)>\s*([\s\S]*?)\s*<\/\1>/g;
+  const equipmentText: Record<string, string> = {};
+  const tagPattern = /<([^>]+)>([\s\S]*?)<\/\1>/g;
   let match;
   while ((match = tagPattern.exec(content)) !== null) {
     const tagName = match[1].trim();
     const tagContent = match[2].trim();
     if (isBlkEquipmentBlock(tagName)) {
       tags[tagName] = splitBlkLines(tagContent);
+      equipmentText[tagName] = match[2];
     } else if (tagContent.includes('\n')) {
       const lines = splitBlkLines(tagContent);
       tags[tagName] = lines.every((line) => !isNaN(parseFloat(line)))
@@ -35,6 +42,17 @@ export function extractBlkTags(content: string): BlkRawTags {
         : lines;
     } else {
       tags[tagName] = tagContent;
+    }
+  }
+  // UnitType may follow equipment blocks. Keep other families' existing parsing.
+  if (
+    mapBlkUnitType(getBlkString(tags.UnitType) ?? '') === UnitType.PROTOMECH
+  ) {
+    for (const [tag, text] of Object.entries(equipmentText)) {
+      tags[tag] = text
+        .split(/\r\n|\r|\n/)
+        .map(trimBlkWhitespace)
+        .filter((line) => line.length > 0 && !line.startsWith('#'));
     }
   }
   return tags;

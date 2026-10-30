@@ -309,3 +309,87 @@ it('retains source-derived booster identity through an existing BLK export and r
   expect(reloaded.data.unit.hasMyomerBooster).toBe(true);
   expect(reloaded.data.unit.equipment).toEqual(unit.equipment);
 });
+
+describe.each(['ProtoMek', 'ProtoMech', 'Protomech'])(
+  '%s Java text semantics',
+  (UnitType) => {
+    it.each([
+      ['\u0000CLMyomerBooster', true],
+      ['CLMyomerBooster\u001f', true],
+      ['\u00a0CLMyomerBooster', false],
+      ['CLMyomerBooster\u00a0', false],
+      ['\u3000CLMyomerBooster\u3000', false],
+      ['\ufeffCLMyomerBooster', false],
+      ['\u2028CLMyomerBooster', false],
+      ['\u017fupercharger', true],
+      ['MA\u017fC', true],
+      ['VTOL Jet Boo\u017fter', true],
+      ['Protome\u212a Myomer Boo\u017fter', true],
+      ['BA Myomer Boo\u017fter', true],
+      ['CLMyomerBoo\u017fter', false],
+      ['CLMA\u017fC', false],
+      ['I\u017f MASC', false],
+      ['MA\u00dfC', false],
+      ['CLMyomerBooster:SIZE:\u00002', true],
+      ['CLMyomerBooster:SIZE:2\u001f', true],
+    ])('matches pinned Java effect for %s', (name, expected) => {
+      const unit = load({ UnitType, 'Torso Equipment': name });
+      expect(unit.hasMyomerBooster).toBe(expected);
+      expect(computeRunMP(unit.cruiseMP, unit.hasMyomerBooster)).toBe(
+        expected ? 8 : 6,
+      );
+    });
+
+    it.each(['\u00a0', '\u3000', '\ufeff', '\u2028'])(
+      'retains Unicode size whitespace %s for native rejection',
+      (space) => {
+        for (const size of [`${space}2`, `2${space}`]) {
+          const result = parse({
+            UnitType,
+            'Torso Equipment': `CLMyomerBooster:SIZE:${size}`,
+          });
+          expect(result.success).toBe(false);
+          if (!result.success)
+            expect(result.error.errors.join(' ')).toMatch(/equipment size/i);
+        }
+      },
+    );
+
+    it('keeps Unicode equipment whitespace when UnitType follows its block', () => {
+      const text =
+        `<Torso Equipment>\nCLMyomerBooster\u00a0\n</Torso Equipment>\n` +
+        Object.entries({
+          UnitType,
+          Name: 'Late type',
+          motion_type: 'Biped',
+          year: '3070',
+          type: 'Clan Level 2',
+          Tonnage: '5',
+          cruiseMP: '4',
+          armor: '0\n0\n0\n0\n0',
+        })
+          .map(([key, value]) => `<${key}>\n${value}\n</${key}>`)
+          .join('\n');
+      const parsed = parser.parse(text);
+      expect(parsed.success).toBe(true);
+      if (!parsed.success) throw new Error('fixture did not parse');
+      expect(parsed.data.document.equipmentByLocation.Torso).toEqual([
+        'CLMyomerBooster\u00a0',
+      ]);
+      const loaded = handler.parse(parsed.data.document);
+      expect(loaded.success).toBe(true);
+      if (loaded.success) expect(loaded.data.unit.hasMyomerBooster).toBe(false);
+    });
+  },
+);
+
+it('preserves existing non-ProtoMek parser whitespace behavior', () => {
+  const text =
+    '<UnitType>Tank</UnitType><Name>Tank</Name><year>3070</year><Tonnage>5</Tonnage><type>IS Level 2</type><Front Equipment>\nCLMyomerBooster\u00a0\n</Front Equipment>';
+  const parsed = parser.parse(text);
+  expect(parsed.success).toBe(true);
+  if (parsed.success)
+    expect(parsed.data.document.equipmentByLocation.Front).toEqual([
+      'CLMyomerBooster',
+    ]);
+});

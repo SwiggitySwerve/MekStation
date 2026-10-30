@@ -16,7 +16,7 @@ MegaMek at `48fcb2f64a1b3f2d575707ce5653dad64927b587` supplies the contract:
 - Lookup first tries a technology-qualified identity, then the bare identity.
   BLKProtoMekFile's final fallback uses `Clan ` only for Clan Level 2 and `IS `
   otherwise. Thus `Super Charger` enables the effect for IS and Clan Level 3/4,
-  but not Clan Level 2. The same single alias set serves every lookup stage;
+  but not Clan Level 2. Registered aliases use lowercase lookup; display names separately use native case folding;
   at this pin no relevant qualified identity redirects to a non-booster.
 - `BLKProtoMekFile.loadEquipment` visits Body and each present armor location.
   Main Gun is skipped without a mount. It strips size, uppercase `(R)` and
@@ -29,6 +29,15 @@ The alias `Supercharger (Clan)` collides with the loader's shot-count syntax
 and therefore fails as a raw source entry, even though EquipmentType registers
 it. Case and punctuation are not interchangeable. Construction-invalid MASC
 types still retain the actual source movement effect; legality is separate.
+
+ProtoMek equipment parsing preserves Unicode whitespace until native trimming:
+only boundary characters through U+0020 are removed, including for size values.
+Nonbreaking/ideographic spaces remain significant. Other families retain their
+existing parser behavior. Display-name folding admits long S and Kelvin sign;
+it does not fold those characters across registered aliases or expand ligatures.
+The same interpretation protects raw-state exports, preserving their bytes.
+Inline equipment tags and differently cased closing tags still differ from
+Java's line-based block reader; no general malformed-tag fidelity is claimed.
 
 Shot counts accept Java's BMP decimal digits, optional ASCII sign and values
 from zero to 2147483647, including signed zero. The digit ranges come from
