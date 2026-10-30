@@ -13,7 +13,11 @@ import type {
   EquipmentCatalogEntry,
 } from './types';
 
-import { loadEquipmentCatalog, getLoggedUnresolvable } from './catalogLoader';
+import {
+  loadEquipmentCatalog,
+  loadAmmunitionCatalog,
+  getLoggedUnresolvable,
+} from './catalogLoader';
 import { normalizeEquipmentId } from './normalization';
 
 function applyBVHeatOverride(
@@ -99,7 +103,7 @@ export function isResolvable(equipmentId: string): boolean {
 }
 
 export function resolveAmmoBV(ammoId: string): AmmoBVResult {
-  const catalog = loadEquipmentCatalog();
+  const catalog = loadAmmunitionCatalog();
   const normalizedId = normalizeEquipmentId(ammoId);
   const entry = catalog.get(normalizedId);
 
