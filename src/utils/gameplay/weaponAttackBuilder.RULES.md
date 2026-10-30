@@ -21,7 +21,17 @@ modifier. The captured catalog changes contain
 154 ENERGY-to-MISSILE transitions. For an Energy specialist, the modifier
 changes from -1 to +1; for a Missile specialist, +1 becomes -1. Ballistic
 specialists and pilots without this ability retain their results. All other
-attack fields, catalog data and resource policies are unchanged.
+builder fields, catalog data and resource policies are unchanged.
+
+gameSessionCore.attackToHit owns declaration to-hit orchestration. In mixed-
+category volleys it runs the existing calculator once per category, before
+clamping, and emits per-weapon target numbers and modifier details through
+gameSessionCore.attackEvents. Resolution reads those optional event fields;
+old serialized events retain the shared-number fallback. The volley summary
+keeps the first weapon result. Single-category payloads are unchanged. Range,
+strictest minimum range, C3, called shots, terrain, semi-guided and indirect
+context keep their existing shared policies. The specialist arithmetic remains
+solely in spaModifiers/weaponSpecialists; no adjustment of clamped totals occurs.
 
 Pinned MegaMek uses weapon flags for this rule:
 [ComputeAbilityMods.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L127).
@@ -31,9 +41,9 @@ the classification and isolated modifier, not full native combat parity.
 
 Ammo readiness and quantity projection are separate work. Legacy fallbacks
 for unrecognized names, torpedo names, native multi-SPA precedence and complete
-catalog categories remain open. The declaration currently uses the first
-weapon's category for every weapon in a mixed volley; per-weapon specialist
-modifiers remain open. Missing category propagation through tactical previews
+catalog categories remain open. ID/name-dependent effects (including Weapon
+Specialist and weapon quirks) still use the primary weapon for the volley; this
+repair isolates category only. Missing category propagation through tactical previews
 and committed human interactive attacks is also unresolved. No browser,
 complete combat, source serialization or full numerical-parity claim follows
 from the local category correction.

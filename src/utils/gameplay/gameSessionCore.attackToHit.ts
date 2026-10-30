@@ -247,9 +247,26 @@ export function buildDeclaredAttackToHit(
   context: IDeclareAttackContext,
   participants: IAttackParticipants,
 ): IDeclaredAttackToHit {
-  return buildWeaponCategoryToHit(
+  const primaryCategory = context.weapons[0]?.category;
+  const primary = buildWeaponCategoryToHit(
     context,
     participants,
-    context.weapons[0]?.category,
+    primaryCategory,
   );
+  if (context.weapons.every((weapon) => weapon.category === primaryCategory)) {
+    return primary;
+  }
+
+  // Only category varies. Keep the existing volley-wide range, C3, ID/name,
+  // called-shot, semi-guided and terrain policies in the calculation owner.
+  const byCategory = new Map([[primaryCategory, primary]]);
+  const weaponToHits = context.weapons.map((weapon) => {
+    let result = byCategory.get(weapon.category);
+    if (!result) {
+      result = buildWeaponCategoryToHit(context, participants, weapon.category);
+      byCategory.set(weapon.category, result);
+    }
+    return { toHitNumber: result.finalToHit, modifiers: result.modifiers };
+  });
+  return { ...primary, weaponToHits };
 }
