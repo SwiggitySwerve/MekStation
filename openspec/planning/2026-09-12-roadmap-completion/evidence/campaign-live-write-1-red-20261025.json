@@ -1,0 +1,157 @@
+{
+  "unit": "CAMPAIGN-LIVE-WRITE-1",
+  "at": "2026-10-30T03:16:47.708935+00:00",
+  "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+  "baseline": "5290e4ab75fd14f8bf1969b2d8efa5b09069bb31",
+  "admissionBaseline": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
+  "head": "d9bfedfdfa4e352d8e2ab48db61444f694b8272b",
+  "stage": "red",
+  "verdict": "REPRODUCED",
+  "counts": {
+    "failed": 36,
+    "passed": 39,
+    "runtimeErrors": 0,
+    "behavioralFailures": 33,
+    "verificationWitnessesExcluded": [
+      "CAMPAIGN-LIVE-WRITE-1 who may save or delete a campaign a live co-op host holds (LW20) refuses a host verification race when the entry is closed (replacement commit: false)",
+      "CAMPAIGN-LIVE-WRITE-1 who may save or delete a campaign a live co-op host holds (LW20) refuses a host verification race when the entry is replaced (replacement commit: false)",
+      "CAMPAIGN-LIVE-WRITE-1 who may save or delete a campaign a live co-op host holds (LW20) refuses a host verification race when the entry is replaced-same-match (replacement commit: false)"
+    ],
+    "LW23": "passed"
+  },
+  "run": {
+    "mode": "red-baseline",
+    "start": "2026-10-30T02:35:51.798Z",
+    "end": "2026-10-30T02:37:06.036Z",
+    "node": "v22.22.0",
+    "cwd": "E:/Projects/Personal/MekStation-wt/step4-api-closure-campaign-admission-20261030",
+    "args": [
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--runTestsByPath",
+      "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+      "--json",
+      "--outputFile=E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-implementation\\r1\\red-baseline-jest.json"
+    ],
+    "exit": 1,
+    "signal": null,
+    "before": [
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "sha256": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "sha256": "434b983df4dce78c0be2af0fbb43ab18a564c61028c35044a696e736c1fcdcfb"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "sha256": "faa31782fd785ecd476074174c147005b8246526851c561852be68a093a59d6a"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "sha256": "728c72d9bc024587d5384b2cc83705d05689168dca29e810077137591088d3e2"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "sha256": "437f838b6d214f0986eeeb65738c892d21c3cc4ee83b8cc4a06d767fd0081c43"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "sha256": "ca053776ac1e458eaaab7ac89b483a2e6bcdf5c8232b0be834be541d6bfcfcfc"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "sha256": "036d18a4b373d3a6757535824ec2e3a25ce53aa7fe6538cce564c2a3c59d2b46"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "sha256": "1b50b160ab4761827b614f24baab42d1efc63c09dbc572a6fe0101d13cf9613f"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "sha256": "f2db9ba1ce572d548cdfb079b63757f59729f66490d03db1e503e1c5b1dde709"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "sha256": "f07894f83e470dec61235064793cd0010fa2a5f98610a8b242bc36a9d994f006"
+      }
+    ],
+    "after": [
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "sha256": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "sha256": "434b983df4dce78c0be2af0fbb43ab18a564c61028c35044a696e736c1fcdcfb"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "sha256": "faa31782fd785ecd476074174c147005b8246526851c561852be68a093a59d6a"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "sha256": "728c72d9bc024587d5384b2cc83705d05689168dca29e810077137591088d3e2"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "sha256": "437f838b6d214f0986eeeb65738c892d21c3cc4ee83b8cc4a06d767fd0081c43"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "sha256": "ca053776ac1e458eaaab7ac89b483a2e6bcdf5c8232b0be834be541d6bfcfcfc"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "sha256": "036d18a4b373d3a6757535824ec2e3a25ce53aa7fe6538cce564c2a3c59d2b46"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "sha256": "1b50b160ab4761827b614f24baab42d1efc63c09dbc572a6fe0101d13cf9613f"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "sha256": "f2db9ba1ce572d548cdfb079b63757f59729f66490d03db1e503e1c5b1dde709"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "sha256": "f07894f83e470dec61235064793cd0010fa2a5f98610a8b242bc36a9d994f006"
+      }
+    ],
+    "unchanged": true
+  },
+  "evidence": [
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r1/red-inputs.json",
+      "bytes": 2253,
+      "sha256": "26b31e6f194865c9d7229782d5c46016dc3dc37aa87ae0ce13529d1519905383"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r1/red-recount.json",
+      "bytes": 94817,
+      "sha256": "af9f9eaefc7d241fc20b6ff3b5c371c1230979f1dce05f1f6133375a5070ebaa"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r1/red-baseline-jest.json",
+      "bytes": 327292,
+      "sha256": "c4df02eaffe6073e3118dd428e3b823b4994c4871c7de53f3cdb4ea69936639b"
+    },
+    {
+      "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r1/red-baseline.log",
+      "bytes": 113637,
+      "sha256": "38c3d10cce27853e79d723ea291e198991d48d016ec75655fb2d7054b38f57ba"
+    }
+  ],
+  "layoutRed": {
+    "path": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/campaign-live-write-implementation/r2/refusal-ui-red/result.json",
+    "bytes": 10769,
+    "sha256": "d1603c2e159159cac5a0c15d7d56f793f938820ced5bc0995b2cb3e891fbf16b"
+  },
+  "binding": "Baseline RED ran with all four unchanged baseline product leaves. The six test/support files are byte-identical in R1 and R2. Three LW20 verification-entry witnesses are excluded from the behavioral total; LW23 preserves existing error handling and passes baseline. The separate R2 layout RED failed on button text height 36px against a 21px threshold; the same proof passes after the four class changes."
+}
