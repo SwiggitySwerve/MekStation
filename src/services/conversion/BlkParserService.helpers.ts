@@ -25,6 +25,10 @@ export function isBlkEquipmentBlock(tagName: string): boolean {
 }
 
 export function extractBlkTags(content: string): BlkRawTags {
+  return readBlkTags(removeBlkComments(content));
+}
+
+function readBlkTags(content: string): BlkRawTags {
   const tags: BlkRawTags = {};
   const equipmentText: Record<string, string> = {};
   const tagPattern = /<([^>]+)>([\s\S]*?)<\/\1>/g;
