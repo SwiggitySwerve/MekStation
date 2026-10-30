@@ -487,6 +487,7 @@ describe('Vault Identity Unlock API', () => {
       (unlockIdentity as jest.Mock).mockResolvedValue(mockUnlockedIdentity);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: { host: 'localhost:3000' },
         method: 'POST',
         body: {
           password: 'correctPassword',
@@ -508,6 +509,7 @@ describe('Vault Identity Unlock API', () => {
       );
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: { host: 'localhost:3000' },
         method: 'POST',
         body: {
           password: 'wrongPassword',
@@ -524,6 +526,7 @@ describe('Vault Identity Unlock API', () => {
 
     it('should reject missing password', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: { host: 'localhost:3000' },
         method: 'POST',
         body: {},
       });
@@ -540,6 +543,7 @@ describe('Vault Identity Unlock API', () => {
       mockRepository.getActive.mockResolvedValue(null);
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: { host: 'localhost:3000' },
         method: 'POST',
         body: {
           password: 'anyPassword',
@@ -556,6 +560,7 @@ describe('Vault Identity Unlock API', () => {
 
     it('should reject non-POST methods', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        headers: { host: 'localhost:3000' },
         method: 'GET',
       });
 
