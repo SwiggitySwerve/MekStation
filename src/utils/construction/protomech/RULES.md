@@ -39,8 +39,9 @@ This correction does not establish full source, persistence or numerical parity.
 state. Pinned MegaMek Entity.java:4004-4016 uses ceiling(Walk times 1.5);
 ProtoMek.java:612-627 uses twice Walk when its operable booster is enabled.
 Walk itself stays unchanged. Default state, all six movement-affecting setters,
-handler/store projections and movement controls use this owner. Base engine
-rating remains independent. Existing clamps and default choices are retained.
+handler/store projections use this owner. Movement controls display stored
+flank, matching the status bar and BV, including preserved legacy saves. Base
+engine rating remains independent. Existing clamps and default choices are retained.
 
 The separately verified consolidation preserved both former +1 and cruise-floor
 policies before this correction removed them. The historical BV fixture's +1

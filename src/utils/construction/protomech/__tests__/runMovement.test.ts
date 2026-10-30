@@ -1,6 +1,7 @@
-import { render, renderHook } from '@testing-library/react';
-import { createElement, type PropsWithChildren } from 'react';
+import { act, render, renderHook } from '@testing-library/react';
+import { createElement, Fragment, type PropsWithChildren } from 'react';
 
+import { ProtoMechStatusBar } from '@/components/customizer/protomech/ProtoMechStatusBar';
 import { useProtoMechMovementControls } from '@/components/customizer/protomech/ProtoMechStructureTab.logic';
 import { ProtoMechMovementSection } from '@/components/customizer/protomech/ProtoMechStructureTab.sections';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
@@ -9,6 +10,10 @@ import {
   createDefaultProtoMechState,
   computeProtoMechBVFromState,
 } from '@/stores/protoMechState';
+import {
+  clearAllProtoMechStores,
+  hydrateOrCreateProtoMech,
+} from '@/stores/protoMechStoreRegistry';
 import {
   createProtoMechStore,
   ProtoMechStoreContext,
@@ -30,6 +35,7 @@ jest.mock('@/utils/construction/protomech/protoMechBV', () => {
 
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md */
 describe('Pinned undamaged ProtoMech running movement', () => {
+  afterEach(() => clearAllProtoMechStores(true));
   // Actual ProtoMek.getRunMP observations at MegaMek48fcb2f6.
   it.each([
     [0, 0, 0],
@@ -191,13 +197,81 @@ describe('Pinned undamaged ProtoMech running movement', () => {
     },
   );
 
+  it.each([
+    [false, false],
+    [false, true],
+    [true, false],
+    [true, true],
+  ])(
+    'displays saved flank consistently after storage reload (compact=%s, booster=%s)',
+    (compact, booster) => {
+      const id = '11111111-2222-4333-8444-555555555555';
+      const saved = {
+        ...createDefaultProtoMechState({ tonnage: 2, id }),
+        walkMP: 5,
+        cruiseMP: 5,
+        flankMP: 6,
+        hasMyomerBooster: booster,
+      };
+      Reflect.deleteProperty(saved, 'bvBreakdown');
+      const storageKey = `megamek-protomech-${id}`;
+      const stored = JSON.stringify({ state: saved, version: 0 });
+      localStorage.setItem(storageKey, stored);
+      const store = hydrateOrCreateProtoMech(id, { tonnage: 2 });
+
+      function MovementAndStatus() {
+        const controls = useProtoMechMovementControls(false);
+        return createElement(
+          Fragment,
+          null,
+          createElement(ProtoMechMovementSection, {
+            readOnly: false,
+            controls,
+          }),
+          createElement(ProtoMechStatusBar, { compact }),
+        );
+      }
+      const view = render(
+        createElement(
+          ProtoMechStoreContext.Provider,
+          { value: store },
+          createElement(MovementAndStatus),
+        ),
+      );
+      const check = (run: number) => {
+        expect(view.getByText('Run MP').nextElementSibling).toHaveTextContent(
+          new RegExp(`^${run}$`),
+        );
+        expect(view.getByText(`5/${run}`)).toBeInTheDocument();
+        expect(store.getState()).toMatchObject({
+          walkMP: 5,
+          cruiseMP: 5,
+          flankMP: run,
+        });
+        expect(
+          jest.mocked(calculateProtoMechBV).mock.lastCall?.[0],
+        ).toMatchObject({
+          walkMP: 5,
+          runMP: run,
+        });
+      };
+      check(6);
+      expect(localStorage.getItem(storageKey)).toBe(stored);
+      act(() => store.getState().setName('Saved movement'));
+      check(6);
+      act(() => store.getState().setWalkMP(5));
+      check(booster ? 10 : 8);
+      act(() => store.getState().setMyomerBooster(!booster));
+      check(booster ? 8 : 10);
+    },
+  );
+
   it('displays boosted Run while retaining base Walk in the real controls', () => {
-    const store = createProtoMechStore({
-      ...createDefaultProtoMechState({ tonnage: 2 }),
-      walkMP: 5,
-      cruiseMP: 5,
-      hasMyomerBooster: true,
-    });
+    const store = createProtoMechStore(
+      createDefaultProtoMechState({ tonnage: 2 }),
+    );
+    store.getState().setWalkMP(5);
+    store.getState().setMyomerBooster(true);
     const wrapper = ({ children }: PropsWithChildren) =>
       createElement(ProtoMechStoreContext.Provider, { value: store }, children);
     const { result } = renderHook(() => useProtoMechMovementControls(false), {
