@@ -9,7 +9,6 @@
 
 // Weight class tables and chassis legality
 export {
-  getProtoArmorMaxByTonnage,
   getProtoWeightClass,
   isChassisLegalForTonnage,
   PROTO_MAX_TONNAGE,
@@ -86,3 +85,11 @@ export {
   computeProtoStructure,
   getProtoStructureTonnageError,
 } from './structure';
+
+// Shared total and location armor limits, allocation and diagnostics.
+export {
+  allocateProtoArmor,
+  computeProtoArmorLimits,
+  getProtoArmorErrors,
+  getProtoArmorMaxByTonnage,
+} from './armor';

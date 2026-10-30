@@ -20,6 +20,8 @@ import React from 'react';
 import { ProtoMechArmorDiagram } from '@/components/customizer/protomech/ProtoMechArmorDiagram';
 import { useProtoMechStore, ProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { computeProtoStructure } from '@/utils/construction/protomech';
 
 jest.mock('@/stores/useProtoMechStore');
 const mockUseProtoMechStore = useProtoMechStore as jest.MockedFunction<
@@ -32,6 +34,8 @@ function makeState(overrides: Record<string, unknown> = {}) {
   return {
     tonnage: 5,
     hasMainGun: false,
+    chassisType: ProtoChassis.BIPED,
+    structureByLocation: computeProtoStructure(5, ProtoChassis.BIPED, false),
     armorByLocation: {
       [ProtoMechLocation.HEAD]: 1,
       [ProtoMechLocation.TORSO]: 3,
@@ -136,8 +140,34 @@ describe('ProtoMechArmorDiagram', () => {
   it('renders ArmorLocationBlock for Torso location showing pip row', () => {
     render(<ProtoMechArmorDiagram />);
     // ArmorLocationBlock renders an aria-label "Torso: current of max"
-    // With tonnage 5, Torso max = 14 per the TM Companion p.196 weight
-    // table; current = 3 → "Torso: 3 of 14"
-    expect(screen.getByLabelText('Torso: 3 of 14')).toBeInTheDocument();
+    // Pinned TestProtoMek uses twice original torso structure.
+    expect(screen.getByLabelText('Torso: 3 of 10')).toBeInTheDocument();
+  });
+
+  it('uses current Quad topology and manual original structure for input limits', () => {
+    mockUseProtoMechStore.mockImplementation((selector) =>
+      selector(
+        makeState({
+          chassisType: ProtoChassis.QUAD,
+          structureByLocation: {
+            ...computeProtoStructure(5, ProtoChassis.QUAD, false),
+            [ProtoMechLocation.TORSO]: 7,
+          },
+        }) as unknown as ProtoMechStore,
+      ),
+    );
+    render(<ProtoMechArmorDiagram />);
+    expect(screen.getByLabelText('LA armor value')).toHaveAttribute('max', '0');
+    expect(screen.getByLabelText('Torso armor value')).toHaveAttribute(
+      'max',
+      '14',
+    );
+    fireEvent.change(screen.getByLabelText('Torso armor value'), {
+      target: { value: '99' },
+    });
+    expect(mockSetLocationArmor).toHaveBeenCalledWith(
+      ProtoMechLocation.TORSO,
+      14,
+    );
   });
 });

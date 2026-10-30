@@ -33,6 +33,29 @@ native handler preserves chassis, motion, armor order and main-gun presence;
 its source projection does not establish a production editor import path.
 This correction does not establish full source, persistence or numerical parity.
 
+## Armor limits and allocation
+
+`armor.ts` owns total and location limits from pinned `TestProtoMek.java:675-740`.
+The total table uses truncated, clamped tonnage; Head uses truncated tonnage
+and integer division. Arms use original weight thresholds and are absent on
+Quad. Torso and Legs use twice original internal points; present Main Gun uses
+three times its original points. Explicit manual structure is respected.
+Total is independent of location sums. Unusable tonnage or original structure
+produces a domain diagnostic. Extreme signed-integer overflow parity is excluded.
+
+The utility's omitted topology means Biped without Main Gun. The diagram and
+store supply current topology and original points. Source validation retains
+all armor and reports excessive or unusable points as construction errors.
+Opening saved state or unrelated edits never redistributes armor.
+
+Explicit allocation fills the lesser of total capacity and summed location
+capacity, proportionally to each cap, with leftover points in enum order.
+This deterministic maximum-budget choice is MekStation policy, not proof of
+MegaMekLab's partial-budget allocator. BV refreshes through the existing store
+action. The prior consolidation preserved all three former policies before
+this numerical correction. Full BV, equipment, production import/save/reload,
+diagram topology and real editor flows remain unverified.
+
 ## Normal-engine mass
 
 `computeProtoEngineWeight` owns the loaded-unit and canonical-projection mass.

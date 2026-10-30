@@ -233,3 +233,54 @@ normal fusion engines only, independently of construction legality and complete 
 - **THEN** engine mass SHALL be derived from its current rating rather than stale saved mass
 - **AND** the mass correction alone SHALL NOT change the existing BV result
 - **AND** no mass migration, total-unit mass, equipment parity or production editor/save/reload proof SHALL be inferred
+
+### Requirement: ProtoMech Armor Limits
+
+The construction owner SHALL calculate total and per-location armor limits from
+pinned MegaMek `TestProtoMek.java:675-740` at48fcb2f6. The exported utility,
+allocation action and armor-input consumers SHALL use that owner. Existing
+policies SHALL be consolidated with unchanged observations before correction.
+
+#### Scenario: Independent total and location limits
+
+- **WHEN** calculating armor limits for a 5-ton Biped without a main-gun mount
+- **THEN** the total cap SHALL be24 and Head/Torso/Left Arm/Right Arm/Legs/Main Gun caps SHALL be4/10/2/2/6/0
+- **WHEN** calculating limits for a 5-ton Quad with a main-gun mount
+- **THEN** the total cap SHALL be27 and those location caps SHALL be4/10/0/0/10/3
+- **AND** construction legality of that chassis/mount combination SHALL remain separate
+- **AND** the total cap SHALL be calculated independently rather than assumed to equal the sum of location caps
+
+#### Scenario: Source rule boundaries and original structure
+
+- **WHEN** calculating limits at fractional or construction-invalid positive tonnage
+- **THEN** the total table index and head limit SHALL use Java's truncated weight while arm and main-gun thresholds SHALL use original weight
+- **AND** torso and leg caps SHALL use twice original internal points and a present main-gun cap SHALL use three times its original points
+- **AND** Quad arms and an absent main-gun mount SHALL have zero armor capacity
+- **AND** unusable numerical inputs SHALL produce a clear domain diagnostic without fabricating a successful cap
+
+#### Scenario: Retain loaded and manually allocated armor
+
+- **WHEN** loading a readable source whose armor exceeds a location or total cap
+- **THEN** source armor and topology SHALL be retained and loading SHALL report construction errors separately
+- **AND** unrelated fields and the BV result calculated from that unchanged armor SHALL remain unchanged
+- **WHEN** opening saved state or changing identity or movement
+- **THEN** stored armor SHALL NOT be silently redistributed
+
+#### Scenario: Explicit allocation and input limits
+
+- **WHEN** the user invokes the existing automatic allocation action
+- **THEN** its result SHALL contain nonnegative integer points within both the shared total and location caps
+- **AND** Quad arms and absent Main Gun SHALL receive zero points
+- **AND** the existing synchronous BV update SHALL consume the resulting allocation
+- **AND** the action's armor-budget policy SHALL be documented separately from upstream construction limits
+- **AND** its budget SHALL be the lesser of total capacity and summed location capacities, allocated proportionally with leftover points in location enum order
+- **WHEN** changing a location through the armor input consumer
+- **THEN** the consumer SHALL use the shared location cap for current topology and original structure
+- **AND** no inline copy of a construction table or formula SHALL remain in rendering code
+
+#### Scenario: Evidence scope
+
+- **WHEN** reporting armor-limit completion
+- **THEN** actual pinned Java observations and all86 original sources SHALL be compared explicitly
+- **AND** source field preservation and invalid-design diagnostics SHALL be recorded separately
+- **AND** incomplete editor/import/save/reload, equipment, full BV, partial-budget allocation and subtype presentation proof SHALL remain open
