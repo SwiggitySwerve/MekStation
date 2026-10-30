@@ -1,0 +1,728 @@
+{
+  "schemaVersion": 1,
+  "unit": "CAMPAIGN-LIVE-WRITE-1",
+  "stage": "admission",
+  "date": "2026-10-30",
+  "at": "2026-10-30T02:09:05.156Z",
+  "proofClass": "full",
+  "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+  "baseline": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
+  "qualificationBaseline": "88b5b2595f2b87b1c17453f9027dd7328cf6ca86",
+  "ownerDecision": {
+    "context": "We are reviewing MekStation, a BattleTech tabletop game construction and gameplay companion. This is authorized maintenance and testing of the owner's game repository and its local development/test instances. Combat, attacks, weapons, damage, targets and fog of war describe game mechanics; API, WebSocket, identity and permission checks concern the game's own multiplayer and desktop services.",
+    "packet": "CAMPAIGN-DELIVERY-CORRECTION-20261030",
+    "decision": "approve-campaign-correction",
+    "source": "Owner messages independently reopened through t3_thread_read; transcribed by Root, not invented engine attestation.",
+    "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+    "threadLink": "<t3-thread://v2/53b9ed4c-02e5-45d2-9a9c-810662a80774/f9f49416-ce64-461b-8843-15e8f096ee0c>",
+    "messages": [
+      {
+        "itemId": "turn-item:message:5a64e441-86d4-477d-bd86-45a35bcb0f7b",
+        "runId": "run:thread:f9f49416-ce64-461b-8843-15e8f096ee0c:ordinal:27",
+        "at": "2026-10-30T02:04:59.097Z",
+        "text": "Approved, just full send"
+      },
+      {
+        "itemId": "turn-item:message:c9f1cc36-0f2d-407a-9220-1364ea8db4f4",
+        "runId": "run:thread:f9f49416-ce64-461b-8843-15e8f096ee0c:ordinal:27",
+        "at": "2026-10-30T02:05:25.592Z",
+        "text": "Make recommended fixes and changes as they come up to make the best experience and product"
+      }
+    ],
+    "accepted": {
+      "publication": "The prepared eight-file combined API closure/campaign admission PR and fifteen-file campaign implementation PR, seventeen distinct campaign paths across both stages, no file-count exemption and no extra PR budget.",
+      "review": "Campaign-only unversioned receipts containing actual T3 contributor provenance and fresh independent exact-head Sol and Opus reviews; no v2/v3 attestation is claimed.",
+      "delivery": "Full send authorizes Root to complete in-scope fixes, commit, push, review and merge after the ready checks. Preserve exact-head binding, required CI, actual integration-tree proof, exact-main testing and truthful closure. A future head is not represented as already reviewed or ruled."
+    },
+    "supersedes": "The pending choice in prep-r3/DECISION.json only; that historical packet remains byte-unchanged.",
+    "mergePolicy": "Use a guarded two-parent merge as full-send prescribes and GOAL.md permits. Verify ordered parent2 equals the reviewed PR head and the whole native integration tree equals the actual merge tree. No bypass of branch protection.",
+    "limits": "This records the owner's decision and standing delivery authority. It is not a GitHub review, a future exact-head ruling, a passing check or Step 4 completion."
+  },
+  "behavior": "LSC-2P finding F1, security half (owner decisions 2026-10-25 items 1, 2 and 6): the server decides who may save or delete a live co-op campaign record from the verified bearer, never from the request body. Today PUT /api/campaigns/[id] treats an envelope whose body.coopSession is {mode:\"host\", matchId} as the live host's own save (isLiveHostSave, [id].ts:141), so a guest profile that adopted the host-shaped record can overwrite it, the live host adopts the write and broadcasts it to the legitimate guest, and an anonymous DELETE answers 204 and removes the row. After this unit, while CampaignHostRegistry.liveEntryFor(id) holds a live host entry, PUT is accepted only when the request carries a bearer that verifies and whose principal is that entry's host, and DELETE is refused for everyone, the host's own included, until the session ends (owner ruling applied under the standing instruction; it changes the prep draft LW09); a member or guest bearer, an expired, malformed or absent bearer and a body-only coopSession are refused with a typed code and reason (HOST_SESSION_REQUIRED when there is no usable bearer, HOST_SESSION_EXPIRED when it expired; a verified non-host PUT keeps today's 409 live-coop-session conflict, owner decisions 2026-10-25b Q2 item 6), and the record, its version and the live host are untouched and nothing is broadcast. The host's browser store attaches its stored co-op bearer to record PUT; CampaignDashboardPage.tsx shows the server's refusal when Delete Campaign is refused while a session runs. The save-status card shows the server's refusal reason, keeps the unsaved changes and the dirty flag, and no longer labels a refusal \"playing offline; changes are kept locally\" (S4-03, refusal display only). Acceptance rows, each a failing test first: host same-tab reload (the bearer is still in sessionStorage) saves 200; host in a new window without the token is refused with the typed reason, the save card shows it and the unsaved changes are kept (disclosed: a new window cannot save a running co-op campaign, the host keeps its original window); app restart before any member reconnects (no live entry) takes the offline path and is accepted, pinned; app restart after a guest reconnected (entry live again) is refused as in the new-window row; expired host token takes the refresh path then 200, or a typed re-unlock refusal, never \"kept locally\"; offline host (no live entry): PUT and DELETE from another profile are accepted, pinned as disclosed behaviour so a later change is deliberate; a guest mirror save of its own record is unchanged; any DELETE while a host is live is refused, the host's own included, and works again after the session ends. Out of scope: the display half (a fresh profile rendering the HOST badge and host review surface), which owner decision 2 rewords out of Step 2 and discloses; record-scoped authority when the host is offline, the viewer-relative GET projection and the host re-authentication path, which stay with B15-3R and B15-3 after v2.2.0. The rule is keyed on the verified principal, not on a window or tab, so it does not preclude multi-window state for one identity (owner decision 6; MULTI-WINDOW-SESSION-1). It absorbs the host-save bearer attach and the live-host write rule of B15-2 and B15-3 by annotation only; neither is a predecessor.",
+  "ownedPaths": [
+    "src/pages/api/campaigns/[id].ts",
+    "src/stores/campaign/useCampaignPersistenceStore.ts",
+    "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+    "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+    "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+    "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+    "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+    "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+    "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx"
+  ],
+  "publicationLayout": {
+    "status": "OWNER APPROVED 2026-10-30; effective for this unit",
+    "decision": {
+      "option": "approve-campaign-correction",
+      "at": "2026-10-30T02:04:59.097Z",
+      "sourceItem": "turn-item:message:5a64e441-86d4-477d-bd86-45a35bcb0f7b",
+      "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+      "quote": "Approved, just full send",
+      "receipt": "evidence/campaign-live-write-1-admission-20261025.json#ownerDecision"
+    },
+    "implementationFiles": [
+      "src/pages/api/campaigns/[id].ts",
+      "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+      "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+      "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+      "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-red-20261025.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-local-20261025.json"
+    ],
+    "admissionFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-review-20261025.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-merge-20261029.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-mainproof-20261029.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-admission-20261025.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-qualification-review-20261030.json"
+    ],
+    "closureReceiptFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-review-20261025.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-merge-20261030.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-mainproof-20261030.json"
+    ],
+    "step4Prs": [
+      3,
+      4,
+      5
+    ],
+    "budget": 29,
+    "distinctCampaignPathsThroughImplementation": 17,
+    "noExemptions": true,
+    "limits": "Publication 5 still needs a finite next-unit manifest and actual per-PR fit. Exact final implementation additions remain a mandatory pre-commit and main-merge check."
+  },
+  "reviewTransport": {
+    "status": "OWNER APPROVED 2026-10-30; campaign-only unversioned receipts",
+    "decision": {
+      "option": "approve-campaign-correction",
+      "at": "2026-10-30T02:04:59.097Z",
+      "sourceItem": "turn-item:message:5a64e441-86d4-477d-bd86-45a35bcb0f7b",
+      "threadId": "f9f49416-ce64-461b-8843-15e8f096ee0c",
+      "quote": "Approved, just full send",
+      "receipt": "evidence/campaign-live-write-1-admission-20261025.json#ownerDecision"
+    },
+    "scope": "CAMPAIGN-LIVE-WRITE-1 only",
+    "form": "Unversioned local/review receipts with complete truthful contributor disclosure and actual T3 task/thread/run/provider/model metadata; no v2/v3 claim.",
+    "author": "cliproxy/claude-sonnet-5-5",
+    "currentFinisher": "cliproxy/gpt-6-astra",
+    "requiredReviewers": [
+      "gpt-6.1-sol",
+      "claude-opus-5-5"
+    ],
+    "independence": "Fresh exact-head independent-context reviews; each reviewer differs from the author and every actual source contributor. Re-census after every edit and bind report bytes to the final head.",
+    "unchangedGates": "Sensitive packet, required CI, head-specific OWNER-RULING, guarded merge, whole-tree integration and exact-main proof remain mandatory."
+  },
+  "predecessors": [
+    {
+      "id": "L1-SMOKE-B",
+      "state": "main-verified",
+      "mergeSha": "ad84867355c85270086977ad3d9a83b93107c09a",
+      "mainProof": {
+        "path": "evidence/l1-smoke-b-mainproof-20261028.json",
+        "mergeCommit": "ad84867355c85270086977ad3d9a83b93107c09a",
+        "verdict": "PASS",
+        "runtime": "B node:test 13 of 13 at the clean exact merge; the frozen done-test (node scripts/release/run-l1-built-server-fog-refusal.mjs --build) passed 34 of 34 ids on the first attempt (A1 10, A2M 12, A2 4, fog 8; 0 failed, 0 skipped, 0 flaky), BUILD_ID 1793186803130, printed headSha ad8486735"
+      }
+    },
+    {
+      "id": "API-SAME-HOST-1",
+      "state": "main-verified",
+      "mergeSha": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+      "mainProof": {
+        "path": "evidence/api-same-host-1-mainproof-20261029.json",
+        "mergeCommit": "2f974c07af6c5f8f3ad3494a3337c157ae3196a1",
+        "verdict": "PASS",
+        "runtime": "Clean exact merge: 907 Jest tests, unchanged frozen 34-case regression, genuine Electron-as-node packaged validator, 56 raw-target rows / 125 assertions; application/native image identities retained and owned ports released. No installer, RC, Step 8 or Step 4 completion."
+      }
+    }
+  ],
+  "manifest": {
+    "directory": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\prep\\campaign-live-write-refresh\\qualification-r2\\frozen-f2",
+    "manifest": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\prep\\campaign-live-write-refresh\\qualification-r2\\frozen-f2\\manifest.json",
+      "bytes": 7156,
+      "sha256": "9d80c2ccc9b72a4f585cf6474154dc2f2fc48bfa112df7300d9a4261730d63d2"
+    },
+    "checksums": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\prep\\campaign-live-write-refresh\\qualification-r2\\frozen-f2\\SHA256SUMS.txt",
+      "bytes": 1713,
+      "sha256": "382cdf109d9c5351420c8d0df56c8e866f178c86f0e98e4297458de542749a8a"
+    },
+    "sourceLeaves": [
+      {
+        "path": "src/pages/api/campaigns/[id].ts",
+        "sha256": "4d443807abcc0b803047b68262f17074314f1b9a05e6339ec0ed080181774eb6",
+        "bytes": 18926,
+        "physicalLines": 500,
+        "kind": "product"
+      },
+      {
+        "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "sha256": "adfabc1ca610ecc9d778bf397eb78e2982a89e0bed7f4d4dd0cdb57963bbbdeb",
+        "bytes": 61874,
+        "physicalLines": 1663,
+        "kind": "product"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+        "sha256": "ee6ad92deb568d8dd2ae747b39df785ef13ab77bcff8655ff43bb7e0ac325a26",
+        "bytes": 7915,
+        "physicalLines": 204,
+        "kind": "product"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "sha256": "728c72d9bc024587d5384b2cc83705d05689168dca29e810077137591088d3e2",
+        "bytes": 12730,
+        "physicalLines": 377,
+        "kind": "test-or-fixture"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+        "sha256": "0de818954307ccbbd26902b02d85cba384a21fed1c197c7f047dafdadf026393",
+        "bytes": 34945,
+        "physicalLines": 1029,
+        "kind": "test-or-fixture"
+      },
+      {
+        "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "sha256": "ca053776ac1e458eaaab7ac89b483a2e6bcdf5c8232b0be834be541d6bfcfcfc",
+        "bytes": 35841,
+        "physicalLines": 990,
+        "kind": "test-or-fixture"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+        "sha256": "036d18a4b373d3a6757535824ec2e3a25ce53aa7fe6538cce564c2a3c59d2b46",
+        "bytes": 4447,
+        "physicalLines": 134,
+        "kind": "test-or-fixture"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+        "sha256": "1b50b160ab4761827b614f24baab42d1efc63c09dbc572a6fe0101d13cf9613f",
+        "bytes": 12487,
+        "physicalLines": 374,
+        "kind": "test-or-fixture"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+        "sha256": "f2db9ba1ce572d548cdfb079b63757f59729f66490d03db1e503e1c5b1dde709",
+        "bytes": 15604,
+        "physicalLines": 471,
+        "kind": "test-or-fixture"
+      },
+      {
+        "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "sha256": "24825964bdecf7993580fdeba5954d03da8aec310d9aacce13e18f09c8e198b1",
+        "bytes": 15234,
+        "physicalLines": 463,
+        "kind": "product"
+      }
+    ],
+    "sourceProductAdditions": 254,
+    "reconstructionTree": "b755454ea935bcaaf04960de6ad4eb16d9029adf",
+    "exactImplementationFiles": [
+      "src/pages/api/campaigns/[id].ts",
+      "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+      "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+      "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+      "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-red-20261025.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-live-write-1-local-20261025.json"
+    ]
+  },
+  "qualification": {
+    "receipt": "evidence/campaign-live-write-1-qualification-review-20261030.json",
+    "red": {
+      "failed": 36,
+      "passed": 38,
+      "behavioral": 33,
+      "witnessOnly": [
+        "(LW20) refuses a host verification race when the entry is closed (replacement commit: false)",
+        "(LW20) refuses a host verification race when the entry is replaced (replacement commit: false)",
+        "(LW20) refuses a host verification race when the entry is replaced-same-match (replacement commit: false)"
+      ],
+      "runtimeErrors": 0
+    },
+    "green": 74,
+    "neighbours": 122,
+    "mutations": {
+      "total": 26,
+      "killed": 26,
+      "restored": true,
+      "survivors": []
+    },
+    "buildId": "1793322547613",
+    "browser": {
+      "stats": {
+        "startTime": "2026-10-30T01:09:38.251Z",
+        "duration": 99461.453,
+        "expected": 29,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "deletes": 26,
+      "portReusable": true
+    },
+    "liveBrowser": {
+      "stats": {
+        "startTime": "2026-10-30T01:15:41.476Z",
+        "duration": 10011.721,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "authenticatedLiveSaves": 2,
+      "portReusable": true
+    },
+    "sourceHeadReview": false
+  },
+  "ownership": {
+    "observedAt": "2026-10-30T02:07:11.619Z",
+    "main": "f6223a0f406a88b71ebd49ca8d9381afa1f51a85",
+    "worktreeCount": 121,
+    "openPrHits": [],
+    "disposition": [
+      {
+        "path": "C:/Users/wroll/.t3/worktrees/MekStation/t3-a405e528",
+        "head": "12fabec392d9002907c47eff7e62980ac375964b",
+        "exactHits": [
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/pages/api/campaigns/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "D ",
+            "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Incomplete checkout with actual staged deletions/untracked paths. Preserve all contents. Do not infer that provisioning failure rules out user edits; do not import or clean it. It is not assigned this campaign unit. Recheck before publication/merge for new source claims."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/baseline-f-20261018",
+        "head": "0da8feed0a2b8dcab071f9f31d92bfd66c41a5ad",
+        "exactHits": [
+          {
+            "status": " M",
+            "file": "src/pages/api/campaigns/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Preserve old route/projection-refusal and salvage edits at their recorded hashes. Not an implementation source for this unit. No overlapping open PR was observed. Re-census before merge; never reset or import this work."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/campaign-live-write-1-qual-20261030",
+        "head": "54462d5f0d18f95dd5f85ec3597663b370ba4e82",
+        "exactHits": [
+          {
+            "status": " M",
+            "file": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/pages/api/campaigns/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Root-owned superseded F1 snapshot, retained unchanged for failed evidence and review reconstruction. No delivery from it."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/campaign-live-write-1-qual-r2-20261030",
+        "head": "88b5b2595f2b87b1c17453f9027dd7328cf6ca86",
+        "exactHits": [
+          {
+            "status": " M",
+            "file": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/pages/api/campaigns/[id].ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Root-owned F2 snapshot reviewed read-only. Preserve it; implementation will import frozen source only after combined admission merges."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/ndc1-source-01a0febd",
+        "head": "823fc4424fc8d55198e48b09075abeaaa3f45759",
+        "exactHits": [
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "committed",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Historical committed units.json overlap, with no uncommitted tracked units.json edit in this census. Preserve unrelated native-delivery work. It does not acquire the campaign source manifest."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/ndc1-source-r2-01a0febd",
+        "head": "2c0979363363a5d4af76266f02835304ee98492d",
+        "exactHits": [
+          {
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "committed",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Historical committed units.json overlap, with no uncommitted tracked units.json edit in this census. Preserve all native-delivery files and debt."
+      },
+      {
+        "path": "E:/Projects/Personal/MekStation-wt/step4-api-closure-campaign-admission-20261030",
+        "head": "88b5b2595f2b87b1c17453f9027dd7328cf6ca86",
+        "exactHits": [
+          {
+            "status": " M",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": " M",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/units.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-mainproof-20261029.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-merge-20261029.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          },
+          {
+            "status": "??",
+            "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-review-20261025.json",
+            "kind": "uncommitted",
+            "class": "exact"
+          }
+        ],
+        "dirtyBytesMatchPriorCensus": true,
+        "disposition": "Root-owned six-file closure draft; sole intended writer for the combined admission. No campaign admission receipt or source change is present yet."
+      }
+    ],
+    "activePublishedClaim": [
+      {
+        "id": "API-SAME-HOST-1",
+        "state": "local-verified",
+        "claims": [
+          "src/__tests__/api",
+          "openspec/planning/2026-09-12-roadmap-completion/units.json",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/api-same-host-1-review-20261025.json",
+          "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+          "openspec/planning/2026-09-12-roadmap-completion/V2.2.0-STEPS.md"
+        ]
+      }
+    ],
+    "explanation": "The only published active claim is API; this same PR closes it using already-merged exact-main evidence. No successor source runs until this admission merges.",
+    "changedSinceQualification": [
+      "openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md",
+      "openspec/changes/establish-all-unit-data-parity/tasks.md",
+      "src/__tests__/unit/protomech-construction.test-helpers.ts",
+      "src/components/customizer/protomech/ProtoMechStructureTab.logic.ts",
+      "src/components/customizer/protomech/ProtoMechStructureTab.sections.tsx",
+      "src/services/units/handlers/ProtoMechUnitHandler.ts",
+      "src/stores/protoMechState.ts",
+      "src/stores/useProtoMechStore.ts",
+      "src/types/unit/ProtoMechInterfaces.ts",
+      "src/utils/construction/protomech/RULES.md",
+      "src/utils/construction/protomech/__tests__/runMovement.test.ts",
+      "src/utils/construction/protomech/index.ts",
+      "src/utils/construction/protomech/movementCaps.ts"
+    ],
+    "scopeOverlap": []
+  },
+  "commands": {
+    "focused": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--runTestsByPath",
+      "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "src/__tests__/api/campaigns/campaignCoopRecordAuthz.test.ts",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+      "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx"
+    ],
+    "required": [
+      "npm run typecheck",
+      "npm run lint:units",
+      "npm run build",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github",
+      "node scripts/qc/generate-v220-steps.mjs --check"
+    ],
+    "runtime": [
+      "Unchanged coop-campaign-two-browser-journey.spec.ts with explicit observation of authenticated live host PUTs, convergence and reload.",
+      "Nine named cleanup specs plus the six additional caller specs; failed GM fixture observations remain disclosed.",
+      "Production campaign-two-device-drive, campaign-journal-two-process-convergence and campaign-journal-two-process-privacy."
+    ],
+    "mutation": "Re-run registered F2 recipes on actual delivery tests, and add a discriminator for any accepted new error-identity regression.",
+    "queue": "E:/Projects/Personal/MekStation-wt/_locks/heavy-run.mjs; owned ports/stores; no ALLOW_PIDS changes"
+  },
+  "supplements": {
+    "baseline": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-admission\\prep-r4\\baseline-readback.json",
+      "bytes": 6585,
+      "sha256": "cdb253627d4473e66e27091a9360266cef16957093d33531689062115cf24479"
+    },
+    "callers": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-admission\\prep-r4\\caller-results.json",
+      "bytes": 64102,
+      "sha256": "8d20c668f48eaa1817c548923cb9aabb15f131f76b0f9a645f217171532ffb60"
+    },
+    "disposition": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-admission\\prep-r4\\CONSUMER-DISPOSITION.md",
+      "bytes": 4134,
+      "sha256": "cc4443229ea33e4ad2424afdea68591284a3cf2815ca0600efa34071495bd438"
+    },
+    "sizing": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-admission\\prep-r4\\sizing-model.json",
+      "bytes": 7426,
+      "sha256": "a3aea7b4e188aaa5bbe389894e242d42616457f58b769262ec7a9218b814558e"
+    }
+  },
+  "sizing": {
+    "model": {
+      "path": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-28\\campaign-live-write-admission\\prep-r4\\sizing-model.json",
+      "bytes": 7426,
+      "sha256": "a3aea7b4e188aaa5bbe389894e242d42616457f58b769262ec7a9218b814558e"
+    },
+    "modelOnly": true,
+    "modeledAdditions": 281,
+    "finalDeliveryAndMergeFitRequired": true
+  },
+  "limits": [
+    "F1 browser full runs were 27/29, 28/29 and 29/29; diagnostic comparison did not establish cause or baseline full-run failure rates. The first GM date failure does not distinguish missing exposure from unhydrated campaign state. All failed records remain.",
+    "The first new live-browser journey failed on an initial PUT 404 before match creation. An unchanged baseline/candidate diagnostic pair then passed, without reproducing or establishing the cause. Baseline Playwright passed while its candidate-only bearer predicate was false by design. Final success does not prove absence of intermittency.",
+    "Shared verifier continues to accept unscoped identity tokens; wrong-session refusal is scoped-token coverage.",
+    "Oxlint has zero errors and two max-lines warnings: store 1046, dashboard 403 versus 400.",
+    "The new real-server two-browser check is the unchanged journey, with an observer that records bearer presence only. This is separate from the unflagged production build and proves no RC, installer or exact-main acceptance.",
+    "Broader raw-route consumer census/testing, fresh ownership/main census, actual lifecycle fit and authentic delivery identity are still required before implementation local-verified. API legacy-receipt authority is not automatically extended.",
+    "Only combine API closure and campaign admission as Step 4 PR 3; all fourteen Step 4 units remain the active goal.",
+    "The same GM proposal failure reproduced on baseline; the other original browser failures remain unexplained.",
+    "Additional six direct callers passed 17/17 on F2 in development, not on a merged implementation.",
+    "This admission contains no campaign product source, implementation local receipt, source-head approval, merge or main proof."
+  ],
+  "next": "Merge this reviewed combined admission, then import the ten frozen candidate leaves into source delivery, add the recommended same-file test coverage, revalidate actual bytes and obtain fresh exact-head source reviews."
+}
