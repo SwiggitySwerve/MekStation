@@ -1,11 +1,11 @@
 ## MODIFIED Requirements
 
-Scope: this delta corrects engine rating, movement-field consistency and internal
-structure. Existing
+Scope: this delta corrects engine rating, normal-engine mass, movement-field
+consistency and internal structure. Existing
 weight-class labels, tonnage/MP caps, default-speed choices and flank policies
 are retained below to keep modified requirements complete; their fidelity is
 not independently established by this slice. Native source projection is specified
-in the unit-services delta. Engine mass, equipment, production serialization and
+in the unit-services delta. Other component mass, equipment, production serialization and
 complete numerical/BV parity remain open.
 
 ### Requirement: Weight Classes
@@ -194,3 +194,42 @@ summed as points. Construction legality SHALL remain a separate diagnostic.
 - **THEN** the duplicate SHALL preserve the source's chassis, main-gun presence and independent copy of every stored structure value, including manual values
 - **AND** the duplicate's structure contribution to BV SHALL use those copied points
 - **AND** editing the duplicate's structure SHALL NOT alter the source's structure
+
+## ADDED Requirements
+
+### Requirement: ProtoMech Engine Mass
+
+The construction owner SHALL calculate normal ProtoMech engine mass using pinned
+MegaMek `Engine.java:396-450` and `RoundWeight.java` at48fcb2f6. Source loading and
+canonical handler/store projections SHALL use that owner. This requirement covers
+normal fusion engines only, independently of construction legality and complete BV.
+
+#### Scenario: Low-rating kilogram mass
+
+- **WHEN** an integer engine rating is between0 and39 inclusive
+- **THEN** raw mass SHALL be rating times0.025 tons
+- **AND** mass SHALL round to the nearest gram, then upward to the next kilogram
+- **AND** rating0 SHALL return exactly0, rating1 SHALL return0.025 and rating39 SHALL return0.975 tons
+
+#### Scenario: Shared engine table
+
+- **WHEN** an integer engine rating is between40 and500 inclusive
+- **THEN** the owner SHALL use the existing standard-fusion table at the next multiple of5
+- **AND** apply the same kilogram rounding
+- **AND** ratings40 and45 SHALL return1 ton, rating46 SHALL return1.5 tons, and rating500 SHALL return462.5 tons
+- **AND** no duplicate rating table SHALL be introduced
+
+#### Scenario: Unavailable mass on an invalid rating
+
+- **WHEN** a rating is negative, fractional, nonfinite or greater than500
+- **THEN** calculated mass SHALL be null with a rating diagnostic available from the owner
+- **AND** a structurally loadable source SHALL retain its original rating, load with construction diagnostics and expose null engine mass
+- **AND** existing BV projections and store edits SHALL remain usable without treating unavailable mass as numeric zero
+- **AND** this local failure contract SHALL NOT claim parity with Java's invalid-engine constructor or out-of-table behavior
+
+#### Scenario: Derived data and scope
+
+- **WHEN** a loaded unit or store snapshot is projected for calculation
+- **THEN** engine mass SHALL be derived from its current rating rather than stale saved mass
+- **AND** the mass correction alone SHALL NOT change the existing BV result
+- **AND** no mass migration, total-unit mass, equipment parity or production editor/save/reload proof SHALL be inferred

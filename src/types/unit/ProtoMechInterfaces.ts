@@ -192,8 +192,8 @@ export interface IProtoMechUnit {
   readonly jumpMP: number;
   /** Construction rating from base walk MP, tonnage and chassis; see protomech/RULES.md. */
   readonly engineRating: number;
-  /** Engine weight in tons = engineRating × 0.025 */
-  readonly engineWeight: number;
+  /** Derived normal-engine mass in tons; null means the rating is unsupported. */
+  readonly engineWeight: number | null;
 
   // ---- Special equipment ----
   /** Myomer Booster: Light/Medium only; +1 walk MP, costs 1 ton */

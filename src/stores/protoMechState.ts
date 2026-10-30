@@ -27,6 +27,7 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoEngineRating,
+  computeProtoEngineWeight,
   computeProtoStructure,
   getProtoWeightClass,
   getProtoMPCaps,
@@ -534,7 +535,7 @@ function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
     runMP,
     jumpMP: state.jumpMP,
     engineRating: state.engineRating,
-    engineWeight: state.engineRating * 0.025,
+    engineWeight: computeProtoEngineWeight(state.engineRating),
     myomerBooster: state.hasMyomerBooster,
     glidingWings: state.glidingWings,
     armorType: 'Standard',

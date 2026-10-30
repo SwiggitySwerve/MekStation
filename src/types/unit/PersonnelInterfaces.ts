@@ -339,6 +339,9 @@ export interface IProtoMech extends ISquadUnit {
   /** Engine rating */
   readonly engineRating: number;
 
+  /** Derived normal-engine mass; null is unavailable, omitted on legacy records. */
+  readonly engineWeight?: number | null;
+
   /** Cruise MP */
   readonly cruiseMP: number;
 

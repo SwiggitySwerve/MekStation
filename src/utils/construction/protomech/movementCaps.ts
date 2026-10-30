@@ -13,6 +13,7 @@ import {
   ProtoChassis,
   ProtoWeightClass,
 } from '@/types/unit/ProtoMechInterfaces';
+import { getBaseEngineWeight } from '@/utils/construction/engineCalculations';
 
 // =============================================================================
 // MP cap table
@@ -85,7 +86,7 @@ export function effectiveJumpMP(
 // Engine formulas
 // =============================================================================
 
-/** Engine weight factor for ProtoMech fusion engines (tons per rating point) */
+/** Normal ProtoMech engine mass below rating 40 (tons per rating point). */
 export const PROTO_ENGINE_WEIGHT_FACTOR = 0.025;
 
 /**
@@ -159,13 +160,33 @@ export function computeProtoWalkMPForRating(
   return lower;
 }
 
+/** Mass is unavailable outside the supported normal-engine rating domain. */
+export function getProtoEngineWeightError(
+  engineRating: number,
+): string | undefined {
+  if (
+    !Number.isInteger(engineRating) ||
+    engineRating < 0 ||
+    engineRating > 500
+  ) {
+    return `ProtoMech engine rating ${engineRating} has no supported mass; expected an integer from 0 to 500`;
+  }
+  return undefined;
+}
+
 /**
- * Engine weight in tons = engineRating × 0.025, rounded up to nearest 0.5t.
+ * Pinned Engine.java:396-450 and RoundWeight.NEXT_KG (MegaMek 48fcb2f6).
+ * Normal engines only. Null keeps unavailable mass distinct from valid zero.
  */
-export function computeProtoEngineWeight(engineRating: number): number {
-  const raw = engineRating * PROTO_ENGINE_WEIGHT_FACTOR;
-  // Round up to nearest half-ton
-  return Math.ceil(raw * 2) / 2;
+export function computeProtoEngineWeight(engineRating: number): number | null {
+  if (getProtoEngineWeightError(engineRating)) return null;
+  const raw =
+    engineRating < 40
+      ? engineRating * PROTO_ENGINE_WEIGHT_FACTOR
+      : getBaseEngineWeight(Math.ceil(engineRating / 5) * 5);
+  // Upstream removes floating-point noise at the gram before rounding up to kg.
+  const grams = Math.round(raw * 1_000_000) / 1_000_000;
+  return Math.ceil(grams * 1000) / 1000;
 }
 
 // =============================================================================

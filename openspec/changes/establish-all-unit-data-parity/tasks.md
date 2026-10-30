@@ -22,6 +22,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 - [ ] 2.5 Correct ProtoMech rating through the existing owner after separately verified consolidation; prove stages against pinned Java and cover chassis/reactive edits, exact inverse and movement aliases without claiming native loading or whole-unit parity. (`protomech-unit-system`: Engine Rating)
 - [x] 2.6 Consolidate ProtoMech structure without changing outputs, then correct the shared rule, source/default/reactive consumers and printing topology. All 326 refactor observations are byte-identical; 488 synthetic cases and all 86 original sources match actual pinned Java for structure, explicit absent locations and isolated standard-structure BV terms. No unrelated source fields changed; all 10 construction-invalid designs remain invalid. Existing saves, equipment, complete BV and production editor round trips remain separate. (`protomech-unit-system`: Internal Structure)
 
+- [ ] 2.7 Consolidate ProtoMech engine mass without changing either former rounding policy, then correct normal-engine mass against pinned Java, propagate it to loaded units and canonical projections, and retain invalid source ratings with unavailable mass and diagnostics. Complete mass/BV and editor persistence remain open. (`protomech-unit-system`: ProtoMech Engine Mass)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.0 Extend/consolidate existing schema ownership into a documented portable versioned design contract, explicit units/identities/extensions, migrations, examples and independent-consumer conformance tests; keep legacy syntax in adapters. (`unit-entity-model`: Portable versioned unit documents)
