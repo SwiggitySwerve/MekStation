@@ -15,7 +15,9 @@ import {
 } from '@/types/gameplay';
 
 import { roll2d6, determineHitLocation } from '../hitLocation';
-import { CLUSTER_HIT_TABLE, getNearestClusterSize } from './hitTable';
+import { lookupClusterHits } from './hitTable';
+
+export { lookupClusterHits } from './hitTable';
 
 /**
  * Roll on the cluster table for a weapon.
@@ -27,21 +29,6 @@ export function rollClusterHits(clusterSize: number): {
   const roll = roll2d6();
   const hits = lookupClusterHits(roll.total, clusterSize);
   return { roll, hits };
-}
-
-/**
- * Look up number of hits on the cluster table.
- */
-export function lookupClusterHits(roll: number, clusterSize: number): number {
-  const tableRow = CLUSTER_HIT_TABLE[roll];
-  if (!tableRow) {
-    // Out of range roll, use closest valid
-    const clampedRoll = Math.max(2, Math.min(12, roll));
-    return lookupClusterHits(clampedRoll, clusterSize);
-  }
-
-  const nearestSize = getNearestClusterSize(clusterSize);
-  return tableRow[nearestSize] ?? 0;
 }
 
 /**
