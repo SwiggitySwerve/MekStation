@@ -10,7 +10,11 @@ import {
   findAvailableAmmoBin,
   isEnergyWeapon,
 } from './ammoTracking';
-import { isStreakWeapon, lookupClusterHits } from './clusterWeapons';
+import {
+  damageForProjectiles,
+  isStreakWeapon,
+  lookupClusterHits,
+} from './clusterWeapons';
 import { type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import {
@@ -219,6 +223,6 @@ export function resolveSelectedAMSCluster(input: {
 
   return {
     session: currentSession,
-    damage: (input.damage / rackSize) * projectilesRemaining,
+    damage: damageForProjectiles(input.damage, rackSize, projectilesRemaining),
   };
 }

@@ -26,5 +26,8 @@ export {
   formatClusterResult,
 } from './resolution';
 
+// Total launcher damage to landed-projectile damage
+export { damageForProjectiles } from './projectileDamage';
+
 // Streak weapons
 export { isStreakWeapon, resolveStreakAttack } from './streak';
