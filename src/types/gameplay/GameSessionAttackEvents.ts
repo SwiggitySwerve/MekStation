@@ -105,6 +105,10 @@ export interface IWeaponAttackData {
   readonly damage: number;
   /** Heat generated */
   readonly heat: number;
+  /** Per-weapon override; absent legacy events use the volley target number. */
+  readonly toHitNumber?: number;
+  /** Modifier details for a per-weapon target number. */
+  readonly modifiers?: readonly IToHitModifier[];
 }
 
 /**
