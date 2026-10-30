@@ -32,6 +32,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.11 Consolidate the offensive speed exponent/rounding without behavior change, then use explicit Run for ProtoMek offensive BV and verify actual Java component/entity/source factors. Preserve source/export fields and saved movement; retain full equipment, defensive/chassis and complete BV gaps. (`battle-value-system`: ProtoMech Offensive BV and Main Gun)
 
+- [ ] 2.12 Consolidate standard TMM thresholds while preserving each caller contract, then correct ProtoMek/Glider defensive movement factors and verify native components, sources and store consumers. Preserve unrelated figures and saved movement; retain full-BV and production-flow gaps. (`battle-value-system`: ProtoMech Defensive BV)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.01 Consolidate the ProtoMek BLK equipment projection without changing output, then reject flag/emitted-booster disagreement and unrepresentable equipment text without content or input mutation. Verify existing source export bytes and actual Java reload; production mount editing, arbitrary saved-flank export, complete equipment and BV remain open. (`unit-services`: ProtoMek booster export integrity)

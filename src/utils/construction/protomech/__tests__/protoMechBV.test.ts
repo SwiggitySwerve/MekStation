@@ -204,8 +204,11 @@ describe('calculateProtoMechBV — chassis multipliers', () => {
 
     expect(bipedBV.chassisMultiplier).toBe(1.0);
     expect(gliderBV.chassisMultiplier).toBe(0.9);
-    // Glider final should be ≤ biped final (same base, smaller multiplier)
-    expect(gliderBV.final).toBeLessThanOrEqual(bipedBV.final);
+    // Apply the multiplier to each chassis's own defensive/offensive base.
+    expect(gliderBV.defensiveFactor).toBe(1.5);
+    expect(bipedBV.defensiveFactor).toBe(1.4000000000000001);
+    expect(gliderBV.offensiveBV).toBe(bipedBV.offensiveBV);
+    expect(gliderBV.final).toBe(Math.round(gliderBV.baseBV * 0.9));
   });
 
   it('Ultraheavy applies 1.15× to base BV', () => {

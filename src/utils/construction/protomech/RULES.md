@@ -26,6 +26,30 @@ damage/options, UMU/mechanical jump equipment, complete BV and production
 editor/save workflows remain open. Nonfinite/fractional/out-of-range movement
 is not admitted as Java integer component parity by these comparisons.
 
+## Defensive BV movement
+
+Pinned `ProtoMekBVCalculator` adds one to Glider running TMM before taking
+the maximum with jumping/UMU TMM, including Run zero. It adds 0.1 to the
+inherited defensive factor for every ProtoMek. The factor therefore follows
+`(1 + max(running TMM, jumping TMM) / 10) + 0.1`, retaining Java's operation
+order. The current ProtoMek contract has UMU zero. Positive Jump includes
+the standard jump bonus; Jump zero contributes zero.
+
+`protoMechBVDefensive.ts` applies these ProtoMek rules through the shared
+construction movement selector, then multiplies the existing defensive pool.
+It uses explicit Run, Jump and chassis without reconstructing movement. Store
+defaults, BV-affecting edits and explicit recomputation consume this result.
+Hydration and identity edits preserve cached BV and saved movement; no saved
+state migration is introduced.
+
+The separately verified threshold consolidation preserves construction,
+vehicle and gameplay behavior, including their different fractional/nonfinite
+contracts. Component parity covers nonnegative integer movement, undamaged
+default construction and the standard TMM table. The 86 native sources and
+synthetic loaded entities use matched native movement inputs. MaxTech options,
+negative/fractional/nonfinite movement, full equipment pools, chassis final
+multipliers, complete BV and production browser flows remain unverified.
+
 ## Engine rating
 
 Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,

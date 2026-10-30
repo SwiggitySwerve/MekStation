@@ -1,4 +1,4 @@
-import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
+import { IProtoMechUnit, ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
 import { calculateTMM } from '../battleValueMovement';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
@@ -50,8 +50,12 @@ function calculateProtoDefensive(unit: IProtoMechUnit): DefensivePieces {
     }
   }
 
-  const tmm = calculateTMM(unit.runMP, unit.jumpMP);
-  const defensiveFactor = 1 + tmm / 10;
+  const tmm = calculateTMM(
+    unit.runMP,
+    unit.jumpMP,
+    unit.chassisType === ProtoChassis.GLIDER ? 1 : 0,
+  );
+  const defensiveFactor = 1 + tmm / 10 + 0.1;
 
   const defensiveBV =
     (armorBV + structureBV + defensiveEquipmentBV - explosivePenalty) *
