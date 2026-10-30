@@ -10,9 +10,14 @@ For other names the legacy fallback stays intact: capacity -1 means ENERGY;
 otherwise ballistic-name substrings mean BALLISTIC and the rest mean MISSILE.
 This remains incomplete inference, not a native equipment-type registry.
 
-GameEngine, InteractiveSession and P2P attack translation use the builder.
-gameSessionCore.attackToHit passes its category through toHit/stateHydration
-to the existing Gunnery Specialist rule. The captured catalog changes contain
+GameEngine, InteractiveSession AI and P2P declaration paths pass the builder's
+category through gameSessionCore.attackToHit and toHit/stateHydration to the
+Gunnery Specialist rule used for their rolls. Human InteractiveSession attacks
+also declare through that boundary. When an attackable grid projection supplies
+a target number, enrichAttackDeclaredEventFromProjection replaces the declared
+number and modifiers with those projection values. That projection omits
+category, so these human committed attacks still receive no Gunnery Specialist
+modifier. The captured catalog changes contain
 154 ENERGY-to-MISSILE transitions. For an Energy specialist, the modifier
 changes from -1 to +1; for a Missile specialist, +1 becomes -1. Ballistic
 specialists and pilots without this ability retain their results. All other
@@ -26,7 +31,9 @@ the classification and isolated modifier, not full native combat parity.
 
 Ammo readiness and quantity projection are separate work. Legacy fallbacks
 for unrecognized names, torpedo names, native multi-SPA precedence and complete
-catalog categories remain open. The tactical combat projection currently
-omits category when hydrating its attacker state; this existing preview gap
-is not repaired here. No browser, complete combat, source serialization or
-full numerical-parity claim follows from the local category correction.
+catalog categories remain open. The declaration currently uses the first
+weapon's category for every weapon in a mixed volley; per-weapon specialist
+modifiers remain open. Missing category propagation through tactical previews
+and committed human interactive attacks is also unresolved. No browser,
+complete combat, source serialization or full numerical-parity claim follows
+from the local category correction.

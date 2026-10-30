@@ -315,6 +315,7 @@ describe('missile classification reaches the existing specialist to-hit rule', (
       for (const [designation, modifier] of [
         ['missile', -1],
         ['energy', 1],
+        ['ballistic', 1],
       ] as const) {
         const unit = {
           ...createMinimalUnitState('attacker', GameSide.Player, {

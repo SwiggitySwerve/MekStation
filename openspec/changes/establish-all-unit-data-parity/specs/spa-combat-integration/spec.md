@@ -26,9 +26,9 @@ designated category via `getPilotDesignation(pilot,
 
 - **GIVEN** a mounted weapon recognized by the existing missile-family classifier
 - **WHEN** the weapon attack builder translates it with missing capacity metadata
-- **THEN** its category SHALL be MISSILE and SHALL reach the shared to-hit hydration boundary
+- **THEN** its category SHALL be MISSILE and SHALL reach the shared declaration to-hit hydration boundary used by GameEngine, InteractiveSession AI and P2P attacks
 - **AND** a Missile specialist SHALL receive -1 while an Energy specialist SHALL receive +1
 - **AND** those modifiers SHALL differ by two from the former ENERGY classification
 - **AND** pilots without that ability and Ballistic specialists SHALL retain their results
 - **AND** non-missile category fallbacks, other attack fields and ammunition policies SHALL remain unchanged
-- **AND** complete native categories, multi-SPA precedence, tactical-preview category propagation and ammunition parity SHALL remain separate required work
+- **AND** complete native categories, multi-SPA precedence, per-weapon mixed-volley modifiers, tactical-preview and committed human interactive category propagation, and ammunition parity SHALL remain separate required work
