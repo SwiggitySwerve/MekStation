@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
@@ -194,7 +194,7 @@ export function WeaponAttackPlanningSection({
   onCloseForecast,
   weaponModeError,
 }: WeaponAttackPlanningSectionProps): React.ReactElement {
-  const ammoMap = buildAmmoMap(weapons, selected);
+  const ammoMap = useAmmoMap(weapons, selected);
   const hasZeroAmmoSelected = attackPlan.selectedWeapons.some(
     (weaponId) => ammoMap[weaponId] === 0,
   );
@@ -298,7 +298,7 @@ export function PhysicalAttackPlanningSection({
   selectedWeaponModes,
   weapons,
 }: PhysicalAttackPlanningSectionProps): React.ReactElement {
-  const ammoMap = buildAmmoMap(weapons, selected);
+  const ammoMap = useAmmoMap(weapons, selected);
 
   return (
     <section
@@ -333,13 +333,16 @@ export function PhysicalAttackPlanningSection({
   );
 }
 
-function buildAmmoMap(
+function useAmmoMap(
   weapons: readonly IWeapon[],
   selected: ISelectedUnitProjection,
 ): Record<string, number> {
-  return selected.state.ammoState === undefined
-    ? selected.state.ammo
-    : ammoFromWeapons(weapons, selected.state.ammoState);
+  const { ammo, ammoState } = selected.state;
+  return useMemo(
+    () =>
+      ammoState === undefined ? ammo : ammoFromWeapons(weapons, ammoState),
+    [weapons, ammo, ammoState],
+  );
 }
 
 function isWaitingForOpponent(

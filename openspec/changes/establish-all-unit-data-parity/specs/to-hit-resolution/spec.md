@@ -24,3 +24,18 @@ owner's bin projection; only its absence SHALL retain the legacy ammo map.
 - **THEN** no attack, selection or ammunition mutation SHALL occur
 - **AND** energy weapons, disabled previews and out-of-range handling SHALL retain their existing behavior
 - **AND** unknown-capacity missile policy, damage magnitude, active-composer routing and native ammunition parity SHALL remain separate concerns
+
+
+#### Scenario: Unrelated renders preserve preview memoization
+
+- **GIVEN** unchanged weapons, legacy ammo and live bin-state references
+- **WHEN** either planning section rerenders for unrelated state or presentation
+- **THEN** it SHALL reuse the projected ammo map
+- **AND** an enabled weapon selector SHALL reuse its existing previews while other preview inputs remain unchanged
+- **AND** replacing ammo inputs SHALL refresh the map and dependent previews
+
+#### Scenario: Physical Attack displays current ammunition
+
+- **WHEN** the active Physical Attack section receives supplied or depleted live bins
+- **THEN** its locked weapon list SHALL display the current Ammo: N or No ammo badge
+- **AND** that display SHALL NOT commit a weapon attack or change the physical attack intent
