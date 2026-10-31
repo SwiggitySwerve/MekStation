@@ -276,13 +276,13 @@ describe('BlkExportServiceCore.formatters', () => {
     it('emits Rotor before Turret as lines 5 and 6 for VTOLs', () => {
       const allocation: Record<string, number> = {
         [VehicleLocation.FRONT]: 10,
-        [VehicleLocation.LEFT]: 10,
-        [VehicleLocation.RIGHT]: 10,
+        [VehicleLocation.LEFT]: 9,
+        [VehicleLocation.RIGHT]: 11,
         [VehicleLocation.REAR]: 10,
         [VehicleLocation.TURRET]: 7,
         [VTOLLocation.ROTOR]: 2,
       };
-      expect(formatVehicleArmor(allocation, true)).toBe('10\n10\n10\n10\n2\n7');
+      expect(formatVehicleArmor(allocation, true)).toBe('10\n11\n9\n10\n2\n7');
     });
 
     it('emits zeros for missing locations', () => {
