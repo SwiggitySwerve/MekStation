@@ -11,6 +11,7 @@
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { isValidUnitType } from '@/utils/validation/UnitCategoryMapper';
 
 import type { IUnitIndexEntry } from '../common/types';
 
@@ -38,7 +39,7 @@ export interface RawUnitIndexEntry {
 }
 
 /** Directory (under the site root) of the BattleMech catalog. */
-export const BATTLEMECH_DATA_DIRECTORY = '/data/units/battlemechs';
+const BATTLEMECH_DATA_DIRECTORY = '/data/units/battlemechs';
 
 const TECH_BASE_BY_RAW_VALUE: Readonly<Record<string, TechBase>> = {
   CLAN: TechBase.CLAN,
@@ -56,10 +57,10 @@ const ERA_BY_PATH_SEGMENT = [
   { segment: '7-ilclan', era: Era.IL_CLAN },
 ] as const;
 
-const UNIT_TYPE_VALUES: ReadonlySet<string> = new Set(Object.values(UnitType));
-
 function techBaseFromRawValue(rawTechBase: string): TechBase {
-  return TECH_BASE_BY_RAW_VALUE[rawTechBase] ?? TechBase.INNER_SPHERE;
+  return Object.hasOwn(TECH_BASE_BY_RAW_VALUE, rawTechBase)
+    ? TECH_BASE_BY_RAW_VALUE[rawTechBase]
+    : TechBase.INNER_SPHERE;
 }
 
 function eraFromPath(filePath: string): Era {
@@ -71,23 +72,20 @@ function eraFromPath(filePath: string): Era {
 
 function unitTypeFromRaw(raw: RawUnitIndexEntry): UnitType {
   if (raw.unitType === undefined) return UnitType.BATTLEMECH;
-  if (!UNIT_TYPE_VALUES.has(raw.unitType)) {
+  if (!isValidUnitType(raw.unitType)) {
     throw new Error(
       `Unit index entry "${raw.id}" has unknown unitType "${raw.unitType}"`,
     );
   }
-  return raw.unitType as UnitType;
+  return raw.unitType;
 }
 
 /**
- * Map a raw index row to IUnitIndexEntry.
- *
- * @param directory Site-root directory the row's `path` is relative to.
+ * Map a raw index row to IUnitIndexEntry. Throws on an unknown `unitType`
+ * rather than defaulting to BattleMech. `filePath` is under the BattleMech
+ * catalog until per-family directories exist (UL-09b).
  */
-export function mapRawIndexEntry(
-  raw: RawUnitIndexEntry,
-  directory: string = BATTLEMECH_DATA_DIRECTORY,
-): IUnitIndexEntry {
+export function mapRawIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
   return {
     id: raw.id,
     name: `${raw.chassis} ${raw.model}`,
@@ -98,11 +96,32 @@ export function mapRawIndexEntry(
     era: eraFromPath(raw.path),
     weightClass: getUnitIndexWeightClass(raw.tonnage),
     unitType: unitTypeFromRaw(raw),
-    filePath: `${directory}/${raw.path}`,
+    filePath: `${BATTLEMECH_DATA_DIRECTORY}/${raw.path}`,
     year: raw.year,
     role: raw.role,
     rulesLevel: raw.rulesLevel,
     cost: raw.cost,
     bv: raw.bv,
   };
+}
+
+/**
+ * Map every row of an index, skipping rows that fail to map. One bad row must
+ * not empty the catalog; callers log each skipped row and decide whether a
+ * skip is fatal (a strict load).
+ */
+export function mapRawIndexRows(rows: readonly RawUnitIndexEntry[]): {
+  readonly entries: IUnitIndexEntry[];
+  readonly skipped: readonly Error[];
+} {
+  const entries: IUnitIndexEntry[] = [];
+  const skipped: Error[] = [];
+  for (const raw of rows) {
+    try {
+      entries.push(mapRawIndexEntry(raw));
+    } catch (error) {
+      skipped.push(error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+  return { entries, skipped };
 }

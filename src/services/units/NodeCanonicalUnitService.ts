@@ -22,13 +22,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { logger } from '@/utils/logger';
+
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
 import {
   type ICanonicalUnitService,
   type IFullUnit,
 } from './CanonicalUnitService';
-import { mapRawIndexEntry, type RawUnitIndexEntry } from './unitIndexMapper';
+import { mapRawIndexRows, type RawUnitIndexEntry } from './unitIndexMapper';
 import { parseUnit } from './unitLoaderService/unitContractAdapter';
 
 const isJestRuntime =
@@ -184,7 +186,11 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       rawMap.set(unit.id, unit);
     }
 
-    this.indexCache = rawFile.units.map((raw) => mapRawIndexEntry(raw));
+    const { entries, skipped } = mapRawIndexRows(rawFile.units);
+    for (const error of skipped) {
+      logger.warn(`Skipping unit index row: ${error.message}`);
+    }
+    this.indexCache = entries;
     this.rawIndexCache = rawMap;
     this.indexVersionCache = rawFile.version ?? 'unknown';
     return { entries: this.indexCache, raw: this.rawIndexCache };

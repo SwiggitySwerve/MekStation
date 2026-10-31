@@ -12,9 +12,10 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
+import { logger } from '@/utils/logger';
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
-import { mapRawIndexEntry, type RawUnitIndexEntry } from './unitIndexMapper';
+import { mapRawIndexRows, type RawUnitIndexEntry } from './unitIndexMapper';
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -129,8 +130,16 @@ export class CanonicalUnitService implements ICanonicalUnitService {
       }
       if (data.units.length === 0) return [];
 
-      // Map raw index data to IUnitIndexEntry format
-      this.indexCache = data.units.map((raw) => mapRawIndexEntry(raw));
+      const { entries, skipped } = mapRawIndexRows(data.units);
+      if (skipped.length > 0) {
+        if (options.strict) throw skipped[0];
+        for (const error of skipped) {
+          logger.warn(`Skipping unit index row: ${error.message}`);
+        }
+        // Not cached, so a later strict load still sees the bad row.
+        return entries;
+      }
+      this.indexCache = entries;
       return this.indexCache;
     } catch (error) {
       if (options.strict) throw error;
