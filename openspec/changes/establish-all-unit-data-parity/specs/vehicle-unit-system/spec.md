@@ -98,6 +98,7 @@ The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
 - **THEN** Maxim Flanker SHALL load Front 20, Right 46, Left 10, Rear 12
 - **AND** Red Kite SHALL load Rotor 2 and Turret 16 (VTOL order is Front, Right, Left, Rear, Rotor, Turret)
 - **AND** the export SHALL write the same order back, so a MegaMek load of an exported file keeps each side
+- **AND** a turretless vehicle SHALL export four armor values (a VTOL five), because MegaMek reads one more as a turret (`BLKTankFile.java:185`, `BLKVTOLFile.java:132`)
 - **AND** Red Kite's installed armor total SHALL include the turret and rotor (62)
 
 Order source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,

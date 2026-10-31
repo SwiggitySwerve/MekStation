@@ -270,7 +270,9 @@ describe('BlkExportServiceCore.formatters', () => {
         [VehicleLocation.REAR]: 20,
         [VehicleLocation.TURRET]: 15,
       };
-      expect(formatVehicleArmor(allocation, false)).toBe('30\n26\n24\n20\n15');
+      expect(formatVehicleArmor(allocation, false, true)).toBe(
+        '30\n26\n24\n20\n15',
+      );
     });
 
     it('emits Rotor before Turret as lines 5 and 6 for VTOLs', () => {
@@ -282,12 +284,46 @@ describe('BlkExportServiceCore.formatters', () => {
         [VehicleLocation.TURRET]: 7,
         [VTOLLocation.ROTOR]: 2,
       };
-      expect(formatVehicleArmor(allocation, true)).toBe('10\n11\n9\n10\n2\n7');
+      expect(formatVehicleArmor(allocation, true, true)).toBe(
+        '10\n11\n9\n10\n2\n7',
+      );
+    });
+
+    // MegaMek reads a fifth Tank value (sixth for a VTOL) as a turret, so a
+    // turretless vehicle stops at four (VTOL five): BLKFile.java:947-965,
+    // BLKTankFile.java:185, BLKVTOLFile.java:132.
+    it('omits the Turret value of a turretless Tank', () => {
+      const allocation = {
+        [VehicleLocation.FRONT]: 30,
+        [VehicleLocation.LEFT]: 24,
+        [VehicleLocation.RIGHT]: 26,
+        [VehicleLocation.REAR]: 20,
+        [VehicleLocation.TURRET]: 15,
+      };
+      expect(formatVehicleArmor(allocation, false, false)).toBe(
+        '30\n26\n24\n20',
+      );
+    });
+
+    it('omits the Turret value of a turretless VTOL but keeps the Rotor', () => {
+      const allocation: Record<string, number> = {
+        [VehicleLocation.FRONT]: 10,
+        [VehicleLocation.LEFT]: 9,
+        [VehicleLocation.RIGHT]: 11,
+        [VehicleLocation.REAR]: 10,
+        [VehicleLocation.TURRET]: 7,
+        [VTOLLocation.ROTOR]: 2,
+      };
+      expect(formatVehicleArmor(allocation, true, false)).toBe(
+        '10\n11\n9\n10\n2',
+      );
     });
 
     it('emits zeros for missing locations', () => {
-      expect(formatVehicleArmor({}, false)).toBe('0\n0\n0\n0\n0');
-      expect(formatVehicleArmor({}, true)).toBe('0\n0\n0\n0\n0\n0');
+      expect(formatVehicleArmor({}, false, true)).toBe('0\n0\n0\n0\n0');
+      expect(formatVehicleArmor({}, true, true)).toBe('0\n0\n0\n0\n0\n0');
+      expect(formatVehicleArmor({}, false, false)).toBe('0\n0\n0\n0');
+      expect(formatVehicleArmor({}, true, false)).toBe('0\n0\n0\n0\n0');
     });
   });
 
