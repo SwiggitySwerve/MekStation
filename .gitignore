@@ -73,6 +73,9 @@ scripts/**
 !scripts/megameklab-conversion/enum_mapping_tables.py
 !scripts/megameklab-conversion/mtf_parser.py
 !scripts/megameklab-conversion/mtf_parser_builders.py
+!scripts/megameklab-conversion/java_reference_exporter.py
+!scripts/megameklab-conversion/java-reference/
+!scripts/megameklab-conversion/java-reference/**
 !scripts/megameklab-conversion/mtf_text_regeneration.py
 !scripts/megameklab-conversion/source_inventory.py
 !scripts/megameklab-conversion/source_provenance.py
