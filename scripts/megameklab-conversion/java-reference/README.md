@@ -8,4 +8,11 @@
 python -B scripts/megameklab-conversion/java_reference_exporter.py --mekfiles <mm-data>/data/mekfiles --out-dir <scratch outside the repo> [--selfcheck-only] [--fixture <file>]
 ```
 
-The committed `scripts/__tests__/fixtures/java_reference_vehicle_aero_capital.json` is a 39-unit slice of that output; the full output stays outside the repo.
+The committed `scripts/__tests__/fixtures/java_reference_vehicle_aero_capital.json` is a 39-unit slice of that output, written byte-for-byte as committed; the full output stays outside the repo.
+
+Limits:
+
+- **Reproducibility is per source list.** Runs over the same sorted full list give identical artifact hashes. Changing the list's order or composition can move the raw double aggregates (`baseBV`, `offensiveValue`) of DropShip, JumpShip, WarShip and SpaceStation rows by 1–2 ulp. Pinned `LargeAeroBVCalculator` accumulates over an identity-hashed `HashMap` (`LargeAeroBVCalculator.java:65`). Integer BV totals and `adjustedBV` are stable. Compare raw aggregates with a tolerance (for example 1e-9), and artifact hashes only between runs of the same list.
+- `tagBV` is the `-1.0` sentinel in this BV mode.
+- Load failures are counted in `summary.json` but do not fail the run; drift, missing pinned sources and unreconciled paths do.
+- Only `.blk` sources are exported; the three `.bfs` Battlefield Support files under `vehicles/` are out of scope.

@@ -70,6 +70,13 @@ def source_drift(rows, manifest_rows):
     return [r['path'] for r in rows if pinned.get('data/mekfiles/' + r['path']) != r.get('sha256')]
 
 
+def missing_sources(sources, manifest_rows):
+    """Pinned family .blk sources (per the manifest) that the snapshot walk did not find."""
+    found, prefix = set(sources), 'data/mekfiles/'
+    pinned = (e['path'][len(prefix):] for e in manifest_rows if e['path'].startswith(prefix) and e['path'].endswith('.blk'))
+    return sorted(path for path in pinned if path.split('/')[0] in FAMILY_DIRS and path not in found)
+
+
 def pick_fixture(rows):
     ordered = sorted((r for r in rows if r['status'] == 'loaded'), key=lambda r: r['sha256'])
     chosen = {r['path'] for r in ordered if r['path'] in KNOWN_REFERENCES}
@@ -127,21 +134,23 @@ def main():
     sources = list_sources(args.mekfiles)
     rows = run_java(args.mekfiles, sources, out_dir, 'full')
     failures = [r for r in rows if r['status'] != 'loaded']
-    drift = source_drift(rows, load_manifest_rows())
+    manifest = load_manifest_rows()
+    drift, missing = source_drift(rows, manifest), missing_sources(sources, manifest)
     summary = {'pins': PINS, 'sources': len(sources), 'rows': len(rows), 'loadFailures': len(failures),
                'stageFailures': sum('stageFailure' in r for r in rows), 'pathsReconciled': [r['path'] for r in rows] == sources,
-               'sourceDrift': len(drift), 'byClass': dict(sorted(collections.Counter(r.get('concreteFamily') for r in rows).items()))}
+               'sourceDrift': len(drift), 'missingSources': len(missing),
+               'byClass': dict(sorted(collections.Counter(r.get('concreteFamily') for r in rows).items()))}
     (out_dir / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
-    if drift or not summary['pathsReconciled']:
-        sys.exit(f'Corpus run does not match the pinned sources ({len(drift)} drifted, paths reconciled: '
-                 f'{summary["pathsReconciled"]}):\n' + '\n'.join(drift[:20]))
+    if drift or missing or not summary['pathsReconciled']:
+        sys.exit(f'Corpus run does not match the pinned sources ({len(drift)} drifted, {len(missing)} missing, '
+                 f'paths reconciled: {summary["pathsReconciled"]}):\n' + '\n'.join((drift + missing)[:20]))
     hashes = {n: digest(out_dir / n) for n in ('full.jsonl', 'full.list.txt', 'selfcheck.jsonl', 'summary.json', 'classes/VehicleAeroReferenceExporter.class')}
     hashes['VehicleAeroReferenceExporter.java'] = digest(HERE / 'java-reference/VehicleAeroReferenceExporter.java')
     for name in ('runtime-dependencies.json', 'compiled-runtime-files.json'):
         hashes[name] = digest(RUNTIME_REFERENCE / 'pinned-results' / name)
     (out_dir / 'artifact-hashes.json').write_text(json.dumps(hashes, indent=2) + '\n')
     if args.fixture:
-        Path(args.fixture).write_text(json.dumps({'pins': PINS, 'mode': 'ignoreC3=true,ignoreSkill=true,ignoreTAG=true', 'rows': pick_fixture(rows)}, indent=1) + '\n', encoding='utf-8')
+        Path(args.fixture).write_text(json.dumps({'pins': PINS, 'mode': 'ignoreC3=true,ignoreSkill=true,ignoreTAG=true', 'rows': pick_fixture(rows)}, indent=2) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps(summary, indent=2), flush=True)
 
 
