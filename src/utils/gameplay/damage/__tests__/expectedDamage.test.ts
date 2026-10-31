@@ -43,10 +43,15 @@ function makeWeapon(overrides: Partial<IWeapon>): IWeapon {
 }
 
 const mediumLaser: IWeapon = makeWeapon({});
+// Fixtures carry the hydrated launcher TOTAL in `damage` (LRM 10 = 10 x 1,
+// Streak SRM-4 = 4 x 2, SRM-2 = 2 x 2), as `toAIWeapon` / `extractWeapons` do.
+// They were per-missile (1 / 2 / 2), which the previews wrongly multiplied by
+// the landed missiles on real weapons. Expected values below are unchanged
+// because total / rack gives the same per-missile damage.
 const lrm10: IWeapon = makeWeapon({
   id: 'lrm-10',
   name: 'LRM 10',
-  damage: 1,
+  damage: 10,
   shortRange: 7,
   mediumRange: 14,
   longRange: 21,
@@ -57,7 +62,7 @@ const lrm10: IWeapon = makeWeapon({
 const streakSrm4: IWeapon = makeWeapon({
   id: 'streak-srm-4',
   name: 'Streak SRM-4',
-  damage: 2,
+  damage: 8,
   shortRange: 3,
   mediumRange: 6,
   longRange: 9,
@@ -67,7 +72,7 @@ const streakSrm4: IWeapon = makeWeapon({
 const oneShotSrm2: IWeapon = makeWeapon({
   id: 'os-srm-2',
   name: 'SRM-2 (OS)',
-  damage: 2,
+  damage: 4,
   shortRange: 3,
   mediumRange: 6,
   longRange: 9,
@@ -147,7 +152,7 @@ describe('expectedDamage', () => {
 
   it('treats Streak SRM-4 as all-or-nothing (4 missiles × 2 damage)', () => {
     // Spec scenario "Streak weapon all-or-nothing"
-    // hitProbability × rackSize × damagePerMissile = 0.6 × 4 × 2
+    // hitProbability × launcher total (4 missiles × 2) = 0.6 × 8
     expect(expectedDamage(streakSrm4, 0.6)).toBeCloseTo(4.8, 2);
   });
 

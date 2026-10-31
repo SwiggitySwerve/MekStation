@@ -27,7 +27,10 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
-import { computeEngineRating } from '@/utils/construction/vehicle/engine';
+import {
+  computeEngineRating,
+  computeFlankMP,
+} from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -99,7 +102,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
     // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = Math.ceil(cruiseMP * 1.5);
+    const flankMP = computeFlankMP(cruiseMP);
     const jumpMP = 0; // VTOLs don't jump - they fly
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 
