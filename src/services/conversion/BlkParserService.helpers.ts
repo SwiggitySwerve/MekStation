@@ -1,6 +1,7 @@
 import {
   BLK_EQUIPMENT_BLOCK_TAGS,
   BLK_UNIT_TYPE_MAP,
+  type IBlkDocument,
 } from '../../types/formats/BlkFormat';
 import { UnitType } from '../../types/unit/BattleMechInterfaces';
 
@@ -77,6 +78,42 @@ export function mapBlkUnitType(unitTypeStr: string): UnitType | undefined {
     if (key.toLowerCase() === lowerStr) return value;
   }
   return undefined;
+}
+
+/**
+ * Structural integrity for a fighter-class BLK document.
+ *
+ * Fighter, conventional fighter and FixedWingSupport sources carry no
+ * structural_integrity tag; MegaMek derives it on load. An explicit tag is
+ * kept, and every other aerospace family (small craft, capital ships) reads
+ * its tag as-is.
+ *
+ * MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+ * - Aero.java:804-808: max(floor(weight / 10), walk MP), walk MP = SafeThrust
+ *   (BLKConvFighterFile.java:153, AeroSpaceFighter.java:127)
+ * - FixedWingSupport.java:135-138: SI = walk MP
+ * - BLKSmallCraftFile.java:125-128: small craft read the explicit tag
+ */
+export function resolveAerospaceStructuralIntegrity(
+  document: Pick<
+    IBlkDocument,
+    'unitType' | 'tonnage' | 'safeThrust' | 'structuralIntegrity'
+  >,
+): number {
+  if (document.structuralIntegrity !== undefined) {
+    return document.structuralIntegrity;
+  }
+  const walkMP = document.safeThrust ?? 0;
+  switch (document.unitType.toLowerCase()) {
+    case 'fixedwingsupport':
+      return walkMP;
+    case 'aero':
+    case 'aerospacefighter':
+    case 'convfighter':
+      return Math.max(Math.floor(document.tonnage / 10), walkMP);
+    default:
+      return 0;
+  }
 }
 
 export function getBlkString(

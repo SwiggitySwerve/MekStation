@@ -435,6 +435,8 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
   Aero: UnitType.AEROSPACE,
   AeroSpaceFighter: UnitType.AEROSPACE,
   ConvFighter: UnitType.CONVENTIONAL_FIGHTER,
+  // A support-vehicle aircraft; modelled as a conventional-fighter subtype
+  FixedWingSupport: UnitType.CONVENTIONAL_FIGHTER,
   // Capital ships
   Dropship: UnitType.DROPSHIP,
   Jumpship: UnitType.JUMPSHIP,

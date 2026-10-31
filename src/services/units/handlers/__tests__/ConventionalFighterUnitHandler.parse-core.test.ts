@@ -157,11 +157,12 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.data?.unit?.structuralIntegrity).toBe(10);
       });
 
-      it('should handle missing structural integrity with default 0', () => {
+      it('should default missing structural integrity to max(tonnage / 10, safe thrust)', () => {
+        // Aero.java:804-808: 50 t gives 5, safe thrust 6 wins.
         const doc = createMockBlkDocument({ structuralIntegrity: undefined });
         const result = handler.parse(doc);
 
-        expect(result.data?.unit?.structuralIntegrity).toBe(0);
+        expect(result.data?.unit?.structuralIntegrity).toBe(6);
       });
     });
 
