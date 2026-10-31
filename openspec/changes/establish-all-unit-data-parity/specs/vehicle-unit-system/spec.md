@@ -139,6 +139,52 @@ The system SHALL expose actions for modifying vehicle state.
 
 ## ADDED Requirements
 
+### Requirement: Ordinary combat turret mechanism mass
+
+The existing turret owner SHALL charge 10% of resolved qualifying equipment mass
+for combat vehicles using default half-ton construction rounding and no assigned
+Omni base-chassis mechanism allowance. It SHALL round upward to a half ton,
+independently for each installed ordinary or VTOL chin turret. Chin SHALL use
+the same coefficient as Single and Dual. Validation and weight composition
+SHALL consume this rule, and the status bar SHALL display its resulting weight
+budget. Ammunition SHALL remain in total equipment mass and SHALL NOT increase
+the mechanism basis.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestTank.java:178-226`, `TestEntity.java:147-150,339-348`, and
+`TestXMLOption.java:284-285`. MegaMekLab
+`62bf19360382049e2e6a1e8f24e859e27bdc5878`, `CVChassisView.java:297-300`,
+labels the installed VTOL turret Chin. The pinned Java verifier returns 1 ton
+for a synthetic source-loaded Ferret with an actual resolved 7-ton PPC there;
+the synthetic design is construction-invalid and proves this term only.
+
+#### Scenario: Chin mass crosses a rounding boundary
+
+- **GIVEN** a combat chin turret with 5, 5.0001 or 7 tons of qualifying equipment
+- **WHEN** mechanism mass is calculated with the default ceiling
+- **THEN** its mass SHALL be 0.5, 1 or 1 tons respectively
+- **AND** validation SHALL accept 1 ton and reject 0.5 tons for the 7-ton case
+
+#### Scenario: Separate turrets round independently
+
+- **GIVEN** two combat turrets with 2.5 tons of qualifying equipment each
+- **WHEN** mechanism mass is composed
+- **THEN** each SHALL weigh 0.5 tons, for 1 ton combined
+
+#### Scenario: Chin ammunition stays in the equipment budget
+
+- **GIVEN** an installed chin turret carrying a resolved 7-ton PPC and four
+  1-ton ammunition bins
+- **WHEN** weight composition and the status bar calculate the budget
+- **THEN** equipment SHALL contribute 11 tons and mechanism SHALL contribute 1 ton
+- **AND** moving the ammunition to Body SHALL NOT change either term
+
+This correction does not implement Omni allowances, patchwork armor-mount
+classification, support-family rounding, sponsons, generic turret capacity,
+handler equipment materialization or complete unit/BV parity. The obsolete
+tonnage-based capacity requirements remain a separate tracked correction;
+legacy `maxWeight` values SHALL NOT be represented as genuine Omni allowances.
+
 ### Requirement: Installed combat-vehicle engine weight
 
 The combat-vehicle construction owner SHALL calculate installed engine weight

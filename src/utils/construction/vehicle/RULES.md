@@ -84,6 +84,34 @@ converter output. `test_vehicle_suspension.py` covers converter rounding and
 support exclusion. Construction, store, status bar, handler and BV regressions
 must accompany changes. No complete corpus numeric-parity gate is claimed.
 
+## Ordinary turret mechanism mass
+
+`turret.ts:computeTurretWeight` owns the default half-ton-rounded 10% mechanism
+mass for each ordinary Single, Dual or VTOL Chin turret. The caller supplies
+resolved qualifying equipment mass and adds the independently rounded turret
+results. Weight composition excludes ammunition from the mechanism basis while
+retaining it in total equipment mass. Validation and Weight Free consume this
+same owner; no equipment-count estimate is introduced here.
+
+Pinned MegaMek [TestTank.java:178-226](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/verifier/TestTank.java#L178)
+defines both mechanisms. [TestEntity.java:147-150](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/verifier/TestEntity.java#L147)
+routes combat VTOLs through TestTank, and MegaMekLab
+[CVChassisView.java:297-300](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/ui/combatVehicle/CVChassisView.java#L297)
+labels their installed turret Chin. There is no separate 5% chin rule.
+The pinned Java runtime returns a 1-ton mechanism for a synthetic source-loaded
+Ferret with a resolved 7-ton PPC in its chin, and independently returns 0.5 tons
+for each of two 2.5-ton turret loads. The synthetic designs are invalid; these
+observations certify individual terms, not valid designs or whole-unit parity.
+
+This owner still lacks explicit Omni base-chassis mechanism allowances and
+support-specific rounding. Sponson behavior is unchanged and unverified here.
+Primary patchwork armor-mount exclusion and upstream secondary/Omni asymmetries
+need richer resolved equipment facts before integration. Missing equipment
+resolution still counts as zero in legacy composition and is not parity-ready.
+The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
+handler approximations remain separate tracked defects; they are not actual
+Omni mechanism allowances. No catalog data or BV arithmetic changes here.
+
 ## Base flank movement
 
 `engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
