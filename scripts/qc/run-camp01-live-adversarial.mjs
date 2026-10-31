@@ -97,6 +97,7 @@ export async function selectEnvelopeAnchor({
   initiatingTreeSha,
   fetchedMainOid,
   fetchCheckRuns,
+  sessionGitDependencies,
 }) {
   const sessionGitOutput = async (args) =>
       (await invokeGit({ git, args, cwd: sessionDirectory })).stdout.trim(),
@@ -106,7 +107,7 @@ export async function selectEnvelopeAnchor({
     ),
     sessionAnchor = createAnchorAuthority(
       { git, cwd: sessionDirectory },
-      { fetchCheckRuns },
+      { fetchCheckRuns, gitDependencies: sessionGitDependencies },
     );
   const isAncestor = async (ancestor, descendant) => {
     try {

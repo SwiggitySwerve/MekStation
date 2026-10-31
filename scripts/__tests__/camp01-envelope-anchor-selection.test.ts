@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 const moduleUrl = (file: string): string =>
   pathToFileURL(path.resolve(file)).href;
 const harness = String.raw`
-import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process'; import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL } from 'node:url';
 import { selectEnvelopeAnchor } from ${JSON.stringify(moduleUrl('scripts/qc/run-camp01-live-adversarial.mjs'))};
 import { invokeGit } from ${JSON.stringify(moduleUrl('scripts/qc/camp01-git-trust.mjs'))};
 const q=JSON.parse(fs.readFileSync(0,'utf8')), git={executable:q.git}, root=q.root;
@@ -23,12 +23,15 @@ try {
   const sourceUrl=pathToFileURL(source).href;
   // The session is the probe's own full-history fetch of main; the checkout is what CI hands the probe.
   await run(root,['clone','--bare',sourceUrl,session]);
-  if(q.scenario==='main-moved'||q.scenario==='tampered-tree') await run(root,['clone','--depth','1','--branch','old',sourceUrl,checkout]);
+  if(['main-moved','tampered-tree','session-tree-drift'].includes(q.scenario)) await run(root,['clone','--depth','1','--branch','old',sourceUrl,checkout]);
   else if(q.scenario==='head-is-main') await run(root,['clone','--depth','1','--branch','main',sourceUrl,checkout]);
   else { await run(root,['clone',sourceUrl,checkout]); await commit(checkout,'dev'); }
   const initiatingHeadSha=await out(checkout,['rev-parse','--verify','HEAD^{commit}']);
   const initiatingTreeSha=q.scenario==='tampered-tree'?'f'.repeat(40):await out(checkout,['rev-parse','--verify','HEAD^{tree}']);
-  const value=await selectEnvelopeAnchor({git,initiatingRoot:checkout,sessionDirectory:session,initiatingHeadSha,initiatingTreeSha,fetchedMainOid:main,fetchCheckRuns:async()=>{throw new Error('unexpected check-run lookup');}});
+  // Git hashes commits, so no honest repository can disagree with its clone about one SHA's tree, and the hardened
+  // invokeGit ignores replace refs. The session-drift row therefore forges only the session repo's tree answer.
+  const sessionGitDependencies=q.scenario==='session-tree-drift'?{spawn:(exe,argv,opts)=>{const r=spawnSync(exe,argv,opts);return path.resolve(opts.cwd)===path.resolve(session)&&argv.includes('rev-parse')&&argv.some((a)=>a.endsWith('^{tree}'))?{...r,stdout:'f'.repeat(40)}:r;}}:undefined;
+  const value=await selectEnvelopeAnchor({git,initiatingRoot:checkout,sessionDirectory:session,initiatingHeadSha,initiatingTreeSha,fetchedMainOid:main,sessionGitDependencies,fetchCheckRuns:async()=>{throw new Error('unexpected check-run lookup');}});
   process.stdout.write(JSON.stringify({ok:true,value,head,main}));
 } catch(error){process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error)}));process.exitCode=1;}`;
 
@@ -98,12 +101,21 @@ describe('CAMP-01 live probe envelope anchor selection', () => {
     });
   });
 
+  gitIt('rejects a supplied tree that does not match the checkout HEAD', () => {
+    // Given a supplied tree that differs from the checkout's own HEAD tree, when the anchor is selected,
+    // then the checkout-bound authority rejects it before any reachability or session check runs.
+    expect(invoke('tampered-tree')).toEqual({
+      ok: false,
+      error: 'CAMP01_FACTS_INVALID: anchor tree drift',
+    });
+  });
+
   gitIt(
-    'still rejects a HEAD whose tree differs from the fetched object',
+    're-proves HEAD against the session repo and rejects its tree drift',
     () => {
-      // Given main advanced and a HEAD tree that does not match the session copy,
-      // when the anchor is selected, then verification fails rather than trusting the checkout.
-      expect(invoke('tampered-tree')).toEqual({
+      // Given main advanced past a depth-1 checkout and a session repo that reports a different tree for HEAD,
+      // when the anchor is selected, then the session-bound re-proof (the only check reaching the session tree) rejects it.
+      expect(invoke('session-tree-drift')).toEqual({
         ok: false,
         error: 'CAMP01_FACTS_INVALID: anchor tree drift',
       });
