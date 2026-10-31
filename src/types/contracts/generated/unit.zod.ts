@@ -63,6 +63,8 @@ export const UnitContract = z
                 'FISSION',
                 'FLYWHEEL',
                 'BATTERY',
+                'NONE',
+                'STEAM',
               ])
               .describe('Engine type'),
             rating: z
@@ -150,8 +152,16 @@ export const UnitContract = z
                 'BAR_6',
                 'BAR_7',
                 'BAR_9',
+                'BAR',
               ])
               .describe('Armor type'),
+            barRating: z
+              .number()
+              .int()
+              .gte(2)
+              .lte(10)
+              .describe('Support vehicle BAR rating when armor type is BAR')
+              .optional(),
             allocation: z
               .record(
                 z.string(),
@@ -517,6 +527,8 @@ export const UnitContract = z
                 'FISSION',
                 'FLYWHEEL',
                 'BATTERY',
+                'NONE',
+                'STEAM',
               ])
               .describe('Engine type'),
             rating: z
@@ -608,8 +620,16 @@ export const UnitContract = z
                 'BAR_6',
                 'BAR_7',
                 'BAR_9',
+                'BAR',
               ])
               .describe('Armor type'),
+            barRating: z
+              .number()
+              .int()
+              .gte(2)
+              .lte(10)
+              .describe('Support vehicle BAR rating when armor type is BAR')
+              .optional(),
             allocation: z
               .record(
                 z.string(),
