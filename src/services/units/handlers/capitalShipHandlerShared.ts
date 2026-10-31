@@ -7,6 +7,7 @@ import {
   ITransportBay,
   QuartersType,
 } from '@/types/unit/CapitalShipInterfaces';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
 import type { AerospaceUnitCoreFields } from './unitHandlerShared';
 
@@ -116,7 +117,7 @@ export function parseCapitalVesselBasics(
   const includeEngineType = options.includeEngineType ?? true;
 
   return {
-    movement: { safeThrust, maxThrust: Math.floor(safeThrust * 1.5) },
+    movement: { safeThrust, maxThrust: calculateMaxThrust(safeThrust) },
     fuel: document.fuel || 0,
     structuralIntegrity: document.structuralIntegrity || 0,
     heatSinks: document.heatsinks || 0,

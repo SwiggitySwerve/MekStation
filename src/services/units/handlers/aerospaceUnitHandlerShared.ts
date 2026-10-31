@@ -4,6 +4,7 @@ import {
   AerospaceCockpitType,
   IAerospaceMountedEquipment,
 } from '@/types/unit/AerospaceInterfaces';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
 import {
   mapLocationEquipment,
@@ -64,7 +65,7 @@ export function parseAerospaceBasics(
   const armor = document.armor || [];
 
   return {
-    movement: { safeThrust, maxThrust: Math.floor(safeThrust * 1.5) },
+    movement: { safeThrust, maxThrust: calculateMaxThrust(safeThrust) },
     fuel: document.fuel || 0,
     structuralIntegrity: document.structuralIntegrity || 0,
     heatSinks: document.heatsinks || defaultHeatSinks,

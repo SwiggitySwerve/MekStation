@@ -32,6 +32,7 @@ import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { IEquipmentItem } from '@/types/equipment';
 import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
 import {
   AerospaceState,
@@ -63,13 +64,6 @@ function getAerospaceWeightClass(tonnage: number): WeightClass {
     ],
     WeightClass.ASSAULT,
   );
-}
-
-/**
- * Calculate max thrust from safe thrust
- */
-function calculateMaxThrust(safeThrust: number): number {
-  return Math.floor(safeThrust * 1.5);
 }
 
 function allocateAerospaceArmorPoints(totalPoints: number) {
