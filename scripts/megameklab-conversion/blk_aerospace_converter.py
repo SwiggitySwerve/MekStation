@@ -189,8 +189,17 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     # --- Fuel ---
     fuel = int(parse_number(get_string(tags, "fuel", "Fuel")) or 0)
 
-    # --- Structural integrity (from BLK si tag) ---
-    si = int(parse_number(get_string(tags, "SI", "si", "structural_integrity")) or 0)
+    # --- Structural integrity ---
+    # Fighters and conventional fighters carry no SI tag: MegaMek derives it
+    # (Aero.autoSetSI, Aero.java:804-808) from tonnage and safe thrust.
+    # FixedWingSupport overrides that to walk MP only (FixedWingSupport.java:135-138).
+    # Small craft read structural_integrity (BLKSmallCraftFile.java:125-128).
+    if unit_type_raw == "FixedWingSupport":
+        si = safe_thrust
+    elif sub_type in ("AerospaceFighter", "ConventionalFighter"):
+        si = max(math.floor(float(tonnage) / 10), safe_thrust)
+    else:
+        si = int(parse_number(get_string(tags, "SI", "si", "structural_integrity")) or 0)
 
     # --- Heat sinks ---
     heatsinks = int(parse_number(get_string(tags, "heatsinks", "Heatsinks")) or 0)
