@@ -12,7 +12,10 @@ import {
   isClanBlkEngine,
 } from '@/services/conversion/blkEngineIdentity';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
-import { IBlkDocument } from '@/types/formats/BlkFormat';
+import {
+  BLK_VEHICLE_ARMOR_LOCATIONS,
+  IBlkDocument,
+} from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   IGroundMovement,
@@ -28,6 +31,7 @@ import {
 } from '@/types/unit/VehicleInterfaces';
 import {
   computeEngineRating,
+  computeFlankMP,
   computeVehicleEngineWeight,
   validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
@@ -55,17 +59,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * Vehicle location order for armor array parsing
- */
-const VEHICLE_ARMOR_LOCATIONS = [
-  VehicleLocation.FRONT,
-  VehicleLocation.LEFT,
-  VehicleLocation.RIGHT,
-  VehicleLocation.REAR,
-  VehicleLocation.TURRET,
-] as const;
 
 /**
  * Motion type string to enum mapping
@@ -134,7 +127,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
     // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = Math.ceil(cruiseMP * 1.5);
+    const flankMP = computeFlankMP(cruiseMP);
     const jumpMP = document.jumpingMP || 0;
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 
@@ -239,7 +232,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       [VehicleLocation.BODY]: 0,
     };
 
-    VEHICLE_ARMOR_LOCATIONS.forEach((loc, index) => {
+    BLK_VEHICLE_ARMOR_LOCATIONS.forEach((loc, index) => {
       if (index < armor.length) {
         result[loc] = armor[index];
       }

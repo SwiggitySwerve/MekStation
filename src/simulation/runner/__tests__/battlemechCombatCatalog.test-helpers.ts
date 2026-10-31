@@ -523,6 +523,22 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
 ] satisfies readonly string[];
 
 const EXPECTED_STRING_DAMAGE_RESOLUTIONS = {
+  'clan-lrm-1': 1,
+  'clan-lrm-2': 2,
+  'clan-lrm-3': 3,
+  'clan-lrm-4': 4,
+  lrm6: 6,
+  lrm7: 7,
+  lrm8: 8,
+  lrm9: 9,
+  lrm11: 11,
+  lrm12: 12,
+  lrm13: 13,
+  lrm14: 14,
+  lrm16: 16,
+  lrm17: 17,
+  lrm18: 18,
+  lrm19: 19,
   'atm-12': 24,
   'atm-3': 6,
   'atm-6': 12,
