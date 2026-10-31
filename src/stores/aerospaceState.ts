@@ -31,6 +31,7 @@ import {
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -426,7 +427,7 @@ export function createDefaultAerospaceState(
       : AerospaceEngineType.FUSION,
     engineRating,
     safeThrust,
-    maxThrust: Math.floor(safeThrust * 1.5),
+    maxThrust: calculateMaxThrust(safeThrust),
     fuelTons: isConventional ? 2 : 5,
     fuelPoints: calculateFuelPoints(
       isConventional ? 2 : 5,
