@@ -38,9 +38,11 @@ export const BLK_PROTOMECH_ARMOR_LOCATIONS = [
 ] as const;
 
 /**
- * Shared `<armor>` order for combat vehicle (Tank) BLK import and export.
- * MegaMek numbers the sides Front, Right, Left, Rear (`Tank.java:123-130`) and
- * `BLKTankFile.java:195-200` copies the array to those locations in order.
+ * Shared `<armor>` order for standard (non-superheavy) combat vehicle BLK import
+ * and export. MegaMek numbers the sides Front, Right, Left, Rear
+ * (`Tank.java:123-130`) and `BLKTankFile.java:195-200` copies the array to those
+ * locations in order. Superheavy tanks use a six-side layout that is not
+ * modelled here.
  */
 export const BLK_VEHICLE_ARMOR_LOCATIONS = [
   VehicleLocation.FRONT,

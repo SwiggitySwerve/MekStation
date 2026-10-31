@@ -53,6 +53,8 @@ describe('BLK vehicle armor order (Front, Right, Left, Rear, ...)', () => {
     expect(armor[VehicleLocation.LEFT]).toBe(4);
   });
 
+  // The trailing 0 is a known export gap, not parity: MegaMek writes four values
+  // for a turretless vehicle, and a fifth value makes it add a turret.
   it('exports Maxim Flanker back in BLK order', () => {
     const loaded = new VehicleUnitHandler().parse(source('Maxim Flanker.blk'));
     if (!loaded.success) throw new Error(JSON.stringify(loaded.error));
@@ -69,9 +71,13 @@ describe('BLK vehicle armor order (Front, Right, Left, Rear, ...)', () => {
     const armor = loaded.data.unit.armorByLocation;
     expect(armor[VTOLLocation.ROTOR]).toBe(2);
     expect(armor[VTOLLocation.TURRET]).toBe(16);
+    // MegaMek totals every location, turret and rotor included.
+    expect(Object.values(armor).reduce((sum, value) => sum + value, 0)).toBe(
+      62,
+    );
   });
 
-  it('exports and re-imports a VTOL without moving rotor or turret armor', () => {
+  it('exports a VTOL in the order it loaded, rotor before turret', () => {
     const handler = new VTOLUnitHandler();
     const document = source('Red Kite Attack VTOL.blk');
     const loaded = handler.parse(document);

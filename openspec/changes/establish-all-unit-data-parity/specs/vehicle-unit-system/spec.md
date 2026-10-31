@@ -55,7 +55,9 @@ The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
   - Motion type from `document.motionType` (case-insensitive, default: Tracked)
   - Cruise/Flank MP from `document.cruiseMP`
   - Engine rating as `cruiseMP × tonnage`
-  - Armor array mapped to locations in the MegaMek BLK order: Front, Right, Left, Rear, Turret
+  - Armor array mapped to locations in the MegaMek BLK order for standard (non-superheavy)
+    tanks: Front, Right, Left, Rear, Turret. Superheavy tanks use MegaMek's six-side layout
+    (`BLKTankFile.java:188-221`), which is not modelled yet
 
 #### Scenario: Turret detection in BLK
 
@@ -95,6 +97,7 @@ The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
 - **THEN** Maxim Flanker SHALL load Front 20, Right 46, Left 10, Rear 12
 - **AND** Red Kite SHALL load Rotor 2 and Turret 16 (VTOL order is Front, Right, Left, Rear, Rotor, Turret)
 - **AND** the export SHALL write the same order back, so a MegaMek load of an exported file keeps each side
+- **AND** Red Kite's installed armor total SHALL include the turret and rotor (62)
 
 Order source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Tank.java:123-130`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L123),
