@@ -143,12 +143,13 @@ export function computeCruiseMPFromRating(
 }
 
 /**
- * Compute flank MP from cruise MP
+ * Compute unmodified flank MP from cruise MP.
  *
- * flankMP = floor(cruiseMP × 1.5)
+ * MegaMek 48fcb2f64a1b Entity.java:4004-4016; Tank.java:1570-1575.
+ * Boosters, damage and scenario movement modifiers are separate rules.
  */
 export function computeFlankMP(cruiseMP: number): number {
-  return Math.floor(cruiseMP * 1.5);
+  return Math.ceil(cruiseMP * 1.5);
 }
 
 /**
