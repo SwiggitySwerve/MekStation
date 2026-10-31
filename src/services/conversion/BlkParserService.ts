@@ -38,6 +38,7 @@ import {
   parseBlkNumber,
   parseBlkWeaponQuirks,
 } from './BlkParserService.helpers';
+import { resolveBlkVehicleArmor } from './blkVehicleArmorLayout';
 
 /**
  * BLK Parser Service
@@ -225,8 +226,17 @@ export class BlkParserService {
       };
     }
 
-    // Vehicle family: Tank, SupportTank, VTOL, SupportVTOL, Naval
-    if (['Tank', 'SupportTank', 'VTOL', 'SupportVTOL', 'Naval'].includes(ut)) {
+    // Vehicle family: Tank, SupportTank, LargeSupportTank, VTOL, SupportVTOL, Naval
+    if (
+      [
+        'Tank',
+        'SupportTank',
+        'LargeSupportTank',
+        'VTOL',
+        'SupportVTOL',
+        'Naval',
+      ].includes(ut)
+    ) {
       return {
         success: true,
         result: { kind: 'vehicle', data: this.extractVehicle(doc) },
@@ -291,7 +301,7 @@ export class BlkParserService {
 
   /**
    * Extract vehicle-specific fields from a generic BLK document.
-   * Handles Tank, VTOL, SupportTank, SupportVTOL, Naval motion types.
+   * Handles Tank, VTOL, SupportTank, LargeSupportTank, SupportVTOL, Naval.
    */
   private extractVehicle(doc: IBlkDocument): IVehicleBlkResult {
     return {
@@ -305,6 +315,12 @@ export class BlkParserService {
       cruiseMP: doc.cruiseMP ?? 0,
       jumpingMP: doc.jumpingMP ?? 0,
       armor: doc.armor,
+      armorByLocation: resolveBlkVehicleArmor(
+        doc.unitType,
+        doc.motionType,
+        doc.tonnage,
+        doc.armor,
+      ),
       barRating: doc.barRating ?? 0,
       engineType: doc.engineType ?? 0,
       armorType: doc.armorType ?? 0,
