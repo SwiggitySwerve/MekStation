@@ -29,5 +29,8 @@ export {
 // Total launcher damage to landed-projectile damage
 export { damageForProjectiles } from './projectileDamage';
 
+// Missile rack identification shared by firing side and previews
+export { isMissileClusterWeapon, missileRackSize } from './missileRack';
+
 // Streak weapons
 export { isStreakWeapon, resolveStreakAttack } from './streak';

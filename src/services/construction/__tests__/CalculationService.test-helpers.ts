@@ -14,6 +14,7 @@ import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { TechBase } from '@/types/enums/TechBase';
+import { calculateTotalBV } from '@/utils/construction/battleValueTotals';
 
 import {
   CalculationService,
@@ -23,6 +24,10 @@ import {
   IHeatProfile,
   IMovementProfile,
 } from '../CalculationService';
+import {
+  calculateTotalArmorPoints,
+  calculateTotalStructurePoints,
+} from '../CalculationService.calculations';
 import {
   IEditableMech,
   IArmorAllocation,
@@ -369,6 +374,37 @@ describe('CalculationService', () => {
       const fastBV = service.calculateBattleValue(fastMech);
 
       expect(fastBV).toBeGreaterThan(slowBV);
+    });
+
+    it('should feed the BV engine the rounded-up run MP for odd walk MP', () => {
+      const mech = createTestMech({
+        walkMP: 5,
+        equipment: [
+          createEquipmentSlot('medium-laser', 'rightArm', 0),
+          createEquipmentSlot('medium-laser', 'leftArm', 0),
+        ],
+      });
+      const bvWithRunMP = (runMP: number): number =>
+        calculateTotalBV({
+          totalArmorPoints: calculateTotalArmorPoints(mech),
+          totalStructurePoints: calculateTotalStructurePoints(mech),
+          tonnage: mech.tonnage,
+          heatSinkCapacity: mech.heatSinkCount,
+          walkMP: 5,
+          runMP,
+          jumpMP: 0,
+          weapons: mech.equipment.map((slot) => ({ id: slot.equipmentId })),
+          armorType: 'standard',
+          structureType: 'standard',
+          gyroType: 'standard',
+          engineType: EngineType.STANDARD,
+          cockpitType: 'standard',
+          heatSinkCount: mech.heatSinkCount,
+        });
+
+      // Walk 5 runs 8 (ceil of 7.5), not 7.
+      expect(service.calculateBattleValue(mech)).toBe(bvWithRunMP(8));
+      expect(bvWithRunMP(8)).not.toBe(bvWithRunMP(7));
     });
 
     it('should include ammo BV without heat penalty', () => {
@@ -761,14 +797,15 @@ describe('CalculationService', () => {
       expect(movement.walkMP).toBe(4);
     });
 
-    it('should calculate runMP as floor(walkMP * 1.5)', () => {
+    // MegaMek Entity.getRunMP: (int) Math.ceil(getWalkMP() * 1.5)
+    it('should calculate runMP as ceil(walkMP * 1.5)', () => {
       const mech4 = createTestMech({ walkMP: 4 });
       const mech5 = createTestMech({ walkMP: 5 });
       const mech7 = createTestMech({ walkMP: 7 });
 
       expect(service.calculateMovement(mech4).runMP).toBe(6); // 4 * 1.5 = 6
-      expect(service.calculateMovement(mech5).runMP).toBe(7); // 5 * 1.5 = 7.5 -> 7
-      expect(service.calculateMovement(mech7).runMP).toBe(10); // 7 * 1.5 = 10.5 -> 10
+      expect(service.calculateMovement(mech5).runMP).toBe(8); // 5 * 1.5 = 7.5 -> 8
+      expect(service.calculateMovement(mech7).runMP).toBe(11); // 7 * 1.5 = 10.5 -> 11
     });
 
     it('should calculate jumpMP from jump jet count', () => {

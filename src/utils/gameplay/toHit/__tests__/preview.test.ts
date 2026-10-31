@@ -62,7 +62,8 @@ const mediumLaser: IWeapon = makeWeapon({});
 const lrm10: IWeapon = makeWeapon({
   id: 'lrm-10',
   name: 'LRM 10',
-  damage: 1,
+  // Hydrated launcher total (10 missiles x 1), not per-missile damage.
+  damage: 10,
   shortRange: 7,
   mediumRange: 14,
   longRange: 21,
