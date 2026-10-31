@@ -5,8 +5,9 @@
  * max thrust from safe thrust: the construction owner, the aerospace and
  * capital-vessel BLK basics, the small craft, conventional fighter, DropShip
  * and WarShip handlers, the default state, the store actions (safe-thrust and
- * engine-rating edits), the status bar, the aerospace BV adapter and the
- * new-unit template summary. Changing the rounding rule is one edit to
+ * engine-rating edits), the aerospace BV adapter and the new-unit template
+ * summary. The status bar rows only check that the stored value is displayed;
+ * they cannot catch a wrong derivation. Changing the rounding rule is one edit to
  * MAX_BY_SAFE; a site that disagrees with the table fails on its own line. The
  * default state has a fixed safe thrust per tonnage band, so it is pinned at a
  * 45-ton fighter (safe thrust 5) only.
@@ -164,7 +165,7 @@ describe('aerospace max thrust consumers', () => {
   it('default state max thrust follows its fixed safe thrust of 5', () => {
     const state = createDefaultAerospaceState(OPTIONS);
     expect(state.safeThrust).toBe(5);
-    expect(state.maxThrust).toBe(8);
+    expect(state.maxThrust).toBe(MAX_BY_SAFE.find(([safe]) => safe === 5)?.[1]);
   });
 
   it.each(POSITIVE_MAX_BY_SAFE)(
