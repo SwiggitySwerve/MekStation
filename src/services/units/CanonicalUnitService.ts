@@ -12,79 +12,9 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
-import { Era } from '@/types/enums/Era';
-import { TechBase } from '@/types/enums/TechBase';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
-import { getUnitIndexWeightClass } from './unitWeightClass';
-
-/**
- * Raw unit index entry from index.json
- */
-interface RawUnitIndexEntry {
-  id: string;
-  chassis: string;
-  model: string; // This is 'variant' in our system
-  tonnage: number;
-  techBase: string;
-  year: number;
-  role?: string;
-  rulesLevel?: string;
-  cost?: number;
-  bv?: number;
-  path: string;
-}
-
-const TECH_BASE_BY_RAW_VALUE: Readonly<Record<string, TechBase>> = {
-  CLAN: TechBase.CLAN,
-  INNER_SPHERE: TechBase.INNER_SPHERE,
-  MIXED: TechBase.INNER_SPHERE,
-};
-
-const ERA_BY_PATH_SEGMENT = [
-  { segment: '1-age-of-war', era: Era.AGE_OF_WAR },
-  { segment: '2-star-league', era: Era.STAR_LEAGUE },
-  { segment: '3-succession-wars', era: Era.LATE_SUCCESSION_WARS },
-  { segment: '4-clan-invasion', era: Era.CLAN_INVASION },
-  { segment: '5-civil-war', era: Era.CIVIL_WAR },
-  { segment: '6-dark-age', era: Era.DARK_AGE },
-  { segment: '7-ilclan', era: Era.IL_CLAN },
-] as const;
-
-function techBaseFromRawValue(rawTechBase: string): TechBase {
-  return TECH_BASE_BY_RAW_VALUE[rawTechBase] ?? TechBase.INNER_SPHERE;
-}
-
-function eraFromPath(filePath: string): Era {
-  return (
-    ERA_BY_PATH_SEGMENT.find(({ segment }) => filePath.includes(segment))
-      ?.era ?? Era.LATE_SUCCESSION_WARS
-  );
-}
-
-/**
- * Map raw index data to IUnitIndexEntry format
- */
-function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
-  return {
-    id: raw.id,
-    name: `${raw.chassis} ${raw.model}`,
-    chassis: raw.chassis,
-    variant: raw.model,
-    tonnage: raw.tonnage,
-    techBase: techBaseFromRawValue(raw.techBase),
-    era: eraFromPath(raw.path),
-    weightClass: getUnitIndexWeightClass(raw.tonnage),
-    unitType: UnitType.BATTLEMECH,
-    filePath: `/data/units/battlemechs/${raw.path}`,
-    year: raw.year,
-    role: raw.role,
-    rulesLevel: raw.rulesLevel,
-    cost: raw.cost,
-    bv: raw.bv,
-  };
-}
+import { mapRawIndexEntry, type RawUnitIndexEntry } from './unitIndexMapper';
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -200,7 +130,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
       if (data.units.length === 0) return [];
 
       // Map raw index data to IUnitIndexEntry format
-      this.indexCache = data.units.map(mapRawToIndexEntry);
+      this.indexCache = data.units.map((raw) => mapRawIndexEntry(raw));
       return this.indexCache;
     } catch (error) {
       if (options.strict) throw error;

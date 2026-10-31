@@ -22,18 +22,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Era } from '@/types/enums/Era';
-import { TechBase } from '@/types/enums/TechBase';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
 import {
   type ICanonicalUnitService,
   type IFullUnit,
 } from './CanonicalUnitService';
+import { mapRawIndexEntry, type RawUnitIndexEntry } from './unitIndexMapper';
 import { parseUnit } from './unitLoaderService/unitContractAdapter';
-import { getUnitIndexWeightClass } from './unitWeightClass';
 
 const isJestRuntime =
   typeof process !== 'undefined' &&
@@ -49,24 +45,7 @@ if (typeof window !== 'undefined' && !isJestRuntime) {
 // Raw index shapes (matches the on-disk index.json format)
 // =============================================================================
 
-/**
- * Raw unit entry as written in `public/data/units/battlemechs/index.json`.
- * Mirrors `RawUnitIndexEntry` in CanonicalUnitService.ts — kept local to avoid
- * coupling to that module's private type.
- */
-interface RawIndexUnit {
-  id: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  year: number;
-  role?: string;
-  rulesLevel?: string;
-  cost?: number;
-  bv?: number;
-  path: string;
-}
+type RawIndexUnit = RawUnitIndexEntry;
 
 /**
  * Top-level shape of `public/data/units/battlemechs/index.json`.
@@ -101,59 +80,6 @@ export interface GetIndexWithBVOptions {
 
 const DEFAULT_MEGAMEK_BV_CACHE_PATH =
   'scripts/data-migration/megamek-bv-cache.json';
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-/**
- * Derive an Era enum value from the unit's relative file path.
- * Path segments like "4-clan-invasion/..." encode era directly.
- */
-function eraFromPath(filePath: string): Era {
-  if (filePath.includes('1-age-of-war')) return Era.AGE_OF_WAR;
-  if (filePath.includes('2-star-league')) return Era.STAR_LEAGUE;
-  if (filePath.includes('3-succession-wars')) return Era.LATE_SUCCESSION_WARS;
-  if (filePath.includes('4-clan-invasion')) return Era.CLAN_INVASION;
-  if (filePath.includes('5-civil-war')) return Era.CIVIL_WAR;
-  if (filePath.includes('6-dark-age')) return Era.DARK_AGE;
-  if (filePath.includes('7-ilclan')) return Era.IL_CLAN;
-  return Era.LATE_SUCCESSION_WARS;
-}
-
-/**
- * Map raw techBase string to TechBase enum.
- * Mixed units default to INNER_SPHERE to match CanonicalUnitService behaviour.
- */
-function techBaseFromString(raw: string): TechBase {
-  if (raw === 'CLAN') return TechBase.CLAN;
-  return TechBase.INNER_SPHERE;
-}
-
-/**
- * Convert a raw index unit entry to the canonical IUnitIndexEntry shape.
- */
-function mapRawToIndexEntry(raw: RawIndexUnit): IUnitIndexEntry {
-  return {
-    id: raw.id,
-    name: `${raw.chassis} ${raw.model}`,
-    chassis: raw.chassis,
-    variant: raw.model,
-    tonnage: raw.tonnage,
-    techBase: techBaseFromString(raw.techBase),
-    era: eraFromPath(raw.path),
-    weightClass: getUnitIndexWeightClass(raw.tonnage),
-    unitType: UnitType.BATTLEMECH,
-    // filePath uses the same "/data/..." prefix as the fetch-based service so
-    // any code that reads `entry.filePath` gets a consistent shape.
-    filePath: `/data/units/battlemechs/${raw.path}`,
-    year: raw.year,
-    role: raw.role,
-    rulesLevel: raw.rulesLevel,
-    cost: raw.cost,
-    bv: raw.bv,
-  };
-}
 
 // =============================================================================
 // NodeCanonicalUnitService
@@ -258,7 +184,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       rawMap.set(unit.id, unit);
     }
 
-    this.indexCache = rawFile.units.map(mapRawToIndexEntry);
+    this.indexCache = rawFile.units.map((raw) => mapRawIndexEntry(raw));
     this.rawIndexCache = rawMap;
     this.indexVersionCache = rawFile.version ?? 'unknown';
     return { entries: this.indexCache, raw: this.rawIndexCache };
