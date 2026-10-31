@@ -44,7 +44,7 @@ describe('WarShipUnitHandler', () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.movement.safeThrust).toBe(3);
-      expect(result.data?.unit?.movement.maxThrust).toBe(4); // floor(3 * 1.5)
+      expect(result.data?.unit?.movement.maxThrust).toBe(5); // ceil(3 * 1.5)
     });
 
     it('should parse structural integrity', () => {

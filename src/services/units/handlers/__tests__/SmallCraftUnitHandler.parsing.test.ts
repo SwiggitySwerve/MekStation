@@ -88,7 +88,7 @@ describe('SmallCraftUnitHandler', () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.movement.safeThrust).toBe(5);
-      expect(result.data?.unit?.movement.maxThrust).toBe(7); // floor(5 * 1.5)
+      expect(result.data?.unit?.movement.maxThrust).toBe(8); // ceil(5 * 1.5)
     });
 
     it('should parse structural integrity', () => {
