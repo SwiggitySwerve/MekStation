@@ -82,3 +82,23 @@ mode (hydrated as SRM damage), the 151 catalog launchers that
 hydrate to `damage: 0`, and `critProbability`'s one location roll per landed
 missile (MegaMek groups LRM/MRM/ATM damage in 5-point clusters; the runner
 rolls one location per salvo).
+
+## Committed (interactive and host) missile attacks
+
+`resolveMissileClusterDamage` in `gameSessionAttackResolution.ams.ts` resolves a
+committed missile attack that has no selected AMS: one 2d6 cluster roll (drawn
+after the to-hit roll and before the hit-location roll, like the selected-AMS
+path) picks the landed missiles through `lookupClusterHits`, and
+`damageForProjectiles` turns the hydrated launcher total into their damage.
+Streak lands every missile on a hit and rolls nothing. Before this the whole
+launcher total landed (LRM 20 = 20).
+
+Not modelled yet, recorded as the next slices: MegaMek rolls a location per
+group (`calculateNumCluster`: LRM/MRM 5 damage points, SRM and Streak 1, ATM 5
+under TW rules and 6 under Core, `MissileWeaponHandler.java:303`,
+`SRMHandler.java:82`, `StreakHandler.java:92`, `ATMHandler.java:124`; ATM
+converts missiles to points first, `ATMHandler.java:118-119`), while the
+session still applies all landed damage at one location. Cluster modifiers
+(Artemis, Narc, low profile, MRM) and the cluster roll's audit record outside
+AMS are absent. LB-X cluster mode and UAC/RAC rates cannot be selected through
+the interactive fire modes.
