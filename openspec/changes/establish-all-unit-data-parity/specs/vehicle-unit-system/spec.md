@@ -133,9 +133,34 @@ The system SHALL expose actions for modifying vehicle state.
 
 - **WHEN** changing engine rating directly
 - **THEN** the system SHALL:
-  - Update `cruiseMP` to `floor(rating / tonnage)`
+  - Update `cruiseMP` from rating, tonnage and suspension factor, as the Engine and Movement
+    requirement defines
   - Update `flankMP` accordingly
   - Mark state as modified
+
+### Requirement: Motive Damage State Tracking
+
+Vehicle units SHALL carry a motive-damage state struct updated by combat resolution.
+
+#### Scenario: Motive damage counters
+
+- **GIVEN** any `IVehicleUnit`
+- **WHEN** the combat state is constructed
+- **THEN** `unit.combatState.motive` SHALL contain `originalCruiseMP`, `penaltyMP`, `immobilized`, `sinking`, `turretLocked`, `engineHits`, `driverHits`, `commanderHits`, `crewStunnedPhases`
+
+#### Scenario: Motive penalty applies to flank MP
+
+- **GIVEN** a vehicle with original cruise 5, flank 8 (ceil(5×1.5)=8) and penalty 2
+- **WHEN** effective MP is computed
+- **THEN** effective cruise SHALL equal 3 (5 − 2)
+- **AND** effective flank SHALL equal 5 (ceil(3 × 1.5)), as MegaMek `Tank.getWalkMP` subtracts motive damage from cruise (`Tank.java:397`) and `Entity.getRunMP` then rounds upward (`Entity.java:4016`)
+
+#### Scenario: Cumulative motive penalties
+
+- **GIVEN** a vehicle with cumulative motive penalty already at −3
+- **WHEN** another motive-damage roll applies −2
+- **THEN** penalty SHALL become −5
+- **AND** effective cruise MP SHALL not go below 0
 
 ## ADDED Requirements
 
