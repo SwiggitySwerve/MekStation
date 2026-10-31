@@ -1,0 +1,4346 @@
+{
+  "pins": {
+    "megamek": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+    "mmData": "50f7efef0c9f775b0258f8283525ed4f906e1985"
+  },
+  "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+  "rows": [
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 64.0,
+          "baseBV": 63.800000000000004,
+          "defensiveValue": 63.800000000000004,
+          "offensiveValue": 0.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 64
+      },
+      "chassis": "Boeing Jump Bomber",
+      "concreteFamily": "ConvFighter",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 1.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 2.0,
+          "getWeightEngine": 14.0,
+          "getWeightFuel": 2.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 1.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "180 ICE",
+        "ownerAwareRating": 180.0,
+        "rating": 180
+      },
+      "entityClass": "megamek.common.units.ConvFighter",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 7,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 3,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 3,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 3,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Fuselage",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "",
+      "mountCount": 0,
+      "movementMode": "Aerodyne",
+      "originalFuel": 320,
+      "originalWalkMP": 9,
+      "path": "convfighter/3039u/Boeing Jump Bomber.blk",
+      "sha256": "9b7a098389b7da73c5c9151de8ec4de330debd9ddf6a103c119ae6c35f4823a6",
+      "status": "loaded",
+      "structuralIntegrity": 9,
+      "tonnage": 20.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 547.0,
+          "baseBV": 547.2800000000001,
+          "defensiveValue": 103.4,
+          "offensiveValue": 443.88000000000005,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 547
+      },
+      "chassis": "Heavy Strike Fighter",
+      "concreteFamily": "ConvFighter",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "weightMethods": {
+          "calculateWeight": 45.0,
+          "calculateWeightExact": 45.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 45.0,
+          "getWeightAllocatedArmor": 2.5,
+          "getWeightAmmo": 3.0,
+          "getWeightArmor": 2.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 4.5,
+          "getWeightEngine": 15.0,
+          "getWeightFuel": 2.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 18.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "225 Fusion",
+        "ownerAwareRating": 225.0,
+        "rating": 225
+      },
+      "entityClass": "megamek.common.units.ConvFighter",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 12,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 8,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Fuselage",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "Meteor-G",
+      "mountCount": 6,
+      "movementMode": "Aerodyne",
+      "originalFuel": 320,
+      "originalWalkMP": 5,
+      "path": "convfighter/3039u/Heavy Strike Fighter Meteor-G.blk",
+      "sha256": "019e8195bf5278ed8b5147da46c8ffaab6e945da3912a1e875a511c5a0815ca2",
+      "status": "loaded",
+      "structuralIntegrity": 5,
+      "tonnage": 45.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 72.0,
+          "baseBV": 71.5,
+          "defensiveValue": 71.5,
+          "offensiveValue": 0.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 72
+      },
+      "chassis": "Chariot High-Speed Medevac",
+      "concreteFamily": "FixedWingSupport",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 89.5,
+          "calculateWeightExact": 89.5,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 90.0,
+          "getWeightAllocatedArmor": 3.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.0,
+          "getWeightCarryingSpace": 4.5,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 52.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 3.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 16.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "ICE",
+        "ownerAwareRating": 450.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.FixedWingSupport",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 11,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 5,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "",
+      "mountCount": 2,
+      "movementMode": "Aerodyne",
+      "originalFuel": 460,
+      "originalWalkMP": 5,
+      "path": "convfighter/TRO VAr/Chariot High-Speed Medevac.blk",
+      "sha256": "151b46709001c855c253eb4b0ce46cc92c091cd5e822c64a1c351e71bc2405d7",
+      "status": "loaded",
+      "structuralIntegrity": 5,
+      "tonnage": 90.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 3972.0,
+          "baseBV": 3971.75,
+          "defensiveValue": 1632.0,
+          "offensiveValue": 2339.75,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.DropShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 3972
+      },
+      "chassis": "Union",
+      "concreteFamily": "Dropship",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "weightMethods": {
+          "calculateWeight": 3600.0,
+          "calculateWeightExact": 3600.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 3600.0,
+          "getWeightAllocatedArmor": 40.5,
+          "getWeightAmmo": 17.0,
+          "getWeightArmor": 37.5,
+          "getWeightCarryingSpace": 2174.5,
+          "getWeightControls": 27.0,
+          "getWeightEngine": 702.0,
+          "getWeightFuel": 219.5,
+          "getWeightHeatSinks": 21.0,
+          "getWeightMisc": 49.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 107.0,
+          "getWeightStructure": 79.5,
+          "getWeightWeapon": 166.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Dropship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 180,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Side",
+          "originalArmor": 180,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Side",
+          "originalArmor": 180,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 104,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(2708)",
+      "mountCount": 53,
+      "movementMode": "Spheroid",
+      "originalFuel": 6450,
+      "originalWalkMP": 3,
+      "path": "dropships/TRO3057R/IS/Union (2708).blk",
+      "sha256": "4f0f0208ab3353ec2ab00ac822d6831056c86fa9749b9b666ee26203bc93ac81",
+      "status": "loaded",
+      "structuralIntegrity": 11,
+      "tonnage": 3600.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 13403.0,
+          "baseBV": 13403.25,
+          "defensiveValue": 2607.0,
+          "offensiveValue": 10796.25,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.DropShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 13403
+      },
+      "chassis": "Arcadia",
+      "concreteFamily": "Dropship",
+      "construction": {
+        "diagnostics": "Requires quarters for 38 crew but only has 17\n",
+        "valid": false,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "weightMethods": {
+          "calculateWeight": 3000.0,
+          "calculateWeightExact": 3000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 3000.0,
+          "getWeightAllocatedArmor": 65.0,
+          "getWeightAmmo": 394.0,
+          "getWeightArmor": 49.5,
+          "getWeightCarryingSpace": 290.5,
+          "getWeightControls": 23.0,
+          "getWeightEngine": 1098.0,
+          "getWeightFuel": 204.0,
+          "getWeightHeatSinks": 160.0,
+          "getWeightMisc": 14.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 128.0,
+          "getWeightStructure": 165.0,
+          "getWeightWeapon": 474.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Dropship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 351,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Side",
+          "originalArmor": 211,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Side",
+          "originalArmor": 211,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 261,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(3080)",
+      "mountCount": 67,
+      "movementMode": "Aerodyne",
+      "originalFuel": 6000,
+      "originalWalkMP": 6,
+      "path": "dropships/TRO3067/Clan/Arcadia (3080).blk",
+      "sha256": "035ba86f5a1006b8f48a94cb9fc33d4b42ed8c22430ecbab75832b6c976af437",
+      "status": "loaded",
+      "structuralIntegrity": 11,
+      "tonnage": 3000.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 2152.0,
+          "baseBV": 2151.5,
+          "defensiveValue": 754.0,
+          "offensiveValue": 1397.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.DropShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 2152
+      },
+      "chassis": "Czar DropShip",
+      "concreteFamily": "Dropship",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "weightMethods": {
+          "calculateWeight": 6388.0,
+          "calculateWeightExact": 6388.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6400.0,
+          "getWeightAllocatedArmor": 18.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 17.0,
+          "getWeightCarryingSpace": 4328.5,
+          "getWeightControls": 48.0,
+          "getWeightEngine": 1248.0,
+          "getWeightFuel": 139.5,
+          "getWeightHeatSinks": 68.0,
+          "getWeightMisc": 98.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 267.0,
+          "getWeightStructure": 90.0,
+          "getWeightWeapon": 84.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Dropship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 98,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Side",
+          "originalArmor": 74,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Side",
+          "originalArmor": 74,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 50,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(Mech Carrier)",
+      "mountCount": 42,
+      "movementMode": "Spheroid",
+      "originalFuel": 4091,
+      "originalWalkMP": 3,
+      "path": "dropships/XTRs/Primitives III/Czar Dropship (Mech Carrier).blk",
+      "sha256": "02114cc04ca3fdb3bf3984e577e603449050f7860eacfac74271a56d6538dbc1",
+      "status": "loaded",
+      "structuralIntegrity": 7,
+      "tonnage": 6400.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 987.0,
+          "baseBV": 987.24,
+          "defensiveValue": 347.4,
+          "offensiveValue": 639.84,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 987
+      },
+      "chassis": "Sabre",
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "weightMethods": {
+          "calculateWeight": 25.0,
+          "calculateWeightExact": 25.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 25.0,
+          "getWeightAllocatedArmor": 6.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 6.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 3.0,
+          "getWeightEngine": 5.0,
+          "getWeightFuel": 5.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 6.0
+        }
+      },
+      "engine": {
+        "engineType": 2,
+        "name": "225 XL",
+        "ownerAwareRating": 225.0,
+        "rating": 225
+      },
+      "entityClass": "megamek.common.units.AeroSpaceFighter",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 30,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 28,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 28,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 21,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 5,
+          "name": "Fuselage",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "SB-27b-EC",
+      "mountCount": 4,
+      "movementMode": "Aerodyne",
+      "originalFuel": 400,
+      "originalWalkMP": 11,
+      "path": "fighters/Golden Century/Sabre SB-27b-EC.blk",
+      "sha256": "8ff41dfab47cd35fa670f5d4e260bcba81e4d0ba34ee82b413bd84f3324e2f6e",
+      "status": "loaded",
+      "structuralIntegrity": 11,
+      "tonnage": 25.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1683.0,
+          "baseBV": 1682.605,
+          "defensiveValue": 564.0,
+          "offensiveValue": 1118.605,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1683
+      },
+      "chassis": "Stuka",
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "weightMethods": {
+          "calculateWeight": 100.0,
+          "calculateWeightExact": 100.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 100.0,
+          "getWeightAllocatedArmor": 12.0,
+          "getWeightAmmo": 3.0,
+          "getWeightArmor": 12.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 3.0,
+          "getWeightEngine": 19.0,
+          "getWeightFuel": 5.0,
+          "getWeightHeatSinks": 20.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 38.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "300 Fusion",
+        "ownerAwareRating": 300.0,
+        "rating": 300
+      },
+      "entityClass": "megamek.common.units.AeroSpaceFighter",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 59,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 45,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 45,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 43,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Fuselage",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "STU-K15",
+      "mountCount": 18,
+      "movementMode": "Aerodyne",
+      "originalFuel": 400,
+      "originalWalkMP": 5,
+      "path": "fighters/TRO3039u/Stuka STU-K15.blk",
+      "sha256": "00f7523786e451e82433618b96ca1e7536c7fa775a866c012b2fa7baccf546a8",
+      "status": "loaded",
+      "structuralIntegrity": 10,
+      "tonnage": 100.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1009.0,
+          "baseBV": 1009.2,
+          "defensiveValue": 232.2,
+          "offensiveValue": 777.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1009
+      },
+      "chassis": "Bashkir",
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 3.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 3.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 3.0,
+          "getWeightEngine": 5.0,
+          "getWeightFuel": 3.0,
+          "getWeightHeatSinks": 1.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 4.5
+        }
+      },
+      "engine": {
+        "engineType": 2,
+        "name": "220 XL",
+        "ownerAwareRating": 220.0,
+        "rating": 220
+      },
+      "entityClass": "megamek.common.units.AeroSpaceFighter",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 19,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 17,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 17,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 14,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 5,
+          "name": "Fuselage",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "D",
+      "mountCount": 2,
+      "movementMode": "Aerodyne",
+      "originalFuel": 240,
+      "originalWalkMP": 13,
+      "path": "fighters/TRO3055U/Bashkir D.blk",
+      "sha256": "0014b210aeb041bcf6e62424c171736499a7d5044c414d596e7e7711f3efa0c8",
+      "status": "loaded",
+      "structuralIntegrity": 13,
+      "tonnage": 20.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 2941.0,
+          "baseBV": 2941.2775,
+          "defensiveValue": 796.1999999999999,
+          "offensiveValue": 2145.0775000000003,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 2941
+      },
+      "chassis": "Jengiz",
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "weightMethods": {
+          "calculateWeight": 80.0,
+          "calculateWeightExact": 80.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 80.0,
+          "getWeightAllocatedArmor": 13.5,
+          "getWeightAmmo": 4.0,
+          "getWeightArmor": 13.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 3.0,
+          "getWeightEngine": 6.0,
+          "getWeightFuel": 4.0,
+          "getWeightHeatSinks": 19.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 1.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 29.5
+        }
+      },
+      "engine": {
+        "engineType": 2,
+        "name": "240 XL",
+        "ownerAwareRating": 240.0,
+        "rating": 240
+      },
+      "entityClass": "megamek.common.units.AeroSpaceFighter",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 85,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 63,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 63,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 48,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 19,
+          "barRating": 10,
+          "index": 5,
+          "name": "Fuselage",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "D",
+      "mountCount": 16,
+      "movementMode": "Aerodyne",
+      "originalFuel": 320,
+      "originalWalkMP": 5,
+      "path": "fighters/TRO3055U/Jengiz D.blk",
+      "sha256": "00ea885c1d40fc8f592e2d17f04f9d3ce454db87445a5dc5516fefa6bfd9894b",
+      "status": "loaded",
+      "structuralIntegrity": 8,
+      "tonnage": 80.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 5919.0,
+          "baseBV": 5919.030000000001,
+          "defensiveValue": 2142.0,
+          "offensiveValue": 3777.03,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.JumpShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 5919
+      },
+      "chassis": "Comitatus JumpShip",
+      "concreteFamily": "Jumpship",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "weightMethods": {
+          "calculateWeight": 249999.5,
+          "calculateWeightExact": 249999.5,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 250000.0,
+          "getWeightAllocatedArmor": 5.5,
+          "getWeightAmmo": 64.0,
+          "getWeightArmor": 120.0,
+          "getWeightCarryingSpace": 1787.0,
+          "getWeightControls": 625.0,
+          "getWeightEngine": 3000.0,
+          "getWeightFireControl": 5.5,
+          "getWeightFuel": 470.0,
+          "getWeightGravDecks": 50.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightKFDrive": 237500.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 28.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 62.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 339.0,
+          "getWeightSail": 64.0,
+          "getWeightStructure": 1667.0,
+          "getWeightWeapon": 218.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Jumpship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Front Side",
+          "originalArmor": 14,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Front Side",
+          "originalArmor": 14,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 13,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 4,
+          "name": "Aft Left Side",
+          "originalArmor": 14,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 5,
+          "name": "Aft Right Side",
+          "originalArmor": 14,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 13,
+          "barRating": 10,
+          "index": 6,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(2995)",
+      "mountCount": 128,
+      "movementMode": "Aerodyne",
+      "originalFuel": 1150,
+      "originalWalkMP": 0,
+      "path": "jumpships/3057R/Clan/Comitatus JumpShip (2995).blk",
+      "sha256": "31130a53ba44e855e55726732bd2cdf9d90a7fefa992c25f4d2d0ded437d9597",
+      "status": "loaded",
+      "structuralIntegrity": 1,
+      "tonnage": 250000.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 503.0,
+          "baseBV": 502.5,
+          "defensiveValue": 502.5,
+          "offensiveValue": 0.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.JumpShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 503
+      },
+      "chassis": "Merchant JumpShip",
+      "concreteFamily": "Jumpship",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "weightMethods": {
+          "calculateWeight": 120000.0,
+          "calculateWeightExact": 120000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 120000.0,
+          "getWeightAllocatedArmor": 2.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 32.5,
+          "getWeightCarryingSpace": 1056.5,
+          "getWeightControls": 300.0,
+          "getWeightEngine": 1440.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 87.0,
+          "getWeightGravDecks": 50.0,
+          "getWeightHardpoints": 2000.0,
+          "getWeightHeatSinks": 1.0,
+          "getWeightKFDrive": 114000.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 28.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 159.0,
+          "getWeightSail": 46.0,
+          "getWeightStructure": 800.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Jumpship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 4,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Front Side",
+          "originalArmor": 5,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Front Side",
+          "originalArmor": 5,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 4,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Aft Left Side",
+          "originalArmor": 4,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 5,
+          "name": "Aft Right Side",
+          "originalArmor": 4,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 6,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(2503)",
+      "mountCount": 0,
+      "movementMode": "Aerodyne",
+      "originalFuel": 425,
+      "originalWalkMP": 0,
+      "path": "jumpships/3057R/IS/Merchant Jumpship (2503).blk",
+      "sha256": "0438da6d2d84d15dd338e88b8e05e396b7083cc9bcaabe750718aca9b2bd27d7",
+      "status": "loaded",
+      "structuralIntegrity": 1,
+      "tonnage": 120000.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1175.0,
+          "baseBV": 1175.1950000000002,
+          "defensiveValue": 732.0,
+          "offensiveValue": 443.19500000000005,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1175
+      },
+      "chassis": "Dragonstar Assault Transport",
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "weightMethods": {
+          "calculateWeight": 150.0,
+          "calculateWeightExact": 150.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 150.0,
+          "getWeightAllocatedArmor": 18.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 16.5,
+          "getWeightCarryingSpace": 28.5,
+          "getWeightControls": 1.5,
+          "getWeightEngine": 49.0,
+          "getWeightFuel": 6.5,
+          "getWeightHeatSinks": 12.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 20.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 14.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.SmallCraft",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 86,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Side",
+          "originalArmor": 73,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Side",
+          "originalArmor": 73,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 56,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(3060)",
+      "mountCount": 6,
+      "movementMode": "Spheroid",
+      "originalFuel": 480,
+      "originalWalkMP": 5,
+      "path": "smallcraft/HBHK/Dragonstar Assault Transport (3060).blk",
+      "sha256": "56a4a02297d3275e7a820634d64f320d1eade089a88d3f35f5bfe95ee1118a90",
+      "status": "loaded",
+      "structuralIntegrity": 6,
+      "tonnage": 150.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 12.0,
+          "baseBV": 12.0,
+          "defensiveValue": 12.0,
+          "offensiveValue": 0.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 12
+      },
+      "chassis": "Escape Pod",
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "weightMethods": {
+          "calculateWeight": 3.0,
+          "calculateWeightExact": 2.98,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 5.0,
+          "getWeightAllocatedArmor": 0.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.48,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.5,
+          "getWeightFuel": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.SmallCraft",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Side",
+          "originalArmor": 1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Side",
+          "originalArmor": 1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "",
+      "mountCount": 0,
+      "movementMode": "Aerodyne",
+      "originalFuel": 10,
+      "originalWalkMP": 4,
+      "path": "smallcraft/TRO 3057r/Escape Pod.blk",
+      "sha256": "1d2e64d9fd33c294a999135310833a3e980173f934b91852a929ebefc94d69dc",
+      "status": "loaded",
+      "structuralIntegrity": 1,
+      "tonnage": 5.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 2486.0,
+          "baseBV": 2486.25,
+          "defensiveValue": 1314.0,
+          "offensiveValue": 1172.25,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 2486
+      },
+      "chassis": "Lyonesse Escort",
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "weightMethods": {
+          "calculateWeight": 175.0,
+          "calculateWeightExact": 175.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 175.0,
+          "getWeightAllocatedArmor": 33.5,
+          "getWeightAmmo": 4.0,
+          "getWeightArmor": 31.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 1.5,
+          "getWeightEngine": 34.5,
+          "getWeightFuel": 5.5,
+          "getWeightHeatSinks": 19.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 30.0,
+          "getWeightStructure": 6.5,
+          "getWeightWeapon": 42.5
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.SmallCraft",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 165,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Side",
+          "originalArmor": 133,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Side",
+          "originalArmor": 133,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 101,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "M1",
+      "mountCount": 18,
+      "movementMode": "Aerodyne",
+      "originalFuel": 400,
+      "originalWalkMP": 3,
+      "path": "smallcraft/TRO 3075/Lyonesse Escort M1.blk",
+      "sha256": "0e4bc7a9a41545d1eaff8182eabe4bf8da0ad827bb4b2390764114377c7ea49f",
+      "status": "loaded",
+      "structuralIntegrity": 7,
+      "tonnage": 175.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 2004.0,
+          "baseBV": 2003.51,
+          "defensiveValue": 1064.0,
+          "offensiveValue": 939.51,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.JumpShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 2004
+      },
+      "chassis": "Crucible Station",
+      "concreteFamily": "SpaceStation",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "weightMethods": {
+          "calculateWeight": 6000.0,
+          "calculateWeightExact": 6000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6000.0,
+          "getWeightAllocatedArmor": 4.0,
+          "getWeightAmmo": 12.0,
+          "getWeightArmor": 75.0,
+          "getWeightCarryingSpace": 1799.0,
+          "getWeightControls": 6.0,
+          "getWeightEngine": 72.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 102.0,
+          "getWeightGravDecks": 1000.0,
+          "getWeightHardpoints": 0.0,
+          "getWeightHeatSinks": 93.0,
+          "getWeightKFDrive": 0.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 322.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 2315.0,
+          "getWeightSail": 0.0,
+          "getWeightStructure": 60.0,
+          "getWeightWeapon": 144.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.SpaceStation",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Front Side",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Front Side",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Aft Left Side",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 5,
+          "name": "Aft Right Side",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 6,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "",
+      "mountCount": 74,
+      "movementMode": "Aerodyne",
+      "originalFuel": 1000,
+      "originalWalkMP": 0,
+      "path": "spacestation/HB HL/Crucible Station.blk",
+      "sha256": "4bc6f8884bdcf149eb6998a27afc3b277ce62da6fced54e16fc3270a8ae11b09",
+      "status": "loaded",
+      "structuralIntegrity": 1,
+      "tonnage": 6000.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1589.0,
+          "baseBV": 1589.0,
+          "defensiveValue": 1589.0,
+          "offensiveValue": 0.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.JumpShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1589
+      },
+      "chassis": "Unpressurized Yard",
+      "concreteFamily": "SpaceStation",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "weightMethods": {
+          "calculateWeight": 250000.0,
+          "calculateWeightExact": 249999.52197802198,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 250000.0,
+          "getWeightAllocatedArmor": 6.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 225.0,
+          "getWeightCarryingSpace": 228625.52197802198,
+          "getWeightControls": 250.0,
+          "getWeightEngine": 3000.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 1428.0,
+          "getWeightGravDecks": 200.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightKFDrive": 0.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 1470.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 8301.0,
+          "getWeightSail": 0.0,
+          "getWeightStructure": 2500.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.SpaceStation",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Front Side",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Front Side",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Aft Left Side",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 5,
+          "name": "Aft Right Side",
+          "originalArmor": 15,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 6,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "Huge (2350)",
+      "mountCount": 0,
+      "movementMode": "Aerodyne",
+      "originalFuel": 3500,
+      "originalWalkMP": 0,
+      "path": "spacestation/TRO 3057R/UnPressurized Yard - Huge (2350).blk",
+      "sha256": "032b3bd8eb5c25199e746017ee0f983d2372fedf68bee8c944a4723fbff75739",
+      "status": "loaded",
+      "structuralIntegrity": 1,
+      "tonnage": 250000.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 75.0,
+          "baseBV": 75.12,
+          "defensiveValue": 23.519999999999996,
+          "offensiveValue": 51.6,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 75
+      },
+      "chassis": "Air Car",
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "diagnostics": "Weight: 42.0 is greater than 40.0\nSupport vehicles with  ICE [SV] engine must allocate some weight for fuel.\nMore armor allocated than is available according to armor tonnage.\nAdvanced armor requires the Armored Chassis Mod.\n",
+        "valid": false,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 42.0,
+          "calculateWeightExact": 42.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 40.0,
+          "getWeightAllocatedArmor": 2.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 30.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 10.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "ICE",
+        "ownerAwareRating": 440.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.SupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 0,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 0,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 8,
+          "originalInternal": 4
+        },
+        {
+          "armorType": 0,
+          "barRating": 0,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 8,
+          "originalInternal": 4
+        },
+        {
+          "armorType": 0,
+          "barRating": 0,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 8,
+          "originalInternal": 4
+        },
+        {
+          "armorType": 0,
+          "barRating": 0,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 8,
+          "originalInternal": 4
+        }
+      ],
+      "model": "",
+      "mountCount": 0,
+      "movementMode": "Hover",
+      "originalWalkMP": 11,
+      "path": "vehicles/3025 IS Land/Air Car.blk",
+      "sha256": "78d7878ea0bc0ed301e6506c057c5944d269cbfa1ddde59c0fc81d06653b1bea",
+      "status": "loaded",
+      "tonnage": 40.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 58.0,
+          "baseBV": 58.32,
+          "defensiveValue": 30.8,
+          "offensiveValue": 27.52,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 58
+      },
+      "chassis": "Ferret Light Scout VTOL",
+      "concreteFamily": "VTOL",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 5.0,
+          "calculateWeightExact": 5.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 0.5,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 5.0,
+          "getWeightAllocatedArmor": 0.5,
+          "getWeightAmmo": 0.5,
+          "getWeightArmor": 0.5,
+          "getWeightCarryingSpace": 1.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 0.5
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "25 ICE",
+        "ownerAwareRating": 25.0,
+        "rating": 25
+      },
+      "entityClass": "megamek.common.units.VTOL",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 2,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 2,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Rotor",
+          "originalArmor": 2,
+          "originalInternal": 1
+        }
+      ],
+      "model": "",
+      "mountCount": 2,
+      "movementMode": "VTOL",
+      "originalWalkMP": 15,
+      "path": "vehicles/3039u/Ferret Light Scout VTOL.blk",
+      "sha256": "a5d156aca89df05ada21a87392e87a6e0615802644d7b373272a48f7984e01ee",
+      "status": "loaded",
+      "tonnage": 5.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1022.0,
+          "baseBV": 1022.0999999999999,
+          "defensiveValue": 480.59999999999997,
+          "offensiveValue": 541.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1022
+      },
+      "chassis": "Mauna Kea Command Vessel",
+      "concreteFamily": "Tank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 84.0,
+          "calculateWeightExact": 84.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 0.0,
+          "getTankWeightTurret": 2.0,
+          "getWeight": 85.0,
+          "getWeightAllocatedArmor": 15.0,
+          "getWeightAmmo": 5.5,
+          "getWeightArmor": 15.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 4.5,
+          "getWeightEngine": 20.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 2.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 8.5,
+          "getWeightWeapon": 28.5
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "225 ICE",
+        "ownerAwareRating": 225.0,
+        "rating": 225
+      },
+      "entityClass": "megamek.common.units.Tank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 55,
+          "originalInternal": 9
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 43,
+          "originalInternal": 9
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 43,
+          "originalInternal": 9
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 44,
+          "originalInternal": 9
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Turret",
+          "originalArmor": 55,
+          "originalInternal": 9
+        }
+      ],
+      "model": "(LRT)",
+      "mountCount": 15,
+      "movementMode": "Naval",
+      "originalWalkMP": 3,
+      "path": "vehicles/3075/Mauna Kea Command Vessel (LRT).blk",
+      "sha256": "00d8cd900bb73c73f833aea7f9a90fae26630797917e293ecda096e3e5b1dfce",
+      "status": "loaded",
+      "tonnage": 85.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 436.0,
+          "baseBV": 435.51000000000005,
+          "defensiveValue": 141.75,
+          "offensiveValue": 293.76000000000005,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 436
+      },
+      "chassis": "Tamerlane Strike Sled",
+      "concreteFamily": "Tank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 2.0,
+          "getTankWeightTurret": 0.5,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 3.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 3.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 1.0,
+          "getWeightEngine": 8.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 2.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 3.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "155 Fusion",
+        "ownerAwareRating": 155.0,
+        "rating": 155
+      },
+      "entityClass": "megamek.common.units.Tank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 10,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 10,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 10,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 8,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Turret",
+          "originalArmor": 10,
+          "originalInternal": 2
+        }
+      ],
+      "model": "(Flamer)",
+      "mountCount": 3,
+      "movementMode": "Hover",
+      "originalWalkMP": 12,
+      "path": "vehicles/3075/Tamerlane Strike Sled (Flamer).blk",
+      "sha256": "5ceb9843137d2eadd33866de3484c8f9f9f4570da60e134a2a088c8d4b7f83d3",
+      "status": "loaded",
+      "tonnage": 20.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1178.0,
+          "baseBV": 1178.1999999999998,
+          "defensiveValue": 595.1999999999999,
+          "offensiveValue": 583.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1178
+      },
+      "chassis": "Fortune Wheeled Assault Vehicle",
+      "concreteFamily": "Tank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 80.0,
+          "calculateWeightExact": 80.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 0.0,
+          "getTankWeightTurret": 2.5,
+          "getWeight": 80.0,
+          "getWeightAllocatedArmor": 14.0,
+          "getWeightAmmo": 6.0,
+          "getWeightArmor": 14.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 4.0,
+          "getWeightEngine": 15.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 2.5,
+          "getWeightMiscEquip": 0.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 8.0,
+          "getWeightWeapon": 30.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "220 Fusion",
+        "ownerAwareRating": 220.0,
+        "rating": 220
+      },
+      "entityClass": "megamek.common.units.Tank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 50,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 45,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 45,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 35,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Turret",
+          "originalArmor": 49,
+          "originalInternal": 8
+        }
+      ],
+      "model": "(C3M)",
+      "mountCount": 10,
+      "movementMode": "Wheeled",
+      "originalWalkMP": 3,
+      "path": "vehicles/3085u/ONN/Fortune Wheeled Assault Vehicle (C3M).blk",
+      "sha256": "00deef01d7c8103f72e121035c06b06fce9c003c3273ee5cc902abcbdc87bf36",
+      "status": "loaded",
+      "tonnage": 80.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 107.0,
+          "baseBV": 106.5,
+          "defensiveValue": 84.0,
+          "offensiveValue": 22.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 107
+      },
+      "chassis": "Marten Scout VTOL",
+      "concreteFamily": "VTOL",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 15.0,
+          "calculateWeightExact": 15.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 1.5,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 15.0,
+          "getWeightAllocatedArmor": 1.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 1.5,
+          "getWeightCarryingSpace": 3.0,
+          "getWeightControls": 1.0,
+          "getWeightEngine": 6.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 1.5,
+          "getWeightMiscEquip": 0.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 1.5,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "100 ICE",
+        "ownerAwareRating": 100.0,
+        "rating": 100
+      },
+      "entityClass": "megamek.common.units.VTOL",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 8,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 5,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 5,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 4,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Rotor",
+          "originalArmor": 2,
+          "originalInternal": 2
+        }
+      ],
+      "model": "(Infantry)",
+      "mountCount": 1,
+      "movementMode": "VTOL",
+      "originalWalkMP": 13,
+      "path": "vehicles/3145/Davion/Marten Scout VTOL (Infantry).blk",
+      "sha256": "06d561a21391de3301c48e2f1f2cd1c5114021cdca19dff7f9344d31685513dc",
+      "status": "loaded",
+      "tonnage": 15.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 2861.0,
+          "baseBV": 2860.88,
+          "defensiveValue": 2028.5100000000002,
+          "offensiveValue": 832.37,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 2861
+      },
+      "chassis": "Gulltoppr OmniMonitor",
+      "concreteFamily": "SuperHeavyTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 190.0,
+          "calculateWeightExact": 190.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 3.0,
+          "getTankWeightLifting": 0.0,
+          "getTankWeightTurret": 2.5,
+          "getWeight": 190.0,
+          "getWeightAllocatedArmor": 44.0,
+          "getWeightAmmo": 8.0,
+          "getWeightArmor": 44.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 9.5,
+          "getWeightEngine": 31.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 5.5,
+          "getWeightMiscEquip": 2.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 38.0,
+          "getWeightWeapon": 52.0
+        }
+      },
+      "engine": {
+        "engineType": 2,
+        "name": "380 XL",
+        "ownerAwareRating": 380.0,
+        "rating": 380
+      },
+      "entityClass": "megamek.common.units.SuperHeavyTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 136,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Front Right",
+          "originalArmor": 104,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Front Left",
+          "originalArmor": 104,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear Right",
+          "originalArmor": 90,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Rear Left",
+          "originalArmor": 90,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 6,
+          "name": "Rear",
+          "originalArmor": 64,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 7,
+          "name": "Rear Turret",
+          "originalArmor": 50,
+          "originalInternal": 19
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 8,
+          "name": "Front Turret",
+          "originalArmor": 66,
+          "originalInternal": 19
+        }
+      ],
+      "model": "(B)",
+      "mountCount": 14,
+      "movementMode": "Tracked",
+      "originalWalkMP": 2,
+      "path": "vehicles/3145/Steiner/Gulltoppr OmniMonitor (B).blk",
+      "sha256": "214f5a0a21ff99e80bddfc88c45b3a0da584d1d5cb1094c806496c7187a0ae65",
+      "status": "loaded",
+      "tonnage": 190.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 78.0,
+          "baseBV": 77.74725,
+          "defensiveValue": 14.7,
+          "offensiveValue": 63.04725,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 78
+      },
+      "chassis": "Boreas Cavalry Hovercraft",
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 0.643,
+          "calculateWeightExact": 0.6430000000000001,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 0.75,
+          "getWeightAllocatedArmor": 0.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.168,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.075,
+          "getWeightEngine": 0.262,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.01,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.075,
+          "getWeightWeapon": 0.024
+        }
+      },
+      "engine": {
+        "engineType": 4,
+        "name": "Fuel Cell",
+        "ownerAwareRating": 10.5,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.SupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 1,
+          "originalInternal": 1
+        }
+      ],
+      "model": "(Prime)",
+      "mountCount": 7,
+      "movementMode": "Hover",
+      "originalWalkMP": 14,
+      "path": "vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk",
+      "sha256": "9c7a6cce4ed989563faadd8ce15febbaf7c9d15e30f9e14fec6556f8b8f47d33",
+      "status": "loaded",
+      "tonnage": 0.75
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 7.0,
+          "baseBV": 7.3774,
+          "defensiveValue": 7.35,
+          "offensiveValue": 0.027400000000000004,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 7
+      },
+      "chassis": "HTE Micro-Copter",
+      "concreteFamily": "SupportVTOL",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 0.036,
+          "calculateWeightExact": 0.036000000000000004,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 0.04,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.025,
+          "getWeightEngine": 0.003,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.004,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "ICE",
+        "ownerAwareRating": 0.2,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.SupportVTOL",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 43,
+          "barRating": 2,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 43,
+          "barRating": 2,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 0,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 43,
+          "barRating": 2,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 0,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 43,
+          "barRating": 2,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 0,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 43,
+          "barRating": 2,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 0,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 43,
+          "barRating": 2,
+          "index": 5,
+          "name": "Rotor",
+          "originalArmor": 0,
+          "originalInternal": 1
+        }
+      ],
+      "model": "",
+      "mountCount": 1,
+      "movementMode": "VTOL",
+      "originalWalkMP": 5,
+      "path": "vehicles/AToW Companion/VTOL/HTE Micro-Copter.blk",
+      "sha256": "121aef67b97dde96e43264ddf7d1ef420e8d90b32fc97af449fcb250c83366de",
+      "status": "loaded",
+      "tonnage": 0.04
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 132.0,
+          "baseBV": 132.22000000000003,
+          "defensiveValue": 109.72000000000001,
+          "offensiveValue": 22.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 132
+      },
+      "chassis": "Generic Expandable Services Vehicle",
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 29.5,
+          "calculateWeightExact": 29.5,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 30.0,
+          "getWeightAllocatedArmor": 3.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.0,
+          "getWeightCarryingSpace": 3.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 8.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 8.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 5.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 4,
+        "name": "Fuel Cell",
+        "ownerAwareRating": 180.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.SupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 48,
+          "barRating": 7,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 48,
+          "barRating": 7,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 15,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 48,
+          "barRating": 7,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 10,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 48,
+          "barRating": 7,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 10,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 48,
+          "barRating": 7,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 15,
+          "originalInternal": 3
+        }
+      ],
+      "model": "(Command Post)",
+      "mountCount": 5,
+      "movementMode": "Wheeled",
+      "originalWalkMP": 6,
+      "path": "vehicles/HB HD/Generic Expandable Services Vehicle (Command Post).blk",
+      "sha256": "02c78f87d4c33cc8840ca268f46239b5db2148dc3fdc8acbb66872d49f058a1b",
+      "status": "loaded",
+      "tonnage": 30.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 621.0,
+          "baseBV": 620.63,
+          "defensiveValue": 289.09999999999997,
+          "offensiveValue": 331.53000000000003,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 621
+      },
+      "chassis": "J. Edgar Light Hover Tank",
+      "concreteFamily": "Tank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 25.0,
+          "calculateWeightExact": 25.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 2.5,
+          "getTankWeightTurret": 0.5,
+          "getWeight": 25.0,
+          "getWeightAllocatedArmor": 5.5,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 5.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 1.5,
+          "getWeightEngine": 7.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 3.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.5,
+          "getWeightWeapon": 4.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "145 Fusion",
+        "ownerAwareRating": 145.0,
+        "rating": 145
+      },
+      "entityClass": "megamek.common.units.Tank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 31,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 20,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 20,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 14,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 5,
+          "name": "Turret",
+          "originalArmor": 24,
+          "originalInternal": 3
+        }
+      ],
+      "model": "(X-Pulse)",
+      "mountCount": 4,
+      "movementMode": "Hover",
+      "originalWalkMP": 11,
+      "path": "vehicles/Rec Guides ilClan/Vol 32/J. Edgar Light Hover Tank (X-Pulse).blk",
+      "sha256": "00063dd25f4a596c4b6d41abc817079150d6a72f5a57b62b3447723f90f3f0d2",
+      "status": "loaded",
+      "tonnage": 25.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 313.0,
+          "baseBV": 312.785,
+          "defensiveValue": 230.625,
+          "offensiveValue": 82.16000000000001,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 313
+      },
+      "chassis": "Corx Mobile Tunnel Miner",
+      "concreteFamily": "LargeSupportTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 200.0,
+          "calculateWeightExact": 199.9991758241758,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.5,
+          "getWeight": 200.0,
+          "getWeightAllocatedArmor": 2.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 1.5,
+          "getWeightCarryingSpace": 25.924175824175826,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 44.0,
+          "getWeightHeatSinks": 2.0,
+          "getWeightMisc": 0.5,
+          "getWeightMiscEquip": 10.075,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 115.0,
+          "getWeightWeapon": 1.0
+        }
+      },
+      "engine": {
+        "engineType": 7,
+        "name": "Fission",
+        "ownerAwareRating": 200.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.LargeSupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 16,
+          "originalInternal": 20
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 2,
+          "name": "Front Right",
+          "originalArmor": 3,
+          "originalInternal": 20
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 3,
+          "name": "Front Left",
+          "originalArmor": 3,
+          "originalInternal": 20
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 4,
+          "name": "Rear Right",
+          "originalArmor": 3,
+          "originalInternal": 20
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 5,
+          "name": "Rear Left",
+          "originalArmor": 3,
+          "originalInternal": 20
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 6,
+          "name": "Rear",
+          "originalArmor": 3,
+          "originalInternal": 20
+        },
+        {
+          "armorType": 46,
+          "barRating": 5,
+          "index": 7,
+          "name": "Turret",
+          "originalArmor": 6,
+          "originalInternal": 20
+        }
+      ],
+      "model": "",
+      "mountCount": 14,
+      "movementMode": "Tracked",
+      "originalWalkMP": 1,
+      "path": "vehicles/TRO Vehicle Annex/Tracked/Corx Mobile Tunnel Miner.blk",
+      "sha256": "08f68b71abfda4f99f8bb8befd6950a7e0988a01f01691fbe07a4f897b56ee9b",
+      "status": "loaded",
+      "tonnage": 200.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 46.0,
+          "baseBV": 45.675,
+          "defensiveValue": 31.5,
+          "offensiveValue": 14.174999999999999,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 46
+      },
+      "chassis": "SOAR VTOL",
+      "concreteFamily": "SupportVTOL",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 14.5,
+          "calculateWeightExact": 14.5,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 15.0,
+          "getWeightAllocatedArmor": 1.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.5,
+          "getWeightCarryingSpace": 0.05,
+          "getWeightControls": 0.45,
+          "getWeightEngine": 3.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 1.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 9.0,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 4,
+        "name": "Fuel Cell",
+        "ownerAwareRating": 120.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.SupportVTOL",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 45,
+          "barRating": 4,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 45,
+          "barRating": 4,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 5,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 45,
+          "barRating": 4,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 3,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 45,
+          "barRating": 4,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 3,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 45,
+          "barRating": 4,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 2,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 45,
+          "barRating": 4,
+          "index": 5,
+          "name": "Rotor",
+          "originalArmor": 2,
+          "originalInternal": 2
+        }
+      ],
+      "model": "",
+      "mountCount": 5,
+      "movementMode": "VTOL",
+      "originalWalkMP": 8,
+      "path": "vehicles/TRO Vehicle Annex/VTOL/SOAR VTOL.blk",
+      "sha256": "080e4906c0b4ddf49cdf907c5c0d012a1b20def140920497f707686645abf962",
+      "status": "loaded",
+      "tonnage": 15.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 20.0,
+          "baseBV": 20.25,
+          "defensiveValue": 18.0,
+          "offensiveValue": 2.25,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 20
+      },
+      "chassis": "Saturnus V Grande Circuit Racer",
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 1.499,
+          "calculateWeightExact": 1.499,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 1.5,
+          "getWeightAllocatedArmor": 0.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.228,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.1,
+          "getWeightEngine": 0.973,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.09,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "ICE",
+        "ownerAwareRating": 19.5,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.SupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 2,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 1,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 2,
+          "originalInternal": 1
+        }
+      ],
+      "model": "",
+      "mountCount": 1,
+      "movementMode": "Wheeled",
+      "originalWalkMP": 13,
+      "path": "vehicles/TRO Vehicle Annex/Wheeled/Saturnus V Grande Circuit Racer.blk",
+      "sha256": "0268cd10327ce26637b767d7943c333f9c6ac530cfcbb63d06e7ae27e7ccb73d",
+      "status": "loaded",
+      "tonnage": 1.5
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 491.0,
+          "baseBV": 490.74,
+          "defensiveValue": 326.34,
+          "offensiveValue": 164.4,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 491
+      },
+      "chassis": "Koi Heavy Transport",
+      "concreteFamily": "LargeSupportTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 240.0,
+          "calculateWeightExact": 240.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 240.0,
+          "getWeightAllocatedArmor": 5.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 3.0,
+          "getWeightCarryingSpace": 123.5,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 42.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 71.5,
+          "getWeightWeapon": 0.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "Fusion",
+        "ownerAwareRating": 500.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.LargeSupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 14,
+          "originalInternal": 24
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 2,
+          "name": "Front Right",
+          "originalArmor": 14,
+          "originalInternal": 24
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 3,
+          "name": "Front Left",
+          "originalArmor": 14,
+          "originalInternal": 24
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 4,
+          "name": "Rear Right",
+          "originalArmor": 13,
+          "originalInternal": 24
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 5,
+          "name": "Rear Left",
+          "originalArmor": 13,
+          "originalInternal": 24
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 6,
+          "name": "Rear",
+          "originalArmor": 10,
+          "originalInternal": 24
+        }
+      ],
+      "model": "",
+      "mountCount": 1,
+      "movementMode": "WiGE",
+      "originalWalkMP": 5,
+      "path": "vehicles/TRO Vehicle Annex/WiGE/Koi Heavy Transport.blk",
+      "sha256": "0b7ddd65a1e80a80307fca280bb224707103f7cc549d4dc261441b972b0b8a28",
+      "status": "loaded",
+      "tonnage": 240.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 910.0,
+          "baseBV": 909.865,
+          "defensiveValue": 333.13500000000005,
+          "offensiveValue": 576.73,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 910
+      },
+      "chassis": "SturmFeur 'Kalki' Cruise Missile Launcher",
+      "concreteFamily": "SuperHeavyTank",
+      "construction": {
+        "diagnostics": "Chassis: SturmFeur 'Kalki' Cruise Missile Launcher - IS_Experimental (3068)\nMovement: 2/3\nWeight: 137.5 is greater than 125.0\nEngine: 250 Fusion [Vehicle]                                     19.0\nStructure: 91 (Standard)                                         25.0\nControls:                                                        6.5\nHeat Sinks: 0                                                    0\nArmor: 80 Standard                                               5.0\nTurret:                                                          0.5\nEquipment:\nCruise Missile/50   FR                                           55.0\nMachine Gun         TU                                           0.5\nMachine Gun         TU                                           0.5\nCruise Missile/50 .. BD                                           25.0\nMachine Gun Ammo [.. BD                                           0.5\n\n",
+        "valid": false,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 137.5,
+          "calculateWeightExact": 137.5,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 0.0,
+          "getTankWeightTurret": 0.5,
+          "getWeight": 125.0,
+          "getWeightAllocatedArmor": 5.0,
+          "getWeightAmmo": 25.5,
+          "getWeightArmor": 5.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 6.5,
+          "getWeightEngine": 19.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 25.0,
+          "getWeightWeapon": 56.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "250 Fusion",
+        "ownerAwareRating": 250.0,
+        "rating": 250
+      },
+      "entityClass": "megamek.common.units.SuperHeavyTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 13,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Front Right",
+          "originalArmor": 12,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Front Left",
+          "originalArmor": 12,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear Right",
+          "originalArmor": 12,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Rear Left",
+          "originalArmor": 12,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 6,
+          "name": "Rear",
+          "originalArmor": 7,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 7,
+          "name": "Turret",
+          "originalArmor": 12,
+          "originalInternal": 13
+        }
+      ],
+      "model": "",
+      "mountCount": 5,
+      "movementMode": "Tracked",
+      "originalWalkMP": 2,
+      "path": "vehicles/XTRs/Corporations/SturmFeur Kalki Cruise Missile Launcher.blk",
+      "sha256": "1412fee67e99acecca43f3af50f827cd2a4eca952ce3ae466f35a2552502a50d",
+      "status": "loaded",
+      "tonnage": 125.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 485.0,
+          "baseBV": 485.31,
+          "defensiveValue": 306.81,
+          "offensiveValue": 178.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 485
+      },
+      "chassis": "Cavalry Attack Helicopter",
+      "concreteFamily": "VTOL",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 25.0,
+          "calculateWeightExact": 25.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 2.5,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 25.0,
+          "getWeightAllocatedArmor": 4.0,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 4.0,
+          "getWeightCarryingSpace": 4.0,
+          "getWeightControls": 1.5,
+          "getWeightEngine": 5.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 2.5,
+          "getWeightMiscEquip": 2.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.5,
+          "getWeightWeapon": 1.5
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "110 Fusion",
+        "ownerAwareRating": 110.0,
+        "rating": 110
+      },
+      "entityClass": "megamek.common.units.VTOL",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 22,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 22,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 23,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 22,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 15,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 22,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 15,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 22,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 9,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 22,
+          "barRating": 10,
+          "index": 5,
+          "name": "Rotor",
+          "originalArmor": 2,
+          "originalInternal": 3
+        }
+      ],
+      "model": "Cadence Rain",
+      "mountCount": 7,
+      "movementMode": "VTOL",
+      "originalWalkMP": 10,
+      "path": "vehicles/XTRs/Davion/Cavalry Attack Helicopter Cadence Rain.blk",
+      "sha256": "070e8f0c305a5b7a3da8a65e8c0a275ba7492ec67a7f79eb901f93b4eda526c1",
+      "status": "loaded",
+      "tonnage": 25.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 111.0,
+          "baseBV": 111.0,
+          "defensiveValue": 18.0,
+          "offensiveValue": 93.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.AeroBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 111
+      },
+      "chassis": "Mosquito Light Fighter",
+      "concreteFamily": "FixedWingSupport",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 19.9,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 1.5,
+          "getWeightAmmo": 2.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 8.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.8999999999999999,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 3.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "Fusion",
+        "ownerAwareRating": 120.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.FixedWingSupport",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 9,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 1,
+          "name": "Left Wing",
+          "originalArmor": 6,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 2,
+          "name": "Right Wing",
+          "originalArmor": 6,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 3,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 4,
+          "name": "Wings",
+          "originalArmor": 0,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 47,
+          "barRating": 6,
+          "index": 5,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "",
+      "mountCount": 8,
+      "movementMode": "Aerodyne",
+      "originalFuel": 150,
+      "originalWalkMP": 6,
+      "path": "vehicles/XTRs/Primitives II/Mosquito Light Fighter.blk",
+      "sha256": "5230da1ee307839748f07f2621056378ac5a5599cd71c98c1573865b1f8f208c",
+      "status": "loaded",
+      "structuralIntegrity": 6,
+      "tonnage": 20.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 281.0,
+          "baseBV": 280.7,
+          "defensiveValue": 278.0,
+          "offensiveValue": 2.7,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 281
+      },
+      "chassis": "J-27 Trailer",
+      "concreteFamily": "Tank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "weightMethods": {
+          "calculateWeight": 10.0,
+          "calculateWeightExact": 10.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 10.0,
+          "getWeightAllocatedArmor": 1.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 2.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 2.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 1.0,
+          "getWeightWeapon": 2.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "10 Fusion",
+        "ownerAwareRating": 10.0,
+        "rating": 10
+      },
+      "entityClass": "megamek.common.units.Tank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 5,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right",
+          "originalArmor": 5,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left",
+          "originalArmor": 5,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 6,
+          "barRating": 10,
+          "index": 4,
+          "name": "Rear",
+          "originalArmor": 4,
+          "originalInternal": 1
+        }
+      ],
+      "model": "(RISC) (Decoy)",
+      "mountCount": 6,
+      "movementMode": "Wheeled",
+      "originalWalkMP": 0,
+      "path": "vehicles/XTRs/RISC/J-27 Trailer (RISC) (Decoy).blk",
+      "sha256": "001af96f7338e5df04dacc50b363d154b02e5b61a902bdf167acfc77d125a7b5",
+      "status": "loaded",
+      "tonnage": 10.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 402.0,
+          "baseBV": 401.99199999999996,
+          "defensiveValue": 244.99999999999997,
+          "offensiveValue": 156.99200000000002,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.CombatVehicleBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 402
+      },
+      "chassis": "Barouche Military Transport",
+      "concreteFamily": "LargeSupportTank",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "weightMethods": {
+          "calculateWeight": 79.5,
+          "calculateWeightExact": 79.5,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.5,
+          "getWeight": 80.0,
+          "getWeightAllocatedArmor": 5.5,
+          "getWeightAmmo": 1.5,
+          "getWeightArmor": 4.0,
+          "getWeightCarryingSpace": 24.5,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 25.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 20.5,
+          "getWeightWeapon": 3.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "Fusion",
+        "ownerAwareRating": 500.0,
+        "rating": 0
+      },
+      "entityClass": "megamek.common.units.LargeSupportTank",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 1,
+          "name": "Front",
+          "originalArmor": 15,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 2,
+          "name": "Front Right",
+          "originalArmor": 10,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 3,
+          "name": "Front Left",
+          "originalArmor": 10,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 4,
+          "name": "Rear Right",
+          "originalArmor": 10,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 5,
+          "name": "Rear Left",
+          "originalArmor": 10,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 6,
+          "name": "Rear",
+          "originalArmor": 12,
+          "originalInternal": 8
+        },
+        {
+          "armorType": 49,
+          "barRating": 8,
+          "index": 7,
+          "name": "Turret",
+          "originalArmor": 16,
+          "originalInternal": 8
+        }
+      ],
+      "model": "",
+      "mountCount": 5,
+      "movementMode": "Hover",
+      "originalWalkMP": 7,
+      "path": "vehicles/XTRs/RetroTech/Barouche Hovercraft.blk",
+      "sha256": "09dece0e4172a2b87056635a49d6e871c924f96ed5f344ee76a84b4af3e7a6f8",
+      "status": "loaded",
+      "tonnage": 80.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 187814.0,
+          "baseBV": 187814.335,
+          "defensiveValue": 12920.0,
+          "offensiveValue": 174894.335,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.WarShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 187814
+      },
+      "chassis": "Aegis Heavy Cruiser",
+      "concreteFamily": "Warship",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "weightMethods": {
+          "calculateWeight": 750000.0,
+          "calculateWeightExact": 750000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 750000.0,
+          "getWeightAllocatedArmor": 37.0,
+          "getWeightAmmo": 4676.0,
+          "getWeightArmor": 598.0,
+          "getWeightCarryingSpace": 90559.0,
+          "getWeightControls": 1875.0,
+          "getWeightEngine": 90000.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 1020.0,
+          "getWeightGravDecks": 100.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 1577.0,
+          "getWeightKFDrive": 339375.0,
+          "getWeightLFBattery": 7500.0,
+          "getWeightLifeBoats": 140.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 2142.0,
+          "getWeightSail": 68.0,
+          "getWeightStructure": 56250.0,
+          "getWeightWeapon": 150120.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Warship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 91,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Front Side",
+          "originalArmor": 101,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Front Side",
+          "originalArmor": 101,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 91,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 4,
+          "name": "Aft Left Side",
+          "originalArmor": 101,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 5,
+          "name": "Aft Right Side",
+          "originalArmor": 101,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 6,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 7,
+          "name": "Left Broadsides",
+          "originalArmor": -1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 11,
+          "barRating": 10,
+          "index": 8,
+          "name": "Right Broadsides",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(2843)",
+      "mountCount": 123,
+      "movementMode": "Aerodyne",
+      "originalFuel": 2500,
+      "originalWalkMP": 2,
+      "path": "warship/3057/Clan/Aegis Heavy Cruiser (2843).blk",
+      "sha256": "4aa9c3916a2df9ad7025d1b5fd16e580e578f241cbed55e793f337966f0d2a25",
+      "status": "loaded",
+      "structuralIntegrity": 75,
+      "tonnage": 750000.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 33444.0,
+          "baseBV": 33444.0,
+          "defensiveValue": 3228.0,
+          "offensiveValue": 30216.0,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.WarShipBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 33444
+      },
+      "chassis": "Carrack Transport",
+      "concreteFamily": "Warship",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "weightMethods": {
+          "calculateWeight": 300000.0,
+          "calculateWeightExact": 300000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 300000.0,
+          "getWeightAllocatedArmor": 3.0,
+          "getWeightAmmo": 906.5,
+          "getWeightArmor": 70.0,
+          "getWeightCarryingSpace": 69702.5,
+          "getWeightControls": 750.0,
+          "getWeightEngine": 54000.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 2040.0,
+          "getWeightGravDecks": 50.0,
+          "getWeightHardpoints": 2000.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightKFDrive": 135750.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 56.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 50.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 1104.0,
+          "getWeightSail": 45.0,
+          "getWeightStructure": 4500.0,
+          "getWeightWeapon": 28976.0
+        }
+      },
+      "engine": {
+        "engineType": 0,
+        "name": "400 ICE",
+        "ownerAwareRating": 400.0,
+        "rating": 400
+      },
+      "entityClass": "megamek.common.units.Warship",
+      "failedEquipment": [],
+      "locations": [
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 0,
+          "name": "Nose",
+          "originalArmor": 10,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 1,
+          "name": "Left Front Side",
+          "originalArmor": 8,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Front Side",
+          "originalArmor": 8,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 3,
+          "name": "Aft",
+          "originalArmor": 9,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 4,
+          "name": "Aft Left Side",
+          "originalArmor": 6,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 5,
+          "name": "Aft Right Side",
+          "originalArmor": 6,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 6,
+          "name": "Hull",
+          "originalArmor": -1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 7,
+          "name": "Left Broadsides",
+          "originalArmor": -1,
+          "originalInternal": 0
+        },
+        {
+          "armorType": 41,
+          "barRating": 10,
+          "index": 8,
+          "name": "Right Broadsides",
+          "originalArmor": -1,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(Clan)",
+      "mountCount": 169,
+      "movementMode": "Aerodyne",
+      "originalFuel": 5000,
+      "originalWalkMP": 3,
+      "path": "warship/3067/Clan/Carrack Transport (Clan).blk",
+      "sha256": "04583911c7c5bcc9a48d01e9a70fdd3e93d10899c338f83c9edde2efab5c155a",
+      "status": "loaded",
+      "structuralIntegrity": 15,
+      "tonnage": 300000.0
+    }
+  ]
+}
