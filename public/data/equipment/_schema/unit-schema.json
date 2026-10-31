@@ -106,7 +106,9 @@
             "FUEL_CELL",
             "FISSION",
             "FLYWHEEL",
-            "BATTERY"
+            "BATTERY",
+            "NONE",
+            "STEAM"
           ],
           "description": "Engine type"
         },
@@ -209,9 +211,16 @@
             "BAR_5",
             "BAR_6",
             "BAR_7",
-            "BAR_9"
+            "BAR_9",
+            "BAR"
           ],
           "description": "Armor type"
+        },
+        "barRating": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "description": "Support vehicle BAR rating when armor type is BAR"
         },
         "allocation": {
           "type": "object",

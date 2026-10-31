@@ -32,6 +32,8 @@ from blk_conversion_runner import (
 from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
+    BAR_ARMOR_CODE_OFFSET,
+    BAR_ARMOR_CODES,
     MOTION_TYPE_MAP,
     UNSUPPORTED_UNIT_TYPES,
     VEHICLE_ARMOR_LOCATIONS,
@@ -163,11 +165,12 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
         motion_raw = "VTOL"
     motion_type = map_motion_type(motion_raw)
 
-    # Override unit_type discriminator for VTOL vs Tank
-    if unit_type_raw == "VTOL" or motion_type == "VTOL":
+    # Override unit_type discriminator for VTOL vs Tank. Spellings are the
+    # app's UnitType values; SupportVTOL stays a Support Vehicle (VTOL motion).
+    if unit_type_raw in ("SupportTank", "SupportVTOL"):
+        unit_type_out = "Support Vehicle"
+    elif unit_type_raw == "VTOL" or motion_type == "VTOL":
         unit_type_out = "VTOL"
-    elif unit_type_raw in ("SupportTank", "SupportVTOL"):
-        unit_type_out = "SupportVehicle"
     else:
         unit_type_out = "Vehicle"
 
@@ -191,6 +194,15 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     armor_values = parse_armor_array(armor_raw)
     armor_code = get_string(tags, "armor_type")
     armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
+    bar_rating = None
+    if parse_number(armor_code) in BAR_ARMOR_CODES:
+        # BLKFile.java:501-503 reads the rating from `barrating`; the armor_type
+        # code (43..51 = BAR 2..10) agrees with it and is the fallback.
+        armor_type_str = "BAR"
+        bar_rating = int(
+            parse_number(get_string(tags, "barrating"))
+            or parse_number(armor_code) - BAR_ARMOR_CODE_OFFSET
+        )
 
     # Build per-location armor dict
     armor_by_location: Dict[str, int] = {}
@@ -241,6 +253,9 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
         },
         "equipment": equipment,
     }
+
+    if bar_rating is not None:
+        output["armor"]["barRating"] = bar_rating
 
     if mul_id is not None:
         output["mulId"] = mul_id
