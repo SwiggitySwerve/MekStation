@@ -87,6 +87,10 @@ describe('BLK aerospace structural integrity default', () => {
       ['AeroSpaceFighter', 'Heavy', 100, 3, 10],
       // Boeing Jump Bomber: 20 t, thrust 9.
       ['ConvFighter', 'Boeing Jump Bomber', 20, 9, 9],
+      // Rapier RPR-100b-EC: 85 t, thrust 6. floor(8.5) = 8 wins; ceil would give 9.
+      ['AeroSpaceFighter', 'Rapier RPR-100b-EC', 85, 6, 8],
+      // Raubvogel Aerobomber AB-18C: 45 t, thrust 4. floor(4.5) = 4; ceil would give 5.
+      ['ConvFighter', 'Raubvogel Aerobomber AB-18C', 45, 4, 4],
     ])(
       '%s %s (%d t, thrust %d) defaults SI to %d',
       (unitType, name, tonnage, safeThrust, expected) => {
@@ -116,6 +120,18 @@ describe('BLK aerospace structural integrity default', () => {
           structuralIntegrity: 9,
         }),
       ).toBe(9);
+    });
+
+    it('keeps an explicit 0 tag rather than deriving (MekStation choice; MegaMek ignores the tag on fighters)', () => {
+      expect(
+        si({
+          unitType: 'Aero',
+          name: 'Zero Tagged',
+          tonnage: 45,
+          safeThrust: 5,
+          structuralIntegrity: 0,
+        }),
+      ).toBe(0);
     });
 
     it('does not derive SI for small craft, which carry an explicit tag', () => {

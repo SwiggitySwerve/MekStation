@@ -84,9 +84,12 @@ export function mapBlkUnitType(unitTypeStr: string): UnitType | undefined {
  * Structural integrity for a fighter-class BLK document.
  *
  * Fighter, conventional fighter and FixedWingSupport sources carry no
- * structural_integrity tag; MegaMek derives it on load. An explicit tag is
- * kept, and every other aerospace family (small craft, capital ships) reads
- * its tag as-is.
+ * structural_integrity tag; MegaMek derives it on load. An explicit tag on a
+ * fighter is kept (even 0) so MekStation's own exports round-trip. That is a
+ * MekStation choice, not MegaMek's: MegaMek's fighter loaders never read the
+ * tag, and its writer emits it only for small craft and JumpShips
+ * (BLKFile.java:1070-1072). UL-12a owns that decision. Every other aerospace
+ * family (small craft, capital ships) reads its tag as-is.
  *
  * MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
  * - Aero.java:804-808: max(floor(weight / 10), walk MP), walk MP = SafeThrust

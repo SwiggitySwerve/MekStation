@@ -260,7 +260,7 @@ export interface IVehicleBlkResult {
 
 /**
  * Parsed aerospace-specific data from a BLK document.
- * Covers Aero / AeroSpaceFighter, ConvFighter, and SmallCraft.
+ * Covers Aero / AeroSpaceFighter, ConvFighter, FixedWingSupport, and SmallCraft.
  */
 export interface IAerospaceBlkResult {
   readonly name: string;
@@ -290,7 +290,7 @@ export interface IAerospaceBlkResult {
   readonly role?: string;
   readonly source?: string;
   readonly quirks?: readonly string[];
-  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | SmallCraft) */
+  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | FixedWingSupport | SmallCraft) */
   readonly blkUnitType: string;
 }
 
