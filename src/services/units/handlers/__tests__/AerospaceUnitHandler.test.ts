@@ -116,7 +116,7 @@ describe('AerospaceUnitHandler', () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.movement.safeThrust).toBe(5);
-      expect(result.data?.unit?.movement.maxThrust).toBe(7);
+      expect(result.data?.unit?.movement.maxThrust).toBe(8);
     });
 
     it('should parse fuel', () => {

@@ -2,7 +2,8 @@
  * Aerospace Thrust Calculations
  *
  * Derives Safe Thrust and Max Thrust from engine rating and tonnage.
- * Max thrust is floor(safeThrust × 1.5) per construction rules.
+ * Max thrust is ceil(safeThrust × 1.5), the upward-rounded run MP of pinned
+ * MegaMek.
  *
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  * Requirement: Aerospace Thrust Derivation
@@ -79,10 +80,14 @@ export function calculateSafeThrust(
 
 /**
  * Calculate max thrust from safe thrust.
- * maxThrust = floor(safeThrust × 1.5)
+ * maxThrust = ceil(safeThrust × 1.5)
+ *
+ * MegaMek 48fcb2f64a1b Entity.java:4004-4016 (via Aero.java:1656-1658 when
+ * airborne); MegaMekLab 62bf19360382 MovementView.java:295. Station-keeping
+ * JumpShips and space stations have no safe thrust to round.
  */
 export function calculateMaxThrust(safeThrust: number): number {
-  return Math.floor(safeThrust * 1.5);
+  return Math.ceil(safeThrust * 1.5);
 }
 
 /**

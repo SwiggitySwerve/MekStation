@@ -2,7 +2,7 @@
  * Aerospace thrust derivation invariants.
  *
  * safeThrust = floor(rating / tonnage), clamped to per-subtype cap.
- * maxThrust = floor(safeThrust × 1.5).
+ * maxThrust = ceil(safeThrust × 1.5).
  * Engine legality is restricted per sub-type (CF: ICE/FuelCell only).
  */
 
@@ -60,10 +60,10 @@ describe('calculateSafeThrust', () => {
   });
 });
 
-describe('calculateMaxThrust (safeThrust × 1.5, floored)', () => {
-  it('returns floor(safeThrust × 1.5)', () => {
+describe('calculateMaxThrust (safeThrust × 1.5, rounded up)', () => {
+  it('returns ceil(safeThrust × 1.5)', () => {
     expect(calculateMaxThrust(4)).toBe(6); // 4×1.5 = 6
-    expect(calculateMaxThrust(5)).toBe(7); // 7.5 → floor → 7
+    expect(calculateMaxThrust(5)).toBe(8); // 7.5 → ceil → 8
     expect(calculateMaxThrust(6)).toBe(9);
     expect(calculateMaxThrust(8)).toBe(12);
   });

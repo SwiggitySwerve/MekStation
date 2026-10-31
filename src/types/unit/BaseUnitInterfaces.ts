@@ -180,7 +180,7 @@ export enum AerospaceMotionType {
 export interface IAerospaceMovement {
   /** Safe thrust rating */
   readonly safeThrust: number;
-  /** Maximum thrust rating (safe * 1.5) */
+  /** Maximum thrust rating (ceil(safe * 1.5)) */
   readonly maxThrust: number;
 }
 
