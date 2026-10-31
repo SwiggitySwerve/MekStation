@@ -1,5 +1,28 @@
 # Combat-vehicle construction rules
 
+## Turret armor lifecycle
+
+`armor.ts` owns the installed-turret armor projection and total. The state
+module retains a compatibility export; the status bar uses the same projection
+for BV input. Selecting None clears both configurations and both allocations.
+Installing a previously absent turret starts its armor at zero; editing an
+installed turret preserves armor. Hull, body and rotor values are preserved.
+Real store save/reopen tests enforce the removal and BV armor-input agreement.
+
+Pinned MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`,
+[CVStructureTab.java:272](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/ui/combatVehicle/CVStructureTab.java#L272)
+unallocates removed mounts; lines 285-292 initialize armor to zero and
+[769-793](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/ui/combatVehicle/CVStructureTab.java#L769)
+remove both turrets for None. MekStation's fixed-key map clears removed armor
+immediately so removal survives serialization and reinstallation.
+
+Equipment unallocation remains unimplemented: upstream retains mounts at
+`Entity.LOC_NONE`, while the canonical spec's Body relocation is obsolete.
+This bounded fix preserves equipment and does not certify equipment effects
+on weight, heat or BV. Legacy inconsistent turret configurations, primary
+Dual versus the separate secondary toggle, and full mount-state validation
+remain separate work. No catalog data is migrated or regenerated.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion
