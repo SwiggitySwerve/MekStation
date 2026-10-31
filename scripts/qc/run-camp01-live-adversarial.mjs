@@ -88,6 +88,87 @@ async function artifactAtomicityProbe({ scratchRoot }) {
   return { evidence: { existingBytesPreserved: (await fs.readFile(artifactPath, 'utf8')) === expectedBytes, replacementRejectedWith: rejectedWith } };
 }
 
+// Picks the commit the probe anchors, then proves it through the Git anchor authority.
+export async function selectEnvelopeAnchor({
+  git,
+  initiatingRoot,
+  sessionDirectory,
+  initiatingHeadSha,
+  initiatingTreeSha,
+  fetchedMainOid,
+  fetchCheckRuns,
+  sessionGitDependencies,
+}) {
+  const sessionGitOutput = async (args) =>
+      (await invokeGit({ git, args, cwd: sessionDirectory })).stdout.trim(),
+    anchor = createAnchorAuthority(
+      { git, cwd: initiatingRoot },
+      { fetchCheckRuns },
+    ),
+    sessionAnchor = createAnchorAuthority(
+      { git, cwd: sessionDirectory },
+      { fetchCheckRuns, gitDependencies: sessionGitDependencies },
+    );
+  const isAncestor = async (ancestor, descendant) => {
+    try {
+      await sessionGitOutput([
+        'merge-base',
+        '--is-ancestor',
+        ancestor,
+        descendant,
+      ]);
+      return true;
+    } catch (error) {
+      if (error instanceof Camp01GitError) return false;
+      throw error;
+    }
+  };
+  let anchorSha = initiatingHeadSha,
+    anchorTreeSha = initiatingTreeSha,
+    anchorSource = 'initiating-head';
+  // prettier-ignore
+  const candidate=()=>({command:{sha:anchorSha,treeSha:anchorTreeSha,mode:'exact-main',capProvenance:null}});
+  try {
+    await anchor(candidate(), { fetchedMainOid });
+  } catch (error) {
+    // prettier-ignore
+    if (!(error instanceof Camp01FactsError)||error.message!=='CAMP01_FACTS_INVALID: anchor main reachability drift') throw error;
+    // Main may have advanced past a shallow checkout that never held its objects, so the
+    // checkout cannot answer ancestry. The session repo can: a HEAD that is an ancestor of
+    // fetched main is still the genuine anchor, and the session authority re-proves it
+    // (HEAD's tree must equal the checkout's) rather than substituting main for it.
+    if (await isAncestor(initiatingHeadSha, fetchedMainOid)) {
+      await sessionAnchor(candidate(), { fetchedMainOid });
+      return { anchorSha, anchorTreeSha, anchorSource };
+    }
+    // Dev heads may be ahead of main; prefer fetched main, then its local merge-base.
+    try {
+      anchorSha = fetchedMainOid;
+      anchorTreeSha = await sessionGitOutput([
+        'rev-parse',
+        '--verify',
+        `${anchorSha}^{tree}`,
+      ]);
+      anchorSource = 'fetched-main';
+    } catch (fallbackError) {
+      if (!(fallbackError instanceof Camp01GitError)) throw fallbackError;
+      anchorSha = await sessionGitOutput([
+        'merge-base',
+        initiatingHeadSha,
+        fetchedMainOid,
+      ]);
+      anchorTreeSha = await sessionGitOutput([
+        'rev-parse',
+        '--verify',
+        `${anchorSha}^{tree}`,
+      ]);
+      anchorSource = 'merge-base';
+    }
+    await anchor(candidate(), { fetchedMainOid });
+  }
+  return { anchorSha, anchorTreeSha, anchorSource };
+}
+
 async function envelopeAnchorProbe({ scratchRoot }) {
   const initiatingRoot = path.resolve(process.cwd());
   let git;
@@ -134,45 +215,15 @@ async function envelopeAnchorProbe({ scratchRoot }) {
     ),
     fetchCheckRuns = (sha) =>
       fetchGitHubResource({ resource: 'check-runs', parameters: { sha } }),
-    anchor = createAnchorAuthority(
-      { git, cwd: initiatingRoot },
-      { fetchCheckRuns },
-    );
-  let anchorSha = initiatingHeadSha,
-    anchorTreeSha = initiatingTreeSha,
-    anchorSource = 'initiating-head';
-  // prettier-ignore
-  const candidate=()=>({command:{sha:anchorSha,treeSha:anchorTreeSha,mode:'exact-main',capProvenance:null}});
-  try {
-    await anchor(candidate(), { fetchedMainOid });
-  } catch (error) {
-    // prettier-ignore
-    if (!(error instanceof Camp01FactsError)||error.message!=='CAMP01_FACTS_INVALID: anchor main reachability drift') throw error;
-    // Dev heads may be ahead of main; prefer fetched main, then its local merge-base.
-    try {
-      anchorSha = fetchedMainOid;
-      anchorTreeSha = await sessionGitOutput([
-        'rev-parse',
-        '--verify',
-        `${anchorSha}^{tree}`,
-      ]);
-      anchorSource = 'fetched-main';
-    } catch (fallbackError) {
-      if (!(fallbackError instanceof Camp01GitError)) throw fallbackError;
-      anchorSha = await sessionGitOutput([
-        'merge-base',
-        initiatingHeadSha,
-        fetchedMainOid,
-      ]);
-      anchorTreeSha = await sessionGitOutput([
-        'rev-parse',
-        '--verify',
-        `${anchorSha}^{tree}`,
-      ]);
-      anchorSource = 'merge-base';
-    }
-    await anchor(candidate(), { fetchedMainOid });
-  }
+    { anchorSha, anchorSource } = await selectEnvelopeAnchor({
+      git,
+      initiatingRoot,
+      sessionDirectory,
+      initiatingHeadSha,
+      initiatingTreeSha,
+      fetchedMainOid,
+      fetchCheckRuns,
+    });
   const priorShas = (
     await sessionGitOutput([
       'rev-list',
