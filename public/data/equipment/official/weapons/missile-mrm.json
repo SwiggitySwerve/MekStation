@@ -79,7 +79,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -90,6 +90,7 @@
       },
       "weight": 0.06,
       "criticalSlots": 1,
+      "ammoPerTon": 1,
       "costCBills": 5000,
       "battleValue": 9,
       "introductionYear": 3060,
@@ -102,7 +103,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -125,7 +126,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -136,6 +137,7 @@
       },
       "weight": 0.12,
       "criticalSlots": 2,
+      "ammoPerTon": 1,
       "costCBills": 10000,
       "battleValue": 9,
       "introductionYear": 3060,
@@ -148,7 +150,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -171,7 +173,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -182,6 +184,7 @@
       },
       "weight": 0.18,
       "criticalSlots": 2,
+      "ammoPerTon": 1,
       "costCBills": 15000,
       "battleValue": 18,
       "introductionYear": 3060,
@@ -194,7 +197,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -217,7 +220,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -228,6 +231,7 @@
       },
       "weight": 0.24,
       "criticalSlots": 3,
+      "ammoPerTon": 1,
       "costCBills": 20000,
       "battleValue": 23,
       "introductionYear": 3060,
@@ -240,7 +244,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -263,7 +267,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -274,6 +278,7 @@
       },
       "weight": 0.3,
       "criticalSlots": 3,
+      "ammoPerTon": 1,
       "costCBills": 25000,
       "battleValue": 28,
       "introductionYear": 3060,
@@ -286,7 +291,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -309,7 +314,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "minimum": 0,
@@ -332,7 +337,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "minimum": 0,
@@ -355,7 +360,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "minimum": 0,
@@ -378,7 +383,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "minimum": 0,
@@ -401,7 +406,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 10,
       "ranges": {
         "minimum": 0,
@@ -424,7 +429,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 10,
       "ranges": {
         "minimum": 0,
@@ -447,7 +452,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 12,
       "ranges": {
         "minimum": 0,
@@ -470,7 +475,7 @@
       "subType": "MRM",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 12,
       "ranges": {
         "minimum": 0,
