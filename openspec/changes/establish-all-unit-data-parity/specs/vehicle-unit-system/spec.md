@@ -44,6 +44,68 @@ The system SHALL manage engine configuration and derive movement points.
 Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Engine.java:409-438`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/Engine.java#L409).
 
+### Requirement: BLK Format Parsing — Combat Vehicles
+
+The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
+
+#### Scenario: Basic combat vehicle parsing
+
+- **GIVEN** a BLK document with `mappedUnitType: UnitType.VEHICLE`
+- **WHEN** parsing the document
+- **THEN** the handler SHALL extract:
+  - Motion type from `document.motionType` (case-insensitive, default: Tracked)
+  - Cruise/Flank MP from `document.cruiseMP`
+  - Engine rating as `cruiseMP × tonnage`
+  - Armor array mapped to locations in the MegaMek BLK order for standard (non-superheavy)
+    tanks: Front, Right, Left, Rear, Turret. Superheavy tanks use MegaMek's six-side layout
+    (`BLKTankFile.java:188-221`), which is not modelled yet
+
+#### Scenario: Turret detection in BLK
+
+- **WHEN** parsing equipment locations
+- **THEN** the handler SHALL detect turrets from:
+  - Equipment in `Turret Equipment` or `Turret` location keys
+  - `turrettype` raw tag (values: `dual`, `chin`)
+- **AND** default turret type SHALL be Single if turret equipment exists
+
+#### Scenario: Vehicle special flags from raw tags
+
+- **WHEN** parsing raw BLK tags
+- **THEN** the handler SHALL extract boolean flags:
+  - `environmentalsealing` → `hasEnvironmentalSealing`
+  - `flotationhull` → `hasFlotationHull`
+  - `amphibious` → `isAmphibious`
+  - `trailerhitch` → `hasTrailerHitch`
+  - `trailer` → `isTrailer`
+- **AND** boolean parsing SHALL accept `true` or `1` (case-insensitive)
+
+#### Scenario: Equipment location normalization
+
+- **WHEN** parsing equipment from BLK location keys
+- **THEN** the handler SHALL normalize locations:
+  - `Front Equipment` / `Front` → VehicleLocation.FRONT
+  - `Left Equipment` / `Left Side` → VehicleLocation.LEFT
+  - `Right Equipment` / `Right Side` → VehicleLocation.RIGHT
+  - `Rear Equipment` / `Rear` → VehicleLocation.REAR
+  - `Turret Equipment` / `Turret` → VehicleLocation.TURRET (turret-mounted)
+  - `Body Equipment` / `Body` / default → VehicleLocation.BODY
+
+#### Scenario: Armor array order follows MegaMek
+
+- **GIVEN** the pinned `<armor>` blocks `20 46 10 12` (Maxim Flanker) and `16 10 10 8 2 16`
+  (Red Kite Attack VTOL, a VTOL)
+- **WHEN** the combat-vehicle and VTOL handlers parse them and `formatVehicleArmor` exports the results
+- **THEN** Maxim Flanker SHALL load Front 20, Right 46, Left 10, Rear 12
+- **AND** Red Kite SHALL load Rotor 2 and Turret 16 (VTOL order is Front, Right, Left, Rear, Rotor, Turret)
+- **AND** the export SHALL write the same order back, so a MegaMek load of an exported file keeps each side
+- **AND** Red Kite's installed armor total SHALL include the turret and rotor (62)
+
+Order source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+[`Tank.java:123-130`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L123),
+[`BLKTankFile.java:195-200`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/loaders/BLKTankFile.java#L195),
+[`VTOL.java:79-80`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/VTOL.java#L79)
+and [`BLKVTOLFile.java:134-139`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/loaders/BLKVTOLFile.java#L134).
+
 ### Requirement: Vehicle Store Actions
 
 The system SHALL expose actions for modifying vehicle state.
@@ -76,6 +138,52 @@ The system SHALL expose actions for modifying vehicle state.
   - Mark state as modified
 
 ## ADDED Requirements
+
+### Requirement: Ordinary combat turret mechanism mass
+
+The existing turret owner SHALL charge 10% of resolved qualifying equipment mass
+for combat vehicles using default half-ton construction rounding and no assigned
+Omni base-chassis mechanism allowance. It SHALL round upward to a half ton,
+independently for each installed ordinary or VTOL chin turret. Chin SHALL use
+the same coefficient as Single and Dual. Validation and weight composition
+SHALL consume this rule, and the status bar SHALL display its resulting weight
+budget. Ammunition SHALL remain in total equipment mass and SHALL NOT increase
+the mechanism basis.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestTank.java:178-226`, `TestEntity.java:147-150,339-348`, and
+`TestXMLOption.java:284-285`. MegaMekLab
+`62bf19360382049e2e6a1e8f24e859e27bdc5878`, `CVChassisView.java:297-300`,
+labels the installed VTOL turret Chin. The pinned Java verifier returns 1 ton
+for a synthetic source-loaded Ferret with an actual resolved 7-ton PPC there;
+the synthetic design is construction-invalid and proves this term only.
+
+#### Scenario: Chin mass crosses a rounding boundary
+
+- **GIVEN** a combat chin turret with 5, 5.0001 or 7 tons of qualifying equipment
+- **WHEN** mechanism mass is calculated with the default ceiling
+- **THEN** its mass SHALL be 0.5, 1 or 1 tons respectively
+- **AND** validation SHALL accept 1 ton and reject 0.5 tons for the 7-ton case
+
+#### Scenario: Separate turrets round independently
+
+- **GIVEN** two combat turrets with 2.5 tons of qualifying equipment each
+- **WHEN** mechanism mass is composed
+- **THEN** each SHALL weigh 0.5 tons, for 1 ton combined
+
+#### Scenario: Chin ammunition stays in the equipment budget
+
+- **GIVEN** an installed chin turret carrying a resolved 7-ton PPC and four
+  1-ton ammunition bins
+- **WHEN** weight composition and the status bar calculate the budget
+- **THEN** equipment SHALL contribute 11 tons and mechanism SHALL contribute 1 ton
+- **AND** moving the ammunition to Body SHALL NOT change either term
+
+This correction does not implement Omni allowances, patchwork armor-mount
+classification, support-family rounding, sponsons, generic turret capacity,
+handler equipment materialization or complete unit/BV parity. The obsolete
+tonnage-based capacity requirements remain a separate tracked correction;
+legacy `maxWeight` values SHALL NOT be represented as genuine Omni allowances.
 
 ### Requirement: Installed combat-vehicle engine weight
 

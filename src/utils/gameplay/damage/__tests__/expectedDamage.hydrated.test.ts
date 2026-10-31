@@ -49,20 +49,17 @@ const LAUNCHERS: readonly (readonly [string, number, number, boolean])[] = [
   ...[2, 4, 6].map((n) => [`clan-streak-srm-${n}`, n, 2 * n, true] as const),
 ];
 
-// Native ProtoMek LRM racks. Their catalog entries still hydrate to damage 0 on
-// this base, so they are hydrated through `toAIWeapon` with the catalog-shaped
-// "1/missile" damage string the ProtoMek LRM data carries.
+// Native ProtoMek LRM racks, hydrated straight from their catalog records
+// (`clan-lrm-1..4`, `lrm6..19`).
 const PROTOMEK_LRM_RACKS = [
   1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14, 16, 17, 18, 19,
 ];
 
 function hydrateProtoLrm(rack: number): IWeapon {
-  const base = lookup('lrm-10');
-  if (!base) throw new Error('lrm-10 missing from the weapon catalog');
-  return toAIWeapon(
-    { ...base, id: `lrm${rack}`, name: `LRM ${rack}`, damage: '1/missile' },
-    0,
-  );
+  const id = rack <= 4 ? `clan-lrm-${rack}` : `lrm${rack}`;
+  const stats = lookup(id);
+  if (!stats) throw new Error(`${id} missing from the weapon catalog`);
+  return toAIWeapon(stats, 0);
 }
 
 /**

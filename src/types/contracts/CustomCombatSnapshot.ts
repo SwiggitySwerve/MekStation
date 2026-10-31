@@ -66,6 +66,11 @@ export const customCombatSnapshotSchema = mech
   .extend({
     unitType: z.literal('BattleMech'),
     configuration: z.literal('Biped'),
+    // The generated engine enum is shared with vehicles; NONE and STEAM
+    // (BLKFile.java:88,90) are vehicle-only and refused on a BattleMech.
+    engine: mech.shape.engine.extend({
+      type: mech.shape.engine.shape.type.exclude(['NONE', 'STEAM']),
+    }),
     armor: z
       .object({
         type: z.enum(BATTLEMECH_ARMOR_TYPES),

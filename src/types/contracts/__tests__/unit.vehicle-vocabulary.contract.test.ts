@@ -1,10 +1,13 @@
 /**
  * Converter-emitted vehicle JSON must pass `UnitContract` and use the
  * `UnitType` spellings the BV dispatcher reads. Fixtures are the output of
- * `blk_vehicle_converter.py` for three pinned mm-data sources:
- *   - J-27 Ordnance Transport (Trailer): engine_type 8 (`NONE`)
- *   - Boreas Cavalry Hovercraft (Prime): support tank, BAR 8 armor
- *   - Tonbo Superheavy Transport: support VTOL, BAR 7 armor
+ * `blk_vehicle_converter.py` for three sources in mm-data
+ * 50f7efef0c9f775b0258f8283525ed4f906e1985, under `data/mekfiles/vehicles/`:
+ *   - `3039u/J-27 Ordnance Transport (Trailer).blk`: engine_type 8 (`NONE`)
+ *   - `AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk`: support
+ *     tank, BAR 8 armor
+ *   - `3085u/Cutting Edge/Tonbo Superheavy Transport.blk`: support VTOL,
+ *     BAR 7 armor
  */
 
 import fs from 'node:fs';
@@ -102,6 +105,32 @@ describe('converter vehicle vocabulary against UnitContract', () => {
     'does not dispatch the retired converter spelling %s',
     (unitType) => {
       expect(dispatches({ unitType })).toBe(false);
+    },
+  );
+});
+
+describe('BattleMech branch and the shared engine enum', () => {
+  // The schema generator can only add `required`/nested `properties` per unit
+  // type, so the vehicle engine codes (BLKFile.java:88,90: NONE = 8,
+  // STEAM = 10) are in the enum every branch shares. The BattleMech branch
+  // therefore admits them; the custom-combat snapshot narrows them away
+  // (customCombatDefinition.test.ts). Narrowing the mech branch is a
+  // deliberate change that should update this test.
+  const atlas = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        process.cwd(),
+        'public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json',
+      ),
+      'utf-8',
+    ),
+  ) as { engine: Record<string, unknown> };
+
+  it.each(['NONE', 'STEAM'])(
+    'admits engine %s on a BattleMech through UnitContract',
+    (type) => {
+      const unit = { ...atlas, engine: { ...atlas.engine, type } };
+      expect(UnitContract.safeParse(unit).success).toBe(true);
     },
   );
 });

@@ -19,7 +19,11 @@
 
 import type { ResultType } from '@/types/common/result';
 
-import { ProtoMechLocation } from '../construction/UnitLocation';
+import {
+  ProtoMechLocation,
+  VehicleLocation,
+  VTOLLocation,
+} from '../construction/UnitLocation';
 import { UnitType } from '../unit/BattleMechInterfaces';
 import { ProtoChassis } from '../unit/ProtoMechInterfaces';
 
@@ -31,6 +35,34 @@ export const BLK_PROTOMECH_ARMOR_LOCATIONS = [
   ProtoMechLocation.LEFT_ARM,
   ProtoMechLocation.LEGS,
   ProtoMechLocation.MAIN_GUN,
+] as const;
+
+/**
+ * Shared `<armor>` order for standard (non-superheavy) combat vehicle BLK import
+ * and export. MegaMek numbers the sides Front, Right, Left, Rear
+ * (`Tank.java:123-130`) and `BLKTankFile.java:195-200` copies the array to those
+ * locations in order. Superheavy tanks use a six-side layout that is not
+ * modelled here.
+ */
+export const BLK_VEHICLE_ARMOR_LOCATIONS = [
+  VehicleLocation.FRONT,
+  VehicleLocation.RIGHT,
+  VehicleLocation.LEFT,
+  VehicleLocation.REAR,
+  VehicleLocation.TURRET,
+] as const;
+
+/**
+ * Shared `<armor>` order for VTOL BLK import and export: the Tank sides, then
+ * Rotor and chin Turret (`VTOL.java:79-80`, `BLKVTOLFile.java:134-139`).
+ */
+export const BLK_VTOL_ARMOR_LOCATIONS = [
+  VTOLLocation.FRONT,
+  VTOLLocation.RIGHT,
+  VTOLLocation.LEFT,
+  VTOLLocation.REAR,
+  VTOLLocation.ROTOR,
+  VTOLLocation.TURRET,
 ] as const;
 
 /** Native BLK movement vocabulary; Ultraheavy is a weight category, not motion. */

@@ -19,7 +19,7 @@ from schema_gate import validate_unit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587, EquipmentType.java:85-138
+# MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587, EquipmentType.java:128-136
 # (T_ARMOR_SV_BAR_2 = 43 ... T_ARMOR_SV_BAR_10 = 51) and BLKFile.java:501-503
 # (`barrating` carries the rating). BLKFile.java:80-93 lists engine codes 8 NONE, 10 STEAM.
 VEHICLE_BASE = (

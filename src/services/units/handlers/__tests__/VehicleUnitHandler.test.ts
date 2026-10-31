@@ -225,9 +225,9 @@ describe('VehicleUnitHandler', () => {
       expect(result.data?.unit?.movement.flankMP).toBe(8); // ceil(5 * 1.5) = 8
     });
 
-    it('should parse armor by location', () => {
+    it('should parse armor by location in BLK order (Front, Right, Left, Rear, Turret)', () => {
       const doc = createMockBlkDocument({
-        armor: [20, 15, 15, 10, 12],
+        armor: [20, 16, 14, 10, 12],
       });
       const result = handler.parse(doc);
 
@@ -235,10 +235,10 @@ describe('VehicleUnitHandler', () => {
       expect(result.data?.unit?.armorByLocation[VehicleLocation.FRONT]).toBe(
         20,
       );
-      expect(result.data?.unit?.armorByLocation[VehicleLocation.LEFT]).toBe(15);
       expect(result.data?.unit?.armorByLocation[VehicleLocation.RIGHT]).toBe(
-        15,
+        16,
       );
+      expect(result.data?.unit?.armorByLocation[VehicleLocation.LEFT]).toBe(14);
       expect(result.data?.unit?.armorByLocation[VehicleLocation.REAR]).toBe(10);
       expect(result.data?.unit?.armorByLocation[VehicleLocation.TURRET]).toBe(
         12,
