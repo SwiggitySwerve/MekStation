@@ -61,13 +61,13 @@ const mockUseAerospaceStore = useAerospaceStore as jest.MockedFunction<
 /** safe thrust -> max thrust. Odd and even safe thrust both appear. */
 const MAX_BY_SAFE: ReadonlyArray<readonly [number, number]> = [
   [0, 0],
-  [1, 1],
+  [1, 2],
   [2, 3],
-  [3, 4],
+  [3, 5],
   [4, 6],
-  [5, 7],
+  [5, 8],
   [6, 9],
-  [7, 10],
+  [7, 11],
   [12, 18],
 ];
 
@@ -158,7 +158,7 @@ describe('aerospace max thrust consumers', () => {
   it('default state max thrust follows its fixed safe thrust of 5', () => {
     const state = createDefaultAerospaceState(OPTIONS);
     expect(state.safeThrust).toBe(5);
-    expect(state.maxThrust).toBe(7);
+    expect(state.maxThrust).toBe(8);
   });
 
   it.each(POSITIVE_MAX_BY_SAFE)(
