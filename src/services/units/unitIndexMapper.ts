@@ -3,7 +3,7 @@
  *
  * Shared by the browser (`CanonicalUnitService`) and Node
  * (`NodeCanonicalUnitService`) services so both read an `index.json` row the
- * same way. Pure: no fetch, no fs.
+ * same way. No fetch, no fs; rows that fail to map are logged and skipped.
  *
  * @spec openspec/specs/unit-services/spec.md
  */
@@ -11,6 +11,7 @@
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { logger } from '@/utils/logger';
 import { isValidUnitType } from '@/utils/validation/UnitCategoryMapper';
 
 import type { IUnitIndexEntry } from '../common/types';
@@ -106,22 +107,22 @@ export function mapRawIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
 }
 
 /**
- * Map every row of an index, skipping rows that fail to map. One bad row must
- * not empty the catalog; callers log each skipped row and decide whether a
- * skip is fatal (a strict load).
+ * Map every row of an index. A row that fails to map (an unknown `unitType`, a
+ * missing `path`, a non-object row) is skipped and logged once with its
+ * position and id, so one bad row never empties the catalog.
  */
-export function mapRawIndexRows(rows: readonly RawUnitIndexEntry[]): {
-  readonly entries: IUnitIndexEntry[];
-  readonly skipped: readonly Error[];
-} {
+export function mapRawIndexRows(
+  rows: readonly RawUnitIndexEntry[],
+): IUnitIndexEntry[] {
   const entries: IUnitIndexEntry[] = [];
-  const skipped: Error[] = [];
-  for (const raw of rows) {
+  rows.forEach((raw, position) => {
     try {
       entries.push(mapRawIndexEntry(raw));
     } catch (error) {
-      skipped.push(error instanceof Error ? error : new Error(String(error)));
+      const id = (raw as Partial<RawUnitIndexEntry> | null)?.id ?? '?';
+      const reason = error instanceof Error ? error.message : String(error);
+      logger.warn(`Skipping unit index row ${position} "${id}": ${reason}`);
     }
-  }
-  return { entries, skipped };
+  });
+  return entries;
 }

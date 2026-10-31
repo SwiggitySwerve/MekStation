@@ -22,8 +22,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { logger } from '@/utils/logger';
-
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
 import {
@@ -181,14 +179,13 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       return { entries: this.indexCache, raw: this.rawIndexCache };
     }
 
+    // Skipped rows (logged by the mapper) are neither listed nor loadable by
+    // id, as in the browser service.
+    const entries = mapRawIndexRows(rawFile.units);
+    const mappedIds = new Set(entries.map((entry) => entry.id));
     const rawMap = new Map<string, RawIndexUnit>();
     for (const unit of rawFile.units) {
-      rawMap.set(unit.id, unit);
-    }
-
-    const { entries, skipped } = mapRawIndexRows(rawFile.units);
-    for (const error of skipped) {
-      logger.warn(`Skipping unit index row: ${error.message}`);
+      if (unit && mappedIds.has(unit.id)) rawMap.set(unit.id, unit);
     }
     this.indexCache = entries;
     this.rawIndexCache = rawMap;

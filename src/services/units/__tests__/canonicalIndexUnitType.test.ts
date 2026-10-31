@@ -49,7 +49,7 @@ const INDEX = {
 describe('canonical index unitType', () => {
   let tempRoot: string;
 
-  function writeIndex(index: { units: readonly object[] }): void {
+  function writeIndex(index: { units: readonly unknown[] }): void {
     const dir = path.join(tempRoot, 'public/data/units/battlemechs');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'index.json'), JSON.stringify(index));
@@ -138,48 +138,78 @@ describe('canonical index unitType', () => {
     },
   );
 
-  describe('an index row with an unknown unitType', () => {
-    const BAD_ROW = { ...VEHICLE_ROW, id: 'bad-row', unitType: 'Hovercraft' };
+  describe('index rows that fail to map', () => {
+    const BAD_ROW = {
+      ...VEHICLE_ROW,
+      id: 'bad-row',
+      unitType: 'Hovercraft',
+      path: 'bad-row.json',
+    };
+    const NO_PATH_ROW = { ...MECH_ROW, id: 'no-path', path: undefined };
+    let warn: jest.SpyInstance;
 
     beforeEach(() => {
       writeIndex({ units: [MECH_ROW, BAD_ROW, VEHICLE_ROW] });
+      warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
     });
 
-    it('is skipped and logged by the browser service, keeping the other rows', async () => {
-      const warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
-      const entries = await new CanonicalUnitService().getIndex();
-      expect(entries.map((e) => e.id)).toEqual([
+    afterEach(() => warn.mockRestore());
+
+    it('are skipped, logged once and the partial index cached by the browser service', async () => {
+      const service = new CanonicalUnitService();
+      expect((await service.getIndex()).map((e) => e.id)).toEqual([
         'atlas-as7-d',
         'demolisher-ii',
       ]);
+      await service.query({});
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledTimes(1);
       expect(warn).toHaveBeenCalledWith(
         expect.stringMatching(/bad-row.*Hovercraft/),
       );
-      warn.mockRestore();
     });
 
-    it('fails a strict browser load, even after a lenient one', async () => {
-      const warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+    it('do not fail a strict browser load of the rows that did map', async () => {
       const service = new CanonicalUnitService();
-      await service.getIndex();
-      await expect(service.getIndex({ strict: true })).rejects.toThrow(
-        /bad-row.*Hovercraft/,
-      );
-      warn.mockRestore();
+      expect(await service.getIndex({ strict: true })).toHaveLength(2);
+      await expect(
+        service.getById('atlas-as7-d', { strict: true }),
+      ).resolves.not.toBeNull();
+      await expect(
+        service.getById('bad-row', { strict: true }),
+      ).resolves.toBeNull();
     });
 
-    it('is skipped and logged by the Node service, keeping the other rows', () => {
-      const warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+    it('are skipped by the Node service and not loadable by id there either', () => {
+      // A real unit file at the skipped row's path: Node must not load it.
+      fs.copyFileSync(
+        path.join(
+          process.cwd(),
+          'public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json',
+        ),
+        path.join(tempRoot, 'public/data/units/battlemechs/bad-row.json'),
+      );
       const service = new NodeCanonicalUnitService(tempRoot);
       expect(service.getIndexSync().map((e) => e.id)).toEqual([
         'atlas-as7-d',
         'demolisher-ii',
       ]);
-      expect(service.getByIdSync('atlas-as7-d')).toBeNull();
+      expect(service.getByIdSync('bad-row')).toBeNull();
       expect(warn).toHaveBeenCalledWith(
         expect.stringMatching(/bad-row.*Hovercraft/),
       );
-      warn.mockRestore();
+    });
+
+    it('name the row in the log whatever the failure, and a null row does not stop Node', async () => {
+      writeIndex({ units: [MECH_ROW, NO_PATH_ROW, null] });
+      expect(
+        new NodeCanonicalUnitService(tempRoot).getIndexSync().map((e) => e.id),
+      ).toEqual(['atlas-as7-d']);
+      expect(
+        (await new CanonicalUnitService().getIndex()).map((e) => e.id),
+      ).toEqual(['atlas-as7-d']);
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/1 "no-path"/));
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/2 "\?"/));
     });
   });
 });
