@@ -60,6 +60,16 @@ def selfcheck(rows):
     return problems
 
 
+def load_manifest_rows():
+    return json.loads((RUNTIME_REFERENCE / 'corpus/manifest.json').read_text(encoding='utf-8'))['rows']
+
+
+def source_drift(rows, manifest_rows):
+    """Paths whose source sha256 differs from the pinned corpus manifest (a missing entry counts as drift)."""
+    pinned = {entry['path']: entry['sha256'] for entry in manifest_rows}
+    return [r['path'] for r in rows if pinned.get('data/mekfiles/' + r['path']) != r.get('sha256')]
+
+
 def pick_fixture(rows):
     ordered = sorted((r for r in rows if r['status'] == 'loaded'), key=lambda r: r['sha256'])
     chosen = {r['path'] for r in ordered if r['path'] in KNOWN_REFERENCES}
@@ -117,10 +127,14 @@ def main():
     sources = list_sources(args.mekfiles)
     rows = run_java(args.mekfiles, sources, out_dir, 'full')
     failures = [r for r in rows if r['status'] != 'loaded']
+    drift = source_drift(rows, load_manifest_rows())
     summary = {'pins': PINS, 'sources': len(sources), 'rows': len(rows), 'loadFailures': len(failures),
                'stageFailures': sum('stageFailure' in r for r in rows), 'pathsReconciled': [r['path'] for r in rows] == sources,
-               'byClass': dict(sorted(collections.Counter(r.get('concreteFamily') for r in rows).items()))}
+               'sourceDrift': len(drift), 'byClass': dict(sorted(collections.Counter(r.get('concreteFamily') for r in rows).items()))}
     (out_dir / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+    if drift or not summary['pathsReconciled']:
+        sys.exit(f'Corpus run does not match the pinned sources ({len(drift)} drifted, paths reconciled: '
+                 f'{summary["pathsReconciled"]}):\n' + '\n'.join(drift[:20]))
     hashes = {n: digest(out_dir / n) for n in ('full.jsonl', 'full.list.txt', 'selfcheck.jsonl', 'summary.json', 'classes/VehicleAeroReferenceExporter.class')}
     hashes['VehicleAeroReferenceExporter.java'] = digest(HERE / 'java-reference/VehicleAeroReferenceExporter.java')
     for name in ('runtime-dependencies.json', 'compiled-runtime-files.json'):
