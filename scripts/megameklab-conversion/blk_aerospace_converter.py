@@ -147,10 +147,10 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         unit_type_out = "Aerospace"
     elif unit_type_raw in CF_TYPES:
         sub_type = "ConventionalFighter"
-        unit_type_out = "ConventionalFighter"
+        unit_type_out = "Conventional Fighter"
     else:
         sub_type = "SmallCraft"
-        unit_type_out = "SmallCraft"
+        unit_type_out = "Small Craft"
 
     # --- Required fields ---
     name = get_string(tags, "Name")
