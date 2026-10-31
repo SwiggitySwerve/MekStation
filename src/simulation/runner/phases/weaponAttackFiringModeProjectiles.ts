@@ -1,8 +1,9 @@
 import {
   damageForProjectiles,
+  isMissileClusterWeapon,
   lookupClusterHits,
+  missileRackSize,
 } from '@/utils/gameplay/clusterWeapons';
-import { isMissileWeapon } from '@/utils/gameplay/specialWeaponMechanics';
 
 import type { IWeapon, IWeaponFiringMode } from '../../ai/types';
 
@@ -68,29 +69,6 @@ export function resolveClusterModeHit(options: {
   };
 }
 
-function missileRackSize(weapon: IWeapon): number | undefined {
-  const pattern = /(?:lrm|srm|mrm|atm|mml)[\s-]?(\d+)/i;
-  const candidates = [weaponTypeFromMountId(weapon.id), weapon.id, weapon.name];
-
-  for (const candidate of candidates) {
-    const match = candidate.match(pattern);
-    if (!match) continue;
-    const size = parseInt(match[1], 10);
-    if (Number.isFinite(size) && size > 0) return size;
-  }
-
-  return undefined;
-}
-
-function isMissileClusterWeaponMount(weapon: IWeapon): boolean {
-  const baseId = weaponTypeFromMountId(weapon.id);
-  return (
-    isMissileWeapon(baseId) ||
-    isMissileWeapon(weapon.name) ||
-    /\bmml[\s-]?\d+/i.test(`${baseId} ${weapon.name}`)
-  );
-}
-
 function resolveMissileClusterHit(options: {
   baseWeapon: IWeapon;
   shotWeapon: IWeapon;
@@ -98,9 +76,10 @@ function resolveMissileClusterHit(options: {
   clusterContext?: IMissileClusterModifierContext;
 }): IResolvedShotWeapon {
   const { baseWeapon, clusterContext, d6Roller, shotWeapon } = options;
-  if (!isMissileClusterWeaponMount(baseWeapon)) return { weapon: shotWeapon };
+  if (!isMissileClusterWeapon(baseWeapon.id, baseWeapon.name))
+    return { weapon: shotWeapon };
 
-  const rackSize = missileRackSize(baseWeapon);
+  const rackSize = missileRackSize(baseWeapon.id, baseWeapon.name);
   if (rackSize === undefined) return { weapon: shotWeapon };
 
   const clusterDice = [d6Roller(), d6Roller()] as const;
@@ -148,7 +127,7 @@ function resolveStreakModeHit(options: {
   const { baseWeapon, clusterContext, shotWeapon } = options;
   if (!isStreakWeaponMount(baseWeapon)) return { weapon: shotWeapon };
 
-  const projectileCount = missileRackSize(baseWeapon);
+  const projectileCount = missileRackSize(baseWeapon.id, baseWeapon.name);
   if (projectileCount === undefined) {
     return { weapon: shotWeapon };
   }
