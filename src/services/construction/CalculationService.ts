@@ -18,6 +18,7 @@ import {
   type CockpitType as BVCockpitType,
 } from '@/utils/construction/battleValueTotals';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { calculateRunMP } from '@/utils/construction/movementCalculations';
 import { logger } from '@/utils/logger';
 
 import {
@@ -292,7 +293,7 @@ export class CalculationService implements ICalculationService {
    */
   calculateMovement = (mech: IEditableMech): IMovementProfile => {
     const walkMP = mech.walkMP;
-    const runMP = Math.floor(walkMP * 1.5);
+    const runMP = calculateRunMP(walkMP);
     const jumpMP = extractJumpMP(mech);
 
     return {

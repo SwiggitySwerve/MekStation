@@ -244,6 +244,51 @@ describe('VehicleStatusBar — turret weight', () => {
   // AC/10 is 12 t in the catalog; the turret is 10% of it, 1.2 -> 1.5 t.
   const AC10_IN_TURRET = [inTurret('ac-10', 'eq-1')];
 
+  it('charges the chin mechanism from real equipment mass, excluding ammunition', () => {
+    const state = {
+      ...createDefaultVehicleState({
+        name: 'Synthetic chin accounting',
+        tonnage: 20,
+        techBase: TechBase.INNER_SPHERE,
+        motionType: GroundMotionType.VTOL,
+      }),
+      ...SMALL_ENGINE,
+      armorTonnage: 0,
+      turret: turretConfig(TurretType.CHIN),
+      equipment: [
+        inTurret('ppc', 'weapon'),
+        ...[1, 2, 3, 4].map((id) => inTurret('ac-5-ammo', `ammo-${id}`)),
+      ],
+    };
+    const lookup = getEquipmentLookupService();
+    const calculate = (equipment = state.equipment) =>
+      computeVehicleWeightBreakdown({ ...state, equipment }, (id) =>
+        lookup.getById(id),
+      );
+    const chin = calculate();
+    expect(chin).toMatchObject({
+      equipment: 11,
+      turretEquipment: 7,
+      turretMounted: 11,
+      turret: 1,
+      remaining: 2,
+    });
+    // Body relocation changes only the location total, not either charged mass.
+    const bodyAmmo = state.equipment.map((item) =>
+      item.id === 'weapon'
+        ? item
+        : { ...item, location: VehicleLocation.BODY, isTurretMounted: false },
+    );
+    expect(calculate(bodyAmmo)).toMatchObject({
+      equipment: 11,
+      turretEquipment: 7,
+      turretMounted: 7,
+      turret: 1,
+      remaining: 2,
+    });
+    expect(weightFree(state)).toBe(2);
+  });
+
   it('charges the primary turret 10% of its equipment, to the half ton', () => {
     // 50 - 1 engine - 5 structure - 12 AC/10 - 1.5 turret - 2.5 controls
     expect(
