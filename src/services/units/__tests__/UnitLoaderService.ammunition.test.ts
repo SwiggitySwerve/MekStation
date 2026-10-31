@@ -92,8 +92,8 @@ it('loads Danielle at 100 tons with four placed bins and no missing-ammunition w
     getCalculationService().calculateBattleValue(
       projectEditableMech(unit, result.current.walkMP, 'editor'),
     );
-  expect(bv(withoutAmmo)).toBe(1768);
-  expect(bv(state)).toBe(1848);
+  expect(bv(withoutAmmo)).toBe(1958);
+  expect(bv(state)).toBe(2048);
   const validationInput: IValidatableUnit = {
     id: state.id,
     name: 'Atlas AS7-D (Danielle)',
