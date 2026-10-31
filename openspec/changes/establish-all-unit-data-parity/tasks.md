@@ -56,7 +56,7 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.24 Consolidate the total-to-projectile missile damage conversion without behavior change, then correct expected-damage/variance previews and their selector/forecast consumers against pinned MegaMek damage-per-missile semantics. Prove unchanged runner and selected-AMS outputs for every hydrated cluster/Streak launcher first; previews, Streak and rate-of-fire variants, damage-per-hit callers, source BV and complete ProtoMech combat remain open. (`combat-resolution`: Native cluster hits for represented integer racks)
 
-- [ ] 2.25 Round base BattleMech run MP upward in the construction calculation service that feeds customizer Battle Value, verified against pinned MegaMek and the catalog BV reference. MASC, supercharger, TSM, hardened-armor and shield run MP in the customizer path, and the remaining floor text in the canonical movement-system, hardened-armor-combat and README specs, remain open. (`movement-system`: Walk/Run MP Calculation)
+- [ ] 2.25 Round base BattleMech run MP upward in the construction calculation service that feeds customizer Battle Value, verified against pinned MegaMek and the catalog BV reference. MASC, supercharger, TSM, hardened-armor and shield movement in the customizer path (odd-walk hardened-armor BattleMechs now read run MP one above MegaMek), and the remaining floor text in the canonical movement-system, hardened-armor-combat and README specs, remain open. (`movement-system`: Walk/Run MP Calculation)
 
 ## 3. Complete typed data flows
 

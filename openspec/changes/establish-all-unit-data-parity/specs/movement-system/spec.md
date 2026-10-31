@@ -19,6 +19,9 @@ Movement points SHALL be calculated from engine rating and tonnage.
 
 Source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Entity.java:4004-4016`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L4004)
-(`getOriginalRunMP` and `getRunMP` use `ceil(walk × 1.5)`). MASC, supercharger, TSM,
-hardened armor and shields change run MP through separate rules (`Mek.java:1748-1761`)
-that this requirement does not define.
+(`getOriginalRunMP` and `getRunMP` use `ceil(walk × 1.5)`). MASC, supercharger
+and hardened armor change run MP in `Mek.getRunMP` (`Mek.java:1748-1761`); TSM
+and shields change walk MP in `BipedMek.getWalkMP` (`BipedMek.java:153-159` and
+`:191-203`). This requirement defines none of them, and the customizer path does
+not yet apply them: an odd-walk BattleMech with hardened armor gets run MP one
+higher than MegaMek.
