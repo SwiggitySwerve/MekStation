@@ -10,6 +10,7 @@ import {
   IMechRecordSheetData,
   RecordSheetDataSchema,
   UnsupportedUnitTypeError,
+  VehicleLocationArmorSchema,
 } from '@/types/printing';
 
 const commonUnit = {
@@ -266,6 +267,53 @@ describe('multi-type record sheet export', () => {
     expect(svg).toContain('Turret Weapons: AC/5');
     expect(svg).toContain('Hull Weapons: Machine Gun');
     expect(svg).toContain('BAR: 8');
+  });
+
+  it('preserves vehicle armor location order, values, and schema membership', () => {
+    const data = service.extractData({
+      ...vehicleUnit,
+      armorAllocation: {
+        Body: { current: 8, maximum: 18 },
+        Chin: { current: 7, maximum: 17 },
+        Rotor: { current: 6, maximum: 16 },
+        Turret: { current: 5, maximum: 15, bar: 8 },
+        Rear: { current: 4, maximum: 14 },
+        'Right Side': { current: 3, maximum: 13 },
+        'Left Side': { current: 2, maximum: 12 },
+        Front: { current: 0, maximum: 11 },
+        Unknown: { current: 99, maximum: 99 },
+      },
+    });
+    if (data.unitType !== 'vehicle') throw new Error('Expected vehicle data');
+
+    expect(data.armorLocations).toEqual([
+      { location: 'Front', current: 0, maximum: 11 },
+      { location: 'Left Side', current: 2, maximum: 12 },
+      { location: 'Right Side', current: 3, maximum: 13 },
+      { location: 'Rear', current: 4, maximum: 14 },
+      { location: 'Turret', current: 5, maximum: 15, bar: 8 },
+      { location: 'Rotor', current: 6, maximum: 16 },
+      { location: 'Chin', current: 7, maximum: 17 },
+      { location: 'Body', current: 8, maximum: 18 },
+    ]);
+    expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
+    expect(
+      VehicleLocationArmorSchema.safeParse({
+        location: 'Unknown',
+        current: 1,
+        maximum: 1,
+      }).success,
+    ).toBe(false);
+  });
+
+  it('preserves the Front placeholder when no recognized vehicle armor exists', () => {
+    const data = service.extractData({ ...vehicleUnit, armorAllocation: {} });
+    if (data.unitType !== 'vehicle') throw new Error('Expected vehicle data');
+
+    expect(data.armorLocations).toEqual([
+      { location: 'Front', current: 0, maximum: 0 },
+    ]);
+    expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
   });
 
   it('dispatches aerospace extraction and renders SI, fuel, arcs, bombs, and pilot edge', () => {

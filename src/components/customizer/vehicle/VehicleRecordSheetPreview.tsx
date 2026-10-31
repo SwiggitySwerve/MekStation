@@ -11,16 +11,15 @@
  *        Requirement: Record Sheet Preview Component Is Unit-Type Aware
  */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 
-import { useVehicleStore } from '@/stores/useVehicleStore';
 import { PAPER_DIMENSIONS, PaperSize } from '@/types/printing';
 
 import {
   RecordSheetCanvasPreview,
   useRecordSheetCanvasRenderer,
 } from '../preview/RecordSheetCanvasPreview';
-import { buildVehicleUnitObject } from './buildVehicleUnitObject';
+import { useVehicleRecordSheetUnit } from './useVehicleRecordSheetUnit';
 
 interface VehicleRecordSheetPreviewProps {
   /** Paper size for rendering. */
@@ -40,64 +39,7 @@ export function VehicleRecordSheetPreview({
   scale = 0.75,
   className = '',
 }: VehicleRecordSheetPreviewProps): React.ReactElement {
-  // Read every field the unit object needs directly from the vehicle store.
-  const id = useVehicleStore((s) => s.id);
-  const name = useVehicleStore((s) => s.name);
-  const chassis = useVehicleStore((s) => s.chassis);
-  const model = useVehicleStore((s) => s.model);
-  const tonnage = useVehicleStore((s) => s.tonnage);
-  const techBase = useVehicleStore((s) => s.techBase);
-  const rulesLevel = useVehicleStore((s) => s.rulesLevel);
-  const year = useVehicleStore((s) => s.year);
-  const unitType = useVehicleStore((s) => s.unitType);
-  const motionType = useVehicleStore((s) => s.motionType);
-  const cruiseMP = useVehicleStore((s) => s.cruiseMP);
-  const flankMP = useVehicleStore((s) => s.flankMP);
-  const armorType = useVehicleStore((s) => s.armorType);
-  const armorAllocation = useVehicleStore((s) => s.armorAllocation);
-  const barRating = useVehicleStore((s) => s.barRating);
-  const equipment = useVehicleStore((s) => s.equipment);
-
-  // Build the discriminated vehicle unit object for the record-sheet service.
-  const unitObject = useMemo(
-    () =>
-      buildVehicleUnitObject({
-        id,
-        name,
-        chassis,
-        model,
-        tonnage,
-        techBase,
-        rulesLevel,
-        year,
-        unitType,
-        motionType,
-        cruiseMP,
-        flankMP,
-        armorType,
-        armorAllocation,
-        barRating,
-        equipment,
-      }),
-    [
-      id,
-      name,
-      chassis,
-      model,
-      tonnage,
-      techBase,
-      rulesLevel,
-      year,
-      unitType,
-      motionType,
-      cruiseMP,
-      flankMP,
-      armorType,
-      armorAllocation,
-      barRating,
-      equipment,
-    ],
-  );
+  const unitObject = useVehicleRecordSheetUnit();
 
   const canvasRef = useRecordSheetCanvasRenderer({
     unitObject,
