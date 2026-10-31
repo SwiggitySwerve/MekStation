@@ -56,6 +56,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.24 Consolidate the total-to-projectile missile damage conversion without behavior change, then correct expected-damage/variance previews and their selector/forecast consumers against pinned MegaMek damage-per-missile semantics. Prove unchanged runner and selected-AMS outputs for every hydrated cluster/Streak launcher first; previews, Streak and rate-of-fire variants, damage-per-hit callers, source BV and complete ProtoMech combat remain open. (`combat-resolution`: Native cluster hits for represented integer racks)
 
+- [ ] 2.25 Consolidate the aerospace max thrust derivation across BLK basics, handlers, defaults, store actions and templates without behavior change, then round it upward against pinned MegaMek `Entity.getRunMP` for every airborne aerospace family and propagate it to the aerospace BV adapter inputs. Compare actual Java walk/run MP over the aerospace sources first; the `BlkParserService` aerospace parse result, JumpShip/space-station station-keeping thrust, aerospace BV formula parity and catalogs remain open. (`aerospace-unit-system`: Aerospace max thrust ownership)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.03 Share the existing ammunition-bin projection without changing its output, then forward live counts through the selector/forecast consumers and verify ammo-only updates; retain unknown-capacity readiness, active-composer and native ammunition gaps. (`to-hit-resolution`: Ammunition counts in preview consumers)
