@@ -28,6 +28,7 @@ import {
 } from '@/types/unit/VehicleInterfaces';
 import {
   computeEngineRating,
+  computeFlankMP,
   computeVehicleEngineWeight,
   validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
@@ -134,7 +135,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
     // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = Math.ceil(cruiseMP * 1.5);
+    const flankMP = computeFlankMP(cruiseMP);
     const jumpMP = document.jumpingMP || 0;
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 

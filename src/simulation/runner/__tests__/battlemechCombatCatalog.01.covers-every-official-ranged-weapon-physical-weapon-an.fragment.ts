@@ -327,10 +327,8 @@ it('classifies zero-damage official ranged weapons as explicit non-damage behavi
     .filter((id): id is string => typeof id === 'string')
     .sort();
 
-  // 279 -> 280: the Vehicular Grenade Launcher (ADVANCED, zero direct
-  // damage — one-shot smoke effect) joined the official catalog with the
-  // MTF-converter data-gap fixes; it classifies as nonstandard-data-gap.
-  expect(zeroDamageItems).toHaveLength(280);
+  // Twelve native ProtoMek LRM records now use 1/missile instead of zero.
+  expect(zeroDamageItems).toHaveLength(268);
   expect(unclassified).toEqual([]);
   expect(
     ids(

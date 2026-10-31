@@ -18,6 +18,7 @@ import type {
 
 import { TurretType, isSupportVehicle } from '@/types/unit/VehicleInterfaces';
 
+import { computeFlankMP } from './engine';
 import { computeVehicleStructurePoints } from './structure';
 import {
   calculateVehicleBV,
@@ -157,7 +158,7 @@ export interface VehicleBVStateSubset {
  * Convert a vehicle store state subset into `VehicleBVInput`.
  */
 export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
-  const flankMP = Math.floor(state.cruiseMP * 1.5);
+  const flankMP = computeFlankMP(state.cruiseMP);
   const totalArmorPoints = sumArmorAllocation(state.armorAllocation);
   const totalStructurePoints = sumStructurePoints(state.tonnage);
 

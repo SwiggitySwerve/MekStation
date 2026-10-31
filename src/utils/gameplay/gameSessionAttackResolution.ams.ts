@@ -10,7 +10,13 @@ import {
   findAvailableAmmoBin,
   isEnergyWeapon,
 } from './ammoTracking';
-import { isStreakWeapon, lookupClusterHits } from './clusterWeapons';
+import {
+  damageForProjectiles,
+  isMissileClusterWeapon,
+  isStreakWeapon,
+  lookupClusterHits,
+  missileRackSize,
+} from './clusterWeapons';
 import { type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import {
@@ -18,7 +24,6 @@ import {
   createAMSInterceptionEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
-import { isMissileWeapon } from './specialWeaponMechanics';
 import { weaponMountCoversTargetArc } from './weaponMountArcs';
 
 const PLAYTEST_3_AMS_OPTIONAL_RULES = new Set([
@@ -48,25 +53,6 @@ function canSelectedAMSReuseWithinWeaponPhase(
 function mountBaseId(weaponId: string): string {
   const match = weaponId.match(/^(.+)-(\d+)$/);
   return match ? match[1] : weaponId;
-}
-
-function missileRackSize(weaponId: string, weaponName: string): number | null {
-  const candidates = [mountBaseId(weaponId), weaponId, weaponName];
-  for (const candidate of candidates) {
-    const match = candidate.match(/(?:lrm|srm|mrm|atm|mml)[\s-]?(\d+)/i);
-    if (!match) continue;
-    const rackSize = Number.parseInt(match[1], 10);
-    if (Number.isFinite(rackSize) && rackSize > 0) return rackSize;
-  }
-  return null;
-}
-
-function isMissileClusterAttack(weaponId: string, weaponName: string): boolean {
-  return (
-    isMissileWeapon(mountBaseId(weaponId)) ||
-    isMissileWeapon(weaponName) ||
-    /\bmml[\s-]?\d+/i.test(`${weaponId} ${weaponName}`)
-  );
 }
 
 function canSelectedAMSIntercept(input: {
@@ -129,7 +115,7 @@ export function resolveSelectedAMSCluster(input: {
   const targetState = input.session.currentState.units[input.targetId];
   if (
     !targetState ||
-    !isMissileClusterAttack(input.weaponId, input.weaponName) ||
+    !isMissileClusterWeapon(input.weaponId, input.weaponName) ||
     !canSelectedAMSIntercept({
       mount: selectedMount,
       targetState,
@@ -141,7 +127,7 @@ export function resolveSelectedAMSCluster(input: {
   }
 
   const rackSize = missileRackSize(input.weaponId, input.weaponName);
-  if (rackSize === null) return undefined;
+  if (rackSize === undefined) return undefined;
 
   const streakClusterRoll =
     isStreakWeapon(mountBaseId(input.weaponId)) ||
@@ -219,6 +205,6 @@ export function resolveSelectedAMSCluster(input: {
 
   return {
     session: currentSession,
-    damage: (input.damage / rackSize) * projectilesRemaining,
+    damage: damageForProjectiles(input.damage, rackSize, projectilesRemaining),
   };
 }

@@ -1,8 +1,24 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IWeaponStatus } from '@/types/gameplay';
 
-function parseWeaponDamage(damage: IWeaponStatus['damage']): number {
+import { resolveCatalogDamage } from '@/simulation/runner/UnitHydrationWeapons';
+import { missileRackSize } from '@/utils/gameplay/clusterWeapons';
+
+/**
+ * Planning weapons carry the launcher total, as hydration does. An
+ * `"N/missile"` display string goes through hydration's own descriptor rule
+ * (`resolveCatalogDamage`) with the rack the shared owner reads; any other text
+ * keeps its leading number.
+ */
+function parseWeaponDamage(status: IWeaponStatus): number {
+  const { damage } = status;
   if (typeof damage === 'number') return damage;
+  const rack = missileRackSize(status.id, status.name);
+  const total = resolveCatalogDamage(
+    damage,
+    rack === undefined ? '' : String(rack),
+  );
+  if (total !== 0) return total;
   const parsed = Number.parseFloat(damage);
   return Number.isFinite(parsed) ? parsed : 0;
 }
@@ -22,7 +38,7 @@ export function weaponStatusToPlanningWeapon(status: IWeaponStatus): IWeapon {
     shortRange: status.ranges.short,
     mediumRange: status.ranges.medium,
     longRange: status.ranges.long,
-    damage: parseWeaponDamage(status.damage),
+    damage: parseWeaponDamage(status),
     heat: status.heat,
     minRange: status.ranges.minimum ?? 0,
     location: status.location,

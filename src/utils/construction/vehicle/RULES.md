@@ -75,7 +75,7 @@ legacy behavior, not zero actual support controls/lift mass or support parity.
 Tamerlane at rating155 independently has engine8.5, controls1, lift2,
 structure2, armor3, weapons3 and turret0.5 = 20 tons. Its additional heat-sink
 mass is zero in the pinned runtime reference; general vehicle heat-sink rules
-remain unresolved. No stored catalog ratings are migrated. Flank, turret rules,
+remain unresolved. No stored catalog ratings are migrated. Turret rules,
 full BV parity and broader construction validity remain separate work.
 
 Focused enforcement: `useVehicleStore.suspension.test.ts` exercises the real
@@ -111,3 +111,43 @@ resolution still counts as zero in legacy composition and is not parity-ready.
 The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
 handler approximations remain separate tracked defects; they are not actual
 Omni mechanism allowances. No catalog data or BV arithmetic changes here.
+
+## Base flank movement
+
+`engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
+rounded upward. [Entity.java:4004-4016](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L4004)
+provides the base rule; [Tank.java:1570-1575](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L1570)
+adds a separate armed-MASC override. The store helper is a compatibility export
+of the owner. Defaults, actions, validation, BV state adaptation, status and
+template displays consume it. Vehicle, VTOL and support imports retain their
+previous ceil results; the support import's nonpositive guard remains intact.
+
+The store factory derives flank from initial cruise after defaults and saved
+fields merge, so reopening, duplication and direct initialization cannot retain
+default or stale flank values. The persisted document keeps cruise as the source
+of truth. `useVehicleStore.flank.test.ts` exercises real registry save/reopen,
+duplication, rating edits and record-sheet movement transport. Component tests
+cover full/compact status and odd-cruise new-unit templates.
+
+The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
+movement enhancements are a distinct policy (`ProtoMek.java:612-616` booster
+override). Python BLK conversion already rounds upward; it retains its
+language-boundary expression. No copy of the old floor-based vehicle
+construction calculation remains. The same upstream rule still floors outside
+this owner, as separate follow-ups:
+
+- In-play flank after motive damage (`utils/gameplay/motiveDamage.ts`
+  `computeEffectiveMP`). MegaMek subtracts motive damage from cruise in
+  `Tank.getWalkMP` (`Tank.java:397`), and `Entity.getRunMP` then rounds up
+  (`Entity.java:4016`).
+- Aerospace max thrust (`aerospace/thrustCalculations.ts` and the aerospace
+  store, handlers and spec). Airborne `Aero.getRunMP` delegates to
+  `Entity.getRunMP` (`Aero.java:1656-1658`), and MegaMekLab derives Flank MP and
+  Max Thrust from one `Math.ceil(walk * 1.5)` (`MovementView.java:295`).
+- BattleMech run MP in `services/construction/CalculationService.ts`
+  `calculateMovement`, which feeds customizer BattleMech BV.
+
+ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
+Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
+remain separate work. This correction establishes only base movement and its
+propagation. It does not regenerate or migrate unit catalogs.

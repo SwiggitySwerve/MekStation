@@ -153,8 +153,8 @@ describe('computeFlankMP', () => {
     expect(computeFlankMP(4)).toBe(6);
   });
 
-  it('cruiseMP 5 → flank 7 (floor of 7.5)', () => {
-    expect(computeFlankMP(5)).toBe(7);
+  it('cruiseMP 5 → flank 8 (ceiling of 7.5)', () => {
+    expect(computeFlankMP(5)).toBe(8);
   });
 
   it('cruiseMP 8 → flank 12', () => {

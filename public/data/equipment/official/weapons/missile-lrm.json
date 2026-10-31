@@ -295,16 +295,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 2.2,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 110000.0,
       "battleValue": 139,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm12",
@@ -312,16 +319,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 2.4,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 120000.0,
       "battleValue": 141,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm13",
@@ -329,16 +343,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 2.6,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 130000.0,
       "battleValue": 161,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm14",
@@ -346,16 +367,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 2.8,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 140000.0,
       "battleValue": 163,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm16",
@@ -363,16 +391,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 3.2,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 160000.0,
       "battleValue": 214,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm17",
@@ -380,16 +415,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 3.4,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 170000.0,
       "battleValue": 215,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm18",
@@ -397,16 +439,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 3.6,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 180000.0,
       "battleValue": 217,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm19",
@@ -414,16 +463,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 3.8,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 190000.0,
       "battleValue": 218,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm6",
@@ -431,16 +487,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 1.2,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 60000.0,
       "battleValue": 69,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm7",
@@ -448,16 +511,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 1.4,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 70000.0,
       "battleValue": 82,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm8",
@@ -465,16 +535,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 1.6,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 80000.0,
       "battleValue": 93,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "lrm9",
@@ -482,16 +559,23 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "rulesLevel": "STANDARD",
+      "damage": "1/missile",
       "heat": 0,
-      "ranges": { "minimum": 0, "short": 0, "medium": 0, "long": 0 },
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
       "weight": 1.8,
       "criticalSlots": 0,
-      "costCBills": 0,
+      "costCBills": 90000.0,
       "battleValue": 95,
-      "introductionYear": 3060,
-      "special": []
+      "introductionYear": 3050,
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "improved-lrm-10",
@@ -1927,6 +2011,98 @@
       "battleValue": 45,
       "introductionYear": 2295,
       "special": []
+    },
+    {
+      "id": "clan-lrm-1",
+      "name": "LRM 1 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "battleValue": 17.0,
+      "weight": 0.2,
+      "costCBills": 10000.0,
+      "criticalSlots": 0,
+      "introductionYear": 3050,
+      "rulesLevel": "STANDARD",
+      "heat": 0,
+      "damage": "1/missile",
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
+      "allowedUnitTypes": ["ProtoMech"]
+    },
+    {
+      "id": "clan-lrm-2",
+      "name": "LRM 2 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "battleValue": 24.0,
+      "weight": 0.4,
+      "costCBills": 20000.0,
+      "criticalSlots": 0,
+      "introductionYear": 3050,
+      "rulesLevel": "STANDARD",
+      "heat": 0,
+      "damage": "1/missile",
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
+      "allowedUnitTypes": ["ProtoMech"]
+    },
+    {
+      "id": "clan-lrm-3",
+      "name": "LRM 3 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "battleValue": 34.0,
+      "weight": 0.6,
+      "costCBills": 30000.0,
+      "criticalSlots": 0,
+      "introductionYear": 3050,
+      "rulesLevel": "STANDARD",
+      "heat": 0,
+      "damage": "1/missile",
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
+      "allowedUnitTypes": ["ProtoMech"]
+    },
+    {
+      "id": "clan-lrm-4",
+      "name": "LRM 4 (Clan)",
+      "category": "Missile",
+      "subType": "LRM",
+      "techBase": "CLAN",
+      "battleValue": 46.0,
+      "weight": 0.8,
+      "costCBills": 40000.0,
+      "criticalSlots": 0,
+      "introductionYear": 3050,
+      "rulesLevel": "STANDARD",
+      "heat": 0,
+      "damage": "1/missile",
+      "ranges": {
+        "minimum": 0,
+        "short": 7,
+        "medium": 14,
+        "long": 21,
+        "extreme": 28
+      },
+      "allowedUnitTypes": ["ProtoMech"]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"
