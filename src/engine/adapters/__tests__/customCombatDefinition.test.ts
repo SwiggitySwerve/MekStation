@@ -65,6 +65,24 @@ it.each([
   },
 );
 
+it('refuses the vehicle-only engine types on the recorded snapshot', () => {
+  // The shared generated engine enum also serves vehicles (BLKFile.java:88,90:
+  // NONE = 8, STEAM = 10). A BattleMech snapshot must still refuse them.
+  const projected = parseCustomCombatDefinition(saved, saved.id);
+  if (!projected) {
+    throw new Error('expected a valid custom combat snapshot');
+  }
+  for (const type of ['NONE', 'STEAM']) {
+    const engine = { ...projected.engine, type };
+    expect(
+      customCombatSnapshotSchema.safeParse({ ...projected, engine }).success,
+    ).toBe(false);
+    expect(
+      parseCustomCombatDefinition({ ...saved, engine }, saved.id),
+    ).toBeNull();
+  }
+});
+
 it('rejects unknown nested construction keys on the recorded snapshot', () => {
   const projected = parseCustomCombatDefinition(saved, saved.id);
   if (!projected) {
