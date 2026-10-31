@@ -12,7 +12,10 @@ import {
   isClanBlkEngine,
 } from '@/services/conversion/blkEngineIdentity';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
-import { IBlkDocument } from '@/types/formats/BlkFormat';
+import {
+  BLK_VEHICLE_ARMOR_LOCATIONS,
+  IBlkDocument,
+} from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   IGroundMovement,
@@ -56,17 +59,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * Vehicle location order for armor array parsing
- */
-const VEHICLE_ARMOR_LOCATIONS = [
-  VehicleLocation.FRONT,
-  VehicleLocation.LEFT,
-  VehicleLocation.RIGHT,
-  VehicleLocation.REAR,
-  VehicleLocation.TURRET,
-] as const;
 
 /**
  * Motion type string to enum mapping
@@ -240,7 +232,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       [VehicleLocation.BODY]: 0,
     };
 
-    VEHICLE_ARMOR_LOCATIONS.forEach((loc, index) => {
+    BLK_VEHICLE_ARMOR_LOCATIONS.forEach((loc, index) => {
       if (index < armor.length) {
         result[loc] = armor[index];
       }

@@ -295,7 +295,7 @@ describe('BlkExportService', () => {
       expect(result.content).toContain('25\n18\n18\n12\n15');
     });
 
-    it('should include rotor armor for VTOL', () => {
+    it('should include rotor armor before turret armor for VTOL', () => {
       const vtol = createMockVTOLState({
         armorAllocation: {
           [VehicleLocation.FRONT]: 15,
@@ -311,7 +311,7 @@ describe('BlkExportService', () => {
       const result = service.export(vtol);
 
       expect(result.content).toContain('<armor>');
-      expect(result.content).toContain('15\n10\n10\n8\n5\n3');
+      expect(result.content).toContain('15\n10\n10\n8\n3\n5');
     });
 
     it('should format motion types correctly', () => {

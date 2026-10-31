@@ -258,30 +258,31 @@ describe('BlkExportServiceCore.formatters', () => {
   });
 
   // ============================================================================
-  // formatVehicleArmor() — newline-joined Front/Left/Right/Rear/Turret(/Rotor)
+  // formatVehicleArmor() — newline-joined BLK order: Front/Right/Left/Rear/Turret,
+  // or Front/Right/Left/Rear/Rotor/Turret for VTOLs
   // ============================================================================
   describe('formatVehicleArmor()', () => {
-    it('emits Front/Left/Right/Rear/Turret on a non-VTOL vehicle', () => {
+    it('emits Front/Right/Left/Rear/Turret on a non-VTOL vehicle', () => {
       const allocation = {
         [VehicleLocation.FRONT]: 30,
-        [VehicleLocation.LEFT]: 25,
-        [VehicleLocation.RIGHT]: 25,
+        [VehicleLocation.LEFT]: 24,
+        [VehicleLocation.RIGHT]: 26,
         [VehicleLocation.REAR]: 20,
         [VehicleLocation.TURRET]: 15,
       };
-      expect(formatVehicleArmor(allocation, false)).toBe('30\n25\n25\n20\n15');
+      expect(formatVehicleArmor(allocation, false)).toBe('30\n26\n24\n20\n15');
     });
 
-    it('appends Rotor as a 6th line for VTOLs', () => {
+    it('emits Rotor before Turret as lines 5 and 6 for VTOLs', () => {
       const allocation: Record<string, number> = {
         [VehicleLocation.FRONT]: 10,
         [VehicleLocation.LEFT]: 10,
         [VehicleLocation.RIGHT]: 10,
         [VehicleLocation.REAR]: 10,
-        [VehicleLocation.TURRET]: 0,
+        [VehicleLocation.TURRET]: 7,
         [VTOLLocation.ROTOR]: 2,
       };
-      expect(formatVehicleArmor(allocation, true)).toBe('10\n10\n10\n10\n0\n2');
+      expect(formatVehicleArmor(allocation, true)).toBe('10\n10\n10\n10\n2\n7');
     });
 
     it('emits zeros for missing locations', () => {
