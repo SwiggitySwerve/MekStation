@@ -16,6 +16,11 @@ export {
 export { damageForProjectiles } from './clusterWeapons/projectileDamage';
 
 export {
+  isMissileClusterWeapon,
+  missileRackSize,
+} from './clusterWeapons/missileRack';
+
+export {
   CLUSTER_WEAPON_SIZES,
   getClusterSizeForWeapon,
 } from './clusterWeapons/weaponSizes';
