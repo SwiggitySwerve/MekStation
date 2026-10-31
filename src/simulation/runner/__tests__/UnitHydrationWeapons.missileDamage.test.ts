@@ -4,9 +4,10 @@
  * straight from the catalog record. The catalog is the only owner of damage;
  * there is no parser-side derivation.
  *
- * 139 catalog launchers (151 before the native ProtoMek LRM identities landed) used to carry a numeric `damage: 0` placeholder, no
- * `ammoPerTon` and (40 LRMs) zero ranges, so they hydrated to no damage and could
- * not fire. The oracle here is independent of the production parser: rack from
+ * 139 catalog launchers (151 before the native ProtoMek LRM identities landed)
+ * used to carry a numeric `damage: 0` placeholder, no `ammoPerTon` and (28 LRMs
+ * on this base) zero ranges, so they hydrated to no damage and could not fire.
+ * The oracle here is independent of the production parser: rack from
  * the catalog display name, family from the catalog `subType`, damage per
  * missile from pinned MegaMek (48fcb2f64a1b3f2d575707ce5653dad64927b587,
  * megamek/common/weapons/):
