@@ -153,6 +153,12 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
         self.assertEqual(sentinel.read_text(encoding='utf-8'), '{"units": []}')
 
+    def test_duplicate_in_a_later_family_fails_and_writes_nothing(self):
+        shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', self.root / 'aerospace' / 'Dup.json')
+        self.assertEqual(self.run_main(self.root, '--write'), 1)
+        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
     def test_family_option_is_not_blocked_by_a_sibling_family(self):
         # A duplicate inside aerospace concerns aerospace only; a vehicles write goes ahead.
         shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', self.root / 'aerospace' / 'Dup.json')
@@ -161,11 +167,27 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
 
     def test_named_family_that_does_not_exist_fails_and_writes_nothing(self):
-        # Follow-up 31 L1: a typo in --family must not exit 0 with a stale index left in place.
-        # Without tomahawk-c, nothing but the missing family can fail this run.
-        (self.root / 'aerospace' / "Tomahawk 'C'.json").unlink()
-        self.assertEqual(self.run_main(self.root, '--family', 'aerospace', '--family', 'vehicle', '--write'), 1)
+        # Follow-up 31 L1: a named family that is absent must not exit 0 with nothing written.
+        self.assertEqual(self.run_main(self.root, '--family', 'aerospace', '--family', 'capital', '--write'), 1)
         self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
+    def test_only_converted_families_can_be_indexed(self):
+        # The BattleMech index belongs to mtf_converter and the shipped catalog; the owner ruling
+        # of 2026-11-01 does not allow editing it. Typos, path forms and the units root itself
+        # are refused too, before anything is written.
+        mechs = self.root / 'battlemechs'
+        mechs.mkdir()
+        shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', mechs / 'Mech.json')
+        shipped = mechs / 'index.json'
+        shipped.write_text('{"units": []}', encoding='utf-8')
+        for family in ('battlemechs', '.', 'vehicles/', 'Vehicles', 'vehicle'):
+            with self.subTest(family=family):
+                (self.root / 'vehicles' / 'index.json').unlink(missing_ok=True)  # isolate subtests
+                shipped.write_text('{"units": []}', encoding='utf-8')
+                self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--family', family, '--write'), 1)
+                self.assertEqual(shipped.read_text(encoding='utf-8'), '{"units": []}')
+                self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+                self.assertFalse((self.root / 'index.json').exists())
 
     def test_family_option_indexes_only_that_family(self):
         self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 0)

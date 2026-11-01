@@ -83,7 +83,11 @@ def find_duplicate_ids(ids: List[str]) -> List[str]:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Generate per-family unit index.json files.")
     parser.add_argument("--units-dir", default=str(_UNITS_ROOT), help="Directory holding the family subdirectories.")
-    parser.add_argument("--family", action="append", help=f"Family directory to index (repeatable). Default: {list(DEFAULT_FAMILIES)}.")
+    parser.add_argument(
+        "--family",
+        action="append",
+        help=f"Converted family to index (repeatable), one of {list(DEFAULT_FAMILIES)}; default all of them.",
+    )
     parser.add_argument("--write", action="store_true", help="Write the index files. Default is a dry run.")
     args = parser.parse_args(argv)
 
@@ -91,8 +95,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not units_dir.is_dir():
         print(f"unit_index: units dir {units_dir} not found; nothing indexed")
         return 1
+    families = list(dict.fromkeys(args.family or DEFAULT_FAMILIES))
+    # Only the converted families. The BattleMech index belongs to mtf_converter and the shipped
+    # catalog, which the owner ruling of 2026-11-01 does not allow editing; typos, path forms
+    # and the units root itself are refused too, before anything is written.
+    unknown = [family for family in families if family not in DEFAULT_FAMILIES]
+    if unknown:
+        print(f"unit_index: {unknown} not in {list(DEFAULT_FAMILIES)}; no index written")
+        return 1
     indexes: Dict[str, Dict[str, Any]] = {}
-    for family in dict.fromkeys(args.family or DEFAULT_FAMILIES):
+    for family in families:
         family_dir = units_dir / family
         if family_dir.is_dir():
             indexes[family] = generate_index(family_dir)
