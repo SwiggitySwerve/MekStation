@@ -103,6 +103,53 @@ numeric output before native identity, quantity or grouping corrections.
 
 ## MODIFIED Requirements
 
+### Requirement: Aerospace Defensive BV
+
+Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term,
+valued at twice the input SI for aerospace fighters, conventional fighters,
+FixedWingSupport and small craft, independently of tonnage, matching pinned
+MegaMek `AeroBVCalculator.processStructure`. Blue Shield valuation is deferred
+until the BV input can express its working state.
+It SHALL apply no thrust-based multiplier to the defensive pool, matching pinned
+MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed `defensiveFactor`
+SHALL equal 1 for aerospace fighters, conventional fighters, FixedWingSupport and
+small craft. Aircraft type scaling is a separate term and is deferred by this slice.
+
+#### Scenario: SI BV
+
+- **GIVEN** a 50-ton ASF with SI 5
+- **WHEN** SI BV is computed
+- **THEN** siBV SHALL equal `5 × 2 = 10`
+
+#### Scenario: Fighter SI contributions
+
+- **GIVEN** Boeing Jump Bomber with SI 9 and Sabre SB-27b-EC with SI 11
+- **WHEN** their defensive BV is computed
+- **THEN** their SI contributions SHALL equal 18 and 22 respectively
+- **AND** this term SHALL NOT imply parity with their Java totals of 64 and 987
+
+#### Scenario: Support aircraft and small craft share SI valuation
+
+- **GIVEN** Mosquito Light Fighter or Dragonstar Assault Transport (3060) with SI 6
+- **WHEN** its defensive BV is computed
+- **THEN** its SI contribution SHALL equal 12
+- **AND** changing tonnage alone SHALL NOT change the SI contribution
+
+#### Scenario: Boeing defensive pool
+
+- **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
+- **WHEN** its defensive BV is computed
+- **THEN** the defensive factor SHALL equal 1
+- **AND** armor BV 40 plus SI BV 18 SHALL produce a defensive pool of 58
+- **AND** this term correction SHALL NOT imply total BV parity with Java's 64
+
+#### Scenario: Thrust does not scale defense
+
+- **GIVEN** otherwise identical defensive inputs for each supported aerospace subtype
+- **WHEN** maximum thrust changes
+- **THEN** the defensive pool SHALL remain unchanged
+- **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
+
 ### Requirement: ProtoMech Offensive BV and Main Gun
 
 Proto offensive BV SHALL include arm weapons and a MainGun location weapon
@@ -238,50 +285,3 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
-
-### Requirement: Aerospace Defensive BV
-
-Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term,
-valued at twice the input SI for aerospace fighters, conventional fighters,
-FixedWingSupport and small craft, independently of tonnage, matching pinned
-MegaMek `AeroBVCalculator.processStructure`. Blue Shield valuation is deferred
-until the BV input can express its working state.
-It SHALL apply no thrust-based multiplier to the defensive pool, matching pinned
-MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed `defensiveFactor`
-SHALL equal 1 for aerospace fighters, conventional fighters, FixedWingSupport and
-small craft. Aircraft type scaling is a separate term and is deferred by this slice.
-
-#### Scenario: SI BV
-
-- **GIVEN** a 50-ton ASF with SI 5
-- **WHEN** SI BV is computed
-- **THEN** siBV SHALL equal `5 × 2 = 10`
-
-#### Scenario: Fighter SI contributions
-
-- **GIVEN** Boeing Jump Bomber with SI 9 and Sabre SB-27b-EC with SI 11
-- **WHEN** their defensive BV is computed
-- **THEN** their SI contributions SHALL equal 18 and 22 respectively
-- **AND** this term SHALL NOT imply parity with their Java totals of 64 and 987
-
-#### Scenario: Support aircraft and small craft share SI valuation
-
-- **GIVEN** Mosquito Light Fighter or Dragonstar Assault Transport (3060) with SI 6
-- **WHEN** its defensive BV is computed
-- **THEN** its SI contribution SHALL equal 12
-- **AND** changing tonnage alone SHALL NOT change the SI contribution
-
-#### Scenario: Boeing defensive pool
-
-- **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
-- **WHEN** its defensive BV is computed
-- **THEN** the defensive factor SHALL equal 1
-- **AND** armor BV 40 plus SI BV 18 SHALL produce a defensive pool of 58
-- **AND** this term correction SHALL NOT imply total BV parity with Java's 64
-
-#### Scenario: Thrust does not scale defense
-
-- **GIVEN** otherwise identical defensive inputs for each supported aerospace subtype
-- **WHEN** maximum thrust changes
-- **THEN** the defensive pool SHALL remain unchanged
-- **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
