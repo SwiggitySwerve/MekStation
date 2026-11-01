@@ -286,7 +286,8 @@ function sumUnitArmor(
  *       — Requirement: Vehicle BV Dispatch
  */
 export function toVehicleBVInputFromUnit(
-  unit: IVehicleUnit,
+  unit: IVehicleUnit &
+    Pick<VehicleBVInput, 'armorTypeByLocation' | 'barRatingByLocation'>,
   options: VehicleBVUnitOptions = {},
 ): VehicleBVInput {
   const cruiseMP = unit.movement.cruiseMP;

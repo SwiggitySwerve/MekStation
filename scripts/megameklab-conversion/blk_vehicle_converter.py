@@ -29,7 +29,7 @@ from blk_conversion_runner import (
     run_manifest_range_parity,
     strict_safe_unit_filename,
 )
-from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks, parse_qualifier_number
+from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks, vehicle_patchwork_armor_fields
 from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
@@ -43,7 +43,6 @@ from blk_vehicle_tables import (
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
 from blk_common import (
-    BAR_ARMOR_CODES,
     default_mm_data_root,
     extract_tags,
     generate_id_from_name,
@@ -211,26 +210,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
 
     # BLKTankFile.setupArmorTypeAndTechLevel / BLKFile.loadSVArmor.
     if parse_number(armor_code) == 7:
-        types, bars = {}, {}
-        support = unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
-        for location in armor_by_location:
-            name = location.replace('_', ' ').title()
-            if 'TURRET_2' in armor_by_location and location in ('TURRET', 'TURRET_2'):
-                name = 'Rear Turret' if location == 'TURRET' else 'Front Turret'
-            if support and f'{name}_barrating' in tags:
-                rating = parse_qualifier_number(tags, f'{name}_barrating', integer=True)
-                if not 2 <= rating <= 10:
-                    raise ValueError(f'Invalid patchwork BAR: {rating}')
-                types[location], bars[location] = BAR_ARMOR_CODES[rating - 2], rating
-            else:
-                code = parse_qualifier_number(tags, f'{name}_armor_type', integer=True)
-                map_armor_code(code, ARMOR_CODE_MAP, strict=True)
-                types[location] = code
-                if support:
-                    bars[location] = 10
-        armor_type['typeByLocation'] = types
-        if bars:
-            armor_type['barRatingByLocation'] = bars
+        armor_type.update(vehicle_patchwork_armor_fields(tags, armor_by_location, unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")))
 
     # --- Equipment ---
     equipment = parse_location_equipment(tags, VEHICLE_LOCATION_MAP)
