@@ -8,6 +8,7 @@ import {
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
+import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 
 const DIRECT_AEROSPACE_ARCS: ReadonlySet<AerospaceArc> = new Set(
   Object.values(AerospaceArc),
@@ -130,6 +131,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   let fuselageWeaponBV = 0;
 
   for (const item of input.equipment) {
+    if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const arc = normalizeArcLocation(item.location);
     if (arc === null) continue;
     const resolved = resolveEquipmentBV(item.id);
