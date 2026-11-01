@@ -127,12 +127,13 @@ describe('AerospaceUnitHandler', () => {
       expect(result.data?.unit?.fuel).toBe(400);
     });
 
-    it('should parse structural integrity', () => {
+    it('derives structural integrity and ignores the tag, as MegaMek does', () => {
+      // 100 t, thrust 5: max(floor(100 / 10), 5) = 10 (Aero.java:804-808).
       const doc = createMockBlkDocument({ structuralIntegrity: 8 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.structuralIntegrity).toBe(8);
+      expect(result.data?.unit?.structuralIntegrity).toBe(10);
     });
 
     it('should parse armor by arc', () => {
