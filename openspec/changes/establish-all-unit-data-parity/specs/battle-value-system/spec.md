@@ -1,5 +1,18 @@
 ## ADDED Requirements
 
+### Requirement: Contract vehicle BV location coverage
+
+The contract BV adapter SHALL preserve the existing vehicle, SuperHeavy tank
+and VTOL location vocabulary in armor and equipment inputs without changing
+points or deriving a BV rule.
+
+#### Scenario: Convert six-side armor and rotor equipment
+
+- **GIVEN** converter output carrying FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT or ROTOR
+- **WHEN** the contract BV adapter maps armor and equipment
+- **THEN** it SHALL preserve the corresponding domain location and armor points
+
+
 ### Requirement: Runtime parity term validation
 
 The comparator SHALL reject malformed runtime terms with a structured failed
@@ -102,6 +115,53 @@ numeric output before native identity, quantity or grouping corrections.
 - **AND** preservation SHALL NOT establish native ammunition quantity, mount topology or full BV parity
 
 ## MODIFIED Requirements
+
+### Requirement: Aerospace Defensive BV
+
+Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term,
+valued at twice the input SI for aerospace fighters, conventional fighters,
+FixedWingSupport and small craft, independently of tonnage, matching pinned
+MegaMek `AeroBVCalculator.processStructure`. Blue Shield valuation is deferred
+until the BV input can express its working state.
+It SHALL apply no thrust-based multiplier to the defensive pool, matching pinned
+MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed `defensiveFactor`
+SHALL equal 1 for aerospace fighters, conventional fighters, FixedWingSupport and
+small craft. Aircraft type scaling is a separate term and is deferred by this slice.
+
+#### Scenario: SI BV
+
+- **GIVEN** a 50-ton ASF with SI 5
+- **WHEN** SI BV is computed
+- **THEN** siBV SHALL equal `5 × 2 = 10`
+
+#### Scenario: Fighter SI contributions
+
+- **GIVEN** Boeing Jump Bomber with SI 9 and Sabre SB-27b-EC with SI 11
+- **WHEN** their defensive BV is computed
+- **THEN** their SI contributions SHALL equal 18 and 22 respectively
+- **AND** this term SHALL NOT imply parity with their Java totals of 64 and 987
+
+#### Scenario: Support aircraft and small craft share SI valuation
+
+- **GIVEN** Mosquito Light Fighter or Dragonstar Assault Transport (3060) with SI 6
+- **WHEN** its defensive BV is computed
+- **THEN** its SI contribution SHALL equal 12
+- **AND** changing tonnage alone SHALL NOT change the SI contribution
+
+#### Scenario: Boeing defensive pool
+
+- **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
+- **WHEN** its defensive BV is computed
+- **THEN** the defensive factor SHALL equal 1
+- **AND** armor BV 40 plus SI BV 18 SHALL produce a defensive pool of 58
+- **AND** this term correction SHALL NOT imply total BV parity with Java's 64
+
+#### Scenario: Thrust does not scale defense
+
+- **GIVEN** otherwise identical defensive inputs for each supported aerospace subtype
+- **WHEN** maximum thrust changes
+- **THEN** the defensive pool SHALL remain unchanged
+- **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
 
 ### Requirement: ProtoMech Offensive BV and Main Gun
 
@@ -238,3 +298,42 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
+
+### Requirement: Vehicle Offensive BV
+
+Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
+mount modifiers and speed factor. Single, Dual and Chin turret weapons SHALL
+retain their listed BV before other applicable modifiers and SHALL NOT receive
+a rotating-turret bonus. The consumed `turretModifier` breakdown field SHALL
+remain available and equal 1 for these turret kinds.
+
+#### Scenario: Ordinary turret weapons
+
+- **GIVEN** a Single, Dual or Chin turret containing 100 BV of weapons
+- **WHEN** offensive BV is computed without other weapon modifiers
+- **THEN** the turret weapons SHALL contribute 100 BV before the speed factor
+
+#### Scenario: Rear-arc weapon penalty
+
+- **GIVEN** a combat vehicle with a rear-mounted AC/10 (no turret)
+- **WHEN** offensive BV is computed
+- **THEN** the rear-only weapon BV SHALL be multiplied by 0.5
+
+#### Scenario: Turret weapons avoid the rear penalty
+
+- **GIVEN** a turret-mounted weapon also carrying a rear-mounted flag
+- **WHEN** offensive BV is computed
+- **THEN** it SHALL receive neither the 0.5 rear penalty nor a turret bonus
+
+#### Scenario: Preserve the separate sponson term
+
+- **GIVEN** a sponson-mounted weapon containing 100 BV
+- **WHEN** offensive BV is computed without other weapon modifiers
+- **THEN** its existing 1.025 modifier SHALL remain unchanged in this slice
+
+#### Scenario: Bound the parity claim
+
+- **WHEN** this turret term is checked against pinned MegaMek 48fcb2f6
+- **THEN** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after
+- **AND** units moving away SHALL be listed with their component differences
+- **AND** correcting this term SHALL NOT establish complete vehicle BV parity

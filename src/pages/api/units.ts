@@ -34,6 +34,7 @@ import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { isUnitFamily, matchesUnitFamily } from '@/types/unit/UnitIndex';
 
 type UnitsApiResponse = ApiDataResponse;
 
@@ -86,6 +87,11 @@ function filterUnitsByCriteria(
 ): readonly IUnitIndexEntry[] {
   return units.filter((unit) => {
     if (
+      criteria.family !== undefined &&
+      !matchesUnitFamily(unit, criteria.family)
+    )
+      return false;
+    if (
       criteria.techBase !== undefined &&
       unit.techBase !== criteria.techBase
     ) {
@@ -127,6 +133,11 @@ export default async function handler(
   res: NextApiResponse<UnitsApiResponse>,
 ): Promise<void> {
   if (rejectUnitsNonGet(req, res)) return;
+  const family = req.query.family ?? 'battlemechs';
+  if (!isUnitFamily(family))
+    return res
+      .status(400)
+      .json({ success: false, error: 'Invalid unit family' });
 
   try {
     const {
@@ -142,7 +153,7 @@ export default async function handler(
 
     // Get single unit by ID
     if (id && typeof id === 'string') {
-      const unit = await getCanonicalUnitService().getById(id);
+      const unit = await getCanonicalUnitService().getById(id, { family });
 
       if (!unit) {
         return res.status(404).json({
@@ -159,6 +170,7 @@ export default async function handler(
 
     // Build query criteria from query parameters using type-safe spread
     const criteria: IUnitQueryCriteria = {
+      ...(req.query.family !== undefined && { family }),
       ...(typeof techBase === 'string' &&
         isValidTechBase(techBase) && { techBase }),
       ...(typeof era === 'string' && isValidEra(era) && { era }),
@@ -177,7 +189,7 @@ export default async function handler(
     // Query units
     const units = isEnabledQueryFlag(includeBV)
       ? filterUnitsByCriteria(
-          getNodeCanonicalUnitService().getIndexSyncWithBV(),
+          getNodeCanonicalUnitService().getIndexSyncWithBV({ family }),
           criteria,
         )
       : await getCanonicalUnitService().query(criteria);

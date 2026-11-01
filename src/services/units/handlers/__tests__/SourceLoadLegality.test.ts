@@ -34,7 +34,7 @@ describe('source loading separately from construction validity', () => {
     const validation = handler.validate(parsed.data.unit);
     expect(validation.isValid).toBe(false);
     expect(validation.errors).toContain(
-      'Total armor (999) exceeds maximum (73)',
+      'Total armor (999) exceeds maximum (113)',
     );
     expect(parsed.data.unit.isValid).toBe(false);
     expect(parsed.data.unit.validationErrors).toEqual(validation.errors);
@@ -71,7 +71,8 @@ describe('source loading separately from construction validity', () => {
       const unit = parsed.data.unit;
       expect(unit.tonnage).toBe(fixture.tonnage);
       const validation = handler.validate(unit);
-      expect(validation.isValid).toBe(false);
+      // SuperHeavy VTOLs (31-60 t) are legal in MegaMek, so their rows carry no errors
+      expect(validation.isValid).toBe(fixture.constructionErrors.length === 0);
       expect(validation.errors).toEqual(
         expect.arrayContaining(fixture.constructionErrors),
       );

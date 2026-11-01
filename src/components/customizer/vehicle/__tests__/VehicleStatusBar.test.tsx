@@ -91,6 +91,15 @@ function weightFree(): number {
 }
 
 describe('VehicleStatusBar — full layout', () => {
+  it('updates odd-cruise movement in full and compact displays', () => {
+    const view = renderBar({ cruiseMP: 3 });
+    expect(item('Movement')).toEqual(['3/5', 'Cruise/Flank']);
+    rerenderBar(view, { cruiseMP: 5 });
+    expect(item('Movement')).toEqual(['5/8', 'Cruise/Flank']);
+    rerenderBar(view, { cruiseMP: 17 }, { compact: true });
+    expect(screen.getByText('17/26 MP')).toBeInTheDocument();
+  });
+
   it('shows tonnage, motion, movement and equipment count', () => {
     renderBar({ equipment: [{}, {}, {}] });
     expect(item('Tonnage')).toEqual(['50.0 t', 'TRK']);

@@ -1,9 +1,13 @@
+import type { IEquipmentItem } from '@/types/equipment';
+
 import { computeVehicleWeightBreakdown as facade } from '@/components/customizer/vehicle/VehicleStatusBar.utils';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { createDefaultVehicleState } from '@/stores/vehicleState';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { GroundMotionType as M } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import {
   computeVehicleWeightBreakdown,
@@ -113,3 +117,43 @@ it.each(['0', '1', 'false'])(
     ).toMatchObject({ controls: 0, lift: 0 });
   },
 );
+
+// Spec scenario "Separate turrets round independently": each turret is 10% of
+// its own equipment, rounded up to the half ton before the two are summed.
+it('rounds the two turrets independently when composing weight', () => {
+  const mount = (id: string, location: VehicleLocation) => ({
+    id,
+    equipmentId: id,
+    name: id,
+    location,
+    isRearMounted: false,
+    isTurretMounted: true,
+    isSponsonMounted: false,
+  });
+  const turretConfig = {
+    type: TurretType.SINGLE,
+    maxWeight: 5,
+    currentWeight: 0,
+    rotationArc: 360,
+  };
+  const result = computeVehicleWeightBreakdown(
+    {
+      ...base,
+      tonnage: 50,
+      turret: turretConfig,
+      secondaryTurret: turretConfig,
+      equipment: [
+        mount('primary-gun', VehicleLocation.TURRET),
+        mount('secondary-gun', VehicleLocation.TURRET_2),
+      ],
+    },
+    () => ({ weight: 2.5 }) as IEquipmentItem,
+  );
+  // 0.25 t each rounds to 0.5 t each (1 t total); summing first would give 0.5 t.
+  expect(result).toMatchObject({
+    turretEquipment: 2.5,
+    secondaryTurretEquipment: 2.5,
+    turret: 0.5,
+    secondaryTurret: 0.5,
+  });
+});

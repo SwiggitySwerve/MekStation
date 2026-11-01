@@ -37,13 +37,14 @@ CONVERTERS = (
 class BlkEngineCodeTest(unittest.TestCase):
     def convert(self, unit_type, converter, engine_code):
         engine_tag = '' if engine_code is None else f'<engine_type>{engine_code}</engine_type>'
+        armor = '1\n2\n3\n4\n5' if unit_type in ('VTOL', 'SupportVTOL') else '1\n2\n3\n4'
         with tempfile.TemporaryDirectory() as temp:
             source = Path(temp) / 'engine.blk'
             source.write_text(
                 f'<UnitType>{unit_type}</UnitType>\n<Name>Engine fixture</Name>\n'
                 '<year>3060</year>\n<tonnage>30</tonnage>\n'
                 '<cruiseMP>5</cruiseMP>\n<SafeThrust>5</SafeThrust>\n'
-                + engine_tag,
+                + engine_tag + f'\n<armor>\n{armor}\n</armor>\n',
                 encoding='utf-8',
             )
             unit = converter(source, logging.getLogger('test-blk-engines'))
@@ -124,7 +125,7 @@ class BlkEngineCodeTest(unittest.TestCase):
                 (source / f'{name}.blk').write_text(
                     f'<UnitType>Tank</UnitType>\n<Name>{name}</Name>\n'
                     '<year>3060</year>\n<tonnage>30</tonnage>\n'
-                    f'<engine_type>{code}</engine_type>', encoding='utf-8')
+                    f'<engine_type>{code}</engine_type>\n<armor>\n1\n2\n3\n4\n</armor>', encoding='utf-8')
             (output / 'units-manifest.json').write_bytes(b'existing manifest')
             (output / 'a_good.json').write_bytes(b'existing design')
             before = {p.name: p.read_bytes() for p in output.iterdir()}

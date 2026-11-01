@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Canonical Units Browser Page (Compendium Section)
  * Browse and search the canonical unit database with filtering and sorting.
@@ -17,6 +18,7 @@ import {
 import { UnitsTable } from '@/components/compendium/units/UnitsTable';
 import { PageLoading, PageError, PaginationButtons } from '@/components/ui';
 import { IUnitEntry } from '@/types/pages';
+import { isUnitFamily, UNIT_FAMILIES } from '@/types/unit/UnitIndex';
 
 const EMPTY_FILTERS: FilterState = {
   search: '',
@@ -137,6 +139,8 @@ function nextSortState(
 }
 
 export default function CanonicalUnitsListPage(): React.ReactElement {
+  const router = useRouter();
+  const family = router.query.family ?? 'battlemechs';
   const [units, setUnits] = useState<IUnitEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,29 +154,44 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
   // Fetch units on mount
   useEffect(() => {
+    if (!router.isReady) return;
+    if (!isUnitFamily(family)) {
+      setError('Invalid unit family');
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    setCurrentPage(1);
     async function fetchUnits() {
       try {
-        const response = await fetch('/api/catalog');
+        const response = await fetch(
+          `/api/catalog${family === 'battlemechs' ? '' : `?family=${family}`}`,
+          { signal: controller.signal },
+        );
         const data = (await response.json()) as {
           success: boolean;
           data?: IUnitEntry[];
           error?: string;
         };
 
+        if (controller.signal.aborted) return;
         if (data.success) {
           setUnits(data.data || []);
         } else {
           setError(data.error || 'Failed to load units');
         }
       } catch {
-        setError('Failed to connect to server');
+        if (!controller.signal.aborted) setError('Failed to connect to server');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
     fetchUnits();
-  }, []);
+    return () => controller.abort();
+  }, [family, router.isReady]);
 
   const filteredUnits = useMemo(
     () => filterUnits(units, filters),
@@ -234,6 +253,23 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
       breadcrumbs={[{ label: 'Units' }]}
       maxWidth="full"
     >
+      <label className="mb-4 block text-sm">
+        Unit family
+        <select
+          aria-label="Unit family"
+          value={typeof family === 'string' ? family : ''}
+          onChange={(event) =>
+            void router.push(`/compendium/units?family=${event.target.value}`)
+          }
+          className="bg-surface-base border-border-theme ml-3 rounded border p-2"
+        >
+          {UNIT_FAMILIES.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </label>
       <UnitsFilters
         filters={filters}
         onFilterChange={handleFilterChange}

@@ -1,0 +1,59 @@
+{
+  "units": [
+    {
+      "path": "vehicles/3075/Tamerlane Strike Sled (Flamer).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 10,
+            "LEFT": 10,
+            "REAR": 8,
+            "RIGHT": 10,
+            "TURRET": 10
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Tamerlane Strike Sled",
+        "engine": {
+          "rating": 155,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "flamer",
+            "location": "FRONT",
+            "name": "Flamer"
+          },
+          {
+            "id": "medium-laser",
+            "location": "TURRET",
+            "name": "Medium Laser"
+          },
+          {
+            "id": "medium-laser",
+            "location": "TURRET",
+            "name": "Medium Laser"
+          }
+        ],
+        "era": "CIVIL_WAR",
+        "id": "tamerlane-strike-sled-flamer",
+        "model": "(Flamer)",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 12,
+          "flankMP": 18,
+          "jumpMP": 0
+        },
+        "mulId": 3156,
+        "role": "Scout",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3075",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 20,
+        "unitType": "Vehicle",
+        "weightClass": "LIGHT",
+        "year": 3074
+      }
+    }
+  ]
+}

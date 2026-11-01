@@ -8,7 +8,16 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { VehicleLocation } from '@/types/construction/UnitLocation';
+import {
+  blkEquipmentBlockLocation,
+  placeRejectedBlkVehicleArmor,
+  resolveBlkVehicleArmor,
+} from '@/services/conversion/blkVehicleArmorLayout';
+import {
+  SuperHeavyVehicleLocation,
+  VTOLLocation,
+  VehicleLocation,
+} from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -22,6 +31,8 @@ import {
   IVehicleMountedEquipment,
   SupportVehicleSizeClass,
 } from '@/types/unit/VehicleInterfaces';
+import { getSupportVehicleMaxTotalArmor } from '@/utils/construction/vehicle/armor';
+import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
 import {
   AbstractUnitTypeHandler,
@@ -60,14 +71,23 @@ const MOTION_TYPE_MAP: Record<string, GroundMotionType> = {
   fixed: GroundMotionType.TRACKED, // Fixed-wing uses tracked as placeholder
 };
 
-const VEHICLE_LOCATION_MAP: Record<string, VehicleLocation> = {
+const VEHICLE_LOCATION_MAP: Record<
+  string,
+  VehicleLocation | SuperHeavyVehicleLocation | VTOLLocation
+> = {
   front: VehicleLocation.FRONT,
+  'front right': SuperHeavyVehicleLocation.FRONT_RIGHT,
+  'front left': SuperHeavyVehicleLocation.FRONT_LEFT,
+  'rear right': SuperHeavyVehicleLocation.REAR_RIGHT,
+  'rear left': SuperHeavyVehicleLocation.REAR_LEFT,
   left: VehicleLocation.LEFT,
   'left side': VehicleLocation.LEFT,
   right: VehicleLocation.RIGHT,
   'right side': VehicleLocation.RIGHT,
   rear: VehicleLocation.REAR,
   turret: VehicleLocation.TURRET,
+  'turret 2': VehicleLocation.TURRET_2,
+  rotor: VTOLLocation.ROTOR,
   body: VehicleLocation.BODY,
 };
 
@@ -107,7 +127,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     // ceil(walk MP * 1.5) (Tank inherits it) and the project's own BLK Python
     // converter (blk_vehicle_converter.py) uses math.ceil.
     const cruiseMP = document.cruiseMP || 0;
-    const flankMP = cruiseMP > 0 ? Math.ceil(cruiseMP * 1.5) : 0;
+    const flankMP = cruiseMP > 0 ? computeFlankMP(cruiseMP) : 0;
     const jumpMP = document.jumpingMP || 0;
     const movement: IGroundMovement = { cruiseMP, flankMP, jumpMP };
 
@@ -118,6 +138,22 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     // Armor (support vehicles use BAR - Barrier Armor Rating)
     const armorType = document.armorType || 0;
     const armor = document.armor || [];
+    const layoutArmor = resolveBlkVehicleArmor(
+      document.unitType,
+      document.motionType,
+      document.tonnage,
+      armor,
+    );
+    const placed = layoutArmor
+      ? { byLocation: layoutArmor, warning: undefined }
+      : placeRejectedBlkVehicleArmor(
+          document.unitType,
+          document.motionType,
+          document.tonnage,
+          armor,
+        );
+    if (placed.warning) warnings.push(placed.warning);
+    const armorByLocation = this.parseArmorByLocation(placed.byLocation);
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
     // BAR rating (0-10, determines armor per point)
@@ -153,8 +189,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       engineRating,
       armorType,
       armor,
+      armorByLocation,
       totalArmorPoints,
-      maxArmorPoints: this.calculateMaxArmor(document.tonnage, barRating),
+      maxArmorPoints: getSupportVehicleMaxTotalArmor(
+        motionType,
+        document.tonnage,
+      ),
       equipment,
       sizeClass,
       barRating,
@@ -167,6 +207,30 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       errors,
       warnings,
     };
+  }
+
+  /**
+   * Armor in MegaMek's layout for this chassis (six sides for a
+   * LargeSupportTank, Turret 2 for a dual turret, Rotor for a VTOL), over
+   * zeroes for the standard locations
+   */
+  private parseArmorByLocation(
+    layoutArmor: Readonly<Record<string, number>>,
+  ): ISupportVehicle['armorByLocation'] {
+    const result: Record<string, number> = {
+      [VehicleLocation.FRONT]: 0,
+      [VehicleLocation.LEFT]: 0,
+      [VehicleLocation.RIGHT]: 0,
+      [VehicleLocation.REAR]: 0,
+      [VehicleLocation.TURRET]: 0,
+      [VehicleLocation.TURRET_2]: 0,
+      [VehicleLocation.BODY]: 0,
+    };
+
+    return Object.assign(
+      result,
+      layoutArmor,
+    ) as ISupportVehicle['armorByLocation'];
   }
 
   /**
@@ -245,20 +309,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   /**
    * Normalize location string to VehicleLocation enum
    */
-  private normalizeLocation(locationKey: string): VehicleLocation {
-    const normalized = locationKey.toLowerCase().replace(' equipment', '');
+  private normalizeLocation(
+    locationKey: string,
+  ): VehicleLocation | SuperHeavyVehicleLocation | VTOLLocation {
+    const block = locationKey.replace(/ equipment$/i, '');
+    const normalized = blkEquipmentBlockLocation(block).toLowerCase();
     return VEHICLE_LOCATION_MAP[normalized] || VehicleLocation.BODY;
-  }
-
-  /**
-   * Calculate maximum armor points for support vehicle
-   * Support vehicles use BAR rating to determine armor effectiveness
-   */
-  private calculateMaxArmor(tonnage: number, barRating: number): number {
-    // BAR armor provides less protection per point
-    // Standard is BAR 10 = full armor, BAR 5 = half effectiveness
-    const armorMultiplier = barRating / 10;
-    return Math.floor(tonnage * 3.5 * armorMultiplier);
   }
 
   /**

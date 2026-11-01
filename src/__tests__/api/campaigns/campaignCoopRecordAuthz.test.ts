@@ -654,8 +654,16 @@ describe('CAMPAIGN-LIVE-WRITE-1 who may save or delete a campaign a live co-op h
         hostClaim(entry.matchId),
         hostBearer.wire,
       );
+      // A persistence failure, never the session refusal (403 + code). The
+      // body text depends on which jest context first loaded the SQLite
+      // addon: its error is an `Error` there, so the route echoes the message
+      // (`instanceof Error`); in a later context it is not, so the route
+      // answers its fixed text. Both are the same failure.
       expect(failed.status).toBe(500);
-      expect(failed.json).toEqual({ error: 'live-session-changed' });
+      expect(Object.keys(failed.json as object)).toEqual(['error']);
+      expect(['live-session-changed', 'failed to persist campaign']).toContain(
+        (failed.json as { error: string }).error,
+      );
       expect(await observe(record.campaignId, entry)).toEqual(before);
       expect(guestFrames).toEqual([]);
     } finally {

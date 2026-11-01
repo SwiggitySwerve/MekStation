@@ -65,8 +65,9 @@ ALL_SHAPES = sorted(set(SHAPE_TO_CORPUS) | {"unit"})
 _WEAPON_EXCLUSIONS = {"physical.json"}
 
 # Files inside the units tree that are NOT individual units (e.g.
-# index.json catalogues per era directory). Skipped in the unit walk.
-_UNIT_FILE_EXCLUSIONS = {"index.json", "units-manifest.json"}
+# index.json catalogues per era directory). Skipped in the unit walk;
+# unit_index.py owns the list.
+from unit_index import NON_UNIT_FILES as _UNIT_FILE_EXCLUSIONS  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -87,6 +88,14 @@ def parse_args() -> argparse.Namespace:
         "--strict",
         action="store_true",
         help="Exit non-zero if any item fails validation.",
+    )
+    parser.add_argument(
+        "--units-dir",
+        default=str(_UNITS_ROOT),
+        help=(
+            "Unit corpus root to walk (default public/data/units). Point it at a "
+            "scratch directory to check converter output before it is committed."
+        ),
     )
     parser.add_argument(
         "--report-path",
@@ -124,17 +133,17 @@ def collect_files(shape: str) -> List[Path]:
     return files
 
 
-def collect_unit_files() -> List[Path]:
-    """Return all unit JSON files under ``public/data/units``."""
-    if not _UNITS_ROOT.is_dir():
+def collect_unit_files(units_root: Path = _UNITS_ROOT) -> List[Path]:
+    """Return all unit JSON files under ``units_root`` (default ``public/data/units``)."""
+    if not units_root.is_dir():
         return []
     return sorted(
-        p for p in _UNITS_ROOT.rglob("*.json")
+        p for p in units_root.rglob("*.json")
         if p.name not in _UNIT_FILE_EXCLUSIONS
     )
 
 
-def validate_unit_shape() -> Dict[str, List[Dict[str, object]]]:
+def validate_unit_shape(units_root: Path = _UNITS_ROOT) -> Dict[str, List[Dict[str, object]]]:
     """
     Validate the unit corpus. Unlike the equipment shapes, units are
     stored one-per-file (no ``items[]`` wrapper), so we walk the
@@ -142,13 +151,16 @@ def validate_unit_shape() -> Dict[str, List[Dict[str, object]]]:
     """
     validator = SHAPE_VALIDATORS["unit"]
     out: Dict[str, List[Dict[str, object]]] = {}
-    files = collect_unit_files()
+    files = collect_unit_files(units_root)
     if not files:
-        print(f"  WARN: no unit corpus under {_UNITS_ROOT}")
+        print(f"  WARN: no unit corpus under {units_root}")
         return out
 
     for fpath in files:
-        rel = str(fpath.relative_to(_REPO_ROOT)).replace(os.sep, "/")
+        # Paths in the report are repo-relative for the real corpus and
+        # relative to the given directory for an out-of-repo scratch one.
+        base = _REPO_ROOT if units_root == _UNITS_ROOT else units_root
+        rel = str(fpath.relative_to(base)).replace(os.sep, "/")
         try:
             with fpath.open(encoding="utf-8") as fh:
                 data = json.load(fh)
@@ -176,10 +188,12 @@ def validate_unit_shape() -> Dict[str, List[Dict[str, object]]]:
     return out
 
 
-def validate_shape(shape: str) -> Dict[str, List[Dict[str, object]]]:
+def validate_shape(
+    shape: str, units_root: Path = _UNITS_ROOT
+) -> Dict[str, List[Dict[str, object]]]:
     """Validate every item in every file of ``shape``."""
     if shape == "unit":
-        return validate_unit_shape()
+        return validate_unit_shape(units_root)
 
     validator = SHAPE_VALIDATORS[shape]
     out: Dict[str, List[Dict[str, object]]] = {}
@@ -238,12 +252,13 @@ def _count_items(rel: str, shape: str) -> int:
 def main() -> int:
     args = parse_args()
     shapes = resolve_shapes(args.shape)
+    units_root = Path(args.units_dir).resolve()
 
     print("schema-bridge: corpus conformance check")
     print(f"  shapes:   {shapes}")
     print(f"  strict:   {args.strict}")
     print(f"  equipment root: {_EQUIPMENT_ROOT}")
-    print(f"  units root:     {_UNITS_ROOT}")
+    print(f"  units root:     {units_root}")
     print()
 
     report: Dict[str, Dict[str, List[Dict[str, object]]]] = {}
@@ -252,7 +267,7 @@ def main() -> int:
     total_failures = 0
 
     for shape in shapes:
-        shape_results = validate_shape(shape)
+        shape_results = validate_shape(shape, units_root)
         report[shape] = shape_results
         # For unit shape we report a single rolled-up line because
         # 4k+ rows would dominate the output.
@@ -312,6 +327,10 @@ def main() -> int:
     print(f"  failures: {total_failures}")
     print(f"  report:   {report_path}")
 
+    if args.strict and "unit" in shapes and not collect_unit_files(units_root):
+        # Fail closed: a mistyped or empty --units-dir would otherwise pass with 0 files.
+        print(f"\nschema-bridge: --strict mode triggered; no unit files under {units_root}.")
+        return 1
     if total_failures > 0 and args.strict:
         print(
             "\nschema-bridge: --strict mode triggered; corpus has "

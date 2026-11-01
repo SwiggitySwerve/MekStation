@@ -12,79 +12,16 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
-import { Era } from '@/types/enums/Era';
-import { TechBase } from '@/types/enums/TechBase';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  indexFamilies,
+  unitFamilyKey,
+  type UnitFamily,
+  type UnitIndexOptions,
+  type UnitLookupOptions,
+} from '@/types/unit/UnitIndex';
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
-import { getUnitIndexWeightClass } from './unitWeightClass';
-
-/**
- * Raw unit index entry from index.json
- */
-interface RawUnitIndexEntry {
-  id: string;
-  chassis: string;
-  model: string; // This is 'variant' in our system
-  tonnage: number;
-  techBase: string;
-  year: number;
-  role?: string;
-  rulesLevel?: string;
-  cost?: number;
-  bv?: number;
-  path: string;
-}
-
-const TECH_BASE_BY_RAW_VALUE: Readonly<Record<string, TechBase>> = {
-  CLAN: TechBase.CLAN,
-  INNER_SPHERE: TechBase.INNER_SPHERE,
-  MIXED: TechBase.INNER_SPHERE,
-};
-
-const ERA_BY_PATH_SEGMENT = [
-  { segment: '1-age-of-war', era: Era.AGE_OF_WAR },
-  { segment: '2-star-league', era: Era.STAR_LEAGUE },
-  { segment: '3-succession-wars', era: Era.LATE_SUCCESSION_WARS },
-  { segment: '4-clan-invasion', era: Era.CLAN_INVASION },
-  { segment: '5-civil-war', era: Era.CIVIL_WAR },
-  { segment: '6-dark-age', era: Era.DARK_AGE },
-  { segment: '7-ilclan', era: Era.IL_CLAN },
-] as const;
-
-function techBaseFromRawValue(rawTechBase: string): TechBase {
-  return TECH_BASE_BY_RAW_VALUE[rawTechBase] ?? TechBase.INNER_SPHERE;
-}
-
-function eraFromPath(filePath: string): Era {
-  return (
-    ERA_BY_PATH_SEGMENT.find(({ segment }) => filePath.includes(segment))
-      ?.era ?? Era.LATE_SUCCESSION_WARS
-  );
-}
-
-/**
- * Map raw index data to IUnitIndexEntry format
- */
-function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
-  return {
-    id: raw.id,
-    name: `${raw.chassis} ${raw.model}`,
-    chassis: raw.chassis,
-    variant: raw.model,
-    tonnage: raw.tonnage,
-    techBase: techBaseFromRawValue(raw.techBase),
-    era: eraFromPath(raw.path),
-    weightClass: getUnitIndexWeightClass(raw.tonnage),
-    unitType: UnitType.BATTLEMECH,
-    filePath: `/data/units/battlemechs/${raw.path}`,
-    year: raw.year,
-    role: raw.role,
-    rulesLevel: raw.rulesLevel,
-    cost: raw.cost,
-    bv: raw.bv,
-  };
-}
+import { mapRawIndexRows, type RawUnitIndexEntry } from './unitIndexMapper';
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -119,9 +56,9 @@ export interface IFullUnit {
  * Canonical unit service interface
  */
 export interface ICanonicalUnitService {
-  getIndex(): Promise<readonly IUnitIndexEntry[]>;
-  getById(id: string): Promise<IFullUnit | null>;
-  getByIds(ids: string[]): Promise<IFullUnit[]>;
+  getIndex(options?: UnitIndexOptions): Promise<readonly IUnitIndexEntry[]>;
+  getById(id: string, options?: UnitLookupOptions): Promise<IFullUnit | null>;
+  getByIds(ids: string[], options?: UnitLookupOptions): Promise<IFullUnit[]>;
   query(criteria: IUnitQueryCriteria): Promise<readonly IUnitIndexEntry[]>;
 }
 
@@ -147,9 +84,9 @@ function getBaseUrl(): string {
  * Canonical Unit Service implementation
  */
 export class CanonicalUnitService implements ICanonicalUnitService {
-  private indexCache: IUnitIndexEntry[] | null = null;
+  private indexCache = new Map<UnitFamily, IUnitIndexEntry[]>();
+  private indexLoads = new Map<UnitFamily, Promise<IUnitIndexEntry[]>>();
   private unitCache: Map<string, IFullUnit> = new Map();
-  private indexPath = '/data/units/battlemechs/index.json';
 
   /**
    * Load JSON data - works on both server and client side using fetch
@@ -157,12 +94,14 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   private async loadJson<T>(
     relativePath: string,
     strict = false,
-  ): Promise<T | null> {
+    missingAllowed = false,
+  ): Promise<T | null | undefined> {
     try {
       const baseUrl = getBaseUrl();
       const url = `${baseUrl}${relativePath}`;
       const response = await fetch(url);
       if (!response.ok) {
+        if (missingAllowed && response.status === 404) return undefined;
         if (strict)
           throw new Error(
             `Canonical source request failed (${response.status})`,
@@ -179,46 +118,67 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   /**
    * Load the lightweight unit index
    */
-  getIndex = async (
-    options: { readonly strict?: boolean } = {},
-  ): Promise<readonly IUnitIndexEntry[]> => {
-    if (this.indexCache !== null) {
-      return this.indexCache;
-    }
-
-    try {
+  private async loadFamilyIndex(
+    family: UnitFamily,
+  ): Promise<IUnitIndexEntry[]> {
+    const cached = this.indexCache.get(family);
+    if (cached) return cached;
+    const pending = this.indexLoads.get(family);
+    if (pending) return pending;
+    const load = (async () => {
       const data = await this.loadJson<{ units?: RawUnitIndexEntry[] }>(
-        this.indexPath,
-        options.strict,
+        `/data/units/${family}/index.json`,
+        true,
+        true,
       );
-
-      if (!data || !Array.isArray(data.units)) {
-        if (options.strict)
-          throw new Error('Canonical source index is invalid');
-        return [];
-      }
-      if (data.units.length === 0) return [];
-
-      // Map raw index data to IUnitIndexEntry format
-      this.indexCache = data.units.map(mapRawToIndexEntry);
-      return this.indexCache;
-    } catch (error) {
-      if (options.strict) throw error;
-      // Index not available - return empty array
-      return [];
+      if (data === undefined) return [];
+      if (!data || !Array.isArray(data.units))
+        throw new Error('Canonical source index is invalid');
+      const entries = mapRawIndexRows(data.units, family);
+      this.indexCache.set(family, entries);
+      return entries;
+    })();
+    this.indexLoads.set(family, load);
+    try {
+      return await load;
+    } finally {
+      this.indexLoads.delete(family);
     }
+  }
+
+  getIndex = async (
+    options: UnitIndexOptions = {},
+  ): Promise<readonly IUnitIndexEntry[]> => {
+    const indexes = await Promise.all(
+      indexFamilies(options).map(async (family) => {
+        try {
+          return await this.loadFamilyIndex(family);
+        } catch (error) {
+          if (options.strict) throw error;
+          return [];
+        }
+      }),
+    );
+    return indexes.length === 1 ? indexes[0] : indexes.flat();
   };
+
+  /** Distinguishes an absent catalog from a present, empty family index. */
+  async hasFamily(family: UnitFamily): Promise<boolean> {
+    await this.loadFamilyIndex(family);
+    return this.indexCache.has(family);
+  }
 
   /**
    * Get full unit data by ID (lazy loads from static JSON)
    */
   getById = async (
     id: string,
-    options: { readonly strict?: boolean } = {},
+    options: UnitLookupOptions = {},
   ): Promise<IFullUnit | null> => {
     // Check cache first
-    if (this.unitCache.has(id)) {
-      return this.unitCache.get(id)!;
+    const key = unitFamilyKey(id, options.family);
+    if (this.unitCache.has(key)) {
+      return this.unitCache.get(key)!;
     }
 
     // Find in index to get file path
@@ -237,7 +197,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
       if (!unit) {
         return null;
       }
-      this.unitCache.set(id, unit);
+      this.unitCache.set(key, unit);
       return unit;
     } catch (error) {
       if (options.strict) throw error;
@@ -248,8 +208,13 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   /**
    * Get multiple units by ID (parallel loading)
    */
-  getByIds = async (ids: string[]): Promise<IFullUnit[]> => {
-    const results = await Promise.all(ids.map((id) => this.getById(id)));
+  getByIds = async (
+    ids: string[],
+    options: UnitLookupOptions = {},
+  ): Promise<IFullUnit[]> => {
+    const results = await Promise.all(
+      ids.map((id) => this.getById(id, options)),
+    );
     return results.filter((unit): unit is IFullUnit => unit !== null);
   };
 
@@ -259,7 +224,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   query = async (
     criteria: IUnitQueryCriteria,
   ): Promise<readonly IUnitIndexEntry[]> => {
-    let results = await this.getIndex();
+    let results = await this.getIndex({ family: criteria.family });
 
     if (criteria.techBase !== undefined) {
       results = results.filter((e) => e.techBase === criteria.techBase);
@@ -288,15 +253,16 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     return results;
   };
 
-  invalidateUnit = (id: string): void => {
-    this.unitCache.delete(id);
+  invalidateUnit = (id: string, family?: UnitFamily): void => {
+    this.unitCache.delete(unitFamilyKey(id, family));
   };
 
   /**
    * Clear caches (for testing)
    */
   clearCache = (): void => {
-    this.indexCache = null;
+    this.indexCache.clear();
+    this.indexLoads.clear();
     this.unitCache.clear();
   };
 }

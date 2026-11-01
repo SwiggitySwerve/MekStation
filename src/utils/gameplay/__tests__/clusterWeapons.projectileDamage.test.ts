@@ -46,10 +46,13 @@ describe('damageForProjectiles', () => {
   });
 
   it('keeps the per-projectile share first so fractional shares match the old arithmetic', () => {
-    // 10 / 3 is inexact; the old call sites computed (total / rack) * landed.
+    // The old call sites computed (total / rack) * landed. For 0.3 / 9 * 3 the
+    // reordered (total * landed) / rack gives a different double, so this pins
+    // the order.
+    expect(damageForProjectiles(0.3, 9, 3)).toBe((0.3 / 9) * 3);
+    expect(damageForProjectiles(0.3, 9, 3)).not.toBe((0.3 * 3) / 9);
     for (let landed = 0; landed <= 3; landed++) {
       expect(damageForProjectiles(10, 3, landed)).toBe((10 / 3) * landed);
-      expect(damageForProjectiles(10, 3, landed)).toBe(landed * (10 / 3));
     }
   });
 });

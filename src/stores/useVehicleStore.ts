@@ -26,6 +26,7 @@ import {
   pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { IEquipmentItem } from '@/types/equipment';
+import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
 import {
   VehicleState,
@@ -70,6 +71,8 @@ export function createVehicleStore(
       (set, _get) => ({
         // Spread initial state
         ...initialState,
+        // Registry hydration and duplication supply cruise; flank is derived.
+        flankMP: computeFlankMP(initialState.cruiseMP),
 
         // =================================================================
         // Identity Actions

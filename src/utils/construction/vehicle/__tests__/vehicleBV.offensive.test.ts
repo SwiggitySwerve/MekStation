@@ -14,7 +14,7 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
     expect(off.turretModifier).toBe(1.0);
   });
 
-  it('turret-mounted weapon gets +5% bonus (single turret)', () => {
+  it('turret-mounted weapon retains listed BV (single turret)', () => {
     const off = calculateVehicleOffensiveBV(
       baseInput({
         flankMP: 5,
@@ -29,8 +29,8 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
         ],
       }),
     );
-    expect(off.weaponBV).toBeCloseTo(176 * 1.05, 4);
-    expect(off.turretModifier).toBe(1.05);
+    expect(off.weaponBV).toBe(176);
+    expect(off.turretModifier).toBe(1);
   });
 
   it('sponson-mounted weapon gets +2.5% bonus', () => {
@@ -85,7 +85,7 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
         ],
       }),
     );
-    expect(off.weaponBV).toBeCloseTo(176 * 1.05, 4);
+    expect(off.weaponBV).toBe(176);
   });
 
   it('TC adds +25% to direct-fire weapons only', () => {
@@ -179,7 +179,7 @@ describe('Vehicle final BV', () => {
     expect(bv).toHaveProperty('pilotMultiplier');
     expect(bv).toHaveProperty('turretModifier');
     expect(bv).toHaveProperty('final');
-    expect(bv.turretModifier).toBe(1.05);
+    expect(bv.turretModifier).toBe(1);
   });
 });
 

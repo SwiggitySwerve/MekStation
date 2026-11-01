@@ -1,5 +1,37 @@
 # Combat-vehicle construction rules
 
+## Turret weapon BV
+
+`vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
+Chin turrets receive no rotating-turret bonus. Turret weapons remain exempt
+from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
+remains a compatibility breakdown field with value 1 for these turret kinds.
+Sponson's separate 1.025 term is unchanged and is not covered by this parity claim.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
+`CombatVehicleBVCalculator.java:123-125` excludes both turret locations from
+the nominal rear filter. Inherited `BVCalculator.java:803-907` applies weapon
+modifiers without a turret bonus; its `arcFactor` at lines 779-781 returns 1.
+`vehicleBV.turretParity.test.ts` checks the Tamerlane (Flamer) contract fixture
+(UL-16 Java total 436) and each ordinary turret kind. Other vehicle BV terms
+still differ; a neutral turret factor does not establish whole-unit parity.
+
+The contract BV adapter preserves the existing Vehicle, SuperHeavyVehicle and
+VTOL location enums for armor and equipment, including six-side and Rotor keys.
+This vocabulary mapping changes no BV arithmetic.
+
+`equipmentMounts.ts` owns the combat-vehicle import mount flags and primary
+turret inference. Nonempty `Turret` / `Turret Equipment` blocks, a Turret armor
+value in the source layout, or an explicit turret type install a primary turret;
+a Turret 2 armor value makes it dual. `Rear Turret` equipment is turret-mounted,
+not rear-facing (`Tank.java:127-130`). Sponson and secondary-turret blocks carry
+mount flags independently; neither alone installs the primary turret. Explicit
+dual/chin and the existing fallback to single are preserved for BLK imports.
+The contract BV adapter uses this same owner, translating `SPONSON` to a
+sponson mount label while keeping its body location. Its boundary requires
+cruise/flank or safe/max thrust and the applicable armor allocation map;
+absence throws, while explicit zeros and empty maps remain valid source facts.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion
@@ -75,7 +107,7 @@ legacy behavior, not zero actual support controls/lift mass or support parity.
 Tamerlane at rating155 independently has engine8.5, controls1, lift2,
 structure2, armor3, weapons3 and turret0.5 = 20 tons. Its additional heat-sink
 mass is zero in the pinned runtime reference; general vehicle heat-sink rules
-remain unresolved. No stored catalog ratings are migrated. Flank, turret rules,
+remain unresolved. No stored catalog ratings are migrated. Turret rules,
 full BV parity and broader construction validity remain separate work.
 
 Focused enforcement: `useVehicleStore.suspension.test.ts` exercises the real
@@ -83,3 +115,71 @@ Zustand actions, pinned thresholds, validation, direct import and actual Python
 converter output. `test_vehicle_suspension.py` covers converter rounding and
 support exclusion. Construction, store, status bar, handler and BV regressions
 must accompany changes. No complete corpus numeric-parity gate is claimed.
+
+## Ordinary turret mechanism mass
+
+`turret.ts:computeTurretWeight` owns the default half-ton-rounded 10% mechanism
+mass for each ordinary Single, Dual or VTOL Chin turret. The caller supplies
+resolved qualifying equipment mass and adds the independently rounded turret
+results. Weight composition excludes ammunition from the mechanism basis while
+retaining it in total equipment mass. Validation and Weight Free consume this
+same owner; no equipment-count estimate is introduced here.
+
+Pinned MegaMek [TestTank.java:178-226](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/verifier/TestTank.java#L178)
+defines both mechanisms. [TestEntity.java:147-150](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/verifier/TestEntity.java#L147)
+routes combat VTOLs through TestTank, and MegaMekLab
+[CVChassisView.java:297-300](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/ui/combatVehicle/CVChassisView.java#L297)
+labels their installed turret Chin. There is no separate 5% chin rule.
+The pinned Java runtime returns a 1-ton mechanism for a synthetic source-loaded
+Ferret with a resolved 7-ton PPC in its chin, and independently returns 0.5 tons
+for each of two 2.5-ton turret loads. The synthetic designs are invalid; these
+observations certify individual terms, not valid designs or whole-unit parity.
+
+This owner still lacks explicit Omni base-chassis mechanism allowances and
+support-specific rounding. Sponson behavior is unchanged and unverified here.
+Primary patchwork armor-mount exclusion and upstream secondary/Omni asymmetries
+need richer resolved equipment facts before integration. Missing equipment
+resolution still counts as zero in legacy composition and is not parity-ready.
+The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
+handler approximations remain separate tracked defects; they are not actual
+Omni mechanism allowances. No catalog data or BV arithmetic changes here.
+
+## Base flank movement
+
+`engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
+rounded upward. [Entity.java:4004-4016](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L4004)
+provides the base rule; [Tank.java:1570-1575](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L1570)
+adds a separate armed-MASC override. The store helper is a compatibility export
+of the owner. Defaults, actions, validation, BV state adaptation, status and
+template displays consume it. Vehicle, VTOL and support imports retain their
+previous ceil results; the support import's nonpositive guard remains intact.
+
+The store factory derives flank from initial cruise after defaults and saved
+fields merge, so reopening, duplication and direct initialization cannot retain
+default or stale flank values. The persisted document keeps cruise as the source
+of truth. `useVehicleStore.flank.test.ts` exercises real registry save/reopen,
+duplication, rating edits and record-sheet movement transport. Component tests
+cover full/compact status and odd-cruise new-unit templates.
+
+The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
+movement enhancements are a distinct policy (`ProtoMek.java:612-616` booster
+override). Python BLK conversion already rounds upward; it retains its
+language-boundary expression. No copy of the old floor-based vehicle
+construction calculation remains. In-play flank after motive damage
+(`utils/gameplay/motiveDamage.ts` `computeEffectiveMP`) calls the owner on the
+reduced cruise: MegaMek subtracts motive damage from cruise in `Tank.getWalkMP`
+(`Tank.java:397`), and `Entity.getRunMP` then rounds up (`Entity.java:4016`).
+The same upstream rule still floors outside this owner, as separate follow-ups:
+
+- Aerospace max thrust (`aerospace/thrustCalculations.ts`, the aerospace
+  store, handlers and spec, and the new-unit template display in
+  `NewTabModalNewMode.tsx:163`). Airborne `Aero.getRunMP` delegates to
+  `Entity.getRunMP` (`Aero.java:1656-1658`), and MegaMekLab derives Flank MP and
+  Max Thrust from one `Math.ceil(walk * 1.5)` (`MovementView.java:295`).
+- BattleMech run MP in `services/construction/CalculationService.ts`
+  `calculateMovement`, which feeds customizer BattleMech BV.
+
+ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
+Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
+remain separate work. This correction establishes only base movement and its
+propagation. It does not regenerate or migrate unit catalogs.

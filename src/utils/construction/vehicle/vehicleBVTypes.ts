@@ -69,7 +69,7 @@ export interface VehicleOffensiveEquipmentMount {
  * Turret configuration used for multiplier calculation.
  */
 export interface VehicleBVTurret {
-  /** Kind of turret — controls +5% / +2.5% multipliers. */
+  /** Ordinary turrets are neutral; sponsons retain their separate modifier. */
   kind: VehicleTurretKind;
 }
 
@@ -81,7 +81,7 @@ export interface VehicleBVInput {
   motionType: GroundMotionType;
   /** Cruise MP (walk equivalent). */
   cruiseMP: number;
-  /** Flank MP — typically `floor(cruise × 1.5)`. */
+  /** Flank MP — typically `ceil(cruise × 1.5)`. */
   flankMP: number;
   /** Jump MP (0 for tracked/wheeled/naval/rail). */
   jumpMP?: number;

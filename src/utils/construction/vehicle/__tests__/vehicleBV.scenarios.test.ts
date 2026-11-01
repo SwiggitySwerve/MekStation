@@ -4,7 +4,7 @@ import { calculateVehicleBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
 describe('Named canonical vehicles (smoke)', () => {
-  it('Demolisher: tracked + single turret -> turret mod 1.05, positive BV', () => {
+  it('Demolisher: tracked + single turret -> neutral turret mod, positive BV', () => {
     const bv = calculateVehicleBV(
       baseInput({
         motionType: GroundMotionType.TRACKED,
@@ -30,7 +30,7 @@ describe('Named canonical vehicles (smoke)', () => {
         ],
       }),
     );
-    expect(bv.turretModifier).toBe(1.05);
+    expect(bv.turretModifier).toBe(1);
     expect(bv.final).toBeGreaterThan(0);
     expect(bv.offensive).toBeGreaterThan(0);
     expect(bv.defensive).toBeGreaterThan(0);
@@ -69,7 +69,7 @@ describe('Named canonical vehicles (smoke)', () => {
         ],
       }),
     );
-    expect(bv.turretModifier).toBe(1.05);
+    expect(bv.turretModifier).toBe(1);
     expect(bv.defensive).toBeGreaterThan(0);
     expect(bv.offensive).toBeGreaterThan(0);
     expect(bv.final).toBeGreaterThan(500);
