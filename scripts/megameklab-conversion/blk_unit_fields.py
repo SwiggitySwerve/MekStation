@@ -65,6 +65,7 @@ def parse_location_equipment(
                 })
     return equipment
 
+
 def parse_source_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     """Shared explicit Omni, engine-tech and transporter source facts."""
     result: Dict[str, Any] = {}
