@@ -235,28 +235,6 @@ def map_armor_code(code: Any, armor_map: Dict[int, str]) -> str:
         return "STANDARD"
 
 
-def parse_blk_armor_type(
-    tags: Dict[str, Any], armor_map: Dict[int, str], reads_bar_rating: bool
-) -> Dict[str, Any]:
-    """Shared BLK armor vocabulary, including support BAR.
-
-    EquipmentType.java:128-136: codes 43..51 are BAR armor. The rating comes
-    only from an explicit `barrating` tag (BLKFile.java:501-513), and only the
-    support loaders read it (`loadSVArmor`: BLKSupportTankFile,
-    BLKLargeSupportTankFile, BLKSupportVTOLFile, BLKFixedWingSupportFile).
-    Without the tag a support vehicle's rating stays 0 (SupportTank.java:63,80),
-    which is no valid rating, so none is emitted; none is invented either.
-    """
-    code = get_string(tags, "armor_type")
-    armor: Dict[str, Any] = {"type": map_armor_code(code, armor_map)}
-    if parse_number(code) in range(43, 52):
-        armor["type"] = "BAR"
-        rating = parse_number(get_string(tags, "barrating")) if reads_bar_rating else None
-        if rating:
-            armor["barRating"] = int(rating)
-    return armor
-
-
 # ---------------------------------------------------------------------------
 # Output helpers — manifest, parity report, run-log
 # ---------------------------------------------------------------------------
@@ -394,7 +372,6 @@ __all__ = [
     "get_string",
     "parse_armor_array",
     "map_armor_code",
-    "parse_blk_armor_type",
     "map_blk_engine_code",
     "maximum_thrust",
     "validate_blk_tech_type",

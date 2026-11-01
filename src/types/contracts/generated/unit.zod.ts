@@ -159,6 +159,8 @@ export const UnitContract = z
                 'BAR_7',
                 'BAR_9',
                 'BAR',
+                'AEROSPACE',
+                'PATCHWORK',
               ])
               .describe('Armor type'),
             barRating: z
@@ -228,6 +230,12 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByArc: z
+              .record(z.string(), z.number().int().gte(-1))
+              .describe(
+                'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
+              )
               .optional(),
             perTrooper: z
               .number()
@@ -427,6 +435,7 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
         baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
@@ -653,6 +662,8 @@ export const UnitContract = z
                 'BAR_7',
                 'BAR_9',
                 'BAR',
+                'AEROSPACE',
+                'PATCHWORK',
               ])
               .describe('Armor type'),
             barRating: z
@@ -722,6 +733,12 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByArc: z
+              .record(z.string(), z.number().int().gte(-1))
+              .describe(
+                'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
+              )
               .optional(),
             perTrooper: z
               .number()
@@ -926,6 +943,7 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
         baseChassisSponsonPintleWeight: z.number().gte(0).optional(),

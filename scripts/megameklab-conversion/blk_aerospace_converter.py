@@ -23,11 +23,11 @@ import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from blk_aerospace_qualifiers import parse_aerospace_armor, parse_aerospace_qualifiers
 from blk_aerospace_tables import (
     AERO_ARMOR_ARCS,
     AERO_LOCATION_MAP,
     AEROSPACE_UNIT_TYPES,
-    ARMOR_CODE_MAP,
     ASF_TYPES,
     CF_TYPES,
     COCKPIT_CODE_MAP,
@@ -53,14 +53,12 @@ from blk_common import (
     extract_tags,
     generate_id_from_name,
     get_string,
-    map_armor_code,
     map_blk_engine_code,
     map_rules_level,
     map_tech_base,
     map_year_to_era,
     maximum_thrust,
     parse_armor_array,
-    parse_blk_armor_type,
     parse_number,
     remove_comments,
 )
@@ -226,8 +224,9 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_code = get_string(tags, "armor_type")
-    armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
+    # Codes 43-51 are BAR for every aircraft; only BLKFixedWingSupportFile reads the rating.
+    armor = parse_aerospace_armor(tags, reads_bar_rating=unit_type_raw == "FixedWingSupport")
+    source_qualifiers = parse_aerospace_qualifiers(tags)
 
     # Arc-based armor — ASF/CF use Nose/LW/RW/Aft; SmallCraft use Nose/LS/RS/Aft
     is_small_craft = sub_type == "SmallCraft"
@@ -254,10 +253,9 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     life_boats = int(parse_number(get_string(tags, "lifeboats", "life_boats")) or 0)
 
     # Parse cargo from transporters tag
-    transporters_raw = get_string(tags, "transporters")
-    if transporters_raw:
-        for tline in transporters_raw.splitlines():
-            tline = tline.strip()
+    transporters = source_qualifiers.get("transporters", [])
+    if transporters:
+        for tline in transporters:
             if tline.startswith("cargobay:"):
                 parts = tline.split(":")
                 if len(parts) >= 2:
@@ -307,11 +305,12 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         },
         "cockpit": cockpit_type_str,
         "armor": {
-            **(parse_blk_armor_type(tags, ARMOR_CODE_MAP, True) if unit_type_raw == "FixedWingSupport" else {"type": armor_type_str}),
+            **armor,
             "byArc": armor_by_arc,
         },
         "equipment": equipment,
     }
+    output.update(source_qualifiers)
 
     # Sub-type specific fields
     if sub_type == "AerospaceFighter":

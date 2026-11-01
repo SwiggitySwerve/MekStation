@@ -32,8 +32,9 @@ These are document storage bounds, not construction legality rules.
 The aerospace runner also scans `vehicles/`; its existing type gate selects
 FixedWingSupport and leaves ground sources to the vehicle runner. All 33
 FixedWingSupport sources retain that subtype under `Conventional Fighter`.
-BAR vocabulary comes from the shared `blk_common.parse_blk_armor_type`
-owner rather than another copy of the support armor rule.
+The BAR rule has one owner, `blk_unit_fields.bar_armor_fields` (#2445). The
+vehicle converter reads the rating only for the support loaders, and the aerospace
+converter only for FixedWingSupport; codes 43-51 are BAR for every family.
 
 Authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `BLKTankFile.java:94-123,181-200`, `BLKLargeSupportTankFile.java:107,122-141`,

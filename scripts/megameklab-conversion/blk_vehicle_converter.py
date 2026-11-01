@@ -29,7 +29,7 @@ from blk_conversion_runner import (
     run_manifest_range_parity,
     strict_safe_unit_filename,
 )
-from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
 from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
@@ -47,7 +47,7 @@ from blk_common import (
     extract_tags,
     generate_id_from_name,
     get_string,
-    parse_blk_armor_type,
+    map_armor_code,
     map_blk_engine_code as map_engine_code,
     map_rules_level,
     map_tech_base,
@@ -194,9 +194,15 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_type = parse_blk_armor_type(
-        tags, ARMOR_CODE_MAP, unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
-    )
+    armor_code = get_string(tags, "armor_type")
+    # Only the support loaders read the BAR rating (loadSVArmor in BLKSupportTankFile,
+    # BLKLargeSupportTankFile and BLKSupportVTOLFile); BLKTankFile and BLKVTOLFile do not.
+    armor_type = {
+        "type": map_armor_code(armor_code, ARMOR_CODE_MAP),
+        **bar_armor_fields(
+            tags, parse_number(armor_code), unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
+        ),
+    }
 
     # Build per-location armor dict
     try:

@@ -211,7 +211,9 @@
             "BAR_6",
             "BAR_7",
             "BAR_9",
-            "BAR"
+            "BAR",
+            "AEROSPACE",
+            "PATCHWORK"
           ],
           "description": "Armor type"
         },
@@ -262,6 +264,14 @@
           "additionalProperties": {
             "type": "integer",
             "minimum": 0
+          }
+        },
+        "typeByArc": {
+          "type": "object",
+          "description": "Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -1
           }
         },
         "perTrooper": {
@@ -497,6 +507,7 @@
       "description": "Fluff/flavor text"
     },
     "isOmni": { "type": "boolean" },
+    "omniPodHeatSinks": { "type": "integer", "minimum": 0 },
     "baseChassisTurretWeight": { "type": "number", "minimum": 0 },
     "baseChassisTurret2Weight": { "type": "number", "minimum": 0 },
     "baseChassisSponsonPintleWeight": { "type": "number", "minimum": 0 },
