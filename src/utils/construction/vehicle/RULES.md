@@ -169,6 +169,11 @@ a Turret 2 armor value makes it dual. `Rear Turret` equipment is turret-mounted,
 not rear-facing (`Tank.java:127-130`). Sponson and secondary-turret blocks carry
 mount flags independently; neither alone installs the primary turret. Explicit
 dual/chin and the existing fallback to single are preserved for BLK imports.
+The same owner reads native `(R)`, `(ST)`, `(PT)` and `:OMNI` mount decorators
+for editor hydration; the shared equipment normalization owner strips these
+decorators for ID lookup. VTOL turret mounts retain chin identity. Tank, VTOL
+and support handlers share this policy with the editor mapper. Mount decorators
+precede optional `:SIZE:` and `:Shots` qualifiers in the pinned BLK loader.
 The contract BV adapter uses this same owner, translating `SPONSON` to a
 sponson mount label while keeping its body location. Its boundary requires
 cruise/flank or safe/max thrust and the applicable armor allocation map;
