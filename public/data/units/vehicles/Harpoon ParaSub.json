@@ -1,0 +1,88 @@
+{
+  "id": "harpoon-parasub",
+  "chassis": "Harpoon ParaSub",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2545,
+  "tonnage": 4,
+  "weightClass": "LIGHT",
+  "motionType": "Submarine",
+  "movement": {
+    "cruiseMP": 3,
+    "flankMP": 5,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 10
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 2,
+    "byLocation": {
+      "FRONT": 1,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    }
+  },
+  "equipment": [
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "infantrystandardsrm:size:1.0",
+      "name": "InfantryStandardSRM:SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "support-laser-heavy:size:1.0",
+      "name": "Support Laser (Heavy):SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "submersiblechassismod",
+      "name": "SubmersibleChassisMod",
+      "location": "BODY"
+    },
+    {
+      "id": "advanced-fire-control",
+      "name": "Advanced Fire Control",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.5,
+  "structuralTechRating": 3,
+  "engineTechRating": 3,
+  "armorTechRating": 3,
+  "transporters": [
+    "cargobay:0.2:1:1::-1:0",
+    "standardseats:1.0:0:-1::-1:0",
+    "pillionseats:4.0:0:-1::-1:0"
+  ],
+  "mulId": 9230,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>The Harpoon ParaSub was initially commissioned on the water-rich Capellan world of Principia by the mercenary command Kraken Unleashed. It is an unpressurized submersible which moves five troopers and supplies them with weapon support. Since its debut it has become available for sale on the open market, enabling the creation of submersible mechanized infantry for any interested buyer.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

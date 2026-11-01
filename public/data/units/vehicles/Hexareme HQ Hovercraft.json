@@ -1,0 +1,123 @@
+{
+  "id": "hexareme-hq-hovercraft",
+  "chassis": "Hexareme HQ Hovercraft",
+  "model": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3115,
+  "tonnage": 90,
+  "weightClass": "ASSAULT",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 7,
+    "flankMP": 11,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "XL",
+    "rating": 305
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_FIBROUS",
+    "byLocation": {
+      "FRONT": 40,
+      "FRONT_RIGHT": 34,
+      "FRONT_LEFT": 34,
+      "REAR_RIGHT": 34,
+      "REAR_LEFT": 34,
+      "REAR": 30,
+      "TURRET": 32
+    }
+  },
+  "equipment": [
+    {
+      "id": "issnppc",
+      "name": "ISSNPPC",
+      "location": "TURRET"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "TURRET"
+    },
+    {
+      "id": "isams-ammo",
+      "name": "ISAMS Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "isams-ammo",
+      "name": "ISAMS Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "is-light-machine-gun-ammo-half",
+      "name": "IS Light Machine Gun Ammo - Half",
+      "location": "BODY"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "communications-equipment:size:3.0",
+      "name": "Communications Equipment:SIZE:3.0",
+      "location": "BODY"
+    },
+    {
+      "id": "isguardianecmsuite",
+      "name": "ISGuardianECMSuite",
+      "location": "BODY"
+    },
+    {
+      "id": "iscase",
+      "name": "ISCASE",
+      "location": "BODY"
+    },
+    {
+      "id": "light-machine-gunst",
+      "name": "Light Machine Gun(ST)",
+      "location": "FRONT_RIGHT"
+    },
+    {
+      "id": "isantimissilesystemst",
+      "name": "ISAntiMissileSystem(ST)",
+      "location": "FRONT_RIGHT"
+    },
+    {
+      "id": "light-machine-gunst",
+      "name": "Light Machine Gun(ST)",
+      "location": "FRONT_LEFT"
+    },
+    {
+      "id": "isantimissilesystemst",
+      "name": "ISAntiMissileSystem(ST)",
+      "location": "FRONT_LEFT"
+    }
+  ],
+  "armorTechRating": 0,
+  "transporters": [
+    "troopspace:4.0"
+  ],
+  "mulId": 7306,
+  "role": "Skirmisher",
+  "source": "XTR:RotS 1,TR:3150",
+  "quirks": [
+    "poor_performance"
+  ],
+  "fluff": {
+    "overview": "<p>The Hexareme HQ Hovercraft is a super-heavy combat vehicle produced by Michaelson Heavy Industries on Ruchbah for the Republic of the Sphere. Originally conceived as a hovering main battle tank, the design was repurposed during development when its large flotation hull proved unsuited to direct ground combat but excelled in maritime operations. The Hexareme owes its existence to the success of the Trireme Infantry Transport, which rescued Michaelson Heavy Industries from insolvency and returned the company to the forefront of Republic vehicle manufacturing. Entering service in 3115, the Hexareme became the most advanced mobile headquarters platform built on a hovercraft chassis, capable of operating effectively on both land and water.</p>",
+    "capabilities": "<p>Powered by a 305-rated extralight fusion engine, the Hexareme achieves respectable speeds on both land and water, though its 90-ton mass makes it sluggish compared to lighter hovercraft. Heavy ferro-fibrous armor provides substantial protection across all facets. Three tons of communications equipment represents the minimum required for a functional mobile headquarters, providing satellite connectivity and a modest initiative advantage when linked to orbital assets.</p><p>Early proving ground tests demonstrated that the Hexareme was too heavy and unwieldy for traditional infantry fighting vehicle operations on land. Captain Dafydd Smythe, a former blue water navy officer on Michaelson's test team who had started his career on Chara III, suggested redirecting the vehicle toward naval engagements where its unlimited range and good electronic suite served well. Clan warrior volunteers have since deployed Undine battle armor directly into underwater combat from Hexareme platforms, combining the hovercraft's amphibious capability with infantry assault tactics. Sponson-mounted weapons provide defensive firepower, while the vehicle's primary value lies in command coordination rather than direct engagement.</p>",
+    "deployment": "<p>The Hexareme serves primarily in cavalry commands and SpecOps Command formations, with notable operators including the Leander IIs of Athenry and the Wyrms of Terra. Clan Sea Fox battle armor teams have paired with Hexareme platforms for ship-to-shore assault operations. As the Republic contracted, surviving vehicles were distributed among successor factions and in at least one case fell into pirate hands. The vehicle's niche role and limited production numbers ensure it remains uncommon on most battlefields.</p>",
+    "history": "<p>The Republic Armed Forces deployed the Hexareme sparingly, primarily assigning them to cavalry commands and various outfits of SpecOps Command. Notable operators included the Leander IIs of Athenry and the two Wyrms of Terra formations, each maintaining a lance of Hexaremes for coastal patrol duties. The most unlikely operational partnership proved to be with Clan Sea Fox battle armor, where matched pairs formed a formidable team for ship-to-shore assaults.</p><p>As the Republic contracted during the 3140s, Hexaremes fell into the hands of various parties. Pirates used at least one craft to raid maritime traffic on Connaught in the late 3140s. In 3149 on Addicks, a Hexareme assigned to the XII Hastati Sentinels was employed against units of the Draconis Combine's 4th Dieron Regulars, demonstrating that the vehicle retained combat value even in the Republic's final days. The vehicle serves as a sign of the RAF's willingness to find creative solutions, taking a design that initially seemed to have no viable role and discovering multiple applications where it could excel. Its poor acceleration, a consequence of mounting a relatively modest engine in a 90-ton hull, remains the vehicle's most persistent limitation.</p>",
+    "systemManufacturer": {
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

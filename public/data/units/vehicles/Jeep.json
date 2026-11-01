@@ -1,0 +1,49 @@
+{
+  "id": "jeep",
+  "chassis": "Jeep",
+  "model": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "EARLY_SPACEFLIGHT",
+  "year": 1950,
+  "tonnage": 5,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 7,
+    "flankMP": 11,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 15
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 4,
+      "RIGHT": 4,
+      "LEFT": 4,
+      "REAR": 4
+    }
+  },
+  "equipment": [
+    {
+      "id": "isoffroadchassis",
+      "name": "ISOffRoadChassis",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "troopspace:2.0"
+  ],
+  "mulId": 4395,
+  "role": "None",
+  "source": "TR:3025,MW1e",
+  "fluff": {
+    "overview": "<p>No current information available for this unit.</p>"
+  }
+}

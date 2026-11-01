@@ -1,0 +1,78 @@
+{
+  "id": "dune-buggy",
+  "chassis": "Dune Buggy",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2010,
+  "tonnage": 1.5,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 8,
+    "flankMP": 12,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 10
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 2,
+    "byLocation": {
+      "FRONT": 1,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    }
+  },
+  "equipment": [
+    {
+      "id": "machine-gun-support:size:1.0",
+      "name": "Machine Gun (Support):SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "wire-guided-missile-launcher:size:1.0",
+      "name": "Wire-Guided Missile Launcher:SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "basic-fire-control",
+      "name": "Basic Fire Control",
+      "location": "BODY"
+    },
+    {
+      "id": "isoffroadchassis",
+      "name": "ISOffRoadChassis",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.027,
+  "structuralTechRating": 4,
+  "engineTechRating": 4,
+  "armorTechRating": 4,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "cargobay:0.2:1:1::-1:0",
+    "standardseats:2.0:0:-1::-1:0"
+  ],
+  "mulId": 9226,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>Dune buggies have been a mainstay of militias for countless centuries. Apart from jeeps, few other vehicle classes are more reliable and sturdy in off-road battle. Outfitted with an open gunner's station, dune buggies are very effective against other light vehicles and infantry, especially in the shifting sands of a desert or beachfront terrain. Not only pirate bands refit civilian vehicles into fighting machines.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

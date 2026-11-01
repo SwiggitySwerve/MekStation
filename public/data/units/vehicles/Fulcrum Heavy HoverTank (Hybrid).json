@@ -1,0 +1,102 @@
+{
+  "id": "fulcrum-heavy-hovertank-hybrid",
+  "chassis": "Fulcrum Heavy HoverTank",
+  "model": "(Hybrid)",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3084,
+  "tonnage": 50,
+  "weightClass": "HEAVY",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 8,
+    "flankMP": 12,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUSION",
+    "rating": 165
+  },
+  "armor": {
+    "type": "REACTIVE",
+    "byLocation": {
+      "FRONT": 40,
+      "RIGHT": 30,
+      "LEFT": 30,
+      "REAR": 30,
+      "TURRET": 30
+    }
+  },
+  "equipment": [
+    {
+      "id": "ismagshotgr",
+      "name": "ISMagshotGR",
+      "location": "FRONT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "TURRET"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "TURRET"
+    },
+    {
+      "id": "ismagshotgr",
+      "name": "ISMagshotGR",
+      "location": "TURRET"
+    },
+    {
+      "id": "ismagshotgr",
+      "name": "ISMagshotGR",
+      "location": "TURRET"
+    },
+    {
+      "id": "ismagshotgr-ammo",
+      "name": "ISMagshotGR Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "isarmoredmotivesystem",
+      "name": "ISArmoredMotiveSystem",
+      "location": "BODY"
+    },
+    {
+      "id": "isangelecmsuite",
+      "name": "ISAngelECMSuite",
+      "location": "BODY"
+    },
+    {
+      "id": "supercharger",
+      "name": "Supercharger",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "mulId": 4188,
+  "role": "Striker",
+  "source": "TR:Proto",
+  "quirks": [
+    "easy_maintain",
+    "non_standard"
+  ],
+  "fluff": {
+    "overview": "<p>The Fulcrum Heavy Hovertank emerged from Cyclops Incorporated's Skye design bureau in 3055, developed to succeed the aging Drillson Heavy Hovertank. Cyclops prioritized ease of maintenance and technological accessibility, building a vehicle suited for deployment on worlds far from major supply hubs.</p><p>The initial production run impressed the Lyran Alliance command sufficiently to generate an order for 500 vehicles within four months, quickly exceeding Cyclops' production capacity and prompting licensed production at additional facilities. The Fulcrum earned a reputation as an exceptional reconnaissance and fast-strike platform, capable of outrunning threats it could not defeat and delivering meaningful firepower across a broad engagement range. Its combination of electronic warfare capability and long-range weapons made it a valued asset in combined-arms formations throughout the Inner Sphere and Periphery.</p>",
+    "capabilities": "<p>The Fulcrum's performance centers on its Strand 265 XL fusion engine, which drives the tank to flank speeds exceeding 160 km/h. This speed comes at a cost: the hover propulsion system remains inherently fragile under concentrated fire, and the vehicle's armor protection is below what heavier designs carry at the same tonnage.</p><p>The weapons suite is mounted entirely in the turret. The Sunglow Type 2 Large Laser and Delta Dart LRM 10 Launcher provide effective engagement capability at range, while a Diverse Optics Type 18 Medium Laser offers supplementary close-in firepower. The LRM system carries only one ton of ammunition, limiting the tank's ability to sustain missile fire through extended engagements.</p><p>The O/P AIR 900 communications suite, fitted with a Guardian ECM system, enables the Fulcrum to screen friendly units from enemy targeting and disrupt adversary coordination. A built-in TAG designator allows the crew to mark targets for indirect fire from artillery and aerospace assets. Together these systems make the Fulcrum a capable force multiplier even when direct engagement would be unwise, supporting combined-arms operations well beyond what the vehicle's weapons alone would suggest.</p>",
+    "deployment": "<p>Production of the Fulcrum Hybrid at Johnston Industries' Benet III facility was constrained by the challenges of sourcing Clan-specification medium pulse lasers, resulting in smaller deliveries with longer lead times than standard production variants. Vehicles that reached front-line units were allocated primarily to Federated Suns Davion Light Combat Teams, where the Hybrid's brawling capability and electronic warfare suite complemented the Light Combat Team doctrine of rapid insertion and disruption. Its armored motive system and supercharger allowed the Hybrid to survive engagements that would destroy a standard Fulcrum, making it a preferred asset for high-risk penetration missions.</p>",
+    "history": "<p>Development of the Fulcrum began at Cyclops Incorporated's Skye facility in 3055, driven by Lyran Alliance demand for a hovertank that could be maintained on worlds with limited technical infrastructure. Prototypes completed trials in 3056, and series production began in March 3057 following an initial order that demonstrated the Alliance command's confidence in the design. Early deployments along the Periphery and Free Worlds League borders confirmed the vehicle's value, with garrison forces receiving capable modern equipment for the first time in years.</p><p>The vehicle's strong performance during the FedCom Civil War expanded demand beyond Cyclops' production capacity. By 3067, Johnston Industries of New Syrtis had negotiated a production license, bringing the Fulcrum into Federated Suns service in significant numbers. Both manufacturers supplied vehicles to the combined Davion-Steiner commands engaged across multiple fronts during this period.</p><p>The Jihad placed Fulcrum formations at the center of several notable campaigns. During Duke George Hasek's strikes into Capellan territory and Duke Robert Kelswa-Steiner's operations against the Free Worlds League, Fulcrum units served as screening forces and fire-direction elements for missile batteries, their ECM and TAG capabilities proving well suited to the disrupted communications environment of Jihad-era warfare. The Alphard Trading Corporation's production line on Alphard, operating under Marian Hegemony control, continued uninterrupted during these conflicts, supplying vehicles to Periphery buyers while Inner Sphere manufacturers faced wartime disruptions.</p>",
+    "manufacturer": "Johnston Industries",
+    "primaryFactory": "Benet III",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Strand",
+      "ARMOR": "Johnston Industries",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Johnston Industries"
+    }
+  }
+}
