@@ -1,0 +1,213 @@
+{
+  "id": "triumph-3057",
+  "chassis": "Triumph",
+  "model": "(3057)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "tonnage": 6000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 7500,
+  "structuralIntegrity": 11,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 112
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 160,
+      "RIGHT_SIDE": 140,
+      "LEFT_SIDE": 140,
+      "AFT": 136
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:16",
+      "name": "IS Gauss Ammo:16",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:18",
+      "name": "IS Ammo LRM-20 Artemis-capable:18",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:16",
+      "name": "IS Ammo LRM-15 Artemis-capable:16",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:16",
+      "name": "IS Ammo LRM-15 Artemis-capable:16",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:12",
+      "name": "IS Ammo LRM-10 Artemis-capable:12",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 275,
+  "escapePods": 4,
+  "lifeBoats": 3,
+  "officers": 3,
+  "gunners": 3,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "heavyvehiclebay:24.0:1:1::-1:0",
+    "mekbay:4.0:1:-1::-1:0",
+    "cargobay:242.0:0:3::-1:0",
+    "lightvehiclebay:12.0:1:4::-1:0",
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:84.0:0:-1::-1:0"
+  ],
+  "mulId": 5296,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Triumph class DropShip stands as one of the largest aerodyne military transports ever produced and among the most common still in active service across the Inner Sphere. First launched in 2593, this venerable design was purpose-built to deliver an entire armor battalion onto the battlefield, and its remarkable versatility has kept it in continuous production for over four and a half centuries. Though lacking the glamour of dedicated Mek carriers such as the Union or Overlord, the Triumph earned its reputation through sheer reliability and adaptability, with large numbers remaining in the fleets of every Great House.</p><p>The vessel's distinctive squat profile was born of a deliberate effort to balance aerodynamic maneuverability with rapid vehicle offloading, and its highly adaptable cargo bays have seen Triumphs modified to carry everything from aerospace fighters and BattleMeks to surface naval craft. Few aerodyne designs have achieved such universal adoption or demonstrated such longevity in continuous front-line service.</p>",
+    "capabilities": "<p>The 3057 redesign by BBP Industries serves as a comprehensive overhaul rather than a simple refit, reducing total displacement to 6,000 tons while incorporating recovered Star League technology throughout. The redesigned interior replaces the original single massive ramp with a pair of narrower ramps providing simultaneous access to upper and lower vehicle bays, allowing crews to reorganize cargo during flight. Twenty-four heavy vehicle slots and twelve light vehicle positions are supplemented by four Mek cubicles, giving the new Triumph the ability to transport a Mek lance alongside two companies of armor.</p><p>The weapons array receives significant upgrades, replacing the nose-mounted autocannon with a Gauss rifle and trading standard energy weapons for extended-range and pulse variants. Artemis IV fire control systems improve the accuracy of all LRM launchers, significantly enhancing the vessel's ability to defend itself during approach and landing operations. Unlike many lostech refits of the era that amounted to little more than weapon swaps, the BBP redesign fundamentally improved the Triumph's operational flexibility while reducing its logistical footprint. Cargo capacity drops to 242 tons, a trade-off accepted in exchange for the added Mek transport capability and improved combat effectiveness.</p>",
+    "deployment": "<p>The BBP Industries redesign entered service with the Draconis Combine Mustered Soldiery in 3057, produced at the Luthien shipyards. Its ability to carry both Meks and vehicles in a single hull made it attractive to combined-arms regiments operating along the Clan border, where tactical flexibility was paramount. The upgraded weaponry and improved bay access significantly enhanced survivability during contested landings that would have been extremely hazardous for the older model. Limited production capacity meant relatively few of the new-model Triumphs reached front-line units during the initial production run, though those that did were highly valued by their crews for the vastly improved cargo handling and combat capability.</p>",
+    "history": "<p>The Triumph class entered service in 2593 during the height of the Star League era, designed to meet the Star League Defense Force's need for a large-capacity aerodyne vehicle transport. The design proved immediately successful, offering rapid vehicle deployment capabilities that no spheroid transport could match. The SLDF adopted the Triumph in significant numbers, and its production spread to multiple facilities across the Inner Sphere. When the Star League collapsed, the Triumph's relatively simple construction and robust engineering ensured that production continued even as technological capabilities declined.</p><p>Throughout the Succession Wars, the Triumph remained the primary aerodyne vehicle carrier for all five Great Houses. The design's large, adaptable cargo bays proved invaluable during this period, as commanders frequently modified their Triumphs to carry aerospace fighters, BattleMeks, and even surface naval craft when the mission demanded it. However, the class suffered heavily in contested landings, where its thin armor and modest weaponry left it vulnerable to concentrated fire. Countless Triumphs were lost attempting to reach their landing zones under hostile conditions, reinforcing the conventional wisdom that the design required substantial escort support.</p><p>By the mid-3050s, production had slowed dramatically, with Rashpur-Owens Incorporated on Capella managing only a single new hull per year. This scarcity prompted BBP Industries of Luthien to unveil a comprehensive redesign in 3057 that reduced total mass to 6,000 tons while incorporating recovered Star League technology. The redesigned interior featured improved bay access and added Mek transport capability alongside the traditional vehicle bays, representing a significant evolution beyond a simple weapons upgrade.</p><p>The Word of Blake's capture of the Titan Yards on Terra in 3062 led to the development of the Assault Triumph, a heavily armed and armored variant that transformed the venerable transport into a combined-arms assault platform. This radical departure from the original concept carried Meks, vehicles, aerospace fighters, and battle armor in a single hull, backed by firepower that could suppress ground defenses during contested landings. A further refinement in 3082 expanded the Assault Triumph's Mek capacity and added improved defensive systems, ensuring the class would continue to serve well into the post-Jihad era.</p>",
+    "manufacturer": "BBP Industries",
+    "primaryFactory": "Luthien"
+  }
+}

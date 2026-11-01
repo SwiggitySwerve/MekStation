@@ -1,0 +1,511 @@
+{
+  "id": "overlord-a3a",
+  "chassis": "Overlord",
+  "model": "A3A",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3076,
+  "tonnage": 9700,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 15300,
+  "structuralIntegrity": 40,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 240
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 522,
+      "RIGHT_SIDE": 490,
+      "LEFT_SIDE": 490,
+      "AFT": 450
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:64",
+      "name": "IS Gauss Ammo:64",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:5",
+      "name": "Ammo AR10 Barracuda:5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:5",
+      "name": "Ammo AR10 Killer Whale:5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:40",
+      "name": "IS Gauss Ammo:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:18",
+      "name": "IS Ammo LRM-20 Artemis-capable:18",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserppc",
+      "name": "(R) (B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-iserppc",
+      "name": "(R) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-iserppc",
+      "name": "(R) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-ismediumpulselaser",
+      "name": "(R) (B) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:5",
+      "name": "Ammo AR10 Barracuda:5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:5",
+      "name": "Ammo AR10 Killer Whale:5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:40",
+      "name": "IS Gauss Ammo:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:18",
+      "name": "IS Ammo LRM-20 Artemis-capable:18",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserppc",
+      "name": "(R) (B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-iserppc",
+      "name": "(R) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-iserppc",
+      "name": "(R) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-ismediumpulselaser",
+      "name": "(R) (B) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "is-gauss-ammo:64",
+      "name": "IS Gauss Ammo:64",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:78",
+      "name": "IS Ammo LRM-20 Artemis-capable:78",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-screen:10",
+      "name": "Ammo Screen:10",
+      "location": "AFT"
+    }
+  ],
+  "crew": 67,
+  "escapePods": 6,
+  "lifeBoats": 4,
+  "officers": 10,
+  "gunners": 15,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:6.0:3:1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:385.0:0:-1::-1:0",
+    "1stclassquarters:100.0:0:-1::-1:0",
+    "cargobay:573.0:2:5::-1:0"
+  ],
+  "mulId": 5766,
+  "role": "None",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Overlord class DropShip is one of the most recognizable and widely-produced military transport vessels in the Inner Sphere. First launched in 2762, this 9,700-ton Spheroid design quickly became the standard by which all other regiment-level Mek carriers would be judged. Produced by numerous shipyards across both the Inner Sphere and Clan space, the Overlord has served continuously for over three centuries, a sign of the fundamental soundness of its original design. Its distinctive teardrop profile and massive bay doors have become iconic symbols of military power projection throughout the BattleTech universe. Few designs have achieved such universal adoption across virtually every major military force in known space.</p><p>The sheer number of Overlords in service has made the class a common sight in virtually every major conflict since the fall of the Star League, and its continued production ensures it will remain so for the foreseeable future.</p>",
+    "capabilities": "<p>The A3A builds on the pocket WarShip concept with enhanced defensive systems and increased capital missile capability. Three AR-10 launchers replace the A3's single launcher and Kraken T combination, tripling the sustained capital missile output. Laser Anti-Missile Systems mounted in the nose and aft arcs provide point defense against incoming capital missiles, while a Screen Launcher in the aft arc generates electronic countermeasures against guided munitions. The broadside Gauss rifle batteries and energy weapon arrays remain comparable to the A3.</p><p>Cargo capacity increases slightly to 573 tons with the removal of the battle armor bays, providing additional magazine depth for the expanded AR-10 launcher battery. The crew shrinks to 92 despite retaining 15 gunners, reflecting improved automation in non-combat systems. The A3A retains the A3's impressive thrust 5 performance, SI 40 structural integrity, and 1,952 points of armor, making it one of the most heavily protected DropShips in service during the Jihad era. The defensive suite makes the A3A significantly more survivable than its predecessor in missile-heavy engagements. The expanded AR-10 magazine depth ensures the A3A can sustain capital missile fire through prolonged naval engagements.</p>",
+    "deployment": "<p>The A3A upgrade appeared during the Jihad in 3076, incorporating defensive systems developed in response to the extensive use of capital missiles during the conflict. The addition of Laser AMS and Screen Launchers addressed the A3's primary vulnerability to massed missile fire. The A3A served with distinction in the coalition forces during the final campaigns against the Word of Blake Protectorate, where its improved survivability proved essential against the Blakist fleet's missile-heavy doctrines. Post-Jihad production has continued to meet demand from powers seeking affordable capital-grade naval assets.</p>",
+    "history": "<p>The Overlord class DropShip traces its origins to the height of the Star League era, when the Star League Defense Force recognized the need for a standardized heavy Mek transport capable of deploying a full battalion in a single vessel. Previous designs had forced commanders to split their forces across multiple smaller transports, complicating coordination during contested landings. The Overlord was designed from the ground up to solve this problem, with bay capacity for thirty-six BattleMeks and integral aerospace fighter support.</p><p>Entering service in 2762, the Overlord quickly proved its worth during the Amaris Civil War, where SLDF forces used the design extensively during the liberation of Terra. The ability to land an entire battalion in a single drop, supported by its own fighter screen and considerable defensive armament, gave the Overlord a decisive advantage in contested planetary assaults. When Aleksandr Kerensky led the Exodus, hundreds of Overlords accompanied the SLDF fleet into the unknown.</p><p>The Succession Wars that followed the Star League's collapse only increased the Overlord's importance. As JumpShip numbers dwindled and each transit became more precious, the ability to move a full battalion on a single docking collar became even more valuable. Production continued at reduced rates throughout the Succession Wars, and captured Overlords were among the most prized spoils of war. The Clans independently developed the Overlord C variant, scaling the hull up to 11,600 tons to carry forty-five Meks organized in the Clan Trinary structure.</p><p>The Clan Invasion of 3049 prompted the first major refit of the Inner Sphere Overlord in centuries. The 3056 variant replaced aging autocannons with Gauss rifles and upgraded energy weapons to their ER equivalents, dramatically improving the design's ability to survive contested drops against Clan-grade opposition. The Word of Blake Jihad later spawned the A3 and A3A pocket WarShip conversions, mounting capital-grade weapons on the proven Overlord hull.</p><p>Today the Overlord remains in widespread service across virtually every major military force in the Inner Sphere and Clan space. Its longevity is proof of the soundness of the original Star League design, and continued production ensures the class will remain the backbone of military DropShip fleets for decades to come.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various"
+  }
+}

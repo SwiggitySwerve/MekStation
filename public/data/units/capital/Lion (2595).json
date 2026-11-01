@@ -1,0 +1,382 @@
+{
+  "id": "lion-2595",
+  "chassis": "Lion",
+  "model": "(2595)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2595,
+  "tonnage": 7300,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 6300,
+  "structuralIntegrity": 14,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 113
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 220,
+      "RIGHT_SIDE": 191,
+      "LEFT_SIDE": 191,
+      "AFT": 166
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20:48",
+      "name": "IS Ammo LRM-20:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:48",
+      "name": "IS Ammo LRM-20:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-15",
+      "name": "(R) (B) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-lrm-15",
+      "name": "(R) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-15:64",
+      "name": "(R) IS Ammo LRM-15:64",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-large-laser",
+      "name": "(R) (B) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-large-laser",
+      "name": "(R) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-srm-6",
+      "name": "(R) (B) SRM 6",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-srm-6",
+      "name": "(R) SRM 6",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-srm-6:60",
+      "name": "(R) IS Ammo SRM-6:60",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:48",
+      "name": "IS Ammo LRM-20:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-15",
+      "name": "(R) (B) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-lrm-15",
+      "name": "(R) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-15:64",
+      "name": "(R) IS Ammo LRM-15:64",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-large-laser",
+      "name": "(R) (B) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-large-laser",
+      "name": "(R) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-srm-6",
+      "name": "(R) (B) SRM 6",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-srm-6",
+      "name": "(R) SRM 6",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-srm-6:60",
+      "name": "(R) IS Ammo SRM-6:60",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-15:64",
+      "name": "IS Ammo LRM-15:64",
+      "location": "AFT"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-srm-6:60",
+      "name": "IS Ammo SRM-6:60",
+      "location": "AFT"
+    }
+  ],
+  "crew": 125,
+  "escapePods": 10,
+  "lifeBoats": 0,
+  "officers": 9,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "mekbay:8.0:2:-1::-1:0",
+    "lightvehiclebay:12.0:2:2::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:90.0:0:-1::-1:0",
+    "crewquarters:280.0:0:-1::-1:0",
+    "cargobay:2355.5:1:6::-1:0"
+  ],
+  "mulId": 4524,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Lion class DropShip is one of the oldest designs still in active service, originally introduced in 2595 as a Star League combined-arms transport. This 7,300-ton Spheroid was designed from the outset to carry BattleMechs, vehicles, and cargo in a single hull, making it a true multi-role transport capable of deploying balanced ground forces.</p><p>Unlike the Clan Union and Overlord vessels, which are essentially new craft sharing a name with Inner Sphere designs, all surviving Lion class vessels are refitted originals constructed during the twenty-seventh century. No new Lions have ever been built, making each surviving example an irreplaceable relic of the Star League era.</p>",
+    "capabilities": "<p>The original Lion carries two lances of BattleMechs, a company of twelve light vehicles, and over 2,350 tons of cargo. The spheroid hull distributes its weapons across all arcs. The nose mounts four large lasers, four medium lasers, and two LRM-20 racks. Each broadside carries six large lasers, four medium lasers, two LRM-20s, two LRM-15s, and two SRM-6 launchers. The aft arc provides two LRM-15s, two large lasers, two medium lasers, and two SRM-6s. One hundred thirteen single heat sinks manage the thermal load.</p><p>The vessel maintains a safe thrust of 3g with a structural integrity rating of 14, and carries 768 points of armor. A crew of 143 operates the vessel and its embarked forces. The Lion's generous cargo capacity allows extended independent operations without resupply.</p>",
+    "deployment": "<p>The original Lion served with the Star League Defense Force as a combined-arms transport throughout the Inner Sphere. Only a handful survived the Succession Wars in Inner Sphere hands, and these rare vessels became prized possessions of whatever military force could maintain them.</p>",
+    "history": "<p>The Lion entered service in 2595 as a combined-arms transport for the Star League Defense Force. The design served throughout the Inner Sphere until the Amaris Civil War, when many were destroyed or damaged. The surviving Lions were divided between those that accompanied the Exodus Fleet and the handful that remained in the Inner Sphere, where centuries of Succession War fighting reduced their numbers to a mere fraction of the original production run.</p><p>The Clans extensively refitted their Lions to match their revised military organization, expanding the Mech bays from two lances to two Stars and replacing all weapons with advanced Clan technology. An attempt to convert the vehicle bay for battle armor proved unfeasible, and the space was instead configured for an infantry Binary. This compromise relegated the Lion to service with freeborn and dezgra units, who continued to use it in its intended combined-arms role.</p><p>When Wolf's Dragoons returned to the Inner Sphere in 3005, they brought several Lion class vessels, which they expected would be inconspicuous. They did not realize that only a handful of Lions remained in Successor State fleets, and their presence immediately aroused suspicion. The Dragoons stripped most advanced technology from their Lions before arriving and restricted them to carrying eight BattleMechs to avoid further scrutiny. After the Fourth Succession War, the Dragoons adopted the five-unit Clan organization openly, and following the Battle of Luthien in 3052, most of their Lions are believed to have been returned to full Clan specifications.</p>",
+    "manufacturer": "Krester Ship Construction|Krester Ship Construction|Krester Ship Construction",
+    "primaryFactory": "Keid|Thorin|Yorii"
+  }
+}

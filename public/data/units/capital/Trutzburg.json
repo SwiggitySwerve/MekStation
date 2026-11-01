@@ -1,0 +1,466 @@
+{
+  "id": "trutzburg",
+  "chassis": "Trutzburg",
+  "model": "",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3112,
+  "tonnage": 6000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 12000,
+  "structuralIntegrity": 15,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 131
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 321,
+      "RIGHT_SIDE": 270,
+      "LEFT_SIDE": 270,
+      "AFT": 250
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isimprovedheavygaussrifle",
+      "name": "(B) ISImprovedHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isimprovedheavygaussrifle",
+      "name": "ISImprovedHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isimprovedheavygauss-ammo:40",
+      "name": "ISImprovedHeavyGauss Ammo:40",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islongtom",
+      "name": "(B) ISLongTom",
+      "location": "NOSE"
+    },
+    {
+      "id": "islongtomammo:100",
+      "name": "ISLongTomAmmo:100",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islongtom",
+      "name": "(B) ISLongTom",
+      "location": "NOSE"
+    },
+    {
+      "id": "islongtomammo:100",
+      "name": "ISLongTomAmmo:100",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islongtom",
+      "name": "(B) ISLongTom",
+      "location": "NOSE"
+    },
+    {
+      "id": "islongtomammo:100",
+      "name": "ISLongTomAmmo:100",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-extended-lrm-20",
+      "name": "(B) Extended LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "extended-lrm-20",
+      "name": "Extended LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-extended-lrm-20:32",
+      "name": "IS Ammo Extended LRM-20:32",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:72",
+      "name": "ISAMS Ammo:72",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserppc",
+      "name": "(R) (B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isimprovedheavygaussrifle",
+      "name": "(R) (B) ISImprovedHeavyGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isimprovedheavygaussrifle",
+      "name": "(R) ISImprovedHeavyGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isimprovedheavygauss-ammo:40",
+      "name": "(R) ISImprovedHeavyGauss Ammo:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-lrm-20",
+      "name": "(R) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:30",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:30",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isermediumlaser",
+      "name": "(R) (B) ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isermediumlaser",
+      "name": "(R) ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:72",
+      "name": "(R) ISAMS Ammo:72",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-extended-lrm-20",
+      "name": "(B) Extended LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "extended-lrm-20",
+      "name": "Extended LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-extended-lrm-20:32",
+      "name": "IS Ammo Extended LRM-20:32",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:72",
+      "name": "ISAMS Ammo:72",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserppc",
+      "name": "(R) (B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isimprovedheavygaussrifle",
+      "name": "(R) (B) ISImprovedHeavyGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isimprovedheavygaussrifle",
+      "name": "(R) ISImprovedHeavyGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isimprovedheavygauss-ammo:40",
+      "name": "(R) ISImprovedHeavyGauss Ammo:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-lrm-20",
+      "name": "(R) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:30",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:30",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isermediumlaser",
+      "name": "(R) (B) ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isermediumlaser",
+      "name": "(R) ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:72",
+      "name": "(R) ISAMS Ammo:72",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isimprovedheavygaussrifle",
+      "name": "(B) ISImprovedHeavyGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isimprovedheavygauss-ammo:20",
+      "name": "ISImprovedHeavyGauss Ammo:20",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 90,
+  "escapePods": 5,
+  "lifeBoats": 4,
+  "officers": 7,
+  "gunners": 10,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:6.0:3:1::-1:0",
+    "mekbay:12.0:2:-1::-1:0",
+    "battlearmorbay:4.0:1:3::-1:0",
+    "cargobay:432.0:1:4::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:210.0:0:-1::-1:0",
+    "1stclassquarters:70.0:0:-1::-1:0"
+  ],
+  "mulId": 6641,
+  "role": "None",
+  "source": "TR:3145:LC,TR:3150",
+  "quirks": [
+    "difficult_maintain"
+  ],
+  "fluff": {
+    "overview": "<p>The Trutzburg is a military transport DropShip designed by the Tharkad Aerospace Group for the Lyran Commonwealth. Entering service in 3112, the Trutzburg was developed in response to the Commonwealth's critical need for a domestically manufactured DropShip capable of transporting BattleMechs following the defection of the Isle of Skye and its merger with the Republic of the Sphere after the Jihad. Named for the German term for a castle built to besiege an enemy fortress, the Trutzburg sits between the Union and Overlord in capacity and capability, though its role more closely resembles the rarer Fortress class.</p>",
+    "capabilities": "<p>The Trutzburg is a 6,000-ton military spheroid designed to transport combined-arms formations including a BattleMech company, an aerospace fighter squadron, and four squads of battle armor, with additional space for cargo. Its weapons suite is substantial for a transport, mounting ER PPCs, Improved Heavy Gauss Rifles, ELRM-20 and LRM-20 launchers, ER Large and Medium Lasers, and three Long Tom Artillery pieces that provide ground fire support capability during landing operations. Twelve anti-missile systems provide comprehensive point defense coverage. Fifty-three tons of Heavy Ferro-Aluminum armor gives the Trutzburg excellent survivability, allowing it to make contested orbital insertions with greater confidence than lighter transports. The drive system provides modest acceleration of 2.5 gravities maximum thrust, typical of vessels prioritizing cargo capacity and armor protection over speed. The inclusion of fighter bays allows the Trutzburg to provide its own aerospace escort for short-duration operations, reducing dependence on external fighter cover during landing and extraction missions. The Long Tom batteries give the vessel a unique capability among transports, allowing it to provide sustained artillery support to its embarked ground forces after landing.</p>",
+    "deployment": "<p>The standard Trutzburg serves in its baseline combined-arms transport configuration, delivering BattleMech, aerospace, and battle armor formations to planetary surfaces. Widely disseminated by Tharkad Aerospace Group since its introduction, these vessels have become a common sight in Lyran Commonwealth naval formations, compensating for the declining availability of Union and Overlord transports.</p>",
+    "history": "<p>The Trutzburg was born from strategic necessity when the defection of the Isle of Skye and its absorption into the Republic of the Sphere deprived the Lyran Commonwealth of critical shipyard capacity. With its Aurora, Union, and Overlord fleets declining due to attrition and insufficient replacement production, the Commonwealth urgently needed a domestically built transport that could be manufactured at remaining Lyran facilities.</p><p>Tharkad Aerospace Group was tasked with developing a solution that bridged the gap between the light Union and heavy Overlord transports. The resulting design drew inspiration from the rare Fortress class, combining meaningful transport capacity with enough armor and firepower to survive contested landings without dedicated escort. The chosen name reflected the vessel's intended purpose of delivering forces capable of besieging enemy positions, a reference to the specialized siege castles of ancient Germanic warfare.</p><p>The Trutzburg entered service in 3112 and was quickly disseminated throughout the Lyran Commonwealth Armed Forces. Tharkad Aerospace Group maintained steady production to replace aging transports across the Commonwealth's naval arm, and the design proved popular with commanders who appreciated its balance of capacity, protection, and integrated fire support capability. The artillery batteries proved particularly valued during planetary assault operations, providing sustained indirect fire support that previously required separate artillery DropShips. By the mid-thirty-second century, the Trutzburg had become one of the most common transport DropShips in Lyran service.</p>",
+    "manufacturer": "Tharkad Aerospace Group",
+    "primaryFactory": "Tharkad"
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "id": "lung-wang-p2",
+  "chassis": "Lung Wang",
+  "model": "P2",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3082,
+  "tonnage": 2600,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 3000,
+  "structuralIntegrity": 15,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 100
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 222,
+      "RIGHT_SIDE": 192,
+      "LEFT_SIDE": 192,
+      "AFT": 190
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-sub-capital-laser-3",
+      "name": "(B) Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-extended-lrm-20",
+      "name": "(B) Extended LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "extended-lrm-20",
+      "name": "Extended LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "extended-lrm-20",
+      "name": "Extended LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-extended-lrm-20:60",
+      "name": "IS Ammo Extended LRM-20:60",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:20",
+      "name": "IS LB 10-X Cluster Ammo:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:20",
+      "name": "IS LB 10-X Cluster Ammo:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:12",
+      "name": "IS Ammo LRM-20 Artemis-capable:12",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:15",
+      "name": "IS Ammo SRM-6 Artemis-capable:15",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    }
+  ],
+  "crew": 75,
+  "escapePods": 4,
+  "lifeBoats": 2,
+  "officers": 4,
+  "gunners": 10,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:2.0:2:1::-1:0",
+    "1stclassquarters:40.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:105.0:0:-1::-1:0",
+    "infantrybay:2.0:1:5:Foot:-1:0",
+    "cargobay:58.5:1:6::-1:0"
+  ],
+  "mulId": 4547,
+  "role": "None",
+  "source": "TR:Proto",
+  "quirks": [
+    "atmo_instability",
+    "weak_undercarriage",
+    "imp_com"
+  ],
+  "fluff": {
+    "overview": "<p>The Lung Wang is a 2,600-ton Spheroid assault transport conceived as a raider capable of operating independently of support while engaging any non-Clan opponent on equal terms. Introduced in 3055, the design was commissioned to fulfill specifications demanding a fast, well-armed vessel that could carry a light raiding party of BattleMechs and aerospace fighters deep into hostile territory.</p><p>Built around a powerful new drive system that consumes almost a third of the vessel's mass, the Lung Wang delivers impressive speed for its tonnage class. Combined with formidable forward-facing firepower and adequate transport capacity, the design has proven itself an effective tool for aggressive raiding operations and has earned a reputation as one of the most capable assault transports produced during the post-Clan Invasion era.</p>",
+    "capabilities": "<p>The P2 variant standardizes the Predator refit's sub-capital weapons for series production. The nose carries three sub-capital laser/3 systems, three Extended LRM-20 launchers, an ER PPC, two large pulse lasers, and a medium pulse laser. Each side mounts two LB 10-X autocannons, an ER large laser, two medium lasers, an ER PPC, and a medium pulse laser. The aft arc matches the original Lung Wang's configuration with an ER large laser, two medium lasers, an LRM-20 with Artemis IV, a large pulse laser, and an SRM-6 with Artemis IV. One hundred double heat sinks manage the thermal load. Transport capacity includes two aerospace fighters, two infantry bays, and roughly 59 tons of cargo. The design carries the quirks of atmospheric instability and a weak undercarriage but benefits from improved communications systems.</p>",
+    "deployment": "<p>The P2 became the Capellan Confederation's standard assault DropShip by 3090, replacing both the original Lung Wang and serving as the production evolution of the Predator refit concept. These vessels form the backbone of Capellan planetary assault capabilities in the post-Jihad era, deploying sub-capital weapons that give them credible anti-WarShip capability.</p>",
+    "history": "<p>The Lung Wang emerged from the Rashpur-Owens Incorporated yards at Capella in 3055, having been conceived during the early days of Chancellor Sun-Tzu Liao's reign. The prototype first maneuvered under its own power in March 3055, and by September extensive system tests had been completed. Rather than assign the vessel to routine patrol duty for its evaluation, Capellan leadership committed it to a live combat raid against a Federated Commonwealth target.</p><p>The raid occurred on November 19, 3055, near the planet Lee. A Capellan flotilla including the prototype engaged a Federated Commonwealth defense force in orbit. The Lung Wang faced an enemy assault craft in a pitched slugging match, and despite sustaining heavy damage, the new Capellan vessel emerged victorious. The engagement demonstrated that the Capellan Confederation could produce front-line assault vessels competitive with established designs, and production was stepped up to meet both domestic needs and export sales to allied states.</p><p>Following the Jihad, Rashpur-Owens refitted a decorated vessel with experimental systems including sub-capital weaponry, creating the Predator configuration. The lessons learned from this refit informed the development of the P2 variant, which became the Capellan Confederation's standard assault DropShip by 3090. The P2 standardized the sub-capital weapon systems while removing experimental equipment, providing a reliable production model for the post-Jihad era.</p>",
+    "manufacturer": "Rashpur-Owens Inc.",
+    "primaryFactory": "Capella"
+  }
+}

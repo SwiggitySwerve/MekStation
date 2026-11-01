@@ -1,0 +1,2857 @@
+{
+  "id": "leviathan-ii-battleship",
+  "chassis": "Leviathan II Battleship",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3066,
+  "tonnage": 2400000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 38250,
+  "structuralIntegrity": 150,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 9500
+  },
+  "armor": {
+    "type": "FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 1000,
+      "FRONT_LEFT_SIDE": 1000,
+      "FRONT_RIGHT_SIDE": 1000,
+      "AFT": 1000,
+      "AFT_LEFT_SIDE": 1000,
+      "AFT_RIGHT_SIDE": 1000
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-gauss-heavy",
+      "name": "Naval Gauss (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:200",
+      "name": "Ammo Heavy N-Gauss:200",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:100",
+      "name": "Ammo AR10 Barracuda:100",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:50",
+      "name": "Ammo AR10 White Shark:50",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:25",
+      "name": "Ammo AR10 Killer Whale:25",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-gauss-ammo:600",
+      "name": "Clan Gauss Ammo:600",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clams-ammo:1008",
+      "name": "CLAMS Ammo:1008",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:100",
+      "name": "Ammo AR10 Barracuda:100",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:50",
+      "name": "Ammo AR10 White Shark:50",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:25",
+      "name": "Ammo AR10 Killer Whale:25",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clermediumlaser",
+      "name": "(B) CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:300",
+      "name": "Clan Streak SRM 6 Ammo:300",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clams-ammo:1008",
+      "name": "CLAMS Ammo:1008",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:100",
+      "name": "Ammo AR10 Barracuda:100",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:50",
+      "name": "Ammo AR10 White Shark:50",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:25",
+      "name": "Ammo AR10 Killer Whale:25",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clermediumlaser",
+      "name": "(B) CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:300",
+      "name": "Clan Streak SRM 6 Ammo:300",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clams-ammo:1008",
+      "name": "CLAMS Ammo:1008",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-ar10-barracuda:100",
+      "name": "Ammo AR10 Barracuda:100",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-ar10-white-shark:50",
+      "name": "Ammo AR10 White Shark:50",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:25",
+      "name": "Ammo AR10 Killer Whale:25",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-gauss-ammo:600",
+      "name": "Clan Gauss Ammo:600",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clermediumlaser",
+      "name": "(B) CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clams-ammo:1008",
+      "name": "CLAMS Ammo:1008",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:100",
+      "name": "Ammo AR10 Barracuda:100",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:50",
+      "name": "Ammo AR10 White Shark:50",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:25",
+      "name": "Ammo AR10 Killer Whale:25",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:300",
+      "name": "Clan Streak SRM 6 Ammo:300",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clams-ammo:1008",
+      "name": "CLAMS Ammo:1008",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:100",
+      "name": "Ammo AR10 Barracuda:100",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:50",
+      "name": "Ammo AR10 White Shark:50",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:25",
+      "name": "Ammo AR10 Killer Whale:25",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:300",
+      "name": "Clan Streak SRM 6 Ammo:300",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clams-ammo:1008",
+      "name": "CLAMS Ammo:1008",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-gauss-medium",
+      "name": "Naval Gauss (Medium)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:200",
+      "name": "Ammo Medium N-Gauss:200",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:600",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:600",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:300",
+      "name": "Clan Streak SRM 6 Ammo:300",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-gauss-medium",
+      "name": "Naval Gauss (Medium)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:200",
+      "name": "Ammo Medium N-Gauss:200",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:600",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:600",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:500",
+      "name": "Clan Ammo ATM-12 ER:500",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:250",
+      "name": "Clan Ammo ATM-12:250",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:250",
+      "name": "Clan Ammo ATM-12 HE:250",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:300",
+      "name": "Clan Streak SRM 6 Ammo:300",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 1770,
+  "escapePods": 150,
+  "lifeBoats": 150,
+  "officers": 195,
+  "gunners": 211,
+  "passengers": 0,
+  "battleArmor": 225,
+  "marines": 0,
+  "transporters": [
+    "asfbay:150.0:8:1::-1:0",
+    "asfbay:150.0:8:2::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "1stclassquarters:1950.0:0:-1::-1:0",
+    "crewquarters:6825.0:0:-1::-1:0",
+    "2ndclassquarters:1575.0:0:-1::-1:0",
+    "cargobay:50293.0:10:14::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    185,
+    185,
+    95,
+    95,
+    95,
+    95,
+    95,
+    95
+  ],
+  "dockingCollars": 8,
+  "mulId": 4501,
+  "role": "None",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Leviathan II Battleship is the most powerful WarShip class ever fielded by Clan Ghost Bear and its successor state, the Rasalhague Dominion. Sharing the same two million four hundred thousand ton displacement as the earlier Leviathan Heavy Transport hull from which it was derived, the class emerged from the Alshain Naval Yards as a dedicated capital combatant in the mid-3060s. Armed with a dense capital weapons suite and carrying a substantial organic aerospace wing, the Leviathan II paired overwhelming offensive firepower with the ability to project force across an entire star system. The class served as the strategic centerpiece of the Dominion fleet, providing a deterrent unmatched by any WarShip operated by a Clan or successor state during the late thirty-first century. The sheer concentration of firepower aboard each vessel established the Leviathan II as the standard against which all other modern capital combatants were measured by naval strategists throughout the Inner Sphere.</p>",
+    "capabilities": "<p>The Leviathan II mounts an extraordinarily dense weapons suite across all firing arcs. The nose section carries heavy naval Gauss rifles, naval autocannons, seven medium naval particle projector cannons, twelve naval laser fifty-fives, and an AR-10 capital missile launcher. Extensive arrays of conventional Clan weapons including extended-range lasers, pulse lasers, Gauss rifles, and ATM-12 batteries provide layered defense against fighters and smaller craft. The broadside arcs concentrate the heaviest sustained firepower, with medium naval Gauss rifles backed by twenty-four naval laser fifty-fives per side and full batteries of extended-range PPCs, pulse lasers, and LRM-20 launchers with Artemis IV guidance. Anti-missile systems and Streak SRM-6 launchers protect the vessel from approaching ordnance at all angles.</p><p>The vessel maintains eight docking collars for DropShips and two massive fighter bays housing a combined three hundred aerospace fighters, giving the class organic carrier capability unmatched outside dedicated carrier designs. Nine thousand five hundred double heat sinks manage the staggering thermal output of the weapons suite. Structural integrity of one hundred fifty reflects the massively reinforced hull construction, while Ferro-Carbide armor provides outstanding protection across all arcs. A lithium-fusion battery permits consecutive hyperspace jumps, and a mobile HPG maintains independent interstellar communications. The one notable limitation is the vessel's modest thrust profile of safe three and maximum five, a trade-off imposed by the enormous mass that must be accelerated.</p>",
+    "deployment": "<p>The CGB Rasalhague was the only Leviathan II built directly to the battleship specification. Construction at the Alshain Naval Yards suffered repeated disruptions: the Draconis Combine's Alshain Avengers attacked the shipyard in 3064, helping trigger the Combine-Ghost Bear War, and in May 3067 Clan Nova Cat launched a Trial of Retribution to seize the incomplete hull. The resulting Naval Battle of Alshain lasted eight days, inflicting devastating losses on both Clans before the Ghost Bears retained possession. The vessel finally launched in December 3069 and entered combat almost immediately during the Jihad. At the Battle of Tukayyid in July 3070, the Rasalhague led a task force that knocked the Blakist McKenna-class Blake's Sword out of action, reportedly absorbing nuclear weapon impacts without critical damage. At the Battle of Dyev in July 3076, the vessel destroyed multiple Blakist WarShips during a seven-hour engagement alongside the Nightlord-class Ursa Major and the Aegis-class Scabbard. The Rasalhague subsequently served with Task Force EARTHBOUND during the liberation of Terra.</p><p>As the sole surviving Leviathan-class vessel after the Jihad, the Rasalhague remained the most powerful WarShip in the Dominion fleet for decades. In December 3099, the vessel led a flotilla in the Bikini Atoll Raid, destroying Combine factory ships. During the Dominion Civil War, Star Admiral Tanya Bourjon declared the navy neutral, keeping the Rasalhague stationed at Alshain while maintaining open JumpShip traffic until the conflict's resolution.</p><p>The CGB Leviathan and CGB Great Bear, both converted from the earlier Heavy Transport configuration, served as the first two Leviathan II-class vessels. The Leviathan supported operations at Kaus Borealis and Ascella before being lost at the Battle of Dieron on 20 November 3077, when Blakist WarShips concentrated fire on the vessel during Operation SCOUR. The Great Bear was destroyed during Task Force CRONUS's assault on the Titan Yards near Terra, overwhelmed by a concealed Dragon's Breath Multiple Capital Missile Launch System that claimed the vessel and five other Coalition WarShips in a devastating ambush.</p>",
+    "history": "<p>The Leviathan II class emerged from the decades-long Leviathan program initiated in 3044 by Clan Ghost Bear. After the two original hulls were completed as armed transports for the Third Exodus in 3055, plans commenced to convert them to their intended battleship configuration. The extensive mid-construction transport modifications meant the resulting combat vessels would differ materially from the original Leviathan battleship specifications. The transport-phase hull reinforcements, enlarged internal volumes, and revised compartmentalization all influenced the final design, creating the distinct Leviathan II designation rather than a return to the never-completed original blueprint. Both converted vessels were operational by 3061, giving Clan Ghost Bear two of the most powerful WarShips in the Inner Sphere.</p><p>Construction of a third vessel, built directly to the Leviathan II specification, commenced at the Alshain Naval Yards in the early 3060s. The project suffered repeated setbacks, including a Draconis Combine attack on the shipyard that helped trigger the Combine-Ghost Bear War and a contested Clan Trial over possession of the incomplete hull, both of which delayed progress by years. The vessel finally launched in December 3069, entering service during one of the most turbulent periods in Inner Sphere history as the Word of Blake Jihad engulfed the entire region.</p><p>All three Leviathan II vessels saw extensive combat during the Jihad, and the class proved to be an extraordinarily capable combatant. Ghost Bear fleet commanders deployed the class as the centerpiece of major task forces, with escort vessels screening the massive battleships while they engaged enemy capital assets directly. The vessels demonstrated the ability to absorb tremendous punishment, including nuclear weapon strikes, while delivering overwhelming firepower against even the largest opposing WarShips. The class played a decisive role in several of the Jihad's most important naval engagements, contributing to the liberation of key worlds held by the Word of Blake and proving that a sufficiently powerful capital combatant could dominate an entire system's orbital space.</p><p>The Jihad exacted a heavy toll on the class. Two of the three vessels were destroyed during the final stages of the conflict. One was lost in a fleet engagement during the liberation of a major world, while the other was destroyed by a concealed weapons platform during an assault on an orbital facility near Terra. The loss of two irreplaceable capital assets in rapid succession underscored both the vulnerability of even the largest WarShips to concentrated fire and the desperate intensity of the final campaigns against the Word of Blake. The destruction of two-thirds of the class in a matter of weeks marked one of the most significant naval losses suffered by any single power during the entire Jihad.</p><p>The sole surviving vessel continued to serve as the most powerful WarShip in the Rasalhague Dominion's fleet throughout the post-Jihad era and into the ilClan period. The vessel's continued operational availability shaped Dominion military planning for decades, providing a strategic deterrent that influenced the calculations of every neighboring state. No additional Leviathan II hulls were constructed, as the Alshain Naval Yards eventually shifted resources toward development of a successor design. The Leviathan II class left an enduring mark on Inner Sphere naval doctrine, demonstrating that a single capital combatant of sufficient power could anchor an entire nation's military strategy and project power across dozens of light years through its mere existence.</p>",
+    "manufacturer": "Alshain Naval Yards",
+    "primaryFactory": "Alshain"
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "id": "conestoga-transport-jumpship",
+  "chassis": "Conestoga Transport JumpShip",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2310,
+  "tonnage": 700000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 1,
+    "maxThrust": 2
+  },
+  "fuel": 12500,
+  "structuralIntegrity": 20,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 250
+  },
+  "armor": {
+    "type": "PRIMITIVE_AERO",
+    "byArc": {
+      "NOSE": 15,
+      "FRONT_LEFT_SIDE": 13,
+      "FRONT_RIGHT_SIDE": 13,
+      "AFT": 7,
+      "AFT_LEFT_SIDE": 11,
+      "AFT_RIGHT_SIDE": 11
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 230,
+  "escapePods": 20,
+  "lifeBoats": 40,
+  "officers": 32,
+  "gunners": 5,
+  "passengers": 200,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "smallcraftbay:8.0:4:1::-1:0",
+    "dropshuttlebay:2.0:1:2::0:0",
+    "dropshuttlebay:2.0:1:3::1:0",
+    "dropshuttlebay:2.0:1:6::2:0",
+    "1stclassquarters:320.0:0:-1::-1:0",
+    "2ndclassquarters:1400.0:0:-1::-1:0",
+    "crewquarters:1141.0:0:-1::-1:0",
+    "cargobay:47828.0:2:8::-1:0",
+    "cargobay:47827.0:2:9::-1:0",
+    "cargobay:47827.0:2:10::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 4,
+  "jumpRange": 20,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    250,
+    250,
+    250,
+    250
+  ],
+  "dockingCollars": 0,
+  "mulId": 7474,
+  "role": "None",
+  "source": "TtS:Valencia",
+  "fluff": {
+    "overview": "<p>The Conestoga was one of humanity's earliest faster-than-light colonization vessels, predating the development of docking collars and the modern DropShip interface by centuries. Designed by Boeing Interstellar on Terra, the class entered service in 2310 during the first great wave of interstellar expansion. Built to carry entire colonial expeditions in a single voyage, the Conestoga sacrificed speed and combat capability in favor of enormous cargo capacity and comfortable passenger accommodations. The vessel's primitive drive systems, while providing exceptional range, demanded significant maintenance and consumed a disproportionate share of the hull's mass. Despite these limitations, the class earned a reputation as the definitive early colonization transport, a rugged if ungainly workhorse that opened dozens of new worlds to human settlement.</p>",
+    "capabilities": "<p>At 700,000 tons and 400 meters in length, the Conestoga was designed for reliability and cargo capacity rather than combat performance. Its primitive Kearny-Fuchida drive provided an extraordinary 20 light-year jump range, far exceeding the standard of later KF drives, though the system's massive size and maintenance requirements contributed heavily to the design's eventual obsolescence. The vessel generated only a single point of safe thrust, giving a glacial 0.5g acceleration that placed it among the slowest capital-scale vessels ever fielded.</p><p>The Conestoga's armament reflected its civilian purpose. Conventional large and medium lasers provided token self-defense across all arcs, with slightly heavier batteries forward and on the broadsides. No naval-grade weaponry was fitted. These light weapons offered sufficient deterrence against early-era pirates but no meaningful defense against military vessels.</p><p>The vessel's true value lay in its carrying capacity. Three DropShuttle bays accommodated up to six of the pre-docking collar transit craft that served as the ship-to-surface interface during this era, supplemented by eight small craft. Four 250-meter gravity decks, among the largest ever installed on any JumpShip, provided comfortable living space for the crew and up to 232 passengers. Over 143,000 tons of cargo capacity across three holds enabled the transport of an entire colonial expedition in a single voyage.</p>",
+    "deployment": "<p>No individual Conestoga-class vessels are recorded by name in published sources. The class operated exclusively as civilian colonization transports, carrying settlers, equipment, and supplies to newly surveyed worlds during the earliest centuries of human interstellar expansion. Conestogas typically traveled in small convoys, their enormous cargo capacity allowing entire colonial outfitting to be carried aboard a single vessel or small flotilla. Operations centered on outbound voyages from Terra and other established worlds to frontier systems, with the vessels serving as mobile staging points during the initial phases of planetary settlement. The Terran Alliance and later the Terran Hegemony managed most Conestoga operations, though individual vessels occasionally operated under contract to corporate colonization ventures.</p>",
+    "history": "<p>The Conestoga emerged from Boeing Interstellar's shipyards on Terra in 2310, one of the earliest vessels purpose-built for interstellar colonization. The design was adapted from plans Boeing had developed for the Cruiser-class military vessel. Rather than naval weapons and heavy armor, Boeing's engineers fitted massive cargo holds, passenger accommodations, and internal DropShuttle bays, creating a transport optimized for moving colonial expeditions across the stars.</p><p>Boeing produced the class in limited numbers, as the expense of constructing such a large vessel with a primitive drive system was substantial even by the standards of the Terran Alliance. Each Conestoga represented an enormous investment, and losses to drive failures or misjumps were keenly felt. The class nevertheless proved reliable enough to earn a strong reputation among the colonization fleets of the Terran Alliance and later the Terran Hegemony.</p><p>During the first great wave of interstellar expansion, Conestogas served as the workhorses of settlement. The vessels departed Terra and other established worlds laden with agricultural equipment, prefabricated shelters, industrial machinery, and the specialists and settlers needed to establish viable colonies on newly surveyed worlds. The Conestoga's extraordinary jump range allowed expeditions to reach distant targets with fewer intermediate stops, a critical advantage when charted waypoints were scarce.</p><p>As JumpShip technology advanced through the twenty-fourth and twenty-fifth centuries, the Conestoga grew obsolete. Newer transports were faster, more efficient, and easier to maintain, while standard docking collars rendered the DropShuttle interface redundant. By approximately 2600, the last Conestogas had been retired from Inner Sphere service. The class endured longer in the Deep Periphery, where isolated colony worlds maintained their ancient vessels through generations of accumulated knowledge and improvised repairs. Some reportedly remained operational as late as the thirtieth century, relics of humanity's earliest steps among the stars.</p>",
+    "manufacturer": "Boeing Interstellar",
+    "primaryFactory": "Terra"
+  }
+}

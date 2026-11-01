@@ -3,8 +3,8 @@
   "chassis": "Ferret Light Scout VTOL",
   "model": "'Fermi'",
   "unitType": "VTOL",
-  "techBase": "INNER_SPHERE",
-  "rulesLevel": "STANDARD",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
   "era": "CIVIL_WAR",
   "year": 3076,
   "tonnage": 5,
@@ -20,7 +20,7 @@
     "rating": 25
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "STEALTH",
     "byLocation": {
       "FRONT": 2,
       "RIGHT": 1,

@@ -1,0 +1,157 @@
+{
+  "id": "seeker-3054",
+  "chassis": "Seeker",
+  "model": "(3054)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3054,
+  "tonnage": 4700,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 6450,
+  "structuralIntegrity": 10,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 101
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 140,
+      "RIGHT_SIDE": 120,
+      "LEFT_SIDE": 120,
+      "AFT": 116
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-10",
+      "name": "(R) (B) LRM 10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-10-artemis-capable:12",
+      "name": "(R) IS Ammo LRM-10 Artemis-capable:12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-10",
+      "name": "(R) (B) LRM 10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-10-artemis-capable:12",
+      "name": "(R) IS Ammo LRM-10 Artemis-capable:12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "mash-equipment:size:1.0",
+      "name": "MASH Equipment:SIZE:1.0",
+      "location": "HULL"
+    }
+  ],
+  "crew": 472,
+  "escapePods": 8,
+  "lifeBoats": 0,
+  "officers": 4,
+  "gunners": 3,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "lightvehiclebay:40.0:1:1::-1:0",
+    "infantrybay:9.0:1:2:Foot:-1:0",
+    "cargobay:489.0:1:3::-1:0",
+    "1stclassquarters:40.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:112.0:0:-1::-1:0"
+  ],
+  "mulId": 5014,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Seeker is a 4,700-ton Spheroid troop transport designed to carry a scout battalion into hostile territory and operate independently of support vessels for extended periods. Introduced in 2815 during the early Succession Wars, the design prioritizes speed, endurance, and crew comfort over raw firepower, reflecting its intended role as a deep reconnaissance platform rather than a front-line assault ship.</p><p>One of the fastest DropShips of its size class, the Seeker carries enough parts, food, and water to operate for up to four months without resupply. Relatively luxurious crew quarters and an extensive medical facility promote morale during lengthy independent deployments, making the design popular with scout commands and reconnaissance units across multiple Successor States.</p>",
+    "capabilities": "<p>The 3054 upgrade replaces the standard PPCs with ER PPCs and the large lasers with ER large lasers across all arcs, significantly extending engagement range. Each LRM-10 launcher receives an Artemis IV fire control system for improved missile accuracy. The aft arc similarly upgrades to an ER large laser with two medium lasers. These weapon modifications are relatively modest, preserving the Seeker's proven reliability while extending the effective reach of its defensive armament.</p><p>More extensive changes were made to the transport bays and support systems. A MASH (Mobile Army Surgical Hospital) unit enhances the vessel's already capable medical facilities, reflecting the upgraded variant's continued focus on extended independent operations deep in hostile territory. Transport capacity remains at forty light vehicles and nine infantry platoons with 489 tons of cargo space. The Quad RanTech 720 drive system and one hundred and one single heat sinks are unchanged from the original design.</p>",
+    "deployment": "<p>The upgraded Seeker was jointly developed by Semier Data Tron and Salvatore Inc. for the Federated Commonwealth in 3054 and saw rapid adoption across the Federated Commonwealth's scout and reconnaissance commands. The extended-range weapons and improved medical facilities enhanced the vessel's already proven capability for independent long-duration operations in contested space.</p>",
+    "history": "<p>The Seeker entered service in 2815 and was produced by multiple manufacturers across the Inner Sphere, ensuring widespread availability throughout the Succession Wars. The design's combination of speed, endurance, and versatile transport capacity made it a staple of scout and reconnaissance formations in every major military. Its reconfigurable cargo bays allowed field commanders to tailor the vessel's loadout to mission requirements, carrying light vehicles, BattleMechs, or even aerospace fighters as needed.</p><p>Refitted versions of the Seeker appeared following the rediscovery of Star League technology. The most common upgrade was jointly developed by Semier Data Tron and Salvatore Inc. for the Federated Commonwealth in 3054, incorporating extended-range energy weapons and improved fire control systems. Both the Free Worlds League and the Capellan Confederation were also reported to be developing their own upgraded variants, though these programs were not publicly confirmed. The Seeker has remained in continuous service across the Inner Sphere, its proven reliability and adaptable design ensuring relevance well beyond its original era.</p>",
+    "manufacturer": "Salvatore Inc.|Semier Data Tron|Tengo Aerospace",
+    "primaryFactory": "Layover|Tharkad|Sarna"
+  }
+}

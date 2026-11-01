@@ -1,0 +1,313 @@
+{
+  "id": "lung-wang-3055",
+  "chassis": "Lung Wang",
+  "model": "(3055)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "tonnage": 2600,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 3000,
+  "structuralIntegrity": 15,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 75
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 220,
+      "RIGHT_SIDE": 192,
+      "LEFT_SIDE": 192,
+      "AFT": 192
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:16",
+      "name": "IS Gauss Ammo:16",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:12",
+      "name": "IS Ammo LRM-20 Artemis-capable:12",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:16",
+      "name": "IS Ammo LRM-15 Artemis-capable:16",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:15",
+      "name": "IS Ammo SRM-6 Artemis-capable:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-10",
+      "name": "(B) Autocannon/10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-10:10",
+      "name": "IS Ammo AC/10:10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:12",
+      "name": "IS Ammo LRM-10 Artemis-capable:12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-autocannon-10",
+      "name": "(B) Autocannon/10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-10:10",
+      "name": "IS Ammo AC/10:10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:12",
+      "name": "IS Ammo LRM-10 Artemis-capable:12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:12",
+      "name": "IS Ammo LRM-20 Artemis-capable:12",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:15",
+      "name": "IS Ammo SRM-6 Artemis-capable:15",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    }
+  ],
+  "crew": 55,
+  "escapePods": 4,
+  "lifeBoats": 2,
+  "officers": 3,
+  "gunners": 6,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "mekbay:4.0:2:-1::-1:0",
+    "asfbay:2.0:2:2::-1:0",
+    "cargobay:289.5:2:3::-1:0",
+    "infantrybay:1.0:0:4:Foot:-1:0",
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:84.0:0:-1::-1:0"
+  ],
+  "mulId": 4546,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Lung Wang is a 2,600-ton Spheroid assault transport conceived as a raider capable of operating independently of support while engaging any non-Clan opponent on equal terms. Introduced in 3055, the design was commissioned to fulfill specifications demanding a fast, well-armed vessel that could carry a light raiding party of BattleMechs and aerospace fighters deep into hostile territory.</p><p>Built around a powerful new drive system that consumes almost a third of the vessel's mass, the Lung Wang delivers impressive speed for its tonnage class. Combined with formidable forward-facing firepower and adequate transport capacity, the design has proven itself an effective tool for aggressive raiding operations and has earned a reputation as one of the most capable assault transports produced during the post-Clan Invasion era.</p>",
+    "capabilities": "<p>The Lung Wang concentrates devastating firepower in its forward arc. The nose mounts a Gauss rifle, an ER PPC, two ER large lasers, two medium lasers, an LRM-20 and LRM-15 with Artemis IV fire control, two large pulse lasers, a medium pulse laser, and an SRM-6 with Artemis IV. Each side carries an AC/10, an ER PPC, an ER large laser, two medium lasers, an LRM-10 with Artemis IV, and a medium pulse laser. The aft arc mounts an ER large laser, two medium lasers, an LRM-20 with Artemis IV, a large pulse laser, and an SRM-6 with Artemis IV. Seventy-five double heat sinks manage this formidable arsenal.</p><p>The Xevec-19 drive system comprises almost a third of the ship's mass, delivering a safe thrust of 2.5 Gs that gives the Lung Wang impressive agility for an assault transport. Transport capacity includes bays for four BattleMechs, two aerospace fighters, and one infantry platoon, with nearly 290 tons of cargo space. The position of the fighter and Mech bays low in the hull restricts the aft weapons coverage, creating the vessel's primary tactical vulnerability.</p>",
+    "deployment": "<p>The original Lung Wang served primarily with the Capellan Confederation Armed Forces as a fast raider and assault transport. Export sales to the Free Worlds League during a period of detente between the two nations broadened the design's operational footprint. These vessels typically operated as the centerpiece of small raiding flotillas, carrying light combined-arms forces on deep strikes into enemy territory.</p>",
+    "history": "<p>The Lung Wang emerged from the Rashpur-Owens Incorporated yards at Capella in 3055, having been conceived during the early days of Chancellor Sun-Tzu Liao's reign. The prototype first maneuvered under its own power in March 3055, and by September extensive system tests had been completed. Rather than assign the vessel to routine patrol duty for its evaluation, Capellan leadership committed it to a live combat raid against a Federated Commonwealth target.</p><p>The raid occurred on November 19, 3055, near the planet Lee. A Capellan flotilla including the prototype engaged a Federated Commonwealth defense force in orbit. The Lung Wang faced an enemy assault craft in a pitched slugging match, and despite sustaining heavy damage, the new Capellan vessel emerged victorious. The engagement demonstrated that the Capellan Confederation could produce front-line assault vessels competitive with established designs, and production was stepped up to meet both domestic needs and export sales to allied states.</p><p>Following the Jihad, Rashpur-Owens refitted a decorated vessel with experimental systems including sub-capital weaponry, creating the Predator configuration. The lessons learned from this refit informed the development of the P2 variant, which became the Capellan Confederation's standard assault DropShip by 3090. The P2 standardized the sub-capital weapon systems while removing experimental equipment, providing a reliable production model for the post-Jihad era.</p>",
+    "manufacturer": "Rashpur-Owens Inc.",
+    "primaryFactory": "Capella"
+  }
+}

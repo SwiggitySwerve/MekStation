@@ -1,0 +1,1073 @@
+{
+  "id": "stefan-amaris-battleship",
+  "chassis": "Stefan Amaris Battleship",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2764,
+  "tonnage": 1040000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 37500,
+  "structuralIntegrity": 100,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 1666
+  },
+  "armor": {
+    "type": "FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 280,
+      "FRONT_LEFT_SIDE": 260,
+      "FRONT_RIGHT_SIDE": 260,
+      "AFT": 251,
+      "AFT_LEFT_SIDE": 260,
+      "AFT_RIGHT_SIDE": 260
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-killer-whale",
+      "name": "(B) Capital Missile Launcher (Killer Whale)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-killer-whale",
+      "name": "Capital Missile Launcher (Killer Whale)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-killer-whale:20",
+      "name": "Ammo Killer Whale:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-killer-whale",
+      "name": "(B) Capital Missile Launcher (Killer Whale)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-killer-whale",
+      "name": "Capital Missile Launcher (Killer Whale)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-killer-whale:20",
+      "name": "Ammo Killer Whale:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-40:10",
+      "name": "Ammo NAC/40:10",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "AFT"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-killer-whale",
+      "name": "(B) Capital Missile Launcher (Killer Whale)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-killer-whale",
+      "name": "Capital Missile Launcher (Killer Whale)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-killer-whale:20",
+      "name": "Ammo Killer Whale:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-killer-whale",
+      "name": "(B) Capital Missile Launcher (Killer Whale)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-killer-whale",
+      "name": "Capital Missile Launcher (Killer Whale)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-killer-whale:20",
+      "name": "Ammo Killer Whale:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-gauss-ammo:72",
+      "name": "IS Gauss Ammo:72",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:96",
+      "name": "IS Ammo LRM-20:96",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 714,
+  "escapePods": 100,
+  "lifeBoats": 60,
+  "officers": 118,
+  "gunners": 98,
+  "passengers": 175,
+  "battleArmor": 0,
+  "marines": 60,
+  "transporters": [
+    "asfbay:18.0:2:1::-1:0",
+    "asfbay:18.0:2:2::-1:0",
+    "smallcraftbay:6.0:2:3::-1:0",
+    "crewquarters:3458.0:0:-1::-1:0",
+    "1stclassquarters:1430.0:0:-1::-1:0",
+    "2ndclassquarters:350.0:0:-1::-1:0",
+    "steeragequarters:800.0:0:-1::-1:0",
+    "cargobay:111960.0:4:8::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    150,
+    150
+  ],
+  "dockingCollars": 4,
+  "mulId": 6786,
+  "role": "None",
+  "source": "His:LoT2",
+  "quirks": [
+    "bad_rep_is",
+    "obsolete:2779"
+  ],
+  "fluff": {
+    "overview": "<p>The Stefan Amaris-class battleship was the Rim Worlds Republic's crowning naval achievement and the only battleship ever produced by a Periphery nation. Commissioned by President Stefan Amaris and constructed at the Rockwell-Vasquez Starcraft facility on Zertarum, the class entered service in 2764 as the culmination of longstanding Republic ambitions for a modern capital WarShip. Designed as a heavily armored battlewagon capable of anchoring a fleet engagement, the Stefan Amaris carried a formidable broadside arsenal and extensive support facilities for fighters and DropShips. Though unable to match the sheer mass of the Hegemony's premier designs, the class earned respect for its protective qualities and the reach of its capital weaponry. The class bore its creator's name with pride, regarded within the Republic as a symbol of national accomplishment and naval resurgence.</p>",
+    "capabilities": "<p>Displacing 1,040,000 tons across 1,605 meters of hull, the Stefan Amaris holds the distinction of being the longest WarShip ever built, though at roughly half the mass of a McKenna it carries correspondingly less firepower. The class compensates with superior armor protection: nearly 1,900 tons of ferro-carbide plating provide better coverage than even the Hegemony's flagship class. Nine Heavy Naval PPCs form the primary capital battery, with three mounted in the nose and three on each broadside. Eight NAC/30 and eight NAC/25 naval autocannons provide devastating broadside fire across the forward, broadside, and aft quarter arcs, while eight Killer Whale capital missile launchers in the forward and aft quarters deliver long-range striking power. A single NAC/40 and two NL45 naval lasers defend the stern. Every arc carries identical conventional batteries of three Gauss rifles, four LRM-20 racks, four medium lasers, and four small pulse lasers for anti-fighter defense.</p><p>Lithium-fusion batteries allow rapid successive jumps, dramatically enhancing the class's strategic mobility. Four docking collars, thirty-six fighters across two bays, six small craft, and over 111,000 tons of cargo capacity provide substantial operational flexibility. The combination of heavy armor and long-range capital weaponry makes the Stefan Amaris a dangerous opponent at range, though its comparatively modest mass limits the volume of fire it can sustain against heavier battleship designs.</p>",
+    "deployment": "<p>The first three completed hulls received their lithium-fusion battery upgrades at Hegemony shipyards and were conducting shakedown cruises when the Usurper murdered First Lord Richard Cameron on 27 December 2766. All three immediately played major roles in securing the Hegemony and eliminating SLDF naval forces. The RWS Stefan Amaris herself, the class flagship, was destroyed that same day over the Pacific Ocean by the SLS Enterprise, a McKenna-class battleship, during the fierce eighteen-hour orbital battle above Terra.</p><p>The fourth and fifth hulls, the RWRS Gregory Amaris and RWRS Terens Amaris, were still under construction when the SLDF conquered the Rim Worlds Republic. General Kerensky ordered both vessels completed and renamed: the SLS Vengeance and SLS Chieftain. The Vengeance served with Admiral Akkayev-Cameron's Fourth Fleet and was destroyed during the assault on New Home in early 2775. The Chieftain met a more celebrated end, leading Task Force Leonidas during Operation LIBERATION in January 2777. That forty-vessel suicide mission destroyed 106 Caspar drone WarShips over forty-two hours of continuous combat before every vessel in the task force was annihilated. Fewer than thirty of the roughly eight thousand personnel assigned to the task force chose to leave when offered the chance before the mission launched.</p>",
+    "history": "<p>The Stefan Amaris-class battleship emerged from centuries of frustrated Rim Worlds Republic naval ambition. The Republic had been among the first Periphery nations to develop true capital WarShips, but the devastating Reunification War forced them to abandon those efforts. When Stefan Amaris ascended to the presidency, he brought renewed focus to his admirals' long-standing desire for a modern fleet. While the Republic initially contented itself with purchasing mothballed Star League designs and producing copies of existing vessels, most of which proved less efficient and more problematic than their originals, Amaris demanded something grander: the Human Sphere's premier battleship.</p><p>Rockwell-Vasquez Starcraft at Zertarum could not deliver the most massive WarShip ever built as Amaris had hoped, but they designed an effective battlewagon that claimed the record for sheer length. Smaller than the Hegemony's McKenna, the Stefan Amaris was well protected but outgunned by that king of all WarShips. Amaris achieved his greatest coup prior to the assassination of Richard Cameron by manipulating the young First Lord into selling advanced jump drive technology for the new battleships, a capability that dramatically enhanced their strategic mobility.</p><p>Only five hulls were laid down. The first three were completed and sent to Hegemony shipyards for final upgrades, placing them in position for immediate use when Amaris launched his coup on 27 December 2766. All three participated in seizing the Terran Hegemony and destroying SLDF naval forces, though the class flagship was lost that same day in the orbital battle above Terra. Two incomplete hulls remained in the Rim Worlds; after the SLDF conquered the Republic, General Kerensky ordered both completed and pressed into service under new names. One served with the Fourth Fleet and was destroyed during Operation CHIEFTAIN. The other earned a heroic legacy by leading a deliberate suicide mission against Caspar drone WarShips defending the Sol system, clearing nearly forty percent of those automated defenders before being annihilated with her entire task force. None of the five Stefan Amaris-class battleships survived the liberation of the Terran Hegemony, and the class passed into history bearing both the Usurper's stigma and the heroism of the crews who turned his weapons against his legacy.</p>",
+    "manufacturer": "Rockwell-Vasquez Starcraft Inc.",
+    "primaryFactory": "Zertarum"
+  }
+}
