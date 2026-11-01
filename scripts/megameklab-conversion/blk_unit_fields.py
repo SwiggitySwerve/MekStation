@@ -129,7 +129,11 @@ def vehicle_patchwork_armor_fields(tags: Dict[str, Any], locations: Dict[str, in
                 raise ValueError(f'Invalid patchwork BAR: {rating}')
             types[location], bars[location] = BAR_ARMOR_CODES[rating - 2], rating
         else:
-            code = parse_qualifier_number(tags, f'{name}_armor_type', integer=True)
+            type_tag = f'{name}_armor_type'
+            # BLKTankFile.java:306-307 requires a type for every installed location.
+            if type_tag not in tags:
+                raise ValueError(f'Missing patchwork armor type for {name}: <{type_tag}>')
+            code = parse_qualifier_number(tags, type_tag, integer=True)
             map_armor_code(code, BLK_ARMOR_CODE_MAP, strict=True)
             types[location] = code
             if support:

@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import {
@@ -45,6 +45,12 @@ it('recomputes displayed defense for chassis flags and support identity', () => 
   expect(bv()).toHaveTextContent('314D / 11O');
   act(() => store.getState().setFlotationHull(true));
   expect(bv()).toHaveTextContent('346D / 11O');
+  expect(store.getState().barRating).toBeNull();
   act(() => store.setState({ unitType: UnitType.SUPPORT_VEHICLE }));
-  expect(bv()).toHaveTextContent('283D / 11O');
+  // MegaMek 48fcb2f6 SupportTank.java:61-64,79-80 leaves unset BAR at 0.
+  // BVCalculator.java:430-434 and CombatVehicleBVCalculator.java:83-108:
+  // round((100 * 2.5 * 0 / 10 + 12) * 0.9 * 1.2) = 13; support omits flags.
+  expect(
+    within(bv()).getByText('13D / 11O', { exact: true }),
+  ).toBeInTheDocument();
 });
