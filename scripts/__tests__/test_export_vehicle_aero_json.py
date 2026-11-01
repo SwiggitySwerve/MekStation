@@ -5,14 +5,18 @@ mekfiles-relative source path (the join key to the UL-16 Java reference) and lis
 """
 
 import json
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 
 from export_vehicle_aero_json import export
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 TANK = (
     '<UnitType>Tank</UnitType>\n<Name>Export Tank</Name>\n<motion_type>Tracked</motion_type>\n'
@@ -51,6 +55,23 @@ class ExportVehicleAeroJsonTest(unittest.TestCase):
             self.assertEqual(summary['aerospace']['skipped'], [])
             self.assertEqual(json.loads((out / 'export-summary.json').read_text(encoding='utf-8')), summary)
 
+
+class ExportOutputGuardTest(unittest.TestCase):
+    def test_protected_catalog_paths_are_refused_before_any_write(self):
+        data = REPO_ROOT / 'public' / 'data'
+        candidates = [
+            data,
+            data / 'units' / 'vehicles',
+            Path(os.path.relpath(data)),
+            Path(str(data).upper()) if os.name == 'nt' else data,
+            data / 'units' / '..' / 'units',
+        ]
+        for out_dir in candidates:
+            with self.subTest(out_dir=str(out_dir)), \
+                    patch.object(Path, 'mkdir', side_effect=AssertionError('mkdir reached')), \
+                    patch('builtins.open', side_effect=AssertionError('open reached')), \
+                    self.assertRaisesRegex(ValueError, 'public/data'):
+                export(Path('unused-mekfiles'), out_dir)
 
 if __name__ == '__main__':
     unittest.main()
