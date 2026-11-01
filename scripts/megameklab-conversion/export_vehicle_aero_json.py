@@ -9,7 +9,6 @@ Usage: python -B export_vehicle_aero_json.py <mekfiles> <out-dir>
 import collections
 import json
 import logging
-import os
 import sys
 from pathlib import Path
 
@@ -27,10 +26,11 @@ PROTECTED_DATA_DIR = Path(__file__).resolve().parents[2] / "public" / "data"
 
 def _require_scratch(out_dir: Path) -> None:
     """Refuse the shipped data tree and anything under it, before any filesystem write."""
-    # resolve() also normalises letter case and aliases (such as `..`) on Windows.
-    protected = str(PROTECTED_DATA_DIR.resolve())
-    target = str(out_dir.resolve())
-    if os.path.commonpath([protected, target]) == protected:
+    # resolve() also normalises letter case and aliases (such as `..`) on Windows. Path
+    # comparison works across drives, where os.path.commonpath raises.
+    protected = PROTECTED_DATA_DIR.resolve()
+    target = out_dir.resolve()
+    if target == protected or protected in target.parents:
         raise ValueError(f"export output must be a scratch directory, not under public/data: {out_dir}")
 
 

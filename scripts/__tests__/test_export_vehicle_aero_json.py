@@ -73,5 +73,13 @@ class ExportOutputGuardTest(unittest.TestCase):
                     self.assertRaisesRegex(ValueError, 'public/data'):
                 export(Path('unused-mekfiles'), out_dir)
 
+    @unittest.skipUnless(os.name == 'nt', 'drive letters are Windows-only')
+    def test_scratch_on_another_drive_is_accepted(self):
+        from export_vehicle_aero_json import _require_scratch
+
+        repo_drive = os.path.splitdrive(str(REPO_ROOT))[0].upper()
+        other = next(d for d in ('E:', 'D:', 'Z:') if d != repo_drive)
+        _require_scratch(Path(other + '/scratch/ul17-export'))  # must not raise
+
 if __name__ == '__main__':
     unittest.main()
