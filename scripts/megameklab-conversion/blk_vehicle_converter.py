@@ -33,8 +33,6 @@ from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id,
 from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
-    BAR_ARMOR_CODE_OFFSET,
-    BAR_ARMOR_CODES,
     MOTION_TYPE_MAP,
     UNSUPPORTED_UNIT_TYPES,
     VEHICLE_ARMOR_LOCATIONS,
@@ -49,7 +47,7 @@ from blk_common import (
     extract_tags,
     generate_id_from_name,
     get_string,
-    map_armor_code,
+    parse_blk_armor_type,
     map_blk_engine_code as map_engine_code,
     map_rules_level,
     map_tech_base,
@@ -193,17 +191,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_code = get_string(tags, "armor_type")
-    armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
-    bar_rating = None
-    if parse_number(armor_code) in BAR_ARMOR_CODES:
-        # BLKFile.java:501-503 reads the rating from `barrating`; the armor_type
-        # code (43..51 = BAR 2..10) agrees with it and is the fallback.
-        armor_type_str = "BAR"
-        bar_rating = int(
-            parse_number(get_string(tags, "barrating"))
-            or parse_number(armor_code) - BAR_ARMOR_CODE_OFFSET
-        )
+    armor_type = parse_blk_armor_type(tags, ARMOR_CODE_MAP)
 
     # Build per-location armor dict
     armor_by_location: Dict[str, int] = {}
@@ -249,14 +237,11 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
             "rating": engine_rating,
         },
         "armor": {
-            "type": armor_type_str,
+            **armor_type,
             "byLocation": armor_by_location,
         },
         "equipment": equipment,
     }
-
-    if bar_rating is not None:
-        output["armor"]["barRating"] = bar_rating
 
     output.update(parse_vehicle_qualifiers(tags))
 

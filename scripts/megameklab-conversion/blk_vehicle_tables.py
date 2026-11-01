@@ -43,11 +43,6 @@ MOTION_TYPE_MAP: Dict[str, str] = {
     "Jump": "VTOL",
 }
 
-# MegaMek 48fcb2f6 EquipmentType.java:128-136: T_ARMOR_SV_BAR_2 = 43 .. T_ARMOR_SV_BAR_10 = 51;
-# ArmorType.java:92-94 svArmor(bar) = T_ARMOR_SV_BAR_2 - 2 + bar.
-BAR_ARMOR_CODES = range(43, 52)
-BAR_ARMOR_CODE_OFFSET = 41  # rating = code - 41
-
 ARMOR_CODE_MAP: Dict[int, str] = {
     0: "STANDARD",
     1: "FERRO_FIBROUS",

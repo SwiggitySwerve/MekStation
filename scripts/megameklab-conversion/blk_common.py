@@ -217,6 +217,19 @@ def map_armor_code(code: Any, armor_map: Dict[int, str]) -> str:
         return "STANDARD"
 
 
+def parse_blk_armor_type(tags: Dict[str, Any], armor_map: Dict[int, str]) -> Dict[str, Any]:
+    """Shared BLK armor vocabulary, including support BAR (BLKFile.java:501-503)."""
+    code = get_string(tags, "armor_type")
+    armor: Dict[str, Any] = {"type": map_armor_code(code, armor_map)}
+    # EquipmentType.java:128-136: codes 43..51 encode BAR ratings 2..10.
+    if parse_number(code) in range(43, 52):
+        armor["type"] = "BAR"
+        armor["barRating"] = int(
+            parse_number(get_string(tags, "barrating")) or parse_number(code) - 41
+        )
+    return armor
+
+
 # ---------------------------------------------------------------------------
 # Output helpers — manifest, parity report, run-log
 # ---------------------------------------------------------------------------
@@ -354,6 +367,7 @@ __all__ = [
     "get_string",
     "parse_armor_array",
     "map_armor_code",
+    "parse_blk_armor_type",
     "map_blk_engine_code",
     # Output helpers
     "MANIFEST_BUDGET_BYTES",
