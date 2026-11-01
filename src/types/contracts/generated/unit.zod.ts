@@ -44,6 +44,12 @@ const SchemaDef_standardArmorType = z
     'PRIMITIVE_AERO',
   ])
   .describe('Armor type');
+const SchemaDef_capitalUnitType = z.enum([
+  'DropShip',
+  'JumpShip',
+  'WarShip',
+  'Space Station',
+]);
 
 export const UnitContract = z
   .union([
@@ -636,7 +642,16 @@ export const UnitContract = z
           .optional(),
         armor: z
           .object({
-            type: SchemaDef_standardArmorType,
+            type: z
+              .union([
+                SchemaDef_standardArmorType,
+                z.enum([
+                  'FERRO_CARBIDE',
+                  'LAMELLOR_FERRO_CARBIDE',
+                  'IMPROVED_FERRO_ALUMINUM',
+                ]),
+              ])
+              .describe('Armor type'),
             barRating: z
               .number()
               .int()
@@ -957,19 +972,38 @@ export const UnitContract = z
       .catchall(z.any())
       .and(
         z.union([
-          z.object({ tonnage: z.number().lte(250).optional() }),
+          z.object({
+            unitType: z
+              .any()
+              .refine(
+                (value) => !SchemaDef_capitalUnitType.safeParse(value).success,
+                'Invalid input: Should NOT be valid against schema',
+              )
+              .optional(),
+            armor: z
+              .object({ type: SchemaDef_standardArmorType.optional() })
+              .optional(),
+            tonnage: z.number().lte(250).optional(),
+          }),
           z.object({
             unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
+            armor: z
+              .object({ type: SchemaDef_standardArmorType.optional() })
+              .optional(),
             tonnage: z.number().lte(600).optional(),
           }),
           z.object({
-            unitType: z.enum([
-              'DropShip',
-              'JumpShip',
-              'WarShip',
-              'Space Station',
-            ]),
+            unitType: SchemaDef_capitalUnitType,
             tonnage: z.number().lte(2500000).optional(),
+            otherCrew: z.number().int().gte(0).optional(),
+            driveCoreType: z.number().int().gte(0).lte(4).optional(),
+            jumpRange: z.number().int().gte(0).optional(),
+            hasSail: z.boolean().optional(),
+            hasLFBattery: z.boolean().optional(),
+            hasHPG: z.boolean().optional(),
+            gravDecks: z.array(z.number().int().gte(0)).optional(),
+            dockingCollars: z.number().int().gte(0).optional(),
+            isModular: z.boolean().optional(),
           }),
         ]),
       )
