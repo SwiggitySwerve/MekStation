@@ -23,6 +23,59 @@ on weight, heat or BV. Legacy inconsistent turret configurations, primary
 Dual versus the separate secondary toggle, and full mount-state validation
 remain separate work. No catalog data is migrated or regenerated.
 
+## Offensive BV mass contribution
+
+`vehicleBVOffensive.ts:calculateVehicleOffensiveBV` owns the offensive mass
+contribution: add raw tonnage / 2 to weapon, capped ammunition and offensive
+equipment BV, then apply the speed factor. Do not round tonnage or require
+weapons. Tank, SuperHeavyTank, VTOL and support vehicles use this same term;
+BAR and defensive type modifiers do not scale the mass contribution.
+
+Pinned MegaMek [CombatVehicleBVCalculator.java:139-144](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/CombatVehicleBVCalculator.java#L139)
+adds `entity.getWeight() / 2`.
+[BVCalculator.java:283-291](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java#L283)
+places it before speed. Its factory selects the same calculator for these
+Tank subclasses. None overrides
+[Entity.java:2033-2035](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L2033),
+which returns raw loaded tonnage.
+
+`vehicleBV.massParity.test.ts` enforces Tamerlane's Java offensive component,
+unarmed Ferret VTOL mass and fractional support mass. Other offensive terms,
+defense and final rounding retain their existing rules. Complete unit parity
+and the separate sponson multiplier remain unresolved.
+
+## Turret weapon BV
+
+`vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
+Chin turrets receive no rotating-turret bonus. Turret weapons remain exempt
+from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
+remains a compatibility breakdown field with value 1 for these turret kinds.
+Sponson's separate 1.025 term is unchanged and is not covered by this parity claim.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
+`CombatVehicleBVCalculator.java:123-125` excludes both turret locations from
+the nominal rear filter. Inherited `BVCalculator.java:803-907` applies weapon
+modifiers without a turret bonus; its `arcFactor` at lines 779-781 returns 1.
+`vehicleBV.turretParity.test.ts` checks the Tamerlane (Flamer) contract fixture
+(UL-16 Java total 436) and each ordinary turret kind. Other vehicle BV terms
+still differ; a neutral turret factor does not establish whole-unit parity.
+
+The contract BV adapter preserves the existing Vehicle, SuperHeavyVehicle and
+VTOL location enums for armor and equipment, including six-side and Rotor keys.
+This vocabulary mapping changes no BV arithmetic.
+
+`equipmentMounts.ts` owns the combat-vehicle import mount flags and primary
+turret inference. Nonempty `Turret` / `Turret Equipment` blocks, a Turret armor
+value in the source layout, or an explicit turret type install a primary turret;
+a Turret 2 armor value makes it dual. `Rear Turret` equipment is turret-mounted,
+not rear-facing (`Tank.java:127-130`). Sponson and secondary-turret blocks carry
+mount flags independently; neither alone installs the primary turret. Explicit
+dual/chin and the existing fallback to single are preserved for BLK imports.
+The contract BV adapter uses this same owner, translating `SPONSON` to a
+sponson mount label while keeping its body location. Its boundary requires
+cruise/flank or safe/max thrust and the applicable armor allocation map;
+absence throws, while explicit zeros and empty maps remain valid source facts.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion
@@ -156,15 +209,15 @@ The generic 'Mech run helper has a separate nonpositive-input guard. ProtoMek
 movement enhancements are a distinct policy (`ProtoMek.java:612-616` booster
 override). Python BLK conversion already rounds upward; it retains its
 language-boundary expression. No copy of the old floor-based vehicle
-construction calculation remains. The same upstream rule still floors outside
-this owner, as separate follow-ups:
+construction calculation remains. In-play flank after motive damage
+(`utils/gameplay/motiveDamage.ts` `computeEffectiveMP`) calls the owner on the
+reduced cruise: MegaMek subtracts motive damage from cruise in `Tank.getWalkMP`
+(`Tank.java:397`), and `Entity.getRunMP` then rounds up (`Entity.java:4016`).
+The same upstream rule still floors outside this owner, as separate follow-ups:
 
-- In-play flank after motive damage (`utils/gameplay/motiveDamage.ts`
-  `computeEffectiveMP`). MegaMek subtracts motive damage from cruise in
-  `Tank.getWalkMP` (`Tank.java:397`), and `Entity.getRunMP` then rounds up
-  (`Entity.java:4016`).
-- Aerospace max thrust (`aerospace/thrustCalculations.ts` and the aerospace
-  store, handlers and spec). Airborne `Aero.getRunMP` delegates to
+- Aerospace max thrust (`aerospace/thrustCalculations.ts`, the aerospace
+  store, handlers and spec, and the new-unit template display in
+  `NewTabModalNewMode.tsx:163`). Airborne `Aero.getRunMP` delegates to
   `Entity.getRunMP` (`Aero.java:1656-1658`), and MegaMekLab derives Flank MP and
   Max Thrust from one `Math.ceil(walk * 1.5)` (`MovementView.java:295`).
 - BattleMech run MP in `services/construction/CalculationService.ts`

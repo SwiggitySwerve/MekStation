@@ -64,12 +64,12 @@ describe('VTOLUnitHandler', () => {
       expect(result.data?.unit?.totalArmorPoints).toBe(46);
     });
 
-    it('should calculate max armor points as tonnage * 3.5', () => {
+    it('should calculate max armor points as tonnage * 3.5 + 40 (TestTank.java:338)', () => {
       const doc = createMockBlkDocument({ tonnage: 20 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.maxArmorPoints).toBe(70); // 20 * 3.5 = 70
+      expect(result.data?.unit?.maxArmorPoints).toBe(110); // 20 * 3.5 + 40
     });
 
     it('should floor max armor for odd tonnages', () => {
@@ -77,7 +77,7 @@ describe('VTOLUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.maxArmorPoints).toBe(73); // floor(21 * 3.5) = 73
+      expect(result.data?.unit?.maxArmorPoints).toBe(113); // floor(21 * 3.5 + 40) = 113
     });
 
     it('should parse armor type', () => {

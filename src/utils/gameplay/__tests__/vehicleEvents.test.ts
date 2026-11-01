@@ -45,13 +45,13 @@ describe('vehicle event factories', () => {
       'tank-1',
       5,
       3,
-      4,
+      5,
     );
     expect(e.type).toBe(GameEventType.MotivePenaltyApplied);
     expect(e.payload).toMatchObject({
       previousCruiseMP: 5,
       newCruiseMP: 3,
-      newFlankMP: 4,
+      newFlankMP: 5,
     });
   });
 

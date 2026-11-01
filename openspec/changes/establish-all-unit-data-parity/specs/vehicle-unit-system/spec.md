@@ -98,6 +98,7 @@ The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
 - **THEN** Maxim Flanker SHALL load Front 20, Right 46, Left 10, Rear 12
 - **AND** Red Kite SHALL load Rotor 2 and Turret 16 (VTOL order is Front, Right, Left, Rear, Rotor, Turret)
 - **AND** the export SHALL write the same order back, so a MegaMek load of an exported file keeps each side
+- **AND** a turretless vehicle SHALL export four armor values (a VTOL five), because MegaMek reads one more as a turret (`BLKTankFile.java:185`, `BLKVTOLFile.java:132`)
 - **AND** Red Kite's installed armor total SHALL include the turret and rotor (62)
 
 Order source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
@@ -133,9 +134,34 @@ The system SHALL expose actions for modifying vehicle state.
 
 - **WHEN** changing engine rating directly
 - **THEN** the system SHALL:
-  - Update `cruiseMP` to `floor(rating / tonnage)`
+  - Update `cruiseMP` from rating, tonnage and suspension factor, as the Engine and Movement
+    requirement defines
   - Update `flankMP` accordingly
   - Mark state as modified
+
+### Requirement: Motive Damage State Tracking
+
+Vehicle units SHALL carry a motive-damage state struct updated by combat resolution.
+
+#### Scenario: Motive damage counters
+
+- **GIVEN** any `IVehicleUnit`
+- **WHEN** the combat state is constructed
+- **THEN** `unit.combatState.motive` SHALL contain `originalCruiseMP`, `penaltyMP`, `immobilized`, `sinking`, `turretLocked`, `engineHits`, `driverHits`, `commanderHits`, `crewStunnedPhases`
+
+#### Scenario: Motive penalty applies to flank MP
+
+- **GIVEN** a vehicle with original cruise 5, flank 8 (ceil(5×1.5)=8) and penalty 2
+- **WHEN** effective MP is computed
+- **THEN** effective cruise SHALL equal 3 (5 − 2)
+- **AND** effective flank SHALL equal 5 (ceil(3 × 1.5)), as MegaMek `Tank.getWalkMP` subtracts motive damage from cruise (`Tank.java:397`) and `Entity.getRunMP` then rounds upward (`Entity.java:4016`)
+
+#### Scenario: Cumulative motive penalties
+
+- **GIVEN** a vehicle with cumulative motive penalty already at −3
+- **WHEN** another motive-damage roll applies −2
+- **THEN** penalty SHALL become −5
+- **AND** effective cruise MP SHALL not go below 0
 
 ## ADDED Requirements
 

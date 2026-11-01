@@ -155,6 +155,18 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
     expect(result).toMatchObject({ ok: true, value: { executable: fakeGit } });
   });
 
+  it('resolves the windows-latest runner-image Git build measured in run 41144678804', () => {
+    // The Windows leg of run 41144678804 reported 'got 2.56.0.windows.4' and
+    // lost the proof6a2 production probe as VERIFIED_GIT_UNAVAILABLE.
+    const result = invoke({
+      action: 'resolve',
+      root,
+      executable: fakeGit,
+      version: '2.56.0.windows.4',
+    });
+    expect(result).toMatchObject({ ok: true, value: { executable: fakeGit } });
+  });
+
   it('builds every invocation from hardened argv and a zero-base environment', () => {
     // Given ambient process state and a shell-shaped literal argument
     // When the invocation helper calls injected spawn
@@ -291,7 +303,7 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
     ],
     [
       { executable: fakeGit, version: '2.53.0' },
-      `CAMP01_GIT_INVALID: Git version drift; got 2.53.0, expected one of ${PINNED_VERSION}, 2.55.0.windows.4, 2.55.0.windows.5, 2.56.0.windows.2`,
+      `CAMP01_GIT_INVALID: Git version drift; got 2.53.0, expected one of ${PINNED_VERSION}, 2.55.0.windows.4, 2.55.0.windows.5, 2.56.0.windows.2, 2.56.0.windows.4`,
     ],
     [
       { executable: fakeGit, spawnFailure: true },

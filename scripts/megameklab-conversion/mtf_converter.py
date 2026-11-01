@@ -48,6 +48,13 @@ from mtf_serialized_models import (
 )
 
 from mtf_parser import MTFParser
+from unit_index import INDEX_COLUMNS, index_envelope
+
+# Missing-field defaults for BattleMech index rows (unchanged MTF behaviour).
+_MECH_INDEX_DEFAULTS = {
+    'id': '', 'chassis': '', 'model': '', 'tonnage': 0, 'techBase': '',
+    'year': 0, 'role': '', 'rulesLevel': '',
+}
 
 
 def should_preserve_trailing_newline(output_path: Union[str, Path]) -> bool:
@@ -185,31 +192,22 @@ def generate_index(output_dir: str) -> Dict[str, Any]:
             with open(json_file, 'r', encoding='utf-8') as f:
                 unit_data = json.load(f)
             
-            # Create index entry
+            # Create index entry (column order owned by unit_index.INDEX_COLUMNS)
             relative_path = json_file.relative_to(output_path)
-            units.append({
-                'id': unit_data.get('id', ''),
-                'chassis': unit_data.get('chassis', ''),
-                'model': unit_data.get('model', ''),
-                'tonnage': unit_data.get('tonnage', 0),
-                'techBase': unit_data.get('techBase', ''),
-                'year': unit_data.get('year', 0),
-                'role': unit_data.get('role', ''),
-                'rulesLevel': unit_data.get('rulesLevel', ''),
-                'path': str(relative_path).replace('\\', '/')
-            })
+            entry = {
+                column: unit_data.get(column, _MECH_INDEX_DEFAULTS[column])
+                for column in INDEX_COLUMNS
+                if column != 'path'
+            }
+            entry['path'] = str(relative_path).replace('\\', '/')
+            units.append(entry)
         except Exception as e:
             print(f"Error indexing {json_file}: {e}")
-    
+
     # Sort by chassis then model
     units.sort(key=lambda x: (x['chassis'], x['model']))
-    
-    index = {
-        'version': '1.0.0',
-        'generatedAt': __import__('datetime').datetime.now().isoformat(),
-        'totalUnits': len(units),
-        'units': units
-    }
+
+    index = index_envelope(units)
     
     # Write index
     index_path = output_path / 'index.json'

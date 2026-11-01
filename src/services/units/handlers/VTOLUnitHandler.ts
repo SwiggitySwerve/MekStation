@@ -27,6 +27,7 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
@@ -61,8 +62,8 @@ const VTOL_LOCATION_MAP: Record<string, VTOLLocation> = {
   'right side': VTOLLocation.RIGHT,
   rear: VTOLLocation.REAR,
   rotor: VTOLLocation.ROTOR,
-  turret: VTOLLocation.BODY,
-  chin: VTOLLocation.BODY,
+  turret: VTOLLocation.TURRET,
+  chin: VTOLLocation.TURRET,
   body: VTOLLocation.BODY,
 };
 
@@ -248,9 +249,10 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
   /**
    * Calculate maximum armor points for VTOL tonnage
+   * (TestTank.java:338: tonnage * 7 / 2 + 40, rounded down)
    */
   private calculateMaxArmor(tonnage: number): number {
-    return Math.floor(tonnage * 3.5);
+    return getTankMaxTotalArmor(tonnage);
   }
 
   /**
