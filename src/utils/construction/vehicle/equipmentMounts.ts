@@ -21,6 +21,34 @@ import {
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
+/** Combat-vehicle mount flags from a BLK location label, including sponsons. */
+export function getVehicleMountFlags(locationKey: string): {
+  isRearMounted: boolean;
+  isTurretMounted: boolean;
+  isSponsonMounted: boolean;
+} {
+  const label = locationKey.toLowerCase();
+  return {
+    isRearMounted: label.includes('rear'),
+    isTurretMounted: label.includes('turret'),
+    isSponsonMounted: label.includes('sponson'),
+  };
+}
+
+/** Only nonempty primary blocks or an explicit type install a primary turret. */
+export function getPrimaryVehicleTurretType(
+  occupiedLocations: readonly string[],
+  explicitType?: string,
+): TurretType | undefined {
+  const hasPrimary = occupiedLocations.some(
+    (location) => location === 'Turret' || location === 'Turret Equipment',
+  );
+  if (!hasPrimary && !explicitType) return undefined;
+  if (explicitType?.toLowerCase() === 'dual') return TurretType.DUAL;
+  if (explicitType?.toLowerCase() === 'chin') return TurretType.CHIN;
+  return TurretType.SINGLE;
+}
+
 // =============================================================================
 // Mount Result
 // =============================================================================
