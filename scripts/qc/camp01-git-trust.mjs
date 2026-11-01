@@ -12,10 +12,13 @@ import { REPOSITORY_IDENTITY } from './camp01-authority-receipt.contract.mjs';
 // windows-latest runner images later shipped 2.56.0.windows.2 (MEASURED in
 // the Windows leg of Actions run 39001828361, 2026-10-17: 'Git version drift;
 // got 2.56.0.windows.2' skipped proof6a2-envelope-anchor-production);
+// the same images later shipped 2.56.0.windows.4 (MEASURED in the Windows leg
+// of Actions run 41144678804, 2026-10-30: 'git version 2.56.0.windows.4' and
+// 'Git version drift; got 2.56.0.windows.4' skipped the same probe);
 // operator machines run 2.54.0.windows.1. An exact single pin broke the live
 // probes on every runner-image bump; an allowlist keeps the tamper property -
 // an UNKNOWN version still fails closed - while naming each accepted build.
-export const CAMP01_GIT_VERSIONS=Object.freeze(['2.54.0.windows.1','2.55.0.windows.4','2.55.0.windows.5','2.56.0.windows.2']);
+export const CAMP01_GIT_VERSIONS=Object.freeze(['2.54.0.windows.1','2.55.0.windows.4','2.55.0.windows.5','2.56.0.windows.2','2.56.0.windows.4']);
 export const CAMP01_GIT_VERSION = CAMP01_GIT_VERSIONS[0],
   CAMP01_GIT_FETCH_URL = 'https://github.com/SwiggitySwerve/MekStation.git';
 const OID = /^[0-9a-f]{40}$/;

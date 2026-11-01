@@ -288,13 +288,14 @@ const unknownCapacityMissiles = [
 
 describe('missile classification reaches the existing specialist to-hit rule', () => {
   it('covers the captured unknown-capacity catalog set', () => {
-    expect(unknownCapacityMissiles).toHaveLength(154);
+    expect(unknownCapacityMissiles).toHaveLength(73);
     expect(unknownCapacityMissiles.map(({ id }) => id)).toEqual(
       expect.arrayContaining([
         'clan-srm-1',
         'clan-srm-3',
         'clan-srm-5',
-        'lrm16',
+        'balrm1os',
+        'lrm10-ios',
       ]),
     );
   });

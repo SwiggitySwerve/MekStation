@@ -110,7 +110,7 @@ function vtolWarriorInput(
     cruiseMP: 6,
     turretType: TurretType.CHIN,
     turretEquipmentWeight: 1,
-    turretStructureWeight: 0.5, // 5% of 1t (chin) = 0.05 → ceil-to-half = 0.5
+    turretStructureWeight: 0.5, // 10% of 1t (chin) = 0.1 → ceil-to-half = 0.5
     secondaryTurretEquipmentWeight: 0,
     secondaryTurretStructureWeight: 0,
     armorType: 'Standard' as any,
@@ -153,8 +153,8 @@ describe('computeFlankMP', () => {
     expect(computeFlankMP(4)).toBe(6);
   });
 
-  it('cruiseMP 5 → flank 7 (floor of 7.5)', () => {
-    expect(computeFlankMP(5)).toBe(7);
+  it('cruiseMP 5 → flank 8 (ceiling of 7.5)', () => {
+    expect(computeFlankMP(5)).toBe(8);
   });
 
   it('cruiseMP 8 → flank 12', () => {
@@ -242,8 +242,8 @@ describe('computeTurretWeight', () => {
     expect(computeTurretWeight(TurretType.SINGLE, 7)).toBe(1);
   });
 
-  it('Chin turret (VTOL): 1t equipment → 0.5t (5% rule)', () => {
-    // 1 × 0.05 = 0.05 → ceil-to-half = 0.5
+  it('Chin turret (VTOL): 1t equipment → 0.5t (10% rule)', () => {
+    // 1 × 0.1 = 0.1 → ceil-to-half = 0.5
     expect(computeTurretWeight(TurretType.CHIN, 1)).toBe(0.5);
   });
 

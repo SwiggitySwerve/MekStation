@@ -196,13 +196,13 @@ describe('aerospace max thrust consumers', () => {
   );
 
   it.each(POSITIVE_MAX_BY_SAFE)(
-    'BV adapter carries safe thrust %s max %s into the speed and defensive factors',
+    'BV adapter carries safe thrust %s max %s into speed with no defensive multiplier',
     (safe, max) => {
       const parsed = createAerospaceHandler().parse(aerospaceDocument(safe));
       const unit = parsed.data!.unit!;
       const bv = calculateAerospaceBVFromUnit(unit);
       expect(bv.avgThrust).toBe((safe + max) / 2);
-      expect(bv.defensiveFactor).toBe(1 + max / 10);
+      expect(bv.defensiveFactor).toBe(1);
     },
   );
 

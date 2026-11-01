@@ -63,6 +63,9 @@ scripts/**
 !scripts/qc/**
 !scripts/megameklab-conversion/
 !scripts/megameklab-conversion/blk_aerospace_tables.py
+!scripts/megameklab-conversion/blk_capital_converter.py
+!scripts/megameklab-conversion/blk_capital_tables.py
+!scripts/megameklab-conversion/BLK_RULES.md
 !scripts/megameklab-conversion/blk_battlearmor_fields.py
 !scripts/megameklab-conversion/blk_conversion_runner.py
 !scripts/megameklab-conversion/blk_schema_writers.py
@@ -73,6 +76,10 @@ scripts/**
 !scripts/megameklab-conversion/enum_mapping_tables.py
 !scripts/megameklab-conversion/mtf_parser.py
 !scripts/megameklab-conversion/mtf_parser_builders.py
+!scripts/megameklab-conversion/java_reference_exporter.py
+!scripts/megameklab-conversion/java-reference/
+!scripts/megameklab-conversion/java-reference/*.java
+!scripts/megameklab-conversion/java-reference/README.md
 !scripts/megameklab-conversion/mtf_text_regeneration.py
 !scripts/megameklab-conversion/source_inventory.py
 !scripts/megameklab-conversion/source_provenance.py
@@ -137,6 +144,13 @@ data/
 !/public/data/equipment/_schema/
 /public/data/equipment/_schema/*
 !/public/data/equipment/_schema/unit-schema.json
+
+# Converted vehicle, aerospace and capital-ship catalogs stage without `git add -f`.
+!/public/data/units/
+/public/data/units/*
+!/public/data/units/vehicles/
+!/public/data/units/aerospace/
+!/public/data/units/capital/
 
 # Electron / Desktop build artifacts
 desktop/dist/

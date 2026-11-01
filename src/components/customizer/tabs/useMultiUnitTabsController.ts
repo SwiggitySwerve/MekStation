@@ -251,7 +251,9 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
   const handleLoadUnit = useCallback(
     async (unit: IUnitIndexEntry, source: LoadUnitSource) => {
       const requests = loadRequests.current;
-      const ticket = requests.begin(JSON.stringify([source, unit.id]));
+      const ticket = requests.begin(
+        JSON.stringify([source, unit.family ?? 'battlemechs', unit.id]),
+      );
       if (!ticket) return;
       try {
         await loadUnitIntoTab({

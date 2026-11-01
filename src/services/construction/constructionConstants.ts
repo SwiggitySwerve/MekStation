@@ -91,11 +91,49 @@ export const INDUSTRIALMECH_TONNAGE = { min: 10, max: 100, step: 5 } as const;
 /** ProtoMech tonnage range (2-15) */
 export const PROTOMECH_TONNAGE = { min: 2, max: 15, step: 1 } as const;
 
-/** Ground Vehicle tonnage range (1-100) */
-export const VEHICLE_TONNAGE = { min: 1, max: 100, step: 1 } as const;
+/**
+ * Heaviest combat vehicle MegaMek accepts for a motion type, ordinary or
+ * SuperHeavy (`TestTank.maxTonnage`, TestTank.java:132-141). The one owner of
+ * these limits: the handlers' tonnage checks and the ranges below read it.
+ */
+export function getTankMaxTonnage(
+  motionType: string | undefined,
+  superHeavy: boolean,
+): number {
+  switch ((motionType ?? '').toLowerCase()) {
+    case 'wheeled':
+    case 'wige':
+      return superHeavy ? 160 : 80;
+    case 'hover':
+      return superHeavy ? 100 : 50;
+    case 'vtol':
+      return superHeavy ? 60 : 30;
+    case 'naval':
+    case 'submarine':
+      return superHeavy ? 555 : 300;
+    case 'hydrofoil':
+      return 100; // not eligible for SuperHeavy
+    default:
+      return superHeavy ? 200 : 100;
+  }
+}
 
-/** VTOL tonnage range (1-30) */
-export const VTOL_TONNAGE = { min: 1, max: 30, step: 1 } as const;
+/** Ground Vehicle tonnage range (1-100: an ordinary Tracked vehicle) */
+export const VEHICLE_TONNAGE = {
+  min: 1,
+  max: getTankMaxTonnage('Tracked', false),
+  step: 1,
+} as const;
+
+/**
+ * VTOL tonnage range (1-60). A VTOL over 30 t is SuperHeavy (VTOL.java:729)
+ * and may reach 60 t.
+ */
+export const VTOL_TONNAGE = {
+  min: 1,
+  max: getTankMaxTonnage('VTOL', true),
+  step: 1,
+} as const;
 
 /** Support Vehicle tonnage range (1-300) */
 export const SUPPORT_VEHICLE_TONNAGE = { min: 1, max: 300, step: 1 } as const;

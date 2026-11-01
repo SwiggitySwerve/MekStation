@@ -54,7 +54,11 @@ export async function loadUnitIntoTab({
   setIsLoadingUnit(true);
 
   try {
-    const result = await unitLoaderService.loadUnit(unit.id, source);
+    const result = await unitLoaderService.loadUnit(
+      unit.id,
+      source,
+      unit.family,
+    );
     if (!isCurrent()) return;
 
     if (!result.success || !result.state) {
@@ -65,8 +69,8 @@ export async function loadUnitIntoTab({
               'This configuration is not supported by the editor.')
             : result.errorCode === 'invalid-definition'
               ? 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.'
-              : result.errorCode === 'unsupported-family'
-                ? 'This unit family cannot be opened in the BattleMech editor. Use its family-specific editor.'
+              : result.errorCode === 'unsupported-store-family'
+                ? 'This unit family cannot be opened in the BattleMech editor yet.'
                 : `Failed to load ${unit.chassis} ${unit.variant}. Please try again.`,
         variant: 'error',
       });

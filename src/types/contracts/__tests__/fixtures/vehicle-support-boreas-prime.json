@@ -1,0 +1,74 @@
+{
+  "id": "boreas-cavalry-hovercraft-prime",
+  "chassis": "Boreas Cavalry Hovercraft",
+  "model": "(Prime)",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 3015,
+  "tonnage": 0.75,
+  "weightClass": "LIGHT",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 14,
+    "flankMP": 21,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 10
+  },
+  "armor": {
+    "type": "BAR",
+    "byLocation": {
+      "FRONT": 1,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    },
+    "barRating": 8
+  },
+  "equipment": [
+    {
+      "id": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+      "name": "Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+      "name": "Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "bicyclechassismod",
+      "name": "BicycleChassisMod",
+      "location": "BODY"
+    },
+    {
+      "id": "omnichassismod",
+      "name": "OmniChassisMod",
+      "location": "BODY"
+    },
+    {
+      "id": "advanced-fire-control",
+      "name": "Advanced Fire Control",
+      "location": "BODY"
+    }
+  ],
+  "mulId": 9217,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>Clan Hell's Horses upgraded their standard Clan hoverpods with Omni technology, adding a larger engine to improve versatility and speed. The result was the Boreas, which can swap weaponry based on battlefield needs. It has since become the premier covert operations support vehicle for infantry scout units in the Horses' touman, providing fast, flexible reconnaissance with a two-seat crew arrangement.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}
