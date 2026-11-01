@@ -1,4 +1,5 @@
 import atlas from '../../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
+import { resetCanonicalUnitService } from '../../CanonicalUnitService';
 import { loadUnitDefinition } from '../loadUnitDefinition';
 
 it('returns a validated definition with its source identity and custom revision', async () => {
@@ -129,4 +130,45 @@ it('requires both movement values for a BattleMech', async () => {
       { source: 'canonical', id: atlas.id },
     ),
   ).toMatchObject({ success: false, code: 'invalid-definition' });
+});
+
+describe('canonical definition retry after an invalid definition (#2457 review)', () => {
+  const originalFetch = global.fetch;
+  afterEach(() => {
+    global.fetch = originalFetch;
+    resetCanonicalUnitService();
+  });
+
+  it('re-reads a corrected canonical definition without any explicit invalidation', async () => {
+    const row = {
+      id: 'squad',
+      chassis: 'Squad',
+      model: '',
+      tonnage: 1,
+      techBase: 'INNER_SPHERE',
+      year: 3050,
+      unitType: 'Infantry',
+      path: 'squad.json',
+    };
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ units: [row] }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'squad', unitType: 'Aerospace' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'squad', unitType: 'Infantry' }),
+      }) as unknown as typeof fetch;
+    expect(await loadUnitDefinition('infantry', 'squad')).toMatchObject({
+      success: false,
+      code: 'invalid-definition',
+    });
+    expect(await loadUnitDefinition('infantry', 'squad')).toMatchObject({
+      success: true,
+      family: 'infantry',
+      definition: { unitType: 'Infantry' },
+    });
+  });
 });

@@ -17,7 +17,6 @@ import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
 
 import type { IUnitDefinitionReference } from './definitionTypes';
 
-import { getCanonicalUnitService } from '../CanonicalUnitService';
 import { mapTechBase, mapTechBaseMode } from './componentMappers';
 import { createUnitSession } from './createUnitSession';
 import { UNIT_DEFINITION_FAMILIES } from './definitionTypes';
@@ -91,9 +90,6 @@ export class UnitLoaderService {
   ): Promise<ILoadUnitResult> {
     const loaded = await loadUnitDefinition(family, id, source);
     if (!loaded.success) {
-      if (source === 'canonical' && loaded.code === 'invalid-definition') {
-        getCanonicalUnitService().invalidateUnit(id, family);
-      }
       return { success: false, error: loaded.error, errorCode: loaded.code };
     }
 

@@ -67,7 +67,7 @@ export async function loadUnitDefinition(
   const family =
     typeof referenceOrId === 'string' ? readerOrFamily : 'battlemechs';
   const id = typeof referenceOrId === 'string' ? referenceOrId : readerOrFamily;
-  return validateUnitDefinition(
+  const result = await validateUnitDefinition(
     sourceReader,
     {
       source,
@@ -76,6 +76,17 @@ export async function loadUnitDefinition(
     },
     family,
   );
+  // The canonical service caches the raw payload before validation; evict a
+  // rejected one so a retry reads the corrected source, for every caller.
+  if (
+    !result.success &&
+    result.code === 'invalid-definition' &&
+    source === 'canonical' &&
+    isUnitFamily(family)
+  ) {
+    getCanonicalUnitService().invalidateUnit(id, family);
+  }
+  return result;
 }
 
 async function validateUnitDefinition(
