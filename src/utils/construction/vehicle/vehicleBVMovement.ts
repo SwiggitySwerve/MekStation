@@ -1,3 +1,4 @@
+import { getTMMByUpperBound } from '@/constants/movement';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import type { VehicleBVInput } from './vehicleBVTypes';
@@ -12,12 +13,11 @@ import {
 // =============================================================================
 
 /**
- * Effective MP used for TMM and speed factor.
+ * Effective MP used for the existing offensive speed factor.
  *
  * Rules:
  *   - Tracked / wheeled / naval / rail / maglev: flank MP.
- *   - VTOL: flank MP (altitude delta is 0 at construction time —
- *           the +1 TMM bonus is added downstream).
+ *   - VTOL: flank MP.
  *   - Hover / hydrofoil / WiGE: flank MP.
  *   - Submarine: submarineMP override (defaults to flank MP).
  */
@@ -29,11 +29,9 @@ export function getVehicleEffectiveMP(input: VehicleBVInput): number {
 }
 
 /**
- * Vehicle TMM including motion-type bonuses.
- *
- *   - VTOL: +1 TMM (altitude bonus).
- *   - Hover / Hydrofoil / WiGE: +0 at construction BV (terrain-dependent
- *     bonus is applied in combat, not in BV per MegaMek rules).
+ * Public compatibility helper: preserve effective MP, the unconditional VTOL
+ * running bonus and the shared positive-only jump guard for existing callers.
+ * Defensive BV uses calculateVehicleBVDefensiveTMM instead.
  */
 export function calculateVehicleTMM(input: VehicleBVInput): number {
   return calculateTMM(
@@ -41,6 +39,36 @@ export function calculateVehicleTMM(input: VehicleBVInput): number {
     input.jumpMP ?? 0,
     input.motionType === GroundMotionType.VTOL ? 1 : 0,
   );
+}
+
+/**
+ * Entity.hasStealth: uniform stealth armor only; patchwork is excluded.
+ * Numeric values are the pinned MegaMek armor codes, not local enum ordinals.
+ */
+export function hasVehicleStealth(armorType?: string | number): boolean {
+  return typeof armorType === 'number'
+    ? armorType === 8 || armorType === 22
+    : armorType?.toLowerCase() === 'stealth';
+}
+
+/**
+ * CombatVehicleBVCalculator running/jumping TMM (UMU is always zero).
+ * flankMP is assembled run MP; submarine depth MP does not replace it.
+ * Compute adds airborne OR jumped, so a VTOL gets exactly one running point.
+ */
+export function calculateVehicleBVDefensiveTMM(input: VehicleBVInput): number {
+  const airborne =
+    input.motionType === GroundMotionType.VTOL ||
+    input.motionType === GroundMotionType.WIGE;
+  const stealth =
+    (input.hasStealth ?? hasVehicleStealth(input.armorType)) ? 2 : 0;
+  const jumpMP = input.jumpMP ?? 0;
+  const running =
+    input.flankMP === 0
+      ? 0
+      : getTMMByUpperBound(input.flankMP) + Number(airborne) + stealth;
+  const jumping = jumpMP === 0 ? 0 : getTMMByUpperBound(jumpMP) + 1 + stealth;
+  return Math.max(running, jumping, 0);
 }
 
 /**

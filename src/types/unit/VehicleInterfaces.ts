@@ -74,6 +74,8 @@ export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity 
  * Interface for combat vehicles (tanks, APCs, etc.)
  */
 export interface IVehicle extends IGroundUnit {
+  /** Installed non-placeholder layout locations from the source. */
+  readonly structureLocations?: readonly string[];
   /** Loaded BLK engine construction flag, independent of chassis tech base. */
   readonly clanEngine?: boolean;
   readonly unitType: UnitType.VEHICLE;
@@ -146,6 +148,8 @@ export interface IVehicle extends IGroundUnit {
  * Interface for VTOL (Vertical Take-Off and Landing) vehicles
  */
 export interface IVTOL extends IGroundUnit {
+  readonly structureLocations?: readonly string[];
+  readonly internalStructureType?: number;
   readonly unitType: UnitType.VTOL;
 
   /** Always VTOL motion type */
@@ -192,6 +196,8 @@ export enum SupportVehicleSizeClass {
  * Interface for support vehicles (civilian/non-combat vehicles)
  */
 export interface ISupportVehicle extends IGroundUnit {
+  readonly structureLocations?: readonly string[];
+  readonly internalStructureType?: number;
   readonly unitType: UnitType.SUPPORT_VEHICLE;
 
   /** Installed primary turret, including dual and support-VTOL chin types. */

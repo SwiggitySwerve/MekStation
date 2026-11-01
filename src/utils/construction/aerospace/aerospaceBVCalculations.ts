@@ -5,11 +5,13 @@ import type {
 
 import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
+import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 
 export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
   let total = 0;
 
   for (const item of items) {
+    if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const resolved = resolveEquipmentBV(item.id);
 
     if (resolved.resolved) {
@@ -44,6 +46,7 @@ export function calculateAerospaceAmmoBV(
   const weaponBVByType: Record<string, number> = {};
 
   for (const item of equipment) {
+    if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const resolved = resolveEquipmentBV(item.id);
 
     if (!resolved.resolved) continue;
@@ -58,6 +61,11 @@ export function calculateAerospaceAmmoBV(
   const ammoBVByType: Record<string, number> = {};
 
   for (const entry of ammo) {
+    if (
+      getAerospaceDefensiveEquipmentKind(entry.id) ||
+      getAerospaceDefensiveEquipmentKind(entry.weaponType)
+    )
+      continue;
     const key = entry.weaponType.toLowerCase();
 
     addBVToAmmoCapGroup(ammoBVByType, key, entry.bv);

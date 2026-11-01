@@ -252,6 +252,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       turret,
       equipment,
       internalStructureType,
+      structureLocations: Object.keys(placed.byLocation),
       isSuperheavy,
       hasEnvironmentalSealing,
       hasFlotationHull,

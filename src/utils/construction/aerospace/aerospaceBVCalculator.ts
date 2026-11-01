@@ -19,6 +19,7 @@ import {
   calculateAerospaceAmmoBV,
   sumWeaponBV,
 } from './aerospaceBVCalculations';
+import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
 
 // ============================================================================
 // BV Helpers
@@ -48,7 +49,9 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   // @spec establish-all-unit-data-parity: Aerospace Defensive BV
   const siBV = input.structuralIntegrity * 2;
 
-  const defensiveEquipmentBV = input.defensiveEquipmentBV ?? 0;
+  const defensiveEquipmentBV =
+    (input.defensiveEquipmentBV ?? 0) +
+    calculateMountedAerospaceDefensiveBV(input.equipment);
   const explosivePenalties = input.explosivePenalties ?? 0;
 
   // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
@@ -152,16 +155,15 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
 
 /**
  * Sub-type final-BV multiplier applied after summing defensive + offensive.
- *  - Conventional Fighter: 0.8 (fragile airframe)
- *  - Aerospace Fighter:    1.0 (baseline)
- *  - Small Craft:          1.0 (armor bonus is applied inside defensive block)
+ * All supported subtypes use 1.0. Pinned AeroBVCalculator.processSummarize
+ * and BVCalculator.processSummarize contain no generic conventional reduction.
+ * Keep the public helper and breakdown field for compatibility.
  *
  * @spec battle-value-system spec: Aerospace BV Dispatch / Conventional fighter multiplier
  */
 export function getAerospaceSubTypeMultiplier(
-  subType: AerospaceSubType,
+  _subType: AerospaceSubType,
 ): number {
-  if (subType === AerospaceSubType.CONVENTIONAL_FIGHTER) return 0.8;
   return 1.0;
 }
 
@@ -175,7 +177,7 @@ export function getAerospaceSubTypeMultiplier(
  * Dispatch order:
  *  1. Defensive BV (armor + SI + def equip − explosive) × type modifier × defensiveFactor
  *  2. Offensive BV ((arc pool + fuselage + ammo + off equip) × speedFactor)
- *  3. Sub-type multiplier (Conventional Fighter 0.8, otherwise 1.0)
+ *  3. Neutral compatibility sub-type multiplier (1.0)
  *  4. Pilot skill multiplier (shared 9×9 gunnery×piloting table)
  *  5. Round final BV to nearest integer
  *

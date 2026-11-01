@@ -207,6 +207,8 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     return {
       unitType: UnitType.SUPPORT_VEHICLE,
+      internalStructureType: document.internalType ?? 0,
+      structureLocations: Object.keys(placed.byLocation),
       motionType,
       movement,
       engineType,
