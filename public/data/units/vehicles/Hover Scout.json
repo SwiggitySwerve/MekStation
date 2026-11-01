@@ -1,0 +1,46 @@
+{
+  "id": "hover-scout",
+  "chassis": "Hover Scout",
+  "model": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "INTRODUCTORY",
+  "era": "SUCCESSION_WARS",
+  "year": 2801,
+  "tonnage": 10,
+  "weightClass": "LIGHT",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 12,
+    "flankMP": 18,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUSION",
+    "rating": 80
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 4,
+      "RIGHT": 3,
+      "LEFT": 3,
+      "REAR": 3,
+      "TURRET": 3
+    }
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "TURRET"
+    }
+  ],
+  "armorTechRating": 0,
+  "mulId": 4332,
+  "role": "Striker",
+  "source": "TR:3025",
+  "fluff": {
+    "overview": "<p>No current information available for this unit.</p>"
+  }
+}

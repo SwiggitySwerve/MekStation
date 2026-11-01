@@ -87,7 +87,7 @@ export interface VehicleBVInput {
   jumpMP?: number;
   /** Submarine depth MP — overrides cruise for TMM when relevant. */
   submarineMP?: number;
-  /** Tonnage (used for weight-independent modifiers). */
+  /** Raw tonnage; half contributes to offensive BV before the speed factor. */
   tonnage: number;
   /** Total allocated armor points. */
   totalArmorPoints: number;

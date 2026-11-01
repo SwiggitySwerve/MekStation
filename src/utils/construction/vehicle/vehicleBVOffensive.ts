@@ -154,7 +154,7 @@ function calculateVehicleOffensiveEquipmentBV(
  *   ammoBV    = capped-per-weapon-family sum (delegates to mech ammo cap)
  *   offEquipBV = targeting-computer and misc equipment BV
  *   turretModifier = configured turret multiplier (for the breakdown only)
- *   offensiveBV = (weaponBV + ammoBV + offEquipBV) × speedFactor
+ *   offensiveBV = (weaponBV + ammoBV + offEquipBV + tonnage / 2) × speedFactor
  */
 export function calculateVehicleOffensiveBV(
   input: VehicleBVInput,
@@ -185,7 +185,10 @@ export function calculateVehicleOffensiveBV(
   );
 
   const speedFactor = calculateVehicleSpeedFactor(input);
-  const total = (weaponBV + ammoBV + offensiveEquipmentBV) * speedFactor;
+  // CombatVehicleBVCalculator.processWeight adds half raw tonnage for every vehicle family.
+  const weightBV = input.tonnage / 2;
+  const total =
+    (weaponBV + ammoBV + offensiveEquipmentBV + weightBV) * speedFactor;
   const turretModifier = input.turret
     ? primaryTurretMult
     : input.secondaryTurret

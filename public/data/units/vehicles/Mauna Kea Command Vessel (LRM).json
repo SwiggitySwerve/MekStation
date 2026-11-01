@@ -1,0 +1,127 @@
+{
+  "id": "mauna-kea-command-vessel-lrm",
+  "chassis": "Mauna Kea Command Vessel",
+  "model": "(LRM)",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2515,
+  "tonnage": 85,
+  "weightClass": "ASSAULT",
+  "motionType": "Naval",
+  "movement": {
+    "cruiseMP": 3,
+    "flankMP": 5,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 225
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 55,
+      "RIGHT": 43,
+      "LEFT": 43,
+      "REAR": 44,
+      "TURRET": 55
+    }
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "FRONT"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "RIGHT"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "RIGHT"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "LEFT"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "LEFT"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "REAR"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "TURRET"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "TURRET"
+    },
+    {
+      "id": "is-machine-gun-ammo-half",
+      "name": "IS Machine Gun Ammo - Half",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "BODY"
+    },
+    {
+      "id": "communications-equipment:size:0.0",
+      "name": "Communications Equipment:SIZE:0.0",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "internalType": -1,
+  "fuelType": "PETROCHEMICALS",
+  "mulId": 2111,
+  "role": "Missile Boat",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Mauna Kea Command Vessel is one of the most common naval combat vessels in the Inner Sphere, serving in wet navies across hundreds of worlds since the Age of War. Named for a volcano on Terra's Hawaii island whose summit lookout warned of approaching danger from the north, the vessel was designed by the Hegemony's Earthwerks Incorporated to serve as a blue water command platform. Earthwerks' decision to license the design at below-standard rates proved to be a gamble that paid off, as the sheer volume of licensed production established the Mauna Kea as the default naval command vessel for any world with significant bodies of water.</p>",
+    "capabilities": "<p>Built to command other ships at sea, the Mauna Kea prioritizes durability and communications over speed or heavy armament. A GM 225 turbine ICE engine provides adequate speed to accompany a naval task force, while simple construction materials keep licensing agreements manageable for manufacturers across the Inner Sphere. Fifteen tons of Republic UltraWeave armor protect the hull and superstructure, shielding the crew and command staff from most threats the vessel is likely to encounter in littoral and blue water operations.</p><p>The offensive suite consists of a Mydron Model B autocannon and a Holly fifteen-tube long-range missile launcher, each fed by two tons of ammunition. The LRMs support other task force members during engagements while the Mydron is held in reserve for direct defense. Five 20mm Gatling machine guns are spread around the hull in point-defense and anti-boarding stations, placed in pairs on port and starboard with a single gun covering the stern. A CBR ComSat communications system and Corean B-Tech targeting array provide the vessel's command and sensor capability. Eight tons of cargo space allows customization, with room often allocated for a marine platoon and expanded command facilities.</p>",
+    "deployment": "<p>This Star League-era field refit installs a second LRM-15 rack at the expense of the cargo bay, significantly increasing the vessel's ability to provide fire support to other task force members. The modification is popular among navies that operate the Mauna Kea in flotillas where dedicated transport ships handle troop-carrying duties, freeing the command vessel to focus on coordination and fire support roles.</p>",
+    "history": "<p>Earthwerks laid the first keel in 2463, establishing a production line at Calloway VI that would run for centuries. The vessel earned its reputation during the Age of War in the Free Worlds League, where blue water navies remained strategically important on worlds with extensive coastlines. The licensing strategy ensured that manufacturers across the Inner Sphere could produce their own Mauna Keas at nominal cost, and the sheer number of licenses distributed since 2463 means that these vessels, regardless of the local name their builders give them, stand in important positions on the oceans of many worlds.</p><p>Although Earthwerks has not produced a new hull in the Free Worlds League in centuries, other licensees have maintained continuous production. Nav Hull on New Samarkand served the Draconis Combine without interruption through every era, while Skye Pleasure Craft Ltd produced intermittent runs for the Lyran Alliance. Lebedev Nautical Enterprises on Tikonov supplied the Capellan Confederation during the Star League and early Succession Wars. Some operators have installed a second LRM-15 at the expense of the cargo bay for greater firepower, while others have added torpedo launchers for anti-submarine capability. During the Jihad era, Earthwerks developed an upgraded specification using an LB 10-X autocannon with Artemis IV fire control, modernizing the ancient platform for continued service.</p>",
+    "systemManufacturer": {
+      "ENGINE": "GM",
+      "ARMOR": "Republic",
+      "COMMUNICATIONS": "CBR",
+      "TARGETING": "Corean"
+    }
+  }
+}

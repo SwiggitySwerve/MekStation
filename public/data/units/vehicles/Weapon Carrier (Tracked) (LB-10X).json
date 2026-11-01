@@ -1,0 +1,111 @@
+{
+  "id": "weapon-carrier-tracked-lb-10x",
+  "chassis": "Weapon Carrier (Tracked)",
+  "model": "(LB-10X)",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2775,
+  "tonnage": 60,
+  "weightClass": "HEAVY",
+  "motionType": "Tracked",
+  "movement": {
+    "cruiseMP": 3,
+    "flankMP": 5,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUSION",
+    "rating": 180
+  },
+  "armor": {
+    "type": "FERRO_FIBROUS",
+    "byLocation": {
+      "FRONT": 35,
+      "RIGHT": 35,
+      "LEFT": 35,
+      "REAR": 11
+    }
+  },
+  "equipment": [
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FRONT"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FRONT"
+    },
+    {
+      "id": "lrm-5",
+      "name": "LRM 5",
+      "location": "FRONT"
+    },
+    {
+      "id": "lrm-5",
+      "name": "LRM 5",
+      "location": "FRONT"
+    },
+    {
+      "id": "lrm-5",
+      "name": "LRM 5",
+      "location": "FRONT"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo",
+      "name": "IS LB 10-X AC Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo",
+      "name": "IS LB 10-X AC Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-lrm-5",
+      "name": "IS Ammo LRM-5",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-lrm-5",
+      "name": "IS Ammo LRM-5",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "mulId": 6776,
+  "role": "Sniper",
+  "source": "His:LoT2",
+  "quirks": [
+    "trailer_hitch",
+    "difficult_maintain",
+    "poor_work"
+  ],
+  "fluff": {
+    "overview": "<p>The Weapon Carrier is a sixty-ton tracked combat vehicle designed by SLDF engineers during the Star League Civil War as a rapidly produced fire support platform. Based on earlier Age of War primitive weapons carriers, the design was manufactured by Drago, Ltd. of Skye as one of many companies mass-producing vehicles to replace losses during the Amaris Coup. Unlike the Quikscell carrier family built around internal combustion engines and minimal protection, the Weapon Carrier utilized a fusion powerplant and ferro-fibrous armor, providing substantially greater survivability at the cost of higher production complexity.</p>",
+    "capabilities": "<p>The LB-10X variant mounts two Defiance Ravager LB 10-X autocannons as its primary armament, supplemented by three LRM-5 launchers for additional ranged firepower. A GM 180 fusion engine provides a top speed of fifty-four kilometers per hour with unlimited operational range. The LB-X autocannons can fire both solid slugs for concentrated damage and cluster rounds for anti-aircraft or anti-infantry work.</p><p>Aldis Heavy Ferro-Fibrous armor provides one hundred sixteen points of protection, concentrated heavily on the front and flanks with a thin rear plate. An Initrode Widecom communications system and RCA Instatrac Mark VI targeting system provide battlefield coordination capabilities superior to the basic Communicator and FireScan systems found on Quikscell carriers. Despite its advantages, difficult maintenance requirements and poor wartime workmanship limited the design's long-term viability.</p>",
+    "deployment": "<p>The LB-10X variant served as the primary production model, deployed with SLDF forces during the liberation of Terra and subsequent Succession Wars campaigns. Drago, Ltd. on Skye produced all three variants. Production ceased in the early First Succession War as ferro-fibrous armor and advanced autocannon technology became unavailable.</p>",
+    "history": "<p>The Weapon Carrier emerged during the Star League Civil War in 2775, when SLDF engineers needed rapidly deployable fire support vehicles to replace catastrophic losses suffered during the fighting against Amaris forces. Drago, Ltd. on Skye produced all three variants from a common chassis, each mounting different autocannon configurations to fill specific tactical roles. The LB-10X variant served as the baseline design, with the AC/20 version fulfilling an ambush role and the Ultra/5 providing sustained fire support.</p><p>The design's reliance on Star League-era technology proved its undoing. As the Succession Wars destroyed the industrial base needed to produce ferro-fibrous armor and advanced autocannon systems, production ceased during the early First Succession War. The Weapon Carrier was replaced in service by the cruder but more easily manufactured Quikscell carrier family, and surviving examples became increasingly rare battlefield finds. Design quirks including difficult maintenance requirements and poor workmanship from wartime rush production contributed to the type's rapid disappearance.</p>",
+    "manufacturer": "Drago, Ltd.",
+    "primaryFactory": "Skye",
+    "systemManufacturer": {
+      "ENGINE": "GM",
+      "ARMOR": "Aldis",
+      "COMMUNICATIONS": "Initrode",
+      "TARGETING": "RCA"
+    }
+  }
+}

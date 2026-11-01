@@ -181,45 +181,7 @@
       "type": "object",
       "required": ["type"],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "STANDARD",
-            "FERRO_FIBROUS",
-            "FERRO_FIBROUS_CLAN",
-            "LIGHT_FERRO_FIBROUS",
-            "HEAVY_FERRO_FIBROUS",
-            "STEALTH",
-            "REACTIVE",
-            "REFLECTIVE",
-            "HARDENED",
-            "PRIMITIVE",
-            "INDUSTRIAL",
-            "HEAVY_INDUSTRIAL",
-            "COMMERCIAL",
-            "IMPACT_RESISTANT",
-            "FERRO_LAMELLOR",
-            "FIRE_RESISTANT",
-            "MIMETIC",
-            "STEALTH_IMPROVED",
-            "STEALTH_PROTOTYPE",
-            "REACTIVE_CLAN",
-            "REFLECTIVE_CLAN",
-            "BAR_2",
-            "BAR_4",
-            "BAR_5",
-            "BAR_6",
-            "BAR_7",
-            "BAR_9",
-            "BAR",
-            "AEROSPACE",
-            "PATCHWORK",
-            "FERRO_ALUMINUM",
-            "HEAVY_FERRO_ALUMINUM",
-            "PRIMITIVE_AERO"
-          ],
-          "description": "Armor type"
-        },
+        "type": { "$ref": "#/$defs/standardArmorType" },
         "barRating": {
           "type": "integer",
           "minimum": 2,
@@ -579,6 +541,47 @@
       }
     }
   ],
+  "$defs": {
+    "standardArmorType": {
+      "type": "string",
+      "enum": [
+        "STANDARD",
+        "FERRO_FIBROUS",
+        "FERRO_FIBROUS_CLAN",
+        "LIGHT_FERRO_FIBROUS",
+        "HEAVY_FERRO_FIBROUS",
+        "STEALTH",
+        "REACTIVE",
+        "REFLECTIVE",
+        "HARDENED",
+        "PRIMITIVE",
+        "INDUSTRIAL",
+        "HEAVY_INDUSTRIAL",
+        "COMMERCIAL",
+        "IMPACT_RESISTANT",
+        "FERRO_LAMELLOR",
+        "FIRE_RESISTANT",
+        "MIMETIC",
+        "STEALTH_IMPROVED",
+        "STEALTH_PROTOTYPE",
+        "REACTIVE_CLAN",
+        "REFLECTIVE_CLAN",
+        "BAR_2",
+        "BAR_4",
+        "BAR_5",
+        "BAR_6",
+        "BAR_7",
+        "BAR_9",
+        "BAR",
+        "AEROSPACE",
+        "PATCHWORK",
+        "FERRO_ALUMINUM",
+        "HEAVY_FERRO_ALUMINUM",
+        "PRIMITIVE_AERO"
+      ],
+      "description": "Armor type"
+    }
+  },
   "allOf": [
     {
       "if": {
