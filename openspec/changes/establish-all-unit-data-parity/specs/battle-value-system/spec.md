@@ -1,5 +1,29 @@
 ## ADDED Requirements
 
+### Requirement: DropShip defensive BV dispatch
+
+The unified BV dispatcher SHALL return a defensive-only DropShip breakdown
+through the aerospace defensive owner. It SHALL value armor at 2.5 per point,
+SI at 2 per point and represented defensive equipment with the shared ammo
+caps. It SHALL apply neither the small-craft armor bonus, an explosive penalty
+nor a thrust multiplier. The DropShip type modifier SHALL be 1, plus the
+inherited stealth armor addition when applicable.
+
+#### Scenario: Union defensive slice without an invented total
+
+- **GIVEN** Union (2708) with 644 armor points and SI 11
+- **WHEN** contract JSON or a domain-shaped DropShip reaches BV dispatch
+- **THEN** the breakdown SHALL identify its scope as defensive-only and report defense 1632
+- **AND** offensive BV and final BV SHALL be undefined until their port is implemented
+- **AND** all existing fighter and small-craft results SHALL remain unchanged
+
+#### Scenario: Contract defense facts are required
+
+- **GIVEN** DropShip contract JSON without SI or armor.byArc
+- **WHEN** the contract BV adapter runs
+- **THEN** it SHALL reject the missing fact rather than produce a numeric result
+- **AND** explicit zero SI and zero armor SHALL remain valid
+
 ### Requirement: Contract vehicle BV location coverage
 
 The contract BV adapter SHALL preserve the existing vehicle, SuperHeavy tank
