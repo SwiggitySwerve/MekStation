@@ -1,12 +1,15 @@
-import { useRouter } from 'next/router';
 /**
  * Canonical Units Browser Page (Compendium Section)
  * Browse and search the canonical unit database with filtering and sorting.
  */
+import { useRouter } from 'next/router';
 import { useEffect, useState, useMemo } from 'react';
 
 import { CompendiumLayout } from '@/components/compendium';
-import { ITEMS_PER_PAGE } from '@/components/compendium/units/units.constants';
+import {
+  ITEMS_PER_PAGE,
+  UNIT_FAMILY_LABELS,
+} from '@/components/compendium/units/units.constants';
 import {
   sortUnits,
   type SortState,
@@ -254,9 +257,9 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
       maxWidth="full"
     >
       <label className="mb-4 block text-sm">
-        Unit family
+        Unit Family
         <select
-          aria-label="Unit family"
+          aria-label="Unit Family"
           value={typeof family === 'string' ? family : ''}
           onChange={(event) =>
             void router.push(`/compendium/units?family=${event.target.value}`)
@@ -265,7 +268,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
         >
           {UNIT_FAMILIES.map((value) => (
             <option key={value} value={value}>
-              {value}
+              {UNIT_FAMILY_LABELS[value]}
             </option>
           ))}
         </select>
@@ -284,7 +287,13 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
         totalCount={units.length}
       />
 
-      <UnitsTable units={displayedUnits} sort={sort} onSort={handleSort} />
+      {units.length === 0 ? (
+        <p className="text-text-theme-secondary text-sm">
+          No units are available in this family yet.
+        </p>
+      ) : (
+        <UnitsTable units={displayedUnits} sort={sort} onSort={handleSort} />
+      )}
 
       {totalPages > 1 && (
         <div className="mt-6 flex justify-center">

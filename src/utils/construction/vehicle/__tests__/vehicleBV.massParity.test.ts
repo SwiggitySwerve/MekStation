@@ -3,7 +3,10 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import fixture from '../../../../../scripts/__tests__/fixtures/vehicle_aero_contract_bv.json';
 import { calculateBattleValueForUnit } from '../../battleValueCalculations';
-import { contractUnitToBVUnit } from '../../contractBVUnitAdapter';
+import {
+  contractUnitToBVUnit,
+  type IContractBVSource,
+} from '../../contractBVUnitAdapter';
 import { calculateVehicleOffensiveBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
@@ -13,7 +16,7 @@ describe('Pinned MegaMek vehicle offensive mass contribution', () => {
     // UL-16 coord-r3/oracle/full.jsonl: Java defense 141.75, offense 293.76.
     // The remaining TS defense difference is outside this mass term.
     const result = calculateBattleValueForUnit(
-      contractUnitToBVUnit(fixture.units[0].unit),
+      contractUnitToBVUnit(fixture.units[0].unit as IContractBVSource),
     );
     if (result?.kind !== 'vehicle') throw new Error('Expected vehicle BV');
     expect(result.breakdown.weaponBV).toBe(98);
